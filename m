@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293085AbSBWEJm>; Fri, 22 Feb 2002 23:09:42 -0500
+	id <S293091AbSBWEk4>; Fri, 22 Feb 2002 23:40:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293087AbSBWEJd>; Fri, 22 Feb 2002 23:09:33 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32516
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S293085AbSBWEJT>; Fri, 22 Feb 2002 23:09:19 -0500
-Date: Fri, 22 Feb 2002 19:56:54 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Adam Huffman <bloch@verdurin.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Boot problem with PDC20269
-In-Reply-To: <20020223015348.A1148@bloch.verdurin.priv>
-Message-ID: <Pine.LNX.4.10.10202221953470.3281-100000@master.linux-ide.org>
+	id <S293092AbSBWEkh>; Fri, 22 Feb 2002 23:40:37 -0500
+Received: from c9mailgw.prontomail.com ([216.163.188.207]:43272 "EHLO
+	C9Mailgw03.amadis.com") by vger.kernel.org with ESMTP
+	id <S293091AbSBWEk1>; Fri, 22 Feb 2002 23:40:27 -0500
+Message-ID: <3C771D29.942A07C2@starband.net>
+Date: Fri, 22 Feb 2002 23:40:09 -0500
+From: Justin Piszcz <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: gcc-2.95.3 vs gcc-3.0.4
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wow, not sure if anyone here has done any benchmarks, but look at these
+build times:
+Kernel 2.4.17 did compile with 3.0.4, just much much slower than 2.95.3
+however.
 
-Hi Adam,
+GCC 2.95.3
+Boot sector 512 bytes.
+Setup is 2628 bytes.
+System is 899 kB
+make[1]: Leaving directory `/usr/src/linux-2.4.17/arch/i386/boot'
+287.28user 23.99system 5:15.81elapsed 98%CPU (0avgtext+0avgdata
+0maxresident)k
+0inputs+0outputs (514864major+684661minor)pagefaults 0swaps
 
-http://www.tecchannel.de/hardware/817/index.html
+GCC 3.0.4
+Boot sector 512 bytes.
+Setup is 2628 bytes.
+System is 962 kB
+warning: kernel is too big for standalone boot from floppy
+make[1]: Leaving directory `/usr/src/linux-2.4.17/arch/i386/boot'
+406.87user 28.38system 7:23.68elapsed 98%CPU (0avgtext+0avgdata
+0maxresident)k
+0inputs+0outputs (546562major+989237minor)pagefaults 0swaps
 
-
-We do not put ATAPI devices on such HOSTS.
-The driver will not work w/ ATAPI there because it uses a different DMA
-engine location and is not supported in Linux.
-
-You will find greater success in putting your ATAPI device on the native
-south bridge.
-
-Cheers,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
-
-
-
-On Sat, 23 Feb 2002, Adam Huffman wrote:
-
-> When I try to boot a kernel with the latest IDE driver in order to
-> support my Promise UltraATA133 TX2 card, the system hangs at the point
-> where it should be listing the two drives attached to the card i.e. it
-> shows /dev/hdc which is a DVD drive, then stops.  Sometimes I can reboot
-> with Alt-SysRq, sometimes a hard reset is needed.  This happens with
-> 2.4.17+ide, 2.4.18-rc1, 2.5.5-dj1.
-> 
-> Motherboard is MSI K7T-Turbo 2, K7 1.4, drives attached to the Promise
-> card are an IBM 60GXP and a Maxtor D740X-6L.  The drives work when
-> attached to the VIA interface on the m/b.
 

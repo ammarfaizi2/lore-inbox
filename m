@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286228AbRLJLVz>; Mon, 10 Dec 2001 06:21:55 -0500
+	id <S286229AbRLJL1Z>; Mon, 10 Dec 2001 06:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286229AbRLJLVf>; Mon, 10 Dec 2001 06:21:35 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:17421 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S286228AbRLJLV3>; Mon, 10 Dec 2001 06:21:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Pavel Machek <pavel@suse.cz>, Quinn Harris <quinn@nmt.edu>
-Subject: Re: File copy system call proposal
-Date: Mon, 10 Dec 2001 13:20:07 -0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu> <20011209153522.A138@toy.ucw.cz>
-In-Reply-To: <20011209153522.A138@toy.ucw.cz>
+	id <S286233AbRLJL1F>; Mon, 10 Dec 2001 06:27:05 -0500
+Received: from bzq-165-60.dsl.bezeqint.net ([62.219.165.60]:22024 "EHLO
+	the.linux-dude.net") by vger.kernel.org with ESMTP
+	id <S286229AbRLJL05>; Mon, 10 Dec 2001 06:26:57 -0500
+Date: Mon, 10 Dec 2001 13:26:42 +0200 (IST)
+From: Ido Diamant <ido@the.linux-dude.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ip_nat_irc bug?
+In-Reply-To: <20011210.111434.41640378.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0112101326250.5108-100000@the.linux-dude.net>
 MIME-Version: 1.0
-Message-Id: <01121013200704.01165@manta>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 December 2001 13:35, Pavel Machek wrote:
-> > I would like to propose implementing a file copy system call.
-> > I expect the initial reaction to such a proposal would be "feature
-> > bloat" but I believe some substantial benefits can be seen possibly
-> > making it worthwhile, primarily the following:
-> >
-> > Copy on write:
+Thanks. I will check it now.
+
+
+On Mon, 10 Dec 2001, David S. Miller wrote:
+
+>    From: Ido Diamant <ido@the.linux-dude.net>
+>    Date: Mon, 10 Dec 2001 12:52:11 +0200 (IST)
 >
-> You want cowlink() syscall, not copy() syscall. If they are on different
-> partitions, let userspace do the job.
+>     After compiling kernel 2.4.16, I'v seen that I can't dcc chat bots
+>    running on my local computer. I tried to see why its happening, and
+>    couldn't get into any reasonable idea.
+>    Yesterday I remembered that I compiled the 2.4.16 with the ip_nat_irc
+>    module, and loaded it by default with my firewall. I rmmod ip_nat_irc and
+>    suddenly I could dcc chat my local bots.
+>    Q. Why is it happening?
+>    Q. Am I using this module correctly? as far as I know, I just need to load
+>    the module, and thats it, am I wrong? should I create some kind of rule
+>    for it?
+>    Q. Is it bug?
+>
+> This patch fixes the bug:
+>
+> diff -u --recursive --new-file --exclude=CVS --exclude=.cvsignore ../vanilla/2.4/linux/net/ipv4/netfilter/ip_nat_irc.c linux/net/ipv4/netfilter/ip_nat_irc.c
+> --- ../vanilla/2.4/linux/net/ipv4/netfilter/ip_nat_irc.c	Tue Oct 30 15:08:12 2001
+> +++ linux/net/ipv4/netfilter/ip_nat_irc.c	Sat Dec  8 19:23:27 2001
+> @@ -1,8 +1,8 @@
+>  /* IRC extension for TCP NAT alteration.
+> - * (C) 2000 by Harald Welte <laforge@gnumonks.org>
+> + * (C) 2000-2001 by Harald Welte <laforge@gnumonks.org>
+>   * based on a copy of RR's ip_nat_ftp.c
+>   *
+> - * ip_nat_irc.c,v 1.15 2001/10/22 10:43:53 laforge Exp
+> + * ip_nat_irc.c,v 1.16 2001/12/06 07:42:10 laforge Exp
+>   *
+>   *      This program is free software; you can redistribute it and/or
+>   *      modify it under the terms of the GNU General Public License
+> @@ -81,7 +81,7 @@
+>  	}
+>
+>  	newdstip = master->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip;
+> -	newsrcip = master->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.ip;
+> +	newsrcip = ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip;
+>  	DEBUGP("nat_expected: DCC cmd. %u.%u.%u.%u->%u.%u.%u.%u\n",
+>  	       NIPQUAD(newsrcip), NIPQUAD(newdstip));
+>
+>
 
-A filesystem with support of COW files would be *extremely* useful,
-especially when writes trigger COW on block level, not file-by-file.
-
-And it will definitely need in-kernel copyfile()/cowlink()/whatever name you 
-want...
-
-> > Will many other users benefit from these features?  Will implementing
-> > them (especially copy on write) cause an excessive addition to the code
-> > of the kernel?
-
-> Hmm, I have almost 20 different copies of kernel on my systems.... Yep it
-> would save me a *lot* of space.
-
-Me too
---
-vda

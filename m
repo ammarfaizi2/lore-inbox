@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265467AbRGPRuR>; Mon, 16 Jul 2001 13:50:17 -0400
+	id <S267472AbRGPSBt>; Mon, 16 Jul 2001 14:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266715AbRGPRuI>; Mon, 16 Jul 2001 13:50:08 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19729 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265467AbRGPRtw>; Mon, 16 Jul 2001 13:49:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jussi Laako <jlaako@pp.htv.fi>
-Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
-Date: Mon, 16 Jul 2001 19:53:59 +0200
-X-Mailer: KMail [version 1.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15LopT-0004Cm-00@the-village.bc.nu> <01071523304400.06482@starship> <3B53221B.28B8D5A1@pp.htv.fi>
-In-Reply-To: <3B53221B.28B8D5A1@pp.htv.fi>
+	id <S267468AbRGPSBj>; Mon, 16 Jul 2001 14:01:39 -0400
+Received: from cmn2.cmn.net ([206.168.145.10]:20548 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S267470AbRGPSB3>;
+	Mon, 16 Jul 2001 14:01:29 -0400
+Message-ID: <3B532BB7.1050300@valinux.com>
+Date: Mon, 16 Jul 2001 12:00:23 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0107161953590C.06482@starship>
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: John Cavan <johnc@damncats.org>, linux-kernel@vger.kernel.org
+Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
+In-Reply-To: <E15M6jC-0005PK-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 July 2001 19:19, Jussi Laako wrote:
-> Daniel Phillips wrote:
-> > We are not that far away from being able to handle 8K blocks, so
-> > that would bump it up to 32 TB.
->
-> That's way too small. Something like 32 PB would be better... ;)
+Alan Cox wrote:
 
-Are you serious?  What kind of application are you running?
+>> Why not do something similar to the aic7xxx driver? Place the old DRM in
+>> code in a pre-X4.1.0 subdirectory, with a warning that it will become
+>> obsolete as of 2.5, and bring in the new code. When you build the
+>> kernel, you can then choose which DRM version you want and everybody is
+>> happy.
+> 
+> 
+> Thats certainly possible, Ideally you would want both module sets to 
+> co-exist. That way the user can build all of DRM and get the right ones loading
+> via modprobe
+> 
+> Alan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> We need at least one extra bit in volume/file size every year.
+Actually I have something like this pretty much working.  Unfortunately 
+I was working on a project full time during the 4.1.0 release.  With the 
+addition of this code, the old modules will coexist with newer modules.  
+Basically the newer modules will have their version numbers appended to 
+their names, this way a user can build all the drm modules, and things 
+will just work.  Hopefully we can get a 4.1.1 release out soon which 
+will do this.  This will make the 4.0 -> 4.1 have to be a compile time 
+decision, but 4.1 -> 4.1.1 and higher will just coexist with each 
+other.  I'm currently working out integrating this into the kernel 
+build, and I should hopefully have a patch for Linus and Alan soon.
 
-OK, well hmm, then in 1969 we needed a volume size of 4K.  Um, it's 
-probably more accurate to use 18 months as the doubling period.
+-Jeff
 
-Anyway, that's what the 64 bit option for buffer_head->b_blocknr is 
-supposed to handle.  The question is, is it necessary to go to a 
-uniform 64 bit quantity for all users regardless of whether they feel 
-restricted by a 32 TB volume size limit or not.
-
-/me figures it will be 9 years before he even has a 1 TB disk in his 
-laptop
-
-OK, I looked again and saw the smiley.  Sometimes it's hard to tell 
-what's outrageous when talking about disk sizes.
-
---
-Daniel

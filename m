@@ -1,50 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287993AbSABXzY>; Wed, 2 Jan 2002 18:55:24 -0500
+	id <S287984AbSABXzE>; Wed, 2 Jan 2002 18:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287990AbSABXzG>; Wed, 2 Jan 2002 18:55:06 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:55936 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S287992AbSABX2d>; Wed, 2 Jan 2002 18:28:33 -0500
-To: paulus@samba.org
-Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<15411.37817.753683.914033@argo.ozlabs.ibm.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <15411.37817.753683.914033@argo.ozlabs.ibm.com>
-Date: 03 Jan 2002 01:28:42 +0200
-Message-ID: <877kr0uyc5.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288037AbSABXym>; Wed, 2 Jan 2002 18:54:42 -0500
+Received: from laweleka.austria.eu.net ([193.154.160.152]:62365 "EHLO
+	laweleka.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S288046AbSABXxO>; Wed, 2 Jan 2002 18:53:14 -0500
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+From: Harald Holzer <harald.holzer@eunet.at>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "Timothy D. Witham" <wookie@osdl.org>
+In-Reply-To: <1009995669.1253.17.camel@wookie-laptop.pdx.osdl.net>
+In-Reply-To: <1009649897.12942.2.camel@hh2.hhhome.at> 
+	<1009992652.1249.11.camel@wookie-laptop.pdx.osdl.net> 
+	<1009994687.12942.14.camel@hh2.hhhome.at> 
+	<1009995669.1253.17.camel@wookie-laptop.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 03 Jan 2002 00:50:50 +0100
+Message-Id: <1010015450.15492.19.camel@hh2.hhhome.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+Today i checked some memory configurations and noticed that the low
+memory decreases, when i add more memory to the system,
+and the size of reserved memory increases:
 
-Paul> Tom Rini writes:
+at 1GB ram, are 16,936kB low mem reserved.
+4GB ram, 72,824kB reserved
+8GB ram, 142,332kB reserved
+16GB ram, 269,424kB reserved
+32GB ram, 532,080kB reserved, usable low mem: 352 MB
+64GB ram ?? 
 
->> Okay, here's a summary of all of the options we have:
->> 1) Change this particular strcpy to a memcpy
->> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
->> optimization comes back on with this flag later on, it would be a
->> compiler bug, yes?)
->> 3) Modify the RELOC() marco in such a way that GCC won't attempt to
->> optimize anything which touches it [1]. (Franz, again by Jakub)
->> 4) Introduce a function to do the calculations [2]. (Corey Minyard)
->> 5) 'Properly' set things up so that we don't need the RELOC() macros
->> (-mrelocatable or so?), and forget this mess altogether.
+Which function does the reserved memory fulfill ?
+Is it all for paging ?
 
-Paul> I would add:
 
-Paul> 6) change strcpy to string_copy so gcc doesn't think it knows what the
-Paul>    function does
+Harald Holzer
 
-GCC thinks exactly what the function does.
+
+
+Memory related startup messages at 32GB:
+
+Jan  1 15:56:05 localhost kernel: Linux version 2.4.17-64g (root@bigbox) (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)) #1 SMP Tue Jan 1 14:19:36 CET 2002
+Jan  1 15:56:05 localhost kernel: BIOS-provided physical RAM map:
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000000000000 - 000000000009d800 (usable)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 000000000009d800 - 00000000000a0000 (reserved)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000000100000 - 0000000003ff8000 (usable)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000003ff8000 - 0000000003fffc00 (ACPI data)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000003fffc00 - 0000000004000000 (ACPI NVS)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000004000000 - 00000000f0000000 (usable)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+Jan  1 15:56:05 localhost kernel:  BIOS-e820: 0000000100000000 - 0000000810000000 (usable)
+Jan  1 15:56:05 localhost kernel: 32128MB HIGHMEM available.
+Jan  1 15:56:05 localhost kernel: found SMP MP-table at 000f65d0
+Jan  1 15:56:05 localhost kernel: hm, page 000f6000 reserved twice.
+Jan  1 15:56:05 localhost kernel: hm, page 000f7000 reserved twice.
+Jan  1 15:56:05 localhost kernel: hm, page 0009d000 reserved twice.
+Jan  1 15:56:05 localhost kernel: hm, page 0009e000 reserved twice.
+Jan  1 15:56:05 localhost kernel: On node 0 totalpages: 8454144
+Jan  1 15:56:05 localhost kernel: zone(0): 4096 pages.
+Jan  1 15:56:05 localhost kernel: zone(1): 225280 pages.
+Jan  1 15:56:05 localhost kernel: zone(2): 8224768 pages.
+Jan  1 15:56:05 localhost kernel: Intel MultiProcessor Specification v1.4
+Jan  1 15:56:05 localhost kernel:     Virtual Wire compatibility mode.
+Jan  1 15:56:05 localhost kernel: OEM ID: INTEL    Product ID: SPM8         APIC at: 0xFEE00000
+Jan  1 15:56:05 localhost kernel: Processor #7 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #0 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #1 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #2 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #3 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #4 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #5 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: Processor #6 Pentium(tm) Pro APIC version 17
+Jan  1 15:56:05 localhost kernel: I/O APIC #8 Version 19 at 0xFEC00000.
+Jan  1 15:56:05 localhost kernel: Processors: 8
+Jan  1 15:56:05 localhost kernel: Kernel command line: BOOT_IMAGE=linux-17-64g ro root=802 BOOT_FILE=/boot/vmlinuz-2.4.17-64g console=ttyS0,38400
+Jan  1 15:56:05 localhost kernel: Initializing CPU#0
+Jan  1 15:56:05 localhost kernel: Detected 700.082 MHz processor.
+Jan  1 15:56:05 localhost kernel: Console: colour VGA+ 80x25
+Jan  1 15:56:05 localhost kernel: Calibrating delay loop... 1395.91 BogoMIPS
+
+-->Jan  1 15:56:05 localhost kernel: Memory: 33021924k/33816576k available (1081k kernel code, 532080k reserved, 290k data, 248k init, 32636928k highmem)
+
+Jan  1 15:56:05 localhost kernel: Dentry-cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Jan  1 15:56:05 localhost kernel: Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Jan  1 15:56:05 localhost kernel: Mount-cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Jan  1 15:56:05 localhost kernel: Buffer-cache hash table entries: 524288 (order: 9, 2097152 bytes)
+Jan  1 15:56:05 localhost kernel: Page-cache hash table entries: 524288 (order: 9, 2097152 bytes)
+
 

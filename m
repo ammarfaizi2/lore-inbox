@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131762AbQK0CKA>; Sun, 26 Nov 2000 21:10:00 -0500
+        id <S135307AbQK0CNA>; Sun, 26 Nov 2000 21:13:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132444AbQK0CJu>; Sun, 26 Nov 2000 21:09:50 -0500
-Received: from ns1.hack.gr ([62.200.201.128]:6925 "HELO ns1.hack.gr")
-        by vger.kernel.org with SMTP id <S131762AbQK0CJg>;
-        Sun, 26 Nov 2000 21:09:36 -0500
-Date: Mon, 27 Nov 2000 03:36:41 +0200 (EET)
-From: Mastoras <mastoras@hack.gr>
-To: rtl@rtlinux.org, linux-kernel@vger.kernel.org
-Subject: RTlinux & Linux Question
-Message-ID: <Pine.BSF.4.21.0011270332160.9529-100000@papari.hack.gr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S135308AbQK0CMk>; Sun, 26 Nov 2000 21:12:40 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:55056 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S135307AbQK0CMg>; Sun, 26 Nov 2000 21:12:36 -0500
+Date: Sun, 26 Nov 2000 19:39:28 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+Message-ID: <20001126193928.A2265@vger.timpanogas.org>
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net> <20001126170334.B1787@vger.timpanogas.org> <20001126161502.E872@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001126161502.E872@opus.bloom.county>; from trini@kernel.crashing.org on Sun, Nov 26, 2000 at 04:15:02PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Nov 26, 2000 at 04:15:02PM -0700, Tom Rini wrote:
+> On Sun, Nov 26, 2000 at 05:03:34PM -0700, Jeff V. Merkey wrote:
+> 
+> > Great.  Then tell RedHat to rewrite it without the need for these switches.
+> > They will say NO.  It's a trivial change, and would save me a lot of hours
+> > rewriting scripts.  I did it once, but if RedHat has standardized on this
+> > set of switches, why not add them as alias commands?  It's a trivial 
+> > patch.
+> 
+> I hate to jump in here in the middle of a perfectly good argument but I'd like
+> to point out a few things:
+> a) If RedHat/RedHat-like distros needs these changes they can include this
+> patch.  The plus side is it won't piss off the people that seem to care and
+> don't use said distros the down side is that if/when another security update
+> comes out people will have to hope this patch applies easily still, if they
+> update themselves.
+> b) Are these switches which used to be valid in modutils 2.3.x?  If so, why?
+> It makes perfect sense to keep this patch around until modutils 2.4 (or 2.5
+> if modutils version is still supposed to match kernel version).  If these
+> are old modutils 2.2.x switches, see part a).
+> And c) Why does it matter if RedHat/etc would have to adapt their scripts.
+> There's always part a, or what debian does for stable sometimes, backporting
+> fixes.  Or even lots of sed & awk magic.
 
-        I'm trying to use RTlinux to make a unix process wakeup 
-periodicaly, in terms of "real time".
+Oh well.  Look like %patch -p1 in the rpm for now.
 
-1) the unix process uses 2 system calls, one to make it self periodic, and
-one to suspend its self until the next period.
+Jeff
 
-2) The system call that makes the unix process periodic, creates a Rtlinux
-thread, which is periodic with the same period.
-
-3) The periodic RT linux thread, sets a flag & sends fakes IRQ0 to linux,
-in order to force its scheduling as soon as possible and then suspends it
-self. (i know that this advances time, but this is not the question right
-now).
-
-4) The unix process wakeups perfectely when there is no disk activity, but
-when there is some disk activity ("find /" and/or "updatedb") or the
-period is too small (300us) i noticed that sometimes it loses one or two
-periods. This is very rare, i mean 14 loses in 5000 executions at 5ms
-period.
-
-5) The unix process isn't scheduled the appropriate time although that
-every IRQ is received by linux correctly, the myprocess->counter is
-initialized to a very high value (in each period) and
-current->need_resched is set to 1.
-
-6) I don't want to use PSC.
-
-
-        I believe that there is somekind of race conditions during the
-bottom halves or something else that i haven't though. Your help would be
-very valuable, though this might not be a strictly RT linux question.
-
-TIA
-mastoras@hack.gr
-
-
+> 
+> -- 
+> Tom Rini (TR1265)
+> http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

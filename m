@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263211AbRFSQ1i>; Tue, 19 Jun 2001 12:27:38 -0400
+	id <S264399AbRFSQ1J>; Tue, 19 Jun 2001 12:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264397AbRFSQ12>; Tue, 19 Jun 2001 12:27:28 -0400
-Received: from smtp-rt-6.wanadoo.fr ([193.252.19.160]:51675 "EHLO
-	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263211AbRFSQ1S>; Tue, 19 Jun 2001 12:27:18 -0400
-Message-ID: <3B2F7D30.4DE87953@wanadoo.fr>
-Date: Tue, 19 Jun 2001 18:26:24 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20pre3 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
+	id <S264397AbRFSQ06>; Tue, 19 Jun 2001 12:26:58 -0400
+Received: from pD9E16C60.dip.t-dialin.net ([217.225.108.96]:23279 "EHLO
+	tolot.escape.de") by vger.kernel.org with ESMTP id <S263211AbRFSQ05>;
+	Tue, 19 Jun 2001 12:26:57 -0400
+Date: Tue, 19 Jun 2001 18:26:35 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.10-pre4, error while applying the patch
+Subject: Re: Linux 2.2.20-pre4
+Message-ID: <20010619182635.A24252@tolot.escape.de>
+In-Reply-To: <20010619172219.A18744@tolot.escape.de> <E15CNM0-00067q-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15CNM0-00067q-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.19i
+X-Editor: vim/5.8.3
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+        Hi,
 
-While I apply the patch pre-patch-2.2.20-4 to a clean 2.2.19 tree, I get
-the following error :
+On 19 Jun 2001, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > sched.c:52: conflicting types for `xtime'
+> > /usr/src/linux/include/linux/sched.h:509: previous declaration of `xtime'
+> 
+> Stick a volatile in the declaration. Thats a real bug it found
 
-patching file `drivers/scsi/sd_ioctl.c'
-patching file `drivers/scsi/sym53c8xx.c'
-patching file `drivers/scsi/sym53c8xx_defs.h'
-The next patch would create the file `drivers/sound/ad1848.c',
-which already exists!  Assume -R? [n]
+Um...
+
+I made it
+
+extern volatile struct timeval xtime;
+
+Now it stops with
+
+/usr/src/linux/include/linux/sched.h: At top level:
+/usr/src/linux/include/linux/sched.h:509: warning: useless keyword or
+type name in empty declaration
+In file included from /usr/src/linux/include/linux/blkdev.h:6,
+                 from ksyms.c:15:
+/usr/src/linux/include/linux/genhd.h: In function `ptype':
+/usr/src/linux/include/linux/genhd.h:83: warning: deprecated use of
+label at end of compound statement
+ksyms.c: At top level:
+ksyms.c:352: `xtime' undeclared here (not in a function)
+ksyms.c:352: initializer element is not constant
+ksyms.c:352: (near initialization for `__ksymtab_xtime.value')
+make[2]: *** [ksyms.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.2.20pre4/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.2.20pre4/kernel'
+make: *** [_dir_kernel] Error 2
 
 
------
-Regards
-		Jean-Luc
+So long,
+
+Jochen.
+
+-- 
+The number of UNIX installations has grown to 10, with more expected.
+                     - Dennis Ritchie and Ken Thompson, June 1972

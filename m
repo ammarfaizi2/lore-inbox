@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287359AbSA0AI2>; Sat, 26 Jan 2002 19:08:28 -0500
+	id <S287421AbSA0ATi>; Sat, 26 Jan 2002 19:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSA0AIS>; Sat, 26 Jan 2002 19:08:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59908 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287359AbSA0AIB>;
-	Sat, 26 Jan 2002 19:08:01 -0500
-Message-ID: <3C5344DF.6FC8BB24@mandrakesoft.com>
-Date: Sat, 26 Jan 2002 19:07:59 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stevie O <stevie@qrpff.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20: pci-scan+natsemi & Device or resource busy
-In-Reply-To: <5.1.0.14.2.20020126183314.01cbb510@whisper.qrpff.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S287388AbSA0AT3>; Sat, 26 Jan 2002 19:19:29 -0500
+Received: from hermes.toad.net ([162.33.130.251]:47554 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S287386AbSA0ATL>;
+	Sat, 26 Jan 2002 19:19:11 -0500
+Subject: Re: proc_file_read bug?
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 26 Jan 2002 19:19:18 -0500
+Message-Id: <1012090760.2575.85.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stevie O wrote:
-> My friend is trying Linux for the first time. I'm having him use the
-> pci-scan and natsemi modules for his Netgear FA-311 card. With the initial
+I discovered that this question is fully answered in
+chapter 4 of Linux Device Drivers, 2nd Edition, by
+Alessandro Rubini & Jonathan Corbet.  Excellent book.
 
-These aren't Linux drivers, they are scyld.com drivers...  See
-http://scyld.com/ for support and more info...
+This "hack" seems to me rather unfortunate.  It makes
+a single argument serve two completely different and
+not mutually exclusive purposes.  It means that when I
+want to override the file offset increment I can't set the
+data start position within the buffer, and vice versa.
+Overloading "start" in this way also sets an arbitrary
+and randomly varying upper limit on the overriding file
+offset increment: it can't be equal to or greater than
+the address at which the data buffer happens to start.
+(It was the seeming irrationality of this that led me
+to wonder earlier whether or not the code contained a bug.)
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+It might have been better to add a new argument to the
+read function for the purpose of returning offset increase
+overrides.
+
+
+
+

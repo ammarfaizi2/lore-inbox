@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263631AbTFPIvu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 04:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTFPIvu
+	id S263628AbTFPIt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 04:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTFPIt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 04:51:50 -0400
-Received: from dp.samba.org ([66.70.73.150]:60578 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263631AbTFPIvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 04:51:48 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re-xmit: clean up overzealous deprecated warning
-Date: Mon, 16 Jun 2003 19:05:21 +1000
-Message-Id: <20030616090541.84B122C08A@lists.samba.org>
+	Mon, 16 Jun 2003 04:49:58 -0400
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:25579 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S263628AbTFPIt5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 04:49:57 -0400
+Date: Mon, 16 Jun 2003 05:03:44 -0400
+From: jpo234@netscape.net
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-users@lists.sourceforge.net
+Subject: open(2) with NO_CTTY flag for USB ACM TTY devices
+MIME-Version: 1.0
+Message-ID: <681FF206.485ADA78.00065BAA@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+Hi list,
+I tried to use a program that up until now solely talked to
+modems connected to the serial port to talk to a Siemens U10
+UMTS mobile connected to a USB port.
+The device open failed because the program called open(2) with
+the NO_CTTY flag set. Without this flag everything works as
+expected.
 
-Name: Fix overzealous check_region deprecation
-Author: Rusty Russell
-Status: Trivial
+Should this be considered a buglet? And if so, where?
 
-D: 1) We export __check_region, so making it __deprecated gives a spurious
-D:    warning in kernel/ksyms.c.
-D: 2) Other warnings refer to __check_region rather than check_region,
-D:    which has confused some people.
-D:
-D: Make check_region an inline, not a macro, and deprecate *that*.
+Regards
+  Joerg
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk16/include/linux/ioport.h working-2.5.70-bk16-check_region/include/linux/ioport.h
---- linux-2.5.70-bk16/include/linux/ioport.h	2003-03-25 12:17:30.000000000 +1100
-+++ working-2.5.70-bk16-check_region/include/linux/ioport.h	2003-06-12 20:02:55.000000000 +1000
-@@ -105,12 +105,15 @@ extern int allocate_resource(struct reso
- extern struct resource * __request_region(struct resource *, unsigned long start, unsigned long n, const char *name);
- 
- /* Compatibility cruft */
--#define check_region(start,n)	__check_region(&ioport_resource, (start), (n))
- #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
- #define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
- #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
- 
--extern int __deprecated __check_region(struct resource *, unsigned long, unsigned long);
-+extern int __check_region(struct resource *, unsigned long, unsigned long);
- extern void __release_region(struct resource *, unsigned long, unsigned long);
- 
-+static inline int __deprecated check_region(unsigned long s, unsigned long n)
-+{
-+	return __check_region(&ioport_resource, s, n);
-+}
- #endif	/* _LINUX_IOPORT_H */
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

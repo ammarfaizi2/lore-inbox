@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTJQXBD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 19:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTJQXBD
+	id S261214AbTJQXNM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 19:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTJQXNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 19:01:03 -0400
-Received: from [80.250.191.80] ([80.250.191.80]:28857 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261245AbTJQXBB (ORCPT
+	Fri, 17 Oct 2003 19:13:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33719 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261214AbTJQXNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 19:01:01 -0400
-Date: Sat, 18 Oct 2003 03:05:08 +0400
-From: Alex Tomas <alex@clusterfs.com>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EXT3 extents against 2.6.0-test7
-Message-Id: <20031018030508.4c168433.alex@clusterfs.com>
-In-Reply-To: <3F905D7D.9030602@wmich.edu>
-References: <20031013222747.37f5ee7b.alex@clusterfs.com>
-	<3F8B1BA1.4020800@wmich.edu>
-	<20031014212359.42243025.alex@clusterfs.com>
-	<3F9043E7.3070606@wmich.edu>
-	<20031018001001.25e85002.alex@clusterfs.com>
-	<3F904D7F.50403@wmich.edu>
-	<20031018004152.6aa9e9c3.alex@clusterfs.com>
-	<3F905D7D.9030602@wmich.edu>
-Organization: CFS
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 17 Oct 2003 19:13:08 -0400
+Subject: AIO and DIO testing on 2.6.0-test7-mm1
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Oct 2003 16:12:58 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Oct 2003 17:22:05 -0400
-Ed Sweetman <ed.sweetman@wmich.edu> wrote:
+I've been doing some testing on 2.6.0-test7-mm1 with O_DIRECT and
+AIO.  I wrote some tests to check the buffered i/o verses O_DIRECT
+i/o races and O_DIRECT verses truncate.
 
-> none of my directories have more than 60 or so entries.  I keep 
-> everything very organized on my hdds.  The largest directories would be 
-> the ones holding the largest files but that maxes out at around 60 file 
-> entries.  i formatted those partitions with a 4KB inode size.
+I still had apply suparna's direct-io.c patch to prevent oopses.
+Suparna, you said the patch was not the complete patch, do you have
+the complete patch?
 
-oh. this seems very confusing for me. extents crashed during readdir() syscall.
-4k block may contain upto 60 entries with 60chars length. even if your dir was
-larger I don't think it was >16k. so, I really do believe all the extents were
-placed in inode body (zero tree depth). also, directory grows in linear manner
-only. so, this code patch is very very simple and quite good tested. thus it 
-really seems like a corruption, not an error in logic. let me cook a patch that
-will show more info.  
+I wrote some simple tests to create 2 processes with one doing
+O_DIRECT i/o (of zeros) and the other doing buffered i/o and checking
+that the buffered i/o process never saw non-zero data which was
+posssible before the i_alloc_sem and other changes.  The test I
+wrote are:
+	dio_append - use O_DIRECT to append while doing buffered reads
+ 	dio_sparse - write O_DIRECT to holes while doing buffered reads
+	dio_truncate - do O_DIRECT reads while truncating
+	aiodio_append - same as dio_append but with AIO
+	aiodio_sparse - same as dio_sparse but with AIO
 
-also, it's very interesting how is it difficult to reproduce on your box?
+These and a simple README are available here
+	http://developer.osdl.org/daniel/AIO/TESTS/
 
-thanks!
+The good news was I  never got any non-zero data or oops on test7-mm1
+(with the direct-io patch).
 
---
-with best regards, Alex
+Unfortunately, when I ran these on test7, I also did not get any
+non-zero data.  On AIO test7 still gives me oopses:
+
+Slab corruption: start=e7d9573c, expend=e7d957db, problemat=e7d95774
+Last user: [<c018b612>](__aio_put_req+0x97/0x185)
+Data: ********************************************************00 00 89 02 00 00
+00 00 ***********************************************************************************************A5
+Next: 71 F0 2C .12 B6 18 C0 71 F0 2C .********************
+slab error in check_poison_obj(): cache `kiocb': object was modified after freeing
+Call Trace:
+ [<c0148c95>] check_poison_obj+0x106/0x18f
+ [<c0148ed4>] slab_destroy+0x1b6/0x1be
+ [<c014bf2f>] reap_timer_fnc+0x254/0x326
+ [<c014bcdb>] reap_timer_fnc+0x0/0x326
+ [<c012d80d>] run_timer_softirq+0xed/0x226
+ [<c0128dcd>] do_softirq+0xc9/0xcb
+ [<c011a165>] smp_apic_timer_interrupt+0xcd/0x135
+ [<c0108029>] default_idle+0x0/0x32
+ [<c010b0b6>] apic_timer_interrupt+0x1a/0x20
+ [<c0108029>] default_idle+0x0/0x32
+ [<c0108056>] default_idle+0x2d/0x32
+ [<c01080d4>] cpu_idle+0x3a/0x43
+ [<c0125050>] printk+0x1b4/0x258
+
+
+I guess this expected because it does not have the ref counting and
+other AIO fixes.
+
+I'm planning on doing more testing and write some AIO verses truncate
+tests.
+
+If you have any ideas on how to better test the AIO and O_DIRET changes
+in -mm, just let me know.
+
+Daniel
+

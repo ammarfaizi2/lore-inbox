@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbTILAXh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 20:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbTILAXh
+	id S261624AbTILAqF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 20:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbTILAqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 20:23:37 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:14737 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261667AbTILAXe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 20:23:34 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 11 Sep 2003 17:18:19 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: =?iso-8859-15?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Yet another query about sis963
-In-Reply-To: <200309120050.21630.seabra@aac.uc.pt>
-Message-ID: <Pine.LNX.4.56.0309111716140.1889@bigblue.dev.mdolabs.com>
-References: <200309120050.21630.seabra@aac.uc.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 11 Sep 2003 20:46:05 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:2706 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S261624AbTILAqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 20:46:03 -0400
+Date: Fri, 12 Sep 2003 01:45:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
+Message-ID: <20030912004546.GB31860@mail.jlokier.co.uk>
+References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk> <20030910233720.GA25756@mail.jlokier.co.uk> <20030911010702.W30046@flint.arm.linux.org.uk> <20030911123535.GB28180@mail.jlokier.co.uk> <20030911160929.A19449@flint.arm.linux.org.uk> <20030911162510.GA29532@mail.jlokier.co.uk> <20030911175224.A20308@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911175224.A20308@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Sep 2003, [iso-8859-15] João Seabra wrote:
+> ...until we learn what kernel versions the Netwinder folks are
+> running, or they kindly run the test on a new kernel.
 
-> Hi
->
->  Could someone enlight me about the support of this chipset in 2.4 series?
->  I've read some posts about it, dating from not long time ago and since im
-> planning to buy an asus l5800c with that chipset i would like to know if
-> linux is going to work in it or not.
->  I have seen other problems with sis (such as graphics not (quite) working in
-> linux) and i think im going to buy other laptop that doesnt use sis....
-> (toshiba maybe...)
+Two of the Netwinders are running 2.4.19-rmk7-nw1, and one is running
+2.2.12-19991020.
 
-I don't know if Alan did actually fix the thing. Here you can find the IRQ
-routing patches :
+Are both of these prior to when alias pages were made uncacheable?
 
-http://www.xmailserver.org/linux-patches/misc.html#SiSRt
-
-This is for X :
-
-http://www.winischhofer.net/linuxsis630.shtml
-
-
-
-- Davide
-
+Thanks,
+-- Jamie

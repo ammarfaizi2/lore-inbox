@@ -1,76 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbTEOPRf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTEOPRf
+	id S264089AbTEOPec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTEOPec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:17:35 -0400
-Received: from 136.231.118.64.mia-ftl.netrox.net ([64.118.231.136]:427 "EHLO
-	smtp.netrox.net") by vger.kernel.org with ESMTP id S264088AbTEOPRb
+	Thu, 15 May 2003 11:34:32 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264089AbTEOPea
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:17:31 -0400
-Subject: Re: 2.6 must-fix list, v2
-From: Robert Love <rml@tech9.net>
-To: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: Felipe Alfaro Solana <yo@felipe-alfaro.com>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052990397.3ec35bbd5e008@netmail.pipex.net>
-References: <1050146434.3e97f68300fff@netmail.pipex.net>
-	 <1052910149.586.3.camel@teapot.felipe-alfaro.com>
-	 <1052927975.883.9.camel@icbm>  <200305142201.59912.srhaque@iee.org>
-	 <1052946917.883.25.camel@icbm> <1052990397.3ec35bbd5e008@netmail.pipex.net>
-Content-Type: text/plain
-Message-Id: <1053012743.899.5.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
-Date: 15 May 2003 11:32:24 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 15 May 2003 11:34:30 -0400
+Date: Thu, 15 May 2003 11:46:49 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Ricker <kaboom@gatech.edu>
+cc: Jesse Pollard <jesse@cats-chateau.net>,
+       Mike Touloumtzis <miket@bluemug.com>, Ahmed Masud <masud@googgun.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <Pine.LNX.4.55.0305150931140.6447@verdande.oobleck.net>
+Message-ID: <Pine.LNX.4.53.0305151139220.188@chaos>
+References: <20030514074403.GA18152@bluemug.com> <20030514205847.GA18514@bluemug.com>
+ <Pine.LNX.4.53.0305141724220.12328@chaos> <03051508174100.25285@tabby>
+ <Pine.LNX.4.55.0305150913471.6447@verdande.oobleck.net>
+ <Pine.LNX.4.53.0305151121420.19950@chaos> <Pine.LNX.4.55.0305150931140.6447@verdande.oobleck.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-15 at 05:19, Shaheed R. Haque wrote:
+On Thu, 15 May 2003, Chris Ricker wrote:
 
-> These are the distros I am interested in too. I knew it was in RH AS/ES, but 
-> are you saying it is in RH9.0? That would be good news.
+> On Thu, 15 May 2003, Richard B. Johnson wrote:
+>
+> > > You don't have to do that. Richard is mis-informed. Any of the following
+> > > still work on Red Hat Linux 9:
+> > >
+> > > init=/bin/bash         # drops you straight to a bash shell
+> > > init 1                 # runs runlevel 1 SysV init scripts and rc.sysinit
+> > > init single            # runs rc.sysinit, but not runlevel 1
+> > > init emergency         # runs a shell
+> > >
+> > > all without going to rescue media.
+> > >
+> >
+> > Bullshit. Try it.
+>
+> I just did. It works.
+>
+> If it's not working for you, it's because *you* did something (like, say,
+> password your boot loader). By default, it's still possible on Red Hat Linux
+> 9 out of the box.
+>
+> later,
+> chris
+> -
 
-No, I am saying with luck it will be in the next RH release.
+Sill bullshit. I did nothing except to try to help a neighbor
+who got locked out of her machine. I spent most of Saturday
+and all of Sunday trying to break in. The LILO command prompt
+readily took "parameters". However, any parameter passed on
+the command-line resulted in a try-to-kill init error. Her
+machine uses an Adaptec SCSI controller which needs to be
+loaded via initrd to make the root file-system available.
 
-> On the technical point, I tried out taskset in rc.sysinit, and as you said, it 
-> works just fine.
+I tried Red-Hat 8.0 here at work. It works as you described.
+There is no problem with it and LILO and initrd. However
+Red Hat 9/Professional does not allow break-in, at least on
+the machine tested...and I have several pissed off witnesses.
 
-Good :)
-
-> On reflection, I feel that editing rc.sysinit is not the right 
-> answer given the confidence/competence level of our customers' typical 
-> sysadmins: but I can see that a carefully crafted rc5.d/S00aaaaa script could 
-> set the affinity of the executing shell, and its parent(s) upto init to fix all 
-> subsequent rcN.d children in the desired manner.
-> 
-> I do suspect that other commercial users will also baulk at editing rc.sysint, 
-> and so have to brew the same rcN.d solution. Now, the rcN.d script hackery 
-> would be greatly simplified if taskset had a mode of "set the affinity of the 
-> identified process, and all its parent processes upto init". Would you accept a 
-> patch to taskset along those lines?
-
-It is racey to do this, so its something that should remain a hack and
-not part of taskset, I think.
-
-If you do it in rc.d, you don't need to set all the parents. rc.d is the
-first thing run, so if you do it at the top of the script, nothing else
-is running. Just put:
-
-	taskset <mask> 1
-	taskset <mask> $$
-
-at the top of rc.d.
-
-Another consideration is modifying init (and hopefully having said
-changes merged back). Init could call sched_setaffinity() when it is
-first created, based on a setting in /etc/inittab or a command line
-parameter passed during boot.
-
-My reservation is against doing it in the kernel. I do not particularly
-care _how_ its done in user-space.
-
-	Robert Love
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

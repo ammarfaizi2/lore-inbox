@@ -1,105 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283121AbRK2JX7>; Thu, 29 Nov 2001 04:23:59 -0500
+	id <S283118AbRK2JaJ>; Thu, 29 Nov 2001 04:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283120AbRK2JXt>; Thu, 29 Nov 2001 04:23:49 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:48629 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283118AbRK2JXa>;
-	Thu, 29 Nov 2001 04:23:30 -0500
-Date: Thu, 29 Nov 2001 02:23:18 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ACPI cleanup
-Message-ID: <20011129022318.A29249@lynx.no>
-Mail-Followup-To: andrew.grover@intel.com, linux-kernel@vger.kernel.org
+	id <S283122AbRK2JaA>; Thu, 29 Nov 2001 04:30:00 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55227 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S283118AbRK2J3w>; Thu, 29 Nov 2001 04:29:52 -0500
+Date: Thu, 29 Nov 2001 10:06:09 -0500
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: bio write up - Updated notes on block layer design changes
+Message-ID: <20011129100609.A1356@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+In-Reply-To: <20011128154533.A1437@in.ibm.com> <20011128220130.K23858@suse.de> <20011129044644.A1717@in.ibm.com> <20011129075720.B5788@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011129075720.B5788@suse.de>; from axboe@suse.de on Thu, Nov 29, 2001 at 07:57:20AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-the following patch fixes the ACPI busmgr code to not leave straggling
-files in /proc/acpi if it fails to initialize properly in bm_osl_init().
+On Thu, Nov 29, 2001 at 07:57:20AM +0100, Jens Axboe wrote:
 
-This was a problem I noticed with the 2.4.9 kernel that causes an oops,
-which was "glossed over" by calling the acpi_subsystem_status() function
-in later kernels.  This will see if the ACPI subsystem even exists,
-but doesn't really solve the underlying problem - bm_initialize() can
-fail, and if it does it doesn't remove the files it created in /proc.
+> I've lost track of what else there is to explain, so I'll stop now. If
+> you have problems convering a driver or questions in general, fire away.
+> Suparana@IBM has written lots of stuff about bio as it was a WIP, see
+>
+> http://lse.sourceforge.net/io/bionotes.txt
+>
+> it may not be completely uptodate right now wrt multi-page bios etc, but
+> I know that is on its way :-)
+> 
+> -- 
+> Jens Axboe
 
-A couple of other minor cleanups:
-1) don't return AE_ERROR instead of a valid error return code to userspace.
-2) call bm_terminate() after removing the /proc entries, so that it is not
-   possible to open one of these files after the ACPI code has shut down
-   (I don't know if this is actually a problem, but just to be safe).
+I just posted the updated design notes covering the multi-page bios.
+Same place: i.e. http://lse.sourceforge.net/io/bionotes.txt
 
-It should apply cleanly to all current kernels.
+The intent of these notes is to set the changes in the context of past
+discussions related to the block layer design. It attempts to cover some of the
+alternatives and ideas put forth by various people, analyse pros and cons,
+cover the rationale behind some of the design decisions, and peek into a
+few ideas that people are thinking about/ working on, which may not already
+be in there yet.
 
-Cheers, Andreas
-======================= acpi-2.4.15-busmgr.diff ============================
-diff -ru linux-2.4.15.orig/drivers/acpi/ospm/busmgr/bm_osl.c linux-2.4.15-aed/drivers/acpi/ospm/busmgr/bm_osl.c
---- linux-2.4.15.orig/drivers/acpi/ospm/busmgr/bm_osl.c	Thu Nov 15 13:07:16 2001
-+++ linux-2.4.15-aed/drivers/acpi/ospm/busmgr/bm_osl.c	Thu Nov 29 00:03:26 2001
-@@ -297,7 +297,7 @@
- int
- bm_osl_init(void)
- {
--	acpi_status		status = AE_OK;
-+	acpi_status		status;
- 
- 	status = acpi_subsystem_status();
- 	if (ACPI_FAILURE(status))
-@@ -305,7 +305,14 @@
- 
- 	bm_proc_root = proc_mkdir(BM_PROC_ROOT, NULL);
- 	if (!bm_proc_root) {
--		return(AE_ERROR);
-+		return(-ENOMEM);
-+	}
-+
-+	status = bm_initialize();
-+	if (ACPI_FAILURE(status)) {
-+		remove_proc_entry(BM_PROC_ROOT, NULL);
-+		bm_proc_root = NULL;
-+		return(-ENODEV);
- 	}
- 
- 	bm_proc_event = create_proc_entry(BM_PROC_EVENT, S_IRUSR, bm_proc_root);
-@@ -313,9 +320,7 @@
- 		bm_proc_event->proc_fops = &proc_event_operations;
- 	}
- 
--	status = bm_initialize();
--
--	return (ACPI_SUCCESS(status)) ? 0 : -ENODEV;
-+	return 0;
- }
- 
- 
-@@ -328,8 +333,6 @@
- void
- bm_osl_cleanup(void)
- {
--	bm_terminate();
--
- 	if (bm_proc_event) {
- 		remove_proc_entry(BM_PROC_EVENT, bm_proc_root);
- 		bm_proc_event = NULL;
-@@ -339,6 +342,8 @@
- 		remove_proc_entry(BM_PROC_ROOT, NULL);
- 		bm_proc_root = NULL;
- 	}
-+
-+	bm_terminate();
- 
- 	return;
- }
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Any additions to make this more complete/interesting or any corrections (I may
+have missed some things) are welcome.
 
+Regards
+Suparna

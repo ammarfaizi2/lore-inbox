@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131663AbRCOLEe>; Thu, 15 Mar 2001 06:04:34 -0500
+	id <S131659AbRCOLGy>; Thu, 15 Mar 2001 06:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131659AbRCOLEY>; Thu, 15 Mar 2001 06:04:24 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:61838 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131663AbRCOLEM>; Thu, 15 Mar 2001 06:04:12 -0500
-Message-Id: <5.0.2.1.2.20010315110131.00a4c620@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 15 Mar 2001 11:03:22 +0000
-To: Dragan Milenkovic <tyrant@galeb.etf.bg.ac.yu>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Utility for re-patritioning
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0103151109420.13929-100000@galeb.etf.bg.ac.y
- u>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131665AbRCOLGo>; Thu, 15 Mar 2001 06:06:44 -0500
+Received: from 13dyn6.delft.casema.net ([212.64.76.6]:1547 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131659AbRCOLGY>; Thu, 15 Mar 2001 06:06:24 -0500
+Message-Id: <200103151105.MAA24892@cave.bitwizard.nl>
+Subject: Re: [PATCH] Improved version reporting
+In-Reply-To: <UTC200103150952.KAA451302.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
+ at "Mar 15, 2001 10:52:25 am"
+To: Andries.Brouwer@cwi.nl
+Date: Thu, 15 Mar 2001 12:05:09 +0100 (MET)
+CC: acahalan@cs.uml.edu, viro@math.psu.edu, alan@lxorguk.ukuu.org.uk,
+        linus@transmeta.com, linux-kernel@vger.kernel.org, rhw@memalpha.cx,
+        seberino@spawar.navy.mil
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:17 15/03/01, Dragan Milenkovic wrote:
->Since Linus has said that we need Swap = 2xRAM,
->and I bought some RAM, I need to enlarge my swap partition.
->Which utility should I use to resize my (ext2) partitions
->(possibly without data corruption:) ?
+Andries.Brouwer@cwi.nl wrote:
 
-Have a look at gnu parted (ftp.gnu.org/gnu/parted/)
+>     > On Wed, 14 Mar 2001 Andries.Brouwer@cwi.nl wrote:
+> 
+>     >>> +o  Console Tools      #   0.3.3        # loadkeys -V
+>     >>> +o  Mount              #   2.10e        # mount --version
+>     >>
+>     >> Concerning mount: (i) the version mentioned is too old,
 
-Regards,
+> On the other hand, there are no important changes between
+> mount-2.10d and 2.10e, so I see no justification for writing 2.10e.
+> It is difficult to say what the "right" version is. There is a
+> long series of minor improvements. Probably I would write 2.10r.
 
-         Anton
+Guys, 
 
+How about making a column that says: "recommended". 
 
->--
->Dragan
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+So in this case we'd see 2.10r as recommended, but 2.10e as required.
+
+An explanation could state that: 
+
+  if you happen to have the version under "required", but a higher
+  version is listed under "recommended", then that newer version is
+  available, and but it is likely that one you have will work for
+  you. There is no urgent reason to upgrade. But if you happen to be
+  upgrading, you are advised upgrade to at least the version in the
+  "recommended" column, as that has fixes over the one mentioned in the
+  "required" column.
+
+Best regards,
+
+		Roger. 
 
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

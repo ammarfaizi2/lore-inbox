@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbUDMXyG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 19:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263814AbUDMXyG
+	id S263814AbUDNAD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 20:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbUDNAD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 19:54:06 -0400
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:14087 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S263636AbUDMXyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 19:54:02 -0400
-From: "Art Haas" <ahaas@airmail.net>
-Date: Tue, 13 Apr 2004 17:33:02 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove variable-sized stack in drivers/char/fbmem.c
-Message-ID: <20040413223302.GF23640@artsapartment.org>
+	Tue, 13 Apr 2004 20:03:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41119 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263814AbUDNAD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 20:03:27 -0400
+Date: Tue, 13 Apr 2004 17:03:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Fabian Frederick <Fabian.Frederick@skynet.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.5-mm4] sys_access race fix
+Message-Id: <20040413170309.14b7a334.akpm@osdl.org>
+In-Reply-To: <1081881778.5585.16.camel@bluerhyme.real3>
+References: <1081881778.5585.16.camel@bluerhyme.real3>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Fabian Frederick <Fabian.Frederick@skynet.be> wrote:
+>
+> 
+>  	I'm trying to remove the race in sys_access code.
+>  AFAICS, fsuid is checked in "permission" level so I pushed real fsuid
+>  capture forward.
 
-The following patch replaces the variably sized stack with a kmalloc()
-invocation. A brief search around the code suggests that memory
-allocation as this function was doing is unusual.
+Do races in access() actually matter?  I mean, some other process could
+change things a nanosecond after access() has completed and the value which
+the access() caller received is wrong anyway.
 
-Art Haas
-
-===== drivers/video/fbmem.c 1.96 vs edited =====
---- 1.96/drivers/video/fbmem.c	Mon Apr 12 12:55:32 2004
-+++ edited/drivers/video/fbmem.c	Tue Apr 13 16:53:38 2004
-@@ -980,21 +980,29 @@
- int
- fb_blank(struct fb_info *info, int blank)
- {	
--	/* ??? Variable sized stack allocation.  */
--	u16 black[info->cmap.len];
-+	int res;
-+	size_t size;
-+	u16 * black = NULL;
- 	struct fb_cmap cmap;
- 	
- 	if (info->fbops->fb_blank && !info->fbops->fb_blank(blank, info))
- 		return 0;
- 	if (blank) { 
--		memset(black, 0, info->cmap.len * sizeof(u16));
-+		size = info->cmap.len * sizeof(*black);
-+		black = kmalloc(size, GFP_KERNEL);
-+		if (!black)
-+			return -ENOMEM;
-+		memset(black, 0, size);
- 		cmap.red = cmap.green = cmap.blue = black;
- 		cmap.transp = info->cmap.transp ? black : NULL;
- 		cmap.start = info->cmap.start;
- 		cmap.len = info->cmap.len;
- 	} else
- 		cmap = info->cmap;
--	return fb_set_cmap(&cmap, 1, info);
-+	res = fb_set_cmap(&cmap, 1, info);
-+	if (black)
-+		kfree(black);
-+	return res;
- }
- 
- static int 
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
-
--Thomas Jefferson to James Smith, 1822
+Or is there some deeper problem which you are addressing here?

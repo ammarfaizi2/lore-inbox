@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265253AbUETWto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265294AbUETWt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbUETWto (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 18:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUETWto
+	id S265294AbUETWt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 18:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUETWt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 18:49:44 -0400
-Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:38407 "HELO
-	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
-	id S265253AbUETWtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 18:49:43 -0400
-Date: Thu, 20 May 2004 15:52:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
-Message-Id: <20040520155217.7afad53b.akpm@osdl.org>
-In-Reply-To: <20040520093817.GX30909@devserv.devel.redhat.com>
-References: <20040520093817.GX30909@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 20 May 2004 18:49:57 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:5521 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265272AbUETWtx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 18:49:53 -0400
+Subject: Re: Sluggish performances with FreeBSD
+From: Laurent Goujon <laurent.goujon@online.fr>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Rudo Thomas <rudo@matfyz.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040521003616.D2172@electric-eye.fr.zoreil.com>
+References: <1085080302.7764.20.camel@caribou.no-ip.org>
+	 <20040520193406.GA16184@ss1000.ms.mff.cuni.cz>
+	 <1085083195.4240.4.camel@caribou.no-ip.org>
+	 <20040520232957.A2172@electric-eye.fr.zoreil.com>
+	 <1085091424.4238.13.camel@caribou.no-ip.org>
+	 <20040521003616.D2172@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1085093395.4238.22.camel@caribou.no-ip.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 May 2004 22:49:37.0123 (UTC) FILETIME=[BA28DB30:01C43EBC]
+X-Mailer: Ximian Evolution 1.5.7-2mdk 
+Date: Fri, 21 May 2004 00:49:55 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek <jakub@redhat.com> wrote:
->
->  asmlinkage long sys_futex(u32 __user *uaddr, int op, int val,
-> -			  struct timespec __user *utime, u32 __user *uaddr2)
-> +			  struct timespec __user *utime, u32 __user *uaddr2,
-> +			  int val3)
+Le ven, 21/05/2004 à 00:36 +0200, Francois Romieu a écrit :
+> Re,
+> 
+> Laurent Goujon <laurent.goujon@online.fr> :
+> [...]
+> > sis900.c: v1.08.07 11/02/2003
+> > eth0: Unknown PHY transceiver found at address 1.
+> 
+> This one is probably for Daniele Venzano (webvenza@libero.it).
+> You should check the l-k archive from 05/18/2004 and 05/19/2004
+> (search for the subject: Re: [PATCH] Sis900 bug fixes 3/4).
+I've checked this one before posting but in my case, I've only one PHY
+transceiver according to dmesg, so this patch has probably no effect...
 
-Is it safe to go adding a new argument to an existing syscall in this manner?
+Laurent
 
-It'll work OK on x86 because of the stack layout but is the same true of
-all other supported architectures?
+> --
+> Ueimor
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

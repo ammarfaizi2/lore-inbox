@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130528AbQKCOzc>; Fri, 3 Nov 2000 09:55:32 -0500
+	id <S129145AbQKCO4m>; Fri, 3 Nov 2000 09:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130543AbQKCOzW>; Fri, 3 Nov 2000 09:55:22 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:38767 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S130528AbQKCOzD>; Fri, 3 Nov 2000 09:55:03 -0500
-Message-Id: <200011031454.IAA92747@kenobi.americas.sgi.com>
-To: linux-kernel@vger.kernel.org
-From: kohnke@sgi.com (Marlys Kohnke)
-cc: djh@sgi.com, watters@sgi.com, dwg@acl.lanl.gov
-Subject: Linux job accounting demo next week
-Date: Fri, 03 Nov 2000 08:54:58 -0600
+	id <S130570AbQKCO4c>; Fri, 3 Nov 2000 09:56:32 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:46223 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129145AbQKCO40>;
+	Fri, 3 Nov 2000 09:56:26 -0500
+Date: Fri, 3 Nov 2000 09:56:15 -0500
+Message-Id: <200011031456.JAA21492@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: "David S. Miller" <davem@redhat.com>
+CC: davej@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: David S. Miller's message of Fri, 3 Nov 2000 03:33:37 -0800,
+	<200011031133.DAA10265@pizda.ninka.net>
+Subject: Re: BUG FIX?: mm->rss is modified in some places without holding the  page_table_lock
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: Fri, 3 Nov 2000 03:33:37 -0800
+   From: "David S. Miller" <davem@redhat.com>
 
-     Linux job accounting will be demo'd at the SGI booth
-next week at SuperComputing 2000 in Dallas.  I think 
-the SGI and LANL lawyers are down to the last legal issue
-to be resolved, and then the source will be available at
-http://oss.sgi.com/projects/csa.
+      Given that we don't have a 64-bit atomic_t type, what do people
+      think of Davej's patch?  (attached, below)
 
-     We've got some testing to complete yet.  All of the
-commands are ported, new i/o counters added to the kernel,
-and disk accounting, daily and periodic reports are being
-created.
+   Broken, in 9 out of 10 places where he adds page_table_lock
+   acquisitions, this lock is already held --> instant deadlock.
 
-     The demo systems are based off of linux 2.4.0-test7 with
-patches for the job infrastructure and csa code.  Almost all of
-the job accounting kernel work is done in a loadable module, so
-the other kernel changes are small.
+   This report is complicated by the fact that people were forgetting
+   that vmlist_*_{lock,unlock}(mm) was actually just spin_{lock,unlock}
+   on mm->page_table_lock.  I fixed that already by removing the dumb
+   vmlist locking macros which were causing all of this confusion.
 
-----
-Marlys Kohnke			Silicon Graphics Inc.
-kohnke@sgi.com			655F Lone Oak Drive
-(651)683-5324			Eagan, MN 55121
+Are you saying that the original bug report may not actually be a
+problem?  Is ms->rss actually protected in _all_ of the right places, but
+people got confused because of the syntactic sugar?
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

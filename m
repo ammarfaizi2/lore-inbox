@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268326AbUIWJKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268339AbUIWJKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268326AbUIWJKG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 05:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268339AbUIWJKG
+	id S268339AbUIWJKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 05:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268340AbUIWJKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 05:10:06 -0400
-Received: from cantor.suse.de ([195.135.220.2]:36015 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268326AbUIWJKA (ORCPT
+	Thu, 23 Sep 2004 05:10:39 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:47328 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268339AbUIWJKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 05:10:00 -0400
-Date: Thu, 23 Sep 2004 11:09:58 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ray Bryant <raybry@austin.rr.com>
-Cc: Andi Kleen <ak@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
-       linux-mm <linux-mm@kvack.org>, Jesse Barnes <jbarnes@sgi.com>,
-       Dan Higgins <djh@sgi.com>, lse-tech <lse-tech@lists.sourceforge.net>,
-       Brent Casavant <bcasavan@sgi.com>, Nick Piggin <piggin@cyberone.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ray Bryant <raybry@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Paul Jackson <pj@sgi.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 0/2] mm: memory policy for page cache allocation
-Message-ID: <20040923090957.GB6146@wotan.suse.de>
-References: <20040923043236.2132.2385.23158@raybryhome.rayhome.net>
+	Thu, 23 Sep 2004 05:10:33 -0400
+Date: Thu, 23 Sep 2004 02:09:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] inotify: locking
+Message-Id: <20040923020932.5a35fb41.pj@sgi.com>
+In-Reply-To: <1095881907.5090.60.camel@betsy.boston.ximian.com>
+References: <1095881861.5090.59.camel@betsy.boston.ximian.com>
+	<1095881907.5090.60.camel@betsy.boston.ximian.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040923043236.2132.2385.23158@raybryhome.rayhome.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (1)  We dropped the MPOL_ROUNDROBIN patch.  Instead, we
->      use MPOL_INTERLEAVE to spread pages across nodes.
->      However, rather than use the file offset etc to 
->      calculate the node to allocate the page on, I used
->      the same mechanism you used in alloc_pages_current()
->      to calculate the node number (interleave_node()).
->      That eliminates the need to generate an offset etc
->      in the routines that call page_cache_alloc() and to
->      me appears to be a simpler change that still fits
->      within your design.
+> Evolution needs a heuristic to detect when I say that I attached
+> something, but when in reality I did not.
 
+I've mostly stopped submitting patches using my email client, and
+instead submit them using a variant of a 'patch bomb' script.  This has
+significantly improved the clerical accuracy of my patch submissions.
 
-Hmm, that may lead to uneven balancing because the counter is 
-per thread. But if it works for you it's ok I guess.
+The variant I'm using is in pretty good shape - you're welcome to
+give it a try.  See the embedded Usage string for documentation.
 
-I still think changing the callers and use the offset for
-static interleaving would be better. Maybe that could be
-done as a followon patch. 
-> 
-> (2)  I implemented the sys_set_mempolicy() changes as
->      suggested -- higher order bits in the mode (first)
->      argument specify whether or not this request is for
->      the page allocation policy (your existing policy)
->      or for the page cache allocation policy.  Similarly,
->      a bit there indicates whether or not we want to set
->      the process level policy or the system level policy.
-> 
->      These bits are to be set in the flags argument of
->      sys_mbind().
+  http://www.speakeasy.org/~pj99/sgi/sendpatchset
 
-Ok.  If that gets in I would suggest you also document it 
-in the manpages and send me a patch. 
+It handles sending one or several related patches, to a list of email
+addresses.  You prepare a text directive file with the addresses,
+subjects and pathnames to the files containing the message contents.
+Then you send it all off with a single invocation of this 'sendpatchset'
+script.
 
-Comments to the patches in other mail.
-
--Andi
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

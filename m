@@ -1,130 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbTHXD0G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 23:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTHXD0F
+	id S263406AbTHXDji (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 23:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTHXDji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 23:26:05 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:13518 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S263349AbTHXDZ6 (ORCPT
+	Sat, 23 Aug 2003 23:39:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14278 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263414AbTHXDjg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 23:25:58 -0400
-Date: Sun, 24 Aug 2003 12:27:53 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com, andrea@suse.de
-Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
-Message-ID: <20030824032753.GC13292@atj.dyndns.org>
-References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org> <20030823052633.GA4307@atj.dyndns.org> <20030823122813.0c90e241.skraw@ithnet.com> <20030823151315.GA6781@atj.dyndns.org> <20030823175604.1ddb119d.skraw@ithnet.com>
+	Sat, 23 Aug 2003 23:39:36 -0400
+Date: Sat, 23 Aug 2003 20:42:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dan@merillat.org
+Cc: linux-kernel@vger.kernel.org, harik@chaos.ao.net,
+       Oleg Drokin <green@namesys.com>
+Subject: Re: Reiserfs kernel-crashing bug in 2.4.20 (and UML)
+Message-Id: <20030823204201.06c706c1.akpm@osdl.org>
+In-Reply-To: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
+References: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
-In-Reply-To: <20030823175604.1ddb119d.skraw@ithnet.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dan@merillat.org wrote:
+>
+>  Let's get this out of the way first: I KNOW IT'S A HARDWARE BUG.  My
+>  system wrote corrupted data to the drive.  I've already recovered the
+>  partition but I have a dd'd copy around to figure this out.
+> 
+>  With that out of the way:
+> 
+>  I can reliably insta-reboot my kernel or cause user-mode-linux to crash
+>  out when doing a directory lookup in one corrupted directory.
+> 
+>  The catch is, (and there's always a catch) neither oopses.  real kernel on
+>  real hardware just flashes the screen and reboots, user-mode-linux just
+>  drops back to the host's shell prompt.
+> 
+>  Here's what I've found using UML on it:
+> 
+>  The directory is one block, but we're reading data 100+k into it.  Perhaps
+>  a sanity check that we're actually within the buffer we want to be?
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You're absolutely right.  Filesystem drivers should try hard to not crash
+the box when fed random crap.
 
-Hello, Stephan.
+> +		if (d_reclen < 0)
+> +			return -EIO;
 
- I'm attaching a patch which makes the following changes.
+It needs to be checked for some upper bound as well.
 
-1. adds smp_mb() to irq_enter().
-2. adds smp_mb() to synchronize_irq().
-3. makes get_irq_lock() grab global_bh_lock before returning.
-4. makes release_irq_lock() release global_bh_lock.
 
- As I now found out that test_and_set_bit() implies memory barrier,
-smp_mb__after_test_and_set_bit() stuff is removed.
-
- This patch should fix the two relevant race conditions mentioned in
-this and the other threads.  Please test this one.  It's against the
-latest 2.4 bk tree but applying to 2.4.21 should be ok.
-
--- 
-tejun
-
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch.irqbh"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1102  -> 1.1103 
-#	arch/i386/kernel/irq.c	1.7     -> 1.8    
-#	include/asm-i386/hardirq.h	1.4     -> 1.5    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/08/24	tj@atj.dyndns.org	1.1103
-# - irq/bh race fixes.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	Sun Aug 24 12:18:01 2003
-+++ b/arch/i386/kernel/irq.c	Sun Aug 24 12:18:01 2003
-@@ -272,8 +272,7 @@
- 		 * already executing in one..
- 		 */
- 		if (!irqs_running())
--			if (local_bh_count(cpu) || !spin_is_locked(&global_bh_lock))
--				break;
-+			break;
- 
- 		/* Duh, we have to loop. Release the lock to avoid deadlocks */
- 		clear_bit(0,&global_irq_lock);
-@@ -307,6 +306,7 @@
-  */
- void synchronize_irq(void)
- {
-+	smp_mb(); /* Sync with irq_enter() */
- 	if (irqs_running()) {
- 		/* Stupid approach */
- 		cli();
-@@ -332,6 +332,10 @@
- 	 * in an interrupt context. 
- 	 */
- 	wait_on_irq(cpu);
-+
-+	/* bh is disallowed inside irqlock. */
-+	if (!local_bh_count(cpu))
-+		spin_lock(&global_bh_lock);
- 
- 	/*
- 	 * Ok, finally..
-diff -Nru a/include/asm-i386/hardirq.h b/include/asm-i386/hardirq.h
---- a/include/asm-i386/hardirq.h	Sun Aug 24 12:18:01 2003
-+++ b/include/asm-i386/hardirq.h	Sun Aug 24 12:18:01 2003
-@@ -54,10 +54,15 @@
- 	return 0;
- }
- 
-+extern spinlock_t global_bh_lock; /* copied from linux/interrupt.h to break
-+				     include loop :-( */
-+
- static inline void release_irqlock(int cpu)
- {
- 	/* if we didn't own the irq lock, just ignore.. */
- 	if (global_irq_holder == (unsigned char) cpu) {
-+		if (!local_bh_count(cpu))
-+			spin_unlock(&global_bh_lock);
- 		global_irq_holder = NO_PROC_ID;
- 		clear_bit(0,&global_irq_lock);
- 	}
-@@ -66,6 +71,8 @@
- static inline void irq_enter(int cpu, int irq)
- {
- 	++local_irq_count(cpu);
-+
-+	smp_mb(); /* sync with wait_on_irq() and synchronize_irq() */
- 
- 	while (test_bit(0,&global_irq_lock)) {
- 		cpu_relax();
-
---r5Pyd7+fXNt84Ff3--

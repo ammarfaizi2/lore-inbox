@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSEXSEB>; Fri, 24 May 2002 14:04:01 -0400
+	id <S314680AbSEXSMK>; Fri, 24 May 2002 14:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317233AbSEXSEB>; Fri, 24 May 2002 14:04:01 -0400
-Received: from [209.184.141.163] ([209.184.141.163]:11236 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317232AbSEXSD7>;
-	Fri, 24 May 2002 14:03:59 -0400
-Subject: Re: [BUG] 2.4 VM sucks. Again
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S317235AbSEXSMJ>; Fri, 24 May 2002 14:12:09 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:56231 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314680AbSEXSMI>;
+	Fri, 24 May 2002 14:12:08 -0400
+Date: Fri, 24 May 2002 11:10:49 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Austin Gonyou <austin@digitalroadkill.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <433620000.1022262234@flay>
-Content-Type: text/plain
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <435570000.1022263849@flay>
+In-Reply-To: <1022263434.9591.60.camel@UberGeek>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 24 May 2002 13:03:54 -0500
-Message-Id: <1022263434.9591.60.camel@UberGeek>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-24 at 12:43, Martin J. Bligh wrote:
-> > I assume that you mean by "not worth using x86" you're referring to say,
-> > degraded performance over other platforms? Well...if you talk
-> > price/performance, using x86 is perfect in those terms since you can buy
-> > more boxes and have a more fluid architecture, rather than building a
-> > monolithic system. Monolithic systems aren't always the best. Just look
-> > at Fermilab!
-> 
-> Well, to be honest, with the current mainline kernel on >4Gb x86 machines,
-> we're not talking about slow performance on mainline kernel, we're talking
-> about "falls flat on it's face, in a jibbering heap" (if you actually stress the
-> machine with real workloads). If we apply a bunch of patches, we can get 
-> the ostritch to just about fly (most of the time), but we're working towards good 
-> performance too ... it's not that far off. 
+> Also, adjusting the bdflush parms greatly increases stability I've found
+> in this respect.
 
-Understood, I think that's everyone's goal in the end anyway.
+What exactly did you do to them? Can you specify what you're set to
+at the moment (and anything you found along the way in tuning)?
 
-> Of course, this means that we actually have to get these patches accepted
-> for them to be of much use ;-). -aa kernel works best in this area, on the 
-> workloads I've been looking at so far ... this area is very much "under active
-> development" at the moment.
-> 
-> M.
+> Problem is, my tests are *unofficial* but I plan to do something perhaps
+> at OSDL and see what we can show in a max single-box config with real
+> hardware, etc. 
 
-Yes, After using a -AA series, then recompiling Glibc with some
-optimizations, kind of re-purifying the system a few times. 
-Then applying some Oracle patches, (to fix some Oracle bugs in our
-environment) then voila!  We can have a *very* fast Linux box on 4P or
-8P with 4-8GB RAM with an uptime of >60 days. I've never a box longer
-than that to prove otherwise, but it was stable from a *production*
-point of view. 
+Great stuff, I'm very interested in knowing about any problems you find.
+We're doing very similar things here, anywhere from 8-32 procs, and
+4-32Gb of RAM, both NUMA and SMP.
 
-Also, adjusting the bdflush parms greatly increases stability I've found
-in this respect. On top of all of that though, using XFS with increased
-logbuffers and LVM or EVMS to do striping really improved performance
-with IO too. 
+Thanks,
 
-Problem is, my tests are *unofficial* but I plan to do something perhaps
-at OSDL and see what we can show in a max single-box config with real
-hardware, etc. 
+Martin.
 
-Anyway, I digress. 
-
-Austin

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262114AbSJDUTH>; Fri, 4 Oct 2002 16:19:07 -0400
+	id <S262483AbSJDUde>; Fri, 4 Oct 2002 16:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261990AbSJDUTA>; Fri, 4 Oct 2002 16:19:00 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:18585 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262030AbSJDURr>;
-	Fri, 4 Oct 2002 16:17:47 -0400
-Date: Fri, 4 Oct 2002 13:22:31 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <mbligh@aracnet.com>
-Subject: Re: [PATCH] patch-slab-split-03-tail
-In-Reply-To: <3D9DE8E1.6030105@colorfullife.com>
-Message-ID: <Pine.LNX.4.33L2.0210041321370.20655-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262491AbSJDUde>; Fri, 4 Oct 2002 16:33:34 -0400
+Received: from [198.149.18.6] ([198.149.18.6]:47797 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S262483AbSJDUdd>;
+	Fri, 4 Oct 2002 16:33:33 -0400
+Subject: Re: 2.5 O)DIRECT problem
+From: Steve Lord <lord@sgi.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9DFA34.581D9D98@digeo.com>
+References: <1033762674.2457.73.camel@jen.americas.sgi.com> 
+	<3D9DFA34.581D9D98@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 04 Oct 2002 15:38:16 -0500
+Message-Id: <1033763896.6896.101.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002, Manfred Spraul wrote:
+On Fri, 2002-10-04 at 15:29, Andrew Morton wrote:
+> Steve Lord wrote:
+> > Either the flush needs to happen before the bounds checks, or the
+> > invalidate should only be done on a successful write. It looks
+> > pretty hard to detect the latter case with the current structure,
+> > we can get EINVAL from the bounds check and possibly from an
+> > aligned, but invalid memory address being passed in.
+> 
+> Yes I agree; let's just do the sync before any checks.
+> 
+> I think it should be moved into generic_file_direct_IO(),
+> because that's the place where the invalidation happens, yes?
 
-| Andrew Morton wrote:
-| >
-| > Makes sense.  It would be nice to get this confirmed in
-| > targetted testing ;)
-|  >
-| Not yet done.
-|
-| The right way to test it would be to collect data in kernel about
-| alloc/free, and then run that data against both versions, and check
-| which version gives less internal fragmentation.
-|
-| Or perhaps Bonwick has done that for his slab paper, but I don't have it :-(
+OK, sounds good to me, I will let my tests churn away on that
+version and see what happens. I think something else is doing
+the same thing to me elsewhere, but it might well be an xfs
+specific case.
 
-Did you look at http://www.usenix.org/events/usenix01/bonwick.html
-for it?
-
-| * An implementation of the Slab Allocator as described in outline in;
-| *      UNIX Internals: The New Frontiers by Uresh Vahalia
-| *      Pub: Prentice Hall      ISBN 0-13-101908-2
-| * or with a little more detail in;
-| *      The Slab Allocator: An Object-Caching Kernel Memory Allocator
-| *      Jeff Bonwick (Sun Microsystems).
-| *      Presented at: USENIX Summer 1994 Technical Conference
-| --
+Steve
 
 -- 
-~Randy
 
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

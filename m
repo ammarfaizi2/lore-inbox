@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269374AbUHZTdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUHZSy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269374AbUHZTdy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269369AbUHZTaP
+	id S269347AbUHZSy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269333AbUHZS32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:30:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63687 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269499AbUHZT2B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:28:01 -0400
-Date: Thu, 26 Aug 2004 12:23:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-cc: Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.44.0408261457320.27909-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408261457320.27909-100000@chimarrao.boston.redhat.com>
+	Thu, 26 Aug 2004 14:29:28 -0400
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:3877 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S269241AbUHZSZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:25:22 -0400
+Date: Thu, 26 Aug 2004 20:25:16 +0200 (CEST)
+From: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+In-Reply-To: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org>
+Message-ID: <Pine.LNX.4.61.0408261948480.555@senta.theria.org>
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org>
+PGP: 0B B4 BC 28 53 62 FE 94  6A 57 EE B8 A6 E2 1B E4  (0xAA5412F0)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Aug 2004 city_hunter@azzurra.org wrote:
 
+>
+> Indeed, it's a real shame.
+> Everybody should never forget, as history tells, that extremist positions
+> quickly lead to destruction.
+> I hope that open source movement will never become fundamentalism.
+>
 
-On Thu, 26 Aug 2004, Rik van Riel wrote:
-> 
-> Hmmm, I just straced  "cp /bin/bash /tmp".
-> One line stood out as a potential problem:
-> 
-> open("/tmp/bash", O_WRONLY|O_CREAT|O_LARGEFILE, 0100755) = 4
-> 
-> What do we do with O_CREAT ?
-> 
-> Do we always allow both a directory and a file to be created with
-> the same name ?
+Exactly.
 
-Either I am confused, or you are.
+C'mon guys, put back the driver and hooks, and let the users decide. This 
+is not only about you, but about thousands of people using this driver, 
+whether they know it or not.
 
-To me, a filesystem that allows this thing doesn't really _have_ the 
-concept of "directory vs file". It's just a "filesystem object", and it 
-can act as _both_ a directory and a file.
+I've bought and returned 3 webcams from logitech and creative last week 
+because I couldn't get them to work in Linux. Aided by the philips webcam 
+driver website, I ordered a philips webcam. Today my cam arrived, and all 
+I can find is that the drivers have been removed - making webcam support 
+in Linux pretty much zero (at least the ones I can find here). Completely 
+ridiculous.
 
-So when you create "/tmp/bash" - assuming /tmp supports the file-as-dir 
-semantics at all, you're just creating a new inode - the same you always 
-have. When you write to that inode, it writes to the default stream. 
-There's no special cases here.
+You know, I promised my girlfriend she could talk to her family 2000km 
+away in Finland. She's waiting right here next to me, and I dare you to 
+explain this idiotic zealotry to her. Or any normal person, for that 
+matter. And how happy are the people at Philips going to be after their 
+support to find out it was all for nothing? Not good. Not good at all. And 
+we really need some support in these areas.
 
-Now, after you have your regular /tmp/bash, you can then start adding 
-named streams to it, ie you can do
+Maybe Philips will open up their oh so secret compression algorithm if we 
+all ask them nicely. I mean, how secret can that still be?...
 
-	open("/tmp/bash/icon", O_WRONLY|O_CREAT|O_LARGEFILE, 0755);
+Put it back.
 
-and that will create the "icon" named stream. See? 
-
-So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
-contains both a standard data stream (the "file" part) _and_ pointers to
-other named streams (the "directory" part).
-
-Hey, think of it as a wave-particle duality. Both "modes" exist at the
-same time, and cannot be separated from each other. Which one you see
-depends entirely on your "experiment", ie how you open the file.
-
-> Does this create a new class of "symlink attack" style security
-> holes ?
-
-I don't believe so. 
-
-		Linus

@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267822AbUHJXdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267821AbUHJXdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267822AbUHJXdv (ORCPT <rfc822;willy@w.ods.org>);
+	id S267821AbUHJXdv (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 10 Aug 2004 19:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267821AbUHJXcc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUHJXcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 19:32:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43143 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267818AbUHJXbM (ORCPT
+	Tue, 10 Aug 2004 19:32:35 -0400
+Received: from mail.dif.dk ([193.138.115.101]:936 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S267820AbUHJXbx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 19:31:12 -0400
-Date: Tue, 10 Aug 2004 16:28:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] export legacy pty info via sysfs
-Message-ID: <20040810232815.GB21483@kroah.com>
-References: <20040810135402.GA5459@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810135402.GA5459@suse.de>
-User-Agent: Mutt/1.5.6i
+	Tue, 10 Aug 2004 19:31:53 -0400
+Date: Wed, 11 Aug 2004 01:36:51 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] zero downtime upgrades to the kernel.
+In-Reply-To: <41195339.9080500@superbug.demon.co.uk>
+Message-ID: <Pine.LNX.4.61.0408110115510.2690@dragon.hygekrogen.localhost>
+References: <41195339.9080500@superbug.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:54:02PM +0200, Olaf Hering wrote:
-> 
-> You missed that one last year.
-> 
-> 
-> export the legacy pty/tty device nodes via sysfs,
-> so udev has a chance to create them if /dev is in tmpfs.
-> 
-> Signed-off-by: Olaf Hering <olh@suse.de>
+On Tue, 10 Aug 2004, James Courtier-Dutton wrote:
 
-Applied, thanks.
+> Has anyone investigated how one might be able to upgrade the linux kernel
+> without rebooting?
+> 
 
-greg k-h
+This pops up now and again. 
+
+I myself posted a mail with the same suggestion back in 1998 
+http://uwsg.iu.edu/hypermail/linux/kernel/9808.1/1282.html . 
+Colin Slater suggested it in 2001 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0107.1/0313.html and there 
+are additional occourances of this in the archives as well...
+
+--
+Jesper Juhl
+

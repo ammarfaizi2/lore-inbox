@@ -1,43 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153965-8088>; Fri, 18 Sep 1998 01:28:26 -0400
-Received: from [194.248.82.140] ([194.248.82.140]:2269 "EHLO fjellnett.fjellnett.no" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <153878-8088>; Fri, 18 Sep 1998 01:11:33 -0400
-From: "Helge Hafting" <helge.hafting@daldata.no>
-Date: Fri, 18 Sep 1998 10:34:15 +0100
-To: Ian McKellar <imckellar@harvestroad.com.au>
-In-Reply-To: <19980918151457.C9740@harvestroad.com.au>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: Non-urgent issue with fs/isofs/util.c
-X-Mailer: MR/2 Internet Cruiser Edition for OS/2 v1.50 b48 
-Message-ID: <19980918083130171.AAA288.91@HELGES_PC>
+Received: by vger.rutgers.edu id <153883-8088>; Fri, 18 Sep 1998 02:03:32 -0400
+Received: from argon.roma2.infn.it ([141.108.16.147]:5056 "EHLO argon.roma2.infn.it" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <153921-8088>; Fri, 18 Sep 1998 01:48:17 -0400
+Date: Fri, 18 Sep 1998 11:14:27 +0200 (CEST)
+From: "Lorenzo M. Catucci" <lorenzo@argon.roma2.infn.it>
+To: Linux Kernel List <linux-kernel@vger.rutgers.edu>
+Subject: Re [2]: automount/volume management 
+Message-ID: <Pine.LNX.4.00.9809181109230.9808-100000@argon.roma2.infn.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In <19980918151457.C9740@harvestroad.com.au>, on 09/18/98 
-   at 03:14 PM, Ian McKellar <imckellar@harvestroad.com.au> said:
 
 
->Hi,
+On Wed, 16 Sep 1998, Stephen C. Tweedie wrote:
 
->The iso_date function in fs/isofs/util.c doesn't correctly handle leap
->years.
+> Hi,
+> 
+> On Mon, 14 Sep 1998 23:42:33 -0700 (PDT), Jauder Ho
+> <jauderho@transmeta.com> said:
+> 
+> > I think there was something called supermount from a couple of years ago
+> > that did this. I'm not sure.
+> 
+> Yes.  Just by coincidence, I was working on the latest version of
+> supermount just today, fixing a couple of compatibility problems.  If it
+> proves stable I'll look at porting forward to 2.1 (it is currently 2.0
+> only).  It provides fully transparent removable media support.
+> 
+Not much statistics, but I'm using supermount since september 1997 on half
+a dozen boxes I manage without any problem. To me, the very fact that it
+didn't get ported to 2.1 represents a showstopper for 2.2 (will never
+downgrade to a linux without supermount available, be it a patch or
+-better- integrated within the kernel)
 
->Well, it doesn't handle the year 2100 - which according to the code is a
->leap year, but according to the commonly accepted rules is not.
+I cheered some more times Stephen for this piece of code, but doing it
+once more shouldn't harm: "An Hurray for Stephen, who gave us supermount"
 
->I don't think we need to be to concerned right now, but changing:
->         if (((year+2) % 4) == 0 && month > 2)
->to:
->             if (((year+2) % 4) == 0 && month > 2 && year != 130) should
->fix it.
-The equivalent code
-              if (!((year+2) & 3) && month > 2 && year != 130) is probably
-faster.  The somewhat expensive mod operator is 
-replaced by a bitwise "and", that is faster on most platforms.
 
-Helge Hafting
--- 
------------------------------------------------------------
-helge.hafting@daldata.no
------------------------------------------------------------
+l.
+
 
 
 -

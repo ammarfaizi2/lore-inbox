@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272140AbTHIA4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 20:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTHIA4I
+	id S272163AbTHIBFC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 21:05:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHIBFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 20:56:08 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:12932 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272140AbTHIAzj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 20:55:39 -0400
-Date: Sat, 9 Aug 2003 01:55:24 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Clemens Schwaighofer <cs@tequila.co.jp>,
-       Dick Streefland <dick.streefland@altium.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Euro-English
-Message-ID: <20030809005524.GC26375@mail.jlokier.co.uk>
-References: <20030806231403.GF1380@pegasys.ws> <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws> <Pine.LNX.4.51.0308071159280.32494@dns.toxicfilms.tv> <409a.3f322c49.c82b0@altium.nl> <3F32F664.7010002@tequila.co.jp> <Pine.LNX.4.51.0308081243400.8012@dns.toxicfilms.tv>
-Mime-Version: 1.0
+	Fri, 8 Aug 2003 21:05:01 -0400
+Received: from pat.uio.no ([129.240.130.16]:33431 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S272163AbTHIBEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 21:04:33 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0308081243400.8012@dns.toxicfilms.tv>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16180.18582.867761.522912@charged.uio.no>
+Date: Sat, 9 Aug 2003 03:04:22 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Timothy Miller <miller@techsource.com>, Jasper Spaans <jasper@vs19.net>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+In-Reply-To: <Pine.LNX.4.44.0308081738380.3739-100000@home.osdl.org>
+References: <shsisp7fzkg.fsf@charged.uio.no>
+	<Pine.LNX.4.44.0308081738380.3739-100000@home.osdl.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak wrote:
-> And that is the conclusion I think. Kids should be encouraged to listen,
-> watch, read in english. Discouraged to watch dubbed movies.
+>>>>> " " == Linus Torvalds <torvalds@osdl.org> writes:
 
-I have been told that it makes a big difference which _sounds_ the
-kids are exposed to during a certain age range, when they are
-developing the ability to distinguish language sounds.  This would
-support the subtitles-better-than-dubbing hypothesis, and also explain
-why adults find it easier to learn languages with similar sounds to
-their childhood languages.
+     > On 9 Aug 2003, Trond Myklebust wrote:
+    >>
+    >> Since we appear to be in the silly season...
 
--- Jamie
+     > No, your patch isn't silly, it's EVIL. It fundamentally breaks
+     > the notion of "grep for usage" by introducing two names to the
+     > same thing, without having even a good reason (ie no "nice
+     > abstraction" thing or anything).
+
+Right! I fully agree that having 2 names for the same type is bad,
+although "find -type f | grep flavou?r" would be a quite adequate way
+of matching both spellings.
+
+The point is, though, that I could have written
+
+rpc_authflavor_t f;
+
+and nobody would have cared or complained about grepability.
+
+Anybody who claims that they have problems reading the code due to the
+difference between US and British spelling of the same variable is in
+reality engaged in a completely different type of crusade. One that
+doesn't deserve attention...
+
+Cheers,
+  Trond

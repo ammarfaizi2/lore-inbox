@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKPT4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUKPUDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUKPT4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUKPTv2
+	id S261786AbUKPUDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 15:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbUKPTvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:51:28 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:42427 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261777AbUKPTtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:49:05 -0500
-Date: Tue, 16 Nov 2004 20:48:57 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Miklos Szeredi <miklos@szeredi.hu>, greg@kroah.com,
-       rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <Pine.LNX.4.60.0411161941100.20464@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.53.0411162048140.8374@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
- <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com>
- <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz>
- <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com>
- <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com>
- <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu> <20041116175857.GA9213@kroah.com>
- <E1CU8hS-0007U5-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.53.0411162023001.24131@yvahk01.tjqt.qr>
- <E1CU94I-0007YH-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.60.0411161941100.20464@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Tue, 16 Nov 2004 14:51:11 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31886 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261786AbUKPTt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 14:49:58 -0500
+Date: Tue, 16 Nov 2004 13:48:58 -0600
+From: Robin Holt <holt@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org, dev@sw.ru,
+       wli@holomorphy.com, steiner@sgi.com, sandeen@sgi.com
+Subject: Re: 21 million inodes is causing severe pauses.
+Message-ID: <20041116194858.GA2549@lnx-holt.americas.sgi.com>
+References: <20041115195551.GA15380@lnx-holt.americas.sgi.com> <20041115145714.3f757012.akpm@osdl.org> <20041116162859.GA5594@lnx-holt.americas.sgi.com> <20041116111321.36a6cd06.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116111321.36a6cd06.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If you didn't mistype above this means there is space for 115 and NOT just
->15 dynamic devices and that ought to be plenty for you.
-no, but misunderstood. it's clear now.
->
->btw.  On a different subject, does fuse allow several user space
->filesystems at the same time or only one?
+On Tue, Nov 16, 2004 at 11:13:21AM -0800, Andrew Morton wrote:
+> Robin Holt <holt@sgi.com> wrote:
+> >
+> > I guess I am very concerned at this point.  If I can do a
+> >  release/reacquire, why not just change generic_shutdown_super() so the
+> >  lock_kernel() does not happen until the first pass has occurred.  ie:
+> > 
+> >  --- super.c.orig        2004-11-16 10:22:17 -06:00
+> >  +++ super.c     2004-11-16 10:22:41 -06:00
+> >  @@ -232,10 +232,10 @@
+> >                  dput(root);
+> >                  fsync_super(sb);
+> >                  lock_super(sb);
+> >  -               lock_kernel();
+> >                  sb->s_flags &= ~MS_ACTIVE;
+> >                  /* bad name - it should be evict_inodes() */
+> >                  invalidate_inodes(sb);
+> >  +               lock_kernel();
+> > 
+> >                  if (sop->write_super && sb->s_dirt)
+> >                          sop->write_super(sb);
+> > 
+> >  This at least makes the lock_kernel time much smaller than it is right
+> >  now.  It also does not affect any callers that may really need the BKL.
+> 
+> lock_kernel() is also taken way up in do_umount(), hence the need for
+> release_kernel_lock()/reacquire_kernel_lock().
 
-20:48 io:../fuse-1.9/util # df -Ta
-Filesystem    Type   1K-blocks      Used Available Use% Mounted on
-[...]
-lt-fusexmp    fuse    34337852  16626616  17711236  49% /mnt/fuji
-lt-fusexmp    fuse    34337852  16626616  17711236  49% /mnt/mmc
-lt-hello      fuse           0         0         0   -  /mnt/smc
+It looks like it is only held very briefly during the early parts of do_umount.
 
-Yes, seems so.
+I have moved lock_kernel() as above in addition to the two patches you pointed
+to earlier.  This has left me with a system which has 21M inodes and undetectable
+delays during heavy mount/umount activity.  I am starting one last test which
+attempts a umount of a filesystem which has many inodes associated with it.
 
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+At this point, I have checked the entire code path and see no reason the
+BKL is held for the first call to invalidate_inodes.

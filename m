@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129932AbQKMPyb>; Mon, 13 Nov 2000 10:54:31 -0500
+	id <S129044AbQKMQAb>; Mon, 13 Nov 2000 11:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129918AbQKMPyL>; Mon, 13 Nov 2000 10:54:11 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:13318 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129050AbQKMPyG>;
-	Mon, 13 Nov 2000 10:54:06 -0500
-Message-ID: <3A100E7A.2F00682E@mandrakesoft.com>
-Date: Mon, 13 Nov 2000 10:53:30 -0500
+	id <S129918AbQKMQAV>; Mon, 13 Nov 2000 11:00:21 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:25606 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129044AbQKMQAM>;
+	Mon, 13 Nov 2000 11:00:12 -0500
+Message-ID: <3A101009.5F05DA18@mandrakesoft.com>
+Date: Mon, 13 Nov 2000 11:00:09 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
@@ -15,34 +15,35 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: Steven_Snyder@3com.com
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Current doc for writing device drivers?
-In-Reply-To: <88256996.00570596.00@hqoutbound.ops.3com.com>
+Subject: Re: State of Posix compliance in v2.2/v2.4 kernel?
+In-Reply-To: <88256996.00577D9E.00@hqoutbound.ops.3com.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Steven_Snyder@3com.com wrote:
-> My device driver reference "Linux Device Drivers" (Rubini, published by O'Reilly
-> on Feb. '98) is getting pretty long in the tooth.  The book's primary focus is
-> on Linux v2.0.x, with some v2.2.x material tacked on to the end.
+> Sorry if this is a FAQ, but I've searched the archives for this list
+> (http://www.uwsg.iu.edu/hypermail/linux/kernel/) and only come with references
+> from 1996!
 > 
-> What reference(s) are recommended for current (v2.2/v2.4) Linux kernels?
+> What is the state of Posix-compliant services (threads, semaphores, timers,
+> etc.) in the current (v2.2/v2.4) Linux kernels?
 
-The Rubini book is being updated for 2.2 and 2.4, but I dunno when it
-will go to press.
+IMHO this is a question better asked of glibc people, not kernel people.
 
-The best reference is the source code.  When working with the Linux
-kernel, you -quickly- learn to hone your code-reading skills, because
-the code is the best documentation.
+The kernel does its best to facilitate POSIX compliances, but in some
+cases the kernel developers have said "POSIX is braindead here!" and
+solved a particular problem in a non-POSIX way.  [and leaves glibc to
+pick up the pieces, and enforce POSIX compliancy]
 
-When you want to figure out how to do something, find a similar example
-in the kernel source tree.  When you want to figure out the conditions
-under which certain code is called, examine all callers.  And all
-callers of callers.  Until you are satisfied you see the complete call
-path.
+Also, from what I've seen lately on IRC and lkml, the Single Unix
+Specification ("SuS") is generally held in higher regard than POSIX; and
+when spec questions arise, kernel developers tend to check SuS before
+POSIX (if POSIX is checked at all).
 
-Use the source Luke :)
+	Jeff
+
 
 -- 
 Jeff Garzik             |

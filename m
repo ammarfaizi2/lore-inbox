@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292368AbSCRTUm>; Mon, 18 Mar 2002 14:20:42 -0500
+	id <S292316AbSCRTXc>; Mon, 18 Mar 2002 14:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292316AbSCRTUh>; Mon, 18 Mar 2002 14:20:37 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:40068
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S292522AbSCRTTy>; Mon, 18 Mar 2002 14:19:54 -0500
-Date: Mon, 18 Mar 2002 12:19:27 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jason Li <jli@extremenetworks.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: EXPORT_SYMBOL doesn't work
-Message-ID: <20020318191927.GB8155@opus.bloom.county>
-In-Reply-To: <2643.1016433275@kao2.melbourne.sgi.com> <3C963BF2.C9D78479@extremenetworks.com>
-Mime-Version: 1.0
+	id <S292373AbSCRTXO>; Mon, 18 Mar 2002 14:23:14 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11750 "EHLO
+	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S292316AbSCRTXA>; Mon, 18 Mar 2002 14:23:00 -0500
+Message-ID: <3C9640A5.5D43C4AE@nortelnetworks.com>
+Date: Mon, 18 Mar 2002 14:31:49 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+In-Reply-To: <Pine.LNX.4.44L.0203181606580.2181-100000@imladris.surriel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 11:11:46AM -0800, Jason Li wrote:
-> Keith Owens wrote:
-> > 
-> > On Sun, 17 Mar 2002 22:25:16 -0800,
-> > Jason Li <jli@extremenetworks.com> wrote:
-> > >int (*fdbIoSwitchHook)(
-> > >                           unsigned long arg0,
-> > >                           unsigned long arg1,
-> > >                           unsigned long arg2)=NULL;
-> > >EXPORT_SYMBOL(fdbIoSwitchHook);
-> > >gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
-> > >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> > >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> > >-march=i686    -c -o br_ioctl.o br_ioctl.c
-> > >br_ioctl.c:26: warning: type defaults to `int' in declaration of
-> > >`EXPORT_SYMBOL'
-> > 
-> > #include <linux/module.h>
-> > 
-> > Also add br_ioctl.o to export-objs in Makefile.
+Rik van Riel wrote:
 > 
-> Thanks alot. It works.
-> 
-> Now another problem with versioning. It seems even after I have the
-> following in my module c file the symbol generated is not versioned:
+> On Mon, 18 Mar 2002, Mike Dresser wrote:
 
-Backup your .config, run 'distclean' or 'mrproper' and try again.
+> > Dunno about that, the S/N ratio on slashdot seems to get into the kB's
+> > somedays.
+> 
+> I'm not sure what parallel universe you live in, but I'm
+> pretty damn sure that mine doesn't have 10000 times more
+> signal than noise on slashdot ;)
+> 
+> An S+N/N of one kB is 40 dB...
+
+<pedantic>
+
+dB is decibel, kB would be kilobel, so one kB is 10000 dB
+
+a kilobel works out to a signal to noise ratio of 10^1000, which is pretty big,
+and definately a bit bigger than the slashdot signal to noise ratio  :)
+
+</pedantic>
+
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

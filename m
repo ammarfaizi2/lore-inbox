@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVCXUjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVCXUkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVCXUjj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 15:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVCXUji
+	id S261165AbVCXUkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 15:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVCXUkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 15:39:38 -0500
-Received: from ns.suse.de ([195.135.220.2]:13786 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261169AbVCXUiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 15:38:12 -0500
-Message-ID: <4243252D.6090206@suse.de>
-Date: Thu, 24 Mar 2005 21:38:05 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org>
-In-Reply-To: <20050324181059.GA18490@hexapodia.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 15:40:52 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39438 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261165AbVCXUhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 15:37:47 -0500
+Date: Thu, 24 Mar 2005 21:37:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: len.brown@intel.com
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: drivers/acpi/video.c: null pointer dereference
+Message-ID: <20050324203744.GB3966@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
-> On Thu, Mar 24, 2005 at 03:27:15PM +0100, Stefan Seyfried wrote:
+The Coverity checker found the following null pointer dereference in 
+drivers/acpi/video.c:
 
-> Sysrq still prints stuff, so IRQs aren't locked.  But most of the sysrq
-> commands don't work... S and U don't seem to do anything (not too
-> suprising I suppose) but B does reboot.
+<--  snip  -->
 
-sysrq-t will probably show a stuck kseriod. Unfortunately it only
-happens on one machine for me (toshiba P10-550 IIRC, P4HT but with
-non-smp kernel) which has no serial port for console.
+...
+static int
+acpi_video_switch_output(
+...
+{
+...
+        struct acpi_video_device *dev=NULL;
+...
+        list_for_each_safe(node, next, &video->video_device_list) {
+                struct acpi_video_device * dev = container_of(node, struct acpi_video_device, entry);
+...
+        }
+...
+        switch (event) {
+        case ACPI_VIDEO_NOTIFY_CYCLE:
+        case ACPI_VIDEO_NOTIFY_NEXT_OUTPUT:
+                acpi_video_device_set_state(dev, 0);
+                acpi_video_device_set_state(dev_next, 0x80000001);
+                break;
+        case ACPI_VIDEO_NOTIFY_PREV_OUTPUT:
+                acpi_video_device_set_state(dev, 0);
+                acpi_video_device_set_state(dev_prev, 0x80000001);
+...
 
->> If sysrq is still working, please try with "i8042.noaux" (this will kill
->> your touchpad, which is what i intend :-)
-> 
-> So I added i8042.noaux to my kernel command line, rebooted, insmodded
-> intel_agp, started X, and verified no touchpad action.  Then I
-> suspended, and it worked fine.  After restart, I suspended again - also
-> fine.
-> 
-> So I think that fixed it.  But no touchpad is a bit annoying. :)
+<--  snip  -->
 
-Yes, it was not thought as a fix but just for verification, since i have
-seen something similar.
-We have a SUSE bug for this, i believe Vojtech and Pavel will take care
-of this one. Thanks for confirming, i almost started to believe i was
-seeing ghosts :-)
+
+Two different variables of the same name within 40 lines of code are a 
+good indication that something's wrong...
+
+
+The outer "dev" variable is never assigned any value different from 
+NULL.
+
+acpi_video_device_set_state dereferences this variable.
+
+
+cu
+Adrian
+
 -- 
-seife
-                                 Never trust a computer you can't lift.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

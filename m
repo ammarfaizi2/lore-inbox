@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVCRJ3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVCRJbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVCRJ3V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 04:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVCRJ3V
+	id S261546AbVCRJbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 04:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVCRJbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 04:29:21 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:5516 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261545AbVCRJ3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 04:29:17 -0500
+	Fri, 18 Mar 2005 04:31:05 -0500
+Received: from web25103.mail.ukl.yahoo.com ([217.12.10.51]:38750 "HELO
+	web25103.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261546AbVCRJal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 04:30:41 -0500
+Message-ID: <20050318093037.36721.qmail@web25103.mail.ukl.yahoo.com>
+Date: Fri, 18 Mar 2005 10:30:37 +0100 (CET)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [UART] 8250:RTS/CTS flow control issue.
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 6667
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16954.40800.839009.64848@alkaid.it.uu.se>
-Date: Fri, 18 Mar 2005 10:29:04 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
-In-Reply-To: <20050317224409.41f0f5c5.akpm@osdl.org>
-References: <445800000.1111127533@[10.10.2.4]>
-	<20050317224409.41f0f5c5.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > "Martin J. Bligh" <mbligh@aracnet.com> wrote:
- > >
- > > drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
- > > : undefined reference to `.mac_vmode_to_var'
- > > make: *** [.tmp_vmlinux1] Error 1
- > > 
- > > Anyone know what that is?
- > > 
- > 
- > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
- > 
- > should fix it.
 
-It seems the culprit is "matroxfb-compile-error.patch" which unconditionally adds
-macmodes.o to the Makefile line for CONFIG_FB_MATROX. This obviously breaks on !ppc.
-The patch Andrew mentions above converts the Kconfig entry for FB_MATROX to do a
-"select FB_MACMODES if PPC_PMAC", so dropping matroxfb-compile-error.patch should suffice.
+--- Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> If you want it to be immediate, then I'm afraid
+> you're going to have a
+> relatively hard time, with compatibility problems
+> with various systems.
+> You can't really dictate to people that they must
+> turn off the FIFOs on
+> their UARTs for your product to work.  (Well, you
+> can, but _you_ would
+> have to support them.)
+> 
 
-/Mikael
+well, I don't specially wan't to be immediate.
+My hardware has "auto flow control" and a 8 bytes
+fifo...So *whatever* the trigger level is for RTS
+(actually I can't tune it), I will overrun because 
+the end *driver*, which should be aware of the lack of
+its "hw auto flow control", decides to fill up its tx
+fifo to 8 bytes when transmiting...
+
+One other solution may be to give the possibility of
+the user to tune the size of tx fifo ?
+
+thanks
+
+      Francis
+
+
+	
+
+	
+		
+Découvrez nos promotions exclusives "destination de la Tunisie, du Maroc, des Baléares et la Rép. Dominicaine sur Yahoo! Voyages :
+http://fr.travel.yahoo.com/promotions/mar14.html

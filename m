@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbUK0TVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbUK0TXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbUK0TVO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 14:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUK0TVO
+	id S261308AbUK0TXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 14:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbUK0TXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 14:21:14 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:16136 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S261304AbUK0TVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 14:21:11 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
+	Sat, 27 Nov 2004 14:23:43 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:34710 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261308AbUK0TXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 14:23:41 -0500
+Date: Sat, 27 Nov 2004 20:22:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Javier Villavicencio <javierv@migraciones.gov.ar>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: no entropy and no output at /dev/random  (quick question)
-Date: Sat, 27 Nov 2004 19:20:28 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <coak1s$suq$1@abraham.cs.berkeley.edu>
-References: <41A7EDA1.5000609@migraciones.gov.ar> <41A804CD.5070007@migraciones.gov.ar>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1101583228 29658 128.32.168.222 (27 Nov 2004 19:20:28 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Sat, 27 Nov 2004 19:20:28 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+In-Reply-To: <41A7EDA1.5000609@migraciones.gov.ar>
+Message-ID: <Pine.LNX.4.53.0411272019350.27610@yvahk01.tjqt.qr>
+References: <41A7EDA1.5000609@migraciones.gov.ar>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Javier Villavicencio  wrote:
->it's encouraged to use /dev/urandom instead of /dev/random?
+>I have a server that runs kernel 2.6.9, some web and monitoring
+>services, it's connected to two different networks with two different
+>network cards, and somehow a php developer discovered that /dev/random
+>wasn't giving any entropy to him (O_O) so i checked it out...
+>[...]
+>As you may see my only sources of entropy where the timer, eth0, eth1
+>and the DAC960.
 
-Yes, for almost all purposes, applications should use /dev/urandom,
-not /dev/random.  (The names for these devices are unfortunate.)
-Sadly, many applications fail to follow these rules, and consequently
-/dev/random's entropy pool often ends up getting depleted much faster
-than it has to be.
+I doubt that timer and eth* are a non-predictable source. As such, they should
+not contribute to the entropy. Better is the keyboard and/or mouse. SSH traffic
+is network traffic, and if you send it to a network card, you can expect an
+interrupt at <time>... prdictable.
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274017AbRISHRj>; Wed, 19 Sep 2001 03:17:39 -0400
+	id <S273937AbRISHZ7>; Wed, 19 Sep 2001 03:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273958AbRISHRa>; Wed, 19 Sep 2001 03:17:30 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:9014 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S273937AbRISHRU>; Wed, 19 Sep 2001 03:17:20 -0400
-Subject: Re: [PATCH] (Updated) Preemptible Kernel
-From: Robert Love <rml@ufl.edu>
-To: Robert Love <rml@tech9.net>
+	id <S273958AbRISHZk>; Wed, 19 Sep 2001 03:25:40 -0400
+Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:39052 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S273937AbRISHZe>;
+	Wed, 19 Sep 2001 03:25:34 -0400
+Date: Wed, 19 Sep 2001 00:24:39 -0700
+From: Simon Kirby <sim@netnation.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1000858241.832.16.camel@phantasy>
-In-Reply-To: <1000858241.832.16.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.18.07.08 (Preview Release)
-Date: 19 Sep 2001 03:18:49 -0400
-Message-Id: <1000883933.864.4.camel@phantasy>
+Subject: Re: O_NONBLOCK on files
+Message-ID: <20010919002439.A21138@netnation.com>
+In-Reply-To: <20010918234648.A21010@netnation.com> <m1r8t3fyot.fsf@frodo.biederman.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1r8t3fyot.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-09-18 at 20:10, Robert Love wrote:
-> This patch enables a preemptible kernel - now userspace programs can be
-> preempted, even if in kernel land.  This should result in greater system
-> response.
+On Wed, Sep 19, 2001 at 01:05:06AM -0600, Eric W. Biederman wrote:
 
-2.4.10-pre12-preempt patch is available at
-http://tech9.net/rml/linux/patch-rml-2.4.10-pre12-preempt-kernel-1
+> Besides the SUS or the POSIX specs...
 
-Also, the XFS fix has been committed to CVS. So subsequent CVS dumps or
-releases will not need the extra patch.
+Yeah, well, blah.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+> What would cause the data to be read in if read just checks the caches?
+> With sockets the other side is clearing pushing or pulling the data.  With
+> files there is no other side...
 
+Hmm...Without even thinking about it, I assumed it would start a read and
+select() or poll() or some later call would return readable when my
+outstanding request was fulfilled.  But yes, I guess you're right, this is
+different behavior because there is no other side.
+
+Reading a file would need a receive queue to make this work, I guess. :)
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

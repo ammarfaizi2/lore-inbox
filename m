@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129572AbQKSX6U>; Sun, 19 Nov 2000 18:58:20 -0500
+	id <S129308AbQKTABA>; Sun, 19 Nov 2000 19:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129807AbQKSX6K>; Sun, 19 Nov 2000 18:58:10 -0500
-Received: from 213-123-73-213.btconnect.com ([213.123.73.213]:34571 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129572AbQKSX6A>;
-	Sun, 19 Nov 2000 18:58:00 -0500
-Date: Sun, 19 Nov 2000 23:29:48 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: VFS busy inodes after umount -- have a nice day...
-Message-ID: <Pine.LNX.4.21.0011192326060.3837-100000@penguin.homenet>
+	id <S129183AbQKTAAu>; Sun, 19 Nov 2000 19:00:50 -0500
+Received: from ns1.metabyte.com ([216.218.208.34]:7 "EHLO ns1.metabyte.com")
+	by vger.kernel.org with ESMTP id <S129807AbQKTAAl>;
+	Sun, 19 Nov 2000 19:00:41 -0500
+From: Pete Zaitcev <zaitcev@metabyte.com>
+Message-Id: <200011192330.PAA05251@ns1.metabyte.com>
+Subject: Loud screech after reboot of 2.2.18-pre22
+To: jgarzik@mandrakesoft.com
+Date: Sun, 19 Nov 2000 15:30:39 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Here is how I manage to hit this under 2.4.0-test11-pre6
+I have a Sony VAIO Z505JE with ymfpci sound and built-in microphone
+and speaker. Everything worked fine with 2.2.17 plus ymfpci patch,
+but the 2.2.18-pre22 produces a loud screech starting as sound
+initializes and ending when startup scrips load mixer settings.
+This happens because of audio loop between microphone and speakers.
 
-1. mkfs an ext2 filesystem on a 36G disk
+I found that the culprit is the change to values of array
+mixer_defaults[] in ac97_codec.c, that happened in 2.2.18-pre.
 
-2. do a complex combination of data and metadata io on it by means
-  of SPECsfs with LOADs high enough to run out of space
+Currently I run the following patch:
 
-3. observe that both high and low memory are almost zero, i.e. about 2M
-each (total is 6G)
+--- linux-2.2.18-pre22/drivers/sound/ac97_codec.c	Sat Nov 18 19:04:34 2000
++++ linux-2.2.18-pre22-p3/drivers/sound/ac97_codec.c	Sun Nov 19 15:37:44 2000
+@@ -131,7 +131,7 @@
+ 	{SOUND_MIXER_PCM,	0x4343},
+ 	{SOUND_MIXER_SPEAKER,	0x4343},
+ 	{SOUND_MIXER_LINE,	0x4343},
+-	{SOUND_MIXER_MIC,	0x4343},
++	{SOUND_MIXER_MIC,	0x1111},	/* P3 - audio loop */
+ 	{SOUND_MIXER_CD,	0x4343},
+ 	{SOUND_MIXER_ALTPCM,	0x4343},
+ 	{SOUND_MIXER_IGAIN,	0x4343},
 
-now try to umount the filesystem and you'll get the above. I will try
-test11-pre7 tomorrow...
+I wonder if there is a better way?
 
-Regards,
-Tigran
+In the interests of full disclosure let me mention that YMFxxx do have
+internal loopbacks that may produce the same effect and that I checked
+to the best of my ability that those loopbacks are muted. Therefore
+I conclude that the loopback happens inside the AC97 (if such a thing
+is possible).
 
+--Pete
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

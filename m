@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277666AbRJIAgT>; Mon, 8 Oct 2001 20:36:19 -0400
+	id <S277667AbRJIAh6>; Mon, 8 Oct 2001 20:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277667AbRJIAgJ>; Mon, 8 Oct 2001 20:36:09 -0400
-Received: from laird.sea.internap.com ([206.253.215.165]:49451 "EHLO
-	laird.sea.internap.com") by vger.kernel.org with ESMTP
-	id <S277666AbRJIAf5>; Mon, 8 Oct 2001 20:35:57 -0400
-Date: Mon, 8 Oct 2001 17:36:21 -0700 (PDT)
-From: Scott Laird <laird@internap.com>
-X-X-Sender: <laird@laird.sea.internap.com>
-To: jamal <hadi@cyberus.ca>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-        Bernd Eckenfels <ecki@lina.inka.de>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.GSO.4.30.0110081024440.5473-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.33.0110081717030.5961-100000@laird.sea.internap.com>
+	id <S277668AbRJIAhs>; Mon, 8 Oct 2001 20:37:48 -0400
+Received: from [207.21.185.24] ([207.21.185.24]:8976 "EHLO smtp.lynuxworks.com")
+	by vger.kernel.org with ESMTP id <S277667AbRJIAhi>;
+	Mon, 8 Oct 2001 20:37:38 -0400
+Message-ID: <3BC24619.E4A58629@lnxw.com>
+Date: Mon, 08 Oct 2001 17:34:33 -0700
+From: Petko Manolov <pmanolov@Lnxw.COM>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: discontig physical memory
+In-Reply-To: <3BC22EA6.696604E7@lnxw.com>
+		<20011008.160528.85686937.davem@redhat.com>
+		<3BC23441.1EF944A2@lnxw.com> <20011008.162935.21930065.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 Oct 2001, jamal wrote:
->
-> Several things to note/observe:
-> - They use some very specialized piece of hardware (with two PCI buses).
-
-Huh?  It was just an L440GX, which was probably the single most common PC
-server board for a while in 1999-2000.  Most of VA Linux's systems used
-them.  I wouldn't call them "very specialized."
-
-> - Roberts results on a single PCI bus hardware was showing ~360Kpps
-> routing vs clicks 435Kpps. This is not "far off" given the differences in
-> hardware. What would be really interesting is to have the click folks
-> post their latency results. I am curious as to what a purely polling
-> scheme they have would achieve (as opposed to NAPI which is a mixture of
-> interupts and polls).
-
-Their 'TOCS00' paper lists a 29us one-way latency on page 22.
-
-Click looks interesting, much more so then most academic network projects,
-but I'm still not sure if it'd really be useful in most "real"
-environments.  It looks too flexible for most people to manage.  It'd be
-an interesting addition to my test lab, though :-).
-
-
-Scott
-
+"David S. Miller" wrote:
+> 
+> You need to setup bootmem correctly, earlier on, such that
+> you do not tell the kernel that there are any pages in this
+> 4 - 16MB region.
+> 
+> Do something like this instead of whatever your bootmem
+> calls are doing now:
+> 
+>         bootmap_size = init_bootmem(0, (32 * 1024 * 1024));
+>         free_bootmem((4 * 1024 * 1024),
+>                      ((16 - 4) * 1024 * 1024));

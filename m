@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270975AbTGPRxg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270994AbTGPRxf
+	id S270969AbTGPRti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270965AbTGPRsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:53:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15331 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270975AbTGPRwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:52:43 -0400
-Date: Wed, 16 Jul 2003 11:00:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: axboe@suse.de, davej@codemonkey.org.uk, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-Id: <20030716110009.43129dca.akpm@osdl.org>
-In-Reply-To: <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
-References: <20030716165701.GA21896@suse.de>
-	<20030716170352.GJ833@suse.de>
-	<1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 13:48:01 -0400
+Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:49351
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S271001AbTGPRr1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:47:27 -0400
+Subject: Re: woes with 2.6.0-test1 and xscreensaver/xlock
+From: Edward Tandi <ed@efix.biz>
+To: Nuno Monteiro <nuno.monteiro@ptnix.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030716172758.GA1792@hobbes.itsari.int>
+References: <20030716172758.GA1792@hobbes.itsari.int>
+Content-Type: text/plain
+Message-Id: <1058378574.16995.13.camel@wires.home.biz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Jul 2003 19:02:54 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> > SG_IO, that way you can use dma (and zero copy) for the rips. That will
-> > be lots more smooth.
+On Wed, 2003-07-16 at 18:27, Nuno Monteiro wrote:
+> Hi there people,
 > 
-> So why isnt this occuring on 2.4 .. thats the important question here is
-> this a logging thing, a new input layer bug, an ide bug or what ?
+> 
+> Is anyone else having trouble with xscreensaver/xlock under 2.6.0-test1? 
+> Whenever I lock my session using either "lock screen" from the menu (it 
+> launches 'xscreensaver lock', afaik) or "xlock", I cant seem to ever get 
+> my session back -- I type in the correct password, but they both just 
+> hang there. The exact same setup works flawlessly in 2.4.21, and just for 
+> the sake of curiosity I also tested 2.5.75, 2.5.74, 2.5.73, 2.5.72, 
+> 2.5.71 and 2.5.70, they all exhibit the same behaviour as 2.6.0-test1. I 
+> dont really have time to go on testing kernels to find out exactly where 
+> it broke, so I'm hoping anyone else is experiencing these woes.
 
-input layer, I think.  Several people are having problems with the
-synchronisation loss thing.
+Yes, I reported the same problem (and others) on the 31st may and the
+5th June.
+
+It's good to see someone has found the gnome-terminal problem. The only
+other biggie-ish is the rmmod issue.
+
+Ed-T.
+
+> Additionally, syslog spews out the following:
+> 
+> Jul 16 17:40:24 hobbes xscreensaver(pam_unix)[1501]: authentication 
+> failure; logname= uid=501 euid=501 tty=:0.0 ruser= rhost=  user=nuno
+> 
+> I upgraded to the latest pam and xscreensaver packages from mandrake 
+> cooker, but still no dice, it hangs exactly the same. And oh, this is 
+> glibc 2.3.2, if thats interesting, and gcc 3.3.
+> 
+> Interestingly enough, sometimes killing the xscreensaver process leads to 
+> a complete hang, although no oops is visible. With nmi_watchdog=1 it 
+> doesnt hang, but it seems the keyboard is dead after killing xscreensaver 
+> -- i see an error on console, something like 'xscreensaver: no interrupt 
+> data for mouse/keyb on /proc/interrupt' (i didnt copy it down, sorry). 
+> The keyboard is still useable from the console, but not from X.
+> 
+> Let me know if you need more info.
+
 

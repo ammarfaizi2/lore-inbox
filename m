@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbULKT66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbULKUCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbULKT66 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 14:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbULKT66
+	id S262007AbULKUCz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 15:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULKUCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 14:58:58 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:6587 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262006AbULKT64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 14:58:56 -0500
-Date: Sat, 11 Dec 2004 13:58:45 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Matt Mackall <mpm@selenic.com>, Bernard Normier <bernard@zeroc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Concurrent access to /dev/urandom
-In-Reply-To: <20041211173317.GA28382@thunk.org>
-Message-ID: <Pine.LNX.4.58.0412111358150.2173@gradall.private.brainfood.com>
-References: <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org>
- <20041209015705.GB6978@thunk.org> <20041209212936.GO8876@waste.org>
- <20041210044759.GQ8876@waste.org> <20041210163558.GB10639@thunk.org>
- <20041210182804.GT8876@waste.org> <20041210212815.GB25409@thunk.org>
- <20041210222306.GV8876@waste.org> <Pine.LNX.4.58.0412101821330.2173@gradall.private.brainfood.com>
- <20041211173317.GA28382@thunk.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Dec 2004 15:02:55 -0500
+Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:8676 "EHLO neurosis.jim.sh")
+	by vger.kernel.org with ESMTP id S262007AbULKUCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 15:02:52 -0500
+Date: Sat, 11 Dec 2004 15:02:48 -0500
+From: Jim Paris <jim@jtan.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI IRQ problems -- update
+Message-ID: <20041211200248.GA22393@jim.sh>
+References: <20041211173538.GA21216@jim.sh> <1102783555.7267.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102783555.7267.37.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004, Theodore Ts'o wrote:
+> The PIIX should be in legacy mode by default in which case it would be
+> on IRQ 14/15 only. Can you post boot messages ?
 
-> On Fri, Dec 10, 2004 at 06:22:37PM -0600, Adam Heath wrote:
-> >
-> > Actually, I think this is a security issue.  Since any plain old program can
-> > read from /dev/urandom at any time, an attacker could attempt to read from
-> > that device at the same moment some other program is doing so, and thereby
-> > gain some knowledge as to the other program's state.
->
-> It could be a potential exploit, but....
->
-> 	(a) it only applies on SMP machines
-> 	(b) it's not a remote exploit; the attacker needs to have
-> 		the ability to run arbitrary programs on the local
-> 		machine
-> 	(c) the attacker won't get all of other programs' reads of
-> 		/dev/urandom, and
-> 	(d) the attacker would have to have a program continuously
-> 		reading from /dev/urandom, which would take up enough
-> 		CPU time that it would be rather hard to hide.
->
-> That's not to say that we shouldn't fix it at our earliest
-> convenience, and I'd urge Andrew to push this to Linus for 2.6.10 ---
-> but I don't think we need to move heaven and earth to try to
-> accelerate the 2.6.10 release process, either.
+Sure.  This is with the PIIX interrupt rerouted to IRQ 5:
+  https://jim.sh/svn/jim/devl/toughbook/log/irq5
+Portions of note:
 
-Is it a problem for other kernel versions?  2.4?  Shouldn't this patch be
-pushed out separately to distributions?
+Linux version 2.6.10-rc3 (jim@hypnosis) (gcc version 3.3.4 (Debian 1:3.3.4-13)) #6 Sat Dec 11 11:33:57 EST 2004
+...
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-1 of IDE controller 0000:00:1f.1
+...
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH3M: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 5 (level, low) -> IRQ 5
+ICH3M: chipset revision 2
+ICH3M: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1840-0x1847, BIOS settings: hda:DMA, hdb:pio
+Probing IDE interface ide0...
+
+> > I'm not sure how to get to the root cause of the problem, though.  For
+> > starters: where _should_ the INTA of the IDE card go, if anywhere?  If
+> 
+> Quite possibly nowhere. IDE controllers have two modes one in which they
+> are normal PCI devices (and use INTA) and one in which they are "legacy"
+> compatible and use IRQ14/15 directly so they work with pre-PCI operating
+> systems.
+
+OK, I see.  Does Linux leave it in legacy mode even when using a
+specific driver like piix?  Do you know how I can get more information
+on the state of it at boot, to see if BIOS did leave it in legacy
+mode? 
+
+-jim

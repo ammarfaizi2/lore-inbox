@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266588AbUBQVZf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266608AbUBQVWy
+	id S266600AbUBQVWr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUBQVUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:22:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3792 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266654AbUBQVVT (ORCPT
+	Tue, 17 Feb 2004 16:20:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46765 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266654AbUBQVSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:21:19 -0500
-Date: Tue, 17 Feb 2004 13:21:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Bradford <john@grabjohn.com>
-cc: Jamie Lokier <jamie@shareable.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Marc <pcg@goof.com>, Marc Lehmann <pcg@schmorp.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
- JFS default behavior)
-In-Reply-To: <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.58.0402171318550.2154@home.osdl.org>
-References: <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
- <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
- <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
- <20040217163613.GA23499@mail.shareable.org> <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
- <20040217192917.GA24311@mail.shareable.org> <20040217195348.GQ8858@parcelfarce.linux.theplanet.co.uk>
- <200402172035.i1HKZM4j000154@81-2-122-30.bradfords.org.uk>
- <20040217204024.GE24311@mail.shareable.org> <200402172050.i1HKoLPG000210@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.58.0402171259440.2154@home.osdl.org>
- <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
+	Tue, 17 Feb 2004 16:18:44 -0500
+Message-ID: <40328530.2000303@redhat.com>
+Date: Tue, 17 Feb 2004 16:18:40 -0500
+From: Jim Paradis <jparadis@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030919
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix fencepost error in x86_64 IOMMU (2.6)
+Content-Type: multipart/mixed;
+ boundary="------------010205020501060402060207"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010205020501060402060207
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+There's a fencepost error in the GART IOMMU handling on x86_64
+in the unmap path.  When testing to see if the bus address is
+within the IOMMU window and needs to be unmapped, the start of
+the first page *beyond* the window also passes the test.  This
+can cause the first doubleword of the next page beyond the gatt
+table to be smashed to zero, with unpredictable results depending
+on what that page is used for.
 
-On Tue, 17 Feb 2004, John Bradford wrote:
-> > 
-> > Wrong. UTF-8 can store UCS-4 characters just fine.
-> 
-> Does just fine include unambiguously?
+Patch attached for 2.6.  2.4 patch already sent separately.
 
-If you don't care about backwards compatibility, then yes. You just have 
-to use "strict" UTF-8.
+--------------010205020501060402060207
+Content-Type: text/plain;
+ name="pci-gart-fix-2.6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci-gart-fix-2.6.patch"
 
->				  Sure, standards-conforming
-> UTF-8 is unambiguous, but you've already said time and again that that
-> doesn't happen in the real world.  I just don't agree on the UTF-8 can
-> store UCS-4 characters just fine thing _at all_.
+--- linux-2.6.3-rc4/arch/x86_64/kernel/pci-gart.c.orig	2004-02-17 15:31:25.000000000 -0500
++++ linux-2.6.3-rc4/arch/x86_64/kernel/pci-gart.c	2004-02-17 15:33:13.000000000 -0500
+@@ -521,7 +521,7 @@ void pci_unmap_single(struct pci_dev *hw
+ 	int npages;
+ 	int i;
+ 	if (dma_addr < iommu_bus_base + EMERGENCY_PAGES*PAGE_SIZE || 
+-	    dma_addr > iommu_bus_base + iommu_size)
++	    dma_addr >= iommu_bus_base + iommu_size)
+ 		return;
+ 	iommu_page = (dma_addr - iommu_bus_base)>>PAGE_SHIFT;	
+ 	npages = to_pages(dma_addr, size);
 
-You get to choose between "throw the baby out with the bathwater" or "be 
-compatible". 
+--------------010205020501060402060207--
 
-Sane people choose compatibility. But it's your choice. You can always 
-normalize thing if you want to - but don't complain to me if it breaks 
-things. It will still break _fewer_ things than UCS-4 would, so even if 
-you always normalize you'd still be _better_ off with UTF-8 than you would 
-be with UCS-4.
-
-		Linus

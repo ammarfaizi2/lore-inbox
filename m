@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135221AbRAYSCV>; Thu, 25 Jan 2001 13:02:21 -0500
+	id <S135543AbRAYSEl>; Thu, 25 Jan 2001 13:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbRAYSCL>; Thu, 25 Jan 2001 13:02:11 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:12809 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S135532AbRAYSCC>; Thu, 25 Jan 2001 13:02:02 -0500
-Date: Thu, 25 Jan 2001 18:58:16 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Rick Jones <raj@cup.hp.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010125185816.B5109@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.30.0101171231420.16292-100000@twinlark.arctic.org> <Pine.LNX.4.30.0101181345020.823-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101181345020.823-100000@elte.hu>; from mingo@elte.hu on Thu, Jan 18, 2001 at 01:56:55PM +0100
+	id <S135590AbRAYSEV>; Thu, 25 Jan 2001 13:04:21 -0500
+Received: from office.globe.cz ([212.27.204.26]:59661 "HELO gw.office.globe.cz")
+	by vger.kernel.org with SMTP id <S135585AbRAYSEP>;
+	Thu, 25 Jan 2001 13:04:15 -0500
+Received: from ondrej.office.globe.cz (10.1.2.22)
+  by vger.kernel.org with SMTP; 25 Jan 2001 18:04:01 -0000
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 slowdown at boot.
+In-Reply-To: <20130000.980445836@tiny>
+From: Ondrej Sury <ondrej@globe.cz>
+Date: 25 Jan 2001 19:03:56 +0100
+In-Reply-To: <20130000.980445836@tiny>
+Message-ID: <874ryny0dv.fsf@ondrej.office.globe.cz>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> this is what TUX uses. When a eg. static HTTP request arrives it sends
-> reply headers shortly after having checked file permissions and stuff (but
-> the file is not yet sent), with MSG_MORE set. Then it sends the file, and
-> sendfile() keeps MSG_MORE set right until the end of the request, when it
-> clears it for the last fragment so the last partial packet gets flushed to
-> the network. In fact there is one more optimization here, if the request
-> is not keepalive then TUX still kees MSG_MORE set, and closes the socket -
-> which will implicitly flush the output queue anyway and send any partial
-> packet, but will also have the FIN packet merged with the last outgoing
-> packet.
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-... is it possible to do control the MSG_MORE flag for sendfile's final
-packet from user space, or do you have to use TCP_CORK to get the control?
+Chris Mason <mason@suse.com> writes:
 
--- Jamie
+> On Thursday, January 25, 2001 06:51:33 PM +0100 Ondrej Sury
+> <ondrej@globe.cz> wrote:
+>=20
+> > Chris Mason <mason@suse.com> writes:
+> >> > reiserfs: checking transaction log (device 03:04) ...
+> >> > Warning, log replay starting on readonly filesystem
+> >> >=20
+> >>=20
+> >> Here, reiserfs is telling you that it has started replaying transactio=
+ns
+> >> in the log.  You should also have a reiserfs message telling you how m=
+any
+> >> transactions it replayed, and how long it took.  Do you have that
+> >> message?
+> >=20
+> > Nope.  I rebooted with Alt-SysRQ+B after some while (aprox more than 30
+> > sec, normally reiserfs replay is taking ~5 sec (pre9)).  I wasn't so
+> > patient.  I could test it before I'll go from work to home.
+> >=20
+>=20
+> Ok, depending on the metadata load before the crash, replay can take 30
+> seconds or more.  You usually have to try to generate that many metadata
+> changes, something like creating 100,000 tiny files or directories.
+> Compiling with CONFIG_REISERFS_CHECK turned on will give you more details
+> about the log replay.
+
+There wasn't crash.  Same log replay after I rebooted with -pre9 took 5
+seconds.
+
+> Or, perhaps DMA is now off on your IDE drive, making everything slower.
+
+via 82Cxxx is supported chipset, but I could check that.
+
+Strange is that overall slowdown of kernel, Alt-SysRQ functions are too
+slow for kernel to be in normal state.
+
+=2D-=20
+Ond=F8ej Sur=FD <ondrej@globe.cz>         Globe Internet s.r.o. http://glob=
+e.cz/
+Tel: +420235365000   Fax: +420235365009         Pl=E1ni=E8kova 1, 162 00 Pr=
+aha 6
+Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
+GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
+
+iEYEARECAAYFAjpwao0ACgkQ9OZqfMIN8nN7mgCcDSfPxNnbmbtD+TyYHMbKr+vf
+TnkAmwfavxKRPrsPwhS0jDTuYqK5iHcL
+=NhJo
+-----END PGP MESSAGE-----
+--=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

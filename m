@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277652AbRJKAa5>; Wed, 10 Oct 2001 20:30:57 -0400
+	id <S277705AbRJKAgr>; Wed, 10 Oct 2001 20:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277705AbRJKAaj>; Wed, 10 Oct 2001 20:30:39 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:33784
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277652AbRJKAaW>; Wed, 10 Oct 2001 20:30:22 -0400
-Date: Wed, 10 Oct 2001 17:30:47 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: safemode <safemode@speakeasy.net>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011010173047.B3795@mikef-linux.matchmail.com>
-Mail-Followup-To: safemode <safemode@speakeasy.net>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-	Robert Love <rml@tech9.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random> <20011010234211Z277533-761+17907@vger.kernel.org>
+	id <S277811AbRJKAgh>; Wed, 10 Oct 2001 20:36:37 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:20997 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S277705AbRJKAgb>;
+	Wed, 10 Oct 2001 20:36:31 -0400
+Date: Thu, 11 Oct 2001 02:36:47 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Harald Schreiber <harald@harald-schreiber.de>
+Cc: mdharm-usb@one-eyed-alien.net, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB Support for recent Casio Digital Still Cameras, linux-2.4.11
+Message-ID: <20011011023647.A14615@gondor.com>
+In-Reply-To: <m3elobqblf.fsf@harald-schreiber.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011010234211Z277533-761+17907@vger.kernel.org>
+In-Reply-To: <m3elobqblf.fsf@harald-schreiber.de>
 User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 07:42:31PM -0400, safemode wrote:
-> On Wednesday 10 October 2001 09:36, Andrea Arcangeli wrote:
-> > On Wed, Oct 10, 2001 at 08:00:04AM -0400, safemode wrote:
-> > > OK, i copied the mp3 into /dev/shm and without any renicing of anything
-> > > it plays fine during dbench 32.  so the problem is disk access taking too
-> > > long.
-> > >
-> > > Which is strange since i'm running dbench on a separate hdd on a totally
-> > > different controller.
-> >
-> > then if you know it's not disk congestion, it's most probably due the vm
-> > write throttling.
-> >
-> > Andrea
+On Thu, Oct 11, 2001 at 02:11:56AM +0200, Harald Schreiber wrote:
+> Recent Casio QV digital still cameras (for example the QV 4000)
+> show up as 
+> VendorID: 0x07cf  ProductID: 0x1001  Revision: 10.00
 > 
-> How is it that a process at the same priority as allowed to throttle the 
-> kernel's vm and starve other processes at the same priority.  That sounds 
-> like dbench is being allowed to preempt other processes at the same priority. 
->  even if it is indirect preemption. The effect is the same. 
+> So the following patch is necessary to make these devices working
+> with the USB storage driver. The patch is against linux-2.4.11,
+> but it should work with any kernel since 2.4.8-pre3.
 
-The problem is that the disk subsystem doesn't take into account the
-priority of the process initiating the heavy (or any for that matter) IO.
+Confirmed. I sent the same patch (without the comments) to linux-kernel
+three days ago.
 
-AFAICT, the only way to get fair disk access is to modify (shorten) the
-elevator queue lengths (which IMHO are much too long).  Check out elvtune
-(I'm testing "-r 500 -w 750" right now) in the util-linux package.
+BTW, perhaps it would be better to patch the thing the following way,
+because I don't know what's in the revision number range between
+1000 and 9009, perhaps there are other devices which don't like the
+workaround?
 
-Mike
+
+--- linux-2.4.9-ac10/drivers/usb/storage/unusual_devs.h	Sat Sep  8 18:18:51 2001
++++ linux-2.4.10-ac11/drivers/usb/storage/unusual_devs.h	Thu Oct 11 02:11:29 2001
+@@ -394,6 +394,12 @@
+  * - They don't like the INQUIRY command. So we must handle this command
+  *   of the SCSI layer ourselves.
+  */
++UNUSUAL_DEV( 0x07cf, 0x1001, 0x1000, 0x1000,
++                "Casio",
++                "QV DigitalCamera",
++                US_SC_8070, US_PR_CB, NULL,
++                US_FL_FIX_INQUIRY ),
++
+ UNUSUAL_DEV( 0x07cf, 0x1001, 0x9009, 0x9009,
+                 "Casio",
+                 "QV DigitalCamera",
+
+> --------------------------------------------------------------------
+> Dipl.-Math. Harald Schreiber, Nizzaallee 26, D-52072 Aachen, Germany
+> Phone/Fax: +49-241-9108015/6       mailto:harald@harald-schreiber.de
+> --------------------------------------------------------------------
+
+Interesting, twice the same patch, and then from nearly the same location
+in the world. (Roermonder Str. 112a - distance several 100m )
+
+Jan
+

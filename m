@@ -1,69 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269283AbUIBXXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268118AbUIBXXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269283AbUIBXXo (ORCPT <rfc822;willy@w.ods.org>);
+	id S268118AbUIBXXo (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 19:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbUIBXV4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269204AbUIBXVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:21:56 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4528 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S269283AbUIBXVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:21:14 -0400
-Message-Id: <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4) 
-In-Reply-To: Your message of "Thu, 02 Sep 2004 22:38:54 +0200."
-             <20040902203854.GA4801@janus> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain>
-            <20040902203854.GA4801@janus>
+	Thu, 2 Sep 2004 19:21:42 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51342 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269267AbUIBXUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:20:22 -0400
+Date: Fri, 3 Sep 2004 01:21:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, paul@linuxaudiosystems.com,
+       rlrevell@joe-job.com, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040902232133.GA31867@elte.hu>
+References: <20040713152532.6df4a163.akpm@osdl.org> <20040713223701.GM974@dualathlon.random> <20040713154448.4d29e004.akpm@osdl.org> <20040713225305.GO974@dualathlon.random> <20040713160628.596b96a3.akpm@osdl.org> <20040713231803.GP974@dualathlon.random> <20040719115952.GA13564@elte.hu> <20040902220301.GA18212@x30.random> <20040902152046.1b34d793.akpm@osdl.org> <20040902230336.GA30920@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1353348402P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Sep 2004 19:19:47 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902230336.GA30920@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1353348402P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 02 Sep 2004 22:38:54 +0200, Frank van Maarseveen said:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> Can it do this:
-> 
-> 	cd FC2-i386-disc1.iso
-> 	ls
+> i have solved the fundamental SMP latency problems in the -Q7 patch,
+> by redesigning how SMP preemption is done. Here's the relevant
+> changelog entry:
 
-That one's at least theoretically doable, assuming that it really *IS* the
-Fedora Core disk and an ISO9660 format...
+also this changelog explains the core changes that enable good
+preemption latencies on SMP:
 
-> 	cd /dev/cdrom
-> 	ls
+[...]
 
-And the CD in the drive at the moment is AC/DC "Back in Black".  What
-should this produce as output?
+i took another look at SMP latencies, the last larger chunk of code that
+produced millisec-category latencies. CONFIG_PREEMPT tries to solve some
+of the SMP issues but there were still lots of problems remaining: main
+problem area is spinlocks nested at multiple levels. If a piece of code
+(e.g. the MM or ext3's journalling code) does the following:
 
---==_Exmh_1353348402P
-Content-Type: application/pgp-signature
+        spin_lock(&spinlock_1);
+        ...
+        spin_lock(&spinlock_2);
+        ...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+then even with CONFIG_PREEMPT enabled, current kernels may spin on
+spinlock_2 indefinitely. A number of critical sections break their long
+paths by using cond_resched_lock(), but this does not break the path on
+SMP, because need_resched() is not set in the above case.
 
-iD8DBQFBN6qScC3lWbTT17ARApkUAKCcJAifgzFxoZKZ6gRFUT29tgxsmgCfSjhn
-KGzfGdsdlgw4H7i8i2mE570=
-=uwwQ
------END PGP SIGNATURE-----
+(The -mm kernel introduced a couple of patches that try to drop
+spinlocks unconditionally at a high frequency: but besides being a
+kludge it's also a performance problem, we keep
+dropping/waiting/retaking locks quite frequently. That solution also
+doesnt solve the problem of cond_resched_lock() not working on SMP.)
 
---==_Exmh_1353348402P--
+to solve the problem i've introduced a new spinlock field,
+lock->break_lock, which signals towards the holding CPU that a
+spinlock-break is requested by another CPU. This field is only set if a
+CPU is spinning in __preempt_spin_lock [at any locking depth], so the
+default overhead is zero. I've extended cond_resched_lock() to check for
+this flag - in this case we can also save a reschedule. I've added the
+lock_need_resched(lock) and need_lockbreak(lock) methods to check for
+the need to break out of a critical section.
+
+preliminary results on a dual x86 box show a dramatic reduction in
+latencies on SMP - where there used to be 5-10 msec latencies there are
+close-to-UP latencies now. But it needs more testing.
+
+[...]
+
+	Ingo

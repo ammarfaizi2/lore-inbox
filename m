@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbTAXROy>; Fri, 24 Jan 2003 12:14:54 -0500
+	id <S262038AbTAXRNY>; Fri, 24 Jan 2003 12:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbTAXROy>; Fri, 24 Jan 2003 12:14:54 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56496 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261486AbTAXROw>;
-	Fri, 24 Jan 2003 12:14:52 -0500
-Date: Fri, 24 Jan 2003 09:18:25 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <rpjday@mindspring.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: test suite?
-In-Reply-To: <1043426077.1620.10.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L2.0301240850070.9816-100000@dragon.pdx.osdl.net>
+	id <S262326AbTAXRNY>; Fri, 24 Jan 2003 12:13:24 -0500
+Received: from dial-ctb05175.webone.com.au ([210.9.245.175]:57862 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S262038AbTAXRNX>;
+	Fri, 24 Jan 2003 12:13:23 -0500
+Message-ID: <3E31765F.4010900@cyberone.com.au>
+Date: Sat, 25 Jan 2003 04:22:39 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Giuliano Pochini <pochini@shiny.it>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-kernel@alex.org.uk,
+       Alex Tomas <bzzz@tmi.comex.ru>, Andrew Morton <akpm@digeo.com>,
+       Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: 2.5.59-mm5
+References: <XFMail.20030124180942.pochini@shiny.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: Robert P. J. Day <rpjday@mindspring.com>
-|
-|   i've noticed references to "test suites" for kernels, but
-| is there any one-step convenient way to select every possible
-| option for test-compiling a new kernel, just to see if it builds?
-| perhaps an "everything" option?
-|
-|   and, related to that, should such a kernel theoretically
-| work?  as in, are there any options that would be mutually
-| exclusive that would cause such a build to fail?
-|
-| still thinking about reorganizing the overall option structure,
+Giuliano Pochini wrote:
 
-Hi,
-
-I notice that you've already had a reply on this (use "make help",
-"make allmodconfig" or "make allyesconfig" etc.).
-
-OSDL's PLM does this (make allmodconfig) for each new (2.5) kernel
-release and the results are posted at
-  http://www.osdl.org/archive/cherry/stability/
-and also in the PLM web page interface.
-The script that is used for this is at that same URL above.
-PLM is at http://www.osdl.org/cgi-bin/plm/ .
-
-Has anyone tried to boot an 'allyesconfig' kernel?
-I'll give that a shot now.
-
-HTH.
--- 
-~Randy
+>>>An alternate approach might be to change the way the scheduler splits
+>>>things. That is, rather than marking I/O read vs write and scheduling
+>>>based on that, add a flag bit to mark them all sync vs async since
+>>>that's the distinction we actually care about. The normal paths can
+>>>all do read+sync and write+async, but you can now do things like
+>>>marking your truncate writes sync and readahead async.
+>>>
+>
+>>That will be worth investigating to see if the complexity is worth it.
+>>I think from a disk point of view, we still want to split batches between
+>>reads and writes. Could be wrong.
+>>
+>
+>Yes, sync vs async is a better way to classify io requests than
+>read vs write and it's more correct from OS point of view. IMHO
+>it's not more complex then now. Just replace r/w with sy/as and
+>it will work.
+>
+We probably wouldn't want to go that far as you obviously can
+only merge reads with reads and writes with writes, a flag would
+be fine. We have to get the basics working first though ;)
 

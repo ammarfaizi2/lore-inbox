@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVBBQih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVBBQoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVBBQih (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVBBQfQ
+	id S262613AbVBBQoX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVBBQoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:35:16 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:10335 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262508AbVBBQZj (ORCPT
+	Wed, 2 Feb 2005 11:44:21 -0500
+Received: from mail.joq.us ([67.65.12.105]:50066 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262613AbVBBQnk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:25:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=uC4TkaNWmHlN3Qj6qFVrTzowgV6zpUhnXpVaOxTk4nIStB+OktFV5v2ixutmbsTUCh5Xps/SDT6NyyZKDnqe8JEHS2XpG4H999H9pC/SZnHyNEpV4gaZoP1SUGRkY+jakE1PGOPDh96paygVNKfnn3wlFbdgQ5vW3Kquwq8qOl4=
-Message-ID: <9e4733910502020825434a477@mail.gmail.com>
-Date: Wed, 2 Feb 2005 11:25:29 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-In-Reply-To: <20050202154139.GA3267@s>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050202133108.GA2410@s>
-	 <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
-	 <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
-	 <20050202154139.GA3267@s>
+	Wed, 2 Feb 2005 11:43:40 -0500
+To: Bill Huey (hui) <bhuey@lnxw.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us>
+	<20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us>
+	<1106782165.5158.15.camel@npiggin-nld.site>
+	<874qh3bo1u.fsf@sulphur.joq.us>
+	<1106796360.5158.39.camel@npiggin-nld.site>
+	<87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu>
+	<873bwfo8br.fsf@sulphur.joq.us>
+	<20050202111045.GA12155@nietzsche.lynx.com>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 02 Feb 2005 10:44:22 -0600
+In-Reply-To: <20050202111045.GA12155@nietzsche.lynx.com> (Bill Huey's
+ message of "Wed, 2 Feb 2005 03:10:45 -0800")
+Message-ID: <87is5ahpy1.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 16:41:39 +0100, Haakon Riiser
-<haakon.riiser@fys.uio.no> wrote:
-> Thanks for the tip, I hadn't heard about it.  I will take a look,
-> but only to see if it can show me the user space API of /dev/fb.
-> I don't need a general library that supports a bunch of different
-> graphics cards.  I'm writing my own frame buffer driver for the
-> GX2 CPU, and I just want to know how to call the various functions
-> registered in struct fb_ops, so that I can test my code.  I mean,
-> all those functions registered in fb_ops must be accessible
-> somehow; if they weren't, what purpose would they serve?
+Bill Huey (hui) <bhuey@lnxw.com> writes:
 
-You should look at writing a DRM driver. DRM implements the kernel
-interface to get 3D hardware running. It is a fully accelerated driver
-interface. They are located in drivers/char/drm
+> Also, as media apps get more sophisticated they're going to need some
+> kind of access to the some traditional softirq facilities, possibily
+> migrating it into userspace safely somehow, with how it handles IO
+> processing such as iSCSI, FireWire, networking and all peripherals
+> that need some kind of prioritized IO handling. It's akin to O_DIRECT,
+> where folks need to determine policy over the kernel's own facilities,
+> IO queues, but in a more broad way. This is inevitable for these
+> category of apps. Scary ? yes I know.
 
+I believe Ingo's RT patches already support this on a per-IRQ basis.
+Each IRQ handler can run in a realtime thread with priority assigned
+by the sysadmin.  Balancing the interrupt handler priorities with
+those of other realtime activities allows excellent control.  
+
+This is really only useful within the context of a dedicated realtime
+system, of course.
+
+Stephane Letz reports a similar feature in Mac OS X.
+
+> Whether this suitable for main stream inclusion is another matter. But
+> as a person that wants to write apps of this nature, I came into this
+> kernel stuff knowing that there's going to be a conflict between the
+> the needs of media apps folks and what the Linux kernel folks will
+> tolerate as a community.
+
+That's a price both groups pay for doing realtime within the context
+of a general-purpose OS.  But, for many, many applications it's the
+best option.
+
+Fortunately, most of what we need also improves the general quality
+and responsiveness of the kernel.  The important things like short
+lock hold times are really just good concurrent programming practice.
+
+>> The cost/performance characteristics of commodity PC's running Linux
+>> are quite compelling for a wide range of practical realtime
+>> applications.  But, these are dedicated machines.  The whole system
+>> must be carefully tuned.  That is the only method that actually works.
+>> The scheduler is at most a peripheral concern; the best it can do is
+>> not screw up.
+>
+> It's very compelling and very deadly to the industry if these things
+> become common place in the normal Linux kernel. It would instantly
+> make Linux the top platform for anything media related, graphic and
+> audio.
+
+Yes, many people want to take advantage of this.
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+  joq

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261985AbREPPvb>; Wed, 16 May 2001 11:51:31 -0400
+	id <S261987AbREPPzl>; Wed, 16 May 2001 11:55:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261986AbREPPvV>; Wed, 16 May 2001 11:51:21 -0400
-Received: from host213-120-148-108.btopenworld.com ([213.120.148.108]:61124
-	"EHLO kyle.ekto.org") by vger.kernel.org with ESMTP
-	id <S261985AbREPPvJ>; Wed, 16 May 2001 11:51:09 -0400
-Date: Wed, 16 May 2001 16:50:49 +0100 ( BST)
-From: Mo McKinlay <mmckinlay@gnu.org>
-X-X-Sender: <mckinlay@kyle.ekto.org>
-To: "Timothy A. Seufert" <tas@appsig.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B019F2E.7CC8C39A@appsig.com>
-Message-ID: <Pine.LNX.4.33.0105161647560.22861-100000@kyle.ekto.org>
+	id <S261988AbREPPzb>; Wed, 16 May 2001 11:55:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18307 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261987AbREPPzU>; Wed, 16 May 2001 11:55:20 -0400
+Date: Wed, 16 May 2001 11:55:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Possible race in interruptible_sleep_on_timeout()
+Message-ID: <Pine.LNX.3.95.1010516114809.32248A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Yesterday, Timothy A. Seufert (tas@appsig.com) wrote:
+I lifted the following kernel-thread code from
+../linux/drivers/net/8139too.c, just added a procedure to call.
 
-  > Why not take it a step further than just devices?  This is a perfect
-  > model for supporting named forks.
+static int gpib_thread(void *unused)
+{
+    unsigned long timeout;
 
-Because this only works on filesystems where directories can't themselves
-have named forks (or streams, or whatever you wish to call them)
-associated with them.
+    daemonize();
+    spin_lock_irq(&current->sigmask_lock);
+    sigemptyset(&current->blocked);
+    recalc_sigpending(current);
+    spin_unlock_irq(&current->sigmask_lock);
+    memcpy(current->comm, task_name, sizeof(task_name));
+    for(;;)
+    { 
+        timeout = 0x02;
+        do {
+           timeout = interruptible_sleep_on_timeout(&info->twait, timeout);
+           } while (!signal_pending(current)&&(timeout > 0)); 
+        if(signal_pending(current))
+            up_and_exit(&info->quit, 0);
+        tinker(info->what_to_do);
+    } 
+}
 
-Read the archives on this issue :)
+It has been observed that, given the conditions of little or no
+CPU activity except `top`,  procedure "tinker()" will never get
+executed because interruptible_sleep_on_timeout returns the
+same timeout value it received. 
 
-Mo.
-
-- -- 
-Mo McKinlay                   mmckinlay@gnu.org           http://ekto.org
-                Read http://www.ietf.org/rfc/rfc1855.txt
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+This is on kernel version 2.4.1. Maybe this race has been found and
+fixed?
 
 
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsCod0ACgkQRcGgB3aidflJyQCfdjh+o8vZvzZLfowM5QoLGICy
-tmAAoMIF4DcyqTep43Hd2/9X9tfeIH9X
-=cKMC
------END PGP SIGNATURE-----
 

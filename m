@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265340AbUBFQUL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 11:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUBFQUL
+	id S265531AbUBFQrg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 11:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUBFQrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 11:20:11 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:53418 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S265340AbUBFQUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 11:20:07 -0500
-Message-ID: <4023BEA8.5060306@vision.ee>
-Date: Fri, 06 Feb 2004 18:19:52 +0200
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 6 Feb 2004 11:47:36 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:58543 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S265531AbUBFQre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 11:47:34 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Rik van Riel <riel@redhat.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.4.25-rc1: BUG: wrong zone alignment, it will crash
+Date: Sat, 7 Feb 2004 00:46:31 +0800
+User-Agent: KMail/1.5.4
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0402061034210.5933-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0402061034210.5933-100000@chimarrao.boston.redhat.com>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: irq 7: nobody cared! (intel8x0 sound / 2.6.2-rc3-mm1)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402070046.31218.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this when tried to run mplayer (mplayer played something audible for 
-1 sec and then stalled):
+On Friday 06 February 2004 23:36, Rik van Riel wrote:
+> On Fri, 6 Feb 2004, Michael Frank wrote:
+> 
+> > > > 300MB HIGHMEM available.
+> > > > 195MB LOWMEM available.
+> > > > On node 0 totalpages: 126960
+> > > > zone(0): 4096 pages.
+> > > > zone(1): 46064 pages.
+> > > > zone(2): 76800 pages.
+> > > > BUG: wrong zone alignment, it will crash
+> 
+> > It is supposed to work, just a bug in the zone alignment code.
+> 
+> The error isn't in the kernel, it's between the chair and the keyboard.
+> You have created a lowmem zone of a size that doesn't correctly
+> align with the largest blocks used by the buddy allocator.
+> 
+> > I have have to use HIGHMEM emulation for testing.
+> 
+> Then you'll need to choose a different size for the highmem=
+> parameter, one that doesn't cause an unaligned boundary.
 
-irq 7: nobody cared!
-Call Trace:
- [<c010c0f4>] __report_bad_irq+0x24/0x80
- [<c010c1d1>] note_interrupt+0x61/0x90
- [<c010c46d>] do_IRQ+0x10d/0x120
- [<c0279e1c>] common_interrupt+0x18/0x20
- [<c010c093>] handle_IRQ_event+0x23/0x60
- [<c010c3e3>] do_IRQ+0x83/0x120
- [<c0279e1c>] common_interrupt+0x18/0x20
+Which is not user friendly and does not match the documentation.
 
-handlers:
-[<f99a1720>] (snd_intel8x0_interrupt+0x0/0x1e0 [snd_intel8x0])
-Disabling IRQ #7
+> 
+> Alternatively, you could submit a patch so the highmem= boot
+> option parsing code does the aligning for you.
 
-sound module in use is intel8x0 as seen above. Chip itself is nforce2
-integrated audio.
+OK, will do. I'll produce and test a patch.
 
-I know there were problems earlier with this chip and new ALSA,
-but thought maybe this is helpful. The kernel is booted with pci=noacpi
-due to recent problems with nforce2 mb's using -mm series kernels.
+> 
+> However, that would simply be an improvement to the kernel and
+> nothing like a bug you can demand to get fixed now.
 
-It worked flawlessly in 2.6.1-rc1-mm1.
+OK, Please note that I only passed on the message produced by the kernel 
+  BUG: wrong zone alignment, it will crash 
 
-Lenar
+Perhaps the kernel should have reported it as "Invalid value for highmem" 
+instead of "BUG" ;)
+
+Thank you
+
+Michael
+
+

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262543AbREVAQy>; Mon, 21 May 2001 20:16:54 -0400
+	id <S261666AbREVBAG>; Mon, 21 May 2001 21:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262545AbREVAQo>; Mon, 21 May 2001 20:16:44 -0400
-Received: from t2.redhat.com ([199.183.24.243]:3581 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262543AbREVAQ3>; Mon, 21 May 2001 20:16:29 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <5.0.2.1.2.20010521163446.00a85fa0@pxwang.pobox.stanford.edu> 
-In-Reply-To: <5.0.2.1.2.20010521163446.00a85fa0@pxwang.pobox.stanford.edu> 
-To: Philip Wang <PXWang@stanford.edu>
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, Dawson Engler <engler@cs.Stanford.EDU>
-Subject: Re: [PATCH] drivers/mtd/mtdchar.c 
+	id <S261573AbREVA74>; Mon, 21 May 2001 20:59:56 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:64783 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S262215AbREVA7s>; Mon, 21 May 2001 20:59:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Stoffel <stoffel@casc.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy 
+In-Reply-To: Your message of "Mon, 21 May 2001 16:38:34 -0400."
+             <15113.31946.548249.53012@gargle.gargle.HOWL> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 May 2001 01:15:50 +0100
-Message-ID: <22152.990490550@redhat.com>
+Date: Tue, 22 May 2001 10:59:04 +1000
+Message-ID: <2436.990493144@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 May 2001 16:38:34 -0400, 
+John Stoffel <stoffel@casc.com> wrote:
+>All that CML2 does is enforce dependencies in the configuration
+>language.  You can't make a .config which conflicts.  Admittedly
+>there's nothing stopping you from hacking it with vi after the fact,
+>but why?
 
-PXWang@stanford.edu said:
->  There is a bug in mtdchar.c of not freeing memory on error paths.
-> databuf  is allocated but not freed if copy_from_user fails.  The
-> addition I made  was to kfree databuf before returning -EFAULT.
-> Thanks!
+CML2 will not stop you hacking .config by hand.  But the 2.5 makefile
+rewrite will, because we have had too many bug reports caused by people
+who hand edited .config, did not revalidate it and generated invalid
+kernels.  Yes, you can hand edit .config.  No, you cannot compile until
+.config has been (re-)validated.
 
-Thankyou. I've now committed the fix to my tree and it'll be in the next 
-merge with Linus, which should hopefully happen quite soon.
+# Not a real dependency, this checks for hand editing of .config.
+$(KBUILD_OBJTREE)include/linux/autoconf.h: $(KBUILD_OBJTREE).config
+        @echo Your .config is newer than include/linux/autoconf.h, this should not happen.
+        @echo Always run make one of "{menu,old,x}config" after manually updating .config.
+        @/bin/false
 
---
-dwmw2
-
+And before people complain: Don't create a config that violates the CML
+rules, correct the CML rules, the Makefiles and the source so .config
+is valid.  The kernel build requires a valid .config.
 

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133077AbRDLIuz>; Thu, 12 Apr 2001 04:50:55 -0400
+	id <S133076AbRDLIvp>; Thu, 12 Apr 2001 04:51:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133078AbRDLIup>; Thu, 12 Apr 2001 04:50:45 -0400
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:53152
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S133077AbRDLIun>; Thu, 12 Apr 2001 04:50:43 -0400
-Message-ID: <3AD56C43.84D83889@math.ethz.ch>
-Date: Thu, 12 Apr 2001 10:50:11 +0200
-From: Giacomo Catenazzi <cate@math.ethz.ch>
-Reply-To: cate@debian.org
-X-Mailer: Mozilla 4.75C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
+	id <S133074AbRDLIvi>; Thu, 12 Apr 2001 04:51:38 -0400
+Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:28177 "EHLO
+	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
+	id <S133076AbRDLIvT>; Thu, 12 Apr 2001 04:51:19 -0400
+Message-ID: <04a001c0c32e$54e8f8c0$ae58718c@cis.nctu.edu.tw>
+Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
+From: "gis88530" <gis88530@cis.nctu.edu.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: card report no resource
+Date: Thu, 12 Apr 2001 16:55:27 +0800
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.0.0 release announcement
-In-Reply-To: <fa.i13tmhv.9kga3t@ifi.uio.no> <fa.g0offov.1jmmkh9@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="big5"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
-> 
-> > * All three interfaces do progressive disclosure -- the user only sees
-> >   questions he/she needs to answer (no more hundreds of greyed-out menu
-> >   entries for irrelevant drivers!).
-> 
-> Well, that sucks. The greyed-out menu entries were the only good
-> thing about xconfig.
+Hello,
 
-You are one of the few people that use xconfig... Thus xconfig
-is not
-so worse as people tell me.
+I use RedHat 6.2 with 2.2.16 kernel and 4 NICs in my lab at school.
+3 of NICs are private network 172.x.x.x, and the other is public 140.o.o.o
 
-> Such entries provide a clue that you need
-> to enable something else to get the feature you desire. Otherwise
-> you might figure that the feature is missing, or that you have
-> overlooked it.
+But when I use this box, I got following messages...
+card3: response no resource
+card3: Too much work at interrupt, status = 0x4050
+card2: response no resource
+card2: Too much work at interrupt, status = 0x4050
 
-There is an option (check the menu) to show all entries
-(grayed)
-and now there is also in make menuconfig this option ('S'
-command)
+Could you give me a hint? Thanks a lot.
 
-On my extensive test, now all the features of the older tools
-are
-included. But the important feature to read the old .config
-file, but
-this feature will be included in the next version (check the
-previous
-esr's mails)
+Cheers,
+Tom
 
 
-	giacomo

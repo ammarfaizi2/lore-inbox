@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261998AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
+	id <S262101AbSITKa1>; Fri, 20 Sep 2002 06:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262101AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:58756 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S261998AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
-Date: Fri, 20 Sep 2002 03:20:31 -0700
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+	id <S262126AbSITKa1>; Fri, 20 Sep 2002 06:30:27 -0400
+Received: from ppp-217-133-217-84.dialup.tiscali.it ([217.133.217.84]:52942
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S262101AbSITKa0>; Fri, 20 Sep 2002 06:30:26 -0400
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020920102031.GA4744@gnuppy.monkey.org>
-References: <3D8A6EC1.1010809@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
 In-Reply-To: <3D8A6EC1.1010809@redhat.com>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+References: <3D8A6EC1.1010809@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-1jhhxx3CSYZtRYU8yWDm"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Sep 2002 12:35:23 +0200
+Message-Id: <1032518123.2024.6.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 05:41:37PM -0700, Ulrich Drepper wrote:
->   It is not generally accepted that a 1-on-1 model is superior but our
->   tests showed the viability of this approach and by comparing it with
->   the overhead added by existing M-on-N implementations we became
->   convinced that 1-on-1 is the right approach.
 
-Maybe not but...
+--=-1jhhxx3CSYZtRYU8yWDm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You might like to try a context switching/thread wakeup performance
-measurement against FreeBSD's libc_r. I'd imagine that it's difficult
-to beat a system like that since they keep all of that stuff in
-userspace since it's just 2 context switches and a call to their
-thread-kernel.
+Great, but how about using code similar to the following rather than
+hand-coded asm operations?
 
-I'm curious as to the rough numbers you got doing the 1:1 and M:N
-comparison.
+extern struct pthread __pt_current_struct asm("%gs:0");
+#define __pt_current (&__pt_current_struct)
 
-bill
+#define THREAD_GETMEM(descr, member) (__pt_current->member)
+#define THREAD_SETMEM(descr, member, value) ((__pt_current->member) =3D
+value)
+#define THREAD_MASKMEM(descr, member, mask) ((__pt_current->member) &=3D
+mask)
+...
 
+Of course, it doesn't work if you try to take the address of a member.
+
+
+--=-1jhhxx3CSYZtRYU8yWDm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9ivnrdjkty3ft5+cRAmMSAJ9v470NIJzcj+54n1xTht8FSg40mACgx7Lh
+Zkzp+pWyB9+bT0S1WbCd00U=
+=U7hZ
+-----END PGP SIGNATURE-----
+
+--=-1jhhxx3CSYZtRYU8yWDm--

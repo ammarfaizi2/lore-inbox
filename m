@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUEMBz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUEMCE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUEMBz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 21:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUEMBz5
+	id S263185AbUEMCE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 22:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbUEMCE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 21:55:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1966 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263032AbUEMBzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 21:55:55 -0400
-Date: Wed, 12 May 2004 18:55:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, luto@myrealbox.com
-Subject: Re: [PATCH 0/2] capabilities
-Message-Id: <20040512185528.2e6bea8e.akpm@osdl.org>
-In-Reply-To: <40A2D449.7090103@myrealbox.com>
-References: <200405112024.22097.luto@myrealbox.com>
-	<20040512164132.2d30dac2.akpm@osdl.org>
-	<40A2D449.7090103@myrealbox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 12 May 2004 22:04:58 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:11222 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263741AbUEMCEv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 22:04:51 -0400
+Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hotplug devel <linux-hotplug-devel@lists.sourceforge.net>,
+       lhns-devel@lists.sourceforge.net
+In-Reply-To: <20040513102751.48c61d48.tokunaga.keiich@jp.fujitsu.com>
+References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
+	 <1083944945.23559.1.camel@nighthawk>
+	 <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
+	 <1084167941.28602.478.camel@nighthawk>
+	 <20040513102751.48c61d48.tokunaga.keiich@jp.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1084413887.974.7.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 19:04:47 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> wrote:
->
+On Wed, 2004-05-12 at 18:27, Keiichiro Tokunaga wrote:
+> On Sun, 09 May 2004 22:45:42 -0700
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> 
+> > On Sun, 2004-05-09 at 18:47, Keiichiro Tokunaga wrote:
+> > > There is no NUMA support in the current code yet.  I'll post a
+> > > rough patch to show my idea soon.  I'm thinking to regard a
+> > > container device that has PXM as a NUMA node so far.
 > > 
-> > What if there are existing applications which are deliberately or
-> > inadvertently relying upon the current behaviour?  That seems unlikely, but
-> > the consequences are gruesome.
+> > Don't you think it would be a good idea to work with some of the current
+> > code, instead of trying to wrap around it?  
 > 
-> Like something that turns KEEPCAPS on then setuid()s then executes an 
-> untrusted program?
+> Are you saying that LHNS should use the current NUMA code
+> (or coming code in the future) to support NUMA node hotplug?
 
-Or if it simply has caps and then does exec.
+Absolutely.  Why do we need wrappers when we can offline entire nodes
+with 6-line shell scripts?  The CPU hotplug interfaces are here today
+and the memory stuff will be here soon.  Perhaps you could help with the
+NUMA part.
 
-> > If I'm right in this concern, the fixed behaviour should be opt-in.  That
-> > could be via a new prctl() thingy but I think it would be better to do it
-> > via a kernel boot parameter.  Because long-term we should have the fixed
-> > semantics and we should not be making people change userspace for some
-> > transient 2.6-only kernel behaviour.
-> 
-> The prctl would defeat the purpose (imagine if bash forgot the prctl -- 
-> then the whole thing is pointless).
+#!/bin/sh
+NODENUM=$1
+NODEDIR=/sys/devices/system/node/node${NODENUM}
+for i in $NODEDIR/cpu* $NODEDIR/memory*; do
+	echo 0 > $i/control/online
+fi
+echo 0 > $NODEDIR/control/online
 
-yup, lots of apps would need to be changed to interface with something
-which won't be present in 2.8 kernels.
+We don't currently export bus to node mappings in sysfs, but we have
+them in the kernel, so that won't be too hard to export as well.  
 
->  I'll cook up the boot parameter in 
-> the next couple days (probably with a config option and some kind of 
-> warning that the old behavior is deprecated).
+-- Dave
 
-I wouldn't bother with a config option.
-
->  Is it a problem if I make 
-> the changes to init's state unconditional?  (I still don't see why 
-> CAP_SETPCAP is dangerous for root to have...)
-
-I'd be more comfortable (ie: comfort level non-zero) if there was zero
-behaviour change if the boot option isn't enabled.
-
-> The only concern is that some new code relies on the new inheritable 
-> semantics.  That shouldn't be so bad, though, since that's just an extra 
-> precaution (if there are insecure setuid binaries around, you already 
-> have problems).
-
-Yes, we can live with that.  The price of prior sins.

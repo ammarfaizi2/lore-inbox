@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274222AbRI3VqM>; Sun, 30 Sep 2001 17:46:12 -0400
+	id <S271714AbRI3V61>; Sun, 30 Sep 2001 17:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274224AbRI3VqC>; Sun, 30 Sep 2001 17:46:02 -0400
-Received: from cs82093.pp.htv.fi ([212.90.82.93]:50054 "EHLO cs82093.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S274222AbRI3Vpw>;
-	Sun, 30 Sep 2001 17:45:52 -0400
-Message-ID: <3BB79296.677458C5@welho.com>
-Date: Mon, 01 Oct 2001 00:45:58 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+	id <S271769AbRI3V6R>; Sun, 30 Sep 2001 17:58:17 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:18048 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S271714AbRI3V6E>;
+	Sun, 30 Sep 2001 17:58:04 -0400
+Message-ID: <3BB7918E.E74A3BE4@pobox.com>
+Date: Sun, 30 Sep 2001 14:41:34 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tcp_v4_get_port() and ephemeral ports
-In-Reply-To: <3BB75EB4.3268D3FC@kegel.com> <3BB7676C.1213CC84@welho.com> <3BB78291.F8732D4@kegel.com>
+To: "M. Edward Borasky" <znmeb@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
+"M. Edward Borasky" wrote:
 
-> Depends on what you mean by real-life situations.  If you actually
-> need to handle over ten thousand outgoing connections, this change
-> could indeed help relieve port exhaustion.  Think of web spiders
-> or web caches on gigabit/sec links.
+> 2. The Linux community should *not* believe that we are less vulnerable than
+> Microsoft! We are less vulnerable *now* only because Linux is not as
+> widespread as Windows.
 
-I should have said most real life situations. The point is simply that
-there are relatively few real life applications where port exhaustion
-can occur and even there it can be avoided by making the client a little
-bit smarter. Granted, web spiders and caches are examples of these
-applications.
+OK, the obvious question:
 
-> Perhaps one could go further, and have the kernel pick an ip address as
-> well; that would make the app even easier to code.  [...]
-> Making this pick an alias at random
-> is kind of a gross thought. [...]
+If apache is 60% of the market and IIS is 25%
+(and I have heard that apache on Linux is about
+33% of the web server market) how do you see
+that as windows/iis being more popular than the
+linux/apache platform? and yet, windows/iis has
+the lions share of vulnerabilities - your arguments
+lie in tatters....
 
-Well, source address selection is really a policy decision and it would
-be nice to have the policy tools to affect the source address selection
-algorithm. This would be especially interesting with IPv6 where aliases
-are par for the course and address privacy is something of an issue.
-However, I'm not really sure what the best way of defining that policy
-would be.
 
-For your application you would need randomization or round-robin for a
-kind of a load balancing. For address privacy you might want to simply
-set a preferred address on each interface for outbound connections. From
-routing standpoint you would like to select the address that is the best
-match (e.g. longest prefix match) for the destination, to ensure
-shortest return path. You would also need to combine this with scoping
-rules.
+> Were Linux, say, half of the market, the
+> vulnerability would be equal. The difference is strictly the number of
+> available hosts for these parasitic codes, not anything inherent in the
+> details of Windows or Linux, or in the organizational mechanisms (corporate
+> giant vs. "brutal meritocracy", closed source vs. open source, etc.).
 
-> > Or you could even pick a completely empty port range and bind
-> > each client socket with the SO_REUSE flag (which is ok, since your
-> > clients are using different source addresses).
-> 
-> SO_REUSE might let my app's connections collide with those
-> of other apps, wouldn't it?  Doesn't seem very clean.  A web cache
-> or web spider probably wouldn't use SO_REUSE, would it?
+I think Unix's long history of multiuser, networked
+operation gives it quite a bit more sophistication in
+areas of security, as opposed to windows, a single
+user system which has in the past few years
+become widely networked.
 
-As long as you ensure that you don't have any listening sockets in the
-port range you're using for the client connections this is a valid
-technique. It would actually be especially useful for proxies and web
-crawlers. Even though sharing the same source address and port between
-multiple client sockets, the kernel still wont allow you to create two
-connections to the same {destination address,port} pair, ensuring that
-each connection 5-tuple is unique.
+I'm not saying Linux/Unix users should rest on their
+laurels or be lulled into a sense of false security, but
+come on, let's at least be realistic about the very real
+advantages of Unix OSes over PC OSes in this area.
 
-Granted, this takes a little book keeping in the application, but to run
-out of ports you would have to make thousands of connections to the same
-server (as your performance tool does). Even web crawlers can easily
-avoid this by rate limiting the connections to a single target and
-scanning multiple target hosts in parallel. 
+cu
 
-> I guess I'm resigned to managing the ephemeral port number in my app.
-> A bit of a pain, but that's life.
+jjs
 
-It's probably still easiest to do this in the application. :)
 
-Cheers,
-
-	Mika Liljeberg

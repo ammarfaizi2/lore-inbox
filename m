@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbUK0Bv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUK0Bvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263030AbUK0Bv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbUK0BrB
+	id S263041AbUK0Bvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUK0BrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:47:01 -0500
+	Fri, 26 Nov 2004 20:47:19 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263030AbUKZTi3 (ORCPT
+	by vger.kernel.org with ESMTP id S263013AbUKZTiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:38:29 -0500
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-cc: Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
-Subject: Re: Xen VMM patch set - take 2 
-In-reply-to: Your message of "Fri, 19 Nov 2004 23:16:33 GMT."
-             <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> 
-Date: Thu, 25 Nov 2004 15:46:55 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CXLph-0000XC-00@mta1.cl.cam.ac.uk>
+	Fri, 26 Nov 2004 14:38:20 -0500
+Subject: Re: ide-cd problem
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Chandler <alan@chandlerfamily.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041122130202.GO10463@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk>
+	 <200411211025.11629.alan@chandlerfamily.org.uk>
+	 <200411211613.54713.alan@chandlerfamily.org.uk>
+	 <200411220752.28264.alan@chandlerfamily.org.uk>
+	 <20041122080122.GM26240@suse.de>
+	 <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk>
+	 <20041122105157.GB10463@suse.de>
+	 <E1CWCOC-0003so-Ao@home.chandlerfamily.org.uk>
+	 <20041122113150.GF10463@suse.de>
+	 <E1CWDhN-00040Y-E6@home.chandlerfamily.org.uk>
+	 <20041122130202.GO10463@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101338347.2571.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 24 Nov 2004 23:19:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> the following. It seems I was wrong in
+> assuming that the ide_intr() path already waited 400ns for us, I think
+> this should work for you. Can you test it?
 
-After an initial flourish of comments which I believe we've
-managed to address, it's all gone very quiet.
-
-Is that stunned silence or universal agreement? ;-)
-
-Thanks,
-Ian
-
-http://xen.sf.net
-
-> OK folks, this is my second attempt to post the arch xen patches,
-> this time against 2.6.10-rc2.
-> 
-> We need 6 core patches and a bug fix:
-> 
->  1. add ptep_establish_new to make va available
->  2. return code for arch_free_page
->  3. runtime disable of VT console
->  4. /dev/mem io_remap_page_range for CONFIG_XEN
->  5. split free_irq into teardown_irq
->  6. alloc_skb_from_cache
-> 
-> Bug fix:
->  7. handle fragemented skbs correctly in icmp_filter
-> 
-> The actual new architecture, arch xen, is too big to post to the list,
-> so here's a link:
->  http://www.cl.cam.ac.uk/netos/xen/downloads/arch-xen.patch
-> 
-> Likewise for the virtual block, network, and console drivers:
->  http://www.cl.cam.ac.uk/netos/xen/downloads/drivers-xen.patch
-> 
-> Applying the above 9 patches should give you everything you need to
-> build full-featured arch xen kernels.
-> 
-> Arch xen will be maintained by myself, Keir Fraser, Christian Limpach
-> and Steve hand. 
-> 
-> Cheers,
-> Ian
-> 
+The locking on ide_execute_command and friends is supposed to ensure
+this, can we please keep it out of the IRQ handler once its debugged ?
 

@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUJHKMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUJHKQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268445AbUJHKMa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJHKMa
+	id S268496AbUJHKQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269717AbUJHKQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:12:30 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:29873 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268445AbUJHKM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:12:29 -0400
-Message-ID: <41666794.3040701@yahoo.com.au>
-Date: Fri, 08 Oct 2004 20:10:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 8 Oct 2004 06:16:25 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:5015 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268496AbUJHKQX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:16:23 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: lse-tech@lists.sourceforge.net, colpatch@us.ibm.com
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+Date: Fri, 8 Oct 2004 12:14:20 +0200
+User-Agent: KMail/1.6.2
+Cc: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
+       frankeh@watson.ibm.com
+References: <1097110266.4907.187.camel@arrakis>
+In-Reply-To: <1097110266.4907.187.camel@arrakis>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
-Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
-References: <20041007164044.23bac609.akpm@osdl.org> <4165E0A7.7080305@yahoo.com.au> <20041007174242.3dd6facd.akpm@osdl.org> <20041007184134.S2357@build.pdx.osdl.net> <20041007185131.T2357@build.pdx.osdl.net> <20041007185352.60e07b2f.akpm@osdl.org> <4165FF7B.1070302@cyberone.com.au> <20041007200109.57ce24ae.akpm@osdl.org> <416605CC.2080204@cyberone.com.au> <20041007203048.298029ab.akpm@osdl.org> <20041007222119.X2357@build.pdx.osdl.net>
-In-Reply-To: <20041007222119.X2357@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200410081214.20907.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Andrew Morton (akpm@osdl.org) wrote:
-> 
->>Chris, do you have time to test this, against -linus?
-> 
-> 
-> Yeah.  This patch held up against the simple testing, as did Nick's (not
-> the most recent combined one from him).
-> 
+Hi Matthew,
 
-Thanks. Any/all patches should do much the same job.
+On Thursday 07 October 2004 02:51, Matthew Dobson wrote:
+> 1) Rip out sched_groups and move them into the sched_domains.
+> 2) Add some reference counting, and eventually locking, to
+> sched_domains.
+> 3) Rewrite & simplify the way sched_domains are built and linked into a
+> cohesive tree.
+> 
+> This should allow us to support hotplug more easily, simply removing the
+> domain belonging to the going-away CPU, rather than throwing away the
+> whole domain tree and rebuilding from scratch.  This should also allow
+> us to support multiple, independent (ie: no shared root) domain trees
+> which will facilitate isolated CPU groups and exclusive domains.  I also
+> hope this will allow us to leverage the existing topology infrastructure
+> to build domains that closely resemble the physical structure of the
+> machine automagically, thus making supporting interesting NUMA machines
+> and SMT machines easier.
 
-I'm pretty confident this was just a minor artifact brought out
-by an earlier change, and things still look good for 2.6.9.
+more flexibility in building the sched_domains is badly needed, so
+your effort towards providing this is the right step. I'm not sure
+yet whether your big change is really (and already) a simplification,
+but what you described sounded for me like getting the chance to
+configure the sched_domains at runtime, dynamically, from user
+space. I didn't notice any user interface in your patch, or overlooked
+it. Could you please describe the API you had in mind for that?
+
+Regards,
+Erich
+

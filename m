@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbRAERPJ>; Fri, 5 Jan 2001 12:15:09 -0500
+	id <S131484AbRAERQ3>; Fri, 5 Jan 2001 12:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRAERPD>; Fri, 5 Jan 2001 12:15:03 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:41725 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131384AbRAEROq>; Fri, 5 Jan 2001 12:14:46 -0500
-Date: Fri, 5 Jan 2001 15:14:08 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: linux-mm@kvack.org
+	id <S131560AbRAERQT>; Fri, 5 Jan 2001 12:16:19 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34056 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S131484AbRAERQB>; Fri, 5 Jan 2001 12:16:01 -0500
+Message-Id: <200101051715.f05HFKP21377@pincoya.inf.utfsm.cl>
+To: Alan.Cox@linux.org, sparclinux@vger.kernel.org
 cc: linux-kernel@vger.kernel.org
-Subject: MM/VM todo list
-Message-ID: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.4.0-ac1 on sparc64: Build problems
+X-Mailer: MH [Version 6.8.4]
+Date: Fri, 05 Jan 2001 14:15:20 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sun Ultra1, RH 6.2 + updates (+ local hacks).
 
-here is a TODO list for the memory management area of the
-Linux kernel, with both trivial things that could be done
-for later 2.4 releases and more complex things that really
-have to be 2.5 things.
+Building vmlinux:
 
-Most of these can be found on http://linux24.sourceforge.net/ too
+In arch/sparc64/kernel:
 
-Trivial stuff:
-* VM: better IO clustering for swap (and filesystem) IO
-  * Marcelo's swapin/out clustering code
-  * ->writepage() IO clustering support
-  * page_launder()/->writepage() working together in avoiding
-    low-yield (small cluster) IO at first, ...
-* VM: include Ben LaHaise's code, which moves readahead to the
-  VMA level, this way we can do streaming swap IO, complete with
-  drop_behind()
-* VM: enforce RSS ulimit
+  sys_sparc32.c: In function `sys32_quotactl':
+  sys_sparc32.c:907: storage size of `d' isn't known
+  sys_sparc32.c:907: warning: unused variable `d'
 
 
-Probably 2.5 era:
-* VM: physical->virtual reverse mapping, so we can do much
-  better page aging with less CPU usage spikes 
-* VM: move all the global VM variables, lists, etc. into the
-  pgdat struct for better NUMA scalability
-* VM: per-node kswapd for NUMA
-* VM: thrashing control, maybe process suspension with some
-  forced swapping ?             (trivial only in theory)
-* VM: experiment with different active lists / aging pages
-  of different ages at different rates + other page replacement
-  improvements
-* VM: Quality of Service / fairness / ... improvements
+Building modules:
 
+In drivers/sbus/audio:
 
-Additions to this list are always welcome, I'll put it online
-on the Linux-MM pages (http://www.linux.eu.org/Linux-MM/) soon.
+  amd7930.c:113: ../../isdn/hisax/foreign.h: No such file or directory
+  amd7930.c:1159: warning: function declaration isn't a prototype
+  amd7930.c: In function `amd7930_dxmit':
+  amd7930.c:1266: warning: assignment from incompatible pointer type
+  amd7930.c: In function `amd7930_drecv':
+  amd7930.c:1312: warning: assignment from incompatible pointer type
+  amd7930.c: At top level:
+  amd7930.c:1486: variable `amd7930_foreign_interface' has initializer but incomplete type
+  amd7930.c:1487: warning: excess elements in struct initializer after `amd7930_foreign_interface'
+  [ad nauseam]
 
-regards,
+  dbri.c:67: ../../isdn/hisax/foreign.h: No such file or directory
+  [Similar junk follows]
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
-
+Build hasn't finished yet, but seems to be going fine after this.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

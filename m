@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbTIVRzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 13:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbTIVRzV
+	id S261634AbTIVR5X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 13:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTIVR5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 13:55:21 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:49578 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261345AbTIVRzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 13:55:19 -0400
-Date: Mon, 22 Sep 2003 13:55:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: HT not working by default since 2.4.22
-Message-ID: <20030922175516.GA23397@gtf.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC86E1@hdsmsx402.hd.intel.com>
+	Mon, 22 Sep 2003 13:57:17 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:45264 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261555AbTIVR5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 13:57:15 -0400
+Subject: Re: 2.6.0-test5-mm4: BeFS compile error
+From: Will Dyson <will_dyson@pobox.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030922114958.GR6325@fs.tum.de>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	 <20030922114958.GR6325@fs.tum.de>
+Content-Type: text/plain
+Message-Id: <1064253433.346.11.camel@thalience>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC86E1@hdsmsx402.hd.intel.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 22 Sep 2003 13:57:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 01:28:03PM -0400, Brown, Len wrote:
-> If somebody has a 2.4.22 system where CONFIG_ACPI_HT_ONLY plus zero
-> cmdline parameters doesn't result in HT running and no ACPI running,
-> then please forward the details directly to me.
+On Mon, 2003-09-22 at 07:49, Adrian Bunk wrote:
+> On Mon, Sep 22, 2003 at 01:35:48AM -0700, Andrew Morton wrote:
+> >...
+> > befs-use-parser.patch
+> >   BEFS: Use table-driven option parsing
+> >...
+> 
+> It seems this patch broke the compilation of BeFS:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      fs/befs/linuxvfs.o
+> fs/befs/linuxvfs.c: In function `parse_options':
+> fs/befs/linuxvfs.c:712: too few arguments to function `match_int'
+> fs/befs/linuxvfs.c:724: too few arguments to function `match_int'
+> make[2]: *** [fs/befs/linuxvfs.o] Error 1
 
-The old acpitable.[ch] was unconditionally enabled...  So _not_
-unconditionally enabling HT was a regression.
+Seems Andrew merged a different version of the options patch than the
+one that was posted to the list. I can make a fixup tonight.
 
-(just pointing out a fact;  I actually prefer a CONFIG_xxx)
+Also, from looking at the test5-mm4 patch, I think that match_number()
+from lib/parser.c is ignoring the base argument and using a hardcoded
+value of zero for the simple_strtol() call. This should result in
+match_octal() and match_hex() being broken (well, being the same as
+match_int).
 
-	Jeff
-
-
+-- 
+Will Dyson
+"Back off man, I'm a scientist!" -Dr. Peter Venkman
 

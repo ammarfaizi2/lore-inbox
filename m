@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279640AbRKFPnj>; Tue, 6 Nov 2001 10:43:39 -0500
+	id <S279708AbRKFQAe>; Tue, 6 Nov 2001 11:00:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279704AbRKFPna>; Tue, 6 Nov 2001 10:43:30 -0500
-Received: from etna.trivadis.com ([193.73.126.2]:8186 "EHLO lttit")
-	by vger.kernel.org with ESMTP id <S279640AbRKFPnN>;
-	Tue, 6 Nov 2001 10:43:13 -0500
-Date: Tue, 6 Nov 2001 16:41:41 +0100
-From: Tim Tassonis <timtas@cubic.ch>
-To: diemer@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14 breaks block/loop.c (loopback device)
-X-Mailer: Sylpheed version 0.6.4cvs16 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S279728AbRKFQAY>; Tue, 6 Nov 2001 11:00:24 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40182 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S279708AbRKFQAI>; Tue, 6 Nov 2001 11:00:08 -0500
+Date: Tue, 06 Nov 2001 10:00:04 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix race condition in wait with thread groups
+Message-ID: <30540000.1005062403@baldur>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1618MA-0006Rn-00@lttit>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-> Hi!
->
-> The latest kernel seems to breake the loop device. I used 2.4.13 before,
-and
-> everything was fine. I didn't change my kernel config when upgrading.
->
-> I compile the loop device as a module. trying to modprobe/insmod it, I
-get the
-> following error message:
->
-> unresolved symbol in loop.o: deactivate_page
+There is code in sys_wait4() that makes a task wait for the children of all
+members of the thread group.  This code has a race condition when more than
+one task in a thread group calls wait.  Once it has picked a zomebie task
+to return it drops the tasklist lock before it calls release_task().  This
+allows another task to select the same zombie to clean up.
 
+My fix for this race condition is to set the zombie task's state to a
+different value before the tasklist lock is released.  This means no other
+waiting task will select it.  There could be other ways of marking a task
+as already selected for cleanup, but this seemed the simplest.
 
-You can apply below patch to fix this. Worked for me with no problem. This
-was already discussed on the list and Linus said this would be the
-appropriate fix.
+The patch is appended below.  It applies cleanly to 2.4.14
 
+Dave McCracken
 
-diff -ru linux/drivers/block/loop.c linux-patched/drivers/block/loop.c
---- linux/drivers/block/loop.c  Tue Nov  6 10:41:15 2001
-+++ linux-patched/drivers/block/loop.c  Tue Nov  6 10:43:51 2001
-@@ -218,14 +218,12 @@
-        index++;
-        pos += size;
-        UnlockPage(page);
--       deactivate_page(page);
-        page_cache_release(page);
-    }
-    return 0;
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
- unlock:
-    UnlockPage(page);
--   deactivate_page(page);
-    page_cache_release(page);
- fail:
-    return -1;
+-------------------------
+
+--- linux-2.4.13/kernel/exit.c	Mon Oct 22 11:27:55 2001
++++ linux-2.4.14-pre8/kernel/exit.c	Mon Nov  5 11:56:45 2001
+@@ -534,6 +534,9 @@
+ 				}
+ 				goto end_wait4;
+ 			case TASK_ZOMBIE:
++				/* Make sure no other waiter picks this task up */
++				p->state = TASK_DEAD;
++
+ 				current->times.tms_cutime += p->times.tms_utime + p->times.tms_cutime;
+ 				current->times.tms_cstime += p->times.tms_stime + p->times.tms_cstime;
+ 				read_unlock(&tasklist_lock);
+--- linux-2.4.13/include/linux/sched.h	Tue Oct 23 23:59:06 2001
++++ linux-2.4.14-pre8/include/linux/sched.h	Mon Nov  5 12:56:20 2001
+@@ -88,6 +88,7 @@
+ #define TASK_UNINTERRUPTIBLE	2
+ #define TASK_ZOMBIE		4
+ #define TASK_STOPPED		8
++#define TASK_DEAD		16
+ 
+ #define __set_task_state(tsk, state_value)		\
+ 	do { (tsk)->state = (state_value); } while (0)
 

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbSKVXML>; Fri, 22 Nov 2002 18:12:11 -0500
+	id <S265339AbSKVXPT>; Fri, 22 Nov 2002 18:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265380AbSKVXML>; Fri, 22 Nov 2002 18:12:11 -0500
-Received: from viefep12-int.chello.at ([213.46.255.25]:18962 "EHLO
-	viefep12-int.chello.at") by vger.kernel.org with ESMTP
-	id <S265373AbSKVXMK>; Fri, 22 Nov 2002 18:12:10 -0500
-Date: Sat, 23 Nov 2002 00:18:52 +0100 (CET)
-From: =?ISO-8859-2?Q?=C9rsek_L=E1szl=F3?= <erseklaszlo@chello.hu>
-To: linux-kernel@vger.kernel.org
-Subject: rbtree
-Message-ID: <Pine.LNX.4.44.0211230003140.443-100000@lacos>
+	id <S265380AbSKVXPT>; Fri, 22 Nov 2002 18:15:19 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:61568 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S265339AbSKVXPS> convert rfc822-to-8bit; Fri, 22 Nov 2002 18:15:18 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-rc2aa1 refuses to boot into non frame buffer mode
+Date: Sat, 23 Nov 2002 10:23:56 +1100
+User-Agent: KMail/1.4.3
+Cc: Andrea Arcangeli <andrea@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211231024.00884.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear developers and mighty hackers,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-please take a look at linux-2.4.19/lib/rbtree.c, lines
+When the vesa framebuffer is compiled into 2.4.20-rc2aa1 kernel it will boot 
+into the framebuffer mode even if I specify vga=normal at lilo. I had to 
+recompile it without framebuffer support since booting into framebuffer mode 
+gives very different benchmark results.
 
-	I.  148-151, 159-160, 163,
-	II. 188-191, 199-200, 203,
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-and consider
-
-	http://gcc.gnu.org/ml/libstdc++/2002-11/msg00244.html
-
-According to
-
-	http://www.lkml.org/faq/#s3-3
-
-please notify me personally; or ignore me, whichever is adequate.
-
-
-I already mailed Andrea Arcangeli <andrea@suse.de>; he didn't react yet.
-
-
-Thank you
-
-Laszlo Ersek
-
+iD8DBQE93ryNF6dfvkL3i1gRAuIjAJ41hqFkx7IYfpsAkn6aatbvU0LC6ACcD3HH
+am2vn7vNSabkID0Xvz5VnWY=
+=asQi
+-----END PGP SIGNATURE-----

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUHHQXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUHHQps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUHHQXf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 12:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUHHQXe
+	id S265887AbUHHQps (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 12:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUHHQps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 12:23:34 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:11958 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S265887AbUHHQXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 12:23:08 -0400
-Date: Sun, 8 Aug 2004 17:22:58 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andi Kleen <ak@muc.de>
-cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow to disable shmem.o
-In-Reply-To: <20040808142829.GC94449@muc.de>
-Message-ID: <Pine.LNX.4.44.0408081711530.1983-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 8 Aug 2004 12:45:48 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:27288 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265887AbUHHQpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 12:45:46 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de>
+References: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Aug 2004 11:45:27 -0500
+Message-Id: <1091983528.10960.7.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Aug 2004, Andi Kleen wrote:
-> On Sun, Aug 08, 2004 at 09:07:05AM -0500, Matt Mackall wrote:
-> > +extern struct inode *ramfs_get_inode(struct super_block *sb, int mode, dev_t dev);
-> > +extern struct super_block *ramfs_get_sb(struct file_system_type *fs_type,
-> > +	 int flags, const char *dev_name, void *data);
-> > +extern struct file_operations ramfs_file_operations;
-> > +extern struct vm_operations_struct generic_file_vm_ops;
+On Fri, 2004-08-06 at 08:30, Joerg Schilling wrote:
+> I don't see any arrogance in my mails but in former discussions on LKML,
+> there have been other people who did believe that they could replace missing
+> knowledge by arrogance. Fortunately, they did not join this thread ;-)
 > 
-> This should be all in header files.
-
-Yes.
-
-> > +	if (IS_ERR(shm_mnt))
-> > +		return (void *)shm_mnt;
+> Let me lead you to the right place to look for:
 > 
-> Why this strange cast? 
-
-Matt copied from shmem.c, so blame me.  Strange cast because it's one
-of those IS_ERR things, an -errno hiding inside a pointer, and it's
-being propagated from an initialization error on shm_mnt to a runtime
-error on any struct file for that mount.  I wrote (void *) because it
-seemed to express the ambiguity better than pretending struct file *.
-
-> > +	inode = ramfs_get_inode(root->d_sb, S_IFREG | S_IRWXUGO, 0);
+> 	The CAM interface (which is from the SCSI standards group)
+> 	usually is implemeted in a way that applications open /dev/cam and
+> 	later supply bus, target and lun in order to get connected
+> 	to any device on the system that talks SCSI.
 > 
-> Hmm, won't this allow everybody else to open it in /proc/pid/fd/ ? 
-> (existing shmem.c seems to use it too, but it looks a bit bogus) 
+> Let me repeat: If you believe that this is a bad idea, give very good reasons.
 
-But there's no fd associated with it?
+Although I have always thought CAM to be a bad idea, I can give you the
+best of reasons why we won't be using it:  The old standard applies to
+SCSI-2 and has been superceded. The committee charged with creating the
+new CAM standard was disbanded in disarray, so there is no current CAM
+standard.
 
-Hugh
+I know all the arguments about politics and personality clashes that
+have been alleged to be behind the collapse of the new standard. 
+However, in my view, it was a bad standard and the evidence of its
+unworkability is simply that the committee couldn't agree on it.
+
+For us to look at CAM again, someone will have to at least make it a
+current standard.
+
+The model which looks to me to be very workable is SAM (or at least
+SAM-3).  To that end, we're already moving the linux scsi layer (which
+was actually pretty transport abstracted and thus SAM conformant anyway)
+further in that direction with the creation of transport classes.
+
+James
+
 

@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVCSA2C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVCSA2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVCSA2C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 19:28:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVCSA2C
+	id S262298AbVCSA2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 19:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVCSA2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 19:28:02 -0500
-Received: from hs-grafik.net ([80.237.205.72]:41489 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S262296AbVCSA16 (ORCPT
+	Fri, 18 Mar 2005 19:28:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17551 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262298AbVCSA2r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 19:27:58 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.11-mm3] umount: Scheduling while atomic
-Date: Sat, 19 Mar 2005 01:27:52 +0100
-User-Agent: KMail/1.7.2
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4070415.JKGCU2XvVs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503190127.54669@zodiac.zodiac.dnsalias.org>
+	Fri, 18 Mar 2005 19:28:47 -0500
+Date: Sat, 19 Mar 2005 01:28:02 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: fix-u32-vs-pm_message_t-in-usb
+Message-ID: <20050319002802.GI24449@elf.ucw.cz>
+References: <20050310223353.47601d54.akpm@osdl.org> <20050311130831.GC1379@elf.ucw.cz> <20050318214335.GA17813@kroah.com> <20050318234440.GF24449@elf.ucw.cz> <20050318155313.60a4670f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050318155313.60a4670f.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4070415.JKGCU2XvVs
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Pá 18-03-05 15:53:13, Andrew Morton wrote:
+> Pavel Machek <pavel@suse.cz> wrote:
+> >
+> > > Care to just rediff off of 2.6.12-rc1?  Then we can hopefully get these
+> >  > changes in :)
+> > 
+> >  I can do the rediff tommorow. I just hope there are not some other
+> >  changis waiting in -mm to spoil this ;-).
+> 
+> I have a boatload of these darn pm_message_t patches floating about.  I
+> don't know if they depend on Greg's stuff or not.
+> 
+> Should I just hose them at him?
 
-Hi,
+I see patches on their way, thanks!
+								Pavel
 
-while umounting an ext2 partition on a usb hdd I'm getting:
-scheduling while atomic: umount/0x10000001/14941
- [<c0451392>] schedule+0x5f2/0x600
- [<c0451cc7>] cond_resched+0x27/0x40
- [<c0140af1>] invalidate_mapping_pages+0x81/0xe0
- [<c015b27d>] kill_bdev+0xd/0x20
- [<c015b315>] __set_blocksize+0x85/0xa0
- [<c015bba0>] __bd_release+0x70/0x80
- [<c015c458>] __close_bdev_excl+0x8/0x10
- [<c015a100>] deactivate_super+0x50/0x80
- [<c016f82b>] sys_umount+0x3b/0x90
- [<c0148c20>] do_munmap+0x120/0x150
- [<c016f895>] sys_oldumount+0x15/0x20
- [<c010300b>] sysenter_past_esp+0x54/0x75
+> fix-pm_message_t-in-generic-code.patch
+> fix-u32-vs-pm_message_t-in-usb.patch
+> fix-u32-vs-pm_message_t-in-usb-fix.patch
+> more-pm_message_t-fixes.patch
+> fix-u32-vs-pm_message_t-confusion-in-oss.patch
+> fix-u32-vs-pm_message_t-confusion-in-pcmcia.patch
+> fix-u32-vs-pm_message_t-confusion-in-framebuffers.patch
+> fix-u32-vs-pm_message_t-confusion-in-mmc.patch
+> fix-u32-vs-pm_message_t-confusion-in-serials.patch
+> fix-u32-vs-pm_message_t-in-macintosh.patch
+> fix-u32-vs-pm_message_t-confusion-in-agp.patch
+> 
 
-regards
-Alex
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-
---nextPart4070415.JKGCU2XvVs
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCO3IK/aHb+2190pERAo2+AKCpyi6Q6ExwxlMqt+YfWWpco6Q82ACdFXzT
-zpzYBuxNCLDl4EnJNsLoEhY=
-=V3+E
------END PGP SIGNATURE-----
-
---nextPart4070415.JKGCU2XvVs--
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

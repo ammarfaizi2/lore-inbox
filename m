@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290125AbSA3Qr4>; Wed, 30 Jan 2002 11:47:56 -0500
+	id <S290113AbSA3Qq3>; Wed, 30 Jan 2002 11:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290018AbSA3Qqc>; Wed, 30 Jan 2002 11:46:32 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:64644 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S290072AbSA3Qpo>; Wed, 30 Jan 2002 11:45:44 -0500
-Date: Wed, 30 Jan 2002 11:47:56 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TCP/IP Speed
-In-Reply-To: <Pine.LNX.4.44.0201301831120.5518-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.3.95.1020130114353.15469A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290084AbSA3QpL>; Wed, 30 Jan 2002 11:45:11 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21777 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290018AbSA3QoM>; Wed, 30 Jan 2002 11:44:12 -0500
+Date: Wed, 30 Jan 2002 19:44:08 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Dave Jones <davej@suse.de>, Sebastian Dr?ge <sebastian.droege@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020130194408.A2153@namesys.com>
+In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020130174011.L24012@suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Zwane Mwaikambo wrote:
+Hello!
 
-> On Wed, 30 Jan 2002, Richard B. Johnson wrote:
-> 
-> > But it's already connected.
-> > 
-> > 
-> >          host:
-> >          for (;;) {
-> >             gettimeofday(...);
-> >             write(s, buf, 64);
-> >             read(s, buf, sizeof(buffer));
-> >             gettimeofday(...);
-> >          /* delay is 1.0 ms */
-> >          }
-> >          server is IPPORT_ECHO
-> 
-> You didn't make that explicit in your previous email, and anyway what kind 
-> of resolution can you expect from gettimeofday...
-> 
+On Wed, Jan 30, 2002 at 05:40:11PM +0100, Dave Jones wrote:
+>  > I can reproduce this problem on IDE only.
+>  > Hm, may be this is IDE corruption thing, Andre Hendrick spoke about,
+>  > or was it fixed already?
+>  > I am looking into it anyway.
+>  There were no IDE changes in my tree recently, and its strange
+>  that this only shows up in reiserfs since the new set of patches
+>  went in. I've no reports from users of other filesystems with any
+>  problems, so I'm suspecting a rogue change in your last update.
+>  Finding a common factor seems tricky, as it works flawlessly here
+>  on IDE [*], but dies instantly for others.
+You do not play with a hdparm in your boot scripts, do you?
+I do (will retry without this now).
+How about others?
 
-The resolution is in microseconds. That's the specification. Not
-all 'codes' are exercised of course, but the resolution is sufficient
-to discern a 10 to 30 microsecond difference. I'm trying to measure
-milliseconds, well within its capability. FYI, this is what `ping`
-and `traceroute` use. It's fine.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Bye,
+    Oleg

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbRCAPpL>; Thu, 1 Mar 2001 10:45:11 -0500
+	id <S129664AbRCAPrL>; Thu, 1 Mar 2001 10:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbRCAPpC>; Thu, 1 Mar 2001 10:45:02 -0500
-Received: from [199.183.24.200] ([199.183.24.200]:50521 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129632AbRCAPoq>; Thu, 1 Mar 2001 10:44:46 -0500
-Date: Thu, 1 Mar 2001 10:44:38 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Martin Rauh <martin.rauh@gmx.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Writing on raw device with software RAID 0 is slow
-In-Reply-To: <20010301121418.A7647@redhat.com>
-Message-ID: <Pine.LNX.4.30.0103011035520.13184-100000@today.toronto.redhat.com>
+	id <S129667AbRCAPrD>; Thu, 1 Mar 2001 10:47:03 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:48903 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S129664AbRCAPqw>;
+	Thu, 1 Mar 2001 10:46:52 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DECF@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'kernel@kvack.org'" <kernel@kvack.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
+Date: Thu, 1 Mar 2001 17:51:30 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="WINDOWS-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+I need a giga fiber PMC cards for linux2.0.36-pre14, the only cards I know
+are either Intel based or level-one lxt-1001 card, the level-one lxt-1001
+has very bad performance so I cannot use it.
 
-On Thu, 1 Mar 2001, Stephen C. Tweedie wrote:
+Thanks,
+Ofer
 
-> Raw IO is always synchronous: it gets flushed to disk before the write
-> returns.  You don't get any write-behind with raw IO, so the smaller
-> the blocksize you write in, the slower things get.
+-----Original Message-----
+From: kernel@kvack.org [mailto:kernel@kvack.org]
+Sent: Thursday, March 01, 2001 5:31 PM
+To: Ofer Fryman
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
 
-More importantly, the mainstream raw io code only writes in 64KB chunks
-that are unpipelined, which can lead to writes not hitting the drive
-before the sector passes under the rw head.  You can work around this to
-some extent by issuing multiple writes (via threads, or the aio work I've
-done) at the expense of atomicity.  Also, before we allow locking of
-arbitrary larger ios in main memory, we need bean counting to prevent the
-obvious DoSes.
+
+On Thu, 1 Mar 2001, Ofer Fryman wrote:
+
+> I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
+> successfully. 
+> With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless
+interrupts
+> and the computer freezes, without this bit set it works but I cannot
+receive
+> or send anything.
+
+Intel refuses to provide complete documentation for any of their ethernet
+cards.  I recommend purchasing alternative products from vendors like 3com
+and National Semiconduct who are cooperative in providing data needed by
+the development community.
+
 
 		-ben
 

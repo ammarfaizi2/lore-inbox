@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313759AbSDHV1s>; Mon, 8 Apr 2002 17:27:48 -0400
+	id <S313761AbSDHVai>; Mon, 8 Apr 2002 17:30:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313761AbSDHV1r>; Mon, 8 Apr 2002 17:27:47 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:16145 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S313759AbSDHV1q>; Mon, 8 Apr 2002 17:27:46 -0400
-Date: Mon, 8 Apr 2002 22:27:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Robert Love <rml@tech9.net>
-Cc: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: system call for finding the number of cpus??
-Message-ID: <20020408222742.A28352@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Robert Love <rml@tech9.net>,
-	"Kuppuswamy,  Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A4451A@tayexc13.americas.cpqcorp.net> <1018301108.913.167.camel@phantasy>
+	id <S313762AbSDHVah>; Mon, 8 Apr 2002 17:30:37 -0400
+Received: from gumby.it.wmich.edu ([141.218.23.21]:54521 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S313761AbSDHVag>; Mon, 8 Apr 2002 17:30:36 -0400
+Subject: X lockup on running after a resume
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 08 Apr 2002 17:30:29 -0400
+Message-Id: <1018301434.485.3.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08, 2002 at 05:25:08PM -0400, Robert Love wrote:
-> Linux does not implement such a syscall.  Note
-> 
-> 	cat /proc/cpuinfo | grep processor | wc -l
-> 
-> works and is simple; you do not have to do it via script - execute it in
-> your C program, save the one-line output, and atoi() it.
+I did a suspend and resume from console before starting X or loading the
+dri module.  after the resume completed I loaded th dri module and x and
+X got up to the point where sawfish should have started and it locked
+hard.  I have to assume it's dri related and I will try without dri
+(since i dont play games I dont really need it anyway) and see if it
+still locks up.  I haven't tried suspending and resuming while X is
+already loaded.  Would be interesting to see the results of that too
+though.  
 
-I guess there is at least one architecture on which it breaks..
-See http://people.nl.linux.org/~hch/cpuinfo/ for details.
+
+

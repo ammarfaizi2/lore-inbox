@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284717AbSBJWjV>; Sun, 10 Feb 2002 17:39:21 -0500
+	id <S285226AbSBJWmB>; Sun, 10 Feb 2002 17:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284794AbSBJWjL>; Sun, 10 Feb 2002 17:39:11 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:9960 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S284717AbSBJWix>; Sun, 10 Feb 2002 17:38:53 -0500
-Message-ID: <3C66F670.9000305@nyc.rr.com>
-Date: Sun, 10 Feb 2002 17:38:40 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
+	id <S285161AbSBJWlv>; Sun, 10 Feb 2002 17:41:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12040 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285226AbSBJWll>;
+	Sun, 10 Feb 2002 17:41:41 -0500
+Message-ID: <3C66F71D.7EFBB347@mandrakesoft.com>
+Date: Sun, 10 Feb 2002 17:41:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.4-pre6 compile trouble
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Karl <ktatgenhorst@earthlink.net>
+CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, lwn@lwn.net,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Janitor Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+        kernelnewbies@nl.linux.org
+Subject: Re: ANNOUNCE: Janitor weekend!
+In-Reply-To: <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.4/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686   -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o 
-sched.o sched.c
-sched.c: In function `schedule':
-sched.c:664: `global_irq_holder' undeclared (first use in this function)
-sched.c:664: (Each undeclared identifier is reported only once
-sched.c:664: for each function it appears in.)
-make[2]: *** [sched.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.4/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.4/kernel'
-make: *** [_dir_kernel] Error 2
+Karl wrote:
+> 
+>      Is this perhaps the WRONG weekend? I have checked many times. There is
+> a fella 'Johnflux' asleep there but he is alone.
 
+There are several people in there...
+
+irc.openprojects.net
+#kerneljanitor
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbTANTqt>; Tue, 14 Jan 2003 14:46:49 -0500
+	id <S265132AbTANTxR>; Tue, 14 Jan 2003 14:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbTANTqt>; Tue, 14 Jan 2003 14:46:49 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59014 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265099AbTANTqs> convert rfc822-to-8bit; Tue, 14 Jan 2003 14:46:48 -0500
-Date: Tue, 14 Jan 2003 14:56:35 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: DervishD <raul@pleyades.net>
-cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-In-Reply-To: <20030114195005.GD162@DervishD>
-Message-ID: <Pine.LNX.3.95.1030114145417.13752A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S265134AbTANTxR>; Tue, 14 Jan 2003 14:53:17 -0500
+Received: from bitmover.com ([192.132.92.2]:4834 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S265132AbTANTxQ>;
+	Tue, 14 Jan 2003 14:53:16 -0500
+Date: Tue, 14 Jan 2003 12:02:02 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Richard Stallman <rms@gnu.org>, Larry McVoy <lm@bitmover.com>,
+       root@chaos.analogic.com, pollard@admin.navo.hpc.mil,
+       R.E.Wolff@BitWizard.nl, jalvo@mbay.net, linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030114200202.GG19154@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dax Kelson <dax@gurulabs.com>, Richard Stallman <rms@gnu.org>,
+	Larry McVoy <lm@bitmover.com>, root@chaos.analogic.com,
+	pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net,
+	linux-kernel@vger.kernel.org
+References: <20030114190600.GC19154@work.bitmover.com> <Pine.LNX.4.44.0301141233020.23531-100000@mooru.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301141233020.23531-100000@mooru.gurulabs.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2003, DervishD wrote:
+On Tue, Jan 14, 2003 at 12:56:39PM -0700, Dax Kelson wrote:
+> For nearly 10 years I've read many posts by RMS and the replies that
+> follow. RMS's posts seem calm, rational and clearly presented. For the
+> most part, the replies are emotional, high strung, and mean spirited
+> personal attacks.
 
->     Hi Richard :)
-> 
-> > >     Any header where I can see the length for argv[0] or is this some
-> > > kind of unoficial standard? Just doing strcpy seems dangerous to me
-> > > (you can read 'paranoid'...).
-> > They need to have space for _POSIX_PATH_MAX (512 bytes), to
-> > claim POSIX compatibility so any POSIX system will have at
-> > least 512 bytes available because the pathname of the executable
-> > normally goes there.
-> 
->     Enough for me, then. Thanks a lot :)) Just one more thing: in my
-> Single Unix Spec v3 says that the minimum value of _POSIX_PATH_MAX is
-> 256, not 512, and the libc manual says just the same :??
-> 
->     Anyway, 256 bytes is a fair large amount ;))))
-> 
->     Thanks again, Richard.
-> 
->     Raúl
-> 
-Well I just grepped through usr/include/bits/posix1_lim.h and it
-shows 255 (with this 'C' library) so you are probably right.
-
-In any event, a "whole line of text" isn't going to overrun it. 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+If I calmly, rationally, and clearly state things which are not true,
+are self serving, and are not relevant to a forum, what should I expect
+in response?  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUG0N5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUG0OSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265973AbUG0N5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 09:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUG0N5S
+	id S265986AbUG0OSp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 10:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUG0OSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 09:57:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42208 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265973AbUG0N5R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 09:57:17 -0400
-Date: Tue, 27 Jul 2004 09:54:32 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Joel Soete <soete.joel@tiscali.be>
-Cc: Daniel Jacobowitz <dan@debian.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-Message-ID: <20040727125432.GA1960@logos.cnet>
-References: <20040705051010.GA24583@nevyn.them.org> <40BD9F8700015B8E@ocpmta2.freegates.net>
+	Tue, 27 Jul 2004 10:18:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:43230 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265986AbUG0OQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 10:16:31 -0400
+Date: Tue, 27 Jul 2004 16:16:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: colpatch@us.ibm.com
+Cc: jbarnes@sgi.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
+Message-Id: <20040727161628.56a03aec.ak@suse.de>
+In-Reply-To: <1090887007.16676.18.camel@arrakis>
+References: <1090887007.16676.18.camel@arrakis>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BD9F8700015B8E@ocpmta2.freegates.net>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 01:59:21PM +0200, Joel Soete wrote:
-> Hello Daniel,
-> 
-> > > So just use
-> > >
-> > > 	buffer++;
-> > >
-> > > here, and the intent is then clear.
-> >
-> > Except C does not actually allow incrementing a void pointer, since
-> > void does not have a size.
-> That make better sense to me because aifair a void * was foreseen to pass
-> any kind of type * as actual parameter?
-> (So as far as I understand, the aritthm pointer sould be dynamic for the
-> best 'natural' behaviour?)
-> 
-> >   You can't do arithmetic on one either.  GNU
-> > C allows this as an extension.
-> >
-> > It's actually this, IIRC:
-> >   buffer = ((char *) buffer) + 1;
+On Mon, 26 Jul 2004 17:10:08 -0700
+Matthew Dobson <colpatch@us.ibm.com> wrote:
 
-Joel, 
+> So in discussions with Jesse at OLS, we decided that pcibus_to_node() is
+> a more generally useful function than pcibus_to_cpumask().  If anyone
+> disagrees with that, now would be a good time to let us know.
 
-It seems the current code is working perfectly, generating correct
-asm code. 
+Not sure that is a good idea. Sometimes this information is not available.
+With pcibus_to_cpumask() the fallback is obvious, but it isn't with
+pcibus_to_node(). Returning a random node is wrong.
 
-Could you come up with a good enough reason to do this cleanup (as far as 
-I am concerned) in 2.4.x series?
 
-Thanks
+> This is just a preliminary patch.  It needs review for x86_64, as I
+> don't know how to properly populate the mp_bus_to_node (which used to be
+> mp_bus_to_cpumask) array.
+
+It's impossible currently - I need an ACPI 3.0 BIOS to get this information.
+Even then there will be machines who don't supply it.
+
+I tried some time ago to get it from the hardware, but the hardware registers
+were arcane enough that I didn't find it easy enough. Relying on firmware
+for this thing is probably a better idea anyways.
+
+-Andi
+

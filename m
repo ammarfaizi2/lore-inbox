@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbTFJPsm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 11:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTFJPsm
+	id S263199AbTFJPuN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTFJPuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 11:48:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55776 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263295AbTFJPre (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 11:47:34 -0400
-Date: Tue, 10 Jun 2003 18:01:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] loop 2/9 absorb bio_copy
-Message-ID: <20030610160114.GG17164@suse.de>
-References: <20030610153730.GC17164@suse.de> <Pine.LNX.4.44.0306101657140.2334-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jun 2003 11:50:13 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:60681 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263199AbTFJPtd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:49:33 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Geller Sandor <wildy@petra.hos.u-szeged.hu>
+Subject: Re: [PATCH 2/2] xirc2ps_cs update
+Date: Tue, 10 Jun 2003 16:01:02 -0400
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200306101524.15648.daniel.ritz@gmx.ch> <Pine.LNX.4.44.0306101731200.10841-100000@petra.hos.u-szeged.hu> <20030610154655.GA1959@gtf.org>
+In-Reply-To: <20030610154655.GA1959@gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306101657140.2334-100000@localhost.localdomain>
+Message-Id: <200306101601.02879.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10 2003, Hugh Dickins wrote:
-> On Tue, 10 Jun 2003, Jens Axboe wrote:
-> > On Tue, Jun 10 2003, Hugh Dickins wrote:
-> > > bio_copy is used only by the loop driver, which already has to walk the
-> > > bio segments itself: so it makes sense to change it from bio.c export
-> > > to loop.c static, as prelude to working upon it there.
-> > 
-> > I don't think this is is a particularly good idea, it's pretty core bio
-> > functionality that should be left alone in bio.c imho.
-> > 
-> > Is there a real reason you want to do this apart from 'loop is the only
-> > (current) user'?
-> 
-> As I said, loop already has to walk the bio segments itself elsewhere,
-> and a lot of what bio_copy does (e.g. copying data) it doesn't need done,
-> and other things it does (same gfp_mask for two very different allocations)
-> don't suit loop very well.  By all means add bio_copy back into fs/bio.c
-> when something else needs that functionality?
+On Tuesday 10 June 2003 11:46, Jeff Garzik wrote:
+> On Tue, Jun 10, 2003 at 05:35:18PM +0200, Geller Sandor wrote:
+> > On Tue, 10 Jun 2003, Daniel Ritz wrote:
+> > > -    busy_loop(HZ/25);		     /* wait 40 msec */
+> > > +    Wait(HZ/25);		     /* wait 40 msec */
+> >
+> > Why not Wait(40); instead Wait(HZ/25) ? Currently HZ is 1000. However,
+> > the value can change - as it changed from 100 to 1000.
+>
+> True enough...  the best solution is to grep the tree for a
+> msecs_to_jiffies macro, and use that.  Then it will look like
+>
 
-Alright, I guess I can live with that as there's no direct need for it
-elsewhere right now. Just doesn't feel right.
+hmm...yes, but the macro is defined in include/net/irda/irda.h
+move it to a place where everyone can use it? like time.h or kernel.h?
 
--- 
-Jens Axboe
+> 	Wait(msecs_to_jiffies(40))
+
+i would do it in the Wait macro. looks nicer..
+and also define the Wait macro (with a better name, suggestions?)
+somewhere else, 'cos other drivers use set_current_state(); schedule_timeout()
+too..
+
+>
+> and the macro does the proper scaling versus constant HZ.
+>
+> 	Jeff
+
+-daniel
 

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUGDGoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265424AbUGDGtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265410AbUGDGoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 02:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUGDGoo
+	id S265424AbUGDGtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 02:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbUGDGtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 02:44:44 -0400
-Received: from holomorphy.com ([207.189.100.168]:6088 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265410AbUGDGom (ORCPT
+	Sun, 4 Jul 2004 02:49:09 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:10625 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265424AbUGDGtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 02:44:42 -0400
-Date: Sat, 3 Jul 2004 23:44:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, hugh@veritas.com
-Subject: force O_LARGEFILE in sys_swapon() and sys_swapoff()
-Message-ID: <20040704064440.GZ21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, hugh@veritas.com
-References: <20040704064122.GY21066@holomorphy.com>
+	Sun, 4 Jul 2004 02:49:06 -0400
+Date: Sun, 4 Jul 2004 08:49:20 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pawe__ Sikora <pluto@pld-linux.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [prefetch.h] warning: pointer of type `void *' used in arithmetic'
+Message-ID: <20040704064920.GA1194@ucw.cz>
+References: <200407031832.34780.pluto@pld-linux.org> <20040703171811.1f10c5df.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040704064122.GY21066@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040703171811.1f10c5df.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 11:41:22PM -0700, William Lee Irwin III wrote:
-> Internal kernel open() of files barfs in important contexts, for
-> instance, using strict non-overcommit with enough swap for large
-> commitments. This is carried out through the entrypoint filp_open(),
-> not sys_open(). sys_open() in turn calls filp_open(). So merely
-> moving the forcing of the flag on 64-bit resolves this situation there,
-> though not for 32-bit, whose solution is to appear in the sequel.
+On Sat, Jul 03, 2004 at 05:18:11PM -0700, Andrew Morton wrote:
+> Pawe__ Sikora <pluto@pld-linux.org> wrote:
+> >
+> > warning killed.
+> 
+> >  --- /var/tmp/linux/include/linux/prefetch.h.orig	2004-06-16 07:20:25.000000000 +0200
+> >  +++ /var/tmp/linux/include/linux/prefetch.h	2004-07-03 18:28:10.478861720 +0200
+> >  @@ -59,7 +59,7 @@
+> >   {
+> >   #ifdef ARCH_HAS_PREFETCH
+> >   	char *cp;
+> >  -	char *end = addr + len;
+> >  +	char *end = (char *)addr + len;
+> 
+> What version of the compiler is generating this warning?
 
-For 32-bit, one quickly discovers that swapon() is not given an fd
-already opened with O_LARGEFILE to act upon and the forcing of
-O_LARGEFILE for 64-bit is irrelevant, as the system call's argument is
-a path. So this patch manually forces it for swapon() and swapoff().
+As far as I know, any gcc if and only if you pass "-Wpointer-arith" to
+it. The kernel doesn't do that, leaving me wondering ...
 
-
--- wli
-
-Index: mm5-2.6.7/mm/swapfile.c
-===================================================================
---- mm5-2.6.7.orig/mm/swapfile.c	2004-07-02 20:43:30.000000000 -0700
-+++ mm5-2.6.7/mm/swapfile.c	2004-07-03 23:12:35.000000000 -0700
-@@ -1085,7 +1085,7 @@
- 	if (IS_ERR(pathname))
- 		goto out;
- 
--	victim = filp_open(pathname, O_RDWR, 0);
-+	victim = filp_open(pathname, O_RDWR|O_LARGEFILE, 0);
- 	putname(pathname);
- 	err = PTR_ERR(victim);
- 	if (IS_ERR(victim))
-@@ -1354,7 +1354,7 @@
- 		name = NULL;
- 		goto bad_swap_2;
- 	}
--	swap_file = filp_open(name, O_RDWR, 0);
-+	swap_file = filp_open(name, O_RDWR|O_LARGEFILE, 0);
- 	error = PTR_ERR(swap_file);
- 	if (IS_ERR(swap_file)) {
- 		swap_file = NULL;
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261792AbSIXUr1>; Tue, 24 Sep 2002 16:47:27 -0400
+	id <S261788AbSIXUmU>; Tue, 24 Sep 2002 16:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261790AbSIXUrK>; Tue, 24 Sep 2002 16:47:10 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:45244 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S261796AbSIXUp7>; Tue, 24 Sep 2002 16:45:59 -0400
-Message-ID: <3D91413C.1050603@goingware.com>
-Date: Wed, 25 Sep 2002 00:53:16 -0400
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020622 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Conserving memory for an embedded application
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261789AbSIXUmU>; Tue, 24 Sep 2002 16:42:20 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1540 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261788AbSIXUmT>;
+	Tue, 24 Sep 2002 16:42:19 -0400
+Date: Sun, 22 Sep 2002 04:59:08 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Adeos <adeos-main@mail.freesoftware.fsf.org>,
+       Philippe Gerum <rpm@xenomai.org>
+Subject: Re: [PATCH] Adeos nanokernel for 2.5.38 1/2: no-arch code
+Message-ID: <20020922045907.C35@toy.ucw.cz>
+References: <3D8E8371.D2070D87@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D8E8371.D2070D87@opersys.com>; from karim@opersys.com on Sun, Sep 22, 2002 at 10:58:57PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am helping my client design an embedded hardware device that we may run Linux 
-on.  An important concern is to minimize the amount of ROM and flash ram that 
-the device has, both to save manufacturing cost and to minimize power consumption.
 
-One question I have is whether it is possible to burn an uncompressed image of 
-the kernel into flash, and then boot the kernel in-place, so that it is not 
-copied to RAM when it runs.  Of course the kernel would need RAM for its data 
-structures and user programs, but it would seem to me I should be able to run 
-the kernel without making a RAM copy.
+Hi!
 
-It would be OK if I had to mess with the bootloader to do this.
+> This is a patch for adding the Adeos nanokernel to the Linux kernel as
+> described earlier:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102309348817485&w=2
 
-It would also be helpful if a filesystem image containing a user program could 
-be burned into flash, and then the program run directly out of flash.  Some 
-amount of RAM would be saved if the executing code were run from the flash ROM 
-rather than being copied into RAM as would normally be the case when executing a 
-demand-paged executable.
-
-This last is probably not as important as running the kernel out of flash as I 
-don't think the user program would be very large.
-
-Also, what is the minimum amount of physical ram that you think I can get any 
-version of the kernel later than 2.0 or so to run in?  I heard somewhere that 
-someone can boot an x86 system with as little as 2MB of RAM.  Is that the case?
-
-Thank you,
-
-Mike
+Maybe adding Docs/adeos.txt is good idea... (sorry can't access web
+right now) -- so this is aimed at being free rtlinux replacement?
+								Pavel
 -- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-      Tilting at Windmills for a Better Tomorrow.
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTFKUCY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264186AbTFKUCK
+	id S263458AbTFKULi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTFKULi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:02:10 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:5534 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264231AbTFKUBy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:01:54 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation/SendingPatches [2 of 2].
-Date: Wed, 11 Jun 2003 16:18:10 -0400
-User-Agent: KMail/1.5
-Cc: torvalds@transmeta.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 11 Jun 2003 16:11:38 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:47369 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263458AbTFKULh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 16:11:37 -0400
+Date: Wed, 11 Jun 2003 22:23:46 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, marcelo@conectiva.com.br,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030611222346.0a26729e.skraw@ithnet.com>
+In-Reply-To: <41560000.1055306361@caspian.scsiguy.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306111618.10329.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The bit about log rolling.
+Hello,
 
---- linux-new/Documentation/SubmittingPatches	2003-06-11 15:54:29.000000000 -0400
-+++ linux-new/Documentation/SubmittingPatches2	2003-06-11 15:54:06.000000000 -0400
-@@ -92,6 +92,16 @@
- complete, that is OK.  Simply note "this patch depends on patch X"
- in your patch description.
- 
-+In politics, there's a concept called "log rolling", where unrelated
-+amendments are bundled together so that changes people want grease the
-+way for changes they don't.  Do not do this.  It's annoying.
-+
-+In coding, this sort of thing can be very subtle, such as performance increases
-+that help your new version perform as well as the original while doing more
-+work, but which could also have been applied to the original making it even
-+faster.  The linux-kernel guys are very good at taking the chocolate coating
-+and leaving the pill behind.  This can be very frustrating to developers, but
-+it's one of the big reasons open source produces such excellent results.
- 
- 4) Select e-mail destination.
- 
+a short note on todays test cycles.
+I switched to rc8 (SMP, apic), took three cycles until it failed.
+rc8 (SMP, apic, HIGHIO) failed on the first try.
+I thought HIGHIO could make a difference if there were inherent problems with
+bounce buffers. Unfortunately this seems not the case.
+
+Anyway it looks like failures have gotten fewer since rc8. I will try an
+overnight stress test now to see if I get it freezing again.
+
+Regards,
+Stephan

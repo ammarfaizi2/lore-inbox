@@ -1,85 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbTILXG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTILXG5
+	id S261928AbTILXHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTILXHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:06:57 -0400
-Received: from waste.org ([209.173.204.2]:38311 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261925AbTILXGt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:06:49 -0400
-Date: Fri, 12 Sep 2003 18:06:37 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Pat LaVarre <p.lavarre@ieee.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
-Message-ID: <20030912230637.GB4489@waste.org>
-References: <1063378664.5059.19.camel@patehci2> <1063390768.2898.15.camel@patehci2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Sep 2003 19:07:47 -0400
+Received: from smtp1.globo.com ([200.208.9.168]:13204 "EHLO mail.globo.com")
+	by vger.kernel.org with ESMTP id S261928AbTILXHh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 19:07:37 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SII SATA request size limit
+Date: Fri, 12 Sep 2003 20:07:23 -0300
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1063390768.2898.15.camel@patehci2>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309122007.35542.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 12:19:28PM -0600, Pat LaVarre wrote:
-> 
-> > ... always ... an oops ... Must be fixed.
-> 
-> Once upon a time Ctrl+Alt+F1 gave me a plain text console, Ctrl+Alt+F7
-> returned me to me X Windows console.
-> 
-> Much has changed, the last thing I changed was upgrading to 2.6.0-test5
-> from 2.6.0-test4, and now I find that toggling back and forth a few
-> times leaves my display permanently dark.  Recovered from my ext3
-> journal are the following two examples of  `cat /proc/kmsg | tee ...`
-> output.
-> 
-> This report differs slightly, e.g. by severity, repeatability, and
-> mention of handle_vm86_fault, from much of:
-> http://groups.google.com/groups?q=__might_sleep&scoring=d
-> 
-> Example #1:
-> 
-> ...
-> <4>sr0: scsi3-mmc drive: 0x/48x writer cd/rw xa/form2 cdda tray
-> <4>sr0: scsi3-mmc maybe not writeable
-> <6>Uniform CD-ROM driver Revision: 3.12
-> <7>Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-> <4>sr1: scsi3-mmc writable profile: 0x0002
-> <7>Attached scsi CD-ROM sr1 at scsi1, channel 0, id 0, lun 0
-> <3>Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-> <4>Call Trace:
-> <4> [<c0121f16>] __might_sleep+0x5f/0x72
-> <4> [<c010e76a>] save_v86_state+0x6a/0x20f
-> <4> [<c010f32d>] handle_vm86_fault+0xa7/0x8fb
-> <4> [<c010cc8f>] do_general_protection+0x0/0x93
-> <4> [<c010bf49>] error_code+0x2d/0x38
-> <4> [<c010b4bf>] syscall_call+0x7/0xb
-> <4>
-> 
-> Example #2:
-> 
-> ...
-> <3>Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-> <4>Call Trace:
-> <4> [<c0121f16>] __might_sleep+0x5f/0x72
-> <4> [<c010e76a>] save_v86_state+0x6a/0x20f
-> <4> [<c010f32d>] handle_vm86_fault+0xa7/0x8fb
-> <4> [<c02323aa>] ipi_handler+0x0/0x7
-> <4> [<c010cc8f>] do_general_protection+0x0/0x93
-> <4> [<c010bf49>] error_code+0x2d/0x38
-> <4> [<c010b4bf>] syscall_call+0x7/0xb
-> <4>
-> ...
-> 
-> Pat LaVarre
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm working on this, it's rather messy. Your lockup might be caused by
-printk spew during console switch, see if it still locks up with the
-sleep debugging turned off.
+Alan Cox escreveu:
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+> It isnt that simple, unfortunately you need an NDA for the full story.
+> If you want to check which chips need it get a setup that hangs reliably
+> with large transfers, put the same disks on a newer controller that
+> doesnt and see what happens
+
+So, shouldn't we go back to my suggestion? A lot of users won't know that this 
+limit is being set and telling them on boot time would be a good thing I 
+think.
+
+And I still don't know how to set this limit back to 128 with 2.6.x kernels. 
+It can't be done the same way as in 2.4.x, can it?
+
+Marcelo Penna Guerra
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/YlGyD/U0kdg4PFoRAiHdAJ97opZnlt0uVKh+GVERMtKbH4HmWACgj21x
+0zSI4+LRkBs3Dz6gDvdilIU=
+=Saft
+-----END PGP SIGNATURE-----

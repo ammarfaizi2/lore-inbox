@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289044AbSAZJOM>; Sat, 26 Jan 2002 04:14:12 -0500
+	id <S289046AbSAZKIT>; Sat, 26 Jan 2002 05:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289047AbSAZJOE>; Sat, 26 Jan 2002 04:14:04 -0500
-Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:1525
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S289044AbSAZJNz>; Sat, 26 Jan 2002 04:13:55 -0500
-Date: Sat, 26 Jan 2002 09:13:51 +0000
-From: Mark Zealey <mark@zealos.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: booleans and the kernel
-Message-ID: <20020126091351.GA13468@itsolve.co.uk>
-In-Reply-To: <3C513CD8.B75B5C42@aitel.hist.no> <20020126030841.C5730@kushida.apsleyroad.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020126030841.C5730@kushida.apsleyroad.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+	id <S289047AbSAZKIF>; Sat, 26 Jan 2002 05:08:05 -0500
+Received: from nrg.org ([216.101.165.106]:39266 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S289046AbSAZKHw>;
+	Sat, 26 Jan 2002 05:07:52 -0500
+Date: Sat, 26 Jan 2002 02:07:38 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Robert Love <rml@tech9.net>
+cc: David Howells <dhowells@redhat.com>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] syscall latency improvement #1
+In-Reply-To: <1011998120.3505.29.camel@phantasy>
+Message-ID: <Pine.LNX.4.40.0201260155300.16648-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 26, 2002 at 03:08:41AM +0000, Jamie Lokier wrote:
+On 25 Jan 2002, Robert Love wrote:
+> Mmm, I like it.  Ingo Molnar talked to me about this (he wants such a
+> feature, too) earlier.  This is a real win.
+>
+> This patch is beneficial to the kernel preemption patch.
 
-> Helge Hafting wrote:
-> > Why would anyone want to write   if (X==false) or if (X==true) ?
-> > It is the "beginner's mistake" way of writing code.  Then people learn,
-> > and write if (X) or if (!X).  Comparing to true/false is silly.
-> > Nobody writes  if ( (a==b) == true) so why do it in the simpler cases?
-> 
-> I usually without the == in these cases:
-> 
->   if (pointer)  // test for non-0.
+Note that with a fully preemptible kernel, there is no need to test
+need_resched on return from system call, since any needed reschedule
+should already have been done.  If the need_resched was set by an
+interrupt handler, the preempt_schedule on return from interrupt (or on
+exit from non-preemptible region) will have done the reschedule.  And if
+need_resched was set because one process woke up another (higher
+priority) process, we can do the schedule() immediately, unless we are
+in a non-preemptible region in which case it will happen on exit from
+that region.  I don't think we do an immediate schedule on wakeup yet
+but, with the existing preemption patch, that would make the test on
+syscall exit completely redundant (which may enable the cli instruction
+to be safely removed).
 
-Huh? I thought we were talking about C here, // in C is an abomination, use /*
-*/ :-)
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
-> Just to break that rule, however, if p were a pointer and x were an
-> integer, I would write:
-> 
->   x = (p != 0);
-
-Heard about NULL ?
-
-> rather than
-> 
->   x = p;
-
-Because that would give a compile error...
-
--- 
-
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)

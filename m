@@ -1,115 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265273AbUKAO0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUKAO2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265273AbUKAO0m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbUKAO0l
+	id S262208AbUKAO2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUKAO1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:26:41 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:14854 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263527AbUKAOW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:22:57 -0500
-Date: Mon, 1 Nov 2004 14:22:45 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 475] HP300 LANCE
-Message-ID: <20041101142245.GA28253@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	linux-net@vger.kernel.org
-References: <200410311003.i9VA3UMN009557@anakin.of.borg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410311003.i9VA3UMN009557@anakin.of.borg>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 1 Nov 2004 09:27:08 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:24193 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265046AbUKAOYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:24:06 -0500
+Message-ID: <418646FC.2040608@yahoo.com.au>
+Date: Tue, 02 Nov 2004 01:23:56 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alexander Nyberg <alexn@dsv.su.se>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
+References: <4183A602.7090403@kolivas.org> <20041031233313.GB6909@elf.ucw.cz> <20041101114124.GA31458@elte.hu> <41863AF4.1040905@kolivas.org>
+In-Reply-To: <41863AF4.1040905@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 11:03:30AM +0100, Geert Uytterhoeven wrote:
-> HP300 LANCE updates from Kars de Jong:
->   - Updated HP LANCE driver to use the new DIO semantics
->   - If only HP LANCE or MVME147 LANCE is selected, enable compile-time
->     choice of LANCE register access. If both are defined, go through the
->     function pointer
->   - Added support for CONFIG_NET_POLL_CONTROLLER
->   - Fixed problem with disabling board interrupts in hplance_close() which
->     caused the driver to lock up
+Con Kolivas wrote:
+> Ingo Molnar wrote:
+> 
+>> my main worry with this approach is not really overhead but the impact
+>> on scheduler development. 
+> 
+> 
+>> no problem even under the current model, and it has happened before. We
+>> made the scheduler itself easily 'rip-out-able' in 2.6 by decreasing the
+>> junction points between the scheduler and the rest of the system. Also,
+>> the current scheduler is no way cast into stone, we could easily end up
+>> having a different interactivity code within the scheduler, as a result
+>> of the various 'get rid of the two arrays' efforts currently underway.
+> 
+> 
+> Do you honestly think with the current "2.6 forever" development process 
+> that this is likely, even possible any more?
+> 
 
-There's tons of leaks in the hplcance probing code, and it doesn't release
-he memory region on removal either.
+That's a nutty problem... but suppose 2.7 opened tomorrow, how would
+you justify putting in a new scheduler even then? And how would you
+get enough testing to ensure a repeat of early 2.6 didn't happen again?
 
-Untested patch to fix those issues below:
+I'd be very happy if we could figure out the answer to that question,
+but I'm afraid pluggable schedulers probably isn't it (unfortunately).
 
---- 1.12/drivers/net/hplance.c	2004-10-06 22:44:40 +02:00
-+++ edited/drivers/net/hplance.c	2004-11-01 10:20:17 +01:00
-@@ -71,30 +71,42 @@
- 	.remove    = __devexit_p(hplance_remove_one),
- };
- 
-+/* XXX(hch): should probably move to a better place */
-+#define dio_resource_start(d) \
-+	((d)->resource.start)
-+#define dio_resource_len(d) \
-+	((d)->resource.end - (d)->resource.start)
-+
- /* Find all the HP Lance boards and initialise them... */
- static int __devinit hplance_init_one(struct dio_dev *d,
- 				const struct dio_device_id *ent)
- {
- 	struct net_device *dev;
--	int err;
-+	int err = -ENOMEM;
- 
- 	dev = alloc_etherdev(sizeof(struct hplance_private));
- 	if (!dev)
--		return -ENOMEM;
-+		goto out;
- 
--	if (!request_mem_region(d->resource.start, d->resource.end-d->resource.start, d->name))
--		return -EBUSY;
-+	err = -EBUSY;
-+	if (!request_mem_region(dio_resource_start(d),
-+				dio_resource_len(d), d->name))
-+		goto out_free_netdev;
- 
--	SET_MODULE_OWNER(dev);
--        
- 	hplance_init(dev, d);
- 	err = register_netdev(dev);
--	if (err) {
--		free_netdev(dev);
--		return err;
--	}
-+	if (err)
-+		goto out_free_netdev;
-+
- 	dio_set_drvdata(d, dev);
- 	return 0;
-+
-+ out_release_mem_region:
-+	release_mem_region(dio_resource_start(d), dio_resource_len(d));
-+ out_free_netdev:
-+	free_netdev(dev);
-+ out:
-+	return err;
- }
- 
- static void __devexit hplance_remove_one(struct dio_dev *d)
-@@ -102,6 +114,7 @@
- 	struct net_device *dev = dio_get_drvdata(d);
- 
- 	unregister_netdev(dev);
-+	release_mem_region(dio_resource_start(d), dio_resource_len(d));
- 	free_netdev(dev);
- }
- 
+> Given that fact, it means the current scheduler policy mechanism is 
+> effectively set in stone. Do you think we can polish the current 
+> scheduler enough to be, if not perfect, good enough for _every_ situation?
+> 
+
+Specialised users always have and always will do specialised
+modifications, that's no problem. But as much as I hate to say it
+(it's a good thing, I'd just like to be able to get nicksched in),
+it seems that the current scheduler *is* actually good enough for
+a general purpose operating system. At least the lack of complaints
+seems to indicate that.
+
+My proposal to the "how to get a new scheduler in" question is a set
+of pretty comprehensive controlled (blind of course), subjective tests
+with proper statistical analysis, to determine best behaviour... And
+I'm only half joking :(
+
+> Noone said that if we have a plugsched infrastructure that we should 
+> instantly accept any scheduler.
+> 
+
+But so long as you don't have a compelling argument to _replace_
+the current scheduler, people who want to use other ones may as
+well just patch them in. By having multiple schedulers however,
+you don't IMO get too many benefits and a lot of downsides that
+Ingo pointed out.
+
+That said, if you were able to get a unanimous "yes" from Linus,
+Andrew, and Ingo then I wouldn't complain too loudly...

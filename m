@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbUJWUWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbUJWRXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbUJWUWP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 16:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUJWUWO
+	id S261250AbUJWRXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 13:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUJWRXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 16:22:14 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:46060 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261173AbUJWUUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 16:20:40 -0400
-Date: Sat, 23 Oct 2004 22:20:37 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Driver Core patches for 2.6.9
-Message-ID: <20041023202037.GA12345@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Sat, 23 Oct 2004 13:23:46 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36755 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261250AbUJWRXj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 13:23:39 -0400
+Date: Sat, 23 Oct 2004 19:20:37 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Timothy Miller <miller@techsource.com>,
+       Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041023172036.GA22940@electric-eye.fr.zoreil.com>
+References: <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com> <41796083.9060301@pobox.com> <417965E7.8010408@techsource.com> <41797103.2070005@pobox.com> <1098476845.19435.41.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <10982037783139@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1098476845.19435.41.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> ha scritto:
-> ChangeSet 1.1867.3.4, 2004/09/15 11:36:09-07:00, greg@kroah.com
+Alan Cox <alan@lxorguk.ukuu.org.uk> :
+[...]
+> > Another advantage is that a simple "do GL" interface is much more 
+> > "future-proof" interface, since it is a very high level interface.
 > 
-> kevent: standardize on the event types
-> 
-> This prevents any potential typos from happening.
+> Not really, we are heading towards real time raytrace and the hardware
+> and low level changes dramatically for that (including wanting to do non
+> light traces for audio mixing, explosion models etc)
 
-[cut]
+Just curious: how would it prevent to push standardization through OpenGL
+extensions if needed ?
 
-> diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-> --- a/lib/kobject_uevent.c      2004-10-19 09:22:44 -07:00
-> +++ b/lib/kobject_uevent.c      2004-10-19 09:22:44 -07:00
-> @@ -19,9 +19,29 @@
-> #include <linux/skbuff.h>
-> #include <linux/netlink.h>
-> #include <linux/string.h>
-> +#include <linux/kobject_uevent.h>
-> #include <linux/kobject.h>
-> #include <net/sock.h>
-> 
-> +/* 
-> + * These must match up with the values for enum kobject_action
-> + * as found in include/linux/kobject_uevent.h
-> + */
-> +static char *actions[] = {
-> +       "add",          /* 0x00 */
-> +       "remove",       /* 0x01 */
-> +       "change",       /* 0x02 */
-> +       "mount",        /* 0x03 */
-> +};
-
-Hi Greg,
-maybe it's just a matter of taste but I think that is better to do
-something like this:
-
-static char *actions[] = {
-        [KOBJ_ADD]      = "add",
-        [KOBJ_REMOVE]   = "remove",
-        [KOBJ_CHANGE]   = "change",
-        [KOBJ_MOUNT]    = "mount",
-};
-
-This would prevent the insertion of a new action in the wrong place.
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-#include <stdio.h> 
-int main(void) {printf("\t\t\b\b\b\b\b\b");
-printf("\t\t\b\b\b\b\b\b");return 0;}
+--
+Ueimor

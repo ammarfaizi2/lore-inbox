@@ -1,100 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIFXKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIFXN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUIFXKg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 19:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUIFXKg
+	id S267464AbUIFXN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 19:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIFXNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 19:10:36 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:26256 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S267449AbUIFXKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 19:10:22 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: swsusp on x86-64 w/ nforce3
-Date: Tue, 7 Sep 2004 01:10:35 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>
-References: <200409061836.21505.rjw@sisk.pl> <200409062123.08476.rjw@sisk.pl> <20040906203228.GA18105@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040906203228.GA18105@atrey.karlin.mff.cuni.cz>
+	Mon, 6 Sep 2004 19:13:25 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:53169 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267464AbUIFXNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 19:13:10 -0400
+Message-ID: <413CEEF6.6080501@yahoo.com.au>
+Date: Tue, 07 Sep 2004 09:12:54 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: don fisher <dfisher@as.arizona.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sched_setaffinity(), RT priorities and migration thread usage
+ at 30%
+References: <413CE863.3050400@as.arizona.edu>
+In-Reply-To: <413CE863.3050400@as.arizona.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409070110.35826.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 of September 2004 22:32, Pavel Machek wrote:
-> Hi!
+don fisher wrote:
+> Hello,
 > 
-> > > Can you tell me, please, if swsusp, as in the 2.6.9-rc1-bk12 kernel, is 
-> > > supposed to work on x86-64-based systems (specifically, with the nforce3 
-> > > chipset)?
-> > 
-> > Anyway, on such a system (.config and the output of dmesg are attached), I 
-get 
-> > the following:
-> > 
-> > Stopping tasks: 
-> > ==============================================================|
-> > Freeing 
-> > 
-memory: ............................................................................................................|
-> > Suspending devices... /critical section: counting pages to copy..[nosave 
-pfn 
-> > 0x59b]..................................................)
-> > Alloc pagedir
-> > ..[nosave pfn 
-> > 
-0x59b]................................................................................critical 
-> > section/: done (40890 pa)
-> > APIC error on CPU0: 80(08)
+> Apologies in advance if this is a newbie question. I am attempting to 
+> write a real-time simulation of an application we have in house. I have 
+> a dual processor SMP system, hyperthreading enabled, running kernel 2.6.7.
 > 
-> Try noapic?
+> The first thread begins at priority 1 (SCHED_RR) and subsequently spawns 
+> another time critical task running at priority 2. The initial thread 
+> uses setaffinity to set the desired cpu to 2. When the second task 
+> begins, the migration thread becomes 30% active (as reported by top) for 
+> the duration of its execution. When the priority 2 thread terminates the 
+> first thread continues with the migration task consuming only 2% of the 
+> CPU.
+> 
+> If there was any change, I was expecting that the higher priority of the 
+> second thread would cause it to execute closer to 100% CPU. I built a 
+> test code where each thread computes an identical dumb timing loop. The 
+> priority 2 thread ends up executing 30% slower than the priority 1 
+> thread due to contention with the migration thread.
+> 
+> Is this the expected behavior, and if so could you please inform me why? 
+> I had not anticipated the any attempt by the kernel to shift the process 
+> to another CPU, since sched_setafinity had been applied.
+> 
 
-The result is the same. :-(  It is quite strange, though, because I have:
-
-rafael@albercik:~> cat /proc/interrupts
-           CPU0
-  0:     448292          XT-PIC  timer
-  1:       1047          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  5:        684          XT-PIC  ohci_hcd, NVidia nForce3
-  8:          0          XT-PIC  rtc
-  9:        839          XT-PIC  acpi, yenta
- 10:          2          XT-PIC  ehci_hcd
- 11:       3034          XT-PIC  SysKonnect SK-98xx, ohci_hcd, yenta, ohci1394
- 12:       4520          XT-PIC  i8042
- 14:       2522          XT-PIC  ide0
- 15:       8635          XT-PIC  ide1
-NMI:         74
-LOC:     448090
-ERR:          1
-MIS:          0
-
-but at the same time:
-
-rafael@albercik:~> dmesg | grep -i apic
-Bootdata ok (command line is root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic)
-PCI bridge 00:0a from 10de found. Setting "noapic". Overwrite with "apic"
-OEM ID: ASUSTeK  <6>Product ID: L5D          <6>APIC at: 0xFEE00000
-Processor #0 15:4 APIC version 16
-I/O APIC #1 Version 17 at 0xFEC00000.
-Kernel command line: root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic 
-console=tty0
-Using local APIC NMI watchdog using perfctr0
-Using local APIC timer interrupts.
-Detected 12.468 MHz APIC timer.
-
-The nolapic probably oopses, because the box sort of hanged when I set it, but 
-I have to use the serial console to confirm it.
-
-Regards,
-RJW
-
--- 
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+OK I'll have to put something in that doesn't class the balancing
+attempt as a failure if it encounters tasks that aren't allowed to
+be moved.

@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUJIVhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUJIVjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUJIVhq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 17:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUJIVhq
+	id S267466AbUJIVjO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 17:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUJIVjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 17:37:46 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:23523 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S267449AbUJIVhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 17:37:23 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Martins Krikis <mkrikis@yahoo.com>
-Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
-Date: Sat, 9 Oct 2004 23:37:36 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-References: <20041009204425.49483.qmail@web13725.mail.yahoo.com>
-In-Reply-To: <20041009204425.49483.qmail@web13725.mail.yahoo.com>
-MIME-Version: 1.0
+	Sat, 9 Oct 2004 17:39:06 -0400
+Received: from gw.anda.ru ([212.57.164.72]:39434 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S267450AbUJIVif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 17:38:35 -0400
+Date: Sun, 10 Oct 2004 03:38:20 +0600
+From: Denis Zaitsev <zzz@anda.ru>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
+Message-ID: <20041010033820.B30047@natasha.ward.six>
+Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
+	linux-kernel@vger.kernel.org
+References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410092337.36488.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <4168479C.5080306@keyaccess.nl>; from rene.herman@keyaccess.nl on Sat, Oct 09, 2004 at 10:18:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 09, 2004 at 10:18:36PM +0200, Rene Herman wrote:
+> Denis Zaitsev wrote:
+> 
+> > 1) The 2.6 kernel doesn't activate the ISA PnP modem at the boot,
+> >    while the 2.4 one always does.
+> 
+> 2.4 used to scan the ISA PnP device ID string for some common substrings 
+> indicating a modem given a completely unknown ISA PnP device (the code 
+> is still present -- see drivers/serial/8250_pnp.c:check_name()) while 
+> 2.6 really needs your modem's PnP ID to be listed.
+> 
+> > 2) The 8250 driver finds the PnP card's port, while the 8250_pnp finds
+> >    the non-PnP ports.
+> 
+> 8250_pnp not finding it is therefore very likely a simple matter of it 
+> not knowing that it should be driving it. Try seeing if your modem's PnP 
+> ID (/sys/bus/pnp/devices/?/id) is listed in drivers/serial/8250_pnp.c 
+> and if not add it (and send as a patch to Russel King).
 
-I may sound like an ignorant but...
+Ok, it isn't listed (USR0009).  I'll send a patch.  BTW, there is some
+other ID - /sys/devices/pnp1/01:01/card_id - and it contains USR0101.
+What's this?
 
-Why can't device mapper be merged into 2.4 instead?
-Is there something wrong with 2.4 device mapper patch?
+> 8250 itself finding it was no doubt due to you enabling the port 
+> yourself so that from its standpoint, it was just another serial port 
+> already present.
 
-It would more convenient (same driver for 2.4 and 2.6)
-and would benefit users of other software RAIDs
-(easier transition to 2.6).
+But why doesn't it find the two standard mb-embedded ports?  And why
+they are found by 8250_pnp?  Is it a normal behaviour?
 
-On Saturday 09 October 2004 22:44, Martins Krikis wrote:
-> Version 0.1.4.3 of the Intel Sofware RAID driver (iswraid) is now
-> available for the 2.4 series kernels at
-> http://prdownloads.sourceforge.net/iswraid/2.4.28-pre3-iswraid.patch.gz?download
-> 
-> It is an ataraid "subdriver" but uses the SCSI subsystem to find the
-> RAID member disks. It depends on the libata library, particularly the
-> ata_piix driver that enables the Serial ATA capabilities in ICH5/ICH6
-> chipsets. Hence, for kernels older than 2.4.28, the libata patch by 
-> Jeff Garzik should be applied before applying this patch. There is 
-> more information and some ICH6R related patches at the project's home
-> page at http://iswraid.sourceforge.net/. The patch applies cleanly to
-> 2.4.28-pre4 as well, and hopefully can be applied to any 2.4 kernel
-> without too much difficulty. 
-> 
-> The changes WRT version 0.1.4 are the following:
-> * Different buffer_head b_state bit used for IOs submitted
->   to the mirror.
-> * Disk sizing problem for disks with odd number of sectors fixed.
-> * Entering degraded mode with many outstanding IOs fixed. 
-> 
-> Please consider this driver for inclusion in the 2.4 kernel tree.
-> 
-> Driver documentation is included in Documentation/iswraid.txt,
-> which is part of the patch. The license is GPL. I have added
-> myself to the MAINTAINERS list, please feel free to throw me
-> out if you don't think I should have done that.
-> 
-> Please let me know if there is anything else I can do to make
-> this driver acceptable for the 2.4 kernel.
->  
->    Martins Krikis
->    Storage Components Division
->    Intel Massachusetts
+> With your modem's ID added, 8250_pnp should find and activate the
+> mdem itself without you needing to do anything other than "modprobe
+> 8250_pnp"
+
+Ok.  I' trying.  The kernel is compiling...
+
+> Hope that helps.
+
+Thanks.  But what about the incorrect info in /proc/tty/driver/serial?

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbTBGOBt>; Fri, 7 Feb 2003 09:01:49 -0500
+	id <S265250AbTBGOLb>; Fri, 7 Feb 2003 09:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbTBGOBt>; Fri, 7 Feb 2003 09:01:49 -0500
-Received: from crack.them.org ([65.125.64.184]:47853 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S264939AbTBGOBs>;
-	Fri, 7 Feb 2003 09:01:48 -0500
-Date: Fri, 7 Feb 2003 09:11:15 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.5.59-mm9
-Message-ID: <20030207141114.GA31151@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	Ingo Molnar <mingo@elte.hu>
-References: <20030207013921.0594df03.akpm@digeo.com> <20030207030350.728b4618.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030207030350.728b4618.akpm@digeo.com>
-User-Agent: Mutt/1.5.1i
+	id <S265276AbTBGOLb>; Fri, 7 Feb 2003 09:11:31 -0500
+Received: from k101-11.bas1.dbn.dublin.eircom.net ([159.134.101.11]:3346 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S265250AbTBGOLb>;
+	Fri, 7 Feb 2003 09:11:31 -0500
+Message-ID: <3E43C003.7090602@draigBrady.com>
+Date: Fri, 07 Feb 2003 14:17:39 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: c1cc10 <c1cc10@autistici.org>, linux-kernel@vger.kernel.org
+Subject: Re: Cyrix III processor and kernel boot problem
+References: <3E43C79A.2010506@autistici.org> <20030207141052.GA22687@codemonkey.org.uk>
+In-Reply-To: <20030207141052.GA22687@codemonkey.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 03:03:50AM -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@digeo.com> wrote:
-> >
-> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm9/
+Dave Jones wrote:
+> On Fri, Feb 07, 2003 at 02:50:02PM +0000, c1cc10 wrote:
+>  > I've found out that the Cyrix III has no CMOV instruction and that this 
+>  > could be the problem.
+>  > So I compiled a pentium mmx version (after mrproper and dep) and all 
+>  > worked fine.
+>  > My question is: ok, it can't work if 686 compiled, but why does not it 
+>  > work also for the Cyrix III version?
 > 
-> I've taken this down.
-> 
-> Ingo, there's something bad in the signal changes in Linus's current tree.
-> 
-> mozilla won't display, and is unkillable:
+> The CyrixIII compile option should not generate cmov.
+> If you can objdump -D vmlinuz and grep for cmov, and find out
+                         ^^^^^^^ -> vmlinux-2.4.20
 
-Yeah, I'm seeing hangs in rt_sigsuspend under GDB also.  Thanks for
-saying that they show up without ptrace; I hadn't been able to
-reproduce them without it.
+> as a sidenote, the new C3s (Nehemiah) now have CMOV.
 
-Something is causing realtime signals to drop.
+but no 3dnow so older C3 specific kernels don't work!
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Pádraig.
+

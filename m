@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUEFR04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUEFR3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUEFR04 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEFR04
+	id S261712AbUEFR3f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUEFR3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:26:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53459 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261610AbUEFR0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:26:52 -0400
-Date: Thu, 6 May 2004 19:26:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Antonio Dolcetta <adolcetta@infracom.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-ID: <20040506172645.GS9636@fs.tum.de>
-References: <20040505013135.7689e38d.akpm@osdl.org> <20040506165304.6376fed1@simbad> <20040506081258.569d696e.akpm@osdl.org> <20040506175630.6adb6016@simbad>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 May 2004 13:29:35 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:64648
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261712AbUEFR3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:29:32 -0400
+From: Rob Landley <rob@landley.net>
+To: Daniele Venzano <webvenza@libero.it>, Ken Ashcraft <ken@coverity.com>
+Subject: Re: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
+Date: Thu, 6 May 2004 12:23:40 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com> <20040504084326.GA11133@gateway.milesteg.arr>
+In-Reply-To: <20040504084326.GA11133@gateway.milesteg.arr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040506175630.6adb6016@simbad>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200405061223.40942.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 05:56:30PM +0200, Antonio Dolcetta wrote:
-> On Thu, 6 May 2004 08:12:58 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Antonio Dolcetta <adolcetta@infracom.it> wrote:
-> > >
-> > > something has broken the b44 module,
-> > >  modprobe b44 fails with:
-> > >  FATAL: Error inserting b44 (/lib/modules/2.6.6-rc3-mm2/kernel/drivers/net/b44.ko): Unknown symbol in module, or unknown parameter (see dmesg)
-> > > 
-> > >  dmesg contains the line:
-> > >  b44: Unknown symbol generic_mii_ioctl
-> > 
-> > Please config that your .config does not set CONFIG_MII?
-> > 
-> > 
-> 
-> I enabled the Media Independent Interface and it works perfectly
-> Sorry for the noise
+On Tuesday 04 May 2004 03:43, Daniele Venzano wrote:
+> Thank you for the spotting, the sis900 dirver was really missing a call
+> to netif_device_detach in sis900_suspend.
+>
+> Attached is a trivial patch that fixes the issue.
+>
+> The sis900 driver is currently unmaintained (the MAINTAINERS address
+> bounces), but I'm willing to take the work, since I know somewhat the
+> code and I wrote the power management functions.
+>
+> I no one stands up, I'll send a patch to MAINTAINERS later on.
+>
+> Bye.
 
-Why sorry?
+Does this fix the problem where you unplug the cat 5 cable from an SiS900 and 
+then plug it back in (toggling the MII tranciever link detect status and all 
+that), and the device goes positively mental until you reboot the system?  
+(Packets randomly dropped or delayed for up to 15 seconds, and arriving out 
+of sequence with horrible impacts on performance?)
 
-You found a bug in the kernel, and Andrew has posted a patch to fix this 
-bug in future kernel releases.
+I tried pursuing this when I first noticed it circa 2.4.4, but as you say, the 
+driver is unmaintained and I haven't got specs (or any clue about) the 
+chipset...
 
-> 	Antonio
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Rob
 

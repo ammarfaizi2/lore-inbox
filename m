@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280871AbRKGRZY>; Wed, 7 Nov 2001 12:25:24 -0500
+	id <S280800AbRKGRaN>; Wed, 7 Nov 2001 12:30:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280865AbRKGRZN>; Wed, 7 Nov 2001 12:25:13 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:28845 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280871AbRKGRZD>;
-	Wed, 7 Nov 2001 12:25:03 -0500
-Date: Wed, 07 Nov 2001 17:24:58 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@alex.org.uk
-Cc: Alexander Viro <viro@math.psu.edu>, Ricky Beam <jfbeam@bluetopia.net>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <1832004393.1005153898@[10.132.113.67]>
-In-Reply-To: <200111070720.fA77KZB486967@saturn.cs.uml.edu>
-In-Reply-To: <200111070720.fA77KZB486967@saturn.cs.uml.edu>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S280814AbRKGR3x>; Wed, 7 Nov 2001 12:29:53 -0500
+Received: from splot.org ([216.86.199.146]:55430 "EHLO gee.splot.org")
+	by vger.kernel.org with ESMTP id <S280800AbRKGR3q>;
+	Wed, 7 Nov 2001 12:29:46 -0500
+Date: Wed, 7 Nov 2001 09:29:10 -0800 (PST)
+From: Eric Ortega <eto@splot.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon Bug Stomper Success Reports for 2.4.14
+In-Reply-To: <Pine.LNX.4.33.0111070045320.20152-100000@tyan.doghouse.com>
+Message-ID: <Pine.LNX.4.21.0111070926520.13588-100000@gee.splot.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---On Wednesday, November 07, 2001 2:20 AM -0500 "Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
+On Wed, 7 Nov 2001, Maxwell Spangler wrote:
 
-> I can see that you are unfamiliar with the /proc filesystem.
->
-> You can change kernels because app developers work hard to
-> be tolerant of stupid /proc changes.
-> Some of the crap that
-> I've stumbled across, mostly while doing procps work:
+> If you are using an Athlon with 2.4.14 and you previously had problems but now
+> have stability with an Athlon optimized, kernel, please respond.  (Just a few
+> people, please.)
 
-My point is two-fold:
+We're running an Athlon 1.4 GHz with an IWill KK266 board which finally 
+booted with Athlon optimizations (2.4.14). 
 
-1. Sure, you (and no doubt others) had to do lots
-   of work fixing userland, which
-   you shouldn't have had to do. But that seems to be
-   more down to lack of discipline in interface changes
-   rather than because the interface isn't binary. I am
-   sure it's easier to strip out a spurious 'kb' that
-   gets added after a number, than to deal with (say)
-   an extra inserted DWORD with no version traching.
+We've also been running processes on it all night without issues.
 
-2. The system survived. The interface was there. Bload
-   sweat and tears were no doubt expended, possibly by
-   the wrong people, but in practice the interface worked,
-   (no, not optimally). I'd suggest even with it's badly
-   managed changes, thouse have been less disruptive than
-   many other non-ascii based conventions (I'm thinking
-   back to Net-2E/2D). Sure, wtmp, utmp have been stable.
-   Not sufficiently familiar with process accounting or
-   quotas, though I have some possibly incorrect memory
-   of the latter suffering some format change which was
-   generated compatibility problems with user space tools?
+We're very grateful and happy to have this fairly well resolved, expecially
+since we have 11 more of these machines.  :)
 
---
-Alex Bligh

@@ -1,87 +1,389 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261821AbSJDOce>; Fri, 4 Oct 2002 10:32:34 -0400
+	id <S261862AbSJDOrZ>; Fri, 4 Oct 2002 10:47:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261818AbSJDOcd>; Fri, 4 Oct 2002 10:32:33 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:9726 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261826AbSJDObh>; Fri, 4 Oct 2002 10:31:37 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 4 Oct 2002 08:34:02 -0600
-To: Christoph Hellwig <hch@infradead.org>, Mark Peloquin <peloquin@us.ibm.com>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
-Message-ID: <20021004143402.GR3000@clusterfs.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-References: <OF25D731E3.0E245DDC-ON85256C47.00645AA7@pok.ibm.com> <20021004151442.B30635@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021004151442.B30635@infradead.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S261867AbSJDOmY>; Fri, 4 Oct 2002 10:42:24 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:23218 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S261853AbSJDOh2> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:28 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.40 s390 (9/27): bottom half removal.
+Date: Fri, 4 Oct 2002 16:28:12 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210041628.12976.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 04, 2002  15:14 +0100, Christoph Hellwig wrote:
-> > the IOCTL entry point is used to send to volumes.
-> > the DIRECT_IOCTL entry point is used for point-
-> > to-point ioctls between corresponding user space
-> > and kernel space plugins.
-> 
-> Do the ioctl directly to the device node of the lower layer plugin instead.
+Replace IMMEDIATE_BH bottom half by tasklets in 3215, ctc and iucv driver.
 
-Not possible - EVMS doesn't export the lower-level device nodes at all.
-That is one of the benefits - you can take 1000 drives and stack them
-and raid and LVM them all you want, and you don't consume 1000*layers
-device nodes.
-
-> > >> +/**
-> > >> + * convenience macros to use plugin's fops entry points
-> > >> + **/
-> > >> +#define DISCOVER(node, list) ((plugin)->fops->discover(list))
-> > >> +#define END_DISCOVER(node, list) ((plugin)->fops->end_discover(list))
-> > >> +#define DELETE(node) ((node)->plugin->fops->delete(node))
-> > >> +#define SUBMIT_IO(node, bio) ((node)->plugin->fops->submit_io(node,
-> > bio))
-> > >> +#define INIT_IO(node, rw_flag, start_sec, num_secs, buf_addr) >((node)
-> > ->plugin->fops->init_io(node, rw_flag, start_sec, num_secs, buf_addr))
-> > >> +#define IOCTL(node, inode, file, cmd, arg)    ((node)
-> > ->plugin->fops->ioctl(node, >inode, file, cmd, arg))
-> > >> +#define DIRECT_IOCTL(plugin, inode, file, cmd, arg)   >((plugin)
-> > ->fops->direct_ioctl(inode, file, cmd, arg))
-> > 
-> > > Do you really need those wrapper?
-> > 
-> > No the wrappers aren't really needed. However they do make the
-> > code a great deal more readable.
-> > 
-> > > They just obsfucate the code
-> > 
-> > The same argument could be made about *all* macros then.
-> > Its simply a tradeoff between readability and potential
-> > hiding.
-> 
-> CodingStyle is one big flamewar.  As no other operations vector
-> in the linux kernel uses such wrappers the syle police seems to
-> be on my side in this case :)
-
-Um, how about EXT3_I() and EXT3_SB(), or almost any filesystem in
-2.5 which hides inode->u.generic_ip->foo_inode_info->blah?  Given
-that you want to keep lines < 80 chars where possible having short
-names to access common methods is a big win, IMHO.
-
-Are you telling me XFS doesn't have some awful abstractions in it too?
-VOP_GETATTR(), ugh.  So, yes it's nice to have useful criticism, but
-no need to pick every space and tab to death.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+diff -urN linux-2.5.40/drivers/s390/char/con3215.c linux-2.5.40-s390/drivers/s390/char/con3215.c
+--- linux-2.5.40/drivers/s390/char/con3215.c	Tue Oct  1 09:06:18 2002
++++ linux-2.5.40-s390/drivers/s390/char/con3215.c	Fri Oct  4 16:15:21 2002
+@@ -89,7 +89,7 @@
+         int written;                  /* number of bytes in write requests */
+ 	devstat_t devstat;	      /* device status structure for do_IO */
+ 	struct tty_struct *tty;	      /* pointer to tty structure if present */
+-	struct tq_struct tqueue;      /* task queue to bottom half */
++	struct tasklet_struct tasklet;
+ 	raw3215_req *queued_read;     /* pointer to queued read requests */
+ 	raw3215_req *queued_write;    /* pointer to queued write requests */
+ 	wait_queue_head_t empty_wait; /* wait queue for flushing */
+@@ -341,7 +341,7 @@
+  * The bottom half handler routine for 3215 devices. It tries to start
+  * the next IO and wakes up processes waiting on the tty.
+  */
+-static void raw3215_softint(void *data)
++static void raw3215_tasklet(void *data)
+ {
+ 	raw3215_info *raw;
+ 	struct tty_struct *tty;
+@@ -377,12 +377,7 @@
+         if (raw->flags & RAW3215_BH_PENDING)
+                 return;       /* already pending */
+         raw->flags |= RAW3215_BH_PENDING;
+-	INIT_LIST_HEAD(&raw->tqueue.list);
+-	raw->tqueue.sync = 0;
+-        raw->tqueue.routine = raw3215_softint;
+-        raw->tqueue.data = raw;
+-        queue_task(&raw->tqueue, &tq_immediate);
+-        mark_bh(IMMEDIATE_BH);
++	tasklet_hi_schedule(&raw->tasklet);
+ }
+ 
+ /*
+@@ -867,8 +862,9 @@
+ 			kfree(raw);
+ 			return -ENOMEM;
+ 		}
+-		raw->tqueue.routine = raw3215_softint;
+-		raw->tqueue.data = raw;
++		tasklet_init(&raw->tasklet, 
++			     (void (*)(unsigned long)) raw3215_tasklet,
++			     (unsigned long) raw);
+                 init_waitqueue_head(&raw->empty_wait);
+ 		raw3215[line] = raw;
+ 	}
+@@ -1095,10 +1091,11 @@
+         raw->inbuf = (char *) alloc_bootmem_low(RAW3215_INBUF_SIZE);
+ 
+ 	/* Find the first console */
+-	raw->irq = raw3215_find_dev(0);
++	raw->irq = irq;
+ 	raw->flags |= RAW3215_FIXED;
+-	raw->tqueue.routine = raw3215_softint;
+-	raw->tqueue.data = raw;
++	tasklet_init(&raw->tasklet, 
++		     (void (*)(unsigned long)) raw3215_tasklet,
++		     (unsigned long) raw);
+         init_waitqueue_head(&raw->empty_wait);
+ 
+ 	/* Request the console irq */
+diff -urN linux-2.5.40/drivers/s390/char/tubfs.c linux-2.5.40-s390/drivers/s390/char/tubfs.c
+--- linux-2.5.40/drivers/s390/char/tubfs.c	Tue Oct  1 09:07:06 2002
++++ linux-2.5.40-s390/drivers/s390/char/tubfs.c	Fri Oct  4 16:15:21 2002
+@@ -229,12 +229,12 @@
+  * fs3270_bh(tubp) -- Perform back-half processing
+  */
+ static void
+-fs3270_bh(void *data)
++fs3270_tasklet(unsigned long data)
+ {
+ 	long flags;
+ 	tub_t *tubp;
+ 
+-	tubp = data;
++	tubp = (tub_t *) data;
+ 	TUBLOCK(tubp->irq, flags);
+ 	tubp->flags &= ~TUB_BHPENDING;
+ 
+@@ -265,10 +265,9 @@
+ 	if (tubp->flags & TUB_BHPENDING)
+ 		return;
+ 	tubp->flags |= TUB_BHPENDING;
+-	tubp->tqueue.routine = fs3270_bh;
+-	tubp->tqueue.data = tubp;
+-	queue_task(&tubp->tqueue, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_init(&tubp->tasklet, fs3270_tasklet,
++		     (unsigned long) tubp);
++	tasklet_schedule(&tubp->tasklet);
+ }
+ 
+ /*
+diff -urN linux-2.5.40/drivers/s390/char/tubio.h linux-2.5.40-s390/drivers/s390/char/tubio.h
+--- linux-2.5.40/drivers/s390/char/tubio.h	Tue Oct  1 09:05:46 2002
++++ linux-2.5.40-s390/drivers/s390/char/tubio.h	Fri Oct  4 16:15:21 2002
+@@ -234,7 +234,7 @@
+ 	enum tubstat    stat;
+ 	enum tubcmd     cmd;
+ 	int             flags;		/* See below for values */
+-	struct tq_struct tqueue;
++	struct tasklet_struct tasklet;
+ 
+ 	/* Stuff for fs-driver support */
+ 	pid_t           fs_pid;         /* Pid if TBM_FS */
+diff -urN linux-2.5.40/drivers/s390/char/tubtty.c linux-2.5.40-s390/drivers/s390/char/tubtty.c
+--- linux-2.5.40/drivers/s390/char/tubtty.c	Tue Oct  1 09:07:35 2002
++++ linux-2.5.40-s390/drivers/s390/char/tubtty.c	Fri Oct  4 16:15:21 2002
+@@ -35,7 +35,7 @@
+ 	unsigned long, void *);
+ 
+ /* tty3270 utility functions */
+-static void tty3270_bh(void *);
++static void tty3270_tasklet(unsigned long);
+        void tty3270_sched_bh(tub_t *);
+ static int tty3270_wait(tub_t *, long *);
+        void tty3270_int(tub_t *, devstat_t *);
+@@ -598,17 +598,18 @@
+ 
+ 
+ /*
+- * tty3270_bh(tubp) -- Perform back-half processing
++ * tty3270_tasklet(tubp) -- Perform back-half processing
+  */
+ static void
+-tty3270_bh(void *data)
++tty3270_tasklet(unsigned long data)
+ {
+ 	tub_t *tubp;
+ 	ioinfo_t *ioinfop;
+ 	long flags;
+ 	struct tty_struct *tty;
+ 
+-	ioinfop = ioinfo[(tubp = data)->irq];
++	tubp = (tub_t *) data;
++	ioinfop = ioinfo[tubp->irq];
+ 	while (TUBTRYLOCK(tubp->irq, flags) == 0) {
+ 		if (ioinfop->ui.flags.unready == 1)
+ 			return;
+@@ -663,10 +664,9 @@
+ 	if (tubp->flags & TUB_BHPENDING)
+ 		return;
+ 	tubp->flags |= TUB_BHPENDING;
+-	tubp->tqueue.routine = tty3270_bh;
+-	tubp->tqueue.data = tubp;
+-	queue_task(&tubp->tqueue, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_init(&tubp->tasklet, tty3270_tasklet,
++		     (unsigned long) tubp);
++	tasklet_schedule(&tubp->tasklet);
+ }
+ 
+ /*
+diff -urN linux-2.5.40/drivers/s390/net/ctctty.c linux-2.5.40-s390/drivers/s390/net/ctctty.c
+--- linux-2.5.40/drivers/s390/net/ctctty.c	Fri Oct  4 16:14:52 2002
++++ linux-2.5.40-s390/drivers/s390/net/ctctty.c	Fri Oct  4 16:15:21 2002
+@@ -86,7 +86,7 @@
+   wait_queue_head_t	open_wait;
+   wait_queue_head_t	close_wait;
+   struct semaphore      write_sem;
+-  struct tq_struct      tq;
++  struct tasklet_struct tasklet;
+   struct timer_list     stoptimer;
+ } ctc_tty_info;
+ 
+@@ -272,8 +272,7 @@
+ 	 */
+ 	skb_queue_tail(&info->rx_queue, skb);
+ 	/* Schedule dequeuing */
+-	queue_task(&info->tq, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_schedule(&info->tasklet);
+ }
+ 
+ static int
+@@ -390,8 +389,7 @@
+ 	skb_reserve(skb, skb_res);
+ 	*(skb_put(skb, 1)) = c;
+ 	skb_queue_head(&info->tx_queue, skb);
+-	queue_task(&info->tq, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_schedule(&info->tasklet);
+ }
+ 
+ static void
+@@ -400,8 +398,7 @@
+ 	if (ctc_tty_shuttingdown)
+ 		return;
+ 	info->flags |= CTC_ASYNC_TX_LINESTAT;
+-	queue_task(&info->tq, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_schedule(&info->tasklet);
+ }
+ 
+ static void
+@@ -562,8 +559,7 @@
+ 	}
+ 	if (skb_queue_len(&info->tx_queue)) {
+ 		info->lsr &= ~UART_LSR_TEMT;
+-		queue_task(&info->tq, &tq_immediate);
+-		mark_bh(IMMEDIATE_BH);
++		tasklet_schedule(&info->tasklet);
+ 	}
+ 	if (from_user)
+ 		up(&info->write_sem);
+@@ -624,8 +620,7 @@
+ 		return;
+ 	if (tty->stopped || tty->hw_stopped || (!skb_queue_len(&info->tx_queue)))
+ 		return;
+-	queue_task(&info->tq, &tq_immediate);
+-	mark_bh(IMMEDIATE_BH);
++	tasklet_schedule(&info->tasklet);
+ }
+ 
+ /*
+@@ -1161,8 +1156,9 @@
+  * the lower levels.
+  */
+ static void
+-ctc_tty_task(ctc_tty_info *info)
++ctc_tty_task(unsigned long arg)
+ {
++	ctc_tty_info *info = (void *)arg;
+ 	unsigned long saveflags;
+ 	int again;
+ 
+@@ -1173,8 +1169,7 @@
+ 			info->lsr |= UART_LSR_TEMT;
+ 		again |= ctc_tty_readmodem(info);
+ 		if (again) {
+-			queue_task(&info->tq, &tq_immediate);
+-			mark_bh(IMMEDIATE_BH);
++			tasklet_schedule(&info->tasklet);
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&ctc_tty_lock, saveflags);
+@@ -1234,14 +1229,8 @@
+ 	for (i = 0; i < CTC_TTY_MAX_DEVICES; i++) {
+ 		info = &driver->info[i];
+ 		init_MUTEX(&info->write_sem);
+-#if LINUX_VERSION_CODE >= 0x020400
+-		INIT_LIST_HEAD(&info->tq.list);
+-#else
+-		info->tq.next    = NULL;
+-#endif
+-		info->tq.sync    = 0;
+-		info->tq.routine = (void *)(void *)ctc_tty_task;
+-		info->tq.data    = info;
++		tasklet_init(&info->tasklet, ctc_tty_task,
++				(unsigned long) info);
+ 		info->magic = CTC_ASYNC_MAGIC;
+ 		info->line = i;
+ 		info->tty = 0;
+@@ -1322,10 +1311,6 @@
+ 		kfree(driver);
+ 		driver = NULL;
+ 	} else {
+-		int i;
+-
+-		for (i = 0; i < CTC_TTY_MAX_DEVICES; i++)
+-			driver->info[i].tq.routine = NULL;
+ 		tty_unregister_driver(&driver->ctc_tty_device);
+ 	}
+ 	spin_unlock_irqrestore(&ctc_tty_lock, saveflags);
+diff -urN linux-2.5.40/drivers/s390/net/iucv.c linux-2.5.40-s390/drivers/s390/net/iucv.c
+--- linux-2.5.40/drivers/s390/net/iucv.c	Fri Oct  4 16:14:52 2002
++++ linux-2.5.40-s390/drivers/s390/net/iucv.c	Fri Oct  4 16:15:21 2002
+@@ -41,9 +41,9 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+-#include <linux/tqueue.h>
+ #include <linux/interrupt.h>
+ #include <linux/list.h>
++#include <linux/errno.h>
+ #include <asm/atomic.h>
+ #include "iucv.h"
+ #include <asm/io.h>
+@@ -99,16 +99,14 @@
+ static struct list_head  iucv_irq_queue;
+ static spinlock_t iucv_irq_queue_lock = SPIN_LOCK_UNLOCKED;
+ 
+-static struct tq_struct  iucv_tq;
+-
+-static atomic_t   iucv_bh_scheduled = ATOMIC_INIT (0);
+-
+ /*
+  *Internal function prototypes
+  */
+-static void iucv_bh_handler(void);
++static void iucv_tasklet_handler(unsigned long);
+ static void iucv_irq_handler(struct pt_regs *, __u16);
+ 
++static DECLARE_TASKLET(iucv_tasklet,iucv_tasklet_handler,0);
++
+ /************ FUNCTION ID'S ****************************/
+ 
+ #define ACCEPT          10
+@@ -385,11 +383,6 @@
+ 	}
+ 	memset(iucv_param_pool, 0, sizeof(iucv_param) * PARAM_POOL_SIZE);
+ 
+-	/* Initialize task queue */
+-	INIT_LIST_HEAD(&iucv_tq.list);
+-	iucv_tq.sync = 0;
+-	iucv_tq.routine = (void *)iucv_bh_handler;
+-
+ 	/* Initialize irq queue */
+ 	INIT_LIST_HEAD(&iucv_irq_queue);
+ 
+@@ -2177,7 +2170,7 @@
+  * @code: irq code
+  *
+  * Handles external interrupts coming in from CP.
+- * Places the interrupt buffer on a queue and schedules iucv_bh_handler().
++ * Places the interrupt buffer on a queue and schedules iucv_tasklet_handler().
+  */
+ static void
+ iucv_irq_handler(struct pt_regs *regs, __u16 code)
+@@ -2200,10 +2193,7 @@
+ 	list_add_tail(&irqdata->queue, &iucv_irq_queue);
+ 	spin_unlock(&iucv_irq_queue_lock);
+ 
+-	if (atomic_compare_and_swap (0, 1, &iucv_bh_scheduled) == 0) {
+-		queue_task (&iucv_tq, &tq_immediate);
+-		mark_bh(IMMEDIATE_BH);
+-	}
++	tasklet_schedule(&iucv_tasklet);
+ 
+ 	irq_exit();
+ 	return;
+@@ -2214,7 +2204,7 @@
+  * @int_buf: Pointer to copy of external interrupt buffer
+  *
+  * The workhorse for handling interrupts queued by iucv_irq_handler().
+- * This function is called from the bottom half iucv_bh_handler().
++ * This function is called from the bottom half iucv_tasklet_handler().
+  */
+ static void
+ iucv_do_int(iucv_GeneralInterrupt * int_buf)
+@@ -2384,20 +2374,18 @@
+ }
+ 
+ /**
+- * iucv_bh_handler:
++ * iucv_tasklet_handler:
+  *
+  * This function loops over the queue of irq buffers and runs iucv_do_int()
+  * on every queue element.
+  */
+ static void
+-iucv_bh_handler(void)
++iucv_tasklet_handler(unsigned long ignored)
+ {
+ 	struct list_head head;
+ 	struct list_head *next;
+ 	ulong  flags;
+ 
+-	atomic_set(&iucv_bh_scheduled, 0);
+-
+ 	spin_lock_irqsave(&iucv_irq_queue_lock, flags);
+ 	list_add(&head, &iucv_irq_queue);
+ 	list_del_init(&iucv_irq_queue);
 

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUFDBSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265311AbUFDBVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUFDBSg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 21:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUFDBSg
+	id S265311AbUFDBVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 21:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265361AbUFDBVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 21:18:36 -0400
-Received: from mfep1.odn.ne.jp ([143.90.131.179]:57236 "EHLO t-mta1.odn.ne.jp")
-	by vger.kernel.org with ESMTP id S265233AbUFDBSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 21:18:35 -0400
-Date: Fri, 4 Jun 2004 22:20:04 +0900
-From: Aric Cyr <acyr@alumni.uwaterloo.ca>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nForce2 C1halt fixup, again
-Message-ID: <20040604222004.A491%acyr@alumni.uwaterloo.ca>
-References: <20040604112618.A1789%acyr@alumni.uwaterloo.ca> <200406031712.51458.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406031712.51458.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.19i-ja0
+	Thu, 3 Jun 2004 21:21:21 -0400
+Received: from mail6.speakeasy.net ([216.254.0.206]:8332 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S265311AbUFDBVT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 21:21:19 -0400
+Date: Thu, 3 Jun 2004 18:21:16 -0700
+Message-Id: <200406040121.i541LGAI012332@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix signal race during process exit
+X-Windows: the joke that kills.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 05:12:51PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> If bit 0x10000000 is not set then C1 Halt Disconnect is disabled.
-> I have reports that it is unsupported on some boards.
-> 
-> So what about patch below instead?
+Is there a reproducer case around so we can test fixes for this problem?
 
-Thanks Bartlomiej.  I reversed my patch and have applied yours and am
-testing it now.  If my system doesn't freeze at all today, I think
-that this should be a sufficient (and necessary!) patch.
+It seems to me that signals sent to an already dying task might as well
+just be discarded anyway.  All they ever do now (except for trip bugs) is
+change what pending signals you see in the /proc/pid/status entry for a
+zombie.  What's wrong with this:
 
-One thing that bothers me though is that 2.6.5 was unstable in the
-same way as far as I can recall.  Since this fixup was not included,
-do you think it could have been related to something else that was
-fixed in 2.6.6?  Maybe IO-APIC or the "acpi_skip_timer_override"
-bootparam maybe?
+Index: linux-2.6/kernel/signal.c
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/kernel/signal.c,v
+retrieving revision 1.120
+diff -u -b -p -r1.120 signal.c
+--- linux-2.6/kernel/signal.c 10 May 2004 20:28:20 -0000 1.120
++++ linux-2.6/kernel/signal.c 4 Jun 2004 01:16:31 -0000
+@@ -161,6 +161,9 @@ static int sig_ignored(struct task_struc
+ {
+ 	void * handler;
+ 
++	if (t->flags & PF_DEAD)
++		return 1;
++
+ 	/*
+ 	 * Tracers always want to know about signals..
+ 	 */
 
-Thanks again!
 
--- 
-Aric Cyr <acyr at alumni dot uwaterloo dot ca>
+
+Thanks,
+Roland

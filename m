@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCRQE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVCRQI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVCRQE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 11:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVCRQBr
+	id S261659AbVCRQI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 11:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVCRQEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 11:01:47 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:28435 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261667AbVCRQAX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 11:00:23 -0500
+	Fri, 18 Mar 2005 11:04:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:50149 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261662AbVCRQC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 11:02:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=sUrGGNCil0ftlnZ1cHvHMHThfrzrYYnJ7NN70IQ8zTHpGPMSnVDc2y5QovAEW9mNNjt6ebAlhysECtkB/y6dV8MAZIf2Xa6fkC5CKtSmyDXMqVDx/tcamlvj5+u+GiHHZxtFpOKYpS9i4gkw885YwX3Hk97+ptsE6jFB1FzmH3E=
-Date: Fri, 18 Mar 2005 17:00:24 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Imanpreet Arora <imanpreet@gmail.com>
-Cc: hongkongphoey@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Question on Scheduler activations
-Message-Id: <20050318170024.31e6e02c.diegocg@gmail.com>
-In-Reply-To: <c26b9592050318071660e4e9a2@mail.gmail.com>
-References: <c26b9592050318060863830434@mail.gmail.com>
-	<4f6c1bdf05031807063460dc7b@mail.gmail.com>
-	<c26b9592050318071660e4e9a2@mail.gmail.com>
-X-Mailer: Sylpheed version 1.9.6 (GTK+ 2.6.2; i686-pc-linux-gnu)
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Ka2goHvVGBvQlvnsOHMsAQ8Dlbt34a4kHgE78K4ke14Q4mMRXDec01Sqd8jG8BFsLPJ71xonWFhW7JdllhamTxXvVGyrKkqheN6dJfOKI8tha8nRgFQ/pQZovjdJBonK63pVOYX/GNWeJoON9Y6k0PbNuLQP4bSccS5fh0Q0fBA=
+Message-ID: <d120d50005031808027102fa9c@mail.gmail.com>
+Date: Fri, 18 Mar 2005 11:02:55 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Subject: Re: [PATCH] DM9000 network driver
+Cc: Hong Kong Phoey <hongkongphoey@gmail.com>,
+       Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050318152554.GH17865@csclub.uwaterloo.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050318133143.GA20838@metis.extern.pengutronix.de>
+	 <4f6c1bdf0503180711148b8f02@mail.gmail.com>
+	 <20050318152554.GH17865@csclub.uwaterloo.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 18 Mar 2005 20:46:42 +0530,
-Imanpreet Arora <imanpreet@gmail.com> escribió:
+On Fri, 18 Mar 2005 10:25:54 -0500, Lennart Sorensen
+<lsorense@csclub.uwaterloo.ca> wrote:
+> On Fri, Mar 18, 2005 at 08:41:52PM +0530, Hong Kong Phoey wrote:
+> > Sacrificing readibility a little bit, you could do something useful.
+> > Instead of those ugly switch statements you could define function
+> > pointer arrays and call appropriate function
+> >
+> > switch(foo) {
+> >
+> >   case 1:
+> >              f1();
+> >   case2 :
+> >              f2();
+> > };
+> >
+> > could well become
+> >
+> > void (*func)[] = { f1, f2 };
+> >
+> > func(i);
+> 
+> Ewww!
+> 
+> How about sticking with obvious readable code rather than trying to save
+> a couple of conditional branches.
 
-> I don't mind RTFM but do you care to provide the M.  That is if you have any.
+On top of that I highly doibt that setting up stack frame for an
+indirect function call is less expensive than a conditional branch.
 
-What "Update: this document is obsolete" means is that the document is obsolete. 
-
-Probably it should include a link to http://people.redhat.com/drepper/nptl-design.pdf
+-- 
+Dmitry

@@ -1,35 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262099AbRE0UBp>; Sun, 27 May 2001 16:01:45 -0400
+	id <S262113AbRE0UBZ>; Sun, 27 May 2001 16:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262112AbRE0UBf>; Sun, 27 May 2001 16:01:35 -0400
-Received: from mail-out.chello.nl ([213.46.240.7]:56611 "EHLO
-	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S262099AbRE0UBV>; Sun, 27 May 2001 16:01:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ben Twijnstra <bentw@chello.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5-ac1 won't boot with 4GB bigmem option
-Date: Sun, 27 May 2001 22:01:02 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01052722010200.01106@beastie>
-Content-Transfer-Encoding: 7BIT
+	id <S262112AbRE0UBQ>; Sun, 27 May 2001 16:01:16 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:47937
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S262099AbRE0UBD>; Sun, 27 May 2001 16:01:03 -0400
+Date: Sun, 27 May 2001 22:00:56 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: dag@brattli.net
+Cc: linux-kernel@vger.kernel.org, linux-irda@pasta.cs.uit.no
+Subject: [PATCH] Fix interrupt flag bug(s) in irtty.c (244-ac18)
+Message-ID: <20010527220056.N857@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-I compiled and booted the 2.4.5-ac1 kernel with the CONFIG_HIGHMEM4G=y option 
-and got an oops in __alloc_pages() (called by alloc_bounce() called by 
-schedule()). Everything works fine if I turn the 4GB mode off.
-
-Machine is a Dell Precision with 2 Xeons and 2GB of RAM.
-
-2.4.5 works fine with the 4GB. Any idea what changed between the two?
-
-Grtz,
+The following patch fixes an interrupt flag bug in irtty.c
+as per the stanford team's report way back. Applies against
+224-ac18.
 
 
+--- linux-244-ac18-clean/drivers/net/irda/irtty.c	Sat May 19 20:59:17 2001
++++ linux-244-ac18/drivers/net/irda/irtty.c	Sun May 27 21:56:14 2001
+@@ -971,13 +971,17 @@
+ 	switch (cmd) {
+ 	case SIOCSBANDWIDTH: /* Set bandwidth */
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		irda_task_execute(self, irtty_change_speed, NULL, NULL, 
+-				  (void *) irq->ifr_baudrate);
++			ret = -EPERM;
++		else
++			irda_task_execute(self, irtty_change_speed, NULL, NULL, 
++					  (void *) irq->ifr_baudrate);
+ 		break;
+ 	case SIOCSDONGLE: /* Set dongle */
+-		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
++		if (!capable(CAP_NET_ADMIN)) {
++			ret = -EPERM;
++			break;
++		}
++
+ 		/* Initialize dongle */
+ 		dongle = irda_device_dongle_init(dev, irq->ifr_dongle);
+ 		if (!dongle)
+@@ -999,21 +1003,24 @@
+ 		break;
+ 	case SIOCSMEDIABUSY: /* Set media busy */
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		irda_device_set_media_busy(self->netdev, TRUE);
++			ret = -EPERM;
++		else
++			irda_device_set_media_busy(self->netdev, TRUE);
+ 		break;
+ 	case SIOCGRECEIVING: /* Check if we are receiving right now */
+ 		irq->ifr_receiving = irtty_is_receiving(self);
+ 		break;
+ 	case SIOCSDTRRTS:
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		irtty_set_dtr_rts(dev, irq->ifr_dtr, irq->ifr_rts);
++			ret = -EPERM;
++		else
++			irtty_set_dtr_rts(dev, irq->ifr_dtr, irq->ifr_rts);
+ 		break;
+ 	case SIOCSMODE:
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		irtty_set_mode(dev, irq->ifr_mode);
++			ret = -EPERM;
++		else
++			irtty_set_mode(dev, irq->ifr_mode);
+ 		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Ben
+Things are more like they are now than they ever were before.
+-Former U.S. President Dwight D. Eisenhower

@@ -1,244 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUKSL0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbUKSL2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUKSL0s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 06:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUKSL0s
+	id S261349AbUKSL2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 06:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUKSL2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 06:26:48 -0500
-Received: from zamok.crans.org ([138.231.136.6]:14244 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261348AbUKSL0f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 06:26:35 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 046 release
-References: <20041118224411.GA10876@kroah.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Fri, 19 Nov 2004 12:26:32 +0100
-In-Reply-To: <20041118224411.GA10876@kroah.com> (Greg KH's message of "Thu, 18
-	Nov 2004 14:44:12 -0800")
-Message-ID: <87sm76oz9z.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 Nov 2004 06:28:15 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:16342 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S261349AbUKSL2C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 06:28:02 -0500
+To: akpm@osdl.org
+CC: torvalds@osdl.org, hbryan@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+In-reply-to: <20041118130601.6ee8bd97.akpm@osdl.org> (message from Andrew
+	Morton on Thu, 18 Nov 2004 13:06:01 -0800)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
+	<E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
+	<E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
+	<E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu> <20041118130601.6ee8bd97.akpm@osdl.org>
+Message-Id: <E1CV6vf-0006q1-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 19 Nov 2004 12:27:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> disait dernièrement que :
+> Grab http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz and
+> learn to drive run-bash-shared-mappings.sh.
 
-> I've released the 046 version of udev.  It can be found at:
->   	kernel.org/pub/linux/utils/kernel/hotplug/udev-046.tar.gz
->
-> (yes, there has also been releases for versions 040, 041, 042, 043, 044,
-> and 045, I just forgot to announce them...)
->
-> udev allows users to have a dynamic /dev and provides the ability to
-> have persistent device names.  It uses sysfs and /sbin/hotplug and runs
-> entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
-> enabled to run.  Please see the udev FAQ for any questions about it:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
->
-> For any udev vs devfs questions anyone might have, please see:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
->
-> And there is a general udev web page at:
-> 	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
->
-> This release has a completly new backend database.  If you have had
-> _any_ problems with udev lockups, 100% cpu utilitization, or issues with
-> large machines having a zillion udev processes hanging around, please
-> try this release.
->
-> For those of you without any udev issues, I recommend the 045 release
-> at:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/udev-045.tar.gz
->
-> It's the same backend database, and has lots of bugfixes and tweaks
-> since the 039 release.
->
-> Major changes in this release from the 045 release:
-> 	- no more tdb backend, we now have 1 file per sysfs entry in
-> 	  /dev/.udevdb that holds the information we need.  Yes, this is
-> 	  a bit more memory than previously used, but we get the locking
-> 	  issues fixed for free as we rely on the kernel file locking
-> 	  rules to get it correct.  Anyway, you should have /dev mounted
-> 	  on a tmpfs not ramfs so the memory is swapable.
-> 	- new keywords to match on (DRIVER and SUBSYSTEM)
-> 	- lots of good wait_for_sysfs fixes (we now take advantage of
-> 	  the new 2.6.10-rc2 kernel information and don't have to guess
-> 	  at what files we might have to wait for.)
-> 	- loads of bugfixes and rule files tweaks.
+Thanks Andrew, this indeed caused a deadlock.  Strangely the deadlock
+happens much more easily if 'usemem' is not run in parallel with
+'bash-shared-mapping'.
 
-seems like these changes broke something in rules applying to eth* devices.
-the rules put and still working with udev 045 have no effect, now....
-not so inconvenient now that I've got just one card in my box, but I guess
-it could be a show-stopper for laptop users.
+> > gets a medal
+> 
+> My emedals.com account awaits your contribution ;)
 
-My rules which can be found at the end of /etc/udev/rules.d/50-udev.rules are:
+The medal is yours!
 
-KERNEL="eth*", SYSFS{address}="00:10:5a:49:36:d8", NAME="external"
-KERNEL="eth*", SYSFS{address}="00:50:04:69:db:56", NAME="private"
-KERNEL="eth*", SYSFS{address}="00:0c:6e:e4:2c:81", NAME="dmz"
+Apologies to everyone whom I disbelieved, and thanks for enlightening me.
 
-Regards,
+The solution I'm thinking is along the lines of accounting the number
+of writable pages assigned to FUSE filesystems.  Limiting this should
+solve the deadlock problem.  This would only impact performance for
+shared writable mappings, which are rare anyway.
 
-
-> 	
-> Thanks to Kay Sievers for all the work he's been doing on udev lately,
-> especially the database backend fixes.  I really appreciate it.
->
-> Also thanks to everyone who has send me patches for the recent releases,
-> a full list of everyone, and their changes is below.
->
-> udev development is done in a BitKeeper repository located at:
-> 	bk://linuxusb.bkbits.net/udev
->
-> Daily snapshots of udev from the BitKeeper tree can be found at:
-> 	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-> If anyone ever wants a tarball of the current bk tree, just email me.
->
-> thanks,
->
-> greg k-h
->
->
-> Summary of changes from v045 to v046
-> ============================================
->
-> Greg Kroah-Hartman:
->   o make spotless for releases
->
-> Kay Sievers:
->   o Don't try to print major/minor for devices without a dev file
->   o remove get_device_type and merge that into udev_set_values()
->   o prevent udevd crash if DEVPATH is not set
->   o add ippp and bcrypt to the exception lists of wait_for_sysfs
->   o let klibc add the trailing newline to syslog conditionally
->   o disable logging for udevstart
->   o add NAME{ignore_remove} attribute
->   o remove historical SYSFS_attr="value" format
->   o don't wait for sysfs if the kernel(2.6.10-rc2) tells us what not to expect
->   o change key names in udevinfo sysfs walk to match the kernel
->   o support DRIVER as a rule key
->   o support SUBSYSTEM as a rule key
->   o rename udevdb* to udev_db*
->   o Make dev.d/ handling a separate processing stage
->   o make the udev object available to more processing stages
->   o remove udev_lib dependency from udevsend, which makes it smaller
->   o add ACTION to udev object to expose it to the whole process
->   o make udevinfo's -r option also workimg for symlink queries
->   o let udev act as udevstart if argv[1] == "udevstart"
->   o improve udevinfo sysfs info walk
->   o add sysfs info walk to udevinfo
->   o pass the whole event environment to udevd
->   o replace tdb database by simple lockless file database
->
->
-> Summary of changes from v044 to v045
-> ============================================
->
-> Martin Schlemmer:
->   o Some updates for Gentoo's udev rules
->
->
-> Summary of changes from v043 to v044
-> ============================================
->
-> Greg Kroah-Hartman:
->   o add cdsymlinks.sh support to gentoo rules file
->   o fix gentoo legacy tty rule
->   o remove 'sudo' usage from the Makefile
->   o make udev-test.pl test for root permissions before running
->
-> Kay Sievers:
->   o reduce syslog noise of udevsend if multiple instances try to start udevd
->   o add i2c-dev to the list of devices without a bus
->
->
-> Summary of changes from v042 to v043
-> ============================================
->
-> Greg Kroah-Hartman:
->   o add test target to makefile
->   o add dumb script to show all sysfs devices in the system
->
-> Kay Sievers:
->   o Shut up wait_for_sysfs class/net failure messages, as it's not possible to
->     get that right for all net devices. Kernels later than 2.6.10-rc1 will
->     handle that by carrying the neccessary information in the hotplug event.  
->   o wait() for specific pid to return from fork()
->   o Don't use any syslog() in signal handler, cause it may deadlock
->   o Add support for highpoint ataraid to volume_id to suppress label reading on raid set members.
->   o Add a bunch of devices without "device" symlinks
->   o Exit, if udevtest cannot open the device (segfault)
->   o Patches from Harald Hoyer <harald@redhat.com>
->   o Apply the default permissions even if we found a entry in the permissions
->     file. Correct one test, as the default is applied correctly now and the
->     mode will no longer be 0000.
->   o add test for format chars in multiple symlinks to replace
->   o Add net/vmnet and class/zaptel to the list of devices without physical device
->
->
-> Summary of changes from v040 to v042
-> ============================================
->
-> Greg Kroah-Hartman:
->   o add inotify to the rules for gentoo
->
-> Kay Sievers:
->   o skip waiting for device if we get a bad event for class creation and not for a device underneath it
->   o add net/pan and net/bnep handling
->   o switch wait for bus_file to stat() instead of open() add net/tun device handling add ieee1394 device handling
->   o Remove the last klibc specific line from the main udev code Move _KLIBC_HAS_ARCH_SIG_ATOMIC_T to the fixup file which is automatically included by the Makefile is we build with klibc
->   o ignore *.rej files from failed patches
->   o update to libsysfs 1.2.0 and add some stuff klib_fixup Now we have only the sysfs.h file different from the upstream version to map our dbg() macro.
->   o improve klibc fixup integration
->   o cleanup udevd/udevstart
->   o expose sysfs functions for sharing it
->
->
-> Summary of changes from v039 to v040
-> ============================================
->
-> <jk:blackdown.de>:
->   o wait_for_sysfs update for dm devices
->
-> Greg Kroah-Hartman:
->   o sparse cleanups on the tree
->   o fix stupid cut-and-paste error for msr devices on gentoo boxes
->   o add *~ to bk ignore list
->   o delete udevruler.c as per Kay's request
->   o fix up the wait_for_sysfs_test script a bit
->
-> Kay Sievers:
->   o fix debug in volume id / fix clashing global var name
->   o volume_id fix
->   o $local user
->   o cleanup netif handling and netif-dev.d/ events
->   o big cleanup of internal udev api
->   o don't wait for dummy devices
->   o close the syslog
->   o Fix ppp net devices in wait_for_sysfs
->   o Fix wait_for_sysfs messages (more debugging info)
->
->
->
->
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: InterSystems CACHE
-> FREE OODBMS DOWNLOAD - A multidimensional database that combines
-> robust object and relational technologies, making it a perfect match
-> for Java, C++,COM, XML, ODBC and JDBC. www.intersystems.com/match8
-> _______________________________________________
-> Linux-hotplug-devel mailing list  http://linux-hotplug.sourceforge.net
-> Linux-hotplug-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-hotplug-devel
->
-
--- 
-<riel> google rules
-<google> rules: http://www.law.cornell.edu/rules/fre/overview.html
-
-	- Rik van Riel chatting with the bots on #kernelnewbies
-
+Thanks,
+Miklos

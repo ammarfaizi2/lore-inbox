@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbUFJXTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUFJX2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUFJXTd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 19:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUFJXTd
+	id S262902AbUFJX2E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 19:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUFJX2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 19:19:33 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:39578 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263324AbUFJXTa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 19:19:30 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Lars <terraformers@gmx.net>
-Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
-Date: Fri, 11 Jun 2004 01:23:36 +0200
-User-Agent: KMail/1.5.3
-References: <ca9jj9$dr$1@sea.gmane.org> <200406110035.48711.bzolnier@elka.pw.edu.pl> <caap8q$m51$1@sea.gmane.org>
-In-Reply-To: <caap8q$m51$1@sea.gmane.org>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 10 Jun 2004 19:28:04 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:13810 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262902AbUFJX2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 19:28:02 -0400
+Date: Thu, 10 Jun 2004 19:22:28 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream plan
+ for AHCI and iswraid??)
+In-Reply-To: <Pine.GSO.4.33.0406101452220.14297-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.GSO.4.33.0406101919440.14297-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406110123.36981.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 of June 2004 01:01, Lars wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Friday 11 of June 2004 00:19, Lars wrote:
-> >> just learned that
-> >> setpci -H1 -s 0:0.0 6C.L=0x9F01FF01
-> >> enables C1 *and* the 80ns stability fix.
-> >>
-> >> looks like i have to stick with my ugly little workaround for a while
-> >
-> > "ugly"?
->
-> just kiddin' ;)
->
-> > We can probably change kernel fixup to always do & 0x9F01FF01
-> > but adding "force C1HD" kernel options sounds insane.
->
-> i guess that always applying 0x9F01FF01 will force c1 for all users
-> to *on* again, because the 9F value triggers this.
-> its my understanding that
-> 0x9F01FF01 enables c1 and fix
-> 0x0F01FF01 disables c1, enables fix
-> 0x0F0FFF01 disables c1 and fix
->
-> am i right ?
+On Thu, 10 Jun 2004, Ricky Beam wrote:
+>...  For example:
+>  mdadm --build /dev/md/d0 --chunk=16 --level=0 --raid-devices=4 /dev/sd[abcd]
+>or a dm-table:
+>  0 1250327228 striped 4 32 /dev/sda 0 /dev/sdb 0 /dev/sdc 0 /dev/sdd 0
+>works for me (4x160G SATA drives on a SI3114 in raid0 mode.)  The same
+>md setup can be done via the kernel cmdline to boot into the array.
 
-Yes but doing & should always give the right result:
-0x0F0FFF01 & 0x9F01FF01 -> 0x0F01FF01
-(disabled -> disabled + fix)
-0x9F0FFF01 & 0x9F01FF01 -> 0x9F01FF01
-(enabled -> enabled + fix)
-...
+And that cmdline is... (wait for it, *pause*, wait for it)
+	md=d0,0,2,0,/dev/sda,/dev/sdb,/dev/sdc,/dev/sdd
+
+--Ricky
+
 

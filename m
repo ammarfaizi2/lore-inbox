@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268273AbUIGPrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUIGPrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268273AbUIGPrO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 11:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUIGPnO
+	id S268315AbUIGPrN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 11:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268273AbUIGPnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:43:14 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:13029 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S268273AbUIGPjH (ORCPT
+	Tue, 7 Sep 2004 11:43:23 -0400
+Received: from fire.osdl.org ([65.172.181.4]:41963 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268304AbUIGPmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:39:07 -0400
-Date: Tue, 07 Sep 2004 17:37:24 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Spam <spam@tnonline.net>, Christer Weinigel <christer@weinigel.se>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Christoph Hellwig <hch@lst.de>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Chris Wedgwood <cw@f00f.org>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
-References: <200409070206.i8726vrG006493@localhost.localdomain>
- <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
- <1183150024.20040907143346@tnonline.net>
-In-Reply-To: <1183150024.20040907143346@tnonline.net>
-User-Agent: nail 11.6pre 9/7/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Sep 2004 11:42:25 -0400
+Subject: 6 New compile/sparse warnings (over the weekend)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1094571421.28147.20.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 07 Sep 2004 08:37:01 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spam <spam@tnonline.net> wrote:
 
->   One suggestion is missed. It is to provide system calls for copy.
->   That would also solve the problem.
+Compiler: gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+Arch: i386
 
-No, it would not. If you read the POSIX.1 specification for cp
-carefully <http://www.unix.org/version3/online.html>, you will
-notice that the process for copying a regular file is carefully
-standardized. A POSIX.1-conforming cp implementation would not
-be allowed to copy additional streams, unless either additional
-options are given or the type of the file being copied is other
-than S_IFREG. And cp is just one example of a standardized file
-handling program.
 
-	Gunnar
+Summary:
+   New warnings = 6
+   Fixed warnings = 1
 
--- 
-http://omnibus.ruf.uni-freiburg.de/~gritter
+New warnings:
+-------------
+drivers/media/video/bttv-cards.c:4148:38: warning: Using plain integer
+as NULL pointer
+
+drivers/net/cs89x0.c:1709: warning: `use_dma' defined but not used
+
+drivers/net/cs89x0.c:1710: warning: `dma' defined but not used
+
+drivers/net/cs89x0.c:1711: warning: `dmasize' defined but not used
+
+fs/coda/file.c:298:14: warning: incorrect type in initializer
+(incompatible argument 5 (different address spaces))
+fs/coda/file.c:298:14:    expected int [usertype] ( *sendfile )( ... )
+fs/coda/file.c:298:14:    got int [usertype] ( static [addressable]
+[toplevel] *<noident> )( ... )
+
+fs/coda/file.c:61:66: warning: incorrect type in argument 5 (different
+address spaces)
+fs/coda/file.c:61:66:    expected void *<noident>
+fs/coda/file.c:61:66:    got void [noderef] *target<asn:1>
+
+Fixed warnings:
+---------------
+drivers/net/wan/pc300_tty.c:763: warning: `new' might be used
+uninitialized in this function
+
+
+

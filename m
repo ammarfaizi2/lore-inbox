@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUJOQlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUJOQqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268170AbUJOQlk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQka
+	id S268203AbUJOQqC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268175AbUJOQqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:40:30 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:57566 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268169AbUJOQic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:38:32 -0400
-Subject: Re: per-process shared information
-From: Albert Cahalan <albert@users.sf.net>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sourceforge.net>
-In-Reply-To: <20041015162000.GB17849@dualathlon.random>
-References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain>
-	 <1097846353.2674.13298.camel@cube>
-	 <20041015162000.GB17849@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097857912.2669.13548.camel@cube>
+	Fri, 15 Oct 2004 12:46:01 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:17600 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S268207AbUJOQpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:45:40 -0400
+Date: Fri, 15 Oct 2004 09:40:39 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Sven Dietrich <sdietrich@mvista.com>,
+       Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, abatyrshin@ru.mvista.com,
+       amakarov@ru.mvista.com, emints@ru.mvista.com, ext-rt-dev@mvista.com,
+       hzhang@ch.mvista.com, yyang@ch.mvista.com,
+       "Witold. Jaworski@Unibw-Muenchen. De" 
+	<witold.jaworski@unibw-muenchen.de>,
+       arnd.heursch@unibw-muenchen.de
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041015164039.GA1265@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20041011215420.GA19796@elte.hu> <EOEGJOIIAIGENMKBPIAECEIEDKAA.sdietrich@mvista.com> <20041012055029.GB1479@elte.hu> <20041014050905.GA6927@in.ibm.com> <20041014071810.GB9729@elte.hu> <20041015145915.GA1266@us.ibm.com> <20041015154542.GA8257@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 15 Oct 2004 12:31:52 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041015154542.GA8257@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 12:20, Andrea Arcangeli wrote:
+On Fri, Oct 15, 2004 at 05:45:42PM +0200, Ingo Molnar wrote:
+> 
+> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> 
+> > One caution (which you are no doubt already aware of) -- if an RCU
+> > algorithm that reads (rcu_read_lock()/rcu_read_unlock()) in process
+> > context and updates in softirq/bh/irq context, you can see deadlocks.
+> 
+> yeah - but in the PREEMPT_REALTIME kernel there are simply no irq or
+> softirq contexts in process contexts - everything is a task. So
+> everything can (and does) block.
 
-> the problem is that when ps xav wants to know the RSS it reads statm,
-> so we just cannot hurt ps xav to show the "old shared" information that
-> would be extremely slow to collect.
+OK, am probably confused, but I thought that the whole point of your
+PREEMPT_REALTIME implementation of rcu_read_lock_rt() was to enable
+preemption in the RCU read-side critical section.  If this is indeed
+the case, then it looks to me like code that would run in softirq/bh/irq
+context in a kernel compiled non-PREEMPT_REALTIME could now run during
+the time that a code path running under rcu_read_lock_rt() was preempted.
 
-Currently, ps uses /proc/*/stat for that. The /proc/*/statm
-file is read to determine TRS and DRS, which are broken now.
-That it, unless you count "ps -o OL_m" format.
+If so, then the kernel can end up freeing a data item that the preempted
+RCU read-side critical section is still referencing.
 
-The top program uses /proc/*/statm for many more fields:
+OK, so what am I missing here?
 
-%MEM  Memory usage (RES)
-VIRT  Virtual Image (kb)
-SWAP  Swapped size (kb)
-RES   Resident size (kb)
-CODE  Code size (kb)
-DATA  Data+Stack size (kb)
-SHR   Shared Mem size (kb)
-nDRT  Dirty Pages count
-
-> I was only not happy about dropping the old feature completely instead
-> of providing it with a different new API. Now I think the solution Hugh
-> just proposed with the anon_rss should mimic the old behaviour well
-> enough and it's probably the right way to go, it's still not literally
-> the same, but I doubt most people from userspace could notice the
-> difference, and most important it provides useful information, which is
-> the number of _physical_ pages mapped that aren't anonymous memory, this
-> is very valuable info and it's basically the same info that people was
-> getting from the old "shared". So I like it.
-
-What exactly would be the difference, and when might users see it?
-
-
+						Thanx, Paul

@@ -1,102 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVAWCOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVAWCVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVAWCOP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 21:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVAWCOP
+	id S261187AbVAWCVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 21:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVAWCVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 21:14:15 -0500
-Received: from siaag1ad.compuserve.com ([149.174.40.6]:63689 "EHLO
-	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S261174AbVAWCOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 21:14:07 -0500
-Date: Sat, 22 Jan 2005 21:10:40 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 1/12] random pt4: Create new rol32/ror32 bitops
-To: Matt Mackall <mpm@selenic.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200501222113_MC3-1-940A-5393@compuserve.com>
+	Sat, 22 Jan 2005 21:21:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54922 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261187AbVAWCVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 21:21:42 -0500
+Message-ID: <41F30848.6050408@osdl.org>
+Date: Sat, 22 Jan 2005 18:13:28 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: can't compile 2.6.11-rc2 on sparc64
+References: <200501230238.55584@gj-laptop> <41F2FFBB.7020300@osdl.org> <200501230248.27332@gj-laptop>
+In-Reply-To: <200501230248.27332@gj-laptop>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jan 2005 at 15:41:06 -0600 Matt Mackall wrote:
+Grzegorz Piotr Jaskiewicz wrote:
+> On Sunday 23 January 2005 02:36, Randy.Dunlap wrote:
+> 
+> 
+>>Please look for another error.  Run 'make' again.
+>>Those are all just warnings and don't cause a build error.
+> 
+> 
+> all output past make:
+> 
+> [root@gjsparc64 linux-2.6.11-rc2]# make V=1
+> if test ! /usr/src/linux-2.6.11-rc2 -ef /usr/src/linux-2.6.11-rc2; then \
+> /bin/bash /usr/src/linux-2.6.11-rc2/scripts/mkmakefile              \
+>     /usr/src/linux-2.6.11-rc2 /usr/src/linux-2.6.11-rc2 2 6         \
+>     > /usr/src/linux-2.6.11-rc2/Makefile;                                 \
+>     echo '  GEN    /usr/src/linux-2.6.11-rc2/Makefile';                   \
+> fi
+>   CHK     include/linux/version.h
+> rm -rf .tmp_versions
+> mkdir -p .tmp_versions
+> make -f scripts/Makefile.build obj=scripts/basic
+> make -f scripts/Makefile.build obj=scripts
+> make -f scripts/Makefile.build obj=scripts/genksyms
+> make -f scripts/Makefile.build obj=scripts/mod
+> make -f scripts/Makefile.build obj=init
+>   CHK     include/linux/compile.h
+> make -f scripts/Makefile.build obj=usr
+> set -e; echo '  CHK     usr/initramfs_list'; mkdir -p 
+> usr/; /bin/bash /usr/src/linux-2.6.11-rc2/scripts/gen_initramfs_list.sh    > 
+> usr/initramfs_list.tmp; if [ -r usr/initramfs_list ] && cmp -s 
+> usr/initramfs_list usr/initramfs_list.tmp; then rm -f usr/initramfs_list.tmp; 
+> else echo '  UPD     usr/initramfs_list'; mv -f usr/initramfs_list.tmp 
+> usr/initramfs_list; fi
+>   CHK     usr/initramfs_list
+> make -f scripts/Makefile.build obj=arch/sparc64/kernel
+>   /usr/bin/sparc64-pld-linux-gcc -Wp,-MD,arch/sparc64/kernel/.ioctl32.o.d 
+> -nostdinc -isystem /usr/lib/gcc/sparc64-pld-linux/3.4.2/include -D__KERNEL__ 
+> -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing 
+> -fno-common -ffreestanding -O2     -fomit-frame-pointer -m64 -pipe -mno-fpu 
+> -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 
+> -Wno-sign-compare -Wa,--undeclared-regs -finline-limit=100000 
+> -Wdeclaration-after-statement  -Werror -Ifs/  -DKBUILD_BASENAME=ioctl32 
+> -DKBUILD_MODNAME=ioctl32 -c -o arch/sparc64/kernel/.tmp_ioctl32.o 
+> arch/sparc64/kernel/ioctl32.c
+> include/asm/uaccess.h: In function `siocdevprivate_ioctl':
+> fs/compat_ioctl.c:648: warning: ignoring return value of `copy_to_user', 
+> declared with attribute warn_unused_result
+> fs/compat_ioctl.c: In function `put_dirent32':
+> fs/compat_ioctl.c:2346: warning: ignoring return value of `copy_to_user', 
+> declared with attribute warn_unused_result
+> fs/compat_ioctl.c: In function `serial_struct_ioctl':
+> fs/compat_ioctl.c:2489: warning: ignoring return value of `copy_from_user', 
+> declared with attribute warn_unused_result
+> fs/compat_ioctl.c:2502: warning: ignoring return value of `copy_to_user', 
+> declared with attribute warn_unused_result
+> make[1]: *** [arch/sparc64/kernel/ioctl32.o] Error 1
+> make: *** [arch/sparc64/kernel] Error 2
+> [root@gjsparc64 linux-2.6.11-rc2]#
+> 
+> I have no idea what causes error here. What shall I input to get more info 
+> about that error ?
 
-> Add rol32 and ror32 bitops to bitops.h
+It's the '-Werror' option that makes warnings become fatal
+errors that is stopping you here.  You could edit
+arch/sparc64/kernel/Makefile and remove/comment that for now.
 
-Can you test this patch on top of yours?  I did it on 2.6.10-ac10 but it
-should apply OK.  Compile tested and booted, but only random.c is using it
-in my kernel.
 
-x86-64 could use this too...
-
-Add i386 bitops for rol32/ror32:
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.10-ac10/include/linux/bitops.h~orig     2005-01-22 11:31:20.130239000 -0500
-+++ 2.6.10-ac10/include/linux/bitops.h  2005-01-22 11:34:55.740239000 -0500
-@@ -129,6 +129,7 @@
-        return sizeof(w) == 4 ? generic_hweight32(w) : generic_hweight64(w);
- }
- 
-+#ifndef __HAVE_ARCH_ROTATE_32
- /*
-  * rol32 - rotate a 32-bit value left
-  *
-@@ -150,5 +151,6 @@
- {
-        return (word >> shift) | (word << (32 - shift));
- }
-+#endif /* ndef __HAVE_ARCH_ROTATE_32 */
- 
- #endif
---- 2.6.10-ac10/include/asm-i386/bitops.h~orig  2004-08-24 05:08:39.000000000 -0400
-+++ 2.6.10-ac10/include/asm-i386/bitops.h       2005-01-22 11:42:12.010239000 -0500
-@@ -431,6 +431,41 @@
- #define hweight16(x) generic_hweight16(x)
- #define hweight8(x) generic_hweight8(x)
- 
-+#define __HAVE_ARCH_ROTATE_32
-+/*
-+ * rol32 - rotate a 32-bit value left
-+ *
-+ * @word: value to rotate
-+ * @shift: bits to roll
-+ */
-+static inline __u32 rol32(__u32 word, int shift)
-+{
-+       __u32 res;
-+
-+       asm("roll %%cl,%0"
-+           : "=r" (res)
-+           : "0" (word), "c" (shift)
-+           : "cc");
-+       return res;
-+}
-+
-+/*
-+ * ror32 - rotate a 32-bit value right
-+ *
-+ * @word: value to rotate
-+ * @shift: bits to roll
-+ */
-+static inline __u32 ror32(__u32 word, int shift)
-+{
-+       __u32 res;
-+
-+       asm("rorl %%cl,%0"
-+           : "=r" (res)
-+           : "0" (word), "c" (shift)
-+           : "cc");
-+       return res;
-+}
-+
- #endif /* __KERNEL__ */
- 
- #ifdef __KERNEL__
-
-Chuck
+-- 
+~Randy

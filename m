@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSCNUPV>; Thu, 14 Mar 2002 15:15:21 -0500
+	id <S311756AbSCNU0M>; Thu, 14 Mar 2002 15:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311753AbSCNUPL>; Thu, 14 Mar 2002 15:15:11 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:39929 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S311752AbSCNUOw>;
-	Thu, 14 Mar 2002 15:14:52 -0500
-Date: Thu, 14 Mar 2002 12:14:50 -0800
-To: Wichert Akkerman <wichert@cistron.nl>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re : [PATCH 2.4.19-pre3] New wireless driver API part 1
-Message-ID: <20020314121450.A14791@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S311757AbSCNUZw>; Thu, 14 Mar 2002 15:25:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:36625 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311756AbSCNUZn>;
+	Thu, 14 Mar 2002 15:25:43 -0500
+Date: Thu, 14 Mar 2002 21:25:40 +0100
+From: Dave Jones <davej@suse.de>
+To: M Sweger <mikesw@ns1.whiterose.net>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
+Message-ID: <20020314212540.A25217@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
+	alan@redhat.com
+In-Reply-To: <Pine.BSF.4.21.0203141518590.18036-100000@ns1.whiterose.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <Pine.BSF.4.21.0203141518590.18036-100000@ns1.whiterose.net>; from mikesw@ns1.whiterose.net on Thu, Mar 14, 2002 at 03:19:56PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichert Akkerman wrote :
-> In article <Pine.LNX.4.33.0203141139400.26308-100000@godzilla.axis.se>,
-> Bjorn Wesen  <bjorn.wesen@axis.com> wrote:
-> >The orinico driver (already in the kernel) works fine with the DWL-650 card. 
-> >Tried it some days ago.. not a very big field trial but I inserted the card 
-> >and I got an eth0 from it and it worked, so thats the way I like it :)
-> 
-> Last time I tried the orinoco driver it failed to see my Lucent orinoco
-> card. The wlan-cs driver from the pcmcia sources works just fine though.
-> 
-> Wichert.
+On Thu, Mar 14, 2002 at 03:19:56PM -0500, M Sweger wrote:
+ > v2.2.21rc1       Oops' on boot after the message "CPU: L2 cache = 512K
+ >                  with a kernel panic. Note: I don't have any swap turned on.
+ > >>EIP; c0297244 <init_intel+33c/34c>   <=====
 
-	wvlan_cs doesn't have a maintainer. And without a maintainer
-enthousiastic to push things forward and reacting to bug report and
-kernel API changes, I consider the driver DEAD.
-	Don't get me wrong. wvlan_cs can still do the job very well
-and this is why I asked David to not remove it from the Pcmcia
-package. Espcially that Orinoco is going through a restabilisation
-(partly my fault - it seem so far that v8b was the most stable version
-- but I still need to try v10). But there are already enough drivers
-for those card out there, and a bit of consolidation might help get
-things in a better shape.
-	Also, note that in a lot of case, the problem is not the
-orinoco driver but the kernel Pcmcia subsystem, which is not working
-at all on most PCI to Pcmcia adapters, while the external Pcmcia
-modules work with the proper magic incantations.
-	Regards,
+ Fix posted to the list earlier. Add =NULL to the declaration
+ of the variable p in arch/i386/kernel/setup.c:init_intel()
 
-	Jean
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

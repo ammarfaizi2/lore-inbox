@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVADABY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVADAFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbVADABY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbVACX53
+	id S262018AbVADAFI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVADAB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:57:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26374 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262002AbVACXxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:53:41 -0500
-Date: Tue, 4 Jan 2005 00:53:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] cachefs: possible cleanups
-Message-ID: <20050103235340.GS2980@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 3 Jan 2005 19:01:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31142 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262007AbVADABc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:01:32 -0500
+Date: Mon, 3 Jan 2005 16:01:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+In-Reply-To: <41D9D7CC.3090409@aknet.ru>
+Message-ID: <Pine.LNX.4.58.0501031557250.2294@ppc970.osdl.org>
+References: <41D9D7CC.3090409@aknet.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following possible cleanups:
-- journal.c: make cachefs_ondisc_ujnl_marks static
-- misc.c: #if 0 the unused global function __cachefs_page_get_private
 
 
-diffstat output:
- fs/cachefs/journal.c |    2 +-
- fs/cachefs/misc.c    |    2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+On Tue, 4 Jan 2005, Stas Sergeev wrote:
+> 
+> Can this please be applied?
 
+Please don't do it like this - you made the patch now depend on the 
+ugliest code in the universe, namely that horribly crappy kgdb-ga sh*t 
+("Don't hold back, Linus, tell us how you really feel").
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+The 16-bit stack code may not be the prettiest either, but it doesn't hold 
+a candle to the asm-crap that is entry.S after kgdb-ga.
 
---- linux-2.6.10-mm1-full/fs/cachefs/journal.c.old	2005-01-03 23:53:49.000000000 +0100
-+++ linux-2.6.10-mm1-full/fs/cachefs/journal.c	2005-01-03 23:54:09.000000000 +0100
-@@ -19,7 +19,7 @@
- 
- #define UJNL_WRAP(X) ((X) & (CACHEFS_ONDISC_UJNL_NUMENTS - 1))
- 
--const char *cachefs_ondisc_ujnl_marks[] = {
-+static const char *cachefs_ondisc_ujnl_marks[] = {
- 	"Null     ",
- 	"Batch    ",
- 	"Ack      ",
---- linux-2.6.10-mm1-full/fs/cachefs/misc.c.old	2005-01-03 23:54:20.000000000 +0100
-+++ linux-2.6.10-mm1-full/fs/cachefs/misc.c	2005-01-03 23:54:37.000000000 +0100
-@@ -30,6 +30,7 @@
-  * get a page caching token from for a page, allocating it and attaching it to
-  * the page's private pointer if it doesn't exist
-  */
-+#if 0
- struct fscache_page * __cachefs_page_get_private(struct page *page,
- 						 unsigned gfp_flags)
- {
-@@ -51,6 +52,7 @@
- } /* end __cachefs_page_get_private() */
- 
- EXPORT_SYMBOL(__cachefs_page_get_private);
-+#endif  /*  0  */
- 
- /*****************************************************************************/
- /*
+"resume_kernelX"? What crud.
 
+		Linus

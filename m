@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267922AbUHPUHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267933AbUHPULY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267922AbUHPUHl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 16:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHPUHl
+	id S267933AbUHPULY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 16:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267935AbUHPULY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 16:07:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34055 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267922AbUHPUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 16:07:36 -0400
-Date: Mon, 16 Aug 2004 21:07:30 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
-Message-ID: <20040816210729.A25893@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de> <Pine.LNX.4.61.0408160043270.12687@scrub.home> <20040816195733.GZ1387@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040816195733.GZ1387@fs.tum.de>; from bunk@fs.tum.de on Mon, Aug 16, 2004 at 09:57:33PM +0200
+	Mon, 16 Aug 2004 16:11:24 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:25361 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S267933AbUHPULV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 16:11:21 -0400
+Date: Mon, 16 Aug 2004 22:11:19 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Len Brown <len.brown@intel.com>
+Cc: Oliver Feiler <kiza@gmx.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: eth*: transmit timed out since .27
+In-Reply-To: <1092685109.23057.27.camel@dhcppc4>
+Message-ID: <Pine.LNX.4.58L.0408162149440.18978@blysk.ds.pg.gda.pl>
+References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
+  <1092678734.23057.18.camel@dhcppc4>  <41210098.4080904@gmx.net>
+ <1092685109.23057.27.camel@dhcppc4>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 09:57:33PM +0200, Adrian Bunk wrote:
-> On Mon, Aug 16, 2004 at 12:47:05AM +0200, Roman Zippel wrote:
-> > The use of select is already a crotch here, so there's no real correct 
-> > handling. There are a few possibilities:
-> > - if you select FW_LOADER, you have to select HOTPLUG too
-> > - if you select FW_LOADER, you have to depend on HOTPLUG
-> > - FW_LOADER itself can select HOTPLUG
+On Mon, 16 Aug 2004, Len Brown wrote:
+
+> > MIS:         42
 > 
-> Solution 2 is what my patch tried.
-> 
-> Thinking about them, I'd prefer solution 3. But with solution 1 or 3, 
-> I'm sure people like Russell King will scream since this will make it 
-> non-trivial to de-select HOTPLUG.
+> This is unusual.
+> MIS is a hardware workaround and should normally be 0.
 
-Let me make my position over the use of "select" clear: I do not
-oppose its appropriate use, where that is defined as selecting
-another configuration option for which the user has no visibility.
+ Unfortunately these events seem to be triggerable for all systems using
+serial APIC interrupt delivery.  All that is needed is a sufficiently high
+load on interrupts, even a transient one.  Admittedly the definition of
+"sufficient" here is very high, something like at least ten thousands of
+interrupts per second.  E.g. I've been able to observe a few of them on my
+system when a UDP NFS client was untarring an archive over a 100Mbps
+network -- both the archive and the destination were located in an NFS
+mounted filesystem and the size of the untarred data was around 300MB.  
+The APIC hardware is rock-solid there -- after many years of operation I
+have yet to see a single APIC error.
 
-In the above case, it _may_ make sense (I haven't looked deeply
-into it yet) to:
+ One "reliable" way of triggering these events is configuring the PIT
+timer interrupt input as level-triggered in the I/O APIC. ;-)  This is
+actually how I did run-time testing of this code.
 
-- make _all_ drivers which need FW_LOADER select it
-- make _all_ drivers which currently depend on HOTPLUG select it
-- make FW_LOADER select HOTPLUG
-- remove user questions for FW_LOADER and HOTPLUG
-
-That means that FW_LOADER and HOTPLUG are automatically selected
-whenever the configuration requires them and are automatically
-deselected when it doesn't need them, and you don't have to worry
-about whether you can disable them now or after finding the
-thousand and one configuration symbols which need to be turned off
-first.
-
-However, keeping the option user-visible _and_ using select is
-problematical to say the least.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+  Maciej

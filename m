@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280829AbRKBUbB>; Fri, 2 Nov 2001 15:31:01 -0500
+	id <S280819AbRKBUcv>; Fri, 2 Nov 2001 15:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280826AbRKBUav>; Fri, 2 Nov 2001 15:30:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27146 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280822AbRKBUaj>; Fri, 2 Nov 2001 15:30:39 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-Date: Fri, 2 Nov 2001 20:27:57 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9ruvkd$jh1$1@penguin.transmeta.com>
-In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <15330.56589.291830.542215@abasin.nj.nec.com> <20011102190046.B6003@athlon.random> <20011102181758Z16039-4784+420@humbolt.nl.linux.org>
-X-Trace: palladium.transmeta.com 1004733026 25483 127.0.0.1 (2 Nov 2001 20:30:26 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 2 Nov 2001 20:30:26 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S280820AbRKBUcl>; Fri, 2 Nov 2001 15:32:41 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:29705 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S280819AbRKBUcY>; Fri, 2 Nov 2001 15:32:24 -0500
+Date: Fri, 2 Nov 2001 22:32:09 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: John Adams <johna@onevista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need blocking /dev/null
+Message-ID: <20011102223209.D26218@niksula.cs.hut.fi>
+In-Reply-To: <Pine.LNX.4.21.0111012322310.14742-100000@Consulate.UFP.CX> <01110215041301.01066@flash>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01110215041301.01066@flash>; from johna@onevista.com on Fri, Nov 02, 2001 at 04:04:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011102181758Z16039-4784+420@humbolt.nl.linux.org>,
-Daniel Phillips  <phillips@bonn-fries.net> wrote:
->
->It's hard to see how that could be wrong.  Plus, this test program does run 
->under 2.4.9, it just uses way too much CPU on that kernel.  So I'd say mm 
->bug.
+On Fri, Nov 02, 2001 at 04:04:13PM -0400, you [John Adams] claimed:
+> > >
+> > > $ exec 3>&1; find / -name "wanted-but-lost-download" 2>&1 1>&3 3>&- |
+> > > eat
+> > >
+> > > [stolen from "Csh Programming Considered Harmful" by Tom Christiansen]
+> > >
+> > > Horrible, but does work.  ;)
+> 
+> You really do take the hard way.  Try this to pipe just stderr:
+> command_that_outputs_on_1_and_2   2>/dev/stdout 1>/dev/null | eat
 
-So how much memory is mlocked?
+Hmm.
 
-The locked memory will stay in the inactive list (it won't even ever be
-activated, because we don't bother even scanning the mapped locked
-regions), and the inactive list fills up with pages that are completely
-worthless. 
+The initial question was how to do
 
-And the kernel will decide that because most of the unfreeable pages are
-mapped, it needs to do VM scanning, which obviously doesn't help.
+find / -name foo 2> /dev/null 
 
-Why _does_ this thing do mlock, anyway? What's the point? And how much
-does it try to lock?
+or similar if /dev/null is not present. (Eat is a place holder for a
+imaginary progrom acting as /dev/null replacement).
 
-If root wants to shoot himself in the head by mlocking all of memory,
-that's not a VM problem, that's a stupid administrator problem.
+I guess 
 
-		Linus
+find / -name foo 2>/dev/stdout 1>/dev/stderr | eat
+
+would (kinda) work, but it fails if you want to do
+
+find / -name foo 2> /dev/null | less
+
+Can be done with named pipes, though.
+
+
+-- v --
+
+v@iki.fi

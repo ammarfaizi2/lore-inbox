@@ -1,135 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287585AbSAEHls>; Sat, 5 Jan 2002 02:41:48 -0500
+	id <S287593AbSAEH4S>; Sat, 5 Jan 2002 02:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287582AbSAEHli>; Sat, 5 Jan 2002 02:41:38 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:8156 "EHLO ns1.yggdrasil.com")
-	by vger.kernel.org with ESMTP id <S287585AbSAEHla>;
-	Sat, 5 Jan 2002 02:41:30 -0500
-Date: Fri, 4 Jan 2002 23:41:28 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: bcollins@debian.org, andreas.bombe@munich.netsurf.de,
-        linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.2-pre8/drivers/ieee1394 kdev_t compilation fixes
-Message-ID: <20020104234128.A26076@baldur.yggdrasil.com>
+	id <S287596AbSAEH4K>; Sat, 5 Jan 2002 02:56:10 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:59913 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287593AbSAEH4A>; Sat, 5 Jan 2002 02:56:00 -0500
+Subject: 2.5.2-pre8 -- Compile errors in ieee1394/raw1394.c and video1394.c
+	(invalid operands to binary &)
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 04 Jan 2002 23:56:03 -0800
+Message-Id: <1010217375.19924.8.camel@stomata.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am including relevant bits of the .config.
+I am running gcc 3.0.3.
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o raw1394.o raw1394.c
+raw1394.c: In function `raw1394_open':
+raw1394.c:918: invalid operands to binary &
+make[3]: *** [raw1394.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/ieee1394'
 
-	The following patch fixes the kdev_t compilation errors
-in linux-2.5.2-pre8/drivers/ieee1394.  It just a global replace
-of "MINOR(" with "minor(".  I only know that the new code compiles.
-I have not tested it.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o video1394.o video1394.c
+video1394.c: In function `video1394_ioctl':
+video1394.c:853: invalid operands to binary &
+video1394.c:863: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+video1394.c:863: invalid operands to binary &
+video1394.c: In function `video1394_mmap':
+video1394.c:1331: invalid operands to binary &
+video1394.c:1340: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+video1394.c:1340: invalid operands to binary &
+video1394.c: In function `video1394_open':
+video1394.c:1360: invalid operands to binary &
+video1394.c: In function `video1394_release':
+video1394.c:1400: invalid operands to binary &
+video1394.c:1409: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+video1394.c:1409: invalid operands to binary &
+video1394.c: In function `irq_handler':
+video1394.c:1477: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+make[3]: *** [video1394.o] Error 1
 
-	Also my drivers/ieee1394 is slightly different from the
-stock kernel (some code cleanup), so you may get a few messages from
-patch about it.  However, I believe the areas relevant to this patch
-are all the same.
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+CONFIG_IEEE1394=y
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_SBP2=y
+CONFIG_IEEE1394_RAWIO=y
+CONFIG_IEEE1394_VERBOSEDEBUG=y
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+If you need more .config, please let me know.
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ieee1394.diffs"
+Also. here's what ver_linux spits out:
 
---- linux/drivers/ieee1394/pcilynx.c	2001/11/15 02:58:40	1.17
-+++ linux/drivers/ieee1394/pcilynx.c	2002/01/05 07:34:25
-@@ -764,7 +764,7 @@
- 
- static int mem_open(struct inode *inode, struct file *file)
- {
--        int cid = MINOR(inode->i_rdev);
-+        int cid = minor(inode->i_rdev);
-         enum { t_rom, t_aux, t_ram } type;
-         struct memdata *md;
- 	struct hpsb_host *host = hpsb_find_host(&lynx_template, cid);
---- linux/drivers/ieee1394/raw1394.c	2001/11/29 02:39:38	1.1.1.16
-+++ linux/drivers/ieee1394/raw1394.c	2002/01/05 07:34:25
-@@ -915,7 +915,7 @@
- {
-         struct file_info *fi;
- 
--        if (MINOR(inode->i_rdev)) {
-+        if (minor(inode->i_rdev)) {
-                 return -ENXIO;
-         }
- 
---- linux/drivers/ieee1394/video1394.c	2002/01/01 00:02:21	1.11
-+++ linux/drivers/ieee1394/video1394.c	2002/01/05 07:34:25
-@@ -850,7 +850,7 @@
- 		struct video_card *p;
- 		list_for_each(lh, &video1394_cards) {
- 			p = list_entry(lh, struct video_card, list);
--			if (p->id == MINOR(inode->i_rdev)) {
-+			if (p->id == minor(inode->i_rdev)) {
- 				video = p;
- 				break;
- 			}
-@@ -859,7 +859,7 @@
- 	spin_unlock_irqrestore(&video1394_cards_lock, flags);
- 
- 	if (video == NULL) {
--		PRINT_G(KERN_ERR, __FUNCTION__": Unknown video card for minor %d", MINOR(inode->i_rdev));
-+		PRINT_G(KERN_ERR, __FUNCTION__": Unknown video card for minor %d", minor(inode->i_rdev));
- 		return -EFAULT;
- 	}
- 
-@@ -1328,7 +1328,7 @@
- 		struct video_card *p;
- 		list_for_each(lh, &video1394_cards) {
- 			p = list_entry(lh, struct video_card, list);
--			if (p->id == MINOR(file->f_dentry->d_inode->i_rdev)) {
-+			if (p->id == minor(file->f_dentry->d_inode->i_rdev)) {
- 				video = p;
- 				break;
- 			}
-@@ -1338,7 +1338,7 @@
- 
- 	if (video == NULL) {
- 		PRINT_G(KERN_ERR, __FUNCTION__": Unknown video card for minor %d",
--			MINOR(file->f_dentry->d_inode->i_rdev));
-+			minor(file->f_dentry->d_inode->i_rdev));
- 		return -EFAULT;
- 	}
- 
-@@ -1357,7 +1357,7 @@
- 
- static int video1394_open(struct inode *inode, struct file *file)
- {
--	int i = MINOR(inode->i_rdev);
-+	int i = minor(inode->i_rdev);
- 	unsigned long flags;
- 	struct video_card *video = NULL;
- 	struct list_head *lh;
-@@ -1397,7 +1397,7 @@
- 		struct video_card *p;
- 		list_for_each(lh, &video1394_cards) {
- 			p = list_entry(lh, struct video_card, list);
--			if (p->id == MINOR(inode->i_rdev)) {
-+			if (p->id == minor(inode->i_rdev)) {
- 				video = p;
- 				break;
- 			}
-@@ -1407,7 +1407,7 @@
- 
- 	if (video == NULL) {
- 		PRINT_G(KERN_ERR, __FUNCTION__": Unknown device for minor %d",
--				MINOR(inode->i_rdev));
-+				minor(inode->i_rdev));
- 		return 1;
- 	}
- 
+Gnu C                  3.0.3
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.12
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.22
+PPP                    2.4.0
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Linux C++ Library      3.0.2
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.3.3
+Sh-utils               2.0
 
---pf9I7BMVVzbSWLtt--
+

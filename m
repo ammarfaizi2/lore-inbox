@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVBBAQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVBBATn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVBBAQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 19:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVBBAQQ
+	id S262191AbVBBATn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 19:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVBBATn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 19:16:16 -0500
-Received: from thunk.org ([69.25.196.29]:46242 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262187AbVBBAQJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 19:16:09 -0500
-Date: Tue, 1 Feb 2005 19:15:49 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Peter Busser <busser@m-privacy.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050202001549.GA17689@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Peter Busser <busser@m-privacy.de>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org> <200502011044.39259.busser@m-privacy.de>
+	Tue, 1 Feb 2005 19:19:43 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:54171 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262191AbVBBATj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 19:19:39 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
+From: john stultz <johnstul@us.ibm.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4200166A.6050309@am.sony.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <41FFFD4F.9050900@am.sony.com>
+	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	 <4200166A.6050309@am.sony.com>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 16:19:08 -0800
+Message-Id: <1107303548.2040.204.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502011044.39259.busser@m-privacy.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 10:44:39AM +0100, Peter Busser wrote:
-> Again, this is a *simulation* of the way real-life applications could interact 
-> with the underlying system. Again people complained that the results shown 
-> were not accurate. And that has been fixed.
+On Tue, 2005-02-01 at 15:53 -0800, Tim Bird wrote:
+> john stultz wrote:
+> > I believe you're right. Although we don't call read_persistent_clock()
+> > very frequently, nor do we call it in ways we don't already call
+> > get_cmos_time(). So I'm not sure exactly what the concern is.
 > 
-> I am well aware of complaints by some people about this behaviour. That is why 
-> there is a separated kiddie and blackhat mode in the latest PaXtest version. 
-> The kiddie mode is for those people who prefer to feel warm and cozy and the 
-> blackhat mode is for those who want to find out what the worst-case behaviour 
-> is. So if you don't like the blackhat results, don't run that test!
+> Sorry - I should have given more context.  I am worried about
+> suspend and resume times.  An extra (up-to-a) second delay on
+> suspend it pretty painful for CE devices.  (See my SIG for
+> my other hat in the forum.)
 
-Umm, so exactly how many applications use multithreading (or otherwise
-trigger the GLIBC mprotect call), and how many applications use nested
-functions (which is not ANSI C compliant, and as a result, very rare)?
+Ok, Nigel clarified it pretty well. Thanks. 
 
-Do the tests both ways, and document when the dummy() re-entrant
-function might actually be hit in real life, and then maybe people
-won't feel that you are deliberately and unfairly overstating things
-to try to root for one security approach versus another.  Of course,
-with name like "paxtest", maybe its only goal was propganda for the
-PaX way of doing things, in which case, that's fine.  But if you want
-it to be viewed as an honest, fair, and unbaised, then make it very
-clear in the test results how programs with and without nested
-functions, and with and without multithreading, would actually behave.
+> >
+> > Since we call read_persistent_clock(), it should return right as the
+> > second changes, thus we will be marking the new second as closely as
+> > possible with the timesource value. If the order was reversed, I think
+> > it would be a concern.
+> >
+> 
+> It sounds like for your code, this synchronization is a valuable.
 
-Or are you afraid that someone might then say --- oh, so PaX's extra
-complexity is only needed if we care about programs that use nested
-functions --- yawn, I think we'll pass on the complexity.  Is that a
-tradeoff that you're afraid to allow people to make with full
-knowledge?
+Well, it just affects how much time error we gain on suspend/resume. We
+can't be perfect (well, unless our active timesource is persistent
+clock), and the comment points that we're just trying to minimize the
+error. 
 
-						- Ted
+> For many CE products, the synchronization is not needed.  I have a
+> patch that removes the synchronization for i386 and ppc, but
+> I haven't submitted it because I didn't want to mess up
+> non-boot-context callers of get_cmos_time which have valid
+> synchronization needs.
+
+Interesting patch. Indeed, the trade off is just how quickly you want to
+boot vs how much drift you gain each suspend/resume cycle. Assuming all
+of the clocks are good, your patch could introduce up to 2 seconds of
+drift each suspend/resume cycle. 
+
+> As you can see below, the patch is pretty braindead.
+> I was wondering if this conflicted with your new timer system or
+> not.
+
+Not really. The issue is present with or without my code.
+
+thanks
+-john
+

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289708AbSBER70>; Tue, 5 Feb 2002 12:59:26 -0500
+	id <S289715AbSBER7Z>; Tue, 5 Feb 2002 12:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289725AbSBER7G>; Tue, 5 Feb 2002 12:59:06 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:59654 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289708AbSBER5o>;
-	Tue, 5 Feb 2002 12:57:44 -0500
-Date: Tue, 5 Feb 2002 13:54:46 +0000
+	id <S289708AbSBER7M>; Tue, 5 Feb 2002 12:59:12 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:1031 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S289711AbSBER5w>;
+	Tue, 5 Feb 2002 12:57:52 -0500
+Date: Tue, 5 Feb 2002 14:21:55 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Stevie O <stevie@qrpff.net>
-Cc: David Woodhouse <dwmw2@infradead.org>, Thomas Hood <jdthood@mail.com>,
-        linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: APM and APIC -- multiple batteries (was: apm.c and multiple battery slots)
-Message-ID: <20020205135445.C37@toy.ucw.cz>
-In-Reply-To: <1012705104.774.4.camel@thanatos> <1012705104.774.4.camel@thanatos> <12638.1012737679@redhat.com> <5.1.0.14.2.20020203203302.00abcec8@whisper.qrpff.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, arjan@fenrus.demon.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020205142154.D37@toy.ucw.cz>
+In-Reply-To: <20020201144751.A32553@havoc.gtf.org> <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <5.1.0.14.2.20020203203302.00abcec8@whisper.qrpff.net>; from stevie@qrpff.net on Sun, Feb 03, 2002 at 09:55:00PM -0500
+In-Reply-To: <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sat, Feb 02, 2002 at 01:39:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> How does the ACPI stuff handle this? *Does* the ACPI stuff handle this 
-> (i.e. multiple batteries)?
+> > > the biggest reason for this is that we *suck* at readahead for mmap....
+> >
+> > Is there not also fault overhead and similar issues related to mmap(2)
+> > in general, that are not present with read(2)/write(2)?
+> 
+> If a fault is more expensive than a system call, we're doing
+> something wrong in the page fault path ;)
 
-Yes.
-
-> If so:
->    Is it a generic interface?
->      If so, we should let APM use it too.
-
-Should be generic enough...
+You can read 128K at a time, but you can't fault 128K...
 								Pavel
+
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

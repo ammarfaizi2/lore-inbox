@@ -1,119 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbSKKQq3>; Mon, 11 Nov 2002 11:46:29 -0500
+	id <S265787AbSKKQq5>; Mon, 11 Nov 2002 11:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSKKQq3>; Mon, 11 Nov 2002 11:46:29 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:37088 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265786AbSKKQq2>;
-	Mon, 11 Nov 2002 11:46:28 -0500
-Date: Mon, 11 Nov 2002 17:52:30 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Andre M. Hedrick" <andre@linux-ide.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] IDE out*() confusing argument names
-Message-ID: <Pine.GSO.4.21.0211111749060.21501-100000@vervain.sonytel.be>
+	id <S265800AbSKKQq4>; Mon, 11 Nov 2002 11:46:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52746 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265787AbSKKQqz>; Mon, 11 Nov 2002 11:46:55 -0500
+Date: Mon, 11 Nov 2002 08:53:09 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] loop sendfile retval
+In-Reply-To: <Pine.LNX.4.44.0211111626160.9968-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0211110846270.1805-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fix confusing arguments in the IDE access routines. The first arguments of the
-out*() routines are not addresses but values.
+On Mon, 11 Nov 2002, Hugh Dickins wrote:
+>
+> Buffer I/O error on device loop: its use of sendfile is (trivially)
+> broken - retval is usually count done, only an error when negative.
 
-BTW, I find it funny that the ide_mm_out*() routines are less confusing ;-)
+Hmm.. Sendfile can return other values than "count" (ie a partial read).  
+This return value change makes "do_lo_receive()" lose that information. As 
+such, the new do_lo_receive() is weaker than the old one.
 
---- linux-2.5.47/drivers/ide/ide-iops.c	Mon Oct  7 22:04:22 2002
-+++ linux-m68k-2.5.47/drivers/ide/ide-iops.c	Mon Nov 11 15:02:43 2002
-@@ -57,14 +57,14 @@
- 	insl(port, addr, count);
- }
- 
--static void ide_outb (u8 addr, ide_ioreg_t port)
-+static void ide_outb (u8 value, ide_ioreg_t port)
- {
--	outb(addr, port);
-+	outb(value, port);
- }
- 
--static void ide_outw (u16 addr, ide_ioreg_t port)
-+static void ide_outw (u16 value, ide_ioreg_t port)
- {
--	outw(addr, port);
-+	outw(value, port);
- }
- 
- static void ide_outsw (ide_ioreg_t port, void *addr, u32 count)
-@@ -72,9 +72,9 @@
- 	outsw(port, addr, count);
- }
- 
--static void ide_outl (u32 addr, ide_ioreg_t port)
-+static void ide_outl (u32 value, ide_ioreg_t port)
- {
--	outl(addr, port);
-+	outl(value, port);
- }
- 
- static void ide_outsl (ide_ioreg_t port, void *addr, u32 count)
---- linux-2.5.47/drivers/ide/pci/siimage.h	Mon Oct  7 22:04:23 2002
-+++ linux-m68k-2.5.47/drivers/ide/pci/siimage.h	Mon Nov 11 15:03:59 2002
-@@ -62,14 +62,14 @@
- //	while (count--) { *(u32 *)addr = readl(port); addr += 4; }
- }
- 
--inline void sii_outb (u8 addr, u32 port)
-+inline void sii_outb (u8 value, u32 port)
- {
--	writeb(addr, port);
-+	writeb(value, port);
- }
- 
--inline void sii_outw (u16 addr, u32 port)
-+inline void sii_outw (u16 value, u32 port)
- {
--	writew(addr, port);
-+	writew(value, port);
- }
- 
- inline void sii_outsw (u32 port, void *addr, u32 count)
-@@ -77,9 +77,9 @@
- 	while (count--) { writew(*(u16 *)addr, port); addr += 2; }
- }
- 
--inline void sii_outl (u32 addr, u32 port)
-+inline void sii_outl (u32 value, u32 port)
- {
--	writel(addr, port);
-+	writel(value, port);
- }
- 
- inline void sii_outsl (u32 port, void *addr, u32 count)
---- linux-2.5.47/include/linux/ide.h	Mon Nov 11 10:19:43 2002
-+++ linux-m68k-2.5.47/include/linux/ide.h	Mon Nov 11 15:03:04 2002
-@@ -299,9 +299,9 @@
- 
- typedef struct ide_io_ops_s {
- 	/* insert io operations here! */
--	void (*OUTB)(u8 addr, ide_ioreg_t port);
--	void (*OUTW)(u16 addr, ide_ioreg_t port);
--	void (*OUTL)(u32 addr, ide_ioreg_t port);
-+	void (*OUTB)(u8 value, ide_ioreg_t port);
-+	void (*OUTW)(u16 value, ide_ioreg_t port);
-+	void (*OUTL)(u32 value, ide_ioreg_t port);
- 	void (*OUTSW)(ide_ioreg_t port, void *addr, u32 count);
- 	void (*OUTSL)(ide_ioreg_t port, void *addr, u32 count);
- 
+If fixing the loop code to handle partial IO is too nasty, then I would
+suggest doing maybe something like
 
-Gr{oetje,eeting}s,
+	if (ret > 0 && ret != bvec->bv_len)
+		ret = -EIO;
 
-						Geert
+which at least makes a partial IO an error instead of making it a success 
+case (the code as-is seems to think that any non-negative return value 
+means that the IO was fully successful).
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> Nearby spinlocking clearly bogus, delete instead of remarking on it.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I'll apply the patch, it looks better than what is there now, but it might 
+be worth fixing this _right_.
+
+		Linus
 

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315338AbSEaOj5>; Fri, 31 May 2002 10:39:57 -0400
+	id <S315372AbSEaOyb>; Fri, 31 May 2002 10:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSEaOj4>; Fri, 31 May 2002 10:39:56 -0400
-Received: from 213-145-181-73.dd.nextgentel.com ([213.145.181.73]:13692 "EHLO
-	sevilla.gnome.no") by vger.kernel.org with ESMTP id <S315338AbSEaOj4>;
-	Fri, 31 May 2002 10:39:56 -0400
-Subject: Re: [2.4.19-pre9] DMA not available
-From: Kjartan Maraas <kmaraas@online.no>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0205301702310.139-100000@bzzzt.slackware.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 31 May 2002 16:38:52 +0200
-Message-Id: <1022855932.11533.41.camel@sevilla.gnome.no>
+	id <S315374AbSEaOya>; Fri, 31 May 2002 10:54:30 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:46839 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S315372AbSEaOya>; Fri, 31 May 2002 10:54:30 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020531133429.GF8310@come.alcove-fr> 
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB host drivers test results (2.5.19) and problem. 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 31 May 2002 15:54:02 +0100
+Message-ID: <21481.1022856842@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 2002-05-30 kl. 17:24 skrev Pawel Kot:
-> Hi,
-> 
-> I can't enable DMA with 2.4.19-pre9 with my Dell laptop:
-> root@bzzzt:~# hdparm -d 1 /dev/hda
-> 
-> /dev/hda:
->  setting using_dma to 1 (on)
->  HDIO_SET_DMA failed: Operation not permitted
->  using_dma    =  0 (off)
 
-This looks like the same problems I had a while back with my Compaq Evo
-N600. It was fixed for me by using the patches from
-http://linuxdiskcert.org/
+stelian.pop@fr.alcove.com said:
+>  1. Shouldn't the ehci/ohci drivers give some error on loading, since
+> I obviously don't have the hardware ? 
 
-Cheers
-Kjartan
+How do they know that? You could have it in your hand and be just about to
+insert it.
+
+--
+dwmw2
+
 

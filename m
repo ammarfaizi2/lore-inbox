@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311268AbSCLQ2H>; Tue, 12 Mar 2002 11:28:07 -0500
+	id <S311271AbSCLQc2>; Tue, 12 Mar 2002 11:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311269AbSCLQ15>; Tue, 12 Mar 2002 11:27:57 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:45828 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S311268AbSCLQ1j>; Tue, 12 Mar 2002 11:27:39 -0500
-Date: Tue, 12 Mar 2002 17:27:37 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020312172737.B5026@ucw.cz>
-In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu> <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E2A1F.4050607@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C8E2A1F.4050607@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Mar 12, 2002 at 05:17:35PM +0100
+	id <S311272AbSCLQcS>; Tue, 12 Mar 2002 11:32:18 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:5386 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S311271AbSCLQcN>; Tue, 12 Mar 2002 11:32:13 -0500
+Date: Tue, 12 Mar 2002 17:32:04 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: __get_user usage in mm/slab.c
+In-Reply-To: <20020312162316.A3505@averell>
+Message-ID: <Pine.LNX.4.21.0203121724500.21155-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 05:17:35PM +0100, Martin Dalecki wrote:
-> Vojtech Pavlik wrote:
-> > On Tue, Mar 12, 2002 at 12:00:24PM +0100, Martin Dalecki wrote:
-> > 
-> > 
-> >>Hello Vojtech.
-> >>
-> >>I have noticed that the ide-timings.h and ide_modules.h are running
-> >>much in aprallel in the purpose they serve. Are the any
-> >>chances you could dare to care about propagating the
-> >>fairly nice ide-timings.h stuff in favour of
-> >>ide_modules.h more.
-> >>
-> >>BTW.> I think some stuff from ide-timings.h just belongs
-> >>as generic functions intro ide.c, and right now there is
-> >>nobody who you need to work from behind ;-).
-> >>
-> >>So please feel free to do the changes you apparently desired
-> >>to do a long time ago...
-> >>
-> > 
-> > Hmm, ok. Try this. It shouldn't change any functionality, yet makes a
-> > small step towards cleaning the chipset specific drivers.
-> 
-> 
-> OK the patch looks fine. Taken. Still I have some notes:
-> 
-> 1. Let's start calling stuff ATA and not IDE. (AT-Attachment is it
-> and not just Integrated Device Electornics.) OK?
+Hi,
 
-Sure. Feel free to rename whatever file/struct/variable you want. In my
-opinion, it's just not worth caring about whether we call the stuff ATA
-or IDE, both are TLAs with a long history. (Hmm, ATA probably means
-Advanced Technology Attachment, right?)
+On Tue, 12 Mar 2002, Andi Kleen wrote:
 
-But for new stuff, I'll try to stick with the 'ata' name.
+> I guess set_fs(KERNEL_DS); __*_user() will not catch exceptions on m68k
+> currently, right? 
 
-> 2. I quite don't like the nested #include directives in ide-timing.h.
->     It's cleaner to include the needed headers in front of usage
->     of ide-timing.h. (Just s small note.... not really important...)
+It will, so the patch below is enough. Linus, could you please it?
+If we only have a few users of this, I agree with David, that this is
+enough. Should it become more common in generic code, it should at least
+be documented somewhere.
 
-I can change that, or you can. I think the hdreg.h one is reasonable,
-while the ide.h can probably go without any significant trouble. I think
-the only file that'll need adding #include <ide.h> will be ide-timing.c
+bye, Roman
 
-> 3. I wellcome that the MIN MAX macros there are gone. In fact
-> I have yerstoday just done basically the same ;-). (Will just have to
-> revert it now.
-> 
-> Patch swallowed.
+Index: mm/slab.c
+===================================================================
+RCS file: /home/other/cvs/linux/linux-2.5/mm/slab.c,v
+retrieving revision 1.1.1.5
+diff -u -r1.1.1.5 slab.c
+--- mm/slab.c	2002/03/12 13:28:52	1.1.1.5
++++ mm/slab.c	2002/03/12 15:25:00
+@@ -839,6 +839,8 @@
+ 	down(&cache_chain_sem);
+ 	{
+ 		struct list_head *p;
++		mm_segment_t fs = get_fs();
++		set_fs(KERNEL_DS);
+ 
+ 		list_for_each(p, &cache_chain) {
+ 			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
+@@ -857,6 +859,7 @@
+ 				BUG(); 
+ 			}	
+ 		}
++		set_fs(fs);
+ 	}
+ 
+ 	/* There is no reason to lock our new cache before we
+@@ -1964,8 +1967,11 @@
+ 	name = cachep->name; 
+ 	{
+ 	char tmp; 
++	mm_segment_t fs = get_fs();
++	set_fs(KERNEL_DS);
+ 	if (__get_user(tmp, name)) 
+ 		name = "broken"; 
++	set_fs(fs);
+ 	} 	
+ 
+ 	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
 
--- 
-Vojtech Pavlik
-SuSE Labs
+

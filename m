@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVCGXEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVCGXEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVCGXEi (ORCPT <rfc822;willy@w.ods.org>);
+	id S261915AbVCGXEi (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 7 Mar 2005 18:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCGXBM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVCGXBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:01:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30872 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261778AbVCGVWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:22:25 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050307131113.0fd7477e.akpm@osdl.org>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307123118.3a946bc8.akpm@osdl.org>
-	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307131113.0fd7477e.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110230527.15117.625.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 07 Mar 2005 21:22:07 +0000
+	Mon, 7 Mar 2005 18:01:46 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:5584 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261783AbVCGWaR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 17:30:17 -0500
+Date: Mon, 7 Mar 2005 14:29:52 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       <reiserfs-list@namesys.com>, <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync
+ option?
+In-Reply-To: <1110216555.28860.74.camel@localhost.localdomain>
+Message-ID: <Pine.GSO.4.44.0503071426070.7096-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 2005-03-07 at 21:11, Andrew Morton wrote:
+FiSC can still get those warnings with hdparm -W 0, or with a simple
+ramdisk that serves the disk requests whenever they are submitted.
 
-> > I'm having trouble testing it, though --- I seem to be getting livelocks
-> >  in O_DIRECT running 400 fsstress processes in parallel; ring any bells? 
-> 
-> Nope.  I dont think anyone has been that cruel to ext3 for a while.
-> I assume this workload used to succeed?
+Thanks,
+-Junfeng
 
-I think so.  I remember getting a lockup a couple of months ago that I
-couldn't get to the bottom of and that looked very similar, so it may
-just be a matter of it being much more reproducible now.  But I seem to
-be able to livelock the directIO bits in minutes now, quite reliably. 
-I'll try to narrow things down.
+On Mon, 7 Mar 2005, Alan Cox wrote:
 
-altgr-scrlck is showing a range of EIPs all in ext3_direct_IO->
-invalidate_inode_pages2_range().  I'm seeing
-
-invalidate_inode_pages2_range()->pagevec_lookup()->find_get_pages()
-
-as by far the most common trace, but also 
-
-invalidate_inode_pages2_range()->__might_sleep()
-invalidate_inode_pages2_range()->unlock_page()
-and a few other similar paths.
-
-invalidate_inode_pages2_range() does do a cond_resched(), so the machine
-carries on despite having 316 fsstress tasks in system-mode R state at
-the moment. :-)  The scheduler is doing a rather impressive job.
-
---Stephen
+> The IDE layer default is still unfortunately broken and leaves write
+> caching enabled. Turn it off with hdparm.
+>
 

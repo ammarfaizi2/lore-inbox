@@ -1,57 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVCBQRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVCBQTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVCBQRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 11:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVCBQRW
+	id S262348AbVCBQTY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 11:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVCBQTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 11:17:22 -0500
-Received: from cibs10.sns.it ([192.167.206.30]:58807 "EHLO reed.sns.it")
-	by vger.kernel.org with ESMTP id S262347AbVCBQRA (ORCPT
+	Wed, 2 Mar 2005 11:19:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61102 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262348AbVCBQR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 11:17:00 -0500
-Date: Wed, 2 Mar 2005 17:16:52 +0100 (CET)
-From: venom@sns.it
-To: Ben Greear <greearb@candelatech.com>
-cc: Lee Revell <rlrevell@joe-job.com>, linux-os@analogic.com,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Network speed Linux-2.6.10
-In-Reply-To: <4224D0F5.4050400@candelatech.com>
-Message-ID: <Pine.LNX.4.62.0503021715370.15839@Expansa.sns.it>
-References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com> 
- <4224CE98.2060204@candelatech.com> <1109708691.14272.8.camel@mindpipe>
- <4224D0F5.4050400@candelatech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 2 Mar 2005 11:17:29 -0500
+Subject: Re: Linux 2.6.11
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Wed, 02 Mar 2005 08:18:27 -0800
+Message-Id: <1109780307.18083.0.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-not the e100 driver, but some switch, (e.g. some matrix) has a buggy 
-autonegotiation.
+Linux 2.6 Compile Statistics (gcc 3.4.1)
 
-On Tue, 1 Mar 2005, Ben Greear wrote:
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-> Lee Revell wrote:
->> On Tue, 2005-03-01 at 12:20 -0800, Ben Greear wrote:
->> 
->>> What happens if you just don't muck with the NIC and let it auto-negotiate
->>> on it's own?
->> 
->> 
->> This can be asking for trouble too (auto negotiation is often buggy).
->> What if you hard set them both to 100/full?
->
-> I have not noticed any buggy autonegotiation with the e100 driver in several
-> years...
->
-> Ben
->
-> -- 
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.11        13w/0e       0w/0e   352w/0e    6w/0e  17w/0e    431w/0e
+2.6.11-rc5    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
+2.6.11-rc4    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
+2.6.11-rc3    14w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
+2.6.11-rc3    13w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
+2.6.11-rc2    18w/0e       0w/0e   365w/0e    6w/0e  22w/0e    440w/0e
+2.6.11-rc1    20w/0e       0w/0e   497w/0e    6w/0e  22w/0e    577w/0e
+2.6.10        13w/0e       0w/0e   778w/0e    6w/0e  15w/0e    861w/0e
+2.6.9-rc3     13w/0e       0w/0e   774w/0e    6w/0e  15w/0e    857w/0e
+2.6.9-rc2     14w/0e       0w/0e  1815w/11e  65w/0e  19w/0e   2157w/0e
+(Compiles with gcc 3.2.2)
+2.6.9-rc1      5w/0e       1w/0e  1069w/15e   6w/0e   4w/0e   1062w/1e
+2.6.9          0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-final    0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
+2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
+2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
+2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
+2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
+2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
+2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
+2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
+2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+
+

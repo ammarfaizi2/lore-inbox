@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263984AbTKJQgU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 11:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263985AbTKJQgU
+	id S263941AbTKJQdW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 11:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263950AbTKJQdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 11:36:20 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:43400 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263984AbTKJQgJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 11:36:09 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 Nov 2003 08:35:11 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: syscall numbers larger than 255?
-In-Reply-To: <3FAFB081.3090900@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.44.0311100832290.1821-100000@bigblue.dev.mdolabs.com>
+	Mon, 10 Nov 2003 11:33:22 -0500
+Received: from mail.g-housing.de ([62.75.136.201]:60899 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263941AbTKJQdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 11:33:20 -0500
+Message-ID: <3FAFAFBC.2090202@g-house.de>
+Date: Mon, 10 Nov 2003 16:33:16 +0100
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030924 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stan Benoit <sab7@mail.ptd.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sparc 20 problem ver test9
+References: <20031110083716.A32096@mail.ptd.net>
+In-Reply-To: <20031110083716.A32096@mail.ptd.net>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Nov 2003, Chris Friesen wrote:
-
+Stan Benoit wrote:
+[...]
+> include/asm/hardirq.h: In function `release_irqlock':
+> include/asm/hardirq.h:147: warning: implicit declaration of function `br_write_unlock'
+> include/asm/hardirq.h:147: `BR_GLOBALIRQ_LOCK' undeclared (first use in this function)
+> In file included from init/main.c:33:
+> include/linux/kernel_stat.h: In function `kstat_irqs':
+> include/linux/kernel_stat.h:47: warning: implicit declaration of function `cpu_possible'
+> make[1]: *** [init/main.o] Error 1
+> make: *** [init] Error 2
 > 
-> Just a quick and simple question for someone that knows the answer.
+> shouldn't this be pointing to:
 > 
-> Stock 2.4.20 for i386 uses syscalls up to 252.  I want to add about a 
-> half-dozen new syscalls (forward porting stuff that we've got on 2.4.18).
-> 
-> Does x86 support syscall numbers > 255?  If yes, do I have to do 
-> anything special to use them? If not, what are my options?
+> include/asm-sparc/hardirg.h  ???
 
-Currently there's a discrepancy between include/asm-i386/unistd.h and 
-arch/i386/kernel/entry.S. While the first define function numbers up to 
-252, the entry.S file fill up the table up to 258 (epoll crosses the 255 
-boundary :).
+it does not? for ppc it gives:
+
+/usr/src/linux-2.6/include/asm -> asm-ppc
+
+so if ./asm is not ./asm-sparc on your machine, something *is* wrong....
 
 
+Christian.
+-- 
+BOFH excuse #213:
 
-- Davide
-
+Change your language to Finnish.
 

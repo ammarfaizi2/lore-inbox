@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132754AbRC2PRW>; Thu, 29 Mar 2001 10:17:22 -0500
+	id <S132743AbRC2PSw>; Thu, 29 Mar 2001 10:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132743AbRC2PRM>; Thu, 29 Mar 2001 10:17:12 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:46036 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132744AbRC2PRC>;
-	Thu, 29 Mar 2001 10:17:02 -0500
-Date: Thu, 29 Mar 2001 10:05:27 -0500
-From: Eric Buddington <eric@sparrow.nad.adelphia.net>
-To: Ulrich Drepper <drepper@cygnus.com>
-Cc: ebuddington@mail.wesleyan.edu, Brian Gerst <bgerst@didntduck.org>,
-   linux-kernel@vger.kernel.org
-Subject: Re: 386 'ls' gets SIGILL iff /proc is mounted
-Message-ID: <20010329100527.P80@sparrow.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-In-Reply-To: <20010327012709.I59@sparrow.nad.adelphia.net> <3AC09F14.53D06AC7@didntduck.org> <20010327091205.B80@sparrow.nad.adelphia.net> <3AC0A21B.438EFE02@didntduck.org> <20010328124845.I80@sparrow.nad.adelphia.net> <m3wv99vk8o.fsf@otr.mynet.cygnus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3wv99vk8o.fsf@otr.mynet.cygnus.com>; from drepper@redhat.com on Wed, Mar 28, 2001 at 10:09:11AM -0800
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+	id <S132755AbRC2PSf>; Thu, 29 Mar 2001 10:18:35 -0500
+Received: from [32.97.166.34] ([32.97.166.34]:23037 "EHLO prserv.net")
+	by vger.kernel.org with ESMTP id <S132743AbRC2PSJ>;
+	Thu, 29 Mar 2001 10:18:09 -0500
+Message-Id: <m14gkPG-001PKeC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: max ip_conntrack entries 
+In-Reply-To: Your message of "Wed, 21 Mar 2001 19:34:47 -0000."
+             <20010321193447.A555@grobbebol.xs4all.nl> 
+Date: Sat, 24 Mar 2001 20:32:22 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 28, 2001 at 10:09:11AM -0800, Ulrich Drepper wrote:
-> Eric Buddington <eric@sparrow.nad.adelphia.net> writes:
+In message <20010321193447.A555@grobbebol.xs4all.nl> you write:
 > 
-> > OK. Context again (since I clipped preceding notes): 386SX/20 nfsroot,
-> > getting SIGILL on lots of processes, math emulation is enabled, ls and
-> > glibc were compiled with '-march=i386 -mcpu=i386' to be sure.
-> 
-> This isn't enough.  You compiled glibc on a i586 or later without
-> telling configure to use the i386 configuration.  Run configure with
-> the usual options and
-> 
->    i386-linux-gnu
-> 
-> at the end of the command line and then use the options above.
+> is there a way to dynamically change the limit : kernel: ip_conntrack:
+> maximum limit of 16384 entries exceeded ?
 
-This seems to have solved the problem. Thanks!
+echo 32768 > /proc/net/ipv4/ip_conntrack_max
 
--Eric
+Don't increase it too much, or your efficiency will go out the window
+(the hash table size doesn't increase).
+
+> either a newssus scan or a weird ftp server I tried to connect to,
+> caused the table to fill pretty fast and all other connections stopped
+> for a short time.
+
+It will start dropping "unreplied" connections.
+
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

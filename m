@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbRE1Uyb>; Mon, 28 May 2001 16:54:31 -0400
+	id <S263149AbRE1VGM>; Mon, 28 May 2001 17:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263149AbRE1UyP>; Mon, 28 May 2001 16:54:15 -0400
-Received: from marine.sonic.net ([208.201.224.37]:57882 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S263143AbRE1Ux3>;
-	Mon, 28 May 2001 16:53:29 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Mon, 28 May 2001 13:53:02 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
+	id <S263151AbRE1VGC>; Mon, 28 May 2001 17:06:02 -0400
+Received: from smtp6vepub.gte.net ([206.46.170.27]:59514 "EHLO
+	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S263149AbRE1VFx>; Mon, 28 May 2001 17:05:53 -0400
+From: George France <france@handhelds.org>
+Date: Mon, 28 May 2001 17:05:45 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_L9D24QYWXHP617EAYU7A"
 To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.5] buz.c won't compile
-Message-ID: <20010528135302.H32600@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net>
-User-Agent: Mutt/1.3.18i
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jay Thorne <Yohimbe@userfriendly.org>
+Subject: PATCH - ksymoops on Alpha - 2.4.5-ac3
+MIME-Version: 1.0
+Message-Id: <01052817054503.17841@shadowfax.middleearth>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 03:15:04PM -0400, Ricky Beam wrote:
-> PS: I really hate it when people break "functional" things in the "stable"
->     tree. (functional and stable are both open to debate.)
 
-I was under the impression that it really wasn't functional.
+--------------Boundary-00=_L9D24QYWXHP617EAYU7A
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-mrc
--- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+Here is a trivial patch that will make ksymoops work again on Alpha.
+
+--George
+
+diff -urN linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c 
+linux/arch/alpha/kernel/traps.c
+--- linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c	Thu May 24 17:24:37 2001
++++ linux/arch/alpha/kernel/traps.c	Mon May 28 16:38:25 2001
+@@ -286,11 +286,7 @@
+ 			continue;
+ 		if (tmp >= (unsigned long) &_etext)
+ 			continue;
+-		/*
+-		 * Assume that only the low 24-bits of a kernel text address
+-		 * is interesting.
+-		 */
+-		printk("%6x%c", (int)tmp & 0xffffff, (++i % 11) ? ' ' : '\n');
++		printk("%16lx%c", tmp);
+ #if 0
+ 		if (i > 40) {
+ 			printk(" ...");
+
+
+--------------Boundary-00=_L9D24QYWXHP617EAYU7A
+Content-Type: text/english;
+  name="patch-ksymoops-alpha"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-ksymoops-alpha"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNC41LWFjMy1vcmlnL2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMg
+bGludXgvYXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwotLS0gbGludXgtMi40LjUtYWMzLW9yaWcv
+YXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwlUaHUgTWF5IDI0IDE3OjI0OjM3IDIwMDEKKysrIGxp
+bnV4L2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMJTW9uIE1heSAyOCAxNjozODoyNSAyMDAxCkBA
+IC0yODYsMTEgKzI4Niw3IEBACiAJCQljb250aW51ZTsKIAkJaWYgKHRtcCA+PSAodW5zaWduZWQg
+bG9uZykgJl9ldGV4dCkKIAkJCWNvbnRpbnVlOwotCQkvKgotCQkgKiBBc3N1bWUgdGhhdCBvbmx5
+IHRoZSBsb3cgMjQtYml0cyBvZiBhIGtlcm5lbCB0ZXh0IGFkZHJlc3MKLQkJICogaXMgaW50ZXJl
+c3RpbmcuCi0JCSAqLwotCQlwcmludGsoIiU2eCVjIiwgKGludCl0bXAgJiAweGZmZmZmZiwgKCsr
+aSAlIDExKSA/ICcgJyA6ICdcbicpOworCQlwcmludGsoIiUxNmx4JWMiLCB0bXApOwogI2lmIDAK
+IAkJaWYgKGkgPiA0MCkgewogCQkJcHJpbnRrKCIgLi4uIik7Cg==
+
+--------------Boundary-00=_L9D24QYWXHP617EAYU7A--

@@ -1,26 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310434AbSDAU4B>; Mon, 1 Apr 2002 15:56:01 -0500
+	id <S312076AbSDAUzl>; Mon, 1 Apr 2002 15:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311879AbSDAUzw>; Mon, 1 Apr 2002 15:55:52 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:22288 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S310434AbSDAUzg>; Mon, 1 Apr 2002 15:55:36 -0500
-Date: Mon, 1 Apr 2002 12:55:20 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Upcoming rewrite of kernel
-In-Reply-To: <Pine.SOL.4.44.0204012247170.5085-100000@faui02.informatik.uni-erlangen.de>
-Message-ID: <Pine.LNX.4.10.10204011254430.22841-100000@www.transvirtual.com>
+	id <S311879AbSDAUzc>; Mon, 1 Apr 2002 15:55:32 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:21516 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S310434AbSDAUzT>; Mon, 1 Apr 2002 15:55:19 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7741@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'David Lawyer'" <dave@lafn.org>
+Cc: "'Henrique Gobbi'" <henrique@cyclades.com>,
+        "'linux-serial'" <linux-serial@vger.kernel.org>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Char devices drivers
+Date: Mon, 1 Apr 2002 12:55:16 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 28, 2002 at 1:40 PM, David Lawyer wrote:
+> 
+> So eliminating cua means more work for the programmer but less 
+> confusion for users.  Overall, it's a good thing since there 
+> are many more users than programmers. 
 
-> The first eMail was much better ...
+Agreed, mostly. My experience is that users prefer system 
+functionality that is accessible from a shell script, rather than 
+requiring a source change to their app. The cua method, be it ever 
+so broken on some platforms, is directly usable without programming 
+to solve the most common issue - how do I get my app to talk to my 
+3-wire RS-232 ports. 
 
-The first one you could almost believe. I still think last years body
-odor one was the best. 
+Good to hear from you again. 
+
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

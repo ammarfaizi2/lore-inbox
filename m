@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315171AbSGDXrV>; Thu, 4 Jul 2002 19:47:21 -0400
+	id <S315420AbSGEAYl>; Thu, 4 Jul 2002 20:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315239AbSGDXq4>; Thu, 4 Jul 2002 19:46:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37133 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315171AbSGDXqA>;
-	Thu, 4 Jul 2002 19:46:00 -0400
-Message-ID: <3D24E02E.82839D0@zip.com.au>
-Date: Thu, 04 Jul 2002 16:54:22 -0700
+	id <S315265AbSGDXra>; Thu, 4 Jul 2002 19:47:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43021 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315204AbSGDXqa>;
+	Thu, 4 Jul 2002 19:46:30 -0400
+Message-ID: <3D24E04D.E16225C0@zip.com.au>
+Date: Thu, 04 Jul 2002 16:54:53 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 11/27] add new list_splice_init()
+Subject: [patch 19/27] suppress more allocation failure warnings
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,185 +22,112 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-A little cleanup: Most callers of list_splice() immediately
-reinitialise the source list_head after calling list_splice().
+The `page allocation failure' warning in __alloc_pages() is being a
+pain.  But I'm persisting with it...
 
-So create a new list_splice_init() which does all that.
+The patch renames PF_RADIX_TREE to PF_NOWARN, and uses it in a few
+places where allocations failures are known to happen.  These code
+paths are well-tested now and suppressing the warning is OK.
 
 
 
+ drivers/scsi/scsi.c   |    2 ++
+ fs/bio.c              |   13 +++++++++----
+ fs/buffer.c           |    2 ++
+ include/linux/sched.h |    2 +-
+ mm/page_alloc.c       |    2 +-
+ mm/vmscan.c           |    2 +-
+ 6 files changed, 16 insertions(+), 7 deletions(-)
 
- drivers/block/ll_rw_blk.c        |    3 +--
- drivers/ieee1394/ieee1394_core.c |    3 +--
- fs/fs-writeback.c                |   14 +++++---------
- fs/jfs/jfs_txnmgr.c              |    5 +----
- fs/mpage.c                       |   14 +++++---------
- fs/nfs/write.c                   |    3 +--
- include/linux/list.h             |   36 ++++++++++++++++++++++++++++--------
- 7 files changed, 42 insertions(+), 36 deletions(-)
-
---- 2.5.24/drivers/block/ll_rw_blk.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/drivers/block/ll_rw_blk.c	Thu Jul  4 16:17:16 2002
-@@ -964,8 +964,7 @@ void blk_run_queues(void)
- 		return;
- 	}
+--- 2.5.24/include/linux/sched.h~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/include/linux/sched.h	Thu Jul  4 16:17:27 2002
+@@ -386,7 +386,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
+ #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
+ #define PF_FLUSHER	0x00004000	/* responsible for disk writeback */
+-#define PF_RADIX_TREE	0x00008000	/* debug: performing radix tree alloc */
++#define PF_NOWARN	0x00008000	/* debug: don't warn if alloc fails */
  
--	list_splice(&blk_plug_list, &local_plug_list);
--	INIT_LIST_HEAD(&blk_plug_list);
-+	list_splice_init(&blk_plug_list, &local_plug_list);
- 	spin_unlock_irq(&blk_plug_lock);
- 	
- 	while (!list_empty(&local_plug_list)) {
---- 2.5.24/drivers/ieee1394/ieee1394_core.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/drivers/ieee1394/ieee1394_core.c	Thu Jul  4 16:17:16 2002
-@@ -740,8 +740,7 @@ void abort_requests(struct hpsb_host *ho
-         host->ops->devctl(host, CANCEL_REQUESTS, 0);
- 
-         spin_lock_irqsave(&host->pending_pkt_lock, flags);
--        list_splice(&host->pending_packets, &llist);
--        INIT_LIST_HEAD(&host->pending_packets);
-+        list_splice_init(&host->pending_packets, &llist);
-         spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
- 
-         list_for_each(lh, &llist) {
---- 2.5.24/fs/fs-writeback.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/fs/fs-writeback.c	Thu Jul  4 16:17:16 2002
-@@ -220,8 +220,7 @@ static void sync_sb_inodes(struct super_
- 	struct list_head *head;
- 	const unsigned long start = jiffies;	/* livelock avoidance */
- 
--	list_splice(&sb->s_dirty, &sb->s_io);
--	INIT_LIST_HEAD(&sb->s_dirty);
-+	list_splice_init(&sb->s_dirty, &sb->s_io);
- 	head = &sb->s_io;
- 	while ((tmp = head->prev) != head) {
- 		struct inode *inode = list_entry(tmp, struct inode, i_list);
-@@ -262,13 +261,10 @@ static void sync_sb_inodes(struct super_
- 			break;
- 	}
- out:
--	if (!list_empty(&sb->s_io)) {
--		/*
--		 * Put the rest back, in the correct order.
--		 */
--		list_splice(&sb->s_io, sb->s_dirty.prev);
--		INIT_LIST_HEAD(&sb->s_io);
--	}
-+	/*
-+	 * Put the rest back, in the correct order.
-+	 */
-+	list_splice_init(&sb->s_io, sb->s_dirty.prev);
- 	return;
- }
- 
---- 2.5.24/fs/mpage.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/fs/mpage.c	Thu Jul  4 16:22:10 2002
-@@ -490,8 +490,7 @@ mpage_writepages(struct address_space *m
- 
- 	write_lock(&mapping->page_lock);
- 
--	list_splice(&mapping->dirty_pages, &mapping->io_pages);
--	INIT_LIST_HEAD(&mapping->dirty_pages);
-+	list_splice_init(&mapping->dirty_pages, &mapping->io_pages);
- 
-         while (!list_empty(&mapping->io_pages) && !done) {
- 		struct page *page = list_entry(mapping->io_pages.prev,
-@@ -538,13 +537,10 @@ mpage_writepages(struct address_space *m
- 		page_cache_release(page);
- 		write_lock(&mapping->page_lock);
- 	}
--	if (!list_empty(&mapping->io_pages)) {
--		/*
--		 * Put the rest back, in the correct order.
--		 */
--		list_splice(&mapping->io_pages, mapping->dirty_pages.prev);
--		INIT_LIST_HEAD(&mapping->io_pages);
--	}
-+	/*
-+	 * Put the rest back, in the correct order.
-+	 */
-+	list_splice_init(&mapping->io_pages, mapping->dirty_pages.prev);
- 	write_unlock(&mapping->page_lock);
- 	if (bio)
- 		mpage_bio_submit(WRITE, bio);
---- 2.5.24/fs/jfs/jfs_txnmgr.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/fs/jfs/jfs_txnmgr.c	Thu Jul  4 16:17:16 2002
-@@ -2975,10 +2975,7 @@ int jfs_sync(void)
- 			}
+ #define PF_FREEZE	0x00010000	/* this task should be frozen for suspend */
+ #define PF_IOTHREAD	0x00020000	/* this thread is needed for doing I/O to swap */
+--- 2.5.24/mm/page_alloc.c~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/mm/page_alloc.c	Thu Jul  4 16:22:04 2002
+@@ -399,7 +399,7 @@ rebalance:
+ 				return page;
  		}
- 		/* Add anon_list2 back to anon_list */
--		if (!list_empty(&TxAnchor.anon_list2)) {
--			list_splice(&TxAnchor.anon_list2, &TxAnchor.anon_list);
--			INIT_LIST_HEAD(&TxAnchor.anon_list2);
--		}
-+		list_splice_init(&TxAnchor.anon_list2, &TxAnchor.anon_list);
- 		add_wait_queue(&jfs_sync_thread_wait, &wq);
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		TXN_UNLOCK();
---- 2.5.24/fs/nfs/write.c~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/fs/nfs/write.c	Thu Jul  4 16:17:16 2002
-@@ -1110,8 +1110,7 @@ nfs_commit_rpcsetup(struct list_head *he
- 	/* Set up the RPC argument and reply structs
- 	 * NB: take care not to mess about with data->commit et al. */
+ nopage:
+-		if (!(current->flags & PF_RADIX_TREE)) {
++		if (!(current->flags & PF_NOWARN)) {
+ 			printk("%s: page allocation failure."
+ 				" order:%d, mode:0x%x\n",
+ 				current->comm, order, gfp_mask);
+--- 2.5.24/mm/vmscan.c~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/mm/vmscan.c	Thu Jul  4 16:17:27 2002
+@@ -63,7 +63,7 @@ swap_out_add_to_swap_cache(struct page *
+ 	int ret;
  
--	list_splice(head, &data->pages);
--	INIT_LIST_HEAD(head);
-+	list_splice_init(head, &data->pages);
- 	first = nfs_list_entry(data->pages.next);
- 	last = nfs_list_entry(data->pages.prev);
- 	inode = first->wb_inode;
---- 2.5.24/include/linux/list.h~list_splice_init	Thu Jul  4 16:17:16 2002
-+++ 2.5.24-akpm/include/linux/list.h	Thu Jul  4 16:17:16 2002
-@@ -136,6 +136,19 @@ static inline int list_empty(list_t *hea
- 	return head->next == head;
- }
- 
-+static inline void __list_splice(list_t *list, list_t *head)
-+{
-+	list_t *first = list->next;
-+	list_t *last = list->prev;
-+	list_t *at = head->next;
-+
-+	first->prev = head;
-+	head->next = first;
-+
-+	last->next = at;
-+	at->prev = last;
-+}
-+
- /**
-  * list_splice - join two lists
-  * @list: the new list to add.
-@@ -145,15 +158,22 @@ static inline void list_splice(list_t *l
+ 	current->flags &= ~PF_MEMALLOC;
+-	current->flags |= PF_RADIX_TREE;
++	current->flags |= PF_NOWARN;
+ 	ClearPageUptodate(page);		/* why? */
+ 	ClearPageReferenced(page);		/* why? */
+ 	ret = add_to_swap_cache(page, entry);
+--- 2.5.24/fs/bio.c~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/fs/bio.c	Thu Jul  4 16:17:27 2002
+@@ -135,21 +135,26 @@ inline void bio_init(struct bio *bio)
+  **/
+ struct bio *bio_alloc(int gfp_mask, int nr_iovecs)
  {
- 	list_t *first = list->next;
+-	struct bio *bio = mempool_alloc(bio_pool, gfp_mask);
++	struct bio *bio;
+ 	struct bio_vec *bvl = NULL;
  
--	if (first != list) {
--		list_t *last = list->prev;
--		list_t *at = head->next;
--
--		first->prev = head;
--		head->next = first;
-+	if (first != list)
-+		__list_splice(list, head);
-+}
++	current->flags |= PF_NOWARN;
++	bio = mempool_alloc(bio_pool, gfp_mask);
+ 	if (unlikely(!bio))
+-		return NULL;
++		goto out;
  
--		last->next = at;
--		at->prev = last;
-+/**
-+ * list_splice_init - join two lists and reinitialise the emptied list.
-+ * @list: the new list to add.
-+ * @head: the place to add it in the first list.
-+ *
-+ * The list at @list is reinitialised
-+ */
-+static inline void list_splice_init(list_t *list, list_t *head)
-+{
-+	if (!list_empty(list)) {
-+		__list_splice(list, head);
-+		INIT_LIST_HEAD(list);
+ 	if (!nr_iovecs || (bvl = bvec_alloc(gfp_mask,nr_iovecs,&bio->bi_max))) {
+ 		bio_init(bio);
+ 		bio->bi_destructor = bio_destructor;
+ 		bio->bi_io_vec = bvl;
+-		return bio;
++		goto out;
  	}
+ 
+ 	mempool_free(bio, bio_pool);
+-	return NULL;
++	bio = NULL;
++out:
++	current->flags &= ~PF_NOWARN;
++	return bio;
  }
+ 
+ /**
+--- 2.5.24/drivers/scsi/scsi.c~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/drivers/scsi/scsi.c	Thu Jul  4 16:17:27 2002
+@@ -2481,7 +2481,9 @@ struct scatterlist *scsi_alloc_sgtable(S
+ 
+ 	sgp = scsi_sg_pools + SCpnt->sglist_len;
+ 
++	current->flags |= PF_NOWARN;
+ 	sgl = mempool_alloc(sgp->pool, gfp_mask);
++	current->flags &= ~PF_NOWARN;
+ 	if (sgl) {
+ 		memset(sgl, 0, sgp->size);
+ 		return sgl;
+--- 2.5.24/fs/buffer.c~alloc-warnings	Thu Jul  4 16:17:27 2002
++++ 2.5.24-akpm/fs/buffer.c	Thu Jul  4 16:22:04 2002
+@@ -965,7 +965,9 @@ try_again:
+ 	head = NULL;
+ 	offset = PAGE_SIZE;
+ 	while ((offset -= size) >= 0) {
++		current->flags |= PF_NOWARN;
+ 		bh = alloc_buffer_head();
++		current->flags &= ~PF_NOWARN;
+ 		if (!bh)
+ 			goto no_grow;
  
 
 -

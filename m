@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293187AbSB1Vcx>; Thu, 28 Feb 2002 16:32:53 -0500
+	id <S293215AbSB1Wfx>; Thu, 28 Feb 2002 17:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310201AbSB1VbE>; Thu, 28 Feb 2002 16:31:04 -0500
-Received: from thufir.bluecom.no ([217.118.32.12]:23304 "EHLO
-	thufir.bluecom.no") by vger.kernel.org with ESMTP
-	id <S310170AbSB1V1i>; Thu, 28 Feb 2002 16:27:38 -0500
-Subject: Re: [PATCH] 2.4.18 Eicon ISDN driver fix.
-From: petter wahlman <petter@bluezone.no>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Armin Schindler <mac@melware.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-        info@melware.de
-In-Reply-To: <Pine.LNX.4.21.0202281441330.2182-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0202281441330.2182-100000@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 28 Feb 2002 22:14:08 +0100
-Message-Id: <1014930851.26536.0.camel@BadEip>
+	id <S310178AbSB1Wdr>; Thu, 28 Feb 2002 17:33:47 -0500
+Received: from panacea.canonical.org ([209.115.72.61]:3076 "HELO
+	panacea.canonical.org") by vger.kernel.org with SMTP
+	id <S310203AbSB1W37>; Thu, 28 Feb 2002 17:29:59 -0500
+Date: Thu, 28 Feb 2002 17:29:58 -0500
+From: Jason Cook <jasonc@reinit.org>
+To: Peter Hutnick <peter@fpcc.net>
+Cc: John Jasen <jjasen1@umbc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: wvlan_cs in limbo?
+Message-ID: <20020228172958.A10716@panacea.canonical.org>
+Mail-Followup-To: Peter Hutnick <peter@fpcc.net>,
+	John Jasen <jjasen1@umbc.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.31L.02.0202252302120.5307822-100000@irix2.gl.umbc.edu> <200202260533.WAA30955@perth.fpcc.net>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202260533.WAA30955@perth.fpcc.net>; from peter@fpcc.net on Mon, Feb 25, 2002 at 10:31:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-28 at 18:41, Marcelo Tosatti wrote:
-> 
-> 
-> On Wed, 27 Feb 2002, Armin Schindler wrote:
-> 
-> > The patch below fixes the race condition with copy_to_user and will
-> > not introduce a new race. What can happen is that two reader-processes
-> > may get mixed-up messages, but more than one reader isn't allowed here
-> > anyway.
-> > 
-> > Please apply this patch to 2.4 and 2.2, it works for both.
-> 
-> Armin, 
-> 
-> Your patch does not apply cleanly against my tree.
-> 
-> Please regenerate it.
-> 
 
---- linux/drivers/isdn/eicon/eicon_mod.c        Fri Dec 21 18:41:54 2001
-+++ linux-2.4.18-pw/drivers/isdn/eicon/eicon_mod.c      Thu Feb 28
-21:48:32 2002
-@@ -665,8 +665,11 @@
-                        else
-                                cnt = skb->len;
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--                       if (user)
-+                       if (user) {
-+                               spin_unlock_irqrestore(&eicon_lock,
-flags);
-                                copy_to_user(p, skb->data, cnt);
-+                               spin_lock_irqsave(&eicon_lock, flags);
-+                       }
-                        else
-                                memcpy(p, skb->data, cnt);
+* Peter Hutnick (peter@fpcc.net) wrote:
+> On Monday 25 February 2002 09:03 pm, John Jasen wrote:
+> > On Mon, 25 Feb 2002, Peter Hutnick wrote:
+> > > I can't figure out which end is up with wvlan_cs.  Not in the kernel =
+yet
+> > > . . . but pcmcia-cs package is not for use with 2.4.
+> > >
+> > > Could someone give me a hint?
+> >
+> > I don't understand why you think that pcmcia-cs is not for use in 2.4. I
+> > use it on my laptop, which was just recently moved to 2.4.17.
+>=20
 
+=46rom what I understand the wvlan_cs driver is being phased out and
+replaced by the much improved orinoco_cs driver.
 
+--=20
+Jason Cook                 |  GnuPG Fingerprint: D531 F4F4 BDBF 41D1 514D
+GNU/Linux Engineering Lead |                     F930 FD03 262E 5120 BEDD
+evolServ Technology        |  Home page: http://reinit.org
 
+Whip me.  Beat me.  Make me maintain AIX.
 
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjx+r2YACgkQ/QMmLlEgvt24jACfUtwftxt2jTiKxVmZYR3y1kgt
+grUAniv3XZj1B24vmGSLtcsQJeEWwMR/
+=J1em
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--

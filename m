@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVABUJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVABUJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVABUJK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVABUJK
+	id S261313AbVABUJo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVABUJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:09:10 -0500
-Received: from tabit.netstar.se ([195.178.179.33]:54219 "HELO tabit.netstar.se")
-	by vger.kernel.org with SMTP id S261312AbVABUJH (ORCPT
+	Sun, 2 Jan 2005 15:09:44 -0500
+Received: from smtp.cs.aau.dk ([130.225.194.6]:7137 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S261313AbVABUJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:09:07 -0500
-Subject: Re: 2.6.10: e100 network broken after swsusp/resume
-From: =?ISO-8859-1?Q?H=E5kan?= Lindqvist <lindqvist@netstar.se>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20050102184239.GA21322@butterfly.hjsoft.com>
-References: <20041228144741.GA2969@butterfly.hjsoft.com>
-	 <20050101172344.GA1355@elf.ucw.cz>
-	 <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net>
-	 <20050102184239.GA21322@butterfly.hjsoft.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 02 Jan 2005 21:09:16 +0100
-Message-Id: <1104696556.2478.12.camel@pefyra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 8bit
+	Sun, 2 Jan 2005 15:09:39 -0500
+Message-ID: <41D854A9.5050309@cs.aau.dk>
+Date: Sun, 02 Jan 2005 21:08:09 +0100
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+In-Reply-To: <1697129508.20050102210332@dns.toxicfilms.tv>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On sön, 2005-01-02 at 13:42 -0500, John M Flinchbaugh wrote:
-> pci=routeirq worked for me to get my e100 working again after resume.
-
-For the record: It works around my problems with e100 and snd-intel8x0,
-too.
-
+Maciej Soltysiak wrote:
+> Hi,
 > 
-> so what's that mean?  what's the trade-off for using this option?
+> I was wondering in the tram today are we close to branching
+> off to 2.7
+> 
+> Do the mighty kernel developers have solid plans, ideas, etc
+> to start experimental code
 
+You should read this: http://kerneltrap.org/node/3513
+And this: http://kerneltrap.org/node/3522
 
-The Documentation/kernel-parameters.txt says this about pci=routeirq:
-"Do IRQ routing for all PCI devices. This is normally done in
-pci_enable_device(), so this option is a temporary workaround for broken
-drivers that don't call it."
+Regards
+-- 
+Emmanuel Fleury
 
-Ie, it doesn't sound too bad to use it until the problem is solved.
-And I don't know if this particular issue is a case of broken drivers,
-but that was what the parameter was added to work around.
-
-
-/Håkan
-
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.aau.dk

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbQLHV2E>; Fri, 8 Dec 2000 16:28:04 -0500
+	id <S132932AbQLHVbE>; Fri, 8 Dec 2000 16:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132604AbQLHV14>; Fri, 8 Dec 2000 16:27:56 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:60833 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S132625AbQLHV1u>;
-	Fri, 8 Dec 2000 16:27:50 -0500
-Date: Fri, 8 Dec 2000 12:57:17 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-cc: Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <3A3143D5.98E8E948@Hell.WH8.TU-Dresden.De>
-Message-ID: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.edu>
+	id <S132931AbQLHVay>; Fri, 8 Dec 2000 16:30:54 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:22285 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S132604AbQLHVar>;
+	Fri, 8 Dec 2000 16:30:47 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7
+Date: Fri, 8 Dec 2000 20:50:41 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012081125580.11302-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012081125580.11302-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00120821583804.00491@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Udo A. Steinberg wrote:
-
-> > +               /* disable advertising the flow-control capability */
-> > +               sp->advertising &= ~0x0400;
-> > +               mdio_write(ioaddr, sp->phy[0] & 0x1f, sp->advertising);
+On Fri, 08 Dec 2000, Linus Torvalds wrote:
+> Btw, I also think that the dirty buffer flushing should get the page lock.
+> Right now it touches the buffer list without holding the lock on the page
+> that the buffer is on, which means that there is really nothign that
+> prevents it from racing with the page-based writeout. I don't like that:
+> it does hold the LRU list lock, so the list state itself is ok, but it
+> does actually touch part of the buffer state that is not really protected
+> by the lock.
 > 
->                                                       ^^^
->                                                  missing a 4 here?
+> I think it ends up being ok because ll_rw_block will ignore buffers that
+> get output twice, and the rest of the state is handled with atomic
+> operations (b_count and b_flags), but it's not really proper. If
+> flush_dirty_buffers() got the page lock, everything would be protected
+> properly. Thoughts?
 
-Yes, sorry about that.
+This is great when you have buffersize==pagesize.  When there are
+multiple buffers per page it means that some of the buffers might have
+to wait for flushing just because bdflush started IO on some other
+buffer on the same page.  Oh well.  The common case improves in terms
+being proveably correct and the uncommon case gets worse a tiny bit. 
+It sounds like a win.
 
-> I've tried the patch putting a 4 in the place noted above. It doesn't
-> help with the issue at all. 
+We are moving steadily away from buffer oriented I/O anyway, and I
+think we can optimize the case of buffersize!=pagesize in 2.5 by being a
+little more careful about how getblk hands out buffers.  Getblk
+could force all buffers on the same page to be on the same
+major/minor, or even better, to be physically close together.  Or
+more simply, flush_dirty_buffers could check for other dirty buffers on
+the same page and initiate I/O at the same time.  Or both strategies.
 
-Ok. Can you send me the entire dump? Also, it would be helpful if you
-could try to determine when exactly it happens (upon insmod, upon ifconfig
-up, or upon receiving some packets later).
-
-> Also interesting is the fact that my kernel
-> hangs upon bootup around starting syslogd/klogd or around setting up the
-> NIC (haven't quite figured out), if I pull the network plug and continues
-> when I plug it back in.
-
-Stupid question: are you sure this is not due to the DNS server being
-unreachable?...
-
-Thanks,
-Ion
+This is by way of buttressing an argument in favor of simplicity
+and reliabilty, i.e., being religious about taking the page lock, even
+when there's a slight cost in the short term.
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUGaWQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUGaWQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUGaWQP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 18:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbUGaWQP
+	id S264704AbUGaWQY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 18:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUGaWQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 18:16:15 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:24764 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S264633AbUGaWLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 18:11:34 -0400
-Subject: Re: [PATCH] Configure IDE probe delays
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Todd Poynor <tpoynor@mvista.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-In-Reply-To: <410C12CA.7060109@pobox.com>
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
-	 <1091226922.5083.13.camel@localhost.localdomain>
-	 <1091232770.1677.24.camel@mindpipe>
-	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1091297179.1677.290.camel@mindpipe>
-	 <1091302522.6910.4.camel@localhost.localdomain>
-	 <1091309723.1677.391.camel@mindpipe>  <410C12CA.7060109@pobox.com>
-Content-Type: text/plain
-Message-Id: <1091311922.1677.428.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 31 Jul 2004 18:12:02 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jul 2004 18:16:23 -0400
+Received: from smtp18.wxs.nl ([195.121.6.14]:19884 "EHLO smtp18.wxs.nl")
+	by vger.kernel.org with ESMTP id S264763AbUGaWOL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 18:14:11 -0400
+Date: Sun, 01 Aug 2004 00:13:08 +0200
+From: Arvind Autar <Autar022@planet.nl>
+Subject: Hardrive driver issues?
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       b.zolnierkiewicz@elka.pw.edu.pl, jgarzik@pobox.com, Autar022@planet.nl
+Message-id: <1091311988.15039.1.camel@localhost>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.6
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 17:44, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > Even if it's not appropriate for this case, there have to be some places
-> > in the kernel where this would be useful.  What about hardware that is 
-> > broken, requiring a device-specific kludge?  Hardware that the kernel
-> > developers would prefer didn't exist.  There have to be some of these. 
-> > Or are most of these already broken out and disabled by default like the
-> > old CMD640 ide bug?
-> 
-> 
-> Broken hardware will always exist.  Sounds like you want 
-> CONFIG_PERFECT_WORLD ?
-> 
+o, here I'm, trying to setup a box.
+I installed debian sarge with 2.4.25-1-386. It ran fine, but didn't
+work with my s-ata disk.
 
-Sure.  Got a patch?
+I grabbed 2.6.8-rc2 and 2.6.8-rc1-mm1. Bot gave me the same results.
 
-Lee
+My ata disk uses Amd74xx Adn the s-ata siimage/sata_sil . The amd74
+got compiled in as * because that's the disk where linux got
+installed. siimage/sata_sil got copmiled as a module, I needed the
+disk to mount my fat32 partition so I could get to mine music files. I
+booted both kernels both of them started to freeze after a while. So I
+started to look in the log files and found this: (see attachment)208K
+Unfortunately I don't have any debugging(?) info from the Amd74xx all
+I know is that it gives some error about kernel bug at
+drivers/ide/ide-10.c:112 and it makes my computer probably freeze. I
+even booted with: 'noirqdebug' but the results I got where
+
+SCSI subsystem initialized
+ACPI : PCI interrupt 0000:01:0b[A] -> GSI 11(level , low ) -> IRQ 11
+ata1 : SATA max UDMA / 100 cmd 0xE0B8E080 ctl 0xE0B8E08A bmdma
+0xE0B8E000 irq 11
+ata2 : SATA max UDMA / 100 cmd 0xE0B8E0C0 ctl 0xE0B8E0CA bmdma
+0xE0B8E008 irq 11
+and then there was a freeze
+
+I hope this problem gets solved soon.
+
+Ps: I'm not subscribed to this mailinglist, please CC me.
+
+Arvind.
+
+
+
+
 

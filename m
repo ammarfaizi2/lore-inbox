@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264578AbRFPARU>; Fri, 15 Jun 2001 20:17:20 -0400
+	id <S264577AbRFPAZM>; Fri, 15 Jun 2001 20:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264577AbRFPARK>; Fri, 15 Jun 2001 20:17:10 -0400
-Received: from cx648115-a.blvue1.ne.home.com ([24.17.100.128]:26366 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264578AbRFPARC>; Fri, 15 Jun 2001 20:17:02 -0400
-Date: Fri, 15 Jun 2001 19:03:05 -0500 (CDT)
-From: Thomas Molina <tmolina@home.com>
-X-X-Sender: <tmolina@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rachel Greenham <rachel@linuxgrrls.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
-In-Reply-To: <E159qX2-0001WC-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106151858540.12619-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264579AbRFPAZC>; Fri, 15 Jun 2001 20:25:02 -0400
+Received: from customers.imt.ru ([212.16.0.33]:45065 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S264577AbRFPAYw>;
+	Fri, 15 Jun 2001 20:24:52 -0400
+Message-ID: <20010615202333.A24765@saw.sw.com.sg>
+Date: Fri, 15 Jun 2001 20:23:33 -0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [patch] unpaired lock/unlock_kernel in fs/locks.c
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jun 2001, Alan Cox wrote:
+Please apply the fix for unpaired lock/unlock_kernel in fs/locks.c
 
-> > With DMA (UDMA Mode 5) enabled, my machine crashes on kernel versions
-> > from 2.4.3-ac7 onwards up to 2.4.5 right up to 2.4.5-ac13. 2.4.3 vanilla
-> > and 2.4.3-ac6 are completely stable. -ac7 of course is when a load of
-> > VIA fixes were done. :-}
->
-> Unfortunately there isnt a great deal I can do but say 'talk to VIA'.
->
-> > With DMA (any setting, but UDMA mode 5 preferred of course) enabled, on
-> > kernels 2.4.3-ac7 and onwards, random lockup on disk access within first
-> > few minutes of use - sometimes very quickly after boot, sometimes as
-> > much as ten minutes later given use. Running bonnie -s 1024 once or
->
-> Yep. Lots of people see these. I even have people reporting it and not reporting
-> it on the same board.
->
-> Only known cure its to not use DMA.
+	Andrey
 
-So is there no correlation from particular hardware to problems reported?
-I'm running the A7V133 with a Western Digital WD300BB UDMA 5 drive on
-kernel 2.4.5 with no trouble.
-
+--- fs/locks.c~	Fri Jun 15 17:14:05 2001
++++ fs/locks.c	Fri Jun 15 19:16:31 2001
+@@ -856,7 +856,7 @@
+ 	new_fl2 = locks_alloc_lock(0);
+ 	error = -ENOLCK; /* "no luck" */
+ 	if (!(new_fl && new_fl2))
+-		goto out;
++		goto out_nolock;
+ 
+ 	lock_kernel();
+ 	if (caller->fl_type != F_UNLCK) {
+@@ -1004,6 +1004,7 @@
+ 	}
+ out:
+ 	unlock_kernel();
++out_nolock:
+ 	/*
+ 	 * Free any unused locks.
+ 	 */

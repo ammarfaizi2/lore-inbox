@@ -1,105 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135546AbRDXLXi>; Tue, 24 Apr 2001 07:23:38 -0400
+	id <S135547AbRDXLhU>; Tue, 24 Apr 2001 07:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135547AbRDXLX1>; Tue, 24 Apr 2001 07:23:27 -0400
-Received: from adsl-64-123-58-70.dsl.stlsmo.swbell.net ([64.123.58.70]:29166
-	"EHLO bigandy.swbell.net") by vger.kernel.org with ESMTP
-	id <S135546AbRDXLXU>; Tue, 24 Apr 2001 07:23:20 -0400
-Date: Tue, 24 Apr 2001 06:19:31 -0500 (CDT)
-From: Andy Carlson <naclos@swbell.net>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Matrox FB console driver
-In-Reply-To: <Pine.LNX.4.10.10104232117410.30211-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.20.0104240616170.244-100000@bigandy>
+	id <S135548AbRDXLhK>; Tue, 24 Apr 2001 07:37:10 -0400
+Received: from mta05.mail.au.uu.net ([203.2.192.85]:50842 "EHLO
+	mta05.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
+	id <S135547AbRDXLhE>; Tue, 24 Apr 2001 07:37:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Matt Johnston <lkm-stuff@caifex.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: odd messages in dmesg (network I think)
+Date: Tue, 24 Apr 2001 19:39:34 +0800
+X-Mailer: KMail [version 1.2.1]
+In-Reply-To: <3AE4BBAA.C5A91413@internet.com>
+In-Reply-To: <3AE4BBAA.C5A91413@internet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010424113700.SFAM10022.mta05.mail.mel.aone.net.au@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-time prime before x
-real    1m23.535s
-user    0m40.550s
-sys     0m42.980s
+I've noticed the same for 2.4.x kernels for quite a while back.... The first 
+appearence in logs/kernel is for 2.4.2-ac17.
 
-/proc/mtrr before x
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg01: base=0xfd800000 (4056MB), size=   4MB: write-combining, count=1
+Afaik I haven't noticed any resultant problems so I presume its just some 
+over-informative debugging code??
 
-time prime after x
-real    0m48.732s
-user    0m41.070s
-sys     0m7.690s
+Cheers,
+Matt Johnston.
 
-/proc/mtrr after x
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg01: base=0xfd800000 (4056MB), size=   4MB: write-combining, count=1
-
-time prime in X
-real    0m42.835s
-user    0m41.180s
-sys     0m1.710s
-
-/proc/version
-Linux version 2.4.3-ac12 (root@bigandy) (gcc version 2.95.2 19991024 (release)) #15 SMP Mon Apr 23 19:35:33 CDT 2001
-
-/proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 1
-model name	: Pentium Pro
-stepping	: 9
-cpu MHz		: 199.312
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-bogomips	: 397.31
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 1
-model name	: Pentium Pro
-stepping	: 7
-cpu MHz		: 199.312
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-bogomips	: 398.13
-
-
-Andy Carlson                           |\      _,,,---,,_
-naclos@swbell.net                ZZZzz /,`.-'`'    -.  ;-;;,_
-BJC Health System                     |,4-  ) )-,_. ,\ (  `'-'
-St. Louis, Missouri                  '---''(_/--'  `-'\_)
-Cat Pics: http://andyc.dyndns.org
-
-On Mon, 23 Apr 2001, Mark Hahn wrote:
-
-> > I was playing around with a program that I was using to time differences
-> > between kernels (a silly prime program that puts out 1000000 primes).  I
-> > noticed a very strange behaviour.  On a fresh boot, with the Penguin
-> > pictures that the Matrox FB driver puts up, the prime program runs
-> > 1 minute, 30 seconds.  If I reset, it still runs 1M30S.  If I start X,
-> > and exit, it runs 48 seconds.  Is this a known behaviour?  Thanks.
-> 
-> do you mean that running and exiting X makes your computer faster?
-> is /proc/mtrr sane at both times?
-> 
-
+On Tue, 24 Apr 2001 07:32, Byron Albert wrote:
+> Hello,
+>  I am getting odd message in my dmesg
+> I am running
+> Linux extreme 2.4.2-ac28 #1 SMP Fri Apr 13 01:58:47 UTC 2001 i686
+> unknown
+> and the messages look like
+>
+>
+> Undo Hoe 64.22.x.x/4414 c3 l2 ss10/65535 p4
+> Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p3
+> Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p2
+> Undo retrans 64.22.x.x/4414 c2 l0 ss10/65535 p0
+> Undo partial loss 64.157.x.x/32831 c1 l1 ss2/65535 p1
+> Disorder3 1 4 f4 s2 rr0
+> Disorder3 1 4 f4 s2 rr0
+> Disorder3 1 4 f4 s2 rr0
+> Undo loss 64.108.x.x/2786 c2 l0 ss2/65535 p0
+> Undo partial loss 200.27.x.x/2374 c1 l1 ss2/65535 p1
+> Undo partial loss 213.228.x..x/32936 c2 l1 ss2/65535 p1
+> Undo partial loss 213.228.x.x/32937 c2 l1 ss2/65535 p1
+> Disorder3 3 5 f6 s2 rr0
+> Disorder1 3 6 f0 s0 rr1
+> Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p6
+> Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p5
+> Undo retrans 202.75.x.x/34237 c6 l0 ss4/65535 p5
+>
+> On my webserver errors like this fill the dmesg in a day. I did repalce
+> some ips with x.x.
+>
+> Thanks for any info
+> Byron
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

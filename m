@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283694AbRLOU2Z>; Sat, 15 Dec 2001 15:28:25 -0500
+	id <S283718AbRLOVCe>; Sat, 15 Dec 2001 16:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283718AbRLOU2Q>; Sat, 15 Dec 2001 15:28:16 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:27350 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283694AbRLOU2E>;
-	Sat, 15 Dec 2001 15:28:04 -0500
-Date: Sat, 15 Dec 2001 21:27:57 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: jurij.smakov@telia.com, linux-kernel@vger.kernel.org
-Subject: Re: PDC20265 IDE controller trouble
-Message-Id: <20011215212757.3be12318.rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.10.10112151049260.13398-100000@master.linux-ide.org>
-In-Reply-To: <20011215185643.252d5547.rene.rebe@gmx.net>
-	<Pine.LNX.4.10.10112151049260.13398-100000@master.linux-ide.org>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283719AbRLOVCV>; Sat, 15 Dec 2001 16:02:21 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:41741 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S283718AbRLOVCI>; Sat, 15 Dec 2001 16:02:08 -0500
+Date: Sat, 15 Dec 2001 22:02:00 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Petr Titera <P.Titera@century.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 4GB file size limit on SMBFS
+In-Reply-To: <3C19A3CC.7020501@century.cz>
+Message-ID: <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Dec 2001 10:52:28 -0800 (PST)
-Andre Hedrick <andre@linux-ide.org> wrote:
+On Fri, 14 Dec 2001, Petr Titera wrote:
 
+> simple
+> 	dd if=/dev/zero of=test bs=1024k count=8000
 > 
-> Well blame that on the folks that are not taking kernel code that will
-> allow you to solve this problem.  Linus is the number one offender.
+> gives 4GB file on server without any error. I cannot what would whappen 
+> if I use real file as my test machine has only 2GB of disk space :( So 
+> portions of output file can be rewriten.
 
-Well. Maybe under Marcelo this might change ... - Since this is your second
-mail (I read) were you point out that the kernel _might_ need some updates
-- are there Hedrick patches online I can give a try?
+The first patch was incomplete. It contained a calculation bug on the
+smbfs side limiting the possible offset to 32bits unsigned.
 
-(btw. Did you took a look into the IDE's devfs registration where the hostXYZ
-might be wrong  [last week's post] ?)
-
-Thanks for you good work!
-
-> Regards,
-
-> Andre Hedrick
-> CEO/President, LAD Storage Consulting Group
-> Linux ATA Development
-> Linux Disk Certification Project
-> 
-> On Sat, 15 Dec 2001, Rene Rebe wrote:
-
-[...]
+New patch vs 2.4.16 (and others) available here:
+    http://www.hojdpunkten.ac.se/054/samba/lfs.html
 
 
-k33p h4ck1n6
-  René
+The annoying thing is that someone pointed that bug out to me some time
+ago in an earlier version. I made the change and verified it then, but now
+I used an unfixed patch as base for the 2.4.15-pre version ... grr.
 
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+I have successfully tested this with a winXP machine someone had. Not the
+'dd test' but truncating it to 4.5G (less network transfer time), writing
+something above the 4G mark and then checking that it doesn't end up
+below. Also works with samba.
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+(But not with win2k and FAT, which all win2k users around here seems to be
+ using, that gives ENOSPC after 4G. Should perhaps be EFBIG ... or not)
 
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Let me know if this works better for you.
+
+/Urban
+

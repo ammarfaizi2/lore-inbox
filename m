@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSGSSDz>; Fri, 19 Jul 2002 14:03:55 -0400
+	id <S316953AbSGSSpm>; Fri, 19 Jul 2002 14:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316953AbSGSSDz>; Fri, 19 Jul 2002 14:03:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36078 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316951AbSGSSDv>; Fri, 19 Jul 2002 14:03:51 -0400
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-From: Robert Love <rml@tech9.net>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: root@chaos.analogic.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0207190843200.30902-100000@divine.city.tvnet.hu>
-References: <Pine.LNX.4.30.0207190843200.30902-100000@divine.city.tvnet.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 19 Jul 2002 11:06:33 -0700
-Message-Id: <1027101993.1116.199.camel@sinai>
-Mime-Version: 1.0
+	id <S316959AbSGSSpm>; Fri, 19 Jul 2002 14:45:42 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:34287 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S316953AbSGSSpl>;
+	Fri, 19 Jul 2002 14:45:41 -0400
+To: "Joseph Malicki" <jmalicki@starbak.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: close return value
+References: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
+	<s5gsn2fr922.fsf@egghead.curl.com>
+	<015401c22f40$c4471380$da5b903f@starbak.net>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 19 Jul 2002 14:48:44 -0400
+In-Reply-To: <015401c22f40$c4471380$da5b903f@starbak.net>
+Message-ID: <s5gvg7bmu43.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-19 at 00:30, Szakacsits Szabolcs wrote:
+"Joseph Malicki" <jmalicki@starbak.net> writes:
 
-> *However* distinguishing root and non-root users also in strict VM
-> overcommit would make a significant difference for general purpose
-> systems, this was always my point.
-> 
-> Can you see the non-orthogonality now?
+> Those mistakes are your ignorance.  The manpage is wrong.  It does
+> return -1 on error.  Also, errno is in libc, not the kernel.  Man
+> library functions do in fact use errno.
 
-Nope, I still disagree and there is no point going back and forth.
+Sigh.  OK, so I should have read SuSv2 instead of my local man page.
+Mea culpa.  (Once upon a time, the buffered I/O libc routines made no
+promises about which system calls they made or when.  On such systems,
+errno after printf() had no guaranteed semantics.)
 
-We both agree that there are situations where both resource accounting
-(or some sort of root-protection like you want) and strict overcommit is
-required.
+> And it's not an issue of whether an error is "impossible".  It's
+> whether or not you would do anything if it failed.  It's not totally
+> uncommon to actually not care whether or not it succeeds, but a
+> valiant attempt is enough, such as in the case of printf.
 
-I contend there are situations where only one or the other is needed.
+If it is a diagnostic printf() to the screen, sure.  But an fprintf()
+to update some state file on disk is a different matter entirely.
 
-More importantly, I argue the two things should be kept separate. 
-Putting some root safety net into strict accounting is a hack (how much
-of a net? etc.).  You want to keep users from ruining things - get
-per-user resource limits.  You want to keep the machine from
-overcommiting memory and thus not OOMing?  Get strict accounting.  You
-want both?  Use both.
+> Sure, if you require an event to be successful to continue you
+> should always check it.  And yes, it's nice to print an error
+> message on close sometimes, if something is critical.  But the
+> question to ask is what you would actually _DO_ about an error... if
+> the answer is nothing, then why check it?
 
-I provided the first piece.
+To abort, plain and simple.  As I said, if you really think your call
+to close() or gettimeofday() or whatever can never fail, you are much
+better off dying immediately than proceeding on the assumption that it
+succeeded.
 
-	Robert Love
+Of course, checking errors in order to handle them sanely is a good
+thing.  Nobody is arguing that.  What I am arguing is that failing to
+check errors when they can "never happen" is wrong.
 
+Anyway, back to lurker mode for me.
+
+ - Pat

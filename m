@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTJGN3o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTJGN3n
+	id S262127AbTJGNeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJGNeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:29:43 -0400
-Received: from main.gmane.org ([80.91.224.249]:36578 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262181AbTJGN3m (ORCPT
+	Tue, 7 Oct 2003 09:34:44 -0400
+Received: from tri-e2k.ethz.ch ([129.132.112.23]:13376 "EHLO tri-e2k.d.ethz.ch")
+	by vger.kernel.org with ESMTP id S262127AbTJGNel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:29:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet@andreas-s.net>
-Subject: Re: Extremely low disk performance on K7S5A Pro
-Date: Tue, 7 Oct 2003 13:29:40 +0000 (UTC)
-Message-ID: <slrnbo5fuo.l0e.usenet@home.andreas-s.net>
-References: <slrnbnoi5i.3re.usenet@home.andreas-s.net> <3F813E19.7020303@inet6.fr>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+	Tue, 7 Oct 2003 09:34:41 -0400
+Message-ID: <3F82C0EF.1040002@debian.org>
+Date: Tue, 07 Oct 2003 15:34:39 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: changes to microcode update driver.
+References: <Pine.GSO.4.44.0310070352590.16056-100000@south.veritas.com>
+In-Reply-To: <Pine.GSO.4.44.0310070352590.16056-100000@south.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Oct 2003 13:34:39.0909 (UTC) FILETIME=[C21DB550:01C38CD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton wrote:
-> Andreas Schwarz said the following on 10/02/2003 05:47 PM:
->
->>Hi,
->>
->>since I replaced my Abit KT7 with an Elitegroup K7S5A Pro (SIS735), I've
->>got extremly low disk performance with every tested kernel version
->>(2.4.20, 2.6.0-test6-mm2):
->>
->># hdparm -tT /dev/hda                                                           
->>/dev/hda:                                                                       
->> Timing buffer-cache reads:   824 MB in  2.00 seconds = 411.65 MB/sec           
->> Timing buffered disk reads:   10 MB in  3.28 seconds =   3.05 MB/sec
->>                                                          ^^^^
->>
->>DMA, 32bit etc. is activated (hdparm -d1 -c3 -u1 /dev/hda):
->>
->>  
->>
->
-> 3.05 MB is even less than what I'm used to see with most drives and *PIO 
-> 4* !
+Tigran Aivazian wrote:
 
-I found the source of the problem: I was using athcool to enable the "bus
-disconnect when STPGNT detected" bit on startup. That didn't cause any
-problems with my old board (Abit KT7), but the K7S5A seems to be
-allergic to it. Sorry if I wasted your time!
+> Hi guys,
+> 
+> It's been a long time that I was going to send to Linux the patch with the
+> following changes, but the birth of my first child intervened and caused
+> delays (though can't call them "unexpected" :). Now, if I hear from people
+> "no, no! we are using this feature!"  then I will reconsider:
 
-Andreas
+> Please let me know your thoughts.
+
+Hello.
+
+I would like to have a common model to load microcodes (and in the new boot 
+procedure), but I've lost the status of such project, I think things for 2.7.
+Any news?
+
+Is microcode_ctl still maintained? I've made some correction/extentions but now 
+new from the maintainer.
+
+Intel give us the new microcode? I had contact with the new contact/maintainer/? 
+person in Intel, but still no new microcode since summer 2001. So maybe before 
+changing the driver, could you check the Intel vision about Linux and microcode?
+
+ciao
+	giacomo
+
 

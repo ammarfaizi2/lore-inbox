@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264276AbTEGUBN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 16:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTEGUBN
+	id S264245AbTEGTyw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264247AbTEGTyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 16:01:13 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:19156 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S264276AbTEGUBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 16:01:11 -0400
-Date: Tue, 6 May 2003 12:41:14 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>,
-       rusty@rustcorp.com.au, dipankar@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <20030506124114.S626@nightmaster.csn.tu-chemnitz.de>
-References: <20030505.211606.28803580.davem@redhat.com> <20030505224815.07e5240c.akpm@digeo.com> <20030505234248.7cc05f43.akpm@digeo.com> <20030505.223944.23027730.davem@redhat.com> <20030505235758.25f769fc.akpm@digeo.com> <20030506072500.GS812@suse.de>
+	Wed, 7 May 2003 15:54:52 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:27839 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264245AbTEGTyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:54:47 -0400
+Date: Wed, 7 May 2003 22:06:47 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Jonathan Lundell <linux@lundell-bros.com>, root@chaos.analogic.com,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507200647.GB3166@wohnheim.fh-wedel.de>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]> <3EB957FA.4080900@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030506072500.GS812@suse.de>; from axboe@suse.de on Tue, May 06, 2003 at 09:25:00AM +0200
-X-Spam-Score: -32.5 (--------------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19DVIP-0002Nh-00*7QdpPdqQVok*
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3EB957FA.4080900@us.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 09:25:00AM +0200, Jens Axboe wrote:
-> On Mon, May 05 2003, Andrew Morton wrote:
-> > "David S. Miller" <davem@redhat.com> wrote:
-> > The disk_stats structure has an "in flight" member.  If we don't have proper
-> > locking around that, disks will appear to have -3 requests in flight for all
-> > time, which would look a tad odd.
+On Wed, 7 May 2003 12:01:14 -0700, Dave Hansen wrote:
+> Jonathan Lundell wrote:
+> > One thing that would help (aside from separate interrupt stacks) 
+> > would be a guard page below the stack. That wouldn't require any 
+> > physical memory to be reserved, and would provide positive indication 
+> > of stack overflow without significant runtime overhead.
 > 
-> So check for < 0 in flight? I totally agree with davem here.
+> x86 doesn't really have big physical shortages right now.  But, the
+> _virtual_ shortages are significant.  The guard page just increases the
+> virtual cost by 50%.
 
-If the disk_stats structure will never be accurate, it will show
-nonsense values. If it shows nonsense values, the values have no
-meaning anymore and we could remove them alltogether.
+Different people have different constraints. :)
 
-If some additions/subtractions will come in later it will not
-matter, but if the value we add to or subtract from is already
-wrong, then the error will really propagate to much.
+For me, physical memory is low while virtual memory is abundant.  But
+even in your case, the guard page might be an acceptable evil during a
+(hopefully short) transition time.
 
-Has somebody analyzed this? Can we tell userspace a maximum error
-value? Is the maximum error value acceptable?
+> The stack overflow checking in -mjb uses gcc's mcount mechanism to
+> detect overflows.  It should get called on every single function call.
 
-Is the above questions are all answered with "no", then I (and
-several sysadmins) would prefer to just rip the stats or make
-them a compile time option and be exact, if we really want them.
+Nice trick.  Do you have better documentation on that machanism than
+man gcc?  The paragraph to -p is quite short and I cannot make the
+connection to the rest of the patch immediately.
 
-What about that?
+Jörn
 
-Most people just want them per system to measure their
-IO bandwidth and they want the spots (=per disk stats), just
-to analyze the problematic cases.
-
-For the real performance, they could always compile out the per
-disk stats, once they are satisfied with the overall bandwidth.
-
-Regards
-
-Ingo Oeser
+-- 
+Optimizations always bust things, because all optimizations are, in
+the long haul, a form of cheating, and cheaters eventually get caught.
+-- Larry Wall 

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTBULsA>; Fri, 21 Feb 2003 06:48:00 -0500
+	id <S267415AbTBUMHS>; Fri, 21 Feb 2003 07:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267394AbTBULsA>; Fri, 21 Feb 2003 06:48:00 -0500
-Received: from ns.suse.de ([213.95.15.193]:51215 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267392AbTBULr7>;
-	Fri, 21 Feb 2003 06:47:59 -0500
-Date: Fri, 21 Feb 2003 12:58:05 +0100
-From: Andi Kleen <ak@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-       ak@suse.de, davem@redhat.com
-Subject: Re: ioctl32 consolidation
-Message-ID: <20030221115805.GA6445@wotan.suse.de>
-References: <20030220223119.GA18545@elf.ucw.cz> <20030220224433.GV9800@gtf.org> <20030221113428.GF24049@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030221113428.GF24049@atrey.karlin.mff.cuni.cz>
+	id <S267417AbTBUMHS>; Fri, 21 Feb 2003 07:07:18 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:15709 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S267415AbTBUMHR>; Fri, 21 Feb 2003 07:07:17 -0500
+Date: Fri, 21 Feb 2003 12:19:01 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w
+ ith flush_tlb_all()
+In-Reply-To: <200302211224.39021.schlicht@uni-mannheim.de>
+Message-ID: <Pine.LNX.4.44.0302211217390.1531-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 12:34:29PM +0100, Pavel Machek wrote:
-> Hi!
+On Fri, 21 Feb 2003, Thomas Schlichter wrote:
 > 
+> So here is a minimal change patch that should solve the preempt issue in 
+> flush_map().
 > 
-> > > Currently, 32-bit emulation in kernel has *5* copies, and its >1000
-> > > lines each.
-> > 
-> > Yes :/  Consolidating all these copies into a single layer has been a
-> > "project to be" for quite some time.
-> > 
-> > I do not know if it is too late in 2.5.x to begin this work, however.
-> > We _are_ in a feature freeze...  I suppose it is up to the consensus of
-> > arch maintainers, because it [obviously] does not affect ia32.
-> 
-> Actually Andi asked me to do the work. Dave, is it okay with you? What
-> about other maintainers?
+> Instead of just doing a preempt_disable() before and a preempt_enable()
+> after 
+> the flush_kernel_map() calls I just changed the order so that the preempt 
+> point is not between them...
 
-One issue you need to be careful about is that long long has different
-alignment between 32bit and 64bit on ia64 and x86-64. On sparc64/mips64/ppc64
-etc. that isn't the case. The x86-64 handlers convert sometimes more than
-the later ones because of that.
+No.  All that does is make sure that the cpu you start out on is
+flushed, once or twice, and the cpu you end up on may be missed.
+Use preempt_disable and preempt_enable.
 
-Also some ioctl handlers are endian dependent, at least in x86-64 (I think
-I commented them all). Not sure if Dave did the same.
+Hugh
 
-First step probably is to just get register_ioctl32_translation into
-a common header and implementation file.
-
--Andi

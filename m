@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319057AbSIJGxJ>; Tue, 10 Sep 2002 02:53:09 -0400
+	id <S319056AbSIJHBS>; Tue, 10 Sep 2002 03:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319058AbSIJGxJ>; Tue, 10 Sep 2002 02:53:09 -0400
-Received: from packet.digeo.com ([12.110.80.53]:36066 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319057AbSIJGxJ>;
-	Tue, 10 Sep 2002 02:53:09 -0400
-Message-ID: <3D7D9B76.353BBEAB@digeo.com>
-Date: Tue, 10 Sep 2002 00:12:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
+	id <S319059AbSIJHBS>; Tue, 10 Sep 2002 03:01:18 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:24269 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S319056AbSIJHBR>; Tue, 10 Sep 2002 03:01:17 -0400
+Date: 10 Sep 2002 08:48:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8WbPE$Fmw-B@khms.westfalen.de>
+In-Reply-To: <E17oUzP-0006tu-00@starship>
+Subject: Re: Question about pseudo filesystems
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Daniel Phillips <phillips@arcor.de>, Jesse Barnes <jbarnes@sgi.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "'David S. Miller'" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
-References: <019f01c25826$c553f310$9e10a8c0@IMRANPC> <E17oTES-0006qj-00@starship> <3D7CF93A.972FCC8D@digeo.com> <E17oVLe-0006uT-00@starship> <20020910064354.GM8719@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Sep 2002 06:57:46.0934 (UTC) FILETIME=[5E8C1560:01C25897]
+Organization: Organisation? Me?! Are you kidding?
+References: <20020909204834.A5243@kushida.apsleyroad.org> <20020907192736.A22492@kushida.apsleyroad.org> <E17o4UE-0006Zh-00@starship> <20020909204834.A5243@kushida.apsleyroad.org> <E17oUzP-0006tu-00@starship>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Mon, Sep 09 2002, Daniel Phillips wrote:
-> > On Monday 09 September 2002 21:40, Andrew Morton wrote:
-> > > We need a general-purpose "read or write these pages to this blockdev"
-> > > library function.
-> >
-> > I thought bio was supposed to be that.  In what way does it not suffice?
-> > Simply because of not having a suitable wrapper?
-> 
-> a bio _can_ hold a number of pages, it's just that noone has written the
-> bio_rw_pages() yet. Not that it would be hard...
+phillips@arcor.de (Daniel Phillips)  wrote on 09.09.02 in <E17oUzP-0006tu-00@starship>:
 
-It's simple if it's synchronous.  When I discussed this a while
-back with the LVM and EVMS developers the consensus was that an
-async API would be better - so we'd need some sort of completion
-cookie or callback or whatever.
+> On Monday 09 September 2002 21:48, Jamie Lokier wrote:
+> > The expected behaviour is as it has always been: rmmod fails if anyone
+> > is using the module, and succeeds if nobody is using the module.  The
+> > garbage collection of modules is done using "rmmod -a" periodically, as
+> > it always has been.
+>
+> Actually, it would be more useful if I stated the following simple fact:
+> Returning a flag from __exit definitively gets rid of one race, that is
+> the race where a module's memory can be freed while __exit is active.
+>
+> To get rid of this race by other means you have to put in place some
+> fancy mechanism.  This alone should be enough reason to do it the way
+> I suggest, besides the fact that it is a simpler, more obvious and more
+> robust interface.
 
-It would end up with almost as much state as the rather amazing
-`struct dio'.
+I just love the way you propose insanely hard-to-get-right, hard-to- 
+understand, and complicated interfaces with known broken cases you admit  
+to, to replace simple, obviously correct and race-free mechanisms, all  
+with a supposed goal to make things simpler and safer.
 
-Of course, one could do a synchronous API and see if anyone really,
-really complains ;)  But a bit of requirements-gathering would be
-needed before getting in and coding it.
+Is there some fancy word to describe something that looks like irony,  
+sarcasm, or satire, except for the fact it's actually meant entirely  
+seriously?
+
+MfG Kai

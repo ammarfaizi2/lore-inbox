@@ -1,1669 +1,237 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290635AbSAYLTA>; Fri, 25 Jan 2002 06:19:00 -0500
+	id <S290640AbSAYL0L>; Fri, 25 Jan 2002 06:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290640AbSAYLSr>; Fri, 25 Jan 2002 06:18:47 -0500
-Received: from ns01.vbnet.com.br ([200.230.208.6]:30685 "EHLO ron.vbnet.com.br")
-	by vger.kernel.org with ESMTP id <S290635AbSAYLSe>;
-	Fri, 25 Jan 2002 06:18:34 -0500
-Message-Id: <200201251412.g0PECTh12413@g0PECTh12413ron.vbnet.com.br>
-From: Carlos E Gorges <carlos@techlinux.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] cmpci update ( 5.68LK-SMP ) (repost)
-Date: Fri, 25 Jan 2002 09:19:12 -0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S290641AbSAYL0C>; Fri, 25 Jan 2002 06:26:02 -0500
+Received: from pint.pi.informatik.tu-darmstadt.de ([130.83.7.27]:25095 "EHLO
+	walker.lahn.de") by vger.kernel.org with ESMTP id <S290640AbSAYLZs>;
+	Fri, 25 Jan 2002 06:25:48 -0500
+Date: Fri, 25 Jan 2002 12:23:05 +0100
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Oops
+Message-ID: <20020125112305.GA31822@titan.lahn.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: UUCP-Freunde Lahn e.V.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hello LKML!
 
+A friend of mine captured this oops while running 2.4.18-pre7 patched
+with kdb-2.1 and freeswan 1.94. It's a small P2-200 mit IDE and SCSI.
 
-Maintainers, please apply.
+----- Forwarded message from Martin Girschick <mg_list@gmx.de> -----
+kdb> ps
+Task Addr  Pid      Parent   [*] cpu  State Thread     Command
+0xc11d8000 00000001 00000000  1  000  stop  0xc11d8270 init
+0xc11ce000 00000002 00000001  1  000  stop  0xc11ce270 keventd
+0xc11ca000 00000003 00000001  1  000  stop  0xc11ca270 kapmd
+0xc11c8000 00000004 00000000  1  000  stop  0xc11c8270 ksoftirqd_CPU0
+0xc11c6000 00000005 00000000  1  000  stop  0xc11c6270 kswapd
+0xc11c4000 00000006 00000000  1  000  stop  0xc11c4270 bdflush
+0xc11c2000 00000007 00000000  1  000  stop  0xc11c2270 kupdated
+0xc57f4000 00000008 00000001  1  000  stop  0xc57f4270 khubd
+0xc53e2000 00000025 00000001  1  000  stop  0xc53e2270 devfsd
+0xc51c0000 00000086 00000001  1  000  stop  0xc51c0270 scsi_eh_0
+0xc49e0000 00000123 00000001  1  000  stop  0xc49e0270 portmap
+0xc4690000 00000187 00000001  1  000  stop  0xc4690270 syslog-ng
+0xc4664000 00000190 00000001  1  000  run   0xc4664270 klogd
+0xc43e8000 00000207 00000001  1  000  stop  0xc43e8270 ptal-mlcd
+0xc4376000 00000213 00000001  1  000  stop  0xc4376270 ptal-printd
+0xc44b4000 00000217 00000001  1  000  stop  0xc44b4270 rpc.statd
+0xc433c000 00000220 00000001  1  000  stop  0xc433c270 apmd
+0xc4044000 00000277 00000001  1  000  stop  0xc4044270 faxq
+0xc40ee000 00000281 00000001  1  000  stop  0xc40ee270 hfaxd
+0xc3fe4000 00000286 00000001  1  000  stop  0xc3fe4270 inetd
+0xc3ea6000 00000302 00000001  1  000  stop  0xc3ea6270 lpd
+0xc3cb0000 00000398 00000001  1  000  stop  0xc3cb0270 master
+0xc3bc0000 00000399 00000398  1  000  stop  0xc3bc0270 pickup
+0xc3be4000 00000400 00000398  1  000  stop  0xc3be4270 qmgr
+0xc3c10000 00000401 00000398  1  000  stop  0xc3c10270 tlsmgr
+0xc3462000 00000410 00000001  1  000  stop  0xc3462270 sshd
+0xc33f0000 00000417 00000001  1  000  stop  0xc33f0270 ntpd
+0xc32f2000 00000425 00000001  1  000  stop  0xc32f2270 atalkd
+0xc32d2000 00000429 00000001  1  000  stop  0xc32d2270 afpd
+0xc328e000 00000431 00000001  1  000  stop  0xc328e270 papd
+0xc31e4000 00000435 00000001  1  000  stop  0xc31e4270 proftpd
+0xc31ba000 00000438 00000001  1  000  stop  0xc31ba270 atd
+0xc3190000 00000441 00000001  1  000  stop  0xc3190270 cron
+0xc2f80000 00000447 00000001  1  000  stop  0xc2f80270 apache
+0xc56cc000 00000451 00000001  1  000  stop  0xc56cc270 getty
+0xc4898000 00000452 00000001  1  000  stop  0xc4898270 getty
+0xc4480000 00000453 00000001  1  000  stop  0xc4480270 getty
+0xc3154000 00000454 00000001  1  000  stop  0xc3154270 getty
+0xc3184000 00000455 00000001  1  000  stop  0xc3184270 getty
+0xc3178000 00000456 00000001  1  000  stop  0xc3178270 getty
+0xc2eb8000 00000458 00000447  1  000  stop  0xc2eb8270 apache
+0xc2eae000 00000459 00000447  1  000  stop  0xc2eae270 apache
+0xc2ea2000 00000460 00000447  1  000  stop  0xc2ea2270 apache
+0xc2e96000 00000461 00000447  1  000  stop  0xc2e96270 apache
+0xc2e4a000 00000462 00000447  1  000  stop  0xc2e4a270 apache
+0xc258a000 00000570 00000286  1  000  stop  0xc258a270 nmbd
+0xc25e8000 00000571 00000570  1  000  stop  0xc25e8270 nmbd
+0xc2ad6000 00000580 00000277  1  000  run   0xc2ad6270*wedged
+0xc32c4000 00000581 00000001  1  000  stop  0xc32c4270 faxgetty
+kdb> bt
+    EBP       EIP         Function(args)
+0xc2ad7e30 0xc0127e1b kmem_cache_alloc+0x8f (0xc11671a0, 0x1f0, 0x0, 0xc1179340, 0x1002)
+                               kernel .text 0xc0100000 0xc0127d8c 0xc0127e68
+0xc2ad7e4c 0xc0141275 get_new_inode+0x19 (0xc1164400, 0x1002, 0xc1179340, 0x0, 0x0)
+                               kernel .text 0xc0100000 0xc014125c 0xc01413c0
+0xc2ad7e74 0xc0141543 iget4+0xb7 (0xc1164400, 0x1002, 0x0, 0x0, 0xc274dac0)
+                               kernel .text 0xc0100000 0xc014148c 0xc0141550
+0xc2ad7e94 0xc01489f1 proc_get_inode+0x41 (0xc1164400, 0x1002, 0xc11681a0, 0xc116a400, 0xc274dac0)
+                               kernel .text 0xc0100000 0xc01489b0 0xc0148ac4
+0xc2ad7eb8 0xc014a37d proc_lookup+0x7d (0xc116a400, 0xc274dac0, 0xfffffff4, 0xc116a400)
+                               kernel .text 0xc0100000 0xc014a300 0xc014a3a4
+0xc2ad7ed0 0xc0148b8d proc_root_lookup+0x2d (0xc116a400, 0xc274dac0, 0xc2ad7f28, 0x0, 0xc2ad7f7c)
+                               kernel .text 0xc0100000 0xc0148b60 0xc0148bac
+0xc2ad7eec 0xc01378f8 real_lookup+0x58 (0xc11691a0, 0xc2ad7f28, 0x0, 0xc45dd000, 0x0)
+                               kernel .text 0xc0100000 0xc01378a0 0xc013796c
+0xc2ad7f34 0xc0137f7c link_path_walk+0x500 (0xc2ad7f60)
+                               kernel .text 0xc0100000 0xc0137a7c 0xc01381b0
+0xc2ad7f3c 0xc01381cd path_walk+0x1d (0x0, 0x401751c6, 0x1, 0xc2ad7f98, 0x0)
+                               kernel .text 0xc0100000 0xc01381b0 0xc01381d4
+           0xc0138713 open_namei+0x73 (0xc45dd000, 0x1, 0x1b6, 0xc2ad7f7c, 0x3)
+                               kernel .text 0xc0100000 0xc01386a0 0xc0138c5c
+0xc2ad7f98 0xc012e922 filp_open+0x32 (0xc45dd000, 0x0, 0x1b6, 0xc2ad6000, 0x401751c6)
+                               kernel .text 0xc0100000 0xc012e8f0 0xc012e940
+0xc2ad7fbc 0xc012ec76 sys_open+0x3e (0xbfffdb84, 0x0, 0x1b6, 0x401751c6, 0x1)
+                               kernel .text 0xc0100000 0xc012ec38 0xc012ecfc
+           0xc0106c23 system_call+0x33
+                               kernel .text 0xc0100000 0xc0106bf0 0xc0106c30
+kdb> lsmod
+Module                  Size  modstruct     Used by
+appletalk              23708  0xc6074000    12  (autoclean)
+ide-scsi                9376  0xc6070000     0
+parport_pc             25040  0xc6068000     1  (autoclean)
+lp                      8064  0xc6065000     0  (autoclean)
+parport                31720  0xc605c000     1  (autoclean) [ parport_pc lp ]
+dmfe                   15812  0xc6057000     1  (autoclean)
+nls_cp437               5184  0xc6054000     2  (autoclean)
+vfat                   11308  0xc6050000     1  (autoclean)
+fat                    36320  0xc6046000     0  (autoclean) [ vfat ]
+floppy                 51968  0xc6038000     0  (autoclean)
+aha152x                33312  0xc602e000     1  (autoclean)
+isa-pnp                36000  0xc6024000     0  (autoclean) [ aha152x ]
+kdb> sr u
+<6>SysRq : Emergency Remount R/O
+kdb> sr m
+SysRq : Show Memory
+Mem-info:
+Free pages:       38308kB (     0kB HighMem)
+Zone:DMA freepages: 13800kB min:   128kB low:   256kB high:   384kB
+Zone:Normal freepages: 24508kB min:   576kB low:  1152kB high:  1728kB
+Zone:HighMem freepages:     0kB min:     0kB low:     0kB high:     0kB
+( Active: 4957, inactive: 5353, free: 9577 )
+0*4kB 1*8kB 4*16kB 5*32kB 4*64kB 2*128kB 1*256kB 1*512kB 0*1024kB 
+6*2048kB = 13800kB)
+147*4kB 52*8kB 63*16kB 57*32kB 17*64kB 1*128kB 2*256kB 1*512kB 
+0*1024kB 9*2048kB = 24508kB)
+= 0kB)
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap:       248996kB
+22528 pages of RAM
+0 pages of HIGHMEM
+993 reserved pages
+18082 pages shared
+0 pages swap cached
+0 pages in page table cache
+Buffer memory:     2628kB
+kdb> sr s
+SysRq : Emergency Sync
+kdb> go
+Syncing device 03:05 ... OK
+Syncing device 08:01 ... OK
+Done.
+Unable to handle kernel paging request at virtual address c67ee414
+ printing eip:
+c0127e1b
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0127e1b>]    Not tainted
+EFLAGS: 00010807
+eax: 00ff00ff   ebx: de21de20   ecx: c282e000   edx: c1170000
+esi: c11671a0   edi: 00000246   ebp: c56cdd48   esp: c56cdd3c
+ds: 0018   es: 0018   ss: 0018
+Process getty (pid: 451, stackpage=c56cd000)
+Stack: 00000000 c117ac60 c117ac60 c56cdd64 c0141275 c11671a0 000001f0 
+00000000
+       c117ac60 00007ca9 c56cdd8c c0141543 c57cf000 00007ca9 c117ac60 
+       00000000
+       00000000 c284f0e0 c569f0c0 c284f0e0 c56cddac c0164393 c57cf000 
+       00007ca9
+Call Trace: [<c0141275>] [<c0141543>] [<c0164393>] [<c01378f8>] [<c0137f7c>]
+   [<c01381cd>] [<c0135d5b>] [<c0136625>] [<c0129bdf>] [<c012995d>] 
+[<c0120e9d>]
+   [<c0120eee>] [<c012102c>] [<c0110d59>] [<c0110bd4>] [<c0172d2e>] 
+[<c0137660>]
+   [<c01058eb>] [<c0106c23>]
+Code: 8b 44 81 18 89 41 14 03 59 0c 83 f8 ff 75 16 8b 41 04 8b 11
 
-- - --- cmpci-5.64.c	Fri Jan 25 06:51:33 2002
-+++ cmpci.c	Fri Jan 25 05:55:15 2002
-@@ -1,5 +1,5 @@
-- - -/*****************************************************************************/
-- - -/*
-+/*****************************************************************************
-+ *
-  *      cmpci.c  --  C-Media PCI audio driver.
-  *
-  *      Copyright (C) 1999  ChenLi Tien (cltien@cmedia.com.tw)
-@@ -8,8 +8,8 @@
-  *      Based on the PCI drivers by Thomas Sailer (sailer@ife.ee.ethz.ch)
-  *
-  * 	For update, visit:
-- - - * 		http://members.home.net/puresoft/cmedia.html
-  * 		http://www.cmedia.com.tw
-+ *		http://www.sourceforge.net/projects/cmedia/
-  * 	
-  *      This program is free software; you can redistribute it and/or modify
-  *      it under the terms of the GNU General Public License as published by
-@@ -68,7 +68,6 @@
-  *                     Add support for modem, S/PDIF loop and 4 channels.
-  *                     (8738 only)
-  *                     Fix bug cause x11amp cannot play.
-- - - *
-  *    Fixes:
-  *    Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-  *    18/05/2001 - .bss nitpicks, fix a bug in set_dac_channels where it
-@@ -76,16 +75,24 @@
-  *    		   unlock_kernel in cm_midi_release
-  *    08/10/2001 - use set_current_state in some more places
-  *
-+ *
-  *	Carlos Eduardo Gorges <carlos@techlinux.com.br>
-  *	Fri May 25 2001 
-  *	- SMP support ( spin[un]lock* revision )
-  *	- speaker mixer support 
-  *	Mon Aug 13 2001
-  *	- optimizations and cleanups
-+ *	Thu Jan 24 2002
-+ *	- sync w/ last C-media driver ( 5.68 )
-+ * 	- better mixer stuff
-+ *	- reference for cmpci driver at sourceforge
-+ *	- change version to 5.68LK-SMP
-+ *	- spin[un]lock*'s use reviewed again
-  *
-- - - */
-- - -/*****************************************************************************/
-+ *****************************************************************************/
-       
-+#define EXPORT_SYMTAB
-+
- #include <linux/version.h>
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -106,133 +113,153 @@
- #include <linux/smp_lock.h>
- #include <asm/uaccess.h>
- #include <asm/hardirq.h>
-- - -#include <linux/bitops.h>
- 
- #include "dm.h"
- 
-+#define __CMVERSION__	"5.68LK-SMP"	/* version */
-+#define NR_DEVICE	 5		/* maximum number of devices */
-+
-+/* supported devices */
-+#if 0
-+#define PCI_VENDOR_ID_CMEDIA            0x13f6
-+#define PCI_DEVICE_ID_CMEDIA_CM8338A    0x0100
-+#define PCI_DEVICE_ID_CMEDIA_CM8338B    0x0101
-+#define PCI_DEVICE_ID_CMEDIA_CM8738     0x0111
-+#define PCI_DEVICE_ID_CMEDIA_CM8738B    0x0112
-+#endif
-+
- /* --------------------------------------------------------------------- */
-+
- #undef OSS_DOCUMENTED_MIXER_SEMANTICS
- #undef DMABYTEIO
-+
- /* --------------------------------------------------------------------- */
- 
- #define CM_MAGIC  ((PCI_VENDOR_ID_CMEDIA<<16)|PCI_DEVICE_ID_CMEDIA_CM8338A)
-+#define UCHAR	unsigned char
- 
-- - -/* CM8338 registers definition ****************/
-- - -
-- - -#define CODEC_CMI_FUNCTRL0		(0x00)
-- - -#define CODEC_CMI_FUNCTRL1		(0x04)
-- - -#define CODEC_CMI_CHFORMAT		(0x08)
-- - -#define CODEC_CMI_INT_HLDCLR		(0x0C)
-- - -#define CODEC_CMI_INT_STATUS		(0x10)
-- - -#define CODEC_CMI_LEGACY_CTRL		(0x14)
-- - -#define CODEC_CMI_MISC_CTRL		(0x18)
-- - -#define CODEC_CMI_TDMA_POS		(0x1C)
-- - -#define CODEC_CMI_MIXER			(0x20)
-- - -#define CODEC_SB16_DATA			(0x22)
-- - -#define CODEC_SB16_ADDR			(0x23)
-- - -#define CODEC_CMI_MIXER1		(0x24)
-- - -#define CODEC_CMI_MIXER2		(0x25)
-- - -#define CODEC_CMI_AUX_VOL		(0x26)
-- - -#define CODEC_CMI_MISC			(0x27)
-- - -#define CODEC_CMI_AC97			(0x28)
-- - -
-- - -#define CODEC_CMI_CH0_FRAME1		(0x80)
-- - -#define CODEC_CMI_CH0_FRAME2		(0x84)
-- - -#define CODEC_CMI_CH1_FRAME1		(0x88)
-- - -#define CODEC_CMI_CH1_FRAME2		(0x8C)
-- - -
-- - -#define CODEC_CMI_EXT_REG		(0xF0)
-- - -
-- - -/*  Mixer registers for SB16 ******************/
-- - -
-- - -#define DSP_MIX_DATARESETIDX		((unsigned char)(0x00))
-- - -
-- - -#define DSP_MIX_MASTERVOLIDX_L		((unsigned char)(0x30))
-- - -#define DSP_MIX_MASTERVOLIDX_R		((unsigned char)(0x31))
-- - -#define DSP_MIX_VOICEVOLIDX_L		((unsigned char)(0x32))
-- - -#define DSP_MIX_VOICEVOLIDX_R		((unsigned char)(0x33))
-- - -#define DSP_MIX_FMVOLIDX_L		((unsigned char)(0x34))
-- - -#define DSP_MIX_FMVOLIDX_R		((unsigned char)(0x35))
-- - -#define DSP_MIX_CDVOLIDX_L		((unsigned char)(0x36))
-- - -#define DSP_MIX_CDVOLIDX_R		((unsigned char)(0x37))
-- - -#define DSP_MIX_LINEVOLIDX_L		((unsigned char)(0x38))
-- - -#define DSP_MIX_LINEVOLIDX_R		((unsigned char)(0x39))
-- - -
-- - -#define DSP_MIX_MICVOLIDX		((unsigned char)(0x3A))
-- - -#define DSP_MIX_SPKRVOLIDX		((unsigned char)(0x3B))
-- - -
-- - -#define DSP_MIX_OUTMIXIDX		((unsigned char)(0x3C))
-- - -
-- - -#define DSP_MIX_ADCMIXIDX_L		((unsigned char)(0x3D))
-- - -#define DSP_MIX_ADCMIXIDX_R		((unsigned char)(0x3E))
-- - -
-- - -#define DSP_MIX_INGAINIDX_L		((unsigned char)(0x3F))
-- - -#define DSP_MIX_INGAINIDX_R		((unsigned char)(0x40))
-- - -#define DSP_MIX_OUTGAINIDX_L		((unsigned char)(0x41))
-- - -#define DSP_MIX_OUTGAINIDX_R		((unsigned char)(0x42))
-- - -
-- - -#define DSP_MIX_AGCIDX			((unsigned char)(0x43))
-- - -
-- - -#define DSP_MIX_TREBLEIDX_L		((unsigned char)(0x44))
-- - -#define DSP_MIX_TREBLEIDX_R		((unsigned char)(0x45))
-- - -#define DSP_MIX_BASSIDX_L		((unsigned char)(0x46))
-- - -#define DSP_MIX_BASSIDX_R		((unsigned char)(0x47))
-- - -
-- - -#define CM_CH0_RESET			0x04
-- - -#define CM_CH1_RESET			0x08
-- - -#define CM_EXTENT_CODEC			0x100
-- - -#define CM_EXTENT_MIDI			0x2
-- - -#define CM_EXTENT_SYNTH			0x4
-- - -#define CM_INT_CH0			1
-- - -#define CM_INT_CH1			2
-- - -
-- - -#define CM_CFMT_STEREO			0x01
-- - -#define CM_CFMT_16BIT			0x02
-- - -#define CM_CFMT_MASK			0x03
-- - -#define CM_CFMT_DACSHIFT		2
-- - -#define CM_CFMT_ADCSHIFT		0
-- - -
-- - -static const unsigned sample_shift[]	= { 0, 1, 1, 2 };
-- - -
-- - -#define CM_ENABLE_CH1      0x2
-- - -#define CM_ENABLE_CH0      0x1
-- - -
-- - -/* MIDI buffer sizes **************************/
-- - -
-- - -#define MIDIINBUF  256
-- - -#define MIDIOUTBUF 256
-- - -
-- - -#define FMODE_MIDI_SHIFT 2
-- - -#define FMODE_MIDI_READ  (FMODE_READ << FMODE_MIDI_SHIFT)
-- - -#define FMODE_MIDI_WRITE (FMODE_WRITE << FMODE_MIDI_SHIFT)
-+/* CM8338 registers definition */
- 
-- - -#define FMODE_DMFM 0x10
-+#define CODEC_CMI_FUNCTRL0      (0x00)
-+#define CODEC_CMI_FUNCTRL1      (0x04)
-+#define CODEC_CMI_CHFORMAT      (0x08)
-+#define CODEC_CMI_INT_HLDCLR    (0x0C)
-+#define CODEC_CMI_INT_STATUS    (0x10)
-+#define CODEC_CMI_LEGACY_CTRL   (0x14)
-+#define CODEC_CMI_MISC_CTRL     (0x18)
-+#define CODEC_CMI_TDMA_POS      (0x1C)
-+#define CODEC_CMI_MIXER         (0x20)
-+#define CODEC_SB16_DATA         (0x22)
-+#define CODEC_SB16_ADDR         (0x23)
-+#define CODEC_CMI_MIXER1        (0x24)
-+#define CODEC_CMI_MIXER2        (0x25)
-+#define CODEC_CMI_AUX_VOL       (0x26)
-+#define CODEC_CMI_MISC          (0x27)
-+#define CODEC_CMI_AC97          (0x28)
-+
-+#define CODEC_CMI_CH0_FRAME1    (0x80)
-+#define CODEC_CMI_CH0_FRAME2    (0x84)
-+#define CODEC_CMI_CH1_FRAME1    (0x88)
-+#define CODEC_CMI_CH1_FRAME2    (0x8C)
-+
-+#define CODEC_CMI_EXT_REG       (0xF0)
-+
-+/*  Mixer registers for SB16 */
-+
-+#define DSP_MIX_DATARESETIDX    ((UCHAR)(0x00))
-+
-+#define DSP_MIX_MASTERVOLIDX_L  ((UCHAR)(0x30))
-+#define DSP_MIX_MASTERVOLIDX_R  ((UCHAR)(0x31))
-+#define DSP_MIX_VOICEVOLIDX_L   ((UCHAR)(0x32))
-+#define DSP_MIX_VOICEVOLIDX_R   ((UCHAR)(0x33))
-+#define DSP_MIX_FMVOLIDX_L      ((UCHAR)(0x34))
-+#define DSP_MIX_FMVOLIDX_R      ((UCHAR)(0x35))
-+#define DSP_MIX_CDVOLIDX_L      ((UCHAR)(0x36))
-+#define DSP_MIX_CDVOLIDX_R      ((UCHAR)(0x37))
-+#define DSP_MIX_LINEVOLIDX_L    ((UCHAR)(0x38))
-+#define DSP_MIX_LINEVOLIDX_R    ((UCHAR)(0x39))
-+
-+#define DSP_MIX_MICVOLIDX       ((UCHAR)(0x3A))
-+#define DSP_MIX_SPKRVOLIDX      ((UCHAR)(0x3B))
-+
-+#define DSP_MIX_OUTMIXIDX       ((UCHAR)(0x3C))
-+
-+#define DSP_MIX_ADCMIXIDX_L     ((UCHAR)(0x3D))
-+#define DSP_MIX_ADCMIXIDX_R     ((UCHAR)(0x3E))
-+
-+#define DSP_MIX_INGAINIDX_L     ((UCHAR)(0x3F))
-+#define DSP_MIX_INGAINIDX_R     ((UCHAR)(0x40))
-+#define DSP_MIX_OUTGAINIDX_L    ((UCHAR)(0x41))
-+#define DSP_MIX_OUTGAINIDX_R    ((UCHAR)(0x42))
-+
-+#define DSP_MIX_AGCIDX          ((UCHAR)(0x43))
-+
-+#define DSP_MIX_TREBLEIDX_L     ((UCHAR)(0x44))
-+#define DSP_MIX_TREBLEIDX_R     ((UCHAR)(0x45))
-+#define DSP_MIX_BASSIDX_L       ((UCHAR)(0x46))
-+#define DSP_MIX_BASSIDX_R       ((UCHAR)(0x47))
-+// pseudo register for AUX
-+#define	DSP_MIX_AUXVOL_L	((UCHAR)(0x50))
-+#define	DSP_MIX_AUXVOL_R	((UCHAR)(0x51))
-+#define CM_CH0_RESET	 	0x04
-+#define CM_CH1_RESET	  	0x08
-+#define CM_EXTENT_CODEC	  	0x100
-+#define CM_EXTENT_MIDI	  	0x2
-+#define CM_EXTENT_SYNTH	  	0x4
-+#define CM_INT_CH0	  	1
-+#define CM_INT_CH1	  	2
-+
-+#define CM_CFMT_STEREO     	0x01
-+#define CM_CFMT_16BIT      	0x02
-+#define CM_CFMT_MASK       	0x03
-+#define CM_CFMT_DACSHIFT   	2
-+#define CM_CFMT_ADCSHIFT   	0
-+
-+static const unsigned sample_shift[] = { 0, 1, 1, 2 };
-+
-+#define CM_ENABLE_CH1      	0x2
-+#define CM_ENABLE_CH0      	0x1
-+
-+/* MIDI buffer sizes */
-+
-+#define MIDIINBUF  		256
-+#define MIDIOUTBUF 		256
-+
-+#define FMODE_MIDI_SHIFT 	2
-+#define FMODE_MIDI_READ  	(FMODE_READ << FMODE_MIDI_SHIFT)
-+#define FMODE_MIDI_WRITE 	(FMODE_WRITE << FMODE_MIDI_SHIFT)
- 
-- - -#define SND_DEV_DSP16   5 
-+#define FMODE_DMFM 		0x10
- 
-- - -#define NR_DEVICE 3		/* maximum number of devices */
-+#define SND_DEV_DSP16   	5 
- 
-- - -/*********************************************/
-+/* --------------------------------------------------------------------- */
- 
- struct cm_state {
-- - -	unsigned int magic;		/* magic */
-- - -	struct cm_state *next;		/* we keep cm cards in a linked list */
-+	/* magic */
-+	unsigned int magic;
- 
-- - -	int dev_audio;			/* soundcore stuff */
-+	/* we keep cm cards in a linked list */
-+	struct cm_state *next;
-+
-+	/* soundcore stuff */
-+	int dev_audio;
- 	int dev_mixer;
- 	int dev_midi;
- 	int dev_dmfm;
- 
-- - -	unsigned int iosb, iobase, iosynth,
-- - -			 iomidi, iogame, irq;	/* hardware resources */
-- - -	unsigned short deviceid;		/* pci_id */
-+	/* hardware resources */
-+	unsigned int iosb, iobase, iosynth, iomidi, iogame, irq;
-+	unsigned short deviceid;
- 
-- - -        struct {				/* mixer stuff */
-+        /* mixer stuff */
-+        struct {
-                 unsigned int modcnt;
- 		unsigned short vol[13];
-         } mix;
- 
-- - -	unsigned int rateadc, ratedac;		/* wave stuff */
-+	/* wave stuff */
-+	unsigned int rateadc, ratedac;
- 	unsigned char fmt, enable;
- 
- 	spinlock_t lock;
-@@ -249,15 +276,16 @@
- 		unsigned hwptr, swptr;
- 		unsigned total_bytes;
- 		int count;
-- - -		unsigned error;		/* over/underrun */
-+		unsigned error; /* over/underrun */
- 		wait_queue_head_t wait;
-- - -		
-- - -		unsigned fragsize;	/* redundant, but makes calculations easier */
-+
-+		/* redundant, but makes calculations easier */
-+		unsigned fragsize;
- 		unsigned dmasize;
- 		unsigned fragsamples;
- 		unsigned dmasamples;
-- - -		
-- - -		unsigned mapped:1;	/* OSS stuff */
-+		/* OSS stuff */
-+		unsigned mapped:1;
- 		unsigned ready:1;
- 		unsigned endcleared:1;
- 		unsigned ossfragshift;
-@@ -265,37 +293,41 @@
- 		unsigned subdivision;
- 	} dma_dac, dma_adc;
- 
-- - -	struct {			/* midi stuff */
-+	/* midi stuff */
-+	struct {
- 		unsigned ird, iwr, icnt;
- 		unsigned ord, owr, ocnt;
- 		wait_queue_head_t iwait;
- 		wait_queue_head_t owait;
-+
- 		struct timer_list timer;
- 		unsigned char ibuf[MIDIINBUF];
- 		unsigned char obuf[MIDIOUTBUF];
- 	} midi;
- 	
-- - -	int	chip_version;		
-+	/* misc stuff */
-+	int	modem;
-+	int	chip_version;
- 	int	max_channels;
-- - -	int	curr_channels;		
-- - -	int	speakers;		/* number of speakers */
-- - -	int	capability;		/* HW capability, various for chip versions */
-- - -
-- - -	int	status;			/* HW or SW state */
-+	int	curr_channels;
-+	int	speakers;	// number of speakers
-+	int	capability;	// HW capability, various for chip versions
-+	int	status;		// HW or SW state
- 	
-- - -	int	spdif_counter;		/* spdif frame counter */
-+	/* spdif frame counter */
-+	int	spdif_counter;
- };
- 
- /* flags used for capability */
-- - -#define	CAN_AC3_HW		0x00000001		/* 037 or later */
-- - -#define	CAN_AC3_SW		0x00000002		/* 033 or later */
-+#define	CAN_AC3_HW		0x00000001	// 037 or later
-+#define	CAN_AC3_SW		0x00000002	// 033 or later
- #define	CAN_AC3			(CAN_AC3_HW | CAN_AC3_SW)
-- - -#define CAN_DUAL_DAC		0x00000004		/* 033 or later */
-- - -#define	CAN_MULTI_CH_HW		0x00000008		/* 039 or later */
-+#define CAN_DUAL_DAC		0x00000004	// 033 or later
-+#define	CAN_MULTI_CH_HW		0x00000008	// 039 or later
- #define	CAN_MULTI_CH		(CAN_MULTI_CH_HW | CAN_DUAL_DAC)
-- - -#define	CAN_LINE_AS_REAR	0x00000010		/* 033 or later */
-- - -#define	CAN_LINE_AS_BASS	0x00000020		/* 039 or later */
-- - -#define	CAN_MIC_AS_BASS		0x00000040		/* 039 or later */
-+#define	CAN_LINE_AS_REAR	0x00000010	// 033 or later
-+#define	CAN_LINE_AS_BASS	0x00000020	// 039 or later
-+#define	CAN_MIC_AS_BASS		0x00000040	// 039 or later
- 
- /* flags used for status */
- #define	DO_AC3_HW		0x00000001
-@@ -304,25 +336,26 @@
- #define	DO_DUAL_DAC		0x00000004
- #define	DO_MULTI_CH_HW		0x00000008
- #define	DO_MULTI_CH		(DO_MULTI_CH_HW | DO_DUAL_DAC)
-- - -#define	DO_LINE_AS_REAR		0x00000010		/* 033 or later */
-- - -#define	DO_LINE_AS_BASS		0x00000020		/* 039 or later */
-- - -#define	DO_MIC_AS_BASS		0x00000040		/* 039 or later */
-+#define	DO_LINE_AS_REAR		0x00000010	// 033 or later
-+#define	DO_LINE_AS_BASS		0x00000020	// 039 or later
-+#define	DO_MIC_AS_BASS		0x00000040	// 039 or later
- #define	DO_SPDIF_OUT		0x00000100
- #define	DO_SPDIF_IN		0x00000200
- #define	DO_SPDIF_LOOP		0x00000400
- 
-- - -static struct cm_state *devs;
-- - -static unsigned long wavetable_mem;
-+/* --------------------------------------------------------------------- */
-+
-+static struct cm_state *devs = NULL;
-+static unsigned long wavetable_mem = 0;
- 
- /* --------------------------------------------------------------------- */
- 
-- - -static inline unsigned ld2(unsigned int x)
-+extern __inline__ unsigned ld2(unsigned int x)
- {
- 	unsigned exp=16,l=5,r=0;
- 	static const unsigned num[]={0x2,0x4,0x10,0x100,0x10000};
-- - -
-- - -	/* num: 2, 4, 16, 256, 65536 */
-- - -	/* exp: 1, 2,  4,   8,    16 */
-+	/* num: 2, 4, 16, 256, 65536
-+	   exp: 1, 2,  4,   8,    16 */
- 	
- 	while(l--) {
- 		if( x >= num[l] ) {
-@@ -331,12 +364,15 @@
- 		}
- 		exp>>=1;
- 	}
-- - -
- 	return r;
- }
- 
- /* --------------------------------------------------------------------- */
- 
-+/*
-+ * Why use byte IO? Nobody knows, but S3 does it also in their Windows driver.
-+ */
-+
- static void maskb(unsigned int addr, unsigned int mask, unsigned int value)
- {
- 	outb((inb(addr) & mask) | value, addr);
-@@ -352,7 +388,7 @@
- 	outl((inl(addr) & mask) | value, addr);
- }
- 
-- - -static void set_dmadac1(struct cm_state *s, unsigned int addr, unsigned int count)
-+static void __set_dmadac1(struct cm_state *s, unsigned int addr, unsigned int count)
- {
- 	if (addr)
- 	    outl(addr, s->iobase + CODEC_CMI_CH0_FRAME1);
-@@ -360,60 +396,92 @@
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~1, 0);
- }
- 
-- - -static void set_dmaadc(struct cm_state *s, unsigned int addr, unsigned int count)
-+static void __set_dmaadc(struct cm_state *s, unsigned int addr, unsigned int count)
- {
- 	outl(addr, s->iobase + CODEC_CMI_CH0_FRAME1);
- 	outw(count - 1, s->iobase + CODEC_CMI_CH0_FRAME2);
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, 1);
- }
- 
-- - -static void set_dmadac(struct cm_state *s, unsigned int addr, unsigned int count)
-+static void __set_dmadac(struct cm_state *s, unsigned int addr, unsigned int count)
- {
- 	outl(addr, s->iobase + CODEC_CMI_CH1_FRAME1);
- 	outw(count - 1, s->iobase + CODEC_CMI_CH1_FRAME2);
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~2, 0);
- 	if (s->status & DO_DUAL_DAC)
-- - -		set_dmadac1(s, 0, count);
-+		__set_dmadac1(s, 0, count);
- }
- 
-- - -static void set_countadc(struct cm_state *s, unsigned count)
-+static void __set_countadc(struct cm_state *s, unsigned count)
- {
- 	outw(count - 1, s->iobase + CODEC_CMI_CH0_FRAME2 + 2);
- }
- 
-- - -static void set_countdac(struct cm_state *s, unsigned count)
-+static void __set_countdac(struct cm_state *s, unsigned count)
- {
- 	outw(count - 1, s->iobase + CODEC_CMI_CH1_FRAME2 + 2);
- 	if (s->status & DO_DUAL_DAC)
-- - -	    set_countadc(s, count);
-+	    __set_countadc(s, count);
- }
- 
-- - -static inline unsigned get_dmadac(struct cm_state *s)
-+extern __inline__ unsigned get_dmadac(struct cm_state *s)
- {
- 	unsigned int curr_addr;
- 
- 	curr_addr = inw(s->iobase + CODEC_CMI_CH1_FRAME2) + 1;
- 	curr_addr <<= sample_shift[(s->fmt >> CM_CFMT_DACSHIFT) & CM_CFMT_MASK];
- 	curr_addr = s->dma_dac.dmasize - curr_addr;
-- - -
- 	return curr_addr;
- }
- 
-- - -static inline unsigned get_dmaadc(struct cm_state *s)
-+extern __inline__ unsigned get_dmaadc(struct cm_state *s)
- {
- 	unsigned int curr_addr;
- 
- 	curr_addr = inw(s->iobase + CODEC_CMI_CH0_FRAME2) + 1;
- 	curr_addr <<= sample_shift[(s->fmt >> CM_CFMT_ADCSHIFT) & CM_CFMT_MASK];
- 	curr_addr = s->dma_adc.dmasize - curr_addr;
-- - -
- 	return curr_addr;
- }
- 
- static void wrmixer(struct cm_state *s, unsigned char idx, unsigned char data)
- {
-+	unsigned char regval, pseudo;
-+
-+	// pseudo register
-+	if (idx == DSP_MIX_AUXVOL_L) {
-+		data >>= 4;
-+		data &= 0x0f;
-+		regval = inb(s->iobase + CODEC_CMI_AUX_VOL) & ~0x0f;
-+		outb(regval | data, s->iobase + CODEC_CMI_AUX_VOL);
-+		return;
-+	}
-+	if (idx == DSP_MIX_AUXVOL_R) {
-+		data &= 0xf0;
-+		regval = inb(s->iobase + CODEC_CMI_AUX_VOL) & ~0xf0;
-+		outb(regval | data, s->iobase + CODEC_CMI_AUX_VOL);
-+		return;
-+	}
- 	outb(idx, s->iobase + CODEC_SB16_ADDR);
- 	udelay(10);
-+	// pseudo bits
-+	if (idx == DSP_MIX_OUTMIXIDX) {
-+		pseudo = data & ~0x1f;
-+		pseudo >>= 1;	
-+		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x30;
-+		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
-+	}
-+	if (idx == DSP_MIX_ADCMIXIDX_L) {
-+		pseudo = data & 0x80;
-+		pseudo >>= 1;
-+		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x40;
-+		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
-+	}
-+	if (idx == DSP_MIX_ADCMIXIDX_R) {
-+		pseudo = data & 0x80;
-+		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x80;
-+		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
-+	}
- 	outb(data, s->iobase + CODEC_SB16_DATA);
- 	udelay(10);
- }
-@@ -421,21 +489,43 @@
- static unsigned char rdmixer(struct cm_state *s, unsigned char idx)
- {
- 	unsigned char v;
-- - -	unsigned long flags;
-- - -	
-- - -	spin_lock_irqsave(&s->lock, flags);
-+	unsigned char pseudo;
-+
-+	// pseudo register
-+	if (idx == DSP_MIX_AUXVOL_L) {
-+		v = inb(s->iobase + CODEC_CMI_AUX_VOL) & 0x0f;
-+		v <<= 4;
-+		return v;
-+	}
-+	if (idx == DSP_MIX_AUXVOL_L) {
-+		v = inb(s->iobase + CODEC_CMI_AUX_VOL) & 0xf0;
-+		return v;
-+	}
- 	outb(idx, s->iobase + CODEC_SB16_ADDR);
- 	udelay(10);
- 	v = inb(s->iobase + CODEC_SB16_DATA);
- 	udelay(10);
-- - -	spin_unlock_irqrestore(&s->lock, flags);
-+	// pseudo bits
-+	if (idx == DSP_MIX_OUTMIXIDX) {
-+		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x30;
-+		pseudo <<= 1;
-+		v |= pseudo;
-+	}
-+	if (idx == DSP_MIX_ADCMIXIDX_L) {
-+		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x40;
-+		pseudo <<= 1;
-+		v |= pseudo;
-+	}
-+	if (idx == DSP_MIX_ADCMIXIDX_R) {
-+		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x80;
-+		v |= pseudo;
-+	}
- 	return v;
- }
- 
-- - -static void set_fmt_unlocked(struct cm_state *s, unsigned char mask, unsigned char data)
-+static void __set_fmt(struct cm_state *s, unsigned char mask, unsigned char data)
- {
-- - -	if (mask)
-- - -	{
-+	if (mask) {
- 		s->fmt = inb(s->iobase + CODEC_CMI_CHFORMAT);
- 		udelay(10);
- 	}
-@@ -449,7 +539,7 @@
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	set_fmt_unlocked(s,mask,data);
-+	__set_fmt(s,mask,data);	
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
-@@ -478,7 +568,7 @@
- 	{ 48000,	(44100 + 48000) / 2,	48000,			7 }
- };
- 
-- - -static void set_spdifout_unlocked(struct cm_state *s, unsigned rate)
-+static void __set_spdifout(struct cm_state *s, unsigned rate)
- {
- 	if (rate == 48000 || rate == 44100) {
- 		// SPDIFI48K SPDF_ACc97
-@@ -505,7 +595,7 @@
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	set_spdifout_unlocked(s,rate);
-+	__set_spdifout(s, rate);
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
-@@ -525,8 +615,9 @@
- 	return parity & 1;
- }
- 
-- - -static void set_ac3_unlocked(struct cm_state *s, unsigned rate)
-+static void __set_ac3(struct cm_state *s, unsigned rate)
- {
-+	__set_spdifout(s, rate);
- 	/* enable AC3 */
- 	if (rate == 48000 || rate == 44100) {
- 		// mute DAC
-@@ -566,7 +657,6 @@
- 		s->status &= ~DO_AC3;
- 	}
- 	s->spdif_counter = 0;
-- - -
- }
- 
- static void set_ac3(struct cm_state *s, unsigned rate)
-@@ -574,8 +664,7 @@
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	set_spdifout_unlocked(s, rate);
-- - -	set_ac3_unlocked(s,rate);
-+	__set_ac3(s, rate);
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
-@@ -606,7 +695,7 @@
- 	} while (--i);
- }
- 
-- - -static void set_adc_rate_unlocked(struct cm_state *s, unsigned rate)
-+static void __set_adc_rate(struct cm_state *s, unsigned rate)
- {
- 	unsigned char freq = 4;
- 	int	i;
-@@ -624,38 +713,20 @@
- 	}
- 	s->rateadc = rate;
- 	freq <<= 2;
-- - -
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0x1c, freq);
- }
- 
- static void set_adc_rate(struct cm_state *s, unsigned rate)
- {
- 	unsigned long flags;
-- - -	unsigned char freq = 4;
-- - -	int	i;
-- - -
-- - -	if (rate > 48000)
-- - -		rate = 48000;
-- - -	if (rate < 8000)
-- - -		rate = 8000;
-- - -	for (i = 0; i < sizeof(rate_lookup) / sizeof(rate_lookup[0]); i++) {
-- - -		if (rate > rate_lookup[i].lower && rate <= rate_lookup[i].upper) {
-- - -			rate = rate_lookup[i].rate;
-- - -			freq = rate_lookup[i].freq;
-- - -			break;
-- - -	    	}
-- - -	}
-- - -	s->rateadc = rate;
-- - -	freq <<= 2;
-- - -
-+	
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0x1c, freq);
-+	__set_adc_rate(s, rate);
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
-- - -static void set_dac_rate(struct cm_state *s, unsigned rate)
-+static void __set_dac_rate(struct cm_state *s, unsigned rate)
- {
-- - -	unsigned long flags;
- 	unsigned char freq = 4;
- 	int	i;
- 
-@@ -673,18 +744,14 @@
- 	s->ratedac = rate;
- 	freq <<= 5;
- 
-- - -	spin_lock_irqsave(&s->lock, flags);
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0xe0, freq);
-- - -
-- - -
- 	if (s->curr_channels <=  2)
-- - -		set_spdifout_unlocked(s, rate);
-+		__set_spdifout(s, rate);
- 	if (s->status & DO_DUAL_DAC)
-- - -		set_adc_rate_unlocked(s, rate);
-- - -
-- - -	spin_unlock_irqrestore(&s->lock, flags);
-+		__set_adc_rate(s, rate);
- }
- 
-+
- /* --------------------------------------------------------------------- */
- static inline void reset_adc(struct cm_state *s)
- {
-@@ -692,13 +759,16 @@
- 	outb(s->enable | CM_CH0_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
- 	udelay(10);
- 	outb(s->enable & ~CM_CH0_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
-+	udelay(10);
- }
- 
- static inline void reset_dac(struct cm_state *s)
- {
- 	/* reset bus master */
- 	outb(s->enable | CM_CH1_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
-+	udelay(10);
- 	outb(s->enable & ~CM_CH1_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
-+	udelay(10);
- 	if (s->status & DO_DUAL_DAC)
- 		reset_adc(s);
- }
-@@ -715,7 +785,7 @@
- 		pause_adc(s);
- }
- 
-- - -static inline void disable_adc(struct cm_state *s)
-+extern inline void disable_adc(struct cm_state *s)
- {
- 	/* disable channel */
- 	s->enable &= ~CM_ENABLE_CH0;
-@@ -723,7 +793,7 @@
- 	reset_adc(s);
- }
- 
-- - -static inline void disable_dac(struct cm_state *s)
-+extern inline void __disable_dac(struct cm_state *s)
- {
- 	/* disable channel */
- 	s->enable &= ~CM_ENABLE_CH1;
-@@ -733,7 +803,7 @@
- 		disable_adc(s);
- }
- 
-- - -static inline void enable_adc(struct cm_state *s)
-+extern inline void __enable_adc(struct cm_state *s)
- {
- 	if (!(s->enable & CM_ENABLE_CH0)) {
- 		/* enable channel */
-@@ -743,7 +813,7 @@
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~4, 0);
- }
- 
-- - -static inline void enable_dac_unlocked(struct cm_state *s)
-+extern inline void __enable_dac(struct cm_state *s)
- {
- 	if (!(s->enable & CM_ENABLE_CH1)) {
- 		/* enable channel */
-@@ -751,21 +821,11 @@
- 		outb(s->enable, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
- 	}
- 	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~8, 0);
-- - -
- 	if (s->status & DO_DUAL_DAC)
-- - -		enable_adc(s);
-+		__enable_adc(s);
- }
- 
-- - -static inline void enable_dac(struct cm_state *s)
-- - -{
-- - -	unsigned long flags;
-- - -
-- - -	spin_lock_irqsave(&s->lock, flags);
-- - -	enable_dac_unlocked(s);
-- - -	spin_unlock_irqrestore(&s->lock, flags);
-- - -}
-- - -
-- - -static inline void stop_adc_unlocked(struct cm_state *s)
-+extern inline void __stop_adc(struct cm_state *s)
- {
- 	if (s->enable & CM_ENABLE_CH0) {
- 		/* disable interrupt */
-@@ -774,73 +834,73 @@
- 	}
- }
- 
-- - -static inline void stop_adc(struct cm_state *s)
-+extern inline void stop_adc(struct cm_state *s)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	stop_adc_unlocked(s);
-+	__stop_adc(s);
- 	spin_unlock_irqrestore(&s->lock, flags);
-- - -
- }
- 
-- - -static inline void stop_dac_unlocked(struct cm_state *s)
-+extern inline void __stop_dac(struct cm_state *s)
- {
- 	if (s->enable & CM_ENABLE_CH1) {
- 		/* disable interrupt */
- 		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~2, 0);
-- - -		disable_dac(s);
-+		__disable_dac(s);
- 	}
- 	if (s->status & DO_DUAL_DAC)
-- - -		stop_adc_unlocked(s);
-+		__stop_adc(s);
- }
- 
-- - -static inline void stop_dac(struct cm_state *s)
-+extern inline void stop_dac(struct cm_state *s)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	stop_dac_unlocked(s);
-+	__stop_dac(s);
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
-- - -static void start_adc_unlocked(struct cm_state *s)
-+static void __start_adc(struct cm_state *s)
- {
- 	if ((s->dma_adc.mapped || s->dma_adc.count < (signed)(s->dma_adc.dmasize - 2*s->dma_adc.fragsize))
- 	    && s->dma_adc.ready) {
- 		/* enable interrupt */
- 		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 1);
-- - -		enable_adc(s);
-+		__enable_adc(s);
- 	}
-- - -}
-+
-+}	
- 
- static void start_adc(struct cm_state *s)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	start_adc_unlocked(s);
-+	__start_adc(s);
- 	spin_unlock_irqrestore(&s->lock, flags);
-- - -}	
-+}
- 
-- - -static void start_dac1_unlocked(struct cm_state *s)
-+static void __start_dac1(struct cm_state *s)
- {
- 	if ((s->dma_adc.mapped || s->dma_adc.count > 0) && s->dma_adc.ready) {
- 		/* enable interrupt */
- //		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 1);
-- - - 		enable_dac_unlocked(s);
-+		__enable_dac(s);
- 	}
- }
- 
-- - -static void start_dac_unlocked(struct cm_state *s)
-+static void __start_dac(struct cm_state *s)
- {
- 	if ((s->dma_dac.mapped || s->dma_dac.count > 0) && s->dma_dac.ready) {
- 		/* enable interrupt */
- 		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 2);
-- - -		enable_dac_unlocked(s);
-+		__enable_dac(s);
- 	}
-- - -		if (s->status & DO_DUAL_DAC)
-- - -			start_dac1_unlocked(s);
-+	if (s->status & DO_DUAL_DAC)
-+		__start_dac1(s);
- }
- 
- static void start_dac(struct cm_state *s)
-@@ -848,20 +908,18 @@
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&s->lock, flags);
-- - -	start_dac_unlocked(s);
-+	__start_dac(s);
- 	spin_unlock_irqrestore(&s->lock, flags);
-- - -}	
-+}
- 
- static int prog_dmabuf(struct cm_state *s, unsigned rec);
-+static int __prog_dmabuf(struct cm_state *s, unsigned rec);
- 
-- - -static int set_dac_channels(struct cm_state *s, int channels)
-+static int __set_dac_channels(struct cm_state *s, int channels)
- {
-- - -	unsigned long flags;
-- - -	spin_lock_irqsave(&s->lock, flags);
-- - -
- 	if ((channels > 2) && (channels <= s->max_channels)
- 	 && (((s->fmt >> CM_CFMT_DACSHIFT) & CM_CFMT_MASK) == (CM_CFMT_STEREO | CM_CFMT_16BIT))) {
-- - -	    set_spdifout_unlocked(s, 0);
-+	    __set_spdifout(s, 0);
- 	    if (s->capability & CAN_MULTI_CH_HW) {
- 		// NXCHG
- 		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0, 0x80);
-@@ -881,12 +939,8 @@
- 		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 0xC0);
- 		s->status |= DO_DUAL_DAC;
- 		// prepare secondary buffer
-- - -
-- - -		spin_unlock_irqrestore(&s->lock, flags);
-- - -		ret = prog_dmabuf(s, 1);
-+		ret = __prog_dmabuf(s, 1);
- 		if (ret) return ret;
-- - -		spin_lock_irqsave(&s->lock, flags);
-- - -
- 		// copy the hw state
- 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_DACSHIFT);
- 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_ADCSHIFT);
-@@ -895,12 +949,10 @@
- 		fmts |= CM_CFMT_16BIT << CM_CFMT_ADCSHIFT;
- 		fmts |= CM_CFMT_STEREO << CM_CFMT_DACSHIFT;
- 		fmts |= CM_CFMT_STEREO << CM_CFMT_ADCSHIFT;
-- - -		
-- - -		set_fmt_unlocked(s, fmtm, fmts);
-- - -		set_adc_rate_unlocked(s, s->ratedac);
-- - -
-+		__set_fmt(s, fmtm, fmts);
-+		__set_adc_rate(s, s->ratedac);
- 	    }
-- - -
-+	    // N4SPK3D, disable 4 speaker mode (analog duplicate)
- 	    if (s->speakers > 2)
- 		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~0x04, 0);
- 	    s->curr_channels = channels;
-@@ -918,11 +970,20 @@
- 	    s->status &= ~DO_MULTI_CH;
- 	    s->curr_channels = s->fmt & (CM_CFMT_STEREO << CM_CFMT_DACSHIFT) ? 2 : 1;
- 	}
-- - -
-- - -	spin_unlock_irqrestore(&s->lock, flags);
- 	return s->curr_channels;
- }
- 
-+static int set_dac_channels(struct cm_state *s, int channels)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&s->lock, flags);
-+	ret = __set_dac_channels(s, channels);
-+	spin_unlock_irqrestore(&s->lock, flags);
-+	return ret;
-+}	
-+
- /* --------------------------------------------------------------------- */
- 
- #define DMABUF_DEFAULTORDER (16-PAGE_SHIFT)
-@@ -943,9 +1004,10 @@
- 	db->mapped = db->ready = 0;
- }
- 
-+
- /* Ch1 is used for playback, Ch0 is used for recording */
- 
-- - -static int prog_dmabuf(struct cm_state *s, unsigned rec)
-+static int __prog_dmabuf(struct cm_state *s, unsigned rec)
- {
- 	struct dmabuf *db = rec ? &s->dma_adc : &s->dma_dac;
- 	unsigned rate = rec ? s->rateadc : s->ratedac;
-@@ -954,17 +1016,15 @@
- 	unsigned bufs;
- 	struct page *pstart, *pend;
- 	unsigned char fmt;
-- - -	unsigned long flags;
- 
- 	fmt = s->fmt;
- 	if (rec) {
-- - -		stop_adc(s);
-+		__stop_adc(s);
- 		fmt >>= CM_CFMT_ADCSHIFT;
- 	} else {
-- - -		stop_dac(s);
-+		__stop_dac(s);
- 		fmt >>= CM_CFMT_DACSHIFT;
- 	}
-- - -
- 	fmt &= CM_CFMT_MASK;
- 	db->hwptr = db->swptr = db->total_bytes = db->count = db->error = db->endcleared = 0;
- 	if (!db->rawbuf) {
-@@ -1008,29 +1068,45 @@
- 	if (db->ossmaxfrags >= 4 && db->ossmaxfrags < db->numfrag)
- 		db->numfrag = db->ossmaxfrags;
-  	/* to make fragsize >= 4096 */
-+	if (s->modem) {
-+	 	while (db->fragsize < 4096 && db->numfrag >= 4) {
-+ 			db->fragsize *= 2;
-+ 			db->fragshift++;
-+ 			db->numfrag /= 2;
-+ 		}
-+	}
- 	db->fragsamples = db->fragsize >> sample_shift[fmt];
- 	db->dmasize = db->numfrag << db->fragshift;
- 	db->dmasamples = db->dmasize >> sample_shift[fmt];
- 	memset(db->rawbuf, (fmt & CM_CFMT_16BIT) ? 0 : 0x80, db->dmasize);
-- - -	spin_lock_irqsave(&s->lock, flags);
- 	if (rec) {
- 		if (s->status & DO_DUAL_DAC)
-- - -		    set_dmadac1(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
-+		    __set_dmadac1(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
- 		else
-- - -		    set_dmaadc(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
-+		    __set_dmaadc(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
- 		/* program sample counts */
-- - -		set_countdac(s, db->fragsamples);
-+		__set_countdac(s, db->fragsamples);
- 	} else {
-- - -		set_dmadac(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
-+		__set_dmadac(s, db->rawphys, db->dmasize >> sample_shift[fmt]);
- 		/* program sample counts */
-- - -		set_countdac(s, db->fragsamples);
-+		__set_countdac(s, db->fragsamples);
- 	}
-- - -	spin_unlock_irqrestore(&s->lock, flags);
- 	db->ready = 1;
- 	return 0;
- }
- 
-- - -static inline void clear_advance(struct cm_state *s)
-+static int prog_dmabuf(struct cm_state *s, unsigned rec)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&s->lock, flags);
-+	ret = __prog_dmabuf(s, rec);
-+	spin_unlock_irqrestore(&s->lock, flags);
-+	return ret;
-+}	
-+
-+extern __inline__ void clear_advance(struct cm_state *s)
- {
- 	unsigned char c = (s->fmt & (CM_CFMT_16BIT << CM_CFMT_DACSHIFT)) ? 0 : 0x80;
- 	unsigned char *buf = s->dma_dac.rawbuf;
-@@ -1231,7 +1307,10 @@
- 	[SOUND_MIXER_SYNTH]  = { DSP_MIX_FMVOLIDX_L,  	 DSP_MIX_FMVOLIDX_R,     MT_5MUTE,     0x40, 0x00 },
- 	[SOUND_MIXER_VOLUME] = { DSP_MIX_MASTERVOLIDX_L, DSP_MIX_MASTERVOLIDX_R, MT_5MUTE,     0x00, 0x00 },
- 	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 },
-- - -	[SOUND_MIXER_SPEAKER]= { DSP_MIX_SPKRVOLIDX,	 DSP_MIX_SPKRVOLIDX,	 MT_5MUTEMONO, 0x01, 0x01 }
-+	[SOUND_MIXER_LINE1]  = { DSP_MIX_AUXVOL_L,       DSP_MIX_AUXVOL_R,       MT_5MUTE,     0x80, 0x20 },
-+	[SOUND_MIXER_SPEAKER]= { DSP_MIX_SPKRVOLIDX,	 DSP_MIX_SPKRVOLIDX,	 MT_5MUTEMONO, 0x00, 0x01 },
-+	[SOUND_MIXER_TREBLE] = { DSP_MIX_TREBLEIDX_L,	 DSP_MIX_TREBLEIDX_R,	 MT_5MUTE,     0x00, 0x01 },
-+	[SOUND_MIXER_BASS]   = { DSP_MIX_BASSIDX_L,	 DSP_MIX_BASSIDX_L,	 MT_5MUTE,     0x00, 0x01 }
- };
- 
- static const unsigned char volidx[SOUND_MIXER_NRDEVICES] = 
-@@ -1242,15 +1321,34 @@
- 	[SOUND_MIXER_SYNTH]  = 4,
- 	[SOUND_MIXER_VOLUME] = 5,
- 	[SOUND_MIXER_PCM]    = 6,
-- - -	[SOUND_MIXER_SPEAKER]= 7
-+	[SOUND_MIXER_LINE1]  = 7,
-+	[SOUND_MIXER_SPEAKER]= 8,
-+	[SOUND_MIXER_TREBLE] = 9,
-+	[SOUND_MIXER_BASS]   = 10
- };
- 
-+static unsigned mixer_outmask(struct cm_state *s)
-+{
-+	unsigned long flags;
-+	int i, j, k;
-+
-+	spin_lock_irqsave(&s->lock, flags);
-+	j = rdmixer(s, DSP_MIX_OUTMIXIDX);
-+	spin_unlock_irqrestore(&s->lock, flags);
-+	for (k = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
-+		if (j & mixtable[i].play)
-+			k |= 1 << i;
-+	return k;
-+}
-+
- static unsigned mixer_recmask(struct cm_state *s)
- {
-+	unsigned long flags;
- 	int i, j, k;
- 
-+	spin_lock_irqsave(&s->lock, flags);
- 	j = rdmixer(s, DSP_MIX_ADCMIXIDX_L);
-- - -	j &= 0x7f;
-+	spin_unlock_irqrestore(&s->lock, flags);
- 	for (k = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
- 		if (j & mixtable[i].rec)
- 			k |= 1 << i;
-@@ -1291,7 +1389,7 @@
- 			return put_user(mixer_recmask(s), (int *)arg);
- 			
-                 case SOUND_MIXER_OUTSRC: /* Arg contains a bit for each recording source */
-- - -			return put_user(mixer_recmask(s), (int *)arg);//need fix
-+			return put_user(mixer_outmask(s), (int *)arg);
- 			
-                 case SOUND_MIXER_DEVMASK: /* Arg contains a bit for each supported device */
- 			for (val = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
-@@ -1348,7 +1446,7 @@
- 		}
- 		spin_lock_irqsave(&s->lock, flags);
- 		wrmixer(s, DSP_MIX_ADCMIXIDX_L, j);
-- - -		wrmixer(s, DSP_MIX_ADCMIXIDX_R, (j & 1) | (j>>1));
-+		wrmixer(s, DSP_MIX_ADCMIXIDX_R, (j & 1) | (j>>1) | (j & 0x80));
- 		spin_unlock_irqrestore(&s->lock, flags);
- 		return 0;
- 
-@@ -1365,7 +1463,7 @@
- 			j |= mixtable[i].play;
- 		}
- 		spin_lock_irqsave(&s->lock, flags);
-- - -		frobindir(s, DSP_MIX_OUTMIXIDX, 0x1f, j);
-+		wrmixer(s, DSP_MIX_OUTMIXIDX, j);
- 		spin_unlock_irqrestore(&s->lock, flags);
- 		return 0;
- 
-@@ -1428,7 +1526,6 @@
- 			break;
- 		}
- 		spin_unlock_irqrestore(&s->lock, flags);
-- - -
- 		if (!volidx[i])
- 			return -EINVAL;
- 		s->mix.vol[volidx[i]-1] = val;
-@@ -1438,6 +1535,13 @@
- 
- /* --------------------------------------------------------------------- */
- 
-+static loff_t cm_llseek(struct file *file, loff_t offset, int origin)
-+{
-+	return -ESPIPE;
-+}
-+
-+/* --------------------------------------------------------------------- */
-+
- static int cm_open_mixdev(struct inode *inode, struct file *file)
- {
- 	int minor = MINOR(inode->i_rdev);
-@@ -1467,13 +1571,12 @@
- 
- static /*const*/ struct file_operations cm_mixer_fops = {
- 	owner:		THIS_MODULE,
-- - -	llseek:		no_llseek,
-+	llseek:		cm_llseek,
- 	ioctl:		cm_ioctl_mixdev,
- 	open:		cm_open_mixdev,
- 	release:	cm_release_mixdev,
- };
- 
-- - -
- /* --------------------------------------------------------------------- */
- 
- static int drain_dac(struct cm_state *s, int nonblock)
-@@ -1543,6 +1646,7 @@
- 			cnt = count;
- 		if (cnt <= 0) {
- 			start_adc(s);
-+			udelay(10);
- 			if (file->f_flags & O_NONBLOCK)
- 				return ret ? ret : -EAGAIN;
- 			if (!interruptible_sleep_on_timeout(&s->dma_adc.wait, HZ)) {
-@@ -1550,10 +1654,10 @@
- 				       s->dma_adc.dmasize, s->dma_adc.fragsize, s->dma_adc.count,
- 				       s->dma_adc.hwptr, s->dma_adc.swptr);
- 				spin_lock_irqsave(&s->lock, flags);
-- - -				stop_adc_unlocked(s);
-- - -				set_dmaadc(s, s->dma_adc.rawphys, s->dma_adc.dmasamples);
-+				__stop_adc(s);
-+				__set_dmaadc(s, s->dma_adc.rawphys, s->dma_adc.dmasamples);
- 				/* program sample counts */
-- - -				set_countadc(s, s->dma_adc.fragsamples);
-+				__set_countadc(s, s->dma_adc.fragsamples);
- 				s->dma_adc.count = s->dma_adc.hwptr = s->dma_adc.swptr = 0;
- 				spin_unlock_irqrestore(&s->lock, flags);
- 			}
-@@ -1570,7 +1674,7 @@
- 		count -= cnt;
- 		buffer += cnt;
- 		ret += cnt;
-- - -		start_adc_unlocked(s);
-+		__start_adc(s);
- 		spin_unlock_irqrestore(&s->lock, flags);
- 	}
- 	return ret;
-@@ -1636,14 +1740,14 @@
- 				printk(KERN_DEBUG "cmpci: write: chip lockup? dmasz %u fragsz %u count %i hwptr %u swptr %u\n",
- 				       s->dma_dac.dmasize, s->dma_dac.fragsize, s->dma_dac.count,
- 				       s->dma_dac.hwptr, s->dma_dac.swptr);
-+				stop_dac(s);
- 				spin_lock_irqsave(&s->lock, flags);
-- - -				stop_dac_unlocked(s);
-- - -				set_dmadac(s, s->dma_dac.rawphys, s->dma_dac.dmasamples);
-+				__set_dmadac(s, s->dma_dac.rawphys, s->dma_dac.dmasamples);
- 				/* program sample counts */
-- - -				set_countdac(s, s->dma_dac.fragsamples);
-+				__set_countdac(s, s->dma_dac.fragsamples);
- 				s->dma_dac.count = s->dma_dac.hwptr = s->dma_dac.swptr = 0;
- 				if (s->status & DO_DUAL_DAC)  {
-- - -					set_dmadac1(s, s->dma_adc.rawphys, s->dma_adc.dmasamples);
-+					__set_dmadac1(s, s->dma_adc.rawphys, s->dma_adc.dmasamples);
- 					s->dma_adc.count = s->dma_adc.hwptr = s->dma_adc.swptr = 0;
- 				}
- 				spin_unlock_irqrestore(&s->lock, flags);
-@@ -1735,6 +1839,7 @@
- 
- 	VALIDATE_STATE(s);
- 	lock_kernel();
-+
- 	if (vma->vm_flags & VM_WRITE) {
- 		if ((ret = prog_dmabuf(s, 0)) != 0)
- 			goto out;
-@@ -1747,6 +1852,7 @@
- 		goto out;
- 	ret = -EINVAL;
- 	if (vma->vm_pgoff != 0)
-+
- 		goto out;
- 	size = vma->vm_end - vma->vm_start;
- 	if (size > (PAGE_SIZE << db->buforder))
-@@ -1757,10 +1863,12 @@
- 	db->mapped = 1;
- 	ret = 0;
- out:
-- - -	unlock_kernel();
-+	unlock_kernel();    
- 	return ret;
- }
- 
-+#define SNDCTL_SPDIF_PROTECT	      _SIOW('S',  0, int)       // set/reset S/PDIF copy protection
-+
- static int cm_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	struct cm_state *s = (struct cm_state *)file->private_data;
-@@ -1807,20 +1915,21 @@
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
- 		if (val >= 0) {
-+			spin_lock_irqsave(&s->lock, flags);
- 			if (file->f_mode & FMODE_READ) {
-- - -			 	spin_lock_irqsave(&s->lock, flags);
-- - -				stop_adc_unlocked(s);
-+				__stop_adc(s);
- 				s->dma_adc.ready = 0;
-- - -				set_adc_rate_unlocked(s, val);
-- - -				spin_unlock_irqrestore(&s->lock, flags);
-+				__set_adc_rate(s, val);
-+
- 			}
- 			if (file->f_mode & FMODE_WRITE) {
-- - -				stop_dac(s);
-+				__stop_dac(s);
- 				s->dma_dac.ready = 0;
- 				if (s->status & DO_DUAL_DAC)
- 					s->dma_adc.ready = 0;
-- - -				set_dac_rate(s, val);
-+				__set_dac_rate(s, val);
- 			}
-+			spin_unlock_irqrestore(&s->lock, flags);			
- 		}
- 		return put_user((file->f_mode & FMODE_READ) ? s->rateadc : s->ratedac, (int *)arg);
- 
-@@ -1900,11 +2009,16 @@
- 	case SNDCTL_DSP_SETFMT: /* Selects ONE fmt*/
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
-+
- 		if (val != AFMT_QUERY) {
-+			unsigned long flags;
-+			
-+			spin_lock_irqsave(&s->lock, flags);
- 			fmtd = 0;
- 			fmtm = ~0;
-+			
- 			if (file->f_mode & FMODE_READ) {
-- - -				stop_adc(s);
-+				__stop_adc(s);
- 				s->dma_adc.ready = 0;
- 				if (val == AFMT_S16_LE)
- 					fmtd |= CM_CFMT_16BIT << CM_CFMT_ADCSHIFT;
-@@ -1912,7 +2026,7 @@
- 					fmtm &= ~(CM_CFMT_16BIT << CM_CFMT_ADCSHIFT);
- 			}
- 			if (file->f_mode & FMODE_WRITE) {
-- - -				stop_dac(s);
-+				__stop_dac(s);
- 				s->dma_dac.ready = 0;
- 				if (val == AFMT_S16_LE || val == AFMT_AC3)
- 					fmtd |= CM_CFMT_16BIT << CM_CFMT_DACSHIFT;
-@@ -1920,9 +2034,9 @@
- 					fmtm &= ~(CM_CFMT_16BIT << CM_CFMT_DACSHIFT);
- 				if (val == AFMT_AC3) {
- 					fmtd |= CM_CFMT_STEREO << CM_CFMT_DACSHIFT;
-- - -					set_ac3(s, s->ratedac);
-+					__set_ac3(s, s->ratedac);
- 				} else
-- - -					set_ac3(s, 0);
-+					__set_ac3(s, 0);
- 				if (s->status & DO_DUAL_DAC) {
- 					s->dma_adc.ready = 0;
- 					if (val == AFMT_S16_LE)
-@@ -1931,7 +2045,8 @@
- 						fmtm &= ~(CM_CFMT_STEREO << CM_CFMT_ADCSHIFT);
- 				}
- 			}
-- - -			set_fmt(s, fmtm, fmtd);
-+			__set_fmt(s, fmtm, fmtd);
-+			spin_unlock_irqrestore(&s->lock, flags);
- 		}
- 		if (s->status & DO_AC3) return put_user(AFMT_AC3, (int *)arg);
- 		return put_user((s->fmt & ((file->f_mode & FMODE_READ) ? (CM_CFMT_16BIT << CM_CFMT_ADCSHIFT)
-@@ -1958,6 +2073,7 @@
- 	case SNDCTL_DSP_SETTRIGGER:
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
-+
- 		if (file->f_mode & FMODE_READ) {
- 			if (val & PCM_ENABLE_INPUT) {
- 				if (!s->dma_adc.ready && (ret =  prog_dmabuf(s, 1)))
-@@ -2069,6 +2185,7 @@
-         case SNDCTL_DSP_SETFRAGMENT:
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
-+
- 		if (file->f_mode & FMODE_READ) {
- 			s->dma_adc.ossfragshift = val & 0xffff;
- 			s->dma_adc.ossmaxfrags = (val >> 16) & 0xffff;
-@@ -2183,7 +2300,11 @@
- 	case SNDCTL_DSP_MAPOUTBUF:
-         case SNDCTL_DSP_SETSYNCRO:
-                 return -EINVAL;
-- - -		
-+        case SNDCTL_SPDIF_PROTECT:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+	        maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~0x40, val ? 0x40 : 0);
-+                return 0;
- 	}
- 	return mixer_ioctl(s, cmd, arg);
- }
-@@ -2221,13 +2342,19 @@
- 		set_adc_rate(s, 8000);
- 	}
- 	if (file->f_mode & FMODE_WRITE) {
-+		unsigned long flags;
-+		
- 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_DACSHIFT);
- 		if ((minor & 0xf) == SND_DEV_DSP16)
- 			fmts |= CM_CFMT_16BIT << CM_CFMT_DACSHIFT;
- 		s->dma_dac.ossfragshift = s->dma_dac.ossmaxfrags = s->dma_dac.subdivision = 0;
-- - -		set_dac_rate(s, 8000);
-+
-+		spin_lock_irqsave(&s->lock, flags);
-+		__set_dac_rate(s, 8000);
- 		// clear previous multichannel, spdif, ac3 state
-- - -		set_spdifout(s, 0);
-+		__set_spdifout(s, 0);
-+		spin_unlock_irqrestore(&s->lock, flags);
-+
- 		if (s->deviceid == PCI_DEVICE_ID_CMEDIA_CM8738) {
- 			set_ac3(s, 0);
- 			set_dac_channels(s, 1);
-@@ -2245,22 +2372,28 @@
- 
- 	VALIDATE_STATE(s);
- 	lock_kernel();
-+
- 	if (file->f_mode & FMODE_WRITE)
- 		drain_dac(s, file->f_flags & O_NONBLOCK);
- 	down(&s->open_sem);
- 	if (file->f_mode & FMODE_WRITE) {
-- - -		stop_dac(s);
-+		unsigned long flags;
-+		
-+		spin_lock_irqsave(&s->lock, flags);
-+		__stop_dac(s);
- 
- 		dealloc_dmabuf(&s->dma_dac);
- 		if (s->status & DO_DUAL_DAC)
- 			dealloc_dmabuf(&s->dma_adc);
- 
- 		if (s->status & DO_MULTI_CH)
-- - -			set_dac_channels(s, 0);
-+			__set_dac_channels(s, 0);
- 		if (s->status & DO_AC3)
-- - -			set_ac3(s, 0);
-+			__set_ac3(s, 0);
- 		if (s->status & DO_SPDIF_OUT)
-- - -			set_spdifout(s, 0);
-+			__set_spdifout(s, 0);
-+		
-+		spin_unlock_irqrestore(&s->lock, flags);
- 	}
- 	if (file->f_mode & FMODE_READ) {
- 		stop_adc(s);
-@@ -2275,7 +2408,7 @@
- 
- static /*const*/ struct file_operations cm_audio_fops = {
- 	owner:		THIS_MODULE,
-- - -	llseek:		no_llseek,
-+	llseek:		cm_llseek,
- 	read:		cm_read,
- 	write:		cm_write,
- 	poll:		cm_poll,
-@@ -2369,6 +2502,7 @@
- 		return 0;
- 	ret = 0;
- 	add_wait_queue(&s->midi.owait, &wait);
-+
- 	while (count > 0) {
- 		spin_lock_irqsave(&s->lock, flags);
- 		ptr = s->midi.owr;
-@@ -2524,7 +2658,6 @@
- 			if (file->f_flags & O_NONBLOCK) {
- 				remove_wait_queue(&s->midi.owait, &wait);
- 				set_current_state(TASK_RUNNING);
-- - -				unlock_kernel();
- 				return -EBUSY;
- 			}
- 			tmo = (count * HZ) / 3100;
-@@ -2554,7 +2687,7 @@
- 
- static /*const*/ struct file_operations cm_midi_fops = {
- 	owner:		THIS_MODULE,
-- - -	llseek:		no_llseek,
-+	llseek:		cm_llseek,
- 	read:		cm_midi_read,
- 	write:		cm_midi_write,
- 	poll:		cm_midi_poll,
-@@ -2657,8 +2790,10 @@
- 		outb(5, s->iosynth+2);
- 		outb(arg & 1, s->iosynth+3);
- 		return 0;
-+
-+	default:
-+		return -EINVAL;
- 	}
-- - -	return -EINVAL;
- }
- 
- static int cm_dmfm_open(struct inode *inode, struct file *file)
-@@ -2721,7 +2856,7 @@
- 
- static /*const*/ struct file_operations cm_dmfm_fops = {
- 	owner:		THIS_MODULE,
-- - -	llseek:		no_llseek,
-+	llseek:		cm_llseek,
- 	ioctl:		cm_dmfm_ioctl,
- 	open:		cm_dmfm_open,
- 	release:	cm_dmfm_release,
-@@ -2825,6 +2960,11 @@
- #else
- static	int	use_line_as_bass;
- #endif
-+#ifdef CONFIG_SOUND_CMPCI_PCTEL
-+static	int	modem = 1;
-+#else
-+static	int	modem;
-+#endif
- #ifdef CONFIG_SOUND_CMPCI_JOYSTICK
- static	int	joystick = 1;
- #else
-@@ -2837,6 +2977,7 @@
- MODULE_PARM(speakers, "i");
- MODULE_PARM(use_line_as_rear, "i");
- MODULE_PARM(use_line_as_bass, "i");
-+MODULE_PARM(modem, "i");
- MODULE_PARM(joystick, "i");
- MODULE_PARM_DESC(mpuio, "(0x330, 0x320, 0x310, 0x300) Base of MPU-401, 0 to disable");
- MODULE_PARM_DESC(fmio, "(0x388, 0x3C8, 0x3E0) Base of OPL3, 0 to disable");
-@@ -2845,15 +2986,18 @@
- MODULE_PARM_DESC(speakers, "(2-6) Number of speakers you connect");
- MODULE_PARM_DESC(use_line_as_rear, "(1/0) Use line-in jack as rear-out");
- MODULE_PARM_DESC(use_line_as_bass, "(1/0) Use line-in jack as bass/center");
-+MODULE_PARM_DESC(modem, "(1/0) Use HSP modem, still need PCTel modem driver");
- MODULE_PARM_DESC(joystick, "(1/0) Enable joystick interface, still need joystick driver");
- 
- static struct pci_device_id cmpci_pci_tbl[] = {
-- - -	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, 
-- - -	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-  	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338A, 
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338B, 
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, 
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },	  
-+	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738B, 
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ 0 }
- };
- MODULE_DEVICE_TABLE(pci, cmpci_pci_tbl);
-@@ -2863,7 +3007,9 @@
- 	struct cm_state *s;
- 	mm_segment_t fs;
- 	int i, val;
-+#ifdef CONFIG_SOUND_CMPCI_MIDI
- 	unsigned char reg_mask = 0;
-+#endif
- 	struct {
- 		unsigned short	deviceid;
- 		char		*devicename;
-@@ -2878,10 +3024,10 @@
- 	{
- 		if (pci_enable_device(pcidev))
- 			return;
-+
- 		if (pcidev->irq == 0)
- 			return;
-- - -		s = kmalloc(sizeof(*s), GFP_KERNEL);
-- - -		if (!s) {
-+		if (!(s = kmalloc(sizeof(struct cm_state), GFP_KERNEL))) {
- 			printk(KERN_WARNING "cmpci: out of memory\n");
- 			return;
- 		}
-@@ -2900,6 +3046,7 @@
- 		init_waitqueue_head(&s->midi.iwait);
- 		init_waitqueue_head(&s->midi.owait);
- 		init_MUTEX(&s->open_sem);
-+
- 		spin_lock_init(&s->lock);
- 		s->magic = CM_MAGIC;
- 		s->iobase = pci_resource_start(pcidev, 0);
-@@ -3004,7 +3151,7 @@
- 			printk(KERN_ERR "cmpci: irq %u in use\n", s->irq);
- 			goto err_irq;
- 		}
-- - -		printk(KERN_INFO "cmpci: found %s adapter at io %#06x irq %u\n",
-+		printk(KERN_INFO "cmpci: found %s adapter at io %#06x irq %u ",
- 		       devicename, s->iobase, s->irq);
- 		/* register devices */
- 		if ((s->dev_audio = register_sound_dsp(&cm_audio_fops, -1)) < 0)
-@@ -3024,7 +3171,7 @@
- 		fs = get_fs();
- 		set_fs(KERNEL_DS);
- 		/* set mixer output */
-- - -		frobindir(s, DSP_MIX_OUTMIXIDX, 0x1f, 0x1f);
-+		wrmixer(s, DSP_MIX_OUTMIXIDX, 0x7f);
- 		/* set mixer input */
- 		val = SOUND_MASK_LINE|SOUND_MASK_SYNTH|SOUND_MASK_CD|SOUND_MASK_MIC;
- 		mixer_ioctl(s, SOUND_MIXER_WRITE_RECSRC, (unsigned long)&val);
-@@ -3034,14 +3181,18 @@
- 		}
- 		/* use channel 0 for record, channel 1 for play */
- 		maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~2, 1);
-- - -		s->deviceid = pcidev->device;
- 
-+		s->deviceid = pcidev->device;
- 		if (pcidev->device == PCI_DEVICE_ID_CMEDIA_CM8738) {
-- - -
- 			/* chip version and hw capability check */
- 			s->chip_version = query_chip(s);
-- - -			printk(KERN_INFO "cmpci: chip version = 0%d\n", s->chip_version);
-- - -
-+			printk(KERN_INFO ", chip version = 0%d\n", s->chip_version);
-+			s->modem = modem;
-+			if (modem) {
-+				/* enable FLINKON and disable FLINKOFF */
-+				maskb(s->iobase + CODEC_CMI_MISC_CTRL, ~0x40, 0x80);
-+				printk(KERN_INFO "cmpci: modem function supported\n");
-+			}
- 			/* seet SPDIF-in inverse before enable SPDIF loop */
- 			if (spdif_inverse) {
- 				/* turn on spdif-in inverse */
-@@ -3128,7 +3279,7 @@
- 	if (!pci_present())   /* No PCI bus in this machine! */
- #endif
- 		return -ENODEV;
-- - -	printk(KERN_INFO "cmpci: version $Revision: 5.64 $ time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "cmpci: version $Revision: " __CMVERSION__ " $time " __TIME__ " " __DATE__ "\n");
- 
- 	while (index < NR_DEVICE && (
- 	       (pcidev = pci_find_device(PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, pcidev)))) { 
-@@ -3154,7 +3305,6 @@
- MODULE_DESCRIPTION("CM8x38 Audio Driver");
- MODULE_LICENSE("GPL");
- 
-- - -
- static void __exit cleanup_cmpci(void)
- {
- 	struct cm_state *s;
-@@ -3188,6 +3338,7 @@
- 	}
- 	if (wavetable_mem)
- 		free_pages(wavetable_mem, 20-PAGE_SHIFT);
-+
- 	printk(KERN_INFO "cmpci: unloading\n");
- }
- 
-- - --
- 
-	 _________________________
-	 Carlos E Gorges          
-	 (carlos@techlinux.com.br)
-	 Tech informática LTDA
-	 Brazil                   
-	 _________________________
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+>>EIP; c0127e1a <kmem_cache_alloc+8e/dc>   <=====
+Trace; c0141274 <get_new_inode+18/164>
+Trace; c0141542 <iget4+b6/c4>
+Trace; c0164392 <ext2_lookup+42/6c>
+Trace; c01378f8 <real_lookup+58/cc>
+Trace; c0137f7c <link_path_walk+500/734>
+Trace; c01381cc <path_walk+1c/24>
+Trace; c0135d5a <open_exec+2e/d0>
+Trace; c0136624 <do_execve+14/198>
+Trace; c0129bde <__alloc_pages+32/154>
+Trace; c012995c <_alloc_pages+18/20>
+Trace; c0120e9c <do_anonymous_page+80/a0>
+Trace; c0120eee <do_no_page+32/120>
+Trace; c012102c <handle_mm_fault+50/b4>
+Trace; c0110d58 <do_page_fault+184/4cc>
+Trace; c0110bd4 <do_page_fault+0/4cc>
+Trace; c0172d2e <tty_write+18e/1f8>
+Trace; c0137660 <getname+60/a0>
+Trace; c01058ea <sys_execve+2e/5c>
+Trace; c0106c22 <system_call+32/40>
+Code;  c0127e1a <kmem_cache_alloc+8e/dc>
+00000000 <_EIP>:
+Code;  c0127e1a <kmem_cache_alloc+8e/dc>   <=====
+  0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
+Code;  c0127e1e <kmem_cache_alloc+92/dc>
+  4:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  c0127e20 <kmem_cache_alloc+94/dc>
+  7:   03 59 0c                  add    0xc(%ecx),%ebx
+Code;  c0127e24 <kmem_cache_alloc+98/dc>
+  a:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  c0127e26 <kmem_cache_alloc+9a/dc>
+  d:   75 16                     jne    25 <_EIP+0x25> c0127e3e 
+  <kmem_cache_alloc+b2/dc>
+Code;  c0127e28 <kmem_cache_alloc+9c/dc>
+  f:   8b 41 04                  mov    0x4(%ecx),%eax
+Code;  c0127e2c <kmem_cache_alloc+a0/dc>
+ 12:   8b 11                     mov    (%ecx),%edx
+Entering kdb (current=0xc56cc000, pid 451) Oops: Oops
+due to oops @ 0xc0127e1b
+eax = 0x00ff00ff ebx = 0xde21de20 ecx = 0xc282e000 edx = 0xc1170000
+esi = 0xc11671a0 edi = 0x00000246 esp = 0xc56cdd3c eip = 0xc0127e1b
+ebp = 0xc56cdd48 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010807
+xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc56cdd08
+kdb> sr b
+<6>SysRq : Resetting
+----- End forwarded message -----
 
-iQIXAwUBPFE/OBfQA3nqPEsZFANV4ggAyyzs3bANcMf8zLJSKTSF+fBSR0w8+tv/
-1wVueUsBpb+nzaOIpicithkmjsuQbKFbJb2hss0a3orgQJi3tjf6VlcW7MeQYao4
-k7VbVhQzPXNW6ytZdTTl99v64U6ORJRKCiIq5fZbGFMaTKQUzTnriKnR1Tq1nqdA
-ARI1U4lcy4GpW8OnErpehAYWGm9JEyWzZ4JVuRfnSMp+MUGFw0/qYeargj5hfY1y
-NzVxs9XpfjQ6vC1Stae9zeZUbsVHMt2ksfZc90kyC/8Iwh38D+dO7EIpwwhEk4Ua
-nN3ghr/29s3dkCW6Y3/5YcTvoDoi506NIqZWm0TPZ34Qp760WoV3ewf+IxWvODuH
-p0Sw3qmeNof634gp4RYW0H9HxMDXi12MMlzZL7qgIvHYpue2tAQ+Z1Xn184U6FRR
-jDCUFtqK47eJBBxxM9MNivYAsHda5/1hsIGHClaPFrt9aQyWlhbxEiTSYXkySPfz
-PgufyiB64Z2kHwa09vlkQbFnZexlG4nUHU0YIUDWpEIQ1g2VZzwcQG8N0Xsz7oAN
-DgeHld1K4Drb1CU3xoClIc5EtqHRE/j8/tc69TFJzT58bNERwbqJp/cWXzJfw7nS
-aKpgr5tvfp3Y2tc2mEYOo0nLndGPHYiDK9kOov3mjuOfXprIyhTa/mvXtoJGyOFP
-/zF9VZll7uQHFw==
-=oaWe
------END PGP SIGNATURE-----
+The oops above is one of many he sent me. They all oops in
+kmem_cache_allog(). If somebody is interested, I can mail them
+privately.
+
+.config is available at http://130.83.7.27/pmhahn/misc/config-2.4.18-pre7
+
+Any advise would be helpful.
+
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

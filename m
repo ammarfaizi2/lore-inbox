@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276822AbRJCBNC>; Tue, 2 Oct 2001 21:13:02 -0400
+	id <S276829AbRJCBTH>; Tue, 2 Oct 2001 21:19:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276825AbRJCBMx>; Tue, 2 Oct 2001 21:12:53 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:61201 "EHLO
-	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S276822AbRJCBMq>; Tue, 2 Oct 2001 21:12:46 -0400
-Message-ID: <3BBA6556.E27FC534@osdlab.org>
-Date: Tue, 02 Oct 2001 18:09:42 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com, jgarzik@mandrakesoft.com
-Subject: Re: [patch] netconsole-2.4.10-C2
-In-Reply-To: <Pine.LNX.4.33.0109291146440.1715-100000@localhost.localdomain> <3BB77591.C1349C09@osdlab.org> <3BB77FD7.696CFC58@osdlab.org> <20010930220950.K930@turbolinux.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S276830AbRJCBS4>; Tue, 2 Oct 2001 21:18:56 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:60707 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S276829AbRJCBSm>; Tue, 2 Oct 2001 21:18:42 -0400
+Subject: Re: 2.4.10/Preemt STOP bug
+From: Robert Love <rml@tech9.net>
+To: Justin A <justin@bouncybouncy.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011002205856.A19554@bouncybouncy.net>
+In-Reply-To: <20011002205856.A19554@bouncybouncy.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
+Date: 02 Oct 2001 21:19:07 -0400
+Message-Id: <1002071952.864.141.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Tue, 2001-10-02 at 20:58, Justin A wrote:
+> It seems there is a bug in 2.4.10 or the preemptable patch that causes the STOP
+> signal to not work right 19 times out of 20 or so.
+>
+> This is most easily seen by running 'seq 1 100000' in a terminal and pressing
+> control Z or using kill -STOP the proccess stops, but the parent process never
+> comes back, kill -CONT has to be used in order to get the proccess back.
 > 
-> On Sep 30, 2001  13:25 -0700, Randy.Dunlap wrote:
-> > I'm interested in using netconsole early (during boot).
-> > Any problems doing that, other than getting module parameters
-> > to it?  I can fix that part.
+> CPU usage my be a factor in this, yes(1) backgrounds correctly more often then
+> seq does.
 > 
-> I was thinking about this as well.  It should be relatively easy to allow
-> a line line "console=eth0,XX:XX:XX:XX:XX:XX,a.b.c.d" or similar.  The only
-> slight problem might be in configuring the interface early enough in the
-> boot process.  AFAIK (which isn't much in this area) the serial console
-> has special "console" code which allows it to be used very early in the
-> boot process.
-> 
-> You would obviously need to have the network driver compiled into the kernel
-> and not a module.  Maybe Ingo can hack something where it is possible
-> to initialize the network code very early in the boot process?
+> There are no problems with fg/CONT.
 
-Well, I have netconsole-in-kernel (+ AD patches + RD patches)
-built and parsing parameters, but not getting active nearly
-soon enough.
-I'll continue to work on that...hints appreciated/accepted.
+The problem is with the preemptible kernel patch...
 
-~Randy
+You need to be using a recent patch, this bug was fixed awhile back in
+an explicit patch (patch-rml-2.4.xx-preempt-ptrace-signal-fix-1).
+
+It was merged into the 2.4.10 patch with revision 5, and it is in all
+newer patches.
+
+You can get patches for 2.4.10, 2.4.11-pre2, and 2.4.10-ac3 (soon -ac4)
+at http://tech9.net/rml/linux
+
+They all fix this problem.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

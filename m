@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268245AbTBYSww>; Tue, 25 Feb 2003 13:52:52 -0500
+	id <S268099AbTBYS6I>; Tue, 25 Feb 2003 13:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268247AbTBYSww>; Tue, 25 Feb 2003 13:52:52 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S268245AbTBYSwv>; Tue, 25 Feb 2003 13:52:51 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'jw schultz'" <jw@pegasys.ws>, <linux-kernel@vger.kernel.org>
-Subject: RE: statistics for this mailinglist
-Date: Tue, 25 Feb 2003 20:02:18 +0100
-Message-ID: <001e01c2dd00$8574d480$3640a8c0@boemboem>
+	id <S268161AbTBYS6I>; Tue, 25 Feb 2003 13:58:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:41348 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268099AbTBYS6H>; Tue, 25 Feb 2003 13:58:07 -0500
+Date: Tue, 25 Feb 2003 14:11:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: atomic_t (24 bits???)
+Message-ID: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20030225003325.GA5283@pegasys.ws>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And it wouldn't hurt to aggregate versions.  This is really
-> just a top-6 list.
->  1]  476 Mutt (most common versions versions)
->  2]   60 ELM [version 2.5 PL6]
->  3]   55 Mulberry/2.2.1 (Linux/x86)
->  4]   42 Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
->  5]   42 Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
->  6]   41 Ximian Evolution 1.2.1 (1.2.1-4)
 
-Problem is: what part is version-information and what is name?
-For Mutt 1.0, ELM 3.6 it's clear; it's the number part.
-But what about:
-FlokEdit peanutbutterrelease
-FlokEdit RMDrelease
-?
+In ../linux/include/asm/atomic.h, for versions 2.4.18 and
+above as far as I've checked, there are repeated warnings
+"Note that the guaranteed useful range of an atomic_t is
+only 24 bits."
+
+I fail to see any reason why as atomic_t is typdefed to a
+volatile int which, on ix86 seems to be 32 bits.
+
+Does anybody know if this is just some old comments from a
+previous atomic_t type of, perhaps, char[3]?  
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

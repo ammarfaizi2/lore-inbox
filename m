@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276234AbSIVEb4>; Sun, 22 Sep 2002 00:31:56 -0400
+	id <S276246AbSIVEcm>; Sun, 22 Sep 2002 00:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276246AbSIVEb4>; Sun, 22 Sep 2002 00:31:56 -0400
-Received: from dp.samba.org ([66.70.73.150]:44932 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S276234AbSIVEbz>;
-	Sun, 22 Sep 2002 00:31:55 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S276249AbSIVEcm>; Sun, 22 Sep 2002 00:32:42 -0400
+Received: from holomorphy.com ([66.224.33.161]:41103 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S276246AbSIVEcj>;
+	Sun, 22 Sep 2002 00:32:39 -0400
+Date: Sat, 21 Sep 2002 21:30:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 won't run X?
+Message-ID: <20020922043050.GU3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	linux-kernel@vger.kernel.org
+References: <20020921161702.GA709@iucha.net> <597384533.1032600316@[10.10.2.3]> <20020921185939.GA1771@iucha.net> <20020921202353.GA15661@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15757.18495.802801.215286@argo.ozlabs.ibm.com>
-Date: Sun, 22 Sep 2002 14:34:07 +1000 (EST)
-To: hch@infradead.org, torvalds@transmeta.com
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Bug in sys_mprotect
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020921202353.GA15661@win.tue.nl>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a bug in sys_mprotect in the current 2.5 kernel where it can
-dereference `prev' when it is NULL.  After the main loop we have the
-statement (line 284):
+On Sat, Sep 21, 2002 at 01:59:39PM -0500, Florin Iucha wrote:
+>> X is not locked up, as it eats all the CPU. And 2.5.36 works just fine.
 
-	if (next && prev->vm_end == next->vm_start &&
-			can_vma_merge(next, prev->vm_flags) &&
-			!prev->vm_file && !(prev->vm_flags & VM_SHARED)) {
+On Sat, Sep 21, 2002 at 10:23:53PM +0200, Andries Brouwer wrote:
+> I noticed that the pgrp-related behaviour of some programs changed.
+> Some programs hang, some programs loop. The hang occurs when they
+> are stopped by SIGTTOU. The infinite loop occurs when they catch SIGTTOU
+> (and the same signal is sent immediately again when they leave the
+> signal routine).
+> Have not yet investigated details.
 
-If you mprotect a region which is in the first VMA, the find_vma_prev
-call (line 236) will set prev = NULL, and it is possible to get
-through the main loop without changing prev.  When this happens, we
-get a NULL dereference and the process then hangs at the down_read in
-do_page_fault since sys_mprotect has downed the mm->mmap_sem for
-writing.
+Linus seems to have put out 2.5.38 with some X lockup fixes. Can you
+still reproduce this? If so, are there non-X-related testcases where
+you can trigger this? My T21 Thinkpad doesn't see this at all.
 
-This bites badly on PPC since ld.so maps the shared libraries below
-the main executable, and uses mprotect on the regions it has mapped.
-Consequently, init hangs with no visible indication of what is wrong.
+I'm still prodding the SIGTTOU path trying to trigger it until then.
 
-Anyway, looking at the old mprotect code, it is clear that all of
-mprotect_fixup_{start,middle,end,all} set *pprev to something non-NULL
-(unless an error occurs).  The new mprotect_fixup doesn't do this.
-It's not clear to me what the old code set *pprev to.  I thought it
-was the VMA which now comes immediately before the VMA which came
-after the original VMA before we split it, but mprotect_fixup_start
-and mprotect_fixup_end don't seem to set it this way.  Some comments
-in the code would have been helpful.
 
-For now I have changed the if statement at line 284 to test prev !=
-NULL as well as the existing conditions, and that works, but I don't
-think it fixes the real problem.  Perhaps someone who knows exactly
-what prev is supposed to be can post a proper fix.
-
-Paul.
+Thanks,
+Bill

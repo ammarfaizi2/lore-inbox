@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbTHYV06 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 17:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbTHYV05
+	id S262168AbTHYVTx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbTHYVTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 17:26:57 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:49933 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S262244AbTHYV0x (ORCPT
+	Mon, 25 Aug 2003 17:19:53 -0400
+Received: from aneto.able.es ([212.97.163.22]:62083 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262168AbTHYVTv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 17:26:53 -0400
+	Mon, 25 Aug 2003 17:19:51 -0400
+Date: Mon, 25 Aug 2003 23:19:50 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] sizeof C types ...
+Message-ID: <20030825211950.GC3346@werewolf.able.es>
+References: <20030825191339.GA28525@www.13thfloor.at> <20030825202721.A10828@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] raceless request_region() fix (was Re: Linux 2.6.0-test4)
-Date: Tue, 26 Aug 2003 00:26:47 +0300
-X-Mailer: KMail [version 1.4]
-References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org> <200308260020.21817.insecure@mail.od.ua>
-In-Reply-To: <200308260020.21817.insecure@mail.od.ua>
-MIME-Version: 1.0
+Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200308260026.47994.insecure@mail.od.ua>
+In-Reply-To: <20030825202721.A10828@infradead.org>; from hch@infradead.org on Mon, Aug 25, 2003 at 21:27:21 +0200
+X-Mailer: Balsa 2.0.13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 00:20, insecure wrote:
-> >   o [arcnet com90io] replace check_region with temporary
-> >     request_region, in probe phase.
->
-> check_region() is deprecated because it is racy.
-> Replacing it with request_region in probe:
->
-> int probe() {
-> 	if(!request_region(...))
-> 		return 0;
-> 	/* probe */
-> 	release_region(...);
-> }
->
-> int init() {
-> 	request_region(...);
-> }
->
-> only removes 'deprecated' warning. Race remains.
 
-Corrected com90io.c patch is below.
+On 08.25, Christoph Hellwig wrote:
+> > char,
+> 
+> 8 bits
+> 
+> > short,
+> 
+> 16 bits
+> 
+> > int,
+> 
+> 32 bits
+> 
+> > long,
+> 
+> either 32 or 64 bits
+> 
+> > long int,
+> 
+> dito. long is just the short form of long int
+> 
+> > long long, ...
+> 
+> 64 bits
+> 
+
+If you don't go away from linux, OK.
+
+Really:
+char = 8bit
+long int = 32 or 64, depending on arch
+long long = 64 bits
+
+int = ??? almost anything, depending on arch and compiler.
+Run DOS on your P4, with an old compiler, and int defaults to 16 bits.
+I think the same also happens for Win16.
+
+int is defined ad the native word size of the hardware+OS.
+
 -- 
-vda
-
---- linux-2.6.0-test4/drivers/net/arcnet/com90io.c.orig	Sat Aug 23 02:53:52 2003
-+++ linux-2.6.0-test4/drivers/net/arcnet/com90io.c	Tue Aug 26 00:22:51 2003
-@@ -158,7 +158,7 @@
- 		       "must specify the base address!\n");
- 		return -ENODEV;
- 	}
--	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "com90io probe")) {
-+	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
- 		BUGMSG(D_INIT_REASONS, "IO check_region %x-%x failed.\n",
- 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
- 		return -ENXIO;
-@@ -218,7 +218,6 @@
- 			goto err_out;
- 		}
- 	}
--	release_region(ioaddr, ARCNET_TOTAL_SIZE); /* end of probing */
- 	return com90io_found(dev);
- 
- err_out:
-@@ -237,13 +236,9 @@
-
- 	/* Reserve the irq */
- 	if (request_irq(dev->irq, &arcnet_interrupt, 0, "arcnet (COM90xx-IO)", dev)) {
-+		release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
- 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
- 		return -ENODEV;
--	}
--	/* Reserve the I/O region - guaranteed to work by check_region */
--	if (!request_region(dev->base_addr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
--		free_irq(dev->irq, dev);
--		return -EBUSY;
- 	}
-
- 	/* Initialize the rest of the device structure. */
-
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-rc3-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

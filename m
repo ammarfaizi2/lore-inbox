@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131366AbQLVVLC>; Fri, 22 Dec 2000 16:11:02 -0500
+	id <S130512AbQLVVQx>; Fri, 22 Dec 2000 16:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131757AbQLVVKx>; Fri, 22 Dec 2000 16:10:53 -0500
-Received: from NS2.pcscs.com ([207.96.110.42]:38154 "EHLO linux01.pcscs.com")
-	by vger.kernel.org with ESMTP id <S131366AbQLVVKk>;
-	Fri, 22 Dec 2000 16:10:40 -0500
-Message-ID: <00d901c06c57$5ece3220$2b6e60cf@pcscs.com>
-From: "Charles Wilkins" <chas@pcscs.com>
-To: "Andreas Dilger" <adilger@turbolinux.com>
-Cc: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>,
-        "Linux Raid mailing list" <linux-raid@vger.kernel.org>
-In-Reply-To: <200012222032.eBMKW0U13909@webber.adilger.net>
-Subject: Re: Fw: max number of ide controllers?
-Date: Fri, 22 Dec 2000 15:40:07 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131118AbQLVVQn>; Fri, 22 Dec 2000 16:16:43 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:54533 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130512AbQLVVQi>; Fri, 22 Dec 2000 16:16:38 -0500
+Date: Fri, 22 Dec 2000 14:40:59 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pauline Middelink <middelin@polyware.nl>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: NUMA and SCI [was Re: bigphysarea support in 2.2.19 and 2.4.0 kernels]
+Message-ID: <20001222144059.A1946@vger.timpanogas.org>
+In-Reply-To: <20001222133908.A1686@vger.timpanogas.org> <E149YpM-0005A2-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E149YpM-0005A2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 08:30:07PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Charles Wilkins writes:
-> > Andrzej M. Krzysztofowicz says,
-> >
-> > >"Linux supports up to 10 IDE channels, however channel numbers of PCI
-> > controllers seem to be assigned first."
-> >
-> > Warren Young says,
-> > >"Kernel 2.2 is limited to 4 IDE controllers."
-> >
-> > ok, so which is it kernel guys, 4 or 10 IDE controllers for the 2.2.x
-> > kernel?
->
-> It depends if you have Andre's IDE patches applied to your kernel sources
+On Fri, Dec 22, 2000 at 08:30:07PM +0000, Alan Cox wrote:
+> > I think we do need some bettr APIs.  Grab the source at my FTP server,
+> > and I'd love any input you could provide.
+> 
+> Pure message passing drivers for the Dolphinics cards already exist. Ron
+> Minnich wrote some.
+> 
+> http://www.acl.lanl.gov/~rminnich/
+> 
+> Alan
 
-I have ide.2.2.18.1209.patch applied. The kernel is 2.2.18.
-So what is the answer? 4 controllers max or 10 for my kernel?
+Not for the newer cards.  I will look over his code, and see what's there.
 
-> or not.
->
-> > well, i know this SB32 card can operating on at least 3 different io
-ports .
-> > . .
->
-> It may be that there is some difficulty in the order the IDE cards are
-> initialized.  From your previous dmesg output, it appears that ide3 and
-ide4
-> (PCI cards) are initialized before ide2 (ISA card), so they may be
-stealing
-> an ioport that the ISA card needs.  Try booting with just the SB32 card
-> and checking /proc/ioports, and then with only the other card, and see
-> if anything in /proc/ioports (or /proc/interrupts) is conflicting.
->
+Jeff
 
-I have done this. There are no conflicts.
-SB32 uses 0x168-0x16f,0x36e,10 and nothing else does.
-
-What would be the correct kernel command to manually set up the SB32 as ide
-4 for the above resources?
-
-Kernel 2.4.0-test12 picks up the SB32 controller even with the promise
-controller is installed, but I would prefer to stay with the stable 2.2.x
-kernel if possible.
-
-Charles
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

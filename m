@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUIXEUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUIXEX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbUIXEUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 00:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUIXEUP
+	id S267170AbUIXEX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 00:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUIXEX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 00:20:15 -0400
-Received: from holomorphy.com ([207.189.100.168]:49116 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266885AbUIXEUM (ORCPT
+	Fri, 24 Sep 2004 00:23:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39053 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267170AbUIXEX0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 00:20:12 -0400
-Date: Thu, 23 Sep 2004 21:20:00 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	Fri, 24 Sep 2004 00:23:26 -0400
+Date: Thu, 23 Sep 2004 21:21:06 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Ray Bryant <raybry@sgi.com>
-Cc: Alexander Nyberg <alexn@telia.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+Cc: alexn@telia.com, linux-kernel@vger.kernel.org
 Subject: Re: lockmeter in 2.6.9-rc2-mm2
-Message-ID: <20040924042000.GT9106@holomorphy.com>
-References: <41539FC1.7040001@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-Id: <20040923212106.7a89b3af.akpm@osdl.org>
 In-Reply-To: <41539FC1.7040001@sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+References: <41539FC1.7040001@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 11:17:05PM -0500, Ray Bryant wrote:
-> This seems to compile for me, at least, haven't gotten to do a test of it.
+Ray Bryant <raybry@sgi.com> wrote:
+>
+> This seems to compile for me, at least,
+
+Great.
+
+> haven't gotten to do a test of it.
+
+Please do.
+
 > Does the x86_64 stuff compile now?
 
-AFAICT yes. I've been doing allyesconfig compiles for some header
-cleanup sweeps on x86-64; LOCKMETER=y is set, and it compiles fine.
+yup.  I do regular x86 and x86_64 allfooconfig builds.  I'd do so on
+sparc64/ppc64/ia64 too, if they had a chance of compiling :(
 
-
--- wli

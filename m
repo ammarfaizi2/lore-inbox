@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbTFOR3S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTFOR3S
+	id S262424AbTFORZt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTFORZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:29:18 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:63250 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S262431AbTFOR3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 13:29:16 -0400
-Date: Sun, 15 Jun 2003 18:44:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: James Morris <jmorris@intercode.com.au>
-cc: Andrew Morton <akpm@digeo.com>, Christoph Rohland <cr@sap.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove superfluous inode superblock check from shmem_mmap
-In-Reply-To: <Mutt.LNX.4.44.0306160211380.8018-100000@excalibur.intercode.com.au>
-Message-ID: <Pine.LNX.4.44.0306151823070.2176-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 15 Jun 2003 13:25:49 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:64684 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262424AbTFORZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:25:48 -0400
+Date: Sun, 15 Jun 2003 19:39:26 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make cramfs look less hostile
+Message-ID: <20030615173926.GH1063@wohnheim.fh-wedel.de>
+References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <20030615182642.A19479@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030615182642.A19479@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003, James Morris wrote:
-> This patch against current 2.5 bk removes a (now) unecessary check for an 
-> inode superblock in shmem_mmap().  In the current kernel, all inodes must 
-> be associated with a superblock.
+On Sun, 15 June 2003 18:26:42 +0100, Christoph Hellwig wrote:
+> On Sun, Jun 15, 2003 at 06:05:24PM +0200, Jörn Engel wrote:
+> > 
+> > This thing has been biting me now and again.  "cramfs: wrong magic\n"
+> > looks like an error condition to most people and thus creates bug
+> > reports.  But there is no bug per se in having cramfs support in the
+> > kernel and booting from a jffs2 rootfs.  So instead of teaching the
+> > users over and over, how about this little one-liner?
+> 
+> Umm, cramfs_fill_super has a silent parameter that's true for
+> probing the root filesystem.  I'd suggest disabling the printk
+> completly if it's set.
 
-Thanks, looks good to me.  I don't believe an inode with NULL i_sb
-could ever have got to shmem_mmap - it's just a check copied over
-from an old generic_file_mmap.
+Good idea, but only at first glance.  cramfs_fill_super() always gets
+called with silent=1.  So if "(!silent) printk(...);" is functionally
+equivalent to ";".
 
-Andrew, please apply: thank you.
-Hugh
+Jörn
 
-diff -purN -X dontdiff bk.pending/mm/shmem.c bk.w1/mm/shmem.c
---- bk.pending/mm/shmem.c	2003-06-16 00:56:13.000000000 +1000
-+++ bk.w1/mm/shmem.c	2003-06-16 02:06:55.142303751 +1000
-@@ -1010,7 +1010,7 @@ static int shmem_mmap(struct file *file,
- 	struct inode *inode = file->f_dentry->d_inode;
- 
- 	ops = &shmem_vm_ops;
--	if (!inode->i_sb || !S_ISREG(inode->i_mode))
-+	if (!S_ISREG(inode->i_mode))
- 		return -EACCES;
- 	update_atime(inode);
- 	vma->vm_ops = ops;
-
+-- 
+The competent programmer is fully aware of the strictly limited size of
+his own skull; therefore he approaches the programming task in full
+humility, and among other things he avoids clever tricks like the plague. 
+-- Edsger W. Dijkstra

@@ -1,86 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUDORfM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDORcl
+	id S263041AbUDORcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbUDORai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:32:41 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:26520 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263027AbUDORbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:31:01 -0400
-Message-Id: <200404151727.i3FHRwF08564@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>, <raybry@sgi.com>,
-       "'Andy Whitcroft'" <apw@shadowen.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: RE: hugetlb demand paging patch part [2/3]
-Date: Thu, 15 Apr 2004 10:27:58 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040415071728.GE25560@zax>
-Thread-Index: AcQjBNiluzp39IC6SlOg90j8XJy+UgACKnUg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 15 Apr 2004 13:30:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:18350 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263018AbUDORYJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:24:09 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and PCI Hotplug update for 2.6.6-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10820498253817@kroah.com>
+Date: Thu, 15 Apr 2004 10:23:45 -0700
+Message-Id: <1082049825923@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> David Gibson wrote on Thursday, April 15, 2004 12:17 AM
-> > diff -Nurp linux-2.6.5/mm/memory.c linux-2.6.5.htlb/mm/memory.c
-> > +++ linux-2.6.5.htlb/mm/memory.c	2004-04-13 12:02:31.000000000 -0700
-> > @@ -769,11 +769,6 @@ int get_user_pages(struct task_struct *t
-> >  		if ((pages && vm_io) || !(flags & vma->vm_flags))
-> >  			return i ? : -EFAULT;
-> >
-> > -		if (is_vm_hugetlb_page(vma)) {
-> > -			i = follow_hugetlb_page(mm, vma, pages, vmas,
-> > -						&start, &len, i);
-> > -			continue;
-> > -		}
-> >  		spin_lock(&mm->page_table_lock);
-> >  		do {
-> >  			struct page *map = NULL;
->
-> Ok, I notice that you've removed the follow_hugtlb_page() function
-> (and from the arch specific stuff, as well).  As far as I can tell,
-> this isn't actually related to demand-paging, in fact as far as I can
-> tell this function is unnecessary
+ChangeSet 1.1692.3.5, 2004/03/26 16:32:52-08:00, willy@debian.org
 
-That was the reason I removed the function because it is no longer used
-with demand paging.
+[PATCH] PCI Hotplug: Rewrite acpiphp detect_used_resource
+
+There are two unrelated problems in acpiphp that are fixed by this patch.
+First, acpiphp can be a module, so it is unsafe to probe the BARs of each
+device while it initialises -- the device may be active at the time.
+Second, it does not know about PCI-PCI bridge registers and so it reads
+garbage for the last 4 registers of the PCI-PCI bridge card and doesn't
+take into account the ranges that are forwarded by the bridge.
+
+This patch avoids all that by using the struct resources embedded in
+the pci_dev.  Note that we no longer need to recurse as all the devices
+on the other side of a PCI-PCI bridge have their resources entirely
+contained within the PCI-PCI bridge's ranges.
 
 
-> should already work for huge pages.  In particular the path in
-> get_user_pages() which can call handle_mm_fault() (which won't work on
-> hugepages without your patch) should never get triggered, since
-> hugepages are all prefaulted.
+ drivers/pci/hotplug/acpiphp_pci.c |  110 ++++++++------------------------------
+ 1 files changed, 26 insertions(+), 84 deletions(-)
 
-> Does that sound right?  In other words, do you think the patch below,
-> which just kills off follow_hugetlb_page() is safe, or have I missed
-> something?
->
-> Index: working-2.6/mm/memory.c
-> ===================================================================
-> --- working-2.6.orig/mm/memory.c	2004-04-13 11:42:42.000000000 +1000
-> +++ working-2.6/mm/memory.c	2004-04-15 17:03:01.421905400 +1000
-> @@ -766,16 +766,13 @@
-> [snip]
->  		spin_lock(&mm->page_table_lock);
->  		do {
->  			struct page *map;
->  			int lookup_write = write;
->  			while (!(map = follow_page(mm, start, lookup_write))) {
-> +				/* hugepages should always be prefaulted */
-> +				BUG_ON(is_vm_hugetlb_page(vma));
->  				/*
->  				 * Shortcut for anonymous pages. We don't want
->  				 * to force the creation of pages tables for
 
-This portion is incorrect, because it will trigger BUG_ON all the time
-for faulting hugetlb page.
-
-Yes, killing follow_hugetlb_page() is safe because follow_page() takes
-care of hugetlb page.  See 2nd patch posted earlier in
-hugetlb_demanding_generic.patch
-
+diff -Nru a/drivers/pci/hotplug/acpiphp_pci.c b/drivers/pci/hotplug/acpiphp_pci.c
+--- a/drivers/pci/hotplug/acpiphp_pci.c	Thu Apr 15 10:05:40 2004
++++ b/drivers/pci/hotplug/acpiphp_pci.c	Thu Apr 15 10:05:40 2004
+@@ -198,106 +198,42 @@
+ /* detect_used_resource - subtract resource under dev from bridge */
+ static int detect_used_resource (struct acpiphp_bridge *bridge, struct pci_dev *dev)
+ {
+-	u32 bar, len;
+-	u64 base;
+-	u32 address[] = {
+-		PCI_BASE_ADDRESS_0,
+-		PCI_BASE_ADDRESS_1,
+-		PCI_BASE_ADDRESS_2,
+-		PCI_BASE_ADDRESS_3,
+-		PCI_BASE_ADDRESS_4,
+-		PCI_BASE_ADDRESS_5,
+-		0
+-	};
+ 	int count;
+-	struct pci_resource *res;
+ 
+ 	dbg("Device %s\n", pci_name(dev));
+ 
+-	for (count = 0; address[count]; count++) {	/* for 6 BARs */
+-		pci_read_config_dword(dev, address[count], &bar);
++	for (count = 0; count < DEVICE_COUNT_RESOURCE; count++) {
++		struct pci_resource *res;
++		struct pci_resource **head;
++		unsigned long base = dev->resource[count].start;
++		unsigned long len = dev->resource[count].end - base + 1;
++		unsigned long flags = dev->resource[count].flags;
+ 
+-		if (!bar)	/* This BAR is not implemented */
++		if (!flags)
+ 			continue;
+ 
+-		pci_write_config_dword(dev, address[count], 0xFFFFFFFF);
+-		pci_read_config_dword(dev, address[count], &len);
++		dbg("BAR[%d] 0x%lx - 0x%lx (0x%lx)\n", count, base,
++				base + len - 1, flags);
+ 
+-		if (len & PCI_BASE_ADDRESS_SPACE_IO) {
+-			/* This is IO */
+-			base = bar & 0xFFFFFFFC;
+-			len = len & (PCI_BASE_ADDRESS_IO_MASK & 0xFFFF);
+-			len = len & ~(len - 1);
+-
+-			dbg("BAR[%d] %08x - %08x (IO)\n", count, (u32)base, (u32)base + len - 1);
+-
+-			spin_lock(&bridge->res_lock);
+-			res = acpiphp_get_resource_with_base(&bridge->io_head, base, len);
+-			spin_unlock(&bridge->res_lock);
+-			if (res)
+-				kfree(res);
++		if (flags & IORESOURCE_IO) {
++			head = &bridge->io_head;
++		} else if (flags & IORESOURCE_PREFETCH) {
++			head = &bridge->p_mem_head;
+ 		} else {
+-			/* This is Memory */
+-			base = bar & 0xFFFFFFF0;
+-			if (len & PCI_BASE_ADDRESS_MEM_PREFETCH) {
+-				/* pfmem */
+-
+-				len &= 0xFFFFFFF0;
+-				len = ~len + 1;
+-
+-				if (len & PCI_BASE_ADDRESS_MEM_TYPE_64) {	/* takes up another dword */
+-					dbg("prefetch mem 64\n");
+-					count += 1;
+-				}
+-				dbg("BAR[%d] %08x - %08x (PMEM)\n", count, (u32)base, (u32)base + len - 1);
+-				spin_lock(&bridge->res_lock);
+-				res = acpiphp_get_resource_with_base(&bridge->p_mem_head, base, len);
+-				spin_unlock(&bridge->res_lock);
+-				if (res)
+-					kfree(res);
+-			} else {
+-				/* regular memory */
+-
+-				len &= 0xFFFFFFF0;
+-				len = ~len + 1;
+-
+-				if (len & PCI_BASE_ADDRESS_MEM_TYPE_64) {
+-					/* takes up another dword */
+-					dbg("mem 64\n");
+-					count += 1;
+-				}
+-				dbg("BAR[%d] %08x - %08x (MEM)\n", count, (u32)base, (u32)base + len - 1);
+-				spin_lock(&bridge->res_lock);
+-				res = acpiphp_get_resource_with_base(&bridge->mem_head, base, len);
+-				spin_unlock(&bridge->res_lock);
+-				if (res)
+-					kfree(res);
+-			}
++			head = &bridge->mem_head;
+ 		}
+ 
+-		pci_write_config_dword(dev, address[count], bar);
++		spin_lock(&bridge->res_lock);
++		res = acpiphp_get_resource_with_base(head, base, len);
++		spin_unlock(&bridge->res_lock);
++		if (res)
++			kfree(res);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+ 
+-/* detect_pci_resource_bus - subtract resource under pci_bus */
+-static void detect_used_resource_bus(struct acpiphp_bridge *bridge, struct pci_bus *bus)
+-{
+-	struct list_head *l;
+-	struct pci_dev *dev;
+-
+-	list_for_each (l, &bus->devices) {
+-		dev = pci_dev_b(l);
+-		detect_used_resource(bridge, dev);
+-		/* XXX recursive call */
+-		if (dev->subordinate)
+-			detect_used_resource_bus(bridge, dev->subordinate);
+-	}
+-}
+-
+-
+ /**
+  * acpiphp_detect_pci_resource - detect resources under bridge
+  * @bridge: detect all resources already used under this bridge
+@@ -306,7 +242,13 @@
+  */
+ int acpiphp_detect_pci_resource (struct acpiphp_bridge *bridge)
+ {
+-	detect_used_resource_bus(bridge, bridge->pci_bus);
++	struct list_head *l;
++	struct pci_dev *dev;
++
++	list_for_each (l, &bridge->pci_bus->devices) {
++		dev = pci_dev_b(l);
++		detect_used_resource(bridge, dev);
++	}
+ 
+ 	return 0;
+ }
 

@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUGPF7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUGPGNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUGPF7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266290AbUGPF7F
+	id S266295AbUGPGNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 02:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUGPGNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:59:05 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:1135 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266240AbUGPF7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 01:59:00 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: psmouse as module with suspend/resume
-Date: Fri, 16 Jul 2004 00:58:57 -0500
-User-Agent: KMail/1.6.2
-Cc: Kevin Fenzi <kevin-kernel@scrye.com>
-References: <20040715205459.197177253D@voldemort.scrye.com>
-In-Reply-To: <20040715205459.197177253D@voldemort.scrye.com>
+	Fri, 16 Jul 2004 02:13:17 -0400
+Received: from bart.webpack.hosteurope.de ([217.115.142.76]:1736 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S266295AbUGPGNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 02:13:15 -0400
+Date: Fri, 16 Jul 2004 08:19:04 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Andi Kleen <ak@muc.de>
+cc: Jeff Garzik <jgarzik@pobox.com>, <netdev@oss.sgi.com>,
+       <irda-users@lists.sourceforge.net>, Jean Tourrilhes <jt@hpl.hp.com>,
+       <the_nihilant@autistici.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
+In-Reply-To: <20040716054550.GA21819@muc.de>
+Message-ID: <Pine.LNX.4.44.0407160801190.14037-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407160058.57824.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 July 2004 03:54 pm, Kevin Fenzi wrote:
-> 
-> Greetings.
-> 
-> I am having a bit of an issue with psmouse and suspend/resume.
-> I am using the swsusp2, which is working great... (Thanks Nigel!)
-> 
-> However:
-> 
-> If I compile psmouse as a module and leave it in and suspend/resume
-> when the laptop comes back the mouse doesn't work at all.
-> 
-> If I compile psmouse as a module and unload before suspend, and reload
-> after resume, the mouse works for simple movement, but all the
-> advanced synaptics features no longer work. No tap for mouse button,
-> no scolling, etc.
-> 
-> If I compile psmouse in everything works after a suspend/resume cycle.
->
+On 16 Jul 2004, Andi Kleen wrote:
 
-There should not be any differences between module and compiled version.
-Could you please change #undef DEBUG to #define DEBUG in
-drivers/input/serio/i8042.c module and post the full dmesg (you may have
-to use log_buf_size=131072 and 'dmesg -s 131072' to get the full dmesg).
- 
-> I would like to be able to compile psmouse as a module. Does anyone
-> see any reason the synaptics stuff wouldn't work after a
-> unload/reload?
+> > Admittedly I haven't tried either, but I'm pretty sure this patch will 
+> > break building those drivers because they are calling irda_setup_dma - 
+> > which is CONFIG_ISA. Maybe this can be dropped but I don't see what's 
+> > wrong with !64BIT instead.
+> 
+> Hmm, good point. 
+> 
+> !64BIT is not needed - apparently they are 64bit clean.
 
-When you reload do you do it from X or from text console? Do you have GPM
-running? If some program has the device open when you reload a new device
-will be created. X closes the device when switching to a text console, so
-just kill GPM before reloading psmouse and it should help.
+I think you are right - however, AFAICS this is not the point in this 
+case. These drivers do DMA to legacy devices (call it ISA, LPC, whatever). 
+The documented way for those devices without struct pci_dev is to call the 
+dma api functions with dev=NULL. For i386 the generic dma functions are 
+overwritten so they use GFP_DMA f.e. in this case.
 
--- 
-Dmitry
+According to include/asm-x86_64/dma-mapping.h there is no such override 
+for x86-64. Hence the generic implementation is used which Oopses when 
+called with dev=NULL in dma_alloc_coherent because it dereferences dev 
+unconditionally.
+
+> The reason I want to drop the CONFIG_ISA depency is that they *should*
+> be built on x86-64 too. 
+
+Yes, sure. The point is with current CONFIG_ISA requirement they cannot be 
+build on x86-64 - with CONFIG_ISA removed they can, but will Oops. See the 
+report Jean was refering to.
+
+I agree !64BIT isn't the clean way to handle this - IMHO x86-64 needs to 
+support legacy devices (dev=NULL) in its dma api implementation. If it 
+doesn't, I don't see how these drivers might work on this arch.
+
+Martin
+

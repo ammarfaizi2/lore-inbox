@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbSJHBTe>; Mon, 7 Oct 2002 21:19:34 -0400
+	id <S262579AbSJHBVA>; Mon, 7 Oct 2002 21:21:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262579AbSJHBT2>; Mon, 7 Oct 2002 21:19:28 -0400
-Received: from packet.digeo.com ([12.110.80.53]:32705 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262564AbSJHBT1>;
-	Mon, 7 Oct 2002 21:19:27 -0400
-Message-ID: <3DA233EC.1119CD7B@digeo.com>
-Date: Mon, 07 Oct 2002 18:25:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
-References: <1033960902.3da0fdc6839aa@kolivas.net> <3DA139EC.8A34A593@digeo.com> <1034038912.3da22e805c7c0@kolivas.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Oct 2002 01:25:00.0781 (UTC) FILETIME=[855BE9D0:01C26E69]
+	id <S262616AbSJHBVA>; Mon, 7 Oct 2002 21:21:00 -0400
+Received: from dsl-206-47-80-119.kingston.net ([206.47.80.119]:31505 "EHLO
+	linux.interlinx.bc.ca") by vger.kernel.org with ESMTP
+	id <S262579AbSJHBU7>; Mon, 7 Oct 2002 21:20:59 -0400
+Date: Mon, 7 Oct 2002 21:26:27 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@redhat.com>
+Subject: [PATCH] drivers/net/appletalk/Config.in, kernel 2.4.19
+Message-ID: <20021008012627.GB2997@pc.ilinx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: "Brian J. Murrell" <8821dc6cca218ed182e7363b244e013d@interlinx.bc.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> 
-> ...
-> -       swap_tendency = mapped_ratio / 2 + distress + vm_swappiness;
-> +       swap_tendency = mapped_ratio / 2 + distress ;
-> +       if (swap_tendency > 50){
-> +               if (vm_swappiness <= 990) vm_swappiness+=10;
-> +               }
-> +               else
-> +               if (vm_swappiness > 0) vm_swappiness--;
-> +       swap_tendency += (vm_swappiness / 10);
->
 
-heh, that could work.  So basically you're saying "the longer we're
-under swap stress, the more swappy we want to get".
+--bCsyhTFzCvuiizWE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Problem is, users have said they don't want that.  They say that they
-want to copy ISO images about all day and not swap.  I think.
+Please find below a small patch that makes the two AppleTalk PC NICs
+(LTPC and COPS) in the kernel configurable only if there is an [E]ISA
+bus configured.
 
-It worries me.  It means that we'll be really slow to react to sudden
-load swings, and it increases the complexity of the analysis and
-testing.  And I really do want to give the user a single knob,
-which has understandable semantics and for which I can feasibly test
-all operating regions.
+--- linux-2.4.19-16mdk/drivers/net/appletalk/Config.in	2002-08-02 20:39:44.=
+000000000 -0400
++++ linux-2.4.19-16mdk-uml/drivers/net/appletalk/Config.in.new	2002-10-07 1=
+3:19:14.000000000 -0400
+@@ -6,8 +6,10 @@
+ comment 'Appletalk devices'
+ dep_mbool 'Appletalk interfaces support' CONFIG_DEV_APPLETALK $CONFIG_ATALK
+ if [ "$CONFIG_DEV_APPLETALK" =3D "y" ]; then
+-   tristate '  Apple/Farallon LocalTalk PC support' CONFIG_LTPC
+-   tristate '  COPS LocalTalk PC support' CONFIG_COPS
++   if [ "$CONFIG_ISA" =3D "y" -o "$CONFIG_EISA" =3D "y" ]; then
++      tristate '  Apple/Farallon LocalTalk PC support' CONFIG_LTPC
++      tristate '  COPS LocalTalk PC support' CONFIG_COPS
++   fi
+    if [ "$CONFIG_COPS" !=3D "n" ]; then
+       bool '    Dayna firmware support' CONFIG_COPS_DAYNA
+       bool '    Tangent firmware support' CONFIG_COPS_TANGENT
 
-I really, really, really, really don't want to get too fancy in there.
+b.
 
-I have changed this code a bit, and have added other things.  Mainly
-over on the writer throttling side, which tends to be the place where
-the stress comes from in the first place.
+--=20
+Brian J. Murrell
+
+--bCsyhTFzCvuiizWE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9ojRDl3EQlGLyuXARAkVcAKCSEKqrR27Y/rFtN1U0cmE3QFH3IACfWbd+
+8keFLBPg7Nrj9uBX69JKLhI=
+=P8Vo
+-----END PGP SIGNATURE-----
+
+--bCsyhTFzCvuiizWE--

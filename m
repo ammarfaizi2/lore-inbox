@@ -1,28 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbSJDUn1>; Fri, 4 Oct 2002 16:43:27 -0400
+	id <S261800AbSJDU1q>; Fri, 4 Oct 2002 16:27:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSJDUn1>; Fri, 4 Oct 2002 16:43:27 -0400
-Received: from web40020.mail.yahoo.com ([66.218.78.60]:58455 "HELO
-	web40020.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262621AbSJDUn0>; Fri, 4 Oct 2002 16:43:26 -0400
-Message-ID: <20021004204851.26027.qmail@web40020.mail.yahoo.com>
-Date: Fri, 4 Oct 2002 13:48:51 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Any problems with 2.4 and gcc 3.2?
+	id <S261994AbSJDU1q>; Fri, 4 Oct 2002 16:27:46 -0400
+Received: from zork.zork.net ([66.92.188.166]:54987 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S261800AbSJDU1q>;
+	Fri, 4 Oct 2002 16:27:46 -0400
 To: linux-kernel@vger.kernel.org
+Subject: Re: (off-list) Mail headers (was: Re: export of sys_call_table)
+References: <1033684027.1247.43.camel@phantasy.suse.lists.linux.kernel>
+	<20021003233504.GA20570@suse.de.suse.lists.linux.kernel>
+	<20021003235022.GA82187@compsoc.man.ac.uk.suse.lists.linux.kernel>
+	<mailman.1033691043.6446.linux-kernel2news@redhat.com.suse.lists.linux.kerne
+	<200210040403.g9443Vu03329@devserv.devel.redhat.com.suse.lists.linux.kernel>
+	<20021003233221.C31444@openss7.org.suse.lists.linux.kernel>
+	<20021004133657.B17216@devserv.devel.redhat.com.suse.lists.linux.kernel>
+	<p73fzvmqdg4.fsf@oldwotan.suse.de>
+	<1033757193.31839.51.camel@irongate.swansea.linux.org.uk>
+	<20021004131547.B2369@openss7.org>
+	<20021004153755.A1116@devserv.devel.redhat.com>
+	<6uit0i3qne.fsf_-_@zork.zork.net>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: HYPERLINK PATENT INFRINGEMENT,
+ SALACIOUS IMAGININGS
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Fri, 04 Oct 2002 21:33:19 +0100
+In-Reply-To: <6uit0i3qne.fsf_-_@zork.zork.net> (Sean Neakums's message of
+ "Fri, 04 Oct 2002 21:17:25 +0100")
+Message-ID: <6uk7ky2bcg.fsf@zork.zork.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to be installing RH8 soon, and would like to know if gcc 3.2
-miscompiles 2.4 kernel code (i.e. 2.4.20-pre8, for example). Are there any
-problems with the code that gcc 3.2 produces from kernel source?
+Quite clearly, that went to the list.  My apologies.
 
-Brad
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+-- 
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

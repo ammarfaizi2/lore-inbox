@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269206AbRGaGxI>; Tue, 31 Jul 2001 02:53:08 -0400
+	id <S269202AbRGaHWY>; Tue, 31 Jul 2001 03:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269202AbRGaGw7>; Tue, 31 Jul 2001 02:52:59 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42813 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S269203AbRGaGwx>; Tue, 31 Jul 2001 02:52:53 -0400
-To: Mike Touloumtzis <miket@bluemug.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] initramfs patch
-In-Reply-To: <Pine.LNX.3.96.1010730153712.7347D-100000@mandrakesoft.mandrakesoft.com>
-	<20010730140928.D20284@bluemug.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 31 Jul 2001 00:46:32 -0600
-In-Reply-To: <20010730140928.D20284@bluemug.com>
-Message-ID: <m1puahzjcn.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269203AbRGaHWM>; Tue, 31 Jul 2001 03:22:12 -0400
+Received: from bcnjfppp.jazztel.es ([212.106.240.13]:2176 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S269202AbRGaHWB>; Tue, 31 Jul 2001 03:22:01 -0400
+Date: Tue, 31 Jul 2001 09:27:18 +0200
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Justin Guyett <justin@soze.net>, linux-kernel@vger.kernel.org
+Subject: Re: Test mail
+Message-ID: <20010731092718.A250@ragnar-hojland.com>
+In-Reply-To: <justin@soze.net> <200107302114.f6ULEUcp029394@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200107302114.f6ULEUcp029394@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Mon, Jul 30, 2001 at 05:14:30PM -0400
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Mike Touloumtzis <miket@bluemug.com> writes:
+On Mon, Jul 30, 2001 at 05:14:30PM -0400, Horst von Brand wrote:
+> Justin Guyett <justin@soze.net> said:
 
-> On Mon, Jul 30, 2001 at 03:50:33PM -0500, Jeff Garzik wrote:
-> > On Mon, 30 Jul 2001, Mike Touloumtzis wrote:
-> > > 
-> > > One thing that would make embedded systems developers very happy
-> > > is the ability to map a romfs or cramfs filesystem directly from
-> > > the kernel image, avoiding the extra copy necessitated by the cpio
-> > > archive.  Are there problems with this approach?
-> > 
-> > Yes -- you need to at that point store initialized structures.  Store
-> > the dcache in its unpacked state on the ROM image, etc.  That's the only
-> > way to "map" a romfs directly.  Otherwise there is ALWAYS an unpacking
-> > or translation step between filesystem image and in-memory image.
-> > 
-> > Mapping an in-memory image directly may seem like a good idea, but it is
-> > really not.  ESPECIALLY for embedded folks.
-> 
-> I think you're misunderstanding what I propose.  I'm talking about
-> having a device in /dev that would allow access to a filesystem
-> image (cramfs or romfs) that would be embedded in the in-memory
-> kernel image.
+How was it.. Be conservative in what you send, and liberal in what you
+accept? 
 
-The current mtd drivers allow exactly this.  Having a filesystem on
-your flash or rom device.  I don't think any filesystem that runs on
-top of them currently supports XIP but the basic infrastructure is
-there. 
+It took Rik (IIRC) to say he was leaving l-k to get rid of that stupid DUL
+abusing thing that didn't allow him (and others, including me!) to post..
+please lets not get there again. 
 
-Eric
+As Horst says, not everyone is a hard-core hacker.. now imagine one or two
+of them actually had to post with, say outlook.  Would you still want to
+filter it?  I'm sure not.
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

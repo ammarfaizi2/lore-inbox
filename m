@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132844AbRDXHeX>; Tue, 24 Apr 2001 03:34:23 -0400
+	id <S132855AbRDXH72>; Tue, 24 Apr 2001 03:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132852AbRDXHeD>; Tue, 24 Apr 2001 03:34:03 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:16133 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S132844AbRDXHdw>;
-	Tue, 24 Apr 2001 03:33:52 -0400
-Message-ID: <3AE52C2C.C6B2B472@mountain.net>
-Date: Tue, 24 Apr 2001 03:33:00 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Semi-OT] Dual Athlon support in kernel
-In-Reply-To: <Pine.LNX.4.33.0104240115050.21785-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132862AbRDXH7S>; Tue, 24 Apr 2001 03:59:18 -0400
+Received: from juicer14.bigpond.com ([139.134.6.23]:54257 "EHLO
+	mailin2.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S132855AbRDXH7G>; Tue, 24 Apr 2001 03:59:06 -0400
+Message-Id: <m14rv59-001PKNC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dale Amon <amon@vnl.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Has the iptables security patch been vetted? 
+In-Reply-To: Your message of "Mon, 23 Apr 2001 20:48:27 +0100."
+             <20010423204825.H26083@vnl.com> 
+Date: Tue, 24 Apr 2001 15:09:47 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike A. Harris" wrote:
+In message <20010423204825.H26083@vnl.com> you write:
+> I'm sure you've run across this one:
 > 
-> Would the current state of athlon support be considered stable?
-> I've got a colleague interested in getting a dual athlon box, and
-> I'll be making the decision as to what hardware to purchase.  I'm
-> wondering is dual Athlon viable for a business solution right
-> now, or is it considered "experimental"?
+> 	http://netfilter.samba.org/security-fix/
 > 
-> What hardware would be recommended for a dual CPU system that
-> needs to be fairly rock solid?  Should I recommend to stay with
-> the P-III Xeon?  Or something else?  What issues would I expect
-> to have to deal with if going with a dual Athlon?
-> 
-> Also, what is a good rock solid SCSI RAID controller?  Money is
-> no object.  Reliability, performance and Linux compatibility are
-> though.
-> 
-> Chipsets to avoid?
-> 
-> Any experiences/info good/bad would be greatly appreciated.
+> I'd like to know how official this patch is, ie how
+> well checked out?
 
-The build problen with Athlon+SMP was solved by AA's patch. I had tested a
-similar patch on UP over 2.4.0-test and previous 2.4 releases with nary a
-problem.
+Hi Dale,
 
-This may be too experimental for your purposes, but FWIW I'm writing from a
-2.4.4-pre3 built with gcc-2.97-20010205 using -march=athlon set by the k7
-config. I've been building kernels with that snapshot since the middle of
-Feb. With the current image, the box has locked up once in continuous use. I
-can't say what caused that one, no log survived. 
+	The preferred patch is available, and has been tested (several
+new testsuite tests now exist) and submitted to Linus (et. al):
 
-Cheers,
-Tom
+	http://netfilter.filewatcher.org/security-fix/ftp-security2.patch
+	http://netfilter.samba.org/security-fix/ftp-security2.patch
+	http://netfilter.gnumonks.org/security-fix/ftp-security2.patch
 
--- 
-The Daemons lurk and are dumb. -- Emerson
+Hope that helps,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

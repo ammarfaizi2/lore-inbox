@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264102AbTEGRtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTEGRtu
+	id S264107AbTEGRyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTEGRyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:49:50 -0400
-Received: from mail0.ewetel.de ([212.6.122.12]:4755 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S264102AbTEGRtt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:49:49 -0400
-Date: Wed, 7 May 2003 20:02:06 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
-In-Reply-To: <Pine.LNX.4.44.0305061608050.959-100000@neptune.local>
-Message-ID: <Pine.LNX.4.44.0305071956300.1118-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Wed, 7 May 2003 13:54:52 -0400
+Received: from s-smtp-osl-01.bluecom.no ([62.101.193.35]:7907 "EHLO
+	s-smtp-osl-01.bluecom.no") by vger.kernel.org with ESMTP
+	id S264107AbTEGRyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:54:51 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: petter wahlman <petter@bluezone.no>
+To: root@chaos.analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0305071247360.12878@chaos>
+References: <1052321673.3727.737.camel@badeip>
+	 <Pine.LNX.4.53.0305071147510.12652@chaos>
+	 <1052323711.3739.750.camel@badeip>
+	 <Pine.LNX.4.53.0305071247360.12878@chaos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052330844.3739.840.camel@badeip>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 May 2003 20:07:25 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, Pascal Schmidt wrote:
+On Wed, 2003-05-07 at 18:59, Richard B. Johnson wrote:
+> On Wed, 7 May 2003, petter wahlman wrote:
+> 
+> > On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
+> > > On Wed, 7 May 2003, petter wahlman wrote:
+> > >
+> > > >
+> > > > It seems like nobody belives that there are any technically valid
+> > > > reasons for hooking system calls, but how should e.g anti virus
+> > > > on-access scanners intercept syscalls?
+> > > > Preloading libraries, ptracing init, patching g/libc, etc. are
+> > >   ^^^^^^^^^^^^^^^^^^^
+> > >                     |________  Is the way to go. That's how
+> > > you communicate every system-call to a user-mode daemon that
+> > > does whatever you want it to do, including phoning the National
+> > > Security Administrator if that's the policy.
+> > >
+> > > > obviously not the way to go.
+> > > >
+> > >
+> > > Oviously wrong.
+> >
+> >
+> > And how would you force the virus to preload this library?
+> >
+> > -p.
+> >
+> 
+> The same way you would force a virus to not be statically linked.
+> You make sure that only programs that interface with the kernel
+> thorugh your hooks can run on that particular system.
+> 
 
-The below patch allows me to use the ATAPI MO drive read-only using 
-ide-cd. It does not send the drive any commands it might not understand.
-I'm still trying to get write support to work, but being able to read
-from the drive is an independent feature and useful in itself, I think.
-Would it be possible to apply this to 2.5?
+Can you please elaborate.
+How would you implement the access control without modifying the
+respective syscalls or the system_call(), and would you'r
+solution be possible to implement run time?
 
-Tested by reading an entire ext2 filesystem from an MO disk and comparing
-against the result obtained from 2.4 with ide-scsi/sd. No differences.
+Regards,
 
-Patch against 2.5-bkcvs.
-
-Index: drivers/ide/ide-cd.c
-===================================================================
-RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.c,v
-retrieving revision 1.107
-diff -u -1 -b -p -r1.107 ide-cd.c
---- drivers/ide/ide-cd.c	20 Apr 2003 21:52:14 -0000	1.107
-+++ drivers/ide/ide-cd.c	7 May 2003 17:34:30 -0000
-@@ -2873,2 +2873,7 @@ int ide_cdrom_probe_capabilities (ide_dr
- 
-+	if (drive->media == ide_optical) {
-+		printk("%s: ATAPI magneto-optical drive\n", drive->name);
-+		return nslots;
-+	}
-+
- 	if (CDROM_CONFIG_FLAGS(drive)->nec260) {
-@@ -3339,3 +3344,3 @@ static int ide_cdrom_attach (ide_drive_t
- 		goto failed;
--	if (drive->media != ide_cdrom)
-+	if (drive->media != ide_cdrom && drive->media != ide_optical)
- 		goto failed;
-Index: drivers/ide/ide-probe.c
-===================================================================
-RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-probe.c,v
-retrieving revision 1.85
-diff -u -1 -b -p -r1.85 ide-probe.c
---- drivers/ide/ide-probe.c	24 Apr 2003 17:07:04 -0000	1.85
-+++ drivers/ide/ide-probe.c	7 May 2003 17:25:37 -0000
-@@ -1237,3 +1237,3 @@ struct gendisk *ata_probe(dev_t dev, int
- 			(void) request_module("ide-scsi");
--		if (drive->media == ide_cdrom)
-+		if (drive->media == ide_cdrom || drive->media == ide_optical)
- 			(void) request_module("ide-cd");
-
--- 
-Ciao,
-Pascal
+-p.
 

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129725AbRBSW2w>; Mon, 19 Feb 2001 17:28:52 -0500
+	id <S130081AbRBSWaW>; Mon, 19 Feb 2001 17:30:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130086AbRBSW2n>; Mon, 19 Feb 2001 17:28:43 -0500
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:51894 "EHLO
-	earth.su.valinux.com") by vger.kernel.org with ESMTP
-	id <S130009AbRBSW2c>; Mon, 19 Feb 2001 17:28:32 -0500
-Date: Mon, 19 Feb 2001 15:37:02 -0800
-From: Dragan Stancevic <visitor@valinux.com>
-To: CaT <cat@zip.com.au>
-Cc: Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 + 2.2.18 + laptop problems
-Message-ID: <20010219153702.C24311@valinux.com>
-In-Reply-To: <20010211224033.G352@zip.com.au> <20010213092638.A11218@saw.sw.com.sg> <20010213151409.Q352@zip.com.au> <20010220092106.D365@zip.com.au>
-Mime-Version: 1.0
+	id <S130086AbRBSWaN>; Mon, 19 Feb 2001 17:30:13 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:18655 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130081AbRBSWaD>; Mon, 19 Feb 2001 17:30:03 -0500
+Message-ID: <3A919D83.FCC2EF5B@sympatico.ca>
+Date: Mon, 19 Feb 2001 17:26:11 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Jaswinder Singh <jaswinder.singh@3disystems.com>, peterw@dascom.com.au,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel executation from ROM
+In-Reply-To: <XFMail.20010219124909.peterw@dascom.com.au> <01e701c09a2a$21e789a0$bba6b3d0@Toshiba> <3A914E57.9990EB7C@sympatico.ca> <m1snlazc39.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <20010220092106.D365@zip.com.au>; from CaT on Tue, Feb 20, 2001 at 09:21:06AM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 20, 2001, CaT <cat@zip.com.au> wrote:
-; > 100% accuracy and so it'll take me a wee while before I decide 'oooo....
-; > aaaaa... that rocks my boat. it's fixed.'. :)
-; 
-; It happened again. Same deal. Once was after a reboot and this time
-; was after a resume. :/
+"Eric W. Biederman" wrote:
 
-What kind of trafic are you running?
+> No it forbids executing boot roms that way, by a standard pc bios.
+> The system BIOS in a PC is normally on the ISA bus which is reached
+> across via the PCI bus with a PCI->ISA bridge.
 
--- 
-No Kernel Hackers were harmed during writing of this email.
+Son of a gun, I missed that... sure enough my PIIX4 docs beside me here
+show a #BIOSCS pin on the southbridge... Can anybody clarify what
+this restriction does and doesn't apply to ?  The MindShare PCI Arch.
+book where I got that info from doesn't elaborate that much.
 
-                                                -Dragan
+> The thing is slow it really doesn't matter, all you need to do is
+> enable caching on that area of the physical address space.  You can't
+> do this on the alpha currently but only because the alpha sucks that
+> way.  You can on practically everything else.
+>
+> As for ROM being slow on x86 you can enable the MTRR to speed things
+
+Don't MTRR's just do write combining?
+
+>
+> up.  Usually though ROMs are at least as expensive as RAM, so it is
+> pointless.
+

@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUDTBUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbUDTB11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbUDTBUu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 21:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDTBUu
+	id S262043AbUDTB11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 21:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDTB11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 21:20:50 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:7181 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262073AbUDTBUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 21:20:49 -0400
-Date: Tue, 20 Apr 2004 09:27:04 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Venkata Ravella <Venkata.Ravella@synopsys.com>,
-       linux-kernel@vger.kernel.org, Ramki.Balasubramanium@synopsys.com,
-       ab@californiadigital.com, autofs@linux.kernel.org
-Subject: Re: Automount/NFS issues causing executables to appear corrupted
-In-Reply-To: <40846DB7.4090102@zytor.com>
-Message-ID: <Pine.LNX.4.58.0404200916221.12229@wombat.indigo.net.au>
-References: <200404200008.i3K08Zvs018948@radium.internal.synopsys.com>
- <40846DB7.4090102@zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Mon, 19 Apr 2004 21:27:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22444 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262043AbUDTB10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 21:27:26 -0400
+Date: Mon, 19 Apr 2004 18:26:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Kent <raven@themaw.net>
+Cc: hch@infradead.org, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc1-mm1
+Message-Id: <20040419182657.7870aee9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0404200911090.12229@wombat.indigo.net.au>
+References: <20040418230131.285aa8ae.akpm@osdl.org>
+	<20040419202538.A15701@infradead.org>
+	<Pine.LNX.4.58.0404200911090.12229@wombat.indigo.net.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Apr 2004, H. Peter Anvin wrote:
-
-> Venkata Ravella wrote:
-> > autofs version is autofs-3.1.7-21
-> > 
-> > I also have one new update. We started seeing similar problem on
-> > the system running the kernel 2.4.18-e.12smp which has the same
-> > version(3.1.7-21) of autofs as well.
-> > 
-> > This may or may not be an autofs problem but, restarting autofs
-> > fixes this problem temporarily.
+Ian Kent <raven@themaw.net> wrote:
+>
+> On Mon, 19 Apr 2004, Christoph Hellwig wrote:
+> 
+> > 4-autofs4-2.6.0-expire-20040405.patch exports vfsmount_lock which is probably
+> > not exactly a good design.  It's only used by autofs4_may_umount which isn't
+> > autofs-specific at all.
 > > 
 > 
-> That will cause an NFS remount.  This really feels much more like an NFS
-> problem.
+> Sorry Christoph, your recommendation is?
+> 
 
-Certainly does.
+May as well rename that function to may_umount(), document it, suck it into
+fs/namespace.c or fs/namei.c and export it to modules.
 
-Venkata,
-
-Can you also forward this question to the nfs list at 
-nfs@lists.sourceforge.net. Sorry to ask you to post all over the place.
-
-Please investigate the NFS client patches maintained by Trond Myklebust. 
-Check nfs.sourceforge.net. We found we had to use them in early 2.4 versions.
-
-Ian
-
+That does increase the size of the static kernel a little, so arguably we
+shouldn't make this change until/unless we see a second user of the
+function.
 

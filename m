@@ -1,104 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284118AbRLFPFx>; Thu, 6 Dec 2001 10:05:53 -0500
+	id <S284117AbRLFPFN>; Thu, 6 Dec 2001 10:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284122AbRLFPFo>; Thu, 6 Dec 2001 10:05:44 -0500
-Received: from [212.169.100.200] ([212.169.100.200]:35566 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S284118AbRLFPFe>; Thu, 6 Dec 2001 10:05:34 -0500
-Date: Thu, 6 Dec 2001 16:11:30 +0100
-From: Morten Helgesen <admin@nextframe.net>
-To: torvalds@transmeta.com, marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] converting drivers/net/wan/lmc/lmc_main.c from suser() to capable()
-Message-ID: <20011206161130.D122@sexything>
-Reply-To: admin@nextframe.net
+	id <S284118AbRLFPFD>; Thu, 6 Dec 2001 10:05:03 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25093 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S284117AbRLFPEy> convert rfc822-to-8bit; Thu, 6 Dec 2001 10:04:54 -0500
+Date: Thu, 6 Dec 2001 16:04:49 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Message-ID: <20011206160449.D8191@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <87d71s7u6e.fsf@bitch.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <87d71s7u6e.fsf@bitch.localnet>
 User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Linus, Marcelo and the rest of you.
+On Thu, 06 Dec 2001, Daniel Stodden wrote:
 
-The code mentioned in the subject does not seem to have a maintainer. I sent the patch to those mentioned
-in lmc_main.c, and from Andrew Stanley-Jones I got the following answer:
+> over the last few days, i've been experiencing lengthy syslog
+> complaints like the following:
+> 
+> Dec  6 06:33:42 bitch kernel: hdc: dma_intr: status=0x51 { DriveReady
+> SeekComplete Error }
+> Dec  6 06:33:42 bitch kernel: hdc: dma_intr: error=0x40 {
+> UncorrectableError }, LBAsect=1753708, sector=188216
 
-"I'm not sure it's really being maintained, but I was the last one to work
- on it afaik.  Feel free to apply it.
- -Andrew"
+> my main question is whether this could be a kernel problem or whether
+> i just need to hurry a little getting my backups up to date and think
+> about a new disk.
 
-So I guess, if the patch looks good, it is just for you to apply it ... it is against 2.5.1-pre5, but should
-apply cleanly to 2.4 as well ...
+1. Get your backup done quickly, as long as the drive lasts.
 
-== Morten
+2. Run IBM's drive fitness test. DO NOT USE "ERASE DISK" (low level
+   format) features, no matter what IBM may say, check the
+   German-Language DTLA FAQ: http://www.cooling-solutions.de/dtla-faq/
+   Write down the technical result code. Also check Anandtech's FAQ
+   (English language): http://www.anandtech.com/guides/viewfaq.html?i=71
 
--- 
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
+3. (applies to Germany only, therefore in German, it's about where to ship
+    the drive):
+  a- Laufwerk < 6 Monate: Händler steht für alle Kosten ein, die durch
+     den Defekt entstehen, Versandhändler müssen z. B. Porto erstatten
 
---- /usr/src/linux-2.5.1-pre5/drivers/net/wan/lmc/lmc_main.c    Fri Sep 14 01:04:43 2001
-+++ /usr/src/patched-linux-2.5.1-pre5/drivers/net/wan/lmc/lmc_main.c    Thu Dec  6 13:17:21 2001
-@@ -176,7 +176,7 @@
+  b- Laufwerk > 6 Monate: von IBMs Webseite eine RAM anfordern, Laufwerk
+     zu IBM einschicken, Frachtkosten gehen zu eigenen Lasten -- Versand
+     war in meinem Fall in die Niederlande.
 
-     case LMCIOCSINFO: /*fold01*/
-         sp = &((struct ppp_device *) dev)->sppp;
--        if (!suser ()) {
-+        if (!capable(CAP_NET_ADMIN)) {
-             ret = -EPERM;
-             break;
-         }
-@@ -211,7 +211,7 @@
-             u_int16_t  old_type = sc->if_type;
-             u_int16_t  new_type;
-
--           if (!suser ()) {
-+           if (!capable(CAP_NET_ADMIN)) {
-                ret = -EPERM;
-                break;
-            }
-@@ -291,7 +291,7 @@
-         break;
-
-     case LMCIOCCLEARLMCSTATS: /*fold01*/
--        if (!suser ()){
-+        if (!capable(CAP_NET_ADMIN)){
-             ret = -EPERM;
-             break;
-         }
-@@ -305,7 +305,7 @@
-         break;
-
-     case LMCIOCSETCIRCUIT: /*fold01*/
--        if (!suser ()){
-+        if (!capable(CAP_NET_ADMIN)){
-             ret = -EPERM;
-             break;
-         }
-@@ -323,7 +323,7 @@
-         break;
-
-     case LMCIOCRESET: /*fold01*/
--        if (!suser ()){
-+        if (!capable(CAP_NET_ADMIN)){
-             ret = -EPERM;
-             break;
-         }
-@@ -356,7 +356,7 @@
-         {
-             struct lmc_xilinx_control xc; /*fold02*/
-
--            if (!suser ()){
-+            if (!capable(CAP_NET_ADMIN)){
-                 ret = -EPERM;
-                 break;
-             }
-
+3.II: Make up your mind whether to ask the dealer or IBM (whichever
+      applies) to replace the drive with one of another series. Usually,
+      I'd to that, but that may not be feasible with RAID
+      configurations. On a single drive, I'd even ask the dealer to
+      replace with another brand, or IBM to replace a DTLA-3070xx with
+      an IC35L0x0AVER07.

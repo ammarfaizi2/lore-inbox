@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbSK2NYW>; Fri, 29 Nov 2002 08:24:22 -0500
+	id <S267039AbSK2Nqt>; Fri, 29 Nov 2002 08:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbSK2NYW>; Fri, 29 Nov 2002 08:24:22 -0500
-Received: from lucidpixels.com ([66.45.37.187]:386 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id <S267038AbSK2NYV>;
-	Fri, 29 Nov 2002 08:24:21 -0500
-Message-ID: <3DE76C3F.5010601@lucidpixels.com>
-Date: Fri, 29 Nov 2002 08:31:43 -0500
-From: jpiszcz <jpiszcz@lucidpixels.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Question with printk warnings in ip_conntrack with 2.4.20.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267041AbSK2Nqt>; Fri, 29 Nov 2002 08:46:49 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:9951 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP
+	id <S267039AbSK2Nqs>; Fri, 29 Nov 2002 08:46:48 -0500
+Date: Fri, 29 Nov 2002 14:54:10 +0100
+From: Romain Lievin <rlievin@free.fr>
+To: greg@kroah.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: usb_bulk_msg returns EOVERFLOW
+Message-ID: <20021129135340.GA2561@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nov 29 03:29:26 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.xxx.xxx->129.128.5.191, reusing
-Nov 29 03:29:30 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.xxx.xxx->129.132.7.170, reusing
-Nov 29 03:29:36 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.xxx.xxx->195.113.31.123, reusing
+Hi,
 
-These fill up my logs (kern.info) which I use for logging iptables 
-blocked packets.
-Is there anyway to turn this feature off dynamically or should one just 
-comment out line #970 in 
-/usr/src/linux/net/ipv4/netfilter/ip_conntrack_core.c ?
+with kernel 2.4.20 , usb_bulk_msg returns EOVERFLOW in my tiglusb module.
+I never got this with previous kernels.
+What does it mean ?
 
-Please cc me as I am not subscribed to the list, thanks.
+Thanks, roms.
+-- 
+Romain Lievin, aka 'roms'  	<roms@lpg.ticalc.org>
+Web site 			<http://lpg.ticalc.org/prj_tilp>
+"Linux, y'a moins bien mais c'est plus cher !"
+
+
+
+
+
+
+
+
+
+
+
 
 
 

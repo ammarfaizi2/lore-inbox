@@ -1,137 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268308AbUHQPXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUHQP1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268308AbUHQPXu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 11:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUHQPWe
+	id S268299AbUHQP1j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 11:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUHQPZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 11:22:34 -0400
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:12253 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S268272AbUHQPPd
+	Tue, 17 Aug 2004 11:25:16 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:37596 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S268270AbUHQPPF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:15:33 -0400
-Message-ID: <412220E1.7070702@ttnet.net.tr>
-Date: Tue, 17 Aug 2004 18:14:41 +0300
+	Tue, 17 Aug 2004 11:15:05 -0400
+Message-ID: <412220C3.1050306@ttnet.net.tr>
+Date: Tue, 17 Aug 2004 18:14:11 +0300
 From: "O.Sezer" <sezeroz@ttnet.net.tr>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
 CC: marcelo.tosatti@cyclades.com
-Subject: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [4/10]
+Subject: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [1/10]
 Content-Type: multipart/mixed;
-	boundary="------------010203040209080309010501"
+	boundary="------------050806050307070809070307"
 X-ESAFE-STATUS: Mail clean
 X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010203040209080309010501
+--------------050806050307070809070307
 Content-Type: text/plain;
 	charset=ISO-8859-9;
 	format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------010203040209080309010501
+--------------050806050307070809070307
 Content-Type: text/plain;
-	name="gcc34_inline_04.diff"
+	name="gcc34_inline_01.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
-	filename="gcc34_inline_04.diff"
+	filename="gcc34_inline_01.diff"
 
---- 28p1/drivers/media/radio/radio-maestro.c~	2001-09-30 22:26:06.000000000 +0300
-+++ 28p1/drivers/media/radio/radio-maestro.c	2004-08-16 22:13:07.000000000 +0300
-@@ -307,30 +307,6 @@
- 	video_unregister_device(&maestro_radio);
+--- 28p1/drivers/block/cpqarray.c~	2004-02-18 15:36:31.000000000 +0200
++++ 28p1/drivers/block/cpqarray.c	2004-08-16 20:50:37.000000000 +0300
+@@ -960,6 +960,20 @@
+ 	return c;
  }
  
--int __init maestro_radio_init(void)
--{
--	register __u16 found=0;
--	struct pci_dev *pcidev = NULL;
--	if(!pci_present())
--		return -ENODEV;
--	while(!found && (pcidev = pci_find_device(PCI_VENDOR_ESS, 
--						  PCI_DEVICE_ID_ESS_ESS1968,
--						  pcidev)))
--		found |= radio_install(pcidev);
--	while(!found && (pcidev = pci_find_device(PCI_VENDOR_ESS,
--						  PCI_DEVICE_ID_ESS_ESS1978, 
--						  pcidev)))
--		found |= radio_install(pcidev);
--	if(!found) {
--		printk(KERN_INFO "radio-maestro: no devices found.\n");
--		return -ENODEV;
--	}
--	return 0;
--}
--
--module_init(maestro_radio_init);
--module_exit(maestro_radio_exit);
--
- inline static __u16 radio_power_on(struct radio_device *dev)
- {
- 	register __u16 io=dev->io;
-@@ -378,3 +354,27 @@
- 		return 0;   
- }
- 
-+int __init maestro_radio_init(void)
++static inline void complete_buffers(struct buffer_head *bh, int ok)
 +{
-+	register __u16 found=0;
-+	struct pci_dev *pcidev = NULL;
-+	if(!pci_present())
-+		return -ENODEV;
-+	while(!found && (pcidev = pci_find_device(PCI_VENDOR_ESS, 
-+						  PCI_DEVICE_ID_ESS_ESS1968,
-+						  pcidev)))
-+		found |= radio_install(pcidev);
-+	while(!found && (pcidev = pci_find_device(PCI_VENDOR_ESS,
-+						  PCI_DEVICE_ID_ESS_ESS1978, 
-+						  pcidev)))
-+		found |= radio_install(pcidev);
-+	if(!found) {
-+		printk(KERN_INFO "radio-maestro: no devices found.\n");
-+		return -ENODEV;
++	struct buffer_head *xbh;
++	while(bh) {
++		xbh = bh->b_reqnext;
++		bh->b_reqnext = NULL;
++		
++		blk_finished_io(bh->b_size >> 9);
++		bh->b_end_io(bh, ok);
++
++		bh = xbh;
 +	}
-+	return 0;
 +}
 +
-+module_init(maestro_radio_init);
-+module_exit(maestro_radio_exit);
-+
---- 28p1/drivers/media/video/w9966.c~	2003-06-13 17:51:34.000000000 +0300
-+++ 28p1/drivers/media/video/w9966.c	2004-08-16 22:18:28.000000000 +0300
-@@ -691,6 +691,14 @@
- 	udelay(W9966_I2C_UDELAY);
+ /*
+  * Get a request and submit it to the controller.
+  * This routine needs to grab all the requests it possibly can from the
+@@ -1094,19 +1108,6 @@
+ 	}
  }
  
-+// Get peripheral clock line
-+// Expects a claimed pdev.
-+static inline int w9966_i2c_getscl(struct w9966_dev* cam)
-+{
-+	const u8 pins = w9966_rreg(cam, 0x18);
-+	return ((pins & W9966_I2C_R_CLOCK) > 0);
-+}
-+
- // Sets the clock line on the i2c bus.
- // Expects a claimed pdev.
- // 1 on success, else 0
-@@ -723,14 +731,6 @@
- 	return ((pins & W9966_I2C_R_DATA) > 0);
- }
- 
--// Get peripheral clock line
--// Expects a claimed pdev.
--static inline int w9966_i2c_getscl(struct w9966_dev* cam)
+-static inline void complete_buffers(struct buffer_head *bh, int ok)
 -{
--	const u8 pins = w9966_rreg(cam, 0x18);
--	return ((pins & W9966_I2C_R_CLOCK) > 0);
+-	struct buffer_head *xbh;
+-	while(bh) {
+-		xbh = bh->b_reqnext;
+-		bh->b_reqnext = NULL;
+-		
+-		blk_finished_io(bh->b_size >> 9);
+-		bh->b_end_io(bh, ok);
+-
+-		bh = xbh;
+-	}
+-}
+ /*
+  * Mark all buffers that cmd was responsible for
+  */
+--- 28p1/drivers/block/cciss.c~	2004-08-16 20:12:58.000000000 +0300
++++ 28p1/drivers/block/cciss.c	2004-08-16 21:04:26.000000000 +0300
+@@ -168,6 +168,35 @@
+ static void cciss_procinit(int i) {}
+ #endif /* CONFIG_PROC_FS */
+ 
++/*
++ * Enqueuing and dequeuing functions for cmdlists.
++ */
++static inline void addQ(CommandList_struct **Qptr, CommandList_struct *c)
++{
++        if (*Qptr == NULL) {
++                *Qptr = c;
++                c->next = c->prev = c;
++        } else {
++                c->prev = (*Qptr)->prev;
++                c->next = (*Qptr);
++                (*Qptr)->prev->next = c;
++                (*Qptr)->prev = c;
++        }
++}
++
++static inline CommandList_struct *removeQ(CommandList_struct **Qptr, 
++						CommandList_struct *c)
++{
++        if (c && c->next != c) {
++                if (*Qptr == c) *Qptr = c->next;
++                c->prev->next = c->next;
++                c->next->prev = c->prev;
++        } else {
++                *Qptr = NULL;
++        }
++        return c;
++}
++
+ static struct block_device_operations cciss_fops  = {
+ 	owner:			THIS_MODULE,
+ 	open:			cciss_open, 
+@@ -629,6 +658,7 @@
+ static inline void register_cciss_ioctl32(void) {}
+ static inline void unregister_cciss_ioctl32(void) {}
+ #endif
++
+ /*
+  * ioctl 
+  */
+@@ -2131,35 +2161,6 @@
+         return (ulong) (page_remapped ? (page_remapped + page_offs) : 0UL);
+ }
+ 
+-/*
+- * Enqueuing and dequeuing functions for cmdlists.
+- */
+-static inline void addQ(CommandList_struct **Qptr, CommandList_struct *c)
+-{
+-        if (*Qptr == NULL) {
+-                *Qptr = c;
+-                c->next = c->prev = c;
+-        } else {
+-                c->prev = (*Qptr)->prev;
+-                c->next = (*Qptr);
+-                (*Qptr)->prev->next = c;
+-                (*Qptr)->prev = c;
+-        }
 -}
 -
- // Write a byte with ack to the i2c bus.
- // Expects a claimed pdev.
- // 1 on success, else 0
+-static inline CommandList_struct *removeQ(CommandList_struct **Qptr, 
+-						CommandList_struct *c)
+-{
+-        if (c && c->next != c) {
+-                if (*Qptr == c) *Qptr = c->next;
+-                c->prev->next = c->next;
+-                c->next->prev = c->prev;
+-        } else {
+-                *Qptr = NULL;
+-        }
+-        return c;
+-}
+-
+ /* 
+  * Takes jobs of the Q and sends them to the hardware, then puts it on 
+  * the Q to wait for completion. 
 
---------------010203040209080309010501--
+--------------050806050307070809070307--

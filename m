@@ -1,53 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbSKZTes>; Tue, 26 Nov 2002 14:34:48 -0500
+	id <S266654AbSKZTeF>; Tue, 26 Nov 2002 14:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266660AbSKZTeJ>; Tue, 26 Nov 2002 14:34:09 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:58877 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S266638AbSKZTdT>; Tue, 26 Nov 2002 14:33:19 -0500
-Date: Tue, 26 Nov 2002 12:37:32 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: uml-patch-2.5.49-1
-Message-ID: <20021126123732.H9054@schatzie.adilger.int>
-Mail-Followup-To: Jeff Dike <jdike@karaya.com>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <p73u1i4ub3g.fsf@oldwotan.suse.de> <200211261829.NAA02265@ccure.karaya.com>
+	id <S266650AbSKZTeE>; Tue, 26 Nov 2002 14:34:04 -0500
+Received: from bozo.vmware.com ([65.113.40.131]:4621 "EHLO mailout1.vmware.com")
+	by vger.kernel.org with ESMTP id <S266654AbSKZTdy>;
+	Tue, 26 Nov 2002 14:33:54 -0500
+Date: Tue, 26 Nov 2002 10:45:36 -0800
+From: chrisl@vmware.com
+To: USB Devel <linux-usb-users@lists.sourceforge.net>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: EHCI Kernel panic on current BK 2.5
+Message-ID: <20021126184536.GB1519@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200211261829.NAA02265@ccure.karaya.com>; from jdike@karaya.com on Tue, Nov 26, 2002 at 01:29:21PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 26, 2002  13:29 -0500, Jeff Dike wrote:
-> 	design cleanliness - a UP UML is inherently single-threaded, so it's
-> pointless to have many host processes when only one of them can be running.
-> A host process maps much more cleanly onto a UML processor than a UML process,
-> and a UML process maps much more cleanly onto a host address space than a
-> host process.
+I try to setup the usb 2.0 hard disk on my desktop in 2.5.
+It works great with uhci driver. (2.4 and 2.5).
 
-How does GDB now distinguish between UML processes?  Previously, with
-GDB and UML one would "det; att <host pid>" to trace another process.
-Will there be equivalent functionality in the new setup?
+When I try modprobe ehci-hcd in 2.5. Kernel panic. It seems
+that kernel OOPS inside the panic handle code again.
 
-I was just thinking about hacking the UML PID allocation code so that
-the UML process PID == host process PID, so that it is easier to debug
-multiple kernel threads (which are all called "kernel thread" and are
-hard to align with a specific UML kernel thread).
+I can't get the full OOPS from the serial console either.
 
-Will SMP UML "just" be a matter of forking the host process and sharing
-the /proc/mm file descriptors, along with a UML SMP scheduler and some
-IPC to decide which host process is running each UML process?
+I am typing it here. I can only see the last screen.
+It might have some typo and emotion.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+EIP is at scheduler_tick+0x92/0x360
+eax: 00000000 ebx: 00000000 ecx: 00000001  edx: 00000003
+esi: dd5e3000 edi: 00000001 ebp: dd5b9ed0  esp: dd5b9ec0
+ds: 0068   es: 0068  ss:068
+Process (pid:26, threadinfo=dd5b8000 task=dd5e3000)
+Stack: 0000002 000000 0000001 000000 dd5b9f80
+....
+Call Trace:
+[<c011de1a>] update_process_times+0x2a/0x30
+[<c011dffa>] do_timer+0x2a/0xf0
+[<c010de22>] timer_interrupt+0x22/0x130
+             __call_console_drivers+0x46/0x60
+	     handle_IRQ_event+0x2a/0x60
+             do_IRQ+0xa0/0x130
+             common_interrupt+0x18/0x20
+             xfrm4_dst_destory+0x8/0x20
+             xfrm4_dst_detrory+0x8/0x20
+             die+0x5c/0x80
+             do_page_fault+0x14e/0x467
+
+Code: 0f ab 50 08 8d 65 f4 5b 5e 5f 5d c3 89 f6 b8 00 e0 ff ff 21
+ <0>Kerenl panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+
+Here is another one without the serial console:
+
+Call Trace:
+	    update_process_times+0x2a/0x30
+	    do_timer+0x2a/0xf0
+	    timer_interrupt_0x22/0xff
+	    _call_console_drivers+0x46/0x60
+	    handle_IRQ_event+0x2a/0x60
+	    do_IRQ+0xa0/0x130
+	    do_page_fault+0x43/0x467
+	    do_page_fault_0x43/0x467
+            common_interupt+0x18/0x20
+            do_page_fault+0x43/0x467
+            do_page_fault+0x43/0x467
+            xfrm4_dst_destroy+0x8/0x30
+	    xfrm4_dst_destroy+0x8/0x30
+            die+0x5c/0x80
+	    do_page_fault+0x14e/0x467
+	    scrup+0x100/0x110
+            vgacon_consor+0x168/0x1f0
+
+Code: <same as above>
+
+PS. I notice that some line are duplicated. That is the way
+it is on the screen.
+
+
 

@@ -1,86 +1,204 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288327AbSAMXzQ>; Sun, 13 Jan 2002 18:55:16 -0500
+	id <S288325AbSAMXyQ>; Sun, 13 Jan 2002 18:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288331AbSAMXzI>; Sun, 13 Jan 2002 18:55:08 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:28433 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288327AbSAMXy7>;
-	Sun, 13 Jan 2002 18:54:59 -0500
-Date: Sun, 13 Jan 2002 16:52:07 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: jogi@planetzork.ping.de, Andrew Morton <akpm@zip.com.au>,
-        Ed Sweetman <ed.sweetman@wmich.edu>, Andrea Arcangeli <andrea@suse.de>,
-        yodaiken@fsmlabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        nigel@nrg.org, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020113165207.A17878@hq.fsmlabs.com>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> <20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy>
+	id <S288327AbSAMXyH>; Sun, 13 Jan 2002 18:54:07 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:161 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288325AbSAMXxw>; Sun, 13 Jan 2002 18:53:52 -0500
+Date: Mon, 14 Jan 2002 01:00:20 +0100
+From: Till Doerges <nospamplease@doerges.net>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: System locks up after "spurious 8259A interrupt: IRQ7"
+Message-ID: <20020114010019.A2710@atlan.wanderer.none>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1010946178.11848.14.camel@phantasy>; from rml@tech9.net on Sun, Jan 13, 2002 at 01:22:57PM -0500
+User-Agent: Mutt/1.2.5.1i
+Organization: <none>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[The e-mail-address *is* valid.]
+[Please CC me, since I'm not subscribed to lkml.]
 
-Well to start with:
-	1) Maybe I should be more precise: The latency measures I've seen
-	posted all favor Morton and not preempt. Since the claimed purpose
-	of both patches is improving latency isn't that more interesting
-	than measuremts of kernel compile?
-	
-	2) In these measurements
-	the tree is different each time so the measurement doesn't
-	seem very stable. It's not exactly a secret that file layout 
-	can have an affect on performance.
+Hi everybody,
 
-	3) There is no measure of preempt without Ingo's scheduler
+sporadically my machine hangs (no response to keyboard, can't connect
+via network, no interaction via remote-control) and the last thing I
+see (if I see anything at all) is something like
 
-	4) this is what I want to see:
-		Run the periodic SCHED_FIFO task I've posted multiple times
-		Let's see worst case error
-		Let's see effect on the background kernel compile
+--- snip ---
+[...]
+Jan 13 21:30:00 atlan CROND[2876]: (till) CMD (fetchmail&> /dev/null)
+Jan 13 21:30:09 atlan kernel: spurious 8259A interrupt: IRQ7.
+Jan 13 21:36:12 atlan syslogd 1.3-3: restart (remote reception).
+Jan 13 21:36:12 atlan kernel: klogd 1.3-3, log source = /proc/kmsg started.
+[...]
+--- snap ---
 
-	All the rest is just so much talk about "interactive feel". I saw
-	exactly the same claims from the people who wanted kernel graphics.
+I've been looking through the archives of lkml concerning this
+spurious 8259A interrupt but all I've learned is that I'm not the only
+one having this problem. My apologies, if I've overlooked anything or
+if this is not the correct address for my problem. (In this case,
+hints concerning 'the-right-thing-to-do' would be appreciated.)
 
+I'm not even sure, whether it's not only a symptom and the real
+problem is anyting else, as for some people it merely seems to enlarge
+the logs. But for me it indicates a complete hang.
 
+The conditions leading to this lock up are not deterministically
+reproducable (at least not to my knowledge), but if it appears I'm
+always watching TV using my tuner-card. It seems to *help*, if I'm
+trying to download something via ftp, although I have abstined from
+that lately.
 
+If I'm letting my machine idle, compile anything or compute anything
+else w/o using the tuner-card, I don't have any problems.
 
-On Sun, Jan 13, 2002 at 01:22:57PM -0500, Robert Love wrote:
-> On Sun, 2002-01-13 at 12:42, jogi@planetzork.ping.de wrote:
-> 
-> >         13-pre5aa1      18-pre2aa2      18-pre3         18-pre3s        18-pre3sp       18-pre3minill  
-> > j100:   6:59.79  78%    7:07.62  76%        *           6:39.55  81%    6:24.79  83%        *
-> > j100:   7:03.39  77%    8:10.04  66%        *           8:07.13  66%    6:21.23  83%        *
-> > j100:   6:40.40  81%    7:43.15  70%        *           6:37.46  81%    6:03.68  87%        *
-> > j100:   7:45.12  70%    7:11.59  75%        *           7:14.46  74%    6:06.98  87%        *
-> > j100:   6:56.71  79%    7:36.12  71%        *           6:26.59  83%    6:11.30  86%        *
-> > 		                                                                                          
-> > j75:    6:22.33  85%    6:42.50  81%    6:48.83  80%    6:01.61  89%    5:42.66  93%    7:07.56  77%
-> > j75:    6:41.47  81%    7:19.79  74%    6:49.43  79%    5:59.82  89%    6:00.83  88%    7:17.15  74%
-> > j75:    6:10.32  88%    6:44.98  80%    7:01.01  77%    6:02.99  88%    5:48.00  91%    6:47.48  80%
-> > j75:    6:28.55  84%    6:44.21  80%    9:33.78  57%    6:19.83  85%    5:49.07  91%    6:34.02  83%
-> > j75:    6:17.15  86%    6:46.58  80%    7:24.52  73%    6:23.50  84%    5:58.06  88%    7:01.39  77%
-> 
-> Again, preempt seems to reign supreme.  Where is all the information
-> correlating preempt is inferior?  To be fair, however, we should bench a
-> mini-ll+s test.
-> 
-> But I stand by my original point that none of this matters all too
-> much.  A preemptive kernel will allow for future latency reduction
-> _without_ using explicit scheduling points everywhere there is a
-> problem.  This means we can tackle the problem and not provide a million
-> bandaids.
-> 
-> 	Robert Love
+Maybe some choking related to PCI-transfers?
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+If I remember correctly, I was only experiencing this problem w/ 2.4.x
+kernels (some vanilla, some w/ patches from Alan) and w/ all versions
+from Redhat's gcc-2.96.
 
+I don't have APIC enabled, neither do I have a tulip-card. The current
+kernel has been patched w/ v4l2-support, but I'm not using it. I
+didn't try the bttv-0.8.x extensively, since I didn't manage to get
+sound. To watch tv, I use xawtv-3.x (x = 48, right now).
+
+I'm using a TEKRAM Board (P5MVP-A4) w/ a Via Apollo MP3, a Cyrix MII
+(233 MHz) and 128 MB of RAM.
+
+Below I've included some further information about my system. I hope
+it's (enough to be) useful. If I forgot anything, please tell me. Or,
+if you want me try something to hunt down the bug, I'll try my very
+best.
+
+Thanks -- Till
+
+--- snip ---
+till@atlan:/usr/src/linux> sh scripts/ver_linux
+Linux atlan 2.4.16-v4l2 #2 Sun Dec 9 12:20:24 CET 2001 i686 unknown
+ 
+Gnu C                  2.96-98
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11f
+modutils               2.4.2
+e2fsprogs              1.23
+reiserfsprogs          3.x.0f
+PPP                    2.4.0
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.56
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         tuner tvaudio bttv i2c-algo-bit videodev lirc_i2c i2c-core lirc_dev af_packet ppp_async ppp_generic slhc 8139too ipchains agpgart awe_wave sb sb_lib uart401
+sound soundcore usb-uhci usbcore rtc apm
+
+till@atlan:/usr/src/linux> cat /proc/interrupts
+           CPU0
+  0:     991950          XT-PIC  timer
+  1:      14671          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:        829          XT-PIC  bttv
+  5:          1          XT-PIC  soundblaster
+  8:          1          XT-PIC  rtc
+  9:       5593          XT-PIC  usb-uhci, eth0
+ 12:      47501          XT-PIC  PS/2 Mouse
+ 14:      11948          XT-PIC  ide0
+NMI:          0
+ERR:          0
+
+till@atlan:/usr/src/linux> cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000cc000-000cc7ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-07ffffff : System RAM
+  00100000-001d5f5b : Kernel code
+  001d5f5c-0020eb03 : Kernel data
+e0000000-e3ffffff : VIA Technologies, Inc. VT82C597 [Apollo VP3]
+e4000000-e7ffffff : PCI Bus #01
+  e4000000-e7ffffff : ATI Technologies Inc Rage 128 PF
+e8000000-e9ffffff : PCI Bus #01
+  e9000000-e9003fff : ATI Technologies Inc Rage 128 PF
+eb000000-eb000fff : Brooktree Corporation Bt878
+  eb000000-eb000fff : bttv
+eb001000-eb001fff : Brooktree Corporation Bt878
+eb002000-eb002fff : Adaptec AHA-294x / AIC-7871
+eb003000-eb0030ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  eb003000-eb0030ff : 8139too
+ffff0000-ffffffff : reserved
+
+till@atlan:/usr/src/linux> cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+0220-022f : soundblaster
+0330-0333 : MPU-401 UART
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0620-0623 : sound driver (AWE32)
+0a20-0a23 : sound driver (AWE32)
+0cf8-0cff : PCI conf1
+0e20-0e23 : sound driver (AWE32)
+5000-50ff : VIA Technologies, Inc. VT82C586B ACPI
+d000-dfff : PCI Bus #01
+  d000-d0ff : ATI Technologies Inc Rage 128 PF
+e000-e00f : VIA Technologies, Inc. Bus Master IDE
+  e000-e007 : ide0
+  e008-e00f : ide1
+e400-e41f : VIA Technologies, Inc. UHCI USB
+  e400-e41f : usb-uhci
+e800-e8ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  e800-e8ff : 8139too
+ec00-ecff : Adaptec AHA-294x / AIC-7871
+
+till@atlan:/usr/src/linux> dmesg | grep bttv
+bttv: driver version 0.7.83 loaded
+bttv: Host bridge is VIA Technologies, Inc. VT82C597 [Apollo VP3]
+bttv: Host bridge is VIA Technologies, Inc. VT82C586B ACPI
+bttv: Bt8xx card found (0).
+bttv0: Bt878 (rev 2) at 00:0a.0, irq: 3, latency: 64, memory: 0xeb000000
+bttv0: detected: Hauppauge WinTV [card=10], PCI subsystem ID is 0070:13eb
+bttv0: using: BT878(Hauppauge (bt878)) [card=10,autodetected]
+
+till@atlan:/usr/src/linux> dmesg | grep via
+PCI: Using IRQ router VIA [1106/0586] at 00:07.0
+VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
+agpgart: Detected Via MVP3 chipset
+
+till@atlan:/usr/src/linux> dmesg | grep ide
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+EXT3 FS 2.4-0.9.15, 06 Nov 2001 on ide0(3,1), internal journal
+EXT3 FS 2.4-0.9.15, 06 Nov 2001 on ide0(3,5), internal journal
+EXT3 FS 2.4-0.9.15, 06 Nov 2001 on ide0(3,8), internal journal
+
+till@atlan:/usr/src/linux> dmesg | grep eth0
+eth0: RealTek RTL8139 Fast Ethernet at 0xc88e3000, 00:30:84:26:16:49, IRQ 9
+eth0:  Identified 8139 chip type 'RTL-8139C'
+eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
+--- snap ---

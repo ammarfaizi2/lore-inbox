@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbTD2VFi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTD2VFi
+	id S261797AbTD2VGu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTD2VGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:05:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34978 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S261826AbTD2VFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:05:37 -0400
-Date: Tue, 29 Apr 2003 18:16:04 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, kkeil@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Fix V.110 on HiSax HFC_PCI.
-In-Reply-To: <Pine.LNX.4.44.0304290918200.3902-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.53L.0304291815550.15908@freak.distro.conectiva>
-References: <Pine.LNX.4.44.0304290918200.3902-100000@chaos.physics.uiowa.edu>
+	Tue, 29 Apr 2003 17:06:50 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:22732 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261797AbTD2VGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 17:06:48 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: harry@smsworldplus.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Broadcom BCM4306/BCM2050  support
+Date: Tue, 29 Apr 2003 23:19:04 +0200
+User-Agent: KMail/1.5
+References: <200304291658.h3TGwJj26464@smsworldplus.com>
+In-Reply-To: <200304291658.h3TGwJj26464@smsworldplus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304292319.04070.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 29 Apr 2003, Kai Germaschewski wrote:
-
-> On Tue, 29 Apr 2003, David Woodhouse wrote:
+Am Dienstag, 29. April 2003 18:58 schrieb harry:
+> A Penguin wrote:
+> >In the UK, for instance, one has to purchase a license to
+> >use a receiver (you know, some Sony Walkman). This is, in my
+> >opinion, extremely repressive. It would be nice for somebody
+> >to start suing the BBC (and others) to recover damages for
+> >the criminal trespass of "their" radio signals onto private
+> >property. After a few such lawsuits, the ownership of such
+> >broadcast signals would revert to the public, just like in
+> >the US.
 >
-> > This patch fixes V.110 dialin to HFC_PCI ISDN adapters, which weren't
-> > sending V.110 idle frames correctly before due to missing wakeups from
-> > the low-level driver.
-> >
-> > This is for 2.4 only -- 2.5 with ISDN doesn't even boot for me at the moment.
-> >
-> > --- drivers/isdn/hisax/hfc_pci.c.orig	2003-04-26 00:19:36.000000000 +0100
-> > +++ drivers/isdn/hisax/hfc_pci.c	2003-04-26 00:19:43.000000000 +0100
-> > @@ -687,6 +687,10 @@
-> >  				debugl1(cs, "hfcpci_fill_fifo_trans %d frame length %d discarded",
-> >  					bcs->channel, bcs->tx_skb->len);
-> >
-> > +			if (bcs->st->lli.l1writewakeup &&
-> > +                           (PACKET_NOACK != bcs->tx_skb->pkt_type))
-> > +				bcs->st->lli.l1writewakeup(bcs->st, bcs->tx_skb->len);
-> > +
-> >  			dev_kfree_skb_any(bcs->tx_skb);
-> >  			cli();
-> >  			bcs->tx_skb = skb_dequeue(&bcs->squeue);	/* fetch next data */
-> >
->
-> Thanks, this looks fine. I'll merge it if Marcelo doesn't take it right
-> away (please do ;)
+> You need a licence to drive a car and a licence to operate a
+> computer - now that's really repressive !
 
-Done.
+That is the point. You need a license to operate a car on public
+roads. Ownership or operation on your own property is only
+your business.
 
-Thanks.
-
+	Regards
+		Oliver
 

@@ -1,109 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261228AbTCFXRa>; Thu, 6 Mar 2003 18:17:30 -0500
+	id <S261246AbTCFXUm>; Thu, 6 Mar 2003 18:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbTCFXRa>; Thu, 6 Mar 2003 18:17:30 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:55486 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261208AbTCFXR1>; Thu, 6 Mar 2003 18:17:27 -0500
-Date: Fri, 7 Mar 2003 00:27:31 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Message-ID: <20030306232730.GC1326@admingilde.org>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andrew Morton <akpm@digeo.com>, mingo@elte.hu,
-	linux-kernel@vger.kernel.org
-References: <20030228202555.4391bf87.akpm@digeo.com> <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com> <20030306220307.GA1326@admingilde.org> <1046988457.715.37.camel@phantasy.awol.org> <20030306223518.GB1326@admingilde.org> <1046991366.715.52.camel@phantasy.awol.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Y5rl02BVI9TCfPar"
-Content-Disposition: inline
-In-Reply-To: <1046991366.715.52.camel@phantasy.awol.org>
-User-Agent: Mutt/1.5.3i
+	id <S261263AbTCFXUl>; Thu, 6 Mar 2003 18:20:41 -0500
+Received: from daimi.au.dk ([130.225.16.1]:54477 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S261246AbTCFXU3>;
+	Thu, 6 Mar 2003 18:20:29 -0500
+Message-ID: <3E67DA2F.500EEE5B@daimi.au.dk>
+Date: Fri, 07 Mar 2003 00:30:55 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jw schultz <jw@pegasys.ws>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+References: <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030227092121.GG15254@pegasys.ws> <20030302130430.GI45@DervishD> <3E621235.2C0CD785@daimi.au.dk> <20030303010409.GA3206@pegasys.ws> <3E634916.6AE643EB@daimi.au.dk> <20030304020203.GD7329@pegasys.ws> <3E65F454.825890F4@daimi.au.dk> <20030306011850.GA16552@pegasys.ws>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jw schultz wrote:
+> 
+> And umount?  Anything that umounts or remountes a filesystem
+> has to modify /etc/mtab to remove or alter the relevant
+> line.
 
---Y5rl02BVI9TCfPar
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That is not an issue. With my suggestion the line is automatically
+removed by the kernel at umount. If the umount program changes the
+line before calling the umount system call, the changed line is
+discareded anyway. If the umount program try to change the line
+after calling umount, it is simply ignored. Currently this is not
+going to happen anyway with a umount program that see /etc/mtab
+is a symlink and simply skips the update. An updated umount
+program for the new approach will simply remove all the code
+related to updating mtab.
 
-hi :)
+> 
+> To put this in kernel means changing how it is updated.
+> Once we do that we might as well go all the way.
 
-On Thu, Mar 06, 2003 at 05:56:06PM -0500, Robert Love wrote:
-> On Thu, 2003-03-06 at 17:35, Martin Waitz wrote:
->=20
-> > processes tend to max out at one extreme or the other
-> >=20
-> > processes that get stalled by a huge overall load of the machine
-> > are forced to sleep, too; yet they are not interactive.
->=20
-> Not running !=3D Sleeping
+Yes, in this case it means umount is not going to write at all.
+It only needs to read the file for the user specific options.
+(To know if the calling user is allowed to umount.) The read can
+be done either through the /etc/mtab symlink or the /proc
+interface, I prefer the later.
 
-schedule() does prev->sleep_timestamp =3D jiffies; just before
-deactivating prev.
-so i guess inactivity is counted towards sleep_avg, too
+> >
+> > 1) Make a new mount system call. Finally get rid of the old
+> >    magic value in the flag register and add the extra argument
+> >    which is then required. Make the old mount system call
+> >    obsolete, but keep it for some versions. The old mount
+> >    system call should then just behave as if the user data
+> >    was the empty string.
+> >
+> > 2) Add a new flag for the old mount system call, which
+> >    indicates that there is one more argument containing the
+> >    user data.
+> 
+> #2 with warnings i like better than keeping a deprecated mount
+> syscall until 2038.
 
-> A process may have a 100ms timeslice, but only run for 1ms at a time
-> (100x before recalculating its quanta).
-but it _can_ use the 100ms at a time if it is cpu-bound
-what's so bad about recalculating the quantum?
+But by adding options to the existing systemcall we are going
+to keep historic options and magic values in that system call
+forever. With the new system call we have at least collected all
+the historic parts in a single obsolete system call, that can
+eventually be removed. Anyway I think this is a minor detail,
+both approaches will be an improvement over the current mtab
+file. So whatever people prefer I'd be happy with.
 
-> This is the intention of giving large timeslices to interactive tasks:
-> not that they need all 100ms at _once_ but they may need some of it
-> soon, and when they need it they really NEED it, so make sure they
-> have enough timeslice such that there is plenty available when they
-> wake up (since the latency is important, as you said).
-but most of the time, not _one_ process is waken up, but several at once
-
-if it happens that the first who gets to run is cpu-bound,
-then all other interactive processes have to wait a long time, even
-if they would only need 1ms to finish their work.
-
-scheduling overhead was successfully brought down to a minimum
-thanks to the great work of a lot of people.
-i think we should use that work to improve latency by reducing
-the available timeslice for interactive processes.
-
-if the process is still considered interactive after the time slice had run
-out, nothing is lost; it simply gets another one.
-
-but the kernel should get the chance to frequently reschedule
-when interactivity is needed.
-
-> Once a process stalls other processes (i.e. by running a long time i.e.
-> by being a CPU hog) then it loses its interactive bonus.
-but it takes too long. 100ms is noticeable
-
-> I suggest you read the code.
-i've read it ;)
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.            Benjamin Franklin (1706 - 1790)
-
---Y5rl02BVI9TCfPar
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+Z9lij/Eaxd/oD7IRAsE0AJwKuqgRhUYU3DMYkpu/1u515hqaiwCfaue3
-lBmo0Jw5xYQx89XnOQh8PYU=
-=biIq
------END PGP SIGNATURE-----
-
---Y5rl02BVI9TCfPar--
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

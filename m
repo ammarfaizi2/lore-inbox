@@ -1,109 +1,975 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUC2RjA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 12:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUC2RjA
+	id S263020AbUC2Rmn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUC2Rmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 12:39:00 -0500
-Received: from frigo.cybercat.ca ([207.96.251.197]:35234 "EHLO cybercat.qc.ca")
-	by vger.kernel.org with ESMTP id S263015AbUC2Ris (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 12:38:48 -0500
-Message-ID: <030701c415b4$b3e0d790$6400a8c0@defiant>
-From: "Nicolas Ross" <rossnick-lists@cybercat.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Host/lookup seg fault's with vanilla kernel
-Date: Mon, 29 Mar 2004 11:17:35 -0500
+	Mon, 29 Mar 2004 12:42:43 -0500
+Received: from p3EE060B2.dip0.t-ipconnect.de ([62.224.96.178]:5760 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S263020AbUC2RkA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 12:40:00 -0500
+Message-ID: <40685FD3.6020208@p3EE060B2.dip0.t-ipconnect.de>
+Date: Mon, 29 Mar 2004 19:41:39 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Very poor performance with 2.6.4
+References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de> <20040328200710.66a4ae1a.akpm@osdl.org>
+In-Reply-To: <20040328200710.66a4ae1a.akpm@osdl.org>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a tao linux (redhat enterprise clone) box with a vanilla 2.4.24
-kernel from kernel.org. When booted with my compiled kernel, and with the
-glibc i686 rpms installed, utils from the bind-utils rpm (nslookup, dig,
-host and the like) all seg faults when used.
+Andrew Morton wrote:
+> Andreas Hartmann <andihartmann@freenet.de> wrote:
+>>
+>> I tested kernel 2.6.4. While compiling kdelibs and kdebase, I felt, that
+>>  kernel 2.6 seems to be slower than 2.4.25.
+>> 
+>>  So I did some tests to compare the performance directly. Therefore I
+>>  rebooted for everey test in init 2 (no X).
+>> 
+>>  I locally compiled 2.6.5rc2 3 times under 2.6.4 and under 2.4.25 on a
+>>  reiserfs LVM partition, which resides onto a IDE HD (using DMA) and got
+>>  the following result:
+>> 
+>>  In the middle, compiling under kernel 2.6.4 tooks 9.3% more real time than
+>>  under 2.4.25.
+>>  The user-processortime is about the same, but the system-processortime is
+>>  under 2.6.4 32.9% higher than under 2.4.25.
 
-This doesn't happen with the stock kernel, which I cannot use for other
-mathers. I've tried enabling/disabling options in the kernel config, with no
-luck.
+[...]
 
-when I do an strace of "host www.yahoo.com" I get (only the last few lines)
-:
+> If that doesn't help, please run a comparative kernel profile.  See
+> Documentation/basic_profiling.txt.
 
-open("/usr/lib/libz.so.1", O_RDONLY)    = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\340\31"..., 512) =
-512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=52584, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)
-= 0x40433000
-old_mmap(NULL, 55564, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40434000
-old_mmap(0x40440000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3,
-0xb000) = 0x40440000
-close(3)                                = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)
-= 0x40442000
-set_thread_area({entry_number:-1 -> -1, base_addr:0x40442080, limit:1048575,
-seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}) = -1 ENOSYS (Function not implemented)
-modify_ldt(1, {entry_number:0, base_addr:0x40442080, limit:1048575,
-seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}, 16) = 0
-munmap(0x40017000, 14454)               = 0
-set_tid_address(0x404420c8)             = -1 ENOSYS (Function not
-implemented)
-rt_sigaction(SIGRTMIN, {0x40256620, [], SA_RESTORER|SA_SIGINFO, 0x4025ce40},
-NULL, 8) = 0
-rt_sigprocmask(SIG_UNBLOCK, [RTMIN], NULL, 8) = 0
-getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM_INFINITY}) = 0
-rt_sigaction(SIGINT, {0x40226290, ~[RTMIN], SA_RESTORER, 0x4025ce48}, NULL,
-8) = 0
-rt_sigaction(SIGTERM, {0x40226290, ~[RTMIN], SA_RESTORER, 0x4025ce48}, NULL,
-8) = 0
-rt_sigaction(SIGPIPE, {SIG_IGN}, NULL, 8) = 0
-rt_sigaction(SIGHUP, {SIG_DFL}, NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [HUP INT TERM], NULL, 8) = 0
-getpid()                                = 1231
-socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3
-close(3)                                = 0
-socket(PF_INET6, SOCK_STREAM, IPPROTO_IP) = -1 EAFNOSUPPORT (Address family
-not supported by protocol)
-futex(0x4023c1f0, FUTEX_WAKE, 2147483647) = -1 ENOSYS (Function not
-implemented)
-brk(0)                                  = 0x8056808
-brk(0x8077808)                          = 0x8077808
-brk(0)                                  = 0x8077808
-brk(0x8078000)                          = 0x8078000
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)
-= 0x40443000
-mprotect(0x40443000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x40c43b08,
-flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM
-|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED,
-parent_tidptr=0x40c43bf8, {entry_number:0, base_addr:0x40c43bb0,
-limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}, child_tidptr=0x40c43bf8) = 1232
---- SIGSEGV (Segmentation fault) @ 0 (0) ---
-+++ killed by SIGSEGV +++
+Ok. Here it is:
+
+Kernel 2.4.25 / make of kernel 2.6.5.rc2:
+
+   5617 default_idle                             117.0208
+      4 __switch_to                                0.0179
+      1 sys_sigreturn                              0.0042
+      1 do_signal                                  0.0015
+     28 system_call                                0.5000
+      2 ret_from_sys_call                          0.1176
+      3 ret_from_exception                         0.1200
+      2 error_code                                 0.0333
+     14 device_not_available                       0.2917
+      3 math_state_restore                         0.0469
+      1 do_gettimeofday                            0.0104
+      6 old_mmap                                   0.0221
+     10 __constant_copy_from_user                  0.0645
+      1 save_init_fpu                              0.0156
+      9 kernel_fpu_begin                           0.1406
+     11 restore_fpu                                0.3438
+      1 do_check_pgt_cache                         0.0069
+    222 do_page_fault                              0.1769
+     19 schedule                                   0.0233
+      2 __wake_up                                  0.0179
+      1 complete                                   0.0089
+      1 remove_wait_queue                          0.0156
+      4 copy_files                                 0.0058
+      3 do_fork                                    0.0016
+      3 __constant_c_and_count_memset              0.0234
+      2 dup_mmap                                   0.0051
+      7 exit_notify                                0.0095
+      1 sys_wait4                                  0.0010
+     71 do_softirq                                 0.4437
+      2 tasklet_hi_action                          0.0179
+      3 bh_action                                  0.0469
+      3 timer_bh                                   0.0144
+      8 run_timer_list                             0.0227
+      1 exit_sighand                               0.0104
+      2 sys_rt_sigprocmask                         0.0048
+      1 do_sigaction                               0.0037
+      2 sys_rt_sigaction                           0.0104
+      1 sys_ni_syscall                             0.0625
+      8 supplemental_group_member                  0.1250
+      1 in_group_p                                 0.0208
+      1 sys_newuname                               0.0104
+      2 __constant_copy_to_user                    0.0139
+     10 __free_pte                                 0.1042
+      6 clear_page_tables                          0.0375
+     15 copy_page_range                            0.0361
+      9 zap_page_range                             0.0375
+      5 do_wp_page                                 0.0098
+     65 do_anonymous_page                          0.2708
+     36 do_no_page                                 0.0804
+     42 handle_mm_fault                            0.1641
+     28 pte_alloc                                  0.1591
+     33 zap_pte_range                              0.1279
+      6 vm_enough_memory                           0.0625
+     10 find_vma_prepare                           0.0893
+      5 __vma_link                                 0.0260
+      5 vma_merge                                  0.0223
+     31 do_mmap_pgoff                              0.0223
+     29 get_unmapped_area                          0.1007
+     34 find_vma                                   0.3542
+      1 find_vma_prev                              0.0057
+      1 unmap_fixup                                0.0030
+      2 free_pgtables                              0.0114
+      8 do_munmap                                  0.0125
+      1 sys_munmap                                 0.0089
+      3 exit_mmap                                  0.0099
+     11 set_page_dirty                             0.0764
+      1 add_to_page_cache_unique                   0.0069
+      7 unlock_page                                0.0547
+     76 __find_get_page                            1.5833
+      3 __find_lock_page_helper                    0.0312
+      7 generic_file_readahead                     0.0182
+     12 mark_page_accessed                         0.2500
+     25 do_generic_file_read                       0.0226
+    124 file_read_actor                            0.7750
+      1 generic_file_read                          0.0024
+     44 filemap_nopage                             0.0833
+      4 generic_file_mmap                          0.0357
+      1 read_cache_page                            0.0063
+     10 do_generic_file_write                      0.0098
+      1 __read_cache_page                          0.0048
+      1 kmalloc                                    0.0125
+     20 kmem_cache_free                            0.4167
+      1 kfree                                      0.0156
+     20 __kmem_cache_alloc                         0.0833
+     37 lru_cache_add                              0.3304
+     11 __lru_cache_del                            0.0764
+     22 delta_nr_inactive_pages                    0.2750
+     52 __free_pages_ok                            0.0813
+    152 rmqueue                                    0.2794
+      6 _alloc_pages                               0.1875
+     12 __alloc_pages                              0.0197
+     13 __free_pages                               0.4062
+      7 nr_free_pages                              0.0875
+      4 free_page_and_swap_cache                   0.0625
+      1 can_share_swap_page                        0.0089
+      7 fd_install                                 0.1458
+      1 filp_open                                  0.0089
+      2 dentry_open                                0.0045
+      7 get_unused_fd                              0.0190
+      4 sys_open                                   0.0250
+      3 filp_close                                 0.0234
+      2 sys_close                                  0.0208
+      4 sys_read                                   0.0132
+      2 sys_write                                  0.0066
+      7 get_empty_filp                             0.0243
+     12 fput                                       0.0417
+      3 fget                                       0.0625
+      2 file_move                                  0.0417
+      2 __constant_c_and_count_memset              0.0156
+      1 __remove_from_lru_list                     0.0104
+     15 get_hash_table                             0.1172
+     11 getblk                                     0.1146
+      1 balance_dirty_state                        0.0125
+      1 __brelse                                   0.0312
+      1 create_buffers                             0.0045
+      4 __block_prepare_write                      0.0053
+      1 block_read_full_page                       0.0016
+      6 cp_new_stat64                              0.0208
+      3 sys_stat64                                 0.0234
+      6 sys_fstat64                                0.0469
+      3 __constant_c_and_count_memset              0.0208
+      1 __constant_copy_to_user                    0.0063
+      5 copy_strings                               0.0098
+      1 setup_arg_pages                            0.0031
+      2 kernel_read                                0.0156
+      1 exec_mmap                                  0.0028
+      1 flush_old_exec                             0.0016
+      1 prepare_binprm                             0.0031
+      1 __constant_c_and_count_memset              0.0078
+      1 pipe_read                                  0.0020
+      3 getname                                    0.0144
+      5 vfs_permission                             0.0184
+      4 permission                                 0.0625
+      2 cached_lookup                              0.0179
+     27 link_path_walk                             0.0162
+      1 path_lookup                                0.0156
+      8 path_init                                  0.0714
+      2 __user_walk                                0.0208
+     14 open_namei                                 0.0105
+      5 page_getlink                               0.0312
+      2 page_follow_link                           0.0250
+      1 walk_init_root                             0.0057
+      1 __vfs_follow_link                          0.0049
+      1 locks_remove_posix                         0.0028
+      2 locks_remove_flock                         0.0179
+     10 dput                                       0.0298
+      1 d_alloc                                    0.0024
+     64 d_lookup                                   0.2667
+      1 alloc_inode                                0.0030
+      1 __mark_inode_dirty                         0.0063
+      2 iget4_locked                               0.0083
+      1 insert_inode_hash                          0.0125
+      1 update_atime                               0.0089
+      2 dnotify_flush                              0.0139
+      1 create_elf_tables                          0.0013
+      3 load_elf_binary                            0.0009
+      1 proc_lookup                                0.0048
+      2 scan_bitmap_block                          0.0017
+      1 scan_bitmap                                0.0018
+      1 determine_search_start                     0.0011
+      5 balance_leaf                               0.0004
+      2 bin_search_in_dir_item                     0.0114
+      2 search_by_entry_key                        0.0039
+      1 linear_search_in_dir_item                  0.0014
+      1 reiserfs_add_entry                         0.0008
+      1 reiserfs_create                            0.0024
+      1 __constant_c_and_count_memset              0.0057
+      4 _make_cpu_key                              0.0192
+      1 make_cpu_key                               0.0104
+      2 reiserfs_get_block                         0.0004
+      4 update_stat_data                           0.0139
+      3 reiserfs_update_sd                         0.0067
+      1 reiserfs_new_inode                         0.0007
+      1 reiserfs_truncate_file                     0.0018
+      1 reiserfs_prepare_write                     0.0078
+      1 reiserfs_commit_write                      0.0027
+      9 reiserfs_file_release                      0.0085
+      2 create_virtual_node                        0.0015
+      1 check_left                                 0.0031
+      1 check_right                                0.0031
+      3 get_num_ver                                0.0033
+      1 set_parameters                             0.0069
+      1 get_lfree                                  0.0089
+      1 get_rfree                                  0.0089
+      1 ip_check_balance                           0.0003
+      1 get_direct_parent                          0.0048
+      2 get_neighbors                              0.0063
+      2 wait_tb_buffers_until_unlocked             0.0025
+      2 reiserfs_dirty_inode                       0.0156
+      1 reiserfs_release_objectid                  0.0024
+      2 leaf_copy_items_entirely                   0.0030
+      5 leaf_insert_into_buf                       0.0073
+      7 leaf_paste_in_buffer                       0.0084
+      1 leaf_cut_entries                           0.0033
+      1 leaf_cut_from_buffer                       0.0009
+      1 __constant_c_and_count_memset              0.0063
+      1 internal_insert_childs                     0.0019
+      1 __constant_memcpy                          0.0039
+      1 decrement_counters_in_path                 0.0125
+      4 is_leaf                                    0.0083
+      5 is_tree_node                               0.0446
+     29 search_by_key                              0.0084
+      1 search_for_position_by_key                 0.0010
+      1 comp_items                                 0.0104
+      1 prepare_for_delete_or_cut                  0.0006
+      1 calc_deleted_bytes_number                  0.0020
+      1 init_tb_struct                             0.0104
+      1 reiserfs_delete_solid_item                 0.0017
+      1 maybe_indirect_to_direct                   0.0015
+      1 reiserfs_cut_from_item                     0.0008
+      1 B_IS_IN_TREE                               0.0312
+      3 __constant_memcpy                          0.0117
+      1 get_cnode                                  0.0069
+      4 reiserfs_in_journal                        0.0076
+      1 flush_commit_list                          0.0009
+      7 kupdate_one_transaction                    0.0133
+      5 do_journal_begin_r                         0.0082
+      1 journal_mark_dirty                         0.0013
+      2 can_dirty                                  0.0114
+      2 check_journal_end                          0.0033
+      1 reiserfs_restore_prepared_buffer           0.0312
+      1 reiserfs_prepare_for_journal               0.0069
+      1 __constant_c_and_count_memset              0.0069
+      1 sd_create_vi                               0.0625
+      1 indirect_part_size                         0.0625
+      3 direntry_create_vi                         0.0078
+      1 direntry_part_size                         0.0156
+      1 release_dev                                0.0006
+      1 add_entropy_words                          0.0063
+      1 credit_entropy_store                       0.0208
+      1 generic_unplug_device                      0.0156
+      2 __make_request                             0.0011
+      1 generic_make_request                       0.0033
+     11 ide_inb                                    0.6875
+     18 ide_outb                                   1.1250
+      3 ide_outl                                   0.1875
+      3 ide_execute_command                        0.0187
+      1 ide_start_request                          0.0020
+      1 ide_do_request                             0.0025
+      1 ide_intr                                   0.0033
+      5 ide_build_sglist                           0.0098
+      1 __ide_do_rw_disk                           0.0006
+      1 idedisk_end_request                        0.0048
+      1 sock_poll                                  0.0156
+      6 __rdtsc_delay                              0.1875
+      6 __generic_copy_to_user                     0.0625
+      5 __generic_copy_from_user                   0.0446
+      8 strncpy_from_user                          0.0714
+      5 clear_user                                 0.0625
+     23 strnlen_user                               0.3026
+     37 _mmx_memcpy                                0.1101
+    824 fast_clear_page                           10.3000
+    129 fast_copy_page                             0.5759
+     10 mmx_clear_page                             0.3125
+      5 number                                     0.0071
+      1 vsnprintf                                  0.0009
+      2 __rb_rotate_left                           0.0312
+      2 rb_insert_color                            0.0083
+      1 rb_erase                                   0.0035
+   8729 total                                      0.0076
 
 
-And I got :
+Kernel 2.6.4
 
-request_module[net-pf-10]: fork failed, errno 1
+  79186 default_idle                             1649,7083
+      1 cpu_idle                                   0,0156
+      2 exit_thread                                0,0312
+      1 release_thread                             0,0104
+      5 copy_thread                                0,0082
+      1 sys_fork                                   0,0156
+      1 sys_execve                                 0,0078
+      4 restore_sigcontext                         0,0125
+      2 sys_sigreturn                              0,0096
+      4 setup_sigcontext                           0,0132
+      8 setup_frame                                0,0161
+      3 handle_signal                              0,0110
+      3 do_signal                                  0,0104
+      1 do_notify_resume                           0,0179
+      1 ret_from_fork                              0,0500
+     87 ret_from_intr                              3,1071
+      4 resume_userspace                           0,1667
+    243 system_call                                5,5227
+      3 syscall_call                               0,2727
+     19 syscall_exit                               1,7273
+      3 restore_all                                0,2143
+     34 error_code                                 0,6071
+    161 device_not_available                       3,9268
+      1 device_not_available_emulate               0,0667
+     76 math_state_restore                         0,9500
+      5 handle_IRQ_event                           0,0446
+      3 release_x86_irqs                           0,0312
+      9 init_new_context                           0,0312
+      2 destroy_context                            0,0125
+      1 sys_pipe                                   0,0069
+      3 sys_mmap2                                  0,0134
+    166 old_mmap                                   0,4323
+      3 init_fpu                                   0,0208
+    191 kernel_fpu_begin                           2,9844
+     98 restore_fpu                                3,0625
+      4 convert_fxsr_to_user                       0,0114
+      1 convert_fxsr_from_user                     0,0042
+      3 save_i387                                  0,0156
+      1 restore_i387                               0,0078
+      1 sched_clock                                0,0069
+     49 delay_pmtmr                                1,5312
+      2 pte_alloc_one                              0,0250
+      1 pgd_alloc                                  0,0312
+      1 pgd_free                                   0,0312
+   2112 do_page_fault                              1,5976
+      2 try_to_wake_up                             0,0063
+      4 sched_fork                                 0,0312
+      7 wake_up_forked_process                     0,0199
+     15 schedule_tail                              0,0852
+     62 schedule                                   0,0484
+     57 __wake_up                                  1,1875
+      1 complete                                   0,0156
+      1 wait_for_completion                        0,0057
+    363 __might_sleep                              2,2687
+      1 free_task                                  0,0208
+      3 __put_task_struct                          0,0117
+      2 add_wait_queue                             0,0417
+      2 remove_wait_queue                          0,0312
+      2 prepare_to_wait                            0,0250
+      1 finish_wait                                0,0125
+     24 dup_task_struct                            0,1154
+      4 mm_init                                    0,0179
+      8 mm_alloc                                   0,1250
+      2 __mmdrop                                   0,0250
+      4 mmput                                      0,0357
+      1 mm_release                                 0,0052
+     67 copy_mm                                    0,0598
+      4 count_open_files                           0,0833
+     10 copy_files                                 0,0145
+      3 unshare_files                              0,0312
+     57 copy_process                               0,0239
+      5 do_fork                                    0,0137
+      1 release_console_sem                        0,0063
+     42 release_task                               0,0972
+      3 put_files_struct                           0,0156
+     44 exit_notify                                0,0235
+      8 do_exit                                    0,0091
+      3 next_thread                                0,0938
+      3 do_group_exit                              0,0234
+      1 sys_exit_group                             0,0312
+      2 eligible_child                             0,0083
+      3 wait_task_zombie                           0,0072
+      7 sys_wait4                                  0,0118
+      2 sys_waitpid                                0,0465
+     16 current_kernel_time                        0,2500
+      2 get_jiffies_64                             0,0312
+   3650 do_softirq                                22,8125
+      3 tasklet_action                             0,0268
+      1 parse_table                                0,0030
+     22 __mod_timer                                0,1528
+      2 mod_timer                                  0,0179
+    171 run_timer_softirq                          0,4647
+      1 sys_getpid                                 0,0625
+      1 sys_getppid                                0,0312
+      3 sys_getegid                                0,1875
+      3 free_uid                                   0,0375
+      7 flush_signal_handlers                      0,0875
+     20 get_signal_to_deliver                      0,0266
+     21 sigprocmask                                0,1094
+     11 sys_rt_sigprocmask                         0,0286
+     22 do_sigaction                               0,0529
+      8 sys_rt_sigaction                           0,0250
+    122 groups_search                              1,0893
+     52 in_group_p                                 0,4062
+      2 sys_newuname                               0,0114
+      1 sys_getrlimit                              0,0069
+      1 sys_umask                                  0,0312
+      6 alloc_pidmap                               0,0129
+      1 call_rcu                                   0,0208
+      1 rcu_check_quiescent_state                  0,0104
+      1 rcu_process_callbacks                      0,0045
+      2 kthread_should_stop                        0,0625
+      3 acct_process                               0,0517
+      1 __remove_from_page_cache                   0,0089
+      2 add_to_page_cache                          0,0096
+     12 page_waitqueue                             0,2500
+     23 unlock_page                                0,2396
+    458 find_get_page                              9,5417
+      6 find_lock_page                             0,0417
+      2 find_or_create_page                        0,0104
+      2 find_get_pages                             0,0250
+     90 do_generic_mapping_read                    0,0953
+     49 file_read_actor                            0,1914
+     43 __generic_file_aio_read                    0,0896
+     12 generic_file_read                          0,0682
+    145 filemap_nopage                             0,1888
+     19 generic_file_mmap                          0,2969
+     17 read_cache_page                            0,0312
+      3 remove_suid                                0,0268
+     17 generic_file_aio_write_nolock              0,0067
+      1 generic_file_write_nolock                  0,0063
+      3 generic_file_write                         0,0208
+      2 generic_write_checks                       0,0033
+     13 mempool_alloc                              0,0451
+      1 mempool_alloc_slab                         0,0312
+    177 bad_range                                  1,5804
+    135 prep_new_page                              1,4062
+    605 free_hot_cold_page                         2,7009
+      5 free_hot_page                              0,3125
+   1549 buffered_rmqueue                           5,6949
+    391 __alloc_pages                              0,4611
+      1 __get_free_pages                           0,0125
+      1 __free_pages                               0,0125
+      1 free_pages                                 0,0156
+     78 nr_free_pages                              0,9750
+      2 get_zone_counts                            0,0156
+      1 balance_dirty_pages_ratelimited            0,0156
+      6 __set_page_dirty_nobuffers                 0,0417
+      3 test_clear_page_dirty                      0,0375
+     39 file_ra_state_init                         1,2188
+     19 do_page_cache_readahead                    0,0699
+     65 page_cache_readahead                       0,1562
+    165 kmem_cache_alloc                           1,4732
+     26 __kmalloc                                  0,1625
+    114 kmem_cache_free                            1,4250
+     17 kfree                                      0,1518
+     11 reap_timer_fnc                             0,0286
+      7 activate_page                              0,0547
+    250 mark_page_accessed                         5,2083
+      1 lru_cache_add                              0,0208
+    100 lru_cache_add_active                       2,0833
+     10 lru_add_drain                              0,1562
+    104 __page_cache_release                       0,6500
+     74 release_pages                              0,2721
+      4 __pagevec_lru_add                          0,0250
+    221 __pagevec_lru_add_active                   1,2557
+      1 truncate_complete_page                     0,0078
+      1 shrink_cache                               0,0016
+      1 blk_queue_bounce                           0,0104
+    101 clear_page_tables                          0,5739
+    222 pte_alloc_map                              1,3875
+    251 copy_page_range                            0,3826
+    827 zap_pte_range                              2,1536
+     14 zap_pmd_range                              0,1250
+     12 unmap_page_range                           0,1071
+     43 unmap_vmas                                 0,0814
+     65 do_wp_page                                 0,0945
+    624 do_anonymous_page                          1,5000
+    619 do_no_page                                 0,8793
+    577 handle_mm_fault                            1,8031
+     40 remove_shared_vm_struct                    0,2778
+     10 sys_brk                                    0,0347
+    110 find_vma_prepare                           0,9821
+      4 __vma_link_rb                              0,0625
+     18 __vma_link                                 0,1125
+     12 vma_link                                   0,0750
+      2 __insert_vm_struct                         0,0139
+      8 can_vma_merge_before                       0,1000
+     14 can_vma_merge_after                        0,1750
+     85 vma_merge                                  0,1207
+    378 do_mmap_pgoff                              0,2128
+     79 get_unmapped_area                          0,2469
+    566 find_vma                                   5,8958
+     28 find_vma_prev                              0,2917
+      3 expand_stack                               0,0208
+     10 free_pgtables                              0,0625
+     10 unmap_vma                                  0,0781
+      3 unmap_vma_list                             0,0625
+     29 unmap_region                               0,1295
+     28 detach_vmas_to_be_unmapped                 0,2500
+     17 split_vma                                  0,0409
+     32 do_munmap                                  0,0909
+     16 sys_munmap                                 0,1250
+     18 do_brk                                     0,0331
+     17 exit_mmap                                  0,0443
+      2 insert_vm_struct                           0,0156
+      1 get_one_pte_map_nested                     0,0069
+    494 page_add_rmap                              3,4306
+    308 page_remove_rmap                           1,1324
+    215 __pte_chain_free                           2,6875
+     84 pte_chain_alloc                            0,8750
+     66 free_page_and_swap_cache                   0,5893
+      5 can_share_swap_page                        0,0446
+      3 si_swapinfo                                0,0375
+      1 sys_access                                 0,0030
+     29 filp_open                                  0,2589
+     89 dentry_open                                0,2139
+     58 get_unused_fd                              0,1510
+     25 fd_install                                 0,5208
+     21 sys_open                                   0,1458
+     29 filp_close                                 0,2014
+     43 sys_close                                  0,4479
+      2 default_llseek                             0,0156
+      4 sys_llseek                                 0,0156
+     69 vfs_read                                   0,2156
+     15 vfs_write                                  0,0469
+     17 sys_read                                   0,1518
+      8 sys_write                                  0,0714
+     42 get_empty_filp                             0,1641
+     22 fput                                       0,6875
+     52 __fput                                     0,2031
+     34 fget                                       0,7083
+     37 fget_light                                 0,3854
+     20 file_move                                  0,4167
+     15 file_kill                                  0,4688
+     63 __constant_c_and_count_memset              0,4922
+      3 __set_page_buffers                         0,0469
+    170 __find_get_block_slow                      0,5592
+      1 mark_buffer_async_write                    0,0312
+      1 inode_has_buffers                          0,0312
+     36 __set_page_dirty_buffers                   0,1607
+      1 invalidate_inode_buffers                   0,0125
+      1 create_buffers                             0,0057
+      1 init_page_buffers                          0,0089
+      1 grow_dev_page                              0,0033
+      1 __getblk_slow                              0,0035
+      3 mark_buffer_dirty                          0,0375
+     65 __brelse                                   1,0156
+     56 bh_lru_install                             0,2917
+    408 __find_get_block                           1,8214
+     39 __getblk                                   0,3482
+     28 __bread                                    0,3500
+      1 set_bh_page                                0,0156
+      3 block_invalidatepage                       0,0125
+      5 create_empty_buffers                       0,0391
+      6 __block_write_full_page                    0,0060
+     27 __block_prepare_write                      0,0241
+      5 __block_commit_write                       0,0347
+      3 block_read_full_page                       0,0041
+      2 block_prepare_write                        0,0250
+      2 block_commit_write                         0,0417
+      1 generic_commit_write                       0,0069
+     11 submit_bh                                  0,0229
+      1 ll_rw_block                                0,0078
+      4 drop_buffers                               0,0179
+      3 alloc_buffer_head                          0,0469
+      1 free_buffer_head                           0,0156
+      9 bio_alloc                                  0,0216
+      1 bio_clone                                  0,0063
+      3 sync_supers                                0,0170
+      2 blkdev_writepage                           0,0417
+     12 nr_blockdev_pages                          0,1875
+      3 chrdev_open                                0,0094
+      1 cdev_get                                   0,0104
+     38 generic_fillattr                           0,2969
+     52 vfs_getattr                                0,2708
+      2 vfs_stat                                   0,0208
+     14 vfs_fstat                                  0,1750
+     59 cp_new_stat64                              0,1844
+      1 sys_stat64                                 0,0156
+     25 sys_fstat64                                0,3906
+      7 count                                      0,1094
+    101 copy_strings                               0,1661
+      2 copy_strings_kernel                        0,0250
+      8 put_dirty_page                             0,0312
+      8 setup_arg_pages                            0,0179
+      7 open_exec                                  0,0292
+      1 kernel_read                                0,0104
+      2 exec_mmap                                  0,0078
+     27 flush_old_exec                             0,0147
+      3 prepare_binprm                             0,0144
+      4 compute_creds                              0,0156
+      9 search_binary_handler                      0,0201
+      6 do_execve                                  0,0096
+      3 set_binfmt                                 0,0312
+      3 pipe_wait                                  0,0156
+      7 pipe_readv                                 0,0091
+      1 pipe_read                                  0,0156
+     15 pipe_writev                                0,0162
+      1 pipe_write                                 0,0156
+      1 pipe_read_release                          0,0156
+      1 pipe_new                                   0,0048
+      2 get_pipe_inode                             0,0104
+      1 do_pipe                                    0,0019
+     46 getname                                    0,2212
+     30 vfs_permission                             0,1042
+     14 permission                                 0,1094
+      3 deny_write_access                          0,0625
+      4 path_release                               0,0625
+      2 cached_lookup                              0,0139
+      1 real_lookup                                0,0037
+     56 follow_mount                               0,3889
+     48 do_lookup                                  0,2727
+    528 link_path_walk                             0,2519
+     75 path_lookup                                0,2757
+      5 __lookup_hash                              0,0223
+      2 lookup_hash                                0,0417
+      6 __user_walk                                0,0625
+      5 vfs_create                                 0,0184
+    122 may_open                                   0,2824
+     27 open_namei                                 0,0241
+      1 vfs_unlink                                 0,0023
+      1 sys_unlink                                 0,0030
+      1 vfs_rename_other                           0,0031
+      2 vfs_rename                                 0,0025
+      1 sys_rename                                 0,0018
+     23 page_getlink                               0,1106
+     35 page_follow_link                           0,0841
+      1 expand_files                               0,0089
+      1 locate_fd                                  0,0035
+      1 dupfd                                      0,0089
+      1 sys_dup                                    0,0156
+      1 kill_fasync                                0,0156
+      3 sys_ioctl                                  0,0048
+      1 filldir64                                  0,0031
+      1 sys_getdents64                             0,0059
+      1 poll_freewait                              0,0125
+      1 __pollwait                                 0,0048
+      3 do_select                                  0,0044
+      3 sys_select                                 0,0023
+     33 locks_remove_posix                         0,1719
+     18 locks_remove_flock                         0,1607
+      1 steal_locks                                0,0104
+     80 dput                                       0,2273
+      5 d_alloc                                    0,0104
+      7 d_instantiate                              0,0729
+      2 d_lookup                                   0,0250
+    620 __d_lookup                                 2,4219
+      1 d_rehash                                   0,0125
+      1 sys_getcwd                                 0,0021
+      7 alloc_inode                                0,0175
+      3 destroy_inode                              0,0312
+      2 inode_init_once                            0,0069
+      1 __iget                                     0,0104
+      1 clear_inode                                0,0057
+      1 prune_icache                               0,0022
+      4 find_inode_fast                            0,0417
+      1 get_new_inode_fast                         0,0052
+      2 iget_locked                                0,0125
+      2 __insert_inode_hash                        0,0312
+      1 generic_delete_inode                       0,0045
+      2 generic_forget_inode                       0,0074
+      1 generic_drop_inode                         0,0312
+     25 inode_times_differ                         0,3125
+     55 update_atime                               0,2455
+      1 inode_update_time                          0,0048
+      1 i_waitq_head                               0,0312
+      2 is_bad_inode                               0,0625
+     15 dnotify_flush                              0,1042
+     64 dnotify_parent                             0,5000
+      7 lookup_mnt                                 0,0729
+      3 copy_namespace                             0,0042
+     51 __mark_inode_dirty                         0,2452
+      6 __sync_single_inode                        0,0125
+      1 __writeback_single_inode                   0,0057
+      4 sync_sb_inodes                             0,0071
+      3 writeback_inodes                           0,0375
+      2 writeback_acquire                          0,0625
+     24 do_mpage_readpage                          0,0211
+      6 mpage_writepages                           0,0087
+      6 exit_aio                                   0,0417
+      6 eventpoll_init_file                        0,3750
+      2 eventpoll_release_file                     0,0096
+      1 padzero                                    0,0208
+     16 create_elf_tables                          0,0172
+      7 elf_map                                    0,0312
+      8 load_elf_interp                            0,0139
+     33 load_elf_binary                            0,0104
+      1 proc_delete_inode                          0,0089
+      1 proc_read_inode                            0,0156
+      1 proc_destroy_inode                         0,0312
+      1 proc_get_inode                             0,0042
+      1 proc_pid_unhash                            0,0104
+      5 proc_pid_flush                             0,1042
+      2 proc_file_read                             0,0030
+     16 proc_lookup                                0,0833
+     49 get_vmalloc_info                           0,3828
+      3 meminfo_read_proc                          0,0060
+      2 write_profile                              0,0312
+     20 scan_bitmap_block                          0,0171
+      1 scan_bitmap                                0,0018
+      4 _reiserfs_free_block                       0,0119
+      1 reiserfs_free_block                        0,0156
+      1 reiserfs_discard_all_prealloc              0,0156
+      2 determine_prealloc_size                    0,0139
+     11 reiserfs_allocate_blocknrs                 0,0056
+      2 balance_leaf_when_delete                   0,0018
+     19 balance_leaf                               0,0016
+      1 free_thrown                                0,0089
+      1 get_left_neighbor_position                 0,0208
+      5 do_balance                                 0,0184
+      4 do_balance_mark_leaf_dirty                 0,0278
+      6 bin_search_in_dir_item                     0,0341
+      6 search_by_entry_key                        0,0121
+      5 get_third_component                        0,0521
+      1 reiserfs_match                             0,0089
+      5 linear_search_in_dir_item                  0,0069
+      3 reiserfs_find_entry                        0,0085
+      2 reiserfs_lookup                            0,0066
+      8 reiserfs_add_entry                         0,0066
+      1 new_inode_init                             0,0089
+      2 reiserfs_create                            0,0048
+      1 reiserfs_mkdir                             0,0015
+      2 reiserfs_unlink                            0,0030
+      1 entry_points_to_object                     0,0063
+      3 reiserfs_rename                            0,0012
+     33 _make_cpu_key                              0,1587
+     70 make_cpu_key                               0,6250
+      1 file_capable                               0,0156
+      2 _get_block_create_0                        0,0011
+     13 reiserfs_get_block                         0,0026
+     70 inode2sd                                   0,3646
+      7 inode2sd_v1                                0,0486
+     38 update_stat_data                           0,1397
+     62 reiserfs_update_sd                         0,1435
+     14 reiserfs_new_inode                         0,0097
+      2 grab_tail_page                             0,0050
+      3 reiserfs_truncate_file                     0,0059
+      1 lock_buffer_for_writepage                  0,0063
+     20 reiserfs_write_full_page                   0,0250
+      3 reiserfs_prepare_write                     0,0187
+      5 reiserfs_commit_write                      0,0136
+     24 i_attrs_to_sd_attrs                        0,2143
+      1 reiserfs_releasepage                       0,0089
+      1 make_le_item_head                          0,0045
+     66 reiserfs_file_release                      0,0607
+      5 reiserfs_allocate_blocks_for_region        0,0010
+      2 reiserfs_copy_from_user_to_file_region     0,0078
+      2 reiserfs_check_for_tail_and_convert        0,0048
+     15 reiserfs_prepare_file_region_for_write     0,0063
+      3 reiserfs_file_write                        0,0018
+      3 reiserfs_readdir                           0,0023
+     12 create_virtual_node                        0,0094
+      4 check_left                                 0,0125
+      2 check_right                                0,0063
+     12 get_num_ver                                0,0139
+      4 set_parameters                             0,0278
+      2 is_leaf_removable                          0,0066
+      2 get_empty_nodes                            0,0039
+      5 get_lfree                                  0,0446
+      2 get_rfree                                  0,0179
+      1 get_far_parent                             0,0014
+      7 get_parents                                0,0168
+     11 ip_check_balance                           0,0038
+      1 dc_check_balance_leaf                      0,0018
+      1 dc_check_balance                           0,0208
+      5 check_balance                              0,0284
+      3 get_direct_parent                          0,0110
+      2 get_neighbors                              0,0057
+      5 get_virtual_node_size                      0,0625
+      5 get_mem_for_virtual_node                   0,0208
+     11 wait_tb_buffers_until_unlocked             0,0135
+     14 fix_nodes                                  0,0139
+      5 unfix_nodes                                0,0130
+      1 is_reiserfs_jr                             0,0125
+      1 init_once                                  0,0208
+     28 reiserfs_dirty_inode                       0,2188
+      4 reiserfs_get_unused_objectid               0,0139
+      2 leaf_copy_boundary_item                    0,0011
+      1 leaf_copy_items_entirely                   0,0013
+      1 leaf_copy_items                            0,0025
+      3 leaf_define_dest_src_infos                 0,0069
+      3 leaf_move_items                            0,0187
+      2 leaf_delete_items                          0,0045
+     23 leaf_insert_into_buf                       0,0271
+      9 leaf_paste_in_buffer                       0,0097
+      3 leaf_cut_entries                           0,0072
+      8 leaf_cut_from_buffer                       0,0065
+     16 leaf_delete_items_entirely                 0,0278
+     10 leaf_paste_entries                         0,0133
+      8 internal_insert_childs                     0,0128
+      1 internal_delete_pointers_items             0,0021
+      1 balance_internal_when_delete               0,0017
+      1 balance_internal                           0,0004
+     19 decrement_counters_in_path                 0,2375
+      1 pathrelse_and_restore                      0,0125
+     25 pathrelse                                  0,3906
+    301 is_leaf                                    0,6487
+     53 is_internal                                0,3312
+    164 is_tree_node                               1,4643
+    729 search_by_key                              0,1906
+     13 search_for_position_by_key                 0,0133
+      3 comp_items                                 0,0268
+     10 prepare_for_delete_or_cut                  0,0053
+      1 calc_deleted_bytes_number                  0,0021
+      4 init_tb_struct                             0,0417
+      1 reiserfs_delete_solid_item                 0,0018
+      2 maybe_indirect_to_direct                   0,0030
+      5 reiserfs_cut_from_item                     0,0040
+      6 reiserfs_do_truncate                       0,0045
+      2 reiserfs_paste_into_item                   0,0066
+      6 reiserfs_insert_item                       0,0187
+      2 B_IS_IN_TREE                               0,0625
+     18 copy_item_head                             0,3750
+      5 decrement_bcount                           0,0781
+      1 keyed_hash                                 0,0010
+      2 r5_hash                                    0,0250
+      1 unmap_buffers                              0,0069
+      4 indirect2direct                            0,0054
+     20 init_journal_hash                          0,6250
+      4 get_bitmap_node                            0,0250
+      1 set_bit_in_list_bitmap                     0,0089
+      1 cleanup_bitmap_list                        0,0048
+     10 get_cnode                                  0,0694
+      3 free_cnode                                 0,0208
+      1 clear_prepared_bits                        0,0625
+      1 reiserfs_check_lock_depth                  0,0625
+      1 push_journal_writer                        0,0625
+      1 pop_journal_writer                         0,0625
+     20 reiserfs_in_journal                        0,0417
+      7 flush_commit_list                          0,0061
+      2 find_newer_jl_for_cn                       0,0417
+      1 submit_logged_buffer                       0,0104
+      1 flush_journal_list                         0,0010
+     68 kupdate_one_transaction                    0,1288
+      1 reiserfs_journal_kupdate                   0,0057
+     37 remove_journal_hash                        0,1927
+      8 reiserfs_wait_on_write_block               0,0556
+    206 do_journal_begin_r                         0,3065
+     23 journal_begin                              0,4792
+     62 journal_mark_dirty                         0,0861
+     13 journal_end                                0,2708
+      3 remove_from_transaction                    0,0082
+     34 can_dirty                                  0,1932
+      1 flush_old_commits                          0,0022
+     81 check_journal_end                          0,1235
+      2 journal_mark_freed                         0,0036
+      3 reiserfs_update_inode_transaction          0,0469
+      8 reiserfs_restore_prepared_buffer           0,2500
+     39 reiserfs_prepare_for_journal               0,3482
+     98 do_journal_end                             0,0302
+      1 mark_buffer_journal_new                    0,0625
+      2 sd_bytes_number                            0,1250
+      1 sd_is_left_mergeable                       0,0625
+      1 sd_create_vi                               0,0625
+      5 sd_part_size                               0,1562
+      5 direct_is_left_mergeable                   0,0347
+      2 direct_create_vi                           0,1250
+      3 direct_part_size                           0,1875
+      1 indirect_bytes_number                      0,0312
+      1 indirect_create_vi                         0,0625
+      2 indirect_part_size                         0,1250
+      1 direntry_is_left_mergeable                 0,0625
+      1 direntry_print_item                        0,0024
+     13 direntry_create_vi                         0,0325
+      1 direntry_check_left                        0,0069
+      4 direntry_part_size                         0,0625
+      3 copy_semundo                               0,0144
+      2 exit_sem                                   0,0060
+      1 capable                                    0,0104
+     84 dummy_vm_enough_memory                     0,4773
+      6 dummy_bprm_secureexec                      0,0938
+      6 dummy_inode_alloc_security                 0,3750
+      2 dummy_inode_create                         0,1250
+      2 dummy_inode_follow_link                    0,1250
+     30 dummy_inode_permission                     1,8750
+      6 dummy_file_permission                      0,3750
+     11 dummy_file_alloc_security                  0,6875
+      5 dummy_file_free_security                   0,3125
+     34 dummy_file_mmap                            2,1250
+      1 dummy_task_wait                            0,0625
+      1 dummy_d_instantiate                        0,0625
+      2 radix_tree_preload                         0,0156
+      2 radix_tree_insert                          0,0104
+    443 radix_tree_lookup                          5,5375
+      1 radix_tree_delete                          0,0042
+      6 __rb_rotate_left                           0,0938
+      2 __rb_rotate_right                          0,0312
+     33 rb_insert_color                            0,1375
+      7 __rb_erase_color                           0,0162
+     18 rb_erase                                   0,0703
+     32 number                                     0,0435
+     14 vsnprintf                                  0,0118
+      1 vsprintf                                   0,0208
+      1 __delay                                    0,0312
+      1 __const_udelay                             0,0278
+      4 __get_user_4                               0,1739
+      4 bad_get_user                               0,1600
+     34 memcpy                                     0,3542
+    382 _mmx_memcpy                                1,0852
+   8292 fast_clear_page                          103,6500
+    900 fast_copy_page                             4,0179
+     69 mmx_clear_page                             2,1562
+      1 mmx_copy_page                              0,0208
+     89 strncpy_from_user                          0,7946
+     65 clear_user                                 0,6771
+    150 strnlen_user                               1,5625
+      1 __copy_user_intel                          0,0057
+   2431 __copy_to_user_ll                         21,7054
+    256 __copy_from_user_ll                        2,2857
+      2 init_dev                                   0,0014
+      2 release_dev                                0,0014
+      1 tty_ioctl                                  0,0007
+      1 n_tty_ioctl                                0,0009
+      3 vt_ioctl                                   0,0004
+      1 vc_allocate                                0,0022
+      4 con_open                                   0,0227
+     15 blk_rq_map_sg                              0,0446
+     11 generic_unplug_device                      0,1146
+      1 blk_run_queues                             0,0078
+      1 ioc_set_batching                           0,0156
+      7 get_request                                0,0125
+      1 get_request_wait                           0,0045
+     81 __make_request                             0,0582
+      5 generic_make_request                       0,0101
+      1 submit_bio                                 0,0089
+      5 as_set_request                             0,0347
+    131 ide_end_request                            0,4309
+      7 start_request                              0,0107
+     75 ide_do_request                             0,0901
+     27 ide_intr                                   0,0844
+    111 ide_inb                                    6,9375
+    268 ide_outb                                  16,7500
+     12 ide_outl                                   0,7500
+      2 SELECT_DRIVE                               0,0250
+      2 ide_wait_stat                              0,0066
+     26 ide_execute_command                        0,1806
+      5 ide_dma_intr                               0,0260
+      3 ide_build_sglist                           0,0170
+      5 ide_build_dmatable                         0,0125
+      1 ide_destroy_dmatable                       0,0208
+      1 ide_start_dma                              0,0057
+      3 __ide_dma_write                            0,0134
+      6 __ide_dma_end                              0,0375
+      6 __ide_do_rw_disk                           0,0033
+      2 ide_do_rw_disk                             0,0208
+     23 i8042_interrupt                            0,0757
+      4 i8042_timer_func                           0,0833
+      1 sock_poll                                  0,0156
+120290 total                                      0,0752
 
-In the kernel logs.
 
-I've search this mailing list, and others, I've found similar problems, but
-no solutions was provided.
-
-Can someone point me to a possible cause of this behaviour ?
-
-Thanks
-
-
+Hope that helps,
+regards,
+Andreas

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSBZX2a>; Tue, 26 Feb 2002 18:28:30 -0500
+	id <S288019AbSBZXau>; Tue, 26 Feb 2002 18:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSBZX2K>; Tue, 26 Feb 2002 18:28:10 -0500
-Received: from jalon.able.es ([212.97.163.2]:61664 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S288019AbSBZX2H>;
-	Tue, 26 Feb 2002 18:28:07 -0500
-Date: Wed, 27 Feb 2002 00:27:58 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: wwp <subscript@free.fr>
-Cc: linux-kernel@vger.kernel.org
+	id <S288557AbSBZXak>; Tue, 26 Feb 2002 18:30:40 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:26858 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288019AbSBZXa1>; Tue, 26 Feb 2002 18:30:27 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "J.A. Magallon" <jamagallon@able.es>
 Subject: Re: low latency & preemtible kernels
-Message-ID: <20020227002758.A6669@werewolf.able.es>
-In-Reply-To: <200202261918.53190.Dieter.Nuetzel@hamburg.de> <20020226235510.E6197@werewolf.able.es> <20020227001246.58608e37.subscript@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: =?iso-8859-1?Q?=3C20020227001246=2E58608e3?=
-	=?iso-8859-1?Q?7=2Esubscript=40free=2Efr=3E=3B_from_subscript=40free=2Efr?=
-	=?iso-8859-1?Q?_on_mi=E9=2C?= feb 27, 2002 at 00:12:46 +0100
-X-Mailer: Balsa 1.3.1
+Date: Wed, 27 Feb 2002 00:30:12 +0100
+X-Mailer: KMail [version 1.3.9]
+Cc: wwp <subscript@free.fr>, Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200202261918.53190.Dieter.Nuetzel@hamburg.de> <20020226235510.E6197@werewolf.able.es>
+In-Reply-To: <20020226235510.E6197@werewolf.able.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200202270030.12347.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Dienstag, 26. Februar 2002 23:55:23, J.A. Magallon wrote:
+> On 20020226 Dieter Nützel wrote:
+> >wwp wrote:
+> >> Hi there,
+> >>
+> >> here's a newbie question:
+> >> is it UNadvisable to apply both preempt-kernel-rml and low-latency
+> >> patches over a 2.4.18 kernel?
+> >
+> >In short: no ;-)
+> >
+> >Try 2.4.18-rc4-jam2 for example. It should apply against 2.4.18 final,
+> > too.
+>
+> Correction: jam2 is O(1)-multi-queue scheduler + low-latency, no
+> preeemt there.
 
-On 20020227 wwp wrote:
->Hi J.A.,
->
->
->On Tue, 26 Feb 2002 23:55:10 +0100 "J.A. Magallon" <jamagallon@able.es> wrote:
->
->[snip]
->> >Try 2.4.18-rc4-jam2 for example. It should apply against 2.4.18 final, too.
->> >
->> 
->> Correction: jam2 is O(1)-multi-queue scheduler + low-latency, no
->> preeemt there.
->
->Won't 2.4.18-jam1 better?
->
+I put it on top as always...;-)
 
-Same patches over a more recent kernel.
-Even 2.4.18-jam1 includes the fix for the personality problem.
+Did that before all by hand, now you have set the starting point.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-jam1 #1 SMP Tue Feb 26 00:06:55 CET 2002 i686
+Regards,
+	Dieter
+BTW I will use 2.4.18-jam1.

@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUHCMyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUHCM4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUHCMyd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 08:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHCMyd
+	id S266248AbUHCM4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 08:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266353AbUHCMzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 08:54:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266200AbUHCMyb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 08:54:31 -0400
-Date: Tue, 3 Aug 2004 13:52:31 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/5] Free sysfs_dirent on file removal
-Message-ID: <20040803125231.GU12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040729203718.GB4592@in.ibm.com> <20040729203821.GC4592@in.ibm.com> <20040729203919.GD4592@in.ibm.com> <20040729204031.GE4592@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Aug 2004 08:55:54 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:52119 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266248AbUHCMzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 08:55:47 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Mark Watts <m.watts@eris.qinetiq.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+Date: Tue, 3 Aug 2004 15:05:37 +0200
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040802015527.49088944.akpm@osdl.org> <200408030927.18395.m.watts@eris.qinetiq.com>
+In-Reply-To: <200408030927.18395.m.watts@eris.qinetiq.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040729204031.GE4592@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200408031505.37005.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 03:40:31PM -0500, Maneesh Soni wrote:
-> 
-> 
-> o The following patch implements the code to free up the sysfs_dirents upon
->   directory or file removal. It uses the sysfs_dirent based tree in order
->   to remove the directory contents before removing the directory itself.
->   It could do this without taking dcache_lock in sysfs_remove_dir() as
->   it doesnot use dentry based tree.
+On Tuesday 03 of August 2004 10:27, Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+>
+> Something bad might have slipped in to do with dual opterons.
 
-ACK, but some of that (freeing sysfs_dirent upon removal, no smarts, just
-enough to plug the leak) belongs in the first chunk.
+I've run it successfully on a dual-Opteron system, so it's not related to dual 
+Opterons in general.  Could you be more specific, please?
 
-Note that there we shouldn't care about refcounts - that stuff belongs here.
+> Whenever I boot, I get a kernel panic right after it brings up the
+> processors.
+>
+> console=ttyS0 only lets me see
+> 'Kernel unable to handle ...'  with the rest cut off.
+>
+> If I boot normally, there's a couple of oops' or panics on the screen but
+> the roll by to fast to see.
+>
+> .config is attched and its the same config that boots 2.6.8rc2 just fine.
+
+Ah, I've set CONFIG_NR_CPUS=2.  The rest looks similarly.
+
+Greets,
+R.
+
+-- 
+Rafael J. Wysocki
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

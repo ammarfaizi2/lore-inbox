@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTEROIm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 10:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTEROIm
+	id S262069AbTEROMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 10:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbTEROMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 10:08:42 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30532 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262066AbTEROIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 10:08:41 -0400
-Date: Sun, 18 May 2003 14:21:30 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: arjanv@redhat.com, Jes Sorensen <jes@wildopensource.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "David S. Miller" <davem@redhat.com>,
-       Grant Grundler <grundler@dsl2.external.hp.com>,
-       Colin Ngam <cngam@sgi.com>, Jeremy Higdon <jeremy@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ia64@linuxia64.org,
-       wildos@sgi.com
-Subject: Re: [patch] support 64 bit pci_alloc_consistent
-Message-ID: <20030518142130.A30977@devserv.devel.redhat.com>
-References: <16071.1892.811622.257847@trained-monkey.org> <1053250142.1300.8.camel@laptop.fenrus.com> <1053267471.10811.28.camel@mulgrave>
+	Sun, 18 May 2003 10:12:16 -0400
+Received: from mailsrv.rollanet.org ([192.55.114.7]:49332 "HELO
+	mx.rollanet.org") by vger.kernel.org with SMTP id S262069AbTEROMO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 10:12:14 -0400
+Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG
+	support
+From: Nathan Neulinger <nneul@umr.edu>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+In-Reply-To: <20030517123044.GG686@zaurus.ucw.cz>
+References: <8812.1052841957@warthog.warthog>
+	 <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com>
+	 <20030513172029.GB25295@delft.aura.cs.cmu.edu>
+	 <20030517123044.GG686@zaurus.ucw.cz>
+Content-Type: text/plain
+Organization: University of Missouri - Rolla
+Message-Id: <1053267749.23613.14.camel@nneul-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053267471.10811.28.camel@mulgrave>; from James.Bottomley@SteelEye.com on Sun, May 18, 2003 at 09:17:48AM -0500
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 18 May 2003 09:22:29 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 09:17:48AM -0500, James Bottomley wrote:
-> (it uses 32 bit addr and 32 bit len descriptors, but reduces len to 24
-> bits to steal the extra byte for 7 bits extra addressing).  However, it
-> is forced to request the full 64 bit address mask---I've never worked
-> out what will happen to it on a machine with more than 512GB memory.
+> ? If he has same uid as you *and* you
+> have >=1 process running, what prevents
+> him from gdb attach <that process>,
+> and force it to do whatever he needs
+> by forcing syscall?
+> 				Pavel
 
-Uh??? right now even in 2.4 arbitrary bitmasks are supported for
-non-coherent memory.
+That's a good point, and perhaps it should be an option to not allow
+ptrace or other potentially dangerous operations between processes in
+different pags. But leave that optional, as it might still be useful -
+for example, logging in and diagnosing a daemon running in a separate
+pag.
+
+It's not clear if this would be best as a per-pag flag or a global one
+though. 
+
+-- Nathan
+
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216
+

@@ -1,84 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317354AbSIAT1f>; Sun, 1 Sep 2002 15:27:35 -0400
+	id <S317385AbSIATeW>; Sun, 1 Sep 2002 15:34:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317385AbSIAT1f>; Sun, 1 Sep 2002 15:27:35 -0400
-Received: from crack.them.org ([65.125.64.184]:15378 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S317354AbSIAT1d>;
-	Sun, 1 Sep 2002 15:27:33 -0400
-Date: Sun, 1 Sep 2002 15:33:13 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BUG_ON(p->ptrace) in release_task()
-Message-ID: <20020901193313.GA23985@nevyn.them.org>
-Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <87fzwthapw.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87fzwthapw.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.1i
+	id <S317392AbSIATeW>; Sun, 1 Sep 2002 15:34:22 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:43812 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S317385AbSIATeV> convert rfc822-to-8bit; Sun, 1 Sep 2002 15:34:21 -0400
+Date: Sun, 1 Sep 2002 23:19:08 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: groudier@localhost.my.domain
+To: Terry Barnaby <terry@beam.ltd.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel lockup with BVM SCSI controller on MCPN765 PPC
+ board
+In-Reply-To: <3D6F4A3A.50806@beam.ltd.uk>
+Message-ID: <20020901225240.W6132-100000@localhost.my.domain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 02:38:03AM +0900, OGAWA Hirofumi wrote:
+
+On Fri, 30 Aug 2002, Terry Barnaby wrote:
+
 > Hi,
-> 
-> I think, BUG_ON(p->ptrace) will be called if the CLONE_DETACH process
-> is traced.  This patch removes BUG_ON(p->ptrace), and also removes
-> BUG_ON(p->ptrace) workaround in sys_wait4().
+>
+> We have a major problem with using a BVM SCSI controller on a Motorola
+> MCPN765 PowerPC Compact PCI Motherboard. When the SCSI driver module is
+> loaded and starts to perform SCSI device interrogation the system will
+> completely lock up.
+> It appears that the hardware is locked up, the kernel locks up during
+> a low level serial console print routine (serial_console_write). No interrupts
+> occur (we have even disabled interrupts in the serial_console_write routine
+> to make sure).
+> The BVM SCSI controller is based on the LSI53C1010-66 chip and we are using the
+> sym53c8xx_2 SCSI driver (although the same problem occurs with the
+> sym53c8xx SCSI driver.
+> We are using MontaVista Linux 2.1 with the 2.4.17 kernel.
+>
+> Using this SCSI controller board with a Motorola MCP750 PowerPC motherboard
+> works fine. One of the differences between the Motherboards is that the
+> MCPN765 has a 66MHz/64bit PCI bus while the MCP750 has a 33MHz/32bit PCI bus.
+> The MCPN765 uses a Hawk ASIC for Memory/PCI bus control.
+>
+> We have been attempting to debug the driver to find the cause but have been
+> hitting brick walls. The system appears to lock up when the SCSI board
+> is performing a DataIn phase under the control of its on-board SCRIPTS processor.
+>
+> As the system has completely locked up we have not been able to find the cause.
+> Any information on possible causes or ideas on how to proceed would be most
+> appreciated.
 
-The BUG_ON is correct, and that isn't a workaround - if the list is not
-empty, then it will be garbage after the task struct is freed.  Your
-patch breaks tracing of normal processes again, because the ptrace_list
-will not be empty.
+The software driver hasn't any handle on the actual differences between
+the BUS that leads to failure and the one that allows success:
 
-It may be that the BUG_ON can be triggered for detached processes. In
-that case a ptrace_unlink is necessary somewhere else.
+1) The PCI clock is full hardware dependant. There is nothing software can
+   change here.
 
-> 
-> Please apply.
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-> 
-> --- linux-2.5.33/kernel/exit.c~	2002-09-02 01:02:07.000000000 +0900
-> +++ linux-2.5.33/kernel/exit.c	2002-09-02 00:54:47.000000000 +0900
-> @@ -66,8 +66,7 @@
->  	atomic_dec(&p->user->processes);
->  	security_ops->task_free_security(p);
->  	free_uid(p->user);
-> -	BUG_ON(p->ptrace || !list_empty(&p->ptrace_list) ||
-> -					!list_empty(&p->ptrace_children));
-> +	BUG_ON(!list_empty(&p->ptrace_list)||!list_empty(&p->ptrace_children));
->  	unhash_process(p);
->  
->  	release_thread(p);
-> @@ -717,14 +716,8 @@
->  					ptrace_unlink(p);
->  					do_notify_parent(p, SIGCHLD);
->  					write_unlock_irq(&tasklist_lock);
-> -				} else {
-> -					if (p->ptrace) {
-> -						write_lock_irq(&tasklist_lock);
-> -						ptrace_unlink(p);
-> -						write_unlock_irq(&tasklist_lock);
-> -					}
-> +				} else
->  					release_task(p);
-> -				}
->  				goto end_wait4;
->  			default:
->  				continue;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+2) Same for the PCI BUS path. A 64 bit PCI BUS just allows to transfer 64
+   bit of data per BUS cycle but a 32 bit PCI BUS can only transfer 32 bit
+   per PCI cycle.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+3) Both PCI BUSes width allows 64 bit memory addressing.
+
+As we know, PCI device drivers relies on kernel generic PCI driver that
+provides configuration access and DMA address translation services. The
+kernel PCI related code uses machine-dependent and bridge-dependant
+methods. So, IMO, there is far more places than just the driver code that
+are involved in the failure you report (including the related pieces of
+hardware).
+
+I would suggest you to check the following at first:
+
+1) Give a look at the PCI configuration space of the chip (or report it).
+   For example, a base address that doesn't fit in 32 bit is very
+   uncommon. Etc...
+
+2) Configure the driver for 32 bit DMA (DMA MODE = 0). This will ensure
+   that all DMA addresses will fit in 32 bit and that no PCI dual cycle
+   will occur on behalf of the 1033-66 chip.
+
+ Gérard.
+

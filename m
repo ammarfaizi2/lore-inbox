@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbUANSxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbUANSxQ
+	id S263453AbUANTHG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 14:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbUANTHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:53:16 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:52376 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264376AbUANSxN (ORCPT
+	Wed, 14 Jan 2004 14:07:05 -0500
+Received: from unthought.net ([212.97.129.88]:52675 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S263453AbUANTHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:53:13 -0500
-Message-ID: <40058F99.2030207@colorfullife.com>
-Date: Wed, 14 Jan 2004 19:51:05 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH, BACKPORT] end-of-stack detection
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 14:07:03 -0500
+Date: Wed, 14 Jan 2004 20:07:02 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
+Subject: Re: Proposed enhancements to MD
+Message-ID: <20040114190701.GD22216@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
+References: <40033D02.8000207@adaptec.com> <20040113162636.GT346@unthought.net> <20040113201058.GD1594@srv-lnx2600.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040113201058.GD1594@srv-lnx2600.matchmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The oops dump code detects the end of the kernel stack with
-    (addr & (THREAD_SIZE-1))
-This fails if the kernel stack is not 32-bit aligned. This can happen if 
-an APM bios call is interrupted and then causes an oops. The result is 
-an unreadable and incomplete oops dump. 2.6 contains a similar fix.
+On Tue, Jan 13, 2004 at 12:10:58PM -0800, Mike Fedyk wrote:
+> On Tue, Jan 13, 2004 at 05:26:36PM +0100, Jakob Oestergaard wrote:
+> > The RAID conversion/resize code for userspace exists already, and it
+> 
+> That's news to me!
+> 
+> Where is the project that does this?
 
-Marcelo, could you apply the patch to your tree?
+http://unthought.net/raidreconf/index.shtml
 
---
-    Manfred
+I know of one bug in it which will thoroughly smash user data beyond
+recognition - it happens when you resize RAID-5 arrays on disks that are
+not of equal size.  Should be easy to fix, if one tried  :)
+
+If you want it in the kernel doing hot-resizing, you probably want to
+add some sort of 'progress log' so that one can resume the
+reconfiguration after a reboot - that should be doable, just isn't done
+yet.
+
+Right now it's entirely a user-space tool and it is not integrated with
+the MD code to make it do hot-reconfiguration - integrating it with DM
+and MD would make it truely useful.
+
+
+ / jakob
 

@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264469AbRFIMT7>; Sat, 9 Jun 2001 08:19:59 -0400
+	id <S264217AbRFIMio>; Sat, 9 Jun 2001 08:38:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264470AbRFIMTt>; Sat, 9 Jun 2001 08:19:49 -0400
-Received: from oxmail4.ox.ac.uk ([163.1.2.33]:2517 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S264469AbRFIMTl>;
-	Sat, 9 Jun 2001 08:19:41 -0400
-Date: Sat, 9 Jun 2001 13:19:39 +0100
-From: Ian Lynagh <igloo@earth.li>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 rpc_execute panic (OK with 2.2.17)
-Message-ID: <20010609131939.A30773@stu163.keble.ox.ac.uk>
-In-Reply-To: <20010609113521.A30318@stu163.keble.ox.ac.uk> <shselstyi0a.fsf@charged.uio.no>
-Mime-Version: 1.0
+	id <S264470AbRFIMie>; Sat, 9 Jun 2001 08:38:34 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:17558 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S264217AbRFIMiZ>;
+	Sat, 9 Jun 2001 08:38:25 -0400
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: John Stoffel <stoffel@casc.com>, Tobias Ringstrom <tori@unhappy.mine.nu>,
+        Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106082013500.672-100000@mikeg.weiden.de>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: 09 Jun 2001 14:31:49 +0200
+In-Reply-To: <Pine.LNX.4.33.0106082013500.672-100000@mikeg.weiden.de> (Mike Galbraith's message of "Fri, 8 Jun 2001 20:30:32 +0200 (CEST)")
+Message-ID: <87u21p3kcq.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Copyleft)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <shselstyi0a.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Sat, Jun 09, 2001 at 02:06:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 09, 2001 at 02:06:45PM +0200, Trond Myklebust wrote:
-> >>>>> " " == Ian Lynagh <igloo@earth.li> writes:
+
+Mike Galbraith <mikeg@wen-online.de> writes:
+
+> On Fri, 8 Jun 2001, John Stoffel wrote:
 > 
->      > When trying to mount something over NFS with a 2.2.19 kernel we
->      > get:
+> > Mike> OK, riddle me this.  If this test is a crummy test, just how is
+> > Mike> it that I was able to warn Rik in advance that when 2.4.5 was
+> > Mike> released, he should expect complaints?  How did I _know_ that?
+> > Mike> The answer is that I fiddle with Rik's code a lot, and I test
+> > Mike> with this test because it tells me a lot.  It may not tell you
+> > Mike> anything, but it does me.
+> >
+> > I never said it was a crummy test, please do not read more into my
+> > words than was written.  What I was trying to get across is that just
+> > one test (such as a compile of the kernel) isn't perfect at showing
+> > where the problems are with the VM sub-system.
 > 
->      > Unsupported unaligned load/store trap for kernel at
->      > <00000000004d260c> Kernel panic: Wheee. Kernel does fpu/atomic
->      > unaligned load/store.
+> Hmm...
 > 
-> Does the following patch help?
+> Tobias> Could you please explain what is good about this test?  I
+> Tobias> understand that it will stress the VM, but will it do so in a
+> Tobias> realistic and relevant way?
+> 
+> I agree, this isn't really a good test case.  I'd rather see what
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> happens when you fire up a gimp session to edit an image which is
+> *almost* the size of RAM, or even just 50% the size of ram.  Then how
+> does that affect your other processes that are running at the same
+> time?
+> 
+> ...but anyway, yes it just one test from any number of possibles.
 
-Alan Cox said it is fixed in the 2.2.20pre kernels, so I will given one
-of them a shot.
+One great test that I'm using regularly to see what's goin' on, is at
+http://lxr.linux.no/. It is a cool utility to cross reference your
+Linux kernel source tree, and in the mean time eat gobs of memory, do
+lots of I/O, and burn many CPU cycles (all at the same time). Ideal
+test, if you ask me and if anybody has the time, it would be nice to
+see different timing numbers when run on different kernels. Just make
+sure you run it on the same kernel tree to make reproducable results.
+It has three passes, and the third one is the most interesting one
+(use vmstat 1 to see why). When run with 64MB RAM configuration, it
+would swap heavily, with 128MB somewhat, and at 192MB maybe not
+(depending on the other applications running at the same time).
 
-Apparently it doesn't qualify for an errata note though  :-(
-
-
-Thanks for your quick response
-Ian
-
+Try it, it is a nice utility, and a great test. :)
+-- 
+Zlatko

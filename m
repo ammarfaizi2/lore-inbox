@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVBZBbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBZCZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVBZBbp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 20:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVBZBbp
+	id S261167AbVBZCZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 21:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVBZCZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 20:31:45 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:584
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261152AbVBZBbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 20:31:43 -0500
-Date: Sat, 26 Feb 2005 02:31:37 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
-Message-ID: <20050226013137.GO20715@opteron.random>
-References: <20050223014233.6710fd73.akpm@osdl.org> <20050224215136.GK8651@stusta.de> <20050224224134.GE20715@opteron.random> <20050225211453.GC3311@stusta.de>
+	Fri, 25 Feb 2005 21:25:28 -0500
+Received: from farad.aurel32.net ([82.232.2.251]:65465 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S261167AbVBZCZV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 21:25:21 -0500
+Date: Sat, 26 Feb 2005 03:25:11 +0100
+From: Aurelien Jarno <aurelien@aurel32.net>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Fix USB stack regression in 2.6.11-rc5
+Message-ID: <20050226022510.GA7870@bode.aurel32.net>
+Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20050225211453.GC3311@stusta.de>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 25, 2005 at 10:14:54PM +0100, Adrian Bunk wrote:
-> You don't need this feature unless you know you need it.
+Hi all,
 
-But you may not know that you need it since in the help text I
-intentionally didn't mention which software requires the option to be
-set to Y (I didn't mention it, since I didn't want to use the kernel
-configuration help text to get free advertisement, but OTOH if people is
-unsure while they configure the kernel I certainly prefer that they set
-it to Y ;).
+I have just tested kernel version 2.6.11-rc5 and noticed it is not
+possible to do an USB transfer by submitting an URB to an output 
+endpoint. This breaks newest versions of libusb and thus SANE, 
+gphoto2, and a lot of software.
 
-> It's not about risk or the actual size of the code - there are many 
-> small or big features in the kernel that might be useful under some 
-> circumstances, but even the IPv6 help text still suggests to say N
-> to IPv6.
+The bug has been introduced in version 2.6.11-rc1 and is due to a 
+wrong comparison. Please find a patch below to fix that.
 
-IPV6 is some relevant amount of code and complexity, seccomp is only a
-few bytes and very simple, it's not even a kbyte of ram that you're
-paying if you enable it. Only embedded cares about bytes, and that's why
-the option exists for embedded.
+Bye,
+Aurelien
 
-One thing I'm concerned about (more than the "Y" in the help text) is
-that the distributions will enable the option in their binary kernel
-images. I hope they will given it's only a matter of a few bytes.
 
-Thanks.
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+
+diff -urN linux-2.6.11-rc5.orig/drivers/usb/core/devio.c linux-2.6.11-rc5/drivers/usb/core/devio.c
+--- linux-2.6.11-rc5.orig/drivers/usb/core/devio.c	2005-02-26 03:15:14.000000000 +0100
++++ linux-2.6.11-rc5/drivers/usb/core/devio.c	2005-02-26 03:16:15.000000000 +0100
+@@ -841,7 +841,7 @@
+ 		if ((ret = checkintf(ps, ifnum)))
+ 			return ret;
+ 	}
+-	if ((uurb.endpoint & ~USB_ENDPOINT_DIR_MASK) != 0)
++	if ((uurb.endpoint & USB_ENDPOINT_DIR_MASK) != 0)
+ 		ep = ps->dev->ep_in [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
+ 	else
+ 		ep = ps->dev->ep_out [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
+		
+
+-- 
+  .''`.  Aurelien Jarno	              GPG: 1024D/F1BCDB73
+ : :' :  Debian GNU/Linux developer | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net

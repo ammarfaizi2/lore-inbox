@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUFHM3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUFHMhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUFHM3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 08:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUFHM3Q
+	id S265187AbUFHMhi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 08:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbUFHMhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 08:29:16 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:58320 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265170AbUFHM2P (ORCPT
+	Tue, 8 Jun 2004 08:37:38 -0400
+Received: from [196.25.168.8] ([196.25.168.8]:61925 "EHLO lbsd.net")
+	by vger.kernel.org with ESMTP id S265187AbUFHMhf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 08:28:15 -0400
-Message-Id: <200406070420.i574KdKw006694@eeyore.valparaiso.cl>
-To: Mike McCormack <mike@codeweavers.com>
-cc: Christoph Hellwig <hch@infradead.org>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2 
-In-Reply-To: Message from Mike McCormack <mike@codeweavers.com> 
-   of "Sun, 06 Jun 2004 18:37:32 +0900." <40C2E5DC.8000109@codeweavers.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Mon, 07 Jun 2004 00:20:38 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 8 Jun 2004 08:37:35 -0400
+Date: Tue, 8 Jun 2004 14:36:56 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: linux-kernel@vger.kernel.org
+Subject: SMBFS crash
+Message-ID: <20040608123656.GG14247@lbsd.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8sQsHfNlXZNubEnG"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike McCormack <mike@codeweavers.com> said:
-> Christoph Hellwig wrote:
-> > Huh?  binfmts do work on all linux architectures unchanged.  What you do
-> > on other operating systems is up to you.  And btw, netbsd already has
-> > binfmt_pecoff, you could certainly make use of that, too.
-> 
-> Working on only two platforms is not really what I'd call portable.
 
-It is a start.
+--8sQsHfNlXZNubEnG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > _You_ are relying on undocumented assumptions here.   Windows has different
-> > address space layouts than ELF ABI systems and I think you're much better
-> > off having your own pecoff loader for that.
+Hi Guys,
 
-> True, we are relying on undocumented assumptions.  On the other hand, 
-> there's plenty of programs that rely on undocumented assumptions. 
+I get the following error trying to access a mounted smb filesystem.
+100% reproducable on my sytem.
 
-So? "If it breaks, you get to keep all pieces" ring a bell?
+Please let me know if you require anymore info.
 
-> Binary compatability to me means that the same binary will work even 
-> when the underlying system changes... is there a caveat that I missed?
 
-"Compatibility" means "compatible to an agreed standard", "portability" is
-a subset of that... if there is no standard, you just have accidental "it
-works". 
+Regards
+Nigel Kukard
 
-> >>It seems Linus's kernel does that quite well, but some vendors seem not 
-> >>to care too much about breaking Wine.
 
-> > Why should they?  You need to fix up the broken assumptions in wine.
-> 
-> If you don't care about binary compatability, you can change whatever 
-> you like.  At least some people out there seem to care about it.
+smb_lookup: find //.Trash-nkukard failed, error=-5
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+CPU:    0
+EIP:    0060:[<00000000>]    Tainted: P
+EFLAGS: 00210246   (2.6.6)
+EIP is at 0x0
+eax: c4b94e80   ebx: c9d71b90   ecx: c016e430   edx: d00e3fa0
+esi: 00000000   edi: c4b94e80   ebp: c93f0cf8   esp: d00e3f18
+ds: 007b   es: 007b   ss: 0068
+Process nautilus (pid: 4131, threadinfo=d00e2000 task=defa5670)
+Stack: e0ac90b2 d00e3f40 c0dccebc 00000000 c101b160 c0d8b000 c0d81c54
+c0dcce18
+       c016e430 d00e3fa0 00000000 00462953 00000000 00000000 00000000
+c0d8b000
+       00000002 00000000 00000000 00000001 00000004 ffffffe0 e0ad1d80
+c4b94e80
+Call Trace:
+ [<e0ac90b2>] smb_readdir+0x162/0x4e0 [smbfs]
+ [<c016e430>] filldir64+0x0/0xf0
+ [<c016e1ab>] vfs_readdir+0x8b/0xa0
+ [<c016e430>] filldir64+0x0/0xf0
+ [<c016e585>] sys_getdents64+0x65/0xa1
+ [<c0105f57>] syscall_call+0x7/0xb
 
-They try hard to stay within POSIX and other standards. If you need
-guarantees, you'd have to convince the kernel hackers for their need. Too
-bad if it is for backward compatibility of non-open source stuff, tho.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Code:  Bad EIP value.
+
+
+--8sQsHfNlXZNubEnG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAxbLoKoUGSidwLE4RArUiAKCFDP831/2Drq9kEk0ABUgPqEzGgwCgilHG
+dqvLDie0y1J1yfD6U6GgLY4=
+=5J58
+-----END PGP SIGNATURE-----
+
+--8sQsHfNlXZNubEnG--

@@ -1,177 +1,214 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbQLDTYq>; Mon, 4 Dec 2000 14:24:46 -0500
+	id <S129464AbQLDTqu>; Mon, 4 Dec 2000 14:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129458AbQLDTYh>; Mon, 4 Dec 2000 14:24:37 -0500
-Received: from zmamail05.zma.compaq.com ([161.114.64.105]:22281 "HELO
-	zmamail05.zma.compaq.com") by vger.kernel.org with SMTP
-	id <S129401AbQLDTYS>; Mon, 4 Dec 2000 14:24:18 -0500
-Date: Mon, 4 Dec 2000 13:53:42 -0500 (EST)
-From: Phillip Ezolt <ezolt@perf.zko.dec.com>
-Reply-To: Phillip Ezolt <ezolt@perf.zko.dec.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Andrea Arcangeli <andrea@suse.de>, rth@twiddle.net,
-        Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
-        wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-In-Reply-To: <20001202011104.A2089@jurassic.park.msu.ru>
-Message-ID: <Pine.OSF.3.96.1001204134014.11945C-100000@perf.zko.dec.com>
+	id <S129460AbQLDTqa>; Mon, 4 Dec 2000 14:46:30 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:43534 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129383AbQLDTqZ>; Mon, 4 Dec 2000 14:46:25 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDDD2@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'J. Nick Koston'" <lists@bdraco.org>, linux-kernel@vger.kernel.org
+Subject: RE: Nightly usb oops
+Date: Mon, 4 Dec 2000 11:15:49 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan,
-	I've recompiled as you have suggested.  Any ideas? 
+Hi,
 
-Here is my dmesg output:
+What kernel (test10)?
+>      -m /boot/System.map-2.4.0-test10 (specified)
 
+What compiler/version?
 
-Linux version 2.4.0-test12 (ezolt@pulitzer.zko.dec.com) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #3 Mon Dec 4 02:38:18 EST 2000
-Booting GENERIC on Miata using machine vector Miata from SRM
-Command line: console=tty0 console=ttyS0,9600 root=/dev/fd0
-memcluster 0, usage 1, start        0, end      236
-memcluster 1, usage 0, start      236, end   147455
-memcluster 2, usage 1, start   147455, end   147456
-freeing pages 236:384
-freeing pages 754:147455
-pci: cia revision 1 (pyxis)
-On node 0 totalpages: 147456
-zone(0): 147456 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-Kernel command line: console=tty0 console=ttyS0,9600 root=/dev/fd0
-Using epoch = 1952
-Console: colour VGA+ 80x25
-Calibrating delay loop... 1191.18 BogoMIPS
-Memory: 1155136k/1179640k available (1602k kernel code, 22616k reserved, 515k data, 376k init)
-Dentry-cache hash table entries: 262144 (order: 9, 4194304 bytes)
-Buffer-cache hash table entries: 65536 (order: 6, 524288 bytes)
-Page-cache hash table entries: 262144 (order: 8, 2097152 bytes)
-Inode-cache hash table entries: 131072 (order: 8, 2097152 bytes)
-POSIX conformance testing by UNIFIX
-pci: passed tb register update test
-pci: passed sg loopback i/o read test
-pci: passed tbia test
-pci: passed pte write cache snoop test
-pci: failed valid tag invalid pte reload test (mcheck; workaround available)
-pci: passed pci machine check test
-  got res[8000:807f] for resource 0 of Digital Equipment Corporation DECchip 21142/43
-  got res[8080:80ff] for resource 1 of Digital Equipment Corporation DEFPA
-  got res[8400:840f] for resource 4 of Contaq Microsystems 82c693 (#2)
-  got res[9000000:97fffff] for resource 1 of Matrox Graphics, Inc. MGA 2064W [Millennium]
-  got res[9800000:983ffff] for resource 6 of Digital Equipment Corporation DECchip 21142/43
-  got res[9840000:984ffff] for resource 4 of Contaq Microsystems 82c693 (#3)
-  got res[9850000:985ffff] for resource 6 of Matrox Graphics, Inc. MGA 2064W [Millennium]
-  got res[9860000:986ffff] for resource 2 of Digital Equipment Corporation DEFPA
-  got res[9870000:9873fff] for resource 0 of Matrox Graphics, Inc. MGA 2064W [Millennium]
-  got res[9874000:9874fff] for resource 0 of Contaq Microsystems 82c693 (#4)
-  got res[9875000:987507f] for resource 1 of Digital Equipment Corporation DECchip 21142/43
-  got res[9876000:987607f] for resource 0 of Digital Equipment Corporation DEFPA
-  got res[9000:90ff] for resource 0 of Q Logic ISP1020
-  got res[9400:947f] for resource 0 of Digital Equipment Corporation DECchip 21040 [Tulip]
-  got res[9900000:990ffff] for resource 6 of Q Logic ISP1020
-  got res[9910000:9910fff] for resource 1 of Q Logic ISP1020
-  got res[9911000:991107f] for resource 1 of Digital Equipment Corporation DECchip 21040 [Tulip]
-PCI: Bus 1, bridge: Digital Equipment Corporation DECchip 21152
-  IO window: 9000-9fff
-  MEM window: 09900000-099fffff
-PCI enable device: (Digital Equipment Corporation DECchip 21142/43)
-  cmd reg 0x47
-PCI enable device: (Contaq Microsystems 82c693)
-  cmd reg 0x47
-PCI enable device: (Contaq Microsystems 82c693 (#2))
-  cmd reg 0x45
-PCI enable device: (Contaq Microsystems 82c693 (#3))
-  cmd reg 0x47
-PCI enable device: (Contaq Microsystems 82c693 (#4))
-  cmd reg 0x46
-PCI enable device: (Matrox Graphics, Inc. MGA 2064W [Millennium])
-  cmd reg 0x87
-PCI enable device: (Digital Equipment Corporation DEFPA)
-  cmd reg 0x47
-PCI enable device: (Digital Equipment Corporation DECchip 21152)
-  cmd reg 0x107
-PCI enable device: (Q Logic ISP1020)
-  cmd reg 0x47
-PCI enable device: (Digital Equipment Corporation DECchip 21040 [Tulip])
-  cmd reg 0x47
-SMC37c669 Super I/O Controller found @ 0x370
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Starting kswapd v1.8
-pty: 256 Unix98 ptys configured
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-CY82C693: IDE controller on PCI bus 00 dev 39
-CY82C693: chipset revision 0
-CY82C693: not 100% native mode: will probe irqs later
-CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)
-    ide0: BM-DMA at 0x8400-0x8407<7>pci_map_single: [fffffc0001910000,1000] -> direct 41910000 from fffffc000031afa8
-, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x8408-0x840f<7>pci_map_single: [fffffc00001fa000,1000] -> direct 401fa000 from fffffc000031afa8
-, BIOS settings: hdc:pio, hdd:pio
-hda: TOSHIBA CD-ROM XM-5702B, ATAPI CDROM drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: ATAPI 12X CD-ROM drive, 256kB Cache
-Uniform CD-ROM driver Revision: 3.11
-Floppy drive(s): fd0 is 2.88M
-FDC 0 is a post-1991 82077
-Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-rtc: Digital UNIX epoch (1952) detected
-Real Time Clock Driver v1.10d
-Linux Tulip driver version 0.9.11 (November 3, 2000)
-eth0: Digital DS21143 Tulip rev 48 at 0x8000, 00:00:F8:76:72:DA, IRQ 24.
-eth0:  EEPROM default media type Autosense.
-eth0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
-eth0:  Index #1 - Media 10baseT-FD (#4) described by a 21142 Serial PHY (2) block.
-eth0:  Index #2 - Media 10base2 (#1) described by a 21142 Serial PHY (2) block.
-eth0:  Index #3 - Media AUI (#2) described by a 21142 Serial PHY (2) block.
-eth0:  Index #4 - Media MII (#11) described by a 21142 MII PHY (3) block.
-eth0:  MII transceiver #5 config 2000 status 784b advertising 01e1.
-eth1: Digital DC21040 Tulip rev 35 at 0x9400, 08:00:2B:E4:1E:CB, IRQ 44.
-SCSI subsystem driver Revision: 1.00
-qlogicisp : new isp1020 revision ID (5)
-scsi0 : QLogic ISP1020 SCSI on PCI bus 01 device 20 irq 27 I/O base 0x9000
-CIA machine check: vector=0x660 pc=0xfffffc0000310764 code=0x813
-machine check type: unknown
-pc = [<fffffc0000310764>]  ra = [<fffffc000032dc3c>]  ps = 0000
-v0 = 0000000047fe03b8  t0 = fffffc0000310a10  t1 = 0000000000000001
-t2 = 0000000000000001  t3 = fffffc0001914000  t4 = fffffc0000562208
-t5 = 0000000000000057  t6 = fffffc0000560d88  t7 = fffffc0001914000
-a0 = 00000000019143b8  a1 = fffffc0047fe0000  a2 = fffffc000032e304
-a3 = fffffffffffffffe  a4 = 000000000000000f  a5 = 0000000000000000
-t8 = 0000000000000000  t9 = 0000000063001812  t10= 0000000000000000
-t11= 0000000000000010  pv = fffffc0000310a00  at = fffffc000052c080
-gp = fffffc0000585890  sp = fffffc0001917c00
+Please post a list of your USB devices from
+/proc/bus/usb/devices .
 
---Phil
+Are you inserting or unplugging a USB device when this happens?
+If not, are you doing anything with USB when this happens?
 
-Compaq:  High Performance Server Division/Benchmark Performance Engineering 
----------------- Alpha, The Fastest Processor on Earth --------------------
-Phillip.Ezolt@compaq.com        |C|O|M|P|A|Q|        ezolt@perf.zko.dec.com
-------------------- See the results at www.spec.org -----------------------
+Thanks,
+~Randy_________________________________________
+|randy.dunlap_at_intel.com        503-677-5408|
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+-----------------------------------------------
 
-On Sat, 2 Dec 2000, Ivan Kokshaysky wrote:
-
-> On Fri, Dec 01, 2000 at 02:56:43PM -0500, Phillip Ezolt wrote:
-> > What data structure's would I look at?  What should I investigate to
-> > verify this?
-> 
-> In the arch/alpha/kernel/pci_iommu.c change
-> #define DEBUG_ALLOC 0
-> to
-> #define DEBUG_ALLOC 2
-> 
-> Perhaps this will give us more info.
-> At the first look window 1 is being set up properly.
-> 
-> Ivan.
+> -----Original Message-----
+> From: J. Nick Koston [mailto:lists@bdraco.org]
+> Sent: Monday, December 04, 2000 7:13 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Nightly usb oops
 > 
 > 
+> My machine crashes almost every night with this oops.  I've finally
+> managed to catch it before it was totally gone.
+> 
+> 
+> ksymoops 2.3.4 on i686 2.4.0-test10.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.0-test10 (specified)
+>      -m /boot/System.map-2.4.0-test10 (specified)
+> 
+> Warning (compare_maps): snd symbol pm_register not found in 
+> /lib/modules/2.4.0-test10/misc/snd.o.  Ignoring 
+> /lib/modules/2.4.0-test10/misc/snd.o entry
+> Warning (compare_maps): snd symbol pm_send not found in 
+> /lib/modules/2.4.0-test10/misc/snd.o.  Ignoring 
+> /lib/modules/2.4.0-test10/misc/snd.o entry
+> Warning (compare_maps): snd symbol pm_unregister not found in 
+> /lib/modules/2.4.0-test10/misc/snd.o.  Ignoring 
+> /lib/modules/2.4.0-test10/misc/snd.o entry
+>       0fef3340 e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 
+> EndPt=0 Dev=1b, PID=2d(SETUP) (buf=0bd41580)
+... (many STALL/CRC/Timeouts for Dev=1b, 22, 25) ...
+> Unable to handle kernel NULL pointer dereference at virtual 
+> address 00000014
+> c01faed6
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c01faed6>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010282
+> eax: 00000008   ebx: cbd41385   ecx: cbd41380   edx: 00000008
+> esi: 00000000   edi: cfe12400   ebp: 00000001   esp: c14fdf0c
+> ds: 0018   es: 0018   ss: 0018
+> Process khubd (pid: 7, stackpage=c14fd000)
+> Stack: cbd41385 00000000 cfe12400 00000001 00000008 00000000 
+> 00000009 00000000 
+>        00000001 00000000 00000000 c01fb1f3 cfe12400 00000000 
+> cfe12400 c5985802 
+>        cfe12400 00000000 cbd41380 cbd41380 c01fb7f1 cfe12400 
+> 00000001 00000000 
+> Call Trace: [<c01fb1f3>] [<c01fb7f1>] [<c01fcc60>] 
+> [<c01fce32>] [<c0293580>] [<c0293647>] [<c01fcfa5>] 
+>        [<c0105000>] [<c0108c03>] 
+> Code: 8b 42 0c c7 44 24 24 00 00 00 00 0f b6 72 04 39 74 24 24 0f 
+> 
+> >>EIP; c01faed6 <usb_set_maxpacket+46/120>   <=====
+> Trace; c01fb1f3 <usb_set_configuration+e3/f0>
+> Trace; c01fb7f1 <usb_new_device+171/1d0>
+> Trace; c01fcc60 <usb_hub_port_connect_change+270/300>
+> Trace; c01fce32 <usb_hub_events+142/270>
+> Trace; c0293580 <usb_bandwidth_option+1bf8/28ec>
+> Trace; c0293647 <usb_bandwidth_option+1cbf/28ec>
+> Trace; c01fcfa5 <usb_hub_thread+45/70>
+> Trace; c0105000 <empty_bad_page+0/1000>
+> Trace; c0108c03 <kernel_thread+23/30>
+> Code;  c01faed6 <usb_set_maxpacket+46/120>
+> 00000000 <_EIP>:
+> Code;  c01faed6 <usb_set_maxpacket+46/120>   <=====
+>    0:   8b 42 0c                  mov    0xc(%edx),%eax   <=====
+> Code;  c01faed9 <usb_set_maxpacket+49/120>
+>    3:   c7 44 24 24 00 00 00      movl   $0x0,0x24(%esp,1)
+> Code;  c01faee0 <usb_set_maxpacket+50/120>
+>    a:   00 
+> Code;  c01faee1 <usb_set_maxpacket+51/120>
+>    b:   0f b6 72 04               movzbl 0x4(%edx),%esi
+> Code;  c01faee5 <usb_set_maxpacket+55/120>
+>    f:   39 74 24 24               cmp    %esi,0x24(%esp,1)
+> Code;  c01faee9 <usb_set_maxpacket+59/120>
+>   13:   0f 00 00                  sldt   (%eax)
+> 
+> Unable to handle kernel NULL pointer dereference at virtual 
+> address 00000008
+> c013ed99
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c013ed99>]
+> EFLAGS: 00010246
+> eax: 00000008   ebx: 00000000   ecx: 0000000c   edx: 00000002
+> esi: 00000000   edi: 00000000   ebp: 00000008   esp: c36f3f08
+> ds: 0018   es: 0018   ss: 0018
+> Process initlog (pid: 532, stackpage=c36f3000)
+> Stack: c36f2000 00000000 00000002 00000000 0000000c 0000000e 
+> c013eec3 00000002 
+>        00000008 c36f3f48 c36f3f4c c36f2000 00000002 00000002 
+> 00000000 c36f2000 
+>        00000000 00000000 c013f133 00000002 00000000 00000002 
+> cbd41140 c36f3fb8 
+> Call Trace: [<c013eec3>] [<c013f133>] [<c01203ed>] [<c010a637>] 
+> Code: 8b 45 00 85 c0 7c 59 e8 6b 1f ff ff 89 c6 bb 20 00 00 00 85 
+> 
+> >>EIP; c013ed99 <do_pollfd+29/b0>   <=====
+> Trace; c013eec3 <do_poll+a3/e0>
+> Trace; c013f133 <sys_poll+233/350>
+> Trace; c01203ed <sys_nanosleep+10d/190>
+> Trace; c010a637 <system_call+33/38>
+> Code;  c013ed99 <do_pollfd+29/b0>
+> 00000000 <_EIP>:
+> Code;  c013ed99 <do_pollfd+29/b0>   <=====
+>    0:   8b 45 00                  mov    0x0(%ebp),%eax   <=====
+> Code;  c013ed9c <do_pollfd+2c/b0>
+>    3:   85 c0                     test   %eax,%eax
+> Code;  c013ed9e <do_pollfd+2e/b0>
+>    5:   7c 59                     jl     60 <_EIP+0x60> 
+> c013edf9 <do_pollfd+89/b0>
+> Code;  c013eda0 <do_pollfd+30/b0>
+>    7:   e8 6b 1f ff ff            call   ffff1f77 
+> <_EIP+0xffff1f77> c0130d10 <fget+0/30>
+> Code;  c013eda5 <do_pollfd+35/b0>
+>    c:   89 c6                     mov    %eax,%esi
+> Code;  c013eda7 <do_pollfd+37/b0>
+>    e:   bb 20 00 00 00            mov    $0x20,%ebx
+> Code;  c013edac <do_pollfd+3c/b0>
+>   13:   85 00                     test   %eax,(%eax)
+> 
+> Unable to handle kernel NULL pointer dereference at virtual 
+> address 00000040
+> c013ed99
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c013ed99>]
+> EFLAGS: 00210246
+> eax: 00000040   ebx: 00000000   ecx: 00000044   edx: 00000006
+> esi: 00000000   edi: 00000000   ebp: 00000040   esp: c09a7f08
+> ds: 0018   es: 0018   ss: 0018
+> Process deskguide_apple (pid: 835, stackpage=c09a7000)
+> Stack: c09a6000 00000000 00000006 00000000 00000044 00000046 
+> c013eec3 00000006 
+>        00000040 c09a7f48 c09a7f4c c09a6000 00000006 00000006 
+> 00000000 c09a6000 
+>        00000000 00000000 c013f133 00000006 00000000 00000006 
+> cbd41880 c09a7fb8 
+> Call Trace: [<c013eec3>] [<c013f133>] [<c010a637>] 
+> Code: 8b 45 00 85 c0 7c 59 e8 6b 1f ff ff 89 c6 bb 20 00 00 00 85 
+> 
+> >>EIP; c013ed99 <do_pollfd+29/b0>   <=====
+> Trace; c013eec3 <do_poll+a3/e0>
+> Trace; c013f133 <sys_poll+233/350>
+> Trace; c010a637 <system_call+33/38>
+> Code;  c013ed99 <do_pollfd+29/b0>
+> 00000000 <_EIP>:
+> Code;  c013ed99 <do_pollfd+29/b0>   <=====
+>    0:   8b 45 00                  mov    0x0(%ebp),%eax   <=====
+> Code;  c013ed9c <do_pollfd+2c/b0>
+>    3:   85 c0                     test   %eax,%eax
+> Code;  c013ed9e <do_pollfd+2e/b0>
+>    5:   7c 59                     jl     60 <_EIP+0x60> 
+> c013edf9 <do_pollfd+89/b0>
+> Code;  c013eda0 <do_pollfd+30/b0>
+>    7:   e8 6b 1f ff ff            call   ffff1f77 
+> <_EIP+0xffff1f77> c0130d10 <fget+0/30>
+> Code;  c013eda5 <do_pollfd+35/b0>
+>    c:   89 c6                     mov    %eax,%esi
+> Code;  c013eda7 <do_pollfd+37/b0>
+>    e:   bb 20 00 00 00            mov    $0x20,%ebx
+> Code;  c013edac <do_pollfd+3c/b0>
+>   13:   85 00                     test   %eax,(%eax)
+> 
+> 
+> 3 warnings issued.  Results may not be reliable.
+> -
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUJHUSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUJHUSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUJHUSs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJHUSr
+	id S263664AbUJHUSW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUJHUSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:18:47 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:3720 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S264386AbUJHUQO
+	Fri, 8 Oct 2004 16:18:21 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:45006 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264443AbUJHUQs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:16:14 -0400
-Subject: Re: wait_event and preemption in 2.6
-From: Robert Love <rml@novell.com>
-To: michael_soulier@mitel.com
-Cc: linux-kernel@vger.kernel.org, john_fodor@mitel.com
-In-Reply-To: <20041008174510.GJ30977@e-smith.com>
-References: <20041008174510.GJ30977@e-smith.com>
-Content-Type: text/plain
-Date: Fri, 08 Oct 2004 16:14:38 -0400
-Message-Id: <1097266478.8686.10.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Fri, 8 Oct 2004 16:16:48 -0400
+Date: Fri, 08 Oct 2004 13:17:19 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Hanna Linder <hannal@us.ibm.com>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       paulus@samba.org, anton@samba.org
+Subject: [PATCH 2.6] u3_iommu.c replace pci_find_device with pci_get_device
+Message-ID: <78680000.1097266639@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <73910000.1097257899@w-hlinder.beaverton.ibm.com>
+References: <70860000.1097257256@w-hlinder.beaverton.ibm.com> <73910000.1097257899@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 13:45 -0400, michael_soulier@mitel.com wrote:
 
-> I'm writing a device driver for PPC Linux and I'm using wait_event. It
-> seems to me that there is a potential race condition in wait_event when
-> preemption is turned on (2.6 kernel).
-> 
-> The scenario goes something like this: After the waiting process is
-> woken up and returns from schedule it goes to the top of the loop and
-> prepares to wait again (despite the condition being true). Then it will
-> check the condition and break out of the loop. But what if in-kernel
-> preemption occurs while it's doing that and another process is
-> immediately scheduled to run? Does the process sleep forever? Assume
-> that the event (say interrupt) that caused the original wakeup is a one
-> shot.
+As pci_find_device is going away I've replaced it with pci_get_device and pci_dev_put.
+If someone with a PPC64 system could test it I would appreciate it.
 
-See the PREEMPT_ACTIVE logic.
+Thanks.
 
-If a task is preempted it is marked PREEMPT_ACTIVE and it skips the
-runqueue removal logic in schedule().  So even if it is !TASK_RUNNING it
-will run again.
+Hanna Linder
+IBM Linux Technology Center
 
-You can see this in schedule() and preempt_schedule(), both in
-kernel/sched.c.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-	Robert Love
+---
+diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/u3_iommu.c linux-2.6.9-rc3-mm3patch2/arch/ppc64/kernel/u3_iommu.c
+--- linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/u3_iommu.c	2004-09-29 20:05:52.000000000 -0700
++++ linux-2.6.9-rc3-mm3patch2/arch/ppc64/kernel/u3_iommu.c	2004-10-08 13:10:06.883314632 -0700
+@@ -290,7 +290,7 @@ void iommu_setup_u3(void)
+ 	/* We only have one iommu table on the mac for now, which makes
+ 	 * things simple. Setup all PCI devices to point to this table
+ 	 */
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		/* We must use pci_device_to_OF_node() to make sure that
+ 		 * we get the real "final" pointer to the device in the
+ 		 * pci_dev sysdata and not the temporary PHB one
 
 

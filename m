@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265093AbSLMQO3>; Fri, 13 Dec 2002 11:14:29 -0500
+	id <S265085AbSLMQRO>; Fri, 13 Dec 2002 11:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265095AbSLMQO3>; Fri, 13 Dec 2002 11:14:29 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:54535 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S265093AbSLMQO2>;
-	Fri, 13 Dec 2002 11:14:28 -0500
-Date: Fri, 13 Dec 2002 17:22:17 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: michael@lug-owl.de
-Subject: Re: PATCH: Four function buttons on DELL Latitude X200
-Message-ID: <20021213162217.GP20409@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, michael@lug-owl.de
-References: <m3d6ocjd81.fsf@Janik.cz> <E18LBeK-00046y-00@calista.inka.de> <at2r5v$fib$1@cesium.transmeta.com> <20021210213444.GA451@elf.ucw.cz> <3DF7BF10.7030204@zytor.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9ZRxqsK4bBEmgNeO"
-Content-Disposition: inline
-In-Reply-To: <3DF7BF10.7030204@zytor.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+	id <S265095AbSLMQRN>; Fri, 13 Dec 2002 11:17:13 -0500
+Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:4992 "EHLO
+	r2d2.office") by vger.kernel.org with ESMTP id <S265085AbSLMQRM>;
+	Fri, 13 Dec 2002 11:17:12 -0500
+Message-ID: <3DFA09A4.7080701@walrond.org>
+Date: Fri, 13 Dec 2002 16:24:04 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Symlink indirection
+References: <Pine.LNX.3.95.1021213102838.2190B-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+No, I think marc was right...
 
---9ZRxqsK4bBEmgNeO
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+daedalus@bob sym $ ls -l
+total 4
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:19 a -> b
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:19 b -> c
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:20 c -> d
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:20 d -> e
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:20 e -> f
+lrwxrwxrwx    1 daedalus users           1 Dec 13 16:20 f -> g
+lrwxrwxrwx    1 daedalus users           4 Dec 13 16:21 g -> test
+-rw-r--r--    1 daedalus users           6 Dec 13 16:18 test
+daedalus@bob sym $ cat a
+cat: a: Too many levels of symbolic links
+daedalus@bob sym $ cat b
+cat: b: Too many levels of symbolic links
+daedalus@bob sym $ cat c
+Hello
 
-On Wed, 2002-12-11 14:41:20 -0800, H. Peter Anvin <hpa@zytor.com>
-wrote in message <3DF7BF10.7030204@zytor.com>:
-> Pavel Machek wrote:
-> >=20
-> > Well, nothing prevents keyboard manufacturers from using 0xe2 as a
-> > prefix, too. I think there are really *weird* keyboards out there.
-> >=20
->=20
-> True enough, although very few things are going to recognize them at all.
 
-A co-worker of me once developed some patch to handle some weired
-Point of Sale keyboards (with magnetic stripe reader and some lock and
-so on). He did it by allowing additional modules to parse everything
-what is coming from keyboard controller (through additionally hooked
-modules) before sending "normal" keycaps events to userspace. An
-application willing to get the extra data could fetch that from some
-/dev/ice node. This could be generalized to send input API events. I'll
-CC him to allow him to speak up.
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
-   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
-
---9ZRxqsK4bBEmgNeO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9+gk5Hb1edYOZ4bsRAv4RAKCP8cT3CD8HOHnTUFjTKzmjFwktswCfRAhF
-fxmQeyYu+KeYc0vXtbvLsYM=
-=omLE
------END PGP SIGNATURE-----
-
---9ZRxqsK4bBEmgNeO--

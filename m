@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268214AbUHYEuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUHYEt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268214AbUHYEuH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 00:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268341AbUHYEtg
+	id S268100AbUHYEt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 00:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268341AbUHYEtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 00:49:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268214AbUHYEsG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 00:48:06 -0400
-Date: Tue, 24 Aug 2004 21:46:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ryan Arnold <rsa@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org,
-       paulus@samba.org, benh@kernel.crashing.org
-Subject: Re: [PATCH] interrupt driven hvc_console as vio device
-Message-Id: <20040824214620.769e03de.akpm@osdl.org>
-In-Reply-To: <1093394937.3402.83.camel@localhost>
-References: <1093394937.3402.83.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 25 Aug 2004 00:49:25 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:21961 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268100AbUHYEtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 00:49:00 -0400
+Subject: Re: PROBLEM: ATAPI (Memory Leak?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Steven E. Woolard" <tuxq@tuxq.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <412C18D2.5080206@tuxq.com>
+References: <412C18D2.5080206@tuxq.com>
+Content-Type: text/plain
+Message-Id: <1093409340.5678.16.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 25 Aug 2004 00:49:01 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Arnold <rsa@us.ibm.com> wrote:
->
->  static void hvc_close(struct tty_struct *tty, struct file * filp)
->   {
-> ...
->  +		while (hp->n_outbuf) {
->  +			spin_unlock_irqrestore(&hp->lock, flags);
->  +			yield();
->  +			spin_lock_irqsave(&hp->lock, flags);
->  +		}
+On Wed, 2004-08-25 at 00:42, Steven E. Woolard wrote:
 
-ick.
+> If this has been fixed in an rc or mm patch, let me know--I'll upgrade
+> As for now, I'm back on 2.6.7
+> 
 
-I suspect that if the caller of hvc_close() has realtime scheduling policy,
-this locks up.  Unless it's waiting for interrupt activity.
+You don't say which kernel you are using, but this is a known bug.  It
+should be fixed in 2.6.9.  Try 2.6.9-rc1 for the time being.
 
-Really, a real sleep/wakeup would be tons better.
+Lee
 

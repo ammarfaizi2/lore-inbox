@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265912AbUAUE4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 23:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265933AbUAUE4y
+	id S265948AbUAUFJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 00:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUAUFJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 23:56:54 -0500
-Received: from h80ad25db.async.vt.edu ([128.173.37.219]:8065 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265912AbUAUE4u (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 23:56:50 -0500
-Message-Id: <200401210456.i0L4uXTJ009209@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm4 
-In-Reply-To: Your message of "Wed, 21 Jan 2004 15:06:57 +1100."
-             <20040121043608.6E4BB2C0CB@lists.samba.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040121043608.6E4BB2C0CB@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1066928032P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Jan 2004 23:56:33 -0500
+	Wed, 21 Jan 2004 00:09:18 -0500
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:62087 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265948AbUAUFJP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 00:09:15 -0500
+From: Rusty Russell <rusty@au1.ibm.com>
+To: vatsa@in.ibm.com
+Cc: Nick Piggin <piggin@cyberone.com.au>, Rusty Russell <rusty@au1.ibm.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       rml@tech9.net
+Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR 
+In-reply-to: Your message of "Wed, 21 Jan 2004 09:36:33 +0530."
+             <20040121093633.A3169@in.ibm.com> 
+Date: Wed, 21 Jan 2004 16:07:06 +1100
+Message-Id: <20040121050853.AF2F217DDE@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1066928032P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 21 Jan 2004 15:06:57 +1100, Rusty Russell said:
-
-> > E.g. the new argument needed to make the mouse work on KVMs is
-> > mindboogling, could be nearly a Windows registry entry.
+In message <20040121093633.A3169@in.ibm.com> you write:
+> On Tue, Jan 20, 2004 at 12:43:52AM -0800, Tim Hockin wrote:
+> > IFF the app is designed to handle it.  The existence of a SIGPWR handler
+> > does not necessarily imply that, though.  a SIGCPU or something might
+> > correlate 1:1 with this, but SIGPWR doesn't.
 > 
-> I have no idea what you are talking about. 8(
+> I agree we should have a separe signal for CPU Hotplug.
 
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs
+Can we add signals without breaking userspace?
 
-That's the name of a registry entry. I don't think iwe're quite THAT bad. ;)
+If we can, SIGRECONFIG makes sense.  If not, I'd rather not have a
+signal, rely on hotplug, and look at addding a signal in 2.7.
 
---==_Exmh_-1066928032P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFADgaAcC3lWbTT17ARAv0wAKDuwzgBgp1M0A6JurqV7lrobusaCwCgqsBz
-tshVB5WoJsbqsJzF0ZoHazo=
-=W0IC
------END PGP SIGNATURE-----
-
---==_Exmh_-1066928032P--
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

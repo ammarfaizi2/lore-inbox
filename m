@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264241AbTLERaG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTLERaF
+	id S264321AbTLERf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTLERf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:30:05 -0500
-Received: from bay7-dav52.bay7.hotmail.com ([64.4.10.41]:14350 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264241AbTLER3x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:29:53 -0500
-X-Originating-IP: [24.61.138.213]
-X-Originating-Email: [jason_kingsland@hotmail.com]
-From: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>,
-       "Kendall Bennett" <KendallB@scitechsoft.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Fri, 5 Dec 2003 12:29:56 -0500
+	Fri, 5 Dec 2003 12:35:59 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:11035 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S264321AbTLERf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 12:35:57 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Ryan Anderson'" <ryan@michonline.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 09:35:52 -0800
+Organization: Cisco Systems
+Message-ID: <001401c3bb56$3b2fdd40$ca41cb3f@amer.cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <BAY7-DAV52PZku6s33Y00003c18@hotmail.com>
-X-OriginalArrivalTime: 05 Dec 2003 17:29:52.0464 (UTC) FILETIME=[6439F500:01C3BB55]
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20031205140304.GF17870@michonline.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
-> There's a clarification that user-space programs that use the standard
-> system call interfaces aren't considered derived works
+> So far, I don't see any reason why a module that uses an 
+> inline function provided via a kernel header could be distributed in
+binary 
+> format without being a "derived work" and thus bound by the GPL.
 
-If it said "user-space" or "non-kernel address space" in the Linux license
-then I would agree.
+Yeah, the same reason that XFS, NUMA, etc are derived works from Unix
+since they must include Unix header files.
 
-But the exact wording is much more vague:
+What, maybe there are no inline functions there? No problem. SCO could
+make stuff like spinlocks inline. And suddenly you are derived works
+now.
 
-"user programs that use kernel services by normal system calls"
+I just don't see how this actually works as you said.
 
-Any binary loadable kernel module can be considered a "user program"
-Any interface defined in the kernel header files can be considered a "normal
-system call"
 
-This is why I think further clarification is warranted in future versions of
-copying.txt - because we are needlessly giving away the source-code freedom
-that GPL is intended to protect.
-
-The proponents of binary-only kernel modules currently use the above as a
-defense to argue their case for GPL non-compliance.

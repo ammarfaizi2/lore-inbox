@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUEVICs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264906AbUEVIDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUEVICs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 04:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbUEVICs
+	id S264906AbUEVIDY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 04:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbUEVIDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 04:02:48 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:51149 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264902AbUEVICq (ORCPT
+	Sat, 22 May 2004 04:03:24 -0400
+Received: from zero.aec.at ([193.170.194.10]:4869 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264906AbUEVIDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 04:02:46 -0400
-Message-ID: <40AF0911.6020000@colorfullife.com>
-Date: Sat, 22 May 2004 10:02:25 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Sat, 22 May 2004 04:03:19 -0400
+To: "Spinka, Kristofer" <kspinka@style.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unserializing ioctl() system calls
+References: <1YuKj-2FZ-9@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 22 May 2004 10:03:15 +0200
+In-Reply-To: <1YuKj-2FZ-9@gated-at.bofh.it> (Kristofer Spinka's message of
+ "Sat, 22 May 2004 04:50:07 +0200")
+Message-ID: <m3n040q470.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: slab redzoning
-References: <20040522034902.GB2161@holomorphy.com>
-In-Reply-To: <20040522034902.GB2161@holomorphy.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+"Spinka, Kristofer" <kspinka@style.net> writes:
 
->-if ((size < 4096 || fls(size-1) == fls(size-1+3*BYTES_PER_WORD)))
->+if (size + 3*BYTES_PER_WORD <= PAGE_SIZE ||
+> I noticed that even in the 2.6.6 code, callers to ioctl system call
+> (sys_ioctl in fs/ioctl.c) are serialized with {lock,unlock}_kernel().
 >
-I understand this change: objects between 4082 and 4095 bytes are 
-redzoned and cause order==1 allocations, that's wrong.
+> I realize that many kernel modules, and POSIX for that matter, may not
+> be ready to make this more concurrent.
 
->+			((size & (size - 1)) &&
->+			(1 << fls(size)) - size > 3*BYTES_PER_WORD))
->
-Why this change? I've tested my fls(size-1)==fls(size-1-3*4) approach 
-and it always returned the right result: No redzoning between 8181 and 
-8192 bytes, between 16373 and 16384, etc.
+POSIX doesn't care how the kernel implements locking.
 
---
-    Manfred
+> I propose adding a flag to indicate that the underlying module would
+> like to support its own concurrency management, and thus we avoid
+> grabbing the BKL around the f_op->ioctl call.
+
+Better would be probably a unlocked_ioctl() entry point in f_op. Should
+be pretty easy to implement.
+
+There is also the additional issue that on 64bit systems with 32bit
+userland the ioctl emulation currently relies on the BKL.
+
+-Andi
 

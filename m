@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbUAaDQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 22:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbUAaDQz
+	id S262130AbUAaEGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 23:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUAaEGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 22:16:55 -0500
-Received: from buerotecgmbh.de ([217.160.181.99]:1411 "EHLO buerotecgmbh.de")
-	by vger.kernel.org with ESMTP id S261973AbUAaDQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 22:16:54 -0500
-Date: Sat, 31 Jan 2004 04:17:18 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] udev 015 release
-Message-ID: <20040131031718.GA21129@vrfy.org>
-References: <20040126215036.GA6906@kroah.com> <1075395125.7680.21.camel@nosferatu.lan> <20040129215529.GB9610@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jan 2004 23:06:04 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:7627 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S262130AbUAaEGC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 23:06:02 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: oddment in build vs reported version
+Date: Fri, 30 Jan 2004 23:06:01 -0500
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040129215529.GB9610@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401302306.01366.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.53.166] at Fri, 30 Jan 2004 22:06:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 01:55:29PM -0800, Greg KH wrote:
-> On Thu, Jan 29, 2004 at 06:52:05PM +0200, Martin Schlemmer wrote:
-> > On Mon, 2004-01-26 at 23:50, Greg KH wrote:
-> > 
-> > Is there a known issue that the daemon do not spawn?
-> 
-> Hm, I don't know.  This code is under major flux right now...
+I use a script to build new kernels, and this script controls the 
+vmlinuz-version-number-s of the bzImage file copied to /boot when its 
+done with the build.  This scripts sets the vmlinuz-x.x.x filename 
+correctly:
 
-Hi Martin,
-sorry, the code in the tree doesn't work.
-I decided to try pthreads, cause I gave up with the I/O multiplexing,
-forking and earning SIGCHLDS for manipulating the global lists.
+VER=2.6.2-rc2-mm2
+and
+cp -f arch/i386/boot/bzImage /boot/vmlinuz-$VER && \
 
-The multithreaded udevd takes multiple events at the same time on a unix
-domain socket, sorts it in a linked list and handles the timeouts if
-events are missing.
-It executes our current udev in the background and delays the execution
-for events with the same DEVPATH. So we serialize the events only for
-different devices.
+So the vmlinuz is correctly named.
 
-I've posted the latest patch to the list a few minutes ago.
-If you like, I'm happy to hear from your testing :)
+The version number in the makefile is correct:
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 2
+EXTRAVERSION =-rc2-mm2
 
-If we decide not to stay with the threads model, cause klibc doesn't
-support it now and ..., we at least have a working model to implement
-in a different way.
+But when the build is all done and rebooted to, uname -a spits this 
+out:
+Linux coyote.coyote.den 2.6.2-rc2-mm1 #2 Fri Jan 30 11:04:30 EST 2004 
+i686 athlon i386 GNU/Linux
 
-thanks,
-Kay
+WTF?
 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

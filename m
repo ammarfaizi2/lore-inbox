@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281155AbRKTQOF>; Tue, 20 Nov 2001 11:14:05 -0500
+	id <S281158AbRKTQQf>; Tue, 20 Nov 2001 11:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281158AbRKTQNz>; Tue, 20 Nov 2001 11:13:55 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:2825 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S281155AbRKTQNt>; Tue, 20 Nov 2001 11:13:49 -0500
-Message-Id: <200111201613.fAKGDUt21490@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-Organization: UW Condor
-To: wr6@uni.de, "J.A. Magallon" <jamagallon@able.es>,
-        James A Sutherland <jas88@cam.ac.uk>
-Subject: Re: Swap
-Date: Tue, 20 Nov 2001 10:12:32 -0600
-X-Mailer: KMail [version 1.3.1]
-Cc: Remco Post <r.post@sara.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <200111191051.LAA04099@zhadum.sara.nl> <20011120155143.A4597@werewolf.able.es> <20011120160131.87644332@localhost.localdomain>
-In-Reply-To: <20011120160131.87644332@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S281159AbRKTQQZ>; Tue, 20 Nov 2001 11:16:25 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:61590
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S281158AbRKTQQH>; Tue, 20 Nov 2001 11:16:07 -0500
+Date: Tue, 20 Nov 2001 09:16:07 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help missing entries list
+Message-ID: <20011120091607.C10819@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20011120095018.A25289@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011120095018.A25289@thyrsus.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 November 2001 10:01, Wolfgang Rohdewald wrote:
-> On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
-> > When a page is deleted for one executable (because we can re-read it from
-> > on-disk binary), it is discarded, not paged out.
->
-> What happens if the on-disk binary has changed since loading the program?
+On Tue, Nov 20, 2001 at 09:50:18AM -0500, Eric S. Raymond wrote:
 
-In general, you can't...  You get a ETXTBSY 'text file busy' error.  If you 
-try to do this over NFS (where the system can't stop you), the running image 
-will almost certainly crash if it tries to page in text.
+> I2C_ALGO8XX
+> I2C_PPC405_ADAP
+> I2C_PPC405_ALGO
+> I2C_RPXLITE
 
--Nick
+Ignore these for now.  The code isn't in the tree yet anyhow.  I'll send
+in help entries when I send in the code too.
+
+> UCODE_PATCH
+
+Motorola releases microcode updates for their 8xx CPM modules.  The
+microcode update file has updates for IIC, SMC and USB.  Currently only
+the USB update is available by default, if the MPC8xx USB option is
+enabled.  If in doubt, say 'N' here.
+
+And yes, the USB driver isn't in the tree yet either.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

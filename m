@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVAFEQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVAFE0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbVAFEQx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 23:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVAFEQx
+	id S262715AbVAFE0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 23:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVAFE0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 23:16:53 -0500
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:3407 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262714AbVAFEQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 23:16:50 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Roey Katz <roey@sdf.lonestar.org>
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Date: Wed, 5 Jan 2005 23:16:47 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <Pine.NEB.4.61.0501040543490.25801@sdf.lonestar.org> <200501040117.28803.dtor_core@ameritech.net>
-In-Reply-To: <200501040117.28803.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 5 Jan 2005 23:26:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41600 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262715AbVAFE0h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 23:26:37 -0500
+Date: Wed, 5 Jan 2005 20:26:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: riel@redhat.com, marcelo.tosatti@cyclades.com, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+Message-Id: <20050105202611.65eb82cf.akpm@osdl.org>
+In-Reply-To: <41DCB577.9000205@yahoo.com.au>
+References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com>
+	<20050105020859.3192a298.akpm@osdl.org>
+	<20050105180651.GD4597@dualathlon.random>
+	<Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com>
+	<20050105174934.GC15739@logos.cnet>
+	<20050105134457.03aca488.akpm@osdl.org>
+	<20050105203217.GB17265@logos.cnet>
+	<41DC7D86.8050609@yahoo.com.au>
+	<Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com>
+	<20050105173624.5c3189b9.akpm@osdl.org>
+	<Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com>
+	<41DCB577.9000205@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501052316.48443.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 January 2005 01:17 am, Dmitry Torokhov wrote:
-> On Tuesday 04 January 2005 12:49 am, Roey Katz wrote:
-> > Dmitry,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
 > > 
-> > I have tried kernels 2.6.9-rc2-bk3 and 2.6.9-rc2-bk4. I first copied the 
-> > .config from the stripped-down 2.6.10 into the 2.6.9- directories and then 
-> > ran make oldconfig (hopefully make oldconfig works in reverse?).  Then I 
-> > built and ran the kernels. Both exhibit the same behavior as 2.6.10 
-> > regarding the keyboard.
-> > 
-> > The /var/log/{dmesg,syslog,messages,kern.log} files for both kernels are 
-> > available at:
-> > 
-> >   http://roey.freeshell.org/mystuff/kernel/
-> > 
-> > 
-> > - Roey
-> > 
-> > PS:  I forgot the log_buf_len=131072, hope it's ok for you...
-> > PPS: I also forgot "acpi=off".  Should I re-run these tests?
+> > I suspect something might still be broken.  It may take a few
+> > days of continuous testing to trigger the bug, though ...
 > > 
 > 
-> Ok, it looks that the big input update is not to blame. Just to make sure
-> could you re-run the tests with -bk3 and -bk4 but with powering the box
-> down instead of simply rebooting to ensure that noth kernels get completely
-> fresh start. If keyboard still does not work I am afraid you will have to
-> resort to binary search to figure out which 2.6.9-*-bk is at fault. 
-> 
+> It is possible to be those blk_congestion_wait paths, because
+> the queue simply won't be congested. So doing io_schedule_timeout
+> might help.
 
-Roey,
+If the queue is not congested, blk_congestion_wait() will still sleep.  See
+freed_request().
 
-I just realized that -bk3 also had input changes. Could you try booting -bk2?
+> I wonder if reducing the size of the write queue in CFQ would help
+> too? IIRC, it only really wants a huge read queue.
 
--- 
-Dmitry
+Surely it will help - but we need to be able to handle the situation
+because memory can still become full of PageWriteback pages if there are
+many disks.

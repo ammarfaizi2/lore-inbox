@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291942AbSBYBH7>; Sun, 24 Feb 2002 20:07:59 -0500
+	id <S291927AbSBYBLI>; Sun, 24 Feb 2002 20:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291934AbSBYBHs>; Sun, 24 Feb 2002 20:07:48 -0500
-Received: from jalon.able.es ([212.97.163.2]:43186 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S291927AbSBYBHd>;
-	Sun, 24 Feb 2002 20:07:33 -0500
-Date: Mon, 25 Feb 2002 02:07:25 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Randy Hron <rwhron@earthlink.net>
-Subject: [PATCHSET] Linux 2.4.18-rc4-jam2
-Message-ID: <20020225020725.A1674@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.1
+	id <S291934AbSBYBK6>; Sun, 24 Feb 2002 20:10:58 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:55826 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S291927AbSBYBKq>; Sun, 24 Feb 2002 20:10:46 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: mingo@elte.hu, Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores... 
+In-Reply-To: Your message of "Sun, 24 Feb 2002 15:48:58 -0800."
+             <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com> 
+Date: Mon, 25 Feb 2002 12:10:34 +1100
+Message-Id: <E16f9f0-0006N2-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, lkml readers.
+In message <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com> you wr
+ite:
+> 
+> 
+> On Mon, 25 Feb 2002, Rusty Russell wrote:
+> > >
+> > >   sys_sem_create()
+> > >   sys_sem_destroy()
+> >
+> > There is no create and destroy (init is purely userspace).  There is
+> > "this is a semapore: up it".  This is a feature.
+> 
+> You have to realize that there are architectures that need special
+> initialization and page allocation for semaphores: they need special flags
+> in the TLB for "careful access", for example (sometimes the careful access
+> ends up being non-cached).
 
-After one other session of patch messing, here is rc4-jam2. Main update
-is vm-25 -> vm-27 from Andrea. Get it as usual at:
+Bugger.  How about:
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc4-jam2/
+	sys_sem_area(void *pagestart, size_t len)
+	sys_unsem_area(void *pagestart, size_t len)
 
-and as not so usual at:
+Is that sufficient?  Is sys_unsem_area required at all?
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc4-jam2.tar.gz
-
-I have reordered the patches to make easier to test cleanly subsystems:
-- 0* is VM update. It applies cleanly (and after a compiler.h addendum,
-  builds cleanly) on 18-rc4, for people that only want to test AA-vm
-  vs RMAP-vm (hint, hint...)
-- 1* are tiny smp enhancements, that I think are safe.
-- 2* are O1 scheduler and low-latency
-- 3* are SCSI-IDE updates.
-- 5* mixed things...
-- 6* sensors
-- 7* bproc
-- 8* miscelanea
-
-Fore serious tests, I would not apply anything >=50, unless you are
-interested on something there.
-
-Good luck. My box lives (see signature).
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-rc4-jam2 #1 SMP Mon Feb 25 01:28:24 CET 2002 i686
+TDB has an arbitrary number of semaphores in the mmap file...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266864AbRHFFvr>; Mon, 6 Aug 2001 01:51:47 -0400
+	id <S266888AbRHFGUA>; Mon, 6 Aug 2001 02:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266853AbRHFFvh>; Mon, 6 Aug 2001 01:51:37 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:12810 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S266864AbRHFFvU>;
-	Mon, 6 Aug 2001 01:51:20 -0400
-Date: Mon, 6 Aug 2001 09:51:30 +0400
+	id <S266917AbRHFGTv>; Mon, 6 Aug 2001 02:19:51 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:25353 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S266888AbRHFGTo>;
+	Mon, 6 Aug 2001 02:19:44 -0400
+Date: Mon, 6 Aug 2001 10:19:51 +0400
+From: Andrey Panin <pazke@orbita1.ru>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PNP BIOS oneliner fix
-Message-ID: <20010806095130.A18726@orbita1.ru>
+Cc: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] move SIIG parallel/serial combo cards to parport-serial.c
+Message-ID: <20010806101951.B18726@orbita1.ru>
+In-Reply-To: <20010802155331.A6072@orbita1.ru> <20010802130035.A29643@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
+	protocol="application/pgp-signature"; boundary="0IvGJv3f9h+YhkrH"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010802130035.A29643@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Aug 02, 2001 at 01:00:35PM +0100
 X-Uptime: 9:18am  up 9 days, 16:24,  1 user,  load average: 0.16, 0.03, 0.01
 X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
-From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---cmJC7u66zC7hs+87
-Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
+--0IvGJv3f9h+YhkrH
+Content-Type: multipart/mixed; boundary="UFHRwCdBEJvubb2X"
 Content-Disposition: inline
 
 
---HlL+5n6rz5pIUxbD
+--UFHRwCdBEJvubb2X
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi all,
 
-attached oneliner patch fixes buglet in PNP BIOS resource parsing code,=20
-without this patch all io regions have IORESOURCE_MEM type.
+fixed version  of patch attached, previous patch contained 2 cut-and-paste =
+errors.
 
-Bug didn't hit parport_pc driver, because it doesn't check io region type (=
-why?).
+Q: may be it will be better to EXPORT_SYMBOL pci_siig10x_fn() and pci_siig2=
+0x_fn()
+functions from serial.c, instead of duplicating it ?
 
 Best regards.
 
@@ -46,28 +50,333 @@ Best regards.
 Andrey Panin            | Embedded systems software engineer
 pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
 .asc
---HlL+5n6rz5pIUxbD
+--UFHRwCdBEJvubb2X
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-pnpBIOS-oneliner
+Content-Disposition: attachment; filename=patch-SIIG-combo2
 Content-Transfer-Encoding: quoted-printable
 
-diff -urN -X /usr/dontdiff /linux.vanilla/drivers/pnp/pnp_bios.c /linux/dri=
-vers/pnp/pnp_bios.c
---- /linux.vanilla/drivers/pnp/pnp_bios.c	Fri Aug  3 23:20:56 2001
-+++ /linux/drivers/pnp/pnp_bios.c	Sun Aug  5 02:14:42 2001
-@@ -656,7 +656,7 @@
- 	if (i < DEVICE_COUNT_RESOURCE) {
- 		dev->resource[i].start =3D io;
- 		dev->resource[i].end =3D io + len;
--		dev->resource[i].flags =3D IORESOURCE_MEM;
-+		dev->resource[i].flags =3D flags;
- 	}
- }
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/char/serial.c /linux/driv=
+ers/char/serial.c
+--- /linux.vanilla/drivers/char/serial.c	Fri Aug  3 23:20:54 2001
++++ /linux/drivers/char/serial.c	Fri Aug  3 23:45:39 2001
+@@ -4667,15 +4667,6 @@
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S_10x_850,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig10x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_550,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_1 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_650,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_1 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_850,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_1 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S_10x_550,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig10x_2 },
+@@ -4685,15 +4676,6 @@
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S_10x_850,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig10x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_550,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_650,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_850,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig10x_2 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_4S_10x_550,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig10x_4 },
+@@ -4712,24 +4694,6 @@
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S_20x_850,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_550,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_650,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_850,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_550,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_650,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_850,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_0 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S_20x_550,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig20x_2 },
+@@ -4737,15 +4701,6 @@
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig20x_2 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S_20x_850,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_550,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_650,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_siig20x_2 },
+-	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_850,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig20x_2 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_4S_20x_550,
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/parport/parport_pc.c /lin=
+ux/drivers/parport/parport_pc.c
+--- /linux.vanilla/drivers/parport/parport_pc.c	Sun Jul 29 18:30:31 2001
++++ /linux/drivers/parport/parport_pc.c	Fri Aug  3 23:45:39 2001
+@@ -2500,25 +2500,10 @@
 =20
+=20
+ enum parport_pc_pci_cards {
+-	siig_1s1p_10x_550 =3D last_sio,
+-	siig_1s1p_10x_650,
+-	siig_1s1p_10x_850,
+-	siig_1p_10x,
++	siig_1p_10x =3D last_sio,
+ 	siig_2p_10x,
+-	siig_2s1p_10x_550,
+-	siig_2s1p_10x_650,
+-	siig_2s1p_10x_850,
+ 	siig_1p_20x,
+ 	siig_2p_20x,
+-	siig_2p1s_20x_550,
+-	siig_2p1s_20x_650,
+-	siig_2p1s_20x_850,
+-	siig_1s1p_20x_550,
+-	siig_1s1p_20x_650,
+-	siig_1s1p_20x_850,
+-	siig_2s1p_20x_550,
+-	siig_2s1p_20x_650,
+-	siig_2s1p_20x_850,
+ 	lava_parallel,
+ 	lava_parallel_dual_a,
+ 	lava_parallel_dual_b,
+@@ -2564,25 +2549,10 @@
+                            BAR is 6) */
+ 	} addr[4];
+ } cards[] __devinitdata =3D {
+-	/* siig_1s1p_10x_550 */		{ 1, { { 3, 4 }, } },
+-	/* siig_1s1p_10x_650 */		{ 1, { { 3, 4 }, } },
+-	/* siig_1s1p_10x_850 */		{ 1, { { 3, 4 }, } },
+ 	/* siig_1p_10x */		{ 1, { { 2, 3 }, } },
+ 	/* siig_2p_10x */		{ 2, { { 2, 3 }, { 4, 5 }, } },
+-	/* siig_2s1p_10x_550 */		{ 1, { { 4, 5 }, } },
+-	/* siig_2s1p_10x_650 */		{ 1, { { 4, 5 }, } },
+-	/* siig_2s1p_10x_850 */		{ 1, { { 4, 5 }, } },
+ 	/* siig_1p_20x */		{ 1, { { 0, 1 }, } },
+ 	/* siig_2p_20x */		{ 2, { { 0, 1 }, { 2, 3 }, } },
+-	/* siig_2p1s_20x_550 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_2p1s_20x_650 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_2p1s_20x_850 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_1s1p_20x_550 */		{ 1, { { 1, 2 }, } },
+-	/* siig_1s1p_20x_650 */		{ 1, { { 1, 2 }, } },
+-	/* siig_1s1p_20x_850 */		{ 1, { { 1, 2 }, } },
+-	/* siig_2s1p_20x_550 */		{ 1, { { 2, 3 }, } },
+-	/* siig_2s1p_20x_650 */		{ 1, { { 2, 3 }, } },
+-	/* siig_2s1p_20x_850 */		{ 1, { { 2, 3 }, } },
+ 	/* lava_parallel */		{ 1, { { 0, -1 }, } },
+ 	/* lava_parallel_dual_a */	{ 1, { { 0, -1 }, } },
+ 	/* lava_parallel_dual_b */	{ 1, { { 0, -1 }, } },
+@@ -2623,44 +2593,14 @@
+ 	{ 0x1106, 0x0686, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sio_via_686a },
+=20
+ 	/* PCI cards */
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_850 },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1P_10x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1p_10x },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P_10x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p_10x },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_850 },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1P_20x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1p_20x },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P_20x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p_20x },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_850 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x_850 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_850 },
+ 	{ PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_PARALLEL,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, lava_parallel },
+ 	{ PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_DUAL_PAR_A,
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/parport/parport_serial.c =
+/linux/drivers/parport/parport_serial.c
+--- /linux.vanilla/drivers/parport/parport_serial.c	Tue Jul 24 23:49:38 2001
++++ /linux/drivers/parport/parport_serial.c	Fri Aug  3 23:49:14 2001
+@@ -43,6 +43,11 @@
+ 	avlab_2s1p,
+ 	avlab_2s1p_650,
+ 	avlab_2s1p_850,
++	siig_1s1p_10x,
++	siig_2s1p_10x,
++	siig_2p1s_20x,
++	siig_1s1p_20x,
++	siig_2s1p_20x,
+ };
+=20
+=20
+@@ -69,6 +74,11 @@
+ 	/* avlab_2s1p     */		{ 1, { { 2, 3}, } },
+ 	/* avlab_2s1p_650 */		{ 1, { { 2, 3}, } },
+ 	/* avlab_2s1p_850 */		{ 1, { { 2, 3}, } },
++	/* siig_1s1p_10x */		{ 1, { { 3, 4 }, } },
++	/* siig_2s1p_10x */		{ 1, { { 4, 5 }, } },
++	/* siig_2p1s_20x */		{ 2, { { 1, 2 }, { 3, 4 }, } },
++	/* siig_1s1p_20x */		{ 1, { { 1, 2 }, } },
++	/* siig_2s1p_20x */		{ 1, { { 2, 3 }, } },
+ };
+=20
+ static struct pci_device_id parport_serial_pci_tbl[] __devinitdata =3D {
+@@ -91,6 +101,37 @@
+ 	{ 0x14db, 0x2160, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p},
+ 	{ 0x14db, 0x2161, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p_650},
+ 	{ 0x14db, 0x2162, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p_850},
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_550,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_650,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_850,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_550,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_650,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_850,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_550,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_650,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_850,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_550,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_650,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_850,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_550,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_650,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x },
++	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_850,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x },
++
+ 	{ 0, } /* terminate list */
+ };
+ MODULE_DEVICE_TABLE(pci,parport_serial_pci_tbl);
+@@ -106,6 +147,55 @@
+ 	int first_uart_offset;
+ };
+=20
++#define PCI_DEVICE_ID_SIIG_2S_10x (PCI_DEVICE_ID_SIIG_2S_10x_550 & 0xfff8)
++
++static int __devinit
++pci_siig10x_fn(struct pci_dev *dev, struct pci_board_no_ids *board, int en=
+able)
++{
++       u16 data, *p;
++
++       if (!enable) return 0;
++
++       p =3D ioremap(pci_resource_start(dev, 0), 0x80);
++
++       switch (dev->device & 0xfff8) {
++               case PCI_DEVICE_ID_SIIG_2S_10x:         /* 2S, 2S1P */
++                       data =3D 0xf7ff;
++                       break;
++               default:                                /* 1S1P, 4S */
++                       data =3D 0xfffb;
++                       break;
++       }
++
++       writew(readw((unsigned long) p + 0x28) & data, (unsigned long) p + =
+0x28);
++       iounmap(p);
++       return 0;
++}
++
++#define PCI_DEVICE_ID_SIIG_2S_20x (PCI_DEVICE_ID_SIIG_2S_20x_550 & 0xfffc)
++#define PCI_DEVICE_ID_SIIG_2S1P_20x (PCI_DEVICE_ID_SIIG_2S1P_20x_550 & 0xf=
+ffc)
++
++static int __devinit
++pci_siig20x_fn(struct pci_dev *dev, struct pci_board_no_ids *board, int en=
+able)
++{
++       u8 data;
++
++       if (!enable) return 0;
++
++       /* Change clock frequency for the first UART. */
++       pci_read_config_byte(dev, 0x6f, &data);
++       pci_write_config_byte(dev, 0x6f, data & 0xef);
++
++       /* If this card has 2 UART, we have to do the same with second UART=
+. */
++       if (((dev->device & 0xfffc) =3D=3D PCI_DEVICE_ID_SIIG_2S_20x) ||
++           ((dev->device & 0xfffc) =3D=3D PCI_DEVICE_ID_SIIG_2S1P_20x)) {
++               pci_read_config_byte(dev, 0x73, &data);
++               pci_write_config_byte(dev, 0x73, data & 0xef);
++       }
++       return 0;
++}
++
++
+ static struct pci_board_no_ids pci_boards[] __devinitdata =3D {
+ 	/*
+ 	 * PCI Flags, Number of Ports, Base (Maximum) Baud Rate,
+@@ -130,6 +220,11 @@
+ /* avlab_2s1p (n/t) */	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
+ /* avlab_2s1p_650 (nt)*/{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
+ /* avlab_2s1p_850 (nt)*/{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
++/* siig_1s1p_10x */	{ SPCI_FL_BASE2, 1, 460800, 0, 0, pci_siig10x_fn },
++/* siig_2s1p_10x */	{ SPCI_FL_BASE2, 1, 921600, 0, 0, pci_siig10x_fn },
++/* siig_2p1s_20x */	{ SPCI_FL_BASE0, 1, 921600, 0, 0, pci_siig20x_fn },
++/* siig_1s1p_20x */	{ SPCI_FL_BASE0, 1, 921600, 0, 0, pci_siig20x_fn },
++/* siig_2s1p_20x */	{ SPCI_FL_BASE0, 1, 921600, 0, 0, pci_siig20x_fn },
+ };
+=20
+ struct parport_serial_private {
 
---HlL+5n6rz5pIUxbD--
+--UFHRwCdBEJvubb2X--
 
---cmJC7u66zC7hs+87
+--0IvGJv3f9h+YhkrH
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -75,9 +384,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE7bjBiBm4rlNOo3YgRAvuqAJ0WpJoXCdCNZ8dZ3P3gAQE7K+im7wCggFtK
-r7nTxp0i7htB2wM+hExHz+8=
-=1Mo5
+iD4DBQE7bjcHBm4rlNOo3YgRAlRfAJYz63wFA3+g0/8DAtNzlqOGDzVgAJ0ZOemI
+AWQaM7IrbZ+TK8m5clQvlA==
+=AsbV
 -----END PGP SIGNATURE-----
 
---cmJC7u66zC7hs+87--
+--0IvGJv3f9h+YhkrH--

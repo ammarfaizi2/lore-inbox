@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRCAQIf>; Thu, 1 Mar 2001 11:08:35 -0500
+	id <S129686AbRCAQNF>; Thu, 1 Mar 2001 11:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129686AbRCAQIZ>; Thu, 1 Mar 2001 11:08:25 -0500
-Received: from [199.183.24.200] ([199.183.24.200]:53885 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129679AbRCAQIV>; Thu, 1 Mar 2001 11:08:21 -0500
-Date: Thu, 1 Mar 2001 11:08:13 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Martin Rauh <martin.rauh@gmx.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Writing on raw device with software RAID 0 is slow
-In-Reply-To: <20010301160201.P26280@redhat.com>
-Message-ID: <Pine.LNX.4.30.0103011106540.13184-100000@today.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129694AbRCAQMr>; Thu, 1 Mar 2001 11:12:47 -0500
+Received: from cs666825-182.austin.rr.com ([66.68.25.182]:40441 "HELO
+	www.quasihorse.com") by vger.kernel.org with SMTP
+	id <S129686AbRCAQM3>; Thu, 1 Mar 2001 11:12:29 -0500
+Date: Thu, 1 Mar 2001 10:15:50 -0600
+From: Phil Carinhas <pac@fortuitous.com>
+To: linux-kernel@vger.kernel.org
+Subject: mount -loop freezes on 2.4.2
+Message-ID: <20010301101550.A1416@bistro.marx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Stephen C. Tweedie wrote:
 
-> Yep.  There shouldn't be any problem increasing the 64KB size, it's
-> only the lack of accounting for the pinned memory which stopped me
-> increasing it by default.
+ The following commands lockup on exectution. No logs generated, 
+  and there is no way to kill the process:
 
-Actually, how about making it a sysctl?  That's probably the most
-reasonable approach for now since the optimal size depends on hardware.
+This is the 2.4.2 kernel running on mandrake 7.2
 
-		-ben
+ mount /iso/Conectiva-61beta.iso /alt -o loop=/dev/loop0
+ mount /iso/Conectiva-61beta.iso /alt -o loop
 
+
+ There is no error reported and the file does fail to mount.
+ Works ok with 2.4.1 in read mode.. Riel says it fails in write on 2.4.1
+-- 
+
+  -Phil C.
+.---------------------------------------------------------
+| P. A. Carinhas, Ph.D.        |  pac@fortuitous.com      |
+| Fortuitous Technologies Inc. |  http://fortuitous.com   |
+| Linux Training Services      |  Tel : 1-512 467-2154    |
+| Contract, In-house, & Onsite |  800 : 1-877 467-2154    |
+ ---------------------------------------------------------

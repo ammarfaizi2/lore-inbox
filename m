@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbQLPLGz>; Sat, 16 Dec 2000 06:06:55 -0500
+	id <S129761AbQLPLIz>; Sat, 16 Dec 2000 06:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129761AbQLPLGp>; Sat, 16 Dec 2000 06:06:45 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:9485 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129752AbQLPLGi>; Sat, 16 Dec 2000 06:06:38 -0500
-Message-ID: <3A3B53BE.41C31B99@t-online.de>
-Date: Sat, 16 Dec 2000 12:36:30 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org
-Subject: Patch: test13-pre2 fails "make xconfig" in isdn/Config.in
+	id <S131380AbQLPLIp>; Sat, 16 Dec 2000 06:08:45 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:24329 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129761AbQLPLIg>;
+	Sat, 16 Dec 2000 06:08:36 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test13-pre2, unresolved symbols 
+In-Reply-To: Your message of "Sat, 16 Dec 2000 11:32:44 BST."
+             <200012161032.LAA16091@db0bm.ampr.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 16 Dec 2000 21:38:03 +1100
+Message-ID: <14735.976963083@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-apply this patch if like to fix this obvious error
-with "make xconfig" on plain tree:
-	./tkparse < ../arch/i386/config.in >> kconfig.tk
-	drivers/isdn/Config.in: 98: can't handle dep_bool/dep_mbool/dep_tristate condition
-	make[1]: *** [kconfig.tk] Error 1
-	make[1]: Leaving directory `/usr/src/linux/scripts'
+On Sat, 16 Dec 2000 11:32:44 +0100, 
+f5ibh <f5ibh@db0bm.ampr.org> wrote:
+>/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o
+>/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_wake_up_task
 
--
-Gunther
+Does this fix it?
 
-
-
-
---- linux/drivers/isdn/Config.in-240t13pre2-orig        Sat Dec 16 12:20:59 2000
-+++ linux/drivers/isdn/Config.in        Sat Dec 16 12:21:48 2000
-@@ -95,7 +95,7 @@
-       dep_bool  '    Eicon PCI DIVA Server BRI/PRI/4BRI support' CONFIG_ISDN_DRV_EICON_PCI $CONFIG_PCI
-       bool      '    Eicon S,SX,SCOM,Quadro,S2M support' CONFIG_ISDN_DRV_EICON_ISA
-    fi
--   dep_tristate '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
-+   bool '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
- fi
+Index: 0-test13-pre2.1/fs/lockd/svc.c
+--- 0-test13-pre2.1/fs/lockd/svc.c Mon, 02 Oct 2000 15:28:44 +1100 kaos (linux-2.4/e/b/39_svc.c 1.1.1.2 644)
++++ 0-test13-pre2.1(w)/fs/lockd/svc.c Sat, 16 Dec 2000 21:26:35 +1100 kaos (linux-2.4/e/b/39_svc.c 1.1.1.2 644)
+@@ -312,7 +312,6 @@ out:
+ #ifdef MODULE
+ /* New module support in 2.1.18 */
  
- # CAPI subsystem
+-EXPORT_NO_SYMBOLS;
+ MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
+ MODULE_DESCRIPTION("NFS file locking service version " LOCKD_VERSION ".");
+ MODULE_PARM(nlm_grace_period, "10-240l");
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

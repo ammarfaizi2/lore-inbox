@@ -1,83 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUJYUe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbUJYUac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUJYUe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUJYUeB
+	id S261959AbUJYUac (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbUJYU3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:34:01 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51657 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261316AbUJYUbK (ORCPT
+	Mon, 25 Oct 2004 16:29:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29923 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261277AbUJYUOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:31:10 -0400
-Subject: Re: [Ext2-devel] Re: [PATCH 2/3] ext3 reservation allow turn off
-	for specifed file
-From: Mingming Cao <cmm@us.ibm.com>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com, pbadari@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <1098294941.18850.4.camel@orca.madrabbit.org>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	<1097856114.4591.28.camel@localhost.localdomain>
-	<1097858401.1968.148.camel@sisko.scot.redhat.com>
-	<1097872144.4591.54.camel@localhost.localdomain>
-	<1097878826.1968.162.camel@sisko.scot.redhat.com> <109787 
-	<1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com> 
-	<1098294941.18850.4.camel@orca.madrabbit.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2004 13:33:05 -0700
-Message-Id: <1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
+	Mon, 25 Oct 2004 16:14:42 -0400
+Date: Mon, 25 Oct 2004 22:14:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 oops (probably I/O congestion/starvation related), already solved?
+Message-ID: <20041025201436.GA23934@suse.de>
+References: <417A4E16.9080505@drugphish.ch>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417A4E16.9080505@drugphish.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 10:55, Ray Lee wrote:
-> On Mon, 2004-10-18 at 18:01 -0700, Mingming Cao wrote:
-> > On Mon, 2004-10-18 at 16:42, Andrew Morton wrote:
-> > > Applications currently pass a seeky-access hint into the kernel via
-> > > posix_fadvise(POSIX_FADV_RANDOM).  It would be nice to hook into that
+On Sat, Oct 23 2004, Roberto Nibali wrote:
+> Hi,
 > 
-> [...]
+> I should like to ask if following oops has already been fixed in more 
+> recent kernels?
 > 
-> > Just thought seeky random write application could use the existing ioctl
-> > to let the kernel know it does not need reservation at all. Isn't that
-> > more straightforward?
+> I'm seing this on a productive machine with a SuSE 9.1 kernel 
+> (2.6.5-7.108-default). It's tainted with the nvidia module but the oops 
+> is not related to it.
+
+Just to be on the safe side, have you reproduced it without? Just
+because nvidia doesn't show up in the trace, doesn't mean it hasn't
+corrupted memory elsewhere.
+
+> If this has been fixed in later kernels, please tell me so, I can then 
+> justify a downtime. I'm going through the archives and bk-patches myself 
+> but I've a backlog of about 2 months.
 > 
-> Going the ioctl route seems to imply that userspace would have to do a
-> posix_fadvise() call and the ioctl, as opposed to just the fadvise. No?
-> I'm betting the fadvise call is a little more portable as well.
+> Unable to handle kernel paging request at virtual address 00200200
+> c0126c38
+> *pde = 00000000
+> Oops: 0002 [#1]
+> CPU:    0
+> EIP:    0060:[<c0126c38>]    Tainted: PF U
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00210082   (2.6.5-7.108-default)
+> eax: f68a41c8   ebx: e8e7bfc0   ecx: f6910980   edx: 00200200
+> esi: 00200246   edi: 004a04b0   ebp: 00000001   esp: d9d55d24
+> ds: 007b   es: 007b   ss: 0068
+> Stack: 00001388 0160076d f6910980 f5df8c80 f8822ca9 00000000 f6910980 
+> 0000005c
+>        eee2d424 0000046a 00000001 00000000 00200086 d8a23d8c 00000000 
+> f5df8cdc
+>        d9d55d90 00000000 c19bcc10 c011f1c0 d9d55d94 d9d55d94 00200246 
+> f3259200
+> Call Trace:
+>  [<f8822ca9>] start_this_handle+0x309/0x480 [jbd]
+>  [<c011f1c0>] autoremove_wake_function+0x0/0x30
+>  [<c011f1c0>] autoremove_wake_function+0x0/0x30
+>  [<f8826d72>] __log_start_commit+0x62/0x70 [jbd]
+>  [<f8822ead>] journal_restart+0x8d/0x120 [jbd]
+>  [<f8857c80>] ext3_clear_blocks+0x60/0x130 [ext3]
+>  [<f8857e57>] ext3_free_data+0x107/0x140 [ext3]
+>  [<f8857f5d>] ext3_free_branches+0xcd/0x1f0 [ext3]
+>  [<f8857f5d>] ext3_free_branches+0xcd/0x1f0 [ext3]
+>  [<f8858944>] ext3_truncate+0x8c4/0x9b0 [ext3]
+>  [<f88271ee>] log_wait_commit+0x10e/0x170 [jbd]
+>  [<c011b34e>] __wake_up+0xe/0x20
+>  [<f8821c0c>] journal_stop+0x1bc/0x2b0 [jbd]
+>  [<f8858ad7>] ext3_delete_inode+0xa7/0xd9 [ext3]
+>  [<f8858a30>] ext3_delete_inode+0x0/0xd9 [ext3]
+>  [<c0170b3c>] generic_delete_inode+0x8c/0x120
+>  [<c016f93d>] iput+0x4d/0x70
+>  [<c0168199>] sys_unlink+0x159/0x1a0
+>  [<c0107dc9>] sysenter_past_esp+0x52/0x79
+> Code: 89 02 c7 43 04 00 02 20 00 c7 03 00 01 10 00 89 7b 08 89 da
+> 
+> 
+> >>EIP; c0126c38 <__mod_timer+38/70>   <=====
 
-Agreed. How about this: add a check in ext3_prepare_write(), if user passed seeky-access hint through posix_fadvise(via check for file->f_ra.ra_pages == 0), if so, close the reservation window.  But we still need previous patch to handle window size 0(no reservation) in reservation code.
+00200200 is the list deletion poison, double remove of a list and in
+this case the timer base. That's pretty bad news.
 
-Currently the readahead is turned off if the userspace passed a seeky access hint to kernel by POSIX_FADVISE. It would be nice to turn off the block allocation reservation as well for seeky random write.
+So please do try and reproduce without the nvidia module.
+
+> >>eax; f68a41c8 <__crc_acpi_get_possible_resources+a56e/1ebb8>
+> >>ebx; e8e7bfc0 <__crc_inet_addr_type+1884d9/2c3f96>
+> >>ecx; f6910980 <__crc_ide_setup_pci_noise+25946/48c0e>
+> >>edx; 00200200 <__crc___kill_fasync+13efec/1abbaf>
+> >>esi; 00200246 <__crc___kill_fasync+13f032/1abbaf>
+> >>edi; 004a04b0 <__crc_rtnetlink_links+4e7b2/8e103>
+> >>esp; d9d55d24 <__crc_unregister_binfmt+17f4b9/2e10a7>
+> 
+> Trace; f8822ca9 <__crc_xfrm_state_get_afinfo+6bb89/b1bca>
+> Trace; c011f1c0 <autoremove_wake_function+0/30>
+> Trace; c011f1c0 <autoremove_wake_function+0/30>
+> Trace; f8826d72 <__crc_xfrm_state_get_afinfo+6fc52/b1bca>
+> Trace; f8822ead <__crc_xfrm_state_get_afinfo+6bd8d/b1bca>
+> Trace; f8857c80 <__crc_xfrm_state_get_afinfo+a0b60/b1bca>
+> Trace; f8857e57 <__crc_xfrm_state_get_afinfo+a0d37/b1bca>
+> Trace; f8857f5d <__crc_xfrm_state_get_afinfo+a0e3d/b1bca>
+> Trace; f8857f5d <__crc_xfrm_state_get_afinfo+a0e3d/b1bca>
+> Trace; f8858944 <__crc_xfrm_state_get_afinfo+a1824/b1bca>
+> Trace; f88271ee <__crc_xfrm_state_get_afinfo+700ce/b1bca>
+> Trace; c011b34e <__wake_up+e/20>
+> Trace; f8821c0c <__crc_xfrm_state_get_afinfo+6aaec/b1bca>
+> Trace; f8858ad7 <__crc_xfrm_state_get_afinfo+a19b7/b1bca>
+> Trace; f8858a30 <__crc_xfrm_state_get_afinfo+a1910/b1bca>
+> Trace; c0170b3c <generic_delete_inode+8c/120>
+> Trace; c016f93d <iput+4d/70>
+> Trace; c0168199 <sys_unlink+159/1a0>
+> Trace; c0107dc9 <sysenter_past_esp+52/79>
+> 
+> Code;  c0126c38 <__mod_timer+38/70>
+> 00000000 <_EIP>:
+> Code;  c0126c38 <__mod_timer+38/70>   <=====
+>    0:   89 02                     mov    %eax,(%edx)   <=====
+> Code;  c0126c3a <__mod_timer+3a/70>
+>    2:   c7 43 04 00 02 20 00      movl   $0x200200,0x4(%ebx)
+> Code;  c0126c41 <__mod_timer+41/70>
+>    9:   c7 03 00 01 10 00         movl   $0x100100,(%ebx)
+> Code;  c0126c47 <__mod_timer+47/70>
+>    f:   89 7b 08                  mov    %edi,0x8(%ebx)
+> Code;  c0126c4a <__mod_timer+4a/70>
+>   12:   89 da                     mov    %ebx,%edx
+> 
+> kernel BUG at fs/ext3/super.c:412!
+> invalid operand: 0000 [#2]
+
+This is also a list related issue:
+
+        if (!list_empty(&sbi->s_orphan))
+                dump_orphan_list(sb, sbi);
+        J_ASSERT(list_empty(&sbi->s_orphan));
 
 
----
-
- linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c |    9 +++++++++
- 1 files changed, 9 insertions(+)
-
-diff -puN fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise fs/ext3/inode.c
---- linux-2.6.9-rc4-mm1/fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise	2004-10-25 18:25:44.135751800 -0700
-+++ linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c	2004-10-25 18:34:39.501363856 -0700
-@@ -1008,6 +1008,15 @@ retry:
- 		ret = PTR_ERR(handle);
- 		goto out;
- 	}
-+
-+	/*
-+	 * if user passed a seeky-access hint to kernel,
-+	 * through POSIX_FADV_RANDOM,(file->r_ra.ra_pages is cleared)
-+	 * turn off reservation for block allocation correspondingly.
-+	 */
-+	if (!file->f_ra.ra_pages)
-+		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size, 0);
-+
- 	ret = block_prepare_write(page, from, to, ext3_get_block);
- 	if (ret)
- 		goto prepare_write_failed;
-
-_
+-- 
+Jens Axboe
 

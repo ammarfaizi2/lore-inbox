@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbTEGNCc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 09:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbTEGNCc
+	id S263162AbTEGNCW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 09:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTEGNCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 09:02:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18959 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263163AbTEGNCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 09:02:31 -0400
-Date: Wed, 7 May 2003 14:14:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: The magical mystical changing ethernet interface order
-Message-ID: <20030507141458.B30005@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Wed, 7 May 2003 09:02:22 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45955
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263162AbTEGNCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 09:02:22 -0400
+Subject: Re: [RFC][Patch] fix for irq_affinity_write_proc v2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Keith Mannthey <kmannth@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030507022717.GV8978@holomorphy.com>
+References: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com>
+	 <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
+	 <20030507022717.GV8978@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052309780.3060.8.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 May 2003 13:16:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know if there's a reason that the ethernet driver initialisation
-order has changed again in 2.5?
+On Mer, 2003-05-07 at 03:27, William Lee Irwin III wrote:
+> It's basically not working as specified for clustered hierarchical, and
+> in truth the specification can never be met. As it stands most calls to
+> it are lethal on such systems, especially those using physical destmod.
+> 
+> I'd prefer to have it redesigned for some validity checking and error
+> returns as on such systems the impossible destinations serve no purpose
+> but raising MCE's and/or deadlocking the box.
 
-In 2.2.xx, we had eth0 = NE2000, eth1 = Tulip
-In 2.4, we have eth0 = Tulip, eth1 = NE2000
-And in 2.5, it's back to eth0 = NE2000, eth1 = Tulip
-
-Both interfaces are on the same bus:
-
-00:0a.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 30)
-00:0d.0 Ethernet controller: Winbond Electronics Corp W89C940F
-
-Its rather annoying when your dhcpd starts on the wrong interface.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+In which case I agree it does indeed make sense
 

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129183AbQI0Pcy>; Wed, 27 Sep 2000 11:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129118AbQI0Pce>; Wed, 27 Sep 2000 11:32:34 -0400
-Received: from [210.73.88.150] ([210.73.88.150]:20484 "HELO herald.sinocluster.com") by vger.kernel.org with SMTP id <S129096AbQI0Pca>; Wed, 27 Sep 2000 11:32:30 -0400
-Date: Wed, 27 Sep 2000 23:19:40 +0800 (CST)
-From: Xie Huagang <xie@gnuchina.org>
-To: linux-kernel@vger.kernel.org
-Subject: Release of LIDS 1.0.1 for kernel 2.4.0-test8 
-Message-ID: <Pine.LNX.4.21.0009272313160.751-100000@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130682AbQI3QVV>; Sat, 30 Sep 2000 12:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129382AbQI3QVM>; Sat, 30 Sep 2000 12:21:12 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:59908 "HELO ms2.inr.ac.ru") by vger.kernel.org with SMTP id <S129113AbQI3QU4>; Sat, 30 Sep 2000 12:20:56 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200009301605.UAA30636@ms2.inr.ac.ru>
+Subject: Re: Bottom Handles/soft irqs/timer interrupts/SMP .....
+To: anton@linuxcare.com (Anton Blanchard)
+Date: Sat, 30 Sep 2000 20:05:44 +0400 (MSK DST)
+Cc: quintela@fi.udc.ES, linux-kernel@vger.kernel.org
+In-Reply-To: <20000929234157.A3637@linuxcare.com> from "Anton Blanchard" at Sep 29, 0 11:41:57 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-The LIDS project release the first patch for 2.4.0 series.  
+> The slab code was using smp_call_function until davem fixed it.
+>
+> On sparc blocking interrupts does not block the reception of cpu cross
+> calls, so you cannot do anything like grab locks within a called function.
 
-LIDS is a kernel patch and admin tools to enhance the kernel security, it
-impletement a reference monitor ( a security computer model ) in the
-kernel and Mandantory Access Control in the kernel. It also use the
-capability to control the whole system.  With LIDS, you can protect your
-file system for being illegal modified, you process from illegal
-killed. And it also contain a Port scanner detector in kernel.
+Funny, are IPI really absolute nmi on sparc? I am honestly curious,
+for what purpose such IPIs were designed. Theay do not look useful.
 
-Any bugs and suggestion, pls report to me or the lids mailling list at
-lids@egroups.com. I am not in the mailing list, pls CC to me. 
+The fix is worth than problem was in any case. Waiting for timer
+under semaphore is not a good idea.
 
-The lids 0.9.9 for 2.2.17 also released at the same time. 
-
-The HOME of LIDS is at http://www.lids.org.
-
-Thanks,
-
-Xie
-
--- 
-Happy Hacking
-
-Linux Intrusion Detection System  
-http://www.lids.org/
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

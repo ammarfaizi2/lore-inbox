@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbSLDQsK>; Wed, 4 Dec 2002 11:48:10 -0500
+	id <S266932AbSLDQuG>; Wed, 4 Dec 2002 11:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbSLDQsJ>; Wed, 4 Dec 2002 11:48:09 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:22406 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266987AbSLDQsI>; Wed, 4 Dec 2002 11:48:08 -0500
-Date: Wed, 4 Dec 2002 11:58:00 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mark Waterhouse <mwaterho@sgi.com>
-cc: linux-kernel@vger.kernel.org, mw@sgi.com
-Subject: Re: Kernel Error : Can you tell me whats causing it?
-In-Reply-To: <064401c29bb4$1b7d99f0$ed1b0f86@dfksystems.com>
-Message-ID: <Pine.LNX.3.95.1021204115202.29419A-100000@chaos.analogic.com>
+	id <S266957AbSLDQuD>; Wed, 4 Dec 2002 11:50:03 -0500
+Received: from mserv.bas-net.by ([80.94.160.15]:51723 "HELO mserv.bas-net.by")
+	by vger.kernel.org with SMTP id <S266932AbSLDQuA>;
+	Wed, 4 Dec 2002 11:50:00 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrei Darashenka 
+	<adorosh2+sound.VGER.KERNEL.ORG@dream.bas-net.by>
+Organization: bas-net.by
+To: linux-sound@vger.kernel.org
+Subject: 2.5.50 mpu401.h compilation error patches 
+Date: Wed, 4 Dec 2002 18:57:14 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212041857.14604.adorosh2+sound.VGER.KERNEL.ORG@dream.bas-net.by>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Dec 2002, Mark Waterhouse wrote:
+Hi,
 
-> Hi all
-> 
-> I've recently bought a new machine (from ebay!) and have installed RedHat
-> 8.0 on it.
-> 
-> Its running Kernel-2.4.18-14 and was installed via RPM.
-> 
-> However, when running a very simple perl script, I get a segmentation fault
-> and the following lines appear in syslog (at bottom of mail).
-> The machine is doing nothing fancy .... its running a dhcp-client and
-> sendmail.
-> 
-> Is there something in the error messages which indicates where the fault
-> maybe?
-> 
-> Any help would be greatly appreciated.
-> Thanks
-> Mark Waterhouse
-> 
-[SNIPPED...]
-Many times when the kernel forks another process, it crashes. It
-looks like you have one (or more) of the following:
+I just tried to compile 2.5.50 and found compilation error on mpu401.c
 
-(1)	Bad RAM.
-(2)	Over Clocked.
-(3)	CPU too hot (wrong heatsink).
-(4)	Bad board (why somebody got rid of it was on ebay).
+Following patch syncronize mpu401.c and mpu401.h
 
-Hopefully, it isn't (4). I got a Tyan board off from ebay once.
-It was the last time I did that. $135 down the drain. It would
-boot DOS/Windows/Linux, then stop.
+diff -ur linux-2.5.50/sound/oss/mpu401.h linux-2.5.50-new/sound/oss/mpu401.h
+--- linux-2.5.50/sound/oss/mpu401.h     2002-12-04 18:48:07.000000000 +0200
++++ linux-2.5.50-new/sound/oss/mpu401.h 2002-12-04 18:45:50.000000000 +0200
+@@ -7,7 +7,7 @@
+ 
+ /*     From mpu401.c */
+ int probe_mpu401(struct address_info *hw_config);
+-void attach_mpu401(struct address_info * hw_config, struct module *owner);
++int attach_mpu401(struct address_info * hw_config, struct module *owner);
+ void unload_mpu401(struct address_info *hw_info);
+ 
+ int intchk_mpu401(void *dev_id);
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
 
+-- 
+
+Regards,
+Andrei
 

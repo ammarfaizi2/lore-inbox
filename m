@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272137AbRHVV5s>; Wed, 22 Aug 2001 17:57:48 -0400
+	id <S272140AbRHVWBI>; Wed, 22 Aug 2001 18:01:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272142AbRHVV5i>; Wed, 22 Aug 2001 17:57:38 -0400
-Received: from mail.deja.com ([65.195.161.135]:60678 "EHLO mail.deja.com")
-	by vger.kernel.org with ESMTP id <S272137AbRHVV5W>;
-	Wed, 22 Aug 2001 17:57:22 -0400
-From: "Jeff Busch" <jbusch@half.com>
-To: <linux-kernel@vger.kernel.org>, <roswell-list@redhat.com>
-Subject: [problem] RH 2.4.7-2 kernel slows to a crawl under heavy i/o
-Date: Wed, 22 Aug 2001 16:57:35 -0500
-Message-ID: <NEBBJGKHGENBAPAMDILGIEFGGOAA.jbusch@half.com>
+	id <S272141AbRHVWA6>; Wed, 22 Aug 2001 18:00:58 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:28684 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S272140AbRHVWAr>; Wed, 22 Aug 2001 18:00:47 -0400
+Date: Wed, 22 Aug 2001 18:00:30 -0400 (EDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Nicholas Knight <tegeran@home.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] make ide-scsi more selective
+In-Reply-To: <01082214532302.00394@c779218-a>
+Message-ID: <Pine.LNX.4.33.0108221757020.17244-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-machine:  Compaq Proliant DL360 w/4GB mem, dual 36GB SCSI drives
-OS:	    RedHat 7.1 + errata updates, kernel-enterprise-2.4.7-2.i686.rpm from
-'Roswell 2'
+On Wed, 22 Aug 2001, Nicholas Knight wrote:
 
-Under heavy I/O (Apache and a custom C++ module which do lots of mmap and
-munmap calls over large data sets - 7GB total), the machine slows to a
-crawl.  The problem persists even after live traffic to the machine ceases.
-A top listing shows both cpu's at 100% system.  Any commands (ps, uname,
-whatever) take minutes to return results.
+> Here's an end-user perspective for you... I just spent 2 days trying to 
+> figure out how to use my CD-RW drive to read when using ide-scsi, before 
+> I finnaly realized that I had to do it by disabling ATAPI CD support and 
+> enabling SCSI CD support..
 
-The same setup on RH 6.2 with 2.4.3-ac3 works fine.  Please let me know what
-information may be useful to debugging this problem (no oops yet), and other
-kernels to try; I'm looking at 2.4.8-ac9 right now.
+Just doing hdX=scsi would have been enough, however. Except it doesn't 
+work (currently) if ide-scsi is a module.
 
-Thanks,
-Jeff Busch
-System Administrator
-Half.com - an eBay company
+I agree with Alan that the problem is the grab-on-load strategy that
+ide-scsi (and ide-cd for that matter) uses. I am willing to look into 
+changing that to grab-on-open but I'm not sure if the change is an 
+appropriate one for a stable series kernel -- it looks pretty non-trivial.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
 

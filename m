@@ -1,113 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271434AbRHOUpH>; Wed, 15 Aug 2001 16:45:07 -0400
+	id <S271436AbRHOUyh>; Wed, 15 Aug 2001 16:54:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271435AbRHOUo5>; Wed, 15 Aug 2001 16:44:57 -0400
-Received: from mail.erisksecurity.com ([208.179.59.234]:33083 "EHLO
-	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
-	id <S271434AbRHOUoo>; Wed, 15 Aug 2001 16:44:44 -0400
-Message-ID: <3B7ADF3D.6060002@erisksecurity.com>
-Date: Wed, 15 Aug 2001 16:44:45 -0400
-From: David Ford <david@erisksecurity.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
+	id <S271438AbRHOUy1>; Wed, 15 Aug 2001 16:54:27 -0400
+Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:60900 "HELO
+	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S271436AbRHOUyJ>; Wed, 15 Aug 2001 16:54:09 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B2F@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: problem with LILO : junk characters before "boot:"
+Date: Wed, 15 Aug 2001 14:54:15 -0600
 MIME-Version: 1.0
-To: God <atm@sdk.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] :: "Value too large for defined data type"
-In-Reply-To: <Pine.LNX.4.21.0108150418230.8270-100000@scotch.homeip.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to update your various tools and libraries.  You are being 
-bitten by the 32bit bug where as you need your tools to now call 64bit 
-functions..i.e stat64(), open64(), ...etc.
+Hi List,
 
-God should know these things.
+I am trying to boot from a scsi drive through LILO.
+at the LILO prompt, I get something like this :
 
-David
+LILO
+xB.=!rFxxBoot:                   (where x is a some non-ascii character).
 
-God wrote:
+After that it gives me a list of kernels to boot from.
+If I press "Enter", I get Error 0x40 or 0x80.
+Also, I just see only "Read Capacity" commands being issued to the drive
+continuously. 
 
->Hello,
->
->In short, I may have done a bad thing, this I know but .....
->
->I noticed that when I tried to backup a box across the LAN via dump to a
->localy mounted drive ...
->
-><mental picture>
->Box1 has:
->hda and hdb, hdb has a fat32 fs (don't ask)
->
->Box2 has 
->/mnt/backup, mounted to box2:/mnt/hdb1.  
->
-></mental picture>
->
->.. dump crashed with:
->
->  DUMP: 78.80% done at 814 kB/s, finished in 0:10
->  DUMP: error reading command pipe in master: No such file or directory
->  DUMP: The ENTIRE dump is aborted.
->
->
->Trying to check where dump should have written the file on box2, I get:
->
-># ls -al
->/bin/ls: test: Value too large for defined data type
->total 2097216
->drwxrwxrwx   2 root     root        32768 Aug 14 23:27 ./
->drwxrwxrwx  50 root     root        32768 Aug 14 21:02 ../
->-rwxrwxrwx   1 root     root     2147483647 Aug 14 22:11
->box1.071401.dump*
->#
->
->
->Ok so I lied, that is a paste from after my little expriment, but you can
->see the file size.  2.1G, out of a 3G drive.
->
->
->What caused the error and my emailing the list, is I created a file using
->dd (dd if=/dev/zero of=test bs=4098k count=1000), but I cannot access that
->file at all.  The only thing that seems to not care about it is "echo" :
->
-># echo *
->box1.071401.dump test
->#
->
->I tried to remove the file using rm, but I get the same error as ls:
->
-># rm test
->rm: cannot remove `test': Value too large for defined data type
-># 
->
->The file is taking up ~4G of space (which is reflected correctly with df,
->du will not read the file).  
->
->It was a stupid thing to do, but could there be a better way for the OS to
->handle this and is there any way I can remove the file?  It's on  a 60
->Gig drive, so formatting would not be an option right about now ...
->
->The box in question (box2), is running Slack with a 2.4.3 kernel:
->
-># uname -a
->Linux box2 2.4.3 #7 SMP Sun Apr 29 13:42:05 EDT 2001 i686 unknown
->#
->
->
->Any thoughts?  
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Can somebody tell me what the prblem is ? Is there any problem with
+partition
+table on the disk ? Or is the Lilo corrupted ? 
 
+I tried to re-run lilo again after going into the "rescue" mode. Is there
+any other way that I can re-install the LILO ?
 
+Thanks and regards,
+-hiren

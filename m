@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbTLTMqg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 07:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTLTMqg
+	id S264252AbTLTM4D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 07:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTLTM4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 07:46:36 -0500
-Received: from moutng.kundenserver.de ([212.227.126.189]:5371 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264454AbTLTMqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 07:46:34 -0500
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: Ethan Weinstein <lists@stinkfoot.org>, linux-kernel@vger.kernel.org
-Subject: Re: minor e1000 bug
-Date: Sat, 20 Dec 2003 13:46:27 +0100
-User-Agent: KMail/1.5.4
-References: <3FE3623D.9000706@stinkfoot.org>
-In-Reply-To: <3FE3623D.9000706@stinkfoot.org>
+	Sat, 20 Dec 2003 07:56:03 -0500
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:23518 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S264252AbTLTM4A convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 07:56:00 -0500
+From: Paul Misner <paul@misner.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 don't boot (2.6.0-test9-bk16 does) (Attempted to kill init!)
+Date: Sat, 20 Dec 2003 06:55:58 -0600
+User-Agent: KMail/1.5.94
+References: <20031220111928.GA15124@magma.epfl.ch>
+In-Reply-To: <20031220111928.GA15124@magma.epfl.ch>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312201346.27044.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312200655.59105.paul@misner.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ethan,
-
-On Friday 19 December 2003 21:40, Ethan Weinstein wrote:
-> I've noticed that the e1000 driver does not update the counters in
-> /proc/net/dev as quickly as several other drivers I've tried, such
-> as e100 (both the Becker driver, and Intel's), sk90lin, and 3c59x.
-> These drivers seem to update the counters in a very timely fashion
-> while the e1000 driver doesn't seem to update them for several
-> seconds.  This is apparent in 2.6.0, and 2.4.xx. Is there an update
-
-Every 2 seconds exactly.
-
-I would also be interested in a statement from intel fellows on the 
-reasoning behind this decision, since every user of gkrellm will 
-notice some strange behaviour (value oscillating between 0 and 
-throughput * 2). (Poor man's real time bandwidth management ;-). 
-
-After being tired of cognitive interpretation of these values, I 
-decided to fix it, which was pretty easy:
-
---- linux-2.4.20/drivers/net/e1000/e1000_main.c~    2003-08-03 00:40:21.000000000 +0200
-+++ linux-2.4.20/drivers/net/e1000/e1000_main.c 2003-08-08 13:20:06.000000000 +0200
-@@ -1390,7 +1390,7 @@
-        netif_stop_queue(netdev);
- 
-    /* Reset the timer */
--   mod_timer(&adapter->watchdog_timer, jiffies + 2 * HZ);
-+   mod_timer(&adapter->watchdog_timer, jiffies + HZ);
- }
- 
- #define E1000_TX_FLAGS_CSUM        0x00000001
-
-
-> interval that might be modified within the driver to fix this?  It
-> screws up realtime bandwidth measurements for these cards.
+On Saturday 20 December 2003 05:19 am, Gregoire Favre wrote:
+> Hello,
 >
+> I am using a Mandrake Cooker with 2.6.0-test9-bk16 and it works really
+> great, I haven't tested post 2.6.0-test9-bk16 kernels.
+> Compiling and booting the 2.6.0 with same config I got:
 >
-> -Ethan
+> Linux version 2.6.0 (greg@greg.greg) (gcc version 3.3.2 (Mandrake Linux
+> 10.0 3.3.2-3mdk)) #21 Sat Dec 20 00:34:22 CET 2003 BIOS-provided physical
+> RAM map:
+(snip)
+> Freeing unused kernel memory: 168k freed
+> hub 4-0:1.0: new USB device on port 1, assigned address 2
+> INIT: version 2.85 booINIT: Kernel panic: Attempted to kill init!
+> INIT: cannot ex ecute "/etc/rc.d/rc.sysinit"
+> <6>SysRq : Resetting
+>
+> Any idea what I should do?
+>
+> I only read this ml through nntp so if you need some other info please
+> CC to me ;-)
+>
+> Thank you very much,
+>
+> 	Grégoire
+> ________________________________________________________________________
+> http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Enjoy,
-Pete
+This should be fixed with a gcc update.  Mandrake released a version that had 
+a problem that seemed to show up only on kernel compiles.  Make sure you are 
+updated to their gcc-3.3.2-3mdk package, which came out Thursday.  It fixed 
+this problem for my system.  The gcc-3.3.2-2mdk version is the bad one.
 
+Paul

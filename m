@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263900AbTKGFw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 00:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263901AbTKGFwZ
+	id S261240AbTKGAh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 19:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTKGAh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 00:52:25 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:8878 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263900AbTKGFwZ (ORCPT
+	Thu, 6 Nov 2003 19:37:58 -0500
+Received: from metro.dynaweb.hu ([195.70.37.87]:37094 "EHLO metro.dynaweb.hu")
+	by vger.kernel.org with ESMTP id S261240AbTKGAh5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 00:52:25 -0500
-Date: Fri, 7 Nov 2003 16:52:14 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Maciej Zenczykowski <maze@cela.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: undo an mke2fs !!
-Message-ID: <20031107055214.GJ782@frodo>
-References: <Pine.LNX.4.44.0311061753350.21501-100000@gaia.cela.pl> <Pine.LNX.4.58.0311070601380.10194@ua178d119.elisa.omakaista.fi> <20031107050037.GI782@frodo> <Pine.LNX.4.58.0311070715230.10194@ua178d119.elisa.omakaista.fi>
+	Thu, 6 Nov 2003 19:37:57 -0500
+Date: Fri, 7 Nov 2003 01:35:54 +0100
+From: Rumi Szabolcs <rumi_ml@rtfm.hu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 ICH4 + SATA bridge problems
+Message-Id: <20031107013554.72178e8e.rumi_ml@rtfm.hu>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; sparc-sun-solaris2.9)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0311070715230.10194@ua178d119.elisa.omakaista.fi>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07, 2003 at 07:43:13AM +0200, Szakacsits Szabolcs wrote:
-> 
-> I know xfs_copy (it's my preferred fs in the last 6+ years) but the last
-> time I checked it (before I sent my earlier email) it couldn't copy only
-> metadata as e2image (always) and ntfsclone (optionally) can do:
+Hello!
 
-You are correct (I should read the whole thread before piping up!),
-thats on my ToDo list now - would be a very handy developers tool.
+I've got here an i845PE-based motherboard with the usual
+Marvell 88i8030 PATA->SATA bridge chip. When I connect a
+SATA drive to this one, the BIOS recognizes it as an UDMA100
+device, but the kernel (2.4.22) only uses UDMA33, and hdparm
+also only reports support up to udma2, which results in a
+performance of about 15MB/sec (hdparm -t) vs. the >50MB/sec
+these drives can normally push.
 
-cheers.
+I have tested this with two different drives, a fully native
+SATA drive (ST3160023AS) and a pseudo-SATA drive (MX6Y120M0)
+which uses the same Marvell chip internally to convert SATA
+back to PATA because thats what the drive really is. The
+result is that both drives show up as UDMA100 in the BIOS
+and as UDMA33 in the kernel.
 
--- 
-Nathan
+What is the reason for this?
+Any comments/fixes out there already?
+
+Thanks!
+
+Regards,
+Szabolcs Rumi

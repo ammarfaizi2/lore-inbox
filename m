@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264921AbTL1B1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 20:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbTL1B1h
+	id S264916AbTL1BvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 20:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbTL1BvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 20:27:37 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:41651 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264921AbTL1B1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 20:27:36 -0500
-Date: Sat, 27 Dec 2003 17:27:39 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] lockmeter does not require CONFIG_X86_TSC
-Message-ID: <1030000.1072574859@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 27 Dec 2003 20:51:15 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:24764 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S264916AbTL1BvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 20:51:14 -0500
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x CONFIG_BLK_DEV_IDE_MODES long dead
+References: <Pine.LNX.4.10.10312271510260.32122-100000@master.linux-ide.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 28 Dec 2003 02:31:43 +0100
+In-Reply-To: <Pine.LNX.4.10.10312271510260.32122-100000@master.linux-ide.org> (Andre
+ Hedrick's message of "Sat, 27 Dec 2003 15:11:27 -0800 (PST)")
+Message-ID: <m3r7ypram8.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Due to the extreme twistedness of the world, CONFIG_X86_TSC doesn't
-mean "I have a TSC", it means "I compiled out PIT support completely".
-Don't ask me why. 
+Andre Hedrick <andre@linux-ide.org> writes:
 
-However, this means that the check for it in the lockmeter code is 
-invalid - it's perfectly valid to use a i386 compiled kernel on a 686, 
-where  CONFIG_X86_TSC is off, but we have both TSC and PIT support.
+> Would you like to explain why they are gone?
+> Just to humor the oldman.
 
-Patch simply removes the #error check.
+I understand you refer to my mail (you know, that top-posting can be
+misleading).
 
-M.
+If "they" means zombies then they aren't gone yet, this is my patch
+which removes them, and it does so because the variable in question,
+CONFIG_BLK_DEV_IDE_MODES, is not longer being referenced by the kernel
+code.
 
-diff -urpN -X /home/fletch/.diff.exclude 620-force_wholefrag/include/asm-i386/lockmeter.h 630-lockmeter_notsc/include/asm-i386/lockmeter.h
---- 620-force_wholefrag/include/asm-i386/lockmeter.h	Sat Dec 27 14:43:41 2003
-+++ 630-lockmeter_notsc/include/asm-i386/lockmeter.h	Sat Dec 27 17:16:58 2003
-@@ -108,9 +108,6 @@ extern inline int rwlock_readers(rwlock_
- /* this is a lot of typing just to get gcc to emit "rdtsc" */
- static inline long long get_cycles64 (void)
- {
--#ifndef CONFIG_X86_TSC
--	#error this code requires CONFIG_X86_TSC
--#else
- 	union longlong_u {
- 		long long intlong;
- 		struct intint_s {
-@@ -121,7 +118,6 @@ static inline long long get_cycles64 (vo
- 
- 	rdtsc(longlong.intint.eax,longlong.intint.edx);
- 	return longlong.intlong;
--#endif
- }
- 
- #endif /* _I386_LOCKMETER_H */
+If "they" means CONFIG_BLK_DEV_IDE_MODES config variable then, obviously,
+I don't know why it's no longer used, as I'm not the one who removed
+the references (for 2.4 it was in 2.4.21 patch, haven't checked 2.6, you
+may want to investigate it yourself).
 
+What I'm trying to do is cleaning up the 2.4 IDE mess as I really need
+modular IDE (with piix/via DMA) working. And I need it before the
+next Christmas, so waiting for libata doesn't seem to be an option.
+
+HTH.
+-- 
+Krzysztof Halasa, B*FH

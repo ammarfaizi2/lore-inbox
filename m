@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263257AbTESWJf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTESWJf
+	id S263268AbTESWKu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTESWKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:09:35 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28513 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S263257AbTESWJc
+	Mon, 19 May 2003 18:10:50 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40884 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263268AbTESWKr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:09:32 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recent changes to sysctl.h breaks glibc
-References: <20030519165623.GA983@mars.ravnborg.org>
-	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
-	<babhik$sbd$1@cesium.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 May 2003 16:18:39 -0600
-In-Reply-To: <babhik$sbd$1@cesium.transmeta.com>
-Message-ID: <m1d6ie37i8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 May 2003 18:10:47 -0400
+Subject: Re: userspace irq balancer
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Gerrit Huizenga <gh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
+       James Cleverdon <jamesclv@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       Keith Mannthey <mannthey@us.ibm.com>
+In-Reply-To: <20030519221111.P7061@devserv.devel.redhat.com>
+References: <200305191314.06216.pbadari@us.ibm.com>
+	 <1053382055.5959.346.camel@nighthawk>
+	 <20030519221111.P7061@devserv.devel.redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053382943.4827.358.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 May 2003 15:22:24 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> Followup to:  <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
-> By author:    Linus Torvalds <torvalds@transmeta.com>
-> In newsgroup: linux.dev.kernel
-> > 
-> > A number of headers have historical baggage, mainly to support the 
-> > old libc5 habits, and because removing the ifdef's is something that 
-> > nobody has felt was worth the pain.
-> > 
-> > I think the only header file that should be considered truly exported is 
-> > something like "asm/posix_types.h". For the others, we'll add __KERNEL__ 
-> > protection on demand if the glibc guys can give good arguments that it 
-> > helps them do the "copy-and-cleanup" phase.
-> > 
+On Mon, 2003-05-19 at 15:11, Arjan van de Ven wrote:
+> On Mon, May 19, 2003 at 03:07:36PM -0700, Dave Hansen wrote:
 > 
-> Copy and cleanup isn't realistic either, though, because it doesn't
-> track ABI changes.  
+> > The only thing I'm concerned about is how it's going to be packaged. 
+> > I'm envisioning explaining how to get the daemon out of its initrd
+> > image, set it up and run it, especially before distros have it
+> > integrated.  The stuff that's in the kernel now isn't horribly broken;
+> > it's just not optimal for some relatively unusual cases.  
+> 
+> as for distros: RHL8 and later ship with it on the RH side
+> (default enabled as of RHL9).
 
-ABI changes or ABI additions?
+But, do you see the need for ripping out the current code?  For those of
+us that are still running a slightly more primitive distro, it would be
+nice to have some pretty effective default behavior, like what is in the
+kernel now.
 
-If the ABI is not fixed that is a bug.  Admittedly some interfaces
-in the development kernel are still under development and so have not
-stabilized on an ABI but that is a different issue.
+> As for where to start it: I really think an initscript is the logical
+> place; there has been some discussion about doing it
+> from the initramfs but I don't see real benifit from that; from starting
+> init to running the initscripts isn't exactly THIS interrupt/performance
+> heavy.
 
-> ABI headers is the only realistic solution.  We
-> can't realistically get real ABI headers for 2.5, so please don't just
-> break things randomly until then.
+Yeah, I don't think we need it the second the kernel boots :)  Do you
+really think this is a 2.6 showstopper?  Since it will require distro
+cooperation anyway, and those are many months from releasing a 2.6
+distro, do we really need it in place for 2.6.0?
 
-As the ABI remains fixed I remain unconvinced.  Multiple implementations
-against the same ABI should be possible.  The real question which is the
-more scalable way to do the code.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-What I find truly puzzling is that after years glibc still needs
-kernel headers at all.
-
-Eric

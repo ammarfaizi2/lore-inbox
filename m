@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUKRSaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbUKRSmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262837AbUKRSaq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbUKRSaJ
+	id S262842AbUKRSmH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbUKRSlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:30:09 -0500
-Received: from dsl-213-023-011-165.arcor-ip.net ([213.23.11.165]:13322 "EHLO
-	be3.lrz.7eggert.dyndns.org") by vger.kernel.org with ESMTP
-	id S262837AbUKRS15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:27:57 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [PATCH] WTF is VLI?
-To: Avi Kivity <avi@argo.co.il>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@nurfuerspam.de
-Date: Thu, 18 Nov 2004 19:28:21 +0100
-References: <fa.inbtt12.195ed02@ifi.uio.no> <fa.cg6f09j.ji89hv@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Thu, 18 Nov 2004 13:41:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21660 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262850AbUKRSi7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:38:59 -0500
+Message-ID: <419CEC33.3010208@pobox.com>
+Date: Thu, 18 Nov 2004 13:38:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1CUr14-0000oQ-00@be1.7eggert.dyndns.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Andrew Morton <akpm@osdl.org>, "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: [patch 2.6.10-rc2] oss: AC97 quirk facility
+References: <20041117163016.A5351@tuxdriver.com> <20041117145644.005e54ff.akpm@osdl.org> <419CE98B.2090304@pobox.com> <Pine.LNX.4.53.0411181936050.8260@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411181936050.8260@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
+Jan Engelhardt wrote:
+>>>Dumb question: why not just use the ALSA driver?
+>>
+>>Until we actually remove the OSS drivers, it's sorta silly to leave them
+>>broken.
+> 
+> 
+> It's just as silly to fix something we're removing anyway.
 
-> for (offset = 0; offset < max_instr_len; ++offset) {
->     create_object_file(code + offset, len - offset);
->     disassemble();
->     if (disassembly_includes_eip())
+Until it's gone, the current users would prefer not-broken to broken.
+
+	Jeff
 
 
-Will fail for
 
-movl eax,cc000000 ;or something similar, you get the point
-*EIP here*
-
-and result in
-
-INT3
--- 
-Keep your hands off strong drink. It can make you shoot at the tax collector
-and miss.
-        -- R.A. Heinlein
-Friﬂ, Spammer: snapdragon4709@qytayz.com fBzlGY9EVuwDME1@disrxcount.com

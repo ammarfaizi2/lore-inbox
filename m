@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRCBM7i>; Fri, 2 Mar 2001 07:59:38 -0500
+	id <S129115AbRCBNHu>; Fri, 2 Mar 2001 08:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbRCBM73>; Fri, 2 Mar 2001 07:59:29 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:47289 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129078AbRCBM7P>;
-	Fri, 2 Mar 2001 07:59:15 -0500
-Date: Fri, 2 Mar 2001 13:58:53 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alexander Viro <viro@math.psu.edu>, "H. Peter Anvin" <hpa@transmeta.com>,
-        Bill Crawford <billc@netcomuk.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@innominate.de>
-Subject: Re: Hashing and directories
-Message-ID: <20010302135853.F22985@khan.acc.umu.se>
-In-Reply-To: <3A9EB984.C1F7E499@transmeta.com> <Pine.GSO.4.21.0103011608360.11577-100000@weyl.math.psu.edu> <20010302100410.I15061@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010302100410.I15061@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Fri, Mar 02, 2001 at 10:04:10AM +0100
+	id <S129116AbRCBNHk>; Fri, 2 Mar 2001 08:07:40 -0500
+Received: from nautilus.shore.net ([207.244.124.104]:63478 "EHLO
+	nautilus.shore.net") by vger.kernel.org with ESMTP
+	id <S129115AbRCBNH3>; Fri, 2 Mar 2001 08:07:29 -0500
+To: linux-kernel@vger.kernel.org
+Subject: PATCH for Multicast bug in RAW IP sockets 2.4.0
+Message-Id: <E14YpHM-0002Kw-00@nautilus.shore.net>
+From: Mark Clayton <clayton@shore.net>
+Date: Fri, 02 Mar 2001 08:07:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 02, 2001 at 10:04:10AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > >         * userland issues (what, you thought that limits on the
-> > > > command size will go away?)
-> > > 
-> > > Last I checked, the command line size limit wasn't a userland issue, but
-> > > rather a limit of the kernel exec().  This might have changed.
-> > 
-> > I _really_ don't want to trust the ability of shell to deal with long
-> > command lines. I also don't like the failure modes with history expansion
-> > causing OOM, etc.
-> > 
-> > AFAICS right now we hit the kernel limit first, but I really doubt that
-> > raising said limit is a good idea.
-> 
-> I am running with 2MB limit right now. I doubt 2MB will lead to OOM.
 
-You know, with a box with 4MB of RAM (or indeed 2MB, which should still
-be possible on a Linux-system), a 2MB command-line is a very effective
-DoS :^)
+In ipv4 a call to the setsockopt() function with the optname set to 
+IP_ADD_MEMBERSHIP and a raw ip socket adds the socket to the multicast 
+group specified by the user. As a result the tcpip stack code does the 
+following:
+...
+ip_setsockopt(_,_,IP_ADD_MEMBERSHIP,_,_) calls ip_mc_join_group(sock,_) 
+function, which adds a multicast entry to the sock->protinfo.af_inet.mc_list 
+and then adds a multicast entry to the bound device (if any) with a call 
+to the ip_mc_inc_group() function.
 
-> > xargs is there for purpose...
-> 
-> xargs is very ugly. I want to rm 12*. Just plain "rm 12*". *Not* "find
-> . -name "12*" | xargs rm, which has terrible issues with files names
-> 
-> "xyzzy"
-> "bla"
-> "xyzzy bla"
-> "12 xyzzy bla"
-> 
-> !
-> 
-> I do not want to deal with xargs. Xargs was made to workaround
-> limitation at command line size (and is broken in itself). Now we have
-> hardware that can handle bigger commandlines just fine, xargs should
-> be killed.
+When remote multicast packets that belong to the multicast group we just 
+joined are received, the routing code recognizes the packets as multicast 
+packet going to a local receiver, but the __raw_v4_lookup() function only 
+examines the main sock address (sock->rcv_saddr) and totally forgets that 
+this raw sock can a member of multiple multicast groups.
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+The following patch fixes the problem:
+
+---[ PATCH STARTS ]--------------------------------------------------------
+
+--- linux-2.4.2/net/ipv4/raw.c	Fri Feb  9 14:29:44 2001
++++ linux/net/ipv4/raw.c	Wed Feb 28 17:43:59 2001
+@@ -54,6 +54,7 @@
+ #include <linux/inet.h>
+ #include <linux/netdevice.h>
+ #include <linux/mroute.h>
++#include <linux/igmp.h>
+ #include <net/ip.h>
+ #include <net/protocol.h>
+ #include <linux/skbuff.h>
+@@ -107,6 +108,18 @@
+ 		   !(s->rcv_saddr && s->rcv_saddr != laddr)	&&
+ 		   !(s->bound_dev_if && s->bound_dev_if != dif))
+ 			break; /* gotcha */
++		if (LOCAL_MCAST(laddr)) {
++
++		    struct ip_mc_socklist *iml;
++		    struct ip_mreqn *imr;
++
++		    for (iml=sk->protinfo.af_inet.mc_list; iml; iml=iml->next) {
++		      imr = &(iml->multi);
++		      if ((imr->imr_multiaddr.s_addr == laddr) && !(imr->imr_ifindex && imr->imr_ifindex != dif))
++			        return s;
++		    }
++
++		}
+ 	}
+ 	return s;
+ }
+
+---[ PATCH ENDS ]-----------------------------------------------------------
+
+Note: the same problem exists for UDP sockets also.
+
+

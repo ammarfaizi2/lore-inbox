@@ -1,95 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUHTLqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUHTLsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUHTLqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 07:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHTLqY
+	id S266569AbUHTLsa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 07:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUHTLsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 07:46:24 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:45480 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266347AbUHTLpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 07:45:49 -0400
-Date: Fri, 20 Aug 2004 13:45:31 +0200
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       EdHamrick@aol.com
-Subject: Consistent complete lock up with 2.6.8.1-mm2 and vuescan, no serial console output
-Message-ID: <20040820114531.GA11463@gamma.logic.tuwien.ac.at>
-References: <20040809185018.GA26084@gamma.logic.tuwien.ac.at> <20040812204756.GA12117@gamma.logic.tuwien.ac.at>
+	Fri, 20 Aug 2004 07:48:30 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:38542 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S266591AbUHTLrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 07:47:47 -0400
+Date: Fri, 20 Aug 2004 15:47:46 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.8.1-mm3, fix qla1280 build on visws
+Message-ID: <20040820114746.GC794@pazke>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040812204756.GA12117@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040803i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, hi Ed, hi list!
 
-The problem persisted with 2.6.8.1-mm2, but this time a collected the
-syslog via a usb serial console on my Palm T|C.
+--11Y7aswkeuHtSBEs
+Content-Type: multipart/mixed; boundary="VywGB/WGlW4DM4P8"
+Content-Disposition: inline
 
-The funny thing is, only the normal syslog shows up, but there is no
-error spewed out when X freezes.
 
-Is there any chance to get *more* information via the serial console
-(without usb)? If yes, I will search and hopefully can set up an old
-TRGpro for receiving this stuff via teh serial port.
+--VywGB/WGlW4DM4P8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyway it would be nice to hear at least a comment from one of you on
-how to proceed with this. Since it is 100% repeatable here, it would be
-nice if it can be fixed. It suprises me that the whole kernel just
-completely freezes, while only disk io and cpu is used, there is no
-usage of usb stuff (besides the usb serial console, but also wihtout
-it), vuescan is scanning from raw files, so not contacting any `outside'
-world besides the hard drives.
+Hello,
 
-Best wishes
+attached patch fixes qla1280 SCSI driver build failure on visws
+due to undefined RD_REG_WORD_dmasync() macro.
 
-Norbert
+Please consider applying.
 
-On Don, 12 Aug 2004, preining wrote:
-> The problem persisted with 2.6.8-rc4-mm1, always (repeatable 100%) after
-> around 30 scans the computer freezes completely. Not even sysrq works.
-> 
-> But at least what I could check was that it is not a memory problem,
-> there is still enough swap free (close to 1G).
-> 
-> So what can I do, any ideas?
-> 
-> On Mon, 09 Aug 2004, preining wrote:
-> > I have a bit of a problem here: I am scanning with vuescan (latest
-> > version) on linux-2.6.8-rc3-mm1 a lot of images from raw files, i.e.
-> > only data io from the hard disk, no usb etc interferes, and always after
-> > 20/30 something images the computer freezes completely. Not even Sysrq
-> > works. Only reset button. Of course, the syslog shows up nothing.
-> > 
-> > Is there anything you two can think of what could be the reason?
-> > 
-> > (and no, I have no chance to use serial console, but I doubt it would be
-> > useful)
-> 
-> Best wishes
-> 
-> Norbert
-> 
-> -------------------------------------------------------------------------------
-> Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-> gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
-> -------------------------------------------------------------------------------
-> CORSTORPHINE (n.)
-> A very short peremptory service held in monasteries prior to teatime
-> to offer thanks for the benediction of digestive biscuits.
-> 			--- Douglas Adams, The Meaning of Liff
+Best regards.
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-STURRY (n.,vb.)
-A token run. Pedestrians who have chosen to cross a road immediately
-in front of an approaching vehicle generally give a little wave and
-break into a sturry. This gives the impression of hurrying without
-having any practical effect on their speed whatsoever.
-			--- Douglas Adams, The Meaning of Liff
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--VywGB/WGlW4DM4P8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-qla1280-visws
+Content-Transfer-Encoding: quoted-printable
+
+diff -urpNX /usr/share/dontdiff -U 6 linux-2.6.8.1-mm3.vanilla/drivers/scsi=
+/qla1280.h linux-2.6.8.1-mm3/drivers/scsi/qla1280.h
+--- linux-2.6.8.1-mm3.vanilla/drivers/scsi/qla1280.h	2004-08-20 14:45:17.00=
+0000000 +0400
++++ linux-2.6.8.1-mm3/drivers/scsi/qla1280.h	2004-08-20 14:56:20.000000000 =
++0400
+@@ -59,12 +59,13 @@
+ #if MEMORY_MAPPED_IO
+ #define RD_REG_WORD(addr)		readw_relaxed(addr)
+ #define RD_REG_WORD_dmasync(addr)	readw(addr)
+ #define WRT_REG_WORD(addr, data)	writew(data, addr)
+ #else				/* MEMORY_MAPPED_IO */
+ #define RD_REG_WORD(addr)		inw((unsigned long)addr)
++#define RD_REG_WORD_dmasync(addr)	RD_REG_WORD(addr)
+ #define WRT_REG_WORD(addr, data)	outw(data, (unsigned long)addr)
+ #endif				/* MEMORY_MAPPED_IO */
+=20
+ /*
+  * Host adapter default definitions.
+  */
+
+--VywGB/WGlW4DM4P8--
+
+--11Y7aswkeuHtSBEs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBJeTiby9O0+A2ZecRAi1cAJ4jKQAQM1mFeDT9aMNVRmJ5eY1L7gCfargG
+DX7sTpjJl0lGb2II6Qy+oxc=
+=MFiZ
+-----END PGP SIGNATURE-----
+
+--11Y7aswkeuHtSBEs--

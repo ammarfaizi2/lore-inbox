@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVB1Qte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVB1Qvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVB1Qte (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVB1Qtd
+	id S261685AbVB1Qvw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVB1QuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:49:33 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:44214 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261684AbVB1Qqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:46:42 -0500
-Message-ID: <42234B15.3060301@arcor.de>
-Date: Mon, 28 Feb 2005 17:47:17 +0100
+	Mon, 28 Feb 2005 11:50:12 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:34001 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261685AbVB1Qqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 11:46:48 -0500
+Message-ID: <42234B1C.1080500@arcor.de>
+Date: Mon, 28 Feb 2005 17:47:24 +0100
 From: Prakash Punnoor <prakashp@arcor.de>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20050222)
 X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc5: sata_sil schows drive twice...
+Subject: 2.6.11-rc5: sata_sil shows drive twice...
 X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enigD2CF7011D9D756CE2F2A6DF2"
+ boundary="------------enig9B0D2A627EF7DA39908A26D7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD2CF7011D9D756CE2F2A6DF2
+--------------enig9B0D2A627EF7DA39908A26D7
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 
@@ -139,7 +139,7 @@ Prakash Punnoor
 
 formerly known as Prakash K. Cheemplavam
 
---------------enigD2CF7011D9D756CE2F2A6DF2
+--------------enig9B0D2A627EF7DA39908A26D7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -147,9 +147,9 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.0 (GNU/Linux)
 
-iD8DBQFCI0sVxU2n/+9+t5gRAkOmAJwPCzVAUXT+TPdYOCWhqa7CGagTtACgmowe
-T/B+e6q+SIdYia3ARB315Lo=
-=ElYx
+iD8DBQFCI0scxU2n/+9+t5gRApRzAJ4oO6wgn0oADkjZmWKrN/KliJQD8QCgjrXy
+/r+Qrn9etPIMWSyFH09sKkY=
+=3A0Z
 -----END PGP SIGNATURE-----
 
---------------enigD2CF7011D9D756CE2F2A6DF2--
+--------------enig9B0D2A627EF7DA39908A26D7--

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265404AbRF0VKC>; Wed, 27 Jun 2001 17:10:02 -0400
+	id <S265408AbRF0VUD>; Wed, 27 Jun 2001 17:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265407AbRF0VJw>; Wed, 27 Jun 2001 17:09:52 -0400
-Received: from matrix2.enst.fr ([137.194.2.14]:24009 "HELO smtp2.enst.fr")
-	by vger.kernel.org with SMTP id <S265404AbRF0VJq>;
-	Wed, 27 Jun 2001 17:09:46 -0400
-Date: Wed, 27 Jun 2001 23:08:43 +0200
-From: Fabrice Gautier <gautier@email.enst.fr>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Subject: Re: When the FUD is all around (sniff).
-Cc: Luigi Genoni <kernel@Expansa.sns.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B3880FF.36885A81@oracle.com>
-In-Reply-To: <Pine.LNX.4.33.0106261015120.9537-100000@Expansa.sns.it> <3B3880FF.36885A81@oracle.com>
-Message-Id: <20010627230741.9759.GAUTIER@email.enst.fr>
+	id <S265409AbRF0VTn>; Wed, 27 Jun 2001 17:19:43 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:58633 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265408AbRF0VTl>;
+	Wed, 27 Jun 2001 17:19:41 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106272119.f5RLJcP325544@saturn.cs.uml.edu>
+Subject: Re: [PATCH] User chroot
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Wed, 27 Jun 2001 17:19:38 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, aeb@cwi.nl
+In-Reply-To: <3B3A4A09.F7D8D5BA@transmeta.com> from "H. Peter Anvin" at Jun 27, 2001 02:03:05 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin writes:
+> "Albert D. Cahalan" wrote:
 
-On Tue, 26 Jun 2001 14:33:03 +0200
-Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
+>> BTW, it is way wrong that /dev/zero should be needed at all.
+>> Such use is undocumented ("man zero", "man mmap") anyway, and
+>> AFAIK one should use mmap() with MAP_ANON instead. Not that
+>> the documentation on MAP_ANON is any good either, but at least
+>> the mere existence of the flag is mentioned.
+>
+> RTFM(POSIX).
 
-> 
-> I have trouble in finding words to describe such blatant ignorance.
+No manual entry for RTFM in section POSIX
 
+Seriously:
 
-A Troll ?
+1. both features ought to be documented in the man pages
+   (I did submit a man page too, back in 1996)
 
-oh.. geez, this was not something on the internet...
-
--- 
-Fabrice Gautier <gautier@email.enstfr>
-
+2. it is slow and nasty to open /dev/zero for getting memory

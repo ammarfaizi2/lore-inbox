@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbTIHOcf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbTIHOcf
+	id S262466AbTIHOeA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:32:35 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:59522 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262208AbTIHOcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:32:33 -0400
-Subject: Re: kernel header separation
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <willy@debian.org>,
-       Erik Andersen <andersen@codepoet.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030908142545.GA3926@gtf.org>
-References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
-	 <20030903014908.GB1601@codepoet.org>
-	 <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk>
-	 <20030905211604.GB16993@codepoet.org>
-	 <20030905232212.GP18654@parcelfarce.linux.theplanet.co.uk>
-	 <1063028303.32473.333.camel@hades.cambridge.redhat.com>
-	 <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
-	 <20030908142545.GA3926@gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063031476.21084.46.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 10:34:00 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64642 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262466AbTIHOd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:33:57 -0400
+Date: Mon, 8 Sep 2003 16:34:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by the kernel
+Message-ID: <20030908143408.GT840@suse.de>
+References: <bjgh6a$82o$1@sea.gmane.org> <20030908085802.GH840@suse.de> <bji001$sop$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 15:31:17 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <bji001$sop$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-08 at 15:25, Jeff Garzik wrote:
-> Well, strictly speaking, __u8 is an internal gcc not kernel type.
+On Mon, Sep 08 2003, Sven Köhler wrote:
+> >You'll probably find that if you bump the max_sectors count if your
+> >drive to 256 from 255 (that is the default if you haven't set it), then
+> >you'll see 128kb chunks all the time.
+> >
+> >See max_sectors[] array.
+> 
+> To make it clear:
+> the kernel will never read or write more sectors at once than specified 
+> in the max_sectors array (where every device has its own value), right?
 
-At the end of this round you score zero points.
+Correct
 
-__u8 is just a typedef. No magic.
+-- 
+Jens Axboe
 

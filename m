@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRKNXhv>; Wed, 14 Nov 2001 18:37:51 -0500
+	id <S278653AbRKNXwR>; Wed, 14 Nov 2001 18:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278660AbRKNXhc>; Wed, 14 Nov 2001 18:37:32 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:36576 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S278633AbRKNXh0>; Wed, 14 Nov 2001 18:37:26 -0500
-Message-ID: <794826DE8867D411BAB8009027AE9EB913D03C95@FMSMSX38>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: constants for goodness calculation
-Date: Wed, 14 Nov 2001 15:37:18 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S278665AbRKNXwI>; Wed, 14 Nov 2001 18:52:08 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:28398 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278653AbRKNXwA>;
+	Wed, 14 Nov 2001 18:52:00 -0500
+Date: Wed, 14 Nov 2001 16:51:47 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: generic_file_llseek() broken?
+Message-ID: <20011114165147.S5739@lynx.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if we can make the following change in the goodness code for the
-following 2 reasons.
+Hello,
+I was recently testing a bit with creating very large files on ext2/ext3
+(just to see if limits were what they should be).  Now, I know that ext2/3
+allows files just shy of 2TB right now, because of an issue with i_blocks
+being in units of 512-byte sectors, instead of fs blocks.
 
-(1) It would be more consistent with PROC_CHANGE_PENALTY in regarding to
-goodness calculation.
+I tried to create a (sparse!) file of 2TB size with:
 
-(2) It would be easier to tweak these two constants in architecture
-dependent code instead of generic code. The constants varies a lot from
-platform to platform and instead of one constant for all platform, it is
-easier for each platform to tailor optimal number in architecture code.
+dd if=/dev/zero of=/tmp/tt bs=1k count=1 seek=2047M
 
-Any comments or objection?  If no, then I will generate a patch set to
-include changes for all platforms.  One other question, what is the standard
-procedure to send patch to Linus or Alan for consideration?  Thanks.
+and it worked fine (finished immediately, don't try this with reiserfs...).
 
+When I tried to make it just a bit bigger, with:
 
-diff -Nur linux.orig/include/asm-i386/smp.h linux/include/asm-i386/smp.h
---- linux.orig/include/asm-i386/smp.h   Mon Nov  5 12:42:14 2001
-+++ linux/include/asm-i386/smp.h        Wed Nov 14 15:22:32 2001
-@@ -130,6 +130,7 @@
-  */
+dd if=/dev/zero of=/tmp/tt bs=1k count=1 seek=2048M
 
- #define PROC_CHANGE_PENALTY    15              /* Schedule penalty */
-+#define MM_CHANGE_PENALTY      1
+dd fails the "llseek(fd, 2T, SEEK_SET)" with -EINVAL, and then proceeds
+to loop "infinitely" reading from the file to try and manually advance
+the file descriptor offset to the desired offset.  That is bad.
 
- #endif
- #endif
-diff -Nur linux.orig/kernel/sched.c linux/kernel/sched.c
---- linux.orig/kernel/sched.c   Wed Oct 17 14:14:37 2001
-+++ linux/kernel/sched.c        Wed Nov 14 15:21:27 2001
-@@ -177,7 +177,7 @@
+I _think_ there is a bug in generic_file_llseek(), with it returning -EINVAL
+instead of -EFBIG in the case where the offset is larger than the s_maxbytes.
+AFAICS, the return -EINVAL is for the case where "whence" is invalid, not the
+case where "offset" is too large for the underlying filesystem (I can see
+-EINVAL for seeking to a negative position).
 
-                /* .. and a slight advantage to the current MM */
-                if (p->mm == this_mm || !p->mm)
--                       weight += 1;
-+                       weight += MM_CHANGE_PENALTY;
-                weight += 20 - p->nice;
-                goto out;
-        }
+If I use:
+
+dd if=/dev/zero of=/tmp/tt bs=1k count=1025 seek=2097151k
+
+I correctly get "EFBIG (file too large)" and "SIGXFSZ" from write(2).
+
+Does anyone know the correct LFS interpretation on this?  From what I can
+see (I have not read the whole thing) lseek() should return EOVERFLOW if
+the resulting offset is too large to fit in the passed type.  It doesn't
+really say what should happen in this particular case - can someone try
+on a non-Linux system and see what the result is?
+
+Either way, I think the kernel is broken in this regard.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

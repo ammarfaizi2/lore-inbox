@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUHJDNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267414AbUHJDOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUHJDNX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 23:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267414AbUHJDNX
+	id S267414AbUHJDOo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 23:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUHJDOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 23:13:23 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:39355 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267413AbUHJDNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 23:13:21 -0400
-Message-ID: <41183D54.40603@comcast.net>
-Date: Mon, 09 Aug 2004 23:13:24 -0400
+	Mon, 9 Aug 2004 23:14:44 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:1445 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267414AbUHJDOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 23:14:41 -0400
+Message-ID: <41183DA5.6060602@comcast.net>
+Date: Mon, 09 Aug 2004 23:14:45 -0400
 From: John Richard Moser <nigelenki@comcast.net>
 User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Bug zapper?  :)
-References: <Pine.LNX.4.44.0408092246340.25913-100000@dhcp83-102.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408092246340.25913-100000@dhcp83-102.boston.redhat.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Locking scheme to block less
+References: <41181909.3070702@comcast.net> <20040810005136.GM12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040810005136.GM12308@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,31 +27,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Rik van Riel wrote:
-> On Mon, 9 Aug 2004, John Richard Moser wrote:
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Mon, Aug 09, 2004 at 08:38:33PM -0400, John Richard Moser wrote:
+> 
+>>Currently, the kernel uses only spin_locks, which are similar to mutex 
+>>locks;
 > 
 > 
->>What I'm suggesting isn't much though, is it really? 
+> Does it, really?
 > 
 > 
-> Then why haven't you done it already ? ;)
+>>If the kernel provided a read-write locking semaphore,
 > 
+> 
+> or if you would care to RTFS and find that it does...
 
-Alright, it's a big undertaking ;)
+o_o I haven't found it.
 
-> On a more serious note, some other people are already
-> auditing the code on a regular basis, while you weren't
-> paying attention ...
-> 
-
-I'm suggesting things to make code auditing simpler, more accurate, more 
-precise.  "Quality-Assurance audited code still contains on average 5 
-bugs per kloc" is a really nasty thought.
-
-http://lkml.org/lkml/2004/8/9/369 was the major explaination.  It's big 
-and clunky to have before each function; but at least it's not ugly, and 
-it's potentially helpful.  Maybe a few of the like in the smallest 
-driver possible to see how it feels?  (/dev/mem?)
 
 -- 
 All content of all messages exchanged herein are left in the

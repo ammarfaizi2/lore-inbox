@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132042AbRCYPq3>; Sun, 25 Mar 2001 10:46:29 -0500
+	id <S132048AbRCYPv7>; Sun, 25 Mar 2001 10:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132044AbRCYPqT>; Sun, 25 Mar 2001 10:46:19 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:29201 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S132042AbRCYPqC>; Sun, 25 Mar 2001 10:46:02 -0500
-Message-ID: <3ABE0F32.5255DF30@evision-ventures.com>
-Date: Sun, 25 Mar 2001 17:30:58 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S132045AbRCYPvt>; Sun, 25 Mar 2001 10:51:49 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61154 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132048AbRCYPvg>;
+	Sun, 25 Mar 2001 10:51:36 -0500
+Message-ID: <3ABE13DF.448812F@mandrakesoft.com>
+Date: Sun, 25 Mar 2001 10:50:55 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "James A. Sutherland" <jas88@cam.ac.uk>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gVQf-00056B-00@the-village.bc.nu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OOM handling
+In-Reply-To: <Pine.LNX.4.21.0103251156450.1863-100000@imladris.rielhome.conectiva> <3ABE0CC2.268D8C3C@evision-ventures.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Martin Dalecki wrote:
+> Rik van Riel wrote:
+> > - the comments are just too rude  ;)
+> >   (though fun)
 > 
-> > That depends what you mean by "must not". If it's your missile guidance
-> > system, aircraft autopilot or life support system, the system must not run
-> > out of memory in the first place. If the system breaks down badly, killing
-> > init and thus panicking (hence rebooting, if the system is set up that
-> > way) seems the best approach.
-> 
-> Ultra reliable systems dont contain memory allocators. There are good reasons
-> for this but the design trade offs are rather hard to make in a real world
-> environment
+> That's only a matter for the "smooth" anglosaxons. Different
+> cultures have different measures on this. I don't feel the need
+> to adjust myself to the american cultural obstructivity.
+> I esp. to the habit of don't saying clearly what one means if one
+> want's to criticize something.
 
-I esp. they run on CPU's without a stack or what?
+Rik should know that lkml and the kernel sources are in no way
+politically correct...  Fuck 'em... :)
+
+	Jeff
+
+
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

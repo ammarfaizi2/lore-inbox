@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTKLNnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 08:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTKLNnO
+	id S262066AbTKLNbF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 08:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTKLNbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 08:43:14 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:20899 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262068AbTKLNnN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 08:43:13 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: wrong grub install, do I need to fdisk -mbr on that drive?
-Date: Wed, 12 Nov 2003 08:43:10 -0500
-User-Agent: KMail/1.5.1
+	Wed, 12 Nov 2003 08:31:05 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:30729 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S262066AbTKLNbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 08:31:03 -0500
+Date: Wed, 12 Nov 2003 14:30:49 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Linus Torvalds <torvalds@osdl.org>, Solar Designer <solar@openwall.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre9 ide+XFree+ptrace=Complete hang
+In-Reply-To: <Pine.LNX.4.44.0311121204140.26451-100000@gaia.cela.pl>
+Message-ID: <Pine.LNX.4.44.0311121421450.31972-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311120843.10782.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.63.173] at Wed, 12 Nov 2003 07:43:12 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Wed, 12 Nov 2003, Maciej Zenczykowski wrote:
 
-In the process of getting ready to swap to a new boot drive, a 
-"grub-install" put everything on /dev/hdd since it was mapped to 
-'(hd1)' in the /boot/grub/device.list.
+> On Tue, 11 Nov 2003, Linus Torvalds wrote:
+> > A serial console may be easier than a binary search, but either sound like 
+> > they should find it.
+> Well a binary search did find it - it just took ages... and unfortunately 
+> I have no easy way to set up a serial console...
 
-I fixed the device.list on the current boot drive, hda, and reran the 
-grub-install script.  But do I need to undo what it did to /dev/hdd 
-before I make /dev/hdb into /dev/hda, and make /dev/hda into /dev/hdb 
-by swapping jumpers on the drive and rebooting?  I've fixed the 
-/etc/fstab copy put on the new drive to reflect the new partition 
-numbers for this and that.
+Well I got a hold of the necessary cabling and I'm sorry to report that
+there is absolutely nothing on the serial console - I get the boot
+messages, etc. fine, the last message before crashing is 'Loglevel set to
+9' [invoked by hand via Alt+SysRq+9], after which I crash it with 'strace
+ls -lR /' (as a normal user) and nothing else shows up, no oops no nada.  
+After it crashed I attempted different Alt+SysRq combos (H/T/M/P/S/U) with
+no effect as well - even the help didn't show.  This is still via the
+keyboard (not sure how to send a sysrq via serial), although I'm almost
+sure now that it wouldn't help - the system is just plain totally 
+and completely dead, even the system bios is likely dead - including the 
+System Management Mode code (likely responsible for lighting up the LED 
+on fn key press/release, which no longer works [although not on every 
+crash]).
 
-With 3 drives stacked up, they are running very hot, and I'd like to 
-get /dev/hdd out of there, and space the old /dev/hda up into its 
-location giveing an empty space between the drives so they'll run 
-cooler as quickly as I can.  I think I'll need to edit the copy of 
-grub.conf on the new drive to boot from the correct / partition too.
-
-Have I missed anything?
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Cheers,
+MaZe.
 

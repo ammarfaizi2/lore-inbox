@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267575AbUHJQq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUHJQrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267575AbUHJQq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHJQqw
+	id S267583AbUHJQrS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUHJQo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:46:52 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:38274 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S267523AbUHJQdk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:33:40 -0400
-Date: Tue, 10 Aug 2004 18:33:37 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Eric Masson <cool_kid@future-ericsoft.com>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Fork and Exec a process within the kernel
-Message-ID: <20040810163337.GD1127@lug-owl.de>
-Mail-Followup-To: Eric Masson <cool_kid@future-ericsoft.com>,
-	Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-References: <4117E68A.4090701@future-ericsoft.com> <20040809161003.554a5de1.pj@sgi.com> <4118E822.3000303@future-ericsoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
+	Tue, 10 Aug 2004 12:44:59 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:5323 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S267588AbUHJQ2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:28:32 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Tue, 10 Aug 2004 12:28:27 -0400
+User-Agent: KMail/1.6.82
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, dwmw2@infradead.org,
+       James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       eric@lammerts.org
+References: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de>
+In-Reply-To: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4118E822.3000303@future-ericsoft.com>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Message-Id: <200408101228.27455.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [141.153.76.4] at Tue, 10 Aug 2004 11:28:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 10 August 2004 06:27, Joerg Schilling wrote:
 
---yudcn1FV7Hsu/q59
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Burn-Proof is switched off by default and other protections
+> (invented later) are switched off by cdrecord to get
+> compatibility..... if you only had read the man page......
+>
+>Switching Burn-Proof on will reduce the quality of the CDs.
 
-On Tue, 2004-08-10 11:22:10 -0400, Eric Masson <cool_kid@future-ericsoft.co=
-m>
-wrote in message <4118E822.3000303@future-ericsoft.com>:
-> Thanks for the pointer! My user mode program is running. Any idea how to=
-=20
-> control which console it shows up on?
+How so Joerg?  Making a blanket statement such as this requires a good 
+proof example IMO.  You not are giving one.
 
-The best idea for a usermode helper is to first close
-stdin/stdout/stderr and re-open it with /dev/null...
-
-If you need to communicate, write into some logfile.
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---yudcn1FV7Hsu/q59
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBGPjhHb1edYOZ4bsRAoseAKCBWAPVBp3zz4RUXaygcdZgYXSXSwCbBdUH
-HaLYCF7xZLFUcX8AlG3JjQ8=
-=btNT
------END PGP SIGNATURE-----
-
---yudcn1FV7Hsu/q59--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

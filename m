@@ -1,104 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVAZQmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVAZQmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbVAZQmn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 11:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVAZQkS
+	id S262385AbVAZQmm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 11:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAZQkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 11:40:18 -0500
-Received: from alog0652.analogic.com ([208.224.223.189]:36480 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262351AbVAZQjB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:39:01 -0500
-Date: Wed, 26 Jan 2005 11:38:15 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Rik van Riel <riel@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-In-Reply-To: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 26 Jan 2005 11:40:45 -0500
+Received: from news.suse.de ([195.135.220.2]:5268 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262383AbVAZQjF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 11:39:05 -0500
+Subject: Re: [PATCH 2.6.11-rc2] modules: add version and srcversion to sysfs
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050126140935.GA27641@lists.us.dell.com>
+References: <20050119171357.GA16136@lst.de>
+	 <20050119234219.GA6294@kroah.com>
+	 <20050126060541.GA16017@lists.us.dell.com>
+	 <200501261022.30292.agruen@suse.de>
+	 <20050126140935.GA27641@lists.us.dell.com>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1106757530.13004.220.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 Jan 2005 17:38:51 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005, Rik van Riel wrote:
+On Wed, 2005-01-26 at 15:09, Matt Domsch wrote:
+> On Wed, Jan 26, 2005 at 10:22:29AM +0100, Andreas Gruenbacher wrote:
+> > On Wednesday 26 January 2005 07:05, Matt Domsch wrote:
+> > > Module:  Add module version and srcversion to the sysfs tree
+> > 
+> > why do you need this?
+> 
+> a) Tools like DKMS, which deal with changing out individual kernel
+> modules without replacing the whole kernel, can behave smarter if they
+> can tell the version of a given module.
 
-> With some programs the 2.6 kernel can end up allocating memory
-> at address zero, for a non-MAP_FIXED mmap call!  This causes
-> problems with some programs and is generally rude to do. This
-> simple patch fixes the problem in my tests.
+They can look at the modules in /lib/modules/$(uname -r).
 
-Does this mean that we can't mmap the screen regen buffer at
-0x000b8000 anymore?
+> The autoinstaller feature,
+> for example, which determines if your system has a "good" version of a
+> driver (i.e. if the one provided by DKMS has a newer verson than that
+> provided by the kernel package installed), and to automatically
+> compile and install a newer version if DKMS has it but your kernel
+> doesn't yet have that version.
 
-How do I look at the real-mode interrupt table starting at
-offset 0? You know that the return value of mmap is to be
-checked for MAP_FAILED, not for NULL, don't you?
+I find the autoinstaller feature quite scary.
 
-What 'C' standard do you refer to? Seg-faults on null pointers
-have nothing to do with the 'C' standard and everything to
-do with the platform.
+> b) Because tools like DKMS can switch out modules, you can't count on
+> 'modinfo foo.ko', which looks at
+> /lib/modules/${kernelver}/... actually matching what is loaded into
+> the kernel already.  Hence asking sysfs for this.
 
-I don't think you should apply this patch. It puts "your"
-policy in the kernel. Now, your policy might be "good" for
-you, but the kernel is not supposed to have such policy
-inside.
+DKMS doesn't manage loading modules, does it? If it does, then at least
+it shouldn't; that's even more scary than the autoinstaller. From the
+point of view of the kernel, the modules relevant for the running kernel
+are those below /lib/modules/$(uname -r)/. If DKMS replaces things
+there, it'd better keep proper track of what it did.
 
->
-> Make sure that we don't allocate memory all the way down to zero,
-> so the NULL pointer never gets covered up with anonymous memory
-> and we don't end up violating the C standard.
->
-> Signed-off-by: Rik van Riel <riel@redhat.com>
->
-> --- linux-2.6.9/mm/mmap.c.nullmmap	2005-01-25 18:00:26.000000000 -0500
-> +++ linux-2.6.9/mm/mmap.c	2005-01-26 08:48:03.438701673 -0500
-> @@ -1114,6 +1114,8 @@ void arch_unmap_area(struct vm_area_stru
-> 		area->vm_mm->free_area_cache = area->vm_start;
-> }
->
-> +#define SHLIB_BASE             0x00111000
-> +
-> /*
->  * This mmap-allocator allocates new areas top-down from below the
->  * stack's low limit (the base):
-> @@ -1162,6 +1164,13 @@ try_again:
-> 			return addr;
->
-> 		/*
-> +		 * Make sure we don't allocate all the way down to
-> +		 * zero, which would break NULL pointer detection.
-> +		 */
-> +		if (addr < SHLIB_BASE)
-> +			goto fail;
-> +
-> +		/*
-> 		 * new region fits between prev_vma->vm_end and
-> 		 * vma->vm_start, use it:
-> 		 */
-> @@ -1258,8 +1267,6 @@ get_unmapped_area_prot(struct file *file
-> EXPORT_SYMBOL(get_unmapped_area_prot);
->
->
-> -#define SHLIB_BASE             0x00111000
-> -
-> unsigned long arch_get_unmapped_exec_area(struct file *filp, unsigned long 
-> addr0,
-> 		unsigned long len0, unsigned long pgoff, unsigned long flags)
-> {
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I never want to see DKMS try to remove a module from the running kernel
+or insmod a new one.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+> c) as the unbind-driver-from-device work takes shape, it will be
+> possible to rebind a driver that's built-in (no .ko to modinfo for the
+> version) to a newly loaded module.  sysfs will have the
+> currently-built-in version info, for comparison.
+>
+> d) tech support scripts can then easily grab the version info for
+> what's running presently - a question I get often.
+
+That's something you can do entirely in userspace by looking at the *.ko
+files.
+
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

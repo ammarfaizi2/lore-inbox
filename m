@@ -1,87 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129475AbQKGAJl>; Mon, 6 Nov 2000 19:09:41 -0500
+	id <S130519AbQKGALb>; Mon, 6 Nov 2000 19:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129802AbQKGAJc>; Mon, 6 Nov 2000 19:09:32 -0500
-Received: from 24.68.3.210.on.wave.home.com ([24.68.3.210]:22002 "EHLO
-	phlegmish.com") by vger.kernel.org with ESMTP id <S129475AbQKGAJS>;
-	Mon, 6 Nov 2000 19:09:18 -0500
-From: David Won <phlegm@home.com>
-Date: Mon, 6 Nov 2000 19:05:16 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Another Oops with latest kernel
+	id <S130419AbQKGALV>; Mon, 6 Nov 2000 19:11:21 -0500
+Received: from 181-ZARA-X27.libre.retevision.es ([62.82.240.181]:32273 "EHLO
+	head.redvip.net") by vger.kernel.org with ESMTP id <S129802AbQKGALM>;
+	Mon, 6 Nov 2000 19:11:12 -0500
+Message-ID: <3A070FD4.7F650A87@zaralinux.com>
+Date: Mon, 06 Nov 2000 21:08:52 +0100
+From: Jorge Nerin <comandante@zaralinux.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: es-ES, es, en
 MIME-Version: 1.0
-Message-Id: <00110619051600.01241@phlegmish.com>
-Content-Transfer-Encoding: 7BIT
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux SMP Mailing List <linux-smp@vger.kernel.org>
+Subject: Re: ping -f kills ne2k (was:[patch] NE2000)
+In-Reply-To: <E13pz9c-0006Jh-00@the-village.bc.nu> <39FD5433.587FF7C6@zaralinux.com> <39FFE612.2688A5AD@yahoo.com> <3A02F9AA.AFB2DB1B@zaralinux.com> <3A065867.6902473D@yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any hints on what caused this one?
+Paul Gortmaker wrote:
+> 
+> >
+> > Well, I have tried it with 2.4.0-test10, both SMP and non-SMP, and the
+> > result is a little confusing.
+> >
+> > Under SMP a ping -s 50000 -f other_host takes down the network access
+> > with no messages (ne2k-pci), and no possibility of being restored
+> > without a reboot.
+> >
+> > Under UP the same command works ok, but after a while the dots stop for
+> > 30sec, then ping prints an 'E' and the dots continue. strace revealed
+> > this:
+> 
+> Another suggestion - if you have your heart set on using ping
+> as your network stress tool, you may want to try using multiple
+> instances of MTU sized pings versus  a single "ping -s 50000".
+> In this way you aren't involving any IP frag code and its associated
+> bean counting - giving us one less factor to consider.
+> 
+> Oh, and since you get a silent failure, maybe you would be interested
+> in testing this patch I was (originally) saving for 2.5.x. -- It adds
+> watchdog transmit timeout functionality to 8390.c (which is used by
+> the ne2k-pci driver).  Last time I updated it was a couple of months
+> ago, but nothing has changed since then.
+> 
+> Paul.
+> 
 
-Nov  6 18:28:53 phlegmish kernel: Unable to handle kernel paging request at 
-virt
-ual address 00009cca
-Nov  6 18:28:53 phlegmish kernel: c012cdd6
-Nov  6 18:28:53 phlegmish kernel: *pde = 00000000
-Nov  6 18:28:53 phlegmish kernel: Oops: 0000
-Nov  6 18:28:53 phlegmish kernel: CPU:    0
-Nov  6 18:28:53 phlegmish kernel: EIP:    0010:[<c012cdd6>]
-Nov  6 18:28:53 phlegmish kernel: EFLAGS: 00010202
-Nov  6 18:28:53 phlegmish kernel: eax: 00009cb6   ebx: 00009cb6   ecx: 
-00009cb6 
-  edx: 00000400
-Nov  6 18:28:53 phlegmish kernel: esi: 00000000   edi: c2d7ba80   ebp: 
-00000001 
-  esp: c1743f80
-Nov  6 18:28:53 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-Nov  6 18:28:53 phlegmish kernel: Process netscape-commun (pid: 889, 
-stackpage=c
-1743000)
-Nov  6 18:28:53 phlegmish kernel: Stack: 069e7fff 00000000 c0118c5a 00009cb6 
-c2d
-7ba80 c4e4dc80 c1742000 00000000 
-Nov  6 18:28:53 phlegmish kernel:        bfffe308 c011925a c2d7ba80 c1742000 
-403
-148ec 00000000 c01193a2 00000000 
-Nov  6 18:28:53 phlegmish kernel:        c010a407 00000000 00000000 40315740 
-403
-148ec 00000000 bfffe308 00000001 
-Nov  6 18:28:53 phlegmish kernel: Call Trace: [<c0118c5a>] [<c011925a>] 
-[<c01193
-a2>] [<c010a407>] 
-Nov  6 18:28:53 phlegmish kernel: Code: 8b 43 14 85 c0 75 13 68 c2 4d 22 c0 
-e8 3
-5 9f fe ff 31 c0 83 
+Tested with ping -f -s 1400 (1400 in order not to reach 1500)
+It took about half an hour and more than one million packets, but I
+finally took the net down, with 12 concurrent pings.
 
->>EIP; c012cdd6 <filp_close+6/64>   <=====
-Trace; c0118c5a <put_module_symbol+28a/2f8>
-Trace; c011925a <exit_mm+31e/cdc>
-Trace; c01193a2 <exit_mm+466/cdc>
-Trace; c010a407 <__rwsem_wake+1073/2264>
-Code;  c012cdd6 <filp_close+6/64>
-00000000 <_EIP>:
-Code;  c012cdd6 <filp_close+6/64>   <=====
-   0:   8b 43 14                  mov    0x14(%ebx),%eax   <=====
-Code;  c012cdd9 <filp_close+9/64>
-   3:   85 c0                     test   %eax,%eax
-Code;  c012cddb <filp_close+b/64>
-   5:   75 13                     jne    1a <_EIP+0x1a> c012cdf0 
-<filp_close+20/
-64>
-Code;  c012cddd <filp_close+d/64>
-   7:   68 c2 4d 22 c0            push   $0xc0224dc2
-Code;  c012cde2 <filp_close+12/64>
-   c:   e8 35 9f fe ff            call   fffe9f46 <_EIP+0xfffe9f46> c0116d1c 
-<pr
-intk+0/180>
-Code;  c012cde7 <filp_close+17/64>
-  11:   31 c0                     xor    %eax,%eax
-Code;  c012cde9 <filp_close+19/64>
-  13:   83 00 00                  addl   $0x0,(%eax)
+To eliminate factors I have deleted all the NAT rules wich gave messages
+about dropped packets, and unloaded all the iptables modules.
 
+I have to make the test without the test check in sock_wait_for_wmem:
+        if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE))
+== 0)
+                BUG();
 
+Because as I said in a previous msg it gave me BUG()s very early in the
+tests, and I still had network access.
+
+If someone has a better sugestion as a nic stress tool I can try it, but
+now I only have two ways of reaching this limits, ping -f of big
+packets, and sometimes (only 4 or 5) during a copy of a large file over
+NFS, but it's not a easy way to cause this.
+
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

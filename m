@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUHHDTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUHHDUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUHHDTN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 23:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbUHHDTN
+	id S265108AbUHHDUd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 23:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUHHDUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 23:19:13 -0400
-Received: from mproxy.gmail.com ([216.239.56.248]:59674 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265106AbUHHDTI (ORCPT
+	Sat, 7 Aug 2004 23:20:32 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59522 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265108AbUHHDUU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 23:19:08 -0400
-Message-ID: <944a03770408072019362f4a33@mail.gmail.com>
-Date: Sat, 7 Aug 2004 23:19:07 -0400
-From: Michael Guterl <mguterl@gmail.com>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: USB troubles in rc2
-Cc: linux-usb-devel@lists.sourceforge.net,
-       "Luis Miguel =?ISO-8859-1?Q?=20Garc=FD?= Mancebo" <ktech@wanadoo.es>,
-       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       akpm@osdl.org
-In-Reply-To: <200408071051.23047.david-b@pacbell.net>
+	Sat, 7 Aug 2004 23:20:20 -0400
+Date: Sat, 7 Aug 2004 20:17:55 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20040807201755.16eeeab9.pj@sgi.com>
+In-Reply-To: <200408071722.36705.efocht@hpce.nec.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<200408071722.36705.efocht@hpce.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200408022100.54850.ktech@wanadoo.es> <200408050834.27452.david-b@pacbell.net> <944a03770408051005614aa25e@mail.gmail.com> <200408071051.23047.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What if Alan's assumptions that it is in ACPI and not USB are correct?
- Personally I don't know enough to handle really any of the tasks you
-suggested.  I figured the fact that reverting bk-acpi.patch and
-bk-usb.patch would throw up some kind of red flag, that something in
-there was maybe messed up and merged in.
+Erich wrote:
+> The complaints about the huge size of the patch should therefore have
+> in mind that we might well get rid of the user interface part of it.
 
-On Sat, 7 Aug 2004 10:51:23 -0700, David Brownell <david-b@pacbell.net> wrote:
-> On Thursday 05 August 2004 10:05, Michael Guterl wrote:
-> > Thanks for the reply David, but where exactly does this leave me and
-> > the others experiencing this problem?  Is there any more information I
-> > can provide that might help?  Any possible solutions, patches, etc?
-> 
-> It leaves you (and others) with the problem partially isolated, so that
-> someone with time to track it down will have that much less work to do.
-> 
-> The most effective solutions involve someone who has the problem
-> actually stepping up and debugging the whole thing, then providing
-> a patch fixing the problem.
-> 
-> A second-best would be collaboration between someone who has
-> the time (not me!) and someone who has the problem (you?) to
-> remotely debug the problem.
-> 
-> A third-best would be for someone (you?) to find out exactly which patch
-> caused the problem -- a binary search of the USB patches, luckily it's
-> made easier by the fact that it could only be a change in HID, usbcore,
-> or some HCD.  (And most likely IMO it's usbcore.)  Then that patch can
-> either be further debugged, or reverted.
-> 
-> - Dave
-> 
-> 
-> > On Thu, 5 Aug 2004 08:34:27 -0700, David Brownell <david-b@pacbell.net>
-> wrote:
-> > > ....
-> 
-> 
-> > >
-> > > The dmesg output shows this is a HID failure.  It's likely connected
-> > > with some changes in the unlink logic, since that's what returns
-> > > the "-ENOENT" status.  The usb_kill_urb() changes added a new
-> > > URB state as I recall, maybe that's part of the issue here... since
-> > > that routine replaced the previous "synchronous unlink" logic.
-> > >
-> > > - Dave
-> > >
-> > >
-> >
->
+To put some numbers on things, building 2.6.8-rc2-mm2 for arch=ia64,
+with gcc 3.3.2, using sn2_defconfig, I see the following kernel text
+byte costs:
+
+	Enabling CONFIG_CPUSETS:   22384   (22028 cpuset.o, 356 hooks)
+	The  bitmap list UI:        1552
+	                           -----
+	Total:                     23936
+
+The bitmap list user interface is a fairly small part of the total.
+
+Of the 22384 for CONFIG_CPUSETS, 22028 bytes is in kernel/cpuset.o and
+the remaining 356 for the cpuset kernel hooks (which are essentially
+zero if CONFIG_CPUSETS is disabled).
+
+
+> The core infrastructure of cpusets will be needed anyway and the
+> amount of code is the absolutely required minimum, IMHO.
+
+I agree.  If anyone can see further opportunities to trim, let me know.
+
+
+> What I proposed was to include cpusets ASAP
+
+I agree.
+
+
+>  A better world ;-)
+
+Yeah !!
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262731AbSIPQiK>; Mon, 16 Sep 2002 12:38:10 -0400
+	id <S262626AbSIPQpf>; Mon, 16 Sep 2002 12:45:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262747AbSIPQiK>; Mon, 16 Sep 2002 12:38:10 -0400
-Received: from [64.76.155.18] ([64.76.155.18]:60131 "EHLO alumno.inacap.cl")
-	by vger.kernel.org with ESMTP id <S262731AbSIPQiJ>;
-	Mon, 16 Sep 2002 12:38:09 -0400
-Date: Mon, 16 Sep 2002 12:42:34 -0400 (CLT)
-From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Understanding the Principles of Argumentation #3
-In-Reply-To: <E17qyrb-0000Jv-00@starship>
-Message-ID: <Pine.LNX.4.44.0209161242090.2829-100000@alumno.inacap.cl>
+	id <S262635AbSIPQpf>; Mon, 16 Sep 2002 12:45:35 -0400
+Received: from 66.148.196.79.nw.nuvox.net ([66.148.196.79]:47503 "HELO
+	greatwhite.teamics.com") by vger.kernel.org with SMTP
+	id <S262626AbSIPQpf>; Mon, 16 Sep 2002 12:45:35 -0400
+Subject: Problem:  RFC1166 addressing
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
+Message-ID: <OF298A60D6.2FD15C58-ON86256C36.005B260E@teamics.com>
+From: tomc@teamics.com
+Date: Mon, 16 Sep 2002 11:50:36 -0500
+X-MIMETrack: Serialize by Router on greatwhite/teamics(Release 5.0.8 |June 18, 2001) at
+ 09/16/2002 11:50:37 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+RFC 1166 states that:
 
-Can you PLEASE discuss that in PRIVATE? 
 
-Thanks in advice.
+ The class A network number 127 is assigned the "loopback"
+         function, that is, a datagram sent by a higher level protocol
+         to a network 127 address should loop back inside the host.  No
+         datagram "sent" to a network 127 address should ever appear on
+         any network anywhere.
 
-On Mon, 16 Sep 2002, Daniel Phillips wrote:
+ Linux does not enforce this.  I have uncovered some users using this
+function to attempt to circumvent the firewall.  I am able to "create" 127
+network traffic as follows:
 
-> This is the third in my "Understanding the Principles of Argumentation"
-> series.  Rusty has obligingly provided us with a fine example of an "ad
-> hominem attack":
-> 
-> On Monday 16 September 2002 04:17, Rusty Russell wrote:
-> > > Don't forget that the Unix way has traditionally been to use the
-> > > simplest interface that will do the job; if you propose a fat
-> > > interface you need to prove that the thin one cannot do the job.
-> > 
-> > Gee, really?  You're so clever!
-> > 
-> > You patronising little shit,
-> 
-> An ad hominem attack is a logical fallacy where the arguer attacks the
-> person, rather than the issue:
-> 
->    http://home.mcn.net/~montanabw/fallacies.html
-> 
-> 
+Machine 1:   ifconfig eth0:1 127.1.2.3   [ running kernel 2.2.14 ]
 
--- 
-Robinson Maureira Castillo
-Asesor DAI
-INACAP
+Machine 2:   ifconfig eth0:1 127.1.2.4  [ running kernel 2.4.19 ]
+
+Machine 2:  ping 127.1.2.3
+
+Packets move between the hosts.    Also seems to work on Macintosh.
+
+
+
+
+
+tc
+
 

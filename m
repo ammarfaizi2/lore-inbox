@@ -1,42 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272368AbRIFAiv>; Wed, 5 Sep 2001 20:38:51 -0400
+	id <S272371AbRIFBB7>; Wed, 5 Sep 2001 21:01:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272369AbRIFAil>; Wed, 5 Sep 2001 20:38:41 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:44298 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S272368AbRIFAib>; Wed, 5 Sep 2001 20:38:31 -0400
-Message-ID: <3B96C59A.2EC7C768@delusion.de>
-Date: Thu, 06 Sep 2001 02:38:50 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac7 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB device not accepting new address
-In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com> <200109051619.f85GJEo07592@devserv.devel.redhat.com> <3B967EDD.5A81F2DD@delusion.de> <20010905160940.B11067@devserv.devel.redhat.com>
+	id <S272370AbRIFBBu>; Wed, 5 Sep 2001 21:01:50 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:9476 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S272369AbRIFBBj>; Wed, 5 Sep 2001 21:01:39 -0400
+Date: Thu, 6 Sep 2001 03:02:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rohit.seth@intel.com
+Subject: kiobuf wrong changes in 2.4.9ac9
+Message-ID: <20010906030228.C11329@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+I suggest to backout the kiobuf patch in 2.4.9ac9. Right performance fix
+is just in 2.4.10pre4aa1 and it depends on O_DIRECT.
 
-> Interesting. I just dealt with a bug which is most definitely
-> a hardware problem, and the owner swore that "it worked with
-> 2.4.3-12 perfectly" (it was the last errata that we shipped).
-> The thing (a Kaweth compatible Ethernet) was found NOT to work
-> on earlier kernels reliably either. Such things do happen:
-> something stops working just in time.
-> What regressions did you do? Did you run 2.4.7-ac _after_
-> it broke?
+see:
 
-I've just tried all -ac1 kernels from 2.4.5-ac1 to 2.4.9-ac1
-and the problem exists with all of them. So it would appear that
-it didn't work reliably with earlier kernels either. I find it
-interesting however, that it is much harder to trigger in
-earlier kernels and that it doesn't happen every time.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/00_o_direct-15
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/10_rawio-f_iobuf-1
 
--Udo.
+Porting to 2.4.5 is very very very trivial if truly needed.
+
+I cannot care less if with 2 hounrded of harddisks and 2 houndred of
+tasks all doing simultaneous I/O to all the 2 hounrded of harddisks, 2
+hounrded of mbytes of ram are statically allocated in kiobufs. If you
+have money for such configuration you *defininitely* don't want to waste
+cpu in kiobufs allocation but you want to keep them preallocated and
+spend the money in the 2 houndred mbytes of ram (today in Italy a pair
+kilometers away from my home I can buy a 128mbytes 133mhz dimm for 20
+EUR [in us it has to be cheaper], compare that with the price of the
+rest of the system). I didn't even attempted to count the static ram you
+as well spend in the large preallocated I/O queues for each harddisk for
+the same reason.
+
+In low end configuration with a few disks and a few tasks doing I/O the
+ram overhead is some houndred kbytes so it's fine.
+
+For the thread/process issue there's no difference at all (I'm not
+penalyzing threads), it's just that you must reopen the file if the
+child thread or process will do simutalenous I/O to the same rawio
+device with the parent (the only difference between process and thread
+is that you will be forced to share the same fd space with the parent in
+the thread case but it's a long time [2.2] that the fd space is
+1024*1024 fd high bound).
+
+Now I'm not saying we don't need to shrink the size of the kiobuf so we
+can save ram [notably for non IO backed kiobuf users] and make the
+contention case faster as well (btw, having the KIO_MAX_ATOMIC_IO at
+512k is useful only in -aa with the other changes that allows the 512k
+scsi commands:
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/00_sd-max_sectors-1
+
+). But my plan was to split the kiobuf in two entities to save ram and
+to try to slabify it again, but that's a much lower prio work (the high
+prio stuff is what I'm shipping above in -aa) and my point here is that
+this lower prio work it's not in the direction of the patch.
+
+The above is all about performance and design, about real world
+showstopper the one in 2.4.9ac9 is that kiobuf allocations are going to
+fail during read/writes due mem framentation (this is why it was using
+vmalloc indeed) [those faliures should be easily reprocible on x86 boxes
+with PAGE_SIZE = 4k]. The reason kmem allocations larger than PAGE_SIZE
+aren't reliable is because the slab like everything else is alloc_pages
+backed and the main allocator isn't reliable to allocate anything larger
+than PAGE_SIZE.  OTOH for the kernel stack we also allocate 2*PAGE_SIZE
+physically contigous, but here the kiobuf structure would generate an
+order 2 allocation that will definitely fail with the current vm
+eventually [ask Daniel] (not order 1 like kernel stack)
+
+I told Rohit a few days ago about some of those issues as argument why I
+didn't accepted the patch, he raised a few issues that I hope to have
+addressed in this email, I was busy with other things and so I managed
+to answer only now, I'm sorry for the delay Rohit.
+
+Rohit could you please do a run of the benchmark on top of
+2.4.10pre4aa1 to verify I'm right about the "high prio" stuff, then
+we'll address the "low prio" contention optimization and finegrined
+memory-saving part relaxed in a larger patch.
+
+Andrea

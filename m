@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVA1GpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVA1GyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVA1GpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 01:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVA1GpI
+	id S261487AbVA1GyW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 01:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVA1GyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 01:45:08 -0500
-Received: from egg.hpc2n.umu.se ([130.239.45.244]:52627 "EHLO egg.hpc2n.umu.se")
-	by vger.kernel.org with ESMTP id S261485AbVA1GpD (ORCPT
+	Fri, 28 Jan 2005 01:54:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20908 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261487AbVA1GyQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 01:45:03 -0500
-Date: Fri, 28 Jan 2005 07:44:58 +0100
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Ake <Ake.Sandgren@hpc2n.umu.se>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>
-Subject: Re: Bug in 2.4.26 in mm/filemap.c when using RLIMIT_RSS
-Message-ID: <20050128064458.GB12325@hpc2n.umu.se>
-References: <20050126110750.GE7349@hpc2n.umu.se> <20050126144904.GE26308@logos.cnet> <20050127063849.GA11119@hpc2n.umu.se> <20050127074459.GH26308@logos.cnet> <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
+	Fri, 28 Jan 2005 01:54:16 -0500
+Date: Fri, 28 Jan 2005 07:54:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Doug Maxey <dwm@maxeymade.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi/sata write barrier support
+Message-ID: <20050128065358.GA4800@suse.de>
+References: <200501272242.j0RMgoP5016154@falcon30.maxeymade.com> <41F97299.2070909@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ake.Sandgren@hpc2n.umu.se (Ake)
+In-Reply-To: <41F97299.2070909@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 03:09:40PM +0000, Hugh Dickins wrote:
-> > > BTW do you know if there is any plans for 2.6++ to actually use
-> > > RLIMIT_RSS? I saw a hint in that direction in mm/thrash.c
-> > > grab_swap_token but it is commented out and only skeleton code...
-> > 
-> > Nope, RLIMIT_RSS does not seem to be used at all in v2.6:
-> > 
-> > Its there for compatibility reasons, support for it might be added
-> > in the future?
+On Thu, Jan 27 2005, Jeff Garzik wrote:
+> Doug Maxey wrote:
+> >On Thu, 27 Jan 2005 13:02:48 +0100, Jens Axboe wrote:
+> >
+> >>Hi,
+> >>
+> >>For the longest time, only the old PATA drivers supported barrier writes
+> >>with journalled file systems. This patch adds support for the same type
+> >>of cache flushing barriers that PATA uses for SCSI, to be utilized with
+> >>libata. 
+> >
+> >
+> >What, if any mechanism supports changing the underlying write cache?  
+> >
+> >That is, assuming this is common across PATA and SCSI drives, and it is 
+> >possible to turn the cache off on the IDE drives, would switching the 
+> >cache underneath require completing the inflight IO?
 > 
-> Rik had a patch implementing RLIMIT_RSS in 2.6-mm for a while.
-> But I think there were a couple of problems with it, and no great
-> demand for the feature, so Andrew dropped it until someone makes
-> a better case for it.
+> [ignoring your question, but it made me think...]
+> 
+> 
+> I am thinking the barrier support should know if the write cache is 
+> disabled (some datacenters do this), and avoid flushing if so?
 
-Well, the use for it is for compute clusters where you really would like
-to be able to limit this. Esp on smp boxes where there is multiple
-compute jobs running simultaneously. Be it mpi or separate jobs you
-really want to limit their RSS use so they don't steal memory from each
-other.
+Ehm it does, read the code :)
 
 -- 
-Ake Sandgren, HPC2N, Umea University, S-90187 Umea, Sweden
-Internet: ake@hpc2n.umu.se	Phone: +46 90 7866134 Fax: +46 90 7866126
-Mobile: +46 70 7716134 WWW: http://www.hpc2n.umu.se
+Jens Axboe
+

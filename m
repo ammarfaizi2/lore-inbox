@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTFKCOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 22:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTFKCOM
+	id S264037AbTFKCQO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 22:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTFKCQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 22:14:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25024 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263997AbTFKCOL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 22:14:11 -0400
-Date: Wed, 11 Jun 2003 03:27:54 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Frank Cusack <fcusack@fcusack.com>, torvalds@transmeta.com,
-       marcelo@conectiva.com.br, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number mismatch)
-Message-ID: <20030611022754.GC6754@parcelfarce.linux.theplanet.co.uk>
-References: <20030603165438.A24791@google.com> <shswug2sz5x.fsf@charged.uio.no> <20030604142047.C24603@google.com> <16094.25720.895263.4398@charged.uio.no> <20030609065141.A9781@google.com> <20030611005425.GA6754@parcelfarce.linux.theplanet.co.uk> <16102.36078.894833.262461@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16102.36078.894833.262461@charged.uio.no>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Jun 2003 22:16:14 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:6784
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264037AbTFKCQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 22:16:09 -0400
+Date: Tue, 10 Jun 2003 22:18:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: [PATCH][2.5] Fix raid0 init failure
+Message-ID: <Pine.LNX.4.50.0306102154210.19137-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 03:59:10AM +0200, Trond Myklebust wrote:
-> AFAICS the problem is the following:
-> 
->   - NFS sillyrenames dentry 1
->   - Upon return from nfs_unlink(), VFS unhashes dentry 1
-> 
->   - Upon next lookup, VFS+NFS conspire to create aliased dentry 2 to
->     sillyrenamed file
->   - Upon last close of files associated with dentry 1, NFS completes
->     sillyrename. File is unlinked on server.
->   - Aliased dentry 2 is still around, but it is now pointing to stale
->     fh.
-> 
-> IOW we just want to prevent VFS from unhashing the dentry in the first
-> place: dentry aliasing cannot work together with sillyrename.
+create_strip_zone was accessing uninitialised data via 
+zone->dev = conf->devlist 
 
-Aliasing could be dealt with.  They would have the same inode, so it's
-easy to detect.  The real problem is different: what happens if I take
-silly-renamed file and rename it away?  You suddenly get ->dir and ->dentry
-if your nfs_unlinkdata having nothing to do with each other.
+Tested on a 2disk SCSI Raid0
 
-_If_ we want to be able to work with silly-renamed dentry, we need much
-more careful async unlink.  Your current code assumes that these dentries
-won't go anywhere.   AFAICS, dcache will not get into inconsistent state,
-but it will have very little to do with state of server...
+BEFORE:
+md0: setting max_sectors to 128, segment boundary to 32767
+raid0: looking at sdf1
+raid0:   comparing sdf1(4193152) with sdf1(4193152)
+raid0:   END
+raid0:   ==> UNIQUE
+raid0: 1 zones
+raid0: looking at sdc1
+raid0:   comparing sdc1(4193152) with sdf1(4193152)
+raid0:   EQUAL
+raid0: FINAL 1 zones
+raid0: multiple devices for 1 - aborting!
+md: pers->run() failed ...
+md :do_md_run() returned -22
+md: md0 stopped.
+md: unbind<sdf1>
+md: export_rdev(sdf1)
+md: unbind<sdc1>
+md: export_rdev(sdc1)
+md: ... autorun DONE.
+
+AFTER:
+md0: setting max_sectors to 128, segment boundary to 32767
+raid0: looking at sdf1
+raid0:   comparing sdf1(4193152) with sdf1(4193152)
+raid0:   END
+raid0:   ==> UNIQUE
+raid0: 1 zones
+raid0: looking at sdc1
+raid0:   comparing sdc1(4193152) with sdf1(4193152)
+raid0:   EQUAL
+raid0: FINAL 1 zones
+raid0: done.
+raid0 : md_size is 8386304 blocks.
+raid0 : conf->hash_spacing is 8386304 blocks.
+raid0 : nb_zone is 1.
+raid0 : Allocating 4 bytes for hash.
+md: ... autorun DONE.
+
+Index: linux-2.5/drivers/md/raid0.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/md/raid0.c,v
+retrieving revision 1.32
+diff -u -p -B -r1.32 raid0.c
+--- linux-2.5/drivers/md/raid0.c	5 Jun 2003 06:30:06 -0000	1.32
++++ linux-2.5/drivers/md/raid0.c	11 Jun 2003 00:51:30 -0000
+@@ -90,6 +90,10 @@ static int create_strip_zones (mddev_t *
+ 
+ 	memset(conf->strip_zone, 0,sizeof(struct strip_zone)*
+ 				   conf->nr_strip_zones);
++
++	memset(conf->devlist, 0, sizeof (mdk_rdev_t*)*
++		conf->nr_strip_zones*mddev->raid_disks);
++
+ 	/* The first zone must contain all devices, so here we check that
+ 	 * there is a proper alignment of slots to devices and find them all
+ 	 */
+-- 
+function.linuxpower.ca

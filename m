@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282866AbRLMNK0>; Thu, 13 Dec 2001 08:10:26 -0500
+	id <S282890AbRLMNa3>; Thu, 13 Dec 2001 08:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283876AbRLMNKQ>; Thu, 13 Dec 2001 08:10:16 -0500
-Received: from ns.suse.de ([213.95.15.193]:36875 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282866AbRLMNKE>;
-	Thu, 13 Dec 2001 08:10:04 -0500
-Date: Thu, 13 Dec 2001 14:10:01 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Over-enthusiastic OOM killer.
-In-Reply-To: <200112130734.fBD7YXU01306@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112131407250.28164-100000@Appserv.suse.de>
+	id <S282947AbRLMNaU>; Thu, 13 Dec 2001 08:30:20 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:26563 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S282890AbRLMNaF>;
+	Thu, 13 Dec 2001 08:30:05 -0500
+Date: Thu, 13 Dec 2001 14:29:51 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FBdev remains in unusable state 
+In-Reply-To: <8895.1008243321@redhat.com>
+Message-ID: <Pine.GSO.4.30.0112131429040.16242-100000@balu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Dec 2001, Linus Torvalds wrote:
+On Thu, 13 Dec 2001, David Woodhouse wrote:
 
-> >The oom killer just killed a bunch of processes on my workstation.
-> >What I don't understand, is why this was deemed necessary, when
-> >there was 400MB of buffer cache sitting around in memory, and 175MB
-> >of free swap space unused. (66mb of swap was used)
 >
-> Ehh.. I bet you didn't have free swap.
+> VANDROVE@vc.cvut.cz said:
+> > Documentation/fb/vesafb.txt, X11 paragraph, last sentence:
+> > -------8<-----
+> > The X-Server must restore the video mode correctly, else you end up
+> > with a broken console (and vesafb cannot do anything about this).
+> > -------8<-----
+>
+> This isn't strictly true. We could just call the VESA BIOS to set it up
+> again for us. The 'vesa' XFree86 driver manages to do this perfectly well
+> from userspace, even.
 
-Difficult to say after the killing, but even if that were the case,
-why wasn't buffer cache pruned before the more drastic action ?
-
-After the killing, there was 400MB of real memory, doing absolutely
-nothing but holding cached data.
-
-regards,
-Dave
+Then why not include this set up code into vesafb?
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Balazs Pozsar
 

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271658AbRIGJop>; Fri, 7 Sep 2001 05:44:45 -0400
+	id <S271665AbRIGKRQ>; Fri, 7 Sep 2001 06:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271660AbRIGJof>; Fri, 7 Sep 2001 05:44:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36101 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271658AbRIGJoW>; Fri, 7 Sep 2001 05:44:22 -0400
-Subject: Re: replaying reiserfs journal and bad blocks (was: Re[3]: Basic
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 7 Sep 2001 10:48:15 +0100 (BST)
-Cc: nerijus@users.sourceforge.net (Nerijus Baliunas),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3B987D2A.41C975B3@namesys.com> from "Hans Reiser" at Sep 07, 2001 11:54:18 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271673AbRIGKRG>; Fri, 7 Sep 2001 06:17:06 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:16399 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S271665AbRIGKQu>; Fri, 7 Sep 2001 06:16:50 -0400
+Message-ID: <3B989E46.51C1E768@idb.hist.no>
+Date: Fri, 07 Sep 2001 12:15:34 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre4 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: page pre-swapping + moving it on cache-list
+In-Reply-To: <Pine.LNX.4.33L.0109061003320.31200-100000@imladris.rielhome.con ectiva>
+	 <591984348.999786074@[10.132.112.53]> <p05100300b7bd3bf9bf7a@[10.128.7.49]>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15fIFE-0001JF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> > hdd: dma_intr: error=0x40 { UncorrectableError }, LBAsect=84415, sector=36216
+Jonathan Lundell wrote:
 
-Thats the drive deciding it cant read the block. 
+> The problem with thrashing, is it not, is that we're not making
+> forward progress because we're waiting for swap--that is to say,
+> thrashing *is* an idle state of sorts, and so might be an ideal
+> opportunity for gc methods that require heavy CPU involvement. It's
+> not as if there's anything better to do....
 
-> My guess is turn off UDMA, I think we have a www.namesys.com/faq.html entry on
-> that which you can read and see if my memory of the typical symptoms of flaky
-> udma are correct.  Commenting on the cause of flaky udma I will leave to others
-> familiar with your mob's interaction with Linux, except to say that one should> always check cables at a time like this.
+Note that trashing don't necessarily mean the cpu is free.
+It can be very busy:
+- deciding what to swap out next
+- queuing stuff up for io, merging long elevator queues
+- handling io operations, we don't all have busmastering devices
 
-You'd expect CRC errors then. It looks like the 2.2 log replay code worked
-but the 2.4 log replay code failed on the error, or the layers below it in
-the IDE got stuck.
+somehow I don't think garbage collection runs will be that fun
+in a trashing situation.  Don't these algorithms look all over
+your stack & heap for pointers?  That will surely cause lots
+of io as all the apps memory is paged in so the gc algorithm
+may look at it.  
+
+Helge Hafting

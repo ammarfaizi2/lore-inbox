@@ -1,274 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVBRXTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVBRX2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVBRXTw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 18:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBRXTw
+	id S261559AbVBRX2K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 18:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVBRX1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 18:19:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63919 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261537AbVBRXTh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 18:19:37 -0500
-Subject: [PATCH] Add nobh_writepage() support
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-seMb+w2ZTbwD5NMj6y+b"
-Organization: 
-Message-Id: <1108768782.20053.1779.camel@dyn318077bld.beaverton.ibm.com>
+	Fri, 18 Feb 2005 18:27:37 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:133 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261554AbVBRX1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 18:27:10 -0500
+Subject: Re: [PATCH] [resend] VFS locking errors on max offset edge cases
+From: Bruce Allan <bwa@us.ibm.com>
+Reply-To: bwa@us.ibm.com
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20041224032610.GB11543@parcelfarce.linux.theplanet.co.uk>
+References: <1103842880.4702.87.camel@w-bwa3.beaverton.ibm.com>
+	 <20041224032610.GB11543@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: IBM, Corp.
+Message-Id: <1108769228.3780.8.camel@w-bwa3.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Feb 2005 15:19:42 -0800
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 18 Feb 2005 15:27:09 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Resending patch which also applies to 2.6.11-rc4.
 
---=-seMb+w2ZTbwD5NMj6y+b
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Thu, 2004-12-23 at 19:26, Matthew Wilcox wrote: 
+> On Thu, Dec 23, 2004 at 03:01:20PM -0800, Bruce Allan wrote:
+> > A number of Connectathon (http://www.connectathon.org/nfstests.html)
+> > POSIX/fcntl() locking tests fail (even on local filesystems) at various
+> > edge cases (i.e. around maximum allowable offsets) on 64-bit
+> > architectures.
+> 
+> OK, that's bad and needs to be fixed.
+> 
+> > The overflow tests in fs/compat.c were superfluous where they were
+> > located because if there was a conflicting lock, l_start and l_len would
+> > have been overwritten with the values owned by the conflicting lock; if
+> > no conflicting lock, sys_fcntl() would have returned any applicable
+> > error.  The tests are moved above the call to sys_fcntl() to capture
+> > overflow errors which would not have been caught by sys_fcntl(), eg.
+> > obvious overflow when _FILE_OFFSET_BITS == 32.
+> 
+> I don't buy this explanation though.  With your patch, we're testing
+> the lock the user passed in to see if it'd overflow.  Clearly, that
+> can never happen.  The checks are supposed to be testing whether the
+> conflicting lock is outside the limits that a program using a 32-bit
+> off_t can cope with.
 
-Hi Andrew,
+Hi Matthew,
 
-Here is the patch to add nobh_wripage() support for the filesystems
-which uses nobh_prepare_write/nobh_commit_write().
+I now agree with you not buying my initial explanation, but have some
+follow-up comments/questions.  How is it clear that a user can never
+pass in a lock request that would overflow?  AFAICT, there is no reason
+a 32-bit application could not pass down a request for a lock (eg.
+l_whence=SEEK_SET, l_start=0x7fffffff, l_len=2) which should overflow.
 
-Idea here is to reduce unnecessary bufferhead creation/attachment
-to the page through block_write_full_page(). nobh_wripage() tries 
-to operate by directly creating bios, but it falls back to 
-__block_write_full_page() if it can't make progress.
+For 64-bit applications on a 64-bit architecture (and 32-bit apps/32-bit
+archs) any overflow error in a lock request would be caught in
+flock_to_posix_lock() whether or not there is a conflicting lock.
 
-Note that this is not really generic routine and can't be used
-for filesystems which uses page->Private for anything other
-than buffer heads.
+For 32-bit applications with 32-bit userland off_t on a 64-bit
+architecture, flock_to_posix_lock() does not capture overflow errors on
+requested locks because that function is checking for overflow assuming
+it is a 64-bit value.  If there is no conflicting lock these values are
+passed back to compat_sys_fcntl64() and the overflow check in that
+function should catch it (provided l_whence==SEEK_SET, otherwise that
+check may not catch it), but if there is a conflicting lock the overflow
+check in compat_sys_fcntl64() is checking the values on the conflicting
+lock instead of the requested lock.
 
-BTW, my next set of patches are to add ext3_writepages() support
-for writeback mode and to add "nobh" support for ext3 writeback 
-mode - which are based on some of this work (These are already 
-discussed on ext2-devel).
+I do see your point now about compat_sys_fcntl64() "checks are supposed
+to be testing whether the conflicting lock is outside the limits that a
+program using a 32-bit off_t can cope with", but it seems to me there
+still needs to be an overflow check of the requested lock in
+compat_sys_fcntl64() for the case of F_GETLK/F_SETLK/F_SETLKW; something
+akin to the check in flock_to_posix_lock().  It's duplicate code, I
+know, but at the moment I'm at a loss for a better alternative (I
+suppose it could be setup instead to pass the maximum filesize all the
+way to flock_to_posix_lock()).  This check would be unnecessary for
+F_GETLK64/F_SETLK64/F_SETLKW64 as it would be properly handled in
+flock_to_posix_lock().
 
-And also, this needs some airtime in -mm tree before hitting mainline.
+Comments?
 
-Thanks,
-Badari
+> > These tests also had a couple 'off by one' errors when comparing with
+> > the maximum allowable offset.
+> 
+> Perhaps just fix that, and don't move the tests around?
+[snip] 
+> I hate assignments inside if statements.  Make this:
+> 
+> 	start += l->l_start;
+> 	if (start < 0)
+> 		return -EINVAL;
+Done.
 
+Signed-off-by: Bruce Allan <bwa@us.ibm.com>
 
-
-
-
---=-seMb+w2ZTbwD5NMj6y+b
-Content-Disposition: attachment; filename=nobh_writepage.patch2
-Content-Type: text/plain; name=nobh_writepage.patch2; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-diff -Narup -X dontdiff linux-2.6.10/fs/buffer.c linux-2.6.10.nobh/fs/buffer.c
---- linux-2.6.10/fs/buffer.c	2004-12-24 13:34:58.000000000 -0800
-+++ linux-2.6.10.nobh/fs/buffer.c	2005-02-18 14:52:20.707345056 -0800
-@@ -39,6 +39,7 @@
- #include <linux/notifier.h>
- #include <linux/cpu.h>
- #include <linux/bitops.h>
-+#include <linux/mpage.h>
+diff -Nurp -Xdontdiff linux-2.6.10-rc3-vanilla/fs/compat.c linux-2.6.10-rc3/fs/compat.c
+--- linux-2.6.10-rc3-vanilla/fs/compat.c	2004-12-23 11:52:50.000000000 -0800
++++ linux-2.6.10-rc3/fs/compat.c	2004-12-30 13:33:52.525317789 -0800
+@@ -523,6 +523,40 @@ static int put_compat_flock64(struct flo
+ }
+ #endif
  
- static int fsync_buffers_list(spinlock_t *lock, struct list_head *list);
- static void invalidate_bh_lrus(void);
-@@ -2492,6 +2493,62 @@ int nobh_commit_write(struct file *file,
- EXPORT_SYMBOL(nobh_commit_write);
- 
- /*
-+ * nobh_writepage() - based on block_full_write_page() except
-+ * that it tries to operate without attaching bufferheads to
-+ * the page.
-+ */
-+int nobh_writepage(struct page *page, get_block_t *get_block,
-+			struct writeback_control *wbc)
++static int check_compat_flock(unsigned int fd, struct flock *l)
 +{
-+	struct inode * const inode = page->mapping->host;
-+	loff_t i_size = i_size_read(inode);
-+	const pgoff_t end_index = i_size >> PAGE_CACHE_SHIFT;
-+	unsigned offset;
-+	void *kaddr;
-+	int ret;
++	compat_off_t start, end;
++	struct file *filp = fget(fd);
 +
-+	/* Is the page fully inside i_size? */
-+	if (page->index < end_index) {
-+		goto out;
++	switch (l->l_whence) {
++	case 0: /*SEEK_SET*/
++		start = 0;
++		break;
++	case 1: /*SEEK_CUR*/
++		start = filp->f_pos;
++		break;
++	case 2: /*SEEK_END*/
++		start = i_size_read(filp->f_dentry->d_inode);
++		break;
++	default:
++		return -EINVAL;
 +	}
 +
-+	/* Is the page fully outside i_size? (truncate in progress) */
-+	offset = i_size & (PAGE_CACHE_SIZE-1);
-+	if (page->index >= end_index+1 || !offset) {
-+		/*
-+		 * The page may have dirty, unmapped buffers.  For example,
-+		 * they may have been added in ext3_writepage().  Make them
-+		 * freeable here, so the page does not leak.
-+		 */
-+#if 0
-+		/* Not really sure about this  - do we need this ? */
-+		if (page->mapping->a_ops->invalidatepage)
-+			page->mapping->a_ops->invalidatepage(page, offset);
-+#endif
-+		unlock_page(page);
-+		return 0; /* don't care */
++	/* POSIX-1996 leaves the case l->l_len < 0 undefined;
++	   POSIX-2001 defines it. */
++	start += l->l_start;
++	end = start + l->l_len - 1;
++	if (l->l_len < 0) {
++		end = start - 1;
++		start += l->l_len;
 +	}
-+
-+	/*
-+	 * The page straddles i_size.  It must be zeroed out on each and every
-+	 * writepage invocation because it may be mmapped.  "A file is mapped
-+	 * in multiples of the page size.  For a file that is not a multiple of
-+	 * the  page size, the remaining memory is zeroed when mapped, and
-+	 * writes to that region are not written out to the file."
-+	 */
-+	kaddr = kmap_atomic(page, KM_USER0);
-+	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
-+	flush_dcache_page(page);
-+	kunmap_atomic(kaddr, KM_USER0);
-+out:
-+	ret = mpage_writepage(page, get_block, wbc);
-+	if (ret == -EAGAIN)
-+		ret = __block_write_full_page(inode, page, get_block, wbc);
-+	return ret;
-+}
-+EXPORT_SYMBOL(nobh_writepage);
-+
-+/*
-  * This function assumes that ->prepare_write() uses nobh_prepare_write().
-  */
- int nobh_truncate_page(struct address_space *mapping, loff_t from)
-diff -Narup -X dontdiff linux-2.6.10/fs/ext2/inode.c linux-2.6.10.nobh/fs/ext2/inode.c
---- linux-2.6.10/fs/ext2/inode.c	2004-12-24 13:33:51.000000000 -0800
-+++ linux-2.6.10.nobh/fs/ext2/inode.c	2005-02-16 16:27:32.000000000 -0800
-@@ -626,6 +626,12 @@ ext2_nobh_prepare_write(struct file *fil
- 	return nobh_prepare_write(page,from,to,ext2_get_block);
- }
- 
-+static int ext2_nobh_writepage(struct page *page, 
-+			struct writeback_control *wbc)
-+{
-+	return nobh_writepage(page, ext2_get_block, wbc);
++	if (start < 0)
++		return -EINVAL;
++	if (l->l_len > 0 && end < 0)
++		return -EOVERFLOW;
++	return 0;
 +}
 +
- static sector_t ext2_bmap(struct address_space *mapping, sector_t block)
+ asmlinkage long compat_sys_fcntl64(unsigned int fd, unsigned int cmd,
+ 		unsigned long arg)
  {
- 	return generic_block_bmap(mapping,block,ext2_get_block);
-@@ -675,7 +681,7 @@ struct address_space_operations ext2_aop
- struct address_space_operations ext2_nobh_aops = {
- 	.readpage		= ext2_readpage,
- 	.readpages		= ext2_readpages,
--	.writepage		= ext2_writepage,
-+	.writepage		= ext2_nobh_writepage,
- 	.sync_page		= block_sync_page,
- 	.prepare_write		= ext2_nobh_prepare_write,
- 	.commit_write		= nobh_commit_write,
-diff -Narup -X dontdiff linux-2.6.10/fs/jfs/inode.c linux-2.6.10.nobh/fs/jfs/inode.c
---- linux-2.6.10/fs/jfs/inode.c	2004-12-24 13:33:48.000000000 -0800
-+++ linux-2.6.10.nobh/fs/jfs/inode.c	2005-02-16 16:27:42.000000000 -0800
-@@ -281,7 +281,7 @@ static int jfs_get_block(struct inode *i
- 
- static int jfs_writepage(struct page *page, struct writeback_control *wbc)
- {
--	return block_write_full_page(page, jfs_get_block, wbc);
-+	return nobh_writepage(page, jfs_get_block, wbc);
- }
- 
- static int jfs_writepages(struct address_space *mapping,
-diff -Narup -X dontdiff linux-2.6.10/fs/mpage.c linux-2.6.10.nobh/fs/mpage.c
---- linux-2.6.10/fs/mpage.c	2004-12-24 13:34:26.000000000 -0800
-+++ linux-2.6.10.nobh/fs/mpage.c	2005-02-18 14:52:30.783813200 -0800
-@@ -386,8 +386,9 @@ EXPORT_SYMBOL(mpage_readpage);
-  * just allocate full-size (16-page) BIOs.
-  */
- static struct bio *
--mpage_writepage(struct bio *bio, struct page *page, get_block_t get_block,
--	sector_t *last_block_in_bio, int *ret, struct writeback_control *wbc)
-+__mpage_writepage(struct bio *bio, struct page *page, get_block_t get_block,
-+	sector_t *last_block_in_bio, int *ret, struct writeback_control *wbc,
-+	writepage_t writepage_helper)
- {
- 	struct address_space *mapping = page->mapping;
- 	struct inode *inode = page->mapping->host;
-@@ -580,7 +581,13 @@ alloc_new:
- confused:
- 	if (bio)
- 		bio = mpage_bio_submit(WRITE, bio);
--	*ret = page->mapping->a_ops->writepage(page, wbc);
-+
-+	if (writepage_helper)
-+		*ret = writepage_helper(page, wbc);
-+	else {
-+		*ret = -EAGAIN;
-+		goto out;
-+	}
- 	/*
- 	 * The caller has a ref on the inode, so *mapping is stable
- 	 */
-@@ -706,8 +713,9 @@ retry:
- 							&mapping->flags);
- 				}
- 			} else {
--				bio = mpage_writepage(bio, page, get_block,
--						&last_block_in_bio, &ret, wbc);
-+				bio = __mpage_writepage(bio, page, get_block,
-+						&last_block_in_bio, &ret, wbc, 
-+						page->mapping->a_ops->writepage);
- 			}
- 			if (ret || (--(wbc->nr_to_write) <= 0))
- 				done = 1;
-@@ -734,4 +742,21 @@ retry:
- 		mpage_bio_submit(WRITE, bio);
- 	return ret;
- }
-+
-+int
-+mpage_writepage(struct page *page, get_block_t get_block,
-+	struct writeback_control *wbc)
-+{
-+	int ret = 0;
-+	struct bio *bio = NULL;
-+	sector_t last_block_in_bio = 0;
-+
-+	bio = __mpage_writepage(bio, page, get_block,
-+			&last_block_in_bio, &ret, wbc, NULL);
-+	if (bio)
-+		mpage_bio_submit(WRITE, bio);
-+
-+	return ret;
-+}
-+
- EXPORT_SYMBOL(mpage_writepages);
-diff -Narup -X dontdiff linux-2.6.10/include/linux/buffer_head.h linux-2.6.10.nobh/include/linux/buffer_head.h
---- linux-2.6.10/include/linux/buffer_head.h	2004-12-24 13:33:49.000000000 -0800
-+++ linux-2.6.10.nobh/include/linux/buffer_head.h	2005-02-16 16:22:51.000000000 -0800
-@@ -203,6 +203,9 @@ int file_fsync(struct file *, struct den
- int nobh_prepare_write(struct page*, unsigned, unsigned, get_block_t*);
- int nobh_commit_write(struct file *, struct page *, unsigned, unsigned);
- int nobh_truncate_page(struct address_space *, loff_t);
-+int nobh_writepage(struct page *page, get_block_t *get_block,
-+                        struct writeback_control *wbc);
-+
- 
- /*
-  * inline definitions
-diff -Narup -X dontdiff linux-2.6.10/include/linux/mpage.h linux-2.6.10.nobh/include/linux/mpage.h
---- linux-2.6.10/include/linux/mpage.h	2004-12-24 13:34:32.000000000 -0800
-+++ linux-2.6.10.nobh/include/linux/mpage.h	2005-02-17 17:34:24.913837456 -0800
-@@ -11,12 +11,15 @@
-  */
- 
- struct writeback_control;
-+typedef int (writepage_t)(struct page *page, struct writeback_control *wbc);
- 
- int mpage_readpages(struct address_space *mapping, struct list_head *pages,
- 				unsigned nr_pages, get_block_t get_block);
- int mpage_readpage(struct page *page, get_block_t get_block);
- int mpage_writepages(struct address_space *mapping,
- 		struct writeback_control *wbc, get_block_t get_block);
-+int mpage_writepage(struct page *page, get_block_t *get_block,
-+		struct writeback_control *wbc);
- 
- static inline int
- generic_writepages(struct address_space *mapping, struct writeback_control *wbc)
+@@ -537,13 +571,18 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 		ret = get_compat_flock(&f, compat_ptr(arg));
+ 		if (ret != 0)
+ 			break;
++		ret = check_compat_flock(fd, &f);
++		if (ret != 0)
++			break;
+ 		old_fs = get_fs();
+ 		set_fs(KERNEL_DS);
+ 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+ 		set_fs(old_fs);
+ 		if (cmd == F_GETLK && ret == 0) {
+-			if ((f.l_start >= COMPAT_OFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_OFF_T_MAX))
++			/* check for overflow of conflicting lock if any */
++			if ((f.l_whence != F_UNLCK) &&
++			    ((f.l_start > COMPAT_OFF_T_MAX) ||
++			     ((f.l_start + f.l_len - 1) > COMPAT_OFF_T_MAX)))
+ 				ret = -EOVERFLOW;
+ 			if (ret == 0)
+ 				ret = put_compat_flock(&f, compat_ptr(arg));
+@@ -563,8 +602,10 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 				(unsigned long)&f);
+ 		set_fs(old_fs);
+ 		if (cmd == F_GETLK64 && ret == 0) {
+-			if ((f.l_start >= COMPAT_LOFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_LOFF_T_MAX))
++			/* check for overflow of conflicting lock if any */
++			if ((f.l_whence != F_UNLCK) && 
++			    ((f.l_start > COMPAT_LOFF_T_MAX) ||
++			     ((f.l_start + f.l_len - 1) > COMPAT_LOFF_T_MAX)))
+ 				ret = -EOVERFLOW;
+ 			if (ret == 0)
+ 				ret = put_compat_flock64(&f, compat_ptr(arg));
+diff -Nurp -Xdontdiff linux-2.6.10-rc3-vanilla/fs/locks.c linux-2.6.10-rc3/fs/locks.c
+--- linux-2.6.10-rc3-vanilla/fs/locks.c	2004-12-23 11:52:50.000000000 -0800
++++ linux-2.6.10-rc3/fs/locks.c	2004-12-30 13:33:52.529317402 -0800
+@@ -315,6 +315,8 @@ static int flock_to_posix_lock(struct fi
+ 	/* POSIX-1996 leaves the case l->l_len < 0 undefined;
+ 	   POSIX-2001 defines it. */
+ 	start += l->l_start;
++	if (start < 0)
++		return -EINVAL;
+ 	end = start + l->l_len - 1;
+ 	if (l->l_len < 0) {
+ 		end = start - 1;
 
---=-seMb+w2ZTbwD5NMj6y+b--
+
+---
+Bruce Allan  <bwa@us.ibm.com>
+Software Engineer, Linux Technology Center
+IBM Corporation, Beaverton OR USA
 

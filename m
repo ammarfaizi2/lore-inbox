@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbREQRRO>; Thu, 17 May 2001 13:17:14 -0400
+	id <S262065AbREQRSo>; Thu, 17 May 2001 13:18:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbREQRRE>; Thu, 17 May 2001 13:17:04 -0400
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:42504 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S262067AbREQRQv>; Thu, 17 May 2001 13:16:51 -0400
-Date: Thu, 17 May 2001 18:16:46 +0100 (BST)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0105171815230.14119-100000@ferret.lmh.ox.ac.uk>
+	id <S262068AbREQRSe>; Thu, 17 May 2001 13:18:34 -0400
+Received: from [206.14.214.140] ([206.14.214.140]:28936 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S262065AbREQRSV>; Thu, 17 May 2001 13:18:21 -0400
+Date: Thu, 17 May 2001 10:18:10 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Tim Jansen <tim@tjansen.de>
+cc: t.sailer@alumni.ethz.ch,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <01051718580902.00784@cookie>
+Message-ID: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 17 May 2001, Alan Cox wrote:
+> No, there is another addressing scheme that can be for devices without serial 
+> number: the vendor and product ids. Most people do not have two devices of 
+> the same kind, so you often do not need the topology at all.
 
-> 2.4.4-ac10
-[...]
-> 	- now 2.4.5pre vm seems sane dump other vmscan
-> 	  experiments
+I wouldn't make that assumpation. I have two PS/2 keybaords attached to my
+system and they don't have serial ids nor do they have vendor or product
+ids.
 
-Has anyone benched 2.4.5pre3 vs 2.4.4 vs. ?
-
-Cheers
-Chris
 

@@ -1,484 +1,1413 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261710AbSIXRT3>; Tue, 24 Sep 2002 13:19:29 -0400
+	id <S261714AbSIXRYb>; Tue, 24 Sep 2002 13:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbSIXRT3>; Tue, 24 Sep 2002 13:19:29 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34326 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S261710AbSIXRTW>; Tue, 24 Sep 2002 13:19:22 -0400
-Date: Tue, 24 Sep 2002 13:24:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: davidsen@oddball.prodigy.com
-Reply-To: davidsen@tmr.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.38 compile (link) errs
-Message-ID: <Pine.LNX.4.44.0209241320340.15835-300000@oddball.prodigy.com>
+	id <S261747AbSIXRYV>; Tue, 24 Sep 2002 13:24:21 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:54415 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261720AbSIXRWm> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:42 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.38 s390 fixes: 05_dasd.
+Date: Tue, 24 Sep 2002 19:18:45 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1597264651-1032888273=:15835"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209241918.45080.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Allocate gendisk structure per dasd device, replace kdev_t by a bdev pointer
+where possible and remove option CONFIG_DASD_DYNAMIC.
 
---8323328-1597264651-1032888273=:15835
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+diff -urN linux-2.5.38/drivers/s390/block/dasd.c linux-2.5.38-s390/drivers/s390/block/dasd.c
+--- linux-2.5.38/drivers/s390/block/dasd.c	Sun Sep 22 06:25:09 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd.c	Tue Sep 24 17:42:03 2002
+@@ -203,20 +203,24 @@
+ dasd_alloc_device(dasd_devmap_t *devmap)
+ {
+ 	dasd_device_t *device;
++	struct gendisk *gdp;
+ 	int rc;
+ 
+-	/* Make sure the gendisk structure for this device exists. */
+-	while (dasd_gendisk_from_devindex(devmap->devindex) == NULL) {
+-		rc = dasd_gendisk_new_major();
+-		if (rc)
+-			return ERR_PTR(rc);
+-	}
+-
+ 	device = kmalloc(sizeof (dasd_device_t), GFP_ATOMIC);
+ 	if (device == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 	memset(device, 0, sizeof (dasd_device_t));
+ 
++	/* Get devinfo from the common io layer. */
++	rc = get_dev_info_by_devno(devmap->devno, &device->devinfo);
++	if (rc) {
++		kfree(device);
++		return ERR_PTR(rc);
++	}
++	DBF_EVENT(DBF_NOTICE, "got devinfo CU-type %04x and dev-type %04x",
++		  device->devinfo.sid_data.cu_type,
++		  device->devinfo.sid_data.dev_type);
++
+ 	/* Get two pages for normal block device operations. */
+ 	device->ccw_mem = (void *) __get_free_pages(GFP_ATOMIC | GFP_DMA, 1);
+ 	if (device->ccw_mem == NULL) {
+@@ -231,17 +235,15 @@
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+-	/* Get devinfo from the common io layer. */
+-	rc = get_dev_info_by_devno(devmap->devno, &device->devinfo);
+-	if (rc) {
+- 		free_page((unsigned long) device->erp_mem);
++	/* Allocate gendisk structure for device. */
++	gdp = dasd_gendisk_alloc(device->name, devmap->devindex);
++	if (IS_ERR(gdp)) {
++		free_page((unsigned long) device->erp_mem);
+ 		free_pages((unsigned long) device->ccw_mem, 1);
+ 		kfree(device);
+-		return ERR_PTR(rc);
++		return (dasd_device_t *) gdp;
+ 	}
+-	DBF_EVENT(DBF_NOTICE, "got devinfo CU-type %04x and dev-type %04x",
+-		  device->devinfo.sid_data.cu_type,
+-		  device->devinfo.sid_data.dev_type);
++	device->gdp = gdp;
+ 
+ 	dasd_init_chunklist(&device->ccw_chunks, device->ccw_mem, PAGE_SIZE*2);
+ 	dasd_init_chunklist(&device->erp_chunks, device->erp_mem, PAGE_SIZE);
+@@ -268,6 +270,7 @@
+ 		kfree(device->private);
+ 	free_page((unsigned long) device->erp_mem);
+ 	free_pages((unsigned long) device->ccw_mem, 1);
++	dasd_gendisk_free(device->gdp);
+ 	kfree(device);
+ }
+ 
+@@ -278,21 +281,22 @@
+ dasd_state_new_to_known(dasd_device_t *device)
+ {
+ 	char buffer[5];
+-	struct gendisk *gdp;
+ 	dasd_devmap_t *devmap;
+ 	umode_t devfs_perm;
+ 	devfs_handle_t dir;
+-	int minor, rc;
++	int major, minor, rc;
+ 
+ 	devmap = dasd_devmap_from_devno(device->devinfo.devno);
+ 	if (devmap == NULL)
+ 		return -ENODEV;
+-	gdp = dasd_gendisk_from_devindex(devmap->devindex);
+-	if (gdp == NULL)
++	major = dasd_gendisk_index_major(devmap->devindex);
++	if (major < 0)
+ 		return -ENODEV;
+-	/* Set kdev and the device name. */
+-	device->kdev = mk_kdev(gdp->major, gdp->first_minor);
+-	strcpy(device->name, gdp->major_name);
++	minor = devmap->devindex % DASD_PER_MAJOR;
++
++	/* Set bdev and the device name. */
++	device->bdev = bdget(MKDEV(major, minor << DASD_PARTN_BITS));
++	strcpy(device->name, device->gdp->major_name);
+ 
+ 	/* Find a discipline for the device. */
+ 	rc = dasd_find_disc(device);
+@@ -302,14 +306,13 @@
+ 	/* Add a proc directory and the dasd device entry to devfs. */
+ 	sprintf(buffer, "%04x", device->devinfo.devno);
+ 	dir = devfs_mk_dir(dasd_devfs_handle, buffer, device);
+-	gdp->de = dir;
++	device->gdp->de = dir;
+ 	if (devmap->features & DASD_FEATURE_READONLY)
+ 		devfs_perm = S_IFBLK | S_IRUSR;
+ 	else
+ 		devfs_perm = S_IFBLK | S_IRUSR | S_IWUSR;
+ 	device->devfs_entry = devfs_register(dir, "device", DEVFS_FL_DEFAULT,
+-					     major(device->kdev),
+-					     minor(device->kdev),
++					     major, minor << DASD_PARTN_BITS,
+ 					     devfs_perm,
+ 					     &dasd_device_operations, NULL);
+ 	device->state = DASD_STATE_KNOWN;
+@@ -322,17 +325,25 @@
+ static inline void
+ dasd_state_known_to_new(dasd_device_t * device)
+ {
+-	dasd_devmap_t *devmap = dasd_devmap_from_devno(device->devinfo.devno);
+-	struct gendisk *gdp = dasd_gendisk_from_devindex(devmap->devindex);
+-	if (gdp == NULL)
+-		return;
++	dasd_devmap_t *devmap;
++	struct block_device *bdev;
++	int minor;
++
++	devmap = dasd_devmap_from_devno(device->devinfo.devno);
++	minor = devmap->devindex % DASD_PER_MAJOR;
++
+ 	/* Remove device entry and devfs directory. */
+ 	devfs_unregister(device->devfs_entry);
+-	devfs_unregister(gdp->de);
++	devfs_unregister(device->gdp->de);
+ 
+ 	/* Forget the discipline information. */
+ 	device->discipline = NULL;
+ 	device->state = DASD_STATE_NEW;
++
++	/* Forget the block device */
++	bdev = device->bdev;
++	device->bdev = NULL;
++	bdput(bdev);
+ }
+ 
+ /*
+@@ -419,21 +430,29 @@
+ }
+ 
+ /*
++ * get the kdev_t of a device 
++ * FIXME: remove this when no longer needed
++ */
++static inline kdev_t
++dasd_partition_to_kdev_t(dasd_device_t *device, unsigned int partition)
++{
++	return to_kdev_t(device->bdev->bd_dev+partition);
++}
++
++
++/*
+  * Setup block device.
+  */
+ static inline int
+ dasd_state_accept_to_ready(dasd_device_t * device)
+ {
+ 	dasd_devmap_t *devmap;
+-	int major, minor;
+ 	int rc, i;
+ 
+ 	devmap = dasd_devmap_from_devno(device->devinfo.devno);
+ 	if (devmap->features & DASD_FEATURE_READONLY) {
+-		major = major(device->kdev);
+-		minor = minor(device->kdev);
+ 		for (i = 0; i < (1 << DASD_PARTN_BITS); i++)
+-			set_device_ro(mk_kdev(major, minor+i), 1);
++			set_device_ro(dasd_partition_to_kdev_t(device, i), 1);
+ 		DEV_MESSAGE (KERN_WARNING, device, "%s",
+ 			     "setting read-only mode ");
+ 	}
+@@ -1539,11 +1558,9 @@
+ 			goto restart;
+ 		}
+ 
+-		/* Dechain request from device request queue ... */
++		/* Rechain request on device device request queue */
+ 		cqr->endclk = get_clock();
+-		list_del(&cqr->list);
+-		/* ... and add it to list of final requests. */
+-		list_add_tail(&cqr->list, final_queue);
++		list_move_tail(&cqr->list, final_queue);
+ 	}
+ }
+ 
+@@ -1572,6 +1589,10 @@
+ 	dasd_ccw_req_t *cqr;
+ 	int nr_queued;
+ 
++	/* No bdev, no queue. */
++	bdev = device->bdev;
++	if (!bdev)
++		return;
+ 	queue = device->request_queue;
+ 	/* No queue ? Then there is nothing to do. */
+ 	if (queue == NULL)
+@@ -1594,9 +1615,6 @@
+ 		if (cqr->status == DASD_CQR_QUEUED)
+ 			nr_queued++;
+ 	}
+-	bdev = bdget(kdev_t_to_nr(device->kdev));
+-	if (!bdev)
+-		return;
+ 	while (!blk_queue_plugged(queue) &&
+ 	       !blk_queue_empty(queue) &&
+ 		nr_queued < DASD_CHANQ_MAX_SIZE) {
+@@ -1628,7 +1646,6 @@
+ 		dasd_profile_start(device, cqr, req);
+ 		nr_queued++;
+ 	}
+-	bdput(bdev);
+ }
+ 
+ /*
+@@ -1707,11 +1724,9 @@
+ 			__dasd_process_erp(device, cqr);
+ 			continue;
+ 		}
+-		/* Dechain request from device request queue ... */
++		/* Rechain request on device request queue */
+ 		cqr->endclk = get_clock();
+-		list_del(&cqr->list);
+-		/* ... and add it to list of flushed requests. */
+-		list_add_tail(&cqr->list, &flush_queue);
++		list_move_tail(&cqr->list, &flush_queue);
+ 	}
+ 	spin_unlock_irq(get_irq_lock(device->devinfo.irq));
+ 	/* Now call the callback function of flushed requests */
+diff -urN linux-2.5.38/drivers/s390/block/dasd_devmap.c linux-2.5.38-s390/drivers/s390/block/dasd_devmap.c
+--- linux-2.5.38/drivers/s390/block/dasd_devmap.c	Sun Sep 22 06:25:10 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_devmap.c	Tue Sep 24 17:42:03 2002
+@@ -449,6 +449,15 @@
+ }
+ 
+ /*
++ * Find the devmap for a device corresponding to a block_device.
++ */
++dasd_devmap_t *
++dasd_devmap_from_bdev(struct block_device *bdev)
++{
++	return dasd_devmap_from_kdev(to_kdev_t(bdev->bd_dev));
++}
++
++/*
+  * Find the device structure for device number devno. If it does not
+  * exists yet, allocate it. Increase the reference counter in the device
+  * structure and return a pointer to it.
+diff -urN linux-2.5.38/drivers/s390/block/dasd_diag.c linux-2.5.38-s390/drivers/s390/block/dasd_diag.c
+--- linux-2.5.38/drivers/s390/block/dasd_diag.c	Sun Sep 22 06:24:59 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_diag.c	Tue Sep 24 17:42:03 2002
+@@ -21,6 +21,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
++#include <linux/bio.h>
+ 
+ #include <asm/dasd.h>
+ #include <asm/debug.h>
+@@ -155,7 +156,7 @@
+ 	private->iob.key = 0;
+ 	private->iob.flags = 2;	/* do asynchronous io */
+ 	private->iob.block_count = dreq->block_count;
+-	private->iob.interrupt_params = (u32) cqr;
++	private->iob.interrupt_params = (u32)(addr_t) cqr;
+ 	private->iob.bio_list = __pa(dreq->bio);
+ 
+ 	cqr->startclk = get_clock();
+@@ -196,21 +197,21 @@
+ 	ip = S390_lowcore.ext_params;
+ 
+ 	cpu = smp_processor_id();
+-	irq_enter(cpu, -1);
++	irq_enter();
+ 
+ 	if (!ip) {		/* no intparm: unsolicited interrupt */
+ 		MESSAGE(KERN_DEBUG, "%s", "caught unsolicited interrupt");
+-		irq_exit(cpu, -1);
++		irq_exit();
+ 		return;
+ 	}
+-	cqr = (dasd_ccw_req_t *) ip;
++	cqr = (dasd_ccw_req_t *)(addr_t) ip;
+ 	device = (dasd_device_t *) cqr->device;
+ 	if (strncmp(device->discipline->ebcname, (char *) &cqr->magic, 4)) {
+ 		DEV_MESSAGE(KERN_WARNING, device,
+ 			    " magic number of dasd_ccw_req_t 0x%08X doesn't"
+ 			    " match discipline 0x%08X",
+ 			    cqr->magic, *(int *) (&device->discipline->name));
+-		irq_exit(cpu, -1);
++		irq_exit();
+ 		return;
+ 	}
+ 
+@@ -244,8 +245,7 @@
+ 	dasd_schedule_bh(device);
+ 
+ 	spin_unlock_irqrestore(get_irq_lock(device->devinfo.irq), flags);
+-	irq_exit(cpu, -1);
+-
++	irq_exit();
+ }
+ 
+ static int
+diff -urN linux-2.5.38/drivers/s390/block/dasd_eckd.c linux-2.5.38-s390/drivers/s390/block/dasd_eckd.c
+--- linux-2.5.38/drivers/s390/block/dasd_eckd.c	Sun Sep 22 06:24:58 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_eckd.c	Tue Sep 24 17:42:03 2002
+@@ -29,6 +29,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
++#include <linux/bio.h>
+ 
+ #include <asm/debug.h>
+ #include <asm/idals.h>
+@@ -69,7 +70,6 @@
+ 	attrib_data_t attrib;	/* e.g. cache operations */
+ } dasd_eckd_private_t;
+ 
+-#ifdef CONFIG_DASD_DYNAMIC
+ static
+ devreg_t dasd_eckd_known_devices[] = {
+ 	{
+@@ -94,7 +94,6 @@
+ 		oper_func:dasd_oper_handler
+ 	}
+ };
+-#endif
+ 
+ static const int sizes_trk0[] = { 28, 148, 84 };
+ #define LABEL_SIZE 140
+@@ -1092,7 +1091,8 @@
+  * Buils a channel programm to releases a prior reserved 
+  * (see dasd_eckd_reserve) device.
+  */
+-static int dasd_eckd_release(void *inp, int no, long args)
++static int
++dasd_eckd_release(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -1101,7 +1101,7 @@
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -1134,7 +1134,8 @@
+  * 'timeout the request'. This leads to an terminate IO if 
+  * the interrupt is outstanding for a certain time. 
+  */
+-static int dasd_eckd_reserve(void *inp, int no, long args)
++static int
++dasd_eckd_reserve(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -1143,7 +1144,7 @@
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -1168,7 +1169,7 @@
+ 
+ 	if (rc == -EIO) {
+ 		/* Request got an eror or has been timed out. */
+-		dasd_eckd_release(inp, no, args);
++		dasd_eckd_release(bdev, no, args);
+ 	}
+ 	dasd_kfree_request(cqr, cqr->device);
+ 	dasd_put_device(devmap);
+@@ -1180,7 +1181,8 @@
+  * Buils a channel programm to break a device's reservation. 
+  * (unconditional reserve)
+  */
+-static int dasd_eckd_steal_lock(void *inp, int no, long args)
++static int
++dasd_eckd_steal_lock(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -1189,7 +1191,7 @@
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -1213,7 +1215,7 @@
+ 
+ 	if (rc == -EIO) {
+ 		/* Request got an eror or has been timed out. */
+-		dasd_eckd_release(inp, no, args);
++		dasd_eckd_release(bdev, no, args);
+ 	}
+ 	dasd_kfree_request(cqr, cqr->device);
+ 	dasd_put_device(devmap);
+@@ -1223,7 +1225,8 @@
+ /*
+  * Read performance statistics
+  */
+-static int dasd_eckd_performance(void *inp, int no, long args)
++static int
++dasd_eckd_performance(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -1233,7 +1236,7 @@
+ 	ccw1_t *ccw;
+ 	int rc;
+ 
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -1292,7 +1295,8 @@
+  * Set attributes (cache operations)
+  * Stores the attributes for cache operation to be used in Define Extend (DE).
+  */
+-static int dasd_eckd_set_attrib(void *inp, int no, long args)
++static int
++dasd_eckd_set_attrib(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -1304,7 +1308,7 @@
+ 	if (!args)
+ 		return -EINVAL;
+ 
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -1452,10 +1456,8 @@
+ 	ASCEBC(dasd_eckd_discipline.ebcname, 4);
+ 	dasd_discipline_add(&dasd_eckd_discipline);
+ 
+-#ifdef CONFIG_DASD_DYNAMIC
+ 	for (i = 0; i < sizeof(dasd_eckd_known_devices)/sizeof(devreg_t); i++)
+ 			s390_device_register(&dasd_eckd_known_devices[i]);
+-#endif
+ 	return 0;
+ }
+ 
+@@ -1464,10 +1466,8 @@
+ {
+ 	int i;
+ 
+-#ifdef CONFIG_DASD_DYNAMIC
+ 	for (i = 0; i < sizeof(dasd_eckd_known_devices)/sizeof(devreg_t); i++)
+ 		s390_device_unregister(&dasd_eckd_known_devices[i]);
+-#endif				/* CONFIG_DASD_DYNAMIC */
+ 
+ 	dasd_discipline_del(&dasd_eckd_discipline);
+ 
+diff -urN linux-2.5.38/drivers/s390/block/dasd_fba.c linux-2.5.38-s390/drivers/s390/block/dasd_fba.c
+--- linux-2.5.38/drivers/s390/block/dasd_fba.c	Sun Sep 22 06:25:12 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_fba.c	Tue Sep 24 17:42:03 2002
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
++#include <linux/bio.h>
+ 
+ #include <asm/idals.h>
+ #include <asm/ebcdic.h>
+@@ -43,7 +44,6 @@
+ 	dasd_fba_characteristics_t rdc_data;
+ } dasd_fba_private_t;
+ 
+-#ifdef CONFIG_DASD_DYNAMIC
+ static
+ devreg_t dasd_fba_known_devices[] = {
+ 	{
+@@ -59,7 +59,6 @@
+ 		oper_func:dasd_oper_handler
+ 	}
+ };
+-#endif
+ 
+ static inline void
+ define_extent(ccw1_t * ccw, DE_fba_data_t *data, int rw,
+@@ -417,10 +416,8 @@
+ 
+ 	ASCEBC(dasd_fba_discipline.ebcname, 4);
+ 	dasd_discipline_add(&dasd_fba_discipline);
+-#ifdef CONFIG_DASD_DYNAMIC
+ 	for (i = 0; i < sizeof(dasd_fba_known_devices) / sizeof(devreg_t); i++)
+ 		s390_device_register(&dasd_fba_known_devices[i]);
+-#endif
+ 	return 0;
+ }
+ 
+@@ -429,10 +426,8 @@
+ {
+ 	int i;
+ 
+-#ifdef CONFIG_DASD_DYNAMIC
+ 	for (i = 0; i < sizeof(dasd_fba_known_devices) / sizeof(devreg_t); i++)
+ 		s390_device_unregister(&dasd_fba_known_devices[i]);
+-#endif
+ 	dasd_discipline_del(&dasd_fba_discipline);
+ }
+ 
+diff -urN linux-2.5.38/drivers/s390/block/dasd_genhd.c linux-2.5.38-s390/drivers/s390/block/dasd_genhd.c
+--- linux-2.5.38/drivers/s390/block/dasd_genhd.c	Sun Sep 22 06:25:16 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_genhd.c	Tue Sep 24 17:42:03 2002
+@@ -33,8 +33,6 @@
+ struct major_info {
+ 	struct list_head list;
+ 	int major;
+-	struct gendisk disks[DASD_PER_MAJOR];
+-	char names[DASD_PER_MAJOR * 8];
+ };
+ 
+ /*
+@@ -66,12 +64,8 @@
+ dasd_register_major(int major)
+ {
+ 	struct major_info *mi;
+-	int new_major, rc;
+-	struct list_head *l;
+-	int index;
+-	int i;
++	int new_major;
+ 
+-	rc = 0;
+ 	/* Allocate major info structure. */
+ 	mi = kmalloc(sizeof(struct major_info), GFP_KERNEL);
+ 
+@@ -80,67 +74,39 @@
+ 		MESSAGE(KERN_WARNING, "%s",
+ 			"Cannot get memory to allocate another "
+ 			"major number");
+-		rc = -ENOMEM;
+-		goto out_error;
++		return -ENOMEM;
+ 	}
+ 
+ 	/* Register block device. */
+ 	new_major = register_blkdev(major, "dasd", &dasd_device_operations);
+ 	if (new_major < 0) {
+ 		MESSAGE(KERN_WARNING,
+-			"Cannot register to major no %d, rc = %d", major, rc);
+-		rc = new_major;
+-		goto out_error;
++			"Cannot register to major no %d, rc = %d",
++			major, new_major);
++		kfree(mi);
++		return new_major;
+ 	}
+ 	if (major != 0)
+ 		new_major = major;
+-	
++
+ 	/* Initialize major info structure. */
+-	memset(mi, 0, sizeof(struct major_info));
+ 	mi->major = new_major;
+-	for (i = 0; i < DASD_PER_MAJOR; i++) {
+-		struct gendisk *disk = mi->disks + i;
+-		disk->major = new_major;
+-		disk->first_minor = i << DASD_PARTN_BITS;
+-		disk->minor_shift = DASD_PARTN_BITS;
+-		disk->fops = &dasd_device_operations;
+-		disk->flags = GENHD_FL_DEVFS;
+-	}
+ 
+ 	/* Setup block device pointers for the new major. */
+ 	blk_dev[new_major].queue = dasd_get_queue;
+ 
++	/* Insert the new major info structure into dasd_major_info list. */
+ 	spin_lock(&dasd_major_lock);
+-	index = 0;
+-	list_for_each(l, &dasd_major_info)
+-		index += DASD_PER_MAJOR;
+-	for (i = 0; i < DASD_PER_MAJOR; i++, index++) {
+-		char *name = mi->names + i * 8;
+-		mi->disks[i].major_name = name;
+-		sprintf(name, "dasd");
+-		name += 4;
+-		if (index > 701)
+-			*name++ = 'a' + (((index - 702) / 676) % 26);
+-		if (index > 25)
+-			*name++ = 'a' + (((index - 26) / 26) % 26);
+-		sprintf(name, "%c", 'a' + (index % 26));
+-	}
+ 	list_add_tail(&mi->list, &dasd_major_info);
+ 	spin_unlock(&dasd_major_lock);
+ 
+ 	return 0;
+-
+-	/* Something failed. Do the cleanup and return rc. */
+-out_error:
+-	/* We rely on kfree to do the != NULL check. */
+-	kfree(mi);
+-	return rc;
+ }
+ 
+ static void
+ dasd_unregister_major(struct major_info * mi)
+ {
+-	int major, rc;
++	int rc;
+ 
+ 	if (mi == NULL)
+ 		return;
+@@ -151,100 +117,178 @@
+ 	spin_unlock(&dasd_major_lock);
+ 
+ 	/* Clear block device pointers. */
+-	major = mi->major;
+-	blk_dev[major].queue = NULL;
+-	blk_clear(major);
++	blk_dev[mi->major].queue = NULL;
++	blk_clear(mi->major);
+ 
+-	rc = unregister_blkdev(major, "dasd");
++	rc = unregister_blkdev(mi->major, "dasd");
+ 	if (rc < 0)
+ 		MESSAGE(KERN_WARNING,
+ 			"Cannot unregister from major no %d, rc = %d",
+-			major, rc);
++			mi->major, rc);
+ 
+ 	/* Free memory. */
+ 	kfree(mi);
+ }
+ 
+ /*
+- * Dynamically allocate a new major for dasd devices.
++ * This one is needed for naming 18000+ possible dasd devices.
++ *   dasda - dasdz : 26 devices
++ *   dasdaa - dasdzz : 676 devices, added up = 702
++ *   dasdaaa - dasdzzz : 17576 devices, added up = 18278
+  */
+ int
+-dasd_gendisk_new_major(void)
++dasd_device_name(char *str, int index, int partition)
+ {
+-	int rc;
+-	
+-	rc = dasd_register_major(0);
+-	if (rc)
+-		DBF_EXC(DBF_ALERT, "%s", "out of major numbers!");
+-	return rc;
++	int len;
++
++	if (partition > DASD_PARTN_MASK)
++		return -EINVAL;
++
++	len = sprintf(str, "dasd");
++	if (index > 25) {
++		if (index > 701)
++			len += sprintf(str + len, "%c",
++				       'a' + (((index - 702) / 676) % 26));
++		len += sprintf(str + len, "%c",
++			       'a' + (((index - 26) / 26) % 26));
++	}
++	len += sprintf(str + len, "%c", 'a' + (index % 26));
++
++	if (partition)
++		len += sprintf(str + len, "%d", partition);
++	return 0;
+ }
+ 
+ /*
+- * Return pointer to gendisk structure by kdev.
++ * Allocate gendisk structure for devindex.
+  */
+-static struct gendisk *dasd_gendisk_by_dev(kdev_t dev)
++struct gendisk *
++dasd_gendisk_alloc(char *device_name, int devindex)
+ {
+ 	struct list_head *l;
+ 	struct major_info *mi;
+ 	struct gendisk *gdp;
+-	int major = major(dev);
++	struct hd_struct *gd_part;
++	int index, len, rc;
+ 
+-	spin_lock(&dasd_major_lock);
+-	gdp = NULL;
+-	list_for_each(l, &dasd_major_info) {
+-		mi = list_entry(l, struct major_info, list);
+-		if (mi->major == major) {
+-			gdp = &mi->disks[minor(dev) >> DASD_PARTN_BITS];
++	/* Make sure the major for this device exists. */
++	mi = NULL;
++	while (1) {
++		spin_lock(&dasd_major_lock);
++		index = devindex;
++		list_for_each(l, &dasd_major_info) {
++			mi = list_entry(l, struct major_info, list);
++			if (index < DASD_PER_MAJOR)
++				break;
++			index -= DASD_PER_MAJOR;
++		}
++		spin_unlock(&dasd_major_lock);
++		if (index < DASD_PER_MAJOR)
+ 			break;
++		rc = dasd_register_major(0);
++		if (rc) {
++			DBF_EXC(DBF_ALERT, "%s", "out of major numbers!");
++			return ERR_PTR(rc);
+ 		}
+ 	}
+-	spin_unlock(&dasd_major_lock);
++
++	/* Allocate genhd structure and gendisk arrays. */
++	gdp = kmalloc(sizeof(struct gendisk), GFP_KERNEL);
++	gd_part = kmalloc(sizeof (struct hd_struct) << DASD_PARTN_BITS,
++			  GFP_ATOMIC);
++
++	/* Check if one of the allocations failed. */
++	if (gdp == NULL || gd_part == NULL) {
++		/* We rely on kfree to do the != NULL check. */
++		kfree(gd_part);
++		kfree(gdp);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	/* Initialize gendisk structure. */
++	memset(gdp, 0, sizeof(struct gendisk));
++	gdp->major = mi->major;
++	gdp->major_name = device_name;
++	gdp->first_minor = index << DASD_PARTN_BITS;
++	gdp->minor_shift = DASD_PARTN_BITS;
++	gdp->part = gd_part;
++	gdp->fops = &dasd_device_operations;
++
++	/*
++	 * Set device name.
++	 *   dasda - dasdz : 26 devices
++	 *   dasdaa - dasdzz : 676 devices, added up = 702
++	 *   dasdaaa - dasdzzz : 17576 devices, added up = 18278
++	 */
++	len = sprintf(device_name, "dasd");
++	if (devindex > 25) {
++		if (devindex > 701)
++			len += sprintf(device_name + len, "%c",
++				       'a' + (((devindex - 702) / 676) % 26));
++		len += sprintf(device_name + len, "%c",
++			       'a' + (((devindex - 26) / 26) % 26));
++	}
++	len += sprintf(device_name + len, "%c", 'a' + (devindex % 26));
++
++	/* Initialize the gendisk arrays. */
++	memset(gd_part, 0, sizeof (struct hd_struct) << DASD_PARTN_BITS);
++
+ 	return gdp;
+ }
+ 
+ /*
+- * Return pointer to gendisk structure by devindex.
++ * Free gendisk structure for devindex.
+  */
+-struct gendisk *
+-dasd_gendisk_from_devindex(int devindex)
++void
++dasd_gendisk_free(struct gendisk *gdp)
++{
++	/* Free memory. */
++	kfree(gdp->part);
++	kfree(gdp);
++}
++
++/*
++ * Return devindex of first device using a specific major number.
++ */
++int dasd_gendisk_major_index(int major)
+ {
+ 	struct list_head *l;
+ 	struct major_info *mi;
+-	struct gendisk *gdp;
++	int devindex, rc;
+ 
+ 	spin_lock(&dasd_major_lock);
+-	gdp = NULL;
++	rc = -EINVAL;
++	devindex = 0;
+ 	list_for_each(l, &dasd_major_info) {
+ 		mi = list_entry(l, struct major_info, list);
+-		if (devindex < DASD_PER_MAJOR) {
+-			gdp = &mi->disks[devindex];
++		if (mi->major == major) {
++			rc = devindex;
+ 			break;
+ 		}
+-		devindex -= DASD_PER_MAJOR;
++		devindex += DASD_PER_MAJOR;
+ 	}
+ 	spin_unlock(&dasd_major_lock);
+-	return gdp;
++	return rc;
+ }
+ 
+ /*
+- * Return devindex of first device using a specifiy major number.
++ * Return major number for device with device index devindex.
+  */
+-int dasd_gendisk_major_index(int major)
++int dasd_gendisk_index_major(int devindex)
+ {
+ 	struct list_head *l;
+ 	struct major_info *mi;
+-	int devindex, rc;
++	int rc;
+ 
+ 	spin_lock(&dasd_major_lock);
+-	rc = -EINVAL;
+-	devindex = 0;
++	rc = -ENODEV;
+ 	list_for_each(l, &dasd_major_info) {
+ 		mi = list_entry(l, struct major_info, list);
+-		if (mi->major == major) {
+-			rc = devindex;
++		if (devindex < DASD_PER_MAJOR) {
++			rc = mi->major;
+ 			break;
+ 		}
+-		devindex += DASD_PER_MAJOR;
++		devindex -= DASD_PER_MAJOR;
+ 	}
+ 	spin_unlock(&dasd_major_lock);
+ 	return rc;
+@@ -256,11 +300,9 @@
+ void
+ dasd_setup_partitions(dasd_device_t * device)
+ {
+-	struct gendisk *disk = dasd_gendisk_by_dev(device->kdev);
+-	if (disk == NULL)
+-		return;
+-	set_capacity(disk, device->blocks << device->s2b_shift);
+-	add_disk(disk);
++	/* Make the disk known. */
++	set_capacity(device->gdp, device->blocks << device->s2b_shift);
++	add_disk(device->gdp);
+ }
+ 
+ /*
+@@ -270,13 +312,7 @@
+ void
+ dasd_destroy_partitions(dasd_device_t * device)
+ {
+-	struct gendisk *disk = dasd_gendisk_by_dev(device->kdev);
+-	int minor, i;
+-
+-	if (disk == NULL)
+-		return;
+-
+-	del_gendisk(disk);
++	del_gendisk(device->gdp);
+ }
+ 
+ int
+@@ -297,6 +333,7 @@
+ dasd_gendisk_exit(void)
+ {
+ 	struct list_head *l, *n;
++
+ 	spin_lock(&dasd_major_lock);
+ 	list_for_each_safe(l, n, &dasd_major_info)
+ 		dasd_unregister_major(list_entry(l, struct major_info, list));
+diff -urN linux-2.5.38/drivers/s390/block/dasd_int.h linux-2.5.38-s390/drivers/s390/block/dasd_int.h
+--- linux-2.5.38/drivers/s390/block/dasd_int.h	Sun Sep 22 06:25:16 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_int.h	Tue Sep 24 17:42:03 2002
+@@ -64,12 +64,12 @@
+ #include <asm/irq.h>
+ #include <asm/s390dyn.h>
+ 
+-#define CONFIG_DASD_DYNAMIC
+-
+ /*
+  * SECTION: Type definitions
+  */
+-typedef int (*dasd_ioctl_fn_t) (void *inp, int no, long args);
++struct dasd_device_t;
++
++typedef int (*dasd_ioctl_fn_t) (struct block_device *bdev, int no, long args);
+ 
+ typedef struct {
+ 	struct list_head list;
+@@ -139,9 +139,8 @@
+ /* messages to be written via klogd and dbf */
+ #define DEV_MESSAGE(d_loglevel,d_device,d_string,d_args...)\
+ do { \
+-	printk(d_loglevel PRINTK_HEADER " /dev/%-7s(%3d:%3d),%04x@%02x: " \
+-	       d_string "\n", d_device->name, \
+-	       major(d_device->kdev), minor(d_device->kdev), \
++	printk(d_loglevel PRINTK_HEADER " %s,%04x@%02x: " \
++	       d_string "\n", bdevname(d_device->bdev), \
+ 	       d_device->devinfo.devno, d_device->devinfo.irq, \
+ 	       d_args); \
+ 	DBF_DEV_EVENT(DBF_ALERT, d_device, d_string, d_args); \
+@@ -153,8 +152,6 @@
+ 	DBF_EVENT(DBF_ALERT, d_string, d_args); \
+ } while(0)
+ 
+-struct dasd_device_t;
+-
+ typedef struct dasd_ccw_req_t {
+ 	unsigned int magic;		/* Eye catcher */
+         struct list_head list;		/* list_head for request queueing. */
+@@ -262,7 +259,8 @@
+ typedef struct dasd_device_t {
+ 	/* Block device stuff. */
+ 	char name[16];			/* The device name in /dev. */
+-	kdev_t kdev;
++	struct block_device *bdev;
++	struct gendisk *gdp;
+ 	devfs_handle_t devfs_entry;
+ 	request_queue_t *request_queue;
+ 	spinlock_t request_queue_lock;
+@@ -467,6 +465,7 @@
+ dasd_devmap_t *dasd_devmap_from_devindex(int);
+ dasd_devmap_t *dasd_devmap_from_irq(int);
+ dasd_devmap_t *dasd_devmap_from_kdev(kdev_t);
++dasd_devmap_t *dasd_devmap_from_bdev(struct block_device *bdev);
+ dasd_device_t *dasd_get_device(dasd_devmap_t *);
+ void dasd_put_device(dasd_devmap_t *);
+ 
+@@ -478,9 +477,10 @@
+ /* externals in dasd_gendisk.c */
+ int  dasd_gendisk_init(void);
+ void dasd_gendisk_exit(void);
+-int  dasd_gendisk_new_major(void);
+ int  dasd_gendisk_major_index(int);
+-struct gendisk *dasd_gendisk_from_devindex(int);
++int  dasd_gendisk_index_major(int);
++struct gendisk *dasd_gendisk_alloc(char *, int);
++void dasd_gendisk_free(struct gendisk *);
+ void dasd_setup_partitions(dasd_device_t *);
+ void dasd_destroy_partitions(dasd_device_t *);
+ 
+diff -urN linux-2.5.38/drivers/s390/block/dasd_ioctl.c linux-2.5.38-s390/drivers/s390/block/dasd_ioctl.c
+--- linux-2.5.38/drivers/s390/block/dasd_ioctl.c	Sun Sep 22 06:25:11 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_ioctl.c	Tue Sep 24 17:42:03 2002
+@@ -91,6 +91,7 @@
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+ 	dasd_ioctl_list_t *ioctl;
++	struct block_device *bdev;
+ 	struct list_head *l;
+ 	const char *dir;
+ 	int rc;
+@@ -101,13 +102,17 @@
+ 		PRINT_DEBUG("empty data ptr");
+ 		return -EINVAL;
+ 	}
+-	devmap = dasd_devmap_from_kdev(inp->i_rdev);
++	bdev = bdget(kdev_t_to_nr(inp->i_rdev));
++	if (!bdev)
++		return -EINVAL;
++
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device)) {
+ 		MESSAGE(KERN_WARNING,
+-			"No device registered as device (%d:%d)",
+-			major(inp->i_rdev), minor(inp->i_rdev));
++			"No device registered as device %s", bdevname(bdev));
++		bdput(bdev);
+ 		return -EINVAL;
+ 	}
+ 	dir = _IOC_DIR (no) == _IOC_NONE ? "0" :
+@@ -125,11 +130,12 @@
+ 			if (ioctl->owner) {
+ 				if (try_inc_mod_count(ioctl->owner) != 0)
+ 					continue;
+-				rc = ioctl->handler(inp, no, data);
++				rc = ioctl->handler(bdev, no, data);
+ 				__MOD_DEC_USE_COUNT(ioctl->owner);
+ 			} else
+-				rc = ioctl->handler(inp, no, data);
++				rc = ioctl->handler(bdev, no, data);
+ 			dasd_put_device(devmap);
++			bdput(bdev);
+ 			return rc;
+ 		}
+ 	}
+@@ -138,10 +144,12 @@
+ 		      "unknown ioctl 0x%08x=%s'0x%x'%d(%d) data %8lx", no,
+ 		      dir, _IOC_TYPE(no), _IOC_NR(no), _IOC_SIZE(no), data);
+ 	dasd_put_device(devmap);
++	bdput(bdev);
+ 	return -ENOTTY;
+ }
+ 
+-static int dasd_ioctl_api_version(void *inp, int no, long args)
++static int
++dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
+ {
+ 	int ver = DASD_API_VERSION;
+ 	return put_user(ver, (int *) args);
+@@ -150,7 +158,8 @@
+ /*
+  * Enable device.
+  */
+-static int dasd_ioctl_enable(void *inp, int no, long args)
++static int
++dasd_ioctl_enable(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -158,7 +167,7 @@
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -172,14 +181,15 @@
+ /*
+  * Disable device.
+  */
+-static int dasd_ioctl_disable(void *inp, int no, long args)
++static int
++dasd_ioctl_disable(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -245,7 +255,8 @@
+ /*
+  * Format device.
+  */
+-static int dasd_ioctl_format(void *inp, int no, long args)
++static int
++dasd_ioctl_format(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+@@ -257,8 +268,8 @@
+ 	if (!args)
+ 		return -EINVAL;
+ 	/* fdata == NULL is no longer a valid arg to dasd_format ! */
+-	partn = minor(((struct inode *) inp)->i_rdev) & DASD_PARTN_MASK;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	partn = MINOR(bdev->bd_dev) & DASD_PARTN_MASK;
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -283,14 +294,15 @@
+ /*
+  * Reset device profile information
+  */
+-static int dasd_ioctl_reset_profile(void *inp, int no, long args)
++static int
++dasd_ioctl_reset_profile(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -303,13 +315,14 @@
+ /*
+  * Return device profile information
+  */
+-static int dasd_ioctl_read_profile(void *inp, int no, long args)
++static int
++dasd_ioctl_read_profile(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+ 	int rc;
+ 
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -322,12 +335,14 @@
+ 	return rc;
+ }
+ #else
+-static int dasd_ioctl_reset_profile(void *inp, int no, long args)
++static int
++dasd_ioctl_reset_profile(struct block_device *bdev, int no, long args)
+ {
+ 	return -ENOSYS;
+ }
+ 
+-static int dasd_ioctl_read_profile(void *inp, int no, long args)
++static int
++dasd_ioctl_read_profile(struct block_device *bdev, int no, long args)
+ {
+ 	return -ENOSYS;
+ }
+@@ -336,15 +351,16 @@
+ /*
+  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
+  */
+-static int dasd_ioctl_information(void *inp, int no, long args)
++static int
++dasd_ioctl_information(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+-	dasd_information2_t dasd_info;
++	dasd_information2_t *dasd_info;
+ 	unsigned long flags;
+ 	int rc;
+ 
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -354,20 +370,26 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	rc = device->discipline->fill_info(device, &dasd_info);
++	dasd_info = kmalloc(sizeof(dasd_information2_t), GFP_KERNEL);
++	if (dasd_info == NULL) {
++		dasd_put_device(devmap);
++		return -ENOMEM;
++	}
++	rc = device->discipline->fill_info(device, dasd_info);
+ 	if (rc) {
+ 		dasd_put_device(devmap);
++		kfree(dasd_info);
+ 		return rc;
+ 	}
+ 
+-	dasd_info.devno = device->devinfo.devno;
+-	dasd_info.schid = device->devinfo.irq;
+-	dasd_info.cu_type = device->devinfo.sid_data.cu_type;
+-	dasd_info.cu_model = device->devinfo.sid_data.cu_model;
+-	dasd_info.dev_type = device->devinfo.sid_data.dev_type;
+-	dasd_info.dev_model = device->devinfo.sid_data.dev_model;
+-	dasd_info.open_count = atomic_read(&device->open_count);
+-	dasd_info.status = device->state;
++	dasd_info->devno = device->devinfo.devno;
++	dasd_info->schid = device->devinfo.irq;
++	dasd_info->cu_type = device->devinfo.sid_data.cu_type;
++	dasd_info->cu_model = device->devinfo.sid_data.cu_model;
++	dasd_info->dev_type = device->devinfo.sid_data.dev_type;
++	dasd_info->dev_model = device->devinfo.sid_data.dev_model;
++	dasd_info->open_count = atomic_read(&device->open_count);
++	dasd_info->status = device->state;
+ 	
+ 	/*
+ 	 * check if device is really formatted
+@@ -375,16 +397,16 @@
+ 	 */
+ 	if ((device->state < DASD_STATE_READY) ||
+ 	    (dasd_check_blocksize(device->bp_block)))
+-		dasd_info.format = DASD_FORMAT_NONE;
++		dasd_info->format = DASD_FORMAT_NONE;
+ 	
+-	dasd_info.features = devmap->features;
++	dasd_info->features = devmap->features;
+ 	
+ 	if (device->discipline)
+-		memcpy(dasd_info.type, device->discipline->name, 4);
++		memcpy(dasd_info->type, device->discipline->name, 4);
+ 	else
+-		memcpy(dasd_info.type, "none", 4);
+-	dasd_info.req_queue_len = 0;
+-	dasd_info.chanq_len = 0;
++		memcpy(dasd_info->type, "none", 4);
++	dasd_info->req_queue_len = 0;
++	dasd_info->chanq_len = 0;
+ 	if (device->request_queue->request_fn) {
+ 		struct list_head *l;
+ #ifdef DASD_EXTENDED_PROFILING
+@@ -392,45 +414,46 @@
+ 			struct list_head *l;
+ 			spin_lock_irqsave(&device->lock, flags);
+ 			list_for_each(l, &device->request_queue->queue_head)
+-				dasd_info.req_queue_len++;
++				dasd_info->req_queue_len++;
+ 			spin_unlock_irqrestore(&device->lock, flags);
+ 		}
+ #endif				/* DASD_EXTENDED_PROFILING */
+ 		spin_lock_irqsave(get_irq_lock(device->devinfo.irq), flags);
+ 		list_for_each(l, &device->ccw_queue)
+-			dasd_info.chanq_len++;
++			dasd_info->chanq_len++;
+ 		spin_unlock_irqrestore(get_irq_lock(device->devinfo.irq),
+ 				       flags);
+ 	}
+ 	
+ 	rc = 0;
+-	if (copy_to_user((long *) args, (long *) &dasd_info,
++	if (copy_to_user((long *) args, (long *) dasd_info,
+ 			 ((no == (unsigned int) BIODASDINFO2) ?
+ 			  sizeof (dasd_information2_t) :
+ 			  sizeof (dasd_information_t))))
+ 		rc = -EFAULT;
+ 	dasd_put_device(devmap);
++	kfree(dasd_info);
+ 	return rc;
+ }
+ 
+ /*
+  * Set read only
+  */
+-static int dasd_ioctl_set_ro(void *inp, int no, long args)
++static int
++dasd_ioctl_set_ro(struct block_device *bdev, int no, long args)
+ {
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+-	int major, minor;
+ 	int intval, i;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	if (minor(((struct inode *) inp)->i_rdev) & DASD_PARTN_MASK)
++	if (MINOR(bdev->bd_dev) & DASD_PARTN_MASK)
+ 		// ro setting is not allowed for partitions
+ 		return -EINVAL;
+ 	if (get_user(intval, (int *) args))
+ 		return -EFAULT;
+-	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -439,10 +462,8 @@
+ 		devmap->features |= DASD_FEATURE_READONLY;
+ 	else
+ 		devmap->features &= ~DASD_FEATURE_READONLY;
+-	major = major(device->kdev);
+-	minor = minor(device->kdev);
+ 	for (i = 0; i < (1 << DASD_PARTN_BITS); i++)
+-		set_device_ro(mk_kdev(major, minor + i), intval);
++		set_device_ro(to_kdev_t(bdev->bd_dev + i), intval);
+ 	dasd_put_device(devmap);
+ 	return 0;
+ }
+@@ -450,16 +471,15 @@
+ /*
+  * Return disk geometry.
+  */
+-static int dasd_ioctl_getgeo(void *inp, int no, long args)
++static int
++dasd_ioctl_getgeo(struct block_device *bdev, int no, long args)
+ {
+ 	struct hd_geometry geo = { 0, };
+-	struct inode *inode = inp;
+ 	dasd_devmap_t *devmap;
+ 	dasd_device_t *device;
+-	kdev_t kdev = inode->i_rdev;
+ 	int rc;
+ 
+-	devmap = dasd_devmap_from_kdev(kdev);
++	devmap = dasd_devmap_from_bdev(bdev);
+ 	device = (devmap != NULL) ?
+ 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
+ 	if (IS_ERR(device))
+@@ -468,7 +488,7 @@
+ 	if (device != NULL && device->discipline != NULL &&
+ 	    device->discipline->fill_geometry != NULL) {
+ 		device->discipline->fill_geometry(device, &geo);
+-		geo.start = get_start_sect(inode->i_bdev);
++		geo.start = get_start_sect(bdev);
+ 		if (copy_to_user((struct hd_geometry *) args, &geo,
+ 				 sizeof (struct hd_geometry)))
+ 			rc = -EFAULT;
+diff -urN linux-2.5.38/drivers/s390/block/dasd_proc.c linux-2.5.38-s390/drivers/s390/block/dasd_proc.c
+--- linux-2.5.38/drivers/s390/block/dasd_proc.c	Sun Sep 22 06:25:03 2002
++++ linux-2.5.38-s390/drivers/s390/block/dasd_proc.c	Tue Sep 24 17:42:03 2002
+@@ -15,6 +15,7 @@
+ #include <linux/config.h>
+ #include <linux/version.h>
+ #include <linux/ctype.h>
++#include <linux/vmalloc.h>
+ 
+ #include <asm/debug.h>
+ #include <asm/irq.h>
+@@ -123,7 +124,7 @@
+ 	}
+ 	features = dasd_feature_list(str, &str);
+ 	/* Negative numbers in from/to/features indicate errors */
+-	if (from < 0 || to < 0 || features < 0)
++	if (from < 0 || to < 0 || from > 65546 || to > 65536 || features < 0)
+ 		goto out_error;
+ 
+ 	if (add_or_set == 0) {
+@@ -152,10 +153,8 @@
+ dasd_devices_print(dasd_devmap_t *devmap, char *str)
+ {
+ 	dasd_device_t *device;
+-	struct gendisk *gdp;
+-	char buffer[7];
+ 	char *substr;
+-	int minor;
++	int major, minor;
+ 	int len;
+ 
+ 	device = dasd_get_device(devmap);
+@@ -169,11 +168,11 @@
+ 	else
+ 		len += sprintf(str + len, "(none)");
+ 	/* Print kdev. */
+-	gdp = dasd_gendisk_from_devindex(devmap->devindex);
+-	minor = devmap->devindex % DASD_PER_MAJOR;
+-	len += sprintf(str + len, " at (%3d:%3d)", gdp->major, minor);
++	major = MAJOR(device->bdev->bd_dev);
++	minor = MINOR(device->bdev->bd_dev);
++	len += sprintf(str + len, " at (%3d:%3d)", major, minor);
+ 	/* Print device name. */
+-	len += sprintf(str + len, " is %-7s", gdp->major_name);
++	len += sprintf(str + len, " is %-7s", device->name);
+ 	/* Print devices features. */
+ 	substr = (devmap->features & DASD_FEATURE_READONLY) ? "(ro)" : " ";
+ 	len += sprintf(str + len, "%4s: ", substr);
+diff -urN linux-2.5.38/include/asm-s390/dasd.h linux-2.5.38-s390/include/asm-s390/dasd.h
+--- linux-2.5.38/include/asm-s390/dasd.h	Sun Sep 22 06:25:02 2002
++++ linux-2.5.38-s390/include/asm-s390/dasd.h	Tue Sep 24 17:42:03 2002
+@@ -13,6 +13,8 @@
+  * 12/06/01 DASD_API_VERSION 2 - binary compatible to 0 (new BIODASDINFO2)
+  * 01/23/02 DASD_API_VERSION 3 - added BIODASDPSRD (and BIODASDENAPAV) IOCTL
+  * 02/15/02 DASD_API_VERSION 4 - added BIODASDSATTR IOCTL
++ * ##/##/## DASD_API_VERSION 5 - added boxed dasd support TOBEDONE
++ * 21/06/02 DASD_API_VERSION 6 - fixed HDIO_GETGEO: geo.start is in sectors!
+  *         
+  */
+ 
+@@ -22,7 +24,7 @@
+ 
+ #define DASD_IOCTL_LETTER 'D'
+ 
+-#define DASD_API_VERSION 4
++#define DASD_API_VERSION 6
+ 
+ /* 
+  * struct dasd_information2_t
+diff -urN linux-2.5.38/include/asm-s390x/dasd.h linux-2.5.38-s390/include/asm-s390x/dasd.h
+--- linux-2.5.38/include/asm-s390x/dasd.h	Sun Sep 22 06:25:05 2002
++++ linux-2.5.38-s390/include/asm-s390x/dasd.h	Tue Sep 24 17:42:03 2002
+@@ -13,6 +13,8 @@
+  * 12/06/01 DASD_API_VERSION 2 - binary compatible to 0 (new BIODASDINFO2)
+  * 01/23/02 DASD_API_VERSION 3 - added BIODASDPSRD (and BIODASDENAPAV) IOCTL
+  * 02/15/02 DASD_API_VERSION 4 - added BIODASDSATTR IOCTL
++ * ##/##/## DASD_API_VERSION 5 - added boxed dasd support TOBEDONE
++ * 21/06/02 DASD_API_VERSION 6 - fixed HDIO_GETGEO: geo.start is in sectors!
+  *         
+  */
+ 
+@@ -22,7 +24,7 @@
+ 
+ #define DASD_IOCTL_LETTER 'D'
+ 
+-#define DASD_API_VERSION 4
++#define DASD_API_VERSION 6
+ 
+ /* 
+  * struct dasd_information2_t
 
-2.5 is like the two-step, the kernels which compile don't boot, etc. This 
-is 2.5.38 with the floppy fix, the cdrom fix, and a Makefile fix to allow 
-/usr/src/linux to be a symbolic link to somewhere I have space.
-
-Attached to prevent munging, the end of the mail log and the config file 
-with "not set" lines removed for readability.
-
-I have no idea what address this is from, the machine will vanish in a 
-puff of reinstall later today.
--- 
-bill davidsen <davidsen@tmr.com>
-
---8323328-1597264651-1032888273=:15835
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="x.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209241324330.15835@oddball.prodigy.com>
-Content-Description: compile err
-Content-Disposition: attachment; filename="x.tmp"
-
-bWFrZVsxXTogTGVhdmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4LTIuNS4z
-OC9uZXQnDQ0KbWFrZVsxXTogRW50ZXJpbmcgZGlyZWN0b3J5IGAvaG9tZS9s
-aW51eC0yLjUuMzgvbGliJw0NCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5
-IGAvaG9tZS9saW51eC0yLjUuMzgvbGliJw0NCm1ha2VbMV06IEVudGVyaW5n
-IGRpcmVjdG9yeSBgL2hvbWUvbGludXgtMi41LjM4L2FyY2gvaTM4Ni9saWIn
-DQ0KbWFrZVsxXTogTGVhdmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4LTIu
-NS4zOC9hcmNoL2kzODYvbGliJw0NCiAgR2VuZXJhdGluZyBidWlsZCBudW1i
-ZXINDQptYWtlWzFdOiBFbnRlcmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4
-LTIuNS4zOC9pbml0Jw0NCiAgR2VuZXJhdGluZyAvaG9tZS9saW51eC0yLjUu
-MzgvaW5jbHVkZS9saW51eC9jb21waWxlLmggKHVwZGF0ZWQpDQ0KICBnY2Mg
-LVdwLC1NRCwuLy52ZXJzaW9uLm8uZCAtRF9fS0VSTkVMX18gLUkvaG9tZS9s
-aW51eC0yLjUuMzgvaW5jbHVkZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVz
-IC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJhbWUtcG9pbnRlciAtZm5v
-LXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZlcnJl
-ZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pNjg2IC1JL2hvbWUvbGludXgt
-Mi41LjM4L2FyY2gvaTM4Ni9tYWNoLWdlbmVyaWMgLW5vc3RkaW5jIC1pd2l0
-aHByZWZpeCBpbmNsdWRlICAgIC1ES0JVSUxEX0JBU0VOQU1FPXZlcnNpb24g
-ICAtYyAtbyB2ZXJzaW9uLm8gdmVyc2lvbi5jDQ0KICAgbGQgLW0gZWxmX2kz
-ODYgIC1yIC1vIGJ1aWx0LWluLm8gbWFpbi5vIHZlcnNpb24ubyBkb19tb3Vu
-dHMubw0NCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5IGAvaG9tZS9saW51
-eC0yLjUuMzgvaW5pdCcNDQogIGxkIC1tIGVsZl9pMzg2IC1lIHN0ZXh0IC1U
-IGFyY2gvaTM4Ni92bWxpbnV4Lmxkcy5zIGFyY2gvaTM4Ni9rZXJuZWwvaGVh
-ZC5vIGFyY2gvaTM4Ni9rZXJuZWwvaW5pdF90YXNrLm8gIGluaXQvYnVpbHQt
-aW4ubyAtLXN0YXJ0LWdyb3VwICBhcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
-Lm8gIGFyY2gvaTM4Ni9tbS9idWlsdC1pbi5vICBhcmNoL2kzODYvbWFjaC1n
-ZW5lcmljL2J1aWx0LWluLm8ga2VybmVsL2J1aWx0LWluLm8gbW0vYnVpbHQt
-aW4ubyBmcy9idWlsdC1pbi5vIGlwYy9idWlsdC1pbi5vIHNlY3VyaXR5L2J1
-aWx0LWluLm8gIGxpYi9saWIuYSAgYXJjaC9pMzg2L2xpYi9saWIuYSAgZHJp
-dmVycy9idWlsdC1pbi5vICBzb3VuZC9idWlsdC1pbi5vICBhcmNoL2kzODYv
-cGNpL2J1aWx0LWluLm8gIG5ldC9idWlsdC1pbi5vIC0tZW5kLWdyb3VwIC1v
-IHZtbGludXgNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm86IEluIGZ1
-bmN0aW9uIGBkaXNjb25uZWN0X2JzcF9BUElDJzoNDQphcmNoL2kzODYva2Vy
-bmVsL2J1aWx0LWluLm8oLnRleHQrMHhiNjcyKTogdW5kZWZpbmVkIHJlZmVy
-ZW5jZSB0byBgcGljX21vZGUnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
-bi5vOiBJbiBmdW5jdGlvbiBgY2xlYXJfSU9fQVBJQyc6DQ0KYXJjaC9pMzg2
-L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmUzMyk6IHVuZGVmaW5lZCBy
-ZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9i
-dWlsdC1pbi5vKC50ZXh0KzB4YmU3NCk6IHVuZGVmaW5lZCByZWZlcmVuY2Ug
-dG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5v
-OiBJbiBmdW5jdGlvbiBgSU9fQVBJQ19nZXRfUENJX2lycV92ZWN0b3InOg0N
-CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsweGJmNTYpOiB1
-bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9idXNfaWRfdG9fcGNpX2J1cycN
-DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhiZjhhKTog
-dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMnDQ0KYXJj
-aC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZhMyk6IHVuZGVm
-aW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5l
-bC9idWlsdC1pbi5vKC50ZXh0KzB4YmZhYik6IHVuZGVmaW5lZCByZWZlcmVu
-Y2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
-bi5vKC50ZXh0KzB4YmZiOSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1w
-X2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4
-YmZiZik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0K
-YXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZjYyk6IHVu
-ZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tl
-cm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZlZCk6IHVuZGVmaW5lZCByZWZl
-cmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
-dC1pbi5vKC50ZXh0KzB4YmZmZCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
-YG1wX2J1c19pZF90b190eXBlJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQt
-aW4ubygudGV4dCsweGMwMDkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
-cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsw
-eGMwNjQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFzJw0NCmFy
-Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsweGMwN2QpOiB1bmRl
-ZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kz
-ODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMDkyKTogdW5kZWZpbmVk
-IHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMnDQ0KYXJjaC9pMzg2L2tl
-cm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgcGluXzJfaXJxJzoNDQph
-cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMGMyKTogdW5k
-ZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2Vy
-bmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMGY4KTogdW5kZWZpbmVkIHJlZmVy
-ZW5jZSB0byBgbXBfYnVzX2lkX3RvX3R5cGUnDQ0KYXJjaC9pMzg2L2tlcm5l
-bC9idWlsdC1pbi5vKC50ZXh0KzB4YzExOSk6IHVuZGVmaW5lZCByZWZlcmVu
-Y2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5v
-OiBJbiBmdW5jdGlvbiBgc2V0dXBfbWVtb3J5JzoNDQphcmNoL2kzODYva2Vy
-bmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweGY3OSk6IHVuZGVmaW5lZCBy
-ZWZlcmVuY2UgdG8gYGZpbmRfc21wX2NvbmZpZycNDQphcmNoL2kzODYva2Vy
-bmVsL2J1aWx0LWluLm86IEluIGZ1bmN0aW9uIGBzZXR1cF9hcmNoJzoNDQph
-cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDEzMDQp
-OiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBzbXBfZm91bmRfY29uZmlnJw0N
-CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4MTMw
-ZSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGdldF9zbXBfY29uZmlnJw0N
-CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYGNv
-bm5lY3RfYnNwX0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
-bygudGV4dC5pbml0KzB4NDE1Mik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
-YHBpY19tb2RlJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4g
-ZnVuY3Rpb24gYGluaXRfYnNwX0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwv
-YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NDIyMyk6IHVuZGVmaW5lZCByZWZl
-cmVuY2UgdG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJjaC9pMzg2L2tlcm5l
-bC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgc2V0dXBfbG9jYWxfQVBJQyc6
-DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0
-Mjk5KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGh5c19jcHVfcHJlc2Vu
-dF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0Lmlu
-aXQrMHg0MmIyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGljX21vZGUn
-DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBg
-ZGV0ZWN0X2luaXRfQVBJQyc6DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
-bi5vKC50ZXh0LmluaXQrMHg0NGVkKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
-byBgbXBfbGFwaWNfYWRkcicNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
-Lm8oLnRleHQuaW5pdCsweDQ0ZjUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
-IGBib290X2NwdV9waHlzaWNhbF9hcGljaWQnDQ0KYXJjaC9pMzg2L2tlcm5l
-bC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgaW5pdF9hcGljX21hcHBpbmdz
-JzoNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsw
-eDQ1MzQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBzbXBfZm91bmRfY29u
-ZmlnJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
-KzB4NDU2OCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2xhcGljX2Fk
-ZHInDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQr
-MHg0NTgyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgYm9vdF9jcHVfcGh5
-c2ljYWxfYXBpY2lkJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygu
-dGV4dC5pbml0KzB4NDU5NSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGJv
-b3RfY3B1X3BoeXNpY2FsX2FwaWNpZCcNDQphcmNoL2kzODYva2VybmVsL2J1
-aWx0LWluLm8oLnRleHQuaW5pdCsweDQ1YTIpOiB1bmRlZmluZWQgcmVmZXJl
-bmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQt
-aW4ubygudGV4dC5pbml0KzB4NDViMik6IHVuZGVmaW5lZCByZWZlcmVuY2Ug
-dG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
-dC1pbi5vKC50ZXh0LmluaXQrMHg0NWJkKTogdW5kZWZpbmVkIHJlZmVyZW5j
-ZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
-Lm8oLnRleHQuaW5pdCsweDQ1ZjkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
-IGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzog
-SW4gZnVuY3Rpb24gYEFQSUNfaW5pdF91bmlwcm9jZXNzb3InOg0NCmFyY2gv
-aTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NDgyMik6IHVu
-ZGVmaW5lZCByZWZlcmVuY2UgdG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJj
-aC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0ODRkKTog
-dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgYm9vdF9jcHVfcGh5c2ljYWxfYXBp
-Y2lkJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
-KzB4NDg1NCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGFwaWNfdmVyc2lv
-bicNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsw
-eDQ4N2IpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBib290X2NwdV9waHlz
-aWNhbF9hcGljaWQnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
-ZXh0LmluaXQrMHg0ODg2KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGh5
-c19jcHVfcHJlc2VudF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
-bi5vKC50ZXh0LmluaXQrMHg0OGEzKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
-byBgc21wX2ZvdW5kX2NvbmZpZycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0
-LWluLm8oLnRleHQuaW5pdCsweDQ4YjcpOiB1bmRlZmluZWQgcmVmZXJlbmNl
-IHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
-bzogSW4gZnVuY3Rpb24gYGZpbmRfaXJxX2VudHJ5JzoNDQphcmNoL2kzODYv
-a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDRlMjMpOiB1bmRlZmlu
-ZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kzODYv
-a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDRlM2IpOiB1bmRlZmlu
-ZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJu
-ZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGU1Myk6IHVuZGVmaW5lZCBy
-ZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
-dC1pbi5vKC50ZXh0LmluaXQrMHg0ZTVlKTogdW5kZWZpbmVkIHJlZmVyZW5j
-ZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8o
-LnRleHQuaW5pdCsweDRlNmYpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
-cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVu
-Y3Rpb24gYGZpbmRfaXNhX2lycV9waW4nOg0NCmFyY2gvaTM4Ni9rZXJuZWwv
-YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGVhMik6IHVuZGVmaW5lZCByZWZl
-cmVuY2UgdG8gYG1wX2lycV9lbnRyaWVzJw0NCmFyY2gvaTM4Ni9rZXJuZWwv
-YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGViNCk6IHVuZGVmaW5lZCByZWZl
-cmVuY2UgdG8gYG1wX2J1c19pZF90b190eXBlJw0NCmFyY2gvaTM4Ni9rZXJu
-ZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGVjMyk6IHVuZGVmaW5lZCBy
-ZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
-dC1pbi5vKC50ZXh0LmluaXQrMHg0ZWRhKTogdW5kZWZpbmVkIHJlZmVyZW5j
-ZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8o
-LnRleHQuaW5pdCsweDRlZTUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
-cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
-bml0KzB4NGVmMik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMn
-DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBg
-TVBCSU9TX3BvbGFyaXR5JzoNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
-Lm8oLnRleHQuaW5pdCsweDRmNWMpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
-IGBtcF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4
-dC5pbml0KzB4NGY2Myk6IG1vcmUgdW5kZWZpbmVkIHJlZmVyZW5jZXMgdG8g
-YG1wX2lycXMnIGZvbGxvdw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
-bzogSW4gZnVuY3Rpb24gYE1QQklPU19wb2xhcml0eSc6DQ0KYXJjaC9pMzg2
-L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0Zjk0KTogdW5kZWZp
-bmVkIHJlZmVyZW5jZSB0byBgbXBfYnVzX2lkX3RvX3R5cGUnDQ0KYXJjaC9p
-Mzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgTVBCSU9TX3Ry
-aWdnZXInOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
-bml0KzB4NGZlMik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMn
-DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0
-ZmY3KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNo
-L2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDUwMzQpOiB1
-bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9idXNfaWRfdG9fdHlwZScNDQph
-cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm86IEluIGZ1bmN0aW9uIGBzZXR1
-cF9JT19BUElDX2lycXMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
-bygudGV4dC5pbml0KzB4NTEyYSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
-YG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
-ZXh0LmluaXQrMHg1MWU0KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBf
-aW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
-aW5pdCsweDUyMTApOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2Fw
-aWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
-KzB4NTMwNSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3Mn
-DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1
-MzUxKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbnJfaW9hcGljcycNDQph
-cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU0MjAp
-OiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gv
-aTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYHByaW50X0lP
-X0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
-bml0KzB4NTUyYik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycV9l
-bnRyaWVzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
-bml0KzB4NTUzZCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBp
-Y3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQr
-MHg1NTQ1KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaW9hcGljcycN
-DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU1
-NmUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFy
-Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NTU4ZCk6
-IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9p
-Mzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1NjQxKTogdW5k
-ZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYv
-a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU4Y2EpOiB1bmRlZmlu
-ZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJu
-ZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYGVuYWJsZV9JT19BUElDJzoN
-DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU5
-YzApOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFy
-Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NWEyYSk6
-IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9p
-Mzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgc2V0dXBfaW9h
-cGljX2lkc19mcm9tX21wYyc6DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
-bi5vKC50ZXh0LmluaXQrMHg1YTRhKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
-byBgcGh5c19jcHVfcHJlc2VudF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9i
-dWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1YTUwKTogdW5kZWZpbmVkIHJlZmVy
-ZW5jZSB0byBgbnJfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0
-LWluLm8oLnRleHQuaW5pdCsweDVhYmYpOiB1bmRlZmluZWQgcmVmZXJlbmNl
-IHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
-bygudGV4dC5pbml0KzB4NWI5MCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
-YG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
-ZXh0LmluaXQrMHg1YmMwKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBf
-aW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
-aW5pdCsweDViYzcpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFf
-ZW50cmllcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
-aW5pdCsweDViZDkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2Fw
-aWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
-KzB4NWJlNyk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0K
-YXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1YmY0
-KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNoL2kz
-ODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDVjMGEpOiB1bmRl
-ZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9r
-ZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NWMyNCk6IHVuZGVmaW5l
-ZCByZWZlcmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5l
-bC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1Y2E4KTogdW5kZWZpbmVkIHJl
-ZmVyZW5jZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1
-aWx0LWluLm8oLnRleHQuaW5pdCsweDVjZTIpOiB1bmRlZmluZWQgcmVmZXJl
-bmNlIHRvIGBucl9pb2FwaWNzJw0NCmRyaXZlcnMvYnVpbHQtaW4ubzogSW4g
-ZnVuY3Rpb24gYHF1aXJrX3ZpYV9pb2FwaWMnOg0NCmRyaXZlcnMvYnVpbHQt
-aW4ubygudGV4dC5pbml0KzB4ZTAzKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
-byBgbnJfaW9hcGljcycNDQphcmNoL2kzODYvcGNpL2J1aWx0LWluLm86IElu
-IGZ1bmN0aW9uIGBwaXJxX2VuYWJsZV9pcnEnOg0NCmFyY2gvaTM4Ni9wY2kv
-YnVpbHQtaW4ubygudGV4dCsweDE1MTApOiB1bmRlZmluZWQgcmVmZXJlbmNl
-IHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kzODYvcGNpL2J1aWx0LWlu
-Lm86IEluIGZ1bmN0aW9uIGBwY2liaW9zX2lycV9pbml0JzoNDQphcmNoL2kz
-ODYvcGNpL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweGZmYSk6IHVuZGVmaW5l
-ZCByZWZlcmVuY2UgdG8gYG1wX2lycV9lbnRyaWVzJw0NCmFyY2gvaTM4Ni9w
-Y2kvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYHBjaWJpb3NfZml4dXBfaXJx
-cyc6DQ0KYXJjaC9pMzg2L3BjaS9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHgx
-MGMyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMn
-DQ0KbWFrZTogKioqIFt2bWxpbnV4XSBFcnJvciAxDQ0Kb2RkYmFsbDpyb290
-PiANClNjcmlwdCBkb25lIG9uIE1vbiBTZXAgMjMgMTc6MTA6MDYgMjAwMg0K
-
---8323328-1597264651-1032888273=:15835
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209241324331.15835@oddball.prodigy.com>
-Content-Description: config_partial
-Content-Disposition: attachment; filename="y.tmp"
-
-Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
-J3QgZWRpdA0KIw0KQ09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCkNPTkZJ
-R19VSUQxNj15DQpDT05GSUdfR0VORVJJQ19JU0FfRE1BPXkNCg0KIw0KIyBD
-b2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMNCiMNCkNPTkZJR19FWFBFUklN
-RU5UQUw9eQ0KDQojDQojIEdlbmVyYWwgc2V0dXANCiMNCkNPTkZJR19ORVQ9
-eQ0KQ09ORklHX1NZU1ZJUEM9eQ0KQ09ORklHX0JTRF9QUk9DRVNTX0FDQ1Q9
-eQ0KQ09ORklHX1NZU0NUTD15DQoNCiMNCiMgTG9hZGFibGUgbW9kdWxlIHN1
-cHBvcnQNCiMNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJR19NT0RWRVJTSU9O
-Uz15DQpDT05GSUdfS01PRD15DQoNCiMNCiMgUHJvY2Vzc29yIHR5cGUgYW5k
-IGZlYXR1cmVzDQojDQpDT05GSUdfTTY4Nj15DQpDT05GSUdfWDg2X1dQX1dP
-UktTX09LPXkNCkNPTkZJR19YODZfSU5WTFBHPXkNCkNPTkZJR19YODZfQ01Q
-WENIRz15DQpDT05GSUdfWDg2X1hBREQ9eQ0KQ09ORklHX1g4Nl9CU1dBUD15
-DQpDT05GSUdfWDg2X1BPUEFEX09LPXkNCkNPTkZJR19SV1NFTV9YQ0hHQURE
-X0FMR09SSVRITT15DQpDT05GSUdfWDg2X0wxX0NBQ0hFX1NISUZUPTUNCkNP
-TkZJR19YODZfVFNDPXkNCkNPTkZJR19YODZfR09PRF9BUElDPXkNCkNPTkZJ
-R19YODZfVVNFX1BQUk9fQ0hFQ0tTVU09eQ0KQ09ORklHX1g4Nl9QUFJPX0ZF
-TkNFPXkNCkNPTkZJR19QUkVFTVBUPXkNCkNPTkZJR19YODZfVVBfQVBJQz15
-DQpDT05GSUdfWDg2X1VQX0lPQVBJQz15DQpDT05GSUdfWDg2X0xPQ0FMX0FQ
-SUM9eQ0KQ09ORklHX1g4Nl9JT19BUElDPXkNCkNPTkZJR19YODZfTUNFPXkN
-CkNPTkZJR19YODZfTVNSPXkNCkNPTkZJR19YODZfQ1BVSUQ9eQ0KQ09ORklH
-X05PSElHSE1FTT15DQpDT05GSUdfTVRSUj15DQpDT05GSUdfSEFWRV9ERUNf
-TE9DSz15DQoNCiMNCiMgUG93ZXIgbWFuYWdlbWVudCBvcHRpb25zIChBQ1BJ
-LCBBUE0pDQojDQoNCiMNCiMgQUNQSSBTdXBwb3J0DQojDQoNCiMNCiMgQnVz
-IG9wdGlvbnMgKFBDSSwgUENNQ0lBLCBFSVNBLCBNQ0EsIElTQSkNCiMNCkNP
-TkZJR19QQ0k9eQ0KQ09ORklHX1BDSV9HT0FOWT15DQpDT05GSUdfUENJX0JJ
-T1M9eQ0KQ09ORklHX1BDSV9ESVJFQ1Q9eQ0KQ09ORklHX1BDSV9OQU1FUz15
-DQoNCiMNCiMgRXhlY3V0YWJsZSBmaWxlIGZvcm1hdHMNCiMNCkNPTkZJR19L
-Q09SRV9FTEY9eQ0KQ09ORklHX0JJTkZNVF9BT1VUPW0NCkNPTkZJR19CSU5G
-TVRfRUxGPXkNCkNPTkZJR19CSU5GTVRfTUlTQz1tDQoNCiMNCiMgTWVtb3J5
-IFRlY2hub2xvZ3kgRGV2aWNlcyAoTVREKQ0KIw0KDQojDQojIFBhcmFsbGVs
-IHBvcnQgc3VwcG9ydA0KIw0KQ09ORklHX1BBUlBPUlQ9eQ0KQ09ORklHX1BB
-UlBPUlRfUEM9eQ0KQ09ORklHX1BBUlBPUlRfUENfQ01MMT15DQpDT05GSUdf
-UEFSUE9SVF9QQ19GSUZPPXkNCkNPTkZJR19QQVJQT1JUX1BDX1NVUEVSSU89
-eQ0KDQojDQojIFBsdWcgYW5kIFBsYXkgY29uZmlndXJhdGlvbg0KIw0KQ09O
-RklHX1BOUD15DQpDT05GSUdfSVNBUE5QPXkNCkNPTkZJR19QTlBCSU9TPXkN
-Cg0KIw0KIyBCbG9jayBkZXZpY2VzDQojDQpDT05GSUdfQkxLX0RFVl9GRD15
-DQpDT05GSUdfQkxLX0RFVl9MT09QPXkNCkNPTkZJR19CTEtfREVWX1JBTT15
-DQpDT05GSUdfQkxLX0RFVl9SQU1fU0laRT00MDk2DQpDT05GSUdfQkxLX0RF
-Vl9JTklUUkQ9eQ0KDQojDQojIEFUQS9BVEFQSS9NRk0vUkxMIGRldmljZSBz
-dXBwb3J0DQojDQpDT05GSUdfSURFPXkNCg0KIw0KIyBJREUsIEFUQSBhbmQg
-QVRBUEkgQmxvY2sgZGV2aWNlcw0KIw0KQ09ORklHX0JMS19ERVZfSURFPXkN
-Cg0KIw0KIyBQbGVhc2Ugc2VlIERvY3VtZW50YXRpb24vaWRlLnR4dCBmb3Ig
-aGVscC9pbmZvIG9uIElERSBkcml2ZXMNCiMNCkNPTkZJR19CTEtfREVWX0lE
-RURJU0s9eQ0KQ09ORklHX0lERURJU0tfTVVMVElfTU9ERT15DQpDT05GSUdf
-QkxLX0RFVl9JREVDRD15DQpDT05GSUdfQkxLX0RFVl9JREVTQ1NJPW0NCg0K
-Iw0KIyBJREUgY2hpcHNldCBzdXBwb3J0L2J1Z2ZpeGVzDQojDQpDT05GSUdf
-QkxLX0RFVl9DTUQ2NDA9eQ0KQ09ORklHX0JMS19ERVZfSURFUENJPXkNCkNP
-TkZJR19CTEtfREVWX0dFTkVSSUM9eQ0KQ09ORklHX0lERVBDSV9TSEFSRV9J
-UlE9eQ0KQ09ORklHX0JMS19ERVZfSURFRE1BX1BDST15DQpDT05GSUdfSURF
-RE1BX1BDSV9BVVRPPXkNCkNPTkZJR19CTEtfREVWX0lERURNQT15DQpDT05G
-SUdfQkxLX0RFVl9BRE1BPXkNCkNPTkZJR19CTEtfREVWX1BJSVg9eQ0KQ09O
-RklHX0JMS19ERVZfUloxMDAwPXkNCkNPTkZJR19JREVETUFfQVVUTz15DQpD
-T05GSUdfQkxLX0RFVl9JREVfTU9ERVM9eQ0KDQojDQojIFNDU0kgZGV2aWNl
-IHN1cHBvcnQNCiMNCkNPTkZJR19TQ1NJPW0NCg0KIw0KIyBTQ1NJIHN1cHBv
-cnQgdHlwZSAoZGlzaywgdGFwZSwgQ0QtUk9NKQ0KIw0KQ09ORklHX0JMS19E
-RVZfU0Q9bQ0KQ09ORklHX1NEX0VYVFJBX0RFVlM9NDANCkNPTkZJR19DSFJf
-REVWX1NUPW0NCkNPTkZJR19CTEtfREVWX1NSPW0NCkNPTkZJR19CTEtfREVW
-X1NSX1ZFTkRPUj15DQpDT05GSUdfU1JfRVhUUkFfREVWUz0yDQpDT05GSUdf
-Q0hSX0RFVl9TRz1tDQoNCiMNCiMgU29tZSBTQ1NJIGRldmljZXMgKGUuZy4g
-Q0QganVrZWJveCkgc3VwcG9ydCBtdWx0aXBsZSBMVU5zDQojDQpDT05GSUdf
-U0NTSV9NVUxUSV9MVU49eQ0KQ09ORklHX1NDU0lfUkVQT1JUX0xVTlM9eQ0K
-Q09ORklHX1NDU0lfQ09OU1RBTlRTPXkNCg0KIw0KIyBTQ1NJIGxvdy1sZXZl
-bCBkcml2ZXJzDQojDQpDT05GSUdfU0NTSV9BSEExNTJYPW0NCkNPTkZJR19T
-Q1NJX0FIQTE1NDI9bQ0KQ09ORklHX1NDU0lfQUlDN1hYWD1tDQpDT05GSUdf
-QUlDN1hYWF9DTURTX1BFUl9ERVZJQ0U9MjUzDQpDT05GSUdfQUlDN1hYWF9S
-RVNFVF9ERUxBWV9NUz0xNTAwMA0KQ09ORklHX1NDU0lfTkNSNTNDN3h4PW0N
-CkNPTkZJR19TQ1NJX05DUjUzQzd4eF9zeW5jPXkNCkNPTkZJR19TQ1NJX05D
-UjUzQzd4eF9GQVNUPXkNCkNPTkZJR19TQ1NJX05DUjUzQzd4eF9ESVNDT05O
-RUNUPXkNCkNPTkZJR19TQ1NJX1NZTTUzQzhYWF8yPW0NCkNPTkZJR19TQ1NJ
-X1NZTTUzQzhYWF9ETUFfQUREUkVTU0lOR19NT0RFPTENCkNPTkZJR19TQ1NJ
-X1NZTTUzQzhYWF9ERUZBVUxUX1RBR1M9MTYNCkNPTkZJR19TQ1NJX1NZTTUz
-QzhYWF9NQVhfVEFHUz02NA0KQ09ORklHX1NDU0lfTkNSNTNDOFhYPW0NCkNP
-TkZJR19TQ1NJX1NZTTUzQzhYWD1tDQpDT05GSUdfU0NTSV9OQ1I1M0M4WFhf
-REVGQVVMVF9UQUdTPTQNCkNPTkZJR19TQ1NJX05DUjUzQzhYWF9NQVhfVEFH
-Uz0zMg0KQ09ORklHX1NDU0lfTkNSNTNDOFhYX1NZTkM9MjANCg0KIw0KIyBP
-bGQgbm9uLVNDU0kvQVRBUEkgQ0QtUk9NIGRyaXZlcw0KIw0KDQojDQojIE11
-bHRpLWRldmljZSBzdXBwb3J0IChSQUlEIGFuZCBMVk0pDQojDQoNCiMNCiMg
-RnVzaW9uIE1QVCBkZXZpY2Ugc3VwcG9ydA0KIw0KDQojDQojIElFRUUgMTM5
-NCAoRmlyZVdpcmUpIHN1cHBvcnQgKEVYUEVSSU1FTlRBTCkNCiMNCg0KIw0K
-IyBJMk8gZGV2aWNlIHN1cHBvcnQNCiMNCg0KIw0KIyBOZXR3b3JraW5nIG9w
-dGlvbnMNCiMNCkNPTkZJR19QQUNLRVQ9eQ0KQ09ORklHX05FVEZJTFRFUj15
-DQpDT05GSUdfVU5JWD15DQpDT05GSUdfSU5FVD15DQpDT05GSUdfSVBfTVVM
-VElDQVNUPXkNCkNPTkZJR19JUF9BRFZBTkNFRF9ST1VURVI9eQ0KQ09ORklH
-X0lQX01VTFRJUExFX1RBQkxFUz15DQpDT05GSUdfSVBfUk9VVEVfTkFUPXkN
-CkNPTkZJR19JUF9ST1VURV9NVUxUSVBBVEg9eQ0KQ09ORklHX0lQX1JPVVRF
-X1RPUz15DQpDT05GSUdfSVBfUk9VVEVfVkVSQk9TRT15DQpDT05GSUdfSVBf
-Uk9VVEVfTEFSR0VfVEFCTEVTPXkNCkNPTkZJR19JUF9QTlA9eQ0KQ09ORklH
-X0lQX1BOUF9ESENQPXkNCkNPTkZJR19JUF9QTlBfQk9PVFA9eQ0KQ09ORklH
-X0lQX1BOUF9SQVJQPXkNCkNPTkZJR19ORVRfSVBJUD1tDQpDT05GSUdfSU5F
-VF9FQ049eQ0KQ09ORklHX1NZTl9DT09LSUVTPXkNCg0KIw0KIyAgIElQOiBO
-ZXRmaWx0ZXIgQ29uZmlndXJhdGlvbg0KIw0KQ09ORklHX0lQX05GX0NPTk5U
-UkFDSz1tDQpDT05GSUdfSVBfTkZfRlRQPW0NCkNPTkZJR19JUF9ORl9JUkM9
-bQ0KQ09ORklHX0lQX05GX1FVRVVFPW0NCkNPTkZJR19JUF9ORl9JUFRBQkxF
-Uz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQ9bQ0KQ09ORklHX0lQX05G
-X01BVENIX01BQz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfUEtUVFlQRT1tDQpD
-T05GSUdfSVBfTkZfTUFUQ0hfTUFSSz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hf
-TVVMVElQT1JUPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9UT1M9bQ0KQ09ORklH
-X0lQX05GX01BVENIX0VDTj1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfRFNDUD1t
-DQpDT05GSUdfSVBfTkZfTUFUQ0hfQUhfRVNQPW0NCkNPTkZJR19JUF9ORl9N
-QVRDSF9MRU5HVEg9bQ0KQ09ORklHX0lQX05GX01BVENIX1RUTD1tDQpDT05G
-SUdfSVBfTkZfTUFUQ0hfVENQTVNTPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9I
-RUxQRVI9bQ0KQ09ORklHX0lQX05GX01BVENIX1NUQVRFPW0NCkNPTkZJR19J
-UF9ORl9NQVRDSF9DT05OVFJBQ0s9bQ0KQ09ORklHX0lQX05GX01BVENIX1VO
-Q0xFQU49bQ0KQ09ORklHX0lQX05GX01BVENIX09XTkVSPW0NCkNPTkZJR19J
-UF9ORl9GSUxURVI9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRUpFQ1Q9bQ0K
-Q09ORklHX0lQX05GX1RBUkdFVF9NSVJST1I9bQ0KQ09ORklHX0lQX05GX05B
-VD1tDQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15DQpDT05GSUdfSVBfTkZf
-VEFSR0VUX01BU1FVRVJBREU9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRURJ
-UkVDVD1tDQpDT05GSUdfSVBfTkZfTkFUX0xPQ0FMPXkNCkNPTkZJR19JUF9O
-Rl9OQVRfU05NUF9CQVNJQz1tDQpDT05GSUdfSVBfTkZfTkFUX0lSQz1tDQpD
-T05GSUdfSVBfTkZfTkFUX0ZUUD1tDQpDT05GSUdfSVBfTkZfTUFOR0xFPW0N
-CkNPTkZJR19JUF9ORl9UQVJHRVRfVE9TPW0NCkNPTkZJR19JUF9ORl9UQVJH
-RVRfRUNOPW0NCkNPTkZJR19JUF9ORl9UQVJHRVRfRFNDUD1tDQpDT05GSUdf
-SVBfTkZfVEFSR0VUX01BUks9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9MT0c9
-bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9UQ1BNU1M9bQ0KDQojDQojICAgIFND
-VFAgQ29uZmlndXJhdGlvbiAoRVhQRVJJTUVOVEFMKQ0KIw0KQ09ORklHX0lQ
-VjZfU0NUUF9fPXkNCg0KIw0KIyBRb1MgYW5kL29yIGZhaXIgcXVldWVpbmcN
-CiMNCg0KIw0KIyBOZXR3b3JrIGRldmljZSBzdXBwb3J0DQojDQpDT05GSUdf
-TkVUREVWSUNFUz15DQoNCiMNCiMgQVJDbmV0IGRldmljZXMNCiMNCkNPTkZJ
-R19EVU1NWT1tDQpDT05GSUdfQk9ORElORz1tDQpDT05GSUdfVFVOPW0NCg0K
-Iw0KIyBFdGhlcm5ldCAoMTAgb3IgMTAwTWJpdCkNCiMNCkNPTkZJR19ORVRf
-RVRIRVJORVQ9eQ0KQ09ORklHX05FVF9QQ0k9eQ0KQ09ORklHX0UxMDA9eQ0K
-DQojDQojIEV0aGVybmV0ICgxMDAwIE1iaXQpDQojDQoNCiMNCiMgV2lyZWxl
-c3MgTEFOIChub24taGFtcmFkaW8pDQojDQoNCiMNCiMgVG9rZW4gUmluZyBk
-ZXZpY2VzDQojDQoNCiMNCiMgV2FuIGludGVyZmFjZXMNCiMNCg0KIw0KIyBU
-dWxpcCBmYW1pbHkgbmV0d29yayBkZXZpY2Ugc3VwcG9ydA0KIw0KDQojDQoj
-IEFtYXRldXIgUmFkaW8gc3VwcG9ydA0KIw0KDQojDQojIElyREEgKGluZnJh
-cmVkKSBzdXBwb3J0DQojDQoNCiMNCiMgSVNETiBzdWJzeXN0ZW0NCiMNCg0K
-Iw0KIyBUZWxlcGhvbnkgU3VwcG9ydA0KIw0KDQojDQojIElucHV0IGRldmlj
-ZSBzdXBwb3J0DQojDQpDT05GSUdfSU5QVVQ9eQ0KDQojDQojIFVzZXJsYW5k
-IGludGVyZmFjZXMNCiMNCkNPTkZJR19JTlBVVF9NT1VTRURFVj15DQpDT05G
-SUdfSU5QVVRfTU9VU0VERVZfUFNBVVg9eQ0KQ09ORklHX0lOUFVUX01PVVNF
-REVWX1NDUkVFTl9YPTEwMjQNCkNPTkZJR19JTlBVVF9NT1VTRURFVl9TQ1JF
-RU5fWT03NjgNCg0KIw0KIyBJbnB1dCBJL08gZHJpdmVycw0KIw0KQ09ORklH
-X1NPVU5EX0dBTUVQT1JUPXkNCkNPTkZJR19TRVJJTz15DQpDT05GSUdfU0VS
-SU9fSTgwNDI9eQ0KDQojDQojIElucHV0IERldmljZSBEcml2ZXJzDQojDQpD
-T05GSUdfSU5QVVRfS0VZQk9BUkQ9eQ0KQ09ORklHX0tFWUJPQVJEX0FUS0JE
-PXkNCkNPTkZJR19JTlBVVF9NT1VTRT15DQpDT05GSUdfTU9VU0VfUFMyPXkN
-Cg0KIw0KIyBDaGFyYWN0ZXIgZGV2aWNlcw0KIw0KQ09ORklHX1ZUPXkNCkNP
-TkZJR19WVF9DT05TT0xFPXkNCkNPTkZJR19IV19DT05TT0xFPXkNCg0KIw0K
-IyBTZXJpYWwgZHJpdmVycw0KIw0KQ09ORklHX1NFUklBTF84MjUwPXkNCg0K
-Iw0KIyBOb24tODI1MCBzZXJpYWwgcG9ydCBzdXBwb3J0DQojDQpDT05GSUdf
-U0VSSUFMX0NPUkU9eQ0KQ09ORklHX1VOSVg5OF9QVFlTPXkNCkNPTkZJR19V
-TklYOThfUFRZX0NPVU5UPTI1Ng0KQ09ORklHX1BSSU5URVI9eQ0KDQojDQoj
-IEkyQyBzdXBwb3J0DQojDQpDT05GSUdfSTJDPW0NCkNPTkZJR19JMkNfQ0hB
-UkRFVj1tDQpDT05GSUdfSTJDX1BST0M9bQ0KDQojDQojIE1pY2UNCiMNCg0K
-Iw0KIyBXYXRjaGRvZyBDYXJkcw0KIw0KQ09ORklHX0lOVEVMX1JORz15DQpD
-T05GSUdfUlRDPXkNCg0KIw0KIyBGdGFwZSwgdGhlIGZsb3BweSB0YXBlIGRl
-dmljZSBkcml2ZXINCiMNCkNPTkZJR19BR1A9eQ0KQ09ORklHX0FHUF9JTlRF
-TD15DQpDT05GSUdfQUdQX0k4MTA9eQ0KQ09ORklHX0RSTT15DQpDT05GSUdf
-RFJNX1JBREVPTj15DQoNCiMNCiMgTXVsdGltZWRpYSBkZXZpY2VzDQojDQoN
-CiMNCiMgRmlsZSBzeXN0ZW1zDQojDQpDT05GSUdfQVVUT0ZTNF9GUz15DQpD
-T05GSUdfVE1QRlM9eQ0KQ09ORklHX1JBTUZTPXkNCkNPTkZJR19JU085NjYw
-X0ZTPXkNCkNPTkZJR19QUk9DX0ZTPXkNCkNPTkZJR19ERVZQVFNfRlM9eQ0K
-Q09ORklHX0VYVDJfRlM9eQ0KDQojDQojIE5ldHdvcmsgRmlsZSBTeXN0ZW1z
-DQojDQpDT05GSUdfTkZTX0ZTPXkNCkNPTkZJR19ORlNEPXkNCkNPTkZJR19T
-VU5SUEM9eQ0KQ09ORklHX0xPQ0tEPXkNCkNPTkZJR19FWFBPUlRGUz15DQoN
-CiMNCiMgUGFydGl0aW9uIFR5cGVzDQojDQpDT05GSUdfTVNET1NfUEFSVElU
-SU9OPXkNCg0KIw0KIyBDb25zb2xlIGRyaXZlcnMNCiMNCkNPTkZJR19WR0Ff
-Q09OU09MRT15DQoNCiMNCiMgRnJhbWUtYnVmZmVyIHN1cHBvcnQNCiMNCg0K
-Iw0KIyBTb3VuZA0KIw0KQ09ORklHX1NPVU5EPXkNCg0KIw0KIyBPcGVuIFNv
-dW5kIFN5c3RlbQ0KIw0KDQojDQojIEFkdmFuY2VkIExpbnV4IFNvdW5kIEFy
-Y2hpdGVjdHVyZQ0KIw0KQ09ORklHX1NORD15DQpDT05GSUdfU05EX1NFUVVF
-TkNFUj15DQpDT05GSUdfU05EX09TU0VNVUw9eQ0KQ09ORklHX1NORF9NSVhF
-Ul9PU1M9eQ0KQ09ORklHX1NORF9QQ01fT1NTPXkNCkNPTkZJR19TTkRfU0VR
-VUVOQ0VSX09TUz15DQoNCiMNCiMgR2VuZXJpYyBkZXZpY2VzDQojDQoNCiMN
-CiMgSVNBIGRldmljZXMNCiMNCg0KIw0KIyBQQ0kgZGV2aWNlcw0KIw0KQ09O
-RklHX1NORF9FTlMxMzcxPXkNCg0KIw0KIyBVU0Igc3VwcG9ydA0KIw0KQ09O
-RklHX1VTQj15DQoNCiMNCiMgTWlzY2VsbGFuZW91cyBVU0Igb3B0aW9ucw0K
-Iw0KDQojDQojIFVTQiBIb3N0IENvbnRyb2xsZXIgRHJpdmVycw0KIw0KDQoj
-DQojIFVTQiBEZXZpY2UgQ2xhc3MgZHJpdmVycw0KIw0KQ09ORklHX1VTQl9T
-VE9SQUdFPW0NCg0KIw0KIyBVU0IgSHVtYW4gSW50ZXJmYWNlIERldmljZXMg
-KEhJRCkNCiMNCg0KIw0KIyBVU0IgSW1hZ2luZyBkZXZpY2VzDQojDQoNCiMN
-CiMgVVNCIE11bHRpbWVkaWEgZGV2aWNlcw0KIw0KDQojDQojICAgVmlkZW80
-TGludXggc3VwcG9ydCBpcyBuZWVkZWQgZm9yIFVTQiBNdWx0aW1lZGlhIGRl
-dmljZSBzdXBwb3J0DQojDQoNCiMNCiMgVVNCIE5ldHdvcmsgYWRhcHRvcnMN
-CiMNCg0KIw0KIyBVU0IgcG9ydCBkcml2ZXJzDQojDQoNCiMNCiMgVVNCIFNl
-cmlhbCBDb252ZXJ0ZXIgc3VwcG9ydA0KIw0KDQojDQojIFVTQiBNaXNjZWxs
-YW5lb3VzIGRyaXZlcnMNCiMNCg0KIw0KIyBCbHVldG9vdGggc3VwcG9ydA0K
-Iw0KDQojDQojIEtlcm5lbCBoYWNraW5nDQojDQpDT05GSUdfREVCVUdfS0VS
-TkVMPXkNCkNPTkZJR19NQUdJQ19TWVNSUT15DQpDT05GSUdfWDg2X0VYVFJB
-X0lSUVM9eQ0KQ09ORklHX1g4Nl9GSU5EX1NNUF9DT05GSUc9eQ0KDQojDQoj
-IFNlY3VyaXR5IG9wdGlvbnMNCiMNCkNPTkZJR19TRUNVUklUWV9DQVBBQklM
-SVRJRVM9eQ0KDQojDQojIExpYnJhcnkgcm91dGluZXMNCiMNCkNPTkZJR19Y
-ODZfQklPU19SRUJPT1Q9eQ0K
---8323328-1597264651-1032888273=:15835--

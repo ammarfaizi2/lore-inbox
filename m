@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265837AbRF1NoE>; Thu, 28 Jun 2001 09:44:04 -0400
+	id <S265796AbRF1NnO>; Thu, 28 Jun 2001 09:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbRF1Nnz>; Thu, 28 Jun 2001 09:43:55 -0400
-Received: from gate.westel900.hu ([194.176.224.33]:7482 "EHLO
-	gate.westel900.hu") by vger.kernel.org with ESMTP
-	id <S265837AbRF1Nnj>; Thu, 28 Jun 2001 09:43:39 -0400
-Date: Thu, 28 Jun 2001 15:39:54 +0200
-From: csani@lme.linux.hu
-To: linux-kernel@vger.kernel.org
-Subject: Error while making 2.4.5 bzImage with CONFIG_MPENTIUMIII=y
-Reply-To: csani@lme.linux.hu
+	id <S265837AbRF1NnE>; Thu, 28 Jun 2001 09:43:04 -0400
+Received: from mgw-x3.nokia.com ([131.228.20.26]:6079 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S265796AbRF1NnA>;
+	Thu, 28 Jun 2001 09:43:00 -0400
+Date: Thu, 28 Jun 2001 16:40:47 +0300
+To: ext Andi Kleen <ak@suse.de>
+Cc: Gautier Harmel <Gautier.Harmel@qosmos.net>, linux-kernel@vger.kernel.org
+Subject: Re: How to pass packets up to protocols layer ?
+Message-ID: <20010628164047.A9478@terrapin>
+In-Reply-To: <3B3AFFDE.2763D18F@qosmos.net.suse.lists.linux.kernel> <oup3d8k4vz0.fsf@pigdrop.muc.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+In-Reply-To: <oup3d8k4vz0.fsf@pigdrop.muc.suse.de>
 User-Agent: Mutt/1.3.18i
-Message-ID: <15Fc3N-0004je-00@gate.westel900.hu>
+From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Either use netif_rx()/ for complete packets that should go through the
+> whole stack again or nf_reinject() from your hook.
 
-This is the config file:
+Is it really possible to call netif_rx from netfilter hook? I try to
+call netif_rx(skb) from PRE_ROUTING hook (returning NF_STOLEN)
+and kernel immediately crashes, even if I did nothing with skb at all.
+Why it happens this way?
 
-http://www.holanyi.hu/config
-
-produced with make menuconfig on a vanilla tree;
-and this is the log file:
-
-http://www.holanyi.hu/bzImage.log
-
-of the command:
-
-time make dep clean bzImage modules moduels_install 2>&1 | tee bzImage.log
-
-The errors do not occur if I switch on SMP. Howver, I would like to get out
-the most of my PIII 500 and would not like to use SMP and would also like to
-use APM stuff.
-Is this a known problem with 2.4.5? Sorry if yes.
-Anyway, I could not find relevant info in the archives of this list about
-this issue.
-
-Is there hope I will be able to compile a suitable kernel for this PIII?
-
-Thanks
-
-Csan
-
-PS: Please Cc: me. However, I will be monitoring the archives, so I will
-catch your mails. :)
+-- 
+Alexey

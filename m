@@ -1,99 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264784AbSKEKjj>; Tue, 5 Nov 2002 05:39:39 -0500
+	id <S264792AbSKEKoO>; Tue, 5 Nov 2002 05:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264789AbSKEKjj>; Tue, 5 Nov 2002 05:39:39 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:18963 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264784AbSKEKji>; Tue, 5 Nov 2002 05:39:38 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15815.41328.628803.480299@laputa.namesys.com>
-Date: Tue, 5 Nov 2002 13:46:08 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: reiser <reiser@namesys.com>, Alexander Zarochentcev <zam@namesys.com>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
-       umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-In-Reply-To: <20021105095904.GC19762@louise.pinerecords.com>
-References: <3DC1B2FA.8010809@namesys.com>
-	<3DC1D63A.CCAD78EF@digeo.com>
-	<3DC1D885.6030902@namesys.com>
-	<3DC1D9D0.684326AC@digeo.com>
-	<3DC1DF02.7060307@namesys.com>
-	<20021101102327.GA26306@louise.pinerecords.com>
-	<15810.46998.714820.519167@crimson.namesys.com>
-	<20021102132421.GJ28803@louise.pinerecords.com>
-	<15814.21309.758207.21416@laputa.namesys.com>
-	<3DC773B0.4070701@namesys.com>
-	<20021105095904.GC19762@louise.pinerecords.com>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-Tomato: Heliotrope
+	id <S264793AbSKEKoN>; Tue, 5 Nov 2002 05:44:13 -0500
+Received: from quechua.inka.de ([193.197.184.2]:7616 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S264792AbSKEKoN>;
+	Tue, 5 Nov 2002 05:44:13 -0500
+From: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <20021105094741.A32344@bitwizard.nl>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E1891IG-0006hN-00@sites.inka.de>
+Date: Tue, 5 Nov 2002 11:50:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe writes:
- > > >> > This should help:
- > > >> > 
- > > >> > diff -Nru a/txnmgr.c b/txnmgr.c
- > > >> > --- a/txnmgr.c	Wed Oct 30 18:58:09 2002
- > > >> > +++ b/txnmgr.c	Fri Nov  1 20:13:27 2002
- > > >> > @@ -1917,7 +1917,7 @@
- > > >> >  		return;
- > > >> >  	}
- > > >> >  
- > > >> > -	if (!jnode_is_unformatted) {
- > > >> > +	if (jnode_is_znode(node)) {
- > > >> >  		if ( /**jnode_get_block(node) &&*/
- > > >> >  			   !blocknr_is_fake(jnode_get_block(node))) {
- > > >> >  			/* jnode has assigned real disk block. Put it into
- > > >> 
- > > >> 
- > > >> Jup, this fixes the leak, but free space still isn't reported accurately
- > > >> until after sync gets called, which I believe is a bug too.
- > > >
- > > >In reiser4 allocation of disk space is delayed to transaction commit. It
- > > >is not possible to estimate precisely amount of disk space that will be
- > > >allocated during commit, and hence statfs(2) results are not updated
- > > >until one does sync(2) (forcing commit) or transaction is committed due
- > > >to age (10 minutes by default).
- > > >
- > > The above is badly phrased, and the behavior complained of is indeed
- > > a bug not a feature.  Please fix.
- > 
- > I just noticed the file
- > http://thebsh.namesys.com/snapshots/2002.10.31/reiser4.diff
- > had changed, the difference from the original 20021031 snapshot being:
- > 
- > --- fs_reiser4.diff.old 2002-10-31 14:11:50.000000000 +0100
- > +++ fs_reiser4.diff.new 2002-11-04 16:57:46.000000000 +0100
- > @@ -46903,7 +46903,7 @@
- >  +#if REISER4_USER_LEVEL_SIMULATION
- >  +#    define check_spin_is_locked(s)     spin_is_locked(s)
- >  +#    define check_spin_is_not_locked(s) spin_is_not_locked(s)
- > -+#elif defined( CONFIG_DEBUG_SPINLOCK ) && defined( CONFIG_SMP )
- > ++#elif 0 && defined( CONFIG_DEBUG_SPINLOCK ) && defined( CONFIG_SMP )
- >  +#    define check_spin_is_not_locked(s) ( ( s ) -> owner != get_current() )
- >  +#    define spin_is_not_locked(s)       ( ( s ) -> owner == NULL )
- >  +#    define check_spin_is_locked(s)     ( ( s ) -> owner == get_current() )
- > 
- > So either someone is messing about with your webserver or you want multiple
- > versions of the supposedly same diff floating around (not exactly suitable
+In article <20021105094741.A32344@bitwizard.nl> you wrote:
+> Capabilties done right, means that normal users DO have capabilities. 
+> Normal users have the capability to call normal syscalls like "read", 
+> "write" and "execve".
 
-Looks like you managed to download early buggy version of diff that only
-existed on the server for the short time and was overwritten in place
-later (yes, silly thing to do).
+This is IMHO very desireable, but not part of POSIX capabilties and also
+even more intrusive on the applications.
 
- > for gathering bugreports, is it?).  If you're short on disk space, how about
- > gzipping the fs diff?  Squeezes down to ~500k from almost 2MB.
+Even on Windows NT you do not have such User capabilties. With a good
+namespace and ACL concept, you can get around it, most of the time.
+(although a object based security is not always as good as a subject bound).
 
-OK.
-
- > 
-
-Nikita.
+Greetings
+Bernd

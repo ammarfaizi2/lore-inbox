@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVAHJej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVAHJja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVAHJej (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVAHJeR
+	id S262008AbVAHJja (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVAHJh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:34:17 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:38953 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261956AbVAHGIx (ORCPT
+	Sat, 8 Jan 2005 04:37:58 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:18611 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261987AbVAHIlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 01:08:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RZ1/8G8/mpdSU4t/ccqHuFIriDJNKd6ZFSw6w4DQ5nq7QMxV6TxPbuDctmWc6nud5Dw447DTyJkrL8+d7G1oeP4AGchnfjF6249w4i64BMtl26iDyduYvjKh4H5fnKzh0jNSxgmskqJ0EJqrVdzaNeYKNAtp47A3YZ41ASHPMnk=
-Message-ID: <9e473391050107220875baa32b@mail.gmail.com>
-Date: Sat, 8 Jan 2005 01:08:52 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Export symbol from I2C eeprom driver
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050108055315.GC8571@kroah.com>
+	Sat, 8 Jan 2005 03:41:32 -0500
+Date: Sat, 8 Jan 2005 09:41:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6] cciss typo fix
+Message-ID: <20050108084113.GA21857@suse.de>
+References: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339105010721347fbeb907@mail.gmail.com>
-	 <20050108055315.GC8571@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005 21:53:16 -0800, Greg KH <greg@kroah.com> wrote:
-> On Sat, Jan 08, 2005 at 12:34:44AM -0500, Jon Smirl wrote:
-> > Trivial patch to export a symbol from the eeprom driver. Currently
-> > there are no exported symbols. The symbol lets the radeon DRM driver
-> > link to it and modprobe will then force it to load along with the
-> > radeon driver.
+On Fri, Jan 07 2005, Miller, Mike (OS Dev) wrote:
+> > -----Original Message-----
+> > From: James Bottomley [mailto:James.Bottomley@SteelEye.com]
+> > 
+> > 
+> > On Fri, 2005-01-07 at 17:01 -0600, mike.miller@hp.com wrote:
+> > > -		*total_size = be32_to_cpu(*((__be32 *) 
+> > &buf->total_size[0]))+1;
+> > > -		*block_size = be32_to_cpu(*((__be32 *) 
+> > &buf->block_size[0]));
+> > > +		*total_size = be32_to_cpu(*((__u32 *) 
+> > &buf->total_size[0]))+1;
+> > > +		*block_size = be32_to_cpu(*((__u32 *) 
+> > &buf->block_size[0]));
+> > 
+> > I don't think that's a typo.  It was introduced by this patch:
+> > 
+> > ChangeSet 1.1988.24.79 2004/10/06 07:55:02 viro@www.linux.org.uk
+> >   [PATCH] cciss endianness and iomem annotations
+> >  
+> > The idea being that BE and LE numbers should be annotated differently,
+> > so the __be32 annotations look correct to me.  I think sparse 
+> > will warn
+> > if you make this change.
 > 
-> Why do you need this symbol?  Or are you just saying that you need the
-> eeprom driver loaded for some reason?
-> 
-> I say this as this variable is probably going to go away in the very
-> near future, as it isn't really needed at all.
+> Hmmm, SuSE complained that __be32 was not defined in the kernel. Any
+> other thoughts, anyone?
 
-I just need a symbol to force eeprom to load, it can be any symbol.  I
-need something for the radeon driver to link to so that modprobe will
-know to force eeprom to load when radeon is loaded. radeon is getting
-hotplug code that needs the eeprom module loaded.
+Hmm odd, no one should have complained, it should just have been added
+to the compat header.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Jens Axboe
+

@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVBIUCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVBIUEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbVBIUCh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 15:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVBIUCh
+	id S261913AbVBIUEM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 15:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVBIUEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 15:02:37 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:29913
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261905AbVBIUCd convert rfc822-to-8bit (ORCPT
+	Wed, 9 Feb 2005 15:04:11 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:22481 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261908AbVBIUDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 15:02:33 -0500
-Date: Wed, 9 Feb 2005 12:01:57 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Einar =?ISO-8859-1?Q?L=FCck?= <lkml@einar-lueck.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2/2] ipv4 routing: multipath with cache support,
- 2.6.10-rc3
-Message-Id: <20050209120157.18dc75c1.davem@davemloft.net>
-In-Reply-To: <420A1011.1030602@einar-lueck.de>
-References: <41C6B54F.2020604@einar-lueck.de>
-	<20050202172333.4d0ad5f0.davem@davemloft.net>
-	<420A1011.1030602@einar-lueck.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 9 Feb 2005 15:03:43 -0500
+Date: Wed, 9 Feb 2005 21:03:30 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Jirka Bohac <jbohac@suse.cz>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       lkml <linux-kernel@vger.kernel.org>, vojtech@suse.cz, roman@augan.com,
+       hch@nl.linux.org
+Subject: Re: [rfc] keytables - the new keycode->keysym mapping
+Message-ID: <20050209200330.GB15005@apps.cwi.nl>
+References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl> <20050209171921.GB11359@dwarf.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050209171921.GB11359@dwarf.suse.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Feb 2005 14:28:49 +0100
-Einar Lück <lkml@einar-lueck.de> wrote:
+On Wed, Feb 09, 2005 at 06:19:21PM +0100, Jirka Bohac wrote:
 
-> The scenarios we have in mind are setups in which a set of collaborating 
-> servers steadly establish connections among each other with a very high rate. 
-> This high rate requirement drove us to consider the inclusion of all 
-> alternative routes into the routing cache because the corresponding delay 
-> for each connection establishment is low and the load is balanced over all
-> available routes. That's why we did not consider a slow lookup in the fib 
-> for each connection established.
+> There are presently two ways around this, neither of them good enough
+> 1) assigning one of the other modifier keysyms to the CapsLock key 
+>    -- the LED will not work
 
-So essentially you want per-flow multipathing.  Except that you're implementation
-is over-optimizing it to the point where it's only per-flow for your specific
-case where the connections are short lived and high rate.
+True.
 
-This hurts long lasting connections.
+> But by adding two modifiers to almost every keyboard map, you would
+> increase the space occupied by the keymaps four times. ... erm ... eight
+> times, because there is also this "applkey" (application keypad) flag,
+> that will be needed as another modifier.
 
-So I'm pretty much against this change.  Do it right by making it occur
-per-connection attempt, it's not my problem to figure out how to do that
-efficiently, it's your's :-)
+But keymaps are allocated dynamically.
+Any number of new modifiers does not cost anything until
+one actually uses some particular modifier combination.
+
+New modifiers are not expensive at all.
+
+> - the proposed keyboard map file format is IMHO much much nicer
+
+Keymap files live in user space. The layout of a keymap file
+has no bearing on the kernel implementation of keymaps.
+
+We want a map (keystroke,current_modifiers) -> keycode.
+The present kernel code organizes things in maps, one for
+each modifier combination that people want to use.
+You want to organize things per keystroke.
+
+I see no great advantages. Many small arrays allocated
+by kmalloc() leads to more overhead - probably your version
+would lead to larger memory usage, but I have not checked.
+It looks like your code is larger.
+It also looks like your code is slower, with a loop instead of
+a table lookup.
+
+(Not that those things are very important, but I do not see
+significant advantages for your setup. Maybe you have numbers?)
+
+Of more interest are the added features.
+
+You come with a single big patch, but some parts are independent.
+
+For example, I see
+
++struct kbdiacruc {
++       unsigned char diacr, base;
++       unsigned int result;    /* UCS */
++};
+
+Ten years ago we made the mistake of being too careful with memory.
+Today it is a very bad idea to introduce new ioctls that act on
+8-bit quantities. These must all be int's.
+
+An ioctl somewhat in this style has been proposed several times,
+and I have no serious objections. If you want it, separate it out
+and make it a patch on its own.
+
+Andries

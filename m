@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266452AbUBFEAa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbUBFEAa
+	id S266435AbUBFDxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 22:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266440AbUBFDxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:00:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64221 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266452AbUBFEA1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:00:27 -0500
-Date: Thu, 5 Feb 2004 20:02:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dylan Griffiths <dylang+kernel@thock.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HFSPLus driver for Linux 2.6.
-Message-Id: <20040205200217.360c51ab.akpm@osdl.org>
-In-Reply-To: <40231076.7040307@thock.com>
-References: <402304F0.1070008@thock.com>
-	<20040205191527.4c7a488e.akpm@osdl.org>
-	<40231076.7040307@thock.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 22:53:33 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:10190 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S266435AbUBFDwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 22:52:55 -0500
+Date: Thu, 5 Feb 2004 22:52:52 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Nikolay Igotti <nike@lyola.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: memmove syscall
+In-Reply-To: <4020E64F.8020006@lyola.com>
+Message-ID: <Pine.LNX.4.44.0402052252130.5933-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dylan Griffiths <dylang+kernel@thock.com> wrote:
->
-> 	I don't remember where I grabbed this driver, I only know it's much 
->  more current than the one at 
->  http://sourceforge.net/projects/linux-hfsplus.
+On Wed, 4 Feb 2004, Nikolay Igotti wrote:
 
-Sorry, that's a showstopper.  We need to understand who the maintenance
-team is, and evaluate their preparedness to maintain this code long-term.
+>    Maybe this is kinda crazy (or known) idea, but why don't we create
+> syscall allowing large copies by just manipulating MMU page table, i.e.
 
-We don't want to be adding yet another rarely-used filesystem which has no
-visible maintenance team.
+>    return mmu_remap_pages(src,  dst, size / PAGE_SIZE);
+
+Did you look at mremap(2) ?
+
+Linux has had mremap for a very very long time...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

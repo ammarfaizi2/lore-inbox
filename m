@@ -1,736 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267954AbTB1O5Z>; Fri, 28 Feb 2003 09:57:25 -0500
+	id <S267934AbTB1Oyc>; Fri, 28 Feb 2003 09:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267955AbTB1O5Z>; Fri, 28 Feb 2003 09:57:25 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6404 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267954AbTB1O5L>;
-	Fri, 28 Feb 2003 09:57:11 -0500
-Date: Fri, 28 Feb 2003 16:06:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Driver model for APIC
-Message-ID: <20030228150651.GA18447@elf.ucw.cz>
+	id <S267941AbTB1Oyc>; Fri, 28 Feb 2003 09:54:32 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:4224 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267934AbTB1Oy1>;
+	Fri, 28 Feb 2003 09:54:27 -0500
+Date: Fri, 28 Feb 2003 16:04:47 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Memory modified after freeing in 2.5.63?
+Message-ID: <20030228150447.GA3862@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
+  for some time I'm using patch attached at the end of this email, 
+which modifies check_poison function to not only verify that
+last byte is POISON_END, but also that all preceeding bytes are
+either POISON_BEFORE or POISON_AFTER bytes. 
 
-Here's driver model support for APIC. Without this, machine dies
-during resume. Against 2.5.63-bk. Please apply,
+  And now when I returned from my month vacation and upgraded 
+from 2.5.52 to 2.5.63, when dselect/apt updates dozens of packages, 
+I'm getting memory corruption reports as shown below - 22nd byte 
+in vm_area_struct - which looks like that VM_ACCOUNT in vm_flags 
+is set after vma is freeed...  Any clue? Setting VM_ACCOUNT
+in mremap.c:move_vma after calling do_unmap() looks suspicious
+to me, but as I know almost nothing about MM...
 
-							Pavel
+  Kernel is SMP, 2.5.63, with all debugging except stack frame
+enabled, running on UP P4.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
---- clean/arch/i386/kernel/apic.c	2003-02-28 15:10:01.000000000 +0100
-+++ linux/arch/i386/kernel/apic.c	2003-02-28 15:33:45.000000000 +0100
-@@ -10,6 +10,8 @@
-  *					for testing these extensively.
-  *	Maciej W. Rozycki	:	Various updates and fixes.
-  *	Mikael Pettersson	:	Power Management for UP-APIC.
-+ *	Pavel Machek and
-+ *	Mikael Pettersson	:	Converted to driver model.
-  */
- 
- #include <linux/config.h>
-@@ -23,6 +25,10 @@
- #include <linux/interrupt.h>
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/device.h>
-+#include <linux/pm.h>
- 
- #include <asm/atomic.h>
- #include <asm/smp.h>
-@@ -77,7 +83,7 @@
- 	return maxlvt;
+(* = POISON_AFTER, . = POISON_BEFORE, number = other value)
+    
+Corruption! start=d134abb4, expend=d134abf3, problemat=d134abca
+Data: **********************7B ****************************************A5 
+Next: 71 F0 2C .A5 C2 0F 17 20 E2 32 DA 00 40 01 40 00 50 01 40 A4 9F 9A D9 25 00 00 00 73 00 10 00 
+slab error in check_poison_obj(): cache `vm_area_struct': object was modified after freeing
+Call Trace:
+ [<c014165c>] check_poison_obj+0xf7/0x130
+ [<c0143ba9>] cache_alloc_debugcheck_after+0xbd/0xc5
+ [<c0142ac7>] kmem_cache_alloc+0x6c/0xaa
+ [<c014cb50>] split_vma+0x56/0x123
+ [<c014ccdd>] do_munmap+0xc0/0x1cd
+ [<c014b832>] sys_brk+0x127/0x12b
+ [<c01096cf>] syscall_call+0x7/0xb
+
+Corruption! start=d134a734, expend=d134a773, problemat=d134a74a
+Data: **********************7B ****************************************A5 
+Next: 71 F0 2C .71 F0 2C .************************
+slab error in check_poison_obj(): cache `vm_area_struct': object was modified after freeing
+Call Trace:
+ [<c014165c>] check_poison_obj+0xf7/0x130
+ [<c0143ba9>] cache_alloc_debugcheck_after+0xbd/0xc5
+ [<c0142212>] kmem_flagcheck+0x1f/0x2b
+ [<c0142ac7>] kmem_cache_alloc+0x6c/0xaa
+ [<c014e27f>] move_vma+0x269/0x598
+ [<c012b0be>] update_wall_time+0xd/0x36
+ [<c014d3f8>] arch_get_unmapped_area+0x72/0xb7
+ [<c014e83b>] do_mremap+0x28d/0x3eb
+ [<c014ea0a>] sys_mremap+0x71/0x9a
+ [<c01096cf>] syscall_call+0x7/0xb
+
+Corruption! start=d13b76a4, expend=d13b76e3, problemat=d13b76ba
+Data: **********************7B ****************************************A5 
+Next: 71 F0 2C .A5 C2 0F 17 90 A8 F3 D9 00 20 20 40 00 20 21 40 94 01 B6 D9 25 00 00 00 75 00 00 00 
+slab error in check_poison_obj(): cache `vm_area_struct': object was modified after freeing
+Call Trace:
+ [<c014165c>] check_poison_obj+0xf7/0x130
+ [<c0143ba9>] cache_alloc_debugcheck_after+0xbd/0xc5
+ [<c0142ac7>] kmem_cache_alloc+0x6c/0xaa
+ [<c014cb50>] split_vma+0x56/0x123
+ [<c014ccdd>] do_munmap+0xc0/0x1cd
+ [<c014b832>] sys_brk+0x127/0x12b
+ [<c01096cf>] syscall_call+0x7/0xb
+
+Corruption! start=d134aecc, expend=d134af0b, problemat=d134aee2
+Data: **********************7B ****************************************A5 
+Next: 71 F0 2C .71 F0 2C .************************
+slab error in check_poison_obj(): cache `vm_area_struct': object was modified after freeing
+Call Trace:
+ [<c014165c>] check_poison_obj+0xf7/0x130
+ [<c0143ba9>] cache_alloc_debugcheck_after+0xbd/0xc5
+ [<c0142ac7>] kmem_cache_alloc+0x6c/0xaa
+ [<c014e27f>] move_vma+0x269/0x598
+ [<c012b0be>] update_wall_time+0xd/0x36
+ [<c014d3f8>] arch_get_unmapped_area+0x72/0xb7
+ [<c014e83b>] do_mremap+0x28d/0x3eb
+ [<c014ea0a>] sys_mremap+0x71/0x9a
+ [<c01096cf>] syscall_call+0x7/0xb
+
+diff -urdN linux/mm/slab.c linux/mm/slab.c
+--- linux/mm/slab.c	2003-02-24 20:20:02.000000000 +0000
++++ linux/mm/slab.c	2003-02-24 20:54:51.000000000 +0000
+@@ -768,6 +768,20 @@
+ 	*(unsigned char *)(addr+size-1) = POISON_END;
  }
  
--void clear_local_APIC(void)
-+void clear_lapic(void)
- {
- 	int maxlvt;
- 	unsigned long v;
-@@ -143,7 +149,7 @@
- 		/*
- 		 * Do not trust the local APIC being empty at bootup.
- 		 */
--		clear_local_APIC();
-+		clear_lapic();
- 		/*
- 		 * PIC mode, enable APIC mode in the IMCR, i.e.
- 		 * connect BSP's local APIC to INT and NMI lines.
-@@ -169,11 +175,11 @@
- 	}
- }
- 
--void disable_local_APIC(void)
-+void disable_lapic(void)
- {
- 	unsigned long value;
- 
--	clear_local_APIC();
-+	clear_lapic();
- 
- 	/*
- 	 * Disable APIC (implies clearing of registers
-@@ -189,7 +195,7 @@
-  * Check these against your board if the CPUs aren't getting
-  * started for no apparent reason.
-  */
--int __init verify_local_APIC(void)
-+int __init verify_lapic(void)
- {
- 	unsigned int reg0, reg1;
- 
-@@ -279,7 +285,7 @@
- 	/*
- 	 * Do not trust the local APIC being empty at bootup.
- 	 */
--	clear_local_APIC();
-+	clear_lapic();
- 
- 	/*
- 	 * Enable APIC.
-@@ -304,7 +310,28 @@
- 	apic_write_around(APIC_LVT1, value);
- }
- 
--void __init setup_local_APIC (void)
-+static struct {
-+	/* 'active' is true if the local APIC was enabled by us and
-+	   not the BIOS; this signifies that we are also responsible
-+	   for disabling it before entering apm/acpi suspend */
-+	int active;
-+	/* r/w apic fields */
-+	unsigned int apic_id;
-+	unsigned int apic_taskpri;
-+	unsigned int apic_ldr;
-+	unsigned int apic_dfr;
-+	unsigned int apic_spiv;
-+	unsigned int apic_lvtt;
-+	unsigned int apic_lvtpc;
-+	unsigned int apic_lvt0;
-+	unsigned int apic_lvt1;
-+	unsigned int apic_lvterr;
-+	unsigned int apic_tmict;
-+	unsigned int apic_tdcr;
-+	unsigned int apic_thmr;
-+} apic_pm_state;
-+
-+void __init setup_lapic (void)
- {
- 	unsigned long value, ver, maxlvt;
- 
-@@ -445,46 +472,24 @@
- 			printk("No ESR for 82489DX.\n");
- 	}
- 
--	if (nmi_watchdog == NMI_LOCAL_APIC)
--		setup_apic_nmi_watchdog();
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		enable_lapic_nmi_watchdog();
-+	}
-+
-+	apic_pm_state.active = 1;
- }
- 
- #ifdef CONFIG_PM
--
--#include <linux/slab.h>
--#include <linux/pm.h>
--
--static struct {
--	/* 'active' is true if the local APIC was enabled by us and
--	   not the BIOS; this signifies that we are also responsible
--	   for disabling it before entering apm/acpi suspend */
--	int active;
--	/* 'perfctr_pmdev' is here because the current (2.4.1) PM
--	   callback system doesn't handle hierarchical dependencies */
--	struct pm_dev *perfctr_pmdev;
--	/* r/w apic fields */
--	unsigned int apic_id;
--	unsigned int apic_taskpri;
--	unsigned int apic_ldr;
--	unsigned int apic_dfr;
--	unsigned int apic_spiv;
--	unsigned int apic_lvtt;
--	unsigned int apic_lvtpc;
--	unsigned int apic_lvt0;
--	unsigned int apic_lvt1;
--	unsigned int apic_lvterr;
--	unsigned int apic_tmict;
--	unsigned int apic_tdcr;
--	unsigned int apic_thmr;
--} apic_pm_state;
--
--static void apic_pm_suspend(void *data)
-+static int lapic_suspend(struct device *dev, u32 state, u32 level)
- {
- 	unsigned int l, h;
- 	unsigned long flags;
- 
--	if (apic_pm_state.perfctr_pmdev)
--		pm_send(apic_pm_state.perfctr_pmdev, PM_SUSPEND, data);
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+	if (!apic_pm_state.active)
-+		return 0;
-+
- 	apic_pm_state.apic_id = apic_read(APIC_ID);
- 	apic_pm_state.apic_taskpri = apic_read(APIC_TASKPRI);
- 	apic_pm_state.apic_ldr = apic_read(APIC_LDR);
-@@ -500,18 +505,26 @@
- 	apic_pm_state.apic_thmr = apic_read(APIC_LVTTHMR);
- 	
- 	local_irq_save(flags);
--	disable_local_APIC();
-+	disable_lapic();
- 	rdmsr(MSR_IA32_APICBASE, l, h);
- 	l &= ~MSR_IA32_APICBASE_ENABLE;
- 	wrmsr(MSR_IA32_APICBASE, l, h);
- 	local_irq_restore(flags);
-+	return 0;
- }
- 
--static void apic_pm_resume(void *data)
-+static int lapic_resume(struct device *dev, u32 level)
- {
- 	unsigned int l, h;
- 	unsigned long flags;
- 
-+	if (level != RESUME_POWER_ON)
-+		return 0;
-+	if (!apic_pm_state.active)
-+		return 0;
-+
-+	set_fixmap_nocache(FIX_APIC_BASE, APIC_DEFAULT_PHYS_BASE);	/* FIXME: this is needed for S3 resume, but why? */
-+
- 	local_irq_save(flags);
- 	rdmsr(MSR_IA32_APICBASE, l, h);
- 	l &= ~MSR_IA32_APICBASE_BASE;
-@@ -536,74 +549,35 @@
- 	apic_write(APIC_ESR, 0);
- 	apic_read(APIC_ESR);
- 	local_irq_restore(flags);
--	if (apic_pm_state.perfctr_pmdev)
--		pm_send(apic_pm_state.perfctr_pmdev, PM_RESUME, data);
--}
--
--static int apic_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
--{
--	switch (rqst) {
--	case PM_SUSPEND:
--		apic_pm_suspend(data);
--		break;
--	case PM_RESUME:
--		apic_pm_resume(data);
--		break;
--	}
- 	return 0;
- }
- 
--/* perfctr driver should call this instead of pm_register() */
--struct pm_dev *apic_pm_register(pm_dev_t type,
--				unsigned long id,
--				pm_callback callback)
--{
--	struct pm_dev *dev;
--
--	if (!apic_pm_state.active)
--		return pm_register(type, id, callback);
--	if (apic_pm_state.perfctr_pmdev)
--		return NULL;	/* we're busy */
--	dev = kmalloc(sizeof(struct pm_dev), GFP_KERNEL);
--	if (dev) {
--		memset(dev, 0, sizeof(*dev));
--		dev->type = type;
--		dev->id = id;
--		dev->callback = callback;
--		apic_pm_state.perfctr_pmdev = dev;
--	}
--	return dev;
--}
-+static struct device_driver lapic_driver = {
-+	.name		= "apic",
-+	.bus		= &system_bus_type,
-+	.resume		= lapic_resume,
-+	.suspend	= lapic_suspend,
-+};
-+
-+/* not static, needed by child devices */
-+struct sys_device device_lapic = {
-+	.name		= "apic",
-+	.id		= 0,
-+	.dev		= {
-+		.name	= "lapic",
-+		.driver	= &lapic_driver,
-+	},
-+};
- 
--/* perfctr driver should call this instead of pm_unregister() */
--void apic_pm_unregister(struct pm_dev *dev)
--{
--	if (!apic_pm_state.active) {
--		pm_unregister(dev);
--	} else if (dev == apic_pm_state.perfctr_pmdev) {
--		apic_pm_state.perfctr_pmdev = NULL;
--		kfree(dev);
--	}
--}
--
--static void __init apic_pm_init1(void)
--{
--	/* can't pm_register() at this early stage in the boot process
--	   (causes an immediate reboot), so just set the flag */
--	apic_pm_state.active = 1;
--}
--
--static void __init apic_pm_init2(void)
-+static int __init init_apic_devicefs(void)
- {
-+	driver_register(&lapic_driver);
- 	if (apic_pm_state.active)
--		pm_register(PM_SYS_DEV, 0, apic_pm_callback);
-+		return sys_device_register(&device_lapic);
-+	return 0;
- }
- 
--#else	/* CONFIG_PM */
--
--static inline void apic_pm_init1(void) { }
--static inline void apic_pm_init2(void) { }
--
-+device_initcall(init_apic_devicefs);
- #endif	/* CONFIG_PM */
- 
- /*
-@@ -669,9 +643,6 @@
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
- 	printk("Found and enabled local APIC!\n");
--
--	apic_pm_init1();
--
- 	return 0;
- 
- no_apic:
-@@ -682,7 +653,6 @@
- void __init init_apic_mappings(void)
- {
- 	unsigned long apic_phys;
--
- 	/*
- 	 * If no local APIC can be found then set up a fake all
- 	 * zeroes page to simulate the local APIC and another
-@@ -1149,15 +1119,13 @@
- 		return -1;
- 	}
- 
--	verify_local_APIC();
-+	verify_lapic();
- 
- 	connect_bsp_APIC();
- 
- 	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
- 
--	apic_pm_init2();
--
--	setup_local_APIC();
-+	setup_lapic();
- 
- 	if (nmi_watchdog == NMI_LOCAL_APIC)
- 		check_nmi_watchdog();
---- clean/arch/i386/kernel/apm.c	2003-02-28 15:10:01.000000000 +0100
-+++ linux/arch/i386/kernel/apm.c	2003-02-28 15:33:45.000000000 +0100
-@@ -1237,6 +1237,10 @@
- 		}
- 		printk(KERN_CRIT "apm: suspend was vetoed, but suspending anyway.\n");
- 	}
-+
++static void* fprob(unsigned char* addr, unsigned int size) {
++	unsigned char* end;
 +	
-+	device_suspend(3, SUSPEND_POWER_DOWN);
++	end = addr + size - 1;
 +
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
- 
-@@ -1257,6 +1261,7 @@
- 	if (err != APM_SUCCESS)
- 		apm_error("suspend", err);
- 	err = (err == APM_SUCCESS) ? 0 : -EIO;
-+	device_resume(RESUME_POWER_ON);
- 	pm_send_all(PM_RESUME, (void *)0);
- 	queue_event(APM_NORMAL_RESUME, NULL);
-  out:
-@@ -1370,6 +1375,7 @@
- 				write_seqlock_irq(&xtime_lock);
- 				set_time();
- 				write_sequnlock_irq(&xtime_lock);
-+				device_resume(RESUME_POWER_ON);
- 				pm_send_all(PM_RESUME, (void *)0);
- 				queue_event(event, NULL);
- 			}
---- clean/arch/i386/kernel/nmi.c	2003-02-28 15:10:04.000000000 +0100
-+++ linux/arch/i386/kernel/nmi.c	2003-02-28 15:33:45.000000000 +0100
-@@ -9,6 +9,8 @@
-  *  Mikael Pettersson	: AMD K7 support for local APIC NMI watchdog.
-  *  Mikael Pettersson	: Power Management for local APIC NMI watchdog.
-  *  Mikael Pettersson	: Pentium 4 support for local APIC NMI watchdog.
-+ *  Pavel Machek and
-+ *  Mikael Pettersson	: PM converted to driver model. disable/enable API.
-  */
- 
- #include <linux/config.h>
-@@ -20,6 +22,8 @@
- #include <linux/interrupt.h>
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
- 
- #include <asm/smp.h>
- #include <asm/mtrr.h>
-@@ -29,6 +33,7 @@
- static unsigned int nmi_hz = HZ;
- unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
- extern void show_registers(struct pt_regs *regs);
-+static int nmi_active;
- 
- #define K7_EVNTSEL_ENABLE	(1 << 22)
- #define K7_EVNTSEL_INT		(1 << 20)
-@@ -117,7 +122,7 @@
- 	 */
- 	if ((nmi == NMI_LOCAL_APIC) &&
- 			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
--			(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
-+	  		(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
- 		nmi_watchdog = nmi;
- 	if ((nmi == NMI_LOCAL_APIC) &&
- 			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
-@@ -134,14 +139,11 @@
- 
- __setup("nmi_watchdog=", setup_nmi_watchdog);
- 
--#ifdef CONFIG_PM
--
--#include <linux/pm.h>
--
--struct pm_dev *nmi_pmdev;
- 
--static void disable_apic_nmi_watchdog(void)
-+void disable_lapic_nmi_watchdog(void)
++	for (; addr < end; addr++) {
++		if (*addr != POISON_BEFORE && *addr != POISON_AFTER)
++			return addr;
++	}
++	if (*addr != POISON_END)
++		return addr;
++	return NULL;
++}
++
+ static void check_poison_obj(kmem_cache_t *cachep, void *addr)
  {
-+	if (!nmi_active)
-+		return;
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
- 		wrmsr(MSR_K7_EVNTSEL0, 0, 0);
-@@ -158,46 +160,60 @@
- 		}
- 		break;
+ 	int size = cachep->objsize;
+@@ -776,9 +790,32 @@
+ 		addr += BYTES_PER_WORD;
+ 		size -= 2*BYTES_PER_WORD;
  	}
-+	nmi_active = 0;
- }
- 
--static int nmi_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
-+#ifdef CONFIG_PM
-+
-+static int nmi_suspend(struct device *dev, u32 state, u32 level)
- {
--	switch (rqst) {
--	case PM_SUSPEND:
--		disable_apic_nmi_watchdog();
--		break;
--	case PM_RESUME:
--		setup_apic_nmi_watchdog();
--		break;
--	}
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+
-+	disable_lapic_nmi_watchdog();
- 	return 0;
- }
- 
--struct pm_dev * set_nmi_pm_callback(pm_callback callback)
-+static int nmi_resume(struct device *dev, u32 level)
- {
--	apic_pm_unregister(nmi_pmdev);
--	return apic_pm_register(PM_SYS_DEV, 0, callback);
--}
-+	if (level != RESUME_POWER_ON)
-+		return 0;
- 
--void unset_nmi_pm_callback(struct pm_dev * dev)
--{
--	apic_pm_unregister(dev);
--	nmi_pmdev = apic_pm_register(PM_SYS_DEV, 0, nmi_pm_callback);
--}
-- 
--static void nmi_pm_init(void)
--{
--	if (!nmi_pmdev)
--		nmi_pmdev = apic_pm_register(PM_SYS_DEV, 0, nmi_pm_callback);
-+	if (nmi_watchdog == NMI_LOCAL_APIC)
-+		enable_lapic_nmi_watchdog();
-+
-+	return 0;
- }
- 
--#define __pminit	/*empty*/
- 
--#else	/* CONFIG_PM */
-+static struct device_driver nmi_driver = {
-+	.name		= "lapic_nmi",
-+	.bus		= &system_bus_type,
-+	.resume		= nmi_resume,
-+	.suspend	= nmi_suspend,
-+};
-+
-+static struct sys_device device_nmi = {
-+	.name	= "lapic_nmi",
-+	.id	= 0,
-+	.dev	= {
-+		.name = "lapic_nmi",
-+		.driver = &nmi_driver,
-+		.parent = &device_lapic.dev,
-+	}
-+};
-+
-+extern struct sys_device device_apic;
- 
--static inline void nmi_pm_init(void) { }
-+static int __init init_nmi_devicefs(void)
-+{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		driver_register(&nmi_driver);
-+		return sys_device_register(&device_nmi);
-+	}
-+}
- 
--#define __pminit	__init
-+late_initcall(init_nmi_devicefs);
- 
- #endif	/* CONFIG_PM */
- 
-@@ -206,7 +222,7 @@
-  * Original code written by Keith Owens.
-  */
- 
--static void __pminit clear_msr_range(unsigned int base, unsigned int n)
-+static void clear_msr_range(unsigned int base, unsigned int n)
- {
- 	unsigned int i;
- 
-@@ -214,7 +230,7 @@
- 		wrmsr(base+i, 0, 0);
- }
- 
--static void __pminit setup_k7_watchdog(void)
-+static void setup_k7_watchdog(void)
- {
- 	unsigned int evntsel;
- 
-@@ -236,7 +252,7 @@
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
- }
- 
--static void __pminit setup_p6_watchdog(void)
-+static void setup_p6_watchdog(void)
- {
- 	unsigned int evntsel;
- 
-@@ -258,7 +274,7 @@
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
- }
- 
--static int __pminit setup_p4_watchdog(void)
-+static int setup_p4_watchdog(void)
- {
- 	unsigned int misc_enable, dummy;
- 
-@@ -288,7 +304,7 @@
- 	return 1;
- }
- 
--void __pminit setup_apic_nmi_watchdog (void)
-+void enable_lapic_nmi_watchdog (void)
- {
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
-@@ -312,7 +328,7 @@
- 	default:
- 		return;
- 	}
--	nmi_pm_init();
-+	nmi_active = 1;
- }
- 
- static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
-@@ -400,3 +416,7 @@
- 		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
- 	}
- }
-+
-+EXPORT_SYMBOL(nmi_watchdog);
-+EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
-+EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
---- clean/arch/i386/oprofile/nmi_int.c	2003-02-28 15:10:22.000000000 +0100
-+++ linux/arch/i386/oprofile/nmi_int.c	2003-02-26 21:19:10.000000000 +0100
-@@ -11,6 +11,7 @@
- #include <linux/notifier.h>
- #include <linux/smp.h>
- #include <linux/oprofile.h>
-+#include <linux/device.h>
- #include <asm/nmi.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-@@ -24,27 +25,6 @@
-  
- static int nmi_start(void);
- static void nmi_stop(void);
--
--static struct pm_dev * oprofile_pmdev;
-- 
--/* We're at risk of causing big trouble unless we
-- * make sure to not cause any NMI interrupts when
-- * suspended.
-- */
--static int oprofile_pm_callback(struct pm_dev * dev,
--		pm_request_t rqst, void * data)
--{
--	switch (rqst) {
--		case PM_SUSPEND:
--			nmi_stop();
--			break;
--		case PM_RESUME:
--			nmi_start();
--			break;
--	}
--	return 0;
--}
-- 
-  
- static int nmi_callback(struct pt_regs * regs, int cpu)
- {
-@@ -86,7 +66,41 @@
- 	saved_lvtpc[cpu] = apic_read(APIC_LVTPC);
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- }
-- 
-+
-+static int nmi_enabled = 0;	/* 0 == registered but off, 1 == registered and on */
-+
-+static int nmi_suspend(struct device *dev, u32 state, u32 level)
-+{
-+	if (level != SUSPEND_POWER_DOWN)
-+		return 0;
-+	if (nmi_enabled == 1)
-+		nmi_stop();
-+	return 0;
-+}
-+
-+static int nmi_resume(struct device *dev, u32 level)
-+{
-+	if (level != RESUME_POWER_ON)
-+		return 0;
-+	if (nmi_enabled == 1)
-+		nmi_start();
-+	return 0;
-+}
-+
-+
-+static struct device_driver nmi_driver = {
-+	.name		= "oprofile",
-+	.bus		= &system_bus_type,
-+	.resume		= nmi_resume,
-+	.suspend	= nmi_suspend,
-+};
-+
-+static struct device device_nmi = {
-+	.name	= "oprofile",
-+	.bus_id = "oprofile",
-+	.driver	= &nmi_driver,
-+	.parent = &device_lapic,
-+};
- 
- static int nmi_setup(void)
- {
-@@ -95,13 +109,27 @@
- 	 * without actually triggering any NMIs as this will
- 	 * break the core code horrifically.
- 	 */
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		disable_lapic_nmi_watchdog();
-+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
-+	}
- 	smp_call_function(nmi_cpu_setup, NULL, 0, 1);
- 	nmi_cpu_setup(0);
- 	set_nmi_callback(nmi_callback);
--	oprofile_pmdev = set_nmi_pm_callback(oprofile_pm_callback);
--	return 0;
-+	nmi_enabled = 1;
-+        return 0;
-+}
-+
-+static int __init init_nmi_driverfs(void)
-+{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-+		printk("Registering oprofile-nmi\n");
-+		driver_register(&nmi_driver);
-+		device_register(&device_nmi);
+-	end = memchr(addr, POISON_END, size);
+-	if (end != (addr+size-1))
++	end = fprob(addr, size);
++	if (end) {
++		int s;
++		printk(KERN_ERR "Corruption! start=%p, expend=%p, problemat=%p\n", addr, addr+size-1, end);
++		printk(KERN_ERR "Data: ");
++		for (s = 0; s < size; s++) {
++			if (((char*)addr)[s] == POISON_BEFORE)
++				printk(".");
++			else if (((char*)addr)[s] == POISON_AFTER)
++				printk("*");
++			else
++				printk("%02X ", ((unsigned char*)addr)[s]);
++		}
++		printk("\n");
++		printk(KERN_ERR "Next: ");
++		for (; s < size + 32; s++) {
++			if (((char*)addr)[s] == POISON_BEFORE)
++				printk(".");
++			else if (((char*)addr)[s] == POISON_AFTER)
++				printk("*");
++			else
++				printk("%02X ", ((unsigned char*)addr)[s]);
++		}
++		printk("\n");
+ 		slab_error(cachep, "object was modified after freeing");
 +	}
  }
+ #endif
  
-+late_initcall(init_nmi_driverfs);
- 
- static void nmi_restore_registers(struct op_msrs * msrs)
- {
-@@ -146,10 +174,14 @@
-  
- static void nmi_shutdown(void)
- {
--	unset_nmi_pm_callback(oprofile_pmdev);
-+	nmi_enabled = 0;
- 	unset_nmi_callback();
- 	smp_call_function(nmi_cpu_shutdown, NULL, 0, 1);
- 	nmi_cpu_shutdown(0);
-+	if (nmi_watchdog == NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE) {
-+		nmi_watchdog = NMI_LOCAL_APIC;
-+		enable_lapic_nmi_watchdog();
-+	}
- }
- 
-  
---- clean/include/asm-i386/apic.h	2003-02-28 15:18:24.000000000 +0100
-+++ linux/include/asm-i386/apic.h	2003-02-18 07:46:02.000000000 +0100
-@@ -78,7 +78,8 @@
- extern void smp_local_timer_interrupt (struct pt_regs * regs);
- extern void setup_boot_APIC_clock (void);
- extern void setup_secondary_APIC_clock (void);
--extern void setup_apic_nmi_watchdog (void);
-+extern void enable_lapic_nmi_watchdog (void);
-+extern void disable_lapic_nmi_watchdog (void);
- extern inline void nmi_watchdog_tick (struct pt_regs * regs);
- extern int APIC_init_uniprocessor (void);
- extern void disable_APIC_timer(void);
-@@ -95,6 +96,9 @@
- #define NMI_IO_APIC	1
- #define NMI_LOCAL_APIC	2
- #define NMI_INVALID	3
-+#define NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE	4
-+
-+extern struct sys_device device_lapic;
- 
- #endif /* CONFIG_X86_LOCAL_APIC */
- 
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

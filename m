@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275719AbRJAX6A>; Mon, 1 Oct 2001 19:58:00 -0400
+	id <S274872AbRJBAoK>; Mon, 1 Oct 2001 20:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275731AbRJAX5u>; Mon, 1 Oct 2001 19:57:50 -0400
-Received: from maile.telia.com ([194.22.190.16]:13051 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S275719AbRJAX5i>;
-	Mon, 1 Oct 2001 19:57:38 -0400
-Message-ID: <3BB9030D.C82F6D3A@canit.se>
-Date: Tue, 02 Oct 2001 01:58:05 +0200
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S275745AbRJBAnu>; Mon, 1 Oct 2001 20:43:50 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:5812 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S274872AbRJBAnk>;
+	Mon, 1 Oct 2001 20:43:40 -0400
+Date: Mon, 1 Oct 2001 20:41:20 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: <linux-kernel@vger.kernel.org>
+cc: <kuznet@ms2.inr.ac.ru>, Robert Olsson <Robert.Olsson@data.slu.se>,
+        Ingo Molnar <mingo@elte.hu>, <netdev@oss.sgi.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <Pine.GSO.4.30.0110012018430.27922-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: stephane@antefacto.com, linux-kernel@vger.kernel.org
-Subject: Re: USB Issues on 2.4
-In-Reply-To: <mailman.1001935801.16389.linux-kernel2news@redhat.com> <200110011705.f91H5lB31719@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
 
-> > First one (the intel) behaves fine, all modules loading up okay and all
-> > working smoothly.
-> >
-> > Second one (via from hell) locks up the keyboard as soon as the usb-uhci
-> > is loaded up. This behavior happened on both 2.4.9 and 2.4.10 final
-> > kernels.
+>The new mechanizm:
 >
+>- the irq handling code has been extended to support 'soft mitigation',
+>  ie. to mitigate the rate of hardware interrupts, without support from
+>  the actual hardware. There is a reasonable default, but the value can
+>  also be decreased/increased on a per-irq basis via
+> /proc/irq/NR/max_rate.
 
-I have a similar problem but I get it both on keyboard and mouse (usb). The
-funny thing is that if I do filesystem activity the keyboard and mouse works
-OK.
+I am sorry, but this is bogus. There is no _reasonable value_. Reasonable
+value is dependent on system load and has never been and never
+will be measured by interupt rates. Even in non-work conserving schemes
+There is already a feedback system that is built into 2.4 that
+measures system load by the rate at which the system processes the backlog
+queue. Look at netif_rx return values. The only driver that utilizes this
+is currently the tulip. Look at the tulip code.
+This in conjuction with h/ware flow control should give you sustainable
+system.
+[Granted that mitigation is a hardware specific solution; the scheme we
+presented at the kernel summit is the next level to this and will be
+non-dependednt on h/ware.]
 
-This must be some sort of IRQ problem.
+>(note that in case of shared interrupts, another 'innocent' device might
+>stay disabled for some short amount of time as well - but this is not an
+>issue because this mitigation does not make that device inoperable, it
+>just delays its interrupt by up to 10 msecs. Plus, modern systems have
+>properly distributed interrupts.)
 
-Don't know if it works in earlier version 2.4.10 is the first one in a long
-time I tried to get USB working on.
+This is a _really bad_ idea. not just because you are punishing other
+devices.
+Lets take network devices as examples: we dont want to disable interupts;
+we want to disable offending actions within the device. For example, it is
+ok to disable/mitigate receive interupts because they are overloading the
+system but not transmit completion because that will add to the overall
+latency.
 
+cheers,
+jamal
+
+
+PS: we have been testing what was presented at the kernel summit for the
+last few months with very promising results. Both on live and setups which
+are experimental where data is generated at very high rates with hardware
+traffic generators
 

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbUAPHp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 02:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbUAPHp7
+	id S265319AbUAPHs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 02:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUAPHs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 02:45:59 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:48596 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S265317AbUAPHps (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 02:45:48 -0500
-Date: Fri, 16 Jan 2004 07:44:45 +0000
+	Fri, 16 Jan 2004 02:48:29 -0500
+Received: from dmz01.zas.gwz-berlin.de ([195.37.93.3]:39696 "HELO
+	dmz01.zas.gwz-berlin.de") by vger.kernel.org with SMTP
+	id S265319AbUAPHsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 02:48:22 -0500
+Message-ID: <4007973F.3000902@zas.gwz-berlin.de>
+Date: Fri, 16 Jan 2004 08:48:15 +0100
+From: Axel Beier <axel@zas.gwz-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-DE; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: de-de, de-at, de, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.1 Bugs?
-Message-ID: <20040116074445.GA30209@titan.home.hindley.uklinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Mark Hindley <mark@hindley.uklinux.net>
-X-MailScanner-Titan: Found to be clean
+CC: John Bradford <john@grabjohn.com>
+Subject: Re: nfs version 2 access and kernel 2.6.x freeze
+References: <40068F6E.9060901@zas.gwz-berlin.de> <200401151313.i0FDDt1G000475@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200401151313.i0FDDt1G000475@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi John,
+no success. Tested with 2.6.1-mm3 and pre-emption off. System freezes 
+after 10-20 seconds during reading data from the nfs-server.
 
-I have just taken the plunge and built 2.6.1 for my desktop K6-200, 430TX.
+Axel
 
-With the preempt, it is certainly faster than 2.4 and the memory/swap
-usage is much less. Great!
-
-However, I have noticed a couple of problems:
-
-I have a 3com NIC. But the module usage count for 3c59x  stays at 0 even
-when eth0 is up. 
-
-Secondly, I cannot run lilo under 2.6.1. I get
-
-Device 0x0300: Invalid partition table, 2nd entry
-  3D address:     1/0/773 (779184)
-  Linear address: 1/0/6184 (6233472)
-
-Runs  fin under 2.4. There is a difference in the way the disk geometries
-are reported on boot.
-
-2.4 reports:
-
-Jan 15 08:00:17 titan kernel: hda: 6835952 sectors (3500 MB), CHS=847/128/63, UDMA(33)
-Jan 15 08:00:17 titan kernel: hdb: 40031712 sectors (20496 MB) w/512KiB Cache, CHS=2491/255/63, UDMA(33)
-
-and 2.6.1:
-
-Jan 15 08:19:56 titan kernel: hda: 6835952 sectors (3500 MB), CHS=6781/16/63, UDMA(33)
-Jan 15 08:19:56 titan kernel: hdb: 40031712 sectors (20496 MB) w/512KiB Cache, CHS=39714/16/63, UDMA(33)
-
-I have 
-
-# CONFIG_IDEDISK_STROKE is not set
-
-but according to the help, I shouldn't need it as the disk is less than
-32MB. 
-
-Award BIOS.
-
-Do let me know if you need any other info on this.
-
-Mark
+John Bradford schrieb:
+> Quote from Axel Beier <axel@zas.gwz-berlin.de>:
+> 
+>>after upgrading to kernel 2.6.0 on client-side i cannot copy data from 
+>>my (old) nfs server. The server is old (running SuSE 7.1 with a 2.4.19 
+>>kernel) and supports only nfs version 2.
+>>But with kernels 2.6.0 upto 2.6.1-mm2 after few seconds of copying a 
+>>remote-file to the client the client hangs completely.
+>>Kernel was compiled with gcc 3.3.1 and has preemptive enable.
+> 
+> 
+> Try disabling pre-emption.  It is known to make some hard to trigger
+> bugs happen much more frequently.  If this appears to fix it, please
+> let us know.
+> 
+> John.
+> 
+> 

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268199AbRHGPPT>; Tue, 7 Aug 2001 11:15:19 -0400
+	id <S268537AbRHGPQt>; Tue, 7 Aug 2001 11:16:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268342AbRHGPPJ>; Tue, 7 Aug 2001 11:15:09 -0400
-Received: from femail19.sdc1.sfba.home.com ([24.0.95.128]:59851 "EHLO
-	femail19.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S268199AbRHGPOy>; Tue, 7 Aug 2001 11:14:54 -0400
-Date: Tue, 7 Aug 2001 11:17:44 -0400 (EDT)
-From: Garett Spencley <gspen@home.com>
-X-X-Sender: <gspen@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
+	id <S268427AbRHGPQj>; Tue, 7 Aug 2001 11:16:39 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:45583 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S268342AbRHGPQZ>; Tue, 7 Aug 2001 11:16:25 -0400
+Date: Tue, 7 Aug 2001 11:16:35 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Encrypted Swap
-In-Reply-To: <15215.39409.12204.662831@localhost.efn.org>
-Message-ID: <Pine.LNX.4.33L2.0108071113350.16003-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010807111635.A4364@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> <E15U7gC-0002xe-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15U7gC-0002xe-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Aug 07, 2001 at 03:17:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Steve VanDevender wrote:
+++ 07/08/01 15:17 +0100 - Alan Cox:
+> > A relatively cheap way might be a custom pci
+> > card with a self-destruct RAM bank for
+> > storing the decryption keys.  Opening the 
+> > safe cause the card to zero the RAM.  
+> 
+> IBM sell crypto PCI cards with anti tamper environments, they have
+> development drivers on their oss site too
 
-> John Polyakov writes:
->  > Hmmm, if you have PHYSICAL access to the machine, you can simply reboot and type
->  > "linux init=/bin/sh" and after it simply cat /etc/shadow and run John The Ripper....
->  > Am i wrong?
->
-> You can password-protect LILO to prevent others from giving it their own
-> boot options.  Similarly you can password-protect single-user mode so
-> either a deliberate shutdown-and-reboot to single-user mode, or an
-> attempt to induce the machine to go into single-user mode, will prevent
-> others from getting at the single-user root shell.
+Ohh. Some college buddies and I were considering the difficulty involved from
+making a pci card with an onboard giger counter and radiatian source (say, from
+a smoke detector) wrapped up in some lead.
 
-Yeah but then you can boot up the machine with a root disk and mount
-whatever partition you want. If the machine doesn't have a floppy or
-cd-rom you can always install one temporarily. Or if it's just data you're
-after you can just steal the damn hard drive.
-
-As I said earlier, if you have physical access to the system you have
-root. The only way to prevent this is to lock the computer in a secure
-room (ie: make sure you can't get in from the cieling or whatever) and
-place a security guard at the door.
-
-However after hearing some arguments I am now all for the idea
-of encrypting swap for some set-ups. However, it should be optional
-since not everyone needs it.
+Sure, there are simpler ways to build chaotic circuits, but a radioactive
+peripheral is cool!
 
 -- 
-Garett Spencley
-
-I encourage you to encrypt e-mail sent to me using PGP
-My public key is available on PGP key servers (http://keyservers.net)
-Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
-
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

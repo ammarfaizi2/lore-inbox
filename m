@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271845AbTG2SLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 14:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272008AbTG2SLx
+	id S271939AbTG2SQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271964AbTG2SQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 14:11:53 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:46778 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S271845AbTG2SLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 14:11:49 -0400
-Message-Id: <5.1.0.14.2.20030729110847.15049408@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 29 Jul 2003 11:11:39 -0700
-To: Jani Monoses <jani@iv.ro>, linux-kernel@vger.kernel.org
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: timeout (110) with bluez usb uhci  2.4.21
-In-Reply-To: <20030729173151.048c2bb8.jani@iv.ro>
+	Tue, 29 Jul 2003 14:16:13 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:15859 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271939AbTG2SQH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 14:16:07 -0400
+Subject: Re: [REPOST] "apm: suspend: Unable to enter requested state" after
+	2.5.31 (incl. 2.6.0testX)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Charles Lepple <clepple@ghz.cc>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <32460.216.12.38.216.1059494755.squirrel@www.ghz.cc>
+References: <28705.216.12.38.216.1059490232.squirrel@www.ghz.cc>
+	 <1059491223.6094.6.camel@dhcp22.swansea.linux.org.uk>
+	 <32460.216.12.38.216.1059494755.squirrel@www.ghz.cc>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059502242.5987.24.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Jul 2003 19:10:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:31 AM 7/29/2003, Jani Monoses wrote:
->The same problem here as the one raported about a week ago by Florian
->Lohoff. I have two USB bluetooth dongles. One of them (ambicom
->bt2000) does not like being hotplugged in it gives that timeout message
->after saying it was an error in interrupt.The other (blue-gene bt320)
->can be connected/disconncted and it works fine.
->The same problem shows with 2.4.22-pre7
->If the usb-uhci module is reloaded while the dongle is in it finds it.
->The problem as shown by debug messages in uhci seems to be error in the
->interrupt handler for uhci. The status register is 2 which is io/error I
->think and it says the frame was corrupted.
->So I changed the handler to return when that's the status and only go on
->if status is 1 which I think is normal usb interrupt transfer not an
->error condition. This way probably the usb stack retries again and the
->dongle is found after a few seconds and can be plugged in and out.
->I have seen in other threads that somebody made usb_get_address retry on
->error to achieve the same effect...
->can some workaround by somebody who knows what's happening be put in the
->kernel because google shows that quite a few people are bitten by this
->110 error message with uhci/ohci and various usb devices not only BT.
+On Maw, 2003-07-29 at 17:05, Charles Lepple wrote:
+> > 0x00109300, 0x00409200 ?
+> 
+> Is this what you're referring to?
 
-Did you try the trick that I suggested to Florian ? i.e. changing HCI_MAX_BULK_TX from 4 to 1.
-It did help some people. Also you might want to try usb-uhci driver instead of uhci.
+Yes
 
-Max
+> -static struct desc_struct      bad_bios_desc = { 0, 0x00409200 };
+> +static struct desc_struct      bad_bios_desc = { 0x00109300, 0x00409200 };
+>  static char                    driver_version[] = "1.16ac";    /* no
+> spaces */
+> 
+> I tried this on top of 2.6.0-test2, and it didn't work. Where does the
+> first number in that initializer come from?
+
+I wasnt sure if the kernel code was initialising all the flag and control bits
+of the segment entry. That should have set the bits required anyway just in
+case if I got it right (Pentium pro dev manual vol III chapter 7)
+
+It might be 0x00009300, it might be set already, or it might be some other
+effect thats breaking your laptop of course
+
 

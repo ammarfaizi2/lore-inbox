@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbUKQAIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUKQAI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbUKQAIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUKQAIA
+	id S261913AbUKQAI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUKQAGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:08:00 -0500
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:28811 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261873AbUKQAEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 19:04:15 -0500
-Message-ID: <419A95AC.9030201@us.ibm.com>
-Date: Tue, 16 Nov 2004 18:05:00 -0600
-From: Santiago Leon <santil@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
+	Tue, 16 Nov 2004 19:06:40 -0500
+Received: from fire.osdl.org ([65.172.181.4]:42116 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262139AbUKPXtU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 18:49:20 -0500
+Message-ID: <419A8EFE.8060508@osdl.org>
+Date: Tue, 16 Nov 2004 15:36:30 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make ibmveth link always up
-Content-Type: multipart/mixed;
- boundary="------------060008060404050801090409"
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: akpm <akpm@osdl.org>, ak@suse.de, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [PATCH] PCI: fix build errors with CONFIG_PCI=n
+References: <419A8088.3010205@osdl.org> <20041116232600.GB2868@pclin040.win.tue.nl>
+In-Reply-To: <20041116232600.GB2868@pclin040.win.tue.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060008060404050801090409
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andries Brouwer wrote:
+> On Tue, Nov 16, 2004 at 02:34:48PM -0800, Randy.Dunlap wrote:
+> 
+>>Fix (most of) kernel build for CONFIG_PCI=n.  Fixes these 3 errors:
+>>
+>>1. drivers/parport/parport_pc.c:3162: error: `parport_init_mode'
+>>undeclared (first use in this function)
+> 
+> 
+> Life is easier if you do not use attachments.
+> (Then I can more easily comment the code.)
 
-Andrew,
+I understand.  If the decision were only so simple.
 
-The attached patch makes the ibmveth driver indicate that its link is 
-always up rather than always down, thus allowing the userspace side of 
-booting to configure the network interface correctly.
+> You write
+> 
+>   -static int __init parport_init_mode_setup(const char *str) {
+>   -
+>   +#ifdef CONFIG_PCI
+>   +static int __init parport_init_mode_setup(const char *str)
+> 
+> In my tree I have
+> 
+>   static int __init parport_init_mode_setup(char *str) {
+> 
+> in order to avoid the warning for
+> 
+>   __setup("parport_init_mode=",parport_init_mode_setup);
+> 
+> since the parameter is a int (*setup_func)(char *); - see
+> 
+>   struct obs_kernel_param {
+>         const char *str;
+>         int (*setup_func)(char *);
+>         int early;
+>   };
 
-Please apply,
+Yes, I'm familiar with that, but I made a patch against current
+top of tree.
 
-Signed-Off-By: Santiago Leon <santil@us.ibm.com>
+> Apart from this prototype change I only moved the single line
+> 
+>   static int __initdata parport_init_mode = 0;
+> 
+> outside the #ifdef's. Is that not good enough, and better
+> than introducing more #ifdef's? Keeps the source smaller.
+
+It can be good enough.  It keeps the source smaller, at
+the expense of adding some unneeded code (the
+parport_init_mode_setup() function e.g.).
 
 -- 
-Santiago A. Leon
-Power Linux Development
-IBM Linux Technology Center
-
---------------060008060404050801090409
-Content-Type: text/plain;
- name="ibmveth_link_up.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ibmveth_link_up.patch"
-
-===== drivers/net/ibmveth.c 1.18 vs edited =====
---- 1.18/drivers/net/ibmveth.c	Mon Sep 13 19:23:15 2004
-+++ edited/drivers/net/ibmveth.c	Tue Nov 16 18:24:42 2004
-@@ -598,7 +598,7 @@
- }
- 
- static u32 netdev_get_link(struct net_device *dev) {
--	return 0;
-+	return 1;
- }
- 
- static struct ethtool_ops netdev_ethtool_ops = {
-
---------------060008060404050801090409--
+~Randy

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSANNKR>; Mon, 14 Jan 2002 08:10:17 -0500
+	id <S289228AbSANNLi>; Mon, 14 Jan 2002 08:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289228AbSANNKH>; Mon, 14 Jan 2002 08:10:07 -0500
-Received: from mail007.syd.optusnet.com.au ([203.2.75.231]:46533 "EHLO
-	mail007.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S289226AbSANNJ5>; Mon, 14 Jan 2002 08:09:57 -0500
-Subject: Re: PROBLEM: System locks up after "spurious 8259A interrupt: IRQ7"
-From: Antony Suter <antonysuter@optusnet.com.au>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Q2TD-0005Gl-00@antoli.uib.es>
-In-Reply-To: <E16Q2TD-0005Gl-00@antoli.uib.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Jan 2002 00:08:03 +1100
-Message-Id: <1011013691.5219.17.camel@gestalt.localdomain>
-Mime-Version: 1.0
+	id <S289231AbSANNL2>; Mon, 14 Jan 2002 08:11:28 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:63389 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289228AbSANNLM>; Mon, 14 Jan 2002 08:11:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: 520047054719-0001@t-online.de (Oliver Neukum)
+Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
+To: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 14 Jan 2002 13:45:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <20020113223438.A19324@hq.fsmlabs.com> <87bsfx9led.fsf@fadata.bg>
+In-Reply-To: <87bsfx9led.fsf@fadata.bg>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16Q6V6-207eimC@fwd06.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 19:27, Ricardo Galli wrote:
-> > sporadically my machine hangs (no response to keyboard, can't connect
-> > via network, no interaction via remote-control) and the last thing I
-> > see (if I see anything at all) is something like
-> >
-> >
-> > --- snip ---
-> > [...]
-> > Jan 13 21:30:00 atlan CROND[2876]: (till) CMD (fetchmail&> /dev/null)
-> > Jan 13 21:30:09 atlan kernel: spurious 8259A interrupt: IRQ7.
-> 
-> I am having the same problem since several versions ago:
-> 
-> Jan 13 15:15:48 antoli kernel: spurious 8259A interrupt: IRQ7.
-> 
-> It always happens when X is started on the kernel tainted with the nvidia 
-> module. But never gave any problem at all.
-> 
-> I've never reported it due the tainted version. But it seems it's not 
-> directly related to nvidia driver nor the hardware.
-> 
-> I have an ASUS/Intel815 motherboard (BTW, the 8259A is the Intel programmable 
-> interrupt controller).
+On Monday 14 January 2002 13:17, Momchil Velikov wrote:
+> >>>>> "yodaiken" == yodaiken  <yodaiken@fsmlabs.com> writes:
+>
+> yodaiken> 	It's not even clear how preempt is supposed to interact with
+> SCHED_FIFO.
+>
+> How so ? The POSIX specification is not clear enough or it is not to be
+> followed ?
 
-Ive gotten the same message in my logs since Dec 30th. The very same day
-I switched to Mandrake 8.1, with NVIDIAs latest drivers (2313) on a ASUS
-Geforce 3 card. (Athlon 1.2GHz tbird, 512 MB RAM, ASUS A7V133 mobo with
-raid chip).
+You can have an rt task block on a lock held by a normal task that was 
+preempted by a rt task of lower priority. The same problem as with the 
+sched_idle patches.
 
-I dont get a lockup though.
-
-Ive had that message at the console a few times when X isnt running.
-Doesnt seem to occur when X is running though.
-
--- 
-- Antony Suter  (antonysuter@optusnet.com.au)  "Examiner" 
-openpgp:7916EE67
-- "Savahnah River. K Reactor. 1968. It was a very good year."
-
+	Regards
+		Oliver

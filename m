@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTL1OqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 09:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTL1OqM
+	id S261492AbTL1O7j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 09:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTL1O7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 09:46:12 -0500
-Received: from gprs214-173.eurotel.cz ([160.218.214.173]:23169 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261575AbTL1OqG (ORCPT
+	Sun, 28 Dec 2003 09:59:38 -0500
+Received: from smtp3.libero.it ([193.70.192.127]:6896 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S261492AbTL1O7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 09:46:06 -0500
-Date: Sun, 28 Dec 2003 15:47:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 swsusp
-Message-ID: <20031228144707.GA1489@elf.ucw.cz>
-References: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
+	Sun, 28 Dec 2003 09:59:38 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16366.61517.501828.389749@gargle.gargle.HOWL>
+Date: Sun, 28 Dec 2003 16:01:33 +0100
+To: linux-kernel@vger.kernel.org
+Subject: speedtouch for 2.6.0
+X-Mailer: VM 7.03 under Emacs 21.2.1
+From: "Guldo K" <guldo@tiscali.it>
+Reply-to: "Guldo K" <guldo@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello.
+I'm trying to get this usb adsl modem to work
+with the latest stable kernel.
+I searched for this on the ML archive, and realized
+that the kernel module should be used.
+But I can't understand one thing (at least...)
+which consequences does the new alcatel module
+driver have on getting this modem to work?
+Does it override kernel setup described on
+the speedbundle site, or not?
+How should the kernel be compiled?
 
-> On a machine with working ACPI, I compiled 2.6.0 with Software Suspend
-> (Experimental).
-> 
-> 1.  Help information says that the next boot can be done with
-> "resume=/dev/swappartition" or with "noresume".  It does not say how the
-> swsusp command decides which swap partition to save to.  The man page (which
-> still isn't sure if the command is named swsusp or suspend) also doesn't
-> say.  How can I guess which swap partition to designate at resume time?  For
-> the moment this is a hypothetical question because I haven't needed to make
-> a second swap partition on this machine yet.
+Many thanks,
 
-You have to have just one swap partition for now.
+*Guldo*
 
-> 2.  When I forgot to say either "resume" or "noresume", the kernel detected
-> that it could not use the swap partition, but it did not offer the
-> possibility to resume.  Surely it could detect early enough that the swap
-> partition is not usable for swap but is usable for resume, and could ask the
-> user whether to do a "resume" or "noresume".
-
-At *that* point, it is no longer possible to resume safely.
-
-> 3.  When swsusp completed its writing, it decided that my ACPI BIOS could
-> not power off automatically.  I wonder why.  No other OS has trouble
-> powering off this machine.  Also on machines with older APM BIOSes, no OS
-> had trouble powering off the machines, not even Linux with APM drivers.  So
-> I could hold the power switch for 4 seconds and the BIOS beeped a warning
-> before powering off, but I wonder why it was necessary.
-
-If regular halt is also unable to power off machine, fill the bug in
-ACPI bugzilla.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

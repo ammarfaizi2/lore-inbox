@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269489AbRHLWZB>; Sun, 12 Aug 2001 18:25:01 -0400
+	id <S269503AbRHLW3L>; Sun, 12 Aug 2001 18:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269490AbRHLWYv>; Sun, 12 Aug 2001 18:24:51 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:16652 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269489AbRHLWYt>; Sun, 12 Aug 2001 18:24:49 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sun, 12 Aug 2001 15:24:16 -0700
-Message-Id: <200108122224.f7CMOGO01895@penguin.transmeta.com>
-To: manuel@mclure.org, linux-kernel@vger.kernel.org
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20010812145953.A955@ulthar.internal.mclure.org>
-In-Reply-To: <20010812113142.G948@ulthar.internal.mclure.org> <E15W1eR-000691-00@the-village.bc.nu> <20010812133539.A17802@ulthar.internal.mclure.org>
+	id <S269491AbRHLW3C>; Sun, 12 Aug 2001 18:29:02 -0400
+Received: from sproxy.gmx.de ([194.221.183.20]:838 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S269490AbRHLW2m>;
+	Sun, 12 Aug 2001 18:28:42 -0400
+Message-ID: <3B7700F1.91A3ECB2@gmx.de>
+Date: Mon, 13 Aug 2001 00:19:29 +0200
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: John McCutchan <ttb@tentacle.dhs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SNES controllers
+In-Reply-To: <20010812144212.A4270@tentacle.dhs.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010812145953.A955@ulthar.internal.mclure.org> you write:
->
->I've answered that one on my own - I installed today's CVS emu10k1 and got
->another Oops:
+John McCutchan wrote:
+> 
+> Under Documentation/joysticj-parport.txt there is a description of
+> how to build an adapter for attaching SNES/NES control pads to
+> the parallel port. It says to use diodes. I am wondering what
+> kind of diodes should I use?
 
-The oops seems to be due to "wave_dev->woinst" being NULL.
+1N4148
 
-Can you try just adding the line
+> aswell is it safe to bridge pin's 4 - 9 together with diodes to get
+> more power?
 
-	if (!woinst)
-		return;
+Yes.
 
-to the top of the function (just before the "spin_lock_irqsave()"). Does
-that fix it for you?
-
-		Linus
+Ciao, ET.

@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262943AbUCRUro (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 15:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbUCRUro
+	id S261234AbUCRUtW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbUCRUtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 15:47:44 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:46502 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S262943AbUCRUrl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 15:47:41 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Peter Zaitsev <peter@mysql.com>
-To: Chris Mason <mason@suse.com>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079642001.11057.7.camel@watt.suse.com>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1079642801.2447.369.camel@abyss.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 18 Mar 2004 12:46:42 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 15:49:22 -0500
+Received: from [209.195.52.120] ([209.195.52.120]:29874 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261234AbUCRUtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:49:19 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Date: Thu, 18 Mar 2004 12:49:12 -0800 (PST)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: sched_setaffinity usability
+In-Reply-To: <20040318182407.GA1287@elte.hu>
+Message-ID: <Pine.LNX.4.58.0403181248440.4976@dlang.diginsite.com>
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu>
+ <20040318120709.A27841@infradead.org> <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org>
+ <20040318182407.GA1287@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 12:33, Chris Mason wrote:
+On Thu, 18 Mar 2004, Ingo Molnar wrote:
 
-> Some suse 8.2 kernels had write barriers for IDE, some did not.  If
-> you're running any kind of recent suse kernel, you're doing cache
-> flushes on fsync with ext3.
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> > sysconf() is a user-level implementation issue, and so is something
+> > like "number of CPU's". Damn, the simplest way to do it is as a
+> > environment variable, for christ sake! Just make a magic environment
+> > variable called __SC_ARRAY, and make it be some kind of binary
+> > encoding if you worry about performance.
+>
+> i am not arguing for any sysconf() support at all - it clearly belongs
+> into glibc. Just doing 'man sysconf' shows that it should be in
+> user-space. No argument about that.
+>
+> But how about the original issue Ulrich raised: how does user-space
+> figure out the NR_CPUS value supported by the kernel? (not the current #
+> of CPUs, that can be figured out using /proc/cpuinfo)
 
-I have this kernel:
+Doesn't /proc/config.gz answer this question?
 
-
-Linux abyss 2.4.20-4GB #1 Sat Feb 7 02:07:16 UTC 2004 i686 unknown
-unknown GNU/Linux
-
-I believe it is reasonably  recent one from Hubert's kernels.
-
-The thing is the performance is different if file grows or it does not.
-If it does - we have some 25 fsync/sec. IF we're writing to existing
-one, we have some 1600 fsync/sec 
-
-In the former case cache is surely not flushed. 
-
-> > I use 2.6.3 kernel for tests now (It is not the latest I know) 
-> > EXT3 file system.
-> > 
-> > 3WARE has writeback cache setting in both cases. 
-> 
-> Then it sounds like your 2.4 is doing flushes.  I'd expect this test to
-> run very quickly without them.
-
-2.4 does flush in one case but not in other. 2.6 does not do it in ether
-case.
-
-I was also surprised to see this simple test case has so different
-performance with default and "deadline" IO scheduler   -  1.6 vs 0.5 sec
-per 1000 fsync's.
-
-
-
+David Lang
 
 -- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
-  http://www.mysql.com/uc2004/
-
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

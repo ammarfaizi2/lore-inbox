@@ -1,90 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282747AbRLKThb>; Tue, 11 Dec 2001 14:37:31 -0500
+	id <S282757AbRLKTfv>; Tue, 11 Dec 2001 14:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282769AbRLKThV>; Tue, 11 Dec 2001 14:37:21 -0500
-Received: from laibach.mweb.co.za ([196.2.53.177]:11909 "EHLO
-	laibach.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S282747AbRLKThO>; Tue, 11 Dec 2001 14:37:14 -0500
-Subject: [Patch] Compilation errors on some usb files
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: LKM <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-3v9wZ2g2zhK4GbhaaFUH"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 11 Dec 2001 21:47:40 +0200
-Message-Id: <1008100062.3199.3.camel@localhost.localdomain>
+	id <S282747AbRLKTfm>; Tue, 11 Dec 2001 14:35:42 -0500
+Received: from zok.sgi.com ([204.94.215.101]:58764 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S282736AbRLKTfd>;
+	Tue, 11 Dec 2001 14:35:33 -0500
+Subject: Re: possible bug with RAID
+From: Steve Lord <lord@sgi.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0112111952430.1232-100000@mustard.heime.net>
+In-Reply-To: <Pine.LNX.4.30.0112111952430.1232-100000@mustard.heime.net>
+Content-Type: multipart/mixed; boundary="=-iElwcuzEeFbBVF9Hjh1t"
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 11 Dec 2001 13:34:03 -0600
+Message-Id: <1008099243.17996.13.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-3v9wZ2g2zhK4GbhaaFUH
+--=-iElwcuzEeFbBVF9Hjh1t
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This is the second of the two patches that fixes compilation
-errors on linux/drivers/usb/. Like I said on the previous mail,
-sorry if this has been fixed already.
+On Tue, 2001-12-11 at 12:54, Roy Sigurd Karlsbakk wrote:
+> > it would be interesting to write a simple benchmark
+> > that simply reads a file at a fixed rate.  *that* would
+> > actually simulate your app.
+> 
+> sure. I'm using tux+wget for that. I were just playing around with dd
+> 
+> > sounds like a VM/balance problem.  you didn't mention which kernel
+> > you're using.
+> 
+> 2.4.16 w/tux + xfs. The fs used on the raid vol is xfs
 
-This one fixes compilation error on hiddev.c
+We just got to the bottom of a problem in xfs which was causing memory
+not to get cleaned as efficiently as it should be - it lead to dbench
+lockups on low memory systems. It is possible you are seeing a similar
+effect - we dirty all the memory and then struggle to clean it up.
+
+Try the attached patch.
+
+Steve
 
 
 
-
---=-3v9wZ2g2zhK4GbhaaFUH
-Content-Disposition: attachment; filename=usb_hiddev.diff
+--=-iElwcuzEeFbBVF9Hjh1t
+Content-Disposition: attachment; filename=xfs.patch
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-diff; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 
---- linux/drivers/usb/hiddev.c	Tue Nov 13 09:23:58 2001
-+++ /home/bongani/dev/c/kernel/hiddev.c	Tue Dec 11 21:33:06 2001
-@@ -193,7 +193,6 @@
- 	struct hiddev_list *list =3D file->private_data;
- 	struct hiddev_list **listptr;
-=20
--	lock_kernel();
- 	listptr =3D &list->hiddev->list;
- 	hiddev_fasync(-1, file, 0);
-=20
-@@ -209,7 +208,6 @@
- 	}
-=20
- 	kfree(list);
--	unlock_kernel();
-=20
- 	return 0;
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Index: linux/fs/buffer.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+--- /usr/tmp/TmpDir.12499-0/linux/fs/buffer.c_1.96	Tue Dec 11 13:33:26 2001
++++ linux/fs/buffer.c	Tue Dec 11 13:31:17 2001
+@@ -224,6 +224,7 @@
+ 	unlock_buffer(bh);
+ 	put_bh(bh);
  }
-@@ -567,6 +565,7 @@
- 	fasync:		hiddev_fasync,
- };
++EXPORT_SYMBOL(end_buffer_io_sync);
 =20
-+#ifdef CONFIG_USB_HIDDEV
  /*
-  * This is where hid.c calls us to connect a hid device to the hiddev driv=
-er
+  * The buffers have been marked clean and locked.  Just submit the dang
+@@ -2538,7 +2539,7 @@
+ /*
+  * Can the buffer be thrown out?
   */
-@@ -630,6 +629,7 @@
- 		hiddev_cleanup(hiddev);
- 	}
- }
-+#endif
+-#define BUFFER_BUSY_BITS	((1<<BH_Dirty) | (1<<BH_Lock))
++#define BUFFER_BUSY_BITS	((1<<BH_Dirty) | (1<<BH_Lock) | (1<<BH_Delay))
+ #define buffer_busy(bh)		(atomic_read(&(bh)->b_count) | ((bh)->b_state & B=
+UFFER_BUSY_BITS))
 =20
- /* Currently this driver is a USB driver.  It's not a conventional one in
-  * the sense that it doesn't probe at the USB level.  Instead it waits to
-@@ -662,6 +662,7 @@
- 	minor:	HIDDEV_MINOR_BASE
- };
+ /*
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Index: linux/fs/pagebuf/page_buf_io.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+--- /usr/tmp/TmpDir.12499-0/linux/fs/pagebuf/page_buf_io.c_1.102	Tue Dec 11=
+ 13:33:26 2001
++++ linux/fs/pagebuf/page_buf_io.c	Tue Dec 11 10:22:58 2001
+@@ -1337,10 +1337,12 @@
+ 	head =3D bh;
+ 	do {
+ 		lock_buffer(bh);
+-		set_buffer_async_io(bh);
+-		set_bit(BH_Uptodate, &bh->b_state);
+-		clear_bit(BH_Dirty, &bh->b_state);
+ 		clear_bit(BH_Delay, &bh->b_state);
++		if (atomic_set_buffer_clean(bh)) {
++			get_bh(bh);
++			bh->b_end_io =3D end_buffer_io_sync;
++			refile_buffer(bh);
++		}
+ 		bh =3D bh->b_this_page;
+ 	} while (bh !=3D head);
 =20
-+#ifdef CONFIG_USB_HIDDEV
- int __init hiddev_init(void)
- {
- 	hiddev_devfs_handle =3D
-@@ -675,3 +676,5 @@
- 	devfs_unregister(hiddev_devfs_handle);
- 	usb_deregister(&hiddev_driver);
+@@ -1350,6 +1352,7 @@
+ 	} while (bh !=3D head);
+=20
+ 	SetPageUptodate(page);
++	UnlockPage(page);
+ 	page_cache_release(page);
  }
-+#endif
-+
+=20
 
---=-3v9wZ2g2zhK4GbhaaFUH--
-
+--=-iElwcuzEeFbBVF9Hjh1t--

@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269208AbUJMP3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269191AbUJMPcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269208AbUJMP3r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUJMP3r
+	id S269191AbUJMPcy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUJMPcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:29:47 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:33021 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S269102AbUJMP3d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:29:33 -0400
-Subject: Re: [patch 2/3] lsm: add bsdjail module
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041013012206.GA368@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com>
-	 <1097094270.6939.9.camel@serge.austin.ibm.com>
-	 <20041006162620.4c378320.akpm@osdl.org>
-	 <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <20041010104113.GC28456@infradead.org>
-	 <1097502444.31259.19.camel@localhost.localdomain>
-	 <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <416C5C26.9020403@redhat.com>
-	 <20041013005856.GA3364@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <416C8048.1000602@redhat.com>
-	 <20041013012206.GA368@IBM-BWN8ZTBWA01.austin.ibm.com>
+	Wed, 13 Oct 2004 11:32:54 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:37059 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269146AbUJMPb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 11:31:57 -0400
+Subject: Re: Using ilookup?
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: manningc2@actrix.gen.nz, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097657423.5178.42.camel@localhost.localdomain>
+References: <20041013013930.9BB6649E9@blood.actrix.co.nz>
+	 <1097657423.5178.42.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1097681181.32468.291.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1097680972.5879.14.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 13 Oct 2004 11:26:21 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 11:22:53 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-12 at 21:22, Serge E. Hallyn wrote:
-> Then they would have to check for an optional "selinux: " at the front
-> of each security_setprocattr entry read in the kernel, in order to handle
-> an lsm infrastructure change which might never be accepted into the kernel
-> anyway.  I suppose it's pretty trivial anyway, but then why would they
-> bother...
+On Wed, 2004-10-13 at 04:50, David Woodhouse wrote:
+> > 2') A further issue here is that ilookup is not available in some older 2.4.x 
+> > versions. Is it Ok to just patch the ilookup code in, say, 2.4.27 back into 
+> > earlier versions (say 2.4.18 which seems a popular vintage for embedded stuff 
+> > for some reason or other).
+> 
+> No. If these people want new file systems and new features in code code,
+> why on earth are they still using 2.4.18? They should be on 2.6, or at
+> _least_ current 2.4 kernels. I could sort of understand if they've had a
+> lot of testing in the two and a half years since 2.4.18 was released and
+> they don't want to change _anything_.... but that obviously isn't the
+> case if they're adding new stuff like this.
 
-The changes to libselinux and procps and any scripts that directly
-access /proc/pid/attr to deal with multi-entry values would be more
-important; changing the kernel to prepend "selinux: " on getprocattr and
-to strip it on setprocattr would indeed be trivial (but one wonders
-whether we can be confident that userspace will never try to pass one of
-these multi-entry values read from /proc/pid/attr to another interface
-that expects a single context, e.g. selinuxfs or
-setxattr("security.selinux")).
+2.4.18 is probably popular for embedded applications because that's
+about where development on the preempt/low latency patches for 2.4
+stopped.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Lee 
 

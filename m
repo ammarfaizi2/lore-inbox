@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278664AbRJSVeB>; Fri, 19 Oct 2001 17:34:01 -0400
+	id <S278665AbRJSVgW>; Fri, 19 Oct 2001 17:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278665AbRJSVdv>; Fri, 19 Oct 2001 17:33:51 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:13986 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S278664AbRJSVdf>;
-	Fri, 19 Oct 2001 17:33:35 -0400
-Date: Fri, 19 Oct 2001 23:35:35 +0200 (CEST)
-From: Richard Guenther <richard@tat.physik.uni-tuebingen.de>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-In-Reply-To: <Pine.GSO.4.21.0110191422570.24783-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.3.96.1011019233051.456A-100000@mickey.hamnixda.de>
+	id <S278666AbRJSVgM>; Fri, 19 Oct 2001 17:36:12 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:45555 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S278665AbRJSVgB>; Fri, 19 Oct 2001 17:36:01 -0400
+Message-ID: <3BD09D3F.C16E423E@nortelnetworks.com>
+Date: Fri, 19 Oct 2001 17:38:07 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jacques Gelinas <jack@solucorp.qc.ca>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Is writing to /dev/ramdom a security flaw (vserver project)
+In-Reply-To: <20011019172309.4219c22e9a53@remtk.solucorp.qc.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Oct 2001, Alexander Viro wrote:
-
-> On Fri, 19 Oct 2001, Richard Guenther wrote:
+Jacques Gelinas wrote:
 > 
-> > Hi Linus,
-> > 
-> > As Al pissed me off again with complaining about binfmt_misc, please
-> > apply the attached patch which corrects the 'not C code' line and
-> > fixes the problem Albert noticed. This doesnt fix various assumptions
-> > about the /proc code that were either valid at the time of writing
-> > binfmt_misc or badly/not documented.
+> I have announced a project (see my signature) to run several virtual servers
+> on a single box (single kernel as well). The vservers are real linux distribution
+> running in a chroot/chbind/chcontext and capability limited environment.
+> 
+> While looking at the kernel we found out that writing to /dev/random is
+> not controlled by any capability. We are providing a /dev/random in
+> the vservers with permission 644, so it can be used.
+> 
+> Is this a security issue if an administrator of a vserver is allowed to write
+> in /dev/random ?
 
-As binfmt_misc write access is root only, I didnt care to check
-too much as root can shoot himself anyway. Some places could use
-more checking, some even less.
+My understanding is that anything written to /dev/random is stirred into the
+pool without incrementing the entropy count.  Thus, it shouldn't be an issue.
 
-> Or, say it, one about meaning of
->         if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
-> not being the same as
->         if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
+Chris
 
-Err, who said that it is the same?? Its sufficient, if you trust
-root to just pass '0' or '1'. Ok, its probably too clever for the
-average C programmer, but it seems I didnt care.
-
-> Please, learn C.  Then learn some basic stuff about kernel programming.
-> Then feel free to start mouthing off.
-
-Well, try to get some basic communication style and you'll even
-get a long with guys like me.
-
-> As for the version in -ac and maintaining it - sure I will.
-
-Just get Linus to take the -ac version then. I'm sick to read
-your comments about binfmt_misc over and over again. You've
-made your point(s) - more than one time. Thats enough. Welcome
-to my killfile now.
-
-Richard.
-
---
-Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-PGP: 2E829319 - 2F 83 FC 93 E9 E4 19 E2 93 7A 32 42 45 37 23 57
-WWW: http://www.anatom.uni-tuebingen.de/~richi/
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbTFCKKR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 06:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbTFCKKR
+	id S264884AbTFCKI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 06:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264885AbTFCKI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 06:10:17 -0400
-Received: from mpsb-nat02.plala.or.jp ([202.212.114.145]:47067 "EHLO
-	mps2.plala.or.jp") by vger.kernel.org with ESMTP id S264887AbTFCKKP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 06:10:15 -0400
-Date: Tue, 03 Jun 2003 19:23:41 +0900
-From: <yokotak@rmail.plala.or.jp>
-X-Mailer: EdMax Ver2.85.2F
+	Tue, 3 Jun 2003 06:08:59 -0400
+Received: from imsantv20.netvigator.com ([210.87.250.76]:34998 "EHLO
+	imsantv20.netvigator.com") by vger.kernel.org with ESMTP
+	id S264884AbTFCKI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 06:08:58 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: Counter-kludge for 2.5.x hanging when writing to block device
+Date: Tue, 3 Jun 2003 18:21:47 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Jens Axboe <axboe@suse.de>
+References: <200306030848.h538mwE22282@freya.yggdrasil.com> <20030603091018.GI482@suse.de> <20030603030023.69d39d6e.akpm@digeo.com>
+In-Reply-To: <20030603030023.69d39d6e.akpm@digeo.com>
+X-OS: GNU/Linux 2.5.70
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
-Subject: multiple psx pads with gamecon
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030603102340.ZVFR3591.mps2.plala.or.jp@rmail.mail.plala.or.jp>
+Content-Disposition: inline
+Message-Id: <200306031821.47880.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tuesday 03 June 2003 18:00, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> > On Tue, Jun 03 2003, Adam J. Richter wrote:
+> > > 	For at least the past few months, the Linux 2.5 kernels have
+> > > hung when I try to write a large amount of data to a block device.
+>
+> Well ytf is this the first time I've heard about it?
+>
 
-I post carbon copy to linux-kernel and joystick guru on my own
-judgment. Please forgive me.
-> Hi, I was reading your thread on gamecon development and thought you might
-> be able to help me.  I have 2 psx pads hooked up to my printer port which
-> both work fine in windows but can only get one working in linux.
-(...)
-> modprobe gamecon gc=0,7,7
-> 
-> When I test the 2nd pad using  od -xw8 /dev/input/js1 I get:
-> /dev/input/js1: No such device
-> but I verified and js1 is there.
+Lots of people are using 2.5 in many configurations. This kind of
+would have shown long ago.
 
-Your procedure seems to be perfect. Your problem is not caused by your
-miss, but by gamecon.c specification.
+Suspect driver/hardware specific issue.
 
-There are several varieties in DPP-style pararrel connector. Each 1P
-are same, but 2P+ are differant. Your DPP is 1 or 2 perhaps. Gamecon.c
-seems to support 3 (SNESkey psx). I am sorry, I can not help you.
+More info on hardware is needed.
 
-1. DPP standard (1P-2P)
-  http://www.arcadecontrols.com/Mirrors/www.ziplabel.com/dpadpro/psx.html
-1-1. DPP standard + unmodified multitap (1P-4P)
-  http://web.archive.org/web/20011123185146/http://www.geocities.co.jp/SiliconValley/2650/ps_multi.html
-  http://www.geocities.co.jp/SiliconValley/2650/dpp_mlt.lzh
-
-2. DPP multitap (1P-5P, also called "mega-tap")
-  http://clear-blue.ath.cx/sasab/dpp/img/cab_multi.gif
-  
-3. SNESkey psx (1P-5P, gamecon.c psx)
-  http://www.arcadecontrols.com/Mirrors/www.csc.tntech.edu/~jbyork/default.htm
-  http://www.charmed.com/support/kernel/docs/joystick-parport.txt
-
-Thank you for your reading,
-  yokota
+Regards
+Michael
 

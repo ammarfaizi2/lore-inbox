@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266967AbSL3NdO>; Mon, 30 Dec 2002 08:33:14 -0500
+	id <S266969AbSL3NyU>; Mon, 30 Dec 2002 08:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbSL3NdN>; Mon, 30 Dec 2002 08:33:13 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:26308 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266967AbSL3NdN>;
-	Mon, 30 Dec 2002 08:33:13 -0500
-Date: Mon, 30 Dec 2002 13:40:09 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Henrik Storner <henrik@hswn.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops, panic: KT400 AGP and IO-APIC problems (Re: Linux v2.5.53)
-Message-ID: <20021230134009.GC16072@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Henrik Storner <henrik@hswn.dk>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com> <20021224105559.1876.qmail@osiris.hswn.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021224105559.1876.qmail@osiris.hswn.dk>
-User-Agent: Mutt/1.4i
+	id <S266970AbSL3NyU>; Mon, 30 Dec 2002 08:54:20 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:17878 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266969AbSL3NyT>; Mon, 30 Dec 2002 08:54:19 -0500
+Message-ID: <3E10611D.10108@hannes-reinecke.de>
+Date: Mon, 30 Dec 2002 16:07:09 +0100
+From: Hannes Reinecke <mail@hannes-reinecke.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Alpha port still maintained in 2.5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 24, 2002 at 10:55:59AM -0000, Henrik Storner wrote:
- > I have a Soltek SL75-FRV motherboard with a KT400 chipset.
- > AMD XP processor, 512 MB DDR RAM (Kingston). This is a new
- > system I got a few days ago, and it is giving me headaches:
- > 
- > 1) AGP is not working (kernel oops with 2.5.53)
- > the kernel oops'es when initialising the AGP driver. Copied by hand:
+Hi all,
 
-I now have the chipset specs, and a reference board. As soon
-as I get a CPU for it in the next week or so, I'll get this
-fixed up, until then, just say AGP=n for KT400's.
+appearently there are some secret channels by which one has to post his 
+messages for them to actually being _read_ by someone ...
 
-		Dave
+Sam wrote:
+ > I recall alpha patches from others as well, but do not recall 
+anything > about module support.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Well, there is this:
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0212.2/0971.html
+(Next time I'll cc' you directly :-)
+
+But to answer the original question: _Actively_ being maintained is a 
+bit of an euphemism, 'occasionally being patched' is probably more accurate.
+
+Richard Henderson and Ivan Kokshaysky are the main men behind the port.
+
+I try to give the port the occasional bug-fix.
+
+Cheers,
+
+Hannes
+

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVCHU3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVCHVUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVCHU3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVCHU2y
+	id S262349AbVCHVUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 16:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVCHVUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:28:54 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:34526 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262270AbVCHURA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 15:17:00 -0500
-Subject: Re: Linux 2.6.11.1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: gene.heskett@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110215898.3072.65.camel@localhost.localdomain>
-References: <20050304175302.GA29289@kroah.com>
-	 <20050305174654.J3282@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0503051316510.2304@ppc970.osdl.org>
-	 <200503051649.58709.gene.heskett@verizon.net>
-	 <1110060362.12513.48.camel@mindpipe>
-	 <1110215898.3072.65.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 15:16:59 -0500
-Message-Id: <1110313019.4600.8.camel@mindpipe>
+	Tue, 8 Mar 2005 16:20:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54999 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262349AbVCHVUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 16:20:40 -0500
+Date: Tue, 8 Mar 2005 21:20:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, paul@linuxaudiosystems.com,
+       mpm@selenic.com, joq@io.com, cfriesen@nortelnetworks.com,
+       Chris Wright <chrisw@osdl.org>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050308212027.GA17664@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, paul@linuxaudiosystems.com,
+	mpm@selenic.com, joq@io.com, cfriesen@nortelnetworks.com,
+	Chris Wright <chrisw@osdl.org>, arjanv@redhat.com,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308035503.GA31704@infradead.org> <20050307201646.512a2471.akpm@osdl.org> <20050308042242.GA15356@elte.hu> <20050307202821.150bd023.akpm@osdl.org> <20050308043250.GA32746@infradead.org> <1110308156.4401.4.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110308156.4401.4.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-07 at 17:18 +0000, Alan Cox wrote:
-> On Sad, 2005-03-05 at 22:06, Lee Revell wrote:
-> > Driver updates are a hard problem.  Nothing annoys users more than
-> > unsupported hardware.  But if you aggressively add support for new
-> > devices you can break things that have worked for ages.
-> 
-> You can however plan for them in advance. Guess why the -ac tree has an
-> ide
-> option to grab any otherwise unknown ide controller and stuff it in bios
-> tuned
-> DMA modes ?
-> 
-> Similarly you can generally apply "just PCI id" patches
+On Tue, Mar 08, 2005 at 01:55:55PM -0500, Lee Revell wrote:
+> And as I mentioned a few times, the authors have neither the inclination
+> nor the ability to do that, because they are not kernel hackers.  The
+> realtime LSM was written by users (not developers) of the kernel, to
+> solve a specific real world problem.  No one ever claimed it was the
+> correct solution from the kernel POV.
 
-Yup.  A much simpler example is my emu10k1 multichannel patches that are
-in ALSA CVS now.  The function of an (obscure) mixer control changes
-subtly, so the control is renamed to guarantee that the user gets the
-default setting.
-
-Lee
+And I told you that doesn't matter.  If someone wants a feature in they
+should find a way to make it palable.  We're not accepting such excuses
+to put in crap.
 

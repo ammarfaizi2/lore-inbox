@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbTDIFFR (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTDIFFR (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:05:17 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:11695 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262722AbTDIFFQ (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 01:05:16 -0400
-Date: Wed, 9 Apr 2003 01:16:53 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Variable PTE_FILE_MAX_BITS
-Message-ID: <20030409011653.A9103@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id S262733AbTDIF0P (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTDIF0P (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:26:15 -0400
+Received: from dp.samba.org ([66.70.73.150]:41412 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262733AbTDIF0O (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 01:26:14 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: SET_MODULE_OWNER? 
+In-reply-to: Your message of "Wed, 09 Apr 2003 01:06:05 -0400."
+             <3E93AA3D.4050104@pobox.com> 
+Date: Wed, 09 Apr 2003 15:27:12 +1000
+Message-Id: <20030409053753.E613E2C06A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+In message <3E93AA3D.4050104@pobox.com> you write:
+> 
+> looks ok to me
 
-would you be so kind to take this and forward to Linus?
-I think this segment of the code is your brainchild.
+After months of intense negotiation, we have... a comment. 8)
 
-On sparc, the PTE_FILE_MAX_BITS is variable (Worse, actually...
-we change all occurences in kernel text segment to correct value
-at boot time.) This should not harm other arches, because
-gcc is capable to optimize constant conditions.
+Thanks Jeff.
 
--- Pete
+Linus, please apply.
+Rusty.
 
---- linux-2.5.66-bk11/mm/fremap.c	2003-04-05 13:26:24.000000000 -0800
-+++ linux-2.5.66-bk11-sparc/mm/fremap.c	2003-04-05 13:28:22.000000000 -0800
-@@ -136,10 +136,10 @@
- 		return err;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.67-bk1/include/linux/module.h working-2.5.67-bk1-set-owner/include/linux/module.h
+--- linux-2.5.67-bk1/include/linux/module.h	2003-04-08 11:15:01.000000000 +1000
++++ working-2.5.67-bk1-set-owner/include/linux/module.h	2003-04-09 15:15:47.000000000 +1000
+@@ -408,6 +408,12 @@ __attribute__((section(".gnu.linkonce.th
+ #endif /* MODULE */
  
- 	/* Can we represent this offset inside this architecture's pte's? */
--#if PTE_FILE_MAX_BITS < BITS_PER_LONG
--	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
--		return err;
--#endif
-+	/* This needs to be evaluated at runtime on some platforms */
-+	if (PTE_FILE_MAX_BITS < BITS_PER_LONG)
-+		if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
-+			return err;
+ #define symbol_request(x) try_then_request_module(symbol_get(x), "symbol:" #x)
++
++/* If you want backwards compat: some structs didn't have owner fields once */
++/* Think of SET_MODULE_OWNER like an IBM mainframe: leave it in a dark 
++   corner for years, don't break it, but don't ever upgrade it either :) 
++   If there is something newer and sexier than the mainframe, it's ok to 
++   use that instead.  The mainframe won't feel lonely. -- Jeff Garzik */
+ #define SET_MODULE_OWNER(dev) ((dev)->owner = THIS_MODULE)
  
- 	down_read(&mm->mmap_sem);
- 
+ /* BELOW HERE ALL THESE ARE OBSOLETE AND WILL VANISH */
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

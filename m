@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292347AbSBYWVZ>; Mon, 25 Feb 2002 17:21:25 -0500
+	id <S292348AbSBYWUZ>; Mon, 25 Feb 2002 17:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292352AbSBYWVH>; Mon, 25 Feb 2002 17:21:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:26017 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292354AbSBYWVD>;
-	Mon, 25 Feb 2002 17:21:03 -0500
-Date: Mon, 25 Feb 2002 14:18:24 -0800 (PST)
-Message-Id: <20020225.141824.93396822.davem@redhat.com>
-To: davej@suse.de
-Cc: benc@hawaga.org.uk, linux-kernel@vger.kernel.org, acme@conectiva.com.br
-Subject: Re: Linux 2.5.5-dj1 - IPv6 not loading correctly.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020225223203.C27081@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0202241300100.11220-100000@barbarella.hawaga.org.uk>
-	<Pine.LNX.4.33.0202242203080.21716-100000@barbarella.hawaga.org.uk>
-	<20020225223203.C27081@suse.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S292347AbSBYWUP>; Mon, 25 Feb 2002 17:20:15 -0500
+Received: from sleet.ispgateway.de ([62.67.200.125]:2781 "HELO
+	sleet.ispgateway.de") by vger.kernel.org with SMTP
+	id <S292350AbSBYWUF>; Mon, 25 Feb 2002 17:20:05 -0500
+Message-ID: <3C7AB893.4090800@ellinger.de>
+Date: Mon, 25 Feb 2002 23:20:03 +0100
+From: Rainer Ellinger <rainer@ellinger.de>
+Organization: Rainers Rechenzentrum
+User-Agent: Mozilla/5.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: marcelo@conectiva.com.br, DevilKin-LKML@blindguardian.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18
+In-Reply-To: <20020225200618.0FAE82069E@eos.telenet-ops.be>	<Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva> <20020225.140851.31656207.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dave Jones <davej@suse.de>
-   Date: Mon, 25 Feb 2002 22:32:03 +0100
-   
-    I'll let davem/acme comment on the correctness of the fix..
-    Looks straightforward enough to me, but I'm not as kneedeep in
-    networking internals as those two 8-)
+David S. Miller wrote:
 
-I've poked acme about it.
+> We can avoid this kind of mess in the future if the "-rc*" releases
+> really are "release candidates" instead of "just another diff".
+
+And how should EXTRAVERSION be accommodated?
+
+-- 
+rainer@ellinger.de
+

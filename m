@@ -1,83 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268138AbUIJFab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268200AbUIJFlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268138AbUIJFab (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 01:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIJFab
+	id S268200AbUIJFlg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 01:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUIJFlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 01:30:31 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.51]:2003 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268138AbUIJF17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 01:27:59 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-Date: Fri, 10 Sep 2004 13:28:57 +0800
-User-Agent: KMail/1.5.4
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-References: <1094783022.2667.106.camel@gaston>
-In-Reply-To: <1094783022.2667.106.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 01:41:35 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:39407 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268238AbUIJFel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 01:34:41 -0400
+Date: Thu, 9 Sep 2004 22:34:24 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: akpm@osdl.org, hugh@veritas.com, ak@muc.de, wli@holomorphy.com,
+       takata.hirokazu@renesas.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] atomic_inc_return() for i386[1/5] (Re: atomic_inc_return)
+Message-ID: <20040910053424.GA3668@taniwha.stupidest.org>
+References: <Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain> <200409100326.i8A3QsYV007096@mailsv.bs1.fc.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409101328.57431.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <200409100326.i8A3QsYV007096@mailsv.bs1.fc.nec.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 September 2004 10:23, Benjamin Herrenschmidt wrote:
-> Recent changes upstream are breaking fbdev on pmacs.
->
-> I haven't had time to go deep into that (but I suspect Linus sees it
-> too on his own g5 unless he removed offb from his .config).
->
-> From what I see, it seems that offb is kicking in by default, reserves
-> the mmio regions, and then whatever chip driver loads can't access them.
->
-> offb is supposed to be a "fallback" driver in case no fbdev is taking
-> over, it should also be "forced" in with video=ofonly kernel command
-> line. This logic has been broken.
->
+On Fri, Sep 10, 2004 at 12:26:54PM +0900, Kaigai Kohei wrote:
 
-Hi Ben,
+> +static __inline__ int atomic_add_return(int i, atomic_t *v)
+> +{
+> +	int __i;
+> +#ifdef CONFIG_M386
+> +	if(unlikely(boot_cpu_data.x86==3))
+> +		goto no_xadd;
+> +#endif
 
-Actually, I was thinking about this problem with offb.  I was planning on
-adding video=offb:off support for offb, and then place offb at the very top
-drivers Makefile (the reason why I placed it there, but forgot to add the
-setup support for offb).  So, without the 'off' option, offb becomes the
-first driver that gets initialized by reason that it's at the top, and with
-the 'off' option, it just exits initialization immediately, giving the other
-drivers a chance to get through.
-
-This first method is easy to add.
-
-The second method is not harder but will involve, again, changes to all 
-drivers.  The only sane method I can think of is to change fb_get_options so
-it returns an error if:
-
-a. "off" option is enabled
-b. "ofonly" is enabled but only if name != "offb"
-
-If fb_get_options returns an error, drivers will not proceed with their
-initialization. The second method is more compatible with the
-previous setup semantics.
-
-I told Geert that if the changes did bite us, then I have no choice
-but to add support for the second method.
-
-So, if you think that the first method is not enough, then I will add the
-second method. Let me know.
-
-Tony
-
-
+i didn't check what code is generated, but isn't that expensive?  i
+guess most people building i386 kernels want maximum compatability so
+it probably doesn't matter...

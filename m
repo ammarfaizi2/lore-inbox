@@ -1,232 +1,570 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272246AbTHBItu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 04:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272404AbTHBItu
+	id S272334AbTHBIwq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 04:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTHBIwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 04:49:50 -0400
-Received: from ns1.greycloaklabs.ca ([216.232.118.71]:1805 "EHLO
-	gateway.greycloaklabs.ca") by vger.kernel.org with ESMTP
-	id S272557AbTHBIto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 04:49:44 -0400
-Date: Sat, 2 Aug 2003 01:53:24 -0700 (PDT)
-From: Matthew Peters <matthew@greycloaklabs.ca>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kswapd and toshiba libretto 50ct
-In-Reply-To: <20030802063755.GA679@alpha.home.local>
-Message-ID: <Pine.LNX.4.44.0308020140130.1115-100000@gateway.greycloaklabs.ca>
+	Sat, 2 Aug 2003 04:52:45 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:37902 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S272334AbTHBIwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 04:52:11 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] input hotplug support
+Date: Sat, 2 Aug 2003 12:53:02 +0400
+User-Agent: KMail/1.5
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200308020139.37446.arvidjaar@mail.ru> <20030801235748.GC321@kroah.com>
+In-Reply-To: <20030801235748.GC321@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uv3K/YqV1MVekc/"
+Message-Id: <200308021253.03005.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it's not possible to change the laptop back to 75mhz... the process to
-overclock it was to clip one of it's pins on the clock chip itself...
 
-I have done many things on the laptop. I often compile things for GBA and
-MSP430, i would've found any problem in those quite quickly. I have also
-used povray on the CPU, also something that would show any problems with
-the processor.
+--Boundary-00=_uv3K/YqV1MVekc/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-As for the database corruption; When talking with my brother, who's much
-more knowledgable in linux, he pointed to a bug in the 2.2 kernels that
-would corrupt or loose files when the system crashed.
+On Saturday 02 August 2003 03:57, Greg KH wrote:
+> On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
+> > this adds input agent and coldplug rc script. It relies on patch for
+> > module-init-tools that gnerates input handlers map table being posted to
+> > lkml as well.
+> >
+> > input agent loads input handler in respond to input subsystem request. It
+> > is currently purely table-driven, no attempt to provide for any static
+> > list or like was done, it needs some operational experience.
+> >
+> > static coldplug rc script is intended to load input handlers for any
+> > built-in input drivers, like e.g. psmouse (if you built it in). Currently
+> > it does it by parsing /proc/bus/input/devices, I'd like to use sysfs but
+> > apparently support for it in input susbsystem is incomplete at best.
+> >
+> > It also modifies usb.agent to not consult usb.handmap on 2.6, as it is
+> > not needed anymore.
+> >
+> > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
+>
+> Can you send it not compressed so we have a chance to read it?
+>
 
-I highly doubt the cpu would be at fault with this... there are no other
-glitches past the problems with the database.
 
-Now, one other problem that i have been having, and i thought it best to
-go to a 2.4 kernel to try and fix it, is a second-long delay before
-sending serial data... this has been seen with all programs i've tested on
-the hardware, and is never around on other hardware.
+sorry.
 
-thanks
-    Matthew
+plain text attached.
 
+-andrey
+--Boundary-00=_uv3K/YqV1MVekc/
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="hotplug-2003_05_01-input.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="hotplug-2003_05_01-input.patch"
 
-On Sat, 2 Aug 2003, Willy Tarreau wrote:
+--- hotplug-2003_05_01/etc/hotplug/input.agent.input	2003-08-01 00:02:37.000000000 +0400
++++ hotplug-2003_05_01/etc/hotplug/input.agent	2003-08-01 15:01:46.000000000 +0400
+@@ -0,0 +1,316 @@
++#!/bin/bash
++#
++# input-specific hotplug policy agent.
++#
++# This should handle 2.6.* input hotplugging,
++# with a consistent framework for adding device and driver
++# specific handling.
++#
++# Normally, adding a input device will modprobe handler(s) for
++# this device.
++#
++# Kernel input hotplug params include (not all of them may be available):
++#	
++#	ACTION=%s [add or remove]
++#	PRODUCT=%x/%x/%x/%x
++#	NAME=%s
++#	PHYS=%s
++#	EV=%lx
++#	KEY=%lx %lx ...
++#	REL=%lx
++#	ABS=%lx %lx ...
++#	MSC=%lx
++#	LED=%lx
++#	SND=%lx
++#	FF=%lx %lx ...
++#
++# HISTORY:
++#
++# 30-Jul-2003	initial version
++#
++
++cd /etc/hotplug
++. hotplug.functions
++# DEBUG=yes export DEBUG
++
++# generated by module-init-tools
++MAP_CURRENT=$MODULE_DIR/modules.inputmap
++
++# accumulates list of modules we may care about
++DRIVERS=""
++
++if [ "$ACTION" = "" ]; then
++    mesg Bad INPUT agent invocation, no action
++    exit 1
++fi
++
++# we can't "unset IFS" on bash1, so save a copy
++DEFAULT_IFS="$IFS"
++
++#
++# Each modules.inputmap format line corresponds to one entry in a
++# MODULE_DEVICE_TABLE(input,...) declaration in a kernel file.
++#
++declare -i matchBits=0
++declare -i i_bustype=0 i_vendor=0 i_product=0 i_version=0
++declare -i i_evBits=0
++declare i_keyBits i_relBits i_absBits i_mscBits i_ledBits i_sndBits i_ffBits
++
++input_join_words ()
++{
++    declare name=$1 array=$2 tmp
++    if [ "$array" = '' ]; then
++	return
++    fi
++
++    set $array
++
++    tmp=$1
++    shift
++    while [ "$#" -gt 0 ]; do
++	tmp="$tmp:$1"
++	shift
++    done
++
++    eval "$name=\"$tmp\""
++}
++
++input_convert_vars ()
++{
++    if [ "$PRODUCT" != "" ]; then
++	IFS=/
++	set $PRODUCT ''
++	IFS="$DEFAULT_IFS"
++	i_bustype=0x$1
++	i_vendor=0x$2
++	i_product=0x$3
++	i_version=0x$4
++    fi
++
++    if [ "$EV" != "" ]; then
++	i_evBits=0x$EV
++    fi
++
++    input_join_words i_keyBits "$KEY"
++    input_join_words i_relBits "$REL"
++    input_join_words i_absBits "$ABS"
++    input_join_words i_mscBits "$MSC"
++    input_join_words i_ledBits "$LED"
++    input_join_words i_sndBits "$SND"
++    input_join_words i_ffBits  "$FF"
++}
++
++declare -i INPUT_DEVICE_ID_MATCH_BUS=1
++declare -i INPUT_DEVICE_ID_MATCH_VENDOR=2
++declare -i INPUT_DEVICE_ID_MATCH_PRODUCT=4
++declare -i INPUT_DEVICE_ID_MATCH_VERSION=8
++declare -i INPUT_DEVICE_ID_MATCH_EVBIT=0x010
++declare -i INPUT_DEVICE_ID_MATCH_KEYBIT=0x020
++declare -i INPUT_DEVICE_ID_MATCH_RELBIT=0x040
++declare -i INPUT_DEVICE_ID_MATCH_ABSBIT=0x080
++declare -i INPUT_DEVICE_ID_MATCH_MSCBIT=0x100
++declare -i INPUT_DEVICE_ID_MATCH_LEDBIT=0x200
++declare -i INPUT_DEVICE_ID_MATCH_SNDBIT=0x400
++declare -i INPUT_DEVICE_ID_MATCH_FFBIT=0x800
++
++
++input_match_bits ()
++{
++    declare mod_bits=$1 dev_bits=$2
++    declare -i mword dword
++
++    mword=0x${mod_bits##*:}
++    dword=0x${dev_bits##*:}
++
++    while true; do
++	if [ $(( $mword & $dword != $mword )) -eq 1 ]; then
++	    return 1
++	fi
++
++	mod_bits=${mod_bits%:*}
++	dev_bits=${dev_bits%:*}
++
++	case "$mod_bits-$dev_bits" in
++	    *:*-*:* )
++		: continue
++	    ;;
++	    *:*-*|*-*:* )
++		return 0
++	    ;;
++	    * )
++		return 1
++	    ;;
++	esac
++    done
++}
++
++#
++# stdin is "modules.inputmap" syntax
++# on return, all matching modules were added to $DRIVERS
++#
++input_map_modules ()
++{
++    local line module
++    declare -i matchBits
++    declare -i bustype vendor product version
++    declare -i evBits driverInfo 
++    declare relBits mscBits ledBits sndBitskeyBits absBits ffBits
++
++    while read line
++    do
++        # comments are lines that start with "#" ...
++	# be careful, they still get parsed by bash!
++	case "$line" in
++	\#*) continue ;;
++	esac
++
++	set $line
++
++	module="$1"
++	matchBits="$2"
++
++	bustype="$3"
++	vendor="$4"
++	product="$5"
++	product="$6"
++
++	evBits="$7"
++	keyBits="$8"
++	relBits="$9"
++
++	shift 9
++	absBits="$1"
++	cbsBits="$2"
++	ledBits="$3"
++	sndBits="$4"
++	ffBits="$5"
++	driverInfo="$6"
++
++	: checkmatch $module
++
++	: bustype $bustype $i_bustype
++        if [ $INPUT_DEVICE_ID_MATCH_BUS -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_BUS )) ] && 
++	   [ $bustype -ne $i_bustype ]; then
++	    continue
++	fi
++
++	: vendor $vendor $i_vendor
++        if [ $INPUT_DEVICE_ID_MATCH_VENDOR -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_VENDOR )) ] && 
++	   [ $vendor -ne $i_vendor ]; then
++	    continue
++	fi
++
++	: product $product $i_product
++        if [ $INPUT_DEVICE_ID_MATCH_PRODUCT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_PRODUCT )) ] && 
++	   [ $product -ne $i_product ]; then
++	    continue
++	fi
++
++	# version i_version $i_version < version $version
++        if [ $INPUT_DEVICE_ID_MATCH_VERSION -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_VERSION )) ] && 
++	   [ $version -ge $i_version ]; then
++	    continue
++	fi
++
++	: evBits $evBits $i_evBits
++        if [ $INPUT_DEVICE_ID_MATCH_EVBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_EVBIT )) ] && 
++	   [ $evBits -ne $(( $evBits & $i_evBits)) ]; then
++	    continue
++	fi
++	: keyBits $keyBits $i_keyBits
++        if [ $INPUT_DEVICE_ID_MATCH_KEYBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_KEYBIT )) ] && 
++	   input_match_bits "$keyBits" "$i_keyBits"; then
++	    continue
++	fi
++	: relBits $relBits $i_relBits
++        if [ $INPUT_DEVICE_ID_MATCH_RELBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_RELBIT )) ] && 
++	   [ $relBits -ne $(( $relBits & $i_relBits)) ]; then
++	    continue
++	fi
++
++	: absBits $absBits $i_absBits
++        if [ $INPUT_DEVICE_ID_MATCH_ABSBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_ABSBIT )) ] && 
++	   input_match_bits "$absBits" "$i_absBits"; then
++	    continue
++	fi
++
++	: mscBits $mscBits $i_mscBits
++        if [ $INPUT_DEVICE_ID_MATCH_MSCBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_MSCBIT )) ] && 
++	   [ $mscBits -ne $(( $mscBits & $i_mscBits)) ]; then
++	    continue
++	fi
++
++	: ledBits $ledBits $_ledBits
++        if [ $INPUT_DEVICE_ID_MATCH_LEDBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_LEDBIT )) ] && 
++	   input_match_bits "$ledBits" "$i_ledBits"; then
++	    continue
++	fi
++
++	: sndBits $sndBits $i_sndBits
++        if [ $INPUT_DEVICE_ID_MATCH_SNDBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_SNDBIT )) ] && 
++	   [ $sndBits -ne $(( $sndBits & $i_sndBits)) ]; then
++	    continue
++	fi
++
++	: ffBits $ffBits $i_ffBits
++        if [ $INPUT_DEVICE_ID_MATCH_FFBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_FFBIT )) ] && 
++	   input_match_bits "$ffBits" "$i_ffBits"; then
++	    continue
++	fi
++
++	: driverInfo $driverInfo
++	if [ $matchBits -eq 0 -a $driverInfo -eq 0 ]; then
++		continue
++	fi
++
++	# It was a match!
++	case " $DRIVERS " in
++	    *" $module "* )
++		: already found
++	    ;;
++	    * )
++		DRIVERS="$module $DRIVERS"
++	    ;;
++	esac
++	: drivers $DRIVERS
++    done
++}
++
++#
++# What to do with this INPUT hotplug event?
++#
++case $ACTION in
++
++add)
++
++    input_convert_vars
++
++    FOUND=false
++    LABEL="INPUT product $PRODUCT"
++
++    if [ -r $MAP_CURRENT ]; then
++	load_drivers input $MAP_CURRENT "$LABEL"
++    fi
++
++    if [ "$DRIVERS" != "" ]; then
++	FOUND=true
++    fi
++
++    if [ "$FOUND" = "false" ]; then
++	mesg "... no modules for $LABEL"
++	exit 2
++    fi
++
++    ;;
++
++remove)
++    : nothing so far
++
++    ;;
++
++*)
++    debug_mesg INPUT $ACTION event not supported
++    exit 1
++    ;;
++
++esac
+--- hotplug-2003_05_01/etc/hotplug/input.rc.input	2003-08-01 15:02:09.000000000 +0400
++++ hotplug-2003_05_01/etc/hotplug/input.rc	2003-08-01 15:02:13.000000000 +0400
+@@ -0,0 +1,147 @@
++#!/bin/bash
++#
++# input.rc	This loads handlers for those input devices
++#		that have drivers compiled in kernel
++#		Currently stopping is not supported
++#
++# Best invoked via /etc/init.d/hotplug or equivalent, with
++# writable /tmp, /usr mounted, and syslogging active.
++#
++
++
++PATH=/sbin:/bin:/usr/sbin:/usr/bin
++PROCDIR=/proc/bus/input
++
++# source function library
++if [ -f /etc/init.d/functions ]; then
++	. /etc/init.d/functions
++elif [ -f /etc/rc.d/init.d/functions ]; then
++	. /etc/rc.d/init.d/functions
++fi
++
++if [ -f /etc/hotplug/hotplug.functions ]; then
++	. /etc/hotplug/hotplug.functions
++fi
++
++input_reset_state () {
++
++    PRODUCT=
++    NAME=
++    PHYS=
++    EV=
++    KEY=
++    REL=
++    ABS=
++    MSC=
++    LED=
++    SND=
++    FF=
++
++}
++
++#
++# "COLD PLUG" ... load input handlers for compile-in input drivers loaded
++# before the OS could really handle hotplug, perhaps because /sbin or
++# $HOTPLUG_DIR wasn't available or /tmp wasn't writable.  When/if the
++# /sbin/hotplug program is invoked then, hotplug event notifications
++# get dropped.  To make up for such "cold boot" errors, we synthesize
++# all the hotplug events we expect to have seen already.  They can be
++# out of order, and some might be duplicates.
++#
++input_boot_events ()
++{
++    if [ ! -r $PROCDIR/devices ]; then
++	    echo $"** can't synthesize input events - $PROCDIR/devices missing"
++	    return
++    fi
++
++    ACTION=add
++    export ACTION
++
++    export PRODUCT NAME PHYS EV KEY REL ABS MSC LED SND FF
++    input_reset_state
++
++    declare line
++
++    #
++    # the following reads from /proc/bus/input/devices. It is inherently
++    # racy (esp. as this file may be changed by input.agent invocation)
++    # but so far input devices do not appear in sysfs
++    #
++    while read line; do
++	case "$line" in
++	    I:* )	# product ID
++		eval "${line#I: }"
++		PRODUCT=$Bus/$Vendor/$Product/$Version
++	    ;;
++	    N:* )	# name
++		eval "${line#N: }"
++		NAME="$Name"
++	    ;;
++	    P:* )	# Physical
++		eval "${line#P: }"
++		PHYS=$Phys
++	;;
++	    B:* )	# Controls supported
++		line="${line#B: }"
++		eval "${line%%=*}=\"${line#*=}\""
++	    ;;
++	    "" )	# End of block
++		debug_mesg "Invoking input.agent"
++		debug_mesg "PRODUCT=$PRODUCT"
++		debug_mesg "NAME=$NAME"
++		debug_mesg "PHYS=$PHYS"
++		debug_mesg "EV=$EV"
++		debug_mesg "KEY=$KEY"
++		debug_mesg "REL=$REL"
++		debug_mesg "ABS=$ABS"
++		debug_mesg "MSC=$MSC"
++		debug_mesg "LED=$LED"
++		debug_mesg "SND=$SND"
++		debug_mesg "FF=$FF"
++		/etc/hotplug/input.agent < /dev/null
++		input_reset_state
++	    ;;
++	esac
++    done < $PROCDIR/devices
++}
++
++
++# See how we were called.
++case "$1" in
++  start)
++	input_boot_events
++        ;;
++  stop)
++	: not supported currently
++        ;;
++  status)
++	echo $"INPUT status for kernel: " `uname -srm`
++	echo ''
++
++	echo "INPUT devices:"
++	if [ -r $PROCDIR/devices ]; then
++	    grep "^[INHP]:" $PROCDIR/devices
++	else
++	    echo "$PROCDIR/devices not available"
++	fi
++	echo ''
++
++	echo "INPUT handlers:"
++	if [ -r $PROCDIR/handlers ]; then
++	    cat $PROCDIR/handlers
++	else
++	    echo "$PROCDIR/handlers not available"
++	fi
++
++	echo ''
++
++	;;
++  restart)
++	# always invoke by absolute path, else PATH=$PATH:
++	$0 stop && $0 start
++	;;
++  *)
++        echo $"Usage: $0 {start|stop|status|restart}"
++        exit 1
++esac
+--- hotplug-2003_05_01/etc/hotplug/usb.agent.input	2003-08-01 00:02:37.000000000 +0400
++++ hotplug-2003_05_01/etc/hotplug/usb.agent	2003-08-01 00:02:37.000000000 +0400
+@@ -397,12 +397,20 @@
+ 
+     # cope with special driver module configurations
+     # (mostly HID devices, until we have an input.agent)
+-    if [ -r $MAP_HANDMAP ]; then
+-    	load_drivers usb $MAP_HANDMAP "$LABEL"
+-	if [ "$DRIVERS" != "" ]; then
+-	    FOUND=true
+-	fi
+-    fi
++    # not needed on 2.6 - they are loaded by hotplug
++    case "$KERNEL" in
++	2.6.* )
++	    : nothing
++	;;
++	* )
++	    if [ -r $MAP_HANDMAP ]; then
++		load_drivers usb $MAP_HANDMAP "$LABEL"
++		if [ "$DRIVERS" != "" ]; then
++		    FOUND=true
++		fi
++	    fi
++	;;
++    esac
+ 
+     # some devices have user-mode drivers (no kernel module, but config)
+     # or specialized user-mode setup helpers 
 
-> Matthew,
->
-> perhaps kernel 2.4 puts more stress on your _overclocked_ CPU than 2.2 did,
-> rendering it unusable. BTW, you said you got a database corruption and you
-> felt it was kernel 2.2's fault... I guess there are more people who get
-> problems with excessive overclocking than those getting problems with kernel
-> 2.2 !
->
-> I _have_ already overclocked several pentiums 75 in the past, some of them
-> could even run at 120 MHz. The least I could say is that this processor is the
-> worst reliable overclocker because it _seems_ to work but you still get a few
-> glitches in very specific applications. I had people tell me that they were
-> used to set it back to 75 to run photoshop, but "everything else runs just
-> fine" ! And it doesn't support aging very well, and must be set back to its
-> original speed after several months (or you need to considerably raise the
-> voltage).
->
-> So I would say : please set this CPU to 75 MHz and test 2.4 again on it. IF
-> you still have problems, THEN you can get back here to seek some help. But
-> don't hope for much help under these stupid conditions.
->
-> Willy
->
-> On Fri, Aug 01, 2003 at 05:50:47PM -0700, Matthew Peters wrote:
-> > there are a few problems with 2.4 and 2.5 kernels that make them unusable
-> > on a Toshiba Libretto. If i select a kernel made for Pentium Classic, it
-> > unpacks the kernel, then just sits there. If i use a 386 kernel, it works
-> > till it gets to kswapd. Now, i haven't accually checked with other kernels
-> > on if this is in fact where it crashes, but i seem to remember it being
-> > this.
-> >
-> > the kernel version that this oops message came from was the 2.4.21 for 386
-> > with debian patches. This is one of the kernel packages in unstable
-> > debian. I also have the pcmcia package installed.
-> >
-> > The hardware that i'm trying to get this to run on is a Toshiba Libretto
-> > 50CT. This is a Pentium 75(over clocked to 100) with 16 megs of ram. The
-> > sound chip is an OPL3-SA2, with a CT-65550 graphics chip. The hd is a
-> > toshiba MK2018GAS(upgraded). It has non-cardbus PCMCIA.
-> >
-> > The 2.2 kernels work fine, and i've been using them for a year or so... i
-> > just had to re-install because of my package database getting corrupted,
-> > and figured it was because of the 2.2 kernel... i have no proof of this.
-> >
-> > It was not possible to use ksymoops on the libretto because it did not
-> > compleate loading, so the info in the output might be incorrect.
-> >
-> > Currently, the install is working on a P3 system.
-> >
-> > i can go back to a 2.2 kernel and get the cpu info and any other info that
-> > might be required.
-> >
-> > Thanks in advance
-> >     Matthew Peters
->
-> > ksymoops 2.4.8 on i686 2.4.21-3-386.  Options used
-> >      -V (default)
-> >      -k /proc/ksyms (default)
-> >      -l /proc/modules (default)
-> >      -o /lib/modules/2.4.21-3-386/ (default)
-> >      -m /boot/System.map-2.4.21-3-386 (default)
-> >
-> > Warning: You did not tell me where to find symbol information.  I will
-> > assume that the log matches the kernel and modules that are running
-> > right now and I'll use the default options above for symbol resolution.
-> > If the current kernel and/or modules do not match the log, you can get
-> > more accurate output by telling me the kernel version and where to find
-> > map, modules, ksyms etc.  ksymoops -h explains the options.
-> >
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/fs/ext3/ext3.o for module ext3 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/fs/jbd/jbd.o for module jbd has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-probe-mod.o for module ide-probe-mod has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/via82cxxx.o for module via82cxxx has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/trm290.o for module trm290 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/triflex.o for module triflex has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/slc90e66.o for module slc90e66 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/sis5513.o for module sis5513 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/siimage.o for module siimage has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/serverworks.o for module serverworks has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/sc1200.o for module sc1200 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/rz1000.o for module rz1000 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/piix.o for module piix has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/pdc202xx_old.o for module pdc202xx_old has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/opti621.o for module opti621 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/ns87415.o for module ns87415 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/hpt366.o for module hpt366 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-disk.o for module ide-disk has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/hpt34x.o for module hpt34x has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/generic.o for module generic has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cy82c693.o for module cy82c693 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cs5530.o for module cs5530 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cmd64x.o for module cmd64x has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cmd640.o for module cmd640 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/amd74xx.o for module amd74xx has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/alim15x3.o for module alim15x3 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/aec62xx.o for module aec62xx has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/adma100.o for module adma100 has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/pdc202xx_new.o for module pdc202xx_new has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-mod.o for module ide-mod has changed since load
-> > Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/net/unix/unix.o for module unix has changed since load
-> >  <1>Unable to handle kernel paging request at virtual address 61d707f0
-> > c0125056
-> > *pde = 00000000
-> > Oops: 0000
-> > CPU:    0
-> > EIP:    0010:[<c0125056>]    Not tainted
-> > Using defaults from ksymoops -t elf32-i386 -a i386
-> > EFLAGS: 00010086
-> > eax: c002e0a8   ebx: c021c030   ecx: 00000020   edx: ffffffff
-> > esi: 61d707f0   edi: 00000008   edp: 00000001   esp: c02b5eb8
-> > Warning (Oops_set_regs): garbage 'edp: 00000001   esp: c02b5eb8' at end of register line ignored
-> > ds: 0018  es: 0018  ss: 0018
-> > Process kswapd (pid: 4, stackpage=c02b5000)
-> > Stack: c0474570 c0dad850 c017ef3f c0474570 00000001 c0dad850 c2024af0 00000046
-> >        00000001 c2045c14 c0dad850 00000001 c2024af0 c0dad850 00000008 00000000
-> >        00000008 c204525f c2024af0 00000001 c0033160 c2024af0 00000002 c2024a40
-> > Call Trace:    [<c017ef3f>] [<c2024af0>] [<c2045c15>] [<c2024af0>] [<c204525f>]
-> >   [<c2024af0>] [<c2024af0>] [<c2024a40>] [<c201b036>] [<c2024af0>] [<c2045170>]
-> >   [<c0109834>] [<c0109974>] [<c010bcc0>] [<c2024b00>] [<c017e074>] [<c01197c0>]
-> >   [<c2024b00>] [<c2024b58>] [<c2024b58>] [<c012af3e>] [<c0105000>] [<c0106ff7>]
-> >   [<c012ae9c>]
-> > Code: 39 36 75 06 5b 5e c3 8d 76 00 5b 89 f0 31 c9 ba 03 00 00 00
-> >
-> >
-> > >>EIP; c0125056 <unlock_page+56/70>   <=====
-> >
-> > >>ebx; c021c030 <contig_page_data+b0/340>
-> >
-> > Trace; c017ef3f <end_that_request_first+3b/bc>
-> > Trace; c2024af0 <_end+1d835c4/1856bb34>
-> > Trace; c2045c15 <_end+1da46e9/1856bb34>
-> > Trace; c2024af0 <_end+1d835c4/1856bb34>
-> > Trace; c204525f <_end+1da3d33/1856bb34>
-> > Trace; c2024af0 <_end+1d835c4/1856bb34>
-> > Trace; c2024af0 <_end+1d835c4/1856bb34>
-> > Trace; c2024a40 <_end+1d83514/1856bb34>
-> > Trace; c201b036 <_end+1d79b0a/1856bb34>
-> > Trace; c2024af0 <_end+1d835c4/1856bb34>
-> > Trace; c2045170 <_end+1da3c44/1856bb34>
-> > Trace; c0109834 <handle_IRQ_event+34/60>
-> > Trace; c0109974 <do_IRQ+54/8c>
-> > Trace; c010bcc0 <call_do_IRQ+5/d>
-> > Trace; c2024b00 <_end+1d835d4/1856bb34>
-> > Trace; c017e074 <generic_unplug_device+1c/28>
-> > Trace; c01197c0 <__run_task_queue+48/54>
-> > Trace; c2024b00 <_end+1d835d4/1856bb34>
-> > Trace; c2024b58 <_end+1d8362c/1856bb34>
-> > Trace; c2024b58 <_end+1d8362c/1856bb34>
-> > Trace; c012af3e <kswapd+a2/b0>
-> > Trace; c0105000 <_stext+0/0>
-> > Trace; c0106ff7 <arch_kernel_thread+23/30>
-> > Trace; c012ae9c <kswapd+0/b0>
-> >
-> > Code;  c0125056 <unlock_page+56/70>
-> > 00000000 <_EIP>:
-> > Code;  c0125056 <unlock_page+56/70>   <=====
-> >    0:   39 36                     cmp    %esi,(%esi)   <=====
-> > Code;  c0125058 <unlock_page+58/70>
-> >    2:   75 06                     jne    a <_EIP+0xa>
-> > Code;  c012505a <unlock_page+5a/70>
-> >    4:   5b                        pop    %ebx
-> > Code;  c012505b <unlock_page+5b/70>
-> >    5:   5e                        pop    %esi
-> > Code;  c012505c <unlock_page+5c/70>
-> >    6:   c3                        ret
-> > Code;  c012505d <unlock_page+5d/70>
-> >    7:   8d 76 00                  lea    0x0(%esi),%esi
-> > Code;  c0125060 <unlock_page+60/70>
-> >    a:   5b                        pop    %ebx
-> > Code;  c0125061 <unlock_page+61/70>
-> >    b:   89 f0                     mov    %esi,%eax
-> > Code;  c0125063 <unlock_page+63/70>
-> >    d:   31 c9                     xor    %ecx,%ecx
-> > Code;  c0125065 <unlock_page+65/70>
-> >    f:   ba 03 00 00 00            mov    $0x3,%edx
-> >
-> >  <0>Kernel panic: Aiee, killing interrupt handler!
-> >
-> > 33 warnings issued.  Results may not be reliable.
->
->
->
+--Boundary-00=_uv3K/YqV1MVekc/--
 

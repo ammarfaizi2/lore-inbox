@@ -1,74 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132875AbRDKSrO>; Wed, 11 Apr 2001 14:47:14 -0400
+	id <S132876AbRDKSuE>; Wed, 11 Apr 2001 14:50:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbRDKSrG>; Wed, 11 Apr 2001 14:47:06 -0400
-Received: from anarchy.io.com ([199.170.88.101]:46409 "EHLO anarchy.io.com")
-	by vger.kernel.org with ESMTP id <S132875AbRDKSqs>;
-	Wed, 11 Apr 2001 14:46:48 -0400
-Date: Wed, 11 Apr 2001 12:56:43 -0500 (CDT)
-From: Bret Indrelee <bret@io.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>
-Subject: Re: No 100 HZ timer!
-Message-ID: <Pine.LNX.4.21.0104111242150.16730-100000@fnord.io.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132868AbRDKSto>; Wed, 11 Apr 2001 14:49:44 -0400
+Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:20986 "EHLO
+	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S132876AbRDKStd>; Wed, 11 Apr 2001 14:49:33 -0400
+From: Josh McKinney <forming@home.com>
+Date: Wed, 11 Apr 2001 13:46:02 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: scheduler went mad?
+Message-ID: <20010411134602.A4328@home.com>
+Mail-Followup-To: josh, linux-kernel@vger.kernel.org
+In-Reply-To: <3AD46930.B6CC9565@eyp.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3AD46930.B6CC9565@eyp.ee>; from priit.randla@eyp.ee on Wed, Apr 11, 2001 at 04:24:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka (mikulas@artax.karlin.mff.cuni.cz) wrote:
-> Adding and removing timers happens much more frequently than PIT tick,
-> so 
-> comparing these times is pointless. 
->
-> If you have some device and timer protecting it from lockup on buggy 
-> hardware, you actually 
->
-> send request to device 
-> add timer 
->
-> receive interrupt and read reply 
-> remove timer 
->
-> With the curent timer semantics, the cost of add timer and del timer is 
-> nearly zero. If you had to reprogram the PIT on each request and reply,
-> it 
-> would slow things down. 
->
-> Note that you call mod_timer also on each packet received - and in worst 
-> case (which may happen), you end up reprogramming the PIT on each
-> packet. 
+I had the almost exact same thing happen to me just yesterday, I started up
+xcdroast, and cdda2wav and kswapd went crazy, backed out of X and all was 
+well, and still is.
 
-You can still have nearly zero cost for the normal case. Avoiding worst
-case behaviour is also pretty easy.
+Same kernel as you too.
 
-You only reprogram the PIT if you have to change the interval.
-
-Keep all timers in a sorted double-linked list. Do the insert
-intelligently, adding it from the back or front of the list depending on
-where it is in relation to existing entries.
-
-You only need to reprogram the interval timer when:
-1. You've got a new entry at the head of the list
-AND
-2. You've reprogrammed the interval to something larger than the time to 
-the new head of list.
-
-In the case of a device timeout, it is usually not going to be inserted at
-the head of the list. It is very seldom going to actually timeout.
-
-Choose your interval wisely, only increasing it when you know it will pay
-off. The best way of doing this would probably be to track some sort
-of LCD for timeouts.
-
-The real trick is to do a lot less processing on every tick than is
-currently done. Current generation PCs can easily handle 1000s of
-interrupts a second if you keep the overhead small.
-
--Bret
-
-------------------------------------------------------------------------------
-Bret Indrelee |  Sometimes, to be deep, we must act shallow!
-bret@io.com   |  -Riff in The Quatrix
-
-
+On approximately Wed, Apr 11, 2001 at 04:24:48PM +0200, Priit Randla wrote:
+> 
+> 
+> Hi,
+>    
+> 
+>    Yesterday i tried to start cdda2wav but somehow it didn't do
+> anything.
+>   It didn't die to kill -9 too. Machine was slow but usable. 
+>   vmstat 10 output:
+> 
+>   procs                      memory    swap          io    
+> system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us 
+> sy  id
+>  2  0  1   2972  40916    108  18292   0   0     0     0  121 12735   0
+> 100   0
+>  2  0  1   2972  40492    108  18292   0   0     0     0  109 12740   1 
+> 99   0
+>  2  0  1   2972  40492    108  18292   0   0     0     0  103 12996   0
+> 100   0
+>  3  0  0   2972  40492    108  18292   0   0     0     0  102 12932   0
+> 100   0
+>  3  0  1   2972  40492    108  18292   0   0     0     0  131 12652   1 
+> 99   0
+>  2  0  0   2972  40496    108  18292   0   0     0     0  142 12562   1 
+> 99   0
+>  2  0  0   2972  40500    108  18292   0   0     0     0  120 12684   0
+> 100   0
+>  2  0  1   2972  40496    108  18292   0   0     0     0  140 12480   1 
+> 99   0
+>  2  0  0   2972  39952    108  18292   0   0     0     0  160 11445   7 
+> 93   0
+>  3  0  0   2972  39952    108  18292   0   0     0     0  178 12295   2 
+> 98   0
+>  2  0  0   2972  39956    108  18292   0   0     0     0  214 11958   2 
+> 98   0
+>  3  0  1   2972  39952    108  18292   0   0     0     0  138 12579   1 
+> 99   0
+> 
+> cs field is absolutely ridiculous for my machine.																							
+> 
+> ps showed cdda2wav & kswapd eating all of processor time. When i tried
+> to close
+> netscape, it hang too and joined cdda2wav and kswapd:
+> 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME
+> COMMAND
+>  9990 priitr    17   0 42380  41M  9928 R       0 32.5 33.4  21:47
+> netscape-commun
+>     3 root      17   0     0    0     0 SW      0 32.3  0.0  11:12
+> kswapd
+> 10538 priitr    16   0    84    8     0 R       0 32.3  0.0  11:09
+> cdda2wav
+>     5 root       9   0     0    0     0 SW      0  1.5  0.0   0:19
+> bdflush
+> 10616 priitr    13   0   856  856   668 R       0  0.7  0.6   0:00 top
+>   657 root       9   0 21160  20M  1668 S       0  0.1 16.7  29:36 X
+> 
+> 
+> I couldn't leave X and had to kill it. After that, both netscape and
+> cdda2wav were
+> gone and everything looks normal since then.
+> I'm running 2.4.3ac3 right now.
+> 
+> dmesg:
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

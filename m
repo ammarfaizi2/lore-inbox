@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268003AbTCFJ4V>; Thu, 6 Mar 2003 04:56:21 -0500
+	id <S268034AbTCFKEU>; Thu, 6 Mar 2003 05:04:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268004AbTCFJ4V>; Thu, 6 Mar 2003 04:56:21 -0500
-Received: from comtv.ru ([217.10.32.4]:54659 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S268003AbTCFJ4U>;
-	Thu, 6 Mar 2003 04:56:20 -0500
-X-Comment-To: Andrew Morton
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm1
-References: <20030305230712.5a0ec2d4.akpm@digeo.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 06 Mar 2003 13:00:30 +0300
-In-Reply-To: <20030305230712.5a0ec2d4.akpm@digeo.com>
-Message-ID: <m365qw3jcx.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268039AbTCFKEU>; Thu, 6 Mar 2003 05:04:20 -0500
+Received: from CPE-144-132-203-93.nsw.bigpond.net.au ([144.132.203.93]:63360
+	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
+	id <S268034AbTCFKET>; Thu, 6 Mar 2003 05:04:19 -0500
+Date: Thu, 6 Mar 2003 18:10:17 +0800
+From: Geoffrey Lee <glee@gnupilgrims.org>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH]  fix undefined reference for sis drm.
+Message-ID: <20030306101017.GA6479@anakin.wychk.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-As far as I understand this isn't error path. 
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=big5
+Content-Disposition: inline
 
-	lock_kernel();
-
-	sb = inode->i_sb;
-
-	if (is_dx(inode)) {
-		err = ext3_dx_readdir(filp, dirent, filldir);
-		if (err != ERR_BAD_DX_DIR)
-			return err;
-		/*
-		 * We don't set the inode dirty flag since it's not
-		 * critical that it get flushed back to the disk.
-		 */
-		EXT3_I(filp->f_dentry->d_inode)->i_flags &= ~EXT3_INDEX_FL;
-	}
-
-So, if ext3_dx_readdir() returns 0 (OK path), then ext3_readdir() finish
-w/o unlock_kernel(). The remain part of ext3_readdir() gets used if
-ext3_dx_readdir() can't use HTree and returns ERR_BAD_DX_DIR.
-
-Am I miss something?
-
->>>>> Andrew Morton (AM) writes:
-
- AM> +htree-lock_kernel-fix.patch
-
- AM>  Missing unlock_kernel() on htree error path
+Hi all,
 
 
+This fixes a bug where where if sis fb is not set and sis drm is
+selected then there will be undefined references to sis_malloc() and
+sis_free().
+
+What I've done is a sort of a bandaid because I don't have hardware
+to fix and test. 
+
+
+	-- G.
+-- 
+char p[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=big5
+Content-Disposition: attachment; filename="Config.in.patch"
+
+--- linux-2.4.21/drivers/char/drm/Config.in.orig	Thu Mar  6 21:06:47 2003
++++ linux-2.4.21/drivers/char/drm/Config.in	Thu Mar  6 21:09:26 2003
+@@ -13,4 +13,6 @@
+ dep_mbool    '    Enabled XFree 4.1 ioctl interface by default' CONFIG_DRM_I810_XFREE_41 $CONFIG_DRM_I810
+ dep_tristate '  Intel 830M' CONFIG_DRM_I830 $CONFIG_AGP
+ dep_tristate '  Matrox g200/g400' CONFIG_DRM_MGA $CONFIG_AGP
+-dep_tristate '  SiS' CONFIG_DRM_SIS $CONFIG_AGP
++if [ "$CONFIG_FB_SIS" = "y" ]; then
++   dep_tristate '  SiS' CONFIG_DRM_SIS $CONFIG_AGP
++fi
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=big5
+Content-Disposition: attachment; filename="Configure.help.patch"
+
+--- linux-2.4.21/Documentation/Configure.help.orig	Thu Mar  6 21:07:02 2003
++++ linux-2.4.21/Documentation/Configure.help	Thu Mar  6 21:08:26 2003
+@@ -26277,6 +26277,9 @@
+   Choose this option if you have a SIS graphics card. AGP support is
+   required for this driver to work.
+ 
++  You will also be required to have support for SIS frame buffer as
++  it requires a few routines from it.
++
+ Etrax Ethernet slave support (over lp0/1)
+ CONFIG_ETRAX_ETHERNET_LPSLAVE
+   This option enables a slave ETRAX 100 or ETRAX 100LX, connected to a
+
+--BOKacYhQ+x31HxR3--

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130004AbRBGTCn>; Wed, 7 Feb 2001 14:02:43 -0500
+	id <S130021AbRBGTEN>; Wed, 7 Feb 2001 14:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130021AbRBGTCd>; Wed, 7 Feb 2001 14:02:33 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130004AbRBGTCS>; Wed, 7 Feb 2001 14:02:18 -0500
-Subject: Re: PCI-SCI Drivers v1.1-7 released
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Wed, 7 Feb 2001 19:02:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010207111345.D27089@vger.timpanogas.org> from "Jeff V. Merkey" at Feb 07, 2001 11:13:45 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130093AbRBGTED>; Wed, 7 Feb 2001 14:04:03 -0500
+Received: from wiz.cath.vt.edu ([128.173.51.243]:43790 "EHLO wiz.cath.vt.edu")
+	by vger.kernel.org with ESMTP id <S130021AbRBGTDs>;
+	Wed, 7 Feb 2001 14:03:48 -0500
+From: Len Hatfield <lhat@wiz.cath.vt.edu>
+Message-Id: <200102071900.f17J0IR24989@wiz.cath.vt.edu>
+Subject: IRQ Routing Troubles with 2.4.1?
+To: linux-kernel@vger.kernel.org
+Date: Wed, 7 Feb 2001 14:00:18 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14QZrI-00012X-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hummm.  Where are the patches for 2.4 to correct this?  They are not posted
-> with the 7.1 release.  They need to be.  The compiler not supporting 
+Folks:
 
-They don't need to be because the thing is just a warning. The kernel has
-plenty of warnings and this one is 100% harmless.
+We've been running successfully Slackware 7.1 (kernel 2.2.16) on
+a new Penguin Computing server (PIII uniprocessor with two 18gb
+Hitachi drives and the Adaptec 7896/7 onboard scsi controller).
 
-> #ident for CVS is a show stopper, and needs correcting ASAP.  How can 
-> someone use CVS properly with this, Alan?
+In attempting to upgrade to kernel 2.4.1, we began to get
+strange bugs apparently from the aic7xxx drivers, which seemed
+to develop endless timeout loops.  At the same time, as the
+various boot messages went by, there was often a notice that two
+devices were assigned to IRQ 11, 00:0c.0 and 00:0c.1, which
+corresponded to the addresses for the two hard drives. 
+These troubles appeared with the vanilla 2.4.0 kernel, and
+remained in place through appying Alan Cox's patches to 2.4.0
+and 2.4.1.  We're currently running 2.4.1-ac3.
 
-Im using CVS all the time. Im not sure what the #ident thing would be. But
-then like everyone else I know I use $ident in comments. JJ will probably
-be glad to work on that one
+After prolonged experimentation under the expert guidance of
+Doug Ledford, I tried turning on the APIC and IO-APIC options in
+menuconfig (under Processor).  This eliminated the problem
+immediately.
 
-Right now I'm down to one known problem with 2.96 and 2.4.x kernels - which
-is that CVS gcc and 2.96 accidentally changed the ABI and broke the bitfield
-assumptions in DAC960.c/h. JJ I believe just committed patches for that one
+Doug suggested I post this information to linux-kernel in case
+this might point to something being amiss in the "IRQ routing".
 
+As I'm not subscribed to the list, please CC any replies or queries to
+me at lhat@wiz.cath.vt.edu.
+
+Thanks!
+ 
+-- 
+
+					...Len Hatfield
+					   Virginia Tech
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

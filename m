@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUEVMvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUEVM4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUEVMvN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 08:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUEVMvN
+	id S261210AbUEVM4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 08:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUEVM4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 08:51:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10956 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261179AbUEVMvL (ORCPT
+	Sat, 22 May 2004 08:56:43 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:50923 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261210AbUEVM4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 08:51:11 -0400
-Date: Sat, 22 May 2004 14:51:09 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl number 0xF3
-Message-ID: <20040522125108.GB4589@devserv.devel.redhat.com>
-References: <40AF42B3.8060107@winischhofer.net> <1085228451.14486.0.camel@laptop.fenrus.com> <40AF4A13.4020005@winischhofer.net>
+	Sat, 22 May 2004 08:56:40 -0400
+Date: Sat, 22 May 2004 14:56:33 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: rfc: test whether a device has a partition table
+Message-ID: <20040522125633.GA4777@apps.cwi.nl>
+References: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40AF4A13.4020005@winischhofer.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 22, 2004 at 01:18:34PM +0200, Uwe Bonnes wrote:
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> around last september there was a discussion about the linux kernel
+> recognizing "supperfloppys" as disks with bogus partition tables.
 
-On Sat, May 22, 2004 at 02:39:47PM +0200, Thomas Winischhofer wrote:
-> I intend using them for controlling SiS hardware specific settings like 
-> switching output devices, checking modes against output devices, 
-> repositioning TV output, scaling TV output, changing gamma correction, 
-> tuning video parameters, and the like.
+Yes - already had forgotten about that - thanks for reviving
 
-That doesn't in principle sound SiS specific. Sure the implementation will
-be but the interface?
+> Linux Torvalds wrote at one point in the discussion:
 
-> And rest assured, they will be 32/64 bit safe. Not sure what you mean by 
-> "ioctl interface" here but have a look at the Matrox framebuffer driver 
-> which uses some 'n' ioctls for similar stuff (which in that way do not 
-> apply to the SiS hardware which is why I can't reuse them).
+> >I don't mind the 0x00/0x80 "boot flag" checks - those look fairly 
+> > obvious and look reasonably safe to add to the partitioning code.
+> 
+> The discussion seemed to fade out with no visible result, and for example my
+> USB stick "ID 0d7d:1420 Apacer" with a floppy as second partition gets
+> recognized as:
+> SCSI device sdc: 2880 512-byte hdwr sectors (1 MB)
+> sdc: Write Protect is off
+>  sdc: sdc1 sdc2 sdc3 sdc4
 
-Ok this is exactly the point I was trying to make. Would it be possible to
-have the "new" ioctl interface be such that they CAN be used by both matrox
-and Sis ?
+What do you mean by "floppy as second partition"?
 
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> Find appended a patch that does the 0x00/0x80 "boot flag" checks. Please
+> discuss and consider for inclusion into the kernel.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> +#define BOOT_IND(p)	(get_unaligned(&p->boot_ind))
+>  #define SYS_IND(p)	(get_unaligned(&p->sys_ind))
 
-iD8DBQFAr0y8xULwo51rQBIRAjCsAJ9H0R4+aGqv/tXIv09l9zaCLxXqPACfe/sY
-I1NkWFq93otwuXJVHIvG3zo=
-=54rU
------END PGP SIGNATURE-----
+Hmm. get_unaligned() for a single byte?
+I see no reason for these two macros.
+Also, it is a good habit to parenthesize macro parameters.
 
---gj572EiMnwbLXET9--
+> +	/* 
+> +	   Some consistancy check for a valid partition table
+
+consistency
+
+> +	   Boot indicator must either be 0x80 or 0x0 on all primary partitions
+> +	   Only one partition may be marked bootable (0x80)
+> +	*/
+> + 	p = (struct partition *) (data + 0x1be);
+> +	for (slot = 1 ; slot <= 4 ; slot++, p++) {
+> +	  if ((BOOT_IND(p) != 0x80) && (BOOT_IND(p) != 0x0))
+> +	    return 0;
+> +	  if (BOOT_IND(p) == 0x80) 
+> +	    nr_bootable++;
+> +	}
+> +	if (nr_bootable > 1) 
+> +	  return 0;
+
+I have no objections.
+
+Does it in your case suffice to check for 0 / 0x80 only
+(without testing nr_bootable)?
+
+I would prefer to omit that test, until there is at least one
+person who shows a boot sector where it is needed.
+
+Andries

@@ -1,79 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130523AbRCDVdH>; Sun, 4 Mar 2001 16:33:07 -0500
+	id <S130521AbRCDVgh>; Sun, 4 Mar 2001 16:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130521AbRCDVc6>; Sun, 4 Mar 2001 16:32:58 -0500
-Received: from ip167-84.fli-ykh.psinet.ne.jp ([210.129.167.84]:54725 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S130519AbRCDVci>;
-	Sun, 4 Mar 2001 16:32:38 -0500
-Message-ID: <3AA2B390.12819DD2@yk.rim.or.jp>
-Date: Mon, 05 Mar 2001 06:28:49 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Douglas Gilbert <dougg@torque.net>
-CC: Mike Black <mblack@csihq.com>, Jeremy Hansen <jeremy@xxedgexx.com>,
-        linux-scsi@vger.kernel.org, mysql@lists.mysql.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <Pine.LNX.4.33L2.0103021033190.6176-200000@srv2.ecropolis.com> <054201c0a33d$55ee5870$e1de11cc@csihq.com> <3AA2A120.49509A11@torque.net>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S130522AbRCDVgR>; Sun, 4 Mar 2001 16:36:17 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:38834 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S130521AbRCDVgL>;
+	Sun, 4 Mar 2001 16:36:11 -0500
+Date: Sun, 4 Mar 2001 23:32:44 +0200
+From: Mircea Damian <dmircea@kappa.ro>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: sjhill@cotw.com, linux-kernel@vger.kernel.org
+Subject: Re: LILO error with 2.4.3-pre1...
+Message-ID: <20010304233244.B32142@linux.kappa.ro>
+In-Reply-To: <3AA19820.6A33E871@cotw.com> <22634.983669972@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <22634.983669972@ocs3.ocs-net>; from kaos@ocs.com.au on Sun, Mar 04, 2001 at 12:39:32PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote:
+On Sun, Mar 04, 2001 at 12:39:32PM +1100, Keith Owens wrote:
+> On Sat, 03 Mar 2001 19:19:28 -0600, 
+> "Steven J. Hill" <sjhill@cotw.com> wrote:
+> >I have no idea why the 1023 limit is coming up considering 2.4.2 and
+> >LILO were working just fine together and I have a newer BIOS that has
+> >not problems detecting the driver properly. Go ahead, call me idiot :).
+> 
+> OK, you're an idiot :).  It only worked before because all the files
+> that lilo used just happened to be below cylinder 1024.  Your partition
+> goes past cyl 1024 and your new kernel is using space above 1024.  Find
+> a version of lilo that can cope with cyl >= 1024 (is there one?) or
+> move the kernel below cyl 1024.  You might need to repartition your
+> disk to get / all below 1024.
 
-> There is definitely something strange going on here.
-> As the bonnie test below shows, the SCSI disk used
-> for my tests should vastly outperform the old IDE one:
+Call me idiot too but please explain what is wrong here:
 
-First thank you and others with my clueless investigation about
-the module loading under Debian GNU/Linux. (I should have known
-that Debian uses a very special module setup.)
-
-Anyway, I used to think SCSI is better than IDE in general, and
-the post was quite surprising.
-So I ran the test on my PC.
-On my systems too, the IDE beats SCSI hand down with the test case.
-
-BTW, has anyone noticed that
-the elapsed time of SCSI case is TWICE as long if
-we let the previous output of the test program stay before
-running the second test? (I suspect fdatasync
-takes time proportional to the (then current)  file size, but
-still why SCSI case is so long is beyond me.)
-
-Eg.
-
-ishikawa@duron$ ls -l /tmp/t.out
-ls: /tmp/t.out: No such file or directory
-ishikawa@duron$ time ./xlog /tmp/t.out fsync
-
-real    0m38.673s    <=== my scsi disk is slow one to begin with...
-user    0m0.050s
-sys     0m0.140s
-ishikawa@duron$ ls -l /tmp/t.out
--rw-r--r--    1 ishikawa users      112000 Mar  5 06:19 /tmp/t.out
-ishikawa@duron$ time ./xlog /tmp/t.out fsync
-
-real    1m16.928s        <=== See TWICE as long!
-user    0m0.060s
-sys     0m0.160s
-ishikawa@duron$ ls -l /tmp/t.out
--rw-r--r--    1 ishikawa users      112000 Mar  5 06:20 /tmp/t.out
-ishikawa@duron$ rm /tmp/t.out    <==== REMOVE the file and try again.
-ishikawa@duron$ time ./xlog /tmp/t.out fsync
-
-real    0m40.667s       <==== Half as long and back to original.
-user    0m0.040s
-sys     0m0.120s
-iishikawa@duron$ time ./xlog /tmp/t.out xxx
-
-real    0m0.012s          <=== very fast without fdatasync as it should be.
-user    0m0.010s
-sys     0m0.010s
-ishikawa@duron$
+# cat /etc/lilo.conf
+boot = /dev/hda
+timeout = 150
+vga = 4
+ramdisk = 0
+lba32
+append = "hdc=scsi"
+prompt
 
 
+image = /boot/vmlinuz-2.4.2
+  root = /dev/hda2
+  read-only
+  label = Linux
+
+other = /dev/hda3
+  label = win
+  table = /dev/hda
+
+# fdisk -l /dev/hda
+
+Disk /dev/hda: 255 heads, 63 sectors, 1650 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1             1        17    136521   82  Linux swap
+/dev/hda2            18      1165   9221310   83  Linux
+/dev/hda3   *      1166      1650   3895762+   c  Win95 FAT32 (LBA)
+root@taz:~# lilo -v
+LILO version 21.7, Copyright (C) 1992-1998 Werner Almesberger
+Linux Real Mode Interface library Copyright (C) 1998 Josh Vanderhoof
+Development beyond version 21 Copyright (C) 1999-2001 John Coffman
+Released 24-Feb-2001 and compiled at 18:31:02 on Mar  3 2001.
+
+Reading boot sector from /dev/hda
+Merging with /boot/boot.b
+Boot image: /boot/vmlinuz-2.4.2
+Added Linux *
+Boot other: /dev/hda3, on /dev/hda, loader /boot/chain.b
+Device 0x0300: Invalid partition table, 3rd entry
+  3D address:     63/254/141 (2281229)
+  Linear address: 1/0/1165 (18715725)
+
+
+Mar  2 20:26:29 taz kernel: hda: IBM-DJNA-371350, ATA DISK drive 
+Mar  2 20:26:29 taz kernel: hda: 26520480 sectors (13578 MB) w/1966KiB Cache, CHS=1650/255/63 
+
+
+Is anybody able to explain the error?
+That partition contains a valid VFAT partition with win98se installed on it (and it works fine,
+ofc if I remove lilo from MBR).
+
+-- 
+Mircea Damian
+E-mails: dmircea@kappa.ro, dmircea@roedu.net
+WebPage: http://taz.mania.k.ro/~dmircea/

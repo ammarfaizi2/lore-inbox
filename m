@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVBRKb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVBRKdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVBRKb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 05:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBRKb1
+	id S261330AbVBRKdd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 05:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVBRKdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 05:31:27 -0500
-Received: from ext-ch1gw-6.online-age.net ([64.37.194.14]:36738 "EHLO
-	ext-ch1gw-6.online-age.net") by vger.kernel.org with ESMTP
-	id S261326AbVBRKbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 05:31:21 -0500
-From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 18 Feb 2005 11:31:07 +0100
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-Message-ID: <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com>
-References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu> <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu> <cv36kk$54m$1@gatekeeper.tmr.com>
+	Fri, 18 Feb 2005 05:33:33 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:52915 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261326AbVBRKcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 05:32:36 -0500
+Subject: Re: Swsusp, resume and kernel versions
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Stefan Seyfried <seife@suse.de>
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       dtor_core@ameritech.net, Bernard Blackham <bernard@blackham.com.au>
+In-Reply-To: <421506FC.3060909@suse.de>
+References: <200502162346.26143.dtor_core@ameritech.net>
+	 <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>
+	 <200502170038.30033.dtor_core@ameritech.net>
+	 <1108627778.4471.54.camel@desktop.cunningham.myip.net.au>
+	 <421506FC.3060909@suse.de>
+Content-Type: text/plain
+Message-Id: <1108722865.4077.8.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cv36kk$54m$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 18 Feb 2005 21:34:25 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 05:58:05PM -0500, Bill Davidsen wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> >On Wed, 16 Feb 2005 10:42:21 +0100, "Kiniger, Karl (GE Healthcare)" said:
-> >
-> >
-> >>>  Have you tested the ISO on some *OTHER* hardware?  The impression I got
-> >>>  was that the cd was *burned* right by ide-cd, but when *read back*, it
-> >>>  bollixed things up at the end of the CD.....
-> >>
-> >>Using ide-scsi is enough to get all the data till the real end of the CD.
-> >
-> >
-> >OK, so the problem is that ide-cd is able to *burn* the CD just fine, but 
-> >it
-> >suffers lossage when ide-cd tries to read it back...
-> >
-> >Alan - are the sense-byte patches for ide-cd in a shape to push either 
-> >upstream
-> >or to -mm?
+Hi Stefan.
+
+For Suspend2, we also put a device id in the space, so there's only room
+for one character, which is a lower or upper case Z. (We also validate
+the device ID, so a random Z won't cause an oops).
+
+Thanks for the code. With your/Suse's permission, I'll ask Bernard
+(cc'd) to include the script in the docs somewhere with the appropriate
+credit.
+
+Thanks and regards,
+
+Nigel
+
+On Fri, 2005-02-18 at 08:05, Stefan Seyfried wrote:
+> Nigel Cunningham wrote:
 > 
-> The last time I looked at this, the issue was that the user software did 
-> a large read and the ide-cd didn't properly return a small data block 
-> with no error, but rather returned an error with no data. If you get the 
-> size of the ISO image, you can read that with any program which doesn't 
-> try to read MORE than that.
-
-Not entirely true (at least for me). I actually tried to read the 
-last iso9660 data sector with a small C program (reading 2 kb) and
-it failed to read the sector. Using ide-scsi I was able to read it.....
-
-sdd (from Joerg Schilling) should not try to read more than ivsize
-bytes (InputVolumeSize) if that argument is given - I did not
-verify with strace though.
-
-
-Karl
-
+> > If the mistakenly booted kernel isn't suspend enabled, however, you need
+> > a more generic method of removing the image, such as mkswapping the
+> > storage device. This is what I was speaking of.
+> 
+> The following code is used in the SUSE bootscripts to do exactly this:
+> 
+> ----------------------------------------------------
+> get_swap_id() {
+>     local line;
+>     fdisk -l | while read line; do
+>         case "$line" in
+>         /*Linux\ [sS]wap*) echo "${line%% *}"
+>         esac
+>     done
+> }
+> 
+> check_swap_sig () {
+>     local part="$(get_swap_id)"
+>     local where what type rest p c
+>     while read  where what type rest ; do
+>         test "$type" = "swap" || continue
+>         c=continue
+>         for p in $part ; do
+>             test "$p" = "$where" && c=true
+>         done
+>         $c
+>         case "$(dd if=$where bs=1 count=6 skip=4086 2>/dev/null)" in
+>         S1SUSP|S2SUSP) mkswap $where
+>         esac
+>     done < /etc/fstab
+> }
+> ---------------------------------------------------------------------
+> 
+> This invalidates the suspend signature if the kernel has not already
+> done it. It probably does not cover the softwaresuspend2 signature but
+> that should be trivial to add.
+> 
+> Regards,
+> 
+>   Stefan
 -- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+

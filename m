@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUCKNGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCKNGE
+	id S261244AbUCKNHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCKNHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:06:04 -0500
-Received: from mta04-svc.ntlworld.com ([62.253.162.44]:65509 "EHLO
-	mta04-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261239AbUCKNGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:06:02 -0500
-From: Richard Browning <richard@redline.org.uk>
-Organization: Redline Software Engineering
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Thu, 11 Mar 2004 13:04:17 +0000
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-References: <200403101227.32322.richard@redline.org.uk> <Pine.LNX.4.58.0403101104290.29087@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403101104290.29087@montezuma.fsmlabs.com>
+	Thu, 11 Mar 2004 08:07:49 -0500
+Received: from zero.aec.at ([193.170.194.10]:30982 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261244AbUCKNHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 08:07:48 -0500
+To: Boszormenyi Zoltan <zboszor@freemail.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64 IOMMU question
+References: <1yxkz-6ct-31@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 18 Mar 2004 00:14:09 +0100
+In-Reply-To: <1yxkz-6ct-31@gated-at.bofh.it> (Boszormenyi Zoltan's message
+ of "Thu, 11 Mar 2004 13:20:15 +0100")
+Message-ID: <m3ptbbawxq.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403111304.17740.richard@redline.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 March 2004 16:10, Zwane Mwaikambo wrote:
-> Just to make sure, have you tried a bios upgrade?
+Boszormenyi Zoltan <zboszor@freemail.hu> writes:
 
-No, because the two BIOS upgrades available are minor boot-up UI 
-modifications. I can do it though (<fx>purchases floppy drive</fx>) and I'll 
-get back to you.
+> is it possible to use the IOMMU to help 32 bit devices
+> that limit their capabilities with pci_set_dma_mask()?
+> E.g. the emu10k1 limits itself under 256MB. Can the IOMMU
+> pass the data to/from the card from/to above 256MB?
 
-R
+It can only remap to the AGP aperture, which is usually
+just below the 4GB boundary. In theory you could move the aperture
+to a very low address and remap to that (see 
+arch/x86_64/kernel/aperture.c), but that would waste memory.
+
+-Andi
+

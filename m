@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136543AbREIPbN>; Wed, 9 May 2001 11:31:13 -0400
+	id <S136554AbREIPqR>; Wed, 9 May 2001 11:46:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136544AbREIPbD>; Wed, 9 May 2001 11:31:03 -0400
-Received: from mail.family-net.net ([209.144.36.4]:32398 "EHLO
-	mail.family-net.net") by vger.kernel.org with ESMTP
-	id <S136543AbREIPan>; Wed, 9 May 2001 11:30:43 -0400
-Message-ID: <3AF96339.F60EB308@clinton-famnet.com>
-Date: Wed, 09 May 2001 10:33:13 -0500
-From: Terry Shull <tshull@clinton-famnet.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac6 i686)
-X-Accept-Language: en
+	id <S136563AbREIPqH>; Wed, 9 May 2001 11:46:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52234 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136554AbREIPps>; Wed, 9 May 2001 11:45:48 -0400
+Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine
+To: dledford@redhat.com (Doug Ledford)
+Date: Wed, 9 May 2001 16:49:25 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        bennyb@ntplx.net (Benedict Bridgwater),
+        linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <3AF96164.40F73A9@redhat.com> from "Doug Ledford" at May 09, 2001 11:25:24 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: oops
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14xWDP-0002dE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> EXTREMELY unlikely.  Under a 2.2 no-apic kernel, the aic7xxx card uses IRQ 11
+> and works.  Under a 2.2 ioapic kernel, it uses high interrupts and works. 
 
-The following oops has started occuring since the addition of the
-SanDisk Module. 
+non SMP that is clueless ignorance mode, SMP that is MP table mode
 
-May  9 10:05:11 localhost kernel: hub.c: USB hub found
-May  9 10:05:11 localhost kernel: hub.c: 2 ports detected
-May  9 10:05:11 localhost kernel: usb.c: USB disconnect on device 1
-May  9 10:05:11 localhost kernel: usb.c: USB disconnect on device 0
-May  9 10:05:11 localhost kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 0000000c
-May  9 10:05:11 localhost kernel:  printing eip:
-May  9 10:05:11 localhost kernel: c01f291b
-May  9 10:05:11 localhost kernel: pgd entry df10c000: 0000000000000000
-May  9 10:05:11 localhost kernel: pmd entry df10c000: 0000000000000000
-May  9 10:05:11 localhost kernel: ... pmd not present!
-May  9 10:05:11 localhost kernel: Oops: 0000
-May  9 10:05:11 localhost kernel: CPU:    0
-May  9 10:05:11 localhost kernel: EIP:    0010:[call_policy+427/608]
-May  9 10:05:11 localhost kernel: EIP:    0010:[<c01f291b>]
-May  9 10:05:11 localhost kernel: EFLAGS: 00010246
-May  9 10:05:11 localhost kernel: eax: 00000000   ebx: df97eae4   ecx:
-c0273f1d   edx: c0273f1c
-May  9 10:05:11 localhost kernel: esi: dfffaa60   edi: df094e00   ebp:
-df97eaa0   esp: df0dbef4
-May  9 10:05:11 localhost kernel: ds: 0018   es: 0018   ss: 0018
-May  9 10:05:11 localhost kernel: Process modprobe (pid: 223,
-stackpage=df0db000)
-May  9 10:05:11 localhost kernel: Stack: 00000008 c0292b20 c0273e6a
-00000000 df094e00 df094e40 df094f2c 00000000 
-May  9 10:05:11 localhost kernel:        df094e00 c01f3b8c c02744c7
-df094e00 c01f5b6c ffffffff df8c4c04 df8c4cf0 
-May  9 10:05:11 localhost kernel:        df93d760 df8c4c00 c01f3b70
-df8c4cf0 00000018 0000000e df97eba0 e1081240 
-May  9 10:05:11 localhost kernel: Call Trace: [usb_disconnect+252/304]
-[hub_disconnect+28/128] [usb_disconnect+224/304] [<e1081240>]
-[<e107fdfa>] 
-May  9 10:05:11 localhost kernel: Call Trace: [<c01f3b8c>] [<c01f5b6c>]
-[<c01f3b70>] [<e1081240>] [<e107fdfa>] 
-May  9 10:05:11 localhost kernel:    [pci_unregister_driver+47/80]
-[<e107c000>] [<e108032a>] [<e1081240>] [free_module+30/208] [<e107c000>] 
-May  9 10:05:11 localhost kernel:    [<c01d973f>] [<e107c000>]
-[<e108032a>] [<e1081240>] [<c0118dbe>] [<e107c000>] 
-May  9 10:05:11 localhost kernel:    [sys_delete_module+306/608]
-[<e107c000>] [system_call+51/56] 
-May  9 10:05:11 localhost kernel:    [<c01181d2>] [<e107c000>]
-[<c0106e0b>] 
-May  9 10:05:11 localhost kernel: 
-May  9 10:05:11 localhost kernel: Code: 8b 40 0c 8b 50 04 89 5e 20 c7 04
-24 09 00 00 00 8b 87 c4 00 
-May  9 10:05:11 localhost kernel:  <3>hub.c: get_port_status(2) failed
-(err = -19)
-May  9 10:05:11 localhost kernel: hub.c: get_port_status(2) failed (err
-= -19)
-May  9 10:05:11 localhost last message repeated 3 times
-May  9 10:05:11 localhost kernel: hub.c: Cannot enable port 2 of hub 1,
-disabling port.
-May  9 10:05:11 localhost kernel: hub.c: Maybe the USB cable is bad?
-May  9 10:05:11 localhost kernel: hub.c: cannot disable port 2 of hub 1
-(err = -19)
-May  9 10:05:11 localhost kernel: hub.c: get_hub_status failed
+> situation.  Specifically, if the eepro100 or e100 drivers are not loaded, then
+> IRQ 10 is not enabled by any device driver and loading the aic7xxx driver
+> simply results in infinite SCSI bus timeouts with nary a single interrupt on
+> pin 11.  However, if the eepro100 or e100 driver is loaded, then IRQ 10 will
+> have an active interrupt handler on it (which implies the interrupt is enabled
+> in the PIC) and loading the aic7xxx driver will hard lock the machine (which
+
+Which is exactly why I think it is an  IRQ routing table bug. It is wired
+to IRQ 10 and claims to be on IRQ 11.
+
+There are two things at work here
+
+	PCI_INTERRUPT_LINE - random gunge for the OS
+	PCI_INTERRUPT_PIN - INTA/INTB/INTC/INTD wiring
+
+The tables are then described by the $PIRQ table in the BIOS. We use that to
+load the mapping registers in the PCI bridge (and also to read them). If the
+tables are wrong then we will mismap interrupt INTA-D lines to IRQ lines.
+
+IRQ11 appearing on IRQ10 sounds exactly like the INTA-D line setting for IRQ
+11 is wrong and we connected it to IRQ 10
+
+Alan
 
 
-I have tested several cables, and also used the SanDisk in Windows and
-it works fine.

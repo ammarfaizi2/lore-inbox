@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281826AbRKWAOY>; Thu, 22 Nov 2001 19:14:24 -0500
+	id <S281825AbRKWAME>; Thu, 22 Nov 2001 19:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281828AbRKWAOO>; Thu, 22 Nov 2001 19:14:14 -0500
-Received: from [213.37.2.159] ([213.37.2.159]:39900 "EHLO alcorcon.madritel.es")
-	by vger.kernel.org with ESMTP id <S281826AbRKWAOL>;
-	Thu, 22 Nov 2001 19:14:11 -0500
-To: Astinus@netcabo.pt, linux-kernel@vger.kernel.org
-Subject: Re: Ext3 not supported by kernel !!!!!
-Message-Id: <E166uhS-00000u-00@DervishD>
-Date: Thu, 22 Nov 2001 15:19:34 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <dervishd@jazzfree.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <dervishd@jazzfree.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S281826AbRKWALy>; Thu, 22 Nov 2001 19:11:54 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:11705 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S281825AbRKWALl>;
+	Thu, 22 Nov 2001 19:11:41 -0500
+Subject: Re: [PATCH] fix compile warnings in 2.4.15pre9
+From: Robert Love <rml@tech9.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: Rich Baum <richbaum@acm.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011122165454.P1308@lynx.no>
+In-Reply-To: <132A4694022@coral.indstate.edu>  <20011122165454.P1308@lynx.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 22 Nov 2001 19:03:03 -0500
+Message-Id: <1006473785.1336.6.camel@icbm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Miguel :)
+On Thu, 2001-11-22 at 18:54, Andreas Dilger wrote:
+> How about something like (not real patches, but you get the idea:
+> 
+> @@ -4691,6 +4691,7 @@
+>  	OUTL_DSP (SCRIPTA_BA (np, clrack));
+> +out_stuck:
+>  	return;
+> -out_stuck:
+>  }
+>  
+> @@ -5226,6 +5227,7 @@
+>  
+> +fail:
+>  	return;
+> -fail:
+>  }
 
->Hi again guys, i manage to compile the 2.4.14 kernel just fine, and did all 
-[...]
->fs ext3 not supported by kernel
+Yes, much better.  Besides looking better, gcc _may_ generate different
+code (I don't know how smart it is in this case) that has these "fall
+throughs" and that would mean (a) less code and (b) less jumps -- always
+a win.
 
-    Wait til 2.4.15. Anyway, you can patch 2.4.14 to support ext3.
+	Robert Love
 
-    Raúl
+

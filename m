@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262508AbTCINv4>; Sun, 9 Mar 2003 08:51:56 -0500
+	id <S262511AbTCINix>; Sun, 9 Mar 2003 08:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262509AbTCINv4>; Sun, 9 Mar 2003 08:51:56 -0500
-Received: from mail2.mail.iol.ie ([194.125.2.193]:42469 "EHLO
-	mail2.mail.iol.ie") by vger.kernel.org with ESMTP
-	id <S262508AbTCINvz>; Sun, 9 Mar 2003 08:51:55 -0500
-Date: Sun, 9 Mar 2003 14:02:17 +0000
-From: Kenn Humborg <kenn@linux.ie>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH, resend] fs/proc/base.c: Expose file descriptors' f_pos
-Message-ID: <20030309140217.A13734@excalibur.research.wombat.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262512AbTCINix>; Sun, 9 Mar 2003 08:38:53 -0500
+Received: from krynn.axis.se ([193.13.178.10]:44736 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S262511AbTCINiw>;
+	Sun, 9 Mar 2003 08:38:52 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE880@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       Johan Adolfsson <johan.adolfsson@axis.com>
+Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Avoid PC(?) specific cascade dma reservation inkernel
+	/dma.c
+Date: Sun, 9 Mar 2003 14:49:14 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I don't know of any PC cards that can support ISA DMA channel 4 so I
+>guess simply because of that it hasn't happened. Do you actually
+>know of any DMA 4 capable ISA devices or is it used for onboard
+>ISA devices ?
 
-The attached patch sets the "size" for the /proc/PID/fd/N entries
-to the current file position (file->f_pos).
+In this case it is used in a non ISA capable system where DMA channel
+numbers doesn't relate to ISA numbers in any way. 
 
-In proc_lookupfd(), I fill inode->i_size with file->f_pos.  Then
-in pid_fd_revalidate(), I refresh it again.
-
-I would find this useful to be able to tell, for example, how far
-a large outgoing SMTP transfer has got (so I can avoid rebooting
-if it's almost finished), or how far a customer download from our
-FTP server has got to.
-
-Was there any particular reason for fixing the "size" of these
-files at 64?  Are there any tools that depend on this?
-
-Patch is against 2.5.63, but should also apply to 2.5.64.
-
-Later,
-Kenn
-
-
---- src/fs/proc/base.c	Tue Feb 18 00:25:22 2003
-+++ base.c	Mon Mar  3 19:55:15 2003
-@@ -819,8 +819,11 @@
- 		atomic_inc(&files->count);
- 	task_unlock(task);
- 	if (files) {
-+		struct file *f;
- 		read_lock(&files->file_lock);
--		if (fcheck_files(files, fd)) {
-+		f = fcheck_files(files, fd);
-+		if (f) {
-+			dentry->d_inode->i_size = f->f_pos;
- 			read_unlock(&files->file_lock);
- 			put_files_struct(files);
- 			return 1;
-@@ -926,7 +929,7 @@
- 	read_unlock(&files->file_lock);
- 	put_files_struct(files);
- 	inode->i_op = &proc_pid_link_inode_operations;
--	inode->i_size = 64;
-+	inode->i_size = file->f_pos;
- 	ei->op.proc_get_link = proc_fd_link;
- 	dentry->d_op = &pid_fd_dentry_operations;
- 	d_add(dentry, inode);
+/Mikael 

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265209AbTIFH2p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 03:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTIFH2p
+	id S263620AbTIFHXP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 03:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTIFHXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 03:28:45 -0400
-Received: from dyn-ctb-203-221-72-243.webone.com.au ([203.221.72.243]:773 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S265209AbTIFH2n
+	Sat, 6 Sep 2003 03:23:15 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:13028 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S263620AbTIFHXO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 03:28:43 -0400
-Message-ID: <3F598C96.6040305@cyberone.com.au>
-Date: Sat, 06 Sep 2003 17:28:22 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Sat, 6 Sep 2003 03:23:14 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: scott_list@mischko.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Plans for better performance metrics in upcoming kernels?
-References: <200309051641.44228.scott_list@mischko.com>
-In-Reply-To: <200309051641.44228.scott_list@mischko.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] idle using PNI monitor/mwait (take 3)
+Date: Sat, 6 Sep 2003 00:22:50 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D243@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] idle using PNI monitor/mwait (take 3)
+Thread-Index: AcN0QWvCzjVMTZaHTwWm7SEoqkaeeAAAZPHQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+X-OriginalArrivalTime: 06 Sep 2003 07:22:51.0218 (UTC) FILETIME=[AE4B5B20:01C37447]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Scott Chapman wrote:
+> -----Original Message-----
+> From: Zwane Mwaikambo [mailto:zwane@arm.linux.org.uk]
+> On Fri, 5 Sep 2003, Nakajima, Jun wrote:
+> 
+> > +		if (!pm_idle) {
+> > +			pm_idle = mwait_idle;
+> > +		}
+> > +		return;
+> > +	}
+> > +	pm_idle = default_idle;
+> 
+> You don't have to set that.
+> 
 
->Hi,
->I'm wondering what the plans are for more accurate and more useful performance 
->metrics in upcoming kernels.
->
->CPU Utilization by process is apparently a known-inaccuracy.
->
+The idea is to handle smp systems with asymmetric CPUs (if any such system 
+is built one day :)). We will use mwait, only if all the CPUs support it.
+If any CPU doesn't support mwait, then we switch back to default_idle. 
+Note that pm_idle will be NULL by default. 
 
-This could be improved using Ingo's nanosecond scheduler patch.
-
->
->There are no disk I/O metrics per process.
->
-
-This is now quite easy with per process IO contexts.
-
->
->CPU Queue Length doesn't appear to be available?
->
-
-It wouldn't be difficult.
-
->
->Etc.
->
->Linux clearly falls behind the competition in this area. It makes it rather 
->tough to do system performance analysis on a Linux box!  :-)
->
->Is there a plan to deal with these issues?  ETA's?
->
->
-
-Thinks are worked on depending on demand, and interest. I think a lot
-of people are put of doing good kernel metrics due to lack of good
-extensible userspace tools, and maybe a lack of standard ways to do the
-exporting.
-
-
+Thanks,
+-Venkatesh

@@ -1,49 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262971AbSJGLSx>; Mon, 7 Oct 2002 07:18:53 -0400
+	id <S262985AbSJGLWh>; Mon, 7 Oct 2002 07:22:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262930AbSJGLSx>; Mon, 7 Oct 2002 07:18:53 -0400
-Received: from 25th.com ([12.109.132.50]:33797 "HELO 25th.com")
-	by vger.kernel.org with SMTP id <S262971AbSJGLSx>;
-	Mon, 7 Oct 2002 07:18:53 -0400
-Message-ID: <3DA16FBF.1070202@dodinc.com>
-Date: Mon, 07 Oct 2002 07:27:59 -0400
-From: "Lawrence A. Wimble" <law@dodinc.com>
-Reply-To: law@dodinc.com
-Organization: Design On Demand, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262986AbSJGLWg>; Mon, 7 Oct 2002 07:22:36 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:10372 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S262985AbSJGLWe> convert rfc822-to-8bit;
+	Mon, 7 Oct 2002 07:22:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: jbradford@dial.pipex.com
+Subject: Re: LILO probs (SOLVED)
+Date: Mon, 7 Oct 2002 13:28:28 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200210071044.g97Ai838001683@darkstar.example.net>
+In-Reply-To: <200210071044.g97Ai838001683@darkstar.example.net>
 MIME-Version: 1.0
-To: Mazhar Memon <mazhar@nmt.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bizarre network issue
-References: <3D9F7169.8020008@dodinc.com> <20021005210308.07d381ff.mazhar@nmt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210071328.28313.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mazhar Memon wrote:
+Hi
 
->
->Are you willing share your code? I'd love to see what you have so far since I have a similar project.  It is basically using a wireless link that supposed to look like a terminal.  I'm hoping that all I'll need to do is make a simple driver to implement hard_start_xmit and let pppd do the rest.  Probably like your radio, it has a 0-7 network id which I assume you are including in your MAC addr some how.
->
->Regards,
->Mazhar
->
-Yes, I am quite willing to share the code.  In fact, I hope to have 
-everything wrapped up
-by the end of this week, and after a little testing, will make it 
-available on our website for
-download.  I'll send an email off-list to anyone interested once it's ready.
+I hardcoded the actual disk geometry along with disk=0x80 in lilo.conf, and 
+now it works ;-)
 
-Cheers!
-Larry
+roy
+
+On Monday 07 October 2002 12:44, jbradford@dial.pipex.com wrote:
+> > > > > Disk /dev/hda: 16 heads, 63 sectors, 38792 cylinders
+> > > > >
+> > > > > Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
+> > > > >  1 80   1   1    0  15  63  609       63   614817 83
+> > > > >  2 00   0   1  610  15  63 1023   614880 10486224 83
+> > > > >  3 00  15  63 1023  15  63 1023 11101104  4194288 83
+> > > > >  4 00  15  63 1023  15  63 1023 15295392 23806944 0f
+> > > > >  5 00  15  63 1023  15  63 1023       63  2097585 83
+> > > > >  6 00  15  63 1023  15  63 1023       63  1048257 83
+> > > > >  7 00  15  63 1023  15  63 1023       63  1048257 82
+> > > > >  8 00  15  63 1023  15  63 1023       63 19612593 83
+> > >
+> > > It's a very confusing table, but more importantly it seems to imply
+> > > that /dev/hda{5,6,7,8} all start at cylinder 63, and end in a variety
+> > > of places.
+> > >
+> > > If this is an accurate representation of the partition table on this
+> > > disk, I would suggest you recover what you can from it, and start over.
+> > >
+> > > Better would be to have a look at the partition table with something
+> > > that can fix it, like fdisk, sfdisk or parted. Example:
+> > >
+> > > sfdisk -l /dev/hda
+> >
+> > hm
+> >
+> > root@pbx /usr/src/asterisk># sfdisk -l /dev/hda
+> >
+> > Disk /dev/hda: 38792 cylinders, 16 heads, 63 sectors/track
+> > Units = cylinders of 516096 bytes, blocks of 1024 bytes, counting from 0
+> >
+> >    Device Boot Start     End   #cyls   #blocks   Id  System
+> > /dev/hda1   *      0+    609     610-   307408+  83  Linux
+> > /dev/hda2        610   11012   10403   5243112   83  Linux
+> > /dev/hda3      11013   15173    4161   2097144   83  Linux
+> > /dev/hda4      15174   38791   23618  11903472    f  Win95 Ext'd (LBA)
+> > /dev/hda5      15174+  17254    2081-  1048792+  83  Linux
+> > /dev/hda6      17255+  18294    1040-   524128+  83  Linux
+> > /dev/hda7      18295+  19334    1040-   524128+  82  Linux swap
+> > /dev/hda8      19335+  38791   19457-  9806296+  83  Linux
+> >
+> > just lists the table
+> >
+> > but - it works, but I need to boot off a floppy, and I really don't want
+> > to start over reinstalling this.
+> >
+> > any ideas how I can make LILO/GRUB work with this?
+>
+> When you say, 'boot off a floppy', what do you mean:
+>
+> 1. Boot a raw kernel image from a floppy
+>
+> or
+>
+> 2. Boot a floppy containing LILO/GRUB?
+>
+> If you mean 1, you are accessing the hard disk with the BIOS.
+>
+> If you mean 2, you are never accessing the hard disk with the BIOS.
+>
+> John.
 
 -- 
-Lawrence A. Wimble                          414 NE 3rd Street; Suite B
-Chief Software Engineer                     Crystal River, FL 34429
-Design On Demand, Inc.                      Phone 352-563-1225 x112
-law@dodinc.com                              Fax 352-563-2098
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267425AbTGTQmd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbTGTQmd
+	id S267488AbTGTQo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 12:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbTGTQo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:42:33 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:41425 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S267425AbTGTQmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:42:32 -0400
-Message-ID: <3F1AC57B.6030005@myrealbox.com>
-Date: Mon, 21 Jul 2003 00:38:19 +0800
-From: Romit Dasgupta <romit@myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Riley@Williams.Name, Dave Jones <davej@codemonkey.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Redundant cli ?? [arch/i386/boot/compressed/head.S]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Jul 2003 12:44:57 -0400
+Received: from [200.104.148.52] ([200.104.148.52]:14722 "EHLO
+	sleipnir.valparaiso.cl") by vger.kernel.org with ESMTP
+	id S267488AbTGTQo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 12:44:56 -0400
+Message-Id: <200307201659.h6KGxX912617@sleipnir.valparaiso.cl>
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] HURD vs Linux/HURD 
+In-reply-to: Your message of "Sun, 20 Jul 2003 14:49:43 +0100."
+             <200307201349.h6KDnhXj002101@81-2-122-30.bradfords.org.uk> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 20 Jul 2003 12:59:33 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-     Looks like cli is done two times in arch/i386/boot/compressed/head.S.
+[Cc: list chopped down to size]
+John Bradford <john@grabjohn.com> said:
 
-The first occurence is in line number 33 just 2 lines after startup_32.
-The second one is at line 103, just after the move_routine is moved to 
-its rightful place and before transferring control to it. This looks 
-like a redundant cli. The only place EFLAGS is directly touched is in 
-line 53 (popfl) but that still has no effect on interrupt flag.
+[...]
 
-Please correct me if I am wrong, else the second cli may be removed.
+> This discussion is nothing to do with Bit Keeper, (anymore).
 
-Regards,
--Romit
+That stuff is wildly off-topic.
 
+>                                                              We are
+> discussing what parts of the Hurd and GNU Mach contain code derived
+> from Linux.  That's actually quite interesting, and on-topic.
+
+Why? Are you planing to take anything from Hurd? Or complain that they
+(legally!) are taking GPLed code and use it elsewhere? In the fist case,
+discussion about the _technical_ merit of the code to swipe is on-topic,
+all else isn't. The second case is none of your business, (unless you wrote
+the code and did not GPL it).
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 

@@ -1,79 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130200AbRAXDPX>; Tue, 23 Jan 2001 22:15:23 -0500
+	id <S129855AbRAXDey>; Tue, 23 Jan 2001 22:34:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRAXDPN>; Tue, 23 Jan 2001 22:15:13 -0500
-Received: from p3EE3CBDA.dip.t-dialin.net ([62.227.203.218]:27141 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S130200AbRAXDOz>; Tue, 23 Jan 2001 22:14:55 -0500
-Date: Wed, 24 Jan 2001 04:14:37 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: FreeBSD Stable <freebsd-stable@FreeBSD.ORG>,
-        Linux NFS mailing list <nfs@lists.sourceforge.net>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
-Message-ID: <20010124041437.A28212@emma1.emma.line.org>
-In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com> <20010123162930.B5443@emma1.emma.line.org> <wuofwynsj5.fsf_-_@bg.sics.se> <20010123105350.B344@quadrajet.flashcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010123105350.B344@quadrajet.flashcom.com>; from gharris@flashcom.net on Tue, Jan 23, 2001 at 10:53:50 -0800
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S130320AbRAXDep>; Tue, 23 Jan 2001 22:34:45 -0500
+Received: from casablanca.magic.fr ([195.154.101.81]:63694 "EHLO
+	casablanca.magic.fr") by vger.kernel.org with ESMTP
+	id <S129855AbRAXDei>; Tue, 23 Jan 2001 22:34:38 -0500
+Message-ID: <3A6E4DF1.EE691AF5@magic.fr>
+Date: Wed, 24 Jan 2001 04:37:21 +0100
+From: "Jo l'Indien" <l_indien@magic.fr>
+Reply-To: l_indien@magic.fr, jma@netgem.com
+Organization: Les grandes plaines
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: fr-FR, fr, en, en-GB, en-US, ro
+MIME-Version: 1.0
+To: paulus@linuxcare.com, callahan@maths.ox.ac.uk, jfree@sovereign.org
+CC: linux-kernel@vger.kernel.org
+Subject: Bug in ppp_async.c
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id OAA11677
 
-(Please consider removing FreeBSD-stable from the recipient list when
-replying.)
+I found a bug in the 2.4.1-pre10 version of ppp_async.c
 
-Summary:
+In fact, a lot of ioctl are not supported any more,
+whih make the pppd start fail.
+The bad patch is:
 
-The Linux 2.2.18 NFS v3 server returns bogus and as per RFC-1813 invalid
-NFS3ERR_ROFS to ACCESS procedure calls when exporting a file system
-read-only, when it should instead return "OK" along with the actual
-permissions the client has, ANDed with the permissions the client
-queried. 
+diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
+linux/drivers/net/ppp_async.c
+--- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
++++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
+@@ -259,25 +244,6 @@
+   err = 0;
+   break;
 
-The bug is visible on FreeBSD 4.2-STABLE client which cannot ls The
-mounted file system (NFS v2 is fine since it does not have ACCESS).
-There is no related log entry in the 2.2.19pre7 change log.  I did not
-check Linux 2.4.0, 2.4.0-acX or 2.4.1-preX either.
-
-On Tue, 23 Jan 2001, Guy Harris wrote:
-
-> Yes - for one thing, that means that if some client decides, while it's
-> asking whether the server whether it can write to a file, to check also
-> whether it can read from the file, it can get back an answer to both of
-> those questions, even if the file is on a read-only file system.
-
-Yup. Looks like a Linux kernel bug, so I'm cc'ing Alan Cox as kernel
-release maintainer as well as linux-kernel to make this a known issue.
-
-I got libpcap 0.6.1 and ethereal 0.8.15 and that's what I found:
-
-FreeBSD 4.2-STABLE sends three NFSPROC3_ACCESS requests, with 0x3f
-argument (meaning READ|LOOKUP|MODIFY|EXTEND|DELETE|EXECUTE), and to
-each, Linux 2.2.18 sends NFS3ERR_ROFS back, obj_attributes contains the
-stat data. ERR_ROFS is invalid here and makes indeed no sense, proper
-behaviour would be NFS3_OK with just READ|LOOKUP|EXECUTE set, since the
-server can actually access or stat the exported FS. Please correct me if
-I'm mistaking what RFC 1813 demands.
-
-client: $ mount server:/space /mnt
-        $ ls /mnt
-        ls: mnt: Read-only file system
-        (FreeBSD 4.2-STABLE)
-
-server: $ ls -ld /space/
-        drwxrwxrwt  23 root     root          706 Jan  2 11:53 /space/
-        $ grep /space /etc/exports
-        /space 192.168.0.0/255.255.255.0(ro)
-        (Linux 2.2.18, nfs-utils 0.2.1)
-
--- 
-Matthias Andree
+-/*
+- * For now, do the same as the old 2.3 driver useta
+- */
+- case PPPIOCGFLAGS:
+- case PPPIOCSFLAGS:
+- case PPPIOCGASYNCMAP:
+- case PPPIOCSASYNCMAP:
+- case PPPIOCGRASYNCMAP:
+- case PPPIOCSRASYNCMAP:
+- case PPPIOCGXASYNCMAP:
+- case PPPIOCSXASYNCMAP:
+- case PPPIOCGMRU:
+- case PPPIOCSMRU:
+-  err = -EPERM;
+-  if (!capable(CAP_NET_ADMIN))
+-   break;
+-  err = ppp_async_ioctl(&ap->chan, cmd, arg);
+-  break;
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
+  case PPPIOCATTACH:
+  case PPPIOCDETACH:
+   err = ppp_channel_ioctl(&ap->chan, cmd, arg);
+
+
+When I apply this patch back, I got the connection,
+but it fail after a few seconds...
+In fact, there are two other patches to reverse
+in order to make the driver do its job again
+(sure it does: I'm using this kind of kernel now...):
+
+diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
+linux/drivers/net/ppp_async.c
+--- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
++++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
+@@ -181,12 +175,7 @@
+ ppp_asynctty_read(struct tty_struct *tty, struct file *file,
+     unsigned char *buf, size_t count)
+ {
+- /* For now, do the same as the old 2.3.x code useta */
+- struct asyncppp *ap = tty->disc_data;
+-
+- if (ap == 0)
+-  return -ENXIO;
+- return ppp_channel_read(&ap->chan, file, buf, count);
++ return -EAGAIN;
+ }
+
+ /*
+
+Then:
+
+diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
+linux/drivers/net/ppp_async.c
+--- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
++++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
+@@ -203,12 +193,7 @@
+ ppp_asynctty_write(struct tty_struct *tty, struct file *file,
+      const unsigned char *buf, size_t count)
+ {
+- /* For now, do the same as the old 2.3.x code useta */
+- struct asyncppp *ap = tty->disc_data;
+-
+- if (ap == 0)
+-  return -ENXIO;
+- return ppp_channel_write(&ap->chan, buf, count);
++ return -EAGAIN;
+ }
+
+ static int
+
+Without these modifications, everything is allright !
+
+Jocelyn Mayer
+
+PS: sorry, but I don't know who is the actual maitainer of this
+driver...
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd

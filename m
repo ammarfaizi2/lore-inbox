@@ -1,73 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273269AbRKMMVt>; Tue, 13 Nov 2001 07:21:49 -0500
+	id <S281523AbRKMM2l>; Tue, 13 Nov 2001 07:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276057AbRKMMVj>; Tue, 13 Nov 2001 07:21:39 -0500
-Received: from m216-mp1-cvx2a.lee.ntl.com ([62.252.240.216]:38273 "EHLO
-	box.penguin.power") by vger.kernel.org with ESMTP
-	id <S273269AbRKMMVY>; Tue, 13 Nov 2001 07:21:24 -0500
-Date: Tue, 13 Nov 2001 12:20:33 +0000
-From: Gavin Baker <gavbaker@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stuart Young <sgy@amc.com.au>
-Subject: Re: SiS630 and 5591/5592 AGP
-Message-ID: <20011113122033.A9379@box.penguin.power>
-In-Reply-To: <5.1.0.14.0.20011112101656.00a20630@mail.amc.localnet> <20011111185930.A2700@box.penguin.power> <5.1.0.14.0.20011112101656.00a20630@mail.amc.localnet> <20011112163604.A5384@box.penguin.power> <5.1.0.14.0.20011113105444.009f3ec0@mail.amc.localnet>
+	id <S281521AbRKMM2a>; Tue, 13 Nov 2001 07:28:30 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:8176 "EHLO
+	c0mailgw01.prontomail.com") by vger.kernel.org with ESMTP
+	id <S276369AbRKMM2T> convert rfc822-to-8bit; Tue, 13 Nov 2001 07:28:19 -0500
+X-Version: beer 7.5.2333.0
+From: "william fitzgerald" <william.fitzgerald3@beer.com>
+Message-Id: <E2D08E27D008FC940A0E24ADA76AD89F@william.fitzgerald3.beer.com>
+Date: Wed, 14 Nov 2001 12:33:02 +2400
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: pwaechtler@loewe-komp.de,
+        william fitzgerald <william.fitzgerald3@beer.com>
+Subject: Re: Re: printk performance logging without syslogd for router
+CC: linux-kernel@vger.kernel.org
+X-Mailer: Web Based Pronto
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <5.1.0.14.0.20011113105444.009f3ec0@mail.amc.localnet>; from sgy@amc.com.au on Tue, Nov 13, 2001 at 11:15:11AM +1100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13, 2001 at 11:15:11AM +1100, Stuart Young wrote:
 
-> At 04:36 PM 12/11/01 +0000, Gavin Baker wrote:
-> >Im currently using vesa for X, I would like to get some kind of 
-> >acceleration to play DVD's etc. I've tried the sis_drv in X 4.1 with the 
-> >lavalamp style effect i mentioned, the sis driver in X3.x gets the screen 
-> >offset totally wrong, ie the center of the screen is on the far right of 
-> >the physical screen, but this is a problem i can direct to the X lists.
+---- Begin Original Message ----
+ From: Peter Wächtler <pwaechtler@loewe-komp.de>
+Sent: Tue, 13 Nov 2001 13:15:45 +0100
+To: william fitzgerald
+<william.fitzgerald3@beer.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: printk performance logging without
+syslogd for router
+
+
+william fitzgerald wrote:
 > 
-> You'll find a post from me there back in October, and a patch to X (and a 
-> binary module) linked to. The files are still there, and contains details 
-> on how to try the work-around.
-
-Im using your patched sis_drv.o for X now. The performance increase is
-noticable, but the Xv display still can't keep up with any highbandwidth video
-(even 352x288 mpeg), so my dream of DVD playback is still far off but a lot
-closer. ;)
-
-> >Im sure other laptops with different badges on them will have the same
-> >internals.
+> hi all,
 > 
-> Gotta love reference designs.
-
-Sure, when they are well supported reference designs :)
-
-> >Everything else (except the software modem, which i have no use for)
-> >worked straight out of the tin with RedHat 7.2's vanilla kernel. Im
-> >current using Alans 2.4.13-ac8:
+> (perforamnce logging of network stack through a
+> linux router)
 > 
-> The sisfb driver changes appeared in 2.4.13-ac4, so I'd guess they'd be in 
-> 2.4.13-ac8. Unfortunately (afaik) Alan hasn't gotten much in the way of 
-> e-mail response from SiS on his questions. The driver made an appearance 
-> early in the 2.4 series, and was 'reverted' back to the old one as SiS 
-> didn't respond to questions about the code, which afaik seemed "inconsistent".
+> the main question:
+> 
+> is there a way i can buffer or record  the
+printk
+> statements and print them to disk  after my
+> packets have gone through the router?
+> 
 
-The SiS Framebuffer has the problem thats been mentioned where it
-does'nt talk to the CRT/LCD controller correctly. It displays to the 
-CRT _almost_ perfectly, but sends garbage to the LCD, i guess its the same 
-for you. 
+there is an option in syslogd to prevent
+immediatly
+writing to the logfile:
 
-I will never understand the logic behind a company _not_ helping produce
-drivers for their hardware under our favourite OS. The only reason i can
-even think of is if their hardware needs huge ugly hacks that binary
-drivers hide.
- 
-> Can you e-mail me (may as well be off-list) the dump of 'lspci -bv' please? 
+prefix the log with a dash:
 
-done.
+kern.*	-/var/log/kernelmessages
 
-Cheers, Gavin Baker
+---- End Original Message ----
+
+what does klogd do?
+
+i thought klogd writes to disk if you turn off
+syslogd.that way you only have one over head.
+
+
+
+
+Beer Mail, brought to you by your friends at beer.com.

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264223AbUDNNcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 09:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUDNNcu
+	id S264234AbUDNNes (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 09:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUDNNes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 09:32:50 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:54268 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S264223AbUDNNcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 09:32:36 -0400
-Message-ID: <407D3D46.9010403@nortelnetworks.com>
-Date: Wed, 14 Apr 2004 09:31:50 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Tim Hockin <thockin@hockin.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] conditionalize some boring buffer_head checks
-References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org> <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com> <20040414082716.GA25439@hockin.org> <407CFAD7.4070606@pobox.com>
-In-Reply-To: <407CFAD7.4070606@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 09:34:48 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:38327 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264234AbUDNNeo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 09:34:44 -0400
+Date: Wed, 14 Apr 2004 15:34:36 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Guillaume@lacote.name, linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+Message-ID: <20040414133436.GC6955@wohnheim.fh-wedel.de>
+References: <200404131744.40098.Guillaume@Lacote.name> <200404140854.56387.Guillaume@Lacote.name> <20040414094334.GA25975@wohnheim.fh-wedel.de> <200404141202.07021.Guillaume@Lacote.name> <407D3231.2080605@grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <407D3231.2080605@grupopie.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tim Hockin wrote:
+On Wed, 14 April 2004 13:44:33 +0100, Paulo Marques wrote:
+> Guillaume Lacôte wrote:
 > 
->> Somewhat off the original topic, but am I the only one who finds it weird
->> (and error-prone) that you have to add the same KConfig to a dozen or 
->> more
->> Kconfig files?
->>
->> Shouldn't there be a KConfig libe, and all you need to do for the arch is
->> reference the CONFIG_FOO from the lib?  Would at least save all the
->> duplicate strings and definitions...
+> >>>Oops ! I thought it was possible to guarantee with the Huffman encoding
+> >>>(which is more basic than Lempev-Zif) that the compressed data use no
+> >>>more than 1 bit for every byte (i.e. 12,5% more space).
+> 
+> WTF??
+> 
+> Zlib gives a maximum increase of 0.1%  + 12 bytes (from the zlib manual), 
+> which for a 512 block will be a 2.4% guaranteed increase.
+> 
+> I think that zlib already does the "if this is bigger than original, just 
+> mark the block type as uncompressed" algorithm internally, so the increase 
+> is minimal in the worst case.
 
-> Seems a lot easier just to gather the common definitions into a Kconfig 
-> file, and include it via the standard 'source' directive.
+Correct, but Guillaume doesn't care about compression efficiency.
+"mark the block uncompressed" is precisely what he does *not* want,
+unless I got him wrong.
 
-Either way, I personally would be extremely grateful for some kind of 
-standard way to add a new configurable generic feature to every 
-architecture.  I'm tired of having to add it manually.  I hadn't 
-realized about the "source" feature--seems like we should be able to 
-pull a lot of stuff into something like that even now.
+Jörn
 
-On a side note, why is there no Kconfig for the "kernel" directory?
-
-Chris
+-- 
+...one more straw can't possibly matter...
+-- Kirby Bakken

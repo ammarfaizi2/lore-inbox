@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVCYEbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVCYEqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVCYEbv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 23:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVCYEbv
+	id S261285AbVCYEqP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 23:46:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVCYEqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 23:31:51 -0500
-Received: from smtpout.mac.com ([17.250.248.44]:16636 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261221AbVCYEbh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 23:31:37 -0500
-In-Reply-To: <a44ae5cd050324201565814701@mail.gmail.com>
-References: <a44ae5cd050324201565814701@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <28bdcf7251e360b81370397cc74a197f@mac.com>
+	Thu, 24 Mar 2005 23:46:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63646 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261288AbVCYEqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 23:46:07 -0500
+Message-ID: <42439781.4080007@pobox.com>
+Date: Thu, 24 Mar 2005 23:45:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: johnpol@2ka.mipt.ru
+CC: Andrew Morton <akpm@osdl.org>, David McCullough <davidm@snapgear.com>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>	 <20050323203856.17d650ec.akpm@osdl.org> <1111666903.23532.95.camel@uganda>	 <42432596.2090709@pobox.com> <1111724759.23532.121.camel@uganda>
+In-Reply-To: <1111724759.23532.121.camel@uganda>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: LKML <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Error building ndiswrapper-1.0rc1 against 2.6.12-rc1-mm2 sources
-Date: Thu, 24 Mar 2005 23:31:27 -0500
-To: Miles Lane <miles.lane@gmail.com>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 24, 2005, at 23:15, Miles Lane wrote:
-> Hi,
->
-> Was this change intentional or accidental?  I have successfully built
-> ndiswrapper-1.0rc1 with the other recent kernel trees.
->
-> warning: passing arg 4 of `call_usermodehelper' makes pointer from 
-> integer without a cast
-> error: too few arguments to function `call_usermodehelper'
+Evgeniy Polyakov wrote:
+> On Thu, 2005-03-24 at 15:39 -0500, Jeff Garzik wrote:
+> 
+>>Evgeniy Polyakov wrote:
+>>
+>>>hw_random.c already does it using userspace daemons,
+>>>which is bad idea for very fast HW - like VIA xstore/xcrypt 
+>>>instructions.
+>>
+>>This is incorrect, because it implies that a user would want to use the 
+>>'xstore' feature at full speed -- which would dominate the CPU, 
+>>drastically slowing down the applications that are actually doing work.
+> 
+> 
+> If user want to get RNG data at full speed we do not want to allow it?
+> Something changed in the world...
 
-call_usermodehelper was extended with a parameters to allow a
-keyring environment to be passed.  As this is -mm, who knows
-whether the patch will make it into mainline or not.  I suspect
-it will, though, due to its utility at which point external
-modules will need to be converted.
+I agree with this sentiment; this is mainly a policy decision that 
+kernel programmers should not make.
 
-Cheers,
-Kyle Moffett
+Certainly _by default_ the RNG should not be run "full blast" all the 
+time.  This is a needless CPU soaker.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+This is another example of why the userspace rngd is useful:  it is 
+trivial to implement "CPU soaker" policy if you wish, or use the default 
+"don't eat all my CPU" policy.
+
+
+> User actually do not want to use xstore, but only read from /dev/random.
+
+That's a policy decision to be made by the user, not you.
+
+Some users may wish to use RNG directly.
+
+
+> If kernelspace can assist and driver _knows_ in advance that data
+> produced is cryptographically strong, why not allow it directly
+> access pools?
+
+A kernel driver cannot know in advance that the data from a hardware RNG 
+is truly random, unless the data itself is 100% validated beforehand.
+
+	Jeff
 
 

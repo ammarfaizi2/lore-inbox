@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267411AbSLLDjL>; Wed, 11 Dec 2002 22:39:11 -0500
+	id <S267408AbSLLDf4>; Wed, 11 Dec 2002 22:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267413AbSLLDht>; Wed, 11 Dec 2002 22:37:49 -0500
-Received: from dp.samba.org ([66.70.73.150]:49380 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267411AbSLLDhk>;
-	Wed, 11 Dec 2002 22:37:40 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15864.1386.543811.337732@argo.ozlabs.ibm.com>
-Date: Thu, 12 Dec 2002 14:41:30 +1100
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] fix endian problem in color_imageblit
-X-Mailer: VM 7.07 under Emacs 20.7.2
+	id <S267409AbSLLDf4>; Wed, 11 Dec 2002 22:35:56 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:49682 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267408AbSLLDfz>;
+	Wed, 11 Dec 2002 22:35:55 -0500
+Date: Wed, 11 Dec 2002 22:43:38 -0500 (EST)
+Message-Id: <200212120343.gBC3hcO11146@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Changes doc update.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the endian problems in color_imageblit().  With this
-patch, I get the penguin drawn properly on boot.
 
-The main change is that on big-endian systems, when we load a pixel
-from the source, we now shift it to the left-hand (most significant)
-end of the word.  With this change the rest of the logic is correct on
-big-endian systems.  This may not be the most efficient way to do
-things but it is a simple change that works and avoids disturbing the
-rest of the code.
+Dave Jones writes:
 
-Paul.
+> - Alternatively, the procps by Albert Cahalan now supports the
+>   altered formats since v3.0.5, but lags behind the bleeding edge
+>   version maintained by Rik and Robert. -- http://procps.sf.net/
 
-diff -urN linux-2.5/drivers/video/cfbimgblt.c pmac-2.5/drivers/video/cfbimgblt.c
---- linux-2.5/drivers/video/cfbimgblt.c	2002-12-10 15:20:32.000000000 +1100
-+++ pmac-2.5/drivers/video/cfbimgblt.c	2002-12-12 09:14:47.000000000 +1100
-@@ -103,10 +103,10 @@
- {
- 	/* Draw the penguin */
- 	int i, n;
--	unsigned long bitmask = SHIFT_LOW(~0UL, BITS_PER_LONG - p->var.bits_per_pixel);
-+	int bpp = p->var.bits_per_pixel;
- 	unsigned long *palette = (unsigned long *) p->pseudo_palette;
- 	unsigned long *dst, *dst2, color = 0, val, shift;
--	unsigned long null_bits = BITS_PER_LONG - p->var.bits_per_pixel; 
-+	unsigned long null_bits = BITS_PER_LONG - bpp;
- 	u8 *src = image->data;
- 
- 	dst2 = (unsigned long *) dst1;
-@@ -125,9 +125,10 @@
- 		while (n--) {
- 			if (p->fix.visual == FB_VISUAL_TRUECOLOR ||
- 			    p->fix.visual == FB_VISUAL_DIRECTCOLOR )
--				color = palette[*src] & bitmask;
-+				color = palette[*src];
- 			else
--				color = *src & bitmask;	
-+				color = *src;
-+			color <<= LEFT_POS(bpp);
- 			val |= SHIFT_HIGH(color, shift);
- 			if (shift >= null_bits) {
- 				FB_WRITEL(val, dst++);
-@@ -136,7 +137,7 @@
- 				else
- 					val = SHIFT_LOW(color, BITS_PER_LONG - shift);
- 			}
--			shift += p->var.bits_per_pixel;
-+			shift += bpp;
- 			shift &= (BITS_PER_LONG - 1);
- 			src++;
- 		}
+Currently I'd say it's mostly the other way around.
+
+Differences between procps-2.1.11 and procps-3.1.2 that relate
+to Linux 2.5.xx support are:
+
+1. Robert has /proc/*/wchan support (for WCHAN w/o System.map)
+2. My vmstat has a fast O(1) algorithm for 2.5.xx kernels
+3. My vmstat reports IO-wait time
+4. My sysctl handles the 2.5.xx VLAN interfaces
+
+So that's 1-to-3 in my favor, based strictly on support of the
+2.5.xx kernels. I find this odd actually, seeing as the procps-2
+developers made #2 and #3 possible. The only time I fell behind
+was when Rik patched procps _before_ Linus accepted a change.
+
+
+

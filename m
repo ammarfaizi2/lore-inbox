@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVAITms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVAITou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVAITms (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAITmf
+	id S261741AbVAITou (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 14:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAITou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:42:35 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:54026 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261734AbVAITmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:42:13 -0500
-Date: Sun, 9 Jan 2005 19:42:09 +0000
-From: Arjan van de Ven <arjan@infradead.org>
-To: viro@zenII.uk.linux.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: make flock_lock_file_wait static
-Message-ID: <20050109194209.GA7588@infradead.org>
+	Sun, 9 Jan 2005 14:44:50 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:61596 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261734AbVAITnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 14:43:24 -0500
+Subject: Possible user base and mainline inclusion of LSM-based security
+	improvements.
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+Cc: alan@redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YzCBB+KhVRZSTzrV0fg6"
+Date: Sun, 09 Jan 2005 20:42:53 +0100
+Message-Id: <1105299774.8662.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--=-YzCBB+KhVRZSTzrV0fg6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
 
-the patch below makes flock_lock_file_wait static, because it is only used
-(once) in fs/locks.c. Making it static allows gcc to generate better code
-(partial or entirely inlining it, gcc 3.4 also optimizes the calling
-convention for static functions which are guaranteed only local to the file)
+I'm now writing a "safe networking" LSM, inspired by grSecurity socket
+restriction capabilities.
 
+Currently, it provides users and groups (uid and gid based) Access
+Control Lists, which can be changed in runtime by a new interface based
+on my other LSM, the TPE, which registers a subsystem in sysfs and
+creates  the needed entries for "realtime" configuration under secfs in
+the mountpoint of sysfs (normally /sys/).
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+I'ts intended to provide a base of enhanced features inspired by the
+well-designed grSecurity patch maintained and developed by Brad Spengler
+(a.k.a. spender), by now i have the TPE and this LSM almost done.
 
-diff -purN linux-2.6.10/fs/locks.c linux/fs/locks.c
---- linux-2.6.10/fs/locks.c	2005-01-09 14:51:10.101125171 +0100
-+++ linux/fs/locks.c	2005-01-09 20:39:44.930216959 +0100
-@@ -1451,7 +1451,7 @@ out_unlock:
-  *
-  * Add a FLOCK style lock to a file.
-  */
--int flock_lock_file_wait(struct file *filp, struct file_lock *fl)
-+static int flock_lock_file_wait(struct file *filp, struct file_lock *fl)
- {
- 	int error;
- 	might_sleep();
-@@ -1469,8 +1469,6 @@ int flock_lock_file_wait(struct file *fi
- 	return error;
- }
- 
--EXPORT_SYMBOL(flock_lock_file_wait);
--
- /**
-  *	sys_flock: - flock() system call.
-  *	@fd: the file descriptor to lock.
-diff -purN linux-2.6.10/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.6.10/include/linux/fs.h	2005-01-09 14:51:10.293101584 +0100
-+++ linux/include/linux/fs.h	2005-01-09 20:39:18.678389875 +0100
-@@ -709,7 +709,6 @@ extern int posix_lock_file_wait(struct f
- extern void posix_block_lock(struct file_lock *, struct file_lock *);
- extern void posix_unblock_lock(struct file *, struct file_lock *);
- extern int posix_locks_deadlock(struct file_lock *, struct file_lock *);
--extern int flock_lock_file_wait(struct file *filp, struct file_lock *fl);
- extern int __break_lease(struct inode *inode, unsigned int flags);
- extern void lease_get_mtime(struct inode *, struct timespec *time);
- extern int setlease(struct file *, long, struct file_lock **);
+The main goal is to provide an also well-designed (as most as possible)
+security improvement using the LSM framework for Vanilla sources.
+
+The main problem is that people often needs security enhancements that
+they can not get by using the default Vanilla sources, even in an easy,
+"user friendly" way.
+
+What's more simple than insmod'ding a module?
+
+Maybe the LSM framework is not the best one, or it's just not reliable
+for this as some people and colectives said before, but i want to give
+it a chance, even if this work could be nonsense for some people, it's
+also for my own fun and coding profit.
+
+If someone wants to help with this idea (i can not call it a project but
+seems going to be :) ), just tell me.
+
+Also, i would appreciate knowing the opinion from both kernel hackers
+and users "vocal" base, about the inclusion of this security
+improvements in the main line.
+
+Tomorrow, my school time will start again after these Christmas
+holidays, so, i will have more limited time and less nights (umm, none
+maybe) to work on this stuff, until i get spin_unlock()'ed again ;).
+
+Thanks in advance, cheers.
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
+
+--=-YzCBB+KhVRZSTzrV0fg6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB4Yk9DcEopW8rLewRAtiuAJ49DJTd2p9um+tPY850JLB2hF8ogwCgrS/5
+PD69kGjbSF5iYYi1HJuJBo8=
+=QrRH
+-----END PGP SIGNATURE-----
+
+--=-YzCBB+KhVRZSTzrV0fg6--
 

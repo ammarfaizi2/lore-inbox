@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTIZAQj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 20:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTIZAQj
+	id S262081AbTIZA0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 20:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTIZA0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 20:16:39 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:50048
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262076AbTIZAQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 20:16:38 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: Keyboard oddness.
-Date: Thu, 25 Sep 2003 18:59:55 -0500
-User-Agent: KMail/1.5
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <200309201633.22414.rob@landley.net> <200309221506.08331.rob@landley.net> <20030923000647.A1128@pclin040.win.tue.nl>
-In-Reply-To: <20030923000647.A1128@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 25 Sep 2003 20:26:17 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:5234 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262081AbTIZA0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 20:26:16 -0400
+Date: Thu, 25 Sep 2003 21:26:05 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Zombie process with preemptible enabled.
+Message-Id: <20030925212605.0c4baa57.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309251859.55887.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 September 2003 17:06, Andries Brouwer wrote:
+Hi people,
 
-> > Any clues?  (This happens to me at least once an hour...)
->
-> Some people have been reporting missing key releases (maybe also you),
-> but these are all missing key presses. It is easiest to blame the
-> keyboard, even though I could imagine ways to blame the kernel.
+Since i starting to testing 2.6 and recently mm and -ck, i see that Mozilla/Mozilla Firebird
+(diferent versions) launch a netstat child that when finalize, it remain zombie. It only happens
+when preemptible option is enabled.
 
-If the press is the first event, how does it know that it's missing?  Are you 
-saying t got a key release that didn't match an active keypress?  This seems 
-like a similar problem.  Are missing key releases flagged as errors and 
-logged?  (Maybe the next time that key is pressed, if the system thinks it's 
-already down?)
+The kernel version has tested is:
+2.6.0-test[12345]
+2.6.0-test5-mm4
+2.4.22-ck2.
 
-I'm certainly seeing missing releases.  Missing presses are just typos, I 
-usually have enough gunk in the keyboard that it misses the occasional key 
-anyway.  (This laptop lives in my backpack, with books and papers and Wendy's 
-coupons and pens and...)  But "enter", "delete", or "cursor up" holding down 
-for an extra second and change can be quite annoying.
+For example:
+456 ?        S      0:00 /bin/sh /usr/local/lib/mozilla-1.5a/run-mozilla.sh /u
+463 ?        S      0:48  \_ /usr/local/lib/mozilla-1.5a/MozillaFirebird-bin
+490 ?        Z      0:00      \_ [netstat <defunct>]
 
-> What about 2.4? Do you have to go back once an hour and add a symbol
-> that was not transmitted correctly? Does 2.4 work perfectly for you?
+The file /proc/490/wchan shows do_exit.
 
-Okay, over the past few days I've booted into 2.4.21 three times and done my 
-standard text-intensive programming, email, and word processing.  I didn't 
-notice any keys sticking.  (It's intermittent enough problem that this isn't 
-difinitive, but it's the best I can do.)
+Closing Mozilla kill the zombie.
 
-On the other hand, the key repeat rate is a lot slower under 2.4.21, and I 
-suspect it's using the hardware repeat instead of the software repeat.  The 
-keyboard hardware definitely knows when a key gets released. :)
+more info need?
 
-I.E. Under 2.4.21 I don't experience a problem.  (Maybe there is a technical 
-problem with the hardware, but it doesn't manifest in a way that I ever 
-notice.)  I'd be happy to live with the slower repeat rate if I could get 2.6 
-to use 2.4's keyboard access method.
+http://www.vmlinuz.com.ar/slackware/kernel.config.djgera/config-2.4.22-ck2
+http://www.vmlinuz.com.ar/slackware/kernel.config.djgera/config-2.6.0-test5
+http://www.vmlinuz.com.ar/slackware/kernel.config.djgera/config-2.6.0-test5-mm4
 
-Rob
+Disabling preemptible solves the problem in all cases.
+
+chau,
+ djgera
+
+
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

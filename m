@@ -1,118 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSJZEgZ>; Sat, 26 Oct 2002 00:36:25 -0400
+	id <S261851AbSJZEdq>; Sat, 26 Oct 2002 00:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261856AbSJZEgZ>; Sat, 26 Oct 2002 00:36:25 -0400
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.101.90.246]:37124
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S261855AbSJZEgX>; Sat, 26 Oct 2002 00:36:23 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: [CFT] faster athlon/duron memory copy implementation - 2.5.44 vanilla Test
-Date: Sat, 26 Oct 2002 00:45:46 -0400
-User-Agent: KMail/1.4.7
+	id <S261854AbSJZEdp>; Sat, 26 Oct 2002 00:33:45 -0400
+Received: from gate.gau.hu ([192.188.242.65]:44440 "EHLO gate.gau.hu")
+	by vger.kernel.org with ESMTP id <S261851AbSJZEdo>;
+	Sat, 26 Oct 2002 00:33:44 -0400
+Date: Sat, 26 Oct 2002 06:32:20 +0200 (CEST)
+From: Cajoline <cajoline@andaxin.gau.hu>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ASUS TUSL2-C and Promise Ultra100 TX2
+In-Reply-To: <15801.20136.556691.985301@kim.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0210252219040.25901-100000@andaxin.gau.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200210260045.46366.spstarr@sh0n.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Single CPU only (SMP capable)
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) MP 2000+
-stepping        : 2
-cpu MHz         : 1680.359
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3309.56
 
-[Notes: 2.5 seems to show slower Mhz / bogos]
+On Fri, 25 Oct 2002, Mikael Pettersson wrote:
 
-RAM is PC2100 Registered DDR 512MB 
-Motherboard/Chipset: A7M266-D AMD 760MPX
+> Cajoline writes:
+>  > I recently setup a box with the following components:
+>  > Intel Celeron 1300 MHz
+>  > ASUS TUSL2-C motherboard
+>  > 2 x Promise Ultra100 TX2 controllers
+>
+> Those have the 20268 chip, right?
 
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller (rev 11)
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 04)
+Yes it is the 20268 chip.
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller
-(rev 17).
-      Master Capable.  Latency=32.
-      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
-      Prefetchable 32 bit memory at 0xef800000 [0xef800fff].
-      I/O at 0xe800 [0xe803].
-  Bus  0, device   1, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge 
-(rev 0).
-      Master Capable.  No bursts.  Min Gnt=8.
+>
+>  > Any 2.4 kernel I have tried on this machine displays this strange
+>  > behavior: any drives attached to the PDC controllers only work at udma
+>  > mode 2 (UDMA33).
+>
+> I've recently installed a Ultra133 TX2 (PDC 20269) in a box, and it
+> also only does UDMA33 in 2.4.20-pre11. 2.5.44 with the PDC driver
+> for "new" chips does UDMA100, however. (The disk is only UDMA100.)
+>
+> The latest 2.4.20-pre-ac is supposed to have new IDE drivers, but
+> I haven't had time to test it myself.
 
-Kernel Preformed on: 2.5.44 vanilla
+I tested with up to 2.4.19, with the same results. Since there were no
+errors and I couldn't find any relevant information in LKML, I didn't
+bother to try 2.4.20 test or ac kernels.
 
-gcc (GCC) 3.2.1 20021011 (prerelease)
-Copyright (C) 2002 Free Software Foundation, Inc.
+This is interesting information, however it still looks very strange to
+me, since this is not exactly brand-spanking-new hardware (Ultra 100 TX2
+has been around for quite some time) and it does work just fine with other
+boards (see below). Also, how come there are absolutely no
+errors? Finally, could the motherboard's IDE chipset really have such a
+huge impact on the performance of the PDC driver? I mean, after all, PIIX4
+is a very widely used chipset, afaik.
 
-gcc athlon.c -O3 -march=athlon-mp -mcpu=athlon-mp -falign-functions 
--fomit-frame-pointer 
--mpreferred-stack-boundary=2 -falign-functions=4 -fschedule-insns2 
--fexpensive-optimizations -o athlon
+>
+>  > So I have come to the conclusion there must be some rather bizarre
+>  > incompatibility between the PDCs and this motherboard.
+>
+> Unlikely.
+>
+>  > Let me note that the PDC controllers do work just fine with other older
+>  > motherboards. And another thing, during boot-up, the PDCs do show the
+>  > drives attached to it, detected at the right udma mode.
+>
+> Did those boards also use standard 2.4 kernels?
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+I can assure you the controllers work just fine on some older QDI
+Advance 10F motherboard (VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66
+controller), but there were others too.
 
-copy_page() tests
-copy_page function 'warm up run'         took 21014 cycles per page
-copy_page function '2.4 non MMX'         took 23435 cycles per page
-copy_page function '2.4 MMX fallback'    took 23399 cycles per page
-copy_page function '2.4 MMX version'     took 20983 cycles per page
-copy_page function 'faster_copy'         took 11722 cycles per page
-copy_page function 'even_faster'         took 12030 cycles per page
-copy_page function 'no_prefetch'         took 9433 cycles per page
+And yes, I am talking about the same kernels: stock 2.4.18, .19, and Red
+Hat's 2.4.18 kernels, among others.
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+>
+> /Mikael
+>
 
-copy_page() tests
-copy_page function 'warm up run'         took 20766 cycles per page
-copy_page function '2.4 non MMX'         took 23229 cycles per page
-copy_page function '2.4 MMX fallback'    took 23187 cycles per page
-copy_page function '2.4 MMX version'     took 20889 cycles per page
-copy_page function 'faster_copy'         took 11654 cycles per page
-copy_page function 'even_faster'         took 11967 cycles per page
-copy_page function 'no_prefetch'         took 9428 cycles per page
+I appreciate your insight & help on this. I hope my questions are not too
+naive, but I was totally in the dark on this issue until now.
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 20957 cycles per page
-copy_page function '2.4 non MMX'         took 23600 cycles per page
-copy_page function '2.4 MMX fallback'    took 23471 cycles per page
-copy_page function '2.4 MMX version'     took 20943 cycles per page
-copy_page function 'faster_copy'         took 11724 cycles per page
-copy_page function 'even_faster'         took 12029 cycles per page
-copy_page function 'no_prefetch'         took 9422 cycles per page
-
-[Note: this seems very slightly slower but more consistant then 2.4.20-pre7]
-
-Shawn.
-
+Regards,
+Cajoline Leblanc
 

@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264136AbUDVPhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264146AbUDVPkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264136AbUDVPhx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 11:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUDVPhx
+	id S264146AbUDVPkt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 11:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbUDVPks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 11:37:53 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:62424 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S264136AbUDVPhv
+	Thu, 22 Apr 2004 11:40:48 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:22488 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264146AbUDVPkr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 11:37:51 -0400
-Message-ID: <4087E6B1.9000606@cosmosbay.com>
-Date: Thu, 22 Apr 2004 17:37:21 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: fr, en-us, en
+	Thu, 22 Apr 2004 11:40:47 -0400
+Date: Thu, 22 Apr 2004 17:40:45 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Len Brown <len.brown@intel.com>
+Cc: Christian =?ISO-8859-1?Q?Kr=F6ner?= 
+	<christian.kroener@tu-harburg.de>,
+       linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Allen Martin <AMartin@nvidia.com>, ross@datscreative.com.au,
+       Linux-Nforce-Bugs <Linux-Nforce-Bugs@exchange.nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH]
+In-Reply-To: <1082647660.16337.243.camel@dhcppc4>
+Message-ID: <Pine.LNX.4.55.0404221736530.16448@jurand.ds.pg.gda.pl>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FB9D@mail-sc-6-bk.nvidia.com>
+  <1082606439.16333.188.camel@dhcppc4>  <Pine.LNX.4.55.0404221414470.16448@jurand.ds.pg.gda.pl>
+  <200404221553.51585.christian.kroener@tu-harburg.de> <1082647660.16337.243.camel@dhcppc4>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: James Morris <jmorris@redhat.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: Large inlines in include/linux/skbuff.h
-References: <Xine.LNX.4.44.0404221114500.22706-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0404221114500.22706-100000@thoron.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
+On Thu, 22 Apr 2004, Len Brown wrote:
 
->On Thu, 22 Apr 2004, Andi Kleen wrote:
->
->  
->
->>>How will these changes impact performance?  I asked this last time you 
->>>posted about inlines and didn't see any response.
->>>      
->>>
->>I don't think it will be an issue. The optimization guidelines
->>of AMD and Intel recommend to move functions that generate 
->>more than 30-40 instructions out of line. 100 instructions 
->>is certainly enough to amortize the call overhead, and you 
->>safe some icache too so it may be even faster.
->>    
->>
->
->Of course, but it would be good to see some measurements.
->
->
->- James
->  
->
-It depends a lot of the workload of the machine.
+> Yes, this is normal on ACPI+IOAPIC configs going forward
+> details here:  http://bugzilla.kernel.org/show_bug.cgi?id=2564
 
-If this a specialized machine, with a small program that mostly uses 
-recv() & send() syscalls, then, inlining functions is a gain, since 
-icache may have a 100% hit ratio. Optimization guidelines are good for 
-the common cases, not every cases.
+ Except that the IRQ was reserved for plain 8259A setups, where it is
+really used for a cascade for a slave 8259A, long before any APIC support
+was there in Linux.  JFTR.
 
-Eric Dumazet
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

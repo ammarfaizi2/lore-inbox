@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVAXKVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVAXKYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVAXKVS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 05:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVAXKVS
+	id S261478AbVAXKYk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 05:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVAXKYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 05:21:18 -0500
-Received: from smartmx-03.inode.at ([213.229.60.35]:18836 "EHLO
-	smartmx-03.inode.at") by vger.kernel.org with ESMTP id S261477AbVAXKVJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 05:21:09 -0500
-Message-ID: <41F4CC12.8080309@acousta.at>
-Date: Mon, 24 Jan 2005 11:21:06 +0100
-From: Bernhard Schauer <schauer@acousta.at>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Mon, 24 Jan 2005 05:24:40 -0500
+Received: from ns1.q-leap.de ([153.94.51.193]:45501 "EHLO mail.q-leap.de")
+	by vger.kernel.org with ESMTP id S261478AbVAXKYe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 05:24:34 -0500
+Message-ID: <41F4CCE0.5010709@q-leap.com>
+Date: Mon, 24 Jan 2005 11:24:32 +0100
+From: Peter Kruse <pk@q-leap.com>
+Organization: Q-Leap Networks GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en
 MIME-Version: 1.0
-To: torvalds@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] ioctl() Syscall number assignment
-Content-Type: multipart/mixed;
- boundary="------------060109000102020304030904"
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random packets loss under x86_64 - routing?
+References: <41E7E6D7.10303@q-leap.com> <Pine.LNX.4.61.0501141129260.5840@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0501141129260.5840@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060109000102020304030904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+linux-os wrote:
+> 
+> The fact that `ping -r` works seems to show that the ARP table
+> has stale entries in it.
+> 
+> 
 
-I'd like to "register" some ioctl numbers for driver development. 
-Attached is a patch for ioctl-numbers.txt, as requested in the same file.
+The problem is gone with 2.6.10.  We can live with this solution.
 
-regards
+Thanks,
 
-Bernhard Schauer
+	Peter
 
---------------060109000102020304030904
-Content-Type: text/plain;
- name="acousta_ioctl.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="acousta_ioctl.patch"
-
-diff -ur ./linux-2.6.10-org/Documentation/ioctl-number.txt ./linux-2.6.10/Documentation/ioctl-number.txt
---- ./linux-2.6.10-org/Documentation/ioctl-number.txt	2005-01-21 11:53:29.000000000 +0100
-+++ ./linux-2.6.10/Documentation/ioctl-number.txt	2005-01-21 11:55:34.000000000 +0100
-@@ -181,6 +181,8 @@
- 0xA3	90-9F	linux/dtlk.h
- 0xAB	00-1F	linux/nbd.h
- 0xAC	00-1F	linux/raw.h
-+0xAC	A0-BF	ACOUSTA Electronic	in development:
-+					<mailto:schauer@acousta.at>
- 0xAD	00	Netfilter device	in development:
- 					<mailto:rusty@rustcorp.com.au>	
- 0xB0	all	RATIO devices		in development:
-
---------------060109000102020304030904--
+-- 
+Peter Kruse <pk@q-leap.com>, Chief Software Architect
+Q-Leap Networks GmbH
+phone: +497071-703171, mobile: +49172-6340044

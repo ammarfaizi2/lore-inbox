@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVBVUQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVBVUWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVBVUQr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVBVUQr
+	id S261226AbVBVUWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBVUWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:16:47 -0500
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:49642
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S261225AbVBVUQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:16:41 -0500
-Message-ID: <421B9317.7000209@ev-en.org>
-Date: Tue, 22 Feb 2005 20:16:23 +0000
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+	Tue, 22 Feb 2005 15:22:55 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:1236 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261226AbVBVUWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:22:53 -0500
+Message-ID: <421B95B8.4070006@tmr.com>
+Date: Tue, 22 Feb 2005 15:27:36 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: mlists@danielinux.net, "David S. Miller" <davem@davemloft.net>,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Carlo Caini <ccaini@deis.unibo.it>,
-       Rosario Firrincieli <rfirrincieli@arces.unibo.it>
-Subject: Re: [PATCH] TCP-Hybla proposal
-References: <200502221534.42948.mlists@danielinux.net> <20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
-In-Reply-To: <20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX
+ as device 
+References: <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com> <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
+In-Reply-To: <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Tue, 22 Feb 2005 15:34:42 +0100
-> Daniele Lacamera <mlists@danielinux.net> wrote:
->>One last note: IMHO we really need a better way to select congestion 
->>avoidance scheme between those available, instead of switching each one 
->>on and off. I.e., we can't say how vegas and westwood perform when 
->>switched on together, can we?
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 18 Feb 2005 15:23:44 EST, Bill Davidsen said:
 > 
-> The protocol choices are mutually exclusive, if you walk through the code
-> (or do experiments), you find that that only one gets used.  As part of the
-> longer term plan, I would like to:
-> 	- have one sysctl
-> 	- choice by route and destination
-> 	- union for fields in control block
+> 
+>>I'll try to build a truth table for this, I'm now working with some 
+>>non-iso data sets, so I'm a bit more interested. I would expect read() 
+>>to only try to read one sector, so I'll just do a quick and dirty to get 
+>>the size from the command line, seek and read.
+>>
+>>I haven't had a problem using dd to date, as long as I know how long the 
+>>data set was, but I'll try to have results tonight.
+> 
+> 
+> The problem is that often you don't know exactly how long the data set is
+> (think "backup burned to CD/RW") - there's a *lot* of code that does stuff
+> like
+> 
+> 	while (actual=read(fd,buffer,65536) > 0) {
+> 		...
+> 	}
+> 
+> with the realistic expectation that the last read might return less than 64k,
+> in which case 'actual' will tell us how much was read.  Instead, we just get
+> an error on the read.
+> 
+> Note that 'dd' does this - that's why you get messages like '12343+1 blocks read'.
+> We *really* want to get to a point where 'dd' will work *without* having to
+> tell it a 'bs=' and 'count=' to get the size right....
 
-I'm currently working on a patch to make it a single sysctl, I've got it 
-working (as in, the kernel doesn't crash). I still need to validate the 
-actual implementation.
+I think I already had a pretty good grasp on that, in my previous post 
+on this I noted: "The last time I looked at this, the issue was that the 
+user software did a large read and the ide-cd didn't properly return a 
+small data block with no error, but rather returned an error with no 
+data. If you get the size of the ISO image, you can read that with any 
+program which doesn't try to read MORE than that."
 
-I'd say the next stage is to merge fields as much as possible.
+It sounds as if (a) the problem with ide-cd is going to get fixed, and 
+(b) ide-scsi may not remain depreciated. A win-win if I ever saw one.
 
-I doubt the real use of selection by route/dest, all of the high-speed 
-protocols (except possibly for TCP-Hybla) are intended for sender-only 
-servers who push lots of data and should work in all cases and alongside 
-  Reno TCP traffic without undue unfairness.
-
-I hope to finish the clean-up and preparation of H-TCP for inclusion in 
-the kernel and can then help with the unionisation.
-
-Baruch
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

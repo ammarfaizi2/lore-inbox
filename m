@@ -1,91 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265767AbTGDFrx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 01:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbTGDFrw
+	id S265792AbTGDGVD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 02:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbTGDGVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 01:47:52 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:46188 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S265767AbTGDFrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 01:47:51 -0400
-Date: Fri, 04 Jul 2003 02:02:03 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-In-reply-to: <3F04EAA0.2050102@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, netdev@oss.sgi.com
-Message-id: <200307040200.08574.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <200307032231.39842.jeffpc@optonline.net>
- <3F04EAA0.2050102@pobox.com>
+	Fri, 4 Jul 2003 02:21:03 -0400
+Received: from [213.24.247.63] ([213.24.247.63]:58245 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S265792AbTGDGU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 02:20:56 -0400
+Message-ID: <3F052025.5020303@relex.ru>
+Date: Fri, 04 Jul 2003 10:35:17 +0400
+From: Yaroslav Rastrigin <yarick@relex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030621 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O2int 0307041440 for 2.5.74-mm1
+References: <200307041459.33326.kernel@kolivas.org>
+In-Reply-To: <200307041459.33326.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Con Kolivas wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Here is a patch against the current O1int patch in 2.5.74-mm1.
+> Since the O1int didn't mean anything I thought I'd call this O2int.
+> 
+> This one wont blow you away but tames those corner cases.
+> 
+> Changes:
+> The child penalty is set on 80% which means that tasks that wait on their 
+> children have children forking just on the edge of the interactive delta so 
+> they shouldn't starve their own children.
+> 
+> The non linear sleep avg boost is scaled down slightly to prevent this 
+> particular boost from being capable of making a task highly interactive. This 
+> makes very new tasks less likely to have a little spurt of too high priority.
+> 
+> Idle tasks now get their static priority over the full time they've been 
+> running rather than starting again at 1 second. This makes it harder for idle 
+> tasks to suddenly become highly interactive and _then_ fork an interactive 
+> bomb. Not sure on this one yet.
+> 
+> The sched_exit penalty to parents of cpu hungry children is scaled accordingly 
+> (was missed on the original conversion so works better now).
+> 
+> Hysteresis on interactive buffer removed (was unecessary).
+> 
+> Minor cleanup.
+> 
+> Known issue remaining:
+> Mozilla acts just like X in that it is mostly interactive but has bursts of 
+> heavy cpu activity so it gets the same bonus as X. However it makes X jerky 
+> during it's heavy cpu activity, and might in some circumstances make audio 
+> skip. Fixing this kills X smoothness as they seem very similar to the 
+> estimator. Still haven't sorted a workaround for this one but I'm working on 
+> it. Ingo's original timeslice granularity patch helps a little and may be 
+> worth resuscitating (and the desktop only people can change the granularity 
+> down to 10ms to satisfy their needs).
+> 
+> Con
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.2 (GNU/Linux)
+> 
+> iD8DBQE/BQmjF6dfvkL3i1gRAiYhAKCnpZN//FkD1iO5b2SZ6HTURMUULwCfS43B
+> Pn/1kRndvUz/lnjFI+lUpEc=
+> =O+VS
+> -----END PGP SIGNATURE-----
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- linux-2.5.74/kernel/sched.c	2003-07-04 14:30:11.000000000 +1000
+> +++ linux-2.5.74-test/kernel/sched.c	2003-07-04 14:41:22.000000000 +1000
+> @@ -68,7 +68,7 @@
+>   */
+>  #define MIN_TIMESLICE		( 10 * HZ / 1000)
+>  #define MAX_TIMESLICE		(200 * HZ / 1000)
+> -#define CHILD_PENALTY		50
+> +#define CHILD_PENALTY		80
+>  #define PARENT_PENALTY		100
+>  #define EXIT_WEIGHT		3
+>  #define PRIO_BONUS_RATIO	25
+> @@ -405,30 +405,30 @@ static inline void activate_task(task_t 
+>  		 * from continually getting larger.
+>  		 */
+>  		if (runtime < MAX_SLEEP_AVG)
+> -			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) / MAX_SLEEP_AVG;
+> +			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) *
+> +				(10 - INTERACTIVE_DELTA) / 10 / MAX_SLEEP_AVG;
+>  
+>  		/*
+> -		 * Keep a buffer of 10-20% bonus sleep_avg with hysteresis
+> +		 * Keep a buffer of 10% sleep_avg
+>  		 * to prevent short bursts of cpu activity from making
+>  		 * interactive tasks lose their bonus
+>  		 */
+> -		if (p->sleep_avg > MAX_SLEEP_AVG * 12/10)
+> +		if (p->sleep_avg > MAX_SLEEP_AVG * 11/10)
+>  			p->sleep_avg = MAX_SLEEP_AVG * 11/10;
+>  
+>  		/*
+>  		 * Tasks that sleep a long time are categorised as idle and
+>  		 * get their static priority only
+>  		 */
+> -		if (sleep_time > MIN_SLEEP_AVG){
+> -			p->avg_start = jiffies - MIN_SLEEP_AVG;
+> -			p->sleep_avg = MIN_SLEEP_AVG / 2;
+> -		}
+> +		if (sleep_time > MIN_SLEEP_AVG)
+> +			p->sleep_avg = runtime / 2;
+> +
+>  		if (unlikely(p->avg_start > jiffies)){
+>  			p->avg_start = jiffies;
+>  			p->sleep_avg = 0;
+>  		}
+> -		p->prio = effective_prio(p);
+>  	}
+> +	p->prio = effective_prio(p);
+>  	__activate_task(p, rq);
+>  }
+>  
+> @@ -605,7 +605,6 @@ void wake_up_forked_process(task_t * p)
+>  	 * from forking tasks that are max-interactive.
+>  	 */
+>  	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
+> -	p->avg_start = current->avg_start;
+>  	normalise_sleep(p);
+>  	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
+>  	p->prio = effective_prio(p);
+> @@ -647,6 +646,8 @@ void sched_exit(task_t * p)
+>  	 * If the child was a (relative-) CPU hog then decrease
+>  	 * the sleep_avg of the parent as well.
+>  	 */
+> +	normalise_sleep(p);
+> +	normalise_sleep(p->parent);
+>  	if (p->sleep_avg < p->parent->sleep_avg)
+>  		p->parent->sleep_avg = (p->parent->sleep_avg * EXIT_WEIGHT +
+>  			p->sleep_avg) / (EXIT_WEIGHT + 1);
 
-On Thursday 03 July 2003 22:46, Jeff Garzik wrote:
-> Jeff Sipek wrote:
-> > +	spinlock_t	rx_packets;
-<snip>
-> > +	spinlock_t	tx_compressed;
->
-> That's a fat daddy list of locks you got there.
-
-Yeah, I know, I am sure there is a way of getting rid of some of those.. (i.e.
-the tx functions are inside a spinlock from struct net_device.)
-
-> > +	NETSTAT_TYPE	_rx_packets;		/* total packets received	*/
-> > +	NETSTAT_TYPE	_tx_packets;		/* total packets transmitted	*/
-> > +	NETSTAT_TYPE	_rx_bytes;		/* total bytes received 	*/
-> > +	NETSTAT_TYPE	_tx_bytes;		/* total bytes transmitted	*/
-> > +	NETSTAT_TYPE	_rx_errors;		/* bad packets received		*/
-> > +	NETSTAT_TYPE	_tx_errors;		/* packet transmit problems	*/
-> > +	NETSTAT_TYPE	_rx_dropped;		/* no space in linux buffers	*/
-> > +	NETSTAT_TYPE	_tx_dropped;		/* no space available in linux	*/
-> > +	NETSTAT_TYPE	_multicast;		/* multicast packets received	*/
-> > +	NETSTAT_TYPE	_collisions;
->
-> Increasing user-visible sizes arbitrarily breaks stuff.  Having
-> config-dependent types like this increases complexity.
-
-Not really, those macros used to change the variables hide everything from the
-driver programmer. Besides those changes in procfs and sysfs which always
-return 64-bits, everything else is type casted (if needed) by those macros -
-depending on CONFIG_NETSTATS64.
-
-> Short term, just sample the stats more rapidly.
-
-That's what Linus said. But it is only a temporary fix.
-
-> Long term, I suppose with 10GbE we should start thinking about this.
-> Personally, I would prefer to make the standard net device stats
-> available in the format already exported by ETHTOOL_GSTATS -- which I
-> note uses u64's for its counters, and it's easily extensible.  I
-> received a request for this just today, even.
-
-I was thinking about making the 64-bit stats mandatory, but then I opted to
-make in an option in the config. (As Linus pointed out, some people want
-performance, not statistics.)
-
-Jeff.
-
-- --
-I'm somewhere between geek and normal.
-		- Linus Torvalds
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/BRhfwFP0+seVj/4RAtBbAJ4nmbs8ZQLgFagfb4KrJGZ55AYTmwCgzkcs
-1uPma124BorLUdrcsbF2Txs=
-=EIag
------END PGP SIGNATURE-----
 

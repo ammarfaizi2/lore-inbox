@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUKWMuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUKWMy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbUKWMuj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 07:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbUKWMui
+	id S261198AbUKWMy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 07:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUKWMy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 07:50:38 -0500
-Received: from web41411.mail.yahoo.com ([66.218.93.77]:13707 "HELO
-	web41411.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261207AbUKWMu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 07:50:26 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=1QPlzeeGcWIws7qhze1T+lh+CnvX9ti1Jakw09uFbR3KBRDDVnZhPwxbrtTXe28sFSB8rfWLEUAiM0qLqwqs+YKrfdX8JksUFzf42O56eHewkRHx+QQR5Z1Yj5dbK4GiDGjavhQfBRI0XlaXfGMotxOmergf2v4NW98733yMEFQ=  ;
-Message-ID: <20041123125021.69735.qmail@web41411.mail.yahoo.com>
-Date: Tue, 23 Nov 2004 04:50:20 -0800 (PST)
-From: cranium2003 <cranium2003@yahoo.com>
-Subject: using skbuff in kernel module
-To: netfilter devel <netfilter-devel@lists.samba.org>
-Cc: kernerl mail <linux-kernel@vger.kernel.org>
+	Tue, 23 Nov 2004 07:54:29 -0500
+Received: from eagle.ericsson.se ([193.180.251.53]:20374 "EHLO
+	eagle.ericsson.se") by vger.kernel.org with ESMTP id S261208AbUKWMyX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 07:54:23 -0500
+Message-ID: <D6A41B94D27EA643BAE9319F5348603F17D6B3@ESEALNT895.al.sw.ericsson.se>
+From: "Joakim Bentholm XQ (AS/EAB)" <joakim.xq.bentholm@ericsson.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: Compatibility problem with C++, i386 & ia64 platform
+Date: Tue, 23 Nov 2004 13:54:12 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+X-OriginalArrivalTime: 23 Nov 2004 12:54:21.0526 (UTC) FILETIME=[8D407F60:01C4D15B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-         I want to add new header between IP and
-ETHERNET layer. I want to ask can it be done using
-netfilter hooks? 
-         Can skb functions (skb_reserve, skb_push
-,skb_pull)be allowed to use in kernel module so that i
-can add at NF_IP_LOCAL_OUT and pull my own header at
-NF_IP_LOCAL_IN?
-
-regards,
-cranium
+1. Compatibility errors when including <asm/system.h> with g++ compiler on i386 and ia64 platforms.
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Meet the all-new My Yahoo! - Try it today! 
-http://my.yahoo.com 
- 
+If you want to use the memory barrier macros mb(), rmb() and wmb(), as defined in <asm/system.h>.
 
+On i386 platform:
+This will work if you use gcc, but not in g++, since the name of the parameter in the __cmpxchg(...) is new, which the C++ compiler will not accept. (new_val might have been a better choice ;-)
+
+Function header
+---
+static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+				      unsigned long new, int size)
+---
+
+
+On Itanium 2 platform:
+Compiling on Itanium 2 works if you add som typedefs and a define, which is normally defined when __KERNEL__ is enabled. 
+
+Prepended rows to the include of system.h
+---
+#define __pa(x) x
+typedef long s64;
+typedef int s32;
+typedef unsigned long u64;
+typedef unsigned int u32;
+#include <asm/system.h>
+---
+
+
+Maybe the system.h is not supposed to be included outside the kernel?
+Is there a less crude way of getting hold of the macros?
+
+Best Regards/JB
+
+--
+Joakim Bentholm
+joakim.xq.bentholm@ericsson.com

@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267345AbTBDU4H>; Tue, 4 Feb 2003 15:56:07 -0500
+	id <S267306AbTBDU75>; Tue, 4 Feb 2003 15:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267351AbTBDU4H>; Tue, 4 Feb 2003 15:56:07 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:36266 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267345AbTBDU4G>;
-	Tue, 4 Feb 2003 15:56:06 -0500
-Date: Tue, 4 Feb 2003 13:03:57 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: cleanup of filesystems menu
-In-Reply-To: <Pine.LNX.4.44.0302041512090.16603-100000@dell>
-Message-ID: <Pine.LNX.4.33L2.0302041302420.6174-100000@dragon.pdx.osdl.net>
+	id <S267346AbTBDU75>; Tue, 4 Feb 2003 15:59:57 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:45833 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267306AbTBDU74>;
+	Tue, 4 Feb 2003 15:59:56 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302042107.h14L7Eqa003059@darkstar.example.net>
+Subject: Re: Compactflash cards dying?
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Tue, 4 Feb 2003 21:07:14 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1030204155717.1060A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Feb 04, 2003 03:59:01 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Feb 2003, Robert P. J. Day wrote:
+> > [snip discussion about Compact Flash cards]
+> 
+> > Or is there a reason why this hasn't been done?  PROMs are much
+> > cheaper than Compact Flash...
+> 
+> And zero cameras, printers, PCMCIA cards and USB adaptors for them.
 
-|
-|   randy dunlap was gracious enough to post my proposed
-| patch to clean up the filesystems config menu.  the patch
-| (80K uncompressed) is online at;
-|
-|   http://www.xenotime.net/linux/kconfig/kconfig-fs-2.5.59b.patch
-|
-| currently, it still has leading asterisks in front of the
-| config entries to support editing in emacs outline mode,
-| but future patches will have these removed.
-|
-|   it should patch cleanly against stock 2.5.59.
-|
-|   comments?
+So?  Maybe I just have fond memories of my Sinclair Z88 which was
+exclusively solid state, using cheap, (well, they weren't so cheap 15
+years ago), EPROMs, that I never lost a single bit to, and that are
+still readable today.
 
-
-Here are my comments on the filesystem menu:
-
-That "FS_POSIX_ACL" line is very odd.
-What can be done about/with it?
-
-Quota and Automounter:  are they filesystems?
-I know, you didn't change that.
-Anyway, they are more like FS options or tools.
-
-I would put the list under "Miscellaneous filesystems"
-in alphabetical order.
-
-Did you modify "Network File Systems" or "Partition Types"?
-Anyway, they are sort of in historical order and I would
-put them in alpha order too unless there's some
-compelling reason not to do that.
-
--- 
-~Randy
-
+John.

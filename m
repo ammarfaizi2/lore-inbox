@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129682AbQKVNMm>; Wed, 22 Nov 2000 08:12:42 -0500
+	id <S129259AbQKVNSo>; Wed, 22 Nov 2000 08:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131735AbQKVNMc>; Wed, 22 Nov 2000 08:12:32 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:28318 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S129682AbQKVNMU>;
-	Wed, 22 Nov 2000 08:12:20 -0500
-Date: Wed, 22 Nov 2000 13:41:59 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] exit_idescsi_module()
-Message-ID: <Pine.GSO.4.10.10011221340270.18101-100000@escobaria.sonytel.be>
+	id <S129682AbQKVNSf>; Wed, 22 Nov 2000 08:18:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23819 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129259AbQKVNSX>;
+	Wed, 22 Nov 2000 08:18:23 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011221140.eAMBeKB07181@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+To: jamagallon@able.es
+Date: Wed, 22 Nov 2000 11:40:20 +0000 (GMT)
+Cc: dake@staszic.waw.pl (Bartlomiej Zolnierkiewicz),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001121235529.E925@werewolf.able.es> from "J . A . Magallon" at Nov 21, 2000 11:55:29 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+J . A . Magallon writes:
+> On Tue, 21 Nov 2000 22:25:01 Bartlomiej Zolnierkiewicz wrote:
+> > -static int basePort = 0;	/* base port address */
+> > -static int regPort = 0;		/* port for register number */
+> > -static int dataPort = 0;	/* port for register data */
+> > +static int basePort;	/* base port address */
+> > +static int regPort;	/* port for register number */
+> > +static int dataPort;	/* port for register data */
+> 
+> That is not too much confidence on the ANSI-ness of the compiler ???
 
-cleanup_module() was renamed to exit_idescsi_module() recently
+Its got nothing to do with the ANSI-ness of the compiler, but more to do
+with the C startup code - does the C startup code initialise BSS to zero
+or does it not?
 
---- linux-2.4.0-test11/drivers/scsi/ide-scsi.c	Mon Oct 30 23:44:29 2000
-+++ linux-m68k-2.4.0-test11/drivers/scsi/ide-scsi.c	Wed Nov 22 09:15:52 2000
-@@ -840,7 +840,7 @@
- 		failed = 0;
- 		while ((drive = ide_scan_devices (media[i], idescsi_driver.name, &idescsi_driver, failed)) != NULL)
- 			if (idescsi_cleanup (drive)) {
--				printk ("%s: cleanup_module() called while still busy\n", drive->name);
-+				printk ("%s: exit_idescsi_module() called while still busy\n", drive->name);
- 				failed++;
- 			}
- 	}
-Gr{oetje,eeting}s,
+In this particular example, we have full control over it; in the kernel
+has our own start up code which does initialise the BSS to zero.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+In the dim and distant past (about 7-8 years ago), it was true that we
+didn't init the BSS and everything had to be initialised, but this is
+long gone.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbTBFJO1>; Thu, 6 Feb 2003 04:14:27 -0500
+	id <S265854AbTBFJam>; Thu, 6 Feb 2003 04:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbTBFJO0>; Thu, 6 Feb 2003 04:14:26 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:53915 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265798AbTBFJOZ>;
-	Thu, 6 Feb 2003 04:14:25 -0500
-Date: Thu, 6 Feb 2003 10:22:45 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Torrey Hoffman <thoffman@arnor.net>
-cc: Linux Frame Buffer Device Development 
+	id <S265863AbTBFJam>; Thu, 6 Feb 2003 04:30:42 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:56582 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S265854AbTBFJak>; Thu, 6 Feb 2003 04:30:40 -0500
+Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
+From: Antonino Daplas <adaplas@pol.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Frame Buffer Device Development 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
-In-Reply-To: <1044472678.1321.388.camel@rohan.arnor.net>
-Message-ID: <Pine.GSO.4.21.0302061020450.3301-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.GSO.4.21.0302061017330.3301-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0302061017330.3301-100000@vervain.sonytel.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1044437021.1169.64.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Feb 2003 17:24:22 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Feb 2003, Torrey Hoffman wrote:
-> Other options that might be useful, but less important: 
-> - Single logo option for SMP
-> - A "no logo" option, while still including framebuffer support
-
-FB_LOGO=n?
-
-This still includes the logo code (not the images), but that can be fixed.
-
-> - Logo positioning (centered horizontally, vertically, both)
-> - Background and foreground text color options.  
+On Thu, 2003-02-06 at 17:19, Geert Uytterhoeven wrote:
 > 
-> A combination of these features would make it possible to do a smaller
-> logo (say, 256 x 128) centered on the screen with a matching background
-> color that would make it look like a full-screen logo, while not
-> bloating the kernel image much.
+> I always see the logo twice. The first time it's erased by the text (because
+> initially fbcon thinks logo_height = 0), the second time it's displayed
+> correctly.
+> 
+> So I also wondered why it's drawn twice?
 
-Just two extra fields in fb_logo.
+I was expecting this behavior because I remember you mentioning it in
+one of your early mails.  In my case, it was only drawn once which
+lasted only for a blink.
 
-Gr{oetje,eeting}s,
+> > Overall, I like it, though it does add some kilobytes to the kernel
+> > image size.
+> 
+> Why would it increase kernel size that much? The logos were there before as
+> well (unless you enable all of them, of course :-).
+> 
+My fault, I accidentally enabled ACPI :-)
 
-						Geert
+Tony
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277083AbRJHS7G>; Mon, 8 Oct 2001 14:59:06 -0400
+	id <S277090AbRJHTC0>; Mon, 8 Oct 2001 15:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277074AbRJHS6r>; Mon, 8 Oct 2001 14:58:47 -0400
-Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:9952 "EHLO
-	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277073AbRJHS6n>; Mon, 8 Oct 2001 14:58:43 -0400
-Message-ID: <3BC1F70D.5A469DEA@home.com>
-Date: Mon, 08 Oct 2001 14:57:17 -0400
-From: John Gluck <jgluckca@home.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Where to find benchmarks???
-In-Reply-To: <3BC1EB36.DB71874D@home.com> <3BC1F037.C9715978@osdlab.org>
+	id <S277084AbRJHTCG>; Mon, 8 Oct 2001 15:02:06 -0400
+Received: from peace.netnation.com ([204.174.223.2]:25095 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277073AbRJHTBy>; Mon, 8 Oct 2001 15:01:54 -0400
+Date: Mon, 8 Oct 2001 12:02:23 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Greg KH <greg@kroah.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.11-pre5
+Message-ID: <20011008120223.G8703@netnation.com>
+In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com> <20011007153433.G14479@sventech.com> <20011007124038.A22923@netnation.com> <20011007161903.H14479@sventech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20011007161903.H14479@sventech.com>; from johannes@erdfelt.com on Sun, Oct 07, 2001 at 04:19:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy
+On Sun, Oct 07, 2001 at 04:19:03PM -0400, Johannes Erdfelt wrote:
 
-Much gratitude... I'll go have a looksee
+> Ahh, could you replace this line:
+> 
+>         pci_write_config_word(uhci->dev, USBLEGSUP, 0);
+> 
+> with this:
+> 
+>         pci_write_config_word(uhci->dev, USBLEGSUP, USBLEGSUP_DEFAULT);
+> 
+> and try again?
 
-John
+Yes, this fixed it.  Thanks.
 
-"Randy.Dunlap" wrote:
+Simon-
 
-> John Gluck wrote:
-> >
-> > Could someone please point me to a site or sites where I can find some
-> > commonly used benchmarks.
-> > I have never benchmarked my system and would like to check out
-> > performance numbers with various kernels.
-> >
-> > I have a dual Pentium III and run SMP kernels. The performance numbers
-> > may help those working on optimising the kernel for different
-> > architectures.
->
-> Here are a few for you to begin with.
->
-> http://hpwww.epfl.ch/bench/bench.html
-> http://www.netlib.org/benchweb/code.html
-> http://www.bitmover.com/lmbench/
-> http://www.netperf.org/netperf/NetperfPage.html
-> ftp://ftp.arl.mil/pub/ttcp/
-> http://lbs.sourceforge.net/
-> http://tiobench.sourceforge.net/
-> http://www.kernelbench.org/
-> http://www.acnc.com/benchmarks.html
->
-> HTH.
-> ~Randy
-
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

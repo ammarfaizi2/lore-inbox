@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVASESB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVASEZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVASESB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVASESB
+	id S261559AbVASEZP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVASEZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:18:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58126 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261557AbVASERl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:17:41 -0500
-Date: Wed, 19 Jan 2005 05:17:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Steve Snyder <swsnyder@insightbb.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Testing optimize-for-size suitability?
-Message-ID: <20050119041739.GI1841@stusta.de>
-References: <200501161040.12907.swsnyder@insightbb.com>
+	Tue, 18 Jan 2005 23:25:15 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44513 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261559AbVASEZI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:25:08 -0500
+Subject: Re: [PATCH] dynamic tick patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050119000556.GB14749@atomide.com>
+References: <20050119000556.GB14749@atomide.com>
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 15:21:07 +1100
+Message-Id: <1106108467.4500.169.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501161040.12907.swsnyder@insightbb.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 10:40:12AM -0500, Steve Snyder wrote:
-> Is there a benchmark or set of benchmarks that would allow me to test the 
-> suitability of the CONFIG_CC_OPTIMIZE_FOR_SIZE kernel config option?
+On Tue, 2005-01-18 at 16:05 -0800, Tony Lindgren wrote:
+> Hi all,
 > 
-> It seems to me that the benefit of this option is very dependant on the 
-> amount of CPU cache installed, with the compiler code generation being a 
-> secondary factor.  The use, or not, of CONFIG_CC_OPTIMIZE_FOR_SIZE is 
-> basically an act of faith without knowing how it impacts my particular 
-> environment.
+> Attached is the dynamic tick patch for x86 to play with
+> as I promised in few threads earlier on this list.[1][2]
 > 
-> I've got a Pentium4 CPU with 512KB of L2 cache, and I'm using GCC v3.3.3.  
-> How can I determine whether or not CONFIG_CC_OPTIMIZE_FOR_SIZE should be 
-> used for my system?
-> 
-> Thanks.
+> The dynamic tick patch does following:
+>
+> .../...
 
-In theory, -O2 should produce faster code.
+Nice, that's exactly what I want on ppc to allow the laptops to have the
+CPU "nap" longer when idle ! I'll look into adding ppc support to your
+patch soon.
 
-In practice, I don't know about any recent benchmarks comparing -Os/-O2 
-kernels.
+BTW. Is it possible, when entering the "idle" loop, to quickly know an
+estimate of when the next tick shoud actually kick in ?
 
-In practice, I doubt it would make any noticable difference if the 
-kernel might be faster by let's say 1% with one option compared to the 
-other one.
+Also, looking at the patch, I think it mixes a bit too much of x86
+things with generic stuffs... like pm_idle an x86 thing. 
 
-The main disadvantage of -Os is that it's much less tested for kernel 
-compilations, and therefore miscompilations are slightly more likely.
+Other implementation details comments: Do you need all those globals to
+be exported ? And give them better names than "ltt", that makes using of
+system.map quite annoying ;)
 
-cu
-Adrian
+I don't understand your comment about "we must have all processors idle"
+as well... 
 
--- 
+So while the whole thing is interesting, I dislike the actual
+kernel/dyn-tick-timer.c implementation, which should be moved to arch
+stuff at this point imho.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Ben.
+
 

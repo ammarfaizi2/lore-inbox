@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310501AbSCGUSj>; Thu, 7 Mar 2002 15:18:39 -0500
+	id <S310502AbSCGUSt>; Thu, 7 Mar 2002 15:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310504AbSCGUS3>; Thu, 7 Mar 2002 15:18:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54533 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310501AbSCGUSX>; Thu, 7 Mar 2002 15:18:23 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-Date: 7 Mar 2002 12:17:52 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a68htg$bc1$1@cesium.transmeta.com>
-In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au> <20020307153228.3A6773FE06@smtp.linux.ibm.com> <20020307104241.D24040@devserv.devel.redhat.com> <20020307191043.9C5F33FE15@smtp.linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S310504AbSCGUSj>; Thu, 7 Mar 2002 15:18:39 -0500
+Received: from holomorphy.com ([216.36.33.161]:3470 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S310502AbSCGUS2>;
+	Thu, 7 Mar 2002 15:18:28 -0500
+Date: Thu, 7 Mar 2002 12:18:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020307201819.GF786@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+	riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
+In-Reply-To: <20020307092119.A25470@dualathlon.random> <20020307104942.GC786@holomorphy.com> <20020307180300.B25470@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020307180300.B25470@dualathlon.random>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020307191043.9C5F33FE15@smtp.linux.ibm.com>
-By author:    Hubertus Franke <frankeh@watson.ibm.com>
-In newsgroup: linux.dev.kernel
-> 
-> Take a look at Rusty's futex-1.2, the code is not that different, however
-> if its all inlined it creates additional code on the critical path 
-> and why do it if not necessary.
-> 
-> In this case the futexes are the well tested path, the rest is a cludge on
-> top of it.
-> 
+On Thu, Mar 07, 2002 at 06:03:00PM +0100, Andrea Arcangeli wrote:
+> For the other points I think you shouldn't really complain (both at
+> runtime and in code style as well, please see how clean it is with the
+> wait_table_t thing), I made a definitive improvement to your code, the
+> only not obvious part is the hashfn but I really cannot see yours
+> beating mine because of the total random input, infact it could be the
+> other way around due the fact if something there's the probability the
+> pages are physically consecutive and I take care of that fine.
 
-Perhaps someone could give a high-level description of how these
-"futexes" work?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I don't know whose definition of clean code this is:
+
++static inline wait_queue_head_t * wait_table_hashfn(struct page * page, wait_table_t * wait_table)
++{
++#define i (((unsigned long) page)/(sizeof(struct page) & ~ (sizeof(struct page) - 1)))
++#define s(x) ((x)+((x)>>wait_table->shift))
++	return wait_table->head + (s(i) & (wait_table->size-1));
++#undef i
++#undef s
++}
+
+
+I'm not sure I want to find out.
+
+
+Bill

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312928AbSDTRPl>; Sat, 20 Apr 2002 13:15:41 -0400
+	id <S312970AbSDTRPw>; Sat, 20 Apr 2002 13:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312970AbSDTRPk>; Sat, 20 Apr 2002 13:15:40 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:34764 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S312928AbSDTRPi>;
-	Sat, 20 Apr 2002 13:15:38 -0400
-Message-ID: <3CC1A228.2B9C72F6@gmx.net>
-Date: Sat, 20 Apr 2002 19:15:20 +0200
-From: Richard Ems <r.ems.home@gmx.net>
-Reply-To: r.ems@gmx.net
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,de,es
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
+	id <S312972AbSDTRPv>; Sat, 20 Apr 2002 13:15:51 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:20106 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S312970AbSDTRPs>;
+	Sat, 20 Apr 2002 13:15:48 -0400
+Date: Sat, 20 Apr 2002 13:15:47 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020420131547.C3327@havoc.gtf.org>
+In-Reply-To: <5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk> <5.1.0.14.2.20020420174422.00ad1390@pop.cus.cam.ac.uk> <E16ybpZ-0000V4-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre, hi list!
+On Fri, Apr 19, 2002 at 07:05:52PM +0200, Daniel Phillips wrote:
+> On Saturday 20 April 2002 18:51, you wrote:
+> > The fact that some developers use bitkeeper has no effect on other 
+> > developers.
+> 
+> On the contrary, I think it has divided the kernel developers firmly into
+> two classes: the "ins" and the "outs".
 
-I'm also having random lockups with an ASUS A7V266-E Mainboard, Athlon
-XP 1800+.
-Chipset is the VIA KT266A, kernel 2.4.18 (SuSE version 2.4.18-58, from
-SuSE 8.0).
-Nothing in the logs.
+I disagree -- Andrew Morton and Al Viro don't sent patches to Linus via
+BK, AFAIK, and their patches are getting in.
 
-Andre, could you verify your possible answer? Any results?
+Another example, Jean Tourrhes (sp?), the wireless and IrDA guy.  I have
+agreed to become his "patch penguin", which IMHO has already translated
+into less resends for Jean through my and Linus's use of BK.  He sends
+GNU patches, so his process is unchanged, he only sees patches _not_
+getting dropped[1].
 
-Thanks, Richard
+And a further counter-example (to my shame), Anton A. sent me a BK patch
+during Linus's vacation, and I have not yet sent it forward, showing
+that BK doesn't necessarily imply auto-approval.
 
-Andre Hedrick wrote:
->Hi Josh,
->
->I think I have an answer why the crash but I need to verify with a
-client
->as we are seeing the same problem on various VIA boards.  The good new
-is
->we found on board that does not do this nasty.  So we are doing a
->component wide comparisong of settings.
->
->It is a really cool and smart embedded server found at
->
- >       http://www.nit.ca/
->
->Cheers,
->
->Andre Hedrick
->LAD Storage Consulting Group
+	Jeff
 
 
 
+[1] of course there is often a Garzik-delay :) but I don't drop patches

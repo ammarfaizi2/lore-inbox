@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284746AbRLZSyz>; Wed, 26 Dec 2001 13:54:55 -0500
+	id <S284794AbRLZTAP>; Wed, 26 Dec 2001 14:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284765AbRLZSyp>; Wed, 26 Dec 2001 13:54:45 -0500
-Received: from f68.law4.hotmail.com ([216.33.149.68]:13834 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S284746AbRLZSyg>;
-	Wed, 26 Dec 2001 13:54:36 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: pavel@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
-Date: Wed, 26 Dec 2001 18:54:30 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F68qvDuJhqFo9iLG7c500010b4e@hotmail.com>
-X-OriginalArrivalTime: 26 Dec 2001 18:54:30.0959 (UTC) FILETIME=[C05E0BF0:01C18E3E]
+	id <S284791AbRLZTAG>; Wed, 26 Dec 2001 14:00:06 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:62533 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S284794AbRLZS7y>; Wed, 26 Dec 2001 13:59:54 -0500
+Posted-Date: Wed, 26 Dec 2001 18:59:44 GMT
+Date: Wed, 26 Dec 2001 18:59:43 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Mike Eldridge <diz@cafes.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <20011220164948.M23621@mail.cafes.net>
+Message-ID: <Pine.LNX.4.21.0112261852450.32161-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To clarify something I am not the WINMODEM Manufacture that would be Intel. 
-Ian and I from linmodems.org have been working on building a AC97 Modem 
-driver.
+Hi Mike.
 
+>> [however I've never seen 'Kg' instead of 'kg', but 'mB' or 'mb' are
+>> ugly when compared with 'Mb' and 'MB', not counting that 'b' is bit
+>> and 'B' is byte ... well ... it's confusing sometimes ...]
 
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+> i was going to comment about simply using lowercase equivalents, but
+> then milli already has 'm', although the concept of a millibyte (or
+> even millibit) is absurd.
+
+I remember reading somewhere that the Voyager space probes now
+communicate information back to earth at the incredibly fast rate of 10
+minutes per byte - which my mental maths says is somewhere in the region
+of 1.6 mB per second - using precicely the unit you decry.
+
+> --------------------------------------------------------------------------
+>    /~\  The ASCII                       all that is gold does not glitter
+>    \ /  Ribbon Campaign                 not all those who wander are lost
+>     X   Against HTML                          -- jrr tolkien
+>    / \  Email!
+> --------------------------------------------------------------------------
+
+Have you purloined the emblem of the Scottish National Party ???
+Refer to http://www.snp.org.uk/ for details.
+
+Best wishes from Riley.
 

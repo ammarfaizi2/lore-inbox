@@ -1,67 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbUCGAF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 19:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUCGAFz
+	id S261476AbUCGAVO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 19:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUCGAVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 19:05:55 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:54220 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261732AbUCGAFx (ORCPT
+	Sat, 6 Mar 2004 19:21:14 -0500
+Received: from ns.suse.de ([195.135.220.2]:57551 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261476AbUCGAVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 19:05:53 -0500
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl>
-	<200403031829.41394.mmazur@kernel.pl>
-	<m3brnc8zun.fsf@defiant.pm.waw.pl>
-	<200403042149.36604.mmazur@kernel.pl>
-	<m3brnb8bxa.fsf@defiant.pm.waw.pl>
-	<Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 06 Mar 2004 23:30:11 +0100
-In-Reply-To: <Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net> (Grzegorz
- Kulewski's message of "Sat, 6 Mar 2004 00:44:37 +0100 (CET)")
-Message-ID: <m38yidk3rg.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Mar 2004 19:21:08 -0500
+Subject: Remove arbitrary #acl entries limits on ext[23] when reading
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, "Stephen C. Tweedie" <sct@redhat.com>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1078618902.3155.116.camel@nb.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sun, 07 Mar 2004 01:21:42 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski <kangur@polcom.net> writes:
+Hello Andrew,
 
-> But how synchronize kernel development with glibcs (+ all other C libs + 
-> all other programs that must interface directly with the kernel)?
+could you please add this patch to the mainline kernel. It removes the
+arbitrary limit of 32 ACL entries on ext[23] when reading from disk.
+This change is backward compatible; we need to have this change in to be
+able to also allow writing big ACLs. We have the patch in our kernel
+since a while now.
 
-The kernel API should be stable enough, at least within stable trees.
-Outside stable trees we should still maintain backward compatibility,
-except when it comes to things which wouldn't work anyway (non-libc API
-such as ipfw/ipchains/iptables etc).
+The second patch that removes the ACL entry limit for writes is not
+included. I don't want to push that patch now, because large ACLs would
+cause 2.4 and current 2.6 kernels to fail. My plan is to remove the
+second limit later, in a half-year or year or so. If you think we should
+go the full way I wouldn't mind, however.
 
-> When kernel developers want to stop using something, how they should tell 
-> that to glibc developers and others.
 
-They should not stop :-)
-Adding things is another story.
+Index: linux-2.6.3/fs/ext2/acl.c
+===================================================================
+--- linux-2.6.3.orig/fs/ext2/acl.c
++++ linux-2.6.3/fs/ext2/acl.c
+@@ -154,10 +154,9 @@ ext2_iset_acl(struct inode *inode, struc
+ static struct posix_acl *
+ ext2_get_acl(struct inode *inode, int type)
+ {
+-	const size_t max_size = ext2_acl_size(EXT2_ACL_MAX_ENTRIES);
+ 	struct ext2_inode_info *ei = EXT2_I(inode);
+ 	int name_index;
+-	char *value;
++	char *value = NULL;
+ 	struct posix_acl *acl;
+ 	int retval;
+ 
+@@ -182,17 +181,21 @@ ext2_get_acl(struct inode *inode, int ty
+ 		default:
+ 			return ERR_PTR(-EINVAL);
+ 	}
+-	value = kmalloc(max_size, GFP_KERNEL);
+-	if (!value)
+-		return ERR_PTR(-ENOMEM);
+-
+-	retval = ext2_xattr_get(inode, name_index, "", value, max_size);
+-	acl = ERR_PTR(retval);
+-	if (retval >= 0)
++	retval = ext2_xattr_get(inode, name_index, "", NULL, 0);
++	if (retval > 0) {
++		value = kmalloc(retval, GFP_KERNEL);
++		if (!value)
++			return ERR_PTR(-ENOMEM);
++		retval = ext2_xattr_get(inode, name_index, "", value, retval);
++	}
++	if (retval > 0)
+ 		acl = ext2_acl_from_disk(value, retval);
+ 	else if (retval == -ENODATA || retval == -ENOSYS)
+ 		acl = NULL;
+-	kfree(value);
++	else
++		acl = ERR_PTR(retval);
++	if (value)
++		kfree(value);
+ 
+ 	if (!IS_ERR(acl)) {
+ 		switch(type) {
+Index: linux-2.6.3/fs/ext3/acl.c
+===================================================================
+--- linux-2.6.3.orig/fs/ext3/acl.c
++++ linux-2.6.3/fs/ext3/acl.c
+@@ -157,10 +157,9 @@ ext3_iset_acl(struct inode *inode, struc
+ static struct posix_acl *
+ ext3_get_acl(struct inode *inode, int type)
+ {
+-	const size_t max_size = ext3_acl_size(EXT3_ACL_MAX_ENTRIES);
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	int name_index;
+-	char *value;
++	char *value = NULL;
+ 	struct posix_acl *acl;
+ 	int retval;
+ 
+@@ -185,17 +184,21 @@ ext3_get_acl(struct inode *inode, int ty
+ 		default:
+ 			return ERR_PTR(-EINVAL);
+ 	}
+-	value = kmalloc(max_size, GFP_KERNEL);
+-	if (!value)
+-		return ERR_PTR(-ENOMEM);
+-
+-	retval = ext3_xattr_get(inode, name_index, "", value, max_size);
+-	acl = ERR_PTR(retval);
++	retval = ext3_xattr_get(inode, name_index, "", NULL, 0);
++	if (retval > 0) {
++		value = kmalloc(retval, GFP_KERNEL);
++		if (!value)
++			return ERR_PTR(-ENOMEM);
++		retval = ext3_xattr_get(inode, name_index, "", value, retval);
++	}
+ 	if (retval > 0)
+ 		acl = ext3_acl_from_disk(value, retval);
+ 	else if (retval == -ENODATA || retval == -ENOSYS)
+ 		acl = NULL;
+-	kfree(value);
++	else
++		acl = ERR_PTR(retval);
++	if (value)
++		kfree(value);
+ 
+ 	if (!IS_ERR(acl)) {
+ 		switch(type) {
 
-> Most admins change kernels more often than all other programs and libs 
-> and these programs can potenitially not be updated yet.
 
-I don't think so.
-Applying a kernel patch usually doesn't change the API. Changing kernel
-config should never change the API.
-
-> My proposal is to move these things from linux-common to linux-userland 
-> instead of removng them from the kernel immendiatelly.
-> So no compatibility with user program and libs will be broken (and after a 
-> few releases of kernel, when all programs and libs will be updated, these 
-> things can be removed completly from kernel headers of all three types).
-
-Things which are IMHO not options:
-- removing kernel headers (i.e. headers which are required by kernel
-  files to compile) from the kernel tree,
-- duplicating kernel header definitions in external packages (a straight
-  copy for distro users is ok, things which need maintenance aren't).
-  Existing duplicates should be dealt with.
+Thank you,
 -- 
-Krzysztof Halasa, B*FH
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbULTQ5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbULTRAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbULTQ5b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULTQ5b
+	id S261571AbULTRAr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 12:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbULTRAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:57:31 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:11695 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261569AbULTQ5V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:57:21 -0500
-Date: Mon, 20 Dec 2004 10:56:29 -0600
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: "Jose R. Santos" <jrsantos@austin.ibm.com>
-Cc: Anton Blanchard <anton@samba.org>, Andi Kleen <ak@suse.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <20041220165629.GA21231@rx8.austin.ibm.com>
-References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de> <20041216051323.GI24000@krispykreme.ozlabs.ibm.com> <20041216141814.GA10292@rx8.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041216141814.GA10292@rx8.austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 20 Dec 2004 12:00:47 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38101 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261571AbULTRAo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 12:00:44 -0500
+Date: Mon, 20 Dec 2004 09:00:32 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] back out CPU clock additions to posix-timers
+In-Reply-To: <200412200347.iBK3lg3X007599@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0412200857480.6297@schroedinger.engr.sgi.com>
+References: <200412200347.iBK3lg3X007599@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose R. Santos <jrsantos@austin.ibm.com> [041216]:
-> I can do the SpecSFS runs but each runs takes several hours to complete
-> and I would need to do two runs (baseline and patched).  I may have it 
-> ready by today or tommorow.
+On Sun, 19 Dec 2004, Roland McGrath wrote:
 
-The difference between the two runs was with in noise of the benchmark on
-my small setup.  I wont be able to get a larger NUMA system until next year,
-so I'll retest when that happens.  In the mean time, I don't see a reason
-either to stall this patch, but that may change on I get numbers on a
-larger system.
+> Since Andrew is taking the conservative line, I think it's more prudent to
+> omit the whole thing from 2.6.10 rather than have a tentative definition of
+> what those two clock IDs mean that changes later.
 
--JRS
+The conservative line is to keep a consistent definition of the interface
+following posix as closely as possible. The definition of the 4 clockids
+CLOCK_*_CPUTIME_ID, CLOCK_REALTIME and CLOCK_MONOTONIC should stay
+constant and be implemented in a consistent way by the kernel. That is
+the case now and should not be changed by any future patches.
+
+

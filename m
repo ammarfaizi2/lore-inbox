@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVCJPsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVCJP6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVCJPsr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 10:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVCJPsr
+	id S262671AbVCJP6h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVCJP5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 10:48:47 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17025 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262667AbVCJPsh (ORCPT
+	Thu, 10 Mar 2005 10:57:38 -0500
+Received: from styx.suse.cz ([82.119.242.94]:44244 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262671AbVCJP53 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 10:48:37 -0500
-Date: Thu, 10 Mar 2005 16:48:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050310154830.GB2578@suse.de>
-References: <422F2F7C.3010605@pobox.com> <9e4733910503091023474eb377@mail.gmail.com> <422F5D0E.7020004@pobox.com> <9e473391050309125118f2e979@mail.gmail.com> <20050309210926.GZ28855@suse.de> <9e473391050309171643733a12@mail.gmail.com> <20050310075049.GA30243@suse.de> <9e4733910503100658ff440e3@mail.gmail.com> <20050310153151.GY2578@suse.de> <9e473391050310074556aad6b0@mail.gmail.com>
+	Thu, 10 Mar 2005 10:57:29 -0500
+Date: Thu, 10 Mar 2005 16:57:29 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Adrian Bunk <bunk@stusta.de>, Borislav Petkov <petkov@uni-muenster.de>,
+       perex@suse.cz, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] OSS gameport fixes
+Message-ID: <20050310155729.GB27494@ucw.cz>
+References: <20050304033215.1ffa8fec.akpm@osdl.org> <200503070941.59365.petkov@uni-muenster.de> <20050307215206.GH3170@stusta.de> <d120d50005030714126e345fe2@mail.gmail.com> <20050307230633.GJ3170@stusta.de> <20050309113217.GB21688@stusta.de> <d120d5000503100736212a9c87@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e473391050310074556aad6b0@mail.gmail.com>
+In-Reply-To: <d120d5000503100736212a9c87@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10 2005, Jon Smirl wrote:
-> On Thu, 10 Mar 2005 16:31:51 +0100, Jens Axboe <axboe@suse.de> wrote:
-> > On Thu, Mar 10 2005, Jon Smirl wrote:
-> > > LABEL=/                 /                       ext3    defaults        1 1
-> > > label / is on /dev/sda6
-> > >
-> > > Creating root device
-> > > Mounting root filesystem
-> > > mount: error 6 mounting ext3
+On Thu, Mar 10, 2005 at 10:36:57AM -0500, Dmitry Torokhov wrote:
+> On Wed, 9 Mar 2005 12:32:17 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch adds dummy gameport_register_port, gameport_unregister_port
+> > and gameport_set_phys functions to gameport.h for the case when a driver
+> > can't use gameport.
 > > 
-> > if 6 is the errno, it looks like it is trying to open a device that does
-> > not exist (ENXIO). Can you up the verbosity of those commands, I'd like
-> > to see what it is doing exactly.
+> > This fixes the compilation of some OSS drivers with GAMEPORT=n without
+> > the need to #if inside every single driver.
+> > 
+> > This patch also removes the non-working and now obsolete SOUND_GAMEPORT.
+> > 
+> > This patch is also an alternative solution for ALSA drivers with similar
+> > problems (but #if's inside the drivers might have the advantage of
+> > saving some more bytes of gameport is not available).
+> > 
+> > The only user-visible change is that for GAMEPORT=m the affected OSS
+> > drivers are now allowed to be built statically (but they won't have
+> > gameport support).
+> > 
 > 
-> Jeff, how can I up the verbosity? This is on Fedora Core 3 but before
-> user space is up. Is there some way to tell the boot ramdisk to
-> display more info?
+> Hi Adrian,
+> 
+> I have somewhat mixed feeling about the patch. Some solutions is
+> definitely needed but I don't like allocating memory that will never
+> be used. I think I would perfer #ifdefing gameport support is OSS
+> modules, _if_ #ifdefs are out of line and not in the middle of code
+> path.
+> 
+> I'll let Vojtech decide which way he wants to go - he could probably
+> apply the patch and then we could convert drivers one by one and kill
+> the stubs later.
 
-Perhaps you can mount the initrd and change the script to echo the
-commands before executing them? Then boot with the modified initrd.
+OK, I'll add it, since it fixes immediate breakage. I'll also accept
+patches that #ifdef-out the relevant parts of sound drivers if gameport
+support is not present.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTKFTzu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTKFTzu
+	id S263702AbTKFT5l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTKFT5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:55:50 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:32975 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S263812AbTKFTzo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:55:44 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: davidsen@tmr.com (bill davidsen), linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: Thu, 6 Nov 2003 14:55:41 -0500
-User-Agent: KMail/1.5.1
-References: <3FA69CDF.5070908@gmx.de> <20031105101207.GI1477@suse.de> <boe6in$f4q$1@gatekeeper.tmr.com>
-In-Reply-To: <boe6in$f4q$1@gatekeeper.tmr.com>
-Organization: None that appears to be detectable by casual observers
+	Thu, 6 Nov 2003 14:57:41 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:16650 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S263702AbTKFT5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 14:57:34 -0500
+Date: Thu, 6 Nov 2003 20:57:17 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Over used cache memory?
+In-Reply-To: <20031106190703.GA2654@localhost>
+Message-ID: <Pine.LNX.4.44.0311062051270.21501-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311061455.41642.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.62.77] at Thu, 6 Nov 2003 13:55:42 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 November 2003 14:14, bill davidsen wrote:
->In article <20031105101207.GI1477@suse.de>, Jens Axboe  
-<axboe@suse.de> wrote:
->| k3b is probably still going through ide-scsi which you must not.
->| It would be interesting if you could try without ide-scsi and use
->| cdrecord manually (maybe someone more knowledgable on k3b can
->| common on whether they support 2.6 or not). 2.6 will be a lot
->| faster than 2.4.
->
->I'm not sure what you mean by faster, burning runs at device limited
->speed in CPU time in the  less than 1% range if you remember to
-> enable DMA. The last time I looked DMA didn't work in either kernel
-> if write size was not a multiple of 1k, (or 2k?) has that changed?
->
->I'm not sure what you meant by faster, so don't think I'm
-> disagreeing with you.
+> On Thursday, 06 November 2003, at 17:15:33 +0800,
+> Wee Teck Neo wrote:
+> 
+> >   procs                      memory      swap          io     system      
+> > cpu
+> > r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+> > 1  0  0  92744   9640  20240 801644    0    0     3    10   17     0 25  2 10
+> > 
+> > The system is having 1GB ram and currently using 92MB as swap. Why does the 
+> > system use the slower swap when there are still memory available (as 
+> > cache). Anyway to "force" the system to use more ram instead of putting 
+> > into swap memory?
 
-As in it actually said it was burning at 12x, and could do a 650 meg 
-iso in a bit over 6 minutes including fixating.  Thats about 3 to 4 
-minutes faster than its ever been.
+Why would you want to?  The kernel has determined that 92MB of the stuff 
+in memory is less important than the disk cache.  For example a program 
+requires 100 MB data for boot and then spends the next week using the last 
+5 MB.  Do you expect all 100 MB to stay resident in memory for ever 
+(while the program is running)?  Of course not, it'll get swapped out once 
+it is determined to be less used than the disk cache and only that last 5 
+MB which is actually doing something will remain in RAM, with the rest 
+quietly sitting in swap.  Swap is slower than RAM, sure, but using RAM for 
+storing your dirty laundry from two weeks ago is pointless - and that's 
+why it's swapped out - the disk cache will likely accelerate stuff more 
+than keeping the odds and ends in memory.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Now, if you have lots of cache and the system is swapping like crazy - 
+then something is wrong, but only then.
+
+> The obvious solution is to disable swap memory completely if those 
+> 90 MiB worth of idle and unused memory pages on disk bother you.
+> 
+> If this "vmstat" output shows your box usual load, with 80% of RAM used
+> in caches, I think you will never really need swap at all.
+
+I wouldn't agree with that - It'll still swap via R/O text executable 
+pages, so you'll still have swap, just invisible.
+
+Cheers,
+MaZe.
+
 

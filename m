@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUESKyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUESK6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUESKyT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 06:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUESKyT
+	id S263574AbUESK6b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 06:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUESK6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 06:54:19 -0400
-Received: from nacho.zianet.com ([216.234.192.105]:7443 "HELO nacho.zianet.com")
-	by vger.kernel.org with SMTP id S263565AbUESKyS (ORCPT
+	Wed, 19 May 2004 06:58:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60805 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263574AbUESK63 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 06:54:18 -0400
-From: Steven Cole <elenstev@mesatop.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Date: Wed, 19 May 2004 04:53:31 -0600
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       mason@suse.com, wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
-       support@bitmover.com, linux-kernel@vger.kernel.org
-References: <200405132232.01484.elenstev@mesatop.com> <200405172319.38853.elenstev@mesatop.com> <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>
-MIME-Version: 1.0
+	Wed, 19 May 2004 06:58:29 -0400
+Date: Wed, 19 May 2004 06:58:06 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: sendfile -EOVERFLOW on AMD64
+Message-ID: <20040519105805.GK30909@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405190453.31844.elenstev@mesatop.com>
+In-Reply-To: <20040519103855.GF18896@fi.muni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 May 2004 08:38 am, Linus Torvalds wrote:
+On Wed, May 19, 2004 at 12:38:56PM +0200, Jan Kasprzak wrote:
+> Andi Kleen wrote:
+> : Jan Kasprzak <kas@informatics.muni.cz> writes:
+> : >
+> : > The image (FC2-i386-DVD.iso) has 4370640896 bytes. The FTP server is native
+> : > x86_64 binary, not a 32-bit one.
+> : 
+> : sys_sendfile limits itself dumbly to 2GB even on 64bit architectures.
+> : This patch should fix it on x86-64, although other 64bit ports may 
+> : need a similar patch. Just removing the limit in read_write 
+> : is not easy, because it would need fixes in all the 32bit emulation
+> : layers.
+> : 
+> 	It partly helped, thanks. But there is still one more problem
+> - it looks like sendfile() returns 32-bit value instead of 64-bit.
+> My debug info looks like this:
 > 
-> On Mon, 17 May 2004, Steven Cole wrote:
-> >
-> > No problems, and with PREEMPT of course.
+> sendfile(offset=0, count=4370640896)
+>     = -767073160, offset=3527894136
 > 
-> Ok. Good. It's a small data-set, but the bug made sense, and so did the 
-> fix.
+> where I do
+> 
+> 	long val = sendfile(...); printf(...%ld..., val);
 
-Perhaps a final note on this: I did more testing on reiserfs overnight with
-Chris' patch, and it survived eleven pulls and unpulls with no failures.
+What filesystem you're using?
+For XFS I'd expect this:
+STATIC ssize_t
+linvfs_sendfile(
+        struct file             *filp,
+        loff_t                  *ppos,
+        size_t                  count,
+        read_actor_t            actor,
+        void                    *target)
+{
+        vnode_t                 *vp = LINVFS_GET_VP(filp->f_dentry->d_inode);
+        int                     error;
 
-> 
-> > > If you see a failure on ext3, please try to analyze the corruption pattern 
-> > > again. It might be something different.
-> > 
-> > So, I take it that I should revert that one-liner if I want to get any failure data?
-> > With it, ext3 was pretty solid for this testing.
-> 
-> Yes. That one-liner is bogus. It was a good way to test a hypothesis for
-> the common case of a filesystem that uses the block_write_full_page thing
-> (and reiser is one of the few that doesn't), but it wasn't the real fix.
-> The reiser patch was the real fix for the problem on reiser, but ext3
-> should have been ok already. It uses (through a lot of other functions)
-> generic_file_aio_write_nolock() as the real write engine, and that one
-> calls "commit_write()" with the page lock held.
-> 
-> 		Linus
+        VOP_SENDFILE(vp, filp, ppos, 0, count, actor, target, NULL, error);
+        return error;
+}
 
-I also tested ext3 more extensively (10 pulls/unpulls) and could not repeat
-the alleged failure on ext3.  That was with akpm's one-liner backed out.
+(note error is int, not ssize_t), but I don't see anything obvious
+for other filesystems.
 
-Steven
+	Jakub

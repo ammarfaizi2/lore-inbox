@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276447AbRI2HZm>; Sat, 29 Sep 2001 03:25:42 -0400
+	id <S276451AbRI2Hbw>; Sat, 29 Sep 2001 03:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276448AbRI2HZc>; Sat, 29 Sep 2001 03:25:32 -0400
-Received: from cs82093.pp.htv.fi ([212.90.82.93]:45184 "EHLO cs82093.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S276447AbRI2HZN>;
-	Sat, 29 Sep 2001 03:25:13 -0400
-Message-ID: <3BB57763.1D8F3C25@welho.com>
-Date: Sat, 29 Sep 2001 10:25:23 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+	id <S276450AbRI2Hbn>; Sat, 29 Sep 2001 03:31:43 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:27559 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S276453AbRI2Hbb>;
+	Sat, 29 Sep 2001 03:31:31 -0400
+Message-ID: <3BB57915.7A702482@gmx.de>
+Date: Sat, 29 Sep 2001 09:32:37 +0200
+From: Bernd Harries <bha@gmx.de>
+Reply-To: bha@gmx.de
+Organization: BHA Industries
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: pavel@md5.ca
 CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel changes
-In-Reply-To: <20010928143205.B3669@md5.ca>
+Subject: Re: __get_free_pages(): is the MEM really mine?
+In-Reply-To: <356.1001580994@www46.gmx.net> <m1adzg66mq.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Zaitsev wrote:
-> Now I don't trust 2.4 line
-> kernel to work *at all*, so cautiously keep all old kernels in the /boot,
-> when upgrading.
+"Eric W. Biederman" wrote:
 
-Well, it's a good idea to always keep a few old kernels in /boot but I
-certainly identify with your point. I like to run the bleeding edge
-kernels at home but lately I've been having doubts. I've been looking
-for a stable kernel since 2.4.0-test9. While 2.4.0-test9 is not exactly
-bug free either, any later kernel either reboots at random (all later
-test versions and early 2.4.x versions) or locks up hard on my SMP
-machine. This does not appear to have anything to do with load, indeed
-it often happens with the machine completely idle. It can take hours or
-days before this occurs but sooner or later it does. Of course, nothing
-ever gets written to the logs. With 2.4.8 I almost thought I had hit
-paydirt, but no such luck. 2.4.9 crashed right off the bat. 2.4.10 seems
-more unstable than most. Enough so that I finally patched in ext3 and
-installed journals on my file systems just to give them a semblance of
-stability (and to speed up the random reboots).
+> Ouch.  This is where I give you the standard recommendation.  If you
+> do this scatter gatter (so you don't need megs of continuous memory)
+> you should be much better off, and your driver should be more
+> reliable.
 
-That said, I might just have a hardware problem. However, something in
-the new kernels seems to touch it off. Any ideas and tools to track this
-down, besides intuition and brute force, would be appreciated. [Right
-now I'm running with swap disabled, on somebody's suggestion. Let's see
-what happens.]
+Yep, the firmware on the pixel DSP behind the PLX-9054 bridge wants
+the base address of a linear 2K * 1K * 2 picture buffer so that it can
+trigger the one of the 9054's DMA engines to transfer triangles line 
+by line into my memory buffer. If I mmap the PCI space to userland, each read
+cycle costs 700-900 ns. The DMA engine can use bursts and then a cycle costs
+only 29.9 ns of PCI bandwidth.
 
-Regards,
+>  All of the other techniques you have used like mmap should
+> still apply.
 
-	Mika Liljeberg
+> Also if you are exporting this data to user space, before your DMA
+> complets you want to zero the pages you have allocated, so you don't
+> have an information leak.
+
+The DMA engine in the PLX 9054 can at least do Write-and-Invalidate cycles to
+the Main RAM. :-)
+
+Ciao,
+-- 
+Bernd Harries
+
+bha@gmx.de           http://www.freeyellow.com/members/bharries
+bha@nikocity.de       Tel. +49 421 809 7343 priv.  | MSB First!
+harries@stn-atlas.de       +49 421 457 3966 offi.  | Linux-m68k
+bernd@linux-m68k.org      8.48'21" E  52.48'52" N  | Medusa T40

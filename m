@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbTAaWZ3>; Fri, 31 Jan 2003 17:25:29 -0500
+	id <S262821AbTAaWih>; Fri, 31 Jan 2003 17:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbTAaWZ3>; Fri, 31 Jan 2003 17:25:29 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:5390 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262806AbTAaWZ2>; Fri, 31 Jan 2003 17:25:28 -0500
-Date: Fri, 31 Jan 2003 23:33:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <jgarzik@pobox.com>
-Subject: Re: [PATCH] Module alias and device table support.
-In-Reply-To: <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0301312045440.9900-100000@serv>
-References: <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262824AbTAaWih>; Fri, 31 Jan 2003 17:38:37 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:26807 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262821AbTAaWif>;
+	Fri, 31 Jan 2003 17:38:35 -0500
+Message-Id: <200301312247.h0VMlxB09932@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OSDL][BENCHMARK] OSDL-DBT-2 - 2.4 vs 2.5 4-way/8-way with vmstat 
+In-Reply-To: Message from Andrew Morton <akpm@digeo.com> 
+   of "Fri, 31 Jan 2003 14:13:50 PST." <20030131141350.370c287a.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 31 Jan 2003 14:47:59 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 31 Jan 2003, Kai Germaschewski wrote:
-
-> exactly great. In doing that, I already notice unresolved symbols and warn 
-> about them, which I think is an improvement to the build process, missing 
-> EXPORT_SYMBOL()s tend to go unnoticed quite often otherwise.
-
-The problem here is that we use System.map, it's not that difficult to 
-extract the exported symbols:
-objcopy -j .kstrtab -O binary vmlinux .export.tmp
-tr \\0 \\n < .export.tmp > Export.map
-
-> Doing this postprocessing unconditionally would allow to generate the 
-> alias tables at this point as well.
+> Cliff White <cliffw@osdl.org> wrote:
+> >
+> > http://www.osdl.org/projects/dbt2dev/results/8way/LKML2/data/296/vmstat.out
 > 
-> And while we're at it, we could add another section which specifies which 
-> other modules this module depends on (a.k.a which symbols it uses), making 
-> depmod kinda obsolete.
+> That's progress, thanks.
+> 
+> It is useful to show the collection interval of vmstat in the reports.  Is
+> that `vmstat 1' or `vmstat 1000'?
 
-It makes sense to keep depmod close to the linker, as both need the same 
-knowledge about resolving symbols, but I still don't know why that would 
-be a reason to put it into the kernel.
-It doesn't really matter if that information is generated during build or 
-at install, it just has to be at /lib/module/`uname -r` in a way modprobe 
-understands. BTW for my taste modprobe has too much knowledge about the 
-module layout, which actually belongs to the linker.
+vmstat interval is 60 seconds, you are right, we'll fix the report. 
+> 
+> This workload appears to be performing concurrent disk reads and writes.  If
+> these are _really_ happening at the same time (ie: if vmstat hasn't confused
+> me) then it could well be the case that the throughput improvement comes from
+> the I/O scheduler's tendency to service reads more promptly when there is a
+> lot of writeback happening.
 
-I finally looked a bit closer at the module alias. The possibility of 
-wildcards is certainly interesting, but besides of this it looks to me as 
-if we exchange one crutch with another. The alias string is too static 
-and cryptic. Adding information to it requires changes at too many places 
-(let alone adding information dynamically).
-What I'd really like to see is a really generic but still simple system to 
-match devices and drivers, e.g. describing properties like this:
+Re concurrent IO:
+The offical answer from the dba's: "Well, it tries" 
+There are multiple user proccessess doing queries and commits. 
+There should be a difference between the cached and non-cached runs, as 
+the cached runs should not be doing much writing, except to the log device.
 
-bus=usb
-vendor=0x1234
-product=0x4321
-device=1-3,5
+Every 10 minutes in all workloads, the database flushes cache to the 
+datafiles,
+which should produce a noticeable peak in activity. 
 
-Forcing the matching onto modprobe doesn't look like a good idea to me, as 
-IMO it takes too much away from hotplug. The alias string is not usable 
-for hotplug, but above properties can be used to trigger other operations
-beside module loading.
-
-bye, Roman
+These loads suck up all the memory they can, so anything that gives us more 
+free memory should
+be goodness. We think we are also seeing improvements in 2.5 in free memory, 
+but
+we don't know for sure where is best to look and how best to prove it. 
+Any advice?
+> 
+> If so then you can expect to see wild swings in results as you wend your way
+> through recent 2.5 kernels :(.  I'm working on settling that all down. 
+> 2.5.59-mm7 should do well.
+> 
+Hopefully we can get some results for you on that kernel. 
+cliffw
 

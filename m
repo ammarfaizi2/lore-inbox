@@ -1,96 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSJEL0O>; Sat, 5 Oct 2002 07:26:14 -0400
+	id <S262310AbSJELtJ>; Sat, 5 Oct 2002 07:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262299AbSJEL0O>; Sat, 5 Oct 2002 07:26:14 -0400
-Received: from ti200710a082-0578.bb.online.no ([148.122.10.66]:2052 "EHLO
-	empire.e") by vger.kernel.org with ESMTP id <S262296AbSJEL0K>;
-	Sat, 5 Oct 2002 07:26:10 -0400
-Message-ID: <3D9ECD9E.8090602@freenix.no>
-Date: Sat, 05 Oct 2002 13:31:42 +0200
-From: "frode@freenix.no" <frode@freenix.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
+	id <S262315AbSJELtJ>; Sat, 5 Oct 2002 07:49:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60423 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262310AbSJELtI>;
+	Sat, 5 Oct 2002 07:49:08 -0400
+Date: Sat, 5 Oct 2002 12:54:43 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 (several issues): kernel BUG! at slab.c:1292  - and what's
- with ZSH?
-References: <3D9E23E2.8000400@freenix.no> <20021005011749.GN1408@ppc.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: New BK License Problem?
+Message-ID: <20021005115443.GW710@gallifrey>
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021004.160216.58843127.davem@redhat.com> <20021004163335.A5336@work.bitmover.com> <20021005003840.GQ710@gallifrey> <20021004174501.Q835@work.bitmover.com> <20021005005344.GR710@gallifrey> <20021004180600.R835@work.bitmover.com> <20021005011706.GU710@gallifrey> <20021004185325.V835@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021004185325.V835@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 12:46:55 up 3 days, 14:13,  1 user,  load average: 0.20, 0.38, 0.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I just downloaded the linux-2.5.40 tarball.
->>FAT: Using codepage cp437
->>FAT: Using IO charset iso8859-1
->>FAT: Using codepage cp437
->>FAT: Using IO charset iso8859-1
->>FAT: Using codepage cp437
->>FAT: Using IO charset iso8859-1
->>Adding 262136k swap on /swapfile.  Priority:-2 extents:519
->>------------[ cut here ]------------
->>kernel BUG at slab.c:1292!
->>invalid operand: 0000
-> 
-> 
-> It is probably time to send it to Linus once more...
-> 						Petr Vandrovec
-> 
-> diff -urdN linux/fs/fat/inode.c linux/fs/fat/inode.c
-> --- linux/fs/fat/inode.c	2002-10-05 00:55:46.000000000 +0200
-> +++ linux/fs/fat/inode.c	2002-10-05 01:00:15.000000000 +0200
-> @@ -228,8 +228,6 @@
->  	save = 0;
->  	savep = NULL;
->  	while ((this_char = strsep(&options,",")) != NULL) {
-> -		if (!*this_char)
-> -			continue;
->  		if ((value = strchr(this_char,'=')) != NULL) {
->  			save = *value;
->  			savep = value;
-> @@ -351,7 +349,7 @@
->  			strncpy(cvf_options,value,100);
->  		}
->  
-> -		if (this_char != options) *(this_char-1) = ',';
-> +		if (options) *(options-1) = ',';
->  		if (value) *savep = save;
->  		if (ret == 0)
->  			break;
-> diff -urdN linux/fs/vfat/namei.c linux/fs/vfat/namei.c
-> --- linux/fs/vfat/namei.c	2002-10-05 00:56:02.000000000 +0200
-> +++ linux/fs/vfat/namei.c	2002-10-05 01:00:15.000000000 +0200
-> @@ -117,8 +117,6 @@
->  	savep = NULL;
->  	ret = 1;
->  	while ((this_char = strsep(&options,",")) != NULL) {
-> -		if (!*this_char)
-> -			continue;
->  		if ((value = strchr(this_char,'=')) != NULL) {
->  			save = *value;
->  			savep = value;
-> @@ -154,8 +152,8 @@
->  			else
->  				ret = 0;
->  		}
-> -		if (this_char != options)
-> -			*(this_char-1) = ',';
-> +		if (options)
-> +			*(options-1) = ',';
->  		if (value) {
->  			*savep = save;
->  		}
+In private email with Larry I asked him to clarify the question to the
+list; he didn't want to; but he did clarify to me the following and said
+I could pass it on. Here is my understanding of what he said.
 
-This patch solved the problem! Thanks!
+It really does appear that if you happen to be employed by a rival of
+Larry's then you aren't allowed to use it, even to check out free
+software unless you talk to Larry first.  He seems to be open to working
+out exemptions/work arounds for particular organisations.
 
+I was worried that this meant that some people didn't have access to
+free software stored with bk; he pointed out that he has gone to great lengths 
+to make the file formats fully compatible with SCCS (which answered my
+question of why something in this day and age had messages about SCCS
+appearing). So it should be possible to access the software using
+software other than bitkeeper.
 
-On a different matter;
+Now while I happen to not to like the idea of a license that restricts
+usage based on who you happen to work for, my main fear (of people being
+unable to get to hosted software) seems to be irrelevent due to this
+SCCS compatibility.  So how does one use SCCS/CSSC to get the bk kernel
+repositories?
 
-While playing around with 2.5.40 a bit I noticed something really weird:
-I use the ZSH shell and my prompt basically ends with the %# code which is
-supposed to show a '%' if you're not root and '#' if you are root.
-In 2.5.40, zsh shows # unconditionally. (In 2.4.19pre1 which I normally run,
-it works as expected). Really weird..
+That is my last message on this subject.
 
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288575AbSAQL6C>; Thu, 17 Jan 2002 06:58:02 -0500
+	id <S288597AbSAQMCx>; Thu, 17 Jan 2002 07:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288597AbSAQL5w>; Thu, 17 Jan 2002 06:57:52 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:45031 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S288575AbSAQL5s>; Thu, 17 Jan 2002 06:57:48 -0500
-Date: Thu, 17 Jan 2002 12:54:43 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Richard Henderson <rth@twiddle.net>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-In-Reply-To: <20020116151852.B31993@kushida.apsleyroad.org>
-Message-ID: <Pine.GSO.3.96.1020117124127.10407A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288603AbSAQMCm>; Thu, 17 Jan 2002 07:02:42 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:19728 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S288597AbSAQMCe>;
+	Thu, 17 Jan 2002 07:02:34 -0500
+Date: Thu, 17 Jan 2002 13:02:15 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: nico@cam.org, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Rik spreading bullshit about VM
+Message-Id: <20020117130215.54ca42d6.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33L.0201170944010.32617-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44.0201162044510.14097-100000@xanadu.home>
+	<Pine.LNX.4.33L.0201170944010.32617-100000@imladris.surriel.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Jamie Lokier wrote:
+On Thu, 17 Jan 2002 09:45:24 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-> > I've always wondered. Intel made the instruction optional yet there isnt
-> > an obvious way to do runtime fixups on it
+> On Wed, 16 Jan 2002, Nicolas Pitre wrote:
 > 
-> Yes there is -- emulation! :-)
+> > Then...
+> >
+> > What did you want to say exactly?
+> >
+> > Why aren't you rushing out to provide corrections?
+> >
+> > What are you waiting for?
+> 
+> It's just an article, it's just this week.
+> 
+> Next week people will be all upset about the next
+> block io layer flamewar or maybe the politicians
+> will have time again for the next round of DMCA.
+> 
+> I'm not a good writer, by the time I'd have written
+> any correction or follow-up people would have mostly
+> forgotten this thing anyway.
 
- For shared libraries the dynamic linker could choose appropriate images.
+Wrong century, Rik.
+Google is your friend.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+But anyway, hope we all have learned something.
+
+Regards,
+Stephan
+
 

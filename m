@@ -1,51 +1,105 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315617AbSENLii>; Tue, 14 May 2002 07:38:38 -0400
+	id <S315616AbSENLkX>; Tue, 14 May 2002 07:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSENLii>; Tue, 14 May 2002 07:38:38 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:6910 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S315617AbSENLig>;
-	Tue, 14 May 2002 07:38:36 -0400
-Date: Tue, 14 May 2002 07:38:33 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: [PATCH] 2.5.1[345]-dj Add cpqarray_init() back into genhd.c
-Message-ID: <20020514113833.GA16460@www.kroptech.com>
-In-Reply-To: <20020514024908.GA7695@www.kroptech.com> <6976.1021347098@kao2.melbourne.sgi.com>
+	id <S315623AbSENLkV>; Tue, 14 May 2002 07:40:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:21238 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315616AbSENLjL>;
+	Tue, 14 May 2002 07:39:11 -0400
+Date: Tue, 14 May 2002 17:12:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lockfree rtcache lookup using RCU
+Message-ID: <20020514171203.C9918@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020508142433.D10505@in.ibm.com> <20020508.020932.128330582.davem@redhat.com> <20020508185457.I10505@in.ibm.com> <20020508.064528.27619995.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 14, 2002 at 01:31:38PM +1000, Keith Owens wrote:
-> On Mon, 13 May 2002 22:49:08 -0400, 
-> Adam Kropelin <akropel1@rochester.rr.com> wrote:
-> >On Tue, May 14, 2002 at 12:24:23PM +1000, Keith Owens wrote:
-> >> The real problem appears to be cpqarray.c, it wraps the init/exit code
-> >> in #ifdef MODULE, so the init code is only available to modules.  I
-> >> think that cpqarray.c should remove the #ifdef MODULE and use the same
-> >> init mechanism as other drivers, including module_init/exit.  I don't
-> >> have a card and the code is a mess so I am not going to attempt a patch.
-> >
-> >I'm not seeing it. I see init_module() and cleanup_module() wrapped as you say
-> >but cpqarray_init() is outside the #ifdef. Also, two versions of cpqarray_setup
-> >are provided based on #ifdef MODULE but this doesn't look problematic to me.
-> >I'm a newbie, for sure. Am I overlooking something obvious?
+On Wed, May 08, 2002 at 06:45:28AM -0700, David S. Miller wrote:
+>    From: Dipankar Sarma <dipankar@in.ibm.com>
+>    Date: Wed, 8 May 2002 18:54:57 +0530
+>    
+>    A large number of processes of which small sets may look up the same
+>    ip address. dst ip addresses change after every 50 packets or
+>    so.
+>    
+>    Is this more realistic ?
 > 
-> The call to cpqarray_init() is from init_module() which does not exist
-> when the code is built in.  See drivers/block/loop.c for an example of
-> the correct use of init and exit routines, using module_init and
-> module_exit.
+> More like every 4 or 5 packets.
 
-Ah, I think I see your point now. The call to cpqarray_init() from genhd.c was
-a hack, needed only because cpqarray doesn't use the module_init/module_exit
-mechanism. Sorry I took so long to catch on and thanks for your patience.
+Ok, here are some results from a test like that on a 8-way PIII
+xeon with 1MB L2 cache. The test has 32 processes sending
+random sized packets with dst ip changing every 5 packets.
+There results are probably a bit skewed because of the neighbor
+table overflows as seen in by the high profile count in
+__write_lock_failed and neigh_forced_gc. It does seem that
+the packet rate in this test is very high.
 
-Since I do have a card and the motivation to see this driver work when 
-compiled-in, I'll attempt a more correct fix tonight.
+ip_route_output_key() is 22% faster with rt_rcu. I will publish 
+the results on a 16way NUMA later.
 
---Adam
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+
+
+base (2.5.3)
+----
+__write_lock_failed [c0107af0]: 602749
+stext_lock [c024eb18]: 178874
+neigh_forced_gc [c020a430]: 104295
+USER [c01263d0]: 49856
+qdisc_restart [c020f070]: 45435
+__read_lock_failed [c0107b10]: 35868
+dev_queue_xmit [c0207d00]: 27545
+__generic_copy_from_user [c0193b10]: 18680
+ace_start_xmit [c01bf670]: 14331
+nf_hook_slow [c020e940]: 8365
+__kfree_skb [c0204180]: 6919
+default_idle [c0106ed0]: 6511
+sock_alloc_send_pskb [c02032d0]: 6420
+ace_interrupt [c01bf180]: 6254
+pfifo_fast_dequeue [c020f550]: 4466
+net_tx_action [c0208230]: 4228
+ip_finish_output2 [c0219520]: 3747
+kfree_skbmem [c0204110]: 3436
+ip_route_output_key [c0214470]: 3034
+
+
+
+rt_rcu (2.5.3)
+-------
+
+__write_lock_failed [c0107af0]: 558354
+stext_lock [c024ef58]: 227526
+neigh_forced_gc [c020aaa0]: 100893
+USER [c0126a40]: 49559
+qdisc_restart [c020f6e0]: 45950
+dev_queue_xmit [c0208370]: 27353
+__read_lock_failed [c0107b10]: 24113
+__generic_copy_from_user [c0194180]: 18375
+ace_start_xmit [c01bfce0]: 15677
+nf_hook_slow [c020efb0]: 8865
+__kfree_skb [c02047f0]: 6890
+sock_alloc_send_pskb [c0203940]: 6239
+ace_interrupt [c01bf7f0]: 5982
+default_idle [c0106ed0]: 4679
+pfifo_fast_dequeue [c020fbc0]: 4067
+ip_finish_output2 [c0219940]: 3886
+kfree_skbmem [c0204780]: 3496 
+pfifo_fast_enqueue [c020fb40]: 3003
+net_tx_action [c02088a0]: 2994
+sock_def_write_space [c0204230]: 2552
+sock_wfree [c0203700]: 2408
+skb_release_data [c02046f0]: 2395
+ip_route_output_key [c0214990]: 2358
+
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbSJ1RiS>; Mon, 28 Oct 2002 12:38:18 -0500
+	id <S261419AbSJ1Rna>; Mon, 28 Oct 2002 12:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSJ1RiQ>; Mon, 28 Oct 2002 12:38:16 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:62223 "EHLO
+	id <S261451AbSJ1Rn3>; Mon, 28 Oct 2002 12:43:29 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:1808 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261405AbSJ1RXv>; Mon, 28 Oct 2002 12:23:51 -0500
-Date: Tue, 29 Oct 2002 02:30:10 +0900
+	id <S261419AbSJ1RYF>; Mon, 28 Oct 2002 12:24:05 -0500
+Date: Tue, 29 Oct 2002 02:30:21 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 13/23] add support for PC-9800 architecture (parport)
-Message-ID: <20021029023010.A2295@precia.cinet.co.jp>
+Subject: [PATCHSET 21/23] add support for PC-9800 architecture (sound oss #1)
+Message-ID: <20021029023021.A2343@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,802 +19,982 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 13/23 of patchset for add support NEC PC-9800 architecture,
+This is a part 21/23 of patchset for add support NEC PC-9800 architecture,
 against 2.5.44.
 
 Summary:
- parallel drivers
-  - add new driver for support legacy PC-9800 printer port.
-  - IO address change (parport_pc)
-  - IRQ number change (parport_pc)
+ OSS sound driver related modules.
+  - add hardware specific initialization.
+  - IO port address and IRQ number change.
 
 diffstat:
- drivers/char/Config.in       |    9 
- drivers/char/lp_old98.c      |  577 +++++++++++++++++++++++++++++++++++++++++++
- drivers/parport/parport_pc.c |   68 ++++-
- include/linux/parport_pc.h   |   10 
- 4 files changed, 659 insertions(+), 5 deletions(-)
+ sound/oss/Config.in      |   16 ++++
+ sound/oss/Makefile       |    1 
+ sound/oss/ad1848.c       |   45 +++++++++++
+ sound/oss/dev_table.h    |    3 
+ sound/oss/dmabuf.c       |    3 
+ sound/oss/mpu401.c       |  178 +++++++++++++++++++++++++++++++++++++++++++++++
+ sound/oss/opl3.c         |  132 +++++++++++++++++++++++++++++++++-
+ sound/oss/sb.h           |   34 ++++++++
+ sound/oss/sb_common.c    |  103 ++++++++++++++++++++++++++-
+ sound/oss/sound_config.h |   12 +++
+ sound/oss/uart401.c      |   17 ++++
+ 11 files changed, 538 insertions(+), 6 deletions(-)
 
 patch:
-diff -urN linux/drivers/parport/parport_pc.c linux98/drivers/parport/parport_pc.c
---- linux/drivers/parport/parport_pc.c	Sat Oct 19 13:01:52 2002
-+++ linux98/drivers/parport/parport_pc.c	Sat Oct 26 17:01:09 2002
-@@ -85,6 +85,8 @@
- #define DPRINTK(stuff...)
- #endif
- 
-+/* Indicates PC-9800 architecture  No:0 Yes:1 */
-+extern int pc98;
- 
- #define NR_SUPERIOS 3
- static struct superio_struct {	/* For Super-IO chips autodetection */
-@@ -332,7 +334,10 @@
- 
- unsigned char parport_pc_read_status(struct parport *p)
- {
--	return inb (STATUS (p));
-+	if (pc98 && p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
-+	else
-+		return inb (STATUS (p));
- }
- 
- void parport_pc_disable_irq(struct parport *p)
-@@ -1644,6 +1649,8 @@
- {
- 	unsigned char r, w;
- 
-+	if (pc98 && pb->base == 0x40)
-+		return PARPORT_MODE_PCSPP;
- 	/*
- 	 * first clear an eventually pending EPP timeout 
- 	 * I (sailer@ife.ee.ethz.ch) have an SMSC chipset
-@@ -1777,6 +1784,9 @@
- {
- 	int ok = 0;
+diff -urN linux/sound/oss/Config.in linux98/sound/oss/Config.in
+--- linux/sound/oss/Config.in	Sat Oct 19 13:02:24 2002
++++ linux98/sound/oss/Config.in	Sat Oct 19 16:35:25 2002
+@@ -132,6 +132,9 @@
    
-+	if (pc98 && pb->base == 0x40)
-+		return 0;  /* never support */
+    dep_tristate '    Microsoft Sound System support' CONFIG_SOUND_MSS $CONFIG_SOUND_OSS
+    dep_tristate '    MPU-401 support (NOT for SB16)' CONFIG_SOUND_MPU401 $CONFIG_SOUND_OSS
++     if [ "$CONFIG_SOUND_MPU401" != "n" -a "$CONFIG_PC9800" = "y" ]; then
++        dep_bool '      Roland MPU-PC98II support' CONFIG_MPU_PC98II y
++     fi
+    dep_tristate '    NM256AV/NM256ZX audio support' CONFIG_SOUND_NM256 $CONFIG_SOUND_OSS
+    dep_tristate '    OPTi MAD16 and/or Mozart based cards' CONFIG_SOUND_MAD16 $CONFIG_SOUND_OSS $CONFIG_SOUND_GAMEPORT
+    if [ "$CONFIG_SOUND_MAD16" = "y" -o "$CONFIG_SOUND_MAD16" = "m" ]; then
+@@ -151,6 +154,9 @@
+ 
+    dep_tristate '    100% Sound Blaster compatibles (SB16/32/64, ESS, Jazz16) support' CONFIG_SOUND_SB $CONFIG_SOUND_OSS
+    dep_tristate '    AWE32 synth' CONFIG_SOUND_AWE32_SYNTH $CONFIG_SOUND_OSS
++   if [ "$CONFIG_PC9800" = "y" -a "$CONFIG_SOUND_SB" != "n" ]; then
++ 	define_bool CONFIG_SB16_PC9800 y
++   fi
+    dep_tristate '    Full support for Turtle Beach WaveFront (Tropez Plus, Tropez, Maui) synth/soundcards' CONFIG_SOUND_WAVEFRONT $CONFIG_SOUND_OSS m
+    dep_tristate '    Limited support for Turtle Beach Wave Front (Maui, Tropez) synthesizers' CONFIG_SOUND_MAUI $CONFIG_SOUND_OSS
+    if [ "$CONFIG_SOUND_MAUI" = "y" ]; then
+@@ -161,6 +167,9 @@
+    fi
+ 
+    dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
++   if [ "$CONFIG_PC9800" = "y" -a "$CONFIG_SOUND_YM3812" != "n" ]; then
++       define_bool CONFIG_PC9801_118 y
++   fi
+    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
+    dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
+    dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
+@@ -197,6 +206,13 @@
+       dep_tristate '    Netwinder WaveArtist' CONFIG_SOUND_WAVEARTIST $CONFIG_SOUND_OSS $CONFIG_ARCH_NETWINDER
+    fi
+ 
++   if [ "$CONFIG_PC9800" = "y" -a "$CONFIG_EXPERIMENTAL" = "y" ]; then
++      dep_tristate '    NEC PC-9801-86 PCM support' CONFIG_SOUND_PC9801_86 $CONFIG_SOUND_OSS
++      if [ "$CONFIG_SOUND_PC9801_86" != "n" ]; then
++         hex '      PC-9801-86 I/O base' CONFIG_PC9801_86_BASE a460
++      fi
++   fi
 +
- 	clear_epp_timeout(pb);
+ fi
  
- 	/* try to tri-state the buffer */
-@@ -1908,6 +1918,9 @@
- 			config & 0x80 ? "Level" : "Pulses");
+ dep_tristate '  TV card (bt848) mixer support' CONFIG_SOUND_TVMIXER $CONFIG_SOUND $CONFIG_I2C
+diff -urN linux/sound/oss/Makefile linux98/sound/oss/Makefile
+--- linux/sound/oss/Makefile	Fri Aug  2 06:16:16 2002
++++ linux98/sound/oss/Makefile	Wed Aug  7 10:04:10 2002
+@@ -42,6 +42,7 @@
+ obj-$(CONFIG_SOUND_AD1816)	+= ad1816.o
+ obj-$(CONFIG_SOUND_ACI_MIXER)	+= aci.o
+ obj-$(CONFIG_SOUND_AWE32_SYNTH)	+= awe_wave.o
++obj-$(CONFIG_SOUND_PC9801_86)	+= pc9801_86_pcm.o
  
- 		configb = inb (CONFIGB (pb));
-+		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
-+			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
+ obj-$(CONFIG_SOUND_VIA82CXXX)	+= via82cxxx_audio.o ac97_codec.o
+ ifeq ($(CONFIG_MIDI_VIA82CXXX),y)
+diff -urN linux/sound/oss/ad1848.c linux98/sound/oss/ad1848.c
+--- linux/sound/oss/ad1848.c	Sat Oct 19 13:01:59 2002
++++ linux98/sound/oss/ad1848.c	Sat Oct 19 16:24:54 2002
+@@ -57,6 +57,10 @@
+ #include "ad1848.h"
+ #include "ad1848_mixer.h"
+ 
++#ifdef CONFIG_PC9800
++#include <sound/sound_pc9800.h>
++#endif
 +
- 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
- 			pb->base, config, configb);
- 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
-@@ -2048,6 +2061,9 @@
- 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
- 
- 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
-+	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
-+		intrLine = 5; /* IRQ 14 */
-+
- 	irq = lookup[intrLine];
- 
- 	ECR_WRITE (pb, oecr);
-@@ -2212,7 +2228,14 @@
- 	struct parport tmp;
- 	struct parport *p = &tmp;
- 	int probedirq = PARPORT_IRQ_NONE;
--	if (check_region(base, 3)) return NULL;
-+	if (pc98 && base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			if (check_region(base + i, 1)) return NULL;
-+	} else {
-+		if (check_region(base, 3)) return NULL;
-+	}
-+
- 	priv = kmalloc (sizeof (struct parport_pc_private), GFP_KERNEL);
- 	if (!priv) {
- 		printk (KERN_DEBUG "parport (0x%lx): no memory!\n", base);
-@@ -2245,7 +2268,7 @@
- 	if (base_hi && !check_region(base_hi,3))
- 		parport_ECR_present(p);
- 
--	if (base != 0x3bc) {
-+	if (!pc98 && base != 0x3bc) {
- 		if (!check_region(base+0x3, 5)) {
- 			if (!parport_EPP_supported(p))
- 				parport_ECPEPP_supported(p);
-@@ -2343,7 +2366,12 @@
- 		printk(KERN_INFO "%s: irq %d detected\n", p->name, probedirq);
- 	parport_proc_register(p);
- 
--	request_region (p->base, 3, p->name);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			request_region(p->base + i, 1, p->name);
-+	} else
-+		request_region (p->base, 3, p->name);
- 	if (p->size > 3)
- 		request_region (p->base + 3, p->size - 3, p->name);
- 	if (p->modes & PARPORT_MODE_ECP)
-@@ -2413,7 +2441,13 @@
- 		free_dma(p->dma);
- 	if (p->irq != PARPORT_IRQ_NONE)
- 		free_irq(p->irq, p);
--	release_region(p->base, 3);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			release_region(p->base + i, 1);
-+	} else
-+		release_region(p->base, 3);
-+
- 	if (p->size > 3)
- 		release_region(p->base + 3, p->size - 3);
- 	if (p->modes & PARPORT_MODE_ECP)
-@@ -2994,6 +3028,30 @@
+ typedef struct
  {
- 	int count = 0;
+ 	spinlock_t	lock;
+@@ -2563,6 +2567,9 @@
+ 	}
+ 	DDB(printk("MSS signature = %x\n", tmp & 0x3f));
+ 	if ((tmp & 0x3f) != 0x04 &&
++#ifdef CONFIG_PC9800
++	    (tmp & 0x3f) != 0x05 &&
++#endif
+ 	    (tmp & 0x3f) != 0x0f &&
+ 	    (tmp & 0x3f) != 0x00)
+ 	{
+@@ -2576,12 +2583,19 @@
+ 		hw_config->card_subtype = 1;
+ 		return 1;
+ 	}
++#ifndef CONFIG_PC9800
+ 	if ((hw_config->irq != 5)  &&
+ 	    (hw_config->irq != 7)  &&
+ 	    (hw_config->irq != 9)  &&
+ 	    (hw_config->irq != 10) &&
+ 	    (hw_config->irq != 11) &&
+ 	    (hw_config->irq != 12))
++#else /* CONFIG_PC9800 */
++	if ((hw_config->irq != 3)  &&
++	    (hw_config->irq != 5)  &&
++	    (hw_config->irq != 10) &&
++	    (hw_config->irq != 12))
++#endif /* CONFIG_PC9800 */
+ 	{
+ 		printk(KERN_ERR "MSS: Bad IRQ %d\n", hw_config->irq);
+ 		return 0;
+@@ -2610,10 +2624,24 @@
  
-+	if (pc98) {
-+		/* Set default resource settings for old style parport */
-+		int	base = 0x40;
-+		int	base_hi = 0;
-+		int	irq = PARPORT_IRQ_NONE;
-+		int	dma = PARPORT_DMA_NONE;
+ void attach_ms_sound(struct address_info *hw_config, struct module *owner)
+ {
++#ifndef CONFIG_PC9800
+ 	static signed char interrupt_bits[12] =
+ 	{
+ 		-1, -1, -1, -1, -1, 0x00, -1, 0x08, -1, 0x10, 0x18, 0x20
+ 	};
++#else /* CONFIG_PC9800 */
++	/* Valid IRQs are: 3 (INT0), 5 (INT1), 10 (INT41), 12 (INT5) */
++	static signed char interrupt_bits[13] =
++	{
++		-1, -1, -1, 0x08, -1, 0x10, -1, -1, -1, -1, 0x18, -1, 0x20 
++	};
++/* # ifdef CONFIG_PC9800_CANBE ??? */
++	static signed char interrupt_bits2[13] =
++	{
++		-1, -1, -1, 0x03, -1, 0x08, -1, -1, -1, -1, 0x02, -1, 0x00
++	};
++/* # endif */
++#endif /* CONFIG_PC9800 */
+ 	signed char     bits;
+ 	char            dma2_bit = 0;
+ 
+@@ -2648,6 +2676,23 @@
+ 		printk(KERN_ERR "MSS: Bad IRQ %d\n", hw_config->irq);
+ 		return;
+ 	}
 +
-+		/* Check PC9800 old style parport */
-+		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
-+		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
-+			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
-+			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
-+				/* Set default settings for IEEE1284 parport */
-+				base = 0x140;
-+				base_hi = 0x14c;
-+				irq = 14;
-+				/* dma = PARPORT_DMA_NONE; */
-+			}
++#ifdef CONFIG_PC9800
++	if (PC9800_SOUND_ID() == PC9800_SOUND_ID_118) {
++		/* Set up CanBe control registers. */
++		unsigned long flags;
++		static spinlock_t canbe_lock = SPIN_LOCK_UNLOCKED;
++
++		printk(KERN_DEBUG "MSS: "
++			"Setting up CanBe Sound System control register\n");
++		spin_lock_irqsave(&canbe_lock, flags);
++		outb(inb(PC9800_SOUND_IO_ID) | 0x3, PC9800_SOUND_IO_ID);
++		outb(0x01, 0x0f4a);
++		outb(interrupt_bits2[hw_config->irq], 0x0f4b);
++		spin_unlock_irqrestore(&canbe_lock, flags);
++	}
++#endif /* CONFIG_PC9800 */
++
+ 	outb((bits | 0x40), config_port);
+ 	if ((inb(version_port) & 0x40) == 0)
+ 		printk(KERN_ERR "[MSS: IRQ Conflict?]\n");
+diff -urN linux/sound/oss/dev_table.h linux98/sound/oss/dev_table.h
+--- linux/sound/oss/dev_table.h	Sun Sep  1 07:05:30 2002
++++ linux98/sound/oss/dev_table.h	Sun Sep  1 10:26:10 2002
+@@ -34,6 +34,9 @@
+ #define SNDCARD_OPL3SA2_MPU             43
+ #define SNDCARD_WAVEARTIST              44	/* Waveartist */
+ #define SNDCARD_OPL3SA2_MSS             45	/* Originally missed */
++#ifdef CONFIG_PC9800
++#define SNDCARD_PC9801_86               86	/* PC-9801-86 */
++#endif
+ #define SNDCARD_AD1816                  88
+ 
+ /*
+diff -urN linux/sound/oss/dmabuf.c linux98/sound/oss/dmabuf.c
+--- linux/sound/oss/dmabuf.c	Sun Aug 11 10:41:18 2002
++++ linux98/sound/oss/dmabuf.c	Fri Aug 23 20:36:52 2002
+@@ -153,6 +157,9 @@
+ 	/* printk( "Start DMA%d %d, %d\n",  chan,  (int)(physaddr-dmap->raw_buf_phys),  count); */
+ 
+ 	flags = claim_dma_lock();
++#ifdef CONFIG_PC9800
++	outb(chan,0x29);
++#endif /* CONFIG_PC9800 */
+ 	disable_dma(chan);
+ 	clear_dma_ff(chan);
+ 	set_dma_mode(chan, dma_mode);
+diff -urN linux/sound/oss/mpu401.c linux98/sound/oss/mpu401.c
+--- linux/sound/oss/mpu401.c	Tue Sep 10 02:35:16 2002
++++ linux98/sound/oss/mpu401.c	Thu Sep 12 22:54:17 2002
+@@ -71,9 +71,15 @@
+ 	  spinlock_t	lock;
+   };
+ 
++#if !defined(CONFIG_SB16_PC9800) && !defined(CONFIG_MPU_PC98II)
+ #define	DATAPORT(base)   (base)
+ #define	COMDPORT(base)   (base+1)
+ #define	STATPORT(base)   (base+1)
++#else
++#define	DATAPORT(base)   (base)
++#define	COMDPORT(base)   (base+2)
++#define	STATPORT(base)   (base+2)
++#endif
+ 
+ 
+ static void mpu401_close(int dev);
+@@ -1023,7 +1029,11 @@
+ 			mpu401_chk_version(m, devc);
+ 			spin_unlock_irqrestore(&devc->lock,flags);
+ 	}
++#if !defined(CONFIG_SB16_PC9800) && !defined(CONFIG_MPU_PC98II)
+ 	request_region(hw_config->io_base, 2, "mpu401");
++#else
++	request_region(hw_config->io_base, 4, "mpu401");
++#endif
+ 
+ 	if (devc->version != 0)
+ 		if (mpu_cmd(m, 0xC5, 0) >= 0)	/* Set timebase OK */
+@@ -1152,7 +1162,12 @@
+ 		{
+ 			spin_lock_irqsave(&devc->lock,flags);
+ 			if (input_avail(devc))
++#ifdef CONFIG_PC9801_118
++				/* PC-9801-118 doesn't respond ACK for RESET Command */
++				read_data(devc);
++#else
+ 				if (read_data(devc) == MPU_ACK)
++#endif
+ 					ok = 1;
+ 			spin_unlock_irqrestore(&devc->lock,flags);
+ 		}
+@@ -1194,7 +1209,11 @@
+ 	int ok = 0;
+ 	struct mpu_config tmp_devc;
+ 
++#if !defined(CONFIG_SB16_PC9800) && !defined(CONFIG_MPU_PC98II)
+ 	if (check_region(hw_config->io_base, 2))
++#else
++	if (check_region(hw_config->io_base, 4))
++#endif
+ 	{
+ 		printk(KERN_ERR "mpu401: I/O port %x already in use\n\n", hw_config->io_base);
+ 		return 0;
+@@ -1208,7 +1227,162 @@
+ 	if (hw_config->always_detect)
+ 		return 1;
+ 
++#ifdef CONFIG_PC9801_118
++	{
++		#include <sound/pc9801_118_magic.h>
++		#define outp118(reg,data) outb((reg),0x148e);outb((data),0x148f)
++		#define WAIT118 outb(0x00,0x5f)
++		int	mpu_intr, count;
++#ifdef OOKUBO_ORIGINAL
++		int	err = 0;
++#endif /* OOKUBO_ORIGINAL */
++
++		switch (hw_config->irq)
++		{
++			case 3:
++				mpu_intr = 3;
++				break;
++			case 5:
++				mpu_intr = 2;
++				break;
++			case 6:
++				mpu_intr = 1;
++				break;
++			case 10:
++				mpu_intr = 0;
++				break;
++			default:
++				printk(KERN_ERR "mpu401: Bad irq %d\n\n", hw_config->irq);
++				return 0;
 +		}
 +
-+		if (parport_pc_probe_port(base, base_hi, irq, dma, NULL))
-+			count++;
-+	}
++		outp118(0x21, mpu_intr);
++		WAIT118;
++		outb(0x00, 0x148e);
++		if (inb(0x148f) & 0x08)
++		{
++			printk(KERN_DEBUG "mpu401: No MIDI daughter board found\n\n");
++			goto exit_mode_118;
++		}
 +
- 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
- 		count++;
- 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
-diff -urN linux/include/linux/parport_pc.h linux98/include/linux/parport_pc.h
---- linux/include/linux/parport_pc.h	Tue Jun 12 11:15:27 2001
-+++ linux98/include/linux/parport_pc.h	Sun Aug 19 14:13:09 2001
-@@ -119,6 +119,11 @@
- #endif
- 	ctr = (ctr & ~mask) ^ val;
- 	ctr &= priv->ctr_writable; /* only write writable bits. */
-+#ifdef CONFIG_PC9800
-+	if (p->base == 0x40 && ((priv->ctr) ^ ctr) & 0x01)
-+		outb(0x0e | ((ctr & 0x01) ^ 0x01), 0x46);
-+	else
-+#endif /* CONFIG_PC9800 */
- 	outb (ctr, CONTROL (p));
- 	priv->ctr = ctr;	/* Update soft copy */
- 	return ctr;
-@@ -191,6 +196,11 @@
++		outp118(0x20, 0x00);
++		outp118(0x05, 0x04);
++		for (count = 0; count < 35000; count ++)
++			WAIT118;
++		outb(0x05, 0x148e);
++		for (count = 0; count < 65000; count ++)
++			if (inb(0x148f) == 0x04)
++				goto set_mode_118;
++		printk(KERN_ERR "mpu401: MIDI daughter board initalize failed at stage1\n\n");
++		return 0;
++
++		set_mode_118:
++		outp118(0x05, 0x0c);
++		outb(0xaa, 0x485);
++		outb(0x99, 0x485);
++		outb(0x2a, 0x485);
++		for (count = 0; count < sizeof(Data0485_99); count ++)
++		{
++			outb(Data0485_99[count], 0x485);
++			WAIT118;
++		}
++
++		outb(0x00, 0x486);
++		outb(0xaa, 0x485);
++		outb(0x9e, 0x485);
++		outb(0x2a, 0x485);
++		for (count = 0; count < sizeof(Data0485_9E); count ++)
++			if (inb(0x485) != Data0485_9E[count])
++			{
++#ifdef OOKUBO_ORIGINAL
++				err = 1;
++#endif /* OOKUBO_ORIGINAL */
++				break;
++			}
++		outb(0x00, 0x486);
++		for (count = 0; count < 2000; count ++)
++			WAIT118;
++#ifdef OOKUBO_ORIGINAL
++		if (!err)
++		{
++			outb(0xaa, 0x485);
++			outb(0x36, 0x485);
++			outb(0x28, 0x485);
++			for (count = 0; count < sizeof(Data0485_36); count ++)
++				outb(Data0485_36[count], 0x485);
++			outb(0x00, 0x486);
++			for (count = 0; count < 1500; count ++)
++				WAIT118;
++			outp118(0x05, inb(0x148f) | 0x08);
++			outb(0xff, 0x148c);
++			outp118(0x05, inb(0x148f) & 0xf7);
++			for (count = 0; count < 1500; count ++)
++				WAIT118;
++		}
++#endif /* OOKUBO_ORIGINAL */
++
++		outb(0xaa, 0x485);
++		outb(0xa9, 0x485);
++		outb(0x21, 0x485);
++		for (count = 0; count < sizeof(Data0485_A9); count ++)
++		{
++			outb(Data0485_A9[count], 0x485);
++			WAIT118;
++		}
++
++		outb(0x00, 0x486);
++		outb(0xaa, 0x485);
++		outb(0x0c, 0x485);
++		outb(0x20, 0x485);
++		for (count = 0; count < sizeof(Data0485_0C); count ++)
++		{
++			outb(Data0485_0C[count], 0x485);
++			WAIT118;
++		}
++
++		outb(0x00, 0x486);
++		outb(0xaa, 0x485);
++		outb(0x66, 0x485);
++		outb(0x20, 0x485);
++		for (count = 0; count < sizeof(Data0485_66); count ++)
++		{
++			outb(Data0485_66[count], 0x485);
++			WAIT118;
++		}
++
++		outb(0x00, 0x486);
++		outb(0xaa, 0x485);
++		outb(0x60, 0x485);
++		outb(0x20, 0x485);
++		for (count = 0; count < sizeof(Data0485_60); count ++)
++		{
++			outb(Data0485_60[count], 0x485);
++			WAIT118;
++		}
++
++		outb(0x00, 0x486);
++		outp118(0x05, 0x04);
++		outp118(0x05, 0x00);
++		for (count = 0; count < 35000; count ++)
++			WAIT118;
++		outb(0x05, 0x148e);
++		for (count = 0; count < 65000; count ++)
++			if (inb(0x148f) == 0x00)
++				goto end_mode_118;
++		printk(KERN_ERR "mpu401: MIDI daughter board initalize failed at stage2\n\n");
++		return 0;
++
++		end_mode_118:
++		outb(0x3f, 0x148d);
++		exit_mode_118:
++	}
++#endif /* CONFIG_PC9801_118 */
++
++#if !defined(CONFIG_SB16_PC9800) && !defined(CONFIG_MPU_PC98II)
+ 	if (inb(hw_config->io_base + 1) == 0xff)
++#else
++	if (inb(hw_config->io_base + 2) == 0xff)
++#endif
+ 	{
+ 		DDB(printk("MPU401: Port %x looks dead.\n", hw_config->io_base));
+ 		return 0;	/* Just bus float? */
+@@ -1227,7 +1401,11 @@
+ 	void *p;
+ 	int n=hw_config->slots[1];
+ 	
++#if !defined(CONFIG_SB16_PC9800) && !defined(CONFIG_MPU_PC98II)
+ 	release_region(hw_config->io_base, 2);
++#else
++	release_region(hw_config->io_base, 4);
++#endif
+ 	if (hw_config->always_detect == 0 && hw_config->irq > 0)
+ 		free_irq(hw_config->irq, (void *)n);
+ 	p=mpu401_synth_operations[n];
+diff -urN linux/sound/oss/opl3.c linux98/sound/oss/opl3.c
+--- linux/sound/oss/opl3.c	Tue Oct  8 03:24:38 2002
++++ linux98/sound/oss/opl3.c	Fri Oct 11 13:54:21 2002
+@@ -37,6 +37,10 @@
+ #include "opl3.h"
+ #include "opl3_hw.h"
  
- extern __inline__ unsigned char parport_pc_read_status(struct parport *p)
- {
 +#ifdef CONFIG_PC9800
-+	if (p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
++#include <sound/sound_pc9800.h>
++#endif
++
+ #define MAX_VOICE	18
+ #define OFFS_4OP	11
+ 
+@@ -74,6 +78,9 @@
+ 
+ 	int             is_opl4;
+ 	int            *osp;
++#ifdef CONFIG_PC9800
++	int             is_sb16;
++#endif
+ } opl_devinfo;
+ 
+ static struct opl_devinfo *devc = NULL;
+@@ -182,10 +189,43 @@
+ 		printk(KERN_WARNING "opl3: I/O port 0x%x already in use\n", ioaddr);
+ 		goto cleanup_devc;
+ 	}
++#ifdef CONFIG_PC9800
++	if (devc->is_sb16) {
++		if (!request_region(ioaddr + 0x200, 2, devc->fm_info.name)) {
++			printk(KERN_WARNING "opl3: I/O port 0x%x already in use\n", ioaddr + 0x200);
++			goto cleanup_region2;
++		}
++		if (!request_region(ioaddr + 0x800, 2, devc->fm_info.name)) {
++			printk(KERN_WARNING "opl3: I/O port 0x%x already in use\n", ioaddr + 0x800);
++			goto cleanup_region1;
++		}
++	}
++#endif
+ 
+ 	devc->osp = osp;
+ 	devc->base = ioaddr;
+ 
++#ifdef CONFIG_PC9800
++	switch (PC9800_SOUND_ID()) {
++	case PC9800_SOUND_ID_XMATE:
++	case PC9800_SOUND_ID_118:
++		outb(inb(PC9800_SOUND_IO_ID) | 0x3, PC9800_SOUND_IO_ID);
++		printk(KERN_INFO "opl3: PC-9801-118 (or compatible) found,"
++		       " and enabled OPL-3 functions.\n");
++		devc->is_sb16 = 0;
++		break;
++	case PC9800_SOUND_ID_UNKNOWN:
++		printk(KERN_INFO "opl3: Sound ID is UNKNOWN."
++		       " Try to detect SB16 for PC-9800.\n");
++		devc->is_sb16 = 1;
++		break;
++	default:
++		printk(KERN_ERR "opl3: "
++		       "This sound system doesn't support OPL-3.\n");
++		return 0;
++	}
++#endif
++
+ 	/* Reset timers 1 and 2 */
+ 	opl3_command(ioaddr, TIMER_CONTROL_REGISTER, TIMER1_MASK | TIMER2_MASK);
+ 
+@@ -216,10 +256,15 @@
+ 		 * only after a cold boot. In addition the OPL4 port
+ 		 * of the chip may not be connected to the PC bus at all.
+ 		 */
+-
++#ifndef CONFIG_PC9800
+ 		opl3_command(ioaddr + 2, OPL3_MODE_REGISTER, 0x00);
+ 		opl3_command(ioaddr + 2, OPL3_MODE_REGISTER, OPL3_ENABLE | OPL4_ENABLE);
+-
++#else
++		opl3_command(ioaddr + (devc->is_sb16 ? 0x200 : 2),
++			     OPL3_MODE_REGISTER, 0x00);
++		opl3_command(ioaddr + (devc->is_sb16 ? 0x200 : 2),
++			     OPL3_MODE_REGISTER, OPL3_ENABLE | OPL4_ENABLE);
++#endif
+ 		if ((tmp = inb(ioaddr)) == 0x02)	/* Have a OPL4 */
+ 		{
+ 			detected_model = 4;
+@@ -248,7 +293,12 @@
+ 				detected_model = 3;
+ 			}
+ 		}
++#ifndef CONFIG_PC9800
+ 		opl3_command(ioaddr + 2, OPL3_MODE_REGISTER, 0);
++#else
++		opl3_command(ioaddr + (devc->is_sb16 ? 0x200 : 2),
++			     OPL3_MODE_REGISTER, 0);
++#endif
+ 	}
+ 	for (i = 0; i < 9; i++)
+ 		opl3_command(ioaddr, KEYON_BLOCK + i, 0);	/*
+@@ -261,6 +311,14 @@
+ 								 */
+ 	return 1;
+ cleanup_region:
++#ifdef CONFIG_PC9800
++	if (devc->is_sb16) {
++		release_region(ioaddr + 0x800, 2);
++cleanup_region1:
++		release_region(ioaddr + 0x200, 2);
++cleanup_region2:
++	}
++#endif
+ 	release_region(ioaddr, 4);
+ cleanup_devc:
+ 	kfree(devc);
+@@ -735,9 +793,12 @@
+ 	else
+ 		for (i = 0; i < 2; i++)
+ 			inb(io_addr);
+-
++#ifndef CONFIG_PC9800
+ 	outb(((unsigned char) (val & 0xff)), io_addr + 1);
+-
++#else
++	outb(((unsigned char) (val & 0xff)),
++	     io_addr + (devc->is_sb16 ? 0x100 : 1));
++#endif
+ 	if (devc->model != 2)
+ 		udelay(30);
+ 	else
+@@ -1102,6 +1163,33 @@
+ 	setup_voice:	opl3_setup_voice
+ };
+ 
++#ifdef CONFIG_PC9801_118
++static inline void pc9801_118_opl3_init(unsigned long ioaddr)
++{
++	/* ??? */
++	outb(0x00, ioaddr + 6);
++	inb(ioaddr + 7);
++	/* Enable OPL-3 Function */
++	outb(inb(PC9800_SOUND_IO_ID)|0x03, PC9800_SOUND_IO_ID);
++
++	/* Initialize? */
++	opl3_command(ioaddr + 2, 0x05, 0x05);
++	opl3_command(ioaddr + 2, 0x08, 0x04);
++	opl3_command(ioaddr + 2, 0x08, 0x00);
++	opl3_command(ioaddr, 0xf7, 0x00);
++	opl3_command(ioaddr, 0x04, 0x60);
++	opl3_command(ioaddr, 0x04, 0x80);
++	inb(ioaddr);
++
++	opl3_command(ioaddr, 0x02, 0xff);
++	opl3_command(ioaddr, 0x04, 0x21);
++	inb(ioaddr);
++
++	opl3_command(ioaddr, 0x04, 0x60);
++	opl3_command(ioaddr, 0x04, 0x80);
++}
++#endif
++
+ int opl3_init(int ioaddr, int *osp, struct module *owner)
+ {
+ 	int i;
+@@ -1119,6 +1207,27 @@
+ 		return -1;
+ 	}
+ 
++#ifdef CONFIG_PC9800
++	/* Inspect Sound Functions ID */
++	switch (PC9800_SOUND_ID()){
++#ifdef CONFIG_PC9801_118
++	case PC9800_SOUND_ID_XMATE:
++	case PC9800_SOUND_ID_118:
++		pc9801_118_opl3_init(ioaddr);
++		devc->is_sb16 = 0;
++		break;
++#endif
++#ifdef CONFIG_SB16_PC9800
++	case PC9800_SOUND_ID_UNKNOWN:
++		devc->is_sb16 = 1;
++		break;
++#endif
++	default:
++		printk(KERN_ERR "opl3: Sorry, this driver is not configured for your sound system.\n");
++		return -1;
++	}
++#endif
++
+ 	devc->nr_voice = 9;
+ 
+ 	devc->fm_info.device = 0;
+@@ -1131,7 +1240,14 @@
+ 	devc->fm_info.capabilities = 0;
+ 	devc->left_io = ioaddr;
+ 	devc->right_io = ioaddr + 2;
+-
++#ifdef CONFIG_PC9800
++#define OPL3_LEFT     0x20d2
++#define OPL3_RIGHT    0x22d2
++	if (devc->is_sb16) {
++		devc->left_io = OPL3_LEFT;
++		devc->right_io = OPL3_RIGHT;
++	}
++#endif
+ 	if (detected_model <= 2)
+ 		devc->model = 1;
+ 	else
+@@ -1223,6 +1339,12 @@
+ 	{
+ 		if (devc->base) {
+ 			release_region(devc->base,4);
++#ifdef CONFIG_PC9800
++			if (devc->is_sb16) {
++				release_region(devc->base + 0x800, 2);
++				release_region(devc->base + 0x200, 2);
++			}
++#endif
+ 			if (devc->is_opl4)
+ 				release_region(devc->base - 8, 2);
+ 		}
+diff -urN linux/sound/oss/sb.h linux98/drivers/sound/sb.h
+--- linux/sound/oss/sb.h	Sat Feb 17 09:02:37 2001
++++ linux98/sound/oss/sb.h	Fri Aug 17 21:50:17 2001
+@@ -1,3 +1,7 @@
++#include <linux/config.h>
++
++#ifndef CONFIG_SB16_PC9800
++
+ #define DSP_RESET	(devc->base + 0x6)
+ #define DSP_READ	(devc->base + 0xA)
+ #define DSP_WRITE	(devc->base + 0xC)
+@@ -10,6 +14,26 @@
+ #define OPL3_LEFT	(devc->base + 0x0)
+ #define OPL3_RIGHT	(devc->base + 0x2)
+ #define OPL3_BOTH	(devc->base + 0x8)
++
++#else /* CONFIG_SB16_PC9800 */
++
++#define _SB_98_IOINCR	(devc->type == MDL_SB16_PC9800 ? 0x100 : 1)
++
++#define DSP_RESET	(devc->base + 0x6 * _SB_98_IOINCR)
++#define DSP_READ	(devc->base + 0xA * _SB_98_IOINCR)
++#define DSP_WRITE	(devc->base + 0xC * _SB_98_IOINCR)
++#define DSP_COMMAND	(devc->base + 0xC * _SB_98_IOINCR)
++#define DSP_STATUS	(devc->base + 0xC * _SB_98_IOINCR)
++#define DSP_DATA_AVAIL	(devc->base + 0xE * _SB_98_IOINCR)
++#define DSP_DATA_AVL16	(devc->base + 0xF * _SB_98_IOINCR)
++#define MIXER_ADDR	(devc->base + 0x4 * _SB_98_IOINCR)
++#define MIXER_DATA	(devc->base + 0x5 * _SB_98_IOINCR)
++#define OPL3_LEFT	(devc->base + 0x0 * _SB_98_IOINCR)
++#define OPL3_RIGHT	(devc->base + 0x2 * _SB_98_IOINCR)
++#define OPL3_BOTH	(devc->base + 0x8 * _SB_98_IOINCR)
++
++#endif /* CONFIG_SB16_PC9800 */
++
+ /* DSP Commands */
+ 
+ #define DSP_CMD_SPKON		0xD1
+@@ -46,6 +70,10 @@
+ #define MDL_ESSPCI	16	/* ESS PCI card */
+ #define MDL_YMPCI	17	/* Yamaha PCI sb in emulation */
+ 
++#ifdef CONFIG_SB16_PC9800
++#define MDL_SB16_PC9800	9801 /* SB16 for PC-9800 */
++#endif
++
+ #define SUBMDL_ALS007	42	/* ALS-007 differs from SB16 only in mixer */
+ 				/* register assignment */
+ #define SUBMDL_ALS100	43	/* ALS-100 allows sampling rates of up */
+@@ -175,6 +203,12 @@
+ int sb_audio_open(int dev, int mode);
+ void sb_audio_close(int dev);
+ 
++#ifdef CONFIG_SB16_PC9800
++int sb16_pc9800_check_region(int ioaddr);
++void sb16_pc9800_request_region(int ioaddr, const char *name);
++void sb16_pc9800_release_region(int ioaddr);
++#endif
++
+ extern sb_devc *last_sb;
+ 
+ /*	From sb_common.c */
+diff -urN linux/sound/oss/sb_common.c linux98/sound/oss/sb_common.c
+--- linux/sound/oss/sb_common.c	Sun Aug 11 10:41:18 2002
++++ linux98/sound/oss/sb_common.c	Fri Aug 23 20:39:27 2002
+@@ -305,6 +305,9 @@
+ 	switch (hw_config->io_base)
+ 	{
+ 		case 0x300:
++#ifdef CONFIG_SB16_PC9800
++		case 0x80d2:
++#endif
+ 			sb_setmixer(devc, 0x84, bits | 0x04);
+ 			break;
+ 
+@@ -322,6 +324,26 @@
+ {
+ 	int ival;
+ 
++#ifdef CONFIG_SB16_PC9800
++	if (devc->type == MDL_SB16_PC9800)
++		switchh (level)
++		{
++		case 3:
++			ival = 1;
++			break;
++		case 5:
++			ival = 8;
++			break;
++		case 10:
++			ival = 2;
++			break;
++		default:
++			printk(KERN_ERR "SB16: Invalid IRQ%d\n", level);
++			return 0;
++		}
 +	else
-+#endif /* CONFIG_PC9800 */
- 	return inb(STATUS(p));
++#endif
++
+ 	switch (level)
+ 	{
+ 		case 5:
+@@ -518,7 +541,13 @@
+ 	 */
+ 	
+ 	DDB(printk("sb_dsp_detect(%x) entered\n", hw_config->io_base));
++#ifndef CONFIG_SB16_PC9800
+ 	if (check_region(hw_config->io_base, 16))
++#else
++	if (hw_config->card_subtype == MDL_SB16_PC9800
++	    ? sb16_pc9800_check_region(hw_config->io_base, 16)
++	    : check_region(hw_config->io_base, 16))
++#endif
+ 	{
+ #ifdef MODULE
+ 		printk(KERN_INFO "sb: I/O region in use.\n");
+@@ -532,8 +561,11 @@
+ 	devc->base = hw_config->io_base;
+ 	devc->irq = hw_config->irq;
+ 	devc->dma8 = hw_config->dma;
+-
++#ifdef CONFIG_SB16_PC9800
++	devc->dma16 = hw_config->dma;
++#else
+ 	devc->dma16 = -1;
++#endif
+ 	devc->pcibase = pciio;
+ 	
+ 	if(pci == SB_PCI_ESSMAESTRO)
+@@ -733,6 +764,11 @@
+ 			}
+ 		}
+ 	}			/* IRQ setup */
++#ifdef CONFIG_SB16_PC9800
++	if (devc->type == MDL_SB16_PC9800)
++		sb16_pc9800_request_region(hw_config->io_base, "soundblaster");
++	else
++#endif
+ 	request_region(hw_config->io_base, 16, "soundblaster");
+ 
+ 	last_sb = devc;
+@@ -796,6 +832,13 @@
+ 				}
+ 				sb_setmixer(devc,0x30,mixer30);
+ 			}
++#ifdef CONFIG_SB16_PC9800
++			else if (devc->type == MDL_SB16_PC9800){
++				/* devc->submodel = SUBMDL_SB16_PC9800; */
++				if(hw_config->name == NULL)
++					hw_config->name = "Sound Blaster 16 (for PC-9800)";
++			}
++#endif
+ 			else if (hw_config->name == NULL)
+ 				hw_config->name = "Sound Blaster 16";
+ 
+@@ -803,7 +846,9 @@
+ 				devc->dma16 = devc->dma8;
+ 			else if (hw_config->dma2 < 5 || hw_config->dma2 > 7)
+ 			{
++#ifndef CONFIG_SB16_PC9800
+ 				printk(KERN_WARNING  "SB16: Bad or missing 16 bit DMA channel\n");
++#endif
+ 				devc->dma16 = devc->dma8;
+ 			}
+ 			else
+@@ -811,7 +856,13 @@
+ 
+ 			if(!sb16_set_dma_hw(devc)) {
+ 				free_irq(devc->irq, devc);
++#ifdef CONFIG_SB16_PC9800
++				if(devc->type == MDL_SB16_PC9800)
++					sb16_pc9800_release_region(hw_config->io_base);
++				else
++#endif
+ 			        release_region(hw_config->io_base, 16);
++
+ 				return 0;
+ 			}
+ 
+@@ -900,6 +951,11 @@
+ 	{
+ 		if ((devc->model & MDL_ESS) && devc->pcibase)
+ 			release_region(devc->pcibase, 8);
++#ifdef CONFIG_SB16_PC9800
++		if(devc->type == MDL_SB16_PC9800)
++			sb16_pc9800_release_region(devc->base);
++		else
++#endif
+ 
+ 		release_region(devc->base, 16);
+ 
+@@ -1240,6 +1295,18 @@
+ 	switch (devc->model)
+ 	{
+ 		case MDL_SB16:
++#ifdef CONFIG_SB16_PC9800
++			if (devc->type == MDL_SB16_PC9800)
++			{
++				if (hw_config->io_base != 0x80d2
++				    || hw_config->io_base != 0xc8d2)
++				{
++					printk(KERN_ERR "SB16: Invalid MIDI port %x\n", hw_config->io_base);
++					return 0;
++				}
++			}
++			else
++#endif
+ 			if (hw_config->io_base != 0x300 && hw_config->io_base != 0x330)
+ 			{
+ 				printk(KERN_ERR "SB16: Invalid MIDI port %x\n", hw_config->io_base);
+@@ -1284,6 +1351,38 @@
+ 	unload_uart401(hw_config);
  }
  
-diff -urN linux/drivers/char/Config.in linux98/drivers/char/Config.in
---- linux/drivers/char/Config.in	Sat Oct 19 13:01:17 2002
-+++ linux98/drivers/char/Config.in	Sat Oct 19 15:29:30 2002
-@@ -85,6 +85,12 @@
- if [ "$CONFIG_PPC_PSERIES" = "y" ]; then
-    bool 'pSeries Hypervisor Virtual Console support' CONFIG_HVC_CONSOLE
- fi
-+if [ "$CONFIG_PC9800" = "y" -a "$CONFIG_PARPORT" != "y" ]; then
-+   tristate 'NEC PC-9801 old-style printer port support' CONFIG_PC9800_OLDLP
-+   if [ "$CONFIG_PC9800_OLDLP" != "n" ]; then
-+      bool '   Support for console on line printer' CONFIG_PC9800_OLDLP_CONSOLE
-+   fi
-+fi
- 
- source drivers/i2c/Config.in
- 
-@@ -165,6 +171,9 @@
- if [ "$CONFIG_IA64" = "y" ]; then
-    bool 'EFI Real Time Clock Services' CONFIG_EFI_RTC
- fi
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   tristate 'PC-9801 Real Time Clock Support' CONFIG_RTC98
-+fi
- if [ "$CONFIG_OBSOLETE" = "y" -a "$CONFIG_ALPHA_BOOK1" = "y" ]; then
-    bool 'Tadpole ANA H8 Support (OBSOLETE)'  CONFIG_H8
- fi
-diff -urN linux/drivers/char/lp_old98.c linux98/drivers/char/lp_old98.c
---- linux/drivers/char/lp_old98.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/char/lp_old98.c	Sat Oct 26 17:13:23 2002
-@@ -0,0 +1,577 @@
-+/*
-+ *	linux/drivers/char/lp_old98.c
-+ *
-+ * printer port driver for ancient PC-9800s with no bidirectional port support
-+ *
-+ * Copyright (C)  1998,99  Kousuke Takai <tak@kmc.kyoto-u.ac.jp>,
-+ *			   Kyoto University Microcomputer Club
-+ *
-+ * This driver is based on and has compatibility with `lp.c',
-+ * generic PC printer port driver.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/config.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/major.h>
-+#include <linux/sched.h>
-+#include <linux/malloc.h>
-+#include <linux/ioport.h>
-+#include <linux/fcntl.h>
-+#include <linux/delay.h>
-+#include <linux/console.h>
-+#include <linux/version.h>
-+
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
-+
-+#if !defined(CONFIG_PC9800) && !defined(CONFIG_PC98)
-+#error This driver works only for NEC PC-9800 series
-+#endif
-+
-+#if LINUX_VERSION_CODE < 0x20200
-+# define LP_STATS
-+#endif
-+
-+#if LINUX_VERSION_CODE >= 0x2030b
-+# define CONFIG_RESOURCE98
-+#endif
-+
-+#include <linux/lp.h>
-+
-+/*
-+ *  I/O port numbers
-+ */
-+#define	LP_PORT_DATA	0x40
-+#define	LP_PORT_STATUS	(LP_PORT_DATA+2)
-+#define	LP_PORT_STROBE	(LP_PORT_DATA+4)
-+#define LP_PORT_CONTROL	(LP_PORT_DATA+6)
-+
-+#define	LP_PORT_H98MODE	0x0448
-+#define	LP_PORT_EXTMODE	0x0149
-+
-+/*
-+ *  bit mask for I/O
-+ */
-+#define	LP_MASK_nBUSY	(1 << 2)
-+#define	LP_MASK_nSTROBE	(1 << 7)
-+
-+#define LP_CONTROL_ASSERT_STROBE	(0x0e)
-+#define LP_CONTROL_NEGATE_STROBE	(0x0f)
-+
-+/*
-+ *  Acceptable maximum value for non-privileged user for LPCHARS ioctl.
-+ */
-+#define LP_CHARS_NOPRIV_MAX	65535
-+
-+#define	DC1	'\x11'
-+#define	DC3	'\x13'
-+
-+/* PC-9800s have at least and at most one old-style printer port. */
-+static struct lp_struct lp = {
-+	/* Following `TAG: INITIALIZER' notations are GNU CC extension. */
-+	flags:	LP_EXIST | LP_ABORTOPEN,
-+	chars:	LP_INIT_CHAR,
-+	time:	LP_INIT_TIME,
-+	wait:	LP_INIT_WAIT,
-+};
-+
-+static	int	dc1_check	= 1000;
-+
-+#undef LP_OLD98_DEBUG
-+
-+#ifndef __udelay_val
-+# define __udelay_val current_cpu_data.loops_per_sec
-+#endif
-+
-+static inline void nanodelay(unsigned long nanosecs)	/* Evil ? */
++#ifdef CONFIG_SB16_PC9800
++int sb16_pc9800_check_region(int ioaddr)
 +{
-+	if( nanosecs ) {
-+		nanosecs *= (unsigned long)((1ULL << 40) / 1000000000ULL);
-+		__asm__("mul%L2 %2"
-+			: "=d"(nanosecs) : "a"(nanosecs), "g"(__udelay_val));
-+		__delay(nanosecs >> 8);
-+	}
-+}
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+static struct console lp_old98_console;		/* defined later */
-+static __typeof__(lp_old98_console.flags) saved_console_flags;
-+#endif
-+
-+static DECLARE_WAIT_QUEUE_HEAD (lp_old98_waitq);
-+
-+static void lp_old98_timer_function(unsigned long data);
-+
-+static void lp_old98_timer_function(unsigned long data)
-+{
-+	if (inb(LP_PORT_STATUS) & LP_MASK_nBUSY)
-+		wake_up_interruptible(&lp_old98_waitq);
-+	else {
-+		struct timer_list *t = (struct timer_list *) data;
-+
-+		t->expires = jiffies + 1;
-+		add_timer(t);
-+	}
-+}
-+
-+static inline int
-+lp_old98_wait_ready(void)
-+{
-+	struct timer_list timer;
-+
-+	init_timer(&timer);
-+	timer.function = lp_old98_timer_function;
-+	timer.expires = jiffies + 1;
-+	timer.data = (unsigned long) &timer;
-+	add_timer(&timer);
-+	interruptible_sleep_on(&lp_old98_waitq);
-+	del_timer(&timer);
-+	return signal_pending(current);
-+}
-+
-+static inline int lp_old98_char(char lpchar)
-+{
-+	unsigned long count = 0;
-+#ifdef LP_STATS
-+	int tmp;
-+#endif
-+
-+	while( !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY) ) {
-+		count++;
-+		if (count >= lp.chars)
++	int n;
++	for (n = 4; n < 7; n++)
++		if(check_region(ioaddr + n*0x100, 1))
 +			return 0;
-+	}
-+
-+	outb(lpchar, LP_PORT_DATA);
-+
-+#ifdef LP_STATS
-+	/*
-+	 *  Update lp statsistics here (and between next two outb()'s).
-+	 *  Time to compute it is part of storobe delay.
-+	 */
-+	if( count > lp.stats.maxwait ) {
-+#ifdef LP_OLD98_DEBUG
-+		printk(KERN_DEBUG "lp_old98: success after %d counts.\n",
-+		       count);
-+#endif
-+		lp.stats.maxwait = count;
-+	}
-+	count *= 256;
-+	tmp = count - lp.stats.meanwait;
-+	if( tmp < 0 )
-+		tmp = -tmp;
-+#endif
-+	nanodelay(lp.wait);
-+    
-+	/* negate PSTB# (activate strobe)	*/
-+	outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+
-+#ifdef LP_STATS
-+	lp.stats.meanwait = (255 * lp.stats.meanwait + count + 128) / 256;
-+	lp.stats.mdev = (127 * lp.stats.mdev + tmp + 64) / 128;
-+	lp.stats.chars++;
-+#endif
-+
-+	nanodelay(lp.wait);
-+
-+	/* assert PSTB# (deactivate strobe)	*/
-+	outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+
++	for (n = 10; n < 16; n++)
++		if(check_region(ioaddr + n*0x100, 1))
++			return 0;
 +	return 1;
 +}
 +
-+#if LINUX_VERSION_CODE < 0x20200
-+static long lp_old98_write(struct inode * inode, struct file * file,
-+			   const char * buf, unsigned long count)
++void sb16_pc9800_request_region(int ioaddr, const char *name)
++{
++	int n;
++	for (n = 4; n < 7; n++)
++		request_region(ioaddr + n*0x100, 1, name);
++	for (n = 10; n < 16; n++)
++		request_region(ioaddr + n*0x100, 1, name);
++}
++
++void sb16_pc9800_release_region(int ioaddr)
++{
++	int n;
++	for (n = 4; n < 7; n++)
++		release_region(ioaddr + n*0x100, 1);
++	for (n = 10; n < 16; n++)
++		release_region(ioaddr + n*0x100, 1);
++}
++#endif /* CONFIG_SB16_PC9800 */
++
+ EXPORT_SYMBOL(sb_dsp_init);
+ EXPORT_SYMBOL(sb_dsp_detect);
+ EXPORT_SYMBOL(sb_dsp_unload);
+diff -urN linux/sound/oss/sound_config.h linux98/sound/oss/sound_config.h
+--- linux/sound/oss/sound_config.h	Tue Dec 12 06:02:27 2000
++++ linux98/sound/oss/sound_config.h	Sun Aug 19 14:13:08 2001
+@@ -34,13 +34,25 @@
+  * Use always 64k buffer size. There is no reason to use shorter.
+  */
+ #undef DSP_BUFFSIZE
++#ifdef CONFIG_PC9800
++#define DSP_BUFFSIZE          61440
 +#else
-+static ssize_t lp_old98_write(struct file * file,
-+			      const char * buf, size_t count,
-+			      loff_t *dummy)
-+#endif    
-+{
-+	unsigned long total_bytes_written = 0;
-+
-+	if (!access_ok(VERIFY_READ, buf, count))
-+		return -EFAULT;
-+
-+#ifdef LP_STATS
-+	if( jiffies - lp.lastcall > lp.time )
-+		lp.runchars = 0;
-+	lp.lastcall = jiffies;
+ #define DSP_BUFFSIZE		(64*1024)
++#endif
+ 
+ #ifndef DSP_BUFFCOUNT
+ #define DSP_BUFFCOUNT		1	/* 1 is recommended. */
+ #endif
+ 
++#ifdef CONFIG_PC9800
++#define FM_MONO         0x28d2  /* This is the I/O address used by AdLib */
++#else
+ #define FM_MONO		0x388	/* This is the I/O address used by AdLib */
 +#endif
 +
-+	do {
-+		unsigned long bytes_written = 0;
-+		unsigned long copy_size
-+			= (count < LP_BUFFER_SIZE ? count : LP_BUFFER_SIZE);
-+
-+		if (__copy_from_user(lp.lp_buffer, buf, copy_size))
-+			return -EFAULT;
-+
-+		while( bytes_written < copy_size ) {
-+			if( lp_old98_char(lp.lp_buffer[bytes_written]) )
-+				bytes_written++;
-+			else {
-+#ifdef LP_STATS
-+				int rc = lp.runchars + bytes_written;
-+
-+				if( rc > lp.stats.maxrun )
-+					lp.stats.maxrun = rc;
-+
-+				lp.stats.sleeps++;
++#ifdef CONFIG_PC9801_118
++#define FM_MONO_118		0x1488	/* This is the I/O address used by AdLib */
 +#endif
-+#ifdef LP_OLD98_DEBUG
-+				printk(KERN_DEBUG
-+				       "lp_old98: sleeping at %d characters"
-+				       " for %d jiffies\n",
-+				       lp.runchars, lp.time);
-+				lp.runchars = 0;
+ 
+ #ifndef CONFIG_PAS_BASE
+ #define CONFIG_PAS_BASE	0x388
+diff -urN linux/sound/oss/uart401.c linux98/sound/oss/uart401.c
+--- linux/sound/oss/uart401.c	Sun Sep  1 07:05:31 2002
++++ linux98/sound/oss/uart401.c	Sun Sep  1 10:26:11 2002
+@@ -21,6 +21,7 @@
+  *		Untested
+  */
+ 
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+@@ -43,8 +44,13 @@
+ uart401_devc;
+ 
+ #define	DATAPORT   (devc->base)
++#ifndef CONFIG_SB16_PC9800
+ #define	COMDPORT   (devc->base+1)
+ #define	STATPORT   (devc->base+1)
++#else
++#define	COMDPORT   (devc->base+0x100)
++#define	STATPORT   (devc->base+0x100)
 +#endif
-+				if (lp_old98_wait_ready())
-+					return ((total_bytes_written
-+						 + bytes_written)
-+						? : -EINTR);
-+			}
-+		}
-+		total_bytes_written += bytes_written;
-+		buf += bytes_written;
-+#ifdef LP_STATS
-+		lp.runchars += bytes_written;
-+#endif
-+		count -= bytes_written;
-+	} while( count > 0 );
-+
-+	return total_bytes_written;
-+}
-+
-+static long long lp_old98_llseek(struct file * file,
-+				long long offset, int whence)
-+{
-+	return -ESPIPE;	/* cannot seek like pipe */
-+}
-+
-+static int lp_old98_open(struct inode * inode, struct file * file)
-+{
-+	if( MINOR(inode->i_rdev) != 0 )
-+		return -ENXIO;
-+	if( lp.flags & LP_BUSY )
-+		return -EBUSY;
-+
-+	if ((lp.lp_buffer = kmalloc(LP_BUFFER_SIZE, GFP_KERNEL)) == NULL)
-+		return -ENOMEM;
-+
-+	if (dc1_check && (lp.flags & LP_ABORTOPEN)
-+	    && !(file->f_flags & O_NONBLOCK) ) {
-+		/*
-+		 *  Check whether printer is on-line.
-+		 *  PC-9800's old style port have only BUSY# as status input,
-+		 *  so that it is impossible to distinguish that the printer is
-+		 *  ready and that the printer is off-line or not connected
-+		 *  (in both case BUSY# is in the same state). So:
-+		 *
-+		 *    (1) output DC1 (0x11) to printer port and do strobe.
-+		 *    (2) watch BUSY# line for a while. If BUSY# is pulled
-+		 *	  down, the printer will be ready. Otherwise,
-+		 *	  it will be off-line (or not connected, or power-off,
-+		 *	   ...).
-+		 *
-+		 *  The source of this procedure:
-+		 *	Terumasa KODAKA, Kazufumi SHIMIZU, Yu HAYAMI:
-+		 *		`PC-9801 Super Technique', Ascii, 1992.
-+		 */
-+		int count;
-+		unsigned long eflags;
-+
-+		save_flags(eflags);
-+		cli();		/* interrupts while check is fairly bad */
-+
-+		if (!lp_old98_char(DC1)) {
-+			restore_flags(eflags);
-+			return -EBUSY;
-+		}
-+		count = (unsigned int)dc1_check > 10000 ? 10000 : dc1_check;
-+		while( inb(LP_PORT_STATUS) & LP_MASK_nBUSY )
-+			if( --count == 0 ) {
-+				restore_flags(eflags);
-+				return -ENODEV;
-+			}
-+		restore_flags(eflags);
-+	}
-+
-+	lp.flags |= LP_BUSY;
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	saved_console_flags = lp_old98_console.flags;
-+	lp_old98_console.flags &= ~CON_ENABLED;
-+#endif
-+
-+	MOD_INC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int lp_old98_release(struct inode * inode, struct file * file)
-+{
-+	kfree(lp.lp_buffer);
-+	lp.lp_buffer = NULL;
-+	lp.flags &= ~LP_BUSY;
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	lp_old98_console.flags = saved_console_flags;
-+#endif
-+	MOD_DEC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int lp_old98_init_device(void)
-+{
-+	unsigned char data;
-+
-+	if( (data = inb(LP_PORT_EXTMODE)) != 0xFF && (data & 0x10) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down extended parallel port mode...\n");
-+		outb(data & ~0x10, LP_PORT_EXTMODE);
-+	}
-+#ifdef	PC98_HW_H98
-+	if( (pc98_hw_flags & PC98_HW_H98)
-+	    && ((data = inb(LP_PORT_H98MODE)) & 0x01) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down H98 full centronics mode...\n");
-+		outb(data & ~0x01, LP_PORT_H98MODE);
+ 
+ static int uart401_status(uart401_devc * devc)
+ {
+@@ -304,6 +310,14 @@
+ 		return 0;
+ 	}
+ 
++#ifdef CONFIG_SB16_PC9800
++	if (!request_region(hw_config->io_base + 0x100, 4, "MPU-401 UART SB16-PC98")) {
++		printk(KERN_INFO "uart401: could not request_region(%d, 4)\n", hw_config->io_base + 0x100);
++		release_region(hw_config->io_base, 4);
++		return 0;
 +	}
 +#endif
-+	return 0;
-+}
 +
-+/*
-+ *  Many use of `put_user' macro enlarge code size...
-+ */
-+static /* not inline */ int lp_old98_put_user(int val, int *addr)
-+{
-+	return put_user(val, addr);
-+}
-+
-+static int lp_old98_ioctl(struct inode *inode, struct file *file,
-+			  unsigned int command, unsigned long arg)
-+{
-+	int retval = 0;
-+
-+	switch ( command ) {
-+	case LPTIME:
-+		lp.time = arg * HZ/100;
-+		break;
-+	case LPCHAR:
-+		lp.chars = arg;
-+		break;
-+	case LPABORT:
-+		if( arg )
-+			lp.flags |= LP_ABORT;
-+		else
-+			lp.flags &= ~LP_ABORT;
-+		break;
-+	case LPABORTOPEN:
-+		if( arg )
-+			lp.flags |= LP_ABORTOPEN;
-+		else
-+			lp.flags &= ~LP_ABORTOPEN;
-+		break;
-+	case LPCAREFUL:
-+		/* do nothing */
-+		break;
-+	case LPWAIT:
-+		lp.wait = arg;
-+		break;
-+	case LPGETIRQ:
-+		retval = lp_old98_put_user(0, (int *)arg);
-+		break;
-+	case LPGETSTATUS:
-+		/*
-+		 * convert PC-9800's status to IBM PC's one, so that tunelp(8)
-+		 * works in the same way on this driver.
-+		 */
-+		retval = lp_old98_put_user((inb(LP_PORT_STATUS)
-+					    & LP_MASK_nBUSY)
-+					   ? (LP_PBUSY | LP_PERRORP)
-+					   : LP_PERRORP,
-+					   (int *)arg);
-+		break;
-+	case LPRESET:
-+		retval = lp_old98_init_device();
-+		break;
-+#ifdef LP_STATS
-+	case LPGETSTATS:
-+		if( copy_to_user((struct lp_stats *)arg, &lp.stats,
-+				 sizeof(struct lp_stats)) )
-+			retval = -EFAULT;
-+		else if (suser())
-+			memset(&lp.stats, 0, sizeof(struct lp_stats));
-+		break;
+ 	devc = kmalloc(sizeof(uart401_devc), GFP_KERNEL);
+ 	if (!devc) {
+ 		printk(KERN_WARNING "uart401: Can't allocate memory\n");
+@@ -408,6 +422,9 @@
+ 
+ 	reset_uart401(devc);
+ 	release_region(hw_config->io_base, 4);
++#ifdef CONFIG_SB16_PC9800
++	release_region(hw_config->io_base + 0x100, 4);
 +#endif
-+	case LPGETFLAGS:
-+		retval = lp_old98_put_user(lp.flags, (int *)arg);
-+		break;
-+	case LPSETIRQ: 
-+	default:
-+		retval = -EINVAL;
-+	}
-+	return retval;
-+}
-+
-+static struct file_operations lp_old98_fops = {
-+	owner:	THIS_MODULE,
-+	llseek:	lp_old98_llseek,
-+	read:	NULL,
-+	write:	lp_old98_write,
-+	ioctl:	lp_old98_ioctl,
-+	open:	lp_old98_open,
-+	release:lp_old98_release,
-+};
-+
-+/*
-+ *  Support for console on lp_old98
-+ */
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+
-+static inline void io_delay(void)
-+{
-+	unsigned char dummy;	/* actually not output */
-+
-+	asm volatile ("out%B0 %0,%1" : "=a"(dummy) : "N"(0x5f));
-+}
-+
-+static void lp_old98_console_write(struct console *console,
-+				    const char *s, unsigned int count)
-+{
-+	int i;
-+	static unsigned int timeout_run = 0;
-+
-+	while (count) {
-+		/* wait approx 1.2 seconds */
-+		for (i = 2000000;
-+		     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+		     io_delay())
-+			if (!--i) {
-+				if (++timeout_run >= 10)
-+					/* disable forever... */
-+					console->flags &= ~CON_ENABLED;
-+				return;
-+			}
-+
-+		timeout_run = 0;
-+
-+		if (*s == '\n') {
-+			outb('\r', LP_PORT_DATA);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			for (i = 1000000;
-+			     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+			     io_delay())
-+				if (!--i)
-+					return;
-+		}
-+
-+		outb(*s++, LP_PORT_DATA);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+
-+		--count;
-+	}
-+}
-+
-+static kdev_t lp_old98_console_device(struct console *console)
-+{
-+	return MKDEV(LP_MAJOR, 0);
-+}
-+
-+static struct console lp_old98_console = {
-+	name:	"lp_old98",
-+	write:	lp_old98_console_write,
-+	device:	lp_old98_console_device,
-+	flags:	CON_PRINTBUFFER,
-+	index:	-1,
-+};
-+
-+#endif	/* console on lp_old98 */
-+
-+#ifdef MODULE
-+#define lp_old98_init init_module
-+#endif
-+
-+int __init lp_old98_init(void)
-+{
-+	if (check_region(LP_PORT_DATA, 1) || check_region(LP_PORT_STATUS, 1)
-+	    || check_region(LP_PORT_STROBE, 1)
-+#ifdef	PC98_HW_H98
-+	    || ((pc98_hw_flags & PC98_HW_H98)
-+		&& check_region(LP_PORT_H98MODE, 1))
-+#endif
-+	    || check_region(LP_PORT_EXTMODE, 1)) {
-+		printk(KERN_ERR
-+		       "lp_old98: I/O ports already occupied, giving up.\n");
-+		return -EBUSY;
-+	}
-+	if (register_chrdev(LP_MAJOR, "lp", &lp_old98_fops)) {
-+		printk(KERN_ERR "lp_old98: unable to get major %d\n",
-+		       LP_MAJOR);
-+		return -EBUSY;
-+	}
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	register_console(&lp_old98_console);
-+	printk(KERN_INFO "lp_old98: console ready\n");
-+#endif
-+
-+	request_region(LP_PORT_DATA,   1, "lp_old98");
-+	request_region(LP_PORT_STATUS, 1, "lp_old98");
-+	request_region(LP_PORT_STROBE, 1, "lp_old98");
-+
-+	/*
-+	 * rest are not needed by this driver,
-+	 * but for locking out other printer drivers...
-+	 */
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		request_region(LP_PORT_H98MODE, 1, "lp_old98");
-+#endif
-+	request_region(LP_PORT_EXTMODE, 1, "lp_old98");
-+	lp_old98_init_device();
-+
-+	return 0;
-+}
-+
-+#ifdef MODULE
-+void cleanup_module(void)
-+{
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	unregister_console(&lp_old98_console);
-+#endif
-+	unregister_chrdev(LP_MAJOR, "lp");
-+
-+	release_region(LP_PORT_DATA,   1);
-+	release_region(LP_PORT_STATUS, 1);
-+	release_region(LP_PORT_STROBE, 1);
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		release_region(LP_PORT_H98MODE, 1);
-+#endif
-+	release_region(LP_PORT_EXTMODE, 1);
-+}
-+
-+MODULE_PARM(dc1_check, "1i");
-+MODULE_AUTHOR("Kousuke Takai <tak@kmc.kyoto-u.ac.jp>");
-+
-+#endif
+ 
+ 	if (!devc->share_irq)
+ 		free_irq(devc->irq, devc);

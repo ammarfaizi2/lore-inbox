@@ -1,68 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131673AbRABWIE>; Tue, 2 Jan 2001 17:08:04 -0500
+	id <S129733AbRABWIE>; Tue, 2 Jan 2001 17:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131755AbRABWHy>; Tue, 2 Jan 2001 17:07:54 -0500
-Received: from mx2.utanet.at ([195.70.253.46]:9097 "EHLO smtp1.utaiop.at")
-	by vger.kernel.org with ESMTP id <S131673AbRABWHk>;
-	Tue, 2 Jan 2001 17:07:40 -0500
-Message-ID: <3A52582B.9080307@grips.com>
-Date: Tue, 02 Jan 2001 23:37:31 +0100
-From: Gerold Jury <geroldj@grips.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-prerelease i686; en-US; m18) Gecko/20001229
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+	id <S131673AbRABWHy>; Tue, 2 Jan 2001 17:07:54 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57092 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131171AbRABWHg>; Tue, 2 Jan 2001 17:07:36 -0500
 Subject: Re: Happy new year^H^H^H^Hkernel..
-In-Reply-To: <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com> <3A514236.2000801@grips.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: faith@valinux.com (Rik Faith)
+Date: Tue, 2 Jan 2001 21:37:47 +0000 (GMT)
+Cc: kaos@ocs.com.au (Keith Owens), torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List),
+        dri-devel@lists.sourceforge.net (DRI Development)
+In-Reply-To: <14930.17815.720457.433064@light.alephnull.com> from "Rik Faith" at Jan 02, 2001 04:18:15 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14DZ7u-0002wI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for that stupid mistake.
-The patches to the isdn part do not make a difference to the kernel hang
-that i experienced lately.
-When i reversed the patch for the mentioned files i checked the kernel 
-configuration and noticed that the "diversion services for isdn" where 
-on, a feature that i cannot use at the moment with my carrier.
-I switched them off before i compiled the new kernel.
-This is what makes the difference.
-Kernel 2.4.0-test13-pre4 was the previous one that I used (with 
-diversion services on, i am a fan of make oldconfig) and that did not 
-show the problem (as all of the previous kernels, test9, test10, test12).
+> haven't finished this work yet.  With this new work, however, the
+> end-user will still load a single module (e.g., tdfx.o), just like now.
+> (Loading a single kernel module is a significant win when dealing with
+> end users: there is no possibility of version skew or of having two
+> modules that were compiled with different options.)
 
-I have reversed the patches part by part, the only thing that makes a 
-difference is the diversion services.
-The reason for this remains unknown for me.
-
-I use a fritz pnp/isa card, driver compiled as a module.
-No SMP, isdn in kernel.
-Close to nothing running during the hangup.
-
-The problem is reproducable and i would be glad to help testing any 
-suggestions.
-
-Gerold
-
-
-Gerold Jury wrote:
-
-> The ISDN changes for the HISAX drivers
-> that came in since test12 have introduced a bug that causes a 
-> AIEE-something and a complete kernel hang when i hangup the isdn line.
-> I have reversed the patch for all occurences of INIT_LIST_HEAD in the 
-> isdn patch part and it works for me now.
-> 
-> The relevant part is attached. Please back it out for 2.4.0.
-> 
-> Happy new year
-> 
-> Gerold Jury
-> 
-
+So with 3 video cards I have 3 wasted chunks of ram just because of a tiny
+tiny possibility that someone would manage to build two copies of the library
+with matching ksyms. That doesnt strike me as a good tade off
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

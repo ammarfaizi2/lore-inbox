@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbUCSQyR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbUCSQyR
+	id S263113AbUCSQ4R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUCSQ4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:54:17 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:62425 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263125AbUCSQyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:54:13 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	Fri, 19 Mar 2004 11:56:17 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:9359 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263113AbUCSQ4P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 11:56:15 -0500
+Date: Fri, 19 Mar 2004 11:58:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: CDFS
-Date: Fri, 19 Mar 2004 17:45:37 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org,
-       "Richard B. Johnson" <root@chaos.analogic.com>, COTTE@de.ibm.com
+In-Reply-To: <200403191342.01593.norberto+linux-kernel@bensa.ath.cx>
+Message-ID: <Pine.LNX.4.53.0403191156060.3752@chaos>
+References: <Pine.LNX.4.53.0403191100030.3154@chaos>
+ <200403191342.01593.norberto+linux-kernel@bensa.ath.cx>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403191745.38003.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Randy.Dunlap wrote:
+On Fri, 19 Mar 2004, Norberto Bensa wrote:
 
-> <plug>
-> Some other Linux fs-es:
->   http://www.xenotime.net/linux/linux-fs.html
+> Richard B. Johnson wrote:
+> > Just got a CD/ROM that 'works' on W$, but not Linux.
+> > W$ `properties` call it 'CDFS'. Is there any such Linux
+> > support?
+>
+> What's on the CD?
+>
 
-<plug mode="another">
-Nice list, maybe you can also add xip2fs (http://linuxvm.org/Patches/).
-</plug>
+Some source-code written on a M$ machine and then burned into
+the CD. I can do  `od /dev/cdrom` and read it. I just can't
+mount it. One responder said it may have a UDF file-system
+on it. I am building a module as I write. Thanks.
 
-> </plug>
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-	Arnd <><
+

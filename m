@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbTHXUUK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 16:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTHXUUJ
+	id S261305AbTHXUlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 16:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbTHXUlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 16:20:09 -0400
-Received: from maile.telia.com ([194.22.190.16]:8953 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S261297AbTHXUUI (ORCPT
+	Sun, 24 Aug 2003 16:41:10 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:42706 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261305AbTHXUlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:20:08 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Message-ID: <3F491DFD.8080006@lanil.mine.nu>
-Date: Sun, 24 Aug 2003 22:20:13 +0200
-From: Christian Axelsson <smiler@lanil.mine.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030823 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: "Barry K. Nathan" <barryn@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org, lkml@kcore.org
-Subject: Re: Pentium-M?
-References: <200308231236.h7NCaMl0018383@harpo.it.uu.se> <Pine.LNX.4.53.0308230901200.15935@montezuma.fsmlabs.com> <20030823180338.GA3562@ip68-4-255-84.oc.oc.cox.net> <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Aug 2003 16:41:08 -0400
+Date: Sun, 24 Aug 2003 22:40:58 +0200 (MEST)
+Message-Id: <200308242040.h7OKew2V027633@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: send_sig_info() in __switch_to() Ok or not?
+Cc: torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm.. I have compiled my whole system with -march=pentium4 and yet not 
-had a single breakage. Are you sure that this is p3?
+I have a kernel extension (the x86 perfctr driver) that needs,
+in a specific but unlikely case(*), to send a SIGILL to current
+(next) in __switch_to(). Is this permitted or not?
 
--- 
-Christan Axelsson
-smiler@lanil.mine.nu
+I suspect it might not be because send_sig_info() eventually does
+wake_up_process_kick(), and there's this warning in __switch_to()
+not to call printk() since it calls wake_up()...
 
+If I can't call send_sig_info() in __switch_to(), is there
+another way to post a SIGILL to current from __switch_to()?
+
+/Mikael
+
+(*) A process on a HT P4 is using perfctrs and has an appropriate
+cpus_allowed mask. Some other process changes our cpus_allowed,
+and the scheduler migrates us to a non-0 thread. I detect this
+in __switch_to()'s resume path and kill the counters, but I also
+need to notify current somehow.

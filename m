@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263209AbUCYPke (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263213AbUCYPke
+	id S263203AbUCYPkS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:40:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263213AbUCYPkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:40:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62626 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263209AbUCYPkb (ORCPT
+	Thu, 25 Mar 2004 10:40:18 -0500
+Received: from ns.suse.de ([195.135.220.2]:2016 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263203AbUCYPkO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:40:31 -0500
-Subject: Re: cciss updates [1 of 2]
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: mike.miller@hp.com
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20040325153631.GA4456@beardog.cca.cpqcorp.net>
-References: <20040325153631.GA4456@beardog.cca.cpqcorp.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oiuDr/DKxhfe8Y35pvHr"
-Organization: Red Hat, Inc.
-Message-Id: <1080229223.5225.4.camel@laptop.fenrus.com>
+	Thu, 25 Mar 2004 10:40:14 -0500
+Date: Thu, 25 Mar 2004 16:40:11 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Andi Kleen <ak@suse.de>, Rick Lindsley <ricklind@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <20040325154011.GB30175@wotan.suse.de>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 25 Mar 2004 16:40:23 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 25, 2004 at 07:31:37AM -0800, Nakajima, Jun wrote:
+> Andi,
+> 
+> Can you be more specific with "it doesn't load balance threads
+> aggressively enough"? Or what behavior of the base NUMA scheduler is
+> missing in the sched-domain scheduler especially for NUMA?
 
---=-oiuDr/DKxhfe8Y35pvHr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It doesn't do load balance in wake_up_forked_process()  and is relatively
+non aggressive in balancing later. This leads to the multithreaded OpenMP
+STREAM running its childs first on the same node as the original process
+and allocating memory there. Then later they run on a different node when
+the balancing finally happens, but generate  cross traffic to the old node, 
+instead of using the memory bandwidth of their local nodes.
 
-On Thu, 2004-03-25 at 16:36, mikem@beardog.cca.cpqcorp.net wrote:
-> Please consider this change for inclusion in the 2.4 kernel.
+The difference is very visible, even the 4 thread STREAM only sees the
+bandwidth of a single node. With a more aggressive scheduler you get
+4 times as much.
 
-do you have a matching 2.6 patch ?
+Admittedly it's a bit of a stupid benchmark, but seems to representative
+for a lot of HPC codes.
 
---=-oiuDr/DKxhfe8Y35pvHr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAYv1nxULwo51rQBIRAv2IAKCmMgm9k2Yz2DFcjhp/mfkkjw7n3wCeKnXD
-S5CYcW65ZRx7zpFWaujp/Yg=
-=jAh5
------END PGP SIGNATURE-----
-
---=-oiuDr/DKxhfe8Y35pvHr--
-
+-Andi

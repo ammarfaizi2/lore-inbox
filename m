@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVCNU3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVCNUYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbVCNU3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 15:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVCNU2T
+	id S261871AbVCNUYs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCNUYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 15:28:19 -0500
-Received: from waste.org ([216.27.176.166]:44976 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261872AbVCNU1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 15:27:51 -0500
-Date: Mon, 14 Mar 2005 12:27:02 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
-Message-ID: <20050314202702.GF32638@waste.org>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com> <20050313004902.GD3163@waste.org> <1110825765.30498.370.camel@cog.beaverton.ibm.com> <20050314192918.GC32638@waste.org> <1110829401.30498.383.camel@cog.beaverton.ibm.com> <20050314195110.GD32638@waste.org> <1110830647.30498.388.camel@cog.beaverton.ibm.com>
+	Mon, 14 Mar 2005 15:24:14 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:43828 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261859AbVCNUWM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 15:22:12 -0500
+Date: Mon, 14 Mar 2005 21:22:18 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, Amos Waterland <apw@us.ibm.com>, anton@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 debugging symbols for boot wrapper
+Message-ID: <20050314202218.GA17925@mars.ravnborg.org>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
+	Amos Waterland <apw@us.ibm.com>, anton@samba.org,
+	linux-kernel@vger.kernel.org
+References: <16949.957.650893.747905@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1110830647.30498.388.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <16949.957.650893.747905@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 12:04:07PM -0800, john stultz wrote:
-> > > > > > > +static inline cycle_t read_timesource(struct timesource_t* ts)
-> > > > > > > +{
-> > > > > > > +	switch (ts->type) {
-> > > > > > > +	case TIMESOURCE_MMIO_32:
-> > > > > > > +		return (cycle_t)readl(ts->mmio_ptr);
-> > > > > > > +	case TIMESOURCE_MMIO_64:
-> > > > > > > +		return (cycle_t)readq(ts->mmio_ptr);
-> > > > > > > +	case TIMESOURCE_CYCLES:
-> > > > > > > +		return (cycle_t)get_cycles();
-> > > > > > > +	default:/* case: TIMESOURCE_FUNCTION */
-> > > > > > > +		return ts->read_fnct();
-> > > > > > > +	}
-> > > > > > > +}
-> > Well where we'd read an MMIO address, we'd simply set read_fnct to
-> > generic_timesource_mmio32 or so. And that function just does the read.
-> > So both that function and read_timesource become one-liners and we
-> > drop the conditional branches in the switch.
+On Mon, Mar 14, 2005 at 02:23:41PM +1100, Paul Mackerras wrote:
+> This patch is from Amos Waterland <apw@us.ibm.com>.
 > 
-> However the vsyscall/fsyscall bits cannot call in-kernel functions (as
-> they execute in userspace or a sudo-userspace). As it stands now in my
-> design TIMESOURCE_FUNCTION timesources will not be usable for
-> vsyscall/fsyscall implementations, so I'm not sure if that's doable.
+> It is really useful when debugging early boot on simulator to have debug
+> symbols in the 32-bit code that uncompresses the kernel proper.
 > 
-> I'd be interested you've got a way around that.
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+> 
+> diff -urN linux-2.5/arch/ppc64/boot/Makefile test/arch/ppc64/boot/Makefile
+> --- linux-2.5/arch/ppc64/boot/Makefile	2005-03-07 10:46:38.000000000 +1100
+> +++ test/arch/ppc64/boot/Makefile	2005-03-14 13:42:34.000000000 +1100
+> @@ -27,6 +27,11 @@
+>  BOOTLFLAGS	:= -Ttext 0x00400000 -e _start -T $(srctree)/$(src)/zImage.lds
+>  OBJCOPYFLAGS    := contents,alloc,load,readonly,data
+>  
+> +ifdef CONFIG_DEBUG_INFO
+> +BOOTCFLAGS		+= -g
+> +BOOTAFLAGS		+= -g
+> +endif
 
-We can either stick all the generic mmio timer functions in the
-vsyscall page (they're tiny) or leave the vsyscall using type/ptr but
-have the kernel internally use only the function pointer. Someone
-who's more familiar with the vsyscall timer code should chime in here.
+Please change it to use:
+bootflags-y  := -Ttext 0x00400000 -e _start -T $(srctree)/$(src)/zImage.lds
+bootflags-$(CONFIG_DEBUG_INFO) += -g
 
--- 
-Mathematics is the supreme nostalgia of our time.
+And same for BOOTAFLAGS.
+
+	Sam

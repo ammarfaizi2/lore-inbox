@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTIIDzT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 23:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbTIIDzT
+	id S263919AbTIIEEH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 00:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTIIEEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 23:55:19 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:54985
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262123AbTIIDzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 23:55:16 -0400
-Message-ID: <3F5D4EFA.30102@redhat.com>
-Date: Mon, 08 Sep 2003 20:54:34 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030904 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>, mingo@redhat.com, roland@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use group_leader->pgrp (was Re: setpgid and threads)
-References: <1061424262.24785.29.camel@localhost.localdomain>	<20030820194940.6b949d9d.akpm@osdl.org>	<1063072786.4004.11.camel@localhost.localdomain>	<20030908191215.22f501a2.akpm@osdl.org>	<1063073637.4004.14.camel@localhost.localdomain> <20030908202147.3cba2ecd.akpm@osdl.org>
-In-Reply-To: <20030908202147.3cba2ecd.akpm@osdl.org>
-X-Enigmail-Version: 0.81.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 00:04:07 -0400
+Received: from dp.samba.org ([66.70.73.150]:46788 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263919AbTIIEEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 00:04:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Make futex waiters take an mm or inode reference 
+In-reply-to: Your message of "Mon, 08 Sep 2003 11:52:07 MST."
+             <Pine.LNX.4.44.0309081144390.3202-100000@home.osdl.org> 
+Date: Tue, 09 Sep 2003 14:02:15 +1000
+Message-Id: <20030909040403.B97352C0F0@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In message <Pine.LNX.4.44.0309081144390.3202-100000@home.osdl.org> you write:
+> So is there any reason to really having "private.mm" AT ALL? From what I
+> can tell, it is not actually ever used (all "mm" users are "current->mm"),
+> so I don't see the point of incrementing a count for it either.
+> 
+> Or did I miss something?
 
-Andrew Morton wrote:
-> I think so?
+Yes.  Firstly, you can't do "wake one" if the one you wake might be
+some completely unrelated process which happens to use the same
+address.  Secondly, I implemented fair futexes by relying on the
+return value of FUTEX_WAKE to indicate how many people were woken: you
+set the futex to a magic value, call FUTEX_WAKE(1), and if it returns
+1, you've "passed" the futex directly, otherwise you unlock the futex
+like normal.  This is surprisingly useful for implementing
+"drop_futex_if_someone_is_waiting()" in cleanup threads etc.
 
-Definitely.  All occurrences have to be changed.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/XU762ijCOnn/RHQRAivlAJ44IyipfOulKbyIXFc2KtKNAChnAACcD9IP
-Di3DV6lM6+59ujhFwYK41mE=
-=6Ofq
------END PGP SIGNATURE-----
-
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

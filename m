@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUDEJS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 05:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUDEJS6
+	id S261239AbUDEJix (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 05:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUDEJix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 05:18:58 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:28331 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261238AbUDEJS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 05:18:57 -0400
-Date: Mon, 5 Apr 2004 11:18:48 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jamie Lokier <jamie@shareable.org>, Pavel Machek <pavel@ucw.cz>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040405091848.GH28924@wohnheim.fh-wedel.de>
-References: <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <20040403010425.GJ653@mail.shareable.org> <m1n05soqh2.fsf@ebiederm.dsl.xmission.com> <20040403194344.GA5477@mail.shareable.org> <20040405083549.GD28924@wohnheim.fh-wedel.de> <m1hdvyn5uy.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m1hdvyn5uy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 5 Apr 2004 05:38:53 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:59406 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261239AbUDEJiv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 05:38:51 -0400
+Message-ID: <40712952.6040100@aitel.hist.no>
+Date: Mon, 05 Apr 2004 11:39:30 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel stack challenge
+References: <20040404064850.63920.qmail@web40514.mail.yahoo.com>
+In-Reply-To: <20040404064850.63920.qmail@web40514.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 April 2004 03:15:01 -0600, Eric W. Biederman wrote:
+Sergiy Lozovsky wrote:
+> Hi,
 > 
-> I know a writable mmap needs to trigger a copy in that case.
-> And then are fun cases with MAP_FIXED which may mean invalidation
-> is not allowed.
+> I have a stack hungry code in the kernel. It hits the
+> end of stack from time to time. I wrote function to
+> which I pass pointers to function and memory area
+> which should be used as stack for function execution.
+> (I just load pointer to new stack area into esp
+> register). This function works just fine in user space
+> and memory area provided by me is used as stack.
+> 
+> This function doesn't work in the kernel (system hungs
+> instantly when my function is called). Does antbody
+> have any idea what the reason can be? Some special
+> alignment? Special memory segment? In what direction
+> should I look?
+> 
+> (sure I tried some magic with alignment like -
+> __attribute__ ((aligned (8192))) - no any effect)
+> 
+> (there was some patch to increase stack size
+> kernelwide, but I don't want to affect all the
+> system).
 
-Sounds fishy, so it will trigger cow.  Done. :)
 
-> As scheme that does not isolate the invalidate to the new copy worries me.
+You aren't supposed to need much stack for anything in the kernel.
+Consider rewriting your function to use allocated
+memory instead of stack, this isn't all that hard.
 
-If you can come up with a better way, please do.  Right now I cannot
-think of anything better, but Pavel already showed how little that
-means.
+Helge Hafting
 
-Jörn
-
--- 
-The wise man seeks everything in himself; the ignorant man tries to get
-everything from somebody else.
--- unknown

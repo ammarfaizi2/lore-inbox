@@ -1,60 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbTFAD1X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 23:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTFAD1X
+	id S263195AbTECBZF (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 2 May 2003 21:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbTECBZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 23:27:23 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:56448
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261169AbTFAD1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 23:27:21 -0400
-Date: Sat, 31 May 2003 23:30:10 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
-       "" <brian@interlinx.bc.ca>
-Subject: [PATCH][2.5] Honour dont_enable_local_apic flag
-Message-ID: <Pine.LNX.4.50.0305312302360.2614-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 May 2003 21:25:05 -0400
+Received: from [61.145.129.66] ([61.145.129.66]:48908 "ehlo mailcenter.com.cn")
+	by vger.kernel.org with ESMTP id S263195AbTECBZF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 21:25:05 -0400
+From: "ALYAKOUBI CORP." <alyakoubi@mailcenter.com.cn>
+Subject: high profit USB Flash disk stock lots
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: alyakoubi@mailcenter.com.cn
+Date: Sat, 3 May 2003 09:43:53 +0800
+X-Priority: 2
+X-Mailer: Foxmail 4.1 [cn]
+Message-Id: <S263195AbTECBZF/20030503012505Z+2173@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This flag doesn't get honoured in all cases, we still try and frob the 
-APIC in APIC_init_uniprocessor, Tested by Brian.
+Dear Sir,
+We have some USB Flash disk stock lots for sell. At the same time, we can offer you MP3+USB Flash disk, card reader, hard disk case, TV game.Please review our website for pictures: www.isav.com.cn. 
+We welcome your inquiry for further details.
+Best regards!
+Susan Song, Overseas Dept.
+TOPBAND ELECTRONICS & TECHNOLOGY CO.,LTD
+4/F, B Block Tsinghua University Institute, Hi-Tech Industrial Park, Shenzhen, 518057, China
+Direct line: 0086-755-26719852
+Email: alyakoubi@mailcenter.com.cn / susansong@topband-e.com
+Website: www.isav.com.cn
 
-Alan can i also send you a patch to disable the local apic from the kernel 
-command line? It would be dependent on this patch.
-
-	Zwane
-
-Index: linux-2.5/arch/i386/kernel/apic.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
-retrieving revision 1.50
-diff -u -p -B -r1.50 apic.c
---- linux-2.5/arch/i386/kernel/apic.c	30 May 2003 20:14:41 -0000	1.50
-+++ linux-2.5/arch/i386/kernel/apic.c	31 May 2003 05:53:34 -0000
-@@ -665,6 +665,7 @@ static int __init detect_init_APIC (void
- 	return 0;
- 
- no_apic:
-+	dont_enable_local_apic = 1;
- 	printk("No local APIC present or hardware disabled\n");
- 	return -1;
- }
-@@ -1127,6 +1128,9 @@ asmlinkage void smp_error_interrupt(void
-  */
- int __init APIC_init_uniprocessor (void)
- {
-+	if (dont_enable_local_apic)
-+		return -1;
-+
- 	if (!smp_found_config && !cpu_has_apic)
- 		return -1;
- 
-
--- 
-function.linuxpower.ca

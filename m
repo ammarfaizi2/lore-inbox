@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290641AbSARIe1>; Fri, 18 Jan 2002 03:34:27 -0500
+	id <S290644AbSARJCP>; Fri, 18 Jan 2002 04:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290640AbSARIeP>; Fri, 18 Jan 2002 03:34:15 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:61895 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S290638AbSARIeF>; Fri, 18 Jan 2002 03:34:05 -0500
-Date: 18 Jan 2002 08:48:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8H5i6N9Hw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>
-Subject: Re: CML2-2.1.3 is available
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+	id <S290643AbSARJCG>; Fri, 18 Jan 2002 04:02:06 -0500
+Received: from rpapar1.cgey.com ([194.3.224.25]:26340 "EHLO door.cgey.com")
+	by vger.kernel.org with ESMTP id <S290644AbSARJBu>;
+	Fri, 18 Jan 2002 04:01:50 -0500
+Message-ID: <3C47E46C.2E322EC6@cgey.com>
+Date: Fri, 18 Jan 2002 09:01:32 +0000
+From: Fabien Ribes <fabien.ribes@cgey.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops in sock_poll
+In-Reply-To: <3C470105.ED9DDCE@cgey.com> <20020117.131224.108809922.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20020116163144.D12306@thyrsus.com> <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-david.lang@digitalinsight.com (David Lang)  wrote on 16.01.02 in <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>:
+Hi,
 
-> Eric, the way you worded the change report it sounded to many of us as if
-> you were making the autoprober mandatory for detecting the root
-> filesystem.
+"David S. Miller" wrote:
+> 
+> Can you reproduce this with a more recent kernel?  Anything
+> >=2.4.9 (this includes all Red Hat errata kernels therefore)
+> would be sufficient.
+The kernel used is customized in many ways, it is a long work to upgrade
+...
 
-> I understand why you are frustrated with the response, but it's not a case
-> of people having thick skulls it's a case of you leaving out critical info
-> from you changelog so people reading it without your mindset see it saying
-> something that you didn't mean.
+> And also please provide a full decoded OOPS log as well, thanks.
+here it is:
+ksymoops 2.3.7 on i686 2.4.3.  Options used
+     -v vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m System.map (specified)
+     -t elf_powerpc -a powerpc:common
 
-I agree that a different wording might have avoided this.
+Oops: kernel access of bad area, sig: 11
+NIP: C00A0EB4 XER: 00000000 LR: C0046B20 SP: C1981E60 REGS: c1981db0
+TRAP: 0300
+MSR: 00009230 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c1980000[148] 'feemond' Last syscall: 142 
+last math 00000000 last altivec 00000000
+GPR00: C0046B20 C1981E60 C1980000 C1AEFBA0 C1981E78 C1981E78 C1BEB780
+00000000 
+GPR08: 00000000 00000000 00000000 C1BEB800 C1BEB780 1001D8B8 00000000
+00000000 
+GPR16: 00000000 00000000 00000000 00000000 C1981EE8 00000005 000000B4
+00000000 
+GPR24: C1981E78 00000004 00000145 C1981EC8 00000000 00000000 00000010
+C1AEFBA0 
+Call backtrace: 
+C0046884 C0046B20 C0046FC4 C0007E1C C000266C 10001888 100016F8 
+10000B30 0FEF6A6C 00000000 
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-But I also must say that paying even a little bit of attention on the part  
-of the readers would also have avoided this.
+>>NIP; c00a0eb4 <sock_poll+14/3c>   <=====
+Trace; c0046884 <poll_freewait+54/70>
+Trace; c0046b20 <do_select+e4/208>
+Trace; c0046fc4 <sys_select+330/470>
+Trace; c0007e1c <ppc_select+a0/b0>
+Trace; c000266c <ret_from_syscall_1+0/b4>
+Trace; 10001888 Before first symbol
+Trace; 100016f8 Before first symbol
+Trace; 10000b30 Before first symbol
+Trace; 0fef6a6c Before first symbol
+Trace; 00000000 Before first symbol
 
-It is certainly not the first time the autoconfigurator has been discussed  
-here, and it was made clear *every* *single* *time* that this is an  
-optional thing, usually several times.
 
-This is not a case of witholding "critical info". This is a case of  
-readers without any attention span.
-
-On a mailing list such as this, the number of such readers is highly  
-disappointing. It feels just like Windows.
-
-In fact, I am beginning to suspect that some people protest something they  
-full well *know* is not the case, just to stir up trouble.
-
-MfG Kai
+1 warning issued.  Results may not be reliable.

@@ -1,277 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULUBva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULUCGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbULUBva (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 20:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbULUBva
+	id S261183AbULUCGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 21:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbULUCGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 20:51:30 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:7362 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261159AbULUBu7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 20:50:59 -0500
-From: James Nelson <james4765@verizon.net>
-To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, James Nelson <james4765@verizon.net>
-Message-Id: <20041221015120.29110.98832.48706@localhost.localdomain>
-Subject: [PATCH] lcd: fix memory leak, code cleanup
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Mon, 20 Dec 2004 19:50:58 -0600
-Date: Mon, 20 Dec 2004 19:50:59 -0600
+	Mon, 20 Dec 2004 21:06:50 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:37056 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261183AbULUCGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 21:06:49 -0500
+Subject: Re: ioctl assignment strategy?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pjotr Kourzanov <peter.kourzanov@xs4all.nl>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103589129.32548.10.camel@localhost.localdomain>
+References: <1103067067.2826.92.camel@chatsworth.hootons.org>
+	 <20041215004620.GA15850@kroah.com> <41C04FFA.6010407@nortelnetworks.com>
+	 <20041217234854.GA24506@kroah.com> <41C70DF2.80101@nortelnetworks.com>
+	 <41C756CA.5080504@xs4all.nl>
+	 <1103589129.32548.10.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 21:06:48 -0500
+Message-Id: <1103594808.8297.26.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch addresses the following issues:
+On Tue, 2004-12-21 at 00:32 +0000, Alan Cox wrote:
+> The "ioctls are evil" blind hate department really annoy me however
+> because like all extreme views the truth very rarely fits their model
 
-Fix log-spamming and cryptic error messages, and add KERN_ constants.
-Convert some ints to unsigned ints.
-Add checks for CAP_SYS_ADMIN for FLASH_Burn and FLASH_Erase ioctls.
-Identify use of global variable.
-Fix memory leak in FLASH_Burn ioctl.
-Fix error return codes in lcd_ioctl().
-Move variable "index" in lcd_ioctl() to smaller scope to reduce memory usage.
-Convert cli()/sti() to spin_lock_irqsave()/spin_unlock_irqrestore().
-Fix legibility issues in FLASH_Burn ioctl.
+Another objection was that all ioctls take the BKL.  I think you did not
+hear this one raised as much because it reflected a deficiency in the
+system.  But now at least 2 different solutions have been posted for
+BKL-less ioctls so that objection is no longer valid.
 
-Diffstat output:
- lcd.c |   86 +++++++++++++++++++++++++++++++++---------------------------------
- lcd.h |    2 +
- 2 files changed, 46 insertions(+), 42 deletions(-)
+Lee
 
-Signed-off-by: James Nelson <james4765@gmail.com>
-
-diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c linux-2.6.10-rc3-mm1/drivers/char/lcd.c
---- linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c	2004-12-03 16:53:42.000000000 -0500
-+++ linux-2.6.10-rc3-mm1/drivers/char/lcd.c	2004-12-20 20:40:14.922386778 -0500
-@@ -33,11 +33,14 @@
- 
- #include "lcd.h"
- 
-+static spinlock_t lcd_lock = SPIN_LOCK_UNLOCKED;
-+
- static int lcd_ioctl(struct inode *inode, struct file *file,
- 		     unsigned int cmd, unsigned long arg);
- 
--static int lcd_present = 1;
-+static unsigned int lcd_present = 1;
- 
-+/* used in arch/mips/cobalt/reset.c */
- int led_state = 0;
- 
- #if defined(CONFIG_TULIP) && 0
-@@ -63,7 +66,6 @@
- {
- 	struct lcd_display button_display;
- 	unsigned long address, a;
--	int index;
- 
- 	switch (cmd) {
- 	case LCD_On:
-@@ -220,6 +222,7 @@
- 
- 	case LCD_Write:{
- 			struct lcd_display display;
-+			unsigned int index;
- 
- 
- 			if (copy_from_user
-@@ -316,7 +319,7 @@
- //  set only bit led_display.leds
- 
- 	case LED_Bit_Set:{
--			int i;
-+			unsigned int i;
- 			int bit = 1;
- 			struct lcd_display led_display;
- 
-@@ -338,7 +341,7 @@
- //  clear only bit led_display.leds
- 
- 	case LED_Bit_Clear:{
--			int i;
-+			unsigned int i;
- 			int bit = 1;
- 			struct lcd_display led_display;
- 
-@@ -413,6 +416,10 @@
- 
- 			int ctr = 0;
- 
-+			if ( !capable(CAP_SYS_ADMIN) ) return -EPERM;
-+
-+			pr_info(LCD "Erasing Flash\n");
-+
- 			// Chip Erase Sequence
- 			WRITE_FLASH(kFlash_Addr1, kFlash_Data1);
- 			WRITE_FLASH(kFlash_Addr2, kFlash_Data2);
-@@ -421,21 +428,15 @@
- 			WRITE_FLASH(kFlash_Addr2, kFlash_Data2);
- 			WRITE_FLASH(kFlash_Addr1, kFlash_Erase6);
- 
--			printk("Erasing Flash.\n");
--
- 			while ((!dqpoll(0x00000000, 0xFF))
- 			       && (!timeout(0x00000000))) {
- 				ctr++;
- 			}
- 
--			printk("\n");
--			printk("\n");
--			printk("\n");
--
- 			if (READ_FLASH(0x07FFF0) == 0xFF) {
--				printk("Erase Successful\r\n");
-+				pr_info(LCD "Erase Successful\n");
- 			} else if (timeout) {
--				printk("Erase Timed Out\r\n");
-+				pr_info(LCD "Erase Timed Out\n");
- 			}
- 
- 			break;
-@@ -447,31 +448,35 @@
- 
- 			volatile unsigned long burn_addr;
- 			unsigned long flags;
--			int i;
-+			unsigned int i, index;
- 			unsigned char *rom;
- 
- 
- 			struct lcd_display display;
- 
-+			if ( !capable(CAP_SYS_ADMIN) ) return -EPERM;
-+
- 			if (copy_from_user
- 			    (&display, (struct lcd_display *) arg,
- 			     sizeof(struct lcd_display)))
- 				return -EFAULT;
- 			rom = (unsigned char *) kmalloc((128), GFP_ATOMIC);
- 			if (rom == NULL) {
--				printk("broken\n");
--				return 1;
-+				printk(KERN_ERR LCD "kmalloc() failed in %s\n",
-+						__FUNCTION__);
-+				return -ENOMEM;
- 			}
- 
--			printk("Churning and Burning -");
--			save_flags(flags);
-+			pr_info(LCD "Starting Flash burn\n");
- 			for (i = 0; i < FLASH_SIZE; i = i + 128) {
- 
- 				if (copy_from_user
--				    (rom, display.RomImage + i, 128))
-+				    (rom, display.RomImage + i, 128)) {
-+					kfree(rom);
- 					return -EFAULT;
-+				}
- 				burn_addr = kFlashBase + i;
--				cli();
-+				spin_lock_irqsave(&lcd_lock, flags);
- 				for (index = 0; index < (128); index++) {
- 
- 					WRITE_FLASH(kFlash_Addr1,
-@@ -480,32 +485,30 @@
- 						    kFlash_Data2);
- 					WRITE_FLASH(kFlash_Addr1,
- 						    kFlash_Prog);
--					*((volatile unsigned char *)
--					  burn_addr) =
--		 (volatile unsigned char) rom[index];
--
--					while ((!dqpoll
--						(burn_addr,
--						 (volatile unsigned char)
--						 rom[index]))
--					       && (!timeout(burn_addr))) {
--					}
-+					*((volatile unsigned char *)burn_addr) =
-+					  (volatile unsigned char) rom[index];
-+
-+					while ((!dqpoll (burn_addr,
-+						(volatile unsigned char)
-+						rom[index])) &&
-+						(!timeout(burn_addr))) { }
- 					burn_addr++;
- 				}
--				restore_flags(flags);
--				if (*
--				    ((volatile unsigned char *) (burn_addr
--								 - 1)) ==
--				    (volatile unsigned char) rom[index -
--								 1]) {
-+				spin_unlock_irqrestore(&lcd_lock, flags);
-+				if (* ((volatile unsigned char *)
-+					(burn_addr - 1)) ==
-+					(volatile unsigned char)
-+					rom[index - 1]) {
- 				} else if (timeout) {
--					printk("Program timed out\r\n");
-+					pr_info(LCD "Flash burn timed out\n");
- 				}
- 
- 
- 			}
- 			kfree(rom);
- 
-+			pr_info(LCD "Flash successfully burned\n");
-+
- 			break;
- 		}
- 
-@@ -515,7 +518,7 @@
- 
- 			unsigned char *user_bytes;
- 			volatile unsigned long read_addr;
--			int i;
-+			unsigned int i;
- 
- 			user_bytes =
- 			    &(((struct lcd_display *) arg)->RomImage[0]);
-@@ -524,7 +527,7 @@
- 			    (VERIFY_WRITE, user_bytes, FLASH_SIZE))
- 				return -EFAULT;
- 
--			printk("Reading Flash");
-+			pr_info(LCD "Reading Flash");
- 			for (i = 0; i < FLASH_SIZE; i++) {
- 				unsigned char tmp_byte;
- 				read_addr = kFlashBase + i;
-@@ -540,8 +543,7 @@
- 		}
- 
- 	default:
--		return 0;
--		break;
-+		return -EINVAL;
- 
- 	}
- 
-@@ -613,7 +615,7 @@
- {
- 	unsigned long data;
- 
--	printk("%s\n", LCD_DRIVER);
-+	pr_info("%s\n", LCD_DRIVER);
- 	misc_register(&lcd_dev);
- 
- 	/* Check region? Naaah! Just snarf it up. */
-@@ -623,7 +625,7 @@
- 	data = LCDReadData;
- 	if ((data & 0x000000FF) == (0x00)) {
- 		lcd_present = 0;
--		printk("LCD Not Present\n");
-+		pr_info(LCD "LCD Not Present\n");
- 	} else {
- 		lcd_present = 1;
- 		WRITE_GAL(kGal_DevBank2PReg, kGal_DevBank2Cfg);
-diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/lcd.h linux-2.6.10-rc3-mm1/drivers/char/lcd.h
---- linux-2.6.10-rc3-mm1-original/drivers/char/lcd.h	2004-12-03 16:53:47.000000000 -0500
-+++ linux-2.6.10-rc3-mm1/drivers/char/lcd.h	2004-12-20 19:08:10.795163702 -0500
-@@ -37,6 +37,8 @@
- 
- #define LCD_DRIVER	"Cobalt LCD Driver v2.10"
- 
-+#define LCD		"lcd: "
-+
- #define kLCD_IR		0x0F000000
- #define kLCD_DR		0x0F000010
- #define kGPI		0x0D000000

@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSKLAqk>; Mon, 11 Nov 2002 19:46:40 -0500
+	id <S265767AbSKLAxI>; Mon, 11 Nov 2002 19:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbSKLAqk>; Mon, 11 Nov 2002 19:46:40 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15515 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265385AbSKLAqj>; Mon, 11 Nov 2002 19:46:39 -0500
-Date: Mon, 11 Nov 2002 17:01:41 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
+	id <S265798AbSKLAxI>; Mon, 11 Nov 2002 19:53:08 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:63692 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S265767AbSKLAxG>;
+	Mon, 11 Nov 2002 19:53:06 -0500
+Date: Tue, 12 Nov 2002 01:59:23 +0100
 To: linux-kernel@vger.kernel.org
-cc: hannal@us.ibm.com
-Subject: [PATCH 2.4] list_entry -> container_of like in 2.5
-Message-ID: <19250000.1037062901@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: rusty@rustcorp.com.au
+Subject: [PATCH] 2.5bk - make net/ipv6/af_inet6.c compile again.
+Message-ID: <20021112005923.GA19877@gagarin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty must have slipped, here is a patch that fixes compilation of
+net/ipv6/af_inet6.c
 
-It was pointed out to me (thanks cdub!) that list_entry is equivalent
-to container_of. However, in 2.5 list_entry simply calls container_of
-as it is a more descriptive name. So here is a patch to both add
-container_of and make list_entry a wrapper around it.
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+===================================================================
 
-Thanks.
 
-Hanna
+ChangeSet@1.857, 2002-11-12 01:50:10+01:00, andersg@0x63.nu
+  Remove unmatched #endif
 
- kernel.h |   11 +++++++++++
- list.h   |    2 +-
- 2 files changed, 12 insertions(+), 1 deletion(-)
 
------
-diff -Nru linux-2.4.20-rc1/include/linux/kernel.h 
-linux-container_of/include/linux/kernel.h
---- linux-2.4.20-rc1/include/linux/kernel.h	Mon Nov 11 16:53:25 2002
-+++ linux-container_of/include/linux/kernel.h	Mon Nov 11 15:23:16 2002
-@@ -174,6 +174,17 @@
- extern void __out_of_line_bug(int line) ATTRIB_NORET;
- #define out_of_line_bug() __out_of_line_bug(__LINE__)
+ af_inet6.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-+/*
-+ * container_of - cast a member of a structure out to the containing 
-structure
-+ *
-+ * @ptr:        the pointer to the member.
-+ * @type:       the type of the container struct this is embedded in.
-+ * @member:     the name of the member within the struct.
-+ */
-+#define container_of(ptr, type, member) ({                      \
-+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-+	(type *)( (char *)__mptr - offsetof(type,member) );})
-+
- #endif /* __KERNEL__ */
 
- #define SI_LOAD_SHIFT	16
-diff -Nru linux-2.4.20-rc1/include/linux/list.h 
-linux-container_of/include/linux/list.h
---- linux-2.4.20-rc1/include/linux/list.h	Mon Nov 11 16:53:25 2002
-+++ linux-container_of/include/linux/list.h	Mon Nov 11 16:50:06 2002
-@@ -185,7 +185,7 @@
-  * @member:	the name of the list_struct within the struct.
-  */
- #define list_entry(ptr, type, member) \
--	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
-+	container_of(ptr, type, member)
+diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c	Tue Nov 12 01:54:57 2002
++++ b/net/ipv6/af_inet6.c	Tue Nov 12 01:54:57 2002
+@@ -547,7 +547,6 @@
+ }
+ #endif
+ #endif
+-#endif
+ 
+ #if defined(MODULE) && defined(CONFIG_SYSCTL)
+ extern void ipv6_sysctl_register(void);
 
- /**
-  * list_for_each	-	iterate over a list
+===================================================================
 
+
+This BitKeeper patch contains the following changesets:
+1.857
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch11390
+M'XL(`&%1T#T``[V576O;,!2&KZ-?(>AEB76.+,D?D-&OL8T.5C)Z-<90924Q
+MB>U@*^D*9K]]<IJU:^LL6QBUC6W9\M%[WO-(/J+7C:W3@2XS6S=3<D3?5XU+
+M!_!=A4&Y\NUQ5?DVFU6%9=M>;&[KTB[8S9S=+*I;XGM=:6=F=.W?I@,,PH<G
+M[FYIT\'X[;OKCZ=C0D8C>C[3Y=1^MHZ.1L15]5HOLN9$N]FB*@-7Z[(IK-.!
+MJ8KVH6O+`;C?)48A2-6B`A&U!C-$+=!FP$6L!-$SK7VHO"YTO@A*_]W3".@W
+MS@%#U8H8>$@N*`:QC"APALB04\!40HIP[&\`Z#;?DZT;])C3(9`S^G]EGQ-#
+MQ[:HUI:NRJ*SS6;TR)99/B&75(C(*[UZ](T,_W$C!#20-WM4G^7NTMJEK9EU
+MAN73LJKMBP2B2&([T1$::;,00(=F8I[;M#M4YS^`!("6QX*+O:)\#5F^7"NF
+M)]]RWU"!^5U3(I,6$6+>*GFC!-<)RDRH.$Q>:-H5Z5Z2Z"(I@`@WC/8EL!_7
+MPQU\#-Q-L[\-ZS,/,98*9,N%`+G!.53/:8;7I_DTRSS"/9;_H(VI\Z5KV-Q4
+MY22?LJ*[>@G4S2S=.KW(&^?)OT?D$QW6MYO#DWS56YH#9L2'1%%.^A227H4;
+M+'JZ[Z?B8(1)O6K<W4EW-E6][((%>O7EUVA?_X0T8@2QYT*!"L6&"WRZRHDD
+ME<DN+H`.\957N?NY]ZS6/0D>4.H+*8'BXT_*#VSFS:H8Q58FDT1S\A.OF4[J
+$!0<`````
+`
+end

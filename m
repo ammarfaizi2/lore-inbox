@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129942AbQJaNzw>; Tue, 31 Oct 2000 08:55:52 -0500
+	id <S129828AbQJaNym>; Tue, 31 Oct 2000 08:54:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129892AbQJaNzm>; Tue, 31 Oct 2000 08:55:42 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:35338 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129942AbQJaNz0>; Tue, 31 Oct 2000 08:55:26 -0500
-Date: Tue, 31 Oct 2000 07:55:06 -0600
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Keith Owens <kaos@ocs.com.au>, Christoph Hellwig <hch@ns.caldera.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-Message-ID: <20001031075506.B1041@wire.cadcamlab.org>
-In-Reply-To: <13675.972956952@ocs3.ocs-net> <Pine.LNX.4.10.10010301856330.6384-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S129942AbQJaNyd>; Tue, 31 Oct 2000 08:54:33 -0500
+Received: from ns.dce.bg ([212.50.14.242]:39434 "HELO home.dce.bg")
+	by vger.kernel.org with SMTP id <S129828AbQJaNy0>;
+	Tue, 31 Oct 2000 08:54:26 -0500
+Message-ID: <39FECEFD.4F70A24F@dce.bg>
+Date: Tue, 31 Oct 2000 15:54:05 +0200
+From: Petko Manolov <petkan@dce.bg>
+Organization: Deltacom Electronics
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en, bg
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: changed section attributes
+In-Reply-To: <E13pz9c-0006Jh-00@the-village.bc.nu> <39FD5433.587FF7C6@zaralinux.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10010301856330.6384-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 06:58:38PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi there,
 
-  [kaos]
-> > It still does not document the only real link order constraint in
-> > USB.  The almost complete lack of documentation on which link
-> > orders are required and which are historical is extremely annoying
-> > and _must_ be fixed, instead we just propagate the problem.
+I noticed that when i changed to binutils 2.10.91 (Debian,woody)
+i start to see messages like:
 
-[Linus]
-> We can add a comment to the Makefile. That's trivial.
+"Warning: Ignoring changed section attributes for .modinfo"
 
-True.
+Chasing down the problem appeared that section modinfo is
+declared for the first time as ".section .modinfo" without any
+attributes. This is done by the including of linux/module.h.
+The next declaration is ".section .modinfo,"a",@progbits".
+And assembler moans on that line number.
 
-The thing that Keith's patch does is flush these things out into the
-open.  By using LINK_FIRST/LINK_LAST, we declare that "these are the
-known issues" -- and then the rest of the objects are reordered, and if
-something breaks, we track it down and add it to LINK_FIRST.
+Changing the declaration in linux/module.h to ".modinfo,"a""
+fixed the problem, but i noticed that the author said that
+"we want .modinfo to not be allocated"
 
-That way these things *will* get documented eventually.  I have very
-little hope that they otherwise will, since some ordering requirements
-may have already been lost to the mists of time.
+I wonder why?
 
-Obviously, "flushing issues out into the open" is not 2.4 material,
-which is why Keith's patch does *not* reorder unless you explicitly
-declare a LINK_FIRST line -- i.e. only drivers/usb/Makefile is affected
-at the moment.  The plan has been to change that behavior in 2.5.
+I already tried to allocate it (.modinfo,"a" in module.h) and
+it seems to work.
 
-> What's not trivial, and what I WANT DONE is to make sure that _when_
-> somebody wants to maintain link ordering, he can do so in an easy and
-> obvious way. Not with Yet Another Hack.
+Any ideas?
 
-One man's hack is another man's clean design ... but I concede the
-point that LINK_FIRST is a hack, because I respect your judgment.
-However, I still maintain that it is a less ugly hack than any
-alternatives I've seen for preventing/removing duplicate object files
-in link lines (see my last mail).
 
-A few months ago I actually tried to write a make function (yes, GNU
-make has these!) to remove duplicates while not sorting, but GNU make
-doesn't seem to support the necessary iteration/(tail-)recursion
-features.  (Surprising, considering GNU's overall LISP-ish worldview.)
 
-Peter
+	Petkan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

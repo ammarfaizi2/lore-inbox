@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbULKRae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbULKRbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbULKRae (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 12:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbULKRae
+	id S261976AbULKRbY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 12:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbULKRbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 12:30:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34313 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261975AbULKRa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 12:30:29 -0500
-Date: Sat, 11 Dec 2004 18:30:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] IDE: remove WAIT_READY dependency on APM
-Message-ID: <20041211173016.GX22324@stusta.de>
-References: <20041209034438.GF22324@stusta.de> <1102692003.3201.5.camel@localhost.localdomain>
+	Sat, 11 Dec 2004 12:31:24 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:24736
+	"HELO fargo") by vger.kernel.org with SMTP id S261976AbULKRbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 12:31:19 -0500
+Date: Sat, 11 Dec 2004 18:30:32 +0100
+From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+To: Simos Xenitellis <simos74@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Improved console UTF-8 support for the Linux kernel?
+Message-ID: <20041211173032.GA13208@fargo>
+Mail-Followup-To: Simos Xenitellis <simos74@gmx.net>,
+	linux-kernel@vger.kernel.org
+References: <1102784797.4410.8.camel@kl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1102692003.3201.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1102784797.4410.8.camel@kl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 03:20:05PM +0000, Alan Cox wrote:
-> On Iau, 2004-12-09 at 03:44, Adrian Bunk wrote:
-> > The time for the !APM case was already increased from 30msec in 2.4 .
-> > Isn't there a timeout that is suitable for all cases?
-> 
-> The five seconds should be just fine for all cases. The smaller value
-> with no
-> power manglement should help speed up recovery however. It probably
-> doesn't belong CONFIG_APM now ACPI and friends are involved either.
+Hi Simon ;),
 
+> The current UTF-8 keyboard input (for the console) of the Linux kernel
+> does not support  "composing" or writing characters with accents.
 
-Thanks for this information. A patch is below.
+Yes, i recently find it out when trying to switch all my system to
+UTF-8. But the patch from Chris you mention below works very well
+for me (and for anybody that needs to type compose characters for
+languages based in the latin1 encoding i guess).
 
+> affects quite a few languages that require accents (French, German,
+> Danish, Swedish?, Greek, cyrillic-based?, others?.). 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Spanish ;))
 
---- linux-2.6.10-rc2-mm4-full/include/linux/ide.h.old	2004-12-11 18:11:20.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/ide.h	2004-12-11 18:11:32.000000000 +0100
-@@ -187,11 +187,7 @@
-  * Timeouts for various operations:
-  */
- #define WAIT_DRQ	(HZ/10)		/* 100msec - spec allows up to 20ms */
--#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
- #define WAIT_READY	(5*HZ)		/* 5sec - some laptops are very slow */
--#else
--#define WAIT_READY	(HZ/10)		/* 100msec - should be instantaneous */
--#endif /* CONFIG_APM || CONFIG_APM_MODULE */
- #define WAIT_PIDENTIFY	(10*HZ)	/* 10sec  - should be less than 3ms (?), if all ATAPI CD is closed at boot */
- #define WAIT_WORSTCASE	(30*HZ)	/* 30sec  - worst case when spinning up */
- #define WAIT_CMD	(10*HZ)	/* 10sec  - maximum wait for an IRQ to happen */
+> Chris Heath has a set of incremental patches
+> (http://chris.heathens.co.nz/linux/utf8.html) to enhance Unicode for the
+> console.
+> I noticed that he contacted this list in May 2003
+> (http://seclists.org/lists/linux-kernel/2003/May/7956.html) but
+> unfortunatelly the discussion was diverted to coding styles.
 
+Chris told me in the utf-8 mailing list that he doesn't think his patch to
+make the kernel generate UTF-8 characters in the compose tables will be
+included in the main kernel. Basically because is not a full solution that
+cover all the cases... But there is nothing better, so maybe it will be a
+good idea to include it. Current state is, for 2.6 kernel, text console
+is broken in UTF-8 mode because it cannot generate UTF-8 composed characters.
+
+> Is there an interest for re-submission of mentioned patches for
+> inclusion in the kernel (yeah, provided coding style is "normalised")?
+
+At least, I am _really_ interested :)
+
+regards,
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

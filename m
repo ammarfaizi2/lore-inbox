@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291746AbSBNQUF>; Thu, 14 Feb 2002 11:20:05 -0500
+	id <S291771AbSBNQYX>; Thu, 14 Feb 2002 11:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291756AbSBNQTy>; Thu, 14 Feb 2002 11:19:54 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:5371 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291746AbSBNQTr>;
-	Thu, 14 Feb 2002 11:19:47 -0500
-Date: Thu, 14 Feb 2002 10:19:43 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
+	id <S291767AbSBNQYH>; Thu, 14 Feb 2002 11:24:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291752AbSBNQXx>; Thu, 14 Feb 2002 11:23:53 -0500
+Date: Thu, 14 Feb 2002 08:23:41 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: bert hubert <ahu@ds9a.nl>
-cc: linux-kernel@vger.kernel.org, drepper@redhat.com, torvalds@transmeta.com
-Subject: Re: setuid/pthread interaction broken? 'clone_with_uid()?'
-Message-ID: <46860000.1013703583@baldur>
-In-Reply-To: <20020214170748.B17490@outpost.ds9a.nl>
-In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl>
- <38300000.1013702447@baldur> <20020214170748.B17490@outpost.ds9a.nl>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.5-pre1
+In-Reply-To: <20020214090401.A8296@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.33.0202140816220.12749-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Thursday, February 14, 2002 17:07:48 +0100 bert hubert <ahu@ds9a.nl>
-wrote:
 
->> It's the expected behavior for a task-based model like Linux.  Each task
->> is independent and inherits the uid/gid from whoever called clone().
->> It's just one of several resources that are specified as process-wide in
->> POSIX, but are per-task in Linux.
-> 
-> Could this also be solved by making threads call 'clone' themselves? 
+On Thu, 14 Feb 2002, bert hubert wrote:
+>
+> Did you always merge this many patches, or does it just look like more using
+> this very nice changelog format? Anyhow, I'm impressed about the amount of
+> work accepted in such a short time.
 
-The only workaround I can think of is, as you discovered, to do the
-setuid() call before you create any threads, and thus create underlying
-kernel tasks.  Once the kernel tasks have been created each one has its own
-credentials and has to be changed separately.
+It looks like more because of the changelog format.
 
-Dave McCracken
+The old changelogs were one-liners, and didn't mention small patches at
+all (ie the entries like "Remove warning in /proc inode conversions" would
+not even have made it into the changelog before).
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+Also, I used to combine entries from the same person, so the eight patches
+for reiserfs would have been one entry ("reiserfs update"), and the 20
+entries from Jeff would likewise have been just one entry ("update network
+drivers").
+
+That said, this week I've basically spent _only_ on making sure I work
+well with BitKeeper (so far so good), so I have spent more time than I
+normally do on merging. So yes, it's actually more merging too. That will
+calm down eventually.
+
+(The happy news is that I expected to be slowed down by BK for a while,
+and that hasn't really happened. Some things take more effort now, but to
+offset that some other stuff is _much_ easier, so..)
+
+		Linus
 

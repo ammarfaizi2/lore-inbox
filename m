@@ -1,75 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262092AbSJHLWh>; Tue, 8 Oct 2002 07:22:37 -0400
+	id <S262052AbSJHLVr>; Tue, 8 Oct 2002 07:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262132AbSJHLWh>; Tue, 8 Oct 2002 07:22:37 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:31110 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S262092AbSJHLWb>;
-	Tue, 8 Oct 2002 07:22:31 -0400
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
-References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain>
-	<3D99A2F2.70102@oracle.com> <dnelbaclvo.fsf@magla.zg.iskon.hr>
-	<3D99B672.2090805@oracle.com> <874rc4fzml.fsf@atlas.iskon.hr>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Tue, 08 Oct 2002 13:22:47 +0200
-In-Reply-To: <874rc4fzml.fsf@atlas.iskon.hr> (Zlatko Calusic's message of
- "Wed, 02 Oct 2002 20:45:54 +0200")
-Message-ID: <87ptulcgzc.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S262064AbSJHLVq>; Tue, 8 Oct 2002 07:21:46 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:49677 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262052AbSJHLVm>; Tue, 8 Oct 2002 07:21:42 -0400
+Date: Tue, 8 Oct 2002 04:27:19 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021008112719.GC6537@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <3DA1CF36.19659.13D4209@localhost> <3DA2BD70.14919.2C6951@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA2BD70.14919.2C6951@localhost>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zlatko Calusic <zlatko.calusic@iskon.hr> writes:
+On Tue, Oct 08, 2002 at 11:11:44AM +0100, simon@baydel.com wrote:
+> The UART and Interrupt controllers in question are built into a gate 
+> array. I can't see how any external or parts from other vendors 
+> would be compatible. To get the board to boot Linux I have to 
+> modify the kernel and lilo. I understand that under the GPL rules I 
+> would have to make this code available. I am willing to do this but I 
+> don't see the point. 
 
-> Alessandro Suardi <alessandro.suardi@oracle.com> writes:
->> The more complicated bug you're talking about is the exec_mmap
->>   change introduced in 2.5.19 and fixed a handful of versions
->>   later, possibly .28, where PMON wouldn't start after 120"...
->>   I guess :)
->
-> Oh, well, if that one is really fixed, then I have another one. ;)
->
+The point is that is the license fee.  Under the BSD
+license the fee is giving credit.  For Microsoft and other
+closed-source/propietary licenses the fee is in money.
+With the GPL the consideration (legal term under contract
+law) or fee that you pay is to make the source of your
+modifications and derivitave works available.
+Most of the time that is a fairly inexpensive fee.
 
-Hm, not anymore!
+If you wish to negotiate a different fee all you have to do
+is get every contributor to agree to a seperate license for
+you.  You are free (libre) to try but i think it would be
+cheaper to go elsewhere.
 
-Thanks to you guys, 2.5.41 is flawless. It works under all the tests
-that were failing before. Great work!
+> There is also more specialized hardware for which I have written 
+> modules. Although there appears to be some unwritten rule about 
+> releasing objects, I believe that the GPL rules state that these 
+> modules must conform to the GPL also, as they contain header 
+> files. I cannot see how any module can not contain Linux headers 
+> or headers derived from Linux headers if it is to be loaded on a 
+> Linux kernel. 
 
-I did some benchmarks and it looks like 2.5 is a little bit slower.  I
-have two small perl+plsql applications for testing purposes,
-"cucibench" benches how long it takes to parse cucitail POP daemon log
-and put it into database (insert load). "mailproc" processes sendmail
-log and does the same. mailproc is a little bit more complicated (it
-also does updates). The results are as follows (numbers are
-minutes:seconds it took to finish the task on Oracle 9.2.0.1):
+Leave headers aside for the moment.  There is a tolerance
+(barely) of binary modules distributed largely because they
+suit the purposes of linux (world domination, haha).  Using binary
+only modules that don't benefit that will draw the ire (if
+not prosecution) of the community.
 
-| app       | 2.4.19 | 2.5.41 |
-|-----------------------------|
-| cucibench |  03:17 |  03:38 |
-| mailproc  |  02:12 |  02:30 |
-|-----------------------------|
+> These modules again drive gate array hardware for which nobody 
+> else will ever have a compatible. Although I would dearly love to 
+> use Linux as the platform for my project I feel I cannot release this 
+> code under the GPL.
 
-I also observed that other application I use occasionally - LXR (Linux
-source cross referencing tool) - takes much longer to generate xref
-database (which is in Berkeley DB files). It works in three passes,
-where the last one, when it dumps symbols into DB, is interesting. In
-2.4 it finishes quickly (it uses 100% CPU, then occasionally syncs the
-databases - heavy write traffic for a second - then continues), but
-2.5 has problems with it (it stucks writing to disk all the time, CPU
-usage is minimal and process progresses very slowly). Andrew, if
-you're interested I can send you some numbers to describe the case
-better.
+The fact that may be custom hardware that no-one else will
+every have access to isn't relevant to the licence.  The
+general concensus is that very few embedded projects are
+really all that dependant on such specialized hardware.
 
-Keep up the good work!
+> This is my dilemma and I am sure it is shared by others. For this 
+> reason I cannot see how anything but an embedded PC with 
+> applications or a perhaps a very simple hardware device could be 
+> considered as an opportunity for  embedded Linux. 
+
+It isn't much of a dilema.  It is just a simple choice you
+have to make.  Do you create your own OS?  Or if you choose
+to buy one, which license terms are best for you.
+
+Of course you are free to use linux for prototyping and
+product developement.  The publication requirements only
+come into play when you distribute.  If you choose to use
+linux to help develop your product and then distribute with
+a different OS then linux has helped to enlarge the GGP
+(Gross Global Product) and that is still good.
+
+> I have based these thoughts on my experiences so far. If you feel I 
+> have drawn an incorrect conclusion I would be grateful for your 
+> input.
+
+They may be correct conclusions for yourself.  Only you can
+judge that.  I doubt that they are correct generalizations.
+
+There are some things i would think about before rejecting
+linux on such a basis.  Nothing prevents you from putting a
+firmware layer underneath linux or putting a bit more
+intelegence in your device and then providing a free driver
+that can interface with it.  You may be able to put the
+intellegence of your hardware control in a user-space
+process with elevated priority.  You might look into
+something like using the adeos nano-kernel to host linux and
+the device controll software as seperate contexts with a
+communications interface between them.  There are so many
+ways to get linux and proprietary software and hardware to
+talk to each other it seems silly to reject it just because
+one of way bears license terms you don't like.
+
+If you wish to use linux and contribute good.  If you wish
+to go away that is your choice.  If you wish to whine, see
+option two.  In either case good luck with your project.
+
 -- 
-Zlatko
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

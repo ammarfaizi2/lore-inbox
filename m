@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318006AbSGZSwi>; Fri, 26 Jul 2002 14:52:38 -0400
+	id <S317999AbSGZSuB>; Fri, 26 Jul 2002 14:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318023AbSGZSwh>; Fri, 26 Jul 2002 14:52:37 -0400
-Received: from pc-62-30-72-138-ed.blueyonder.co.uk ([62.30.72.138]:55681 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S318006AbSGZSwh>; Fri, 26 Jul 2002 14:52:37 -0400
-Date: Fri, 26 Jul 2002 19:55:28 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>
-Subject: Re: 2.5.28, dbench results with ext3 significantly lower than with ext2.
-Message-ID: <20020726195528.B2299@redhat.com>
-References: <1027701923.3148.10.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1027701923.3148.10.camel@spc9.esa.lanl.gov>; from elenstev@mesatop.com on Fri, Jul 26, 2002 at 10:45:23AM -0600
+	id <S318003AbSGZSuA>; Fri, 26 Jul 2002 14:50:00 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:8880 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S317999AbSGZSuA>; Fri, 26 Jul 2002 14:50:00 -0400
+Message-Id: <200207261853.g6QIrEQ140436@pimout1-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Thunder from the hill <thunder@ngforever.de>,
+       Daniel Mose <imcol@unicyclist.com>
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Date: Fri, 26 Jul 2002 08:54:51 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207242348380.3347-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0207242348380.3347-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 25 July 2002 02:03 am, Thunder from the hill wrote:
+> Hi,
+>
+> On Thu, 25 Jul 2002, Daniel Mose wrote:
+> > Other words in this ML (and in too many other places =( ) that
+> > make my own brain go rivetted and short circuit are the "foo"
+> > and/or "bar", not to mention the "foobar" place holder.
+> >
+> > I realize that most folks In LKML use "foo", "bar" and it's dad,
+> > "foobar" with outmost joy and that there is complete and utter
+> > understanding of what the "foos" and "bars" actually stand for
+> > in your contemporary discussion partners reasoning scheeme.
+> >
+> > Or is it?
+>
+> Well, there's indeed a meaning behind it, apart from "fucked over and over
+> beyond all repair."
+>
+> Firstly, there was foo, way back when in the 1930s when I was a bit
+> younger. Its meaning was not always technical, I think it came from some
+> kind of comic strip, but I'm not sure.
 
-On Fri, Jul 26, 2002 at 10:45:23AM -0600, Steven Cole wrote:
-> I found that dbench gives significantly lower numbers when
-> the partition on which it is run is mounted as ext3.
+The comic strip was "Smokey Stover".  Eric recently found a lot more 
+backstory on the word "foo" and updated the jargon file entry.
 
-Yes, especially with ext3 using its default 5-second commit intervals
-and ext2 using 30 second timeouts for its own bdflush.
-
-dbench does a lot of IO to temporary files, writing large amounts of
-data and then shortly deleting it.  If it can run fast enough to
-delete the data before it hits disk, it goes _much_ faster, so you end
-up measuring cache speed and not disk speed.  ext3 is particulary hurt
-by that given its shorted default commit timeouts.
-
-Cheers,
- Stephen
+http://www.tuxedo.org/~esr/jargon/html/entry/foo.html

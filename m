@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283723AbRLWFsH>; Sun, 23 Dec 2001 00:48:07 -0500
+	id <S283714AbRLWFqs>; Sun, 23 Dec 2001 00:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283720AbRLWFr5>; Sun, 23 Dec 2001 00:47:57 -0500
-Received: from tierra.ucsd.edu ([132.239.214.132]:54441 "EHLO burn")
-	by vger.kernel.org with ESMTP id <S283723AbRLWFro>;
-	Sun, 23 Dec 2001 00:47:44 -0500
-Date: Sat, 22 Dec 2001 21:46:30 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, billh@tierra.ucsd.edu,
-        bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011222214630.B12352@burn.ucsd.edu>
-In-Reply-To: <20011219.172046.08320763.davem@redhat.com> <E16HTTI-0000w0-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16HTTI-0000w0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 21, 2001 at 05:28:36PM +0000
-From: Bill Huey <billh@tierra.ucsd.edu>
+	id <S283720AbRLWFqh>; Sun, 23 Dec 2001 00:46:37 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:23310 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S283714AbRLWFqc>; Sun, 23 Dec 2001 00:46:32 -0500
+Date: Sat, 22 Dec 2001 21:45:56 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Ilguiz Latypov <ilatypov@superbt.com>
+cc: linux-kernel@vger.kernel.org, sjh@wibble.net
+Subject: Re: pc speaker cant be accessed with no video card in computer
+In-Reply-To: <3C2259E2.4070504@superbt.com>
+Message-ID: <Pine.LNX.4.10.10112222143400.30838-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 05:28:36PM +0000, Alan Cox wrote:
-> > Precisely, in fact.  Anyone who can say that Java is going to be
-> > relevant in a few years time, with a straight face, is only kidding
-> > themselves.
-> 
-> Oh it'll be very relevant. Its leaking into all sorts of embedded uses, from
-> Digital TV to smartcards. Its still useless for serious high end work an
-> likely to stay so.
-> 
-> > Java is not something to justify a new kernel feature, that is for
-> > certain.
-> 
-> There we agree. Things like the current asynch/thread mess in java are
-> partly poor design of language and greatly stupid design of JVM.
 
-It's not the fault of the JVM runtime nor the the language per se since
-both are excellent. The blame should instead be placed on the political
-process within Sun, which has created a lag in getting a decent IO event
-model/system available in the form of an API.
+> Rather than porting it to Linux I chose a simple option of copying
+> the ioctl PC speaker code into a skeleton misc character device
+> driver.  As a result I can issue ioctl "beep" calls against my
+> /dev/pcspeaker (character device with major number 10, minor number
+> 240).  E.g., replacing "/dev/console" with "/dev/pcspeaker" in
+> PCMCIA cardmgr.c will revive its sound effects.
 
-This newer system is suppose to be able to scale to tens of thousands of
-FDs and be able to handle heavy duty server side stuff in a more graceful
-manner. It's a reasonable system from what I saw, but the implementation
-of it is highly OS dependent and will be subject to those environmental
-constraints. Couple this and the HotSpot compiler (supposeablly competitive
-with gcc's -O3 from benchmarks) and it should be high useable for a broad
-range of of server side work when intelligently engineered.  
+Ug. I have thought about this problem as well. I plan to make it a
+/dev/input driver. Especially since I plan to migrate the VT code over 
+to input api. This will allow use to the speaker with or without the
+VT tty system.
 
-bill
 

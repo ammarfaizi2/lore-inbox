@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbUCAM4j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 07:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUCAM4j
+	id S261252AbUCANPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 08:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCANPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 07:56:39 -0500
-Received: from nat.xms.se ([212.181.93.157]:2287 "EHLO arwen.xms.se")
-	by vger.kernel.org with ESMTP id S261248AbUCAM4h (ORCPT
+	Mon, 1 Mar 2004 08:15:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37804 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261252AbUCANPX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 07:56:37 -0500
-Message-ID: <40433303.1020506@xms.se>
-Date: Mon, 01 Mar 2004 13:56:35 +0100
-From: "Martin Wickman" <martin.wickman@xms.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Mon, 1 Mar 2004 08:15:23 -0500
+Date: Mon, 1 Mar 2004 08:15:43 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Urban Widmark <urban@teststation.com>
+cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [SELINUX] Handle fuse binary mount data.
+In-Reply-To: <Pine.LNX.4.44.0403011007300.6156-100000@cola.local>
+Message-ID: <Xine.LNX.4.44.0403010809470.24584-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Karol Kozimor <sziwan@hell.org.pl>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Michael Frank <mhf@linuxmail.org>, Micha Feigin <michf@post.tau.ac.il>,
-       Software suspend <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th> <20040229213302.GA23719@luna.mooo.com> <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston> <20040301113528.GA21778@hell.org.pl> <1078140515.21578.76.camel@gaston> <20040301115135.GA2774@hell.org.pl>
-In-Reply-To: <20040301115135.GA2774@hell.org.pl>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karol Kozimor wrote:
-> Thus wrote Benjamin Herrenschmidt:
-> Right, but the point is that while 2.6 has such an infrastructure, its
-> introduction actually completely broke UHCI suspend / resume.
-> 
->>>There's also a great deal of people, who can't resume when AGP is being 
->>>used -- that is again a regression over 2.4.
->>
->>There haven't been a regression in the AGP drivers themselves afaik.
-> 
-> Which, again, leads us to conclusion that it was the driver model change
-> that broke that.
-> 
-> I'm not trying to criticize the driver model itself (I'm sure others have
-> already done enough), but merely to emphasize that 2.6 is not yet ready for
-> laptop users.
+On Mon, 1 Mar 2004, Urban Widmark wrote:
 
-...and it's pretty obvious that it'll never be unless it's
-fixed. Its kinda frustrating this agp resume thing keeps holding swsusp2 
-back -- everything else works (on my laptop at least).
+> On Sun, 29 Feb 2004, James Morris wrote:
+> 
+> > It seems more like a property of the filesystem type: perhaps add 
+> > FS_BINARY_MOUNTDATA to fs_flags for such filesystems, per the patch below.
+> ...
+> > diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/smbfs/inode.c linux-2.6.3-mm4.w/fs/smbfs/inode.c
+> > --- linux-2.6.3-mm4.o/fs/smbfs/inode.c	2003-10-15 08:53:19.000000000 -0400
+> > +++ linux-2.6.3-mm4.w/fs/smbfs/inode.c	2004-02-29 19:50:58.172037088 -0500
+> > @@ -778,6 +778,7 @@
+> >  	.name		= "smbfs",
+> >  	.get_sb		= smb_get_sb,
+> >  	.kill_sb	= kill_anon_super,
+> > +	.fs_flags	= FS_BINARY_MOUNTDATA,
+> >  };
+> >  
+> >  static int __init init_smb_fs(void)
+> 
+> smbfs does not have a binary mountdata, unless the smbmount used is really
+> old (samba 2.0). If that means that it should get a FS_BINARY_MOUNTDATA
+> flag or not, I don't know.
+
+Well, smb_fill_super() looks like it is dealing with binary mount data 
+initially, and we need to treat it as such.  This should be fixed properly 
+so that different versions of smbfs have different filesystem types, like 
+NFS.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

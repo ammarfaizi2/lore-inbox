@@ -1,91 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbTERWXN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 18:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTERWXN
+	id S262237AbTERWan (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 18:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTERWan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 18:23:13 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22285
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262232AbTERWXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 18:23:05 -0400
-Date: Sun, 18 May 2003 15:13:48 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: alan@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, trivial@rustcorp.com.au
-Subject: Re: [2.5 patch] 2.4.21-rc1 pointless IDE noise reduction
-In-Reply-To: <20030518130627.GC12766@fs.tum.de>
-Message-ID: <Pine.LNX.4.10.10305181510170.32050-100000@master.linux-ide.org>
+	Sun, 18 May 2003 18:30:43 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:47234 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262237AbTERWal
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 18:30:41 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 18 May 2003 15:42:43 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Martin Diehl <lists@mdiehl.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SIS-650+CPQ Presario 3045US+USB ...
+In-Reply-To: <Pine.LNX.4.44.0305182309430.14825-100000@notebook.home.mdiehl.de>
+Message-ID: <Pine.LNX.4.55.0305181533280.3568@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0305182309430.14825-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 18 May 2003, Martin Diehl wrote:
 
-Just maybe people would like to know if there is a secret OS on the tail
-of their drive, or the potential for one being there.
+> On Sun, 18 May 2003, Davide Libenzi wrote:
+>
+> > I don't have the laptop under my nose now and honestly I do not remember
+> > the whole output of pcitweak -l ;)
+>
+> Well, "lspci -vxxx -d 1039:0008" should be sufficient. If possible
+> combined with the pci routing table (from dump_pirq for example).
 
-Go research EDDS BEER PARTIES and you will find out this is not a joke.
+I know, but even that one is hard to do w/out the machine under your nose ;)
 
-If the noise pisses you off turn down your kernel printk noise makers.
-Better yet stub it out in your own kernel.
 
-Do not remove items that have meaning or valid tests.
+> > This made it for me, but it could break other configurations though :
+>
+> It would, sure. There are BIOSes in the field which have the 0x62 (USB)
+> link included in the routing table for the old register layout. Maybe same
+> for 0x61(IDE).
 
-Erik, get over it and just live with a stub out.
+I had no doubt about that either.
 
-Cheers,
 
-On Sun, 18 May 2003, Adrian Bunk wrote:
+> > --- pci-irq.c.orig	2003-05-18 12:34:03.000000000 -0700
+> > +++ pci-irq.c	2003-05-18 12:35:14.000000000 -0700
+> > @@ -306,14 +306,16 @@
+> >  		case 0x42:
+> >  		case 0x43:
+> >  		case 0x44:
+> > +		case 0x60:
+> > +		case 0x61:
+> >  		case 0x62:
+> > +		case 0x63:
+>
+> Ok, looks like they have moved the location of the PCI INTA-INTD routing
+> registers from 0x41-0x44 to 0x60-0x63. Since this works for you it means
+> the vendor/device-id is still 1039:0008. We really need to check the
+> revision id here.
 
-> Below is a 2.5 version of the patch to remove 
-> idedisk_supports_host_protected_area.
-> 
-> I've tested the compilation with 2.5.69-mm6.
-> 
-> cu
-> Adrian
-> 
-> 
-> --- linux-2.5.69-mm6/drivers/ide/ide-disk.c.old	2003-05-18 14:55:31.000000000 +0200
-> +++ linux-2.5.69-mm6/drivers/ide/ide-disk.c	2003-05-18 14:56:17.000000000 +0200
-> @@ -1064,18 +1064,6 @@
->  #endif /* CONFIG_IDEDISK_STROKE */
->  
->  /*
-> - * Tests if the drive supports Host Protected Area feature.
-> - * Returns true if supported, false otherwise.
-> - */
-> -static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
-> -{
-> -	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
-> -	if (flag)
-> -		printk(KERN_INFO "%s: host protected area => %d\n", drive->name, flag);
-> -	return flag;
-> -}
-> -
-> -/*
->   * Compute drive->capacity, the full capacity of the drive
->   * Called with drive->id != NULL.
->   *
-> @@ -1101,8 +1089,6 @@
->  	drive->capacity48 = 0;
->  	drive->select.b.lba = 0;
->  
-> -	(void) idedisk_supports_host_protected_area(drive);
-> -
->  	if (id->cfs_enable_2 & 0x0400) {
->  		capacity_2 = id->lba_capacity_2;
->  		drive->head		= drive->bios_head = 255;
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Nope, I still see 0x4* commands for all devices != from USB. So more then
+a "move" is an extension.
 
-Andre Hedrick
-LAD Storage Consulting Group
+
+
+> >  			x = (irq&0x0f) ? (irq&0x0f) : 0x80;
+> > -			if (reg != 0x62)
+> > +			if (reg < 0x60)
+> >  				break;
+> >  			/* always mark OHCI enabled, as nothing else knows about this */
+> >  			x |= 0x40;
+>
+> Do you really need this bit 6 tweaking? In the current code it's only
+> effective for the 0x62 link where it is used to enable the OHCI in the
+> southbridge. For most other routing registers it's reserved according to
+> the docs - for IDEIRQ (0x61) however it has some different meaning.
+> Writing to it for older router revisions might probably make IDE
+> unuseable or hang the box in irq storm.
+>
+> Therefore, for your new 0x60-0x63 register layout I wouldn't suggest
+> writing this bit - unless we have some insight there.
+>
+> So, for your patch I'd suggest to check the PCI_REVISION_ID from the
+> config space and apply your new layout for this revision only.
+
+Instead of just trolling, isn't there a documentation about this chipset ?
+The SIS web site is pretty/very weak about docs.
+
+
+
+> > > Btw, have you tried with acpi interrupt routing enabled?
+> >
+> > Nope, since last time I checked ACPI was not in wonderful shape. I'll try
+> > though to see if it fixes the thing or if it'll add more issues.
+>
+> Ok, lets see. IIRC recent MS OSes don't require pci routing table anymore.
+> Furthermore we have seen too many broken routing tables. So it's probably
+> a big win, if it would work with ACPI...
+
+BTW, according to the Compaq documentation, the vanilla XP fails on this
+configuration either. You need their tweaked XP to have it working.
+
+
+
+- Davide
 

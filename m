@@ -1,68 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbUKMAZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbUKLX4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbUKMAZA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 19:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUKMAXm
+	id S262725AbUKLX4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUKLXx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 19:23:42 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:44481 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262745AbUKMAWO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 19:22:14 -0500
-Message-ID: <419553B3.7000802@us.ibm.com>
-Date: Fri, 12 Nov 2004 16:22:11 -0800
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc1-mm2 DIO failures
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Nov 2004 18:53:58 -0500
+Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:25092
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262724AbUKLXsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:48:24 -0500
+Message-Id: <200411130200.iAD20ppT005864@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 4/11] - UML - redundant code removal from signal delivery
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 Nov 2004 21:00:51 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+>From Bodo Stroesser - Change the do_signal interface to eliminate its
+argument.  Also, remove the calls from the system call handlers since
+they are redundant.  In all cases, pending signals are checked for in
+the interrupt handler.
+Temporarily, do_signal passes the current error to kern_do_signal.
 
-I see LTP DIO test failures on 2.6.10-rc1-mm2 while doing
-direct-IO write to filesystem files.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-This is due to the changes in generic_file_direct_IO(). I haven't
-looked at what exactly happening here (whats faling with page shoot 
-down). But we end up getting -EIO.
+Index: 2.6.9/arch/um/include/kern_util.h
+===================================================================
+--- 2.6.9.orig/arch/um/include/kern_util.h	2004-11-12 13:33:26.000000000 -0500
++++ 2.6.9/arch/um/include/kern_util.h	2004-11-12 13:41:43.000000000 -0500
+@@ -29,7 +29,7 @@
+ extern void syscall_segv(int sig);
+ extern int current_pid(void);
+ extern unsigned long alloc_stack(int order, int atomic);
+-extern int do_signal(int error);
++extern int do_signal(void);
+ extern int is_stack_fault(unsigned long sp);
+ extern unsigned long segv(unsigned long address, unsigned long ip, 
+ 			  int is_write, int is_user, void *sc);
+Index: 2.6.9/arch/um/kernel/process_kern.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/process_kern.c	2004-11-12 13:33:26.000000000 -0500
++++ 2.6.9/arch/um/kernel/process_kern.c	2004-11-12 13:41:43.000000000 -0500
+@@ -141,7 +141,7 @@
+ void interrupt_end(void)
+ {
+ 	if(need_resched()) schedule();
+-	if(test_tsk_thread_flag(current, TIF_SIGPENDING)) do_signal(0);
++	if(test_tsk_thread_flag(current, TIF_SIGPENDING)) do_signal();
+ }
+ 
+ void release_thread(struct task_struct *task)
+Index: 2.6.9/arch/um/kernel/signal_kern.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/signal_kern.c	2004-11-12 13:31:46.000000000 -0500
++++ 2.6.9/arch/um/kernel/signal_kern.c	2004-11-12 18:05:29.000000000 -0500
+@@ -159,9 +159,10 @@
+ 	return(0);
+ }
+ 
+-int do_signal(int error)
++int do_signal(void)
+ {
+-	return(kern_do_signal(&current->thread.regs, NULL, error));
++	return(kern_do_signal(&current->thread.regs, NULL, 
++			      PT_REGS_SYSCALL_RET(&current->thread.regs)));
+ }
+ 
+ /*
+Index: 2.6.9/arch/um/kernel/skas/syscall_user.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/skas/syscall_user.c	2004-11-12 13:24:54.000000000 -0500
++++ 2.6.9/arch/um/kernel/skas/syscall_user.c	2004-11-12 13:41:43.000000000 -0500
+@@ -10,10 +10,6 @@
+ #include "sysdep/ptrace.h"
+ #include "sysdep/sigcontext.h"
+ 
+-/* XXX Bogus */
+-#define ERESTARTSYS	512
+-#define ERESTARTNOINTR	513
+-#define ERESTARTNOHAND	514
+ 
+ void handle_syscall(union uml_pt_regs *regs)
+ {
+@@ -26,9 +22,6 @@
+ 	result = execute_syscall(regs);
+ 
+ 	REGS_SET_SYSCALL_RETURN(regs->skas.regs, result);
+-	if((result == -ERESTARTNOHAND) || (result == -ERESTARTSYS) || 
+-	   (result == -ERESTARTNOINTR))
+-		do_signal(result);
+ 
+ 	syscall_trace(regs, 1);
+ 	record_syscall_end(index, result);
+Index: 2.6.9/arch/um/kernel/tt/syscall_user.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/tt/syscall_user.c	2004-11-12 13:34:34.000000000 -0500
++++ 2.6.9/arch/um/kernel/tt/syscall_user.c	2004-11-12 13:41:43.000000000 -0500
+@@ -17,10 +17,6 @@
+ #include "syscall_user.h"
+ #include "tt.h"
+ 
+-/* XXX Bogus */
+-#define ERESTARTSYS	512
+-#define ERESTARTNOINTR	513
+-#define ERESTARTNOHAND	514
+ 
+ void syscall_handler_tt(int sig, union uml_pt_regs *regs)
+ {
+@@ -42,9 +38,6 @@
+ 	UPT_SC(regs) = sc;
+ 
+ 	SC_SET_SYSCALL_RETURN(sc, result);
+-	if((result == -ERESTARTNOHAND) || (result == -ERESTARTSYS) || 
+-	   (result == -ERESTARTNOINTR))
+-		do_signal(result);
+ 
+ 	syscall_trace(regs, 1);
+ 	record_syscall_end(index, result);
 
-  /*
-- * Called under i_sem for writes to S_ISREG files
-+ * Called under i_sem for writes to S_ISREG files.   Returns -EIO if 
-something
-+ * went wrong during pagecache shootdown.
-   */
-  ssize_t
-  generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec 
-*iov,
-@@ -2539,14 +2540,24 @@ generic_file_direct_IO(int rw, struct ki
-         struct address_space *mapping = file->f_mapping;
-         ssize_t retval;
-
-+       /*
-+        * If it's a write, unmap all mmappings of the file up-front.  This
-+        * will cause any pte dirty bits to be propagated into the 
-pageframes
-+        * for the subsequent filemap_write_and_wait().
-+        */
-+       if (rw == WRITE && mapping_mapped(mapping))
-+               unmap_mapping_range(mapping, 0, -1, 0);
-...
-
-
-Thanks,
-Badari
-
-
-  # ./diotest2
-diotest02    1  PASS  :  Read with Direct IO, Write without
-write failed:Input/output error
-[2] Write Direct failed
-diotest02    2  FAIL  :  Write with Direct IO, Read without
-diotest02    3  PASS  :  Read, Write with Direct IO
-diotest2 1/3 testblocks failed

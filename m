@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270514AbRHNINj>; Tue, 14 Aug 2001 04:13:39 -0400
+	id <S270518AbRHNIZU>; Tue, 14 Aug 2001 04:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270516AbRHNINa>; Tue, 14 Aug 2001 04:13:30 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:23562 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270514AbRHNINQ>; Tue, 14 Aug 2001 04:13:16 -0400
-Message-ID: <3B78DD58.3DE697D2@idb.hist.no>
-Date: Tue, 14 Aug 2001 10:12:08 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
-X-Accept-Language: no, en
+	id <S270520AbRHNIZL>; Tue, 14 Aug 2001 04:25:11 -0400
+Received: from mail12.svr.pol.co.uk ([195.92.193.215]:30233 "EHLO
+	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S270518AbRHNIZC>; Tue, 14 Aug 2001 04:25:02 -0400
+Message-ID: <3B78E062.30009@humboldt.co.uk>
+Date: Tue, 14 Aug 2001 09:25:06 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Mircea Ciocan <mirceac@interplus.ro>, linux-kernel@vger.kernel.org
-Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu>
-			<3B7822E5.9AE35D4A@interplus.ro> <m3itfru5rj.fsf@otr.mynet> <3B782868.95729E1E@interplus.ro>
-Content-Type: text/plain; charset=us-ascii
+To: tegeran@home.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: via82cxxx_audio driver bug?
+In-Reply-To: <01081307194201.00276@c779218-a> <3B77EFE6.9020106@humboldt.co.uk> <01081321090000.00204@c779218-a>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mircea Ciocan wrote:
-> 
->         OK, I realized is a hoax, I should look at the code first then cry the
-> wolf is comming :), but anyhow this crap is VERY effective in
-> demonstrating to a clueless IT manager that Linux is oh, sooo easy to
-> break in.
+Nicholas Knight wrote:
+> Keep in mind, this isn't a *total* lockup, it's a problem of the UI in 
+> XMMS and other applications becoming unresponsive. Audio skips from this 
+> are rare but not unknown to me.
 
-Good.  I don't want a clueless it manager administrating a linux box
-anyway.
-Of course the same applies to NT.  Try creating a unprivileged account
-named "administrator" with full access to a faked control panel.  Or
-for something a little easier - a fake program named "format" 
-or "deltree" that writes the same on screen as the real thing.  
-And makes the disk click by seeking. :-)
+What's difficult is that it doesn't happen to all of us. I can turn the 
+volume up and down through XMMS or through the Gnome mixer without the 
+slightest problem while playing MP3s. I haven't yet worked out the 
+pattern which marks when this occurs.
 
-Any os is sooo easy to simulate a break in. 
+Could people having this problem send me the following info, and I'll 
+summarise any pattern I spot:
 
->         So at least to learn something from this, is there a way to stop
-> completly that crap ???
+lspci -x of the Via southbridge function 5
+Motherboard
+Processor
+Kernel/driver versions
+AC97 Codec ID (IMPORTANT)
 
-Don't work for a manager that clueless - or tell him it's a hoax.
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 
-Helge Hafting

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbVAFPiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVAFPkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbVAFPiO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 10:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVAFPiN
+	id S262874AbVAFPkb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 10:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbVAFPid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 10:38:13 -0500
-Received: from cantor.suse.de ([195.135.220.2]:22724 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262868AbVAFPhk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 10:37:40 -0500
-Date: Thu, 6 Jan 2005 16:37:38 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
-       mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com, greg@kroah.com,
-       VANDROVE@vc.cvut.cz
-Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
-Message-ID: <20050106153738.GF1830@wotan.suse.de>
-References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050106145356.GA18725@infradead.org> <20050106150941.GE1830@wotan.suse.de> <20050106151429.GA19155@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jan 2005 10:38:33 -0500
+Received: from dialin-145-254-059-248.arcor-ip.net ([145.254.59.248]:25092
+	"EHLO spit.home") by vger.kernel.org with ESMTP id S262888AbVAFPgk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 10:36:40 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: kconfig: avoid temporary file
+Date: Thu, 6 Jan 2005 15:53:10 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20041230235146.GA9450@mars.ravnborg.org> <200501051340.31794.zippel@linux-m68k.org> <20050105181402.GA15675@mars.ravnborg.org>
+In-Reply-To: <20050105181402.GA15675@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050106151429.GA19155@infradead.org>
+Message-Id: <200501061553.11247.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 03:14:29PM +0000, Christoph Hellwig wrote:
-> On Thu, Jan 06, 2005 at 04:09:42PM +0100, Andi Kleen wrote:
-> > I would agree that it shouldn't be used for in tree code, but for
-> > out of tree code it is rather useful. There are other such feature macros
-> > for major driver interface changes too (e.g. in the network stack).
-> 
-> Which is the only place doing it.  We had this discussion in the past
-> (lastone I revolve Greg vetoed it).  We simply shouldn't clutter our
+Hi,
 
-I don't know who had this discussion and did this "decision", but 
-for record I disagree.
+On Wednesday 05 January 2005 19:14, Sam Ravnborg wrote:
 
-> headers for the sake of out of tree drivers - with LINUX_VERSION_CODE
-> we've already implemented a mechanism for out of tree drivers.
+> > - it didn't resize when the terminal changed.
+>
+> Resize support will not be added until it works.
 
-That's incredibly ugly. I always hate these checks in source code
-because it's never clear what exactly they are testing for. 
-And requires unreasonable work to find out when exactly the feature was 
-added. And it doesn't really work when there are backports in older trees.
-In short there are many drawbacks. HAVE_* is much nicer.
+Well, please keep it mind. I don't want to lose this feature, because you had 
+to rewrite everything once again.
 
--Andi
+> > - window layering, old windows are not removed and just drawn over (this
+> > was especially a problem with help texts).
+>
+> Did not see it as a problem as such - will try to play with it a bit
+> more. I have the original patch more or less blindly applied. For an
+> acceptable version a parts of it will be redone.
+
+Try to select help from an input or choice dialog - it's ugly.
+The current interface expects that only a single dialog window is visible at a 
+time, maybe it's better to keep this behaviour for the first version, do some 
+cleanups and add new features later.
+
+> I also noticed that ESC was not working as usual.
+
+Yes, now I remember that one too, but it's already some time ago, I tested 
+this. :)
+
+bye, Roman

@@ -1,93 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTGAVuf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 17:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTGAVuf
+	id S264060AbTGAWLo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 18:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbTGAWLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 17:50:35 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:27614
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263997AbTGAVud
+	Tue, 1 Jul 2003 18:11:44 -0400
+Received: from enterprise.dogan.ch ([213.144.137.42]:20641 "EHLO
+	enterprise.dogan.ch") by vger.kernel.org with ESMTP id S264060AbTGAWLl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 17:50:33 -0400
-Date: Tue, 1 Jul 2003 18:04:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdevoss.sgi.com@gtf.org
-Subject: [BK PATCHES] 2.5.x net driver merges
-Message-ID: <20030701220456.GA27122@gtf.org>
+	Tue, 1 Jul 2003 18:11:41 -0400
+Date: Wed, 2 Jul 2003 00:25:58 +0200
+From: Attila Kinali <kinali@gmx.net>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cdrom blocksize reset bug with 2.4.x kernels
+Message-Id: <20030702002558.7faf6c88.kinali@gmx.net>
+Organization: NERV
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/mixed;
+ boundary="Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(testing new email address)
+This is a multi-part message in MIME format.
 
-Linus, please do a
+--Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+Hi,
 
-Others may download
+After some discussion on the mplayer-users mailinglist about
+that for some scsi drives it's impossible to read a data cd
+after reading a vcd/scvd until the next reboot.
+(see http://mplayerhq.hu/pipermail/mplayer-users/2002-December/025696.html)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.73-bk9-netdrvr1.patch.bz2
+I found that there is a reset of the cdrom block size needed
+for those drives which doesnt restet it themselfs if a new
+cd is put in (looks like only a few scsi cdroms are affected)
 
-This will update the following files:
+Attached is a small patch for drivers/cdrom/cdrom.c that fixes=20
+this for the 2.4.20 kernel (and also for 2.4.21 as the code didn't
+change). It's reseting the blocksize when a cdrom is opened for
+the first time (meaning that a umount/mount cycle can reset
+the blocksize).
 
- drivers/net/e100/e100_main.c      |    3 
- drivers/net/tulip/de2104x.c       |    1 
- drivers/net/typhoon.c             |   10 +-
- drivers/net/wireless/airo.c       |   24 ++---
- drivers/net/wireless/netwave_cs.c |   32 +++----
- drivers/net/wireless/strip.c      |  169 ++++++++++++++++++++------------------
- 6 files changed, 121 insertions(+), 118 deletions(-)
+I run this code now for about half a year and didnt have any problems.
+But, as i didnt get any feadback from other people, i'm not sure if
+everything is correct.
 
-through these ChangeSets:
+Greetings
+			Attila Kinali
 
-<mzyngier@freesurf.fr> (03/07/01 1.1522)
-   [netdrvr de2104x] quiet link timer
-   
-   (can be enabled by ethtool)
+--=20
+Emacs ist f=FCr mich kein Editor. F=FCr mich ist das genau das gleiche, als=
+ wenn
+ich nach einem Fahrrad (f=FCr die Sonntagbr=F6tchen) frage und einen pangal=
+aktischen
+Raumkreuzer mit 10 km Gesamtl=E4nge bekomme. Ich wei=DF nicht, was ich dami=
+t soll.
+		-- Frank Klemm, de.comp.os.unix.discussion
 
-<gandalf@wlug.westbo.se> (03/06/27 1.1521)
-   [PATCH] fix use-after-free in e100
+--Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8
+Content-Type: application/octet-stream;
+ name="cdrom-blocksize.patch"
+Content-Disposition: attachment;
+ filename="cdrom-blocksize.patch"
+Content-Transfer-Encoding: base64
 
-<daniel.ritz@gmx.ch> (03/06/27 1.1520)
-   [PATCH] alloc_etherdev for netwave_cs.c
-   
-   erm...i didn't actually compile it...
-   sorry. corrected patch below.
-   
-   -daniel
-   
-   On Fri June 27 2003 00:45, Daniel Ritz wrote:
-   > cleans up netwave_cs.c to use alloc_etherdev instead of allocating the
-   > device out of the private data structure. compile tested only.
-   > against 2.5.73-bk
+LS0tIGNkcm9tLmMub3JpZwkyMDAzLTAxLTA1IDE1OjAyOjUzLjAwMDAwMDAwMCArMDEwMAorKysg
+Y2Ryb20uYwkyMDAzLTAxLTA1IDE1OjA1OjQ0LjAwMDAwMDAwMCArMDEwMApAQCAtNDc1LDcgKzQ3
+NSwxNSBAQAogCWVsc2UKIAkJcmV0ID0gb3Blbl9mb3JfZGF0YShjZGkpOwogCi0JaWYgKCFyZXQp
+IGNkaS0+dXNlX2NvdW50Kys7CisJaWYgKCFyZXQpCisJeworCQljZGktPnVzZV9jb3VudCsrOwor
+CQlpZihjZGktPnVzZV9jb3VudCA9PSAxKQorCQl7CisJCQkvKiByZXNldCBibG9ja3NpemUgaW4g
+Y2FzZSBpdCdzIHdyb25nICovCisJCQljZHJvbV9zd2l0Y2hfYmxvY2tzaXplKGNkaSxDRF9GUkFN
+RVNJWkUpOworCQl9CisJfQogCiAJY2RpbmZvKENEX09QRU4sICJVc2UgY291bnQgZm9yIFwiL2Rl
+di8lc1wiIG5vdyAlZFxuIiwgY2RpLT5uYW1lLCBjZGktPnVzZV9jb3VudCk7CiAJLyogRG8gdGhp
+cyBvbiBvcGVuLiAgRG9uJ3Qgd2FpdCBmb3IgbW91bnQsIGJlY2F1c2UgdGhleSBtaWdodAo=
 
-<daniel.ritz@gmx.ch> (03/06/27 1.1519)
-   [PATCH] strip.c: don't allocate net_device as part of private struct
-   
-   hi jeff
-   
-   cleans up strip.c not to allocate struct net_device as part of the private
-   structure. use a separate kmalloc (and kfree). compile tested only.
-   against 2.5.73-bk
-   
-   -daniel
-
-<daniel.ritz@gmx.ch> (03/06/27 1.1518)
-   [PATCH] module ref counting for airo.c
-   
-   clean up airo.c: remove MOD_(INC|DEC)_USE_COUNT, set the owner field instead.
-   compile tested only. against 2.5.73-bk
-
-<dave@thedillows.org> (03/06/27 1.1348.28.1)
-   Fix misreporting of card type and spurious "already scheduled" messages.
-
-<dave@thedillows.org> (03/02/22 1.889.238.1)
-   Use a non-zero rx_copybreak to avoid charging a full MTU to the
-   socket on tiny packets.
-   
-   Dave Miller suggested 256, I used 200 to be more consistent with the
-   other network drivers.
-
+--Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8--

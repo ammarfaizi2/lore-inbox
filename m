@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261792AbSJIOxO>; Wed, 9 Oct 2002 10:53:14 -0400
+	id <S261814AbSJIOix>; Wed, 9 Oct 2002 10:38:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261793AbSJIOxO>; Wed, 9 Oct 2002 10:53:14 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:11836 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S261792AbSJIOxL>; Wed, 9 Oct 2002 10:53:11 -0400
-Date: Wed, 9 Oct 2002 16:58:50 +0200
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Ducrot Bruno <poup@poupinou.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] I8042_CMD_AUX_TEST oddities for some mouses.
-Message-ID: <20021009145850.GA13709@poup.poupinou.org>
-References: <20021008144523.GA983@poup.poupinou.org> <20021008180913.A19339@ucw.cz>
+	id <S261815AbSJIOix>; Wed, 9 Oct 2002 10:38:53 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:34067 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261814AbSJIOiv>; Wed, 9 Oct 2002 10:38:51 -0400
+Date: Wed, 9 Oct 2002 10:44:14 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list
+Message-ID: <20021009144414.GZ26771@phunnypharm.org>
+References: <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021008180913.A19339@ucw.cz>
-User-Agent: Mutt/1.3.28i
-From: Ducrot Bruno <poup@poupinou.org>
+In-Reply-To: <3DA4392B.8070204@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 06:09:13PM +0200, Vojtech Pavlik wrote:
-> On Tue, Oct 08, 2002 at 04:45:23PM +0200, Ducrot Bruno wrote:
+On Wed, Oct 09, 2002 at 10:11:55AM -0400, Jeff Garzik wrote:
+> A couple of suggestions for the output...
 > 
-> > Some aux ports report false values when we send a I8042_CMD_AUX_TEST,
-> > which prevent an 'good' probe :(
-> > 
-> > The values I am aware are 0x01 and PSMOUSE_RET_ACK (taken from FreeBSD).
-> > 
-> > My own accupoint return 0x02.  I suggest then to do something like
+> The BitKeeper header is unfortunately less than useful at times -- often 
+> multiple cset descriptions wind up in the header -- so I would suggest 
+> exporting the patch with "-hdu" instead of "-du", and then manually 
+> adding the changeset info and description at the top.
 > 
-> Do you have any accupoint docs?
+> Also, diffstat output prepended would be nice too.
 
-No.  Sorry.
-
-This is an accupoint II, with specs only available via a NDA :((
-I will be very happy to get them, because this one have 4 buttons,
-and 2 of them are 'programable' (as claimed by toshiba),
-but I don't know how.
-
-
-> 
-> > attached file (but perhaps with a config, or force option)?
-> 
-> I guess the only way is to remove the test altogether, as the values are
-> defined:
-> 
-> 00 : OK
-> 01 : Clock Error
-> 02 : Data Error
-> 03 : Clock + Data Error
-> fa : Undefined (OK)
-> ff : Unknown Error (common => OK)
-> 
-> Other values don't happen.
-> 
-> Most controllers return 00. Some ff, some fa. Now if we're going to take
-> 01 and 02 as OK as well, then everything is OK and we don't have to test
-> at all.
-
-Ok.  Agreed.
-
-I think also that this perticuliar problem occur _only_
-with the toshiba satellite 3000-100 and 3000-400 (as reported by FBSD users),
-so I guess I have to send a patch for a dmi_scan.c workaround.
-
-Cheers,
+Just please make sure that the changeset info where it describes all the
+files in the delta. I.e. the ones that are moved, deleted, new. There's
+no way to deduce moves from the patch.
 
 -- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262077AbSJNROn>; Mon, 14 Oct 2002 13:14:43 -0400
+	id <S262076AbSJNROh>; Mon, 14 Oct 2002 13:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262079AbSJNROn>; Mon, 14 Oct 2002 13:14:43 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:32678 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S262077AbSJNROl> convert rfc822-to-8bit; Mon, 14 Oct 2002 13:14:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [RFC] Simple NUMA scheduler patch
-Date: Mon, 14 Oct 2002 19:19:03 +0200
-User-Agent: KMail/1.4.1
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <200210021954.39358.efocht@ess.nec.de> <200210051834.31031.efocht@ess.nec.de> <1034033845.1280.514.camel@dyn9-47-17-164.beaverton.ibm.com>
-In-Reply-To: <1034033845.1280.514.camel@dyn9-47-17-164.beaverton.ibm.com>
+	id <S262077AbSJNROh>; Mon, 14 Oct 2002 13:14:37 -0400
+Received: from hank-fep6-0.inet.fi ([194.251.242.201]:35323 "EHLO
+	fep06.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S262076AbSJNROg>; Mon, 14 Oct 2002 13:14:36 -0400
+Message-ID: <3DAAFCF9.A1CACE33@pp.inet.fi>
+Date: Mon, 14 Oct 2002 20:20:57 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210141919.03812.efocht@ess.nec.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loop on top of NFS hangs kernel
+References: <3DAAF2DF.9010809@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
+Carl-Daniel Hailfinger wrote:
+> I have a small problem with my configuration which results in a deadlock
+> after ~1 minute. As soon as the copying hangs, I can still switch to another
+> console but not execute any command or write anything to any disk. SysRq-S
+> and SysRq-U both never complete and the output of SysRq-P or SysRq-T never
+> hits the disk.
+[snip]
+> Kernel is 2.4.18-SuSE. I'm willing to try any 2.4 (or for that matter, 2.5)
+> kernel or additional patches if this helps.
+> 
+> _This hang could also be reproduced without any encryption._
 
-On Tuesday 08 October 2002 01:37, Michael Hohnbaum wrote:
-> > I'll post some numbers comparing O(1), pooling scheduler, node affine
-> > scheduler and RSS based affinity in a separate email. That should help
-> > to decide on the direction we should move.
->
-> One other piece to factor in is the workload characteristics - I'm
-> guessing that Azusa is beng used more for scientific workloads which
-> tend to be a bit more static and consumes large memory bandwidth.
+Mainline loop is buggy beyod belief (and so was SuSE's last time I looked).
+Can you try to reproduce that error with this loop crypto package:
 
-Yes, I agree. We're trying to keep HPC tasks on their nodes because we
-KNOW that they are memory bandwidth and latency hungry. Therefore I
-believe HPC like jobs are good benchmarks. And easier to set up than
-database tests (which can also demand very high bandwidths).
+http://mail.nl.linux.org/linux-crypto/2002-10/msg00015.html
 
-> > machine. For me that means the maximum memory bandwidth available for
-> > each task, which you only get if you distribute the tasks equally among
-> > the nodes.
->
-> Depends on the type of job.  Some actually benefit from being on the
-> same node as other tasks as locality is more important than bandwidth.
-> I am seeing some of this - when I get better distribution of load across
-> nodes, performance goes down for sdet and kernbench.
-
-This is a difficult issue. Because we're trying to get higher
-performance out of a multitude of benchmarks (ever tried AIM7? It never
-execs... so good bye initial balancing). But we also try to find a
-solution which is good for any kind of NUMA machine. Currently we
-experiment on the very different architectures:
- - Azusa : remote/local latency ratio 1.6, but no node level cache
- - NUMAQ : remote/local latency ratio 20, additional node level cache.
-
-My current approach to the tuning parameters for adapting to the
-machine is over the steal delays. Yours is over the load imbalance
-needed to trigger a steal from a remote node. Maybe we'll even need more
-buttons to be able to make these fit to any NUMA machine...
+Twofish cipher in the 'ciphers' package is SuSE compatible with appropriate
+mount option. Read README files in the tarballs for more information.
 
 Regards,
-Erich
-
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

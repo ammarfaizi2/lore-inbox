@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284671AbRLEUQj>; Wed, 5 Dec 2001 15:16:39 -0500
+	id <S284659AbRLEUNq>; Wed, 5 Dec 2001 15:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284677AbRLEUP3>; Wed, 5 Dec 2001 15:15:29 -0500
-Received: from leeloo.zip.com.au ([203.12.97.48]:35847 "EHLO
-	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S284674AbRLEUOA>; Wed, 5 Dec 2001 15:14:00 -0500
-Message-ID: <3C0E7FEE.2770EDF4@zip.com.au>
-Date: Wed, 05 Dec 2001 12:13:34 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
-In-Reply-To: <Pine.LNX.4.30.0112051713200.2297-100000@mustard.heime.net>
+	id <S284651AbRLEUNj>; Wed, 5 Dec 2001 15:13:39 -0500
+Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:11012 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284646AbRLEUMP>;
+	Wed, 5 Dec 2001 15:12:15 -0500
+Date: Wed, 5 Dec 2001 12:11:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Michael Menegakis <michail@manegakis.freeserve.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Camera
+Message-ID: <20011205121129.I27826@kroah.com>
+In-Reply-To: <E16Bi9l-0005Zp-00.2001-12-05-19-56-37@imailg1.svr.pol.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E16Bi9l-0005Zp-00.2001-12-05-19-56-37@imailg1.svr.pol.co.uk>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 07 Nov 2001 14:40:29 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> 
-> hi all
-> 
-> I've just upgraded to 2.4.16 to get /proc/sys/vm/(max|min)-readahead
-> available. I've got this idea...
-> 
-> If lots of files (some hundered) are read simultaously, I waste all the
-> i/o time in seeks. However, if I increase the readahead, it'll read more
-> data at a time, and end up with seeking a lot less.
-> 
-> The harddrive I'm testing this with, is a cheap 20G IDE drive.
+On Wed, Dec 05, 2001 at 07:47:16PM +0000, Michael Menegakis wrote:
+> There is a USB WebCam called l'elegant by DigitalDreams. It is quite 
+> succesfull here in UK but it doesn't seem to be directly supported by the 
+> Linux Kernel. Can you redirect me to right module that may be compatible with 
+> it? Or let me know the address of the webcams maintainer, if there is any. 
 
-/proc/sys/vm/*-readhead is a no-op for IDE.  It doesn't do
-anything.   You must use
+Please look at the device list linked off of http://www.linux-usb.org/
+to see if this device is supported.  That site also has the addresses
+for the mailing lists that contain people who could help you out with
+this question.
 
-	echo file_readahead:100 > /proc/ide/ide0/hda/settings
+Hope this helps,
 
-to set the readhead to 100 pages (409600 bytes).
-
--
+greg k-h

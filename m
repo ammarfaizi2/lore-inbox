@@ -1,36 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318716AbSHQTs5>; Sat, 17 Aug 2002 15:48:57 -0400
+	id <S318711AbSHQTro>; Sat, 17 Aug 2002 15:47:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318717AbSHQTs5>; Sat, 17 Aug 2002 15:48:57 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:25586 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318716AbSHQTs4>; Sat, 17 Aug 2002 15:48:56 -0400
-Subject: Re: IDE?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Kellett <lypanov@kde.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020817132201.GA3556@ezri.capsi>
-References: <200208171302.GAA07962@adam.yggdrasil.com> 
-	<20020817132201.GA3556@ezri.capsi>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Aug 2002 20:51:09 +0100
-Message-Id: <1029613869.4809.26.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318712AbSHQTrn>; Sat, 17 Aug 2002 15:47:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47322 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318711AbSHQTrn>; Sat, 17 Aug 2002 15:47:43 -0400
+Date: Sat, 17 Aug 2002 21:51:36 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <ak@muc.de>
+cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.4.20-pre1
+In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0208172130200.2879-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-17 at 14:22, Alexander Kellett wrote:
-> So, pleeease Bartlomiej/Alan/Jens, whoever. Someone step up
-> to get most/some of Marcin' cleanup patches into 2.5 again.
+On Mon, 5 Aug 2002, Marcelo Tosatti wrote:
 
-Not interested. Its easier to go back to functionally correct code and
-do the job nicely than to fix the 2.5.3x code. Right now I'm working on
-Andre's current code in 2.4.20pre2-ac* starting off with only provably
-identical transforms between AndreCode and C and documenting it.
+>...
+> Summary of changes from v2.4.19 to v2.4.20-pre1
+> ============================================
+>...
+> <ak@muc.de> (02/08/05 1.657)
+> 	[PATCH] Ftape 64bit/x86-64 fixes
+>...
 
-Alan
+This broke the modular building of ftape. In -pre3:
+
+<--  snip  -->
+
+...
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.20-pre3/kernel/drivers/char/ftape/lowlevel/ftape.o
+depmod:         i8253_lock
+...
+
+<--  snip  -->
+
+
+Alan made the following patch to fix it (already in -ac):
+
+
+--- linux.20pre2/arch/i386/kernel/time.c	2002-08-13 13:58:33.000000000 +0100
++++ linux.20pre2-ac3/arch/i386/kernel/time.c	2002-08-12 15:17:04.000000000 +0100
+@@ -31,6 +31,7 @@
+  */
+
+ #include <linux/errno.h>
++#include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+ #include <linux/param.h>
+@@ -116,6 +117,8 @@
+
+ spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
+
++EXPORT_SYMBOL(i8253_lock);
++
+ extern spinlock_t i8259A_lock;
+
+ #ifndef CONFIG_X86_TSC
+
+
+
+cu
+Adrian
+
+
+
 

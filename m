@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbSBJWFw>; Sun, 10 Feb 2002 17:05:52 -0500
+	id <S284144AbSBJWRj>; Sun, 10 Feb 2002 17:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284300AbSBJWFm>; Sun, 10 Feb 2002 17:05:42 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:7119 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S282967AbSBJWFh>; Sun, 10 Feb 2002 17:05:37 -0500
-Date: Sun, 10 Feb 2002 23:05:29 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@hades.uni-trier.de
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: status on northbridge disconnection apm saving?
-In-Reply-To: <Pine.LNX.4.33.0202080727400.3223-100000@mf1.private>
-Message-ID: <Pine.LNX.4.40.0202102303020.25882-100000@hades.uni-trier.de>
+	id <S284300AbSBJWR2>; Sun, 10 Feb 2002 17:17:28 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:48394 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S284144AbSBJWRN>; Sun, 10 Feb 2002 17:17:13 -0500
+Date: Sun, 10 Feb 2002 23:17:12 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Dave Jones <davej@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch][looking for maintainers] jiffies compare fixups
+In-Reply-To: <Pine.LNX.4.33.0202102137560.29486-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0202102308070.31683-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Wayne Whitney wrote:
+On Sun, 10 Feb 2002, Dave Jones wrote:
 
-> Well, if you have a KT133 (or even KT133A?), I provided the diffs on the
-> northbridge register settings, there were only about 6 points of
-> difference.  So you could check how your BIOS programs them and then
-> explicitly change them with setpci.
+> On Sun, 10 Feb 2002, Tim Schmielau wrote:
 >
-> Wayne
+> > On the other hand, about the same fraction of the mails weren't replied
+> > to, while these patches also haven't yet appeared in Marcelo's tree.
+>
+> Your pine seems to be eating trailing whitespace making a lot of these
+> not apply. This could be one of the reasons why they haven't been
+> accepted either by the maintainer, or marcelo/linus.
+>
 
-i'm sorry ... i have no kt133/kt133a chipset ... i have a kt266a chipset
-... i will look whether i could fiddle out how to deactivate the pci
-master read caching in my board to look whether i get the problems to.
-(that is the problem: i have no problems with the patch and can't
-reproduce the problems on my board ... so i can't do testing stuff to find
-out how to correct the problems)...
+Just to set the record straight: I was not complaining about Marcelo or
+Linus. Marcelo did apply the (maintainer approved) patches I sent directly
+to him to the next prerelease, while I have not yet submitted any patches
+to Linus for 2.5.
 
-daniel
-
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
+Tim
 

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbTESSqK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 14:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTESSqK
+	id S262598AbTESSnT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 14:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTESSnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 14:46:10 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:16647 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262718AbTESSqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 14:46:07 -0400
-Subject: 2.4 SCSI bug fix tree open
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: marcelo@conectiva.com.br
+	Mon, 19 May 2003 14:43:18 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30646
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262598AbTESSnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 14:43:17 -0400
+Subject: Re: recursive spinlocks. Shoot.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: ptb@it.uc3m.es
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305191727.h4JHRih00517@oboe.it.uc3m.es>
+References: <200305191727.h4JHRih00517@oboe.it.uc3m.es>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 19 May 2003 13:58:59 -0500
-Message-Id: <1053370740.1826.16.camel@mulgrave>
+Organization: 
+Message-Id: <1053367077.29227.5.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 May 2003 18:57:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several people have complained that 2.4 SCSI bug fixes are getting lost,
-so I've opened a bitkeeper tree at
+On Llu, 2003-05-19 at 18:27, Peter T. Breuer wrote:
+> :-). Well, whaddya know. Both read and write of a int (declared
+> volatile) are atomic on ia32. 
 
-http://linux-scsi.bkbits.net/scsi-misc-2.4
+Except when they aren't. There are ppro SMP issues about ordering of
+unlocked stores in some situations. Thats why the PPro generates 
+lock movb $0, foo for the unlock on PPro
 
-to hold them.
-
-Patches going into this tree should be small, well documented bug fixes
-to the current SCSI code (i.e. not driver updates, just bug fixes).
-
-If you want a patch to go in, send it to linux-scsi@vger.kernel.org with
-a description of the problem and the fix.
-
-James
+Fixable however by PPro specific lock ops
 
 

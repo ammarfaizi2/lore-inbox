@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279467AbRKASVL>; Thu, 1 Nov 2001 13:21:11 -0500
+	id <S279470AbRKASWL>; Thu, 1 Nov 2001 13:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279470AbRKASVB>; Thu, 1 Nov 2001 13:21:01 -0500
-Received: from toad.com ([140.174.2.1]:63246 "EHLO toad.com")
-	by vger.kernel.org with ESMTP id <S279467AbRKASUv>;
-	Thu, 1 Nov 2001 13:20:51 -0500
-Message-ID: <3BE19258.2E35EE3C@mandrakesoft.com>
-Date: Thu, 01 Nov 2001 13:20:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S279473AbRKASWC>; Thu, 1 Nov 2001 13:22:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:42503 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279470AbRKASVy>;
+	Thu, 1 Nov 2001 13:21:54 -0500
+Date: Thu, 1 Nov 2001 19:21:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: Andi Kleen <ak@suse.de>, joris@deadlock.et.tudelft.nl,
         linux-kernel@vger.kernel.org
-Subject: Re: Stress testing 2.4.14-pre6
-In-Reply-To: <Pine.LNX.4.33.0111010903280.11617-100000@penguin.transmeta.com> <3BE18402.9F958EDC@mandrakesoft.com> <20011101191521.H3265@suse.de>
+Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
+Message-ID: <20011101192153.A30903@wotan.suse.de>
+In-Reply-To: <20011101184511.A22234@wotan.suse.de> <200111011809.VAA26876@ms2.inr.ac.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <200111011809.VAA26876@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Nov 01, 2001 at 09:09:07PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Thu, Nov 01, 2001 at 09:09:07PM +0300, A.N.Kuznetsov wrote:
+> > ugly imho; if the feature exists it should be implemented for the full
+> > packet functionality which includes binding to protocols.
 > 
-> On Thu, Nov 01 2001, Jeff Garzik wrote:
-> > Linus Torvalds wrote:
-> > > Anyway, I seriously doubt this explains any real-world bad behaviour: the
-> > > window for the interrupt hitting a half-way updated list is something like
-> > > two instructions long out of the whole memory freeing path. AND most
-> > > interrupts don't actually do any allocation.
-> >
-> > Network Rx interrupts do....  definitely not as frequent as IDE
-> > interrupts, but not infrequent.
+> This is a silly abuse. Sniffers do not bind to protocols, should not
+> do this and have no reasons to do this.
+
+When you e.g. have a TCP sniffer it makes sense to only bind it to ETH_P_IP.
+
+If the sll_protocol field is not fully supported it should be removed.
+
 > 
-> Which IDE interrupts allocate memory?!
+> 
+> >  I think the patch should be added.
+> 
+> That which adds all the packet sockets to ptype_all? Do you jest? :-)
 
-Sorry, I meant as in, IDE interrupts occur more frequently than Rx
-interrupts.
+Do you worry about the handling of hundreds of packet sockets? 
 
-English is my first language... really.
+Using the ptype hash before was nice, but does not look like it is absolutely
+required. The overhead this way is not much bigger for a reasonable number
+of packet sockets (and for a large number the current ptype hash is likely 
+inadequate anyways) 
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+
+-Andi

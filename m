@@ -1,66 +1,112 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316831AbSFKFan>; Tue, 11 Jun 2002 01:30:43 -0400
+	id <S316832AbSFKFlC>; Tue, 11 Jun 2002 01:41:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316832AbSFKFam>; Tue, 11 Jun 2002 01:30:42 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:49134 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S316831AbSFKFal>; Tue, 11 Jun 2002 01:30:41 -0400
-Date: Mon, 10 Jun 2002 22:31:45 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3D058B41.6010601@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S316835AbSFKFlC>; Tue, 11 Jun 2002 01:41:02 -0400
+Received: from [61.132.182.1] ([61.132.182.1]:14396 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id <S316832AbSFKFlB>;
+	Tue, 11 Jun 2002 01:41:01 -0400
+Date: Tue, 11 Jun 2002 13:36:25 +0800 (CST)
+From: Wang Hui <whui@mail.ustc.edu.cn>
+X-X-Sender: <whui@mail>
+To: ganda utama <gndutm@netscape.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What dose 'general protection fault: 0000' mean?
+In-Reply-To: <3D057CDD.3070307@netscape.net>
+Message-ID: <Pine.GSO.4.31L2A.0206111326530.6179-100000@mail>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Roland Dreier <roland@topspin.com>
-> Date: 10 Jun 2002 21:39:27 -0700
-> 
->        David> How about allocating struct something using pci_pool?
->    
->    The problem is the driver can't safely touch field1 or field2 near the
->    DMA (it might pull the cache line back in too soon, or dirty the cache
->    line and have it written back on top of DMA'ed data)
-> 
-> Oh duh, I see, then go to making the thing a pointer to the
-> dma area.
+Thanks to Ganda.
 
-If it's going to be a pointer, it might as well be normal kmalloc data,
-avoiding obfuscation of the memory model used by USB device drivers.
-(They don't have to worry about DMA addresses, which IMO is a feature.)
+In fact, I am implementing RFC3095 to linux kernel.  I want to make it
+a kernel module.
 
-Seems like there are two basic options for how to handle all this.
+The basic function of this module could be described as the following 2
+parts:
 
-(a) Expose the dma/cache interaction to device drivers, so
-     they can manage (and prevent) bad ones like the cacheline
-     sharing scenarios.
+1. The module will modify the outgoing packet(ipv6 or IPv6 ) and compress
+   the IP header.(we will do flow recognition and update some context
+   for further compress stuff here.)
 
-(b) Require drivers to provide I/O buffers that are slab/page/...
-     pointers from some API that prevents such problems.
-
-I think (a) is more or less a variant of the existing alignment
-requirements that get embedded in ABIs, but which still show up
-in code that's very close to the hardware.  Many device driver
-folk are familiar with them, or performance tuners, but not so
-many folk doing USB device drivers would be.  (They are thankfully
-far from host controller hardware and its quirks!)
-
-Personally I'd avoid (b) since I like to allocate memory all at
-once in most cases ... lots fewer error cases to cope with (or,
-more typically _not_ cope with :).
-
-One question is whether to support only one of them, or allow both.
-In either case the DMA-mapping.txt will need to touch on the issue.
-
-- Dave
+2. The other part of this module will de-compress  this compressed
+   IP header. And then passes the de-compressed packet up to IP(v4 or v6)
+   module to do the normal recieving processes.
 
 
+To realize the function 1, I use this tricks: I modified all the kernel's
+active network device's dev->hard_start_xmit function pointer to be my own
+function named as 'my_output_handler', and backuped the original
+'dev->hard_start_xmit' funtion pointer witch will be called inside
+'my_output_handler' as to send out the modified data.
+
+As to realize function 2, I would like to omitted here.  For it has
+nothing to do with this current panic.
+
+All the above funtions are implemented and I tested the codes via my
+loopback network device(lo) using the address of '::1' or '127.0.0.1'.
+The codes run OK in the lo device.  But when I put my codes to the real
+ethernet device which is a realtek 8139 network card, I got kernel panic.
+I dont know what to do with it?  I guess this panic is due to something
+difference between loopback network device and the real network device
+drivers. But I dont know exactly what is wrong, or say, that what should I
+do to avoid this panic?  Any rules to write safe code here?
+
+Many thanks again.
+
+Best regards,
+Wang.
+
+
+
+
+
+On Tue, 11 Jun 2002, ganda utama wrote:
+
+> it seems that you remove the  process that handles this
+> interupt (perhaps by using kfree). or remove the module,
+> while the kernel still think that the handler is still there...
+>
+> ganz
+>
+>
+> whui@mail.ustc.edu.cn wrote:
+>
+> >Hi, all,
+> >
+> >I am coding a linux kernel module, but when I run my testing code I got
+> >a kernel panic.  And the panic screen said:
+> >
+> >general protection fault:0000
+> >CPU: 0
+> >EIP: 0010:[<d289a213>]       Tainted: P
+> >EFLAGS: 00010297
+> >............
+> >............
+> >Code: 8b 02 8b 55 08 89 02 8b 55 0c 8b 42 04 8b 55 08 89 42 04 8b
+> ><0> Kernel panic: Aiee, killing interrupt handler!
+> >In interrupt handler - not syncing
+> >
+> >==================================================
+> >
+> >I am a newbie to linux kernel hacking.  I dont know how to find out
+> >where is the fault code.  :(  Could anyone give me some hints???
+> >
+> >Thanks a lot in advance!!
+> >
+> >Regards,
+> >Wang Hui.
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
+>
 
 

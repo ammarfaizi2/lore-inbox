@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268061AbTAIXyi>; Thu, 9 Jan 2003 18:54:38 -0500
+	id <S268056AbTAJACk>; Thu, 9 Jan 2003 19:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268065AbTAIXyh>; Thu, 9 Jan 2003 18:54:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6415 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268061AbTAIXy3>; Thu, 9 Jan 2003 18:54:29 -0500
-Date: Thu, 9 Jan 2003 15:35:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-In-Reply-To: <20030110021904.A15863@localhost.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268057AbTAJACk>; Thu, 9 Jan 2003 19:02:40 -0500
+Received: from vger.timpanogas.org ([216.250.140.154]:32393 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S268056AbTAJACi>; Thu, 9 Jan 2003 19:02:38 -0500
+Date: Thu, 9 Jan 2003 18:22:43 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: UnitedLinux violating GPL?
+Message-ID: <20030109182243.A7284@vger.timpanogas.org>
+References: <20030109222748.GA3993@gtf.org> <20030109164534.A6653@vger.timpanogas.org> <20030109224616.GA6282@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030109224616.GA6282@gtf.org>; from jgarzik@pobox.com on Thu, Jan 09, 2003 at 05:46:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 10 Jan 2003, Ivan Kokshaysky wrote:
+On Thu, Jan 09, 2003 at 05:46:16PM -0500, Jeff Garzik wrote:
+> On Thu, Jan 09, 2003 at 04:45:34PM -0700, Jeff V. Merkey wrote:
+> > 
+> > 
+> > Jeff,
+> > 
+> > They only have to provide it if someone asks for it.  I suggest sending them 
+> > a request asking for it to be disclosed and copy LKML on the request.  
 > 
-> PCI-PCI, PCI-ISA bridges - probably, but not host bridges. On x86 they
-> often have quite a few BARs, like AGP window, AGP MMIO, power management
-> etc., which we cannot ignore.
+> I had hoped that a member in good standing of the Linux community would
+> not put such roadblocks in place.  :(
 
-Oh, but we _can_ ignore it.
 
-All those things are stuff that if the kernel doesn't use them, the kernel 
-doesn't even need to know they are there. 
+Jeff,
 
-Sure, if we support AGP, we need to see the aperture size etc, but then 
-we'd have the AGP driver just do the "pci_enable_dev()" thing to work it 
-out.
+I do not understand what this means.  Just because they did not volunteer it
+does not imply some sort of conspiracy.  There are a lot of patches I make
+locally for my work, but I don't just throw everyone of them out to the 
+whole planet since a lot of them would probably get rejected, and most folks
+probably could care less.  At any rate, I was not being an obstructist 
+or anything.  Perhaps they overlooked it or perhaps it's available 
+somewhere else.  Simplest approach is always the best -- just ask them
+and post to LKML so they know other folks are probably interested.
 
-The only real reason to worry about BAR sizing is really to do resource
-discovery in order to make sure that out bridges have sufficiently big
-windows for the IO regions. Agreed?
+Some of the patches I;ve made to Alan's code I am certain he would look 
+at and say something like "well there's goes Jeff again smoking his
+pipe" or something -- but of course only in the nicest sort of way.
 
-And that should be a non-issue especially on a host bridge, since we 
-almost certainly don't want to reprogram the bridge windows there anyway.
+:-)
 
-So I'd like to make the _default_ be to probe the minimal possible, 
-_especially_ for host bridges. Then, the PCI quirks could be used to 
-expand on that default.
+Jeff
 
-		Linus
-
+> 
+> 
+> > Jeff
+> > (a great name to have)
+> 
+> agreed :)
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

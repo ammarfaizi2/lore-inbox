@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261688AbSJAOxr>; Tue, 1 Oct 2002 10:53:47 -0400
+	id <S261702AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbSJAOxr>; Tue, 1 Oct 2002 10:53:47 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:47862 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S261688AbSJAOxq>;
-	Tue, 1 Oct 2002 10:53:46 -0400
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
-References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain>
-	<3D99A2F2.70102@oracle.com> <dnelbaclvo.fsf@magla.zg.iskon.hr>
-	<3D99B672.2090805@oracle.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Tue, 01 Oct 2002 16:59:08 +0200
-In-Reply-To: <3D99B672.2090805@oracle.com> (Alessandro Suardi's message of
- "Tue, 01 Oct 2002 16:51:30 +0200")
-Message-ID: <dnsmzqb3yb.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S261703AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16624 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261702AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
+Date: Tue, 1 Oct 2002 17:05:46 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre8-ac3
+In-Reply-To: <200209302029.g8UKTfG12427@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0210011704410.10143-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi <alessandro.suardi@oracle.com> writes:
 
-> Zlatko Calusic wrote:
->
->>>I'm glad to report that Oracle 9.2 is now able to start once again
->>>  on 2.5.x series :)
->>>
->>>Thanks, cool work as always !
->> Was it a known problem for some time?
->> I haven't been testing 2.5.x series for some time, and also haven't
->> read linux-kernel list last few months, so I don't know exact history
->> of the bug. If you can enlighten me, I'm just curious... :)
->> I rememeber other more complicated bugs from the older 2.5.x kernels,
->> and now I'll test if they're solved in newer ones. I might need some
->> help if they still exist (could you lend me a hand if that's the
->> case?) as I was getting Oracle internal error - coredump - with only
->> one meaningful sentence (at least to me :)). Google was silent on the
->> case. :(
->
-> I reported the issue on l-k the other day:
->
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0209.3/1691.html
+FYI:
 
-I see. Same day I decided to dig deeper. :)
+hd.c still doesn't compile:
 
->
-> The more complicated bug you're talking about is the exec_mmap
->   change introduced in 2.5.19 and fixed a handful of versions
->   later, possibly .28, where PMON wouldn't start after 120"...
->   I guess :)
 
-Great. Thanks for the useful info.
+<--  snip  -->
 
-It looks that there's a chance I will do only the interesting
-benchmarking part. :) I'm quite curious how Andrew's work in 2.5.x
-will affect performance of Oracle database.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6  -I../ -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=hd  -c -o hd.o hd.c
+hd.c:78: conflicting types for `recal_intr'
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/ide.h:1478:
+previous declaration of `recal_intr'
+hd.c: In function `dump_status':
+hd.c:171: `QUEUE_EMPTY' undeclared (first use in this function)
+hd.c:171: (Each undeclared identifier is reported only once
+hd.c:171: for each function it appears in.)
+hd.c:171: `CURRENT' undeclared (first use in this function)
+hd.c:169: warning: `devc' might be used uninitialized in this function
+hd.c: In function `hd_out':
+hd.c:284: `DEVICE_INTR' undeclared (first use in this function)
+hd.c:284: `TIMEOUT_VALUE' undeclared (first use in this function)
+hd.c: In function `do_reset_hd':
+...
+make[4]: *** [hd.o] Error 1
+make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/ide/legacy'
 
-Thanks for everything.
+<--  snip  -->
+
+cu
+Adrian
+
 -- 
-Zlatko
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

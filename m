@@ -1,80 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUGIFah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUGIFrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUGIFah (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 01:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUGIFag
+	id S264371AbUGIFrC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 01:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUGIFrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 01:30:36 -0400
-Received: from host84.200-117-131.telecom.net.ar ([200.117.131.84]:30641 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S264346AbUGIFae
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 01:30:34 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: raidstart used deprecated START_ARRAY ioctl
-Date: Fri, 9 Jul 2004 02:30:24 -0300
-User-Agent: KMail/1.6.2
-Cc: Neil Brown <neilb@cse.unsw.edu.au>
-References: <200407090135.12493.norberto+linux-kernel@bensa.ath.cx> <16622.11173.888745.161113@cse.unsw.edu.au>
-In-Reply-To: <16622.11173.888745.161113@cse.unsw.edu.au>
-MIME-Version: 1.0
+	Fri, 9 Jul 2004 01:47:02 -0400
+Received: from colin2.muc.de ([193.149.48.15]:3088 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264371AbUGIFq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 01:46:58 -0400
+Date: 9 Jul 2004 07:46:57 +0200
+Date: Fri, 9 Jul 2004 07:46:57 +0200
+From: Andi Kleen <ak@muc.de>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040709054657.GA52213@muc.de>
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407090230.24696.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Neil,
+On Fri, Jul 09, 2004 at 02:56:43PM +1000, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Fri, 2004-07-09 at 14:51, Andi Kleen wrote:
+> > Nigel Cunningham <ncunningham@linuxmail.org> writes:
+> 
+> I'm not sure what I wrote that you're replying to.
 
-Neil Brown wrote:
-> On Friday July 9, norberto+linux-kernel@bensa.ath.cx wrote:
-> > Hello,
-> >
-> > What does this mean and how do I fix it?
->
-> If you have a degraded array, there is at-least and even chance that
-> raidstart will not successfully start it for you.
+It was just a general reply to the thread.
 
-Aha. It didn't start the array when I compiled md and raid0 built-in; that's 
-how I discovered this.
+> > I think a better solution would be to apply the appended patch 
+> 
+> I'm going to be a pragmatist :> As long as it works. I do think that
+> functions being declared inline when they can't be inlined is wrong, but
+> there are more important things on which to spend my time.
 
-It works as modules (weird to me, but I'm not a kernel guru)
+Originally as written surely. The problem we have in Linux is that
+people write some code, declare functions as inline and it usually
+makes sense. But then years pass and people hack and enhance
+the code and add more code to the inline functions. And even more
+code. But they usually don't drop the inline marker and move it
+out of headers when the function has become far too big to still be a 
+good inlining candidate. So we end up with functions marked
+inlined that should not really be inlined.
 
-> So, you should stop using raidstart.
+One reason is probably that patches are rated for "intrusiveness" 
+based on the number of lines they change and when you move an inline
+function out of a header even a small change can become quite big.
+That's a unfortunate side effect of a normally sound policy.
 
-Ok.
+Anyways, with that problem and the improved inliner in gcc 3.4 
+I think it's a good idea to let the compiler decide.
 
-> The options are:
->
->  1/ use "autodetect".  I'm not a big fan of this personally, but it is
->    much more reliable than START_ARRAY.
+It's too bad that i386 doesn't enable -funit-at-a-time, that improves
+the inlining heuristics greatly.
 
-I already have. But Gentoo uses raidstart (This is pure guessing, I need to 
-dig into the init scripts.
 
->    This is done by set the partition type of all partitions that
->    contain part of an MD array to "Linux Raid Autodetect" (0xFD).
->    Then all arrays are found and assembled at boot time.
->    This requires having all of md (that you need) compiled into the
->    kernel, not as modules.
+> > And then just mark the function you know needs to be inlined
+> > as __always_inline__. I did this on x86-64 for some functions
+> > too that need to be always inlined (although using the attribute
+> > directly because all x86-64 compilers support it)
+> 
+> Should that be __always_inline (no final __ in the patch below, so far
+> as I can see)?
 
-Did I get that right? Can I get rid of raidstart and the array will be 
-"assembled by the kernel"?
+Yes. I originally wrote it with the final __, but it's better 
+to not add it.
 
->  2/ use mdadm.  Read the man page about ASSEMBLE MODE.
->     You have  an /etc/mdadm.conf that lists
->       - devices (or partitions) to scan
->       - arrays to be started
->       -  UUID of each array
->
->     and mdadm will find and assemble the arrays.
-
-I think I have read something about mdadm in Gentoo docs somewhere. I really 
-need to check that out.
-
-Thanks Neil.
-
-Best regards,
-Norberto
+-AndI

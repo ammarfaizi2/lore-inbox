@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281077AbRLZOyh>; Wed, 26 Dec 2001 09:54:37 -0500
+	id <S281009AbRLZPOH>; Wed, 26 Dec 2001 10:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281450AbRLZOy0>; Wed, 26 Dec 2001 09:54:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15370 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281077AbRLZOyR>; Wed, 26 Dec 2001 09:54:17 -0500
-Subject: Re: 2.5.2-pre2 forces ramfs on
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 26 Dec 2001 15:04:40 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a0bj07$18l$1@penguin.transmeta.com> from "Linus Torvalds" at Dec 26, 2001 04:17:11 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JFbk-00028a-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S281609AbRLZPN6>; Wed, 26 Dec 2001 10:13:58 -0500
+Received: from f173.law11.hotmail.com ([64.4.17.173]:45577 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281009AbRLZPNl>;
+	Wed, 26 Dec 2001 10:13:41 -0500
+X-Originating-IP: [203.197.142.194]
+From: "vijayalakshmi krishnamurthy" <kvlaxmi@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: failure notice
+Date: Wed, 26 Dec 2001 20:43:35 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F173cFRl8IqADUgNSwX0000e830@hotmail.com>
+X-OriginalArrivalTime: 26 Dec 2001 15:13:35.0451 (UTC) FILETIME=[E3780AB0:01C18E1F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because it's small, and if it wasn't there, we'd have to have the small
-> "rootfs" anyway (which basically duplicated ramfs functionality).
 
-Can ramfs=N longer term actually come back to be "use __init for the RAM
-fs functions". That would seem to address any space issues even the most 
-embedded fanatic has. 
+Hi,
 
-Alan
+I want to know how the control flows in Tcp/IP src implemntation i.e,
+which part of code calls which others
+so that i can make changes to the original implementation.
+I know its difficult to answer the question. atleast an outline is sought.
+like say within /usr/src/linux/net/ipv4 directory.
+If someone has worked on it ur inputs are needed so that i can verify with
+my assumptions.
+
+Thank you
+vlakshmi
+
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
+

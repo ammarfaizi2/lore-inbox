@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279376AbRJ2Swt>; Mon, 29 Oct 2001 13:52:49 -0500
+	id <S279378AbRJ2Sya>; Mon, 29 Oct 2001 13:54:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279372AbRJ2Swa>; Mon, 29 Oct 2001 13:52:30 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:6668 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S279370AbRJ2SwX>;
-	Mon, 29 Oct 2001 13:52:23 -0500
-Message-ID: <3BDDA583.96CBD8E2@lexus.com>
-Date: Mon, 29 Oct 2001 10:52:51 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+	id <S279377AbRJ2SyJ>; Mon, 29 Oct 2001 13:54:09 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6660 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S279372AbRJ2Sx6>; Mon, 29 Oct 2001 13:53:58 -0500
+Message-ID: <3BDDA4C0.F4391EC@zip.com.au>
+Date: Mon, 29 Oct 2001 10:49:36 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100.c & Intel integrated MBs
-In-Reply-To: <11361.1004374395@nova.botz.org> <3BDD8EEC.6DFE6BA5@candelatech.com> <3BDD92E5.40EFFE90@redhat.com>
+To: harri@synopsys.COM
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x:command 0x3002 did not complete! Status=0xffff
+In-Reply-To: <3BDD9FF4.D54DC0C9@Synopsys.COM>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Harald Dunkel wrote:
+> 
+> Hi folks,
+> 
+> Does anybody know what this message in kern.log means?
+> 
+>         eth0: command 0x3002 did not complete! Status=0xffff
+> 
 
-> No we do not.  eepro100 is the default in Red Hat Linux 7.1 and 7.2 at
-> least.
+There's a function in the driver which issues reset commands to the
+hardware and then spins, waiting for completion.  Usually it takes
+a single PCI cycle.  In your case it timed out.
 
-hmm that's odd - when I did a clean install
-of 7. 1 on my new system with intel mobo,
-I discovered that modules.conf contained
-the line "alias eth0 e100"
+It look to me like the NIC is powered down.  Could you please
+send me a bunch of info:
 
-cu
+- Does the interface actually work after this message, or is
+  it dead?
 
-jjs
+- If the latter, did you warmboot from another OS?
 
+- Does it help if you add the line
 
+	options 3c59x enable_wol=1
 
+  to /etc/modules.conf?  (This is a misnomer - enable_wol
+  enables the driver's power management functions).
 
+Thanks.

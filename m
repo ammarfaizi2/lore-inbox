@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277812AbRJLTWd>; Fri, 12 Oct 2001 15:22:33 -0400
+	id <S277813AbRJLTZX>; Fri, 12 Oct 2001 15:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277813AbRJLTWX>; Fri, 12 Oct 2001 15:22:23 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:58008 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S277812AbRJLTWO>; Fri, 12 Oct 2001 15:22:14 -0400
-Date: Fri, 12 Oct 2001 21:22:17 +0200 (CEST)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: "Udo A. Steinberg" <reality@delusion.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        <emu10k1-devel@opensource.creative.com>
-Subject: Re: Linux 2.4.12-ac1
-In-Reply-To: <3BC732BF.A3FD9574@delusion.de>
-Message-ID: <Pine.LNX.4.33.0110122118460.3012-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S277821AbRJLTZO>; Fri, 12 Oct 2001 15:25:14 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:23331 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S277813AbRJLTZF>; Fri, 12 Oct 2001 15:25:05 -0400
+Date: Fri, 12 Oct 2001 14:25:30 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: crc32 cleanups
+In-Reply-To: <Pine.LNX.4.33.0110121340140.17295-100000@lists.us.dell.com>
+Message-ID: <Pine.LNX.3.96.1011012141846.6594C-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001, Udo A. Steinberg wrote:
+I like it.  I even had local patches that did something similar,
+creating lib/crc32, but it never got to the polished stage.  Donald
+Becker had also suggested at the 2.5 kernel summit that the ether_crc
+stuff become generic code, so your code here follows along well with
+that plan.  So, after some testing, I'm definitely interested in these
+patches (at least as they related to net drivers).
 
-Looking at your original e-mail I see there is something else wrong:
-you should have by default OGAIN and DIGITAL1 volume controls.
+WRT initialization, I would suggest refcounting:  driver calls
+init_crc32 at module load time, and cleanup_crc32 at module removal
+time.  When the first reference appears, the desired poly table
+is initialized.  When the last reference disappears, the poly table
+is kfree'd.  I considered other initialization scenarios but this seems
+to be the cleanest.
 
-Are you loading the modules and only then starting the mixer application?
-Exiting/restarting the mixer doesn't change anything?
+	Jeff
 
-Rui
 
-> Rui Sousa wrote:
->
-> > The PCM mixer channel is now controlled by dsp microcode, but by default
-> > this is working when you load the driver.
-> > What probably happened is that you loaded the bass/treble patches with
-> > and old version of the emu-dspmgr tool and this messed up the PCM mixer
-> > channel code.
->
-> Not here. It makes no difference if I load the driver without doing any
-> dsp tweaking or configure the dsp using the emu-tools. I get no pcm-channel
-> either way.
->
-> > Two things to try:
-> > 1. Use the driver before loading any dsp microcode.
-> > 2. Get the latest user space tools 0.9.2 from
->
-> I have been using 0.9.2. Earlier versions worked up to 2.4.10-ac11.
->
 

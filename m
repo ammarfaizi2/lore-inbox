@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUIMNsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUIMNvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUIMNsq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 09:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUIMNsq
+	id S266756AbUIMNvy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 09:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266768AbUIMNvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 09:48:46 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:12941 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266758AbUIMNso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 09:48:44 -0400
+	Mon, 13 Sep 2004 09:51:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:53321 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266756AbUIMNvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 09:51:52 -0400
+Date: Mon, 13 Sep 2004 14:51:05 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Alex Zarochentsev <zam@namesys.com>, Paul Jackson <pj@sgi.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined
+    atomic_sub_and_test
+In-Reply-To: <Pine.LNX.4.61.0409131522090.981@scrub.home>
+Message-ID: <Pine.LNX.4.44.0409131447110.17861-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16709.42267.116818.668199@alkaid.it.uu.se>
-Date: Mon, 13 Sep 2004 15:48:11 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, drivers@neukum.org, marcelo.tosatti@cyclades.com,
-       sailer@ife.ee.ethz.ch, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.28-pre3] USB drivers gcc-3.4 fixes
-In-Reply-To: <20040912204924.4a2cd872@lembas.zaitcev.lan>
-References: <200409121129.i8CBT5Bo015222@harpo.it.uu.se>
-	<20040912204924.4a2cd872@lembas.zaitcev.lan>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev writes:
- > How about this now?
- > 
- > -- Pete
- > 
- > diff -urp -X dontdiff linux-2.4.28-pre3/drivers/usb/audio.c linux-2.4.28-pre3-usb/drivers/usb/audio.c
- > --- linux-2.4.28-pre3/drivers/usb/audio.c	2004-08-24 12:38:50.000000000 -0700
- > +++ linux-2.4.28-pre3-usb/drivers/usb/audio.c	2004-09-12 17:49:35.000000000 -0700
- > @@ -593,9 +593,10 @@ static int dmabuf_mmap(struct dmabuf *db
- >  	return 0;
- >  }
- >  
- > -static void dmabuf_copyin(struct dmabuf *db, const void *buffer, unsigned int size)
- > +static void dmabuf_copyin(struct dmabuf *db, const void *_buffer, unsigned int size)
- >  {
- >  	unsigned int pgrem, rem;
- > +	const char *buffer = _buffer;
+On Mon, 13 Sep 2004, Roman Zippel wrote:
+> On Mon, 13 Sep 2004, Hugh Dickins wrote:
+> 
+> > But Bill already said he doesn't want it, [...]
+> > 
+> > -		if (atomic_sub_and_test(bio->bi_vcnt, &fq->nr_submitted))
+> > +		if (atomic_sub_return(bio->bi_vcnt, &fq->nr_submitted) == 0)
+> 
+> And that is more portable how?
 
-and more on the same theme.
+It's more portable in that all but s390 already provide it
+(and I expect Martin will be happy to add it).
 
-Yeah, that's much nicer. Thanks.
+Hugh
 
-Marcelo, please consider this patch instead of the one I sent.
-
-/Mikael

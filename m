@@ -1,80 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUIIQjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUIIQlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUIIQjT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 12:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUIIQiw
+	id S266324AbUIIQlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 12:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUIIQje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:38:52 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:21727 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S266243AbUIIQgF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:36:05 -0400
-Date: Thu, 9 Sep 2004 05:03:42 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: William Stearns <wstearns@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea ofwhat reiser4 wants to do with metafiles and why
-Message-ID: <20040909090342.GA30303@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-	William Stearns <wstearns@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com> <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com>
-Mime-Version: 1.0
+	Thu, 9 Sep 2004 12:39:34 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:62619 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S266273AbUIIQgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 12:36:18 -0400
+Message-ID: <4140865A.5030304@am.sony.com>
+Date: Thu, 09 Sep 2004 09:35:38 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: colin <colin@realtek.com.tw>
+CC: David Woodhouse <dwmw2@infradead.org>,
+       Paulo Marques <pmarques@grupopie.com>, linux-kernel@vger.kernel.org
+Subject: Re: What File System supports Application XIP
+References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>	 <4140200B.9060408@grupopie.com> <1094722976.4083.1550.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1094722976.4083.1550.camel@hades.cambridge.redhat.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409080009.52683.robin.rosenberg.lists@dewire.com>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 12:09:52AM +0200, Robin Rosenberg wrote:
-> Maybe file/./attribute then. /. on a file is currently meaningless. That does 
-> not avoid the unpleasant fact that has been brought up by others (only to be 
-> ignored), that the directory syntax does not allow metadata on directories.
+David Woodhouse wrote:
+> On Thu, 2004-09-09 at 10:19 +0100, Paulo Marques wrote:
+>> colin wrote:
+>> > 
+>> > Hi there,
+>> > We are developing embedded Linux system. Performance is our consideration.
+>> > We hope some applications can run as fast as possible,
+>> > and are think if they can be put in a filesystem image, which resides in
+>> > RAM, and run in XIP (eXecute In Place)  manners.
+>> > I know that Cramfs has supported Application XIP. Is there any other FS that
+>> > also supports it? Ramdisk? Ramfs? Romfs?
+>> 
+>> Obvisously cramfs can not support XIP, because the "in-place" image
+>> is compressed (unless you have a processor that can execute compressed
+>> code :)
+> 
+> Actually there are hacks floating around which do let you use XIP with
+> cramfs -- obviously you have to dispense with compression for the files
+> you want to access that way.
 
-*Not* that I am endorsing the idea of being able to access metadata
-via a standard pathname --- I continue to believe that named streams
-are a bad idea that will be an attractive nuisance to application
-developers, and if we must do them, then Solaris's openat(2) API is
-the best way to proceed --- HOWEVER, if people are insistent on being
-able to do this via standard pathnames, and not introducing a new
-system call, I would suggest /|/ as the separator as the third least
-worst option.  Why?
+The patches I've seen require setting the CRAMFS_LINEAR option, to turn on
+linear addressing for cramfs, and CRAMFS_LINEAR_XIP.  The result of these
+is to dispense with compression.
 
-Any such scheme will violate POSIX and SUS, since we are stealing from
-the filename namespace, and thus could cause a previously working
-program to stop working --- however, assuming that we don't care about
-this, the virtical bar is the least likely to collide with existing
-file usages, because of its status as a shell meta-character (i.e.,
-pipe).  This means that in order to use it on the shell command line,
-programs will have to quote it:
+> 
+> You won't gain at runtime by using XIP though. Your code and data will
+> end up in RAM _whatever_ file system you use, and you'll be running from
+> page cache.
 
-	cat /home/tytso/word.doc/\|/meta/silly-stupid-metadata-or-named-stream
+Really?  I thought that when you XIPed from flash, the page was mapped
+directly back to the flash memory address.  There shouldn't be a RAM
+copy of the page at all.
 
-This may seem to be inconvenient, but one very good thing about this
-is that PHP and existing Perl scripts already already treat pathnames
-that contain pipes with a certain amount of suspicion --- and this is
-a good thing!  Otherwise, programs that take input from untrusted
-sources (say, URL's or http form posts), may convert such input into a
-metadata access, and that may be a very, very, very bad thing.  (For
-example, it may mean that you will have accidentally allowed a web
-user to read or possibly modify an ACL with whatever privileges of the
-CGI-perl or php script.)  By using a pipe character, it avoids this
-problem, since secure CGI scripts must be already checking for the
-pipe character anyway.
+Greg Ungerer (uClinux maintainer) once wrote:
+> [Application XIP provides a] win of keeping the application code in
+> flash even when that is shared. Can make a difference on small memory
+> systems.
+>  
+> It also helps alleviate the contiguous memory problem (or memory 
+> fragmentation if you prefer) when you don't have an MMU. We need to 
+> be able to allocate a big enough contigous memory region to load 
+> the text into. Can be a problem on systems that have been running 
+> for a while and free memory is fragmented. If the application can 
+> be run XIP from flash then you at least don't need to worry about 
+> that. (This is a very real problem on small RAM systems). 
 
-> I'm not convinced that totally transparent access to meta-data actually 
-> benefits anyone. If metadata is that useful (which I believe) it may well be
-> worth fixing those apps that need, and can use them. The rest should just
-> ignore it, even loose it. 
+In the CE Linux Forum, we've been investigating Application XIP for
+two purposes: reduction in RAM footprint, and faster startup time.
+However, those both come at the sacrifice of runtime performance
+(as David says below).  Running XIP from a RAM-based filesystem,
+as originally proposed, might solve the performance problem,
+but it wouldn't improve space utilization, and since you have to
+populate the RAM from somewhere on startup anyway, I don't think
+it will improve your bootup time.  It _might_ improve per-application
+startup time, once the system is running, but I think a regular
+RAM disk suffices for that.
 
-Totally agreed.  As I said above, I would prefer openat(2) to trying
-to do this within a standard pathname, and I would prefer not doing it
-all since aside from Samba, which is simply trying to maintain
-backwards compatibility with a Really Bad Idea, the number of
-protocols and data formats (ftp, tar, zip, gzip, cpio, etc., etc.,
-etc.) that would need to be revamped is huge. 
+> You may get a _slightly_ faster startup time after reboot if you use XIP
+> from flash, because it doesn't have to be loaded into RAM first. But
+> that comes at the cost of making it all a low slower during normal
+> operation -- it's a lot slower to fetch icache lines from flash than it
+> is from RAM.
 
-						- Ted
+FYI - Here are some rough numbers:
+Time to run shell script which starts TinyX X server and "xsetroot -solid red",
+then shuts down:
+
+First invocation: Non-XIP 3.195 seconds, XIP 2.035 seconds
+Second invocation: Non-XIP 1.744 seconds, XIP 1.765 seconds
+
+I think this was on a 133 MHz PPC, but I'm not positive.  In both cases
+the filesystem was in flash.  Note that once the application pages are
+in RAM in the page cache, the Non-XIP case beats the XIP case (probably
+due to the penalty to access flash memory).
+
+So the only performance win is on the first invocation of the application.
+
+I'm just now starting to put together a wiki page of information about
+Application XIP, for those interested. (It has nothing now, so don't get
+excited.)  But contributions are welcome at:
+http://tree.celinuxforum.org/pubwiki/moin.cgi/ApplicationXIP
+(Maybe when someone googles this message a year from now, there will be
+something interesting there... ;-)
+
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbTDREHG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 00:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbTDREHG
+	id S262849AbTDREdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 00:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTDREdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 00:07:06 -0400
-Received: from waste.org ([209.173.204.2]:7363 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262845AbTDREHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 00:07:05 -0400
-Date: Thu, 17 Apr 2003 23:18:20 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-Message-ID: <20030418041820.GB6645@waste.org>
-References: <200304172137_MC3-1-34EB-2D39@compuserve.com>
+	Fri, 18 Apr 2003 00:33:39 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:17169 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262849AbTDREdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 00:33:38 -0400
+Date: Fri, 18 Apr 2003 06:44:54 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: My P3 runs at.... zero Mhz (bug rpt)
+Message-ID: <20030418044454.GA5349@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <3E9F5EAD.2070006@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304172137_MC3-1-34EB-2D39@compuserve.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3E9F5EAD.2070006@pobox.com>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 09:34:37PM -0400, Chuck Ebbert wrote:
-> Matt Mackall wrote:
+From: Jeff Garzik <jgarzik@pobox.com>
+Date: Thu, Apr 17, 2003 at 10:10:53PM -0400
+> Just booted into 2.5.67-BK-latest (plus my __builtin_memcpy patch). 
+> Everything seems to be running just fine, so naturally one must nitpick 
+> little things like being told my CPU is running at 0.000 Mhz.  :)
 > 
-> 
-> >FYI, GCC as of 3.2.3 doesn't yet reduce the if(...) form to branchless
-> >code but the & and && versions come out the same with -O2.
-> 
->   The operands of & can be evaluated in any order, while && requires
-> left-to-right and does not evaluate the right operand if the left one
-> is false.  Only the simplest cases could possibly generate the same
-> code.
+fwiw, my Athlon XP2400 does the same in 2.5.67-ac1:
 
-Actually, any where the arguments to && are already boolean (pretty
-common) and have no side effects (pretty common) will be equivalent
-and could very well result in the same code. Only the simplest cases
-are interesting anyway, otherwise the branchless & obfuscation is a
-loss due to extra evaluation.
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 8
+model name	: AMD Athlon(tm) XP 2400+
+stepping	: 1
+cpu MHz		: 0.000
+cache size	: 256 KB
+bogomips	: 1970.17
 
+Interesting enough, even the bogomips have halved w.r.t. earlier 2.5.x
+kernels and 2.4.2x kernels. Booting a 2.4.21-pre7 kernel on the same
+machine gets me close to 4000 bogomips, as is proper for a 2 GHz cpu.
+
+The ioapic code does report the correct bus-speed however.
+
+Ah well, they were bogus to begin with.
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+"I am not to be trifled with!"
+"I didn't bring a trifle," Hawk said to Fisher. "Did you think to
+bring a trifle?" "Knew I forgot something," said Fisher.
+	Simon R Green - Beyond the Blue Moon
+Debian (Unstable) GNU/Linux 2.5.67-ac1 1970 bogomips load av: 1.48 1.62 1.79

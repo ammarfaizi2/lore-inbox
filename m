@@ -1,51 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262937AbVAQWnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbVAQWna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262937AbVAQWnb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVAQWmr
+	id S262932AbVAQWna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVAQWYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:42:47 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:26524
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261540AbVAQWl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:41:56 -0500
-Date: Mon, 17 Jan 2005 14:37:38 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: acme@conectiva.com.br, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/802/: some cleanups
-Message-Id: <20050117143738.0cf1ed02.davem@davemloft.net>
-In-Reply-To: <20050117081438.GE4274@stusta.de>
-References: <20041212201115.GU22324@stusta.de>
-	<20041227184923.5b26f5a0.davem@davemloft.net>
-	<20050117081438.GE4274@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 17 Jan 2005 17:24:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:48551 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262923AbVAQWCA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 17:02:00 -0500
+Cc: johnrose@austin.ibm.com
+Subject: [PATCH] PCI: fix release_pcibus_dev() crash
+In-Reply-To: <11059993132995@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 17 Jan 2005 14:01:53 -0800
+Message-Id: <11059993132086@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005 09:14:38 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+ChangeSet 1.2329.2.8, 2005/01/14 15:59:20-08:00, johnrose@austin.ibm.com
 
-> On Mon, Dec 27, 2004 at 06:49:23PM -0800, David S. Miller wrote:
-> > 
-> > drivers/net/net_init.c no longer exists in the source tree :)
-> 
-> Updated patch:
-> 
-> 
-> <--  snip  -->
-> 
-> 
-> This patch contains the following cleanups:
-> - make some needlessly global code static
-> - net/802/hippi.c: remove the unused global function hippi_net_init
-> - net/8021q/vlan.c: remove the global variable vlan_default_dev_flags
->                     that was never changed
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+[PATCH] PCI: fix release_pcibus_dev() crash
 
-Applied, thanks Adrian.
+During the course of a hotplug removal of a PCI bus, release_pcibus_dev()
+attempts to remove attribute files from a kobject directory that no longer
+exists.  This patch moves these calls to pci_remove_bus(), where they can work
+as intended.
+
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/pci/pci.h    |    2 ++
+ drivers/pci/probe.c  |   10 +++-------
+ drivers/pci/remove.c |   13 ++++++++-----
+ 3 files changed, 13 insertions(+), 12 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.h b/drivers/pci/pci.h
+--- a/drivers/pci/pci.h	2005-01-17 13:55:30 -08:00
++++ b/drivers/pci/pci.h	2005-01-17 13:55:30 -08:00
+@@ -59,12 +59,14 @@
+ extern int pci_visit_dev(struct pci_visit *fn,
+ 			 struct pci_dev_wrapped *wrapped_dev,
+ 			 struct pci_bus_wrapped *wrapped_parent);
++extern void pci_remove_legacy_files(struct pci_bus *bus);
+ 
+ /* Lock for read/write access to pci device and bus lists */
+ extern spinlock_t pci_bus_lock;
+ 
+ extern int pcie_mch_quirk;
+ extern struct device_attribute pci_dev_attrs[];
++extern struct class_device_attribute class_device_attr_cpuaffinity;
+ 
+ /**
+  * pci_match_one_device - Tell if a PCI device structure has a matching
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	2005-01-17 13:55:30 -08:00
++++ b/drivers/pci/probe.c	2005-01-17 13:55:30 -08:00
+@@ -62,7 +62,7 @@
+ 	}
+ }
+ 
+-static void pci_remove_legacy_files(struct pci_bus *b)
++void pci_remove_legacy_files(struct pci_bus *b)
+ {
+ 	class_device_remove_bin_file(&b->class_dev, b->legacy_io);
+ 	class_device_remove_bin_file(&b->class_dev, b->legacy_mem);
+@@ -70,7 +70,7 @@
+ }
+ #else /* !HAVE_PCI_LEGACY */
+ static inline void pci_create_legacy_files(struct pci_bus *bus) { return; }
+-static inline void pci_remove_legacy_files(struct pci_bus *bus) { return; }
++void pci_remove_legacy_files(struct pci_bus *bus) { return; }
+ #endif /* HAVE_PCI_LEGACY */
+ 
+ /*
+@@ -86,7 +86,7 @@
+ 		buf[ret++] = '\n';
+ 	return ret;
+ }
+-static CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
++CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
+ 
+ /*
+  * PCI Bus Class
+@@ -95,10 +95,6 @@
+ {
+ 	struct pci_bus *pci_bus = to_pci_bus(class_dev);
+ 
+-	pci_remove_legacy_files(pci_bus);
+-	class_device_remove_file(&pci_bus->class_dev,
+-				 &class_device_attr_cpuaffinity);
+-	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
+ 	if (pci_bus->bridge)
+ 		put_device(pci_bus->bridge);
+ 	kfree(pci_bus);
+diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
+--- a/drivers/pci/remove.c	2005-01-17 13:55:30 -08:00
++++ b/drivers/pci/remove.c	2005-01-17 13:55:30 -08:00
+@@ -61,15 +61,18 @@
+ }
+ EXPORT_SYMBOL(pci_remove_device_safe);
+ 
+-void pci_remove_bus(struct pci_bus *b)
++void pci_remove_bus(struct pci_bus *pci_bus)
+ {
+-	pci_proc_detach_bus(b);
++	pci_proc_detach_bus(pci_bus);
+ 
+ 	spin_lock(&pci_bus_lock);
+-	list_del(&b->node);
++	list_del(&pci_bus->node);
+ 	spin_unlock(&pci_bus_lock);
+-
+-	class_device_unregister(&b->class_dev);
++	pci_remove_legacy_files(pci_bus);
++	class_device_remove_file(&pci_bus->class_dev,
++		&class_device_attr_cpuaffinity);
++	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
++	class_device_unregister(&pci_bus->class_dev);
+ }
+ EXPORT_SYMBOL(pci_remove_bus);
+ 
+

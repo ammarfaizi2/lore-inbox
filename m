@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132208AbRAIW7H>; Tue, 9 Jan 2001 17:59:07 -0500
+	id <S132050AbRAIW7h>; Tue, 9 Jan 2001 17:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132050AbRAIW66>; Tue, 9 Jan 2001 17:58:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26126 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132397AbRAIW6s>;
-	Tue, 9 Jan 2001 17:58:48 -0500
-Date: Tue, 9 Jan 2001 23:58:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Evans <chris@scary.beasts.org>, linux-kernel@vger.kernel.org
-Subject: [patch]: ac4 blk (was Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1)
-Message-ID: <20010109235830.F12128@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0101091755320.25936-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.4.30.0101091940480.7155-100000@e2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101091940480.7155-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 07:41:12PM +0100
+	id <S132414AbRAIW7b>; Tue, 9 Jan 2001 17:59:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10763 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132050AbRAIW7W>; Tue, 9 Jan 2001 17:59:22 -0500
+Date: Tue, 9 Jan 2001 14:59:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Rohland <cr@sap.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM subsystem bug in 2.4.0 ?
+In-Reply-To: <m3vgroe6qo.fsf@linux.local>
+Message-ID: <Pine.LNX.4.10.10101091447540.2633-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09 2001, Ingo Molnar wrote:
+
+
+On 9 Jan 2001, Christoph Rohland wrote:
+
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> > 
+> > Note that this would be solved very cleanly if the SHM code would use the
+> > "VM_LOCKED" flag, and actually lock the pages in the VM, instead of trying
+> > to lock them down for writepage().
 > 
-> > > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
-> >
-> > Is this "right patch from Jens" on the radar for 2.4 inclusion?
-> 
-> i do hope so!
+> here comes the patch. (lightly tested)
 
-Here's a version against 2.4.0-ac4, blk-13B did not apply cleanly due to
-moving of i2o files and S/390 dasd changes:
+I'd really like an opinion on whether this is truly legal or not? After
+all, it does change the behaviour to mean "pages are locked only if they
+have been mapped into virtual memory". Which is not what it used to mean.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-ac4/blk-13C.bz2
+Arguably the new semantics are perfectly valid semantics on their own, but
+I'm not sure they are acceptable.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+In contrast, the PG_realdirty approach would give the old behaviour of
+truly locked-down shm segments, with not significantly different
+complexity behaviour.
+
+What do other UNIXes do for shm_lock()?
+
+The Linux man-page explicitly states for SHM_LOCK that
+
+	The user must fault in any pages that are required to be present
+	after locking is enabled.
+
+which kind of implies to me that the VM_LOCKED implementation is ok.
+HOWEVER, looking at the HP-UX man-page, for example, certainly implies
+that the PG_realdirty approach is the correct one. The IRIX man-pages in
+contrast say
+
+				Locking occurs per address space;
+        multiple processes or sprocs mapping the area at different
+        addresses each need to issue the lock (this is primarily an
+        issue with the per-process page tables).
+
+which again implies that they've done something akin to a VM_LOCKED
+implementation.
+
+Does anybody have any better pointers, ideas, or opinions?
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313317AbSDYS5o>; Thu, 25 Apr 2002 14:57:44 -0400
+	id <S313062AbSDYTKD>; Thu, 25 Apr 2002 15:10:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313319AbSDYS5o>; Thu, 25 Apr 2002 14:57:44 -0400
-Received: from barrichello.cs.ucr.edu ([138.23.169.5]:20714 "HELO
-	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
-	id <S313317AbSDYS5n>; Thu, 25 Apr 2002 14:57:43 -0400
-Date: Thu, 25 Apr 2002 11:57:38 -0700 (PDT)
-From: John Tyner <jtyner@cs.ucr.edu>
-To: <dwmw2@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add AM29F040B Support
-Message-ID: <Pine.LNX.4.30.0204251151340.17102-100000@hill.cs.ucr.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS perl-6
+	id <S313084AbSDYTKC>; Thu, 25 Apr 2002 15:10:02 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:6800 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313062AbSDYTKB>;
+	Thu, 25 Apr 2002 15:10:01 -0400
+Date: Thu, 25 Apr 2002 15:01:59 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OFF TOPIC] BK license change
+Message-ID: <20020425150158.A88@toy.ucw.cz>
+In-Reply-To: <20020421095715.A10525@work.bitmover.com> <20020422143527.K18800@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a patch that adds support for the AMD AM29F040B flash chip.
-Hopefully, pine doesn't destory it.
+Hi!
 
-diff -urN linux_2_4_devel/drivers/mtd/chips/jedec_probe.c linux-new/drivers/mtd/chips/jedec_probe.c
---- linux_2_4_devel/drivers/mtd/chips/jedec_probe.c     Wed Apr 24 10:49:08 2002
-+++ linux-new/drivers/mtd/chips/jedec_probe.c   Tue Apr  9 15:43:38 2002
-@@ -34,6 +34,7 @@
- #define AM29LV800BT    0x22DA
- #define AM29LV160DT    0x22C4
- #define AM29LV160DB    0x2249
-+#define AM29F040B       0x00A4
+> So that leaves a more selective approach.  We can add a clause that says
+> we reserve the right to insist you either
+> 
+>     a) maintain your changes in public within 90 days of making them, or
+>     b) buy closed use seats, or
+>     c) cease to use the product.
+> 
+> and then apply it to the abusers of the system.  I understand this is 
 
- /* Atmel */
- #define AT49BV16X4     0x00c0
-@@ -183,6 +184,15 @@
-                          ERASEINFO(0x08000,1),
-                          ERASEINFO(0x02000,2),
-                          ERASEINFO(0x04000,1)
-+               }
-+       }, {
-+               mfr_id: MANUFACTURER_AMD,
-+               dev_id: AM29F040B,
-+               name: "AMD AM29F040B",
-+               DevSize: 19,
-+               NumEraseRegions: 1,
-+               regions: {
-+                       ERASEINFO( 0x010000, 8 )
-                }
-        }, {
-                mfr_id: MANUFACTURER_AMD,
+Heh. According to your license, all you have to do is to get very expensive
+disk. Then, put offender's file on that disk, and claim that your costs
+exceeded 00000 (or how much you have in the licence) and that means auto
+licence termination IIRC.
 
-
+Oh and btw how can you change licence retroactively? Those "abusers" have
+right to continue to use old versions under old licences...
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

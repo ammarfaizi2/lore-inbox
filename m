@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289138AbSBMXbK>; Wed, 13 Feb 2002 18:31:10 -0500
+	id <S289148AbSBMXcL>; Wed, 13 Feb 2002 18:32:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289166AbSBMXbD>; Wed, 13 Feb 2002 18:31:03 -0500
-Received: from femail9.sdc1.sfba.home.com ([24.0.95.89]:63698 "EHLO
-	femail9.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S289139AbSBMXaw>; Wed, 13 Feb 2002 18:30:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: [patch] sys_sync livelock fix
-Date: Wed, 13 Feb 2002 18:31:44 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020212220340.8017A-100000@gatekeeper.tmr.com> <3C69E1AE.B225A392@mandrakesoft.com> <E16b14Z-0001oR-00@starship.berlin>
-In-Reply-To: <E16b14Z-0001oR-00@starship.berlin>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020213233051.GSSQ97.femail9.sdc1.sfba.home.com@there>
+	id <S289140AbSBMXbv>; Wed, 13 Feb 2002 18:31:51 -0500
+Received: from zero.tech9.net ([209.61.188.187]:40461 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289139AbSBMXbk>;
+	Wed, 13 Feb 2002 18:31:40 -0500
+Subject: Re: linux-2.5.5-pre1
+From: Robert Love <rml@tech9.net>
+To: Wayne.Brown@altec.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256B5F.0080E1BC.00@smtpnotes.altec.com>
+In-Reply-To: <86256B5F.0080E1BC.00@smtpnotes.altec.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 13 Feb 2002 18:32:02 -0500
+Message-Id: <1013643123.950.43.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 February 2002 10:11 am, Daniel Phillips wrote:
+On Wed, 2002-02-13 at 18:20, Wayne.Brown@altec.com wrote:
 
-> On this topic, it would make a lot of sense from the user's point of view
-> to have a way of syncing a single volume, how would we express that?
+> So where is it?  I haven't been able to find it at kernel.org yet.
 
-If you're talking about sync(1), I'd make it work like df.  Typing df with no 
-arguments lists all volumes, df with a path looks at just that path.  (And 
-"df ." works fine too.)
+I'll keep the list in the CC since I see this question on IRC ...
 
-If you're asking about sync(2) and how it should talk to the kernel, I'm not 
-going to express an opinion...
+its in 
+	/pub/linux/kernel/testing
+not the usual
+	/pub/linux/kernel/v2.5/testing
 
-Rob
+	Robert Love
+

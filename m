@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbTI3NYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTI3NYv
+	id S261429AbTI3NYx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTI3NYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:24:51 -0400
-Received: from peabody.ximian.com ([141.154.95.10]:38279 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261589AbTI3NQZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:16:25 -0400
-Subject: make install problems
-From: Kevin Breit <mrproper@ximian.com>
-Reply-To: mrproper@ximian.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Ximian, Inc.
-Message-Id: <1064927778.1575.0.camel@localhost.localdomain>
+	Tue, 30 Sep 2003 09:24:53 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:42900 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261429AbTI3NWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:22:04 -0400
+Date: Tue, 30 Sep 2003 15:21:08 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+Message-ID: <20030930132108.GG378@louise.pinerecords.com>
+References: <200309301237.h8UCbAgU004367@burner.fokus.fraunhofer.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Sep 2003 09:16:19 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309301237.h8UCbAgU004367@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-	I setup a test6 kernel without module support.  I did a make install
-and got:
+> [schilling@fokus.fraunhofer.de]
+> 
+> You continue to verify that you don't understand how kernel <-> user level
+> interfaces are used by user level programs. 
 
-Kernel: arch/i386/boot/bzImage is ready
-sh /usr/src/linux-2.6.0-test6/arch/i386/boot/install.sh 2.6.0-test6
-arch/i386/boot/bzImage System.map ""
-/lib/modules/2.6.0-test6 is not a directory.
-mkinitrd failed
+No.  The problem is that you chose to ignore what Linux developers had
+had to tell you and so managed to annoy the hell out of everyone involved.
 
-How can I fix this?
+Instead, you could have sent a simple patch and everything would have
+been swell.
 
-Thanks
+You are not a good diplomat, Joerg.
 
-Kevin Breit
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291692AbSBALGn>; Fri, 1 Feb 2002 06:06:43 -0500
+	id <S291690AbSBALFx>; Fri, 1 Feb 2002 06:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291694AbSBALGc>; Fri, 1 Feb 2002 06:06:32 -0500
-Received: from pc-62-31-74-110-ed.blueyonder.co.uk ([62.31.74.110]:44160 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S291692AbSBALGI>; Fri, 1 Feb 2002 06:06:08 -0500
-Date: Fri, 1 Feb 2002 11:05:52 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Joe Thornber <thornber@fib011235813.fsnet.co.uk>, lvm-devel@sistina.com,
-        Jim McDonald <Jim@mcdee.net>, Andreas Dilger <adilger@turbolabs.com>,
-        linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
-        evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: [ANNOUNCE] LVM reimplementation ready for beta testing
-Message-ID: <20020201110552.B2149@redhat.com>
-In-Reply-To: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com> <20020131125211.A8934@fib011235813.fsnet.co.uk> <20020201045518.A10893@devserv.devel.redhat.com> <20020131130913.A8997@fib011235813.fsnet.co.uk> <20020201051251.B10893@devserv.devel.redhat.com>
+	id <S291692AbSBALFo>; Fri, 1 Feb 2002 06:05:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51588 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291690AbSBALF3>;
+	Fri, 1 Feb 2002 06:05:29 -0500
+Date: Fri, 01 Feb 2002 03:03:45 -0800 (PST)
+Message-Id: <20020201.030345.70220779.davem@redhat.com>
+To: kaos@ocs.com.au
+Cc: brand@jupiter.cs.uni-dortmund.de, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <9496.1012559332@ocs3.intra.ocs.com.au>
+In-Reply-To: <200202011007.g11A7hsc008080@tigger.cs.uni-dortmund.de>
+	<9496.1012559332@ocs3.intra.ocs.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020201051251.B10893@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Feb 01, 2002 at 05:12:51AM -0500
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Keith Owens <kaos@ocs.com.au>
+   Date: Fri, 01 Feb 2002 21:28:52 +1100
 
-On Fri, Feb 01, 2002 at 05:12:51AM -0500, Arjan van de Ven wrote:
-> On Thu, Jan 31, 2002 at 01:09:13PM +0000, Joe Thornber wrote:
-> > 
-> > Now our hero decides to PV move PV2 to PV4:
-> > 
-> > 1. Suspend our LV (254:3), this starts queueing all io, and flushes
-> >    all pending io. 
-> 
-> But "flushes all pending io" is *far* from trivial. there's no current
-> kernel functionality for this, so you'll have to do "weird shit" that will
-> break easy and often.
+   On Fri, 01 Feb 2002 11:07:42 +0100, 
+   Horst von Brand <brand@jupiter.cs.uni-dortmund.de> wrote:
+   >libc.a was invented precisely to handle such stuff automatically when
+   >linking... if it doesn't work, it should be fixed. I.e., making .a --> .o
+   >is a step in the wrong direction IMVHO.
+   
+   There are two contradictory requirements.  crc32.o must only be linked
+   if anything in the kernel needs it, linker puts crc32.o after the code
+   that uses it.  crc32.o must be linked before anything that uses it so
+   the crc32 __init code can initialize first.
+   
+Horst isn't even talking about the initcall issues, he's talking about
+how linking with libc works in that it only brings in the routines you
+actually reference.
 
-I've been all through this with Joe.  He *does* track pending IO in
-device_mapper, and he's got a layered device_mirror driver which can
-be overlayed on top of the segments of the device that you want to
-copy.  His design looks solid and the necessary infrastructure for
-getting the locking right is all there.
-
-> Also "suspending" is rather dangerous because it can deadlock the machine
-> (think about the VM needing to write back dirty data on this LV in order to
->  make memory available for your move)...
-
-There's a copy thread which preallocates a fully-populated kiobuf for
-the data.  There's no VM pressure, and since it uses unbuffered IO,
-there are no cache coherency problems like current LVM has.
-
-Arjan, I *told* you they have thought this stuff through.  :-)
-
-Cheers,
- Stephen
+Will you get over the initcall thing already, you must be dreaming
+about it at this point. I mean really, just GET OVER IT. :-)

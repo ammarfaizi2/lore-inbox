@@ -1,82 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbUCSH5O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 02:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUCSH5O
+	id S261772AbUCSIGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 03:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUCSIGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 02:57:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3237 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261753AbUCSH5J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 02:57:09 -0500
-Date: Fri, 19 Mar 2004 08:57:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: markw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm2
-Message-ID: <20040319075704.GD22234@suse.de>
-References: <20040314172809.31bd72f7.akpm@osdl.org> <200403181737.i2IHbCE09261@mail.osdl.org> <20040318100615.7f2943ea.akpm@osdl.org> <20040318192707.GV22234@suse.de> <20040318191530.34e04cb2.akpm@osdl.org> <20040319073919.GY22234@suse.de> <20040318235200.25c376a9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318235200.25c376a9.akpm@osdl.org>
+	Fri, 19 Mar 2004 03:06:14 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:18055
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261772AbUCSIGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 03:06:07 -0500
+Message-ID: <405AA9E0.4040102@redhat.com>
+Date: Fri, 19 Mar 2004 00:05:52 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040317
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: sched_setaffinity usability
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org> <20040318123103.GA21893@elte.hu>
+In-Reply-To: <20040318123103.GA21893@elte.hu>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > > --- 25/drivers/md/dm-table.c~a	2004-03-18 19:03:15.130004696 -0800
-> >  > +++ 25-akpm/drivers/md/dm-table.c	2004-03-18 19:03:41.656971984 -0800
-> >  > @@ -893,7 +893,7 @@ void dm_table_unplug_all(struct dm_table
-> >  >  		struct dm_dev *dd = list_entry(d, struct dm_dev, list);
-> >  >  		request_queue_t *q = bdev_get_queue(dd->bdev);
-> >  >  
-> >  > -		if (q->unplug_fn)
-> >  > +		if (q->unplug_fn && queue_needs_unplug(q)))
-> >  >  			q->unplug_fn(q);
-> >  >  	}
-> >  >  }
-> >  > 
-> >  > 
-> >  > to reduce the computational expense of dm_table_unplug_all() a bit.
-> >  > 
-> >  > But we're barking up the wrong tree here.  Mark, if it's OK I'll run up
-> >  > some kernels for you to test.
-> > 
-> >  I thought about this last night, and I have a better idea that gets the
-> >  same accomplished. The problem right now is indeed that we aren't
-> >  tracking who needs to be unplugged, like we used to. The solution is to
-> >  do the exact same style plugging (with block helpers) that we used to,
-> >  except the plug_list is maintained in the driver. So when you do
-> >  dm_unplug(), it doesn't _have_ to iterate the full device list, only
-> >  those that do need kicking.
-> > 
-> >  I'll produce a patch to fix this this morning. First coffee.
-> 
-> Yes, it would be nice but I fear that it gets complicated.
-> 
-> Is it not the case that two dm maps can refer to the same queue?  Say, one
-> map uses /dev/hda1 and another map uses /dev/hda2?
-> 
-> If so, then when the /dev/hda queue is plugged we need to tell both the
-> higher-level maps that this queue needs an unplug.  So blk_plug_device()
-> and the various unplug functions need to perform upcalls to an arbitrary
-> number of higher-level drivers, and those drivers need to keep track of the
-> currently-plugged queues without adding data structures to the
-> request_queue structure.
-> 
-> It can be done of course, but could get messy.
+Ingo Molnar wrote:
 
-That would get nasty, it's much more natural to track it from the other
-end. I view it as a dm (or whatever problem) that they need to track who
-has pending io on their behalf, which is pretty easy to to from eg
-__map_bio().
+> i'm wondering how dangerous of an API idea it is to make these
+> parameters part of the VDSO .data section (and make it/them versioned
+> DSO symbols).
 
-The only addition is putting the old q->plug_list back, but using it on
-stacking drivers like dm. dm then maintains a per-dm plugged list that
-it can use when dm_unplug() runs.
+Exporting variables is never a good idea.  The interface is inflexible.
+ If the variable size or layout changes or it needs to be dynamically
+changed this is bad.
+
+Even if this ticks off a certain LT, a sysconf()-like interface is the
+most flexible.  The results would be stored in libc if the lookup is
+likely to happen frequently.  The sysconf code in the vdso has all the
+flexibility it could ever need.  For instance, a query as to how many
+processors are online could do some computations or even make syscalls
+if necessary.  Or it could just return a constant like 1 if this is
+known at compile or startup time.  I cannot imagine why this isn't
+something the kernel people like, you get full control of the way to
+compute the values.  The exposed interface is minimal, as opposed to
+exporting many individual variables.
+
+
+> The only minor complication wrt. uname() would be sethostname: other
+> CPUs could observe a transitional state of (the VDSO-equavalent of)
+> system_utsname.nodename. Is this a problem? It's not like systems call
+> sethostname all that often ...
+
+Again, by exporting an interface to access the value you can get all the
+control you need.  In this case it'd probably be a confstr()-like
+interface which is just like sysconf(), but can return strings or
+arbitrary data (it gets passed a memory pointer and size).
+
+To implement gethostname() without races store the hostname as
+
+   host name MAGIC
+
+The read function can first read MAGIC, read barrier, then read the host
+name, read barrier, then read MAGIC again.  If MAGIC changed, rinse and
+repeat.  Doing this from libc would mean to hardcode all the processor
+idiosyncrasies to do all this in the libc.  It has to be generic enough
+to cover all versions of the CPU (maybe some need the MAGIC value to be
+specially aligned) and then has to dynamically decide what version to
+use.  In the vdso the kernel can decide at boot time which functions to
+use since it knows at that time what CPUs are used.
+
+Some other syscalls like uname() can be fully implemented in the vdso as
+well.  The vdso is writable in the kernel so the mapped data can be
+updated.  In the uname() case, the syscall would be a simple memcpy()
+from the place in the vdso into the place designated by the parameter.
+
+Even if it is not possible to implement the entire syscall at userlevel,
+maybe just a part can be done in the vdso, in the prologue or epilogue
+of the vdso function.
+
+
+The kernel gets the opportunity to *OPTIONALLY* tweak every little
+aspect of the syscall handling if it just wants to.  All this without
+having to change the libc and waiting for the changes to be widely deployed.
 
 -- 
-Jens Axboe
-
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

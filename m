@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129488AbRBLWuj>; Mon, 12 Feb 2001 17:50:39 -0500
+	id <S129231AbRBLW4T>; Mon, 12 Feb 2001 17:56:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRBLWu3>; Mon, 12 Feb 2001 17:50:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57605 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129402AbRBLWuK>; Mon, 12 Feb 2001 17:50:10 -0500
+	id <S129233AbRBLW4J>; Mon, 12 Feb 2001 17:56:09 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:61847 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129231AbRBLWz7>; Mon, 12 Feb 2001 17:55:59 -0500
+Date: Mon, 12 Feb 2001 22:55:21 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Subject: Re: LILO and serial speeds over 9600
-To: jas88@cam.ac.uk (James Sutherland)
-Date: Mon, 12 Feb 2001 22:50:04 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.21.0102122211370.22949-100000@yellow.csi.cam.ac.uk> from "James Sutherland" at Feb 12, 2001 10:46:57 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <3A884D72.E0F3D354@transmeta.com>
+Message-ID: <Pine.SOL.4.21.0102122158510.22949-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SRnM-0008Mv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not a huge undertaking, I know, but UDP will probably still be
-> a bit simpler. Turn the question around: would using TCP bring any real
-> benefits, in a system which will only be used to shift a few kb each boot
-> time?
+On Mon, 12 Feb 2001, H. Peter Anvin wrote:
+> James Sutherland wrote:
+> > 
+> My thinking at the moment is to require kernel IP configuration (either
+> ip= or RARP/BOOTP/DHCP).  It seems to be the only practical way;
+> otherwise you miss too much at the beginning.  However, that mechanism is
+> already in place, and shouldn't be too hard to piggy-back on.
 
-Im not convinced it will be any smaller by the time your UDP code has dealt
-with retransmits, out of order acks, and backoff.
+Yes: that should be easy enough, specially DHCP and ip=.
 
-> for the kernel-side code: once you have a fully-fledged IP stack, why not
-> use it. There's no reason the server couldn't support both, and machines
-> would just use whichever was more appropriate at the time.
+> > I'll do a server to receive these sessions - simple text (no vt100 etc),
+> > one window per session - and work on the protocol spec. Anyone willing
+> > to do the client end of things - lilo, grub, kernel, etc??
+> 
+> I'll do PXELINUX, for sure.  I'd prefer to do the protocol spec, if you
+> don't mind -- having done PXELINUX I think I know the kinds of pitfalls
+> that you run into doing an implementation in firmware or firmware-like
+> programming (PXELINUX isn't firmware, but it might as well be.)
 
-The IP layer is easy. Thats about 30 lines of code for a minimal IP. You'll
-need more code to implement ARP, which you will require
+Fine by me: we seem to agree on the basic concept already, and there isn't
+going to be very much protocol involved!
+
+> Doing it in LILO would be extremely difficult, since LILO has no ability
+> to handle networking, and no reasonable way to graft it on (you need a
+> driver for networking.)  GRUB I can't really comment on.
+
+I haven't seen much of GRUB, but it does seem to have DHCP support, so it
+must have some facility for sending/receiving packets. LILO's command-line
+approach would be better suited to this, really, though...
+
+> I might just decide to do the kernel as well.
+> 
+> Hmmm... this sounds like it's turning into a group effort.  Would you (or
+> someone else) like to set up a sourceforge project for this?  I would
+> prefer not to have to deal with that end myself.
+
+OK, I've filled in the paperwork - we should have a project account
+sometime tomorrow. I put the license type as "Other", since the heart of
+the project is the protocol, and patches to add support to the kernel,
+FreeBSD etc. will have to be under the license of the OS in question.
+
+Title: "Network Console Protocol" for now?
+
+
+James.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTBTS2q>; Thu, 20 Feb 2003 13:28:46 -0500
+	id <S265603AbTBTSi2>; Thu, 20 Feb 2003 13:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266540AbTBTS2q>; Thu, 20 Feb 2003 13:28:46 -0500
-Received: from packet.digeo.com ([12.110.80.53]:58513 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266443AbTBTS2o>;
-	Thu, 20 Feb 2003 13:28:44 -0500
-Date: Thu, 20 Feb 2003 10:40:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] umount versus iprune
-Message-Id: <20030220104017.7f1981be.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0302201337110.1623-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0302201337110.1623-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Feb 2003 18:38:43.0986 (UTC) FILETIME=[4BD62F20:01C2D90F]
+	id <S266851AbTBTSi2>; Thu, 20 Feb 2003 13:38:28 -0500
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:40342 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S265603AbTBTSi0> convert rfc822-to-8bit;
+	Thu, 20 Feb 2003 13:38:26 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4.20 amd speculative caching
+Date: Thu, 20 Feb 2003 12:48:30 -0600
+Message-ID: <A5D66E6B6F478B48A3CEF22AA4B9FCA3012E56@umr-mail1.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.20 amd speculative caching
+Thread-Index: AcLZASY55HiREqNBRg2YYMZ2S7EjBwADax1A
+From: "Sowadski, Craig Harold (UMR-Student)" <sowadski@umr.edu>
+To: "Sowadski, Craig Harold (UMR-Student)" <sowadski@umr.edu>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> When prune_icache coincides with unmounting, invalidate_inodes notices
-> the inode it's working on as busy but doesn't wait: Self-destruct in 5
-> seconds message, and later iput oopses on freed super_block.
+AMD's website has some documentation that says the morgan core durons
+are affected. 
+
+http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/
+26698.pdf
+
+I am using only stock linus kernel driver for the agpgart and radeon.
+Also, the system has now started locking up with 2.4.19 so I installed
+WINDOWS (sorry) to see if it showed similar problems and it did (even
+with the win2000 agp update). I have swaped the PS, RAM, and video card
+with the same problems. I plan on swapping the MB with an identical
+replacement to see if that helps. I will let you know if I conclude it
+to be a hardware or software problem when I get some more parts to swap.
+Sorry for bothering with what might be a hardware problem.
+
+		Thanks for all the help!!
+		Craig Sowadski (sowadski@umr.edu)
+    
+
+-----Original Message-----
+From: Randal, Phil [mailto:prandal@herefordshire.gov.uk] 
+Sent: Thursday, February 20, 2003 10:50 AM
+To: Sowadski, Craig Harold (UMR-Student)
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.20 amd speculative caching
+
+According to Richard Brunner of AMD's email to the list dated June 11,
+2002,
+the cache attribute bug only affected Athlon XPs and MPs, so that can't
+be
+the problem here, can it?
+
+Cheers,
+
+Phil
+
+---------------------------------------------
+Phil Randal
+Network Engineer
+Herefordshire Council
+Hereford, UK 
+
+> -----Original Message-----
+> From: Dave Jones [mailto:davej@codemonkey.org.uk]
+> Sent: 20 February 2003 16:53
+> To: Sowadski, Craig Harold (UMR-Student)
+> Cc: Andi Kleen; linux-kernel@vger.kernel.org
+> Subject: Re: 2.4.20 amd speculative caching
 > 
-> Neither end is a fast path, so patch below just adds iprune_sem for
-> exclusion: if you've got a neater solution, great - I shied away from
-> games with i_state, and extending use of shrinker_sem felt like abuse.
 > 
-
-Sounds reasonable.  The semaphore will block kswapd, but the reason kswapd
-is being blocked is so that someone else can free tons of memory, so shrug.
-
-Is 2.4 affected?
-
-
+> On Wed, Feb 19, 2003 at 01:13:28PM -0600, Sowadski, Craig 
+> Harold (UMR-Student) wrote:
+> 
+>  > If it helps, here is my hardware config:
+>  > 
+>  > 	AMD Duron 1300MHZ
+>  > 	MSI K7T Turbo-2
+>  > 	ATI Radeon 7500 w/64mb
+>  > 	Redhat 8.0
+> 
+> Are you using the ATi firegl drivers ? If so, thats likely the
+> problem. (They ship an agpgart based upon 2.4.16 which lacks
+> the fixes needed).
+> 
+> 		Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

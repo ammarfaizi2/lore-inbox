@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267358AbUIFAGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUIFAHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267358AbUIFAGD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 20:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFAFt
+	id S267364AbUIFAHj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 20:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFAHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 20:05:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23465 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267367AbUIFAF0 (ORCPT
+	Sun, 5 Sep 2004 20:07:39 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:912 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267364AbUIFAHX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 20:05:26 -0400
-Date: Sun, 5 Sep 2004 17:05:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Nathan <lists@netdigix.com>
-Cc: keepalived-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic issues
-Message-Id: <20040905170527.4d2e079c.rddunlap@osdl.org>
-In-Reply-To: <1094411544.413b65185bdba@mail.dreamtoy.net>
-References: <1094411544.413b65185bdba@mail.dreamtoy.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 5 Sep 2004 20:07:23 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Matthew Wilcox <willy@debian.org>
+Subject: Re: multi-domain PCI and sysfs
+Date: Sun, 5 Sep 2004 17:06:50 -0700
+User-Agent: KMail/1.7
+Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910409041300139dabe0@mail.gmail.com> <200409041603.56324.jbarnes@engr.sgi.com> <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409051706.50455.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun,  5 Sep 2004 12:12:24 -0700 Nathan wrote:
+On Sunday, September 5, 2004 4:04 pm, Matthew Wilcox wrote:
+> On Sat, Sep 04, 2004 at 04:03:56PM -0700, Jesse Barnes wrote:
+> > On Saturday, September 4, 2004 3:45 pm, Jon Smirl wrote:
+> > > Is this a multipath configuration where pci0000:01 and pci0000:02 can
+> > > both get to the same target bus? So both busses are top level busses?
+> > >
+> > > I'm trying to figure out where to stick the vga=0/1 attribute for
+> > > disabling all the VGA devices in a domain. It's starting to look like
+> > > there isn't a single node in sysfs that corresponds to a domain, in
+> > > this case there are two for the same domain.
+> >
+> > Yes, I think that's the case.  Matthew would probably know for sure
+> > though.
+>
+> Huh, eh, what?  There's no such thing as multipath PCI configurations.
+> The important concepts in PCI are:
 
-| Hi,  I have a server running debian 3.0r1 kernel 2.4.25 and I get these kernel 
-| panic about 5 times this week.  If anyone can tell me what it means it would be 
-| greatly appreciated.  Any additional instructions on how to read kernel panic 
-| dumps would also be appreciated.
+Right, but I was answering his question about whether or not there was a place 
+to stick his 'vga' control file on a per-domain basis.  There would be if the 
+layout was something like this:
 
-Denis Vlasenko recently did a "howto find oops location" for 2.6.x,
-but it's probably the best reference for you to look at.
-It's here:
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=109257016020612&w=2
+/sys/devices/pciDDDD/BB/SS.F/foo
+rather than the current
+/sys/devices/pciDDDD:BB/DDDD:BB:SS.F/foo
 
+> I haven't really looked at the VGA attribute.  I think Ivan or Grant
+> would be better equipped to help you on this front.  I remember them
+> rehashing it 2-3 years ago.
 
-| asdasdkernel BUG as slab.c:1263!
-| Invalid operand: 0000
-| CPU:	0
-| EIP:	0010:[<c012609d>] Not tainted
-| EFLAGS: 00010012
-| eax: f31eafff	ebx: c19ad700	ecx: 00000001	edx: 00000001
-| esi: f31ea800	edi: f31eabd3	ebp: c02cfca8	esp: c02cfc8c
-| ds: 0018	es: 0018	ss: 0018
-| Process swapper (pid: 0, stackpage=c02cf000)
-| Stack:	f69657fc c03397e0 00000020 00000800 00012800 f31eabd3 00000246 c02cfcc4
-| 	c01f6b5e 0000065c 00000020 00000008 0000001c f74ec160 c02cfcf f887afe3
-| 	00000620 00000020 00000008 0000001c f74ec160 c01fa090 00000000 f6ebec
-| Call Trace:	[<c01f6b5e>] [<f887afe3>] [<c01fa090>] [<f887ae58>] [<f887ae58>]
-| 	[<c0107ee0>] [<c010806f>] [<c0125f2c>] [<c0231d11>] [<c02320c8>] 
-| [<c0207b60>]
-| 	[<f887b4ef>] [<c010806f>] [<c0207b60>] [<c02010b7>] [<c0207b60>] 
-| [<c02079f5>]
-| 	[<c0207b60>] [<c01fa40b>] [<c01fa4ad>] [<c01fa5bf>] [<c011552b>] 
-| [<c010809d>]
-| 	[<c0105260>] [<c0105260>] [<c0105260>] [<c0105260>] [<c0105286>] 
-| [<c01052f9>]
-| 	[<c0105000>] [<c010502a>]
-| 
-| Code: 0f 0b ef 04 60 33 26 c0 8b 7d f4 f7 c7 00 04 00 00 74 36 b8
-|  <0>Kernel panic: Aiee, Killing interrupt handler!
-| In interrupt handler - not syncing
+I'm actually ok with a system wide vga arbitration driver, assuming that we'll 
+never have to worry about the scalability of stuff that wants to do legacy 
+vga I/O.
 
-The stack addresses are useless without associating some of (your)
-kernel symbols with them.  Please read REPORTING-BUGS in the top
-level of the kernel source tree for full bug-reporting info, and see
-Documentation/Changes on where to get 'ksymoops' if you don't
-already have it, then run this panic message text thru ksymoops.
-That should tell the function call chain to get to slab.c.
-
---
-~Randy
+Thanks,
+Jesse
+ 

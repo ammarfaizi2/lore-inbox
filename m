@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSDSHns>; Fri, 19 Apr 2002 03:43:48 -0400
+	id <S311834AbSDSIJT>; Fri, 19 Apr 2002 04:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311735AbSDSHnr>; Fri, 19 Apr 2002 03:43:47 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34280 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S311710AbSDSHnr>; Fri, 19 Apr 2002 03:43:47 -0400
-Date: Fri, 19 Apr 2002 03:43:38 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: "J.A. Magallon" <jamagallon@able.es>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
-        Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-In-Reply-To: <200204190136.15978.Dieter.Nuetzel@hamburg.de>
-Message-ID: <Pine.LNX.4.44.0204190340450.20646-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S311839AbSDSIJS>; Fri, 19 Apr 2002 04:09:18 -0400
+Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:14087 "EHLO
+	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S311834AbSDSIJR>; Fri, 19 Apr 2002 04:09:17 -0400
+Date: Fri, 19 Apr 2002 09:08:14 +0100
+To: Stephen Lord <lord@sgi.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mark Peloquin <peloquin@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bio pool & scsi scatter gather pool usage
+Message-ID: <20020419080814.GA1181@fib011235813.fsnet.co.uk>
+In-Reply-To: <OFCF00F1A4.2665039D-ON85256B9F.006B755C@pok.ibm.com> <E16yLS4-0005vN-00@the-village.bc.nu> <3CBF5B67.E488A8E5@zip.com.au> <3CBFC755.50106@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 19, 2002 at 02:29:25AM -0500, Stephen Lord wrote:
+> But this gets you lowest common denominator sizes for the whole
+> volume, which is basically the buffer head approach, chop all I/O up
+> into a chunk size we know will always work. Any sort of nasty  boundary
+> condition at one spot in a volume means the whole thing is crippled
+> down to that level. It then becomes a black magic art to configure a
+> volume which is not restricted to a small request size.
 
-On Fri, 19 Apr 2002, Dieter [iso-8859-15] Nützel wrote:
+This is exactly the problem; I don't think it's going to be unusual to
+see volumes that have a variety of mappings.  For example the
+'journal' area of the lv with a single fast pv, 'small file' area with
+a linear mapping across normal pv's, and finally a 'large file' area
+that has a few slower disks striped together.
 
-> No uptodate O(1) patch for 2.4. Very sad. So there isn't any change to
-> see a current preemption patch on top of vm33 and O(1).
->
-> [...] 
-> I'm under the impression that "all" development is focused on 2.5.x, now.
+The last thing I want in this situation is to split up all the io into
+the lowest common chunk size, in this case the striped area which will
+typically be  < 64k.
 
-well, 2.5's scheduler bits were pretty much in flux in the past two months
-or so, partly due to the preemption feature going in. And there are a
-number of other changes in the pipeline as well. So what makes sense for
-2.4 is Robert's plan: to backport O(1)+preempt once 2.5 is slowing down,
-that way we get the proper testing of both components, instead of a
-separated scheduler patch that doesnt even exist in that form in 2.5.
+LVM and EVMS need to do the splitting and resubmitting of bios
+themselves.
 
-	Ingo
-
+- Joe

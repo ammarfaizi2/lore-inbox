@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270748AbUJUPpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270754AbUJUPpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270748AbUJUPpE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270723AbUJUPlb
+	id S270754AbUJUPpD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270748AbUJUPlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:41:31 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:21720 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270763AbUJUPgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:36:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=I6zKKnI7Q40QClHII/S7GNBfQxB14phjF4bRw7rIJMhMXqmEdI2xeqpsvFTnZLQmPfXT66LLoP82WqFjR+fzmrZBXFL5IzJtpL/48FN7lG7ok14bQIKqQpXXSPhOKfyS0R6ClyeNMHvs0MrHEolcgLkJkoUvcH8CtamSpcpBH8c=
-Message-ID: <d182dda004102108361e8ebffa@mail.gmail.com>
-Date: Thu, 21 Oct 2004 09:36:55 -0600
-From: Shaun Kruger <shaun.kruger@gmail.com>
-Reply-To: Shaun Kruger <shaun.kruger@gmail.com>
-To: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-Reply-To: <4177D20F.2080205@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4176E08B.2050706@techsource.com>
-	 <9e4733910410201808c0796c8@mail.gmail.com>
-	 <4177D20F.2080205@techsource.com>
+	Thu, 21 Oct 2004 11:41:51 -0400
+Received: from web90106.mail.scd.yahoo.com ([66.218.94.77]:9633 "HELO
+	web90106.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S270768AbUJUPiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:38:04 -0400
+Message-ID: <20041021153803.13777.qmail@web90106.mail.scd.yahoo.com>
+Date: Thu, 21 Oct 2004 08:38:03 -0700 (PDT)
+From: abc abc <crack_abc123@yahoo.com>
+Subject: ipv6 address(es) of an interface
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I don't think we can get away without supporting some minimal VGA
-> functionality.
-> 
 
-Just a thought...  What would be the viability of buying someone elses
-low end card design?  Would anyone in the market place be willing to
-part with one of their old 2D chipsets with the understanding that it
-would be developed and optimized for open source applications?  I
-would probably start with a chip maker who has some video chipsets,
-but is moving away from it because they don't have the market share
-they want...
+Hi all,
 
-It's probably crazy, but it doesn't hurt to look around.
+I have been working on a code and I have really got
+stuck at one place. I have netdevice struct of the
+interface, and I want to know its ip addresses
+(including ipv6 address). I have read through the
+netdevice structure and got no clues, how to go about
+it. Maybe I am not looking in the right direction. I
+will greatly appreciate any pointers I could get.
 
-Shaun Kruger
+Thanknig in anticipation.
 
--- 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS dpu s:++ a-- C++ UL+++ P+ L+++ E--- W+ N o- K- w++
-O M- V- PS+ PE++ Y+ PGP- t 5 X R tv b+ DI+++ D+
-G e h-- r* !y
-------END GEEK CODE BLOCK------
+ssm
+
+
+		
+__________________________________
+Do you Yahoo!?
+Take Yahoo! Mail with you! Get it on your mobile phone.
+http://mobile.yahoo.com/maildemo 

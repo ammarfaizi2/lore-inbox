@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264121AbTDOV55 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264122AbTDOV55 
+	id S264127AbTDOWTb (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTDOWTb 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 17:57:57 -0400
-Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:61312
-	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264121AbTDOV54 
+	Tue, 15 Apr 2003 18:19:31 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13758 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264127AbTDOWTa 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 17:57:56 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DMA transfers in 2.5.67
-References: <yw1x3ckjfs2v.fsf@zaphod.guide>
-	<1050438684.28586.8.camel@dhcp22.swansea.linux.org.uk>
-	<yw1xy92be915.fsf@zaphod.guide>
-	<1050439715.28586.17.camel@dhcp22.swansea.linux.org.uk>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 16 Apr 2003 00:09:00 +0200
-In-Reply-To: <1050439715.28586.17.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <yw1xptnne7lv.fsf@zaphod.guide>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 15 Apr 2003 18:19:30 -0400
+Date: Tue, 15 Apr 2003 15:29:32 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: rml@tech9.net, gert.vervoort@hccnet.nl, tconnors@astro.swin.edu.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
+Message-Id: <20030415152932.23c830a9.rddunlap@osdl.org>
+In-Reply-To: <20030415150746.A32019@beaverton.ibm.com>
+References: <3E982AAC.3060606@hccnet.nl>
+	<1050172083.2291.459.camel@localhost>
+	<3E993C54.40805@hccnet.nl>
+	<1050255133.733.6.camel@localhost>
+	<3E99A1E4.30904@hccnet.nl>
+	<20030415120000.A30422@beaverton.ibm.com>
+	<1050442676.3664.162.camel@localhost>
+	<20030415145155.49df44c7.rddunlap@osdl.org>
+	<20030415150746.A32019@beaverton.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Tue, 15 Apr 2003 15:07:46 -0700 Patrick Mansfield <patmans@us.ibm.com> wrote:
 
-> > It's an Alpha with 768 MB.  Is it the pci_alloc_* functions you are
-> > referring to?  I don't think they are used currently. How much memory
-> > can these allocate?  I need chunks of up to 1 MB, not necessarily
-> > phycically continuous.
-> > 
-> > What do those functions do that normal memory allocation does not?
-> > Apart from setting up sg mappings, that is.
-> 
-> A normal memory allocation might not be visible from the device, however
-> pci_map_sg() deals with such things. What I really meant was are you
-> using the pci_ DMA functionality
+| On Tue, Apr 15, 2003 at 02:51:55PM -0700, Randy.Dunlap wrote:
+| 
+| > I have such a device at home.  I can try to test it (if the device
+| > still works).  What needs to be tested?
+| 
+| That would be nice.
+| 
+| AFAIK just attach and mount it, and probably dd to/from it, and then post
+| your fix :)
 
-Those functions are not used at the moment, but I could change that.
-The question remains why DMA transfers are so slow.  The memory is
-clearly visible from the bus.
+So I should test (and fix) 2.5.67-k.o and PREEMPT=y ??
+Any other requirements?
 
-Btw, I just noticed that hard disk throughput is much lower with 2.5
-than 2.4.  With 2.4.21-pre5 I get ~40 MB/s, but with 2.5.67 the speed
-drops to 25-30 MB/s.  Everything according to hdparm.  Is it possible
-that DMA is generally slow for some reason?
+| I think any removable scsi (direct access, not cdrom) media might show a
+| problem (see recent "USB Mass Storage Device" thread from Jim Beam).
+| 
+| > or maybe I can loan it to patmans for 1 day...
+| 
+| I don't have a machine (that I know will boot current 2.5) with a parallel
+| port.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+IBM made some like that.  :)
+Maybe you'll have to walk across the street tomorrow.
+
+| I/we should get some removable media attached to one of our scsi systems
+| we have here (maybe usb storage).
+
+Yes, you should.  I have Zip SCSI, Zip Plus, Zip USB, USB hard drive,
+and USB/IEEE1394 hard drive.
+
+--
+~Randy

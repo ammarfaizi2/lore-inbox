@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270115AbTGMFM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 01:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270116AbTGMFM2
+	id S270121AbTGMFQx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 01:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGMFQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 01:12:28 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:12294 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S270115AbTGMFM0 (ORCPT
+	Sun, 13 Jul 2003 01:16:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10688 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270119AbTGMFQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 01:12:26 -0400
-Message-ID: <3F10EDD2.3040703@c-zone.net>
-Date: Sat, 12 Jul 2003 22:27:46 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Who's minding the IDE driver?!?
-References: <3F1098D1.3030706@c-zone.net> <3F10B216.5070804@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 13 Jul 2003 01:16:32 -0400
+Date: Sat, 12 Jul 2003 22:22:22 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+Message-Id: <20030712222222.01089864.davem@redhat.com>
+In-Reply-To: <m2vfu765cx.fsf@tnuctip.rychter.com>
+References: <1056755336.5459.16.camel@dhcp22.swansea.linux.org.uk>
+	<20030627.172123.78713883.davem@redhat.com>
+	<1056827972.6295.28.camel@dhcp22.swansea.linux.org.uk>
+	<20030628.150328.74739742.davem@redhat.com>
+	<m2vfu765cx.fsf@tnuctip.rychter.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 12 Jul 2003 10:07:42 -0700
+Jan Rychter <jan@rychter.com> wrote:
 
-Jeff Garzik wrote:
+> Interesting you should think you're 'rewarding' people. I thought your
+> goal was to have fun working on cool software and making it
+> better. I also thought I had the same goal as a bug-reporter.
+> 
+> When I write software, I care about every bug report and consider people
+> doing the reporting a very valuable resource.
 
- > jiho@c-zone.net wrote:
- >
- >> I've had no response to my earlier post (Subject:  IDE driver:
- >> CBLID  revisited).
- >>
- >> In comparing the driver to docs I have, I've noticed some things
- >> and  have more to say about the VIA support, but I'm not much for
- >>  sending  e-mail to myself....
- >
- > I read it... saved it for later reply, even ;-)
+The whole game changes when you are stretched as thinly
+as I am.  Scaling becomes everything, and nitpicking through
+vague and poorly composed bug reports is an absolute waste of
+my time as networking subsystem maintainer.
 
-Yeah, it was a little long and rambling.  It was difficult, in part 
-because I was/am still confused by the driver.
+If other people want to improve bug reports, put them into
+a cute usable database, and munge them along, that's fine with
+me.
 
+But _I_ only want to work with things that make the best use
+of my limited time.
 
- > (I'm the author of libata, a new ATA driver)
+To be frank and honest, I do things that interest _ME_.  And waddling
+through poorly made bug reports is anything but interesting, in fact
+it's frustrating work.  I'd rather implement a software 802.11 stack
+or TCP Vegas implementation, THAT is what is a good use of my time
+because of my knowledge of how all these kinds of things work in the
+Linux networking.  I can do things overnight that would take others
+weeks.
 
-Is that "lib" as in "liberation"?
+Having me pillage through a bug database is a poor use of my time and
+capabilities.  And all of my time is spent reviewing patches and
+dealing with the properly composed bug reports anyways, so even if I
+enjoyed pillaging through badly made bug reports I couldn't.
 
+People are assuming that just because _I_ don't want to work on the
+bad bug reports that I think nobody should.  It's the exact opposite.
 
- >> I posted to this list to begin with because I found nowhere else
- >> to  take the issue.  It seems impossible to determine who's
- >> supposed to be  maintaining the IDE driver these days.
- >
- > Bart is:  Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
- >
- > Though Vojtech Pavlik is typically considered maintainer of the Via
- > IDE  driver.
-
-Ah, many thanks.
-
-
--- Jim Howard  <jiho@c-zone.net>
+I can't force other people to do or not do things anyways, just like
+everyone trying to somehow make it my "duty" to look at every single
+bug report cannot force me to do that.
 

@@ -1,88 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318851AbSHRFUT>; Sun, 18 Aug 2002 01:20:19 -0400
+	id <S318850AbSHRF0A>; Sun, 18 Aug 2002 01:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318852AbSHRFUT>; Sun, 18 Aug 2002 01:20:19 -0400
-Received: from waste.org ([209.173.204.2]:20195 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318851AbSHRFUS>;
-	Sun, 18 Aug 2002 01:20:18 -0400
-Date: Sun, 18 Aug 2002 00:24:17 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S318852AbSHRF0A>; Sun, 18 Aug 2002 01:26:00 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:20726 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S318850AbSHRFZ7>; Sun, 18 Aug 2002 01:25:59 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Sat, 17 Aug 2002 23:28:08 -0600
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020818052417.GL21643@waste.org>
-References: <20020818042818.GG21643@waste.org> <Pine.LNX.4.44.0208172141490.1829-100000@home.transmeta.com>
+Message-ID: <20020818052808.GS9642@clusterfs.com>
+Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020818021522.GA21643@waste.org> <Pine.LNX.4.44.0208171923330.1310-100000@home.transmeta.com> <20020818025913.GF21643@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208172141490.1829-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20020818025913.GF21643@waste.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 09:51:32PM -0700, Linus Torvalds wrote:
+On Aug 17, 2002  21:59 -0500, Oliver Xymoron wrote:
+> On Sat, Aug 17, 2002 at 07:30:02PM -0700, Linus Torvalds wrote:
+> > Quite frankly, I'd rather have a usable /dev/random than one that runs out
+> > so quickly that it's unreasonable to use it for things like generating
+> > 4096-bit host keys for sshd etc.
 > 
-> On Sat, 17 Aug 2002, Oliver Xymoron wrote:
-> > 
-> > > We might as well get rid of /dev/random altogether if it is not useful. 
-> > 
-> > If it's not accounting properly, it's not useful.
+> > In particular, if a machine needs to generate a strong random number, and 
+> > /dev/random cannot give that more than once per day because it refuses to 
+> > use things like bits from the TSC on network packets, then /dev/random is 
+> > no longer practically useful.
 > 
-> My point exactly.
-> 
-> And if it isn't useful, it might as well not be there.
-> 
-> And your accounting isn't "proper" either. It's not useful on a
-> network-only device. It's just swinging the error the _other_ way, but
-> that's still an error. The point of /dev/random was to have an estimate of
-> the amount of truly random data in the algorithm - and the important word
-> here is _estimate_. Not "minimum number", nor "maximum number".
+> My box has been up for about the time it's taken to write this email
+> and it's already got a full entropy pool. A 4096-bit public key has
+> significantly less than that many bits of entropy in it (primes thin
+> out in approximate proportion to log2(n)). 
 
-The key word is actually conservative, as in conservative estimate.
-Conservative here means less than or equal to.
- 
-> And yes, it still mixes in the random data, but since it doesn't account 
-> for the randomness, that only helps /dev/urandom. 
-> 
-> And helping /dev/urandom is _fine_. Don't get me wrong. It just doesn't 
-> make /dev/random any more useful - quite the reverse. Your patch will just 
-> make more people say "/dev/random isn't useful, use /dev/urandom instead".
+It is fairly trivial to change the init scripts to save/restore more than
+4096 bits of entropy, and for /dev/random to accumulate more than this.
+For people who have _any_ source of "real" entropy, but it is occasionally
+in high demand, they could set up a larger pool to accumulate entropy
+in between peak demand.  It is basically just a few lines of change in
+/etc/init.d/[u]random - all the kernel hooks are there.
 
-No, it says /dev/random is primarily useful for generating large
-(>>160 bit) keys.
+Even so, I would agree with Linus in the thought that being "too
+paranoid" makes it basically useless.  If you have people sniffing
+your network right next to the WAN side of your IPSec firewall with
+GHz network analyzers and crafting packets to corrupt your entropy
+pool, then chances are they could just as easily sniff the LAN side
+of your network and get the unencrypted data directly.  The same
+holds true for keystroke logging (or spy camera) to capture your pass
+phrase instead of trying an incredibly difficult strategy to "influence"
+the generation of this huge key in advance.
 
-> Do you not see the fallacy of that approach? You're trying to make
-> /dev/random safer, but what you are actually _doing_ is to make people not
-> use it, and use /dev/urandom instead. Which makes all of the estimation
-> code useless.
+In the end, if you make it so hard to extract your secrets in a stealthy
+manner, they will just start with a few big guys and a rubber hose...
 
-> THIS is my argument. Randomness is like security: if you make it too hard
-> to use, then you're shooting yourself in the foot, since people end up
-> unable to practically use it.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-Actually, half of the point here is in fact to make /dev/urandom safer
-too, by allowing mixing of untrusted data that would otherwise
-compromise /dev/random. 99.9% of users aren't using network sampling
-currently, after these patches we can turn it on for everyone and
-still sleep well at night. See?
-
-> The point of /dev/random was to make it _easy_ for people to get random
-> numbers that we can feel comfortable about. The point of the accounting is
-> not a theoretical argument, but a way to make us feel _comfortable_ with
-> the amount of true randomness we're seeding in. It was not meant as a 
-> theoretical exercise.
-
-That is an interesting point. A counterpoint is if we account so much
-as 1 bit of entropy per network interrupt on a typical system, the
-system will basically _always_ feel comfortable (see
-/proc/interrupts). It will practically never block and thus it is
-again identical to /dev/urandom.
-
-With my scheme, it's usefully distinguished from /dev/urandom for the
-purposes of things such as one-time public key generation. 
-
-See my note to RML about who actually uses it currently.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTIFT4I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIFT4I
+	id S261675AbTIFTxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 15:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbTIFTxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:56:08 -0400
-Received: from chello080110084234.506.15.vie.surfer.at ([80.110.84.234]:54955
-	"EHLO elch.elche") by vger.kernel.org with ESMTP id S261783AbTIFT4E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:56:04 -0400
-Date: Sat, 6 Sep 2003 21:55:59 +0200
-From: Armin Obersteiner <armin@xos.net>
-To: Jose Luis Alarcon Sanchez <jlalarcon@chevy.zzn.com>
-Cc: armin@xos.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test4 latencey problems + howto compilation
-Message-ID: <20030906195559.GA18299@elch.elche>
-References: <A340D5F1860783E4BBC9E429C5A7DAFD@jlalarcon.chevy.zzn.com>
+	Sat, 6 Sep 2003 15:53:48 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:4371
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261675AbTIFTxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 15:53:47 -0400
+Subject: RE: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+From: Robert Love <rml@tech9.net>
+To: John Yau <jyau_kernel_dev@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+Content-Type: text/plain
+Message-Id: <1062878664.3754.12.camel@boobies.awol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A340D5F1860783E4BBC9E429C5A7DAFD@jlalarcon.chevy.zzn.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sat, 06 Sep 2003 16:04:24 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+On Sat, 2003-09-06 at 14:17, John Yau wrote:
 
->   I don't know why the previous module-init-tools don't work
-> for your system. I am using the 2.6.0-test4 kernel (with the
-> Nick Piggin ideas about schedule patched) and i can manage
-> modules perfectly. This is my depmod -V output:
-> 
-> module-init-tools 0.9.10
-> 
->   Maybe you can have another thing broken?.
+> Scratch that, I just found Ingo's patch.  My patch does essentially the same
+> thing except it only allows the current active process to be preempted if it
+> got demoted in priority during the effective priority recalculation.  This
+> IMHO is better because it doesn't do unnecessary context switches.  If the
+> process were truly a CPU hog relative other processes on the run queue, then
+> it'd get preempted eventually when it gets demoted rather than always every
+> 25 ms.
 
-I did not try every version from 0.9.10 to 0.9.13. I can remember
-0.9.9 (recommended) did not work and 0.9.14-pre did not work/compile
-(most current) so I tried 0.9.13 - and this one worked :)
+The rationale behind Ingo's patch is to "break up" the timeslices to
+give better scheduling latency to multiple tasks at the same priority. 
+So it is not "unnecessary context switches," just "extra context
+switches."
 
-Of course maybe there is an other cause 0.9.9 not working (I had to
-upgrade the normal modutils too), but I would simply recommend 0.9.13 
-for 2.6-test5.
+It also recalculates the process's effective priority, like yours does,
+so it also has the same advantage as your patch: to more quickly detect
+tasks that have changed in interactivity, and to handle that.
 
-Regards,
-	Armin
---
-armin@xos.net                        pgp public key on request        CU
+Not sure which approach is better.  Only testing will tell.
+
+> How come Ingo's granular timeslice patch didn't get put into 2.6.0-test4?
+
+Interactivity improvements are currently a contentious issue.  The patch
+is back in 2.6-mm, though.
+
+	Robert Love
+
+

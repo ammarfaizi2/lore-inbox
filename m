@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbTJ2WxH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 17:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTJ2WxH
+	id S261873AbTJ2WmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 17:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTJ2WmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 17:53:07 -0500
-Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:23424 "EHLO
-	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261943AbTJ2WxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 17:53:04 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Wed, 29 Oct 2003 17:42:21 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:59851 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261873AbTJ2WmT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 17:42:19 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Timothy Miller" <miller@techsource.com>
+Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: People, not GPL  [was: Re: Driver Model]
+Date: Wed, 29 Oct 2003 14:42:13 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEOCHIAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16288.17470.778408.883304@wombat.chubb.wattle.id.au>
-Date: Thu, 30 Oct 2003 09:50:38 +1100
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Gabriel Paubert <paubert@iram.es>, john stultz <johnstul@us.ibm.com>,
-       Joe Korty <joe.korty@ccur.com>, Linus Torvalds <torvalds@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: gettimeofday resolution seriously degraded in test9
-In-Reply-To: <20031029113850.047282c4.shemminger@osdl.org>
-References: <20031027234447.GA7417@rudolph.ccur.com>
-	<1067300966.1118.378.camel@cog.beaverton.ibm.com>
-	<20031027171738.1f962565.shemminger@osdl.org>
-	<20031028115558.GA20482@iram.es>
-	<20031028102120.01987aa4.shemminger@osdl.org>
-	<20031029100745.GA6674@iram.es>
-	<20031029113850.047282c4.shemminger@osdl.org>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <3F62335B.9050202@techsource.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Stephen" == Stephen Hemminger <shemminger@osdl.org> writes:
 
-Stephen> On Wed, 29 Oct 2003 11:07:45 +0100 Gabriel Paubert
-Stephen> <paubert@iram.es> wrote:
->> for example.
+> David Schwartz wrote:
 
-Stephen> The suggestion of using time interpolation (like ia64) would
-Stephen> make the discontinuities smaller, but still relying on fine
-Stephen> grain gettimeofday for controlling servo loops with NTP
-Stephen> running seems risky. Perhaps what you want to use is the
-Stephen> monotonic_clock which gives better resolution (nanoseconds)
-Stephen> and doesn't get hit by NTP.
+> But beyond this, there are some social issues.  If someone finds a way
+> to work around this mechanism, they are breaking things to everyone
+> else's detriment.  For a commercial entity to violate the GPL_ONLY
+> barrier is an insult to kernel developers AND to their customers who
+> will have trouble getting problems solved.
 
-monotonic_clock:
-	-- isn't implemented for most architectures
-	-- even for X86 only works for some timing sources
-	-- and for the most common case is variable rate because of
-	   power management functions changing the TSC clock rate.
+	While I understand this point of view, I do not share it. People
+contributed to the Linux kernel project largely because it *was* an open
+process. Nobody has the right to take offense when it's used for a different
+reason than they had intended. If you want control over how your code is
+used and modified, *don't* GPL it. If you're going to take offense when
+people remove restrictions you impose, regardless of how much you like the
+restrictions, *don't*' GPL it. It's that simple.
 
-As far as I know, there isn't a constant-rate monotonic clock
-available at present for all architectures in the linux kernel.  The
-nearest thing is scheduler_clock().
+> So, if a company works around GPL_ONLY, are they violating the GPL
+> license?  Probably not.  Does that make it OKAY?  Probably not.
 
-Peter C
+	What's not okay is trying to inject your own rules on how GPL'd software
+can be used. That's perhaps tolerable if you're the sole author. It's
+condemnable when you're one among many.
+
+> This is like finding a way to give a user space program access to kernel
+> resources.  There are barriers put in place for a REASON because people
+> make mistakes when they write software.  If no one did, we wouldn't have
+> any need for memory protection, would we.
+
+	Yet there is a project that removes all of these boundaries in the name of
+improved performance for trusted applications. These are engineering
+trade-offs and one of the good things about the GPL is that I'm not stuck,
+by law or custom, when your engineering trade-offs if I don't think they
+apply to me.
+
+	DS
+
+

@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135541AbRDSDyI>; Wed, 18 Apr 2001 23:54:08 -0400
+	id <S135540AbRDSD4I>; Wed, 18 Apr 2001 23:56:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135540AbRDSDyA>; Wed, 18 Apr 2001 23:54:00 -0400
-Received: from tinylinux.tip.CSIRO.AU ([130.155.192.102]:47620 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S135538AbRDSDxt>; Wed, 18 Apr 2001 23:53:49 -0400
-Date: Thu, 19 Apr 2001 13:53:36 +1000
-Message-Id: <200104190353.f3J3raq00949@mobilix.atnf.CSIRO.AU>
-From: Richard Gooch <rgooch@atnf.csiro.au>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE New Open Source X server
-In-Reply-To: <20010418192030.F29903@work.bitmover.com>
-In-Reply-To: <Pine.LNX.4.10.10104181317440.1478-100000@www.transvirtual.com>
-	<15070.4428.345455.994818@pizda.ninka.net>
-	<20010418192824.A21365@rochester.rr.com>
-	<3ADE2EBD.8A875AE1@megapathdsl.net>
-	<20010418215602.A9035@rochester.rr.com>
-	<20010418192030.F29903@work.bitmover.com>
+	id <S135539AbRDSD4A>; Wed, 18 Apr 2001 23:56:00 -0400
+Received: from m20-mp1-cvx1c.col.ntl.com ([213.104.76.20]:18816 "EHLO
+	[213.104.76.20]") by vger.kernel.org with ESMTP id <S135538AbRDSDzy>;
+	Wed, 18 Apr 2001 23:55:54 -0400
+To: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Next gen PM interface
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD91@orsmsx35.jf.intel.com>
+	<m2oftvkm6f.fsf@boreas.yi.org.>
+From: John Fremlin <chief@bandits.org>
+Date: 19 Apr 2001 04:54:56 +0100
+In-Reply-To: <m2oftvkm6f.fsf@boreas.yi.org.>
+Message-ID: <m2d7a97ddb.fsf_-_@bandits.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
-> In other words, what the world does not need is another project.
-> What the world does need is people who roll up their sleeves and do
-> real work.  You may well be one of them, that would be cool.  But
-> what would be even cooler is if we join together on real, existing
-> efforts and work on them rather than just constantly make up a new
-> project.  Yeah, it's a lot harder, you have to put at least part of
-> your ego aside and accept someone else's leadership, but more gets
-> done that way.
+John Fremlin <chief@bandits.org> writes:
 
-Fixing NFS corruption would be a good project to work on. Despite
-years of banging away at this problem, the community has yet to fix
-it.
+[...]
 
-				Regards,
+> IMHO the pm interface should be split up as following:
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Nobody has disagreed: therefore this separation must be perfect ;-)
+
+>         (1) Battery status, power status, UPS status polling. It
+>         should be possible for lots of processes to do this
+>         simultaneously. [That does not prohibit a single process
+>         querying the kernel and all the others querying it.]
+
+Solution. Have a bunch of procfs or dev nodes each giving info on a
+particular power source, like now, but vaguely standardise the output.
+
+>         (2) Funky events happening to the physical machine, like a
+>         button being pressed, the case being closed, etc. [Should this
+>         include battery low warnings, power status changes? I don't
+>         know.]
+
+Solution. Have a special procfs or dev node that any number of people
+can select(2) or read(2). Protocol text. Syntax:
+
+        <event> <WS> <subsystem> <WS> <description> <LF>
+
+Where <event> is one of the strings
+OFF,SLEEP,WAKE,EMERGENCY,POWERCHANGE, <WS> is a space character,
+<subsystem> is a word signifying the kernel pm interface responsible
+for generating th event, <description> is an arbitrary string. <LF> is
+a newline character \n.
+
+This is flexible and simple. It means a reasonable default behaviour
+can be suggested by the kernel (OFF,SLEEP,etc.) for events that
+userspace doesn't know about and yet userspace can choose fine grained
+policy and provide helpful error messages based on the exact event by
+checking the description.
+
+[...]
+
+>         (3) Sending the machine to sleep, turning it off. It should be
+>         possible to do this from userspace ;-)
+
+I would suggest that all pm capable objects should be able to be
+controlled individually. E.g. you should be able to send your monitor
+to sleep alone, leaving other stuff running. Fbdrivers are already
+capable of this on some archs.
+
+IOW I suggest a nice FS with a dir per PM capable device. In this
+dir would be
+
+        name - descriptive text name of device class
+
+        wake - writing to this node wakes device
+
+        sleep - writing a number n (text encoded) sends the device to
+        sleep in such a way that it can be back in action in no less
+        than n seconds after a wakeup call on a vague guess
+        basis. Reading from it gets errno.
+
+        off - writing to this node puts device in deepest possible
+        sleep, possibly losing state. Reading gets errno.
+
+Like the proc/sys/net/ipv4/neigh stuff you can have an all/ dir that'd
+try to whatever to everything. Hotunplug can be handled.
+
+Any objections? Would such a patch be accepted by the powers that be?
+
+[...]
+
+-- 
+
+	http://www.penguinpowered.com/~vii

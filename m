@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUJBRUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUJBRCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267451AbUJBRUA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 13:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUJBRRB
+	id S267417AbUJBRCm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 13:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJBRAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 13:17:01 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:10213 "EHLO
-	mwinf0206.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S267433AbUJBRQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 13:16:07 -0400
-Message-ID: <415EE250.4010108@setibzh.com>
-Date: Sat, 02 Oct 2004 19:16:00 +0200
-From: Beber <beber@setibzh.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: DMA timeout error
-References: <cjmk3s$gjs$1@sea.gmane.org>
-In-Reply-To: <cjmk3s$gjs$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Oct 2004 13:00:42 -0400
+Received: from nl-ams-slo-l4-01-pip-6.chellonetwork.com ([213.46.243.23]:22036
+	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S267400AbUJBRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 13:00:26 -0400
+Date: Sat, 2 Oct 2004 19:00:23 +0200
+Message-Id: <200410021700.i92H0NqB021167@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 489] minmax-removal arch/m68k/kernel/bios32.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add pci=noapic to your boot option
-;)
+M68k PCI: Removes unnecessary min/max macros and change calls to use kernel.h
+macros instead.
 
-Adam Sherman wrote:
+Signed-off-by: Michael Veeck <michael.veeck@gmx.net>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> I have a VIA M6000 board with an ATA CompactFlash adaptor containing a
-> 512MB SanDisk card.
->
-> I get the following error during boot:
->
-> hdb: dma_timer_expiry: dma status == 0x41
-> hdb: DMA timeout error
-> hdb: dma timeout error: status=0x58 { DriveReady SeekComplete 
-> DataRequest }
->
-> hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->
-> hdb: drive not ready for command
-> hdb: dma_timer_expiry: dma status == 0x41
-> hdb: DMA timeout error
-> hdb: dma timeout error: status=0x58 { DriveReady SeekComplete 
-> DataRequest }
->
-> hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->
-> hdb: drive not ready for command
->
->
-> Any ideas?
->
-> Thanks,
->
-> A.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--- linux-2.6.9-rc3/arch/m68k/kernel/bios32.c	2004-08-24 14:17:47.000000000 +0200
++++ linux-m68k-2.6.9-rc3/arch/m68k/kernel/bios32.c	2004-09-10 20:20:25.000000000 +0200
+@@ -46,8 +46,6 @@
+ 
+ #define ALIGN(val,align)	(((val) + ((align) - 1)) & ~((align) - 1))
+ 
+-#define MAX(val1, val2)		(((val1) > (val2)) ? val1 : val2)
+-
+ /*
+  * Offsets relative to the I/O and memory base addresses from where resources
+  * are allocated.
+@@ -171,7 +169,7 @@ static void __init layout_dev(struct pci
+ 			 * Align to multiple of size of minimum base.
+ 			 */
+ 
+-			alignto = MAX(0x040, size) ;
++			alignto = max_t(unsigned int, 0x040, size);
+ 			base = ALIGN(io_base, alignto);
+ 			io_base = base + size;
+ 			pci_write_config_dword(dev, reg, base | PCI_BASE_ADDRESS_SPACE_IO);
+@@ -214,7 +212,7 @@ static void __init layout_dev(struct pci
+ 			 * Align to multiple of size of minimum base.
+ 			 */
+ 
+-			alignto = MAX(0x1000, size) ;
++			alignto = max_t(unsigned int, 0x1000, size);
+ 			base = ALIGN(mem_base, alignto);
+ 			mem_base = base + size;
+ 			pci_write_config_dword(dev, reg, base);
 
--- 
-/* Beber : beber (AT) setibzh (DOT) com
-* https://guybrush.ath.cx
-* Using Mozilla Thunderbird on Gentoo Linux
-* Rachel @ friends.paris
-*/
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

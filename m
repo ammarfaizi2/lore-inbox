@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263216AbSJ2XJv>; Tue, 29 Oct 2002 18:09:51 -0500
+	id <S263313AbSJ2XKv>; Tue, 29 Oct 2002 18:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbSJ2XJv>; Tue, 29 Oct 2002 18:09:51 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:49302 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S263216AbSJ2XJu>; Tue, 29 Oct 2002 18:09:50 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 29 Oct 2002 15:25:42 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Hanna Linder <hannal@us.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@digeo.com>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-In-Reply-To: <54690000.1035932769@w-hlinder>
-Message-ID: <Pine.LNX.4.44.0210291524210.1457-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263321AbSJ2XKv>; Tue, 29 Oct 2002 18:10:51 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5134 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263313AbSJ2XKt>;
+	Tue, 29 Oct 2002 18:10:49 -0500
+Date: Tue, 29 Oct 2002 15:14:36 -0800
+From: Greg KH <greg@kroah.com>
+To: christophe varoqui <christophe.varoqui@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC]partitions through device-mapper
+Message-ID: <20021029231436.GB29560@kroah.com>
+References: <Pine.GSO.4.21.0210290916360.9171-100000@weyl.math.psu.edu> <200210291941.10659.christophe.varoqui@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210291941.10659.christophe.varoqui@free.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, Hanna Linder wrote:
-
-> --On Tuesday, October 29, 2002 13:41:34 -0800 Davide Libenzi <davidel@xmailserver.org> wrote:
-> >>
-> >> > Hanna, is it possible for you guys to cleanup ephttpd and make it an
-> >> > example program for sys_epoll ?
-> >>
-> >> You mean for the man page? Sure, I will look into it.
+On Tue, Oct 29, 2002 at 08:41:10PM +0200, christophe varoqui wrote:
+> > a) devmapper is merged, but it sure as hell is not mandatory
 > >
-> > Not only for the man page, like a kind-of-reference possible usage ...
->
->
-> Would it make sense to put sys_epoll examples in the Documentation
-> directory?
+> let me argue that if I decide to hand my system FS to the device-mapper I 
+> wouldn't want the current partition code to be mandatory either (devil's 
+> advocate speaking)
+> 
+> > b) relying on the hotplug working right means living dangerously.  Right
+> > now that code is brittle in the best case.
+> >
+> > c) all existing races in overlapping attach/detach (and $DEITY witness,
+> > there's a plenty) immediately become much wider [OK, that's part of
+> > (b), actully]
+> >
+> > IOW, right now the thing is nowhere near being ready for such use.
+> 
+> point taken.
+> But, the question remains : do we want to get there in the end ?
+> (question from the time-and-effort-worthy? departement)
 
-I don't really know ... epoll does not have kernel services. IMHO this is
-more user space documentation.
+>From what I understand about partitions, yes, I think we eventually do
+want to get there.  
 
+thanks,
 
-
-- Davide
-
-
+greg k-h

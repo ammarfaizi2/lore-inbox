@@ -1,24 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265727AbSLXSsS>; Tue, 24 Dec 2002 13:48:18 -0500
+	id <S265736AbSLXSzy>; Tue, 24 Dec 2002 13:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSLXSsS>; Tue, 24 Dec 2002 13:48:18 -0500
-Received: from mail41-s.fg.online.no ([148.122.161.41]:26821 "EHLO
-	mail41.fg.online.no") by vger.kernel.org with ESMTP
-	id <S265727AbSLXSsR>; Tue, 24 Dec 2002 13:48:17 -0500
-Date: Tue, 24 Dec 2002 19:56:26 +0100 (MET)
-Message-Id: <200212241856.TAA14250@mail41.fg.online.no>
-From: Michael <soppscum@online.no>
-To: linux-kernel@vger.kernel.org
-Subject: Debugging "cpu freezes"
-Organization: na
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265754AbSLXSzy>; Tue, 24 Dec 2002 13:55:54 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:18888 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265736AbSLXSzx>; Tue, 24 Dec 2002 13:55:53 -0500
+Date: Tue, 24 Dec 2002 11:04:02 -0800
+From: "Martin J. Bligh" <fletch@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix 4 compile time warnings in 2.5.53
+Message-ID: <64430000.1040756642@titus>
+In-Reply-To: <20021224182458.GL9704@holomorphy.com>
+References: <48180000.1040751403@titus>
+ <20021224182458.GL9704@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm wondering what the procedure for debugging instances where the computer freezes completly, when sysRQ doesn't even work.
-Since I know how to reproduce(and workaround for daily use) a complete system freeze in 2.4.X, don't know if I can explain how, but for example booting the knoppix live-cd to kde would be a perfect way of freezing it(after moving a few windows)
-(Not using KDE reduces the risk of it freezing greatly)
+>> drivers/serial/core.c: In function `uart_get_divisor':
+>> drivers/serial/core.c:390: warning: `quot' might be used uninitialized
+>> in  this function
+>
+> This is a (harmless) toolchain problem. Upgrading compilers (or patching
+> your current compiler) fixes it. I've posted a "fix" for this before.
+
+I refuse to upgrade the compiler on every machine in the lab from
+standard Debian woody to fix one stupid compiler error. This is a
+completely harmless substitution that makes the error go away. We
+don't live in a theoretical utopia.
+
+M.
+

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265618AbTFNFVx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 01:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbTFNFVx
+	id S265619AbTFNF0m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 01:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbTFNF0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 01:21:53 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:39924 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S265618AbTFNFVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 01:21:53 -0400
-Date: Sat, 14 Jun 2003 07:11:37 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Serguei Miridonov <mirsev@cicese.mx>
-Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>, linux-kernel@vger.kernel.org
-Subject: Re: via-rhine strange behavior 2.4.21-rc8
-Message-ID: <20030614051137.GA968@deimos.one.pl>
-References: <200306121227.07122@gjs> <20030613170426.GB573@deimos.one.pl> <3EEA12C0.E15DBAF2@cicese.mx> <20030613175959.GA1495@deimos.one.pl>
+	Sat, 14 Jun 2003 01:26:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28860 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265619AbTFNF0l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 01:26:41 -0400
+Date: Fri, 13 Jun 2003 22:36:34 -0700 (PDT)
+Message-Id: <20030613.223634.74746570.davem@redhat.com>
+To: niv@us.ibm.com
+Cc: anton@samba.org, haveblue@us.ibm.com, hdierks@us.ibm.com,
+       scott.feldman@intel.com, dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
+       milliner@us.ibm.com, ricardoz@us.ibm.com, twichell@us.ibm.com,
+       netdev@oss.sgi.com
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EEAAFA6.9080609@us.ibm.com>
+References: <20030613223841.GB32097@krispykreme>
+	<20030613.154634.74748085.davem@redhat.com>
+	<3EEAAFA6.9080609@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030613175959.GA1495@deimos.one.pl>
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21, up 1 min,  1 user,  load average: 0.09, 0.05, 0.01
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 07:59:59PM +0200, Damian Ko³kowski wrote:
-> I was using tha -pre, -rc, -ac with ACPI and via-rhine on my ECS was not
-> working.
-> 
-> P.S. Right now I'am compiling -rc8-ac1 with new ACPI, I will check in
-> once again on my slack-current.
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Fri, 13 Jun 2003 22:16:22 -0700
 
-It works, but without the CONFIG_X86_UP_IOAPIC.
-
-P.S. It's normal PC desktop, not laptop :-)
-
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+   Yep, but it really doesn't have too many options (sic pun ;))..
+   i.e. The max the options can add are 40 bytes, speaking
+   strictly TCP, not IP. This really should fit into one extra
+   cacheline for most architectures, at most, right?
+   
+It's what the bottom of the header is aligned to, but
+we build the packet top to bottom not the other way around.

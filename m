@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318802AbSIPFFS>; Mon, 16 Sep 2002 01:05:18 -0400
+	id <S318805AbSIPFIy>; Mon, 16 Sep 2002 01:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318804AbSIPFFS>; Mon, 16 Sep 2002 01:05:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37599 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318802AbSIPFFS>;
-	Mon, 16 Sep 2002 01:05:18 -0400
-Date: Sun, 15 Sep 2002 22:01:31 -0700 (PDT)
-Message-Id: <20020915.220131.104193664.davem@redhat.com>
-To: alex14641@yahoo.com
-Cc: TheUnforgiven@attbi.com, linux-kernel@vger.kernel.org
-Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020916042625.55842.qmail@web40509.mail.yahoo.com>
-References: <20020916042625.55842.qmail@web40509.mail.yahoo.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318807AbSIPFIy>; Mon, 16 Sep 2002 01:08:54 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:59112 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S318805AbSIPFIy>; Mon, 16 Sep 2002 01:08:54 -0400
+Date: Sun, 15 Sep 2002 22:30:04 -0700
+From: Matt Porter <porter@cox.net>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] add vmalloc stats to meminfo
+Message-ID: <20020915223004.A17831@home.com>
+References: <3D8422BB.5070104@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D8422BB.5070104@us.ibm.com>; from haveblue@us.ibm.com on Sat, Sep 14, 2002 at 11:03:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alex Davis <alex14641@yahoo.com>
-   Date: Sun, 15 Sep 2002 21:26:25 -0700 (PDT)
+On Sat, Sep 14, 2002 at 11:03:39PM -0700, Dave Hansen wrote:
+> Some workloads like to eat up a lot of vmalloc space.  It is often hard to tell
+> whether this is because the area is too small, or just too fragmented.  This 
+> makes it easy to determine.
 
-   Just out of curiosity, do you have AGPMode set to any value other than "1"
-   in your XF86Config file? If so, try setting it to "1".
-   
-More importantly, set it to whatever value you have configured in
-your BIOS setup.  There are lots of chipsets for which the AGP
-mode change is not implemented fully/correctly in the AGP kernel
-drivers.
+Great, I was going to do something nearly the same to help out
+with debugging high-end embedded applications.  It is quite common
+for us to see multiple PCI masters with PCI memory windows in sizes
+ranging from 256MB-1GB that are being ioremapped and consuming
+vmalloc space (along with all the other consumers).  I'd love to
+see this in the kernel since it would make it much easier to debug
+some folks' custom board ports when they show symptoms of running
+out of vmalloc space (i.e. modules not loading).
+
+Regards,
+-- 
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLOQRc>; Fri, 15 Dec 2000 11:17:32 -0500
+	id <S129666AbQLOQ2W>; Fri, 15 Dec 2000 11:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbQLOQRV>; Fri, 15 Dec 2000 11:17:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:26392 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129289AbQLOQRN>; Fri, 15 Dec 2000 11:17:13 -0500
-Date: Fri, 15 Dec 2000 16:46:26 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
-        rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
-Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
-Message-ID: <20001215164626.C16586@inspiron.random>
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random> <200012011819.KAA02951@pizda.ninka.net> <20001201201444.A2098@inspiron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001201201444.A2098@inspiron.random>; from andrea@suse.de on Fri, Dec 01, 2000 at 08:14:44PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129641AbQLOQ2M>; Fri, 15 Dec 2000 11:28:12 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:15112 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129423AbQLOQ2A>;
+	Fri, 15 Dec 2000 11:28:00 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Dana Lacoste" <dana.lacoste@peregrine.com>
+Date: Fri, 15 Dec 2000 16:56:52 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: [OT] Re: Linus's include file strategy redux
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <FBF96516CD5@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2000 at 08:14:44PM +0100, Andrea Arcangeli wrote:
-> On Fri, Dec 01, 2000 at 10:19:44AM -0800, David S. Miller wrote:
-> > I would instead suggest to declare 'context' to be of an arch-specific
-> > defined type, much like "thread_struct" is.
+On 15 Dec 00 at 10:23, Dana Lacoste wrote:
+> > On Fri, Dec 15, 2000 at 12:14:04AM +0000, Miquel van Smoorenburg wrote:
 > 
-> I agree, [..]
+> > It's the version that's in cvs, I just did an cvs update.  It's
+> > been in it for ages.  If it's wrong, someone *please* correct it.
+> 
+> I think this is the important part.
+> This subject has come up quite a few times in the past
+> couple of weeks on the scyld (eepro/tulip) mailing lists.
+> 
+> Essentially, whatever solution is implemented MUST ensure :
+> 
+> 1 - glibc will work properly (the headers in /usr/include/* don't
+>     change in an incompatible manner)
+> 
+> 2 - programs that need to compile against the current kernel MUST
+>     be able to do so in a quasi-predictable manner.
 
-Here it is:
+Maybe you did not notice, but for months we have
+/lib/modules/`uname -r`/build/include, which points to kernel headers,
+and which should be used for compiling out-of-tree kernel modules
+(i.e. latest vmware uses this).
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test12/alpha-ASN-SMP-races-2.4.x-2
+If you want to use some linux-specific feature in your program, you have
+two choices: (1) use standard <linux/xxx.h> from version which came with
+glibc, or (2) create your personal copy of known-to-work xxx.h.
+Using anything else (such as latest version of xxx.h) is known to not
+work, and brokes very often. Compare existing headers between 1.2.0 and
+2.4.0. They are - hmm - a bit different. Also, what if user currently
+has installed 2.2.x kernel, but in future it will want to use 2.4.x, with
+its new features. You have to recompile all programs because of they were 
+compiled with old kernel headers? No. 
 
-This one breaks all archs but i386 and alpha. If some arch maintainer likes me
-to update its arch blindly implementing mm_arch structure as an `unsigned long
-context' and fixing up the miscompilation I will do.
-
-Andrea
+[And for example, with ncpfs you just cannot create version which works
+with 2.0/2.2/2.4 using kernel headers, as API changed during time
+completely. With private headers it is easy. You can also add support
+into userspace without modifying Linus kernel. And after some time
+you can swap API in kernel and no-one notices (modulo whether Linus will 
+agree with change, but you can always ask in advance).]
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

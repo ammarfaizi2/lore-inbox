@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAISY3>; Tue, 9 Jan 2001 13:24:29 -0500
+	id <S129692AbRAIS0J>; Tue, 9 Jan 2001 13:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAISYT>; Tue, 9 Jan 2001 13:24:19 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:29711 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129324AbRAISYK>; Tue, 9 Jan 2001 13:24:10 -0500
-Date: Tue, 9 Jan 2001 10:23:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org, Christoph Rohland <cr@sap.com>
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <20010109140932.E4284@redhat.com>
-Message-ID: <Pine.LNX.4.10.10101091021280.2070-100000@penguin.transmeta.com>
+	id <S129985AbRAISZ7>; Tue, 9 Jan 2001 13:25:59 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:61969 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S129692AbRAISZt>; Tue, 9 Jan 2001 13:25:49 -0500
+Message-ID: <3A5B577F.DB1726B7@didntduck.org>
+Date: Tue, 09 Jan 2001 13:25:03 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kaj-Michael Lang <milang@tal.org>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Raid code panic with kernel compiled for i486
+In-Reply-To: <001401c07a65$e9c41040$56dc10c3@tal.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+Kaj-Michael Lang wrote:
 > 
-> But again, how do you clear the bit?  Locking is a per-vma property,
-> not per-page.  I can mmap a file twice and mlock just one of the
-> mappings.  If you get a munlock(), how are you to know how many other
-> locked mappings still exist?
+> I was testing the 2.4.0 kernel and found out that when a kernel
+> compiled for processors under P3 (i486, P2/Celeron) and booting it on a P3
+> the kernel
+> panics when it's tries to test different RAID5 xor algorithms.
+> 
+> The panic looks something like this:
+> 
+> ...
+> raid5: measuring checksuming speed
+> 8regs    : 773.430 MB/sec
+> 32regs    :    562.356 MB/sec
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c0259c7d>]
+> ...
+> 
 
-Note that this would be solved very cleanly if the SHM code would use the
-"VM_LOCKED" flag, and actually lock the pages in the VM, instead of trying
-to lock them down for writepage().
+Try 2.4.1-pre1.  It's choking because SSE hasn't been enabled since it's
+compiled for a 486.
 
-That would mean that such a segment would still get swapped out when it is
-not mapped anywhere, but I wonder if that semantic difference really
-matters.
+--
 
-If the vma is marked VM_LOCKED, the VM subsystem will do the right thing
-(the page will never get removed from the page tables, so it won't ever
-make it into that back-and-forth bounce between the active and the
-inactive lists).
-
-		Linus
-
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

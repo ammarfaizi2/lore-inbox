@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262734AbRFDSHt>; Mon, 4 Jun 2001 14:07:49 -0400
+	id <S263772AbRFCVFJ>; Sun, 3 Jun 2001 17:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264363AbRFDSHr>; Mon, 4 Jun 2001 14:07:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39691 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264235AbRFDSCU>; Mon, 4 Jun 2001 14:02:20 -0400
-Subject: Re: Linux 2.4.5-ac7
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Mon, 4 Jun 2001 18:59:25 +0100 (BST)
-Cc: green@linuxhacker.ru (Oleg Drokin), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010604105600.D18033@opus.bloom.county> from "Tom Rini" at Jun 04, 2001 10:56:00 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E156ydR-0005hH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S263754AbRFCUj1>; Sun, 3 Jun 2001 16:39:27 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:11212 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263753AbRFCUjI>;
+	Sun, 3 Jun 2001 16:39:08 -0400
+Date: Sun, 3 Jun 2001 22:38:29 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106032038.WAA184171.aeb@vlet.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: mount --bind accounting
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I tried replying to this yesterday and it didn't get through, so..
-> All of the MPC8xx chips can have a USB controller as well (albiet not OHCI
-> or UHCI) and none of them have PCI either.
+Something entirely different.
 
-Ok I will change a future -ac to check PCI for OHCI/UHCI and then check 
-'any host controller' for the devices
+Last year I added the comment
+	/* No capabilities? What if users do thousands of these? */
+in super.c for "mount --bind".
+Now that I do some polishing there I noticed the comment again.
+
+Each bind does an alloc_vfsmnt() and hence takes some kernel memory.
+Any user can therefore take all kernel memory, until
+	kmalloc(sizeof(struct vfsmount), GFP_KERNEL)
+fails. Bad security.
+I suppose something needs to be done about that.
+
+Invent an arbitrary limit
+	#define MAX_NUMBER_OF_USER_BINDS 666
+and refuse the "mount --bind" when inspection of the mnt_owner fields
+of the entries in the vfsmntlist shows that this user already has
+too many mounts?
+
+Andries

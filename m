@@ -1,478 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVBXJwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVBXJ4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVBXJwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 04:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVBXJwd
+	id S262159AbVBXJ4c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 04:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVBXJ4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 04:52:33 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:1960 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262159AbVBXJee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 04:34:34 -0500
+	Thu, 24 Feb 2005 04:56:31 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58871 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262155AbVBXJe2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 04:34:28 -0500
 To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: ckrm-tech@lists.sourceforge.net
 Reply-To: Gerrit Huizenga <gh@us.ibm.com>
 From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: [PATCH] CKRM [6/8] CKRM tracking for socket classes
+Subject: [PATCH] CKRM [5/8]  task based management for CPU, memory & disk IO
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <26682.1109237672.1@us.ibm.com>
-Date: Thu, 24 Feb 2005 01:34:32 -0800
-Message-Id: <E1D4FOC-0006wP-00@w-gerrit.beaverton.ibm.com>
+Content-ID: <26675.1109237666.1@us.ibm.com>
+Date: Thu, 24 Feb 2005 01:34:26 -0800
+Message-Id: <E1D4FO6-0006wI-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the extensions for CKRM to track per socket classes.
-This is the base to enable socket based resource control for inbound
-connection control, bandwidth control etc.
+ This patch provides the extensions for CKRM to track task classes.
+ This is the base to enable task class based resource control for
+ cpu, memory and disk I/O.
 
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
+Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
 Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
-
-Index: linux-2.6.11-rc5-ckrm01/fs/rcfs/Makefile
+Index: linux-2.6.11-rc5/fs/rcfs/Makefile
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/fs/rcfs/Makefile	2005-02-24 01:09:01.190232913 -0800
-+++ linux-2.6.11-rc5-ckrm01/fs/rcfs/Makefile	2005-02-24 01:09:01.408206631 -0800
-@@ -6,3 +6,4 @@
+--- linux-2.6.11-rc5.orig/fs/rcfs/Makefile	2005-02-24 00:55:06.487875181 -0800
++++ linux-2.6.11-rc5/fs/rcfs/Makefile	2005-02-24 00:55:10.938338577 -0800
+@@ -5,3 +5,4 @@
+ obj-$(CONFIG_RCFS_FS) += rcfs.o 
  
  rcfs-y := super.o inode.o dir.o rootdir.o magic.o
- rcfs-$(CONFIG_CKRM_TYPE_TASKCLASS) += tc_magic.o
-+rcfs-$(CONFIG_CKRM_TYPE_SOCKETCLASS) += socket_fs.o
-Index: linux-2.6.11-rc5-ckrm01/fs/rcfs/rootdir.c
++rcfs-$(CONFIG_CKRM_TYPE_TASKCLASS) += tc_magic.o
+Index: linux-2.6.11-rc5/fs/rcfs/rootdir.c
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/fs/rcfs/rootdir.c	2005-02-24 01:09:01.191232792 -0800
-+++ linux-2.6.11-rc5-ckrm01/fs/rcfs/rootdir.c	2005-02-24 01:09:34.051270771 -0800
-@@ -187,6 +187,10 @@
- extern struct rcfs_mfdesc tc_mfdesc;
- #endif
+--- linux-2.6.11-rc5.orig/fs/rcfs/rootdir.c	2005-02-24 00:55:06.487875181 -0800
++++ linux-2.6.11-rc5/fs/rcfs/rootdir.c	2005-02-24 00:55:10.938338577 -0800
+@@ -58,7 +58,7 @@
+ 	return 0;
+ }
  
-+#ifdef CONFIG_CKRM_TYPE_SOCKETCLASS
-+extern struct rcfs_mfdesc rcfs_sock_mfdesc;
+-EXPORT_SYMBOL(rcfs_unregister_engine);
++EXPORT_SYMBOL_GPL(rcfs_unregister_engine);
+ 
+ /*
+  * rcfs_mkroot
+@@ -183,6 +183,10 @@
+ 
+ EXPORT_SYMBOL_GPL(rcfs_deregister_classtype);
+ 
++#ifdef CONFIG_CKRM_TYPE_TASKCLASS
++extern struct rcfs_mfdesc tc_mfdesc;
 +#endif
 +
  /* Common root and magic file entries.
   * root name, root permissions, magic file names and magic file permissions 
   * are needed by all entities (classtypes and classification engines) existing 
-@@ -203,4 +207,10 @@
- #else
- 	NULL,
- #endif
-+#ifdef CONFIG_CKRM_TYPE_SOCKETCLASS
-+	&rcfs_sock_mfdesc,
+@@ -193,6 +197,10 @@
+  * table to initialize their magf entries. 
+  */
+ 
+-struct rcfs_mfdesc *genmfdesc[] = {
++struct rcfs_mfdesc *genmfdesc[CKRM_MAX_CLASSTYPES] = {
++#ifdef CONFIG_CKRM_TYPE_TASKCLASS
++	&tc_mfdesc,
 +#else
-+	NULL,
+ 	NULL,
 +#endif
-+
  };
-Index: linux-2.6.11-rc5-ckrm01/fs/rcfs/socket_fs.c
+Index: linux-2.6.11-rc5/fs/rcfs/tc_magic.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.11-rc5-ckrm01/fs/rcfs/socket_fs.c	2005-02-24 01:09:01.410206390 -0800
-@@ -0,0 +1,308 @@
-+/* ckrm_socketaq.c 
++++ linux-2.6.11-rc5/fs/rcfs/tc_magic.c	2005-02-24 00:55:10.939338456 -0800
+@@ -0,0 +1,93 @@
++/* 
++ * fs/rcfs/tc_magic.c 
 + *
-+ * Copyright (C) Vivek Kashyap,      IBM Corp. 2004
-+ * 
++ * Copyright (C) Shailabh Nagar,      IBM Corp. 2004
++ *           (C) Vivek Kashyap,       IBM Corp. 2004
++ *           (C) Chandra Seetharaman, IBM Corp. 2004
++ *           (C) Hubertus Franke,     IBM Corp. 2004
++ *           
++ * define magic fileops for taskclass classtype
++ *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
 + * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
-+ *
 + */
-+
-+/*******************************************************************************
-+ *  Socket class type
-+ *   
-+ * Defines the root structure for socket based classes. Currently only inbound
-+ * connection control is supported based on prioritized accept queues. 
-+ ******************************************************************************/
 +
 +#include <linux/rcfs.h>
-+#include <net/tcp.h>
++#include <linux/ckrm_tc.h>
 +
-+extern int rcfs_create(struct inode *, struct dentry *, int,
-+		       struct nameidata *);
-+extern int rcfs_unlink(struct inode *, struct dentry *);
-+extern int rcfs_symlink(struct inode *, struct dentry *, const char *);
-+extern int rcfs_mknod(struct inode *, struct dentry *, int mode, dev_t);
-+extern int rcfs_mkdir(struct inode *, struct dentry *, int);
-+extern int rcfs_rmdir(struct inode *, struct dentry *);
-+extern int rcfs_rename(struct inode *, struct dentry *, struct inode *,
-+		       struct dentry *);
++/*
++ * Taskclass general
++ *
++ * Define structures for taskclass root directory and its magic files 
++ * In taskclasses, there is one set of magic files, created automatically under
++ * the taskclass root (upon classtype registration) and each directory (class) 
++ * created subsequently. However, classtypes can also choose to have different 
++ * sets of magic files created under their root and other directories under 
++ * root using their mkdir function. RCFS only provides helper functions for 
++ * creating the root directory and its magic files
++ * 
++ */
 +
-+extern int rcfs_create_coredir(struct inode *, struct dentry *);
-+int rcfs_sock_mkdir(struct inode *, struct dentry *, int mode);
-+int rcfs_sock_rmdir(struct inode *, struct dentry *);
++#define TC_FILE_MODE (S_IFREG | S_IRUGO | S_IWUSR)
 +
-+int rcfs_sock_create_noperm(struct inode *, struct dentry *, int,
-+		       struct nameidata *);
-+int rcfs_sock_unlink_noperm(struct inode *, struct dentry *);
-+int rcfs_sock_mkdir_noperm(struct inode *, struct dentry *, int);
-+int rcfs_sock_rmdir_noperm(struct inode *, struct dentry *);
-+int rcfs_sock_mknod_noperm(struct inode *, struct dentry *, int, dev_t);
-+
-+void rcfs_sock_set_directory(void);
-+
-+extern struct file_operations config_fileops,
-+    members_fileops, shares_fileops, stats_fileops, target_fileops;
-+
-+struct inode_operations my_iops = {
-+	.create = rcfs_create,
-+	.lookup = simple_lookup,
-+	.link = simple_link,
-+	.unlink = rcfs_unlink,
-+	.symlink = rcfs_symlink,
-+	.mkdir = rcfs_sock_mkdir,
-+	.rmdir = rcfs_sock_rmdir,
-+	.mknod = rcfs_mknod,
-+	.rename = rcfs_rename,
-+};
-+
-+struct inode_operations class_iops = {
-+	.create = rcfs_sock_create_noperm,
-+	.lookup = simple_lookup,
-+	.link = simple_link,
-+	.unlink = rcfs_sock_unlink_noperm,
-+	.symlink = rcfs_symlink,
-+	.mkdir = rcfs_sock_mkdir_noperm,
-+	.rmdir = rcfs_sock_rmdir_noperm,
-+	.mknod = rcfs_sock_mknod_noperm,
-+	.rename = rcfs_rename,
-+};
-+
-+struct inode_operations sub_iops = {
-+	.create = rcfs_sock_create_noperm,
-+	.lookup = simple_lookup,
-+	.link = simple_link,
-+	.unlink = rcfs_sock_unlink_noperm,
-+	.symlink = rcfs_symlink,
-+	.mkdir = rcfs_sock_mkdir_noperm,
-+	.rmdir = rcfs_sock_rmdir_noperm,
-+	.mknod = rcfs_sock_mknod_noperm,
-+	.rename = rcfs_rename,
-+};
-+
-+struct rcfs_magf def_magf = {
-+	.mode = RCFS_DEFAULT_DIR_MODE,
-+	.i_op = &sub_iops,
-+	.i_fop = NULL,
-+};
-+
-+struct rcfs_magf rcfs_sock_rootdesc[] = {
++#define NR_TCROOTMF  7
++struct rcfs_magf tc_rootdesc[NR_TCROOTMF] = {
++	/* First entry must be root */
 +	{
-+	 /* .name = should not be set, copy from classtype name, */
++	/* .name = should not be set, copy from classtype name */
 +	 .mode = RCFS_DEFAULT_DIR_MODE,
-+	 .i_op = &my_iops,
-+	 /* .i_fop   = &simple_dir_operations, */
-+	 .i_fop = NULL,
++	 .i_op = &rcfs_dir_inode_operations,
++	 .i_fop = &simple_dir_operations,
++	 },
++	/* Rest are root's magic files */
++	{
++	 .name = "target",
++	 .mode = TC_FILE_MODE,
++	 .i_fop = &target_fileops,
++	 .i_op = &rcfs_file_inode_operations,
 +	 },
 +	{
 +	 .name = "members",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
++	 .mode = TC_FILE_MODE,
 +	 .i_fop = &members_fileops,
++	 .i_op = &rcfs_file_inode_operations,
 +	 },
 +	{
-+	 .name = "target",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &target_fileops,
++	 .name = "stats",
++	 .mode = TC_FILE_MODE,
++	 .i_fop = &stats_fileops,
++	 .i_op = &rcfs_file_inode_operations,
 +	 },
++	{
++	 .name = "shares",
++	 .mode = TC_FILE_MODE,
++	 .i_fop = &shares_fileops,
++	 .i_op = &rcfs_file_inode_operations,
++	 },
++	/*
++	 * Reclassify and Config should be made available only at the 
++	 * root level. Make sure they are the last two entries, as 
++	 * rcfs_mkdir depends on it.
++	 */
 +	{
 +	 .name = "reclassify",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
++	 .mode = TC_FILE_MODE,
 +	 .i_fop = &reclassify_fileops,
++	 .i_op = &rcfs_file_inode_operations,
 +	 },
-+};
-+
-+struct rcfs_magf rcfs_sock_magf[] = {
 +	{
 +	 .name = "config",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
++	 .mode = TC_FILE_MODE,
 +	 .i_fop = &config_fileops,
-+	 },
-+	{
-+	 .name = "members",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &members_fileops,
-+	 },
-+	{
-+	 .name = "shares",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &shares_fileops,
-+	 },
-+	{
-+	 .name = "stats",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &stats_fileops,
-+	 },
-+	{
-+	 .name = "target",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &target_fileops,
++	 .i_op = &rcfs_file_inode_operations,
 +	 },
 +};
 +
-+struct rcfs_magf sub_magf[] = {
-+	{
-+	 .name = "config",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &config_fileops,
-+	 },
-+	{
-+	 .name = "shares",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &shares_fileops,
-+	 },
-+	{
-+	 .name = "stats",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &stats_fileops,
-+	 },
++struct rcfs_mfdesc tc_mfdesc = {
++	.rootmf = tc_rootdesc,
++	.rootmflen = NR_TCROOTMF,
 +};
-+
-+struct rcfs_mfdesc rcfs_sock_mfdesc = {
-+	.rootmf = rcfs_sock_rootdesc,
-+	.rootmflen = (sizeof(rcfs_sock_rootdesc) / sizeof(struct rcfs_magf)),
-+};
-+
-+#define SOCK_MAX_MAGF (sizeof(rcfs_sock_magf)/sizeof(struct rcfs_magf))
-+#define LAQ_MAX_SUBMAGF (sizeof(sub_magf)/sizeof(struct rcfs_magf))
-+
-+int rcfs_sock_rmdir(struct inode *p, struct dentry *me)
-+{
-+	struct dentry *mftmp, *mfdentry;
-+	int ret = 0;
-+
-+	/* delete all magic sub directories */
-+	list_for_each_entry_safe(mfdentry, mftmp, &me->d_subdirs, d_child) {
-+		if (S_ISDIR(mfdentry->d_inode->i_mode)) {
-+			ret = rcfs_rmdir(me->d_inode, mfdentry);
-+			if (ret)
-+				return ret;
-+		}
-+	}
-+	/* delete ourselves */
-+	ret = rcfs_rmdir(p, me);
-+
-+	return ret;
-+}
-+
-+#ifdef NUM_ACCEPT_QUEUES
-+#define LAQ_NUM_ACCEPT_QUEUES NUM_ACCEPT_QUEUES
-+#else
-+#define LAQ_NUM_ACCEPT_QUEUES 0
-+#endif
-+
-+int rcfs_sock_mkdir(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	int retval = 0;
-+	int i, j;
-+	struct dentry *pentry, *mfdentry;
-+
-+	if (_rcfs_mknod(dir, dentry, mode | S_IFDIR, 0)) {
-+		printk(KERN_ERR "rcfs_mkdir: error reaching parent\n");
-+		return retval;
-+	}
-+	/* Needed if only _rcfs_mknod is used instead of i_op->mkdir */
-+	dir->i_nlink++;
-+
-+	retval = rcfs_create_coredir(dir, dentry);
-+	if (retval)
-+		goto mkdir_err;
-+
-+	/* create the default set of magic files */
-+	for (i = 0; i < SOCK_MAX_MAGF; i++) {
-+		mfdentry = rcfs_create_internal(dentry, &rcfs_sock_magf[i], 0);
-+		mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+		rcfs_get_inode_info(mfdentry->d_inode)->core = 
-+			rcfs_get_inode_info(dentry->d_inode)->core;
-+		rcfs_get_inode_info(mfdentry->d_inode)->mfdentry = mfdentry;
-+		if (rcfs_sock_magf[i].i_fop)
-+			mfdentry->d_inode->i_fop = rcfs_sock_magf[i].i_fop;
-+		if (rcfs_sock_magf[i].i_op)
-+			mfdentry->d_inode->i_op = rcfs_sock_magf[i].i_op;
-+	}
-+
-+	for (i = 1; i < LAQ_NUM_ACCEPT_QUEUES; i++) {
-+		j = sprintf(def_magf.name, "%d", i);
-+		def_magf.name[j] = '\0';
-+
-+		pentry = rcfs_create_internal(dentry, &def_magf, 0);
-+		retval = rcfs_create_coredir(dentry->d_inode, pentry);
-+		if (retval)
-+			goto mkdir_err;
-+		pentry->d_fsdata = &RCFS_IS_MAGIC;
-+		for (j = 0; j < LAQ_MAX_SUBMAGF; j++) {
-+			mfdentry =
-+			    rcfs_create_internal(pentry, &sub_magf[j], 0);
-+			mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+			rcfs_get_inode_info(mfdentry->d_inode)->core =
-+			    rcfs_get_inode_info(pentry->d_inode)->core;
-+			rcfs_get_inode_info(mfdentry->d_inode)->mfdentry =
-+				 mfdentry;
-+			if (sub_magf[j].i_fop)
-+				mfdentry->d_inode->i_fop = sub_magf[j].i_fop;
-+			if (sub_magf[j].i_op)
-+				mfdentry->d_inode->i_op = sub_magf[j].i_op;
-+		}
-+		pentry->d_inode->i_op = &sub_iops;
-+	}
-+	dentry->d_inode->i_op = &class_iops;
-+	return 0;
-+
-+      mkdir_err:
-+	/* Needed */
-+	dir->i_nlink--;
-+	return retval;
-+}
-+
-+char *rcfs_sock_get_name(struct ckrm_core_class *c)
-+{
-+	char *p = (char *)c->name;
-+
-+	while (*p)
-+		p++;
-+	while (*p != '/' && p != c->name)
-+		p--;
-+
-+	return ++p;
-+}
-+
-+int
-+rcfs_sock_create_noperm(struct inode *dir, struct dentry *dentry, int mode,
-+		   struct nameidata *nd)
-+{
-+	return -EPERM;
-+}
-+
-+int rcfs_sock_unlink_noperm(struct inode *dir, struct dentry *dentry)
-+{
-+	return -EPERM;
-+}
-+
-+int rcfs_sock_mkdir_noperm(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	return -EPERM;
-+}
-+
-+int rcfs_sock_rmdir_noperm(struct inode *dir, struct dentry *dentry)
-+{
-+	return -EPERM;
-+}
-+
-+int
-+rcfs_sock_mknod_noperm(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
-+{
-+	return -EPERM;
-+}
-Index: linux-2.6.11-rc5-ckrm01/include/linux/ckrm_net.h
+Index: linux-2.6.11-rc5/include/linux/ckrm_tc.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.11-rc5-ckrm01/include/linux/ckrm_net.h	2005-02-24 01:09:01.410206390 -0800
-@@ -0,0 +1,42 @@
-+/* ckrm_rc.h - Header file to be used by Resource controllers of CKRM
++++ linux-2.6.11-rc5/include/linux/ckrm_tc.h	2005-02-24 00:55:10.940338336 -0800
+@@ -0,0 +1,46 @@
++/* ckrm_tc.h - Header file to be used by task class users
 + *
-+ * Copyright (C) Vivek Kashyap , IBM Corp. 2004
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
 + * 
-+ * Provides data structures, macros and kernel API of CKRM for 
-+ * resource controllers.
++ * Provides data structures, macros and kernel API for the 
++ * classtype, taskclass.
 + *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of version 2.1 of the GNU Lesser General Public License
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it would be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 + *
 + */
 +
-+#ifndef _LINUX_CKRM_NET_H
-+#define _LINUX_CKRM_NET_H
++#ifndef _LINUX_CKRM_TC_H_
++#define _LINUX_CKRM_TC_H_
 +
-+struct ckrm_sock_class;
++#ifdef CONFIG_CKRM_TYPE_TASKCLASS
++#include <linux/ckrm_rc.h>
 +
-+struct ckrm_net_struct {
-+	int ns_type;		/* type of net class */
-+	struct sock *ns_sk;	/* pointer to socket */
-+	pid_t ns_tgid;		/* real process id */
-+	pid_t ns_pid;		/* calling thread's pid */
-+	struct task_struct *ns_tsk;
-+	int ns_family;		/* IPPROTO_IPV4 || IPPROTO_IPV6 */
-+				/* Currently only IPV4 is supported */
-+	union {
-+		__u32 ns_dipv4;	/* V4 listener's address */
-+	} ns_daddr;
-+	__u16 ns_dport;		/* listener's port */
-+	__u16 ns_sport;		/* sender's port */
-+	atomic_t ns_refcnt;
-+	struct ckrm_sock_class *core;
-+	struct list_head ckrm_link;
++#define TASK_CLASS_TYPE_NAME "taskclass"
++
++struct ckrm_task_class {
++	struct ckrm_core_class core;
 +};
 +
-+#define ns_daddrv4     ns_daddr.ns_dipv4
++/*
++ * Index into genmfdesc array, defined in rcfs/dir_modules.c,
++ * which has the mfdesc entry that taskclass wants to use.
++ */
++#define TC_MF_IDX  0
++
++extern int ckrm_forced_reclassify_pid(int, struct ckrm_task_class *);
++
++#else /* CONFIG_CKRM_TYPE_TASKCLASS */
++
++#define ckrm_forced_reclassify_pid(a, b) (0)
 +
 +#endif
-Index: linux-2.6.11-rc5-ckrm01/include/net/sock.h
++
++#endif /* _LINUX_CKRM_TC_H_ */
+Index: linux-2.6.11-rc5/include/linux/sched.h
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/include/net/sock.h	2005-02-23 20:03:09.000000000 -0800
-+++ linux-2.6.11-rc5-ckrm01/include/net/sock.h	2005-02-24 01:09:01.422204943 -0800
-@@ -112,6 +112,8 @@
- 	atomic_t		skc_refcnt;
+--- linux-2.6.11-rc5.orig/include/linux/sched.h	2005-02-24 00:55:01.436484241 -0800
++++ linux-2.6.11-rc5/include/linux/sched.h	2005-02-24 00:55:10.941338215 -0800
+@@ -686,14 +686,17 @@
+   	struct mempolicy *mempolicy;
+ 	short il_next;
+ #endif
+-#ifdef CONFIG_DELAY_ACCT
+-	struct task_delay_info delays;
+-#endif
+ #ifdef CONFIG_CKRM
+ 	spinlock_t  ckrm_tsklock;
+ 	void       *ce_data;
++#ifdef CONFIG_CKRM_TYPE_TASKCLASS
++	struct ckrm_task_class *taskclass;
++	struct list_head taskclass_link;
++#endif /* CONFIG_CKRM_TYPE_TASKCLASS */
++#endif /* CONFIG_CKRM */
++#ifdef CONFIG_DELAY_ACCT
++	struct task_delay_info delays;
+ #endif
+-
  };
  
-+struct ckrm_net_struct;
-+
- /**
-   *	struct sock - network layer representation of sockets
-   *	@__sk_common - shared layout with tcp_tw_bucket
-@@ -249,6 +251,7 @@
- 	struct timeval		sk_stamp;
- 	struct socket		*sk_socket;
- 	void			*sk_user_data;
-+	struct ckrm_net_struct	*sk_ckrm_ns;
- 	struct module		*sk_owner;
- 	struct page		*sk_sndmsg_page;
- 	__u32			sk_sndmsg_off;
-Index: linux-2.6.11-rc5-ckrm01/init/Kconfig
+ static inline pid_t process_group(struct task_struct *tsk)
+Index: linux-2.6.11-rc5/init/Kconfig
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/init/Kconfig	2005-02-24 01:09:01.194232431 -0800
-+++ linux-2.6.11-rc5-ckrm01/init/Kconfig	2005-02-24 01:09:01.423204823 -0800
-@@ -173,6 +173,16 @@
- 	
- 	  Say N if unsure 
+--- linux-2.6.11-rc5.orig/init/Kconfig	2005-02-24 00:55:06.489874940 -0800
++++ linux-2.6.11-rc5/init/Kconfig	2005-02-24 00:55:10.942338095 -0800
+@@ -163,6 +163,16 @@
+ 	  Say N if unsure, Y if you've enabled CKRM, M to debug rcfs 
+ 	  initialization.
  
-+config CKRM_TYPE_SOCKETCLASS
-+	bool "Class Manager for socket groups"
++config CKRM_TYPE_TASKCLASS
++	bool "Class Manager for Task Groups"
 +	depends on CKRM && RCFS_FS
 +	help
-+	  SOCKET provides the extensions for CKRM to track per socket
-+	  classes.  This is the base to enable socket based resource 
-+	  control for inbound connection control, bandwidth control etc.
++	  TASKCLASS provides the extensions for CKRM to track task classes
++	  This is the base to enable task class based resource control for
++	  cpu, memory and disk I/O.
 +	
-+	  Say N if unsure.  
++	  Say N if unsure 
 +
  endmenu
  
  config SYSCTL
-Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c
+Index: linux-2.6.11-rc5/kernel/ckrm/ckrm_tc.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c	2005-02-24 01:09:01.424204702 -0800
-@@ -0,0 +1,559 @@
-+/* ckrm_sock.c - Class-based Kernel Resource Management (CKRM)
++++ linux-2.6.11-rc5/kernel/ckrm/ckrm_tc.c	2005-02-24 00:55:10.943337974 -0800
+@@ -0,0 +1,745 @@
++/* ckrm_tc.c - Class-based Kernel Resource Management (CKRM)
 + *
 + * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
 + *           (C) Shailabh Nagar,  IBM Corp. 2003
@@ -506,52 +312,42 @@ Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c
 +#include <linux/spinlock.h>
 +#include <linux/module.h>
 +#include <linux/ckrm_rc.h>
-+#include <linux/parser.h>
-+#include <net/tcp.h>
 +
-+#include <linux/ckrm_net.h>
++#include <linux/ckrm_tc.h>
 +
-+struct ckrm_sock_class {
-+	struct ckrm_core_class core;
++static struct ckrm_task_class taskclass_dflt_class = {
 +};
 +
-+static struct ckrm_sock_class ckrm_sockclass_dflt_class = {
-+};
++const char *dflt_taskclass_name = TASK_CLASS_TYPE_NAME;
 +
-+#define SOCKET_CLASS_TYPE_NAME  "socketclass"
++static struct ckrm_core_class *ckrm_alloc_task_class(struct ckrm_core_class
++						     *parent, const char *name);
++static int ckrm_free_task_class(struct ckrm_core_class *core);
 +
-+const char *dflt_sockclass_name = SOCKET_CLASS_TYPE_NAME;
++static int tc_forced_reclassify(struct ckrm_core_class * target,
++				const char *resname);
++static int tc_show_members(struct ckrm_core_class *core, struct seq_file *seq);
++static void tc_add_resctrl(struct ckrm_core_class *core, int resid);
 +
-+static struct ckrm_core_class *ckrm_sock_alloc_class(struct ckrm_core_class *parent,
-+						const char *name);
-+static int ckrm_sock_free_class(struct ckrm_core_class *core);
-+
-+static int ckrm_sock_forced_reclassify(struct ckrm_core_class * target,
-+				  const char *resname);
-+static int ckrm_sock_show_members(struct ckrm_core_class *core,
-+			     struct seq_file *seq);
-+static void ckrm_sock_add_resctrl(struct ckrm_core_class *core, int resid);
-+static void ckrm_sock_reclassify_class(struct ckrm_sock_class *cls);
-+
-+struct ckrm_classtype ct_sockclass = {
-+	.mfidx = 1,
-+	.name = SOCKET_CLASS_TYPE_NAME,
-+	.type_id = CKRM_CLASSTYPE_SOCKET_CLASS,
-+	.maxdepth = 3,
-+	.resid_reserved = 0,
++struct ckrm_classtype ct_taskclass = {
++	.mfidx = TC_MF_IDX,
++	.name = TASK_CLASS_TYPE_NAME,
++	.type_id = CKRM_CLASSTYPE_TASK_CLASS,
++	.maxdepth = 3,		/* starting point */
++	.resid_reserved = 4,
 +	.max_res_ctlrs = CKRM_MAX_RES_CTLRS,
 +	.max_resid = 0,
 +	.bit_res_ctlrs = 0L,
 +	.res_ctlrs_lock = SPIN_LOCK_UNLOCKED,
-+	.classes = LIST_HEAD_INIT(ct_sockclass.classes),
++	.classes = LIST_HEAD_INIT(ct_taskclass.classes),
 +
-+	.default_class = &ckrm_sockclass_dflt_class.core,
++	.default_class = &taskclass_dflt_class.core,
 +
 +	/* private version of functions */
-+	.alloc = &ckrm_sock_alloc_class,
-+	.free = &ckrm_sock_free_class,
-+	.show_members = &ckrm_sock_show_members,
-+	.forced_reclassify = &ckrm_sock_forced_reclassify,
++	.alloc = &ckrm_alloc_task_class,
++	.free = &ckrm_free_task_class,
++	.show_members = &tc_show_members,
++	.forced_reclassify = &tc_forced_reclassify,
 +
 +	/* use of default functions */
 +	.show_shares = &ckrm_class_show_shares,
@@ -561,72 +357,143 @@ Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c
 +	.set_shares = &ckrm_class_set_shares,
 +	.reset_stats = &ckrm_class_reset_stats,
 +
-+	/* Mandatory private version.  No default available */
-+	.add_resctrl = &ckrm_sock_add_resctrl,
++	/* mandatory private version; no default available */
++	.add_resctrl = &tc_add_resctrl,
 +};
 +
-+/* helper functions */
-+
-+void ckrm_ns_hold(struct ckrm_net_struct *ns)
-+{
-+	atomic_inc(&ns->ns_refcnt);
-+	return;
-+}
-+
-+void ckrm_ns_put(struct ckrm_net_struct *ns)
-+{
-+	if (atomic_dec_and_test(&ns->ns_refcnt))
-+		kfree(ns);
-+	return;
-+}
-+
 +/*
-+ * Change the class of a netstruct 
++ * Change the task class of the given task.
 + *
 + * Change the task's task class  to "newcls" if the task's current 
 + * class (task->taskclass) is same as given "oldcls", if it is non-NULL.
 + *
++ * Caller is responsible to make sure the task structure stays put through
++ * this function.
++ *
++ * This function should be called with the following locks NOT held
++ * 	- tsk->ckrm_tsklock
++ * 	- core->ckrm_lock, if core is NULL then ckrm_dflt_class.ckrm_lock
++ * 	- tsk->taskclass->ckrm_lock 
++ * 
++ * Function is also called with a ckrm_core_grab on the new core, hence
++ * it needs to be dropped if no assignment takes place.
 + */
-+
 +static void
-+ckrm_sock_set_class(struct ckrm_net_struct *ns, struct ckrm_sock_class *newcls,
-+	       struct ckrm_sock_class *oldcls, enum ckrm_event event)
++ckrm_set_taskclass(struct task_struct *tsk, struct ckrm_task_class *newcls,
++		   struct ckrm_task_class *oldcls, enum ckrm_event event)
 +{
 +	int i;
-+	struct ckrm_res_ctlr *rcbs;
 +	struct ckrm_classtype *clstype;
++	struct ckrm_res_ctlr *rcbs;
++	struct ckrm_task_class *curcls;
 +	void *old_res_class, *new_res_class;
++	int drop_old_cls;
 +
-+	if ((newcls == oldcls) || (newcls == NULL)) {
-+		ns->core = (void *)oldcls;
++	spin_lock(&tsk->ckrm_tsklock);
++	curcls = tsk->taskclass;
++
++	if ((void *)-1 == curcls) {
++		/* task is disassociated from ckrm.  Don't bother it. */
++		spin_unlock(&tsk->ckrm_tsklock);
++		ckrm_core_drop(class_core(newcls));
 +		return;
 +	}
 +
++	if ((curcls == NULL) && (newcls == (void *)-1)) {
++		/*
++		 * Task needs to disassociated from ckrm and has no circles
++		 * just disassociate and return.
++		 */
++		tsk->taskclass = newcls;
++		spin_unlock(&tsk->ckrm_tsklock);
++		return;
++	}
++	if (oldcls && (oldcls != curcls)) {
++		spin_unlock(&tsk->ckrm_tsklock);
++		if (newcls) {
++			/* compensate for previous grab */
++			pr_debug("(%s:%d): Race-condition caught <%s> %d\n",
++				 tsk->comm, tsk->pid, class_core(newcls)->name,
++				 event);
++			ckrm_core_drop(class_core(newcls));
++		}
++		return;
++	}
++	/* Make sure we have a real destination core. */
++	if (!newcls) {
++		newcls = &taskclass_dflt_class;
++		ckrm_core_grab(class_core(newcls));
++	}
++	/* Take out of old class and drop the oldcore. */
++	if ((drop_old_cls = (curcls != NULL))) {
++		class_lock(class_core(curcls));
++		if (newcls == curcls) {
++			/*
++			 * We are already in the destination class.
++			 * we still need to drop oldcore.
++			 */
++			class_unlock(class_core(curcls));
++			spin_unlock(&tsk->ckrm_tsklock);
++			goto out;
++		}
++		list_del(&tsk->taskclass_link);
++		INIT_LIST_HEAD(&tsk->taskclass_link);
++		tsk->taskclass = NULL;
++		class_unlock(class_core(curcls));
++		if (newcls == (void *)-1) {
++			tsk->taskclass = newcls;
++			spin_unlock(&tsk->ckrm_tsklock);
++
++			/* still need to get out of old class. */
++			newcls = NULL;
++			goto rc_handling;
++		}
++	}
++	/* put into new class */
 +	class_lock(class_core(newcls));
-+	ns->core = newcls;
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
++	tsk->taskclass = newcls;
++	list_add(&tsk->taskclass_link, &class_core(newcls)->objlist);
 +	class_unlock(class_core(newcls));
 +
-+	clstype = class_isa(newcls);
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		old_res_class =
-+		    oldcls ? class_core(oldcls)->res_class[i] : NULL;
-+		new_res_class =
-+		    newcls ? class_core(newcls)->res_class[i] : NULL;
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass
-+		    && (old_res_class != new_res_class))
-+			(*rcbs->change_resclass) (ns, old_res_class,
-+						  new_res_class);
-+		atomic_dec(&clstype->nr_resusers[i]);
++	if (newcls == curcls) {
++		spin_unlock(&tsk->ckrm_tsklock);
++		goto out;
 +	}
++
++	CE_NOTIFY(&ct_taskclass, event, newcls, tsk);
++
++	spin_unlock(&tsk->ckrm_tsklock);
++
++      rc_handling:
++	clstype = &ct_taskclass;
++	if (clstype->bit_res_ctlrs) {	
++		/* avoid running through the entire list if none are registered */
++		for (i = 0; i < clstype->max_resid; i++) {
++			if (clstype->res_ctlrs[i] == NULL)
++				continue;
++			atomic_inc(&clstype->nr_resusers[i]);
++			old_res_class =
++			    curcls ? class_core(curcls)->res_class[i] : NULL;
++			new_res_class =
++			    newcls ? class_core(newcls)->res_class[i] : NULL;
++			rcbs = clstype->res_ctlrs[i];
++			if (rcbs && rcbs->change_resclass
++			    && (old_res_class != new_res_class))
++				(*rcbs->change_resclass) (tsk, old_res_class,
++							  new_res_class);
++			atomic_dec(&clstype->nr_resusers[i]);
++		}
++	}
++
++      out:
++	if (drop_old_cls)
++		ckrm_core_drop(class_core(curcls));
 +	return;
 +}
 +
-+static void ckrm_sock_add_resctrl(struct ckrm_core_class *core, int resid)
++static void tc_add_resctrl(struct ckrm_core_class *core, int resid)
 +{
-+	struct ckrm_net_struct *ns;
++	struct task_struct *tsk;
 +	struct ckrm_res_ctlr *rcbs;
 +
 +	if ((resid < 0) || (resid >= CKRM_MAX_RES_CTLRS)
@@ -634,9 +501,9 @@ Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c
 +		return;
 +
 +	class_lock(core);
-+	list_for_each_entry(ns, &core->objlist, ckrm_link) {
++	list_for_each_entry(tsk, &core->objlist, taskclass_link) {
 +		if (rcbs->change_resclass)
-+			(*rcbs->change_resclass) (ns, NULL,
++			(*rcbs->change_resclass) (tsk, (void *)-1,
 +						  core->res_class[resid]);
 +	}
 +	class_unlock(core);
@@ -646,434 +513,534 @@ Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/ckrm_sockc.c
 + *                   Functions called from classification points          *
 + **************************************************************************/
 +
-+static void cb_sockclass_listen_start(struct sock *sk)
++#define CE_CLASSIFY_TASK(event, tsk)					\
++do {									\
++	struct ckrm_task_class *newcls = NULL;				\
++ 	struct ckrm_task_class *oldcls = tsk->taskclass;		\
++									\
++	CE_CLASSIFY_RET(newcls,&ct_taskclass,event,tsk);		\
++	if (newcls) {							\
++		/* called synchrously. no need to get task struct */	\
++		ckrm_set_taskclass(tsk, newcls, oldcls, event);		\
++	}								\
++} while (0)
++
++
++#define CE_CLASSIFY_TASK_PROTECT(event, tsk)	\
++do {						\
++	ce_protect(&ct_taskclass);		\
++	CE_CLASSIFY_TASK(event,tsk);		\
++	ce_release(&ct_taskclass);              \
++} while (0)
++
++static void cb_taskclass_newtask(struct task_struct *tsk)
 +{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+	struct ckrm_res_ctlr *rcbs;
-+	struct ckrm_classtype *clstype;
-+	int i = 0;
++	tsk->taskclass = NULL;
++	INIT_LIST_HEAD(&tsk->taskclass_link);
++}
 +
-+	/* XXX - TBD ipv6 */
-+	if (sk->sk_family == AF_INET6)
-+		return;
++static void cb_taskclass_fork(struct task_struct *tsk)
++{
++	struct ckrm_task_class *cls = NULL;
 +
-+	/* to store the socket address */
-+	ns = (struct ckrm_net_struct *)
-+	    kmalloc(sizeof(struct ckrm_net_struct), GFP_ATOMIC);
-+	if (!ns)
-+		return;
++	pr_debug("%p:%d:%s\n", tsk, tsk->pid, tsk->comm);
 +
-+	memset(ns, 0, sizeof(*ns));
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+	ckrm_ns_hold(ns);
++	ce_protect(&ct_taskclass);
++	CE_CLASSIFY_RET(cls, &ct_taskclass, CKRM_EVENT_FORK, tsk);
++	if (cls == NULL) {
++		spin_lock(&tsk->parent->ckrm_tsklock);
++		cls = tsk->parent->taskclass;
++		ckrm_core_grab(class_core(cls));
++		spin_unlock(&tsk->parent->ckrm_tsklock);
++	}
++	if (!list_empty(&tsk->taskclass_link))
++		pr_debug("cb_taskclass_fork: BUG in cb_fork.. tsk (%s:%d> already linked\n",
++		       tsk->comm, tsk->pid);
 +
-+	ns->ns_family = sk->sk_family;
-+	if (ns->ns_family == AF_INET6)	// IPv6 not supported yet.
-+		return;
++	ckrm_set_taskclass(tsk, cls, NULL, CKRM_EVENT_FORK);
++	ce_release(&ct_taskclass);
++}
 +
-+	ns->ns_daddrv4 = inet_sk(sk)->rcv_saddr;
-+	ns->ns_dport = inet_sk(sk)->num;
++static void cb_taskclass_exit(struct task_struct *tsk)
++{
++	CE_CLASSIFY_NORET(&ct_taskclass, CKRM_EVENT_EXIT, tsk);
++	ckrm_set_taskclass(tsk, (void *)-1, NULL, CKRM_EVENT_EXIT);
++}
 +
-+	ns->ns_pid = current->pid;
-+	ns->ns_tgid = current->tgid;
-+	ns->ns_tsk = current;
-+	ce_protect(&ct_sockclass);
-+	CE_CLASSIFY_RET(newcls, &ct_sockclass, CKRM_EVENT_LISTEN_START, ns,
-+			current);
-+	ce_release(&ct_sockclass);
++static void cb_taskclass_exec(const char *filename)
++{
++	pr_debug("%p:%d:%s <%s>\n", current, current->pid, current->comm,
++		   filename);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_EXEC, current);
++}
 +
-+	if (newcls == NULL) {
-+		newcls = &ckrm_sockclass_dflt_class;
-+		ckrm_core_grab(class_core(newcls));
++static void cb_taskclass_uid(void)
++{
++	pr_debug("%p:%d:%s\n", current, current->pid, current->comm);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_UID, current);
++}
++
++static void cb_taskclass_gid(void)
++{
++	pr_debug("%p:%d:%s\n", current, current->pid, current->comm);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_GID, current);
++}
++
++static struct ckrm_event_spec taskclass_events_callbacks[] = {
++	{CKRM_EVENT_NEWTASK, { cb_taskclass_newtask, NULL}},
++	{CKRM_EVENT_EXEC, { cb_taskclass_exec, NULL }},
++	{CKRM_EVENT_FORK, { cb_taskclass_fork, NULL }},
++	{CKRM_EVENT_EXIT, { cb_taskclass_exit, NULL }},
++	{CKRM_EVENT_UID, { cb_taskclass_uid, NULL }},
++	{CKRM_EVENT_GID, { cb_taskclass_gid, NULL }},
++	{-1, { -1, NULL }}
++};
++
++/*
++ * Asynchronous callback functions   (driven by RCFS)
++ * 
++ *    Async functions force a setting of the task structure
++ *    synchronous callbacks are protected against race conditions 
++ *    by using a cmpxchg on the core before setting it.
++ *    Async calls need to be serialized to ensure they can't 
++ *    race against each other 
++ */
++
++static DECLARE_MUTEX(ckrm_async_serializer);	/* serialize all async functions */
++
++/*
++ * Go through the task list and reclassify all tasks according to the current
++ * classification rules.
++ *
++ * We have the problem that we can not hold any lock (including the 
++ * tasklist_lock) while classifying. Two methods possible
++ *
++ * (a) go through entire pidrange (0..pidmax) and if a task exists at 
++ *     that pid then reclassify it
++ * (b) go several time through task list and build a bitmap for a particular 
++ *     subrange of pid otherwise the memory requirements ight be too much.
++ * 
++ * We use a hybrid by comparing ratio nr_threads/pidmax
++ */
++
++static int ckrm_reclassify_all_tasks(void)
++{
++	extern int pid_max;
++
++	struct task_struct *proc, *thread;
++	int i;
++	int curpidmax = pid_max;
++	int ratio;
++	int use_bitmap;
++
++	/* Check permissions */
++	if ((!capable(CAP_SYS_NICE)) && (!capable(CAP_SYS_RESOURCE))) {
++		return -EPERM;
 +	}
 +
-+	class_lock(class_core(newcls));
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
-+	ns->core = newcls;
-+	class_unlock(class_core(newcls));
++	ratio = curpidmax / nr_threads;
++	if (curpidmax <= PID_MAX_DEFAULT) {
++		use_bitmap = 1;
++	} else {
++		use_bitmap = (ratio >= 2);
++	}
 +
-+	/*
-+	 * the socket is already locked
-+	 * take a reference on socket on our behalf
-+	 */
-+	sock_hold(sk);
-+	sk->sk_ckrm_ns = (void *)ns;
-+	ns->ns_sk = sk;
++	ce_protect(&ct_taskclass);
 +
-+	/* modify its shares */
-+	clstype = class_isa(newcls);
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass) {
-+			(*rcbs->change_resclass) ((void *)ns,
-+						  NULL,
-+						  class_core(newcls)->
-+						  res_class[i]);
++      retry:
++
++	if (use_bitmap == 0) {
++		/* Go through it in one walk. */
++		read_lock(&tasklist_lock);
++		for (i = 0; i < curpidmax; i++) {
++			if ((thread = find_task_by_pid(i)) == NULL)
++				continue;
++			get_task_struct(thread);
++			read_unlock(&tasklist_lock);
++			CE_CLASSIFY_TASK(CKRM_EVENT_RECLASSIFY, thread);
++			put_task_struct(thread);
++			read_lock(&tasklist_lock);
 +		}
-+		atomic_dec(&clstype->nr_resusers[i]);
-+	}
-+	return;
-+}
++		read_unlock(&tasklist_lock);
++	} else {
++		unsigned long *bitmap;
++		int bitmapsize;
++		int order = 0;
++		int num_loops;
++		int pid, do_next;
 +
-+static void cb_sockclass_listen_stop(struct sock *sk)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+
-+	/* XXX - TBD ipv6 */
-+	if (sk->sk_family == AF_INET6)
-+		return;
-+
-+	ns = (struct ckrm_net_struct *)sk->sk_ckrm_ns;
-+	if (!ns)     /* listen_start called before socket_aq was loaded */
-+		return;
-+
-+	newcls = ns->core;
-+	if (newcls) {
-+		class_lock(class_core(newcls));
-+		list_del(&ns->ckrm_link);
-+		INIT_LIST_HEAD(&ns->ckrm_link);
-+		class_unlock(class_core(newcls));
-+		ckrm_core_drop(class_core(newcls));
-+	}
-+	/* the socket is already locked */
-+	sk->sk_ckrm_ns = NULL;
-+	sock_put(sk);
-+
-+	// Should be the last count and free it
-+	ckrm_ns_put(ns);
-+	return;
-+}
-+
-+static struct ckrm_event_spec ckrm_sock_events_callbacks[] = {
-+	{CKRM_EVENT_LISTEN_START, {cb_sockclass_listen_start, NULL}},
-+	{CKRM_EVENT_LISTEN_STOP, {cb_sockclass_listen_stop, NULL}},
-+	{-1, {NULL, NULL}}
-+};
-+
-+/**************************************************************************
-+ *                  Class Object Creation / Destruction
-+ **************************************************************************/
-+
-+static struct ckrm_core_class *ckrm_sock_alloc_class(struct ckrm_core_class *parent,
-+						const char *name)
-+{
-+	struct ckrm_sock_class *sockcls;
-+	sockcls = kmalloc(sizeof(struct ckrm_sock_class), GFP_KERNEL);
-+	if (sockcls == NULL)
-+		return NULL;
-+	memset(sockcls, 0, sizeof(struct ckrm_sock_class));
-+
-+	ckrm_init_core_class(&ct_sockclass, class_core(sockcls), parent, name);
-+
-+	ce_protect(&ct_sockclass);
-+	if (ct_sockclass.ce_cb_active && ct_sockclass.ce_callbacks.class_add)
-+		(*ct_sockclass.ce_callbacks.class_add) (name, sockcls,
-+							ct_sockclass.type_id);
-+	ce_release(&ct_sockclass);
-+
-+	return class_core(sockcls);
-+}
-+
-+static int ckrm_sock_free_class(struct ckrm_core_class *core)
-+{
-+	struct ckrm_sock_class *sockcls;
-+
-+	if (!ckrm_is_core_valid(core)) {
-+		/* Invalid core */
-+		return (-EINVAL);
-+	}
-+	if (core == core->classtype->default_class) {
-+		/* reset the name tag */
-+		core->name = dflt_sockclass_name;
-+		return 0;
-+	}
-+
-+	sockcls = class_type(struct ckrm_sock_class, core);
-+
-+	ce_protect(&ct_sockclass);
-+
-+	if (ct_sockclass.ce_cb_active && ct_sockclass.ce_callbacks.class_delete)
-+		(*ct_sockclass.ce_callbacks.class_delete) (core->name, sockcls,
-+							   ct_sockclass.type_id);
-+
-+	ckrm_sock_reclassify_class(sockcls);
-+
-+	ce_release(&ct_sockclass);
-+
-+	ckrm_release_core_class(core);	
-+	/* Could just drop the class?  Error message? */
-+
-+	return 0;
-+}
-+
-+static int ckrm_sock_show_members(struct ckrm_core_class *core, struct seq_file *seq)
-+{
-+	struct list_head *lh;
-+	struct ckrm_net_struct *ns = NULL;
-+
-+	class_lock(core);
-+	list_for_each(lh, &core->objlist) {
-+		ns = container_of(lh, struct ckrm_net_struct, ckrm_link);
-+		seq_printf(seq, "%d.%d.%d.%d\\%d\n",
-+			   NIPQUAD(ns->ns_daddrv4), ns->ns_dport);
-+	}
-+	class_unlock(core);
-+
-+	return 0;
-+}
-+
-+static int
-+ckrm_sock_forced_reclassify_ns(struct ckrm_net_struct *tns,
-+			  struct ckrm_core_class *core)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct sock *sk = NULL;
-+	struct ckrm_sock_class *oldcls, *newcls;
-+	int rc = -EINVAL;
-+
-+	if (!ckrm_is_core_valid(core)) {
-+		return rc;
-+	}
-+
-+	newcls = class_type(struct ckrm_sock_class, core);
-+	/*
-+	 * lookup the listening sockets
-+	 * returns with a reference count set on socket
-+	 */
-+	if (tns->ns_family == AF_INET6)
-+		return -EOPNOTSUPP;
-+
-+	sk = tcp_v4_lookup_listener(tns->ns_daddrv4, tns->ns_dport, 0);
-+	if (!sk) {
-+		printk(KERN_INFO "No such listener 0x%x:%d\n",
-+		       tns->ns_daddrv4, tns->ns_dport);
-+		return rc;
-+	}
-+	lock_sock(sk);
-+	if (!sk->sk_ckrm_ns) {
-+		goto out;
-+	}
-+	ns = sk->sk_ckrm_ns;
-+	ckrm_ns_hold(ns);
-+	if (!capable(CAP_NET_ADMIN) && (ns->ns_tsk->user != current->user)) {
-+		ckrm_ns_put(ns);
-+		rc = -EPERM;
-+		goto out;
-+	}
-+
-+	oldcls = ns->core;
-+	if ((oldcls == NULL) || (oldcls == newcls)) {
-+		ckrm_ns_put(ns);
-+		goto out;
-+	}
-+	/* remove the net_struct from the current class */
-+	class_lock(class_core(oldcls));
-+	list_del(&ns->ckrm_link);
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+	ns->core = NULL;
-+	class_unlock(class_core(oldcls));
-+
-+	ckrm_sock_set_class(ns, newcls, oldcls, CKRM_EVENT_MANUAL);
-+	ckrm_ns_put(ns);
-+	rc = 0;
-+      out:
-+	release_sock(sk);
-+	sock_put(sk);
-+
-+	return rc;
-+
-+}
-+
-+enum ckrm_sock_target_token {
-+	IPV4, IPV6, SOCKC_TARGET_ERR
-+};
-+
-+static match_table_t ckrm_sock_target_tokens = {
-+	{IPV4, "ipv4=%s"},
-+	{IPV6, "ipv6=%s"},
-+	{SOCKC_TARGET_ERR, NULL},
-+};
-+
-+char *v4toi(char *s, char c, __u32 * v)
-+{
-+	unsigned int k = 0, n = 0;
-+
-+	while (*s && (*s != c)) {
-+		if (*s == '.') {
-+			n <<= 8;
-+			n |= k;
-+			k = 0;
-+		} else
-+			k = k * 10 + *s - '0';
-+		s++;
-+	}
-+
-+	n <<= 8;
-+	*v = n | k;
-+
-+	return s;
-+}
-+
-+static int
-+ckrm_sock_forced_reclassify(struct ckrm_core_class *target, const char *options)
-+{
-+	char *p, *p2;
-+	struct ckrm_net_struct ns;
-+	__u32 v4addr, tmp;
-+
-+	if (!options)
-+		return -EINVAL;
-+
-+	if (target == NULL) {
-+		unsigned long id = simple_strtol(options,NULL,0);
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+		if (id != 0) 
-+			return -EINVAL;
-+		printk("ckrm_sock_class: reclassify all not net implemented\n");
-+		return 0;
-+	}
-+
-+	while ((p = strsep((char **)&options, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+
-+		if (!*p)
-+			continue;
-+		token = match_token(p, ckrm_sock_target_tokens, args);
-+		switch (token) {
-+
-+		case IPV4:
-+
-+			p2 = p;
-+			while (*p2 && (*p2 != '='))
-+				++p2;
-+			p2++;
-+			p2 = v4toi(p2, '\\', &(v4addr));
-+			ns.ns_daddrv4 = htonl(v4addr);
-+			ns.ns_family = AF_INET;
-+			p2 = v4toi(++p2, ':', &tmp);
-+			ns.ns_dport = (__u16) tmp;
-+			if (*p2)
-+				p2 = v4toi(++p2, '\0', &ns.ns_pid);
-+			ckrm_sock_forced_reclassify_ns(&ns, target);
-+			break;
-+
-+		case IPV6:
-+			printk(KERN_INFO "rcfs: IPV6 not supported yet\n");
-+			return -ENOSYS;
-+		default:
-+			return -EINVAL;
++		bitmap = (unsigned long *)__get_free_pages(GFP_KERNEL, order);
++		if (bitmap == NULL) {
++			use_bitmap = 0;
++			goto retry;
 +		}
++
++		bitmapsize = 8 * (1 << (order + PAGE_SHIFT));
++		num_loops = (curpidmax + bitmapsize - 1) / bitmapsize;
++
++		do_next = 1;
++		for (i = 0; i < num_loops && do_next; i++) {
++			int pid_start = i * bitmapsize;
++			int pid_end = pid_start + bitmapsize;
++			int num_found = 0;
++			int pos;
++
++			memset(bitmap, 0, bitmapsize / 8);	/* start afresh */
++			do_next = 0;
++
++			read_lock(&tasklist_lock);
++			do_each_thread(proc, thread) {
++				pid = thread->pid;
++				if ((pid < pid_start) || (pid >= pid_end)) {
++					if (pid >= pid_end) {
++						do_next = 1;
++					}
++					continue;
++				}
++				pid -= pid_start;
++				set_bit(pid, bitmap);
++				num_found++;
++			}
++			while_each_thread(proc, thread);
++			read_unlock(&tasklist_lock);
++
++			if (num_found == 0)
++				continue;
++
++			pos = 0;
++			for (; num_found--;) {
++				pos = find_next_bit(bitmap, bitmapsize, pos);
++				pid = pos + pid_start;
++
++				read_lock(&tasklist_lock);
++				if ((thread = find_task_by_pid(pid)) != NULL) {
++					get_task_struct(thread);
++					read_unlock(&tasklist_lock);
++					CE_CLASSIFY_TASK(CKRM_EVENT_RECLASSIFY,
++							 thread);
++					put_task_struct(thread);
++				} else {
++					read_unlock(&tasklist_lock);
++				}
++				pos++;
++			}
++		}
++
 +	}
-+	return -EINVAL;
++	ce_release(&ct_taskclass);
++	return 0;
 +}
 +
 +/*
-+ * Listen_aq reclassification.
++ * Reclassify all tasks in the given core class.
 + */
-+static void ckrm_sock_reclassify_class(struct ckrm_sock_class *cls)
++
++static void ckrm_reclassify_class_tasks(struct ckrm_task_class *cls)
 +{
-+	struct ckrm_net_struct *ns, *tns;
-+	struct ckrm_core_class *core = class_core(cls);
-+	LIST_HEAD(local_list);
++	int ce_regd;
++	struct ckrm_hnode *cnode;
++	struct ckrm_task_class *parcls;
++	int num = 0;
 +
-+	if (!cls)
++	if (!ckrm_validate_and_grab_core(&cls->core))
 +		return;
 +
-+	if (!ckrm_validate_and_grab_core(core))
-+		return;
++	down(&ckrm_async_serializer);
++	pr_debug("start %p:%s:%d:%d\n", cls, cls->core.name,
++		 atomic_read(&cls->core.refcnt),
++		 atomic_read(&cls->core.hnode.parent->refcnt));
++	/*
++	 * If no CE registered for this classtype, following will be needed 
++	 * repeatedly.
++	 */
++	ce_regd = atomic_read(&class_core(cls)->classtype->ce_regd);
++	cnode = &(class_core(cls)->hnode);
++	parcls = class_type(struct ckrm_task_class, cnode->parent);
 +
-+	class_lock(core);
-+	/* we have the core refcnt */
-+	if (list_empty(&core->objlist)) {
-+		class_unlock(core);
-+		ckrm_core_drop(core);
-+		return;
-+	}
++      next_task:
++	class_lock(class_core(cls));
++	if (!list_empty(&class_core(cls)->objlist)) {
++		struct ckrm_task_class *newcls = NULL;
++		struct task_struct *tsk =
++		    list_entry(class_core(cls)->objlist.next,
++			       struct task_struct, taskclass_link);
 +
-+	INIT_LIST_HEAD(&local_list);
-+	list_splice_init(&core->objlist, &local_list);
-+	class_unlock(core);
-+	ckrm_core_drop(core);
++		get_task_struct(tsk);
++		class_unlock(class_core(cls));
 +
-+	list_for_each_entry_safe(ns, tns, &local_list, ckrm_link) {
-+		ckrm_ns_hold(ns);
-+		list_del(&ns->ckrm_link);
-+		if (ns->ns_sk) {
-+			lock_sock(ns->ns_sk);
-+			ckrm_sock_set_class(ns, &ckrm_sockclass_dflt_class, NULL,
-+				       CKRM_EVENT_MANUAL);
-+			release_sock(ns->ns_sk);
++		if (ce_regd) {
++			CE_CLASSIFY_RET(newcls, &ct_taskclass,
++					CKRM_EVENT_RECLASSIFY, tsk);
++			if (cls == newcls) {
++				/*
++				 * Don't allow reclassifying to the same class
++				 * as we are in the process of cleaning up 
++				 * this class
++				 */
++
++				/* compensate for CE's grab */
++				ckrm_core_drop(class_core(newcls));	
++				newcls = NULL;
++			}
 +		}
-+		ckrm_ns_put(ns);
++		if (newcls == NULL) {
++			newcls = parcls;
++			ckrm_core_grab(class_core(newcls));
++		}
++		ckrm_set_taskclass(tsk, newcls, cls, CKRM_EVENT_RECLASSIFY);
++		put_task_struct(tsk);
++		num++;
++		goto next_task;
 +	}
++	pr_debug("stop  %p:%s:%d:%d   %d\n", cls, cls->core.name,
++		 atomic_read(&cls->core.refcnt),
++		 atomic_read(&cls->core.hnode.parent->refcnt), num);
++	class_unlock(class_core(cls));
++	ckrm_core_drop(class_core(cls));
++
++	up(&ckrm_async_serializer);
++
 +	return;
 +}
 +
-+void __init ckrm_meta_init_sockclass(void)
++/*
++ * Change the core class of the given task
++ */
++
++int ckrm_forced_reclassify_pid(pid_t pid, struct ckrm_task_class *cls)
 +{
-+	printk("...... Initializing ClassType<%s> ........\n",
-+	       ct_sockclass.name);
++	struct task_struct *tsk;
++
++	if (cls && !ckrm_validate_and_grab_core(class_core(cls)))
++		return -EINVAL;
++
++	read_lock(&tasklist_lock);
++	if ((tsk = find_task_by_pid(pid)) == NULL) {
++		read_unlock(&tasklist_lock);
++		if (cls) 
++			ckrm_core_drop(class_core(cls));
++		return -EINVAL;
++	}
++	get_task_struct(tsk);
++	read_unlock(&tasklist_lock);
++
++	/* Check permissions */
++	if ((!capable(CAP_SYS_NICE)) &&
++	    (!capable(CAP_SYS_RESOURCE)) && (current->user != tsk->user)) {
++		if (cls) 
++			ckrm_core_drop(class_core(cls));
++		put_task_struct(tsk);
++		return -EPERM;
++	}
++
++	ce_protect(&ct_taskclass);
++	if (cls == NULL)
++		CE_CLASSIFY_TASK(CKRM_EVENT_RECLASSIFY,tsk);
++	else 
++		ckrm_set_taskclass(tsk, cls, NULL, CKRM_EVENT_MANUAL);
++
++	ce_release(&ct_taskclass);
++	put_task_struct(tsk);
++
++	return 0;
++}
++
++static struct ckrm_core_class *ckrm_alloc_task_class(struct ckrm_core_class
++						     *parent, const char *name)
++{
++	struct ckrm_task_class *taskcls;
++	taskcls = kmalloc(sizeof(struct ckrm_task_class), GFP_KERNEL);
++	if (taskcls == NULL)
++		return NULL;
++	memset(taskcls, 0, sizeof(struct ckrm_task_class));
++
++	ckrm_init_core_class(&ct_taskclass, class_core(taskcls), parent, name);
++
++	ce_protect(&ct_taskclass);
++	if (ct_taskclass.ce_cb_active && ct_taskclass.ce_callbacks.class_add)
++		(*ct_taskclass.ce_callbacks.class_add) (name, taskcls,
++							ct_taskclass.type_id);
++	ce_release(&ct_taskclass);
++
++	return class_core(taskcls);
++}
++
++static int ckrm_free_task_class(struct ckrm_core_class *core)
++{
++	struct ckrm_task_class *taskcls;
++
++	if (!ckrm_is_core_valid(core)) {
++		return (-EINVAL);		/* Invalid core */
++	}
++	if (core == core->classtype->default_class) {
++		/* reset the name tag */
++		core->name = dflt_taskclass_name;
++		return 0;
++	}
++
++	pr_debug("%p:%s:%d\n", core, core->name, atomic_read(&core->refcnt));
++
++	taskcls = class_type(struct ckrm_task_class, core);
++
++	ce_protect(&ct_taskclass);
++
++	if (ct_taskclass.ce_cb_active && ct_taskclass.ce_callbacks.class_delete)
++		(*ct_taskclass.ce_callbacks.class_delete) (core->name, taskcls,
++							   ct_taskclass.type_id);
++	ckrm_reclassify_class_tasks(taskcls);
++
++	ce_release(&ct_taskclass);
++
++	ckrm_release_core_class(core);	
++	return 0;
++}
++
++void __init ckrm_meta_init_taskclass(void)
++{
++	pr_debug("...... Initializing ClassType<%s> ........\n",
++	       ct_taskclass.name);
 +	/* intialize the default class */
-+	ckrm_init_core_class(&ct_sockclass, class_core(&ckrm_sockclass_dflt_class),
-+			     NULL, dflt_sockclass_name);
++	ckrm_init_core_class(&ct_taskclass, class_core(&taskclass_dflt_class),
++			     NULL, dflt_taskclass_name);
 +
 +	/* register classtype and initialize default task class */
-+	ckrm_register_classtype(&ct_sockclass);
-+	ckrm_register_event_set(ckrm_sock_events_callbacks);
++	ckrm_register_classtype(&ct_taskclass);
++	ckrm_register_event_set(taskclass_events_callbacks);
 +
 +	/*
-+	 * note registeration of all resource controllers will be done
++	 * note registeration of all resource controllers will be done 
 +	 * later dynamically as these are specified as modules
 +	 */
 +}
-Index: linux-2.6.11-rc5-ckrm01/kernel/ckrm/Makefile
++
++static int tc_show_members(struct ckrm_core_class *core, struct seq_file *seq)
++{
++	struct list_head *lh;
++	struct task_struct *tsk;
++
++	class_lock(core);
++	list_for_each(lh, &core->objlist) {
++		tsk = container_of(lh, struct task_struct, taskclass_link);
++		seq_printf(seq, "%ld\n", (long)tsk->pid);
++	}
++	class_unlock(core);
++
++	return 0;
++}
++
++static int tc_forced_reclassify(struct ckrm_core_class *target, const char *obj)
++{
++	pid_t pid;
++	int rc = -EINVAL;
++
++	pid = (pid_t) simple_strtol(obj, NULL, 0);
++
++	down(&ckrm_async_serializer);	/* protect against race with reclassify_class */
++	if (pid < 0) {
++		/* TBD: We could treat this as a process group. */
++		rc = -EINVAL;
++	} else if (pid == 0) {
++		rc = (target == NULL) ? ckrm_reclassify_all_tasks() : -EINVAL;
++	} else {
++		struct ckrm_task_class *cls = NULL;
++		if (target) 
++			cls = class_type(struct ckrm_task_class, target);
++		rc = ckrm_forced_reclassify_pid(pid,cls);
++	}
++	up(&ckrm_async_serializer);
++	return rc;
++}
++
++#if 0
++
++/******************************************************************************
++ * Debugging Task Classes:  Utility functions
++ ******************************************************************************/
++
++void check_tasklist_sanity(struct ckrm_task_class *cls)
++{
++	struct ckrm_core_class *core = class_core(cls);
++	struct list_head *lh1, *lh2;
++	int count = 0;
++
++	if (core) {
++		class_lock(core);
++		if (list_empty(&core->objlist)) {
++			class_lock(core);
++			pr_debug("check_tasklist_sanity: class %s empty list\n",
++			       core->name);
++			return;
++		}
++		list_for_each_safe(lh1, lh2, &core->objlist) {
++			struct task_struct *tsk =
++			    container_of(lh1, struct task_struct,
++					 taskclass_link);
++			if (count++ > 20000) {
++				pr_debug("check_tasklist_sanity: CKRM taskclass list is CORRUPTED\n");
++				break;
++			}
++			if (tsk->taskclass != cls) {
++				const char *tclsname;
++				tclsname = (tsk->taskclass) ? 
++					class_core(tsk->taskclass)->name:"NULL";
++				pr_debug("sanity: task %s:%d has ckrm_core "
++				       "|%s| but in list |%s|\n", tsk->comm, 
++				       tsk->pid, tclsname, core->name);
++			}
++		}
++		class_unlock(core);
++	}
++}
++
++void ckrm_debug_free_task_class(struct ckrm_task_class *tskcls)
++{
++	struct task_struct *proc, *thread;
++	int count = 0;
++
++	pr_debug("ckrm_debug_free_task_class: Analyze Error <%s> %d\n",
++	       class_core(tskcls)->name,
++	       atomic_read(&(class_core(tskcls)->refcnt)));
++
++	read_lock(&tasklist_lock);
++	class_lock(class_core(tskcls));
++	do_each_thread(proc, thread) {
++		count += (tskcls == thread->taskclass);
++		if ((thread->taskclass == tskcls) || (tskcls == NULL)) {
++			const char *tclsname;
++			tclsname = (thread->taskclass) ? 
++				class_core(thread->taskclass)->name :"NULL";
++			pr_debug("ckrm-debug_free_task_class: %d thread=<%s:%d>  -> <%s> <%lx>\n", count,
++			       thread->comm, thread->pid, tclsname,
++			       thread->flags & PF_EXITING);
++		}
++	} while_each_thread(proc, thread);
++	class_unlock(class_core(tskcls));
++	read_unlock(&tasklist_lock);
++
++	pr_debug("ckrm_debug_free_task_class: End Analyze Error <%s> %d\n",
++	       class_core(tskcls)->name,
++	       atomic_read(&(class_core(tskcls)->refcnt)));
++}
++
++#endif
+Index: linux-2.6.11-rc5/kernel/ckrm/Makefile
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/kernel/ckrm/Makefile	2005-02-24 01:09:01.196232190 -0800
-+++ linux-2.6.11-rc5-ckrm01/kernel/ckrm/Makefile	2005-02-24 01:09:01.425204582 -0800
-@@ -4,3 +4,4 @@
+--- linux-2.6.11-rc5.orig/kernel/ckrm/Makefile	2005-02-24 00:55:01.465480744 -0800
++++ linux-2.6.11-rc5/kernel/ckrm/Makefile	2005-02-24 00:55:10.943337974 -0800
+@@ -3,3 +3,4 @@
+ #
  
  obj-y += ckrm_events.o ckrm.o ckrmutils.o
- obj-$(CONFIG_CKRM_TYPE_TASKCLASS) += ckrm_tc.o
-+obj-$(CONFIG_CKRM_TYPE_SOCKETCLASS) += ckrm_sockc.o
-Index: linux-2.6.11-rc5-ckrm01/net/ipv4/tcp_ipv4.c
++obj-$(CONFIG_CKRM_TYPE_TASKCLASS) += ckrm_tc.o
+Index: linux-2.6.11-rc5/net/ipv4/tcp_ipv4.c
 ===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/net/ipv4/tcp_ipv4.c	2005-02-24 01:09:01.308218687 -0800
-+++ linux-2.6.11-rc5-ckrm01/net/ipv4/tcp_ipv4.c	2005-02-24 01:09:01.426204461 -0800
-@@ -448,7 +448,8 @@
- }
- 
- /* Optimize the common listener case. */
--static inline struct sock *tcp_v4_lookup_listener(u32 daddr,
-+/* XXX:  Was inline - need to use for CKRM, fix before next release */
-+struct sock *tcp_v4_lookup_listener(u32 daddr,
- 		unsigned short hnum, int dif)
- {
- 	struct sock *sk = NULL;
-Index: linux-2.6.11-rc5-ckrm01/include/net/tcp.h
-===================================================================
---- linux-2.6.11-rc5-ckrm01.orig/include/net/tcp.h	2005-02-23 20:02:22.000000000 -0800
-+++ linux-2.6.11-rc5-ckrm01/include/net/tcp.h	2005-02-24 01:09:01.441202653 -0800
-@@ -800,6 +800,7 @@
- 
- extern void			tcp_rcv_space_adjust(struct sock *sk);
- 
-+
- enum tcp_ack_state_t
- {
- 	TCP_ACK_SCHED = 1,
-@@ -930,6 +931,9 @@
- 
- extern int			tcp_v4_hash_connecting(struct sock *sk);
- 
-+extern struct sock *		tcp_v4_lookup_listener(u32 daddr,
-+						    unsigned short hnum,
-+						    int dif);
- 
- /* From syncookies.c */
- extern struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb, 
-
+--- linux-2.6.11-rc5.orig/net/ipv4/tcp_ipv4.c	2005-02-23 20:02:31.000000000 -0800
++++ linux-2.6.11-rc5/net/ipv4/tcp_ipv4.c	2005-02-24 00:55:11.194307714 -0800
+@@ -2649,6 +2649,7 @@
+ EXPORT_SYMBOL(tcp_put_port);
+ EXPORT_SYMBOL(tcp_unhash);
+ EXPORT_SYMBOL(tcp_v4_conn_request);
++EXPORT_SYMBOL(tcp_v4_lookup_listener);
+ EXPORT_SYMBOL(tcp_v4_connect);
+ EXPORT_SYMBOL(tcp_v4_do_rcv);
+ EXPORT_SYMBOL(tcp_v4_rebuild_header);

@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVCRT2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVCRTal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVCRT2f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVCRT2e
+	id S262009AbVCRTal (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCRTak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:28:34 -0500
-Received: from colin2.muc.de ([193.149.48.15]:32265 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261977AbVCRT2M (ORCPT
+	Fri, 18 Mar 2005 14:30:40 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:37866 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262009AbVCRTa2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:28:12 -0500
-Date: 18 Mar 2005 20:28:08 +0100
-Date: Fri, 18 Mar 2005 20:28:08 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
-       Jens.Maurer@gmx.net
-Subject: Re: [PATCH] add a clear_pages function to clear pages of higher order
-Message-ID: <20050318192808.GB38053@muc.de>
-References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com> <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com> <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Mar 2005 14:30:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
+Date: Fri, 18 Mar 2005 11:29:43 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408132A53@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
+Thread-Index: AcUrRNpiYyerkShDQ2q0r5aeKrJxEgAq4naA
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+Cc: "Paul Mackerras" <paulus@samba.org>,
+       "Hidetoshi Seto" <seto.hidetoshi@jp.fujitsu.com>,
+       "Greg KH" <greg@kroah.com>, <ak@muc.de>,
+       "linuxppc64-dev" <linuxppc64-dev@ozlabs.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 18 Mar 2005 19:29:44.0610 (UTC) FILETIME=[D6D11820:01C52BF0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 07:00:06AM -0800, Christoph Lameter wrote:
-> On Fri, 18 Mar 2005, Denis Vlasenko wrote:
-> 
-> > NT stores are not about 5% increase. 200%-300%. Provided you are ok with
-> > the fact that zeroed page ends up evicted from cache. Luckily, this is exactly
-> > what you want with prezeroing.
-> 
-> These are pretty significant results. Maybe its best to use non-temporal
+On Thursday, March 17, 2005 2:58 PM Benjamin Herrenschmidt wrote:
+> Does the link side of PCIE provides a way to trigger a hard reset of
+the
+> rest of the card ? If not, then it's dodgy as there may be no way to
+> consistently "reset" the card if it's in a bad state. 
 
-The differences are actually less. I do not know what Denis benchmarked,
-but in my tests the difference was never more than ~10%.  He got a zero
-too much? 
+The PCI Express spec does not make it clear of whether an in-band
+mechanism, called a hot-reset, triggers a hard reset of the rest of the
+card. I agree that if not, then it's dodgy.
 
-It does not make any sense if you think of it - the memory bus
-of the CPU cannot be that much faster than the cache.
-
-And the drawback of eating the cache misses later is really very
-significant.
-
-> stores in general for clearing pages? I checked and Itanium has always
-> used non-temporal stores. So there will be no benefit for us from this
-
-That is weird. I would actually try to switch to temporal stores, maybe
-it will improve some benchmarks. 
-
-> approach (we have 16k and 64k page sizes which may make the situation a
-> bit different). Try to update the i386 architectures to do the same?
-
-Definitely not. 
-
-You can experiment with using it for the cleaner daemon, but even
-there I would use some heuristic to make sure you only use it 
-on a page that are at the end of a pretty long queue.
-
-e.g. if you can guarantee that the page allocator will go through
-500k-1MB before going to the NT page that is cache cold it may
-be a good idea. But that might be pretty complicated and I am not
-sure it will be worth it.
-
-But for the clear running in the page fault handler context it is 
-definitely a bad idea.
-
--Andi
+Thanks,
+Long

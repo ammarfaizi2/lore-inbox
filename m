@@ -1,117 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbTJWPF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 11:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTJWPF2
+	id S263601AbTJWPW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 11:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbTJWPW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 11:05:28 -0400
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:21513 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S263616AbTJWPFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 11:05:07 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <CE41BFEF2481C246A8DE0D2B4DBACF4F128A3C@ausx2kmpc106.aus.amer.dell.com>
-From: Stuart_Hayes@Dell.com
-To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
-cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: IDE "logical" geometry & partition tables (problem with 2.4
- k erne l, also seems to apply to 2.6)
-Date: Thu, 23 Oct 2003 10:04:39 -0500
+	Thu, 23 Oct 2003 11:22:29 -0400
+Received: from APlessis-Bouchard-112-1-6-202.w81-51.abo.wanadoo.fr ([81.51.226.202]:5799
+	"EHLO fozzy.syrius.org") by vger.kernel.org with ESMTP
+	id S263601AbTJWPW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 11:22:27 -0400
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-pre8
+References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+From: laurent.ml@linuxfr.org
+Date: Thu, 23 Oct 2003 17:22:24 +0200
+In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet> (Marcelo
+ Tosatti's message of "Wed, 22 Oct 2003 21:24:17 -0200 (BRST)")
+Message-ID: <wazza.87ad7sf07j.fsf@message.id>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 138931991932933-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-By "correct", I meant that the geometry matches what the BIOS expects when
-doing int13 calls.  If the partitions are not set up with this geometry,
-then an MBR/bootloader that uses CHS to access the drive will not be able to
-boot.  This problem only came to my attention because of an instance where
-such an MBR is used.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
+>   o [IRDA]: Fix build with gcc-3.4
 
-    >> If a partition table is then created on the drive using this
-geometry,
-    >> the CHS values in the partition table will not be correct.
-
-> "correct" has no meaning here.
+Tell me if I'm wrong, it seems 2 comas are missing.
 
 
+--=-=-=
+Content-Disposition: attachment; filename=irda.2.4.23-pre8.diff
+
+diff -ur linux-2.4.23-pre8.orig/net/irda/af_irda.c linux-2.4.23-pre8/net/irda/af_irda.c
+--- linux-2.4.23-pre8.orig/net/irda/af_irda.c	2003-10-23 17:11:55.000000000 +0200
++++ linux-2.4.23-pre8/net/irda/af_irda.c	2003-10-23 16:38:34.000000000 +0200
+@@ -285,7 +285,7 @@
+ 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
+ 	};
+ 
+-	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__
++	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__,
+ 		   self->max_data_size);
+ 
+ 	memcpy(&self->qos_tx, qos, sizeof(struct qos_info));
+@@ -384,7 +384,7 @@
+ 
+ 	/* Check if request succeeded */
+ 	if (result != IAS_SUCCESS) {
+-		IRDA_DEBUG(1, "%s(), IAS query failed! (%d)\n", __FUNCTION__
++		IRDA_DEBUG(1, "%s(), IAS query failed! (%d)\n", __FUNCTION__,
+ 			   result);
+ 
+ 		self->errno = result;	/* We really need it later */
+
+--=-=-=
 
 
------Original Message-----
-From: Andries.Brouwer@cwi.nl [mailto:Andries.Brouwer@cwi.nl]
-Sent: Wednesday, October 22, 2003 3:42 PM
-To: B.Zolnierkiewicz@elka.pw.edu.pl; Hayes, Stuart
-Cc: Andries.Brouwer@cwi.nl; linux-ide@vger.kernel.org;
-linux-kernel@vger.kernel.org
-Subject: Re: IDE "logical" geometry & partition tables (problem with 2.4
-kerne l, also seems to apply to 2.6)
+-- 
+Laurent
 
-
-    On Wednesday 22 of October 2003 00:00, Stuart_Hayes@Dell.com wrote:
-
-    > I have discovered a problem with how Linux determines IDE disk
-"logical"
-    > (BIOS) geometry.
-
-The concept of logical geometry is slowly vanishing.
-
-Supporting it is impossible, but there were some attempts,
-and in the 2.0, 2.2, 2.4, 2.6 series each kernel drops
-some of the contortions present in previous versions.
-
-I wrote long stories in http://www.win.tue.nl/~aeb/linux/Large-Disk.html
-and even more in various replies to questions like this one,
-but the easiest point of view is "geometry does not exist".
-
-    > If an IDE hard drive has no partition table when Linux is booted,
-    > *and* if the hard drive is on a PCI IDE controller (a controller
-    > that isn't at I/O address 1f0h), *and* if the drive doesn't support
-    > 48-bit addressing, Linux will just use the geometry that is reported
-    > by the drive in with the "identify device" command, rather than
-    > getting the geometry used by the IDE BIOS by doing an int13 function 8
-    > call.
-
-"Linux will just use" - but roughly speaking Linux never uses the geometry,
-there is no need for a concept like that. Fortunately, because there is
-no such thing, so we would have problems if it were actually needed.
-
-"Roughly speaking": user space can ask for a geometry using HDIO_GETGEO
-and then gets some random #cyls / #heads / #secs/track. Also - in some
-cases the "last cylinder" plays a role, and of course nobody knows where
-that is unless disk size and geometry are given.
-
-Asking the BIOS is one of the attempts at support. It fails in many ways.
-One reason is that the correspondence between BIOS devices and kernel
-devices is unknown - so if we do an INT 13 call for device 0x80, for which
-device do we get data? hda? hdb? sda?
-Also, the BIOS may allow us only to inquire about the first two disks.
-
-Since the kernel does not use this info, and only transmits it to fdisk
-and LILO, and fdisk and LILO need slightly different information anyway,
-there is no good reason to keep this code in the kernel.
-
-Finally, things can be forced on all levels. The kernel has boot parameters
-telling it what to reply to HDIO_GETGEO. And LILO and fdisk have command
-parameters that allow the specification of a geometry.
-And no geometry is needed at all with LILO "linear" or "lba32" and
-with fdisk on a disk larger than 8 GB.
-
-    > If a partition table is then created on the drive using this geometry,
-    > the CHS values in the partition table will not be correct.
-
-"correct" has no meaning here.
-
-"geometry" is not a property of the disk, but of CMOS, BIOS, OS.
-
-    > I would think that the best solution
-
-But is there a problem?
-
-Andries
-
+--=-=-=--

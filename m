@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTJDFXN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 01:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbTJDFXN
+	id S261831AbTJDFrj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 01:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbTJDFrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 01:23:13 -0400
-Received: from mx2.seznam.cz ([212.80.76.42]:25002 "HELO email.seznam.cz")
-	by vger.kernel.org with SMTP id S261827AbTJDFXM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 01:23:12 -0400
-From: =?us-ascii?Q?obi=20paul?= <obip@seznam.cz>
-Subject: =?us-ascii?Q?contact=20me?=
-Date: Sat, 04 Oct 2003 07:23:08 +0200 (CEST)
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Message-Id: <27866.46300-29558-1686297820-1065244988@seznam.cz>
+	Sat, 4 Oct 2003 01:47:39 -0400
+Received: from rth.ninka.net ([216.101.162.244]:3219 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261831AbTJDFri (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 01:47:38 -0400
+Date: Fri, 3 Oct 2003 22:47:27 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, riel@redhat.com,
+       andrea@suse.de
+Subject: Re: mlockall and mmap of IO devices don't mix
+Message-Id: <20031003224727.2f6956b5.davem@redhat.com>
+In-Reply-To: <20031003172727.3d2b6cb2.akpm@osdl.org>
+References: <20031003214411.GA25802@rudolph.ccur.com>
+	<20031003152349.7194b73d.akpm@osdl.org>
+	<20031003225509.GA26590@rudolph.ccur.com>
+	<20031003161540.42ff98bb.akpm@osdl.org>
+	<20031003235416.GA27201@rudolph.ccur.com>
+	<20031003172727.3d2b6cb2.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Reply-To: =?us-ascii?Q?obi=20paul?= <obip@seznam.cz>
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From:Dr HASSNA SULE.
-40 WOODALE ST. 
-EAST LONDON, 
-SOUTH AFRICA
+On Fri, 3 Oct 2003 17:27:27 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
- Dear,
+> Maybe it's best to not overload VM_RESERVED in this manner, but to always
+> mark /dev/mem as VM_IO. 
 
-l am a financial consultant based in eastlondon South Africa.l have a client (a widow)she has $30,000,000USD with a private equity investment trust company for safekeeping. And she is willing to offer you 20% of the total fund if you can assist her transfer this fund to your country or any bank of your wish.She wishes to invest in a stable economy. Her interest  is in companies with potentials for rapid growth in long terms. 
-My client is interested in placing part of her fund in your company,if your country`s bi-laws allows foreign investment. You can contact me for more details via my e-mail address obi_kelly777@yahoo.ca
-Yours faithfully, 
-DR.HASSNA SOLE.
-N:B The fund is free from drug and laundering related offences and this 
-transaction need utmost confidentiality
+Just in cast is isn't clear, it should be defined that anything
+that sets VM_IO on an mmap() area should prefill the page tables
+as a side effect of such a mmap() request.
 
- 
-
-
-
-____________________________________________________________
-Bojíte se virù? http://ad2.seznam.cz/redir.cgi?instance=61110%26url=http://www.contactel.cz/bezpecnyinternet
+Then things like mlockall() have simple semantics on VM_IO area, they
+end up being a nop.

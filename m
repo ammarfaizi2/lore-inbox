@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316113AbSGLMfG>; Fri, 12 Jul 2002 08:35:06 -0400
+	id <S316135AbSGLMlZ>; Fri, 12 Jul 2002 08:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316158AbSGLMfF>; Fri, 12 Jul 2002 08:35:05 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:17283 "EHLO
+	id <S316158AbSGLMlY>; Fri, 12 Jul 2002 08:41:24 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:20611 "EHLO
 	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316113AbSGLMfE>; Fri, 12 Jul 2002 08:35:04 -0400
-Date: Fri, 12 Jul 2002 06:37:48 -0600 (MDT)
+	id <S316135AbSGLMlY> convert rfc822-to-8bit; Fri, 12 Jul 2002 08:41:24 -0400
+Date: Fri, 12 Jul 2002 06:44:04 -0600 (MDT)
 From: Thunder from the hill <thunder@ngforever.de>
 X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Daniel Phillips <phillips@arcor.de>
-cc: Christian Ludwig <cl81@gmx.net>, Ville Herva <vherva@niksula.hut.fi>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: bzip2 support against 2.4.18
-In-Reply-To: <E17Suso-0002dn-00@starship>
-Message-ID: <Pine.LNX.4.44.0207120636040.3421-100000@hawkeye.luckynet.adm>
+To: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+cc: Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Missing files in 2.4.19-rc1
+In-Reply-To: <Pine.OSF.4.44.0207121216580.264794-100000@tao.natur.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0207120643190.3421-100000@hawkeye.luckynet.adm>
 X-Location: Potsdam; Germany
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 12 Jul 2002, Daniel Phillips wrote:
-> Actually, what is the use of even including 'bz2' in the name?  Nobody
-> besides we geeks needs to know the thing is compressed with bzip2.  It
-> would be nice to see the word 'linux' in there.  How about bzlinux?
-> Just think of the hundreds of cases of carpal tunnel syndrome you'd
-> prevent by eliminating the shifted character.
+On Fri, 12 Jul 2002, [iso-8859-2] Martin MOKREJ© wrote:
+> So, what to do now? ;)
 
-What's your suggestion for e.g. sparc then? bzvmlinux? vmlinubz?
+Try:
 
-I would leave i386 at *Image and the rest of the world use vmlinuz. 
-Whatever we call _that_ one.
+make mrproper
+cp ../.config .
+make oldconfig
 
 							Regards,
 							Thunder

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281201AbRLAAd7>; Fri, 30 Nov 2001 19:33:59 -0500
+	id <S281204AbRLAAf7>; Fri, 30 Nov 2001 19:35:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281204AbRLAAdt>; Fri, 30 Nov 2001 19:33:49 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:31432 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S281201AbRLAAdn>; Fri, 30 Nov 2001 19:33:43 -0500
-Date: Sat, 1 Dec 2001 01:33:41 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: lartc@mailman.ds9a.nl
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, hadi@cyberus.ca
-Subject: Finally, CBQ nearly completely documented
-Message-ID: <20011201013341.A23830@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, lartc@mailman.ds9a.nl,
-	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, hadi@cyberus.ca
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S281245AbRLAAfu>; Fri, 30 Nov 2001 19:35:50 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43281 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281204AbRLAAfl>;
+	Fri, 30 Nov 2001 19:35:41 -0500
+Date: Fri, 30 Nov 2001 22:35:33 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <3C08057D.48645B56@zip.com.au>
+Message-ID: <Pine.LNX.4.33L.0111302234420.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 30 Nov 2001, Andrew Morton wrote:
+> Larry McVoy wrote:
+> > Linux isn't there yet
+> > and unless the development model changes somewhat, I'll stand behind my
+> > belief that it is unlikely to ever get there.
+>
+> I am (genuinely) interested in what changes you think are needed.
 
-After preparing my talk on CBQ/HTB (http://ds9a.nl/cbq-presentation ), I
-finally understood how CBQ and filters etc truly work. And I wrote it down.
-Check out the Linux Advanced Routing & Shaping HOWTO, it's changed a lot!
+I'm very interested too, though I'll have to agree with Larry
+that Linux really isn't going anywhere in particular and seems
+to be making progress through sheer luck.
 
-Especially this part is very new, please check it for mistakes and
-inconsistencies:
-
-  http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-9.html
-
-I even got 'split' and 'defmap' figured out, which should be a first. There
-is not a single other page online that tells you correctly what these do.
-
-One thing - does *anybody* understand how hash tables work in tc filter, and
-what they do? Furthermore, I could use some help with the tc filter police
-things.
-
-So if you do understand how these work, please drop me a line.
-
-Thanks!
-
+Rik
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

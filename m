@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269171AbUJTLxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270307AbUJTMBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269171AbUJTLxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270077AbUJTLwO
+	id S270307AbUJTMBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270055AbUJTLyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:52:14 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8832 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270122AbUJTLu6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:50:58 -0400
-Date: Wed, 20 Oct 2004 07:49:56 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ryan Anderson <ryan@michonline.com>, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-In-Reply-To: <1098247307.23628.91.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
- <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
-  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+	Wed, 20 Oct 2004 07:54:05 -0400
+Received: from ozlabs.org ([203.10.76.45]:63415 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S270123AbUJTLxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 07:53:37 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16758.20925.984734.83651@cargo.ozlabs.ibm.com>
+Date: Wed, 20 Oct 2004 21:53:33 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: New consolidate irqs vs . probe_irq_*()
+In-Reply-To: <20041020120140.J1047@flint.arm.linux.org.uk>
+References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com>
+	<20041020083358.GB23396@elte.hu>
+	<1098261745.6263.9.camel@gaston>
+	<20041020100103.G1047@flint.arm.linux.org.uk>
+	<1098269455.20955.1.camel@gaston>
+	<20041020120140.J1047@flint.arm.linux.org.uk>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Lee Revell wrote:
+Russell King writes:
 
-> On Wed, 2004-10-20 at 00:18, Lee Revell wrote:
->> On Tue, 2004-10-19 at 23:45, Ryan Anderson wrote:
->>> RCU - originally a paper, implemented in Dynix and in other operating
->>> systems from the paper (and patent), implemented in Linux as well.
->>
->> You could also make a strong argument that that patent is invalid
->> because RCU is obvious.
->
-> (replying to myself to avert flames)  OK, after reading the RCU docs, in
-> all fairness there is a lot more to it than I described, in particular
-> the database analogy is not quite valid because most of the hard parts
-> are handled automagically by the DB.  But, my point remains valid, RCU
-> seems like too general a concept to be patentable, and would probably be
-> obvious to many people on this list.
->
-> Lee
->
+> Remember that PCMCIA effectively has its own IRQ router which requires
+> the PCMCIA code to know which IRQs are physically connected and which
+> aren't.  Unfortunately, there's no way to get that information as far
+> as I know except by the published method in the code.
 
-Next SCO will show that some company they bought in bankrupcy
-for a dollar had patented register move instructions, to whit;
-"The copying of the contents of one register to another without
-changing the contents of the source register...."
+On my powerbook, the pcmcia/cardbus controller has one interrupt,
+which is used both for card status changes and for card functional
+interrupts.  It doesn't have an ISA bus and it doesn't have an 8259
+interrupt controller, and interrupts 0-15 aren't anything like what
+they might be on a PC.  This is why (as Ben says) there is no point
+probing for interrupts, and why on ppc (or at least on powermacs) the
+probe functions are no-ops.
 
-Then they will require that Intel, Motorola, and others pay them
-billions and billions.... It's all lawyering (spelled wrong).
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+Paul.

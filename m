@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbTD1BFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 21:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTD1BFY
+	id S262620AbTD1BHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 21:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTD1BHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 21:05:24 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:41871 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262599AbTD1BFT
+	Sun, 27 Apr 2003 21:07:38 -0400
+Received: from user72.209.42.38.dsli.com ([209.42.38.72]:41605 "EHLO
+	nolab.conman.org") by vger.kernel.org with ESMTP id S262620AbTD1BHh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 21:05:19 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 27 Apr 2003 18:17:58 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mark Grosberg <mark@nolab.conman.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 27 Apr 2003 21:07:37 -0400
+Date: Sun, 27 Apr 2003 21:19:52 -0400 (EDT)
+From: Mark Grosberg <mark@nolab.conman.org>
+To: rafael@thinkfreak.com.br
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [RFD] Combined fork-exec syscall.
-In-Reply-To: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
-Message-ID: <Pine.LNX.4.50.0304271814410.7601-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
+In-Reply-To: <MK1YLGYVX1UUOSNUQPN482OM94POGC.3eadcfed@rafaelnote.ns1.lhost.com.br>
+Message-ID: <Pine.BSO.4.44.0304272116510.23296-100000@kwalitee.nolab.conman.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Apr 2003, Mark Grosberg wrote:
-
-> Is there any interest in a single system call that will perform both a
-> fork() and exec()? Could this save some extra work of doing a
-> copy_mm(), copy_signals(), etc?
->
-> I would think on large, multi-user systems that are spawning processes all
-> day, this might improve performance if the shells on such a system were
-> patched.
->
-> Perhaps a system call like:
->
->    pid_t spawn(const char *p_path,
->                const char *argv[],
->                const char *envp[],
->                const int   filp[]);
->
-> The filp array would allow file descriptors to be redirected. It could be
-> terminated by a -1 and reference the file descriptors of the current
-> process (this could also potentially save some dup() syscalls).
->
-> If any of these parameters (exclusing p_path) are NULL, then the
-> appropriate values are taken from the current process.
->
-> I originally was thinking of a name of fexec() for such a syscall, but
-> since there are already "f" variant syscalls (fchmod, fstat, ...) that an
-> fexec() would make more sense about executing an already open file, so the
-> name spawn() came to mind.
->
-> I know almost all of my fork()-exec() code does almost the same thing. I
-> guess vfork() was a potential solution, but this somehow seems cleaner
-> (and still may be more efficient than having to issue two syscalls)...
-> the downside is, of course, another syscall.
-
-This is very much library stuff. I don't think that saving a couple of
-system calls will give you an edge, expecially when we're talking of
-spawning another process. Even if the process itself does nothing but
-return. Ulrich might be eventually interested ...
 
 
+On Mon, 28 Apr 2003, Rafael Costa dos Santos wrote:
 
+> Do you have some work done on this issue ?
 
-- Davide
+Nope. Was just thinking. To be honest, I stopped doing kernel development
+in the 2.0 days (but I keep up with LKML). This would be for 2.5 but
+could probably be backported to 2.4 without too much trouble.
+
+But tomorrow I may very well find myself out of a job (big surprise), and
+if so, I'll setup a Linux box (since I've mostly been using OpenBSD
+these days) and work on this (for i386 to begin with) if  there is enough
+interest.
+
+L8r,
+Mark G.
 

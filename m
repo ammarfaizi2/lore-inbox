@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272277AbRIETTN>; Wed, 5 Sep 2001 15:19:13 -0400
+	id <S272280AbRIET0z>; Wed, 5 Sep 2001 15:26:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272289AbRIETTF>; Wed, 5 Sep 2001 15:19:05 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:59151 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S272277AbRIETSr>; Wed, 5 Sep 2001 15:18:47 -0400
-Date: Wed, 5 Sep 2001 21:18:52 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Patch: fix error in building procfs-guide
-Message-ID: <20010905211851.N22160@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.21.0109051939150.20371-100000@pppg_penguin.linux.bogus>
-Mime-Version: 1.0
+	id <S272282AbRIET0q>; Wed, 5 Sep 2001 15:26:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:29201 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S272280AbRIET0h>;
+	Wed, 5 Sep 2001 15:26:37 -0400
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010905170037.A6473@emma1.emma.line.org.suse.lists.linux.kernel> <20010905152738.C5912BC06D@spike.porcupine.org.suse.lists.linux.kernel> <20010905182033.D3926@emma1.emma.line.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Sep 2001 21:26:50 +0200
+In-Reply-To: Matthias Andree's message of "5 Sep 2001 18:24:12 +0200"
+Message-ID: <oupg0a1wi9x.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0109051939150.20371-100000@pppg_penguin.linux.bogus>; from ken@kenmoffat.uklinux.net on Wed, Sep 05, 2001 at 07:44:29PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 05, 2001 at 07:44:29PM +0100, Ken Moffat wrote:
-> Following patch fixes errors which cause building kernel docs to fail
-> (e.g. tulip user guide doesn't get built). Created on 2.4.7 while I was on
-> holiday, applies cleanly to 2.4.9-ac6 and 2.4.10-pre4.
-
-Thanks for spotting the error, the patch is obviously correct. Linus,
-Alan, please apply.
-
-
-Erik
-
-> diff -urN linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl
-> --- linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Sat Jul 21 22:47:23 2001
-> +++ altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Wed Aug 22 20:39:44 2001
-> @@ -207,7 +207,7 @@
->          will return <constant>NULL</constant>. <xref
->          linkend="userland"> describes how to do something useful with
->          regular files.
-> -      <para>
-> +      </para>
->  
->        <para>
->          Note that it is specifically supported that you can pass a
-> @@ -577,7 +577,7 @@
->          the <structfield>owner</structfield> field in the
->          <structname>struct proc_dir_entry</structname> to
->          <constant>THIS_MODULE</constant>.
-> -      <para>
-> +      </para>
->  
->        <programlisting>
->  struct proc_dir_entry* entry;
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 > 
+> I believe this would require fixing for compatibility reasons, in the
+> sense that the address is also compared to figure the interface, but I'm
+> out of time now and cannot try anything before tomorrow, I'd happily
+> test patches sent by then.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
+Even if it checked the address it would not be unique because you can have multiple
+interfaces with the same addresses but different netmasks.
+The SIOCGIFNETMASK interface is just broken. If you really wanted it you should use
+rtnetlink instead, which allows multiple answers to a single question.
+Likely postfix doesn't really need it though, the concept of checking for "local"
+address is pretty dubious and likely to be incorrect for many cases.
+
+-Andi
+

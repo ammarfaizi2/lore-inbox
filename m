@@ -1,147 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266980AbSKWOa3>; Sat, 23 Nov 2002 09:30:29 -0500
+	id <S267038AbSKWPFW>; Sat, 23 Nov 2002 10:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267030AbSKWOa3>; Sat, 23 Nov 2002 09:30:29 -0500
-Received: from steve.prima.de ([62.72.84.2]:55272 "HELO steve.prima.de")
-	by vger.kernel.org with SMTP id <S266980AbSKWOa1>;
-	Sat, 23 Nov 2002 09:30:27 -0500
-Date: Sat, 23 Nov 2002 15:37:00 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: AIC7xxx error messages with linux 2.5 BK-CURRENT
-Message-ID: <20021123143700.GA17472@oscar.homelinux.net>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267039AbSKWPFW>; Sat, 23 Nov 2002 10:05:22 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:36526 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267038AbSKWPFV>; Sat, 23 Nov 2002 10:05:21 -0500
+Date: Sat, 23 Nov 2002 09:12:21 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: Hard Lockup with 2.4.20-rc3 and ISDN (ippp)
+In-Reply-To: <20021123123322.3e6ef7c2.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.44.0211230908590.23257-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo everyone,
+On Sat, 23 Nov 2002, Stephan von Krawczynski wrote:
 
-using the current BK snapshot of linux 2.5, I see many of the following
-messages in my syslog:
+> On Fri, 22 Nov 2002 15:21:28 -0200 (BRST)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> 
+> > 
+> > Hi,
+> > 
+> > Finally, here goes -rc3.
+> > [...]
+> > Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
+> >   o ISDN: Fix error path in isdn_ppp.c
+> 
+> Something must be wrong with this one, I experience an immediate hard lockup
+> when trying to use a ippp-connection. No way around it, always happens. And no
+> panic message or anything, just complete immediate lockup. This is with hisax +
+> AVM Fritz PCI 2.0 + SMP + SuSE 8.1 distro installation.
+> Anybody else with the same problem?
+> rc2 works for _some_ connections (after a while I have to reload the drivers to
+> work again). All 20pre version work without any problem at all.
 
+Yup, my bad. Could you confirm that the attached patch which I sent to 
+Marcelo already fixes it?
 
-Nov 23 14:58:29 tony kernel: Saw underflow (1012 of 1024 bytes). Treated
-as error
+Also, please send me the details (privately) about the occasional driver 
+going defunct, let's try to figure that one out.
 
-
-The message are apparently caused by the AIC7xxx driver accessing
-my harddrives. There is no negative effect though. All filesystem
-operations appear to be OK.
-
-As you can see below, I have four U160 IBM disks connected
-to an Adaptec 3960D Ultra160 SCSI adapter. The Tag Queue Depth
-is limited to 16. Both channels share IRQ 9.
-
-The data was collected after boot, logged on into an X session.
-
-Do I have to worry about that ?
-
-Thanks,
-Patrick
-
-
-Here's some relevant hardware info:
-
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-        <Adaptec 3960D Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-  Vendor: IBM       Model: IC35L036UCD210-0  Rev: S5BA
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-(scsi0:A:1): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-  Vendor: IBM       Model: IC35L036UCD210-0  Rev: S5BA
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-        <Adaptec 3960D Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
-
-(scsi1:A:0): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-  Vendor: IBM       Model: IC35L036UWD210-0  Rev: S5BS
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-(scsi1:A:1): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-  Vendor: IBM       Model: IC35L036UWD210-0  Rev: S5BS
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 16
-SCSI device sda: drive cache: write back
-SCSI device sda: 71687340 512-byte hdwr sectors (36704 MB)
- sda: sda1 sda2 sda3 sda4
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-scsi0:A:1:0: Tagged Queuing enabled.  Depth 16
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 71687340 512-byte hdwr sectors (36704 MB)
- sdb: sdb1 sdb2 sdb3 sdb4
-Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-scsi1:A:0:0: Tagged Queuing enabled.  Depth 16
-SCSI device sdc: drive cache: write back
-SCSI device sdc: 71687340 512-byte hdwr sectors (36704 MB)
- sdc: sdc1 sdc2 sdc3 sdc4
-Attached scsi disk sdc at scsi1, channel 0, id 0, lun 0
-scsi1:A:1:0: Tagged Queuing enabled.  Depth 16
-SCSI device sdd: drive cache: write back
-SCSI device sdd: 71687340 512-byte hdwr sectors (36704 MB)
- sdd: sdd1 sdd2 sdd3 sdd4
-Attached scsi disk sdd at scsi1, channel 0, id 1, lun 0
-
-[root@tony] cat /proc/scsi/aic7xxx/0
-Adaptec AIC7xxx driver version: 6.2.4
-aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-Channel A Target 0 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Channel A Target 0 Lun 0 Settings
-                Commands Queued 1026
-                Commands Active 0
-                Command Openings 253
-                Max Tagged Openings 253
-                Device Queue Frozen Count 0
-Channel A Target 1 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Channel A Target 1 Lun 0 Settings
-                Commands Queued 993
-                Commands Active 0
-                Command Openings 253
-                Max Tagged Openings 253
-                Device Queue Frozen Count 0
-
-[root@tony] cat /proc/scsi/aic7xxx/1
-Adaptec AIC7xxx driver version: 6.2.4
-aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
-Channel A Target 0 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Channel A Target 0 Lun 0 Settings
-                Commands Queued 3079
-                Commands Active 0
-                Command Openings 253
-                Max Tagged Openings 253
-                Device Queue Frozen Count 0
-Channel A Target 1 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-        Channel A Target 1 Lun 0 Settings
-                Commands Queued 1410
-                Commands Active 0
-                Command Openings 253
-                Max Tagged Openings 253
-                Device Queue Frozen Count 0
+--Kai
 
 
-[root@tony] cat /proc/interrupts
-           CPU0
-  0:    1953494          XT-PIC  timer
-  1:       3372          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:       6689          XT-PIC  aic7xxx, aic7xxx
+-----------------------------------------------------------------------------
+ChangeSet@1.795.1.2, 2002-11-22 15:24:43-06:00, kai@tp1.ruhr-uni-bochum.de
+  ISDN: Fix the fix
+  
+  Argh, I must have been asleep or something. The original patch by Herbert
+  Xu was right, I extended it to cover more error paths and broke it in 
+  doing so. Now fixed again.
+
+  
+---------------------------------------------------------------------------
+
+diff -Nru a/drivers/isdn/isdn_ppp.c b/drivers/isdn/isdn_ppp.c
+--- a/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
++++ b/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
+@@ -1147,7 +1147,7 @@
+ 		printk(KERN_ERR "isdn_ppp_xmit: lp->ppp_slot(%d)\n",
+ 			mlp->ppp_slot);
+ 		kfree_skb(skb);
+-		goto unlock;
++		goto out;
+ 	}
+ 	ipts = ippp_table[slot];
+ 
+@@ -1155,7 +1155,7 @@
+ 		if (ipts->debug & 0x1)
+ 			printk(KERN_INFO "%s: IP frame delayed.\n", netdev->name);
+ 		retval = 1;
+-		goto unlock;
++		goto out;
+ 	}
+ 
+ 	switch (ntohs(skb->protocol)) {
+@@ -1169,7 +1169,7 @@
+ 			printk(KERN_ERR "isdn_ppp: skipped unsupported protocol: %#x.\n", 
+ 			       skb->protocol);
+ 			dev_kfree_skb(skb);
+-			goto unlock;
++			goto out;
+ 	}
+ 
+ 	lp = isdn_net_get_locked_lp(nd);
+@@ -1336,6 +1336,7 @@
+ 
+  unlock:
+ 	spin_unlock_bh(&lp->xmit_lock);
++ out:
+ 	return retval;
+ }
+ 
+
+
+
+
 

@@ -1,83 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268350AbUHLCby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUHLCgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268350AbUHLCby (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 22:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268345AbUHLCby
+	id S268355AbUHLCgp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 22:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268345AbUHLCgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 22:31:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57034 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268350AbUHLC3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 22:29:36 -0400
-Date: Wed, 11 Aug 2004 19:19:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: zippel@linux-m68k.org, arnd@arndb.de, hch@infradead.org,
-       wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
-       schwidefsky@de.ibm.com, linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: architectures with their own "config PCMCIA"
-Message-Id: <20040811191900.13d9f511.rddunlap@osdl.org>
-In-Reply-To: <20040812001848.GW26174@fs.tum.de>
-References: <20040807170122.GM17708@fs.tum.de>
-	<20040807181051.A19250@infradead.org>
-	<20040807172518.GA25169@fs.tum.de>
-	<200408072013.01168.arnd@arndb.de>
-	<20040811201725.GJ26174@fs.tum.de>
-	<Pine.LNX.4.58.0408112223140.20634@scrub.home>
-	<20040812001848.GW26174@fs.tum.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 Aug 2004 22:36:45 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:12624 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268355AbUHLCgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 22:36:22 -0400
+Message-ID: <411AD7A3.5070705@yahoo.com.au>
+Date: Thu, 12 Aug 2004 12:36:19 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>,
+       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Possible dcache BUG
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408111037.56062.gene.heskett@verizon.net> <411AC750.3040809@yahoo.com.au> <200408112223.50438.gene.heskett@verizon.net>
+In-Reply-To: <200408112223.50438.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004 02:18:48 +0200 Adrian Bunk wrote:
+Gene Heskett wrote:
 
-| On Wed, Aug 11, 2004 at 11:45:21PM +0200, Roman Zippel wrote:
-| 
-| > Hi,
-| 
-| Hi Roman,
-| 
-| > On Wed, 11 Aug 2004, Adrian Bunk wrote:
-| > 
-| > > Roman, is it intentional that PCMCIA!=n is true if there's no PCMCIA 
-| > > option, or is it simply a bug?
-| > 
-| > Yes, undefined symbols have a (string) value of "" . Maybe it's time to 
-| > add a warning for such comparisons...
-| 
-| is there any strong reason why undefined symbols aren't equivalent to 
-| symbols with a value of "n"?
+>On Wednesday 11 August 2004 21:26, Nick Piggin wrote:
+>
+>>This could easily be from too much slab pressure. How much memory do
+>>you have?
+>>
+>
+>1 Gb in 2 512Mb sticks of DDR400 ram which signs on in the bios as 
+>dual channel.  The sticks are in the first and third slots as 
+>recommended by the mobo docs.
+>
+>
+>>Have you got highmem turned on?
+>>
+>Yes
+>
+>
 
-I second that question...
+OK, leave it on until you sort out the stability problem. When we look
+at performance problem, we'll probably start with highmem off.
 
-| Many !=n seems to be bogus (especially ones from the automatic 
-| transition to the new Kconfig) and I'll audit them. But rewriting valid 
-| FOO!=n to (FOO=y || FOO=m) doesn't sound like an improvement.
+I'll try to reproduce it here, but my highmem system has 4GB and is
+allergic to mem=
 
-Hm, I've thought that config selections were either boolean or
-tristate.  This makes it sound like they could be quadstate (y/n/m/blank).
+>>The new slab pressure calculation is an improvement in that it won't
+>>let slab
+>>get out of control and cause OOMs, however it can shrink the slab
+>>too much. If you regularly need ZONE_DMA pages, for example. AFAIKS
+>>there isn't much you
+>>can do about this except go to per-zone slab LRUs.
+>>
+>
+>And how would an otherwise clueless user like me determine that?
+>
+>
 
-And the menu dependency doc in Documentation/kbuild/kconfig-language.txt
-makes it sound (to me) like undefined values become 'n':
+We can look at deltas on some /proc/vmstat fields like pgpgin, slab_scanned,
+pgalloc_dma etc. before and after the kbuild. Look at those deltas before
+and after Linus' patch, and see if we can work out what is going on.
 
-<quote>
-Expressions are listed in decreasing order of precedence. 
+>>That said, your stability problems should be resolved first. If they
+>>are fixed,
+>>
+>
+>Which as yet is an unknown, Nick.  Uptime now at
+> 22:15:14 up 12:30,  5 users,  load average: 1.03, 1.11, 1.05
+>
+>
+>>and you would like to help track down the slowdown, run the kernel
+>>compile about
+>>3 times each with and without the patch, and save cat /proc/vmstat
+>>before and
+>>after each compile. Try to keep all else constant.
+>>
+>
+>I'll try that if I get to a 30+ hour uptime.
+>
 
-(1) Convert the symbol into an expression. Boolean and tristate symbols
-    are simply converted into the respective expression values. All
-    other symbol types result in 'n'.
-...
-An expression can have a value of 'n', 'm' or 'y' (or 0, 1, 2
-respectively for calculations). A menu entry becomes visible when it's
-expression evaluates to 'm' or 'y'.
-</quote>
+Well make sure it is stable first, then get back to me when you're ready
+to tackle the performance problem. Thanks.
 
-
---
-~Randy

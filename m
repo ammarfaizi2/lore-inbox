@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285618AbSA2WhX>; Tue, 29 Jan 2002 17:37:23 -0500
+	id <S285226AbSA2WkD>; Tue, 29 Jan 2002 17:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSA2WhP>; Tue, 29 Jan 2002 17:37:15 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31505 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S285226AbSA2WhA>; Tue, 29 Jan 2002 17:37:00 -0500
-Date: Tue, 29 Jan 2002 17:35:40 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Rob Landley <landley@trommello.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020129173228.31511B-100000@gatekeeper.tmr.com>
+	id <S285498AbSA2Wjk>; Tue, 29 Jan 2002 17:39:40 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:14521 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S285482AbSA2WhS>; Tue, 29 Jan 2002 17:37:18 -0500
+From: "Karl" <ktatgenhorst@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: new photos from my party!
+Date: Tue, 29 Jan 2002 16:51:59 -0500
+Message-ID: <NDBBJHDEALBBOIDJGBNNEECNCCAA.ktatgenhorst@earthlink.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <5.1.0.14.0.20020129101325.03f98d98@127.0.0.1>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Ingo Molnar wrote:
 
-> None of the examples you cited so far are convincing to me, and i'd like
-> to explain why. I've created and submitted thousands of patches to the
-> Linux kernel over the past 4 years (my patch archive doesnt go back more
-> than 4 years):
-> 
->   # ls patches | wc -l
->      2818
-> 
-> a fair percentage of those went to Linus as well, and while having seen
-> some of them rejected does hurt mentally, i couldnt list one reject from
-> Linus that i wouldnt reject *today*. But i sure remember being frustrated
-> about rejects when they happened. In any case, i have some experience in
-> submitting patches and i'm maintaining a few subsystems, so here's my take
-> on the 'patch penguin' issue:
-> 
-> If a patch gets ignored 33 times in a row then perhaps the person doing
-> the patch should first think really hard about the following 4 issues:
+Scott,
 
-1 - why doesn't someone at least ack the damn patch?
-2 - why doesn't someone at least ack the damn patch?
-3 - why doesn't someone at least ack the damn patch?
-4 - why doesn't someone at least ack the damn patch?
+  Some of us do use Outlook for a reason, ie Corporate Policies
+etc...However, getting defensive of Outlook is _NOT_ the answer. Educate
+those around you as to how to _better_ use Outlook. For, example most worms
+root through you address book/contacts and take the linked (mailto:) address
+from the e mail field. If you are clever, you build a contact and type their
+name in the text note section. You lose the ability to let outlook address
+your mail, but so does Nimda :-) USE virus protection. E mail ALL virus
+incidents to as many e mail addresses as you are comfortable finding in the
+MS sales / marketing page.
 
-There is no better way to avoid getting something good from someone than
-to ignore them completely. The fact that things like reisser f/s patches
-from the creator don't get in is an example, or don't you think they are
-good enough?
+   Bite them when they call you at work. Example, today MS called me about
+their B Central site for website development because some stooge let them
+know I need services. I politely told them "no thanks we are doing a SECURE
+site" when he said that MS could do a secure site I said "Oh yeah, I forgot
+all about Hotmail (run on BSD)" amd hung up.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+BLAME BLAME BLAME BLAME BLAME BLAME OUTLOOK
+
+
+>Microsoft Outlook *IS* the problem. Blaming it *IS* correct. Removing
+>Outlook *IS* the solution.
+
+
+ >        - Matt
+
+
+
+>That's hardly fair.  Some of us use Outlook for a reason (my address is a
+>>Spam trap that only lets in what I actually want to read).  I can see
+trying
+>>to keep out Spam, but blaming Outlook is not the solution.
+>>
+>>Scott
+>>-
 

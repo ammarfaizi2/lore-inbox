@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270992AbRHXIxd>; Fri, 24 Aug 2001 04:53:33 -0400
+	id <S270973AbRHXI5D>; Fri, 24 Aug 2001 04:57:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271001AbRHXIxZ>; Fri, 24 Aug 2001 04:53:25 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:10198 "HELO mail.broadpark.no")
-	by vger.kernel.org with SMTP id <S270992AbRHXIxL>;
-	Fri, 24 Aug 2001 04:53:11 -0400
-From: Paal Chr Birkeland <paalchr@linuxnation.net>
-Reply-To: paalchr@linuxnation.net
+	id <S271001AbRHXI4x>; Fri, 24 Aug 2001 04:56:53 -0400
+Received: from [203.161.228.202] ([203.161.228.202]:25107 "EHLO
+	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
+	id <S270973AbRHXI4p>; Fri, 24 Aug 2001 04:56:45 -0400
+Date: 24 Aug 2001 09:06:55 -0000
+Message-ID: <20010824090655.29285.qmail@yusufg.portal2.com>
+From: Yusuf Goolamabbas <yusufg@outblaze.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Determining maximum partition size on a hard disk
-Date: Fri, 24 Aug 2001 10:47:28 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <0108241047280B.08728@vixen>
-Content-Transfer-Encoding: 7BIT
+Cc: linux@3ware.com
+Subject: 3ware RAID1 sequential read speed slower than write speed (2.4.8-ac10)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> First I found that the maximum size of the drive Linux reports is not
-> the maximum size I get when I calculate it from the drives geometry.
-> Secondly, the total drive space reported by linux is not the amount
-> available for the maximum partition.
->
+P3-450 with 256MB RAM with a 3ware 6200 attached to 2 20GB Western
+Digitial 7200RPM Caviar Drive  WD200BB
 
-tune2fs -m 2 /dev/hd-whatever-hdd
+Running bonnie++ <http://www.coker.com.au/bonnie++/> on both an ext3
+and ext2 partition, I get the following results
 
-For some reason linux still "eats" 5% of the hdd. This for still beeing able 
-to run smooth if hdd is maxed out, or something like that.
- 
-root@vixen:~# tune2fs -m 2 /dev/hdb1
-tune2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-Setting reserved blocks percentage to 2 (256034 blocks)
+Version  1.01d      ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+ext3           512M  6020  98 41022  57  6673   8  4619  77 21834  14 237.1   2
 
-Default is 5% (slackware)
 
-This, I think, is from way back when hdds where alot smaler and then ppl 
-forgot all about it (?). 5% of an 80 gig hdd gotta be a lot of wasted space 
-and in no way required. I always set it lower (2% as above) and gain more 
-useable space. Probably 1% would be enough but who's counting :o)
+Version  1.01d      ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+ext2           512M  6385  99 39969  32  9371  10  5540  91 27864  14 320.7   2
 
-I dont know if the tune2fs is a slackware feature only, but i doubt it. Then
-again I havent really "tried" any other distro.
 
-Inputs ?
+Whilst, I think the write performance is quite good. The read
+performance seems to be quite bad. I expected read performance to be
+better than write performance for RAID-1 configuration
 
+Any ideas,patches to try ?
+
+Regards, Yusuf
 -- 
-Vennlig hilsen / Regards
-Paal Chr Birkeland
-admin@linuxnation
+Yusuf Goolamabbas
+yusufg@outblaze.com

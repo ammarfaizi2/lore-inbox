@@ -1,59 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263412AbTLOIzW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 03:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTLOIzW
+	id S263424AbTLOJZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 04:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTLOJZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 03:55:22 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:39808 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263412AbTLOIzS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 03:55:18 -0500
-Subject: Re: [patch] Re: Problem with exiting threads under NPTL
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Roland McGrath <roland@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0312141353220.1586@home.osdl.org>
-References: <20031214052516.GA313@vana.vc.cvut.cz>
-	 <Pine.LNX.4.58.0312142032310.9900@earth>
-	 <Pine.LNX.4.58.0312141228170.1478@home.osdl.org>
-	 <Pine.LNX.4.58.0312142205050.13533@earth>
-	 <Pine.LNX.4.58.0312141353220.1586@home.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4k+eG7o457hGRRN9yv4d"
-Organization: Red Hat, Inc.
-Message-Id: <1071478455.5223.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 15 Dec 2003 09:54:16 +0100
+	Mon, 15 Dec 2003 04:25:26 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:56994 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S263424AbTLOJZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 04:25:20 -0500
+Message-ID: <3FDD7DFD.7020306@labs.fujitsu.com>
+Date: Mon, 15 Dec 2003 18:25:17 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: filesystem bug?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-4k+eG7o457hGRRN9yv4d
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ext2 and Ext3 filesystem go to inconsistent status by
+simple test program on my system.
 
-On Sun, 2003-12-14 at 23:10, Linus Torvalds wrote:
+My test program is a script that extract a tar+gzip archive
+twice and compare them, and remove one of the tree, and then
+another extracting, and compare them again. A very simple test.
 
-> Even though the parent ignores SIGCHLD it _can_ be running on another CPU
-> in "wait4()".
+Following is an Ext2 result and the inode is filled by zero.
+I think the inode becomes a badinode.
 
-which fwiw is a case of illegal behavior in the program ... of course
-the kernel shouldn't die if it happens.
+----
+[root@dell04 tsuchiya]# ls -l /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
+ls: /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html: Input/output error
 
---=-4k+eG7o457hGRRN9yv4d
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+debugfs:  stat foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
+Inode: 1935297   Type: bad type    Mode:  0000   Flags: 0x0   Generation: 0
+User:     0   Group:     0   Size: 0
+File ACL: 0    Directory ACL: 0
+Links: 0   Blockcount: 0
+Fragment:  Address: 0    Number: 0    Size: 0
+ctime: 0x00000000 -- Thu Jan  1 09:00:00 1970
+atime: 0x00000000 -- Thu Jan  1 09:00:00 1970
+mtime: 0x00000000 -- Thu Jan  1 09:00:00 1970
+BLOCKS:
 
-iD8DBQA/3Xa3xULwo51rQBIRAgT4AJ4zLNwVFThsU2w7F02WjvuIMddl2QCdFo//
-tyb2FjQrk9sGepHUNz+BvAs=
-=tH4t
------END PGP SIGNATURE-----
+/dev/sda4 on /mnt type ext2 (rw)
+----
 
---=-4k+eG7o457hGRRN9yv4d--
+I saw same thing on Ext3 before.
+
+I use RedHat9 which kernel is 2.4.20-8 and I also tried
+2.4.20-19.9(redhat kernel patch rpm).
+
+I want to know whether it is a redhat kernel problem or a generic
+Ext problem and on which version it is fixed.
+
+
+Mkfs parameter is just default of /sbin/mkfs.ext2 and mkfs.ext3,
+and I use DELL 1650's internal SCSI disks for this test:
+
+----
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+        <Adaptec aic7899 Ultra160 SCSI adapter>
+        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+        <Adaptec aic7899 Ultra160 SCSI adapter>
+        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+blk: queue dfceb214, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: SEAGATE   Model: ST336607LC        Rev: DS04
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+blk: queue dfceb414, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: SEAGATE   Model: ST336753LC        Rev: DX03
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+----
+
+I will attach my script. I use Mozilla's tar archive.
+Edit the first three lines for your use.
+
+In the example above, the inode structure was cleared by zero, and
+some time the data area was broken. Also I saw an inode overwritten
+by deleted inode(which nlink=0 and i_dtime is on).
+My feeling is that the broken buffers were used for some other
+purpose and destroyed without having right LOCK of the buffer.
+
+Here is my script:
+---
+#!/bin/bash
+
+TARGETPREFIX=/mnt/foo   # filesystem that will be tested
+MOZSRC=/home/tsuchiya/src/mozilla-source-1.3.tar.gz     # tgz used for test
+RDIR="/tmp/xcresult"    # result directory
+
+function _xtract+compare {
+        echo "extracting directory to be compared against for $1"
+        TARGETDIR=$TARGETPREFIX/$1
+        mkdir -p $TARGETDIR
+        cd $TARGETDIR
+        tar zxf $MOZSRC
+        echo "$1 done .... now the job is started."
+        RESULTS=$RDIR/$1
+
+        echo "test result will be stored under $RESULTS"
+        mkdir -p $RESULTS;
+
+        for ((i=0; i < 100000; i++))
+        do
+                echo "$1:$i-th trial"
+
+                echo "test dir is $TARGETDIR";
+                mkdir -p $TARGETDIR;
+
+                cd $TARGETDIR
+                mkdir dir$i
+                cd dir$i
+                tar zxf $MOZSRC
+                diff -rq $TARGETDIR/mozilla mozilla > $RESULTS/dir$i.result 2>&1
+                DIFFSIZE=`ls -l $RESULTS/dir$i.result | awk '{print $5}'`
+                if [ $DIFFSIZE != 0 ];
+                then
+                        echo "something wrong happened at $1:$i-th trial "
+                        exit;
+                else
+                        rm $RESULTS/dir$i.result
+                        echo "test $1:$i-th passed"
+                fi
+                rm -rf mozilla &
+        done
+}
+
+for target in aa ab ac ad ae # af ag ah ai aj ak al am an
+do
+        _xtract+compare $target $RDIR &
+done
+
+---
+
+
+Any information would be appreciated.
+
+Thanks,
+Yoshi
+---
+Yoshihiro Tsuchiya
+
+
+

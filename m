@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270743AbTGPMh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270744AbTGPMh2
+	id S270754AbTGPMiX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTGPMiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:37:28 -0400
-Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:7178 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S270743AbTGPMhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:37:25 -0400
-From: "Joseph Fannin" <jhf@rivenstone.net>
-Date: Wed, 16 Jul 2003 08:52:14 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Error using mii-tool on 2.6-test, 2.4 okay
-Message-ID: <20030716125213.GA6582@rivenstone.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 16 Jul 2003 08:38:23 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:29174 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S270754AbTGPMiS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 08:38:18 -0400
+Date: Wed, 16 Jul 2003 14:53:08 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+Message-Id: <20030716145308.44f5eb7b.philippe.gramoulle@mmania.com>
+In-Reply-To: <20030715225608.0d3bff77.akpm@osdl.org>
+References: <20030715225608.0d3bff77.akpm@osdl.org>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws141 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello Andrew,
+
+testing 2.6.0-test1-mm1 right now. Everything's been _really_ good so far.
+I've been using 2.5.72-mm1 before since it's out without a problem.
+
+make -j 16 bzImage + xmms + moving a term window like mad never makes Xmms skip
+which is really good. Term window freezes for few seconds after moving it like mad for ~7/8 sec
+(not a realy day to day typical workload ! :) And it comes back to normal almost as soon as i stop
+moving the Eterm window.
+
+I also have a Xinerama setup and no pb so far when moving like mad the Eterm windows from one
+screen to the other or moving Eterm like mad wile overlapping the 2 screens.
+
+Box is Dell WS 530 MT SMP 512 Mo , 15K RPM SCSI disk (AIC7xxx, 0 TCQ), Nvidia GeForce 256 AGP  NV10DDR + 
+Nvidia NV6 Vanta LT PCI
+
+boot option is : kernel /boot/vmlinuz-2.5.72-mm1 root=/dev/sda2 console=tty1 console=ttyS1,9600n8 elevator=as noirqbalance
+
+Box is running postfix, Mozilla, Opera, NFS server, gnomeICU, etc.. and all is running fine ( subjective
+opinion ;)
+
+Congrats to all kernel hackers :)
+
+Thanks,
+
+Philippe
+
+--
+
+Philippe Gramoullé
+philippe.gramoulle@mmania.com
+System & Network Engineer
+NOC France - Lycos Europe
 
 
-	I've just switched another of my boxes over to 2.6-test; so
-far, I've had only one problem -- attempts to force the network card
-(tulip-based) to full-duplex with mii-tool fail with:
 
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-no MII interfaces found
+On Tue, 15 Jul 2003 22:56:08 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-       The same command works fine in 2.4.  This the packaged mii-tool
-in Debian unstable (1.9 2000/04/28).  I've tried rebuilding the
-package on another very similar machine, but the error remains.
-Ethtool also doesn't work, but I'm not sure it did with 2.4 and this
-card either.
-
-       One thing that caught my eye: I have CONFIG_MII set to "y".
-Are mii-tool and CONFIG_MII mutually exclusive?  CONFIG_TULIP is "m";
-should CONFIG_MII be "m" too?   =20
-
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-"Linus, please apply.  Breaks everything.  But is cool." -- Rusty Russell.
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/FUp9Wv4KsgKfSVgRAvZlAKCgz5Jd8lpJb6ZGMJRMf7wKVw6O5QCfQcKj
-rYo2zcKbO1Ofj3kFoXGiNYE=
-=YNHy
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+  | . Another interactivity patch from Con.  Feedback is needed on this
+  |   please - we cannot make much progress on this fairly subjective work
+  |   without lots of people telling us how it is working for them.

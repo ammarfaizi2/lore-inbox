@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267238AbTAFXw1>; Mon, 6 Jan 2003 18:52:27 -0500
+	id <S267256AbTAGAGU>; Mon, 6 Jan 2003 19:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267239AbTAFXw1>; Mon, 6 Jan 2003 18:52:27 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52235
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267238AbTAFXwZ>; Mon, 6 Jan 2003 18:52:25 -0500
-Date: Mon, 6 Jan 2003 15:59:44 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <20030106234116.GH10752@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.10.10301061549050.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S267260AbTAGAGT>; Mon, 6 Jan 2003 19:06:19 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:60042 "HELO palrel11.hp.com")
+	by vger.kernel.org with SMTP id <S267256AbTAGAGS>;
+	Mon, 6 Jan 2003 19:06:18 -0500
+Date: Mon, 6 Jan 2003 16:13:32 -0800
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
+Message-ID: <20030107001332.GJ26790@cup.hp.com>
+References: <20030106215210.GE26790@cup.hp.com> <Pine.LNX.4.44.0301061515530.10086-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301061515530.10086-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+From: grundler@cup.hp.com (Grant Grundler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jan 2003, Matthias Andree wrote:
+On Mon, Jan 06, 2003 at 03:19:09PM -0800, Linus Torvalds wrote:
+> In particular, we can make the first phase disable DMA on the devices we 
+> find, which means that we know they won't be generating PCI traffic during 
+> the second phase - so now the second phase (which does the BAR sizing) can 
+> do sizing and be safe in the knowledge that there should be no random PCI 
+> activity ongoing at the same time.
 
-> On Sun, 05 Jan 2003, David van Hoose wrote:
-> 
-> > The impression I am getting from the GPL argument is that people want 
-> > 100% opensource drivers. Well, to be frank, I'd rather have a driver 
-> > that isn't 100% opensource to no driver at all. I think most everyone on 
-> > this mailing list agrees. If not, I'd like to know why.
-> 
-> You're at the author's mercy if you need to upgrade your kernel or if
-> the driver doesn't work for you. I'd rather know before buying a product
-> (modem, GFX board, ...) if there's either non-NDA'd documentation or
-> better an OpenSource driver or at least support for such.
+Did you expect the PCI_COMMAND_MASTER disabled in the USB Controller
+or something else in the controller turned off?
 
-Well I am silly and toss in a 1 year free upgrade service clause.
-For product upgrades and kernel upgrades, so your arguement is not an
-issue for me.
+Turning off MASTER will also disable the controller from responding
+to MMIO ...ie USB subsystem can't touch the USB controller until
+it's re-enabled (no USB interrupts). That's ok if PCI will re-enable
+USB controller in a later PCI setup phase. In general I expect a driver
+to call pci_enable_device() but I don't know anything about USB intialization
+when it's part of the "console" (HID).
 
-Regardless, it looks like the issues are still muddy on modules so, all of
-this noisy may be for nothing.
+BTW, I wasn't thinking of USB.  I'm just trying to understand if the "fix"
+is exclusively in the PCI code or will require changes to other subsystems.
 
-Cheers,
+> It's fine to temporarily disable memory on the northbridge, as long as
+> nothign else tries to _access_ that memory at the same time.
 
-Andre Hedrick
-LAD Storage Consulting Group
+The implemention to enforce that is what I meant with "arch specific code".
 
+I still have no idea which bridge implementations (vendor/model)
+have this problem and thus no idea what the i386 code would need 
+to look like. I was hoping Ivan (or someone) might know.
+
+thanks,
+grant

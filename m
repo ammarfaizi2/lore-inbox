@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264257AbTH1Th5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 15:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTH1Th5
+	id S264147AbTH1Tpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 15:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264187AbTH1Tpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 15:37:57 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:64516 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264257AbTH1Th4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 15:37:56 -0400
-Subject: Re: [PATCH] make voyager work again after the cpumask_t changes
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: wli@holomorphy.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030828121016.2c0e2716.akpm@osdl.org>
-References: <1062097375.1952.41.camel@mulgrave> 
-	<20030828121016.2c0e2716.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 28 Aug 2003 15:37:17 -0400
-Message-Id: <1062099437.1952.45.camel@mulgrave>
+	Thu, 28 Aug 2003 15:45:50 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6099 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264147AbTH1Tpt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 15:45:49 -0400
+Date: Thu, 28 Aug 2003 21:45:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why no cdda cdrom dma use in 2.6?
+Message-ID: <20030828194548.GG16684@suse.de>
+References: <3F4E5ACC.1090500@wmich.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4E5ACC.1090500@wmich.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-28 at 15:10, Andrew Morton wrote:
-> Yes, the generic code was like that too.  It was causing lockups.  Sorry, I
-> did not realise that voyager had a private invalidatation implementation.
+On Thu, Aug 28 2003, Ed Sweetman wrote:
+> It seems like this is a win win patch for the cdrom that was heavily 
+> tested in 2.4 in the akpm tree. I'm just wondering why it was never 
+> incorporated into 2.5 and thus 2.6? It's a shame to not have it in the 
+> kernel by default.
 
-It actually has to since the invalidation implementation is a property
-of the SMP HAL...fortunately voyager is the only subarch that has to
-replace the SMP HAL wholesale.
+>From my perspective, it would be fine to include in 2.6 right now. The
+2.4 patch relied heavily on buffer_heads though, so you would have to
+adapt the patch to bio first. Actually, it should be doable in a much
+less hackish manner.
 
-> Officially smp_invalidate_needed should be a cpumask_t and
-> smp_invalidate_interrupt() should be using cpu_isset() rather than
-> open-coded bitops.  For all those 64-way voyagers out there ;)
-> 
-> (Actually it is legitimate: you may want to run a NR_CPUS=48 kernel on a
-> 2-way voyager just for testing purposes).  I'll drop your patch in as-is,
-> and maybe Bill can take a look at cpumaskifying it sometime?
-
-OK.
-
-Actually, looking at the code made me realise that we can kill the
-tlbstate_lock and run lockless, so I'll play with doing that too.
-
-James
-
+-- 
+Jens Axboe
 

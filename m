@@ -1,137 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUJAUv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUJAUv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUJAUv2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S266481AbUJAUv2 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Oct 2004 16:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUJAUrv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUJAUsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:47:51 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:35339 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266481AbUJAUiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:38:18 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: jmorris@redhat.com, davem@davemloft.net
-Subject: [PATCH] reduce sha512_transform() stack usage, speedup
-Date: Fri, 1 Oct 2004 23:38:11 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200410012231.51816.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410012231.51816.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 1 Oct 2004 16:48:18 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:45700 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266485AbUJAUik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:38:40 -0400
+Date: Fri, 1 Oct 2004 22:38:23 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+cc: Valdis.Kletnieks@vt.edu, jmerkey@comcast.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+In-Reply-To: <415DB427.7050108@drdos.com>
+Message-ID: <Pine.GSO.4.61.0410012235470.25126@waterleaf.sonytel.be>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
+ <200410011934.i91JYU2t014578@turing-police.cc.vt.edu> <415DB427.7050108@drdos.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zAcXBGi30u/iYqU"
-Message-Id: <200410012338.11301.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Oct 2004, Jeff V. Merkey wrote:
+> > So you have three choices: You can accept the terms of the GPL, and comply
+> > with them, or you can not ship those pieces covered by the GPL (basically
+> > the entire kernel), or you can ship it in violation and wait for the hate
+> > mail to start arriving..... 
+> > 
+> >  
+> And the hate mail is the only thing that will arrive.   The GPL doesn't really
+> seem
+> to protect anyone since the copyright holders really can't do much with it.
+> I've
+> got a bunch of people using GPL code I've put out there in all sorts of
+> commercial
+> products and Can't do anything to them for failing to return changes.  They
+> can always
+> say they didn't accept the license then convert the code into their own IP .
 
---Boundary-00=_zAcXBGi30u/iYqU
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+If they didn't accept the license, they fall back to standard copyright, and
+are not allowed to distribute. End of story.
 
-On top of previous:
+According to your reasonings, copyright holders cannot do anything neither for
+other examples of copyright violation. Try distributing other copyrighted work
+(non-free software or non-free music or non-free movies) on your website and
+see what happens. You can always say `but I didn't accept the license' :-)
 
-Patch moves large temporary u64 W[80]
-from stack to ctx struct:
+Gr{oetje,eeting}s,
 
-* reduces stack usage by 640 bytes
-* saves one 640-byte memset() per sha512_transform()
-  (we still do it after *all* iterations are done)
-* quite unexpectedly saves 1.6k of code on i386
-  because stack offsets now fit into 8bits
-  and many stack addressing insns got 3 bytes smaller:
+						Geert
 
-# size sha512.o.org sha512.o
-text       data     bss     dec     hex filename
-8281        372       0    8653    21cd sha512.o.org
-6649        372       0    7021    1b6d sha512.o
-
-# objdump -d sha512.o.org | cut -b9- >sha512.d.org
-# objdump -d sha512.o | cut -b9- >sha512.d
-# diff -u sha512.d.org sha512.d
-[snip]
- :      8b 4b 28                mov    0x28(%ebx),%ecx
- :      8b 5b 2c                mov    0x2c(%ebx),%ebx
--:      89 8d 44 fd ff ff       mov    %ecx,0xfffffd44(%ebp)
--:      89 9d 48 fd ff ff       mov    %ebx,0xfffffd48(%ebp)
--:      89 9d f4 fc ff ff       mov    %ebx,0xfffffcf4(%ebp)
-+:      89 4d c4                mov    %ecx,0xffffffc4(%ebp)
-+:      89 5d c8                mov    %ebx,0xffffffc8(%ebp)
-+:      89 9d 64 ff ff ff       mov    %ebx,0xffffff64(%ebp)
- :      8b 5d 08                mov    0x8(%ebp),%ebx
--:      89 8d f0 fc ff ff       mov    %ecx,0xfffffcf0(%ebp)
-+:      89 8d 60 ff ff ff       mov    %ecx,0xffffff60(%ebp)
- :      8b 42 30                mov    0x30(%edx),%eax
- :      8b 52 34                mov    0x34(%edx),%edx
-[snip]
-
-WARNING: compile tested only.
 --
-vda
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---Boundary-00=_zAcXBGi30u/iYqU
-Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="sha512.c.W.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sha512.c.W.patch"
-
---- linux-2.6.9-rc3/crypto/sha512.c.org	Fri Oct  1 22:17:14 2004
-+++ linux-2.6.9-rc3/crypto/sha512.c	Fri Oct  1 23:20:13 2004
-@@ -30,6 +30,7 @@
- 	u64 state[8];
- 	u32 count[4];
- 	u8 buf[128];
-+	u64 W[80];
- };
- 
- static inline u64 Ch(u64 x, u64 y, u64 z)
-@@ -113,10 +114,9 @@
- }
- 
- static void
--sha512_transform(u64 *state, const u8 *input)
-+sha512_transform(u64 *state, u64 *W, const u8 *input)
- {
- 	u64 a, b, c, d, e, f, g, h, t1, t2;
--	u64 W[80];
- 
- 	int i;
- 
-@@ -157,7 +157,6 @@
- 
- 	/* erase our data */
- 	a = b = c = d = e = f = g = h = t1 = t2 = 0;
--	memset(W, 0, 80 * sizeof(u64));
- }
- 
- static void
-@@ -215,10 +214,10 @@
- 	/* Transform as many times as possible. */
- 	if (len >= part_len) {
- 		memcpy(&sctx->buf[index], data, part_len);
--		sha512_transform(sctx->state, sctx->buf);
-+		sha512_transform(sctx->state, sctx->W, sctx->buf);
- 
- 		for (i = part_len; i + 127 < len; i+=128)
--			sha512_transform(sctx->state, &data[i]);
-+			sha512_transform(sctx->state, sctx->W, &data[i]);
- 
- 		index = 0;
- 	} else {
-@@ -227,6 +226,9 @@
- 
- 	/* Buffer remaining input */
- 	memcpy(&sctx->buf[index], &data[i], len - i);
-+
-+	/* erase our data */
-+	memset(sctx->W, 0, sizeof(sctx->W));
- }
- 
- static void
-
---Boundary-00=_zAcXBGi30u/iYqU--
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,88 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbUBTSIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUBTSIP
+	id S261367AbUBTSML (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbUBTSML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:08:15 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2205 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261361AbUBTSIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:08:05 -0500
-Message-ID: <40364D01.9030504@nortelnetworks.com>
-Date: Fri, 20 Feb 2004 13:08:01 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 20 Feb 2004 13:12:11 -0500
+Received: from leon.mat.uni.torun.pl ([158.75.2.17]:11400 "EHLO
+	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id S261369AbUBTSLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 13:11:53 -0500
+Date: Fri, 20 Feb 2004 19:11:46 +0100 (CET)
+From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+X-X-Sender: golbi@Juliusz
+To: Arnd Bergmann <arnd@arndb.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] 2/6 POSIX message queues
+In-Reply-To: <200402201455.25782.arnd@arndb.de>
+Message-ID: <Pine.GSO.4.58.0402201848380.10845@Juliusz>
+References: <200402201455.25782.arnd@arndb.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: possible problems with kernel threading code?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Feb 2004, Arnd Bergmann wrote:
 
-I'm running the following code under 2.4.18-2.4.20, with the standard 
-thread library, and sometimes I get an error of "No such process".  How 
-can this possibly happen?  The pthread_setschedparam() call is running 
-in the thread that it is trying to operate on, but somehow it can't find 
-itself?
+> Krzysztof Benedyczak wrote:
+>
+> > +
+> > +struct mq_attr {
+> > +	long	mq_flags;	/* message queue flags			*/
+> > +	long	mq_maxmsg;	/* maximum number of messages		*/
+> > +	long	mq_msgsize;	/* maximum message size			*/
+> > +	long	mq_curmsgs;	/* number of messages currently queued	*/
+> > +};
+> > +
+>
+> Does POSIX mandate that these have to be 'long'? If you can change them
+> all to any of 'int', '__s32' or '__s64', the handlers for 32 bit system
+> call emulation on 64 bit machines will get a lot simpler because the
+> 32 bit user structures are then identical to the 64 bit ones.
+>
+Yes, POSIX defines it to longs. And quess that compability issues should
+be handled in kernel?
 
-I also have managed to trigger reboots with this code, and I'm not sure how.
-
-Anyone have any ideas?  Is this a kernel problem?  I can trigger it on 
-ppc hardware under kernel versions 2.4.18-2.4.20 and a modified 2.4.22. 
-(I haven't tried 2.4.21)  My x86 with a 2.4.18-19.8.0 redhat kernel 
-doesn't show the problem.
-
-Thanks,
-
-Chris
-
-
-
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <stdlib.h>
-#include <string.h>
-
-pthread_t t1;
-
-void *func(void *p)
-{
-   pid_t pid;
-   int status;
-
-   struct sched_param schedParam;
-   int         policy = SCHED_RR;
-   int         priority = 40;
-
-  schedParam.sched_priority = priority;
-  int schedRc = pthread_setschedparam(t1, policy, &schedParam);
-  if (schedRc){
-       fprintf(stderr, "pthread_setschedparam error:%s, priority:%d,
-               policy:%d\n",strerror(schedRc), priority, policy);
-   }
-   pthread_exit(EXIT_SUCCESS);
-   return 0;
-}
-
-
-int main(int argc, char **argv)
-{
-   pthread_create(&t1, 0, func,(void*)1);
-   pthread_join(t1,0);
-   return 0;
-}
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Krzysztof Benedyczak

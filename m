@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265771AbTFSLWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 07:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbTFSLWo
+	id S265772AbTFSLeM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 07:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbTFSLeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 07:22:44 -0400
-Received: from zork.zork.net ([64.81.246.102]:39828 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265771AbTFSLWn (ORCPT
+	Thu, 19 Jun 2003 07:34:12 -0400
+Received: from first.knowledge.no ([193.212.174.4]:62442 "EHLO knowledge.no")
+	by vger.kernel.org with ESMTP id S265772AbTFSLeJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 07:22:43 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] 2.5.72-mjb2
-References: <26110000.1056006164@[10.10.2.4]>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel
- <linux-kernel@vger.kernel.org>, lse-tech <lse-tech@lists.sourceforge.net>
-Date: Thu, 19 Jun 2003 12:36:33 +0100
-In-Reply-To: <26110000.1056006164@[10.10.2.4]> (Martin J. Bligh's message of
- "Thu, 19 Jun 2003 00:02:44 -0700")
-Message-ID: <6ud6hawb7i.fsf@zork.zork.net>
-MIME-Version: 1.0
+	Thu, 19 Jun 2003 07:34:09 -0400
+Date: Thu, 19 Jun 2003 13:48:07 +0200
+From: Magnus Solvang <magnus@solvang.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: isdn compile-errors (Linux 2.5.72)
+Message-ID: <20030619114807.GD3991@first.knowledge.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During build:
+2.5.70, justed patched to 2.5.71 (not compiled) and to 2.5.72:
 
-include/linux/mm.h: In function `page_to_nid':
-include/linux/mm.h:620: warning: implicit declaration of function `pfn_to_nid'
+# make
+[...]
+  CC [M]  drivers/isdn/capi/kcapi.o
+drivers/isdn/capi/kcapi.c: In function `notify_push':
+drivers/isdn/capi/kcapi.c:212: warning: `MOD_INC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:478)
+drivers/isdn/capi/kcapi.c:215: warning: `MOD_DEC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:490)
+drivers/isdn/capi/kcapi.c:229: warning: `MOD_INC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:478)
+drivers/isdn/capi/kcapi.c:231: warning: `MOD_DEC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:490)
+drivers/isdn/capi/kcapi.c: In function `notify_handler':
+drivers/isdn/capi/kcapi.c:289: warning: `MOD_DEC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:490)
+drivers/isdn/capi/kcapi.c:291: warning: `MOD_DEC_USE_COUNT' is deprecated (decla
+red at include/linux/module.h:490)
+  CC [M]  drivers/isdn/capi/capiutil.o
+  CC [M]  drivers/isdn/capi/capilib.o
+  CC [M]  drivers/isdn/capi/kcapi_proc.o
+  LD [M]  drivers/isdn/capi/kernelcapi.o
+  CC [M]  drivers/isdn/hisax/config.o
+  CC [M]  drivers/isdn/hisax/isdnl1.o
+  CC [M]  drivers/isdn/hisax/tei.o
+  CC [M]  drivers/isdn/hisax/isdnl2.o
+  CC [M]  drivers/isdn/hisax/isdnl3.o
+  CC [M]  drivers/isdn/hisax/lmgr.o
+  CC [M]  drivers/isdn/hisax/q931.o
+  CC [M]  drivers/isdn/hisax/callc.o
+  CC [M]  drivers/isdn/hisax/fsm.o
+  CC [M]  drivers/isdn/hisax/cert.o
+  CC [M]  drivers/isdn/hisax/diva.o
+drivers/isdn/hisax/diva.c:656: warning: `diva_ipacx_pci_probe' defined but not u
+sed
+  CC [M]  drivers/isdn/hisax/isac.o
+  CC [M]  drivers/isdn/hisax/arcofi.o
+  CC [M]  drivers/isdn/hisax/hscx.o
+  CC [M]  drivers/isdn/hisax/ipac.o
+  CC [M]  drivers/isdn/hisax/ipacx.o
+  LD [M]  drivers/isdn/hisax/hisax.o
+  CC [M]  drivers/isdn/i4l/isdn_net_lib.o
+  CC [M]  drivers/isdn/i4l/isdn_fsm.o
+  CC [M]  drivers/isdn/i4l/isdn_tty.o
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_write':
+drivers/isdn/i4l/isdn_tty.c:1198: warning: unused variable `m'
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_open':
+drivers/isdn/i4l/isdn_tty.c:1733: warning: `MOD_INC_USE_COUNT' is deprecated (de
+clared at include/linux/module.h:478)
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_close':
+drivers/isdn/i4l/isdn_tty.c:1862: warning: `MOD_DEC_USE_COUNT' is deprecated (de
+clared at include/linux/module.h:490)
+drivers/isdn/i4l/isdn_tty.c: In function `modem_write_profile':
+drivers/isdn/i4l/isdn_tty.c:1986: warning: implicit declaration of function `gro
+up_send_sig_info'
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_init':
+drivers/isdn/i4l/isdn_tty.c:2099: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c:2101: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c:2102: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c:2098: warning: label `err_unregister_tty' defined bu
+t not used
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_exit':
+drivers/isdn/i4l/isdn_tty.c:2121: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c:2122: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c:2123: invalid type argument of `->'
+drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_check_esc':
+drivers/isdn/i4l/isdn_tty.c:2572: warning: comparison of distinct pointer types 
+lacks a cast
+drivers/isdn/i4l/isdn_tty.c:2575: warning: comparison of distinct pointer types 
+lacks a cast
+make[3]: *** [drivers/isdn/i4l/isdn_tty.o] Error 1
+make[2]: *** [drivers/isdn/i4l] Error 2
+make[1]: *** [drivers/isdn] Error 2
+make: *** [drivers] Error 2
 
-This patch shuts it up, but I'm only guessing as to whether
-page_to_nid is NUMA-specific.
-
-
---- C72-mjb2/include/linux/mm.h~	2003-06-19 12:19:12.000000000 +0100
-+++ C72-mjb2/include/linux/mm.h	2003-06-19 12:33:51.000000000 +0100
-@@ -611,6 +611,7 @@
- extern int remap_page_range(struct vm_area_struct *vma, unsigned long from,
- 		unsigned long to, unsigned long size, pgprot_t prot);
- 
-+#ifdef CONFIG_NUMA
- /* 
-  * Given a struct page, determine which node's memory it is from.
-  * TODO: There's probably a more efficient way to do this...
-@@ -620,7 +621,6 @@
- 	return pfn_to_nid(page_to_pfn(page));
- }
- 
--#ifdef CONFIG_NUMA
- static inline void zero_rss(struct mm_struct *mm)
- {
- 	mm->rss = 0;
-
+- M

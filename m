@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUEXM2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264271AbUEXMgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbUEXM2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 08:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUEXM2V
+	id S264271AbUEXMgG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 08:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUEXMgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 08:28:21 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:57481 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264270AbUEXM2U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 08:28:20 -0400
-Date: Mon, 24 May 2004 14:28:19 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: i486 emu in mainline?
-In-Reply-To: <20040522234059.GA3735@infradead.org>
-Message-ID: <Pine.LNX.4.55.0405241419540.4876@jurand.ds.pg.gda.pl>
-References: <20040522234059.GA3735@infradead.org>
-Organization: Technical University of Gdansk
+	Mon, 24 May 2004 08:36:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:50599 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264271AbUEXMgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 08:36:04 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16561.60519.989823.14745@cargo.ozlabs.ibm.com>
+Date: Mon, 24 May 2004 22:36:55 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: anton@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC64] Don't clear MSR.RI in do_hash_page_DSI
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 May 2004, Christoph Hellwig wrote:
+Some code that is used on iSeries (do_hash_page_DSI in head.S) was
+clearing the RI (recoverable interrupt) bit in the MSR when it
+shouldn't.  We were getting SLB miss interrupts following that which
+were panicking because they appeared to have occurred at a bad place.
+This patch fixes the problem.
 
-> +			/* we'll verify if this is a BSWAP opcode, main source of SIGILL on 386's */
-> +			if ((*eip & 0xF8) == 0xC8) {  /* BSWAP */
-> +				u8 reg;
-> +
-> +				reg = *eip++ & 0x07;
-> +				src = reg_address(regs, 1, reg);
-> +				
-> +				__asm__ __volatile__ (
-> +						      "xchgb %%al, %%ah\n\t"
-> +						      "roll $16, %%eax\n\t"
-> +						      "xchgb %%al, %%ah\n\t"
-> +						      : "=a" (*(u32*)src)
-> +						      : "a" (*(u32*)src));
-> +				regs->eip = (u32)eip;
-> +				goto out;
-> +			}
+Please apply.
 
- You've forgotten about the 16-bit variant here -- the emulation is wrong 
-with PREFIX_D32.  This may not matter much in practice, though.
+Thanks,
+Paul.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+diff -puN arch/ppc64/kernel/head.S~ibm-ppc64-hash-page-ri arch/ppc64/kernel/head.S
+--- forakpm/arch/ppc64/kernel/head.S~ibm-ppc64-hash-page-ri	2004-05-24 15:14:13.809492931 +1000
++++ forakpm-anton/arch/ppc64/kernel/head.S	2004-05-24 15:14:13.816492844 +1000
+@@ -946,7 +946,7 @@ _GLOBAL(do_hash_page_DSI)
+ 	 */
+ 	mfmsr	r0
+ 	li	r4,0
+-	ori	r4,r4,MSR_EE+MSR_RI
++	ori	r4,r4,MSR_EE
+ 	andc	r0,r0,r4
+ 	mtmsrd	r0			/* Hard Disable, RI off */
+ 
+Signed-off-by: Paul Mackerras <paulus@samba.org>

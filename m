@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319216AbSHUVOs>; Wed, 21 Aug 2002 17:14:48 -0400
+	id <S319218AbSHUV1O>; Wed, 21 Aug 2002 17:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319217AbSHUVOs>; Wed, 21 Aug 2002 17:14:48 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:51472 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S319216AbSHUVOr>; Wed, 21 Aug 2002 17:14:47 -0400
-Date: Wed, 21 Aug 2002 14:16:11 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: James Bourne <jbourne@mtroyal.ab.ca>
-cc: Hugh Dickins <hugh@veritas.com>,
-       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Hyperthreading
-In-Reply-To: <Pine.LNX.4.44.0208211242440.10117-100000@skuld.mtroyal.ab.ca>
-Message-ID: <Pine.LNX.4.44.0208211414190.6621-100000@betelgeuse.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319220AbSHUV1O>; Wed, 21 Aug 2002 17:27:14 -0400
+Received: from quechua.inka.de ([212.227.14.2]:36464 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S319218AbSHUV1N>;
+	Wed, 21 Aug 2002 17:27:13 -0400
+From: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <Pine.LNX.4.44.0208211316480.6621-100000@betelgeuse.compendium-tech.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17hd4T-00050z-00@sites.inka.de>
+Date: Wed, 21 Aug 2002 23:31:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Aug 2002, James Bourne wrote:
+In article <Pine.LNX.4.44.0208211316480.6621-100000@betelgeuse.compendium-tech.com> you wrote:
+> it. There are people who want to see it mainstreamed. Face it, IPv4 is 
+> inadequate for today's needs. What happens when the entire IPv4 addressing 
+> space is exhausted? Move to NAT? I don't think so.
 
-> On Wed, 21 Aug 2002, Hugh Dickins wrote:
-> 
-> > You do need CONFIG_SMP and a processor capable of HyperThreading,
-> > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> > just appropriate to that processor in other ways.
-> 
-> I was under the impression that the only CPU capable of hyperthreading was
-> the P4 Xeon.  Is this not correct?  I don't know of any other CPUs that
-> have the ht feature.
+Well, I think the worlds oil ressources will be exhausted before the IPv4
+Space is exhausted. There are a lot of possible ways.
 
-This is currently correct, although I believe Intel has plans to release a 
-Hyperthreading-capable version of its desktop P4. 
+> requirement. NAT destroys that, and therefore makes those applications 
+> either unusable, or difficult to use without special configurations.
 
-> Also, looking at setup.c it's hard to determine if CONFIG_SMP is
-> actually required, but it doesn't look like it...
+well.. another option is, to write sane applications.
 
-Of course it's required. How are you to take advantage of a "second CPU" 
-if your scheduler only works on a uniprocessor machine?
+> No, IPv6 may not be mainstream yet, but there *are* people who want to use 
+> it. Just because you don't, doesn't mean that nobody else should. I, for 
+> one, will welcome IPv6's adoption with open arms.
 
--- 
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+i am using it on my personal family lan and to connect to irc servers, but I
+dont see it becoming mainstream this decade. Hell, even there is no accepted
+DNS standard, yet.
 
+Greetings
+Bernd

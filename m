@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130425AbQLNLa1>; Thu, 14 Dec 2000 06:30:27 -0500
+	id <S130022AbQLNLd5>; Thu, 14 Dec 2000 06:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130454AbQLNLaR>; Thu, 14 Dec 2000 06:30:17 -0500
-Received: from a75d1hel.dial.kolumbus.fi ([193.229.161.75]:57607 "EHLO
-	darkmoon.imagesoft") by vger.kernel.org with ESMTP
-	id <S130425AbQLNLaF>; Thu, 14 Dec 2000 06:30:05 -0500
-Message-ID: <3A38A825.DE416521@imagesoft.fi>
-Date: Thu, 14 Dec 2000 12:59:49 +0200
-From: Jussi Laako <jussi.laako@imagesoft.fi>
-Organization: Image Soft Oy
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S130270AbQLNLdr>; Thu, 14 Dec 2000 06:33:47 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:45326 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S130022AbQLNLdd>; Thu, 14 Dec 2000 06:33:33 -0500
+From: Chris Rankin <rankinc@zip.com.au>
+Message-Id: <200012141102.eBEB2wb07000@wellhouse.underworld>
+Subject: Re: /dev/cpu/*/(cpuid, msr) unhappy as modules - OOPS!
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Thu, 14 Dec 2000 22:02:57 +1100 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1193.195.67.189.85.976703444.squirrel@www.zytor.com> from "H. Peter Anvin" at Dec 13, 2000 02:30:44 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Memory subsystem error and freeze on 2.4.0-test12
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Looks like a devfs problem; complain to the appropriate people.  I refuse 
+> to touch that particular devfs code.
 
-Is this normal:
+I've had a quick look at both the 2.2.18 and 2.4.0-test12 drivers for
+msr and cpuid, and I've noticed something curious.
 
-Dec 14 12:33:32 alien kernel: __alloc_pages: 2-order allocation failed.
+This is the comment from 2.4.0-test12, cpuid.c:
 
-System deadlocked about one minute later.
+/*
+ * cpuid.c
+ *
+ * x86 CPUID access device
+ *
+ * This device is accessed by lseek() to the appropriate CPUID level
+ * and then read in chunks of 16 bytes.  A larger size means multiple
+ * reads of consecutive levels.
+ *
+ * This driver uses /dev/cpu/%d/cpuid where %d is the minor number, and on
+ * an SMP box will direct the access to CPU %d.
+ */
 
-I have hard resource limits set.
+And this is the initialisation function:
 
- - Jussi Laako
+int __init cpuid_init(void)
+{
+  if (register_chrdev(CPUID_MAJOR, "cpu/cpuid", &cpuid_fops)) {
+    printk(KERN_ERR "cpuid: unable to get major %d for cpuid\n",
+     CPUID_MAJOR);
+    return -EBUSY;
+  }
 
--- 
-PGP key fingerprint: 3827 6A53 B7F9 180E D971  362B BB53 C8A1 B578 D249
-Available at: ldap://certserver.pgp.com
+  return 0;
+}
+
+These two are inconsistent! I had dutifully created a /dev/cpu/0
+directory on my 2.2.18 and 2.4.0-test12 boxes, and had placed cpuid
+device nodes inside them. (The 2.4.0-test12 box is SMP, and so I also
+created a /dev/cpu/1 directory there too.) However, the driver expects
+the device node to be /dev/cpu/cpuid. The msr driver has the same
+problem.
+
+Both the cpuid and the msr modules successfully loaded on 2.2.18 when
+I tried to cat /dev/cpu/cpuid and /dev/cpu/msr. (Although they both
+remained flagged as (unused), which I found strange considering the
+amount of output I got.)
+
+Cheers,
+Chris
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

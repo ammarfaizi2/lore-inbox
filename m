@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129479AbRBAOW1>; Thu, 1 Feb 2001 09:22:27 -0500
+	id <S129648AbRBAOdx>; Thu, 1 Feb 2001 09:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129648AbRBAOWH>; Thu, 1 Feb 2001 09:22:07 -0500
-Received: from web6103.mail.yahoo.com ([128.11.22.97]:19978 "HELO
-	web6103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129479AbRBAOWE>; Thu, 1 Feb 2001 09:22:04 -0500
-Message-ID: <20010201142203.3714.qmail@web6103.mail.yahoo.com>
-Date: Thu, 1 Feb 2001 06:22:03 -0800 (PST)
-From: Hunt Kent <kenthunt@yahoo.com>
-Subject: [BUG] 2.4.[0-1] ide-scsi unrecoverable error
-To: lk <linux-kernel@vger.kernel.org>
+	id <S129796AbRBAOdm>; Thu, 1 Feb 2001 09:33:42 -0500
+Received: from mailserver-ng.cs.umbc.edu ([130.85.100.230]:9468 "EHLO
+	mailserver-ng.cs.umbc.edu") by vger.kernel.org with ESMTP
+	id <S129650AbRBAOdk>; Thu, 1 Feb 2001 09:33:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: ide hotplug and 2.4.1
+From: Ian Soboroff <ian@cs.umbc.edu>
+X-NSA-Fodder: strategic quiche munitions security
+Date: 01 Feb 2001 09:27:02 -0500
+Message-ID: <87hf2eo4w9.fsf@danube.cs.umbc.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an internal ide zip 250 driver using the
-ide-scsi driver. The disk probably got worn out and
-now when I read a particular sector of the disk or
-do /sbin/e2fsck -c I get an infinite loop of with
-console message
 
-scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x03 00
-00 00 40 00
-Info fld=0x3af9e, Current sd08:05: sns = f0  3
-ASC=11 ASCQ= 0
-Raw sense data:0xf0 0x00 0x03 0x00 0x03 0xaf 0x9e 0x12
-0x00 0x00 0x00 0x00
-0x11 0x00 0x00 0x00 0x00 0x00 0x0a 0x99 0x01 0x01 0x14
-0x64 0x30 0x5a
- I/O error: dev 08:05, sector 241418
+i've started playing with 2.4.1 on my Dell Latitude CS and it's pretty
+peppy; my only complaints are PCMCIA-related, which i think i'll solve
+by using the standalone package...
 
-The kernel keeps trying, e2fsck is not in the process
-table and the driver does not eject the disk so the
-only remedy is to reboot the box. I'll keep the
-defected media if a patch is provided to test against
-this problem.
+anyway, my real question is this.  i noticed the new options for
+hotplug, and am wondering if i can use this with my laptop.  the
+Latitude CS has a port on the side, with which you can connect a cable
+that hooks up to either a floppy drive or a CDROM.
 
-__________________________________________________
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+if you boot the machine cold with the CDROM attached, linux notices it
+on a second IDE bus (/dev/hdc).  if you boot without it, /dev/hdc
+isn't there.  if you plug in the CDROM while the system is running,
+there is a noticeable pause for a couple seconds, which seems to imply
+some kind of BIOS action or interrupt or something happens which could
+be caught.
+
+back in 2.2.x, i used to build IDE as a module, and after plugging up
+the CDROM do a 'rmmod ide-probe; modprobe ide-probe' which had a
+pretty good success rate.  i'm hoping maybe the 2.4.x hotplug features
+have made this obsolete.
+
+(plugging up the floppy drive always works, because PC floppy
+controllers are too dumb to care if they actually have a drive
+attached).
+
+ian
+
+-- 
+----
+Ian Soboroff                                       ian@cs.umbc.edu
+University of MD Baltimore County      http://www.cs.umbc.edu/~ian
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

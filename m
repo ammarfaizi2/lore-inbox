@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264191AbRFLE5z>; Tue, 12 Jun 2001 00:57:55 -0400
+	id <S264194AbRFLFSE>; Tue, 12 Jun 2001 01:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264176AbRFLE5o>; Tue, 12 Jun 2001 00:57:44 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39949 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264169AbRFLE5m>; Tue, 12 Jun 2001 00:57:42 -0400
-Date: Tue, 12 Jun 2001 00:22:11 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	id <S264195AbRFLFRy>; Tue, 12 Jun 2001 01:17:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38016 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264181AbRFLFRe>;
+	Tue, 12 Jun 2001 01:17:34 -0400
+Date: Tue, 12 Jun 2001 01:17:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [CFT][PATCH] superblock handling changes
-In-Reply-To: <Pine.GSO.4.21.0106112359050.27704-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0106120003080.6617-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0106120003080.6617-100000@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.21.0106120112520.28165-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,21 +21,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 12 Jun 2001, Alexander Viro wrote:
+On Tue, 12 Jun 2001, Marcelo Tosatti wrote:
 
-> 	Folks, the patch below the fixed and combined variant of
-> the last series of patches sent to Linus.
+> 
+> 
+> On Tue, 12 Jun 2001, Alexander Viro wrote:
+> 
+> > 	Folks, the patch below the fixed and combined variant of
+> > the last series of patches sent to Linus.
+> 
+> Al, 
+> 
+> Since you are working on that code, would you mind to add some comments
+> about IO completion guarantees (also why we don't guarantee fsync() to
+> work as it should :)) there ?
 
-Al, 
+I'm _not_ working on that side of things. Let's not add that into the
+mix, OK? If you look at inode.c changes you'll see that the only thing
+they expect from __sync_one() is to retake inode_lock before moving the
+inode from the locked list. Other than that patch doesn't know and
+doesn't care about fsync() semantics and implementation.
 
-Since you are working on that code, would you mind to add some comments
-about IO completion guarantees (also why we don't guarantee fsync() to
-work as it should :)) there ?
+We have enough fun on the superblock side of the business. Let's keep
+the fsync() stuff separate - they are pretty much orthogonal to each
+other.
 
-Thanks
-
-
-
-
-
+Right now I don't want to open that can of worms. Sorry.
 

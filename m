@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTJ1BWN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 20:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTJ1BWN
+	id S263823AbTJ1Bf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 20:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTJ1Bf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 20:22:13 -0500
-Received: from gprs192-78.eurotel.cz ([160.218.192.78]:6273 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263806AbTJ1BWL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 20:22:11 -0500
-Date: Tue, 28 Oct 2003 02:21:43 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Hans Reiser <reiser@namesys.com>, "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: Re: Blockbusting news, results get worse
-Message-ID: <20031028012143.GA427@elf.ucw.cz>
-References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com> <3F9D6891.5040300@namesys.com> <3F9D7666.6010504@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F9D7666.6010504@pobox.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 27 Oct 2003 20:35:56 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:23997 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263823AbTJ1Bfy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 20:35:54 -0500
+Date: Tue, 28 Oct 2003 14:35:40 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [pm] fix time after suspend-to-*
+In-reply-to: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       John stultz <johnstul@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1067304940.1696.12.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+There is a suspend script that has been developed for the 2.4 version.
+It should be pretty easy to adapt it for the 2.6 versions. Available at
+www.sourceforge.net/projects/swsusp.
 
-> >>or put it under heavy write workload and remove
-> >>power.
-> >>
-> >Can you tell us more about what really happens to disk drives when the 
-> >power is cut while a block is being written?  We engage in a lot of 
-> >uninformed speculation, and it would be nice if someone who really knows 
-> >told us....
-> >
-> >Do drives have enough capacitance under normal conditions to finish 
-> >writing the block?  Does ECC on the drive detect that the block was bad 
-> >and so we don't need to detect it in the FS?
+Regards,
+
+Nigel
+
+On Tue, 2003-10-28 at 12:43, Patrick Mochel wrote:
+> > Ok, but then is there some sort of house cleaning that happens to clean up the 
+> > mess?  I am thinking something like the run level change where scripts might run 
+> > to "fix" things.
+> > 
+> > Now it could be that my ignorance is showing here, possibly this is all being 
+> > done already...
+> 
+> No, it's not. But, it should. 
+> 
+> Userspace behavior on suspend transitions is still a bit fuzzy at best. I 
+> am beginning to look at userspace requirements, so if anyone wants to send 
+> me suggestions, no matter how trivial or wacky, please feel free (on- or 
+> off-list). 
+> 
+> Thanks,
 > 
 > 
-> Does it really matter to speculate about this?
+> 	Pat
 > 
-> If you don't FLUSH CACHE, you have no guarantees your data is on the 
-> platter.
-
-Well, even without FLUSH CACHE, you can expect that sector being
-writen during powerfail either contains old data *or* new data.
-
-If sector can become unreadable after powerfail, I guess journaling
-people would like to know, and if powerfail may mean adjacent (or even
-unrelated?) sectors to be damaged, everyone needs to know...
-								Pavel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

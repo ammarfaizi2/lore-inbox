@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267836AbUHPRyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267830AbUHPR5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267836AbUHPRyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUHPRyQ
+	id S267830AbUHPR5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267833AbUHPR5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:54:16 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:10969 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S267832AbUHPRxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:53:20 -0400
-Subject: Re: eth*: transmit timed out since .27 (was: linux-2.4.27 released)
-From: Len Brown <len.brown@intel.com>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
-References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092678734.23057.18.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 16 Aug 2004 13:52:15 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 13:57:11 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39909 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267830AbUHPR5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:57:06 -0400
+Date: Mon, 16 Aug 2004 12:56:54 -0500
+From: Erik Jacobson <erikj@subway.americas.sgi.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Process Aggregates for 2.6.8
+In-Reply-To: <1092675050.7416.0.camel@laptop.fenrus.com>
+Message-ID: <Pine.SGI.4.53.0408161255220.663830@subway.americas.sgi.com>
+References: <Pine.SGI.4.53.0408161127580.663457@subway.americas.sgi.com>
+ <1092675050.7416.0.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver,
-I'm glad that turning off "pci=noacpi" fixed your system.
-I don't know why the legacy irqrouter didn't work, but
-as ACPI works, I'm not going to worry about it;-)
+> > This is a fresh PAGG patch that applies cleanly to 2.6.8.
+> > There have been no major changes since the last PAGG patch I posted.
+> are there (GPL) users of this yet ??
 
-I expect the "acpi=off" experiment would behave the same as
-"pci=noacpi", but it looks like in your experiment you
-mis-spelled that parameter as apci=off, so instead it was the
-same as the default ACPI-enabled case.
+SGI has job and CSA.  I don't know of non-SGI GPL projects making use of
+PAGG yet.
 
-Re: lots of interrupts on the same IRQ.
-There are boot params to balance out the IRQs in PIC mode,
-but what you want to do on this system is enable the IOAPIC
-in your kernel config.  The existence of the MADT in your
-ACPI tables suggests you may have one.  An IOAPIC will bring
-additional interrupt pins to bear, usually allowing
-the PCI interrupts to use IRQs > 16 where they may
-not have to share so much.
-
-cheers,
--Len
-
-
+--
+Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota

@@ -1,129 +1,123 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316903AbSE3WmE>; Thu, 30 May 2002 18:42:04 -0400
+	id <S316909AbSE3WuW>; Thu, 30 May 2002 18:50:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316904AbSE3WmD>; Thu, 30 May 2002 18:42:03 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:11997 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S316903AbSE3WmB>; Thu, 30 May 2002 18:42:01 -0400
-Message-ID: <3CF6AAB8.51EB64A4@delusion.de>
-Date: Fri, 31 May 2002 00:42:00 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.19 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [OOPS]: 2.5.19 oopses when writing to floppy
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316906AbSE3WuV>; Thu, 30 May 2002 18:50:21 -0400
+Received: from jalon.able.es ([212.97.163.2]:43972 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316905AbSE3WuU>;
+	Thu, 30 May 2002 18:50:20 -0400
+Date: Fri, 31 May 2002 00:50:15 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] x86 cpu selection (first hack)
+Message-ID: <20020530225015.GA1829@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all.
 
-Hi,
+After reading all the posts in the lista about this and thinking a bit,
+here is the first attempt (just a try of the general aspect) of a new
+cpu selection scheme. This post is mainly to see if I really understood
+the scenario.
 
-I got the following oops when mcopy'ing to a floppy drive with no disk in it.
-I won't be able to read my mail until Sunday, so if you need further info
-it'll have to wait until then.
+There were two ways to do this:
 
-Regards,
--Udo.
+- Define a min/max cpu selecion. Both are a kbuild's 'choice'.
+  Problems: it generates a ton of symbols of the kind of CPU_MIN_INTEL_PENTIUM
+  or CPU_MAX_AMD_ATHLON. And you have to limit the 'max' choice to be
+  bigger than the first. This brings two problems: limiting the choices
+  on a 'choice' based on one other, and defining an 'order' in processors,
+  even between architectures.
 
-ksymoops 2.4.4 on i686 2.5.19.  Options used
-     -V (default)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.19/ (default)
-     -m /boot/System.map-2.5.19 (specified)
+- Make all and every cpu a checkbox, so you just say 'I want my kernel to
+  support this and that CPU'. This kills the problem of the ordering, and
+  adds one other advantage: you do not need to support intermediate CPUs,
+  like 'i want my kernel to run ok on pentium-mmx (my firewall) and on
+  p4 (my desktop). I will never run it on a PII, so do not include the
+  hacks for PII'. And of course, 'If I run my p-mmx capable on a friend's
+  PII and it eats his drive and burns his TV set, it is only _my_ fault'.
 
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 00000098
-c01d40da
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01d40da>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: 00000000   ebx: 00000286   ecx: 00000001   edx: 00000000
-esi: e6317e78   edi: c155ec08   ebp: efcd1640   esp: e6317e34
-ds: 0018   es: 0018   ss: 0018
-Stack: e6317e5c c01de3c3 00000000 efcd1640 00000000 e6317e78 efcd1640 00000200 
-       00000001 c0300200 00000001 00000000 e6317e64 e6317e64 c155ec08 00000400 
-       00000000 00000000 00000000 efcd1640 00000000 00000000 00000001 00000000 
-Call Trace: [<c01de3c3>] [<c01de300>] [<c01de44a>] [<c01de5a0>] [<c0134ffb>] 
-   [<c01de1b6>] [<c013517c>] [<c0135382>] [<c012f191>] [<c012f0a2>] [<c012f447>] 
-   [<c0106b47>] 
-Code: 0f b3 82 98 00 00 00 19 c0 85 c0 74 19 8b 82 98 00 00 00 a8 
+Patch follows, comments are welcome. Next step is to begin to order the logic,
+but I wanted to ask first about this.
 
->>EIP; c01d40da <generic_unplug_device+a/40>   <=====
-Trace; c01de3c3 <__floppy_read_block_0+b3/f0>
-Trace; c01de300 <floppy_rb0_complete+0/10>
-Trace; c01de44a <floppy_read_block_0+4a/60>
-Trace; c01de5a0 <floppy_revalidate+140/170>
-Trace; c0134ffb <check_disk_change+7b/90>
-Trace; c01de1b6 <floppy_open+336/390>
-Trace; c013517c <do_open+11c/280>
-Trace; c0135382 <blkdev_open+22/30>
-Trace; c012f191 <dentry_open+e1/190>
-Trace; c012f0a2 <filp_open+52/60>
-Trace; c012f447 <sys_open+37/80>
-Trace; c0106b47 <syscall_call+7/b>
-Code;  c01d40da <generic_unplug_device+a/40>
-00000000 <_EIP>:
-Code;  c01d40da <generic_unplug_device+a/40>   <=====
-   0:   0f b3 82 98 00 00 00      btr    %eax,0x98(%edx)   <=====
-Code;  c01d40e1 <generic_unplug_device+11/40>
-   7:   19 c0                     sbb    %eax,%eax
-Code;  c01d40e3 <generic_unplug_device+13/40>
-   9:   85 c0                     test   %eax,%eax
-Code;  c01d40e5 <generic_unplug_device+15/40>
-   b:   74 19                     je     26 <_EIP+0x26> c01d4100 <generic_unplug_device+30/40>
-Code;  c01d40e7 <generic_unplug_device+17/40>
-   d:   8b 82 98 00 00 00         mov    0x98(%edx),%eax
-Code;  c01d40ed <generic_unplug_device+1d/40>
-  13:   a8 00                     test   $0x0,%al
+diff -ruN linux-2.4.19-pre9/arch/i386/config.in linux-2.4.19-pre9-cpu/arch/i386/config.in
+--- linux-2.4.19-pre9/arch/i386/config.in	2002-05-29 01:18:23.000000000 +0200
++++ linux-2.4.19-pre9-cpu/arch/i386/config.in	2002-05-30 23:38:06.000000000 +0200
+@@ -26,6 +26,12 @@
+ 
+ mainmenu_option next_comment
+ comment 'Processor type and features'
++bool 'New CPU selection scheme' CONFIG_CPU_SELECTION_NEW
++
++# CPUConfig
++if [ "$CONFIG_CPU_SELECTION_NEW" = "y" ]; then
++	source arch/i386/CPUConfig.in
++else
+ choice 'Processor family' \
+ 	"386					CONFIG_M386 \
+ 	 486					CONFIG_M486 \
+@@ -163,6 +169,7 @@
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_OOSTORE y
+ fi
++fi
+ 
+ bool 'Machine Check Exception' CONFIG_X86_MCE
+ 
+diff -ruN linux-2.4.19-pre9/arch/i386/CPUConfig.in linux-2.4.19-pre9-cpu/arch/i386/CPUConfig.in
+--- linux-2.4.19-pre9/arch/i386/CPUConfig.in	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.4.19-pre9-cpu/arch/i386/CPUConfig.in	2002-05-31 00:28:31.000000000 +0200
+@@ -0,0 +1,40 @@
++mainmenu_option next_comment
++comment 'CPU selection'
++
++comment 'Generic x86 CPUs'
++bool 'Generic support' CONFIG_VENDOR_GENERIC
++if [ "$CONFIG_VENDOR_GENERIC" = "y" ]; then
++
++	bool '386'	CONFIG_CPU_GENERIC_386
++	bool '486'	CONFIG_CPU_GENERIC_486
++	bool '586'	CONFIG_CPU_GENERIC_586
++	bool '686'	CONFIG_CPU_GENERIC_686
++
++else
++
++comment 'Intel CPUs'
++bool 'Intel support' CONFIG_VENDOR_INTEL
++if [ "$CONFIG_VENDOR_INTEL" = "y" ]; then
++	bool '386' CONFIG_CPU_INTEL_386
++	bool '486' CONFIG_CPU_INTEL_486
++	bool 'Pentium' CONFIG_CPU_INTEL_PENTIUM
++	bool 'PentiumMMX' CONFIG_CPU_INTEL_PENTIUMMMX
++	bool 'PentiumPro' CONFIG_CPU_INTEL_PENTIUMPRO
++	bool 'PentiumII/Celeron' CONFIG_CPU_INTEL_PENTIUM2
++	bool 'PentiumIII/Celeron(Coppermine)' CONFIG_CPU_INTEL_PENTIUM3
++	bool 'Pentium4' CONFIG_CPU_INTEL_PENTIUM4
++fi
++comment 'AMD CPUs'
++bool 'AMD support' CONFIG_VENDOR_AMD
++if [ "$CONFIG_VENDOR_AMD" = "y" ]; then
++	bool '386' CONFIG_CPU_AMD_386
++	bool '486' CONFIG_CPU_AMD_486
++	bool 'K5' CONFIG_CPU_AMD_K5
++	bool 'K6/K6II/K6III' CONFIG_CPU_AMD_K6
++	bool 'K7' CONFIG_CPU_AMD_K7
++	bool 'Athlon/Duron' CONFIG_CPU_AMD_ATHLON
++fi
++
++fi
++
++endmenu
 
-VFS: Disk change detected on device fd(2,0)
-generic_make_request: Trying to access nonexistent block-device 02:00 (0)
 
-***oops***
-floppy driver state
--------------------
-now=39510 last interrupt=55 diff=39455 last called handler=c01d8620
-timeout_message=lock fdc
-last output bytes:
- 0  0 0
- 0  0 0
- 0  0 0
- 8 80 55
- 8 80 55
- 8 80 55
- 8 80 55
- e 80 55
-13 80 55
- 0 90 55
-1a 90 55
- 0 90 55
-12 90 55
- 0 90 55
-14 90 55
-18 80 55
- 8 80 55
- 8 80 55
- 8 80 55
- 8 80 55
-last result at 55
-last redo_fd_request at 55
-
-status=80
-fdc_busy=1
-cont=00000000
-CURRENT=00000000
-command_status=-1
-
-floppy0: floppy timeout called
-no cont in shutdown!
-floppy0: timeout handler died: floppy shutdown
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre9-jam1 #1 SMP jue may 30 00:48:49 CEST 2002 i686

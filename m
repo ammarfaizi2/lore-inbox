@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262618AbRFBQsl>; Sat, 2 Jun 2001 12:48:41 -0400
+	id <S262617AbRFBQrv>; Sat, 2 Jun 2001 12:47:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262622AbRFBQsb>; Sat, 2 Jun 2001 12:48:31 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57093 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262618AbRFBQs2>; Sat, 2 Jun 2001 12:48:28 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: missing sysrq
-Date: 1 Jun 2001 16:13:02 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9f97hu$83v$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org>
+	id <S262618AbRFBQrl>; Sat, 2 Jun 2001 12:47:41 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:9992 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S262617AbRFBQr0> convert rfc822-to-8bit; Sat, 2 Jun 2001 12:47:26 -0400
+Date: Sat, 02 Jun 2001 12:42:04 -0400
+From: Chris Mason <mason@suse.com>
+To: Andreas Hartmann <andihartmann@freenet.de>,
+        =?ISO-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.5 and all ac-Patches] massive file corruption with reiser
+ or NFS
+Message-ID: <273360000.991500124@tiny>
+In-Reply-To: <01060214363800.02172@athlon>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010601203841Z261493-933+3160@vger.kernel.org>
-By author:    Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-In newsgroup: linux.dev.kernel
->
-> Am Freitag, 1. Juni 2001 16:51 schrieben Sie:
-> > > Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
-> > > You need both, compiled in and activation.
-> >
-> > no, look at the code.  the enable variable defaults to 1.
-> 
-> Then there must be a bug?
-> I get "0" with 2.4.5-ac2 and -ac5 without "echo 1".
-> 
-> Fresh booted 2.4.5-ac2:
-> 
-> SunWave1>cat /proc/version
-> Linux version 2.4.5-ac2 (root@SunWave1) (gcc version 2.95.2 19991024 
-> (release)) #1 Mon May 28 05:42:09 CEST 2001
-> SunWave1>cat /proc/sys/kernel/sysrq
-> 0
-> 
 
-Let me guess... you're using a RedHat system?  RedHat, for some
-idiotic reason, defaults to actively turning this off for you (and
-they turn Stop-A off on SPARC, too.)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+On Saturday, June 02, 2001 02:41:04 PM +0200 Andreas Hartmann
+<andihartmann@freenet.de> wrote:
+
+> Am Samstag,  2. Juni 2001 12:52 schrieb Rasmus Bøg Hansen:
+>> On Sat, 2 Jun 2001, Andreas Hartmann wrote:
+>> > I got massive file corruptions with the kernels mentioned in the
+>> > subject. I can reproduce it every time.
+>> >> You cannot use NFS on reiserfs unless you apply the knfsd patch. Look at
+>> www.namesys.com.
+> > Thank you very much for your advice.
+> > I tested your suggestion and run the machine without NFS-mounted devices
+> - it  seems to be working fine. > > Anyway - I'm wondering why I didn't get any problem until 2.4.4ac10 with
+> this  configuration without the appropriate patch on the client or on the
+> server?
+
+The problem only happens when the clients do an operation on a file that
+has gone out of cache on the server.  Under light load, this might happen
+very rarely.
+
+You only need the patch on the server.
+
+-chris
+

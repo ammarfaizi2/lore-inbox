@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130018AbRAIXIS>; Tue, 9 Jan 2001 18:08:18 -0500
+	id <S132426AbRAIXIr>; Tue, 9 Jan 2001 18:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129835AbRAIXIJ>; Tue, 9 Jan 2001 18:08:09 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:6336 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S129431AbRAIXHy>; Tue, 9 Jan 2001 18:07:54 -0500
-Date: Wed, 10 Jan 2001 00:07:51 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Ivan Passos <lists@cyclades.com>
+	id <S132419AbRAIXIm>; Tue, 9 Jan 2001 18:08:42 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:2040 "EHLO rob.devdep.sysgo.de")
+	by vger.kernel.org with ESMTP id <S129835AbRAIXI3>;
+	Tue, 9 Jan 2001 18:08:29 -0500
+From: Robert Kaiser <rob@sysgo.de>
+Reply-To: rob@sysgo.de
+To: Brian Gerst <bgerst@didntduck.org>
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+Date: Wed, 10 Jan 2001 00:04:50 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <01010922090000.02630@rob> <01010923324500.02850@rob> <3A5B98AB.9B6FABC6@didntduck.org>
+In-Reply-To: <3A5B98AB.9B6FABC6@didntduck.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] linux-kernel v2.0.39
-Message-ID: <20010110000751.F18733@khan.acc.umu.se>
-In-Reply-To: <20010109234804.E18733@khan.acc.umu.se> <Pine.LNX.4.10.10101091500120.17710-100000@main.cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.10.10101091500120.17710-100000@main.cyclades.com>; from lists@cyclades.com on Tue, Jan 09, 2001 at 03:01:07PM -0800
+MIME-Version: 1.0
+Message-Id: <01011000082300.03050@rob>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 03:01:07PM -0800, Ivan Passos wrote:
+On Mit, 10 Jan 2001 you wrote:
 > 
-> On Tue, 9 Jan 2001, David Weinehall wrote:
+> How much physical memory does this box really have?
 > 
-> > Everyone laughs, I guess. The 2.0.39final didn't became the final
-> > release (could've told you so...) The good thing? Well, some bugs were
-> > found and removed. But this is it. Enjoy!
-> 
-> <snip>
-> 
-> Well, where is it?? :)
-> 
-> I tried ftp.us.kernel.org, but couldn't find it. Maybe it hasn't
-> propagated thru the mirrors yet ...
 
-Well, some mirrors have it already, at least, but not all. Give it some
-time... If you could survive without it for 17 months (or so),
-you can survive another day.
+The one I'm currently using is an old Olivetti 386SX with 5 MB, I also tried two
+more boards, one 386SX, one 386DX, both with 8MB. All showed the same behavior.
 
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271292AbRHOQy1>; Wed, 15 Aug 2001 12:54:27 -0400
+	id <S271293AbRHOQ6H>; Wed, 15 Aug 2001 12:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271291AbRHOQyR>; Wed, 15 Aug 2001 12:54:17 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20233 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271285AbRHOQyF>; Wed, 15 Aug 2001 12:54:05 -0400
-Date: Wed, 15 Aug 2001 09:53:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <mag@fbab.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 Resource leaks + limits
-In-Reply-To: <E15Wz1n-00033Y-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108150952001.2220-100000@penguin.transmeta.com>
+	id <S271298AbRHOQ55>; Wed, 15 Aug 2001 12:57:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:24074 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271293AbRHOQ5m>; Wed, 15 Aug 2001 12:57:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Michael Heinz <mheinz@infiniconsys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Implications of PG_locked and reference count in page structures....
+Date: Wed, 15 Aug 2001 19:04:16 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <3B7A97C5.9090207@infiniconsys.com>
+In-Reply-To: <3B7A97C5.9090207@infiniconsys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010815165752Z16225-1232+354@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On August 15, 2001 05:39 pm, Michael Heinz wrote:
+> I'm in the process of porting a driver to Linux. The author of the 
+> driver conveniently broke it into os-dependent and independent sections.
+> 
+> One of the things in the "OS" dependent section is a routine to lock a 
+> section of memory presumably to be used for DMA.
+> 
+> So, what I want to do is this: given a pointer to a previously 
+> kmalloc'ed block, and the length of that block, I want to (a) identify 
+> each page associated with the block and (b) lock each page. It appears 
+> that I can lock the page either by incrementing it's reference count, or 
+> by setting the PG_locked flag for the page.
+> 
+> Which method is preferred? Is there another method I should be using 
+> instead?
 
-On Wed, 15 Aug 2001, Alan Cox wrote:
->
-> > Linux has had (for a while now) a "struct user" that is actually quickly
-> > accessible through a direct pointer off every process that is associated
-> > with that user, and we could (and _will_) start adding these kinds of
-> > limits. However, part of the problem is that because the limits haven't
-> > historically existed, there is also no accepted and nice way of setting
-> > the limits.
->
-> For that to work we need to seperate struct user from the uid a little, or
-> provide heirarchical pools (which seems overcomplex). Its common to want
-> to take a group of users (eg the chemists) and give them a shared limit
-> rather than per user limits
+See the other replies - you do not need to memlock your pages because you
+will be allocating non-pageable kernel memory.
 
-No, I think the answer there is to do all the same things for "struct
-group" as we do for user.
+But for future reference, PG_locked is for serializing IO/cache
+operations.  You use the page reference count to prevent a page from
+being freed, i.e., to memlock it.  You'll see such object ref-counting
+schemes showing up all through the kernel in slight variations.
 
-Yes, it would mean that the primary group is _really_ primary, but from a
-system management standpoint that's probably preferable (ie you can give
-group read-write access to a person without giving group "resource" access
-to him)
-
-		Linus
-
+--
+Daniel

@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267543AbTAGSCi>; Tue, 7 Jan 2003 13:02:38 -0500
+	id <S267539AbTAGSA5>; Tue, 7 Jan 2003 13:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbTAGSCi>; Tue, 7 Jan 2003 13:02:38 -0500
-Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:22538 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id <S267543AbTAGSCg>;
-	Tue, 7 Jan 2003 13:02:36 -0500
-Subject: [PATCH] Re: unix_getname buglet - > 2.5.4(?)
-From: Ray Lee <ray-lk@madrabbit.org>
-To: Michael Meeks <michael@ximian.com>, torvalds@transmeta.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       evolution <evolution-hackers@ximian.com>, orbit <orbit-list@gnome.org>
-In-Reply-To: <1041941192.25619.293.camel@michael.home>
-References: <1041941192.25619.293.camel@michael.home>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041963072.855.13.camel@orca.madrabbit.org>
+	id <S267540AbTAGSA5>; Tue, 7 Jan 2003 13:00:57 -0500
+Received: from pop.gmx.de ([213.165.64.20]:44431 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267539AbTAGSA4>;
+	Tue, 7 Jan 2003 13:00:56 -0500
+Message-Id: <5.1.1.6.2.20030107185455.00c72da8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Tue, 07 Jan 2003 19:05:21 +0100
+To: Georg Nikodym <georgn@somanetworks.com>,
+       David Schwartz <davids@webmaster.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Cc: ml-linux-kernel@studentenwerk.mhn.de, linux-kernel@vger.kernel.org,
+       rms@gnu.org
+In-Reply-To: <20030107105318.53a61fc6.georgn@somanetworks.com>
+References: <20030106220416.AAA29779@shell.webmaster.com@whenever>
+ <200301061724.21596.ml-linux-kernel@studentenwerk.mhn.de>
+ <20030106220416.AAA29779@shell.webmaster.com@whenever>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 07 Jan 2003 10:11:12 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-07 at 04:06, Michael Meeks wrote:
-> 	Evolution is non-functioning on recent 2.5.X kernels, due to
-> mal-performance in getpeername => net/unix/af_unix.c (unix_getname),
-> where it seems we switch 'sk' on 'peer', but not the (previously)
-> typecast pointer to it; this fixes it.
+At 10:53 AM 1/7/2003 -0500, Georg Nikodym wrote:
+>On Mon, 6 Jan 2003 14:04:15 -0800
+>David Schwartz <davids@webmaster.com> wrote:
+>
+> >       So tell me how else you use kernel header files. What else can
+> >       you
+> > do with a header file?!
+>
+>Just some ideas:
+>
+>1. Put 'em on t-shirts.
+>2. Read aloud to non-technical people as a cure for insonmia.
+>3. As song lyrics (just like the DeCSS decoder song).
+>4. Put 'em on wallpaper.
+>5. Print 'em on toiletpaper.
+>6. Print, shred and dispose as a was of disinforming dumpster divers.
+>
+>I'm sure that the community can come up with more :-)
 
-<snip> Your patch was MailerMangled(tm). Below is what I'm running on
-2.5.54, using Evolution. The patch is obviously correct (once you look
-at the full code, anyway).
+These are great ideas.  I'm too busy chuckling to think up more... and :-/ 
+I hope I won't be bored enough after I'm done laughing to try 8)
 
-Linus, please apply.
-
-Ray
-
-diff -Nurx /home/ray/work/dontdiff linux-2.5.54/net/unix/af_unix.c linux-2.5.54-af_unix.c-fix/net/unix/af_unix.c
---- linux-2.5.54/net/unix/af_unix.c	2003-01-07 09:22:29.000000000 -0800
-+++ linux-2.5.54-af_unix.c-fix/net/unix/af_unix.c	2003-01-07 09:55:19.000000000 -0800
-@@ -1109,7 +1109,7 @@
- static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int *uaddr_len, int peer)
- {
- 	struct sock *sk = sock->sk;
--	struct unix_sock *u = unix_sk(sk);
-+	struct unix_sock *u;
- 	struct sockaddr_un *sunaddr=(struct sockaddr_un *)uaddr;
- 	int err = 0;
- 
-@@ -1124,6 +1124,7 @@
- 		sock_hold(sk);
- 	}
- 
-+	u = unix_sk(sk);
- 	unix_state_rlock(sk);
- 	if (!u->addr) {
- 		sunaddr->sun_family = AF_UNIX;
-
+         -Mike
 

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271701AbTGXPvy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271703AbTGXPvy
+	id S266169AbTGXP4q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271702AbTGXP4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:51:54 -0400
-Received: from routeree.utt.ro ([193.226.8.102]:55218 "EHLO klesk.etc.utt.ro")
-	by vger.kernel.org with ESMTP id S271701AbTGXPvt (ORCPT
+	Thu, 24 Jul 2003 11:56:46 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:62356 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S266169AbTGXP4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:51:49 -0400
-Message-ID: <5783.194.138.39.55.1059063130.squirrel@webmail.etc.utt.ro>
-Date: Thu, 24 Jul 2003 19:12:10 +0300 (EEST)
-Subject: Re: [PATCH] O8int for interactivity
-From: "Szonyi Calin" <sony@etc.utt.ro>
-To: <felipe_alfaro@linuxmail.org>
-In-Reply-To: <1058978784.740.4.camel@teapot.felipe-alfaro.com>
-References: <200307232155.27107.kernel@kolivas.org>
-        <1058978784.740.4.camel@teapot.felipe-alfaro.com>
-X-Priority: 3
-Importance: Normal
-Cc: <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-X-Mailer: SquirrelMail (version 1.2.8)
+	Thu, 24 Jul 2003 11:56:44 -0400
+X-Comment-To: Felipe Alfaro Solana
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-mm2 ext3-related OOPS while running tar
+From: Alex Tomas <bzzz@tmi.comex.ru>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Organization: HOME
+References: <1059038117.577.23.camel@teapot.felipe-alfaro.com>
+	<87adb4hwde.fsf@gw.home.net>
+	<1059052151.577.7.camel@teapot.felipe-alfaro.com>
+Date: Thu, 24 Jul 2003 20:11:19 +0000
+Message-ID: <87fzkvfzx4.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> Felipe Alfaro Solana (FAS) writes:
 
-Felipe Alfaro Solana said:
->
-> I'm playing a bit with tunables to see if I can tune the scheduler a
-> little bit for my system/workload. I've had good results reducing max
-> timeslice to 100 (yeah, I know I shouldn't do this too).
->
-> Will keep you informed :-)
->
+ FAS> Well, at least with your patch applied I can't reproduce the previous
+ FAS> oops while untarring the kernel sources. I'm going to use
+ FAS> 2.6.0-test1-mm2 with your patch as my main kernel and will see if the
+ FAS> oops is gone forever.
 
-same thing here. Reducing max timeslice to 100 is much better.
-It's the only thing that allow me to watch a movie while compiling
-the kernel with make -j 2 bzImage on my Duron 700Mhz with 256M RAM
-
-I have to find some docs about those tunables.
-
-Thanks
-Bye
-Calin
-
-
-
------------------------------------------
-This email was sent using SquirrelMail.
-   "Webmail for nuts!"
-http://squirrelmail.org/
-
+this is Andrew's patch
 

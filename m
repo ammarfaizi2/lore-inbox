@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbUKCUMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbUKCUPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbUKCUMz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUKCUMy
+	id S261846AbUKCUPl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUKCUPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:12:54 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:13562 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261844AbUKCUKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:10:16 -0500
-Date: Wed, 3 Nov 2004 12:09:30 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Blaisorblade <blaisorblade_spam@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2)
-Message-ID: <20041103200930.GA10669@taniwha.stupidest.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org> <1099482457.16445.1.camel@imp.csi.cam.ac.uk> <20041103120829.GA23182@taniwha.stupidest.org> <200411032028.44376.blaisorblade_spam@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411032028.44376.blaisorblade_spam@yahoo.it>
+	Wed, 3 Nov 2004 15:15:39 -0500
+Received: from ruby-fe0.getonit.net.au ([202.47.112.2]:57258 "EHLO
+	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S261846AbUKCUN1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 15:13:27 -0500
+From: "Tim Warnock" <timoid@getonit.net.au>
+To: "'Neil Horman'" <nhorman@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: ipv4 arp and linux
+Date: Thu, 4 Nov 2004 06:13:18 +1000
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAAYtAmuHujdUS5GzoYL+cKTQEAAAAA@getonit.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcTBpH49+DsPPey1Q7eoY2xUT2kYoAAOvTNg
+In-Reply-To: <4188D55D.7000200@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 08:28:44PM +0100, Blaisorblade wrote:
+> Tim Warnock wrote:
+> > What arp packet size does a linux 2.4 series kernel use? 
+> > How would it be made bigger?
+> > 
+> 64 bytes is the minimum packet size of an ethernet frame 
+> (which includes the CRC).  ARP requests don't take up that much 
+> space so the kernel pads them out to be large enough.
+> A tcpdump will show you exactly how it looks.
+> 
 
-> I'm going to test this.
+Invoked:
+tcpdump -i eth4 -nn arp -s1500 -XX
 
-please do
+05:59:11.438737 arp who-has 203.63.65.194 tell 203.63.65.193
+0x0000   0001 0800 0604 0001 000c f1ab 7607 cb3f        ............v..?
+0x0010   41c1 0000 0000 0000 cb3f 41c2                  A........?A.
 
-> I thought that Gerd Knorr patch (which I sent cc'ing LKML and most
-> of you) already solved this (I actually modified that one, replacing
-> his SIGCONT kill()ing with a PTRACE_KILL, but I did this in the
-> places he identified).
+05:59:11.439060 arp reply 203.63.65.194 is-at 0:7:eb:63:40:82
+0x0000   0001 0800 0604 0002 0007 eb63 4082 cb3f        ...........c@..?
+0x0010   41c2 000c f1ab 7607 cb3f 41c1 0000 0000        A.....v..?A.....
+0x0020   0000 0000 0000 0000 0000 0000 0000             ..............
 
-it might, i'm going to check soon
+Those aren't 64 bytes, but would tcpdump show the padding?
 
-what worries me is that two very different code paths might be fixing
-the same problem which makes me think the flow of execution here is
-very vague and needs cleaninng up
+> 802.3 stipulates 64 bytes for all ethernet frames.  If you have a 
+> program that is somehow sending frames smaller than that, 
+> yes, you (or something) is broken.  How exactly are you sending frames 
+> that you think are too small?
 
-also, check your return values for errors --- i bet you will see
-some.  os_kill_process has this problem too --- many invocations of it
-are pointless and fail, especially those from relase_thread_tt (i need
-to check the details here, this is all from memory and im getting old)
+I havent done anything (just stock kernels), but the network operators claim
+they have seen this before out of linux boxes and that it was caused by
+illegally short arp frames.
 
-> I guess that old_pid should either already be dead there or going to
-> die after a little, but I'm going to check (after I get UML to run
-> in the current snapshot...)
+I've used linux for years and this is the first time that I have had any
+issues with any switch/router.
 
-it should build pretty close to as-is, if not let me know and i'll
-sent you what i have
+The problem that im facing is that the other side is learning my mac
+address, but I fail to learn theirs and end up with packet loss. (I see lots
+of arp who-has) but the other end never receive it.
+
+Hard coding their mac address in solved the issue.
+
+Thanks
+Tim
+
+> Neil
+> /***************************************************
+>   *Neil Horman
+>   *Software Engineer
+>   *Red Hat, Inc.
+>   *nhorman@redhat.com
+>   *gpg keyid: 1024D / 0x92A74FA1
+>   *http://pgp.mit.edu
+>   ***************************************************/
+

@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285056AbRLSLZb>; Wed, 19 Dec 2001 06:25:31 -0500
+	id <S285188AbRLSLdD>; Wed, 19 Dec 2001 06:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285188AbRLSLZV>; Wed, 19 Dec 2001 06:25:21 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:47505 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S285056AbRLSLZN>;
-	Wed, 19 Dec 2001 06:25:13 -0500
-Date: Wed, 19 Dec 2001 12:25:05 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.15 and 16 broken on AMD Elan
-Message-ID: <Pine.LNX.4.33.0112191217160.1006-100000@callisto.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285243AbRLSLcx>; Wed, 19 Dec 2001 06:32:53 -0500
+Received: from noc.easyspace.net ([62.254.202.67]:55044 "EHLO
+	noc.easyspace.net") by vger.kernel.org with ESMTP
+	id <S285188AbRLSLcl>; Wed, 19 Dec 2001 06:32:41 -0500
+Date: Wed, 19 Dec 2001 11:32:28 +0000
+From: Sam Vilain <sam@vilain.net>
+To: "Jesse W. Asher" <jasher1@tampabay.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ds: no socket drivers loaded! in 2.4.x
+In-Reply-To: <3C1F7574.795C98A4@tampabay.rr.com>
+In-Reply-To: <3C1F7574.795C98A4@tampabay.rr.com>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16GexY-0001zJ-00@hoffman.vilain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Jesse W. Asher" <jasher1@tampabay.rr.com> wrote:
 
-The recent kernels seem to have a problem with AMDs Elan SC410 processor,
-which basically is an 386 core. After starting the kernel the system
-simply reboots; snapshot of boot process as following:
+> Sam, did you ever figure out what was causing this?  I'm having the
+> exact same problem and ran across your post from October.  Any
+> information you gathered would be appreciated!!  Thanks!!
 
-----------8<----------
-Linux version 2.4.15-greased-turkey (robert@callisto) (gcc version 2.95.3
-20010315 (SuSE)) #1 Wed Dec 19 09:22:28 CET 2001
-BIOS-provided physical RAM map:
- BIOS-88: 0000000000000000 - 000000000009f000 (usable)
- BIOS-88: 0000000000100000 - 0000000000800000 (usable)
-On node 0 totalpages: 2048
-zone(0): 2048 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-Kernel command line: auto BOOT_IMAGE=DNPX ro BOOT_FILE=/tmp/image/bzImage
-console=ttyS0,115200 ip=bootp root=/dev/nfs
-Initializing CPU#0
-Calibrating delay loop... 16.53 BogoMIPS
-Memory: 6428k/8192k available (805k kernel code, 1376k reserved, 184k
-data, 60k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode...
-Ok.
-Dentry-cache hash table entries: 1024 (order: 1, 8192 bytes)
-Inode-cache hash table entries: 512 (order: 0, 4096 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
-Page-cache hash table entries: 2048 (order: 1, 8192 bytes)
-CPU: AMD 02/0a stepping 04
-Checking 'hlt' instruction... OK.
-Checking for popad bug... OK.
-POSIX conformance testing by UNIFIX
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Starting kswapd
-pty: 256 Unix98 ptys configured
-Serial driver version 5
----------->8----------
+Yep.  I said "Y" rather than "M" to the questions under "general
+setup"..."PCMCIA/CardBus support" that applied to me.  The "sockets" it
+refers to would be provided by either the cardbus support, or one of the
+PCMCIA bridges.
 
-At this moment the machine reboots. Same with 2.4.16; 2.4.14 and earlier
-kernels worked without any problem.
+I probably could have got away with the appropriate modprobe command, but
+it seems to be out of fashion these days to include the name of the module
+a kernel configuration option compiles to in the help text for that
+option.
 
-Ideas?
+Sam.
 
-Please send answers with Cc: as I'm not subscribed to the list.
-
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
-
+cc:ed to the list for the benefit of people searching the net for this
+problem ;)

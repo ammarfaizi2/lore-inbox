@@ -1,87 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVCCD2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVCCD2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVCCD2w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVCCDUZ
+	id S261476AbVCCD2v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 22:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVCCDVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 22:20:25 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27803 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261444AbVCCDSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 22:18:07 -0500
-Date: Wed, 2 Mar 2005 19:17:19 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-In-Reply-To: <20050302185508.4cd2f618.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
- <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
- <20050302185508.4cd2f618.akpm@osdl.org>
+	Wed, 2 Mar 2005 22:21:33 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:54768 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261439AbVCCDRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 22:17:50 -0500
+Message-ID: <42268201.80706@ak.jp.nec.com>
+Date: Thu, 03 Mar 2005 12:18:25 +0900
+From: Kaigai Kohei <kaigai@ak.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Jay Lan <jlan@engr.sgi.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Erich Focht <efocht@hpce.nec.com>, Netlink List <netdev@oss.sgi.com>
+Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
+References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr> <1109753292.8422.117.camel@frecb000711.frec.bull.fr>
+In-Reply-To: <1109753292.8422.117.camel@frecb000711.frec.bull.fr>
+Content-Type: multipart/mixed;
+ boundary="------------060300030509070400060409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Andrew Morton wrote:
+This is a multi-part message in MIME format.
+--------------060300030509070400060409
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-> > This is a related change discussed during V16 with Nick.
->
-> It's worth retaining a paragraph for the changelog.
+Hello, Guillaume
 
-There have been extensive discussions on all aspects of this patch.
-This issue was discussed in
-http://marc.theaimsgroup.com/?t=110694497200004&r=1&w=2
+I tried to measure the process-creation/destruction performance on 2.6.11-rc4-mm1 plus
+some extensiton(Normal/with PAGG/with Fork-Connector).
+But I received a following messages endlessly on system console with Fork-Connector extensiton.
 
->
-> > The page is protected from munmap because of the down_read(mmap_sem) in
-> > the arch specific code before calling handle_mm_fault.
->
-> We don't take mmap_sem during page reclaim.  What prevents the page from
-> being freed by, say, kswapd?
+# on IA-64 environment / When an simple fork() iteration is run in parallel.
+skb does not have enough length: requested msg->len=10[28], nlh->nlmsg_len=48[32], skb->len=48[must be 30].
+skb does not have enough length: requested msg->len=10[28], nlh->nlmsg_len=48[32], skb->len=48[must be 30].
+skb does not have enough length: requested msg->len=10[28], nlh->nlmsg_len=48[32], skb->len=48[must be 30].
+  :
 
-The cmpxchg will fail if that happens.
+Is's generated at drivers/connector/connector.c:__cn_rx_skb(), and this warn the length of msg's payload
+does not fit in nlmsghdr's length.
+This message means netlink packet is not sent to user space.
+I was notified occurence of fork() by printk(). :-(
 
-> I forget.  I do recall that we decided that the change was OK, but briefly
-> looking at it now, it seems that we'll fail to move a
-> PageReferenced,!PageActive onto the active list?
+The attached simple *.c file can enable/disable fork-connector and listen the fork-notification.
+Because It's first experimence for me to write a code to use netlink, point out a right how-to-use
+if there's some mistakes at user side apprication.
 
-See http://marc.theaimsgroup.com/?l=bk-commits-head&m=110481975332117&w=2
+Thanks.
 
-and
+P.S. I can't reproduce lockup on 367th-fork() with your latest patch.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110272296503539&w=2
+Guillaume Thouvenin wrote:
+>   ChangeLog:
+> 
+>     - Add parenthesis around sizeof(struct cn_msg) + CN_FORK_INFO_SIZE
+>       in the CN_FORK_MSG_SIZE macro
+>     - fork_cn_lock is declareed with DEFINE_SPINLOCK()
+>     - fork_cn_lock is defined as static and local to fork_connector()
+>     - Create a specific module cn_fork.c in drivers/connector to
+>       register the callback.
+>     - Improve the callback that turns on/off the fork connector
+> 
+>   I also run the lmbench and results are send in response to another
+> thread "A common layer for Accounting packages". When fork connector is
+> turned off the overhead is negligible. This patch works with another
+> small patch that fix a problem in the connector. Without it, there is a
+> message that says "skb does not have enough length". It will be fix in
+> the next -mm tree I think.
+> 
+> 
+> Thanks everyone for the comments,
+> Guillaume
 
-> > That is up to the arch maintainers. Add something to arch/xx/Kconfig to
-> > allow atomic operations for an arch. Out of the box it only works for
-> > x86_64, ia64 and ia32.
->
-> Feedback from s390, sparc64 and ppc64 people would help in making a merge
-> decision.
+-- 
+Linux Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-These architectures have the atomic pte's not enable. It would require
-them to submit a patch to activate atomic pte's for these architectures.
+--------------060300030509070400060409
+Content-Type: text/plain;
+ name="fclisten.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="fclisten.c"
 
-> > You definitely need this for machines with high SMP counts.
->
-> Well.  We need some solution to the page_table_lock problem on high SMP
-> counts.
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmlu
+Zy5oPgojaW5jbHVkZSA8YXNtL3R5cGVzLmg+CiNpbmNsdWRlIDxzeXMvdHlwZXMuaD4KI2lu
+Y2x1ZGUgPHN5cy9zb2NrZXQuaD4KI2luY2x1ZGUgPGxpbnV4L25ldGxpbmsuaD4KCnZvaWQg
+dXNhZ2UoKXsKICBwdXRzKCJ1c2FnZTogZmNsaXN0ZW4gPG9ufG9mZj4iKTsKICBwdXRzKCIg
+IERlZmF1bHQgLT4gbGlzdGVuaW5nIGZvcmstY29ubmVjdG9yIik7CiAgcHV0cygiICBvbiAg
+ICAgIC0+IGZvcmstY29ubmVjdG9yIEVuYWJsZSIpOwogIHB1dHMoIiAgb2ZmICAgICAtPiBm
+b3JrLWNvbm5lY3RvciBEaXNhYmxlIik7CiAgZXhpdCgwKTsKfQoKI2RlZmluZSBNT0RFX0xJ
+U1RFTiAgKDEpCiNkZWZpbmUgTU9ERV9FTkFCTEUgICgyKQojZGVmaW5lIE1PREVfRElTQUJM
+RSAoMykKCnN0cnVjdCBjYl9pZAp7CiAgX191MzIgICAgICAgICAgICAgICAgICAgaWR4Owog
+IF9fdTMyICAgICAgICAgICAgICAgICAgIHZhbDsKfTsKCnN0cnVjdCBjbl9tc2cKewogIHN0
+cnVjdCBjYl9pZCAgICAgICAgICAgIGlkOwogIF9fdTMyICAgICAgICAgICAgICAgICAgIHNl
+cTsKICBfX3UzMiAgICAgICAgICAgICAgICAgICBhY2s7CiAgX191MzIgICAgICAgICAgICAg
+ICAgICAgbGVuOyAgICAgICAgICAgIC8qIExlbmd0aCBvZiB0aGUgZm9sbG93aW5nIGRhdGEg
+Ki8KICBfX3U4ICAgICAgICAgICAgICAgICAgICBkYXRhWzBdOwp9OwoKCmludCBtYWluKGlu
+dCBhcmdjLCBjaGFyICphcmd2W10pewogIGNoYXIgYnVmWzQwOTZdOwogIGludCBtb2RlLCBz
+b2NrZmQsIGxlbjsKICBzdHJ1Y3Qgc29ja2FkZHJfbmwgYWQ7CiAgc3RydWN0IG5sbXNnaGRy
+ICpoZHIgPSAoc3RydWN0IG5sbXNnaGRyICopYnVmOwogIHN0cnVjdCBjbl9tc2cgKm1zZyA9
+IChzdHJ1Y3QgY25fbXNnICopKGJ1ZitzaXplb2Yoc3RydWN0IG5sbXNnaGRyKSk7CiAgCiAg
+c3dpdGNoKGFyZ2MpewogIGNhc2UgMToKICAgIG1vZGUgPSBNT0RFX0xJU1RFTjsKICAgIGJy
+ZWFrOwogIGNhc2UgMjoKICAgIGlmIChzdHJjYXNlY21wKCJvbiIsYXJndlsxXSk9PTApIHsK
+ICAgICAgbW9kZSA9IE1PREVfRU5BQkxFOwogICAgfWVsc2UgaWYgKHN0cmNhc2VjbXAoIm9m
+ZiIsYXJndlsxXSk9PTApewogICAgICBtb2RlID0gTU9ERV9ESVNBQkxFOwogICAgfWVsc2V7
+CiAgICAgIHVzYWdlKCk7CiAgICB9CiAgICBicmVhazsKICBkZWZhdWx0OgogICAgdXNhZ2Uo
+KTsKICAgIGJyZWFrOwogIH0KICAKICBpZiggKHNvY2tmZD1zb2NrZXQoUEZfTkVUTElOSywg
+U09DS19SQVcsIE5FVExJTktfTkZMT0cpKSA8IDAgKXsKICAgIGZwcmludGYoc3RkZXJyLCAi
+RmF1bHQgb24gc29ja2V0KCkuXG4iKTsKICAgIHJldHVybiggMSApOwogIH0KICBhZC5ubF9m
+YW1pbHkgPSBBRl9ORVRMSU5LOwogIGFkLm5sX3BhZCA9IDA7CiAgYWQubmxfcGlkID0gZ2V0
+cGlkKCk7CiAgYWQubmxfZ3JvdXBzID0gLTE7CiAgaWYoIGJpbmQoc29ja2ZkLCAoc3RydWN0
+IHNvY2thZGRyICopJmFkLCBzaXplb2YoYWQpKSApewogICAgZnByaW50ZihzdGRlcnIsICJG
+YXVsdCBvbiBiaW5kIHRvIG5ldGxpbmsuXG4iKTsKICAgIHJldHVybiggMiApOwogIH0KCiAg
+aWYgKG1vZGU9PU1PREVfTElTVEVOKSB7CiAgICB3aGlsZSgtMSl7CiAgICAgIGxlbiA9IHJl
+Y3Zmcm9tKHNvY2tmZCwgYnVmLCA0MDk2LCAwLCBOVUxMLCBOVUxMKTsKICAgICAgcHJpbnRm
+KCIlZC1ieXRlIHJlY3YgU2VxPSVkXG4iLCBsZW4sIGhkci0+bmxtc2dfc2VxKTsKICAgIH0K
+ICB9ZWxzZXsKICAgIGFkLm5sX2ZhbWlseSA9IEFGX05FVExJTks7CiAgICBhZC5ubF9wYWQg
+PSAwOwogICAgYWQubmxfcGlkID0gMDsKICAgIGFkLm5sX2dyb3VwcyA9IDE7CiAgICAKICAg
+IGhkci0+bmxtc2dfbGVuID0gc2l6ZW9mKHN0cnVjdCBubG1zZ2hkcikgKyBzaXplb2Yoc3Ry
+dWN0IGNuX21zZykgKyBzaXplb2YoaW50KTsKICAgIGhkci0+bmxtc2dfdHlwZSA9IDA7CiAg
+ICBoZHItPm5sbXNnX2ZsYWdzID0gMDsKICAgIGhkci0+bmxtc2dfc2VxID0gMDsKICAgIGhk
+ci0+bmxtc2dfcGlkID0gZ2V0cGlkKCk7CiAgICBtc2ctPmlkLmlkeCA9IDB4ZmVlZDsKICAg
+IG1zZy0+aWQudmFsID0gMHhiZWVmOwogICAgbXNnLT5zZXEgPSBtc2ctPmFjayA9IDA7CiAg
+ICBtc2ctPmxlbiA9IHNpemVvZihpbnQpOwoKICAgIGlmIChtb2RlPT1NT0RFX0VOQUJMRSl7
+CiAgICAgICgqKGludCAqKShtc2ctPmRhdGEpKSA9IDE7CiAgICB9IGVsc2UgewogICAgICAo
+KihpbnQgKikobXNnLT5kYXRhKSkgPSAwOwogICAgfQogICAgc2VuZHRvKHNvY2tmZCwgYnVm
+LCBzaXplb2Yoc3RydWN0IG5sbXNnaGRyKStzaXplb2Yoc3RydWN0IGNuX21zZykrc2l6ZW9m
+KGludCksCgkgICAwLCAoc3RydWN0IHNvY2thZGRyICopJmFkLCBzaXplb2YoYWQpKTsKICB9
+Cn0K
+--------------060300030509070400060409--
 
-Great!
-
-> > Earlier releases back in September 2004 had some pte locking code (and
-> > AFAIK Nick also played around with pte locking) but that
-> > was less efficient than atomic operations.
->
-> How much less efficient?
-> Does anyone else have that code around?
-
-Nick may have some data. It got far too complicated too fast when I tried
-to introduce locking for individual ptes. It required bit
-spinlocks for the pte meaning multiple atomic operations. One
-would have to check for the lock being active leading to significant code
-changes. This would include the arch specific low level fault handers to
-update bits, walk the page table etc etc.

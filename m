@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbUJ0PMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbUJ0PQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbUJ0PMN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbUJ0PKR
+	id S262485AbUJ0PQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbUJ0PQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:10:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22489 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262503AbUJ0PHB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:07:01 -0400
-Subject: 2.6.9 page allocation failures
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098888880.20643.130.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Oct 2004 07:54:40 -0700
+	Wed, 27 Oct 2004 11:16:57 -0400
+Received: from mail4.utc.com ([192.249.46.193]:39347 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S262485AbUJ0PQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:16:23 -0400
+Message-ID: <417FBBB7.3070200@cybsft.com>
+Date: Wed, 27 Oct 2004 10:16:07 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com> <20041027150548.GA11233@elte.hu>
+In-Reply-To: <20041027150548.GA11233@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>I use the rtc-debug and amlat to generate histograms of latencies
+>>which is what I was trying to do when I found the rtc problem the
+>>first time.  I believe that rtc-debug/amlat is much more accurate for
+>>generating histograms of latencies than realfeel is because the
+>>instrumentation is in the kernel rather than a userspace program.
+> 
+> 
+> ah, ok - nice. So rtc-debug+amlat is the only known-reliable way to
+> produce latency histograms?
 
-I see following page allocation failures while running IO intensive
-tests on 2.6.9. My tests didn't fail, so I guess its okay. But
-I never saw this before.
+Don't know that for sure, but it is the most reliable way that I am 
+aware of.
 
-Its on a 4-way AMD64 machine with 7GB RAM. Tests create 10 4GB files
-on 10 disks (one filesystem per disk) in parallel. (dd if=/dev/zero ...)
+> 
+> Btw., rtc-debug's latency results could now be cross-validated with
+> -V0.4's wakeup tracer (and vice versa), because the two are totally
+> independent mechanisms.
 
-Thanks,
-Badari
+Agreed. :)
 
+> 
+> 	Ingo
+> 
 
-swapper: page allocation failure. order:0, mode:0x20
-                                                                                                          
-Call Trace:<IRQ> <ffffffff8015fd9f>{__alloc_pages+815}
-<ffffffff8015fa20>{__get_free_pages+16}
-       <ffffffff801635c6>{kmem_getpages+38}
-<ffffffff801639e9>{cache_alloc_refill+665}
-       <ffffffff80163b96>{kmem_cache_alloc+54}
-<ffffffff8031a85d>{scsi_get_command+45}
-       <ffffffff8031edb0>{scsi_prep_fn+272}
-<ffffffff802d62e8>{elv_next_request+72}
-       <ffffffff8031f0a8>{scsi_request_fn+72}
-<ffffffff802d96a1>{blk_run_queue+49}
-       <ffffffff8031f6af>{scsi_end_request+223}
-<ffffffff8031f90d>{scsi_io_completion+573}
-       <ffffffff80319c26>{scsi_finish_command+214}
-<ffffffff8031a56a>{scsi_softirq+234}
-       <ffffffff8013dc11>{__do_softirq+113}
-<ffffffff8013dcc5>{do_softirq+53}
-       <ffffffff80113f1f>{do_IRQ+335}
-<ffffffff80110d27>{ret_from_intr+0}
-        <EOI> <ffffffff8010f5d0>{default_idle+0}
-<ffffffff8010f5f0>{default_idle+32}
-       <ffffffff8010f9fd>{cpu_idle+29}
-
-
+kr

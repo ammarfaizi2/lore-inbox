@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSINNcI>; Sat, 14 Sep 2002 09:32:08 -0400
+	id <S316582AbSINNbM>; Sat, 14 Sep 2002 09:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSINNcI>; Sat, 14 Sep 2002 09:32:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21439 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316610AbSINNcG>;
-	Sat, 14 Sep 2002 09:32:06 -0400
-Date: Sat, 14 Sep 2002 15:36:19 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: 34-bk current ide problems - unexpected interrupt
-Message-ID: <20020914133619.GI935@suse.de>
-References: <200209120838.44092.tomlins@cam.org> <20020913060647.GH1847@suse.de> <200209132142.23964.tomlins@cam.org> <200209132258.21297.tomlins@cam.org>
+	id <S316610AbSINNbM>; Sat, 14 Sep 2002 09:31:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7666 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316582AbSINNbL>; Sat, 14 Sep 2002 09:31:11 -0400
+Subject: Re: Possible bug and question about ide_notify_reboot in
+	drivers/ide/ide.c (2.4.19)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020914095356.GA28271@merlin.emma.line.org>
+References: <20020914010101.75725.qmail@web40502.mail.yahoo.com> 
+	<20020914095356.GA28271@merlin.emma.line.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 14 Sep 2002 14:37:35 +0100
+Message-Id: <1032010655.12892.8.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209132258.21297.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 13 2002, Ed Tomlinson wrote:
-> On September 13, 2002 09:42 pm, Ed Tomlinson wrote:
-> > Hi,
-> >
-> > To check if the problem I am seeing is with the port to 2.5 I tried
-> > 2.4.20-pre5-ac4 and 2.4.20-pre5-ac6.  Both booted correctly.
-> >
-> > Now to try 2.5.34+bk without Andrew's mm patch.  If that fails what
-> > debugging info would help solve the unexpected interrupt problem?
-> 
-> to summerize
-> 
-> 2.4.20-pre5-ac4	works
-> 2.4.20-pre5-ac5	works
-> 2.5.34-mm1		works	(without Jens ide port of pre5-ac4)
-> 2.5.34-mm2		fails with unexpected interrupt loop
-> 2.5.34-bk current	fails with unexpected interrupt loop
+On Sat, 2002-09-14 at 10:53, Matthias Andree wrote:
+> How about this: The FLUSH CACHE command has only recently become a
+> mandatory command for non-PACKET devices, so there may be drives that do
+> implement a write cache, but do NOT implement the FLUSH CACHE -- and
+> still adhere to some older edition of the ATA standard.
 
-Hmm, I just plopped in a 20267 here and it works perfectly:
+Worse than that. There are drives that did implement it - as a no-op.
+They didn't even say "Umm sorry no can do"
 
-PDC20267: IDE controller at PCI slot 00:0c.0
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:DMA
-hde: IBM-DTLA-307030, ATA DISK drive
-ide2 at 0xb400-0xb407,0xb002 on irq 16
-hde: host protected area => 1
-hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63,
-UDMA(100)
- hde: hde1 hde2 < hde5 >
+> See above. Disable Write Cache would also do with recent drives.
 
-> Removing the printk from ide.c does _not_ cure the problem.   The ide
-> setting between 2.4 and 2.5 were as identical as I can make them.
+Except some drives have a habit of turning it back on quietly
 
-Can you please send me the config settings?
+> If I recall correctly, Windows' shutdown procedure was at some time in
+> the past changed to wait a couple of seconds before switching the ATX
+> computers off, to allow the drives to flush their caches. I can't quote
+> on a KB article though.
 
-> Notice that 2.4 orders the boot differently.  Wonder if this is significant?
-
-That's expected.
-
--- 
-Jens Axboe
+Flush on shutdown was apparently one of the windows 98 service pack/hot
+fix additions.
 

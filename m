@@ -1,143 +1,333 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVA1NWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVA1Njo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVA1NWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 08:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVA1NWP
+	id S261342AbVA1Njo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVA1Njo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 08:22:15 -0500
-Received: from ns.suse.de ([195.135.220.2]:39628 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261334AbVA1NWD (ORCPT
+	Fri, 28 Jan 2005 08:39:44 -0500
+Received: from mail.suse.de ([195.135.220.2]:51425 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261342AbVA1Nj3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 08:22:03 -0500
-Date: Fri, 28 Jan 2005 14:22:02 +0100
-From: Olaf Hering <olh@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: atkbd_init lockup with 2.6.11-rc1
-Message-ID: <20050128132202.GA27323@suse.de>
+	Fri, 28 Jan 2005 08:39:29 -0500
+Date: Fri, 28 Jan 2005 14:39:27 +0100
+From: Andi Kleen <ak@suse.de>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net
+Subject: [PATCH] Add CONFIG_X86_APIC_OFF for i386/UP
+Message-ID: <20050128133927.GC6703@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+This patch adds a new CONFIG_X86_APIC_OFF option. This is useful
+for distribution UP kernels who should run with local APIC off by
+default (because older machines often have broken mptables etc.).
 
+But there are a few machines who don't boot with apic off so there
+needs to be an command line option to enable it.
 
-My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
+When X86_APIC_OFF is set the APIC code is compiled in, but is 
+only enabled when "apic" or "lapic" is specified on the command line
+(or a DMI scanner force enables it).
 
-Calling initcall 0xc03c272c: atkbd_init+0x0/0x38()
-ps2_init(224) swapper(1):c0,j4294680939 enter
-atkbd_connect(793) swapper(1):c0,j4294680993 type 1000000
-serio_open(606) swapper(1):c0,j4294681061 enter
-serio_set_drv(594) swapper(1):c0,j4294681117 enter
-serio_set_drv(600) swapper(1):c0,j4294681176 leave
-i8042_write_command(69) swapper(1):c0,j4294681236 enter
-i8042_write_data(62) swapper(1):c0,j4294681236 enter
-serio_open(614) swapper(1):c0,j4294681363 leave0
-atkbd_probe(497) swapper(1):c0,j4294681421 enter
-ps2_command(91) swapper(1):c0,j4294681478 enter
-ps2_sendbyte(57) swapper(1):c0,j4294681534 enter
-serio_write(95) swapper(1):c0,j4294681591 write c01b65ac
-i8042_aux_write(253) swapper(1):c0,j4294681658 enter
-i8042_write_command(69) swapper(1):c0,j4294681720 enter
-i8042_write_data(62) swapper(1):c0,j4294681720 enter
+The option can be only enabled for UP kernels, for SMP
+it doesn't make much sense to disable the local APICs.
 
+In addition there are some bugfixes in there to fix problems
+in the no APIC error handling paths.  In particular try to clear
+the APIC flag more often and clear nr_ioapics when the local
+APIC doesn't work. 
 
-Any idea how to fix it? There is no keyboard or mouse detected. I think
-it works ok on ppc64, Anton did not complain yet.
+It's unfortunately still not quite correct for ACPI in the 
+case when X86_APIC_OFF is not set - in case ACPI finds APICs
+in the MADT, but enabling it fails later for some reason the ACPI
+state will be all messed up. Fixing that was a bit too complicated,
+I leave that to the ACPI maintainers and only added a comment
+(it should be relatively unlikely to happen) 
 
+I also disabled some (IMHO) not so useful debugging printks
+in the APIC and subarch code because it looked a bit weird when there
+were lots of messages talking about APICs when all the APICs
+were actually disabled.
 
+It needs some minor changes to x86-64 too because the ACPI boot
+code is shared.
 
---pf9I7BMVVzbSWLtt
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="2.6.11-rc2-bk5-b50-atkbd_init-lockup.txt.gz"
-Content-Transfer-Encoding: base64
+Variants of this patch have been shipped by SUSE for a long time.
+I believe the original patch came from Kurt Garloff.
 
-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
+Signed-off-by: Andi Kleen <ak@suse.de>
 
---pf9I7BMVVzbSWLtt--
+diff -u linux/include/asm-i386/mach-default/mach_apic.h-o linux/include/asm-i386/mach-default/mach_apic.h
+--- linux/include/asm-i386/mach-default/mach_apic.h-o	2004-08-15 19:45:46.000000000 +0200
++++ linux/include/asm-i386/mach-default/mach_apic.h	2005-01-28 13:43:48.000000000 +0100
+@@ -58,8 +58,6 @@
+ 
+ static inline void clustered_apic_check(void)
+ {
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
+-					"Flat", nr_ioapics);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+diff -u linux/include/asm-i386/apic.h-o linux/include/asm-i386/apic.h
+--- linux/include/asm-i386/apic.h-o	2005-01-04 12:13:21.000000000 +0100
++++ linux/include/asm-i386/apic.h	2005-01-28 12:29:16.000000000 +0100
+@@ -118,6 +118,10 @@
+ #define NMI_LOCAL_APIC	2
+ #define NMI_INVALID	3
+ 
++extern int lapic_disable(char *str);
++extern int lapic_enable(char *str);
++extern int enable_local_apic;
++
+ #else /* !CONFIG_X86_LOCAL_APIC */
+ static inline void lapic_shutdown(void) { }
+ 
+diff -u linux/arch/i386/kernel/acpi/boot.c-o linux/arch/i386/kernel/acpi/boot.c
+--- linux/arch/i386/kernel/acpi/boot.c-o	2005-01-28 12:22:43.000000000 +0100
++++ linux/arch/i386/kernel/acpi/boot.c	2005-01-28 13:07:27.000000000 +0100
+@@ -774,6 +774,18 @@
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	int count, error;
+ 
++	/* 
++	 * Warning, broken error handling here.
++	 * When X86_APIC_OFF is not set and the APIC initialization
++	 * later fails then the ACPI state will be all messed up.
++	 */
++#ifdef CONFIG_X86_APIC_OFF
++	if (enable_local_apic <= 0) { 
++		printk(KERN_INFO "ACPI: local apic disabled\n");
++		return;
++	}
++#endif	   
++
+ 	count = acpi_table_parse(ACPI_APIC, acpi_parse_madt);
+ 	if (count >= 1) {
+ 
+diff -u linux/arch/i386/kernel/io_apic.c-o linux/arch/i386/kernel/io_apic.c
+--- linux/arch/i386/kernel/io_apic.c-o	2005-01-28 12:23:33.000000000 +0100
++++ linux/arch/i386/kernel/io_apic.c	2005-01-28 13:28:49.000000000 +0100
+@@ -690,7 +690,8 @@
+ #define MAX_PIRQS 8
+ int pirq_entries [MAX_PIRQS];
+ int pirqs_enabled;
+-int skip_ioapic_setup;
++
++int skip_ioapic_setup = 0;
+ 
+ static int __init ioapic_setup(char *str)
+ {
+diff -u linux/arch/i386/kernel/apic.c-o linux/arch/i386/kernel/apic.c
+--- linux/arch/i386/kernel/apic.c-o	2005-01-28 12:23:32.000000000 +0100
++++ linux/arch/i386/kernel/apic.c	2005-01-28 13:33:30.000000000 +0100
+@@ -669,9 +669,10 @@
+ /*
+  * Knob to control our willingness to enable the local APIC.
+  */
+-int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
++int enable_local_apic __initdata = 0;
+ 
+-static int __init lapic_disable(char *str)
++/* These two are early parsed too */
++int __init lapic_disable(char *str)
+ {
+ 	enable_local_apic = -1;
+ 	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+@@ -679,7 +680,7 @@
+ }
+ __setup("nolapic", lapic_disable);
+ 
+-static int __init lapic_enable(char *str)
++int __init lapic_enable(char *str)
+ {
+ 	enable_local_apic = 1;
+ 	return 0;
+@@ -688,7 +689,11 @@
+ 
+ static int __init apic_set_verbosity(char *str)
+ {
+-	if (strcmp("debug", str) == 0)
++	if (*str == '=') 
++		str++;
++	if (*str == 0) {
++		/* parsed early already */ 
++	} else if (strcmp("debug", str) == 0)
+ 		apic_verbosity = APIC_DEBUG;
+ 	else if (strcmp("verbose", str) == 0)
+ 		apic_verbosity = APIC_VERBOSE;
+@@ -699,16 +704,21 @@
+ 	return 0;
+ }
+ 
+-__setup("apic=", apic_set_verbosity);
++__setup("apic", apic_set_verbosity);
+ 
+ static int __init detect_init_APIC (void)
+ {
+ 	u32 h, l, features;
+ 	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ 
++#ifdef CONFIG_X86_APIC_OFF
++	if (enable_local_apic < 1) 
++		return -1; 
++#else
+ 	/* Disabled by kernel option? */
+ 	if (enable_local_apic < 0)
+ 		return -1;
++#endif
+ 
+ 	/* Workaround for us being called before identify_cpu(). */
+ 	get_cpu_vendor(&boot_cpu_data);
+@@ -800,8 +810,6 @@
+ 		apic_phys = mp_lapic_addr;
+ 
+ 	set_fixmap_nocache(FIX_APIC_BASE, apic_phys);
+-	printk(KERN_DEBUG "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
+-	       apic_phys);
+ 
+ 	/*
+ 	 * Fetch the APIC ID of the BSP in case we have a
+@@ -834,8 +842,6 @@
+ 				ioapic_phys = __pa(ioapic_phys);
+ 			}
+ 			set_fixmap_nocache(idx, ioapic_phys);
+-			printk(KERN_DEBUG "mapped IOAPIC to %08lx (%08lx)\n",
+-			       __fix_to_virt(idx), ioapic_phys);
+ 			idx++;
+ 		}
+ 	}
+@@ -1243,11 +1249,21 @@
+  */
+ int __init APIC_init_uniprocessor (void)
+ {
++#ifdef CONFIG_X86_APIC_OFF
++	if (enable_local_apic <= 0) { 
++		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
++		nr_ioapics = 0;
++		return -1;
++	}
++#endif
++
+ 	if (enable_local_apic < 0)
+ 		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+ 
+-	if (!smp_found_config && !cpu_has_apic)
++	if (!smp_found_config && !cpu_has_apic) { 
++		nr_ioapics = 0;
+ 		return -1;
++	}
+ 
+ 	/*
+ 	 * Complain if the BIOS pretends there is one.
+@@ -1255,6 +1271,8 @@
+ 	if (!cpu_has_apic && APIC_INTEGRATED(apic_version[boot_cpu_physical_apicid])) {
+ 		printk(KERN_ERR "BIOS bug, local APIC #%d not detected!...\n",
+ 			boot_cpu_physical_apicid);
++		nr_ioapics = 0;
++		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+ 		return -1;
+ 	}
+ 
+diff -u linux/arch/i386/kernel/setup.c-o linux/arch/i386/kernel/setup.c
+--- linux/arch/i386/kernel/setup.c-o	2005-01-28 12:23:49.000000000 +0100
++++ linux/arch/i386/kernel/setup.c	2005-01-28 12:45:23.000000000 +0100
+@@ -49,6 +49,7 @@
+ #include <asm/io_apic.h>
+ #include <asm/ist.h>
+ #include <asm/io.h>
++#include <asm/apic.h>
+ #include "setup_arch_pre.h"
+ #include <bios_ebda.h>
+ 
+@@ -809,8 +810,14 @@
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+-		else if (!memcmp(from, "noapic", 6))
++		else if (c == ' ' && !memcmp(from, "noapic", 6))
+ 			disable_ioapic_setup();
++		else if (c == ' ' && !memcmp(from, "apic", 4))
++		        lapic_enable(from+4);
++		else if (c == ' ' && !memcmp(from, "lapic", 5))
++		        lapic_enable(from+7);
++		else if (c == ' ' && !memcmp(from, "nolapic", 7))
++		        lapic_disable(from+7);
+ #endif /* CONFIG_X86_LOCAL_APIC */
+ #endif /* CONFIG_ACPI_BOOT */
+ 
+diff -u linux/arch/i386/kernel/mpparse.c-o linux/arch/i386/kernel/mpparse.c
+diff -u linux/arch/i386/Kconfig-o linux/arch/i386/Kconfig
+--- linux/arch/i386/Kconfig-o	2005-01-28 12:22:43.000000000 +0100
++++ linux/arch/i386/Kconfig	2005-01-28 12:29:16.000000000 +0100
+@@ -563,6 +563,15 @@
+ 	depends on !SMP && X86_UP_APIC
+ 	default y
+ 
++config X86_APIC_OFF
++        bool "Disable local/IO APIC by default" 
++	depends on X86_LOCAL_APIC 
++	default n
++	help
++	  When this option is enabled the IO/local APIC code is compiled in, but 
++	  only enabled when the kernel is booted with "apic" on the kernel 
++	  command line  or an DMI entry forced APIC mode. 
++
+ config X86_IO_APIC
+ 	bool
+ 	depends on !SMP && X86_UP_IOAPIC
+diff -u linux/arch/x86_64/kernel/apic.c-o linux/arch/x86_64/kernel/apic.c
+--- linux/arch/x86_64/kernel/apic.c-o	2005-01-28 12:22:44.000000000 +0100
++++ linux/arch/x86_64/kernel/apic.c	2005-01-28 12:29:16.000000000 +0100
+@@ -1023,6 +1023,8 @@
+ }
+ 
+ int disable_apic; 
++/* just used to communicate with shared i386 code: */
++int enable_local_apic = 1; 
+ 
+ /*
+  * This initializes the IO-APIC and APIC hardware if this is
+@@ -1036,6 +1038,7 @@
+ 	}
+ 	if (!cpu_has_apic) { 
+ 		disable_apic = 1;
++		enable_local_apic = -1; 
+ 		printk(KERN_INFO "Apic disabled by BIOS\n");
+ 		return -1;
+ 	}
+@@ -1062,12 +1065,14 @@
+ 
+ static __init int setup_disableapic(char *str) 
+ { 
++	enable_local_apic = -1;
+ 	disable_apic = 1;
+ 	return 0;
+ } 
+ 
+ static __init int setup_nolapic(char *str) 
+ { 
++	enable_local_apic = -1;
+ 	disable_apic = 1;
+ 	return 0;
+ } 
+diff -u linux/Documentation/kernel-parameters.txt-o linux/Documentation/kernel-parameters.txt
+--- linux/Documentation/kernel-parameters.txt-o	2005-01-28 12:23:52.000000000 +0100
++++ linux/Documentation/kernel-parameters.txt	2005-01-28 12:29:16.000000000 +0100
+@@ -214,6 +214,12 @@
+ 	apm=		[APM] Advanced Power Management
+ 			See header of arch/i386/kernel/apm.c.
+ 
++	apic		[UP,APIC] Tells the kernel to make use of the APIC on
++	                uniprocessor systems. When CONFIG_X86_APIC_OFF is set it 
++			needs this parameter to really activate it (needed to 
++			avoid problems with certain machines). This enables IO 
++			and local APICs.
++ 
+ 	applicom=	[HW]
+ 			Format: <mem>,<irq>
+  

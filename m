@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270234AbRHHAGt>; Tue, 7 Aug 2001 20:06:49 -0400
+	id <S270231AbRHHAIi>; Tue, 7 Aug 2001 20:08:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270238AbRHHAGj>; Tue, 7 Aug 2001 20:06:39 -0400
-Received: from [24.76.184.93] ([24.76.184.93]:32133 "HELO md5.ca")
-	by vger.kernel.org with SMTP id <S270234AbRHHAG2>;
-	Tue, 7 Aug 2001 20:06:28 -0400
-Date: Tue, 7 Aug 2001 17:06:10 -0700
-From: Pavel Zaitsev <pavel@md5.ca>
-To: discuss@vlug.org
-Cc: vanlug@gweep.ca, linux-kernel@vger.kernel.org
-Subject: niggling reiserFS problems
-Message-ID: <20010807170610.A20544@md5.ca>
-Reply-To: pavel@md5.ca
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-X-Arbitrary-Number-Of-The-Day: 42
+	id <S270236AbRHHAI2>; Tue, 7 Aug 2001 20:08:28 -0400
+Received: from ip240.cvd2.rb1.bel.nwlink.com ([207.202.151.240]:2060 "EHLO
+	zot.localdomain") by vger.kernel.org with ESMTP id <S270231AbRHHAIX>;
+	Tue, 7 Aug 2001 20:08:23 -0400
+To: Riley Williams <rhw@MemAlpha.CX>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org>
+From: Mark Atwood <mra@pobox.com>
+Date: 07 Aug 2001 17:08:21 -0700
+In-Reply-To: Riley Williams's message of "Wed, 8 Aug 2001 00:35:54 +0100 (BST)"
+Message-ID: <m3k80fv2fe.fsf@flash.localdomain>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Riley Williams <rhw@MemAlpha.CX> writes:
+> 
+> I've certainly never stood in the position you call "Kernel" in that
+> description. Here's the situation as I see it, put in those sort of
+> terms, characters being InitScripts and Kernel respectively:
+> 
+>  1. InitScripts points at Kernel saying "there is no good and no
+>     well documented mapping method".
+> 
+>  2. Kernel replies "There is a good mapping method, which is to
+>     always map the ports starting with the lowest numbered one."
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Um... I am kinda distraught, my reiserFS seems to bug out? ... well,
-to make long story short, I ran vim, gtklib bugged out. Used 'rpm -V libgtk=
-+1.2-1.2.10-1mdk'
-oops, md5 checksum doesn't matchup. Read some mail for 10 min. ran the
-thing above again, checksum matches up. Do they call it vejadu?
-Anyone with saw this ... please raise hands, hm, mail me.
-thanks,
-	Pavel.
+Well, there is that present mapping method, but I hesitate to call it
+"good".
 
 
---=20
-Take out your recursive cannons and shoot!
-110461387
-http://gpg.md5.ca
-http://perlpimp.com
+Plus, we are unable to satisfactorily define "lowest numbered one".
 
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+If I build a system with several identical (other than MAC) FooCorp
+PCI ethernics, they will number up in order of ascending MAC address.
 
-iD8DBQE7cIJyEhbFhd1U3E0RAv0eAKCyasUrXNKqTrantTi7SRsyJ6j/SQCfacRm
-cj1ES8C30UTy9qzueFdT8p0=
-=z+JR
------END PGP SIGNATURE-----
+I take the same system, replace the FooCorp cards with BarInc NICs, they
+will number up in reverse MAC address.
 
---7JfCtLOvnd9MIVvH--
+Replace them instead with Baz Systems NICs, and I get them in bus scan
+order (at which point I'm dependent on the firmware version of my PCI
+bridge too!).
+
+And if I elect to use Frob Networking NICs, I instead get them in the
+*random* order that their oncard processors won the race to power up.
+
+
+Gods and demons help me if I try putting several of all four brands in
+one box, or the firmware on my NICs or in my PCI bridges changes!
+
+> 
+>  3. InitScripts then tells Kernel "But I don't want to map the ports
+>     in ascending numerical order!"
+
+The phrase "ascending numerical order" becomes, depending on if you
+have a complex (lots of different kinds of interfaces) or dynamic
+(ferex, with PCMCIA, CompactPCI, USB, and Firewire ethernet
+interfaces), either useless or undefined.
+
+
+-- 
+Mark Atwood   | I'm wearing black only until I find something darker.
+mra@pobox.com | http://www.pobox.com/~mra

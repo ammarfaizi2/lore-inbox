@@ -1,110 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264267AbUDTXxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263860AbUDTXzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264267AbUDTXxo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbUDTXxn
+	id S263860AbUDTXzr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbUDTXzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:53:43 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:58731 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263726AbUDTXwX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 19:52:23 -0400
-Date: Tue, 20 Apr 2004 18:50:38 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-ia64@vger.kernel.org, Matt Tolentino <matthew.e.tolentino@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add some EFI device smarts
-Message-ID: <20040420235038.GB29850@lists.us.dell.com>
-References: <200404201600.26207.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <200404201600.26207.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Apr 2004 19:55:47 -0400
+Received: from smtp2.nbnz.co.nz ([202.49.143.67]:5648 "HELO smtp2.nbnz.co.nz")
+	by vger.kernel.org with SMTP id S263860AbUDTXy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 19:54:56 -0400
+Message-ID: <DDF9139AA996D511BBDE00508BB927450A208C82@nbhexch1.nbnz.co.nz>
+From: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: RE: [linux-usb-devel] USB mass storage device has SCSI i/o errors
+	, kernel > 2.6.3
+Date: Wed, 21 Apr 2004 11:54:19 +1200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> I have noticed an issue with writing to a USB mass storage device, 
+>> which is a flash-rom-based mp3 player.
+>> [...]
+>> I have verified that this issue still occurs with 2.6.6-rc1-bk4, as 
+>> requested by Andrew Morton.  This error was never noticed in any 
+>> kernel v2.6.3 or less; including v2.4.x kernels; both stock 
+>> and with -wolk and -mm patchsets.
+> 
+> It's possible that this is caused by a recently-introduced 
+> bug in the UHCI driver.  A patch was posted yesterday:
+> 
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108238832020
+> 721&q=raw
 
-On Tue, Apr 20, 2004 at 04:00:26PM -0600, Bjorn Helgaas wrote:
-> (Like much of the EFI stuff, this really isn't ia64-specific.  Maybe
-> it's time to move some of it under drivers/efi?  If there's interest,
-> I can look at doing that.)
+I've applied this patch to my 2.6.6-rc1-bk4 kernel, and have not noticed a
+reoccurance of the error since then.  I had a mini "test-suite" (basically
+copied 48Mb of files to the device, "sync"ed, then deleted the files and
+then "sync"ed again), which I've run 6 times without a flaw - previously the
+error messages were happening on a frequent basis.
 
-Matt T. had done the work to move it under drivers/efi, though now
-that there's a drivers/firmware, that's more appropraite.  It also
-converted it to use sysfs instead of proc.  There was a bug in
-efivars_exit() where it was removing stuff (which could sleep) while
-holding a spinlock which wasn't good, but that was about the only
-issue anyone had with it.
-
-> +		/* Convert Unicode to normal chars */
-> +		for (i =3D 0; i < (name_size/sizeof(name_unicode[0])); i++)
-> +			name_utf8[i] =3D name_unicode[i] & 0xff;
-> +		name_utf8[i] =3D 0;
-
-I've never had a clear understanding of this.  It's not really UTF8
-(else straight ASCII text could be used), but more like UCS2.  (Yeah,
-I'm sure I named it wrong myself too in the rest of the file...) =20
-
-> +
-> +		if (strcmp(name_utf8, name))
-> +			continue;
-
-This ignores the fact that someone could create a variable with the
-same name but a different vendor GUID, and it would return the first
-one found.  Unfortunately, you need to request both pieces
-specifically -=20
-
-+int
-+efi_get_variable(char *name, efi_variable_t *guid, unsigned char *data, un=
-signed long *size)
-
-and do a guidcmp() on them as well as the strcmp() on the name.
-
-> +int __init
-> +efi_uart_console_only(void)
-
-So to be useful, efivars can't be build modular anymore, right?  Then
-Kconfig needs to change as well.  It's module_init(), is that early
-enough to be used?  Where is efi_uart_console_only() called from?
-It's not in this patch.
-
-> +typedef struct {
-> +	u8 type;
-> +	u8 sub_type;
-> +	u16 length;
-> +} efi_generic_dev_path_t;
-
-No typedefs, just struct efi_generic_dev_path, and
-__attribute__((packed)) please just to be safe.
-
+Therefore, I'm fairly confident that the patch has solved my issue.
 
 Thanks,
-Matt
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+James Roberts-Thomson
+Senior Systems Engineer	DDI +64 4 494 4436
+Infrastructure Projects	Tel +64 4 494 4000
+The National Bank of New Zealand Limited	Fax +64 4 802 8509
+----------
+Another megabytes the dust.
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAhbdOIavu95Lw/AkRAp3jAJ9GJpI8YrhKEeNc8pFaYZdfIitEFQCffldB
-YdSmnmd++rFh0klCxsVQ/vk=
-=cgLG
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+This communication is confidential and may contain privileged material.
+If you are not the intended recipient you must not use, disclose, copy or retain it.
+If you have received it in error please immediately notify me by return email
+and delete the emails.
+Thank you.

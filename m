@@ -1,72 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbTIFEnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 00:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTIFEnF
+	id S265680AbTIFEkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 00:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbTIFEkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 00:43:05 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6232 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263561AbTIFEnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 00:43:02 -0400
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Matt Tolentino" <metolent@snoqualmie.dp.intel.com>,
-       <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
-Subject: Re: [UPDATED PATCH] EFI support for ia32 kernels
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB003D42A54@fmsmsx406.fm.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Sep 2003 22:42:36 -0600
-In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB003D42A54@fmsmsx406.fm.intel.com>
-Message-ID: <m1vfs6o7cz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Sep 2003 00:40:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47522 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265680AbTIFEkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 00:40:36 -0400
+Date: Fri, 5 Sep 2003 21:38:28 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org
+Subject: [PATCH] rename make check* targets, add versioncheck
+Message-Id: <20030905213828.5af10391.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Tolentino, Matthew E" <matthew.e.tolentino@intel.com> writes:
 
-> > I totally agree that it is reasonable to bypass setup.S.  But 
-> > to do that reliably requires consensus that the 32bit entry point is 
-> > stable.  That has not happen yet, and your patch did nothing to address that.
-> I
-> 
-> > know it has to happen because I know the boot process, and what has to
-> > happen to boot with a different x86 BIOS implementation.
-> 
-> Ok, so how do we know it is stable and how might one address that?  How have you
-> addressed this with kexec?
+Hi,
 
-Getting consensus among conservative people is a challenge.  I am slowly
-working on it but I have been busy with other things.
+Please apply to 2.6.0-test4-current.
 
-> > Entering via the 32bit entry point has not been previously discussed.
-> > H. Petern Anvin has not been convinced it should be a stable kernel
-> > entry point.  
-> 
-> Why?  I've missed this argument.   
-> 
-> The documentation has not been updated.  A recent RedHat
-> > kernel has even shipped with a different 32bit kernel entry point.
-> 
-> I'm afraid I haven't looked at kexec.  Do you employ the standard 32 bit entry
-> point or do you actually go back to real mode or something in between?
+description:	rename make check* targets to make *check (per Sam)
+		since 'make checkconfig' currently doesn't work;
+		add versioncheck and scripts/checkversion.pl;
 
-I use it with the firm knowledge that kernel developers may change it if
-the fancy takes them.  There are getting to be fewer and fewer reasons
-why someone would want to change it but...
 
-> > My hunch is that most of the EFI code should actually live in another
-> > subarch.  I think the kernel has support for compiling in multiple
-> > subarches.  If not it is simply because no one has gotten 
-> > that far yet.
-> 
-> I can see how this could be useful and potentially consolidate the efi related
-> code in ia64, the ia32 stuff I've posted, and any other architecture that
-> supports efi in the future, but don't know about compiling in multiple subarchs.
-> Comments on how this is done?
+patch_name:	make_checks.patch
+patch_version:	2003-09-05.21:27:18
+author:		Randy.Dunlap <rddunlap@osdl.org>
+product:	Linux
+product_versions: 2.6.0-test4
+diffstat:	=
+ Makefile                |    9 ++++--
+ scripts/checkversion.pl |   72 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 79 insertions(+), 2 deletions(-)
 
-I haven't had a chance to really look at that yet.
 
-Eric
+diff -Naur ./scripts/checkversion.pl~checks ./scripts/checkversion.pl
+--- ./scripts/checkversion.pl~checks	2003-09-05 21:11:35.000000000 -0700
++++ ./scripts/checkversion.pl	2003-09-05 21:09:38.000000000 -0700
+@@ -0,0 +1,72 @@
++#! /usr/bin/perl
++#
++# checkversion find uses of LINUX_VERSION_CODE, KERNEL_VERSION, or
++# UTS_RELEASE without including <linux/version.h>, or cases of
++# including <linux/version.h> that don't need it.
++# Copyright (C) 2003, Randy Dunlap <rddunlap@osdl.org>
++
++$| = 1;
++
++my $debugging = 0;
++
++foreach $file (@ARGV)
++{
++    # Open this file.
++    open(FILE, $file) || die "Can't open $file: $!\n";
++
++    # Initialize variables.
++    my $fInComment   = 0;
++    my $fInString    = 0;
++    my $fUseVersion   = 0;
++    my $iLinuxVersion = 0;
++
++    LINE: while ( <FILE> )
++    {
++	# Strip comments.
++	$fInComment && (s+^.*?\*/+ +o ? ($fInComment = 0) : next);
++	m+/\*+o && (s+/\*.*?\*/+ +go, (s+/\*.*$+ +o && ($fInComment = 1)));
++
++	# Pick up definitions.
++	if ( m/^\s*#/o ) {
++	    $iLinuxVersion      = $. if m/^\s*#\s*include\s*"linux\/version\.h"/o;
++	}
++
++	# Strip strings.
++	$fInString && (s+^.*?"+ +o ? ($fInString = 0) : next);
++	m+"+o && (s+".*?"+ +go, (s+".*$+ +o && ($fInString = 1)));
++
++	# Pick up definitions.
++	if ( m/^\s*#/o ) {
++	    $iLinuxVersion      = $. if m/^\s*#\s*include\s*<linux\/version\.h>/o;
++	}
++
++	# Look for uses: LINUX_VERSION_CODE, KERNEL_VERSION, UTS_RELEASE
++	if (($_ =~ /LINUX_VERSION_CODE/) || ($_ =~ /\WKERNEL_VERSION/) ||
++		($_ =~ /UTS_RELEASE/)) {
++	    $fUseVersion = 1;
++	    last LINE if $iLinuxVersion;
++	}
++    }
++
++    # Report used version IDs without include?
++    if ($fUseVersion && ! $iLinuxVersion) {
++	print "$file: $.: need linux/version.h\n";
++    }
++
++    # Report superfluous includes.
++    if ($iLinuxVersion && ! $fUseVersion) {
++	print "$file: $iLinuxVersion linux/version.h not needed.\n";
++    }
++
++    # debug: report OK results:
++    if ($debugging) {
++        if ($iLinuxVersion && $fUseVersion) {
++	    print "$file: version use is OK ($iLinuxVersion)\n";
++        }
++        if (! $iLinuxVersion && ! $fUseVersion) {
++	    print "$file: version use is OK (none)\n";
++        }
++    }
++
++    close(FILE);
++}
+diff -Naur ./Makefile~checks ./Makefile
+--- ./Makefile~checks	2003-09-04 16:27:43.000000000 -0700
++++ ./Makefile	2003-09-05 21:11:23.000000000 -0700
+@@ -828,16 +828,21 @@
+ # Scripts to check various things for consistency
+ # ---------------------------------------------------------------------------
+ 
+-checkconfig:
++configcheck:
+ 	find * $(RCS_FIND_IGNORE) \
+ 		-name '*.[hcS]' -type f -print | sort \
+ 		| xargs $(PERL) -w scripts/checkconfig.pl
+ 
+-checkincludes:
++includecheck:
+ 	find * $(RCS_FIND_IGNORE) \
+ 		-name '*.[hcS]' -type f -print | sort \
+ 		| xargs $(PERL) -w scripts/checkincludes.pl
+ 
++versioncheck:
++	find * $(RCS_FIND_IGNORE) \
++		-name '*.[hcS]' -type f -print | sort \
++		| xargs $(PERL) -w scripts/checkversion.pl
++
+ endif #ifeq ($(config-targets),1)
+ endif #ifeq ($(mixed-targets),1)
+ 
+
+
+--
+~Randy

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbUKROVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUKRObZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbUKROVX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 09:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKROVW
+	id S262079AbUKRObZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 09:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbUKRObZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 09:21:22 -0500
-Received: from alog0668.analogic.com ([208.224.223.205]:37504 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262061AbUKROVS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 09:21:18 -0500
-Date: Thu, 18 Nov 2004 09:21:04 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Signal handler deadlock
-Message-ID: <Pine.LNX.4.61.0411180916510.6160@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 18 Nov 2004 09:31:25 -0500
+Received: from holomorphy.com ([207.189.100.168]:2689 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262079AbUKRObY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 09:31:24 -0500
+Date: Thu, 18 Nov 2004 06:31:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm2
+Message-ID: <20041118143122.GF2268@holomorphy.com>
+References: <20041118021538.5764d58c.akpm@osdl.org> <20041118135741.GE2268@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041118135741.GE2268@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Nov 18, 2004 at 02:15:38AM -0800, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/
+>> - Lots of small bugfixes.  Some against patches in -mm, some against Linus's
+>>   tree.
+>> - There's a patch here which should address the oom-killings which a few
+>>   people have reported.
 
-If I have a MUTEX in a driver and the driver can
-also be called from a signal handler, will the
-MUTEX deadlock when the signal handler calls the
-driver?
+On Thu, Nov 18, 2004 at 05:57:41AM -0800, William Lee Irwin III wrote:
+> Whatever broke sparc64 (likely sunzilog.c) is between 2.6.9-bk2 and
+> 2.6.9-bk3. I suspect serial changes.
 
-Code --->----> driver-->MUTEX-taken-->***SIGNAL***
-
-Signal handler --->driver--->MUTEX-waiting (will it deadlock?)
-
-I use 'down()' and 'up()' in the driver. With Linux-2.4.22 the
-code does not deadlock. With Linux-2.6.9, it does.
-
-Is this the expected behavior? FYI I wrote the driver, not the
-dumb code that calls it from a signal handler. I would never
-have called anything by printf() from such a handler, so
-don't preach to the choir. I just need to know if it should
-work, before I tell somebody to rewrite some code.
+rmk and I have narrowed it down to some bad interactions of sparc64
+PROM console registration code with some console registration retry
+logic and sunzilog.c oddities. I'll work this out with rmk and davem.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+-- wli

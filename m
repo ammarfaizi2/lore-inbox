@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHYWYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUHYU2C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUHYWYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 18:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUHYWXe
+	id S268663AbUHYU2C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268588AbUHYUYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 18:23:34 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:52460 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265943AbUHYWS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 18:18:29 -0400
-Date: Wed, 25 Aug 2004 23:18:14 +0100
-From: Dave Jones <davej@redhat.com>
-To: Dan Hollis <goemon@anime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bizarre 2.6.8.1 /sys permissions
-Message-ID: <20040825221814.GA20283@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0408251319070.4007-100000@sasami.anime.net>
+	Wed, 25 Aug 2004 16:24:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38086 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268592AbUHYUWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 16:22:17 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <412CEE38.1080707@namesys.com>
+References: <20040824202521.GA26705@lst.de>  <412CEE38.1080707@namesys.com>
+Content-Type: text/plain
+Message-Id: <1093465334.21878.231.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408251319070.4007-100000@sasami.anime.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 25 Aug 2004 16:22:14 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 01:25:12PM -0700, Dan Hollis wrote:
+On Wed, 2004-08-25 at 15:53, Hans Reiser wrote:
+> I had not intended to respond to this because I have nothing positive to 
+> say, but Andrew said I needed to respond and suggested I should copy 
+> Linus. Sigh.
+> 
+> Dear Christoph,
+> 
+> Let me see if I can summarize what you and your contingent are saying, 
+> and if I misconstrue anything, let me know.;-)
+> 
+Just for fun why don't we look at the way things are today:
+
+1) reiser4 has semantics that do belong at the VFS level.  They weren't
+implemented at the VFS level for a variety of reasons, none of which
+really matter right now.
+
+2) new kernel patches that fragment the application developers between
+apis are a bad thing.  There does need to be one interface here, and it
+is in Hans' best interest to unify his work by working with people to
+introduce new kernel wide apis.
+
+This starts with exactly what Christoph described in writing a short
+summary of how you want things to work today.  Since we can't resist,
+we'll also go ahead and rehash all the old flame wars over this, but try
+to include some new ideas about where you want to see the reiser4
+interfaces in 6 months as well.
+
+-chris
 
 
- > Do these file permissions make sense to anyone?
-
-Yes.
-
- > $ cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
- > cat: /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq: Permission denied
-
-Reading this file causes reads from hardware on some cpufreq drivers.
-This can be a slow operation, so a user could degrade system performance
-for everyone else by repeatedly cat'ing it.
-
- > $ cat /proc/cpuinfo
- > processor       : 0
- > vendor_id       : GenuineIntel
- > cpu family      : 15
- > model           : 2
- > model name      : Intel(R) Celeron(R) CPU 2.60GHz
- > stepping        : 9
- > cpu MHz         : 324.528
-
-This is read from the cpu_khz variable, so isn't affected by
-this problem.
-
- > $ ls -la /sys/devices/system/cpu/cpu0/cpufreq/
- > total 0
- > drwxr-xr-x  2 root root    0 Aug 23 13:06 .
- > drwxr-xr-x  3 root root    0 Aug 23 13:06 ..
- > -r--------  1 root root 4096 Aug 23 13:06 cpuinfo_cur_freq
- > -r--r--r--  1 root root 4096 Aug 23 13:06 cpuinfo_max_freq
- > -r--r--r--  1 root root 4096 Aug 23 13:06 cpuinfo_min_freq
- > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_available_frequencies
- > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_available_governors
- > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_cur_freq
- > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_driver
- > -rw-r--r--  1 root root    0 Aug 25 13:19 scaling_governor
- > -rw-r--r--  1 root root 4096 Aug 23 13:06 scaling_max_freq
- > -rw-r--r--  1 root root 4096 Aug 23 13:06 scaling_min_freq
- > -rw-r--r--  1 root root    0 Aug 25 13:19 scaling_setspeed
-
-Looks fine to me.
-
-		Dave
 

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbTKHWNU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 17:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTKHWNU
+	id S262158AbTKHWmF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 17:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTKHWmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 17:13:20 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:1670 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262126AbTKHWNT
+	Sat, 8 Nov 2003 17:42:05 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:40849 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262158AbTKHWmD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 17:13:19 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 8 Nov 2003 14:12:24 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Larry McVoy <lm@work.bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Weird ext2 problem in 2.4.18 (redhat)
-In-Reply-To: <20031108164410.GB2955@thunk.org>
-Message-ID: <Pine.LNX.4.44.0311081405080.2122-100000@bigblue.dev.mdolabs.com>
+	Sat, 8 Nov 2003 17:42:03 -0500
+Message-ID: <3FAD7119.40804@cyberone.com.au>
+Date: Sun, 09 Nov 2003 09:41:29 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] Fix find busiest queue 2.6.0-test9
+References: <200311090349.04983.kernel@kolivas.org>
+In-Reply-To: <200311090349.04983.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Nov 2003, Theodore Ts'o wrote:
-
-> Sounds like there is a two directory entries with the same name in the
-> same directory.  This can cuase severe confusion since the kernel
-> assumes that this will never happen.  Depending on which one gets
-> found first, and what is cached in the dentry cache, you'll get one
-> inode or the other.
-
-It seems they've two different names "src" and " src" and ext2_match() 
-should not be fooled by the space. If this is the drive that has been 
-hacked, I'd rather go for a full cleanup.
 
 
+Con Kolivas wrote:
 
-- Davide
+>Hi
+>
+>I believe this is a simple typo / variable name mixup between rq_src and 
+>this_rq. So far all testing shows positive (if minor) improvements.
+>
+
+Hi Con,
+It was correct (as Ingo intended) before the patch, I think.
+
 
 

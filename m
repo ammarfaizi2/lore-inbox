@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTAICo2>; Wed, 8 Jan 2003 21:44:28 -0500
+	id <S261463AbTAICq6>; Wed, 8 Jan 2003 21:46:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTAICo2>; Wed, 8 Jan 2003 21:44:28 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4320
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S261448AbTAICoW>;
-	Wed, 8 Jan 2003 21:44:22 -0500
-Date: Wed, 8 Jan 2003 18:48:14 -0800
-From: Joshua Kwan <joshk@ludicrus.ath.cx>
-To: rodrigobaroni@yahoo.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compile error
-Message-Id: <20030108184814.72ee41eb.joshk@ludicrus.ath.cx>
-In-Reply-To: <20030109021540.80049.qmail@web11105.mail.yahoo.com>
-References: <20030109021540.80049.qmail@web11105.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.8.8claws69 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S261527AbTAICq5>; Wed, 8 Jan 2003 21:46:57 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:50403 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261463AbTAICpw>;
+	Wed, 8 Jan 2003 21:45:52 -0500
+Date: Wed, 8 Jan 2003 18:54:33 -0800
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5] : Secondary nack fixes
+Message-ID: <20030109025433.GE19178@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.t72Ns'ASrei5+R"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.t72Ns'ASrei5+R
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+ir254_secondary_rr.diff :
+-----------------------
+	o [CORRECT] fix the secondary function to send RR and frames without
+		the poll bit when it detect packet losses
 
-SGF2ZSB5b3UgY29uc2lkZXJlZCBncmFiYmluZyBhbiBvZmZpY2lhbCAyLjQuMTggc291cmNlIHRy
-ZWUgZnJvbQ0Ka2VybmVsLm9yZyBhbmQgc2VlIGlmIHRoYXQgd29ya3M/DQoNCkJUVywgMi40LjIw
-IGlzIGN1cnJlbnQsIGlmIHlvdSdyZSBnb2luZyB0byBnZXQgc29tZXRoaW5nIG1pZ2h0IGFzIHdl
-bGwNCmdldCB0aGF0Li4uDQoNClJlZ2FyZHMNCkpvc2gNCg0KUmFiaWQgY2hlZXNlYnVyZ2VycyBm
-b3JjZWQiUm9kcmlnbyBGLiBCYXJvbmkiDQo8cm9kcmlnb2Jhcm9uaUB5YWhvby5jb20uYnI+IHRv
-IHdyaXRlIHRoaXMgb24gV2VkLCA4IEphbiAyMDAzDQoyMzoxNTo0MC0wMzAwIChBUlQpOgkNCg0K
-PiBIZWxsbyBhbGwsDQo+IA0KPiANCj4gICAgIFRoZXJlIGlzIGEgZ29vZCB0aW1lIHRoYXQgSSBo
-YXZlIHRyeWluZyB0byBjb21waWxlDQo+IGEga2VybmVsIGluIGEgcGMgMjMzIG1oeiAobW90aGVy
-Ym9hcmQgbG1yIDU5MSAtDQo+IGNoaXBzZXQgc2lzLCBhbGwtb24tYm9hcmQpLCBhbmQgc28gdGhl
-IGZvbGxvdyBlcnJvcg0KPiBiZWxvdyBoYXBwZW4uDQo+IA0KPiANCj4gICAgICBEb2VzIGFueWJv
-ZHkga25vd3Mgd2hhdCBpcyBnb2luZyBvbiBwbGVhc2UgPyENCj4gKGl0J3MgYSAyLjQuMTgga2Vy
-bmVsIGluIGEgZGViaWFuIDMpDQo+IA0KPiANCj4gDQo+IA0KPiBSb2RyaWdvIEYgQmFyb25pDQo+
-IENvbXB1dGVyIFNjaWVuY2UgR3JhZCBTdHVkZW50DQo+IA0KPiBfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCj4gX18g
-QnVzY2EgWWFob28hDQo+IE8gbWVsaG9yIGx1Z2FyIHBhcmEgZW5jb250cmFyIHR1ZG8gbyBxdWUg
-dm9j6iBwcm9jdXJhIG5hIEludGVybmV0DQo+IGh0dHA6Ly9ici5idXNjYS55YWhvby5jb20vDQoN
-Cg0KLS0gDQpKb3NodWEgS3dhbg0Kam9zaGtAbXNwZW5jZXIubmV0DQpwZ3AgcHVibGljIGtleSBh
-dCBodHRwOi8vam9zaGsubXNwZW5jZXIubmV0L3B1YmtleV9ncGcuYXNjDQogDQpJdCdzIGhhcmQg
-dG8ga2VlcCB5b3VyIHNoaXJ0IG9uIHdoZW4geW91J3JlIGdldHRpbmcgc29tZXRoaW5nIG9mZiB5
-b3VyDQpjaGVzdC4=
 
---=.t72Ns'ASrei5+R
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+HOLw6TRUxq22Mx4RAtuuAJ9jRgDTqaGAFSC5DPXeE/Hf0zfihQCgrTXX
-l6GNpidsZf+o3Ui62GEvhew=
-=MjnZ
------END PGP SIGNATURE-----
-
---=.t72Ns'ASrei5+R--
+diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d8.c	Fri Nov  8 18:52:27 2002
++++ linux/net/irda/irlap_event.c	Fri Nov  8 18:56:31 2002
+@@ -1870,7 +1870,7 @@ static int irlap_state_nrm_s(struct irla
+ 				irlap_update_nr_received(self, info->nr);
+ 
+ 				irlap_wait_min_turn_around(self, &self->qos_tx);
+-				irlap_send_rr_frame(self, CMD_FRAME);
++				irlap_send_rr_frame(self, RSP_FRAME);
+ 
+ 				irlap_start_wd_timer(self, self->wd_timeout);
+ 			}
+@@ -2035,18 +2035,18 @@ static int irlap_state_nrm_s(struct irla
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frames(self, CMD_FRAME);
++			irlap_resend_rejected_frames(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case RECV_SREJ_CMD:
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frame(self, CMD_FRAME);
++			irlap_resend_rejected_frame(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case WD_TIMER_EXPIRED:

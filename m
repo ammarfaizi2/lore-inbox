@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTEROvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 10:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTEROvY
+	id S262106AbTERPB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 11:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTERPB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 10:51:24 -0400
-Received: from pat.uio.no ([129.240.130.16]:62084 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262101AbTEROvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 10:51:24 -0400
-To: Jim Nance <jlnance@us54.synopsys.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, jlnance@unity.ncsu.edu,
-       linux-kernel@vger.kernel.org, gary.nifong@synopsys.COM,
-       James.Nance@synopsys.COM, david.thomas@synopsys.COM
-Subject: Re: NFS problems with Linux-2.4
-References: <20030513145023.GA10383@ncsu.edu>
-	<16065.3323.449992.207039@charged.uio.no>
-	<20030515112231.A28148@synopsys.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 18 May 2003 17:00:24 +0200
-In-Reply-To: <20030515112231.A28148@synopsys.com>
-Message-ID: <shsznlkjo53.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Sun, 18 May 2003 11:01:27 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5831 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262106AbTERPB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 11:01:26 -0400
+Date: Sun, 18 May 2003 17:14:12 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Added missing dependencies on CRYPTO_HMAC
+Message-ID: <20030518151412.GD12766@fs.tum.de>
+References: <20030518031546.GA4943@gondor.apana.org.au> <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+In-Reply-To: <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 18, 2003 at 01:40:28PM +1000, James Morris wrote:
+> On Sun, 18 May 2003, Herbert Xu wrote:
+> 
+> > On Sun, May 18, 2003 at 12:19:09PM +1000, James Morris wrote:
+> > > 
+> > > See crypto/Kconfig, CRYPTO_HMAC is being defaulted to Y if these protocols 
+> > > are selected.
+> > 
+> > Yes, but the user can then set them to no.  This does happen as the
+> > Crypto menu is listed after Networking so someone going through it
+> > in that order can select INET_AH and then go on to disable Crypto.
+> 
+> Yes, we allow users to override the defaults if they wish, at their own 
+> peril.
+>...
 
-Sorry. stat doesn't obey close-to-open. It relies on standard
-attribute caching. close-to-open means "open()" (and only "open()")
-checks data cache consistency...
+The real problems are more subtle:
+Consider someone uses neither CRYPTO_HMAC nor INET_AH and later changes 
+his .config using menuconfig - the "default" does _nothing_ since 
+CRYPTO_HMAC already has a value.
 
-Cheers,
-  Trond
+Thinking more about this issue it seems the "enable" feature in the
+latest Kconfig patch will be the correct solution.
+
+
+> James Morris
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

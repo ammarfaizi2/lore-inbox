@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTLUBLm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 20:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTLUBLm
+	id S262030AbTLUBJz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 20:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTLUBJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 20:11:42 -0500
-Received: from mail.kroah.org ([65.200.24.183]:16539 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262040AbTLUBLj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 20:11:39 -0500
-Date: Sat, 20 Dec 2003 17:07:10 -0800
-From: Greg KH <greg@kroah.com>
-To: davidm@hpl.hp.com
-Cc: ganesh@veritas.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: quick hack to make ipaq USB serial driver work again
-Message-ID: <20031221010710.GB3025@kroah.com>
-References: <200312200152.hBK1q0I4016741@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312200152.hBK1q0I4016741@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 20 Dec 2003 20:09:55 -0500
+Received: from imladris.surriel.com ([66.92.77.98]:8840 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S262030AbTLUBJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 20:09:52 -0500
+Date: Sat, 20 Dec 2003 20:10:13 -0500 (EST)
+From: Rik van Riel <riel@surriel.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, ak@suse.de, mbligh@us.ibm.com
+Subject: Re: [PATCH] make try_to_free_pages walk zonelist
+In-Reply-To: <20031220170042.3feb6aa7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.55L.0312202001120.31547@imladris.surriel.com>
+References: <Pine.LNX.4.55L.0312201928530.31547@imladris.surriel.com>
+ <20031220170042.3feb6aa7.akpm@osdl.org>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 19, 2003 at 05:52:00PM -0800, David Mosberger wrote:
-> The ipaq USB driver in 2.6.0 didn't work for me.  I got the attached
-> "Badness in local_bh_enable" backtrace when ppp tried to connect to my
-> iPaq.  The quick and dirty patch to avoid the problem is this patch:
+On Sat, 20 Dec 2003, Andrew Morton wrote:
 
-See Paul's patch on lkml today for the ppp code to fix this in a
-"proper" way.  Or you can work on converting the usb-serial core to use
-a tasklet instead of directly feeding the data upstream at
-hard-interrupt time :)
+> hm, OK, so this should be a no-op for non-NUMA setups.
 
-thanks,
+Exactly, the zonelist is equivalent to the classzone on non-NUMA.
 
-greg k-h
+> Could you suggest a suitable worklaod for Andi and Martin to test sometime?
+
+It would have to be something where kswapd can't keep
+up and the workload benefits from having memory allocated
+from all zones/nodes in the zone list.
+
+OTOH, if the workload didn't benefit from allocating memory
+from multiple nodes, maybe the zonelist shouldn't include
+zones from other nodes in the first place ? ;)
+
+I'm not quite sure exactly what workload to test here...
+
+One way to artificially test this code path would be by
+setting lower_zone_protection to 2 on an AMD64 system with
+two equally sized zones, while running a single threaded
+memory intensive workload.  Very artificial, though.
+
+> Meanwhile, I'll mmify it for a bit of soak testing, thanks.
+
+Thanks.
+
+Rik
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,136 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318145AbSGWQxo>; Tue, 23 Jul 2002 12:53:44 -0400
+	id <S318131AbSGWQwO>; Tue, 23 Jul 2002 12:52:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318147AbSGWQxo>; Tue, 23 Jul 2002 12:53:44 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:58039 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318145AbSGWQxl>; Tue, 23 Jul 2002 12:53:41 -0400
-Subject: kernel BUG at page_alloc.c:92! & page allocation failure. order:0, mode:0x0
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF6F39340B.FF1F1097-ON85256BFF.005C6460@pok.ibm.com>
-From: "David F Barrera" <dbarrera@us.ibm.com>
-Date: Tue, 23 Jul 2002 11:56:46 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
- 28, 2002) at 07/23/2002 12:56:49 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S318138AbSGWQwO>; Tue, 23 Jul 2002 12:52:14 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:61970 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318131AbSGWQwN>; Tue, 23 Jul 2002 12:52:13 -0400
+Date: Tue, 23 Jul 2002 18:56:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc2aa1 i_size atomic access
+Message-ID: <20020723165602.GV1116@dualathlon.random>
+References: <1026949132.20314.0.camel@joe2.pdx.osdl.net> <1026951041.2412.38.camel@IBM-C> <20020718103511.GG994@dualathlon.random> <1027037361.2424.73.camel@IBM-C> <20020719112305.A15517@oldwotan.suse.de> <1027119396.2629.16.camel@IBM-C>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1027119396.2629.16.camel@IBM-C>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have experienced the following errors while running a test suite (LTP
-test suite)  on the 2.4.26 kernel.  Has anybody seen this problem, and, if
-so, is there a patch for it?  Thanks.
+On Fri, Jul 19, 2002 at 03:56:36PM -0700, Daniel McNeil wrote:
+> Here is another approach. I added two version fields to the inode
+> structure. The first one is updated before i_size and the 2nd is
+> updated after with memory barriers in between.  The i_size_read()
+> samples the version fields and i_size and loops until it can read
+> i_size without an i_size update happening at the same time.  It is
+> not pretty but it does fix the problem and the cache line is not
+> written by i_size_read() and it should work on all architechtures.
+> I've tested this on a two proc system.
 
+I also considered this possibility before taking the other approch, I
+thought it was inferior because it adds branches and it increases the
+dcache pressure, so I thought just marking our cacheline dirty and
+reading it in one go, with no additional overhead would been a win (the
+less possible number of cycles and no branch prediction issues). Of
+course the below will allow parallel i_size readers to scale, but again,
+I think the fstat benchmark doesn't matter much and true parallel
+readers on the same inode (not only i_size readers) will have to collide
+on the pagecache_lock anyways (even in 2.5). So I still think the
+chmpxchg8b is a win despite it marks the i_size cacheline dirty, but
+somebody should try to benchmark it probably to verify the major
+bottleneck remains the pagecache_lock.
 
-kernel BUG at page_alloc.c:92!
-invalid operand: 0000
-CPU:    7
-EIP:    0010:[<c0132fae>]    Not tainted
-EFLAGS: 00010202
-eax: 00000020   ebx: 00000009   ecx: c7fd0208   edx: c7fd0208
-esi: fe0029fa   edi: 00000000   ebp: ddeff009   esp: f6793eb4
-ds: 0018   es: 0018   ss: 0018
-Process top (pid: 4648, threadinfo=f6792000 task=f7320ce0)
-Stack: c7fd0208 00000000 00000009 ddeff000 ddeff000 c011e137 f7320ce0
-f5f4d8a0
-       bffff9f1 00000009 fe0029fa 00000000 ddeff009 c011e0fe f6792000
-ddeff000
-       f5f4d8a0 c7fd0208 f5ba83c0 00000000 f5f4d8a0 ddeff000 ddeff000
-c015cca3
-Call Trace: [<c011e137>] [<c011e0fe>] [<c015cca3>] [<c015d016>]
-[<c013c9e8>]
-   [<c013cb9a>] [<c010700b>]
+I actually applied the below but I enabled it only for the non x86 32bit
+archs (like s390, ppc) where I have no idea how to code a get_64bit it
+in asm. It should be definitely better than a separate spinlock
+protecting the i_size.
 
-Code: 0f 0b 5c 00 99 49 2d c0 8b 14 24 8b 42 14 83 e0 40 74 08 0f
+comments?
 
-mremap01: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-mremap01: page allocation failure. order:0, mode:0x0
-mremap01: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-mremap01: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-pdflush: page allocation failure. order:0, mode:0x0
-----------------------------------------------------------------------------------------------------------------------------
-Ksymoops output:
-
-ksymoops 2.4.1 on i686 2.5.26.  Options used
-     -v /boot/vmlinux-2.5.26 (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.26/ (default)
-     -m /boot/System.map-2.5.26 (specified)
-
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod
-file?
-Warning (compare_maps): ksyms_base symbol
-__wake_up_sync_R__ver___wake_up_sync not found in vmlinux.  Ignoring
-ksyms_base entry
-Warning (compare_maps): ksyms_base symbol idle_cpu_R__ver_idle_cpu not
-found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol
-set_cpus_allowed_R__ver_set_cpus_allowed not found in vmlinux.  Ignoring
-ksyms_base entry
-kernel BUG at page_alloc.c:92!
-invalid operand: 0000
-CPU:    7
-EIP:    0010:[<c0132fae>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 00000020   ebx: 00000009   ecx: c7fd0208   edx: c7fd0208
-esi: fe0029fa   edi: 00000000   ebp: ddeff009   esp: f6793eb4
-ds: 0018   es: 0018   ss: 0018
-Stack: c7fd0208 00000000 00000009 ddeff000 ddeff000 c011e137 f7320ce0
-f5f4d8a0
-       bffff9f1 00000009 fe0029fa 00000000 ddeff009 c011e0fe f6792000
-ddeff000
-       f5f4d8a0 c7fd0208 f5ba83c0 00000000 f5f4d8a0 ddeff000 ddeff000
-c015cca3
-Call Trace: [<c011e137>] [<c011e0fe>] [<c015cca3>] [<c015d016>]
-[<c013c9e8>]
-   [<c013cb9a>] [<c010700b>]
-Code: 0f 0b 5c 00 99 49 2d c0 8b 14 24 8b 42 14 83 e0 40 74 08 0f
-
->>EIP; c0132fae <__free_pages_ok+4e/2e0>   <=====
-Trace; c011e137 <access_process_vm+177/1c0>
-Trace; c011e0fe <access_process_vm+13e/1c0>
-Trace; c015cca3 <proc_pid_cmdline+63/f0>
-Trace; c015d016 <proc_info_read+46/100>
-Trace; c013c9e8 <vfs_read+98/110>
-Trace; c013cb9a <sys_read+2a/40>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132fae <__free_pages_ok+4e/2e0>
-00000000 <_EIP>:
-Code;  c0132fae <__free_pages_ok+4e/2e0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0132fb0 <__free_pages_ok+50/2e0>
-   2:   5c                        pop    %esp
-Code;  c0132fb1 <__free_pages_ok+51/2e0>
-   3:   00 99 49 2d c0 8b         add    %bl,0x8bc02d49(%ecx)
-Code;  c0132fb7 <__free_pages_ok+57/2e0>
-   9:   14 24                     adc    $0x24,%al
-Code;  c0132fb9 <__free_pages_ok+59/2e0>
-   b:   8b 42 14                  mov    0x14(%edx),%eax
-Code;  c0132fbc <__free_pages_ok+5c/2e0>
-   e:   83 e0 40                  and    $0x40,%eax
-Code;  c0132fbf <__free_pages_ok+5f/2e0>
-  11:   74 08                     je     1b <_EIP+0x1b> c0132fc9
-<__free_pages_ok+69/2e0>
-Code;  c0132fc1 <__free_pages_ok+61/2e0>
-  13:   0f 00 00                  sldtl  (%eax)
-
-
-4 warnings issued.  Results may not be reliable.
-
-
-David F Barrera
-dbarrera@us.ibm.com
-
-
+Andrea

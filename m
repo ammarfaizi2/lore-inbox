@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315782AbSEDGfX>; Sat, 4 May 2002 02:35:23 -0400
+	id <S315783AbSEDGp2>; Sat, 4 May 2002 02:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSEDGfW>; Sat, 4 May 2002 02:35:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59041 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315782AbSEDGfV>;
-	Sat, 4 May 2002 02:35:21 -0400
-Date: Sat, 4 May 2002 02:35:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Odd code in sd_init()
-Message-ID: <Pine.GSO.4.21.0205040203511.21265-100000@weyl.math.psu.edu>
+	id <S315784AbSEDGp1>; Sat, 4 May 2002 02:45:27 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:39880 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315783AbSEDGp0>;
+	Sat, 4 May 2002 02:45:26 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15571.33592.365558.215598@argo.ozlabs.ibm.com>
+Date: Sat, 4 May 2002 16:44:08 +1000 (EST)
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: <11028.1020422524@ocs3.intra.ocs.com.au>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens writes:
 
-sd_init() contains the following loop:
+> Coding a special case to work out if the existing global makefile can
+> be reused is horribly error prone.  And it would take just as long as
+> rebuilding the global makefile from scratch.
 
-        for (k = 0; k < N_USED_SD_MAJORS; k++) {
-                request_queue_t *q = blk_get_queue(mk_kdev(SD_MAJOR(k), 0));
-                blk_queue_hardsect_size(q, 512);
-        }
+I seriously doubt that last statement.  Building the global makefile
+takes about 20 seconds on the box I compile on.  On a kernel tree
+without object files I can read all the files in the kernel tree in
+about 0.8 seconds, and I can calculate an md5sum of every file in 3.2
+seconds.  I can do an md5sum of all the Makefile.in's in 0.1 seconds.
+This is with pp_makefile* compiled with -O2 -DNDEBUG=1.
 
-... which is a damn interesting thing to do, seeing that it's called when
-we do scsi_register_device(&sd_template) and before we get any chance to
-set ->queue, so we actually end up setting sector size for hell knows
-what (well, for default queues of our majors - i.e. stuff that won't be
-used).
-
-Either I'm missing something, or that code is bogus.  Jens, Linus?
-
+Paul.

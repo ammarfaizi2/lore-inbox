@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290744AbSBGRz4>; Thu, 7 Feb 2002 12:55:56 -0500
+	id <S290745AbSBGSAg>; Thu, 7 Feb 2002 13:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290745AbSBGRzr>; Thu, 7 Feb 2002 12:55:47 -0500
-Received: from echo.sound.net ([205.242.192.21]:31421 "HELO echo.sound.net")
-	by vger.kernel.org with SMTP id <S290744AbSBGRzf>;
-	Thu, 7 Feb 2002 12:55:35 -0500
-Date: Thu, 7 Feb 2002 11:55:19 -0600 (CST)
-From: Hal Duston <hald@sound.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Input w/2.5.3-dj3
-Message-ID: <Pine.GSO.4.10.10202071151580.16311-100000@sound.net>
+	id <S290750AbSBGSAQ>; Thu, 7 Feb 2002 13:00:16 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:6288 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290745AbSBGSAK>;
+	Thu, 7 Feb 2002 13:00:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New locking primitive for 2.5
+Date: Thu, 7 Feb 2002 19:04:58 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, rml@tech9.net,
+        nigel@nrg.org
+In-Reply-To: <3C629F91.2869CB1F@dlr.de>
+In-Reply-To: <3C629F91.2869CB1F@dlr.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Ysuo-00014w-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I have checked my config.  The only item I was missing
-was CONFIG_KEYBOARD_XTKBD=y.  I have now added that, and 
-still no keyboard activity.  This is a laptop from 1994
-or so, so it's not exactly new stuff.  What should I check
-next?
+On February 7, 2002 04:38 pm, Martin Wirth wrote:
+> The new lock uses a combination of a spinlock and a (mutex-)semaphore.
 
-Thanks,
-Hal Duston
-hald@sound.net
+Spinaphore :-)
 
+-- 
+Daniel

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265521AbTLHRqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 12:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265522AbTLHRq3
+	id S265100AbTLHR4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 12:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265107AbTLHR4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 12:46:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50306 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265521AbTLHRq1 (ORCPT
+	Mon, 8 Dec 2003 12:56:30 -0500
+Received: from holomorphy.com ([199.26.172.102]:65243 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265100AbTLHR41 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 12:46:27 -0500
-Date: Mon, 8 Dec 2003 09:46:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: bill davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-In-Reply-To: <br28f2$fen$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.58.0312080939460.13236@home.osdl.org>
-References: <20031207110122.GB13844@zombie.inka.de>
- <Pine.LNX.4.58.0312070812080.2057@home.osdl.org> <br28f2$fen$1@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Dec 2003 12:56:27 -0500
+Date: Mon, 8 Dec 2003 09:56:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-HT-2.6.0-test11-A5
+Message-ID: <20031208175622.GY19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031117021511.GA5682@averell> <Pine.LNX.4.56.0311231300290.16152@earth> <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312011102540.3323@earth>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 01, 2003 at 11:08:17AM +0100, Ingo Molnar wrote:
+> i've uploaded the HT scheduler patch against 2.6.0-test11 to:
+>     redhat.com/~mingo/O(1)-scheduler/sched-HT-2.6.0-test11-A5
+> note, the patch includes a fix to sync wakeups, which might hurt lat_ctx.  
+> I've attached the fix against vanilla 2.6.0-test11 as well.
 
+This appears to either leak migration threads or not set
+rq->cpu[x].migration_thread basically ever for x > 0. Or if they
+are shut down, how? Also, what makes sure cpu_idx is initialized
+before they wake? They'll all spin on cpu_rq(0)->lock, no?
 
-On Mon, 8 Dec 2003, bill davidsen wrote:
-> |
-> | It's bad from a technical standpoint (anybody who names a generic device
-> | with a flat namespace is just basically clueless), and it's bad from a
-> | usability standpoint. It has _zero_ redeeming qualities.
->
-> And the redeeming features of naming disks, CDs, and ide-floppy devices
-> hda..hdx in an order depending on the loading order of the device
-> drivers?
+Furthermore, sched_map_runqueue() is performed after all the idle
+threads are running and all the notifiers have kicked the migration
+threads, but does no locking whatsoever.
 
-.. but you can fix that. Several ways. Make up your own names. Make it
-have "/dev/the-cd-with-the-blue-faceplate" if you want, and it will all
-still work quite intuitively.
+Also, does init_idle() need to move into rest_init()? It should be
+equivalent to its current placement.
 
-And when you switch the hardware around, and the CD-ROM breaks and you
-replace it with another one (still with a blue face-plate, just to not
-confuse the user unnecessarily, but this time it ends up being on another
-bus entirely), the "/dev/the-cd...-faceplate" thing still works with
-minimal effort on the admin part.
+Why not per_cpu for __rq_idx[] and __cpu_idx[]? This would have the
+advantage of residing on node-local memory for sane architectures
+(and perhaps in the future, some insane ones).
 
-And it works in _all_ situations.
-
-Sure, you can have all programs use their own random naming scheme and use
-.cdrecordrc and edit that instead, but then you have to remember to edit
-the .k3drc thing too, and the /etc/fstab, and so on and so on.
-
-Isn't it saner to use a naming scheme that everybody can agree on, and
-that is generic enough that it really _does_ work for everybody, and that
-allows localised names?
-
-		Linus
+-- wli

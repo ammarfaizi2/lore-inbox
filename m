@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263531AbREYFHA>; Fri, 25 May 2001 01:07:00 -0400
+	id <S263534AbREYFKA>; Fri, 25 May 2001 01:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263534AbREYFGu>; Fri, 25 May 2001 01:06:50 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:43277 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263531AbREYFGi>;
-	Fri, 25 May 2001 01:06:38 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105250505.f4P555c451210@saturn.cs.uml.edu>
-Subject: Re: 2.4 freezes on VIA KT133
-To: hahn@coffee.psychology.mcmaster.ca (Mark Hahn)
-Date: Fri, 25 May 2001 01:05:05 -0400 (EDT)
-Cc: trip@matrix.cyberspace.cz (Tomas Styblo), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10105241919160.17003-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at May 24, 2001 07:23:40 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S263535AbREYFJu>; Fri, 25 May 2001 01:09:50 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:56508 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263534AbREYFJm>;
+	Fri, 25 May 2001 01:09:42 -0400
+Message-ID: <3B0DE906.7AB3107C@mandrakesoft.com>
+Date: Fri, 25 May 2001 01:09:26 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch for PM in ymfpci (against 2.4.5-pre3)
+In-Reply-To: <20010525002936.A27051@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn writes:
-
-> contrary to the implication here, I don't believe there is any *general*
-> problem with Linux/VIA/AMD stability.  there are well-known issues
-> with specific items (VIA 686b, for instance), but VIA/AMD hardware
-> is quite suitable for servers.
-
-VIA hardware is not suitable for anything until we _know_ the
-truth about what is wrong. VIA is hiding something big.
-
-Simple fix:
-
-0. get lawyer
-1. start class-action lawsuit
-2. do discovery
-3. unseal court records
-4. done -- you may drop the case if not settled already
-
-Well, something like that... not a lawyer, etc.
-If you have the time and money, go for it. Have fun.
-
-Creative Labs ought to toast VIA over blaming the sound card. :-)
-
+Looks ok, only a small nit:  an include and 'pmdev' are left over from
+the older PM implementation, and can be removed.
+-- 
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

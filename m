@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUJWDpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUJWDpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267250AbUJWDpH (ORCPT <rfc822;willy@w.ods.org>);
+	id S266888AbUJWDpH (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 23:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUJWDnx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUJVTki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 23:43:53 -0400
-Received: from gold.pobox.com ([208.210.124.73]:22449 "EHLO gold.pobox.com")
-	by vger.kernel.org with ESMTP id S268274AbUJWDla (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 23:41:30 -0400
-Date: Fri, 22 Oct 2004 20:41:27 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       roland@redhat.com, jdewand@redhat.com, barryn@pobox.com
-Subject: [PATCH][2.4] ELF fixes for executables with huge BSS (0/2)
-Message-ID: <20041023034127.GA26813@ip68-4-98-123.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+	Fri, 22 Oct 2004 15:40:38 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9725 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267164AbUJVTde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:33:34 -0400
+Message-ID: <4179607A.8030204@nortelnetworks.com>
+Date: Fri, 22 Oct 2004 13:33:14 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+CC: root@chaos.analogic.com, andre@tomt.net,
+       Kasper Sandberg <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>, umbrella@cs.aau.dk
+Subject: Re: Gigantic memory leak in linux-2.6.[789]!
+References: <200410221613.35913.ks@cs.aau.dk> <1098455535.12574.1.camel@localhost> <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com> <41792C36.4070301@users.sourceforge.net> <Pine.LNX.4.61.0410221208230.17016@chaos.analogic.com> <41795E69.9090909@cs.aau.dk>
+In-Reply-To: <41795E69.9090909@cs.aau.dk>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have ported the following two patches (from 2.6.x and the Red Hat
-Enterprise Linux 3 kernel) to kernel 2.4.27 and up. The first patch
-fixes a segfault that I've seen with Fortran programs that have huge
-statically allocated arrays. The second patch, it seems to me, is a
-further fix that is necessitated by the first patch.
+Kristian Sørensen wrote:
 
-[PATCH] fix ELF exec with huge bss
-http://linux.bkbits.net:8080/linux-2.5/cset@3ff112802L-9-rs0BbkozDnTnpch9w
+> Anyway - How does this work in practice? Does the file system 
+> implementation use a wrapper for kfree or?
 
-[PATCH] binfmt_elf.c fix for 32-bit apps with large bss
-http://linux.bkbits.net:8080/linux-2.5/cset@407afc8e4kEZSl4pklf3Ptrl2ZzkeA
+When an app faults in new memory and there is no unused memory, the system will 
+page out apps and/or filesystem data from the page cache so the memory can be 
+given to the app requesting it.
 
-I will post the patches as replies to this e-mail. If it's too
-late to include them in 2.4.28, then I would appreciate if they
-could be added to the queue for 2.4.29. Thanks!
+> Is there any way to force instant free of kernel memory - when freed?
 
--Barry K. Nathan <barryn@pobox.com>
+It's not free, it's in use by the page cache.  This is a performance feature--we 
+try and keep around as much stuff as possible that might be needed by running apps.
 
+> Else it is quite hard testing for possible memory leaks in our Umbrella 
+> kernel module ... :-/
+
+Such is life.  As a crude workaround, on a swapless system you can start one or 
+two memory hogs and they will force the system to free up as much memory as 
+possible.
+
+Chris

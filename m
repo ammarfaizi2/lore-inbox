@@ -1,46 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSDJFxT>; Wed, 10 Apr 2002 01:53:19 -0400
+	id <S312458AbSDJF5N>; Wed, 10 Apr 2002 01:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312458AbSDJFxT>; Wed, 10 Apr 2002 01:53:19 -0400
-Received: from unixbox.com ([207.211.45.65]:56581 "EHLO shell.unixbox.com")
-	by vger.kernel.org with ESMTP id <S312457AbSDJFxS>;
-	Wed, 10 Apr 2002 01:53:18 -0400
-Date: Tue, 9 Apr 2002 23:04:10 -0700 (PDT)
-From: Ani Joshi <ajoshi@shell.unixbox.com>
-To: Peter Horton <pdh@berserk.demon.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radeon frame buffer driver
-In-Reply-To: <20020410001249.GA2010@berserk.demon.co.uk>
-Message-ID: <Pine.BSF.4.44.0204092300400.1932-100000@shell.unixbox.com>
+	id <S312459AbSDJF5M>; Wed, 10 Apr 2002 01:57:12 -0400
+Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:20611 "EHLO
+	testdcc.outblaze.com") by vger.kernel.org with ESMTP
+	id <S312458AbSDJF5L>; Wed, 10 Apr 2002 01:57:11 -0400
+Message-ID: <20020410055708.9474.qmail@fastermail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "mark manning" <mark.manning@fastermail.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 10 Apr 2002 00:57:08 -0500
+Subject: Re: nanosleep
+X-Originating-Ip: 67.241.61.228
+X-Originating-Server: ws4.hk5.outblaze.com
+X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=12 From=12 Message-ID=1 Received=1
+	Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hrm - im confiused now - how can you do a n NANO second delay when the resolution is 10 mili seconds ?
 
-Thanks for the patch, I'll review it this week and probably merge some of
-the fixes into my local version and update the driver sometime next week.
+forgive my ignorance and my persistant "stupid" questions :)
 
-
-ani
-
-
-On Wed, 10 Apr 2002, Peter Horton wrote:
-
-> Another installment of the Radeon frame buffer driver patch (still
-> against 2.4.19-pre2).
->
-> * All colour modes > 8bpp are now DIRECTCOLOR (Geert inspired).
->
-> * Driver now uses 'ypan' to speed up scrolling even further.
->
-> * Fix CRTC pitch to match accelerator pitch (800x600x256 works again).
->
-> Driver seems okay now, plays nicely with X etc. etc. Please test if you
-> can
->
-> P.
->
+----- Original Message -----
+From: "H. Peter Anvin" <hpa@zytor.com>
+Date: 	9 Apr 2002 22:47:42 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: nanosleep
 
 
+> Followup to:  <20020410044243.2916.qmail@fastermail.com>
+> By author:    "mark manning" <mark.manning@fastermail.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > thanx - how much of a difference should i expect - i know the
+> > syscall is asking for at least the required ammount but that the
+> > task switcher might not give me control back for a while after the
+> > requested delay but i was expecting to be a little closer to what i
+> > had asked for - this isnt critical of corse but i would like to know
+> > what to expect.
+> > 
+> 
+> Read the man page:
+> 
+> BUGS
+>        The current implementation of nanosleep is  based  on  the
+>        normal  kernel  timer mechanism, which has a resolution of
+>        1/HZ s (i.e, 10 ms on Linux/i386 and 1 ms on Linux/Alpha).
+>        Therefore, nanosleep pauses always for at least the speci
+>        fied time, however it can take up to  10  ms  longer  than
+>        specified  until  the  process becomes runnable again. For
+>        the same reason, the value returned in case of a delivered
+>        signal  in *rem is usually rounded to the next larger mul
+>        tiple of 1/HZ s.
+> 
+>        As some applications  require  much  more  precise  pauses
+>        (e.g.,  in  order to control some time-critical hardware),
+>        nanosleep is also capable of short high-precision  pauses.
+>        If  the process is scheduled under a real-time policy like
+>        SCHED_FIFO or SCHED_RR, then pauses of up to 2 ms will  be
+>        performed as busy waits with microsecond precision.
+> 
+> 	-hpa
+> -- 
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+
+_______________________________________________
+Get your free email from http://www.fastermail.com
+
+Powered by Outblaze

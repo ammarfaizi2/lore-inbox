@@ -1,128 +1,145 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317021AbSEWVsu>; Thu, 23 May 2002 17:48:50 -0400
+	id <S317020AbSEWVwf>; Thu, 23 May 2002 17:52:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSEWVst>; Thu, 23 May 2002 17:48:49 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:43524
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S317021AbSEWVsr>; Thu, 23 May 2002 17:48:47 -0400
-Date: Thu, 23 May 2002 23:47:20 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Oleg Drokin <green@namesys.com>, "Gryaznova E." <grev@namesys.botik.ru>,
-        martin@dalecki.de, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
-Message-ID: <20020523234720.A7495@bouton.inet6-interne.fr>
-Mail-Followup-To: Martin Dalecki <dalecki@evision-ventures.com>,
-	Oleg Drokin <green@namesys.com>,
-	"Gryaznova E." <grev@namesys.botik.ru>, martin@dalecki.de,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com> <3CED004A.6000109@evision-ventures.com>
+	id <S317022AbSEWVwe>; Thu, 23 May 2002 17:52:34 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:30875 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317020AbSEWVwd>;
+	Thu, 23 May 2002 17:52:33 -0400
+Date: Thu, 23 May 2002 23:51:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: swsusp fixes
+Message-ID: <20020523215118.GA705@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On jeu, mai 23, 2002 at 04:44:26 +0200, Martin Dalecki wrote:
-> Uz.ytkownik Oleg Drokin napisa?:
-> > Hello!
-> > 
-> > On Thu, May 23, 2002 at 04:27:39PM +0200, Martin Dalecki wrote:
-> > 
-> >>>hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> >>>hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> >>
-> >>Since this error can be expected to be quite common.
-> >>Its an installation error. I will just make the corresponding
-> >>error message more intelliglible to the average user:
-> >>hda: checksum error on data transfer occurred!
-> > 
-> > 
-> > BTW, I have a particular setup that spits out such errors,
-> > and I somehow thinks the cable is good.
-> > 
-> > I have IBM DTLA-307030
+Hi!
 
-<offtopic>
-Be prepared to some serious fun. I'm just in the middle of applying
-desesperate technics like RAID5/RAID0 on partitions from the same drive.
-Until I find some money to replace the failing drives I'm in for serious
-data recovery tricks if I want my grabbed video.
-I've 6 drives here, from which 2 are IBM DTLAs and one is an IBM IC35. Guess
-which 3 ones slowly reported more and more "UncorrectableError"s (aka
-bad blocks) during last month ?
-</offtopic>
-Sorry, I feeled the need to hammer IBM drives in public. More insightful text
-should be find below. 
+This kills unneccessary include from ide-disk.c, kills #ifdef from
+reiserfs/journal.c, makes suspend_device local as it should be,
+abstains from suspending devices two times in a row (typo), and makes
+sure we do not run_task_queue() while we hold spinlock. Please apply,
 
-> > drive and Seagate Barracuda IV drive (last one purchased
-> > only recently).
-> > IBM drive is connected to far end of 80-wires IDE cable and Barracuda is
-> > connected to the middle of this same wire.
-> > Before I bought IBM drive, everything was ok.
-> > But now I see BadCRC errors on hdb (only on hdb, which is barracuda drive)
-> > usually when both drives are active.
-> > If I disable DMA on IBM drive (or if kernel disables it by itself for some
-> > reason, and it actually does it sometimes), these errors seems to go away.
-> > 
-> > This is all on 2.4.18, but actually I think this is irrelevant.
-> > 
-> > If that's a bad cable, why it is only happens when both drives are working
-> > in DMA mode?
-> 
-> It's most likely the cable. The error comes directly from the
-> status register of the drive. The drive is reporting that it got
-> corrupted data from the wire. This will be only checked in the
-> 80 cable requiring DMA transfer modes.
+								Pavel
 
-If I'm not mistaken it's not the 80-cable tye that allows this (correct me if
-I'm wrong but the 40 new cables are grounded and act more like a shield
-between data/signal transport lines than anything else).
-IIRC BadCRC is new to UDMA. You could have this error with UDMA mode 0 on a
-40-pin cable.
-
-Thanks to Andre Hedrick's code, the kernel automagically slows the dma modes
-until the BadCRC disappear.
-
-> So if the drive resorts to
-> slower operation all will be fine. If it does not - well
-> you see the above...
-> 
-> Having two drives on a single cable canges the termination
-> of the cable as well as other electrical properties significantly
-> and apparently you are just out of luck with the above system.
+--- linux-swsusp.linus/drivers/ide/ide-disk.c	Wed May 22 21:12:16 2002
++++ linux-swsusp/drivers/ide/ide-disk.c	Wed May 22 21:18:29 2002
+@@ -27,7 +27,6 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/ide.h>
+-#include <linux/suspend.h>
  
-I've seen this behaviour, adding a slave to an IDE bus can sometimes make it
-less reliable. My current opinion is that the signal/noise ratio on IDE
-busses has gone down too much with speed growing, you simply can't take
-whatever controller/drive/cable/power supply combination and say each one
-seems OK, the whole bus should operate at UDMA100/133 flawlessly. Nowadays
-you need to either stress test an IDE config or know the exact electronic
-behaviour of each component to validate that it will work without using
-Andre's code (and thus getting underspec perf).
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+--- linux-swsusp.linus/fs/reiserfs/journal.c	Wed May 22 21:12:17 2002
++++ linux-swsusp/fs/reiserfs/journal.c	Wed May 22 02:35:21 2002
+@@ -1901,12 +1901,9 @@
+       break ;
+     }
+     wake_up(&reiserfs_commit_thread_done) ;
+-#ifdef CONFIG_SOFTWARE_SUSPEND
+-    if (current->flags & PF_FREEZE) {
+-	    refrigerator(PF_IOTHREAD);
+-    } else
+-#endif
+-	    interruptible_sleep_on_timeout(&reiserfs_commit_thread_wait, 5 * HZ) ;
++    if (current->flags & PF_FREEZE)
++      refrigerator(PF_IOTHREAD);
++    interruptible_sleep_on_timeout(&reiserfs_commit_thread_wait, 5 * HZ) ;
+   }
+   unlock_kernel() ;
+   wake_up(&reiserfs_commit_thread_done) ;
+--- linux-swsusp.linus/kernel/suspend.c	Wed May 22 21:12:17 2002
++++ linux-swsusp/kernel/suspend.c	Wed May 22 22:05:48 2002
+@@ -409,15 +404,12 @@
+ 	swap_list_lock();
+ 	for(i = 0; i< MAX_SWAPFILES; i++)
+ 		if(swapfile_used[i] == SWAPFILE_IGNORED) {
+-//			PRINTS( "device %s locked\n", swap_info[i].swap_file->d_name.name );
+ 			swap_info[i].flags ^= 0xFF; /* we make the device unusable. A new call to
+ 						       lock_swapdevices can unlock the devices. */
+ 		}
+ 	swap_list_unlock();
+ }
+ 
+-kdev_t suspend_device;
+-
+ static int write_suspend_image(void)
+ {
+ 	int i;
+@@ -425,6 +417,7 @@
+ 	int nr_pgdir_pages = SUSPEND_PD_PAGES(nr_copy_pages);
+ 	union diskpage *cur,  *buffer = (union diskpage *)get_free_page(GFP_ATOMIC);
+ 	unsigned long address;
++	kdev_t suspend_device;
+ 
+ 	PRINTS( "Writing data to swap (%d pages): ", nr_copy_pages );
+ 	for (i=0; i<nr_copy_pages; i++) {
+@@ -809,7 +747,6 @@
+ 	 *
+ 	 * Following line enforces not writing to disk until we choose.
+ 	 */
+-	suspend_device = NODEV;					/* We do not want any writes, thanx */
+ 	drivers_unsuspend();
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	PRINTS( "critical section/: done (%d pages copied)\n", nr_copy_pages );
+@@ -899,13 +836,9 @@
+ static void do_magic_suspend_2(void)
+ {
+ 	read_swapfiles();
+-	if (!suspend_save_image()) {
+-#if 1
+-		suspend_power_down ();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
+-#endif
+-	}
++	if (!suspend_save_image())
++		suspend_power_down();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
+ 
+-	suspend_device = NODEV;
+ 	printk(KERN_WARNING "%sSuspend failed, trying to recover...\n", name_suspend);
+ 	MDELAY(1000); /* So user can wait and report us messages if armageddon comes :-) */
+ 
+@@ -944,9 +877,8 @@
+ 			 * We sync here -- so you have consistent filesystem state when things go wrong.
+ 			 * -- so that noone writes to disk after we do atomic copy of data.
+ 			 */
+-			PRINTS( "Syncing disks before copy\n" );
++			PRINTS("Syncing disks before copy\n");
+ 			do_suspend_sync();
+-			drivers_suspend();
+ 			if(drivers_suspend()==0)
+ 				do_magic(0);			/* This function returns after machine woken up from resume */
+ 			PRINTR("Restarting processes...\n");
+--- linux-swsusp.linus/mm/pdflush.c	Wed May 22 21:12:17 2002
++++ linux-swsusp/mm/pdflush.c	Wed May 22 02:01:58 2002
+@@ -108,16 +108,16 @@
+ 	for ( ; ; ) {
+ 		struct pdflush_work *pdf;
+ 
+-#ifdef CONFIG_SOFTWARE_SUSPEND
+-		run_task_queue(&tq_bdflush);
+-#endif
+ 		list_add(&my_work->list, &pdflush_list);
+ 		my_work->when_i_went_to_sleep = jiffies;
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_irq(&pdflush_lock);
+ 
++#ifdef CONFIG_SOFTWARE_SUSPEND
++		run_task_queue(&tq_bdflush);
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
++#endif
+ 		schedule();
+ 
+ 		preempt_enable();
 
-> What should really help is simple resort to slower operations
-> int he case of the driver.
-> 
-
-Already done, see above.
-
-> It can of course be as well that the host chip driver is simply
-> programming the channel for too aggressive values.
-> 
-
-Can be. Then it's a bug.
-
-> Hmm thinking again about it... It occurrs to me
-> that actually there should be a mechanism which tells the
-> host chip drivers whatever there are only just one or
-> two drivers connected. I will have to look in to it.
-> 
-
-The driver doesn't know, but the general IDE code does.
-
-LB, going back to his damn drives...
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

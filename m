@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318741AbSHQVhX>; Sat, 17 Aug 2002 17:37:23 -0400
+	id <S318743AbSHQVmR>; Sat, 17 Aug 2002 17:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318743AbSHQVhX>; Sat, 17 Aug 2002 17:37:23 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11174 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318741AbSHQVhW>;
-	Sat, 17 Aug 2002 17:37:22 -0400
-Date: Sat, 17 Aug 2002 23:42:21 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Gabriel Paubert <paubert@iram.es>,
-       James Bottomley <James.Bottomley@HansenPartnership.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
-In-Reply-To: <Pine.LNX.4.44.0208172051280.17227-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208172342120.16866-100000@localhost.localdomain>
+	id <S318750AbSHQVmR>; Sat, 17 Aug 2002 17:42:17 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51729
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318743AbSHQVmQ>; Sat, 17 Aug 2002 17:42:16 -0400
+Date: Sat, 17 Aug 2002 14:36:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
+       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac3 stops responding
+In-Reply-To: <1029611747.4647.3.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10208171435150.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 17 Aug 2002, Ingo Molnar wrote:
+There is a problem with IOPS assignment and I am still working on how make
+each host carry its own fixup.
 
-> oh, setup.S. nasty indeed. (yet) untested patch attached, booting into
-> the new kernel shortly.
+On 17 Aug 2002, Alan Cox wrote:
 
-works for me.
+>  "On Fri, 2002-08-16 at 18:13, Jean-Luc Coulon wrote:
+> > At boot time, I get the messages :
+> > 
+> > Aug 16 11:34:19 f5ibh kernel: ALI15X3: simplex device: DMA disabled
+> > Aug 16 11:34:19 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
+> > (BIOS)
+> 
+> Linux did the simplex device check. Your ALi controller only permits DMA
+> on one of the devices at a time. What is attached to the ALi controller
+> ? Also does 2.4.19 base enable DMA correctly ?
+> 
+> If so then my guess is there is a bug in the changing of the pci setup
+> code in 2.4.20pre2-ac3, which shouldnt be hard to figure out
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-	Ingo
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263469AbREYAbG>; Thu, 24 May 2001 20:31:06 -0400
+	id <S263473AbREYA4u>; Thu, 24 May 2001 20:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263471AbREYAaz>; Thu, 24 May 2001 20:30:55 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:40347 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263469AbREYAap>; Thu, 24 May 2001 20:30:45 -0400
-Message-ID: <3B0DA651.8151AE93@uow.edu.au>
-Date: Fri, 25 May 2001 10:24:49 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
+	id <S263474AbREYA4k>; Thu, 24 May 2001 20:56:40 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:64271 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S263473AbREYA4Z>;
+	Thu, 24 May 2001 20:56:25 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, Manas Garg <mls@chakpak.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: O_TRUNC problem on a full filesystem
-In-Reply-To: <3B0CF068.A6ADA562@uow.edu.au> "from Andrew Morton at May 24, 2001
-	 09:28:40 pm" <200105241724.f4OHOAhQ014259@webber.adilger.int>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15117.44426.899390.29151@tango.paulus.ozlabs.org>
+Date: Fri, 25 May 2001 10:55:38 +1000 (EST)
+To: Jeff Mcadams <jeffm@iglou.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SyncPPP Generic PPP merge
+In-Reply-To: <20010524185333.B7667@iglou.com>
+In-Reply-To: <002501c0e48f$ffed1e40$0c00a8c0@diemos>
+	<E1533Ra-0005hC-00@the-village.bc.nu>
+	<20010524185333.B7667@iglou.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> Andrew writes:
-> > "Stephen C. Tweedie" wrote:
-> > > On Wed, May 23, 2001 at 07:55:48PM +1000, Andrew Morton wrote:
-> > > > When you truncated your file, the blocks remained preallocated
-> > > > on behalf of the file, and were hence considered "used".  For
-> > > > some reason, a subsequent attempt to allocate blocks for the
-> > > > same file failed to use that file's preallocated blocks.
-> > >
-> > > Nope.  ext2_truncate() calls ext2_discard_prealloc() to fix this up.
-> > > Both 2.2 and 2.4 do this correctly.
-> >
-> > But the problem goes away when you disable EXT2_PREALLOCATE.
-> > I tested it.
-> 
-> Are you sure that a truncated file will re-use the same truncated blocks,
-> but not the preallocated ones?  I can imagine not re-using all of the data
-> blocks within a single transaction, but it would be odd if the preallocated
-> blocks are treated differently.
+Jeff Mcadams writes:
 
-This is vanliia ext2.  The O_TRUNC problem is easy to reproduce,
-and goes away when EXT*2*_PREALLOC is undefined.  Haven't looked
-into it further, but I suppose one should.  It's not nice having
-unexplained mysteries in ext2.
+> Indeed.  And let me just throw out another thought.  A clean abstraction
+> of the various portions of the PPP functionality is beneficial in other
+> ways.  My personal pet project being to add L2TP support to the kernel
+> eventually.  A good abstraction of the framing capabilities and basic
+> PPP processing would be rather useful in that project.
 
-> How have you done the ext3 preallocation code?  One way to do it would be
-> to only mark the blocks as used in the in-memory copy of the block bitmap
-> and not write that to disk (we keep 2 copies of the block bitmap, IIRC).
-> That way you don't need to do anything fancy at recovery time.
-> 
-> Did you ever benchmark ext2 with and without preallocation to see if it
-> made any difference?  No point in doing extra work if there is no benefit.
+That is exactly what ppp_generic.c is intended to do - it abstracts
+out the framing and encapsulation and low-level transport of PPP
+frames into ppp "channels" (see for example ppp_async.c,
+ppp_synctty.c) while ppp_generic.c does the basic PPP processing
+(compression, multilink, handling the network interface device etc.).
 
-This is an excellent point - it would be unwise to go to the
-effort and complexity of putting prealloc back into ext3
-without first analysing how useful it actually is.  Perhaps
-some tuning of the other anti-fragmentation algorithms
-will suffice.
+You should be able to write an L2TP channel to work with ppp_generic -
+all your code would need to know about is how to take a PPP frame and
+encapsulate and send it, and how to receive and decapsulate PPP
+frames.
 
-For example, when we miss the goal block we search forward
-up to 63 blocks for a *single* free block, and use that.
-Perhaps we shouldn't?
+[Note to myself: send in a Documentation/ppp_generic.txt which
+describes the interface between ppp_generic.c and the channels.]
 
-And perhaps the search for eight contiguous free blocks
-is no longer appropriate to current disks.  32 may be better?
+> I would agree that such a project would be 2.5 material.
 
-So I'd prefer to set up a simulator and at least validate the
-current algorithms beforehand, perhaps tune them as well.
+Do it today if you like, I can't see that adding a new PPP channel
+could break anything else, it would be like adding a new driver.
+
+Paul.

@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269871AbUJGW1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269862AbUJGW0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269871AbUJGW1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269869AbUJGW0d
+	id S269862AbUJGW0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269851AbUJGW0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:26:33 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:36332 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S268340AbUJGWY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:24:56 -0400
-Message-ID: <4165C20D.8020808@nortelnetworks.com>
-Date: Thu, 07 Oct 2004 16:24:13 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: martijn@entmoot.nl, hzhong@cisco.com, jst1@email.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       davem@redhat.com
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>	<41658C03.6000503@nortelnetworks.com>	<015f01c4acbe$cf70dae0$161b14ac@boromir>	<4165B9DD.7010603@nortelnetworks.com> <20041007150035.6e9f0e09.davem@davemloft.net>
-In-Reply-To: <20041007150035.6e9f0e09.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Oct 2004 18:26:13 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:25191 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267961AbUJGWY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:24:57 -0400
+Subject: Re: strange AMD x Intel Behaviour in 2.4.26
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m31xga2oly.fsf@averell.firstfloor.org>
+References: <2MLlk-5MH-5@gated-at.bofh.it>
+	 <m31xga2oly.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Date: Thu, 07 Oct 2004 19:25:54 -0300
+Message-Id: <1097187954.3790.15.camel@lfs.barra.bali>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+On Thu, 2004-10-07 at 23:40 +0200, Andi Kleen wrote:
+> Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
+> 
+> >   The code is producing correct results (same as ptrace, I mean)
+> > but is RUNNING FASTER on a 500Mhz AMD K6-2 than on a 2.6Ghz HT
+> > Pentium 4 !!!!  The monitored code runs faster on P4 if not being
+> 
+> The Pentium 4 is slow for anything that involves changing of the 
+> ring or an exception. Well known problem, you can see it in other
+> benchmarks too. Normally the penalty is not that drastic, probably
+> it doesn't like single stepping very much.
+> 
+> However a cheaper way to do this would be to use performance counters
+> and save/restore them on each context switch. There is normally a
+> perfctr for "retired instructions on ring 3", which is what you
+> want. Mikael P's perfctr patchkit can do that per process.
+> 
 
->>In this case, select() returns with the socket readable, we call recvmsg() and 
->>discover the message is corrupt.  At this point we throw away the corrupt 
->>message, so we now have no data waiting to be received.  We return EAGAIN, and 
->>userspace goes merrily on its way, handling anything else in its loop, then 
->>going back to select().
+OK, I'll check it.  But I will still need to stick with the stop-at-
+every-instruction approach, since this counting is just the start of
+my project. I am developing a intepretation-like scheme, and need do
+do some action at every instruction. The counting was just the stopping
+mechanism.   I do not use ptrace, since I want to do it in kernel space.
 
-> Incorrect.  When the user specifies blocking on the file descriptor
-> we must give it what it asked for.  -EAGAIN on a blocking file descriptor
-> is always a bug, in all situations, that's what this code used to do and we
-> fixed it because it's a bug.
+Thanks, it was giving me nightmares :(
 
-I believe you misread what I said.  Just before the above quote, I said "We are 
-discussing the case where the socket is nonblocking and the udp checksum is 
-corrupt, right? "
 
-What I had in mind was that the non-blocking file descriptor have select() 
-return without verifying the checksum, and if it was discovered to be bad at 
-recvmsg() time, we return EAGAIN.  For a blocking file descriptor, we would 
-verify the checksum before returning from select().
+> -Andi
+> 
 
-That way, the blocking case gets the semantics it expects (although worse 
-performance), while the nonblocking case gets full performance as well as 
-semantics that it will handle properly.
-
-Chris

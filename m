@@ -1,116 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270798AbTGNUNY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270797AbTGNUJS
+	id S270817AbTGNUNR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270796AbTGNUIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:09:18 -0400
-Received: from sea2-f42.sea2.hotmail.com ([207.68.165.42]:15369 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270793AbTGNUEl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:04:41 -0400
-X-Originating-IP: [143.182.124.3]
-X-Originating-Email: [dagriego@hotmail.com]
-From: "David griego" <dagriego@hotmail.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-Date: Mon, 14 Jul 2003 13:19:29 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F42G9i3HGRgKuw00017dcf@hotmail.com>
-X-OriginalArrivalTime: 14 Jul 2003 20:19:29.0948 (UTC) FILETIME=[3AFEC5C0:01C34A45]
+	Mon, 14 Jul 2003 16:08:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:50326 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270794AbTGNUE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:04:56 -0400
+Date: Mon, 14 Jul 2003 17:17:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+In-Reply-To: <20030714201637.GQ16313@dualathlon.random>
+Message-ID: <Pine.LNX.4.55L.0307141716400.8994@freak.distro.conectiva>
+References: <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
+ <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
+ <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random>
+ <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
+ <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de>
+ <20030714201637.GQ16313@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Embedded does not simply include toasters and fridges, it also includes NAS 
-and SAN appliances as well as telco gear.  These types of devices have 
-advanced memory subsystems and run processors such as PPC and ARM.  One of 
-the most limiting factors in these types of devices is power consumption.  
-This usually limits the number of cores and frequency these cores.  
-Offloading the processing of protocol stacks to ASICS would have a great 
-impact in performance.  If you are going to embed a high frequency chip in 
-your embedded devices I would recommend developing a heater not a fridge.
 
 
->From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->To: David griego <dagriego@hotmail.com>
->CC: alan@storlinksemi.com,   Linux Kernel Mailing List 
-><linux-kernel@vger.kernel.org>
->Subject: Re: Alan Shih: "TCP IP Offloading Interface"
->Date: 14 Jul 2003 20:42:53 +0100
->
->On Llu, 2003-07-14 at 19:46, David griego wrote:
-> > IMHO, there are several cases for some type of TCP/IP offload.  One is 
->for
-> > embedded systems that are just not capable of doing 1Gbps+.  Another is 
->with
->
->My fridge doesn't need to do 10Gbit a second, and for most other
->embedded the constraints are ram bandwidth and nothing else. Since
->deeply embedded stuff also doesn't run with MMUs or runs 'partially
->trusted' most of the VM games and the socket api games also go away.
+On Mon, 14 Jul 2003, Andrea Arcangeli wrote:
 
-See PPC and ARM architecture for the use of MMUs in embedded systems
+> On Mon, Jul 14, 2003 at 09:51:39PM +0200, Jens Axboe wrote:
+> > -	rl = &q->rq;
+> > -	if (!list_empty(&rl->free) && !blk_oversized_queue(q)) {
+> > +	if ((rw == WRITE) && (blk_oversized_queue(q) || (rl->count < 4)))
+>
+> did you disable the oversized queue check completely for reads? This
+> looks unsafe, you can end with loads of ram locked up this way, the
+> request queue cannot be limited in requests anymore. this isn't the
+> "request reservation", this a "nearly unlimited amount of ram locked in
+> for reads".
+>
+> Of course, the more reads can be in the queue, the less the background
+> write loads will hurt parallel apps like a kernel compile as shown in
+> xtar_load.
+>
+> This is very different from the schedule advantage provided by the old
+> queue model. If you allow an unlimited I/O queue for reads, that means
+> the I/O queues will be filled by an huge amount of reads and a few
+> writes (no matter how fast the xtar_load is writing to disk).
+>
+> In the past (2.4.22pre4) the I/O queue would been at most 50/50, with
+> your patch it can be 90/10, hence it can generate an huge performance
+> difference, that can penealize tremendously the writers in server loads
+> using fsync plus it can hurt the VM badly if all ram is locked up by
+> parallel reads. Of course contest mostly cares about reads, not writes.
+>
+> Overall I think your patch is unsafe and shouldn't be applied.
+>
+> Still if you want to allow 50/50, go ahead, that logic in pre4 was an
+> order of magnitude more fair and generic than this patch.
 
->
->I've done deeply embedded tcp/ip. I don't buy the argument, embedded
->gains the least of all from ToE.
->
-> > 10GbE, even high end servers will not be able keep up with TCP
-> > processing/data movement at these speeds.  Not being proactive in 
->adopting
->
->They said that about 10Mbit until Van showed them a thing or two. They
->said it about 100Mbit, they said it about gigabit.
-
-Not the case for embedded.  I understand your viewpoint from the server 
-space though.
->
-> > TCP/IP offload will force Linux into accepting some scheme that will not
-> > necessarily be best.
->
->TCP/IP is an exercise in two things when you are running at speed
->
->1.	Finding the memory bandwidth - ToE doesn't help, checksums do,
->	sg does, on card target buffers do with decent chipsets.
-
-A TOE enabled with RDDP would help eliminate the kernel to user space copy 
-(and in the case of SAMBA the copy back to the kernel).  This would reduce 
-the memory system loading by a third to a half.
->
->2.	Handling in order perfectly predicted data streams. ToE is
->	overkill for this. Thats about latency to memory and touching
->	as little as possible. The main CPU has a rather good connection
->	to main memory.
->
-Yes, RDDP would be nice to have though for the reason stated for #1, so the 
-hardware would need to at least be TCP aware.
-
->ToE is also horribly vulnerable to attack because putting it on a card
->dictates relatively low CPU power and low power consumption as well as
->rather nasty pricing issues. Historically low power devices have
->repeatedly been screwed by attackers hitting software or other slow
->paths in the device to attack it.
-The use of ASICs could ensure that TCP processing is as quick as wire speed
-
->
->This is before we get into the delights of multipath routing across
->different vendors cards, firewalling, traffic shaping, retrofitting new
->features, questions about what happens with an old ToE card when its
->got a hole...
-Try to keep the datapath processing on the TOE, and everything else in the 
-OS.  Also give the API the ability to turn of the TOE if a hole exists and 
-use it like a regular NIC.
->
->The internet land speed record is held by a non ToE system, let me know
->when that changes.
->
-Layer one network processing is often handled by ASICS, also some of the 
-fastest encryption engines are hardware.  I suggest we don't wait until your 
-proven wrong before making a decision on TOE.
-
-_________________________________________________________________
-MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*.  
-http://join.msn.com/?page=features/virus
+Well, I change my mind and wont apply it as-is in -pre6.
 

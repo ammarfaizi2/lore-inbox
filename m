@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318971AbSICWqF>; Tue, 3 Sep 2002 18:46:05 -0400
+	id <S318963AbSICWov>; Tue, 3 Sep 2002 18:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318969AbSICWqF>; Tue, 3 Sep 2002 18:46:05 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33735 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S318966AbSICWqC>; Tue, 3 Sep 2002 18:46:02 -0400
-Date: Tue, 3 Sep 2002 18:50:36 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-Message-ID: <20020903185036.G12201@redhat.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <alan@lxorguk.ukuu.org.uk> <200209032132.g83LWdD09043@localhost.localdomain>
+	id <S318966AbSICWov>; Tue, 3 Sep 2002 18:44:51 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:56317 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S318963AbSICWou>; Tue, 3 Sep 2002 18:44:50 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 3 Sep 2002 16:46:43 -0600
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: ptb@it.uc3m.es, Lars Marowsky-Bree <lmb@suse.de>, root@chaos.analogic.com,
+       Rik van Riel <riel@conectiva.com.br>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] mount flag "direct" (fwd)
+Message-ID: <20020903224643.GU32468@clusterfs.com>
+Mail-Followup-To: Anton Altaparmakov <aia21@cantab.net>, ptb@it.uc3m.es,
+	Lars Marowsky-Bree <lmb@suse.de>, root@chaos.analogic.com,
+	Rik van Riel <riel@conectiva.com.br>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <20020903185344.GA7836@marowsky-bree.de> <5.1.0.14.2.20020903221201.00ac5770@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200209032132.g83LWdD09043@localhost.localdomain>; from James.Bottomley@SteelEye.com on Tue, Sep 03, 2002 at 04:32:38PM -0500
+In-Reply-To: <5.1.0.14.2.20020903221201.00ac5770@pop.cus.cam.ac.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> alan@lxorguk.ukuu.org.uk said:
-> > Next you only need to return stuff if commands have been issued
-> > between the aborting command and a barrier. Since most sane systems
-> > will never be causing REQ_BARRIER
+On Sep 03, 2002  22:54 +0100, Anton Altaparmakov wrote:
+> In my understanding a DFS offers exactly what you need: each node has disks 
+> and all disks on all nodes are part of the very same file system. Of course 
+> each node maintains the local disks, i.e. the local part of the file system 
+> and certain operations require that the nodes communicates with the "DFS 
+> master node(s)" in order for example to reserve blocks of disks or to 
+> create/rename files (need to make sure no duplicate filenames are 
+> instantiated for example). -- Sound familiar so far? You wanted to do 
+> exactly the same things but at the block layer and the VFS layer levels 
+> instead of the FS layer...
+> 
+> The difference between a DFS and your proposal is that a DFS maintains all 
+> the caching benefits of a normal FS at the local node level, while your 
+> proposal completely and entirely disables caching, which is debatably 
+> impossible (due to need to load things into ram to read them and to modify 
+> them and then write them back) and certainly no FS author will accept their 
+> FS driver to be crippled in such a way. The performance loss incurred by 
+> removing caching completely is going to make sure you will only be dreaming 
+> of those 50GiB/sec. More likely you will be getting a few bytes/sec... (OK, 
+> I exaggerate a bit.) The seek times on the disks together with the 
+> read/write timings are going to completely annihilate performance. A DFS 
+> maintains caching at local node level, so you can still keep open inodes in 
+> memory for example (just don't allow any other node to open the same file 
+> at the same time or you need to do some juggling via the "Master DFS node").
+> 
+> Your time would be much better spent in creating the _one_ true DFS, or 
+> helping improve one of the existing ones instead of trying to hack up the 
+> VFS/block layers to pieces. It almost certainly will be a hell of a lot 
+> less work to implement a decent DFS in comparison to changing the block 
+> layer, the VFS, _and_ every single FS driver out there to comply with the 
+> block layer and VFS changes. And at the same time you get exactly the same 
+> features you wanted to have but with hugely boosted performance.
 
-Hmmm...I thought a big reason for adding REQ_BARRIER was to be able to 
-support more robust journaling with order requirement verification.  If 
-that's true, then REQ_BARRIER commands could become quite common on disks 
-using ext3.
+This is exactly what Lustre is supposed to be.  Many nodes, each with
+local storage, and clients are able to do I/O directly to the storage
+nodes (for non-local storage, or if they have no local storage at all).
 
-On Tue, Sep 03, 2002 at 04:32:38PM -0500, James Bottomley wrote:
-> However, in all honesty, I have to say that I just don't believe ABORTs are 
-> ever particularly effective.  As part of error recovery, If a device is 
-> tipping over into failure, adding another message isn't a good way to pull it 
-                             ^^^^^^^^^^^^^^^^^^^^^^
-Then you might as well skip device resets since they are implemented using 
-messages and go straight to bus resets.  Shot deflected, no score.
+There is (currently) a single metadata server (MDS) which controls the
+directory tree locking, and the storage nodes control the locking of
+inodes (objects) local to their storage.
 
-> back.  ABORT is really part of the I/O cancellation API, and, like all 
-> cancellation implementations, it's potentially full of holes.  The only uses 
-> it might have---like oops I didn't mean to fixate that CD, give it back to me 
-> now---aren't clearly defined in the SPEC to produce the desired effect (stop 
-> the fixation so the drive door can be opened).
+It's not quite in a robust state yet, but we're working on it.
 
-In my experience, aborts have always actually worked fairly well in any 
-scenario where a bus device reset will work.  Generally speaking, the 
-problems I've always ran into with SCSI busses have been either A) this 
-command is screwing up but it isn't confusing the drive so we can abort it 
-or BDR it because the drive still responds to us or B) the bus is hung 
-hard and no transfers or messages of any kind can make it through.  In the 
-B case, a full bus reset is the only thing that works.  In the A case, 
-aborts work just as often as anything else.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-> The pain of coming back from a reset (and I grant, it isn't trivial) is well 
-> known and well implemented in SCSI.  It also, from error handlings point of 
-> view, sets the device back to a known point in the state model.
-
-So does a successful abort.
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  

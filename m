@@ -1,62 +1,328 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUJENwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUJEN5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269256AbUJENwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 09:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbUJENwK
+	id S269073AbUJEN5v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 09:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUJEN5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 09:52:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61448 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269315AbUJENvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:51:48 -0400
-Date: Tue, 5 Oct 2004 14:51:40 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Earnshaw <Richard.Earnshaw@arm.com>
-Cc: linux-kernel@vger.kernel.org, Catalin Marinas <Catalin.Marinas@arm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
-Message-ID: <20041005145140.E6910@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Earnshaw <Richard.Earnshaw@arm.com>,
-	linux-kernel@vger.kernel.org,
-	Catalin Marinas <Catalin.Marinas@arm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <20040927210305.A26680@flint.arm.linux.org.uk> <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org> <20041005125324.A6910@flint.arm.linux.org.uk> <1096981035.14574.20.camel@pc960.cambridge.arm.com> <20041005141452.B6910@flint.arm.linux.org.uk> <1096983608.14574.32.camel@pc960.cambridge.arm.com>
+	Tue, 5 Oct 2004 09:57:50 -0400
+Received: from mail.renesas.com ([202.234.163.13]:29142 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S269884AbUJENyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:54:50 -0400
+Date: Tue, 05 Oct 2004 22:54:28 +0900 (JST)
+Message-Id: <20041005.225428.728248907.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.9-rc3-mm2] [m32r] Remove arch/m32r/kernel/io_m32102.c
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1096983608.14574.32.camel@pc960.cambridge.arm.com>; from Richard.Earnshaw@arm.com on Tue, Oct 05, 2004 at 02:40:08PM +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 02:40:08PM +0100, Richard Earnshaw wrote:
-> On Tue, 2004-10-05 at 14:14, Russell King wrote:
+Hi,
+
+Please remove arch/m32r/kernel/io_m32102.c, which is no longer used.
+# I forgot to attach this patch in the previous e-mail as following.
+
+From: Hirokazu Takata <takata@linux-m32r.org>
+Subject: [PATCH 2.6.9-rc2-mm4] [m32r] Architecture upgrade on 20040928
+Date: Wed, 29 Sep 2004 21:52:55 +0900 (JST)
 > 
-> > > Why don't you pass s to is_arm_mapping_symbol and have it do the same
-> > > thing as you've done in get_ksymbol?
-> > 
-> > "sym_entry" is not an ELF symtab structure - it's a parsed version
-> > of the `nm' output, and as such does not contain the symbol type nor
-> > binding information.
-> > 
-> 
-> Ah.  That makes the question in your previous message make more sense
-> then.  What options do you pass to nm?
+> 	* arch/m32r/kernel/io_m32102.c: Remove.
+> 	This file is no longer used. Please remove this file.
+> 	
 
-Only -n.
+Thanks.
 
-> Looking at the output of nm -fsysv shows that currently the mapping
-> symbols are being incorrectly typed (the EABI requires them to be
-> STT_NOTYPE, but the previous ELF specification -- not supported by GNU
-> utils -- required them to be typed by the data they addressed.  I'll
-> submit a patch for that shortly).
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Ugg - in that case, we need to go with the "match the name" version
-until these changes in binutils have matured (== 2 or 3 years time.)
+ arch/m32r/kernel/io_m32102.c |  277 -------------------------------------------
+ 1 files changed, 277 deletions(-)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+diff -ruNp a/arch/m32r/kernel/io_m32102.c b/arch/m32r/kernel/io_m32102.c
+--- a/arch/m32r/kernel/io_m32102.c	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/kernel/io_m32102.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,277 +0,0 @@
+-/*
+- * Mitsubishi M32R 32102 group
+- * Typical I/O routines.
+- *
+- * Copyright (c) 2001 Hitoshi Yamamoto
+- */
+-
+-/* $Id$ */
+-
+-#include <linux/config.h>
+-#include <asm/page.h>
+-
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-#include <linux/types.h>
+-
+-#define M32R_PCC_IOMAP_SIZE 0x1000
+-
+-#define M32R_PCC_IOSTART0 0x1000
+-#define M32R_PCC_IOEND0   (M32R_PCC_IOSTART0 + M32R_PCC_IOMAP_SIZE - 1)
+-#define M32R_PCC_IOSTART1 0x2000
+-#define M32R_PCC_IOEND1   (M32R_PCC_IOSTART1 + M32R_PCC_IOMAP_SIZE - 1)
+-
+-extern void pcc_ioread(int, unsigned long, void *, size_t, size_t, int);
+-extern void pcc_iowrite(int, unsigned long, void *, size_t, size_t, int);
+-#endif /* CONFIG_PCMCIA && CONFIG_M32RPCC */
+-
+-
+-/*
+- * Function prototypes
+- */
+-unsigned char  ne_inb(unsigned long);
+-void  ne_outb(unsigned char, unsigned long);
+-void  ne_insb(unsigned int, void *, unsigned long);
+-void  ne_insw(unsigned int, void *, unsigned long);
+-void  ne_outsb(unsigned int, const void *, unsigned long);
+-void  ne_outsw(unsigned int, const void *, unsigned long);
+-
+-#define PORT2ADDR(port)  m32102_port2addr(port)
+-
+-static __inline__ unsigned long
+-m32102_port2addr(unsigned long port)
+-{
+-	unsigned long  ul;
+-	ul = port + PAGE_OFFSET + 0x20000000;
+-	return (ul);
+-}
+-
+-unsigned char
+-m32102_inb(unsigned long port)
+-{
+-#ifdef CONFIG_PLAT_MAPPI
+-	if(port >= 0x300 && port < 0x320)
+-		return ne_inb(port);
+-	else
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   unsigned char b;
+-	   pcc_ioread(0, port, &b, sizeof(b), 1, 0);
+-	   return b;
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	  unsigned char b;
+-	   pcc_ioread(1, port, &b, sizeof(b), 1, 0);
+-	   return b;
+-	} else
+-#endif
+-#endif /*  CONFIG_PLAT_MAPPI  */
+-	return *(unsigned char *)PORT2ADDR(port);
+-}
+-
+-unsigned short
+-m32102_inw(unsigned long port)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   unsigned short w;
+-	   pcc_ioread(0, port, &w, sizeof(w), 1, 0);
+-	   return w;
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   unsigned short w;
+-	   pcc_ioread(1, port, &w, sizeof(w), 1, 0);
+-	   return w;
+-	} else
+-#endif
+-	return *(unsigned short *)PORT2ADDR(port);
+-}
+-
+-unsigned long
+-m32102_inl(unsigned long port)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   unsigned long l;
+-	   pcc_ioread(0, port, &l, sizeof(l), 1, 0);
+-	   return l;
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   unsigned short l;
+-	   pcc_ioread(1, port, &l, sizeof(l), 1, 0);
+-	   return l;
+-	} else
+-#endif
+-	return *(unsigned long *)PORT2ADDR(port);
+-}
+-
+-void
+-m32102_outb(unsigned char b, unsigned long port)
+-{
+-#ifdef CONFIG_PLAT_MAPPI
+-	if(port >= 0x300 && port < 0x320)
+-		ne_outb(b,port);
+-	else
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_iowrite(0, port, &b, sizeof(b), 1, 0);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_iowrite(1, port, &b, sizeof(b), 1, 0);
+-	} else
+-#endif
+-#endif /*  CONFIG_PLAT_MAPPI  */
+-	*(unsigned volatile char *)PORT2ADDR(port) = b;
+-}
+-
+-void
+-m32102_outw(unsigned short w, unsigned long port)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_iowrite(0, port, &w, sizeof(w), 1, 0);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_iowrite(1, port, &w, sizeof(w), 1, 0);
+-	} else
+-#endif
+-*(unsigned volatile short *)PORT2ADDR(port) = w;
+-}
+-
+-void
+-m32102_outl(unsigned long l, unsigned long port)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_iowrite(0, port, &l, sizeof(l), 1, 0);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_iowrite(1, port, &l, sizeof(l), 1, 0);
+-	} else
+-#endif
+-	*(unsigned volatile long *)PORT2ADDR(port) = l;
+-}
+-
+-void
+-m32102_insb(unsigned int port, void * addr, unsigned long count)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_ioread(0, port, (void *)addr, sizeof(unsigned char), count, 1);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_ioread(1, port, (void *)addr, sizeof(unsigned char), count, 1);
+-	} else
+-#endif
+-	while(count--){
+-		*(unsigned char *)addr = *(unsigned volatile char *)PORT2ADDR(port);
+-		addr+=1;
+-	}
+-}
+-
+-void
+-m32102_insw(unsigned int port, void * addr, unsigned long count)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_ioread(0, port, (void *)addr, sizeof(unsigned short), count, 1);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_ioread(1, port, (void *)addr, sizeof(unsigned short), count, 1);
+-	} else
+-#endif
+-while(count--){
+-		*(unsigned short *)addr = *(unsigned volatile short *)PORT2ADDR(port);
+-		addr+=2;
+-	}
+-}
+-
+-void
+-m32102_outsb(unsigned int port, const void * addr, unsigned long count)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_iowrite(0, port, (void *)addr, sizeof(unsigned char), count, 1);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_iowrite(1, port, (void *)addr, sizeof(unsigned char), count, 1);
+-	} else
+-#endif
+-while(count--){
+-		*(unsigned volatile char *)PORT2ADDR(port) = *(unsigned char *)addr;
+-		addr+=1;
+-	}
+-}
+-void
+-m32102_outsw(unsigned int port, const void * addr, unsigned long count)
+-{
+-#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
+-	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
+-	   pcc_iowrite(0, port, (void *)addr, sizeof(unsigned short), count, 1);
+-	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
+-	   pcc_iowrite(1, port, (void *)addr, sizeof(unsigned short), count, 1);
+-	} else
+-#endif
+-while(count--){
+-		*(unsigned volatile short *)PORT2ADDR(port) = *(unsigned short *)addr;
+-		addr+=2;
+-	}
+-}
+-
+-#ifdef CONFIG_PLAT_MAPPI
+-unsigned char
+-ne_inb(unsigned long port)
+-{
+-	unsigned short tmp;
+-	port <<= 1;
+-	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	tmp = *(unsigned short *)port;
+-	return (unsigned char)tmp;
+-}
+-void
+-ne_outb(unsigned char b, unsigned long port)
+-{
+-	port <<= 1;
+-	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	*(unsigned volatile short *)port = (unsigned short)b;
+-}
+-void
+-ne_insb(unsigned int port, void * addr, unsigned long count)
+-{
+-
+-	unsigned short tmp;
+-	port <<= 1;
+-	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	tmp = *(unsigned short *)port;
+-	while(count--){
+-		*(unsigned char *)addr = *(unsigned volatile char *)port;
+-		addr+=1;
+-	}
+-}
+-
+-void
+-ne_insw(unsigned int port, void * addr, unsigned long count) {
+-	unsigned short tmp;
+-	port <<= 1;
+-	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	while(count--){
+-		tmp = *(unsigned volatile short *)port;
+-		*(unsigned short *)addr = (tmp>>8) | (tmp <<8);
+-		addr+=2;
+-	}
+-}
+-
+-void
+-ne_outsb(unsigned int port, const void * addr, unsigned long count)
+-{
+-	port <<= 1;
+-	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	while(count--){
+-		*(unsigned volatile short *)port = *(unsigned char *)addr;
+-		addr+=1;
+-	}
+-}
+-void
+-ne_outsw(unsigned int port, const void * addr, unsigned long count)
+-{
+-	unsigned short tmp;
+-	port <<= 1;
+-	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
+-	while(count--){
+-		tmp = *(unsigned short *)addr;
+-		*(unsigned volatile short *)port = (tmp>>8)|(tmp<<8);
+-		addr+=2;
+-	}
+-}
+-
+-#endif /*  CONFIG_PLAT_MAPPI  */
+

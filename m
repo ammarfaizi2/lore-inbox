@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVBNS4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVBNTDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVBNS4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVBNS4v
+	id S261399AbVBNTDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 14:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVBNTDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:56:51 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:61874 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261332AbVBNS43
+	Mon, 14 Feb 2005 14:03:06 -0500
+Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:59597 "EHLO
+	frankbuss.de") by vger.kernel.org with ESMTP id S261399AbVBNTDC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:56:29 -0500
-Date: Mon, 14 Feb 2005 10:56:24 -0800
-To: Matthew Jacob <lydianconcepts@gmail.com>
-Cc: Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050214185624.GA16029@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Matthew Jacob <lydianconcepts@gmail.com>,
-	Jeff Sipek <jeffpc@optonline.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7579f7fb0502141017f5738d1@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+	Mon, 14 Feb 2005 14:03:02 -0500
+From: "Frank Buss" <fb@frank-buss.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: SL811 problem on mach-pxa
+Date: Mon, 14 Feb 2005 20:03:03 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Thread-Index: AcUSx87lYxEcl86VRaq372C/cIGYJw==
+Message-Id: <20050214190301.769C75B8A5@frankbuss.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 10:17:35AM -0800, Matthew Jacob wrote:
-> > So how would you suggest that we resolve it?  The protection we need is
-> > that people don't get to
-> > 
-> >    - use BK
-> >    - stop using BK so they can go work on another system
-> >    - start using BK again
-> >    - stop using BK so they can go work on another system
-> >    ...
-> > 
-> 
-> I guess I don't see the advantage that accrues to BitMover Inc from
-> this or what you're trying to do here. I'm not trying to add kerosene
-> to a flame fest here, but I'm definitely scratching my head on this
-> one.
-> 
-> Is your concern that you don't want to provide a free tool to people
-> who then turn around to compete with you? That is, you don't want BK
-> to enable people to do things to harm BK and its ongoing development?
+I've tried to configure the SL811 driver with 2.6.11 for mach-pxa 
+platform, but it doesn't work: The hub was recognized, but no device 
+(I've tested it with a USB mouse and keyboard). The hub is visible in 
+proc/bus/usb after mounting it.
 
-All we are trying to do is 
+I've tried to find the bug, but perhaps I'm wrong. This is what I've 
+found:
 
-    1.  Provide the open source community with a useful tool.
-    2.  Prevent that from turning into the open source community
-        creating a clone of our tool.
+For me it looks like the SL11H_INTMASK_INSRMV interupt in 
+drivers/usb/host/sl811-hcd.c is not enabled. In other drivers it looks 
+like it is enabled in the start function, like in ohci-pxa27x.c in 
+pxa27x_start_hc. After adding a port_power(sl811, 1) call at the end of 
+sl811h_start at least the driver gets the interupt, if a mouse is 
+connected: it crashes in the "start" function, because ep->hep is NULL. I 
+fixed this by setting ep->hep=hep in sl811h_urb_enqueue. But the driver 
+still doesn't work. Now it doesn't crash, but I'll get some errors and 
+the device is not recognized.
 
-The reason this is complicated is that we are giving it away for free to
-lots and lots of open source people.  If we only sold it there wouldn't
-be a problem, it would be 10 years before a copy appeared because far
-fewer of the open source crowd would even know it existed.  Giving it
-away is almost asking for it to be copied.  The license is a way to say
-that the price of free use is agreement you won't use the tool to copy
-the tool in any way.
+What can I do to find the problem? I wonder if the driver is working at 
+all. In Linux 2.4 the driver worked on the same hardware, but looks like 
+the driver in Linux 2.6 is rewritten from scratch. But I'm really lost 
+when it comes to kernel programming, so maybe it is trivial to fix the 
+problem and it is no driver bug.
 
-I agree that this sucks, having a license that restricts your creativity
-is very annoying.  On the other hand, you don't have to agree to it.
-You only have to agree to it if you want the benefits of using the tool.
-It's not much different than deciding whether you want to buy it, there
-is a cost and a benefit and for some people the benefits outweigh the
-costs and for some they don't.
+Another question (perhaps this is related to my problem): Where do I have 
+to provide the sl811_platform_data data and what values and functions are 
+needed?
 
-If anyone can think of a better way for us to both let you use the tool
-and protect our hard work, I'm listening.  The repeated outrage over the
-restrictions isn't any more fun for me than it is for you.  Any answer,
-however, has to take our issues into consideration as well as yours.
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Frank Buﬂ, fb@frank-buss.de
+http://www.frank-buss.de, http://www.it4-systems.de
+

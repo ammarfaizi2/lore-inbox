@@ -1,95 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUKKE3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbUKKEc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbUKKE3v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 23:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbUKKE3u
+	id S262168AbUKKEc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 23:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUKKEc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 23:29:50 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:20693 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262097AbUKKE3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 23:29:43 -0500
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-Message-Id: <200411110429.iAB4Teq16832@inv.it.uc3m.es>
-Subject: Re: kernel analyser to detect sleep under spinlock
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Thu, 11 Nov 2004 05:29:40 +0100 (MET)
-X-Anonymously-To: 
-Reply-To: ptb@inv.it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Wed, 10 Nov 2004 23:32:57 -0500
+Received: from [61.48.53.74] ([61.48.53.74]:52220 "EHLO freya.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S262168AbUKKEcy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 23:32:54 -0500
+Date: Thu, 11 Nov 2004 12:24:10 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200411112024.iABKOAD04383@freya.yggdrasil.com>
+To: gene.haskett@verizon.net
+Subject: Re: DEVFS_FS
+Cc: alebyte@gmail.com, linux-kernel@vger.kernel.org,
+       linux-os@chaos.analogic.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" <ptb@inv.it.uc3m.es> wrote in message news:<2Y9DE-4Tb-7@gated-at.bofh.it>...
+On  2004-11-11 0:06:37, Gene Heskett wrote:
+>On Wednesday 10 November 2004 16:03, Alexandre Costa wrote:
+>>On Wed, 10 Nov 2004 15:46:06 -0500 (EST), linux-os
+>>
+>><linux-os@chaos.analogic.com> wrote:
+>>> What is the approved substitute for DEVFS_FS that is marked
+>>> obsolete?
+>>
+>>udev
+>>http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
+>
+>Humm, I'm not sure I'm entirely happy with that choice.  I have an 
+>FC3RC5 install on an old P-II running at 233mhz, and the udev start 
+>in the bootup is the slowest single thing to get started by an order 
+>of magnitude.
+>
+>Can someone tell me a good reason udev wastes as much time as the post 
+>does checking 383 megs of memory, which is very nearly a minute even 
+>just for udev?
+>
+>If its to be used, its got to speed itself up, a LOT!.
 
-(scanning for abuses of spinlocks in the kernel source)
+Gene,
 
->  ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.tgz
-> 
-> To use the application, compile and then use "c" in place of
-> "gcc" on a typical kernel compile line.
+	I do not know what kind of device you are using or what kind
+of inialization it really needs, but your situation _might_ be a good
+example of the benefits of being able configure devices on demand with
+devfs if this is a device that you do not use every time you boot
+your system and that initialization process is not something that
+can easily be deferred to the first device open() call.
 
-I've added some extra support for gcc 3.4.0 (which seems to use some
-special builtin types such as __builtin_va_list that gcc 2.95.4 does
-not generate) and put up the new archive at
-    
-  ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.1.tgz
+	As you may know, in the recent releases of my devfs rewrite,
+I split the demand loading for missing device files into a separate
+a separate facility (tmpfs "lookup traps").  That way, even if you
+do not want to run the rest of devfs, you could avoid that
+initilization and perhaps some kernel memory usage from the device
+driver in the sessions that never use that device.
 
-Please tell me of any parse rejects with 2.4 kernel files. I'll be very
-happy to make the usually trivial parser additions required to scan the
-gnuish C involved! I simply have only tried a few dozen kernel source
-files myself and so don't have a complete picture of every weird extension
-usage out there in the source.
+	On the other hand, initialization on demand would make your
+first access of the session to that device spend the same amount of
+time that you are now spending at boot, whereas, you might instead
+want to have that device driver loaded at boot time and stay in
+kernel memory so that you can do the initialization in the background
+if you can somehow ensure that access to the device will block until
+the initialization completes if necessary.
 
-I'll also start going through 2.6 kernel files to see if anything more is
-needed for those. 
-
-To remind you what this utility detects:
-
-> Here's some typical output ...
-> 
->  % ./c -D__KERNEL__ -DMODULE \
->    -I/usr/local/src/linux-2.4.25-xfs/include ../dbr/1/sbull.c
->  *************** sleepy functions *******************************
->  *       function                line    calls
->  *
->  * - /usr/local/src/linux-2.4.25-xfs/include/linux/smb_fs_sb.h
->  *       smb_lock_server         63      down
->  *
->  * - /usr/local/src/linux-2.4.25-xfs/include/linux/fs.h
->  *       lock_parent             1624    down
->  *       double_down             1647    down
->  *       triple_down             1668    down
->  *       double_lock             1718    double_down
->  *
->  * - /usr/local/src/linux-2.4.25-xfs/include/linux/locks.h
->  *       lock_super              38      down
->  *
->  * - ../dbr/1/sbull.c
->  *       sbull_ioctl             171     interruptible_sleep_on
->  *
->  * - /usr/local/src/linux-2.4.25-xfs/include/linux/blk.h
->  *       sbull_request           358     interruptible_sleep_on
->  *
->  * - ../dbr/1/sbull.c
->  *       sbull_init              431     kmalloc
->  *       sbull_init              431     kfree
->  *       sbull_cleanup           542     kfree
->  *
->  ****************************************************************
->  *************** sleep_under_spinlock ****************************
->  *       function                line    calls
->  *
->  * - ../dbr/1/sbull.c
->  *       sbull_request           420     interruptible_sleep_on
->  *
->  *
->  * *** found 1 instances of sleep under spinlock ***
->  *
->  ***********************************************
-> 
-> It's GPL/LGPL.
- 
-
-Peter (ptb@inv.it.uc3m.es)
-
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

@@ -1,110 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270155AbRHGJTY>; Tue, 7 Aug 2001 05:19:24 -0400
+	id <S270154AbRHGJYf>; Tue, 7 Aug 2001 05:24:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270157AbRHGJTO>; Tue, 7 Aug 2001 05:19:14 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:9140 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S270155AbRHGJTD>; Tue, 7 Aug 2001 05:19:03 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, Ivan Kalvatchev <iive@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: [Patch2] Re: DoS with tmpfs #3
-In-Reply-To: <20010803163409.62191.qmail@web13609.mail.yahoo.com>
-	<Pine.LNX.4.33L.0108040303030.2526-100000@imladris.rielhome.conectiva>
-	<20010805063657.C20164@weta.f00f.org> <m3ofpturpx.fsf@linux.local>
-Organisation: SAP LinuxLab
-In-Reply-To: <m3ofpturpx.fsf@linux.local>
-Message-ID: <m37kwg5jb1.fsf_-_@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S270156AbRHGJYZ>; Tue, 7 Aug 2001 05:24:25 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:15876 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S270154AbRHGJYM>; Tue, 7 Aug 2001 05:24:12 -0400
+Message-ID: <3B6FB378.6BAD9A21@idb.hist.no>
+Date: Tue, 07 Aug 2001 11:23:04 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre4 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: Crutcher Dunnavant <crutcher@datastacks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <20010807042810.A23855@foobar.toppoint.de> <Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net> <15215.27296.959612.765065@localhost.efn.org> <3B6F9D78.412AB717@idb.hist.no> <20010807035828.E2399@mueller.datastacks.com>
 Content-Type: text/plain; charset=us-ascii
-Date: 07 Aug 2001 11:09:47 +0200
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+Crutcher Dunnavant wrote:
+> 
+> ++ 07/08/01 09:49 +0200 - Helge Hafting:
+> > Steve VanDevender wrote:
+> > I can remove RAM live, and read it in another device.  Or replace
+> 
+> Eek. I dont think I'm gonna sleep well on this one.
+> Umm, tamper-crash cases that kill the power?
 
-On 06 Aug 2001, Christoph Rohland wrote:
-> Since there are enough persons having trouble with the current
-> behaviour I append a patch (against 2.4.8-pre4) to implement the
-> default to be ram/2.
+It's all about how well you protect the machine
+versus how easy I can get around it.  Yanking a RAM chip
+and inserting it in another pc running dos isn't hard,
+with physical access.  
 
-The following patch is needed on top of the previous one to compile
-without CONFIG_TMPFS.
+Killing the power isn't enough,
+I have a few seconds to get the chip and can smash the
+case open with force.  You need a self-destruct
+device in a safe, or guards.  
 
-Greetings
-		Christoph
+A relatively cheap way might be a custom pci
+card with a self-destruct RAM bank for
+storing the decryption keys.  Opening the 
+safe cause the card to zero the RAM.  
 
---- 8-pre4-def/mm/shmem.c	Tue Aug  7 10:43:14 2001
-+++ m8-pre4/mm/shmem.c	Tue Aug  7 10:47:38 2001
-@@ -537,6 +537,30 @@
- 	return inode;
- }
- 
-+static int shmem_set_size(struct shmem_sb_info *info,
-+			  unsigned long max_blocks, unsigned long max_inodes)
-+{
-+	int error;
-+	unsigned long blocks, inodes;
-+
-+	spin_lock(&info->stat_lock);
-+	blocks = info->max_blocks - info->free_blocks;
-+	inodes = info->max_inodes - info->free_inodes;
-+	error = -EINVAL;
-+	if (max_blocks < blocks)
-+		goto out;
-+	if (max_inodes < inodes)
-+		goto out;
-+	error = 0;
-+	info->max_blocks  = max_blocks;
-+	info->free_blocks = max_blocks - blocks;
-+	info->max_inodes  = max_inodes;
-+	info->free_inodes = max_inodes - inodes;
-+out:
-+	spin_unlock(&info->stat_lock);
-+	return error;
-+}
-+
- #ifdef CONFIG_TMPFS
- static ssize_t
- shmem_file_write(struct file *file,const char *buf,size_t count,loff_t *ppos)
-@@ -1001,30 +1025,6 @@
- 			return 1;
- 	}
- 	return 0;
--}
--
--static int shmem_set_size(struct shmem_sb_info *info,
--			  unsigned long max_blocks, unsigned long max_inodes)
--{
--	int error;
--	unsigned long blocks, inodes;
--
--	spin_lock(&info->stat_lock);
--	blocks = info->max_blocks - info->free_blocks;
--	inodes = info->max_inodes - info->free_inodes;
--	error = -EINVAL;
--	if (max_blocks < blocks)
--		goto out;
--	if (max_inodes < inodes)
--		goto out;
--	error = 0;
--	info->max_blocks  = max_blocks;
--	info->free_blocks = max_blocks - blocks;
--	info->max_inodes  = max_inodes;
--	info->free_inodes = max_inodes - inodes;
--out:
--	spin_unlock(&info->stat_lock);
--	return error;
- }
- 
- static int shmem_remount_fs (struct super_block *sb, int *flags, char *data)
+The key(s) exists only in this special
+RAM, and processor registers during
+decryption.
 
+Helge Hafting

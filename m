@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264947AbTIDMjA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 08:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264951AbTIDMjA
+	id S264976AbTIDMdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 08:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbTIDMdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 08:39:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:56979 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264947AbTIDMi7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 08:38:59 -0400
-MIME-Version: 1.0
+	Thu, 4 Sep 2003 08:33:12 -0400
+Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:35546 "EHLO
+	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
+	id S264976AbTIDMdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 08:33:10 -0400
+Date: Thu, 4 Sep 2003 13:32:58 +0100
+From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Same problem with pcmcia in 2.4.22 as in 2.6.0-test4
+Message-ID: <20030904123258.GA7674@iain-vaio-fx405>
+Mail-Followup-To: kernel <linux-kernel@vger.kernel.org>
+References: <1061936739.10642.6.camel@garaged.fis.unam.mx> <20030826223405.GA2746@iain-vaio-fx405> <20030831121019.GB22771@iain-vaio-fx405> <20030831133846.C3017@flint.arm.linux.org.uk> <20030902203043.GA12997@iain-vaio-fx405> <20030902224433.F9345@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16215.12889.496875.461596@nanango.paulus.ozlabs.org>
-Date: Thu, 4 Sep 2003 22:38:49 +1000 (EST)
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-In-Reply-To: <20030904095128.GA16696@lst.de>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-	<20030904083007.B2473@flint.arm.linux.org.uk>
-	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
-	<20030904023624.592f1601.davem@redhat.com>
-	<20030904104801.A7387@flint.arm.linux.org.uk>
-	<20030904095128.GA16696@lst.de>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Disposition: inline
+In-Reply-To: <20030902224433.F9345@flint.arm.linux.org.uk>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Linux/2.6.0-test3 (i686)
+X-Uptime: 13:31:09 up  1:20,  4 users,  load average: 0.40, 0.63, 1.24
+X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
+User-Agent: Mutt/1.5.4i
+X-CIS-MailScanner: Found to be clean
+X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8.8, required 5,
+	BAYES_00 -5.20, IN_REP_TO -0.37, QUOTED_EMAIL_TEXT -0.38,
+	REFERENCES -0.00, REPLY_WITH_QUOTES 0.00, USER_AGENT_MUTT -2.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+* Russell King (rmk@arm.linux.org.uk) wrote:
+> Could you try the updated debugging patch there please?  It should
+> print something extra no matter what.
+> 
+> Could you also provide the kernel messages which include the
+> initialisation of your PCMCIA or CardBus bridge please?
 
-> Yupp.  This makes me question again how the phys_addr_t thing is
-> supposed to work at all given struct resource uses unsigned long
-> for start and len, so the whole generic resource infrastructure
-> doesn't know about the higher bits...
+are these the right lines?
 
-That's what fixup_bigphys_addr is for.  Basically, on the 440 the
-first 4GB of physical address space is all RAM.  PCI memory space
-occupies 2GB from 380000000 - 3ffffffff.  So if ioremap is given an
-address between 2GB and 4GB, it is assumed to be from a PCI driver,
-and fixup_bigphys_addr adds on the 0x300000000.
+=======================================================================
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x3c0-0x3df 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
+cs: request irq: pci irq 11 mask 0090
+orinoco_cs: RequestIRQ: Resource in use
+=======================================================================
 
-> Could someone point me a to a driver actually making use of the
-> extented ioremap address on ppc 44x?
+that's from my boot sequence - I pulled and inserted the card and got
+the last two lines again.
 
-drivers/net/ibm_emac/ibm_ocp_enet.c in 2.4 does - it's an ocp driver,
-not a pci driver.  Yes, we owe Jeff Garzik a 2.5 version of that
-driver.
+cheers,
 
-Paul.
+iain
+
+-- 
+"If sharing a thing in no way diminishes it, it is not rightly owned if it is
+not shared." -- St. Augustine
+
+"As for compromises: no. Free or fuck off." -- Andrew Suffield, on debian-legal

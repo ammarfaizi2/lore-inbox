@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280246AbRKFTS2>; Tue, 6 Nov 2001 14:18:28 -0500
+	id <S280233AbRKFTSi>; Tue, 6 Nov 2001 14:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280210AbRKFTSS>; Tue, 6 Nov 2001 14:18:18 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:1920 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S280233AbRKFTSE>; Tue, 6 Nov 2001 14:18:04 -0500
-Message-ID: <008901c166f8$0063af20$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: ACPI "hlt" mode and SMP systems?
-Date: Tue, 6 Nov 2001 20:19:48 +0100
+	id <S280210AbRKFTS2>; Tue, 6 Nov 2001 14:18:28 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:12553 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S280233AbRKFTSW>;
+	Tue, 6 Nov 2001 14:18:22 -0500
+Message-ID: <3BE835BE.DF4A98FA@osdl.org>
+Date: Tue, 06 Nov 2001 11:10:54 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: "Eric W. Biederman" <ebiederman@lnxi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre8 Alt-SysRq-[TM] failure during lockup...
+In-Reply-To: <m3wv15n5c9.fsf@DLT.linuxnetworx.com> <3BE6DC56.5A0984A4@osdl.org> <m3pu6waae5.fsf@DLT.linuxnetworx.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When will the equivalence of "hlt" (in APM) work in ACPI SMP systems? Or
-does it already? I have a hard time decoding all the ACPI symbols, such as
-C1 C2 S0 S1 S2 S3 and so on...
+"Eric W. Biederman" wrote:
+> 
+> "Randy.Dunlap" <rddunlap@osdl.org> writes:
+> 
+> > "Eric W. Biederman" wrote:
+> > >
+> > > Summary:  I triggered a condition in 2.4.14-pre8 where SysRq triggered
+> > > but would not print reports.  I managed to unstick the condition but
+> > > had played to much to determine the root cause.  My guess is that
+> > > somehow my default loglevel was messed up.  Full information is
+> > > provided just case I did not muddy the waters too much.
+> >
+> > Do you know what the console loglevel was when you tried
+> > to use Alt-SysRq-M (show_mem) or Alt-SysRq-T (show tasks ==
+> > show_state)?  (first value listed in /proc/sys/kernel/printk file)
+> 
+> I was in single user mode so it shouldn't have been changed
+> from it's default value.  But it might have been.
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+Eric,
 
+I have seen some distro(s) in which either syslogd or klogd (I'm
+guessing) uses the syslog syscall to change the console loglevel
+value in the kernel.
+This could still happen in single user mode, couldn't it?
 
+It bugged me because I often use the "debug" boot parameter
+to set console_loglevel to 10, but all of a sudden it had been
+set back to 6 IIRC!  And right now on one of my test
+systems it is set to 0 according to /proc/sys/kernel/printk,
+although _I_ didn't ask for it to be changed to 0, and
+I haven't been able to find what's changing it to 0, since
+it was 10 during init/main.c.
+
+~Randy

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbTDVIfk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 04:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTDVIfk
+	id S263020AbTDVJJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 05:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTDVJJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 04:35:40 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:17635 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263021AbTDVIfi
+	Tue, 22 Apr 2003 05:09:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1664 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263020AbTDVJJe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 04:35:38 -0400
-Message-ID: <3EA50303.30200@free.fr>
-Date: Tue, 22 Apr 2003 10:53:23 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+	Tue, 22 Apr 2003 05:09:34 -0400
+Date: Tue, 22 Apr 2003 10:21:38 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Heiko.Rabe@InVision.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc1 : aic7xxx deadlock on boot on my machine
-References: <3EA4FF4C.2030702@free.fr> <200304221036.19274.m.c.p@wolk-project.de>
-In-Reply-To: <200304221036.19274.m.c.p@wolk-project.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: inconsistent usage of
+Message-ID: <20030422092138.GS10374@parcelfarce.linux.theplanet.co.uk>
+References: <OF07767E6D.29E660DD-ONC1256D10.002B8A2D@invision.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF07767E6D.29E660DD-ONC1256D10.002B8A2D@invision.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
+On Tue, Apr 22, 2003 at 10:11:11AM +0200, Heiko.Rabe@InVision.de wrote:
+> I found inconsistent behavoir between SMP oand none SMP kernels using spin
+> locks inside driver programming
+> As first an simple example:
+> 
+> static spinlock_t        qtlock               = SPIN_LOCK_UNLOCKED;
+> 
+> void foo()
+> {
+>      unsigned long  local_flags;
+>      spin_lock_irqsave (&qtlock, local_flags);
+>      spin_lock_irqsave (&qtlock, local_flags);
+> }
+> 
+> Calling the function foo() works proper in none SMP kernels. I assume, the
 
-> I'll _bet_ that the new well good code from Justin won't make it into 2.4 
-> earlier than 2.4.22-pre1.
+... only because spinlocks are no-op on UP.
 
-I do not really see why because 2.4.20 -> 2.4.21 contains already such a 
-driver change. Note that I mailed alan and justin on pre4-acxx. Justin 
-suggested various fixes that did not resolve the problem and then 
-decided to do a code inspection. Reading the Changelog, indeed the 
-locking startegy has changed compared to the rc1 version. I mailed 
-arcello again on pre7 even providing kdbg backtrace.
+> spinlocks internaly will be initialized as
+> recursive semaphore as default. So it is possible to aquire it more than
+> once by the same thread.
 
-Never mind : the report is more informative to others as I already 
-patched my kernel to the last version...
+Spinlocks are *not* recursive.  The code above is a bug - it's just that
+on non-SMP it doesn't get caught.
 
-Thanks for responding, and providing integrated patch sets.
-
-Have a good day.
-
--- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
-
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
+Spinlock is a mutex, not a recursive sempahore.

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVCKVPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVCKVSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVCKVPN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 16:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVCKVPM
+	id S261284AbVCKVSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 16:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCKVSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 16:15:12 -0500
-Received: from fire.osdl.org ([65.172.181.4]:35249 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261810AbVCKVLa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 16:11:30 -0500
-Date: Fri, 11 Mar 2005 13:11:22 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Chris Wright <chrisw@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050311211122.GP5389@shell0.pdx.osdl.net>
-References: <20050309083923.GA20461@kroah.com> <m3acpa9qta.fsf@defiant.localdomain> <20050311173808.GZ28536@shell0.pdx.osdl.net> <m3acp9rivo.fsf@defiant.localdomain>
+	Fri, 11 Mar 2005 16:18:18 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:15352 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261253AbVCKVSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 16:18:06 -0500
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
+	2.6.11)
+From: Albert Cahalan <albert@users.sf.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       peterc@gelato.unsw.edu.au
+In-Reply-To: <1110568542.15927.76.camel@localhost.localdomain>
+References: <1110518308.1949.67.camel@cube>
+	 <1110568542.15927.76.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 16:04:28 -0500
+Message-Id: <1110575069.1949.72.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3acp9rivo.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Krzysztof Halasa (khc@pm.waw.pl) wrote:
-> Chris Wright <chrisw@osdl.org> writes:
+On Fri, 2005-03-11 at 19:15 +0000, Alan Cox wrote:
+> > You forgot the PCI domain (a.k.a. hose, phb...) number.
+> > Also, you might encode bus,slot,function according to
+> > the PCI spec. So that gives:
+> > 
+> > long usr_pci_open(unsigned pcidomain, unsigned devspec, __u64 dmamask);
 > 
-> > * Krzysztof Halasa (khc@pm.waw.pl) wrote:
-> >> Another patch for 2.6.11.x: already in main tree, fixes kernel panic
-> >> on receive with WAN cards based on Hitachi SCA/SCA-II: N2, C101,
-> >> PCI200SYN.
-> >> Also a documentation change fixing user-panic can-t-find-required-software
-> >> failure (just the same patch as in mainline) :-)
-> >
-> > We are not accepting documentation fixes.  Could you please send just
-> > the panic fix to stable@kernel.org (cc lkml)?  And add Signed-off-by...
-> 
-> Sure:
+> Still insufficient because the device might be hotplugged on you. You
+> need a file handle that has the expected revocation effects on unplug
+> and refcounts
 
-Thanks, added to queue.
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+I was under the impression that a file handle would be returned.
+
+I'm not so sure that is a sane way to handle hot-plug though.
+First of all, in general, it's going to be like this:
+
+Fan, meet shit.
+Shit, meet fan.
+
+Those who care might best be served by SIGBUS with si_code
+and si_info set appropriately. Perhaps a revoke() syscall
+that handled mmap() would work the same way.
+
+
+

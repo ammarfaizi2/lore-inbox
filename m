@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVAJVpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVAJVfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbVAJVpw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 16:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVAJVk5
+	id S262646AbVAJVfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 16:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbVAJVeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 16:40:57 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:41608 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S262514AbVAJVjA (ORCPT
+	Mon, 10 Jan 2005 16:34:37 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:30955 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262646AbVAJVbN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 16:39:00 -0500
-Subject: Re: dmesg: PCI interrupts are no longer routed
-	automatically.........
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: linux-os@analogic.com
-Cc: bjorn.helgaas@hp.com, David Vrabel <dvrabel@cantab.net>,
-       aryix <aryix@softhome.net>, lug-list@lugmen.org.ar,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501051251140.9762@chaos.analogic.com>
-References: <20041229095559.5ebfc4d4@sophia>
-	 <1104862721.1846.49.camel@eeyore>
-	 <Pine.LNX.4.61.0501041342070.5445@chaos.analogic.com>
-	 <1104867678.1846.80.camel@eeyore>
-	 <Pine.LNX.4.61.0501041447420.5310@chaos.analogic.com>
-	 <41DBB5F6.6070801@cantab.net>
-	 <Pine.LNX.4.61.0501050640430.12879@chaos.analogic.com>
-	 <1104945236.4046.25.camel@eeyore>
-	 <Pine.LNX.4.61.0501051251140.9762@chaos.analogic.com>
-Content-Type: text/plain
-Date: Mon, 10 Jan 2005 14:38:28 -0700
-Message-Id: <1105393108.29910.60.camel@eeyore>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 16:31:13 -0500
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: bzolnier@gmail.com
+Subject: [PATCH] pci_ids.h correction for Intel ICH7 - 2.6.10-bk13
+Date: Mon, 10 Jan 2005 06:36:49 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200501100636.50064.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 13:15 -0500, linux-os wrote:
-> The problem is that the PLX-9656BA INTCSR is not in configuration
-> space, but runtime registers off a BAR. The interrupt source
-> can be from a PLD that hasn't even had its microcode loaded
-> yet!
-> 
-> FYI, the PLX or similar clone is the bus interface chip for many
-> busmastering PCI boards.
-> 
-> > You wouldn't want your ISR mucking around with a half-initialized
-> > device, so does it have to check a "device_configured" flag
-> > or something?
-> 
-> Yes. If the device isn't configured, the ISR reads all the INTCSR
-> bits, then writes 0 to the register to prevent anything else.
+This patch corrects the ICH7 LPC controller DID in pci_ids.h from x27B0 to x27B8.  This patch was build against 2.6.10-bk13.
+If acceptable, please apply.
 
-The PLX might be a common device, but it sounds like this
-particular issue depends on the design of the rest of the
-board.  And presumably, nobody who cared about performance
-would design a board with this property, right?  I mean, to
-add a test in the ISR for a condition that exists only for
-a few milliseconds at driver startup-time seems sub-optimal.
+Thanks,
 
-> If the PLX had been reset, then the INTCSR bits would all
-> be masked off. However, reset is really only guaranteed from
-> power OFF on some motherboards, in particuar the ones with
-> so-called "hot-swap" capabilites fail. There is a software
-> reset that, in fact, even reloads its serial EEPROM. However,
-> the BAR needs to be accessible for this to be used.
-> 
-> So it would be wonderful if the correct IRQ could be made
-> available before the chip could generate an interrupt.
+Jason Gaston
 
-If we exposed a new pcibios_route_irq() (to hide the arch-
-specific nature of IRQ routing via ACPI or other information),
-could you do what you need in a pci_fixup_early quirk?
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-
+--- linux-2.6.10-bk13/include/linux/pci_ids.h.orig	2005-01-10 06:20:55.999996392 -0800
++++ linux-2.6.10-bk13/include/linux/pci_ids.h	2005-01-10 06:21:17.519724896 -0800
+@@ -2238,7 +2238,7 @@
+ #define PCI_DEVICE_ID_INTEL_ICH6_17	0x266d
+ #define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
+ #define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
+-#define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b0
++#define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b8
+ #define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b1
+ #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
+ #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1

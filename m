@@ -1,2268 +1,402 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbSLQBy5>; Mon, 16 Dec 2002 20:54:57 -0500
+	id <S264614AbSLQCH3>; Mon, 16 Dec 2002 21:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263986AbSLQBy5>; Mon, 16 Dec 2002 20:54:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58285 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263333AbSLQBy2>; Mon, 16 Dec 2002 20:54:28 -0500
-From: Janet Morgan <janetmor@us.ibm.com>
-Message-Id: <200212170202.gBH22I916691@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] sys_epoll for 2.4
-To: m.c.p@wolk-project.de (Marc-Christian Petersen)
-Date: Mon, 16 Dec 2002 18:02:17 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, davidel@xmailserver.org
-In-Reply-To: <200212140436.23519.m.c.p@wolk-project.de> from "Marc-Christian Petersen" at Dec 14, 2002 03:36:23 AM PST
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264617AbSLQCH3>; Mon, 16 Dec 2002 21:07:29 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:27146
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264614AbSLQCHT>; Mon, 16 Dec 2002 21:07:19 -0500
+Subject: [PATCH] updated scheduler tunables
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: anton@samba.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040091321.854.8.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 16 Dec 2002 21:15:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > Thanks for finding this.  fs/ncpfs/sock.c is likewise broken.
-> np :)
-> 
-> > The following patch compiles, but I haven't tested it.
-> also works :-)
-> 
-> Thnx alot.
-> 
-> ciao, Marc
-> 
+The sched-tune patch is now in 2.5-mm, but I have had a couple requests
+for a version for stock 2.5.  What is the interest, if any, of seeing
+this in 2.5?  The idea was just to facilitate tuning, but the scheduler
+could use some exported knobs... Anton mentioned the need to fiddle with
+max_timeslice on some workloads.
 
-Thanks for the feedback.  Here's a refresh of the sys_epoll patch 
-which includes the sock.c updates and a minor correction to timod.c:
+Anyhow, this patch implements the following tuning knobs for the
+scheduler:
 
---- linux-2.4.20/arch/i386/kernel/entry.S	Thu Nov 28 15:53:09 2002
-+++ sys_epoll/arch/i386/kernel/entry.S	Mon Dec 16 16:24:04 2002
-@@ -657,6 +657,10 @@
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* 250 sys_alloc_hugepages */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* sys_free_hugepages */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* sys_exit_group */
-+	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sys_lookup_dcookie */
-+	.long SYMBOL_NAME(sys_epoll_create)     
-+	.long SYMBOL_NAME(sys_epoll_ctl)	/* 255 sys_epoll_ctl */
-+	.long SYMBOL_NAME(sys_epoll_wait)
+        [21:10:18]rml@phantasy:~$ pef /proc/sys/sched/
+        child_penalty=95
+        exit_weight=3
+        interactive_delta=2
+        max_sleep_avg=2000
+        max_timeslice=300
+        min_timeslice=10
+        parent_penalty=100
+        prio_bonus_ratio=25
+        starvation_limit=2000
+
+with documentation in Documentation/filesystems/proc.txt
+
+Patch is against 2.5.52.
+
+	Robert Love
+
+ Documentation/filesystems/proc.txt |   87 +++++++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h             |   15 +++++-
+ kernel/sched.c                     |   57 ++++++++++++------------
+ kernel/sysctl.c                    |   35 ++++++++++++++
+ 4 files changed, 165 insertions(+), 29 deletions(-)
+
+
+diff -urN linux-2.5.52/Documentation/filesystems/proc.txt linux/Documentation/filesystems/proc.txt
+--- linux-2.5.52/Documentation/filesystems/proc.txt	2002-12-15 21:07:51.000000000 -0500
++++ linux/Documentation/filesystems/proc.txt	2002-12-15 22:51:09.000000000 -0500
+@@ -37,6 +37,7 @@
+   2.8	/proc/sys/net/ipv4 - IPV4 settings
+   2.9	Appletalk
+   2.10	IPX
++  2.11  /proc/sys/sched - scheduler tunables
  
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long SYMBOL_NAME(sys_ni_syscall)
---- linux-2.4.20/arch/sparc64/solaris/timod.c	Fri Aug  2 17:39:43 2002
-+++ sys_epoll/arch/sparc64/solaris/timod.c	Mon Dec 16 16:26:08 2002
-@@ -651,10 +651,11 @@
- 		SOLD("LISTEN done");
- 	}
- 	if (!(filp->f_flags & O_NONBLOCK)) {
--		poll_table wait_table, *wait;
-+		struct poll_wqueues wait_table;
-+		poll_table *wait;
+ ------------------------------------------------------------------------------
+ Preface
+@@ -1659,6 +1660,92 @@
+ gives the  destination  network, the router node (or Directly) and the network
+ address of the router (or Connected) for internal networks.
  
- 		poll_initwait(&wait_table);
--		wait = &wait_table;
-+		wait = &wait_table.pt;
- 		for(;;) {
- 			SOLD("loop");
- 			set_current_state(TASK_INTERRUPTIBLE);
---- linux-2.4.20/fs/Makefile	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/fs/Makefile	Mon Dec 16 16:24:04 2002
-@@ -14,7 +14,7 @@
- 		super.o block_dev.o char_dev.o stat.o exec.o pipe.o namei.o \
- 		fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
- 		dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
--		filesystems.o namespace.o seq_file.o xattr.o
-+		filesystems.o namespace.o seq_file.o xattr.o eventpoll.o
- 
- ifeq ($(CONFIG_QUOTA),y)
- obj-y += dquot.o
---- linux-2.4.20/fs/eventpoll.c	Wed Dec 31 16:00:00 1969
-+++ sys_epoll/fs/eventpoll.c	Mon Dec 16 16:24:04 2002
-@@ -0,0 +1,1624 @@
-+/*
-+ *  fs/eventpoll.c ( Efficent event polling implementation )
-+ *  Copyright (C) 2001,...,2002	 Davide Libenzi
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  Davide Libenzi <davidel@xmailserver.org>
-+ *  
-+ *  11 December 2002	
-+ *	Ported from 2.5.51 - janetinc@us.ibm.com
-+ * 		
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/fs.h>
-+#include <linux/file.h>
-+#include <linux/signal.h>
-+#include <linux/errno.h>
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+#include <linux/poll.h>
-+#include <linux/smp_lock.h>
-+#include <linux/string.h>
-+#include <linux/list.h>
-+#include <linux/hash.h>
-+#include <linux/spinlock.h>
-+#include <linux/rwsem.h>
-+#include <linux/wait.h>
-+#include <linux/eventpoll.h>
-+#include <linux/mount.h>
-+#include <asm/bitops.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/mman.h>
-+#include <asm/atomic.h>
-+
-+
-+
-+#define EVENTPOLLFS_MAGIC 0x03111965 /* My birthday should work for this :) */
-+
-+#define DEBUG_EPOLL 0
-+
-+#if DEBUG_EPOLL > 0
-+#define DPRINTK(x) printk x
-+#define DNPRINTK(n, x) do { if ((n) <= DEBUG_EPOLL) printk x; } while (0)
-+#else /* #if DEBUG_EPOLL > 0 */
-+#define DPRINTK(x) (void) 0
-+#define DNPRINTK(n, x) (void) 0
-+#endif /* #if DEBUG_EPOLL > 0 */
-+
-+#define DEBUG_EPI 0
-+
-+#if DEBUG_EPI != 0
-+#define EPI_SLAB_DEBUG (SLAB_DEBUG_FREE | SLAB_RED_ZONE /* | SLAB_POISON */)
-+#else /* #if DEBUG_EPI != 0 */
-+#define EPI_SLAB_DEBUG 0
-+#endif /* #if DEBUG_EPI != 0 */
-+
-+
-+/* Maximum number of poll wake up nests we are allowing */
-+#define EP_MAX_POLLWAKE_NESTS 4
-+
-+/* Maximum size of the hash in bits ( 2^N ) */
-+#define EP_MAX_HASH_BITS 17
-+
-+/* Minimum size of the hash in bits ( 2^N ) */
-+#define EP_MIN_HASH_BITS 9
-+
-+/* Number of hash entries ( "struct list_head" ) inside a page */
-+#define EP_HENTRY_X_PAGE (PAGE_SIZE / sizeof(struct list_head))
-+
-+/* Maximum size of the hash in pages */
-+#define EP_MAX_HPAGES ((1 << EP_MAX_HASH_BITS) / EP_HENTRY_X_PAGE + 1)
-+
-+/* Number of pages allocated for an "hbits" sized hash table */
-+#define EP_HASH_PAGES(hbits) ((int) ((1 << (hbits)) / EP_HENTRY_X_PAGE + \
-+				     ((1 << (hbits)) % EP_HENTRY_X_PAGE ? 1: 0)))
-+
-+/* Macro to allocate a "struct epitem" from the slab cache */
-+#define EPI_MEM_ALLOC()	(struct epitem *) kmem_cache_alloc(epi_cache, SLAB_KERNEL)
-+
-+/* Macro to free a "struct epitem" to the slab cache */
-+#define EPI_MEM_FREE(p) kmem_cache_free(epi_cache, p)
-+
-+/* Macro to allocate a "struct eppoll_entry" from the slab cache */
-+#define PWQ_MEM_ALLOC()	(struct eppoll_entry *) kmem_cache_alloc(pwq_cache, SLAB_KERNEL)
-+
-+/* Macro to free a "struct eppoll_entry" to the slab cache */
-+#define PWQ_MEM_FREE(p) kmem_cache_free(pwq_cache, p)
-+
-+/* Fast test to see if the file is an evenpoll file */
-+#define IS_FILE_EPOLL(f) ((f)->f_op == &eventpoll_fops)
-+
-+/*
-+ * Remove the item from the list and perform its initialization.
-+ * This is usefull for us because we can test if the item is linked
-+ * using "EP_IS_LINKED(p)".
-+ */
-+#define EP_LIST_DEL(p) do { list_del(p); INIT_LIST_HEAD(p); } while (0)
-+
-+/* Tells us if the item is currently linked */
-+#define EP_IS_LINKED(p) (!list_empty(p))
-+
-+/* Get the "struct epitem" from a wait queue pointer */
-+#define EP_ITEM_FROM_WAIT(p) ((struct epitem *) container_of(p, struct eppoll_entry, wait)->base)
-+
-+/* Get the "struct epitem" from an epoll queue wrapper */
-+#define EP_ITEM_FROM_EPQUEUE(p) (container_of(p, struct ep_pqueue, pt)->epi)
-+
-+/*
-+ * This is used to optimize the event transfer to userspace. Since this
-+ * is kept on stack, it should be pretty small.
-+ */
-+#define EP_MAX_BUF_EVENTS 32
-+
-+/*
-+ * Used to optimize ready items collection by reducing the irqlock/irqunlock
-+ * switching rate. This is kept in stack too, so do not go wild with this number.
-+ */
-+#define EP_MAX_COLLECT_ITEMS 64
-+
-+
-+/*
-+ * Node that is linked into the "wake_task_list" member of the "struct poll_safewake".
-+ * It is used to keep track on all tasks that are currently inside the wake_up() code
-+ * to 1) short-circuit the one coming from the same task and same wait queue head
-+ * ( loop ) 2) allow a maximum number of epoll descriptors inclusion nesting
-+ * 3) let go the ones coming from other tasks.
-+ */
-+struct wake_task_node {
-+	struct list_head llink;
-+	task_t *task;
-+	wait_queue_head_t *wq;
-+};
-+
-+/*
-+ * This is used to implement the safe poll wake up avoiding to reenter
-+ * the poll callback from inside wake_up().
-+ */
-+struct poll_safewake {
-+	struct list_head wake_task_list;
-+	spinlock_t lock;
-+};
-+
-+/*
-+ * This structure is stored inside the "private_data" member of the file
-+ * structure and rapresent the main data sructure for the eventpoll
-+ * interface.
-+ */
-+struct eventpoll {
-+	/* Protect the this structure access */
-+	rwlock_t lock;
-+
-+	/* Wait queue used by sys_epoll_wait() */
-+	wait_queue_head_t wq;
-+
-+	/* Wait queue used by file->poll() */
-+	wait_queue_head_t poll_wait;
-+
-+	/* List of ready file descriptors */
-+	struct list_head rdllist;
-+
-+	/* Size of the hash */
-+	unsigned int hashbits;
-+
-+	/* Pages for the "struct epitem" hash */
-+	char *hpages[EP_MAX_HPAGES];
-+};
-+
-+/* Wait structure used by the poll hooks */
-+struct eppoll_entry {
-+	/* List header used to link this structure to the "struct epitem" */
-+	struct list_head llink;
-+
-+	/* The "base" pointer is set to the container "struct epitem" */
-+	void *base;
-+
-+	/*
-+	 * Wait queue item that will be linked to the target file wait
-+	 * queue head.
-+	 */
-+	wait_queue_t wait;
-+
-+	/* The wait queue head that linked the "wait" wait queue item */
-+	wait_queue_head_t *whead;
-+};
-+
-+/*
-+ * Each file descriptor added to the eventpoll interface will
-+ * have an entry of this type linked to the hash.
-+ */
-+struct epitem {
-+	/* List header used to link this structure to the eventpoll hash */
-+	struct list_head llink;
-+
-+	/* List header used to link this structure to the eventpoll ready list */
-+	struct list_head rdllink;
-+
-+	/* Number of active wait queue attached to poll operations */
-+	int nwait;
-+
-+	/* List containing poll wait queues */
-+	struct list_head pwqlist;
-+
-+	/* The "container" of this item */
-+	struct eventpoll *ep;
-+
-+	/* The file this item refers to */
-+	struct file *file;
-+
-+	/* The structure that describe the interested events and the source fd */
-+	struct epoll_event event;
-+
-+	/*
-+	 * Used to keep track of the usage count of the structure. This avoids
-+	 * that the structure will desappear from underneath our processing.
-+	 */
-+	atomic_t usecnt;
-+
-+	/* List header used to link this item to the "struct file" items list */
-+	struct list_head fllink;
-+};
-+
-+/* Wrapper struct used by poll queueing */
-+struct ep_pqueue {
-+	poll_table pt;
-+	struct epitem *epi;
-+};
-+
-+
-+
-+static void ep_poll_safewake_init(struct poll_safewake *psw);
-+static void ep_poll_safewake(struct poll_safewake *psw, wait_queue_head_t *wq);
-+static unsigned int ep_get_hash_bits(unsigned int hintsize);
-+static int ep_getfd(int *efd, struct inode **einode, struct file **efile);
-+static int ep_alloc_pages(char **pages, int numpages);
-+static int ep_free_pages(char **pages, int numpages);
-+static int ep_file_init(struct file *file, unsigned int hashbits);
-+static unsigned int ep_hash_index(struct eventpoll *ep, struct file *file);
-+static struct list_head *ep_hash_entry(struct eventpoll *ep, unsigned int index);
-+static int ep_init(struct eventpoll *ep, unsigned int hashbits);
-+static void ep_free(struct eventpoll *ep);
-+static struct epitem *ep_find(struct eventpoll *ep, struct file *file);
-+static void ep_use_epitem(struct epitem *epi);
-+static void ep_release_epitem(struct epitem *epi);
-+static void ep_ptable_queue_proc(struct file *file, wait_queue_head_t *whead, poll_table *pt);
-+static int ep_insert(struct eventpoll *ep, struct epoll_event *event, struct file *tfile);
-+static int ep_modify(struct eventpoll *ep, struct epitem *epi, struct epoll_event *event);
-+static void ep_unregister_pollwait(struct eventpoll *ep, struct epitem *epi);
-+static int ep_unlink(struct eventpoll *ep, struct epitem *epi);
-+static int ep_remove(struct eventpoll *ep, struct epitem *epi);
-+static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync);
-+static int ep_eventpoll_close(struct inode *inode, struct file *file);
-+static unsigned int ep_eventpoll_poll(struct file *file, poll_table *wait);
-+static int ep_collect_ready_items(struct eventpoll *ep, struct epitem **aepi, int maxepi);
-+static int ep_send_events(struct eventpoll *ep, struct epitem **aepi, int nepi,
-+			  struct epoll_event *events);
-+static int ep_events_transfer(struct eventpoll *ep, struct epoll_event *events, int maxevents);
-+static int ep_poll(struct eventpoll *ep, struct epoll_event *events, int maxevents,
-+		   int timeout);
-+static int eventpollfs_delete_dentry(struct dentry *dentry);
-+static struct inode *ep_eventpoll_inode(void);
-+
-+
-+/* Safe wake up implementation */
-+static struct poll_safewake psw;
-+
-+/*
-+ * This semaphore is used to ensure that files are not removed
-+ * while epoll is using them. Namely the f_op->poll(), since
-+ * it has to be called from outside the lock, must be protected.
-+ * This is read-held during the event transfer loop to userspace
-+ * and it is write-held during the file cleanup path and the epoll
-+ * file exit code.
-+ */
-+static struct rw_semaphore epsem;
-+
-+/* Slab cache used to allocate "struct epitem" */
-+static kmem_cache_t *epi_cache;
-+
-+/* Slab cache used to allocate "struct eppoll_entry" */
-+static kmem_cache_t *pwq_cache;
-+
-+/* Virtual fs used to allocate inodes for eventpoll files */
-+static struct vfsmount *eventpoll_mnt;
-+
-+/* File callbacks that implement the eventpoll file behaviour */
-+static struct file_operations eventpoll_fops = {
-+	.release	= ep_eventpoll_close,
-+	.poll		= ep_eventpoll_poll
-+};
-+
-+static int eventpollfs_statfs(struct super_block *sb, struct statfs *buf)
-+{
-+        buf->f_type = EVENTPOLLFS_MAGIC;
-+        buf->f_bsize = 1024;
-+        buf->f_namelen = 255;
-+        return 0;
-+}
-+
-+static struct super_operations eventpollfs_ops = {
-+        statfs:         eventpollfs_statfs,
-+};
-+
-+static struct super_block * eventpollfs_read_super(struct super_block *sb, void *data, int silent)
-+{
-+	struct inode *root = new_inode(sb);
-+	if (!root)
-+		return NULL;
-+	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
-+	root->i_uid = root->i_gid = 0;
-+	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
-+	sb->s_blocksize = 1024;
-+	sb->s_blocksize_bits = 10;
-+	sb->s_magic = EVENTPOLLFS_MAGIC;
-+	sb->s_op = &eventpollfs_ops;
-+	sb->s_root = d_alloc(NULL, &(const struct qstr) {"eventpoll:", 10, 0 });
-+	if (!sb->s_root) {
-+		iput(root);
-+		return NULL;
-+	}
-+	sb->s_root->d_sb = sb;
-+	sb->s_root->d_parent = sb->s_root;
-+	d_instantiate(sb->s_root, root);
-+	return sb;
-+}
-+
-+static DECLARE_FSTYPE(eventpoll_fs_type, "eventpollfs", eventpollfs_read_super, FS_NOMOUNT);
-+
-+
-+/* Very basic directory entry operations for the eventpoll virtual file system */
-+static struct dentry_operations eventpollfs_dentry_operations = {
-+	.d_delete	= eventpollfs_delete_dentry,
-+};
-+
-+
-+
-+/* Initialize the poll safe wake up structure */
-+static void ep_poll_safewake_init(struct poll_safewake *psw)
-+{
-+
-+	INIT_LIST_HEAD(&psw->wake_task_list);
-+	spin_lock_init(&psw->lock);
-+}
-+
-+
-+/*
-+ * Perform a safe wake up of the poll wait list. The problem is that
-+ * with the new callback'd wake up system, it is possible that the
-+ * poll callback is reentered from inside the call to wake_up() done
-+ * on the poll wait queue head. The rule is that we cannot reenter the
-+ * wake up code from the same task more than EP_MAX_POLLWAKE_NESTS times,
-+ * and we cannot reenter the same wait queue head at all. This will
-+ * enable to have a hierarchy of epoll file descriptor of no more than
-+ * EP_MAX_POLLWAKE_NESTS deep. We need the irq version of the spin lock
-+ * because this one gets called by the poll callback, that in turn is called
-+ * from inside a wake_up(), that might be called from irq context.
-+ */
-+static void ep_poll_safewake(struct poll_safewake *psw, wait_queue_head_t *wq)
-+{
-+	int wake_nests = 0;
-+	unsigned long flags;
-+	task_t *this_task = current;
-+	struct list_head *lsthead = &psw->wake_task_list, *lnk;
-+	struct wake_task_node tnode;
-+
-+	spin_lock_irqsave(&psw->lock, flags);
-+
-+	/* Try to see if the current task is already inside this wakeup call */
-+	list_for_each(lnk, lsthead) {
-+		struct wake_task_node *tncur = list_entry(lnk, struct wake_task_node, llink);
-+
-+		if (tncur->task == this_task) {
-+			if (tncur->wq == wq || ++wake_nests > EP_MAX_POLLWAKE_NESTS) {
-+				/*
-+				 * Ops ... loop detected or maximum nest level reached.
-+				 * We abort this wake by breaking the cycle itself.
-+				 */
-+				spin_unlock_irqrestore(&psw->lock, flags);
-+				return;
-+			}
-+		}
-+	}
-+
-+	/* Add the current task to the list */
-+	tnode.task = this_task;
-+	tnode.wq = wq;
-+	list_add(&tnode.llink, lsthead);
-+
-+	spin_unlock_irqrestore(&psw->lock, flags);
-+
-+	/* Do really wake up now */
-+	wake_up(wq);
-+
-+	/* Remove the current task from the list */
-+	spin_lock_irqsave(&psw->lock, flags);
-+	list_del(&tnode.llink);
-+	spin_unlock_irqrestore(&psw->lock, flags);
-+}
-+
-+
-+/*
-+ * Calculate the size of the hash in bits. The returned size will be
-+ * bounded between EP_MIN_HASH_BITS and EP_MAX_HASH_BITS.
-+ */
-+static unsigned int ep_get_hash_bits(unsigned int hintsize)
-+{
-+	unsigned int i, val;
-+
-+	for (i = 0, val = 1; val < hintsize && i < EP_MAX_HASH_BITS; i++, val <<= 1);
-+	return i <  EP_MIN_HASH_BITS ?  EP_MIN_HASH_BITS: i;
-+}
-+
-+
-+/* Used to initialize the epoll bits inside the "struct file" */
-+void eventpoll_init_file(struct file *file)
-+{
-+
-+	INIT_LIST_HEAD(&file->f_ep_links);
-+	spin_lock_init(&file->f_ep_lock);
-+}
-+
-+
-+/*
-+ * This is called from inside fs/file_table.c:__fput() to unlink files
-+ * from the eventpoll interface. We need to have this facility to cleanup
-+ * correctly files that are closed without being removed from the eventpoll
-+ * interface.
-+ */
-+void eventpoll_release(struct file *file)
-+{
-+	struct list_head *lsthead = &file->f_ep_links;
-+	struct epitem *epi;
-+
-+	/*
-+	 * Fast check to avoid the get/release of the semaphore. Since
-+	 * we're doing this outside the semaphore lock, it might return
-+	 * false negatives, but we don't care. It'll help in 99.99% of cases
-+	 * to avoid the semaphore lock. False positives simply cannot happen
-+	 * because the file in on the way to be removed and nobody ( but
-+	 * eventpoll ) has still a reference to this file.
-+	 */
-+	if (list_empty(lsthead))
-+		return;
-+
-+	/*
-+	 * We don't want to get "file->f_ep_lock" because it is not
-+	 * necessary. It is not necessary because we're in the "struct file"
-+	 * cleanup path, and this means that noone is using this file anymore.
-+	 * The only hit might come from ep_free() but by holding the semaphore
-+	 * will correctly serialize the operation.
-+	 */
-+	down_write(&epsem);
-+	while (!list_empty(lsthead)) {
-+		epi = list_entry(lsthead->next, struct epitem, fllink);
-+
-+		EP_LIST_DEL(&epi->fllink);
-+		ep_remove(epi->ep, epi);
-+	}
-+	up_write(&epsem);
-+}
-+
-+
-+/*
-+ * It opens an eventpoll file descriptor by suggesting a storage of "size"
-+ * file descriptors. The size parameter is just an hint about how to size
-+ * data structures. It won't prevent the user to store more than "size"
-+ * file descriptors inside the epoll interface. It is the kernel part of
-+ * the userspace epoll_create(2).
-+ */
-+asmlinkage int sys_epoll_create(int size)
-+{
-+	int error, fd;
-+	unsigned int hashbits;
-+	struct inode *inode;
-+	struct file *file;
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_create(%d)\n",
-+		     current, size));
-+
-+	/* Correctly size the hash */
-+	hashbits = ep_get_hash_bits((unsigned int) size);
-+
-+	/*
-+	 * Creates all the items needed to setup an eventpoll file. That is,
-+	 * a file structure, and inode and a free file descriptor.
-+	 */
-+	error = ep_getfd(&fd, &inode, &file);
-+	if (error)
-+		goto eexit_1;
-+
-+	/* Setup the file internal data structure ( "struct eventpoll" ) */
-+	error = ep_file_init(file, hashbits);
-+	if (error)
-+		goto eexit_2;
-+
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_create(%d) = %d\n",
-+		     current, size, fd));
-+
-+	return fd;
-+
-+eexit_2:
-+	sys_close(fd);
-+eexit_1:
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_create(%d) = %d\n",
-+		     current, size, error));
-+	return error;
-+}
-+
-+
-+/*
-+ * The following function implement the controller interface for the eventpoll
-+ * file that enable the insertion/removal/change of file descriptors inside
-+ * the interest set. It rapresents the kernel part of the user spcae epoll_ctl(2).
-+ */
-+asmlinkage int sys_epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
-+{
-+	int error;
-+	struct file *file, *tfile;
-+	struct eventpoll *ep;
-+	struct epitem *epi;
-+	struct epoll_event epds;
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_ctl(%d, %d, %d, %u)\n",
-+		     current, epfd, op, fd, event->events));
-+
-+	error = -EFAULT;
-+	if (copy_from_user(&epds, event, sizeof(struct epoll_event)))
-+		goto eexit_1;
-+
-+	/* Get the "struct file *" for the eventpoll file */
-+	error = -EBADF;
-+	file = fget(epfd);
-+	if (!file)
-+		goto eexit_1;
-+
-+	/* Get the "struct file *" for the target file */
-+	tfile = fget(fd);
-+	if (!tfile)
-+		goto eexit_2;
-+
-+	/* The target file descriptor must support poll */
-+	error = -EPERM;
-+	if (!tfile->f_op || !tfile->f_op->poll)
-+		goto eexit_3;
-+
-+	/*
-+	 * We have to check that the file structure underneath the file descriptor
-+	 * the user passed to us _is_ an eventpoll file. And also we do not permit
-+	 * adding an epoll file descriptor inside itself.
-+	 */
-+	error = -EINVAL;
-+	if (file == tfile || !IS_FILE_EPOLL(file))
-+		goto eexit_3;
-+
-+	/*
-+	 * At this point it is safe to assume that the "private_data" contains
-+	 * our own data structure.
-+	 */
-+	ep = file->private_data;
-+
-+	/*
-+	 * Try to lookup the file inside our hash table. When an item is found
-+	 * ep_find() increases the usage count of the item so that it won't
-+	 * desappear underneath us. The only thing that might happen, if someone
-+	 * tries very hard, is a double insertion of the same file descriptor.
-+	 * This does not rapresent a problem though and we don't really want
-+	 * to put an extra syncronization object to deal with this harmless condition.
-+	 */
-+	epi = ep_find(ep, tfile);
-+
-+	error = -EINVAL;
-+	switch (op) {
-+	case EPOLL_CTL_ADD:
-+		if (!epi) {
-+			epds.events |= POLLERR | POLLHUP;
-+
-+			error = ep_insert(ep, &epds, tfile);
-+		} else
-+			error = -EEXIST;
-+		break;
-+	case EPOLL_CTL_DEL:
-+		if (epi)
-+			error = ep_remove(ep, epi);
-+		else
-+			error = -ENOENT;
-+		break;
-+	case EPOLL_CTL_MOD:
-+		if (epi) {
-+			epds.events |= POLLERR | POLLHUP;
-+			error = ep_modify(ep, epi, &epds);
-+		} else
-+			error = -ENOENT;
-+		break;
-+	}
-+
-+	/*
-+	 * The function ep_find() increments the usage count of the structure
-+	 * so, if this is not NULL, we need to release it.
-+	 */
-+	if (epi)
-+		ep_release_epitem(epi);
-+
-+eexit_3:
-+	fput(tfile);
-+eexit_2:
-+	fput(file);
-+eexit_1:
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_ctl(%d, %d, %d, %u) = %d\n",
-+		     current, epfd, op, fd, event->events, error));
-+
-+	return error;
-+}
-+
-+
-+/*
-+ * Implement the event wait interface for the eventpoll file. It is the kernel
-+ * part of the user space epoll_wait(2).
-+ */
-+asmlinkage int sys_epoll_wait(int epfd, struct epoll_event *events, int maxevents,
-+			      int timeout)
-+{
-+	int error;
-+	struct file *file;
-+	struct eventpoll *ep;
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_wait(%d, %p, %d, %d)\n",
-+		     current, epfd, events, maxevents, timeout));
-+
-+	/* The maximum number of event must be greater than zero */
-+	if (maxevents <= 0)
-+		return -EINVAL;
-+
-+	/* Verify that the area passed by the user is writeable */
-+	if ((error = verify_area(VERIFY_WRITE, events, maxevents * sizeof(struct epoll_event))))
-+		goto eexit_1;
-+
-+	/* Get the "struct file *" for the eventpoll file */
-+	error = -EBADF;
-+	file = fget(epfd);
-+	if (!file)
-+		goto eexit_1;
-+
-+	/*
-+	 * We have to check that the file structure underneath the file descriptor
-+	 * the user passed to us _is_ an eventpoll file.
-+	 */
-+	error = -EINVAL;
-+	if (!IS_FILE_EPOLL(file))
-+		goto eexit_2;
-+
-+	/*
-+	 * At this point it is safe to assume that the "private_data" contains
-+	 * our own data structure.
-+	 */
-+	ep = file->private_data;
-+
-+	/* Time to fish for events ... */
-+	error = ep_poll(ep, events, maxevents, timeout);
-+
-+eexit_2:
-+	fput(file);
-+eexit_1:
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_wait(%d, %p, %d, %d) = %d\n",
-+		     current, epfd, events, maxevents, timeout, error));
-+
-+	return error;
-+}
-+
-+
-+/*
-+ * Creates the file descriptor to be used by the epoll interface.
-+ */
-+static int ep_getfd(int *efd, struct inode **einode, struct file **efile)
-+{
-+	struct qstr this;
-+	char name[32];
-+	struct dentry *dentry;
-+	struct inode *inode;
-+	struct file *file;
-+	int error, fd;
-+
-+	/* Get an ready to use file */
-+	error = -ENFILE;
-+	file = get_empty_filp();
-+	if (!file)
-+		goto eexit_1;
-+
-+	/* Allocates an inode from the eventpoll file system */
-+	inode = ep_eventpoll_inode();
-+	error = PTR_ERR(inode);
-+	if (IS_ERR(inode))
-+		goto eexit_2;
-+
-+	/* Allocates a free descriptor to plug the file onto */
-+	error = get_unused_fd();
-+	if (error < 0)
-+		goto eexit_3;
-+	fd = error;
-+
-+	/*
-+	 * Link the inode to a directory entry by creating a unique name
-+	 * using the inode number.
-+	 */
-+	error = -ENOMEM;
-+	sprintf(name, "[%lu]", inode->i_ino);
-+	this.name = name;
-+	this.len = strlen(name);
-+	this.hash = inode->i_ino;
-+	dentry = d_alloc(eventpoll_mnt->mnt_sb->s_root, &this);
-+	if (!dentry)
-+		goto eexit_4;
-+	dentry->d_op = &eventpollfs_dentry_operations;
-+	d_add(dentry, inode);
-+	file->f_vfsmnt = mntget(eventpoll_mnt);
-+	file->f_dentry = dget(dentry);
-+
-+	/*
-+	 * Initialize the file as read/write because it could be used
-+	 * with write() to add/remove/change interest sets.
-+	 */
-+	file->f_pos = 0;
-+	file->f_flags = O_RDONLY;
-+	file->f_op = &eventpoll_fops;
-+	file->f_mode = FMODE_READ;
-+	file->f_version = 0;
-+	file->private_data = NULL;
-+
-+	/* Install the new setup file into the allocated fd. */
-+	fd_install(fd, file);
-+
-+	*efd = fd;
-+	*einode = inode;
-+	*efile = file;
-+	return 0;
-+
-+eexit_4:
-+	put_unused_fd(fd);
-+eexit_3:
-+	iput(inode);
-+eexit_2:
-+	put_filp(file);
-+eexit_1:
-+	return error;
-+}
-+
-+
-+static int ep_alloc_pages(char **pages, int numpages)
-+{
-+	int i;
-+
-+	for (i = 0; i < numpages; i++) {
-+		pages[i] = (char *) __get_free_pages(GFP_KERNEL, 0);
-+		if (!pages[i]) {
-+			for (--i; i >= 0; i--) {
-+				ClearPageReserved(virt_to_page(pages[i]));
-+				free_pages((unsigned long) pages[i], 0);
-+			}
-+			return -ENOMEM;
-+		}
-+		SetPageReserved(virt_to_page(pages[i]));
-+	}
-+	return 0;
-+}
-+
-+
-+static int ep_free_pages(char **pages, int numpages)
-+{
-+	int i;
-+
-+	for (i = 0; i < numpages; i++) {
-+		ClearPageReserved(virt_to_page(pages[i]));
-+		free_pages((unsigned long) pages[i], 0);
-+	}
-+	return 0;
-+}
-+
-+
-+static int ep_file_init(struct file *file, unsigned int hashbits)
-+{
-+	int error;
-+	struct eventpoll *ep;
-+
-+	if (!(ep = kmalloc(sizeof(struct eventpoll), GFP_KERNEL)))
-+		return -ENOMEM;
-+
-+	memset(ep, 0, sizeof(*ep));
-+
-+	error = ep_init(ep, hashbits);
-+	if (error) {
-+		kfree(ep);
-+		return error;
-+	}
-+
-+	file->private_data = ep;
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: ep_file_init() ep=%p\n",
-+		     current, ep));
-+	return 0;
-+}
-+
-+
-+/*
-+ * Calculate the index of the hash relative to "file".
-+ */
-+static unsigned int ep_hash_index(struct eventpoll *ep, struct file *file)
-+{
-+
-+	return (unsigned int) hash_ptr(file, ep->hashbits);
-+}
-+
-+
-+/*
-+ * Returns the hash entry ( struct list_head * ) of the passed index.
-+ */
-+static struct list_head *ep_hash_entry(struct eventpoll *ep, unsigned int index)
-+{
-+
-+	return (struct list_head *) (ep->hpages[index / EP_HENTRY_X_PAGE] +
-+				     (index % EP_HENTRY_X_PAGE) * sizeof(struct list_head));
-+}
-+
-+
-+static int ep_init(struct eventpoll *ep, unsigned int hashbits)
-+{
-+	int error;
-+	unsigned int i, hsize;
-+
-+	rwlock_init(&ep->lock);
-+	init_waitqueue_head(&ep->wq);
-+	init_waitqueue_head(&ep->poll_wait);
-+	INIT_LIST_HEAD(&ep->rdllist);
-+
-+	/* Hash allocation and setup */
-+	ep->hashbits = hashbits;
-+	error = ep_alloc_pages(ep->hpages, EP_HASH_PAGES(ep->hashbits));
-+	if (error)
-+		goto eexit_1;
-+
-+	/* Initialize hash buckets */
-+	for (i = 0, hsize = 1 << hashbits; i < hsize; i++)
-+		INIT_LIST_HEAD(ep_hash_entry(ep, i));
-+
-+	return 0;
-+eexit_1:
-+	return error;
-+}
-+
-+
-+static void ep_free(struct eventpoll *ep)
-+{
-+	unsigned int i, hsize;
-+	struct list_head *lsthead, *lnk;
-+
-+	/*
-+	 * We need to lock this because we could be hit by
-+	 * eventpoll_release() while we're freeing the "struct eventpoll".
-+	 */
-+	down_write(&epsem);
-+
-+	/*
-+	 * Walks through the whole hash by unregistering poll callbacks.
-+	 */
-+	for (i = 0, hsize = 1 << ep->hashbits; i < hsize; i++) {
-+		lsthead = ep_hash_entry(ep, i);
-+
-+		list_for_each(lnk, lsthead) {
-+			struct epitem *epi = list_entry(lnk, struct epitem, llink);
-+
-+			ep_unregister_pollwait(ep, epi);
-+		}
-+	}
-+
-+	/*
-+	 * Walks through the whole hash by freeing each "struct epitem". At this
-+	 * point we are sure no poll callbacks will be lingering around, and also by
-+	 * write-holding "epsem" we can be sure that no file cleanup code will hit
-+	 * us during this operation. So we can avoid the lock on "ep->lock".
-+	 */
-+	for (i = 0, hsize = 1 << ep->hashbits; i < hsize; i++) {
-+		lsthead = ep_hash_entry(ep, i);
-+
-+		while (!list_empty(lsthead)) {
-+			struct epitem *epi = list_entry(lsthead->next, struct epitem, llink);
-+
-+			ep_remove(ep, epi);
-+		}
-+	}
-+
-+	up_write(&epsem);
-+
-+	/* Free hash pages */
-+	ep_free_pages(ep->hpages, EP_HASH_PAGES(ep->hashbits));
-+}
-+
-+
-+/*
-+ * Search the file inside the eventpoll hash. It add usage count to
-+ * the returned item, so the caller must call ep_release_epitem()
-+ * after finished using the "struct epitem".
-+ */
-+static struct epitem *ep_find(struct eventpoll *ep, struct file *file)
-+{
-+	unsigned long flags;
-+	struct list_head *lsthead, *lnk;
-+	struct epitem *epi = NULL;
-+
-+	read_lock_irqsave(&ep->lock, flags);
-+
-+	lsthead = ep_hash_entry(ep, ep_hash_index(ep, file));
-+	list_for_each(lnk, lsthead) {
-+		epi = list_entry(lnk, struct epitem, llink);
-+
-+		if (epi->file == file) {
-+			ep_use_epitem(epi);
-+			break;
-+		}
-+		epi = NULL;
-+	}
-+
-+	read_unlock_irqrestore(&ep->lock, flags);
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: ep_find(%p) -> %p\n",
-+		     current, file, epi));
-+
-+	return epi;
-+}
-+
-+
-+/*
-+ * Increment the usage count of the "struct epitem" making it sure
-+ * that the user will have a valid pointer to reference.
-+ */
-+static void ep_use_epitem(struct epitem *epi)
-+{
-+
-+	atomic_inc(&epi->usecnt);
-+}
-+
-+
-+/*
-+ * Decrement ( release ) the usage count by signaling that the user
-+ * has finished using the structure. It might lead to freeing the
-+ * structure itself if the count goes to zero.
-+ */
-+static void ep_release_epitem(struct epitem *epi)
-+{
-+
-+	if (atomic_dec_and_test(&epi->usecnt))
-+		EPI_MEM_FREE(epi);
-+}
-+
-+
-+/*
-+ * This is the callback that is used to add our wait queue to the
-+ * target file wakeup lists.
-+ */
-+static void ep_ptable_queue_proc(struct file *file, wait_queue_head_t *whead, poll_table *pt)
-+{
-+	struct epitem *epi = EP_ITEM_FROM_EPQUEUE(pt);
-+	struct eppoll_entry *pwq;
-+
-+	if (epi->nwait >= 0 && (pwq = PWQ_MEM_ALLOC()))
-+	{
-+		init_waitqueue_func_entry(&pwq->wait, ep_poll_callback);
-+		pwq->whead = whead;
-+		pwq->base = epi;
-+		add_wait_queue(whead, &pwq->wait);
-+		list_add_tail(&pwq->llink, &epi->pwqlist);
-+		epi->nwait++;
-+	}
-+	else
-+	{
-+		/* We have to signal that an error occured */
-+		epi->nwait = -1;
-+	}
-+}
-+
-+
-+static int ep_insert(struct eventpoll *ep, struct epoll_event *event, struct file *tfile)
-+{
-+	int error, revents, pwake = 0;
-+	unsigned long flags;
-+	struct epitem *epi;
-+	struct ep_pqueue epq;
-+
-+	error = -ENOMEM;
-+	if (!(epi = EPI_MEM_ALLOC()))
-+		goto eexit_1;
-+
-+	/* Item initialization follow here ... */
-+	INIT_LIST_HEAD(&epi->llink);
-+	INIT_LIST_HEAD(&epi->rdllink);
-+	INIT_LIST_HEAD(&epi->fllink);
-+	INIT_LIST_HEAD(&epi->pwqlist);
-+	epi->ep = ep;
-+	epi->file = tfile;
-+	epi->event = *event;
-+	atomic_set(&epi->usecnt, 1);
-+	epi->nwait = 0;
-+
-+	/* Initialize the poll table using the queue callback */
-+	epq.epi = epi;
-+	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
-+
-+	/*
-+	 * Attach the item to the poll hooks and get current event bits.
-+	 * We can safely use the file* here because its usage count has
-+	 * been increased by the caller of this function.
-+	 */
-+	revents = tfile->f_op->poll(tfile, &epq.pt);
-+
-+	/*
-+	 * We have to check if something went wrong during the poll wait queue
-+	 * install process. Namely an allocation for a wait queue failed due
-+	 * high memory pressure.
-+	 */
-+	if (epi->nwait < 0)
-+		goto eexit_2;
-+
-+	/* Add the current item to the list of active epoll hook for this file */
-+	spin_lock(&tfile->f_ep_lock);
-+	list_add_tail(&epi->fllink, &tfile->f_ep_links);
-+	spin_unlock(&tfile->f_ep_lock);
-+
-+	/* We have to drop the new item inside our item list to keep track of it */
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	/* Add the current item to the hash table */
-+	list_add(&epi->llink, ep_hash_entry(ep, ep_hash_index(ep, tfile)));
-+
-+	/* If the file is already "ready" we drop it inside the ready list */
-+	if ((revents & event->events) && !EP_IS_LINKED(&epi->rdllink)) {
-+		list_add_tail(&epi->rdllink, &ep->rdllist);
-+
-+		/* Notify waiting tasks that events are available */
-+		if (waitqueue_active(&ep->wq))
-+			wake_up(&ep->wq);
-+		if (waitqueue_active(&ep->poll_wait))
-+			pwake++;
-+	}
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	/* We have to call this outside the lock */
-+	if (pwake)
-+		ep_poll_safewake(&psw, &ep->poll_wait);
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: ep_insert(%p, %p)\n",
-+		     current, ep, tfile));
-+
-+	return 0;
-+
-+eexit_2:
-+	ep_unregister_pollwait(ep, epi);
-+
-+	/*
-+	 * We need to do this because an event could have been arrived on some
-+	 * allocated wait queue.
-+	 */
-+	write_lock_irqsave(&ep->lock, flags);
-+	if (EP_IS_LINKED(&epi->rdllink))
-+		EP_LIST_DEL(&epi->rdllink);
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	EPI_MEM_FREE(epi);
-+eexit_1:
-+	return error;
-+}
-+
-+
-+/*
-+ * Modify the interest event mask by dropping an event if the new mask
-+ * has a match in the current file status.
-+ */
-+static int ep_modify(struct eventpoll *ep, struct epitem *epi, struct epoll_event *event)
-+{
-+	int pwake = 0;
-+	unsigned int revents;
-+	unsigned long flags;
-+
-+	/*
-+	 * Set the new event interest mask before calling f_op->poll(), otherwise
-+	 * a potential race might occur. In fact if we do this operation inside
-+	 * the lock, an event might happen between the f_op->poll() call and the
-+	 * new event set registering.
-+	 */
-+	epi->event.events = event->events;
-+
-+	/*
-+	 * Get current event bits. We can safely use the file* here because
-+	 * its usage count has been increased by the caller of this function.
-+	 */
-+	revents = epi->file->f_op->poll(epi->file, NULL);
-+
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	/* Copy the data member from inside the lock */
-+	epi->event.data = event->data;
-+
-+	/* If the file is already "ready" we drop it inside the ready list */
-+	if ((revents & event->events) && EP_IS_LINKED(&epi->llink) &&
-+	    !EP_IS_LINKED(&epi->rdllink)) {
-+		list_add_tail(&epi->rdllink, &ep->rdllist);
-+
-+		/* Notify waiting tasks that events are available */
-+		if (waitqueue_active(&ep->wq))
-+			wake_up(&ep->wq);
-+		if (waitqueue_active(&ep->poll_wait))
-+			pwake++;
-+	}
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	/* We have to call this outside the lock */
-+	if (pwake)
-+		ep_poll_safewake(&psw, &ep->poll_wait);
-+
-+	return 0;
-+}
-+
-+
-+/*
-+ * This function unregister poll callbacks from the associated file descriptor.
-+ * Since this must be called without holding "ep->lock" the atomic exchange trick
-+ * will protect us from multiple unregister.
-+ */
-+static void ep_unregister_pollwait(struct eventpoll *ep, struct epitem *epi)
-+{
-+	int nwait;
-+	struct list_head *lsthead = &epi->pwqlist;
-+	struct eppoll_entry *pwq;
-+
-+	/* This is called without locks, so we need the atomic exchange */
-+	nwait = xchg(&epi->nwait, 0);
-+
-+	if (nwait)
-+	{
-+		while (!list_empty(lsthead)) {
-+			pwq = list_entry(lsthead->next, struct eppoll_entry, llink);
-+
-+			EP_LIST_DEL(&pwq->llink);
-+			remove_wait_queue(pwq->whead, &pwq->wait);
-+			PWQ_MEM_FREE(pwq);
-+		}
-+	}
-+}
-+
-+
-+/*
-+ * Unlink the "struct epitem" from all places it might have been hooked up.
-+ * This function must be called with write IRQ lock on "ep->lock".
-+ */
-+static int ep_unlink(struct eventpoll *ep, struct epitem *epi)
-+{
-+	int error;
-+
-+	/*
-+	 * It can happen that this one is called for an item already unlinked.
-+	 * The check protect us from doing a double unlink ( crash ).
-+	 */
-+	error = -ENOENT;
-+	if (!EP_IS_LINKED(&epi->llink))
-+		goto eexit_1;
-+
-+	/*
-+	 * At this point is safe to do the job, unlink the item from our list.
-+	 * This operation togheter with the above check closes the door to
-+	 * double unlinks.
-+	 */
-+	EP_LIST_DEL(&epi->llink);
-+
-+	/*
-+	 * If the item we are going to remove is inside the ready file descriptors
-+	 * we want to remove it from this list to avoid stale events.
-+	 */
-+	if (EP_IS_LINKED(&epi->rdllink))
-+		EP_LIST_DEL(&epi->rdllink);
-+
-+	error = 0;
-+eexit_1:
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: ep_unlink(%p, %p) = %d\n",
-+		     current, ep, epi->file, error));
-+
-+	return error;
-+}
-+
-+
-+/*
-+ * Removes a "struct epitem" from the eventpoll hash and deallocates
-+ * all the associated resources.
-+ */
-+static int ep_remove(struct eventpoll *ep, struct epitem *epi)
-+{
-+	int error;
-+	unsigned long flags;
-+
-+	/*
-+	 * Removes poll wait queue hooks. We _have_ to do this without holding
-+	 * the "ep->lock" otherwise a deadlock might occur. This because of the
-+	 * sequence of the lock acquisition. Here we do "ep->lock" then the wait
-+	 * queue head lock when unregistering the wait queue. The wakeup callback
-+	 * will run by holding the wait queue head lock and will call our callback
-+	 * that will try to get "ep->lock".
-+	 */
-+	ep_unregister_pollwait(ep, epi);
-+
-+	/* Remove the current item from the list of epoll hooks */
-+	spin_lock(&epi->file->f_ep_lock);
-+	if (EP_IS_LINKED(&epi->fllink))
-+		EP_LIST_DEL(&epi->fllink);
-+	spin_unlock(&epi->file->f_ep_lock);
-+
-+	/* We need to acquire the write IRQ lock before calling ep_unlink() */
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	/* Really unlink the item from the hash */
-+	error = ep_unlink(ep, epi);
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	if (error)
-+		goto eexit_1;
-+
-+	/* At this point it is safe to free the eventpoll item */
-+	ep_release_epitem(epi);
-+
-+	error = 0;
-+eexit_1:
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: ep_remove(%p, %p) = %d\n",
-+		     current, ep, epi->file, error));
-+
-+	return error;
-+}
-+
-+
-+/*
-+ * This is the callback that is passed to the wait queue wakeup
-+ * machanism. It is called by the stored file descriptors when they
-+ * have events to report.
-+ */
-+static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync)
-+{
-+	int pwake = 0;
-+	unsigned long flags;
-+	struct epitem *epi = EP_ITEM_FROM_WAIT(wait);
-+	struct eventpoll *ep = epi->ep;
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: poll_callback(%p) epi=%p ep=%p\n",
-+		     current, epi->file, epi, ep));
-+
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	/* If this file is already in the ready list we exit soon */
-+	if (EP_IS_LINKED(&epi->rdllink))
-+		goto is_linked;
-+
-+	list_add_tail(&epi->rdllink, &ep->rdllist);
-+
-+is_linked:
-+	/*
-+	 * Wake up ( if active ) both the eventpoll wait list and the ->poll()
-+	 * wait list.
-+	 */
-+	if (waitqueue_active(&ep->wq))
-+		wake_up(&ep->wq);
-+	if (waitqueue_active(&ep->poll_wait))
-+		pwake++;
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	/* We have to call this outside the lock */
-+	if (pwake)
-+		ep_poll_safewake(&psw, &ep->poll_wait);
-+
-+	return 1;
-+}
-+
-+
-+static int ep_eventpoll_close(struct inode *inode, struct file *file)
-+{
-+	struct eventpoll *ep = file->private_data;
-+
-+	if (ep) {
-+		ep_free(ep);
-+		kfree(ep);
-+	}
-+
-+	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: close() ep=%p\n", current, ep));
-+	return 0;
-+}
-+
-+
-+static unsigned int ep_eventpoll_poll(struct file *file, poll_table *wait)
-+{
-+	unsigned int pollflags = 0;
-+	unsigned long flags;
-+	struct eventpoll *ep = file->private_data;
-+
-+	/* Insert inside our poll wait queue */
-+	poll_wait(file, &ep->poll_wait, wait);
-+
-+	/* Check our condition */
-+	read_lock_irqsave(&ep->lock, flags);
-+	if (!list_empty(&ep->rdllist))
-+		pollflags = POLLIN | POLLRDNORM;
-+	read_unlock_irqrestore(&ep->lock, flags);
-+
-+	return pollflags;
-+}
-+
-+
-+/*
-+ * Since we have to release the lock during the __copy_to_user() operation and
-+ * during the f_op->poll() call, we try to collect the maximum number of items
-+ * by reducing the irqlock/irqunlock switching rate.
-+ */
-+static int ep_collect_ready_items(struct eventpoll *ep, struct epitem **aepi, int maxepi)
-+{
-+	int nepi;
-+	unsigned long flags;
-+	struct list_head *lsthead = &ep->rdllist;
-+
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	for (nepi = 0; nepi < maxepi && !list_empty(lsthead);) {
-+		struct epitem *epi = list_entry(lsthead->next, struct epitem, rdllink);
-+
-+		/* Remove the item from the ready list */
-+		EP_LIST_DEL(&epi->rdllink);
-+
-+		/*
-+		 * We need to increase the usage count of the "struct epitem" because
-+		 * another thread might call EPOLL_CTL_DEL on this target and make the
-+		 * object to vanish underneath our nose.
-+		 */
-+		ep_use_epitem(epi);
-+
-+		aepi[nepi++] = epi;
-+	}
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	return nepi;
-+}
-+
-+
-+/*
-+ * This function is called without holding the "ep->lock" since the call to
-+ * __copy_to_user() might sleep, and also f_op->poll() might reenable the IRQ
-+ * because of the way poll() is traditionally implemented in Linux.
-+ */
-+static int ep_send_events(struct eventpoll *ep, struct epitem **aepi, int nepi,
-+			  struct epoll_event *events)
-+{
-+	int i, eventcnt, eventbuf, revents;
-+	struct epitem *epi;
-+	struct epoll_event event[EP_MAX_BUF_EVENTS];
-+
-+	for (i = 0, eventcnt = 0, eventbuf = 0; i < nepi; i++, aepi++) {
-+		epi = *aepi;
-+
-+		/* Get the ready file event set */
-+		revents = epi->file->f_op->poll(epi->file, NULL);
-+
-+		if (revents & epi->event.events) {
-+			event[eventbuf] = epi->event;
-+			event[eventbuf].events &= revents;
-+			eventbuf++;
-+			if (eventbuf == EP_MAX_BUF_EVENTS) {
-+				if (__copy_to_user(&events[eventcnt], event,
-+						   eventbuf * sizeof(struct epoll_event))) {
-+					for (; i < nepi; i++, aepi++)
-+						ep_release_epitem(*aepi);
-+					return -EFAULT;
-+				}
-+				eventcnt += eventbuf;
-+				eventbuf = 0;
-+			}
-+		}
-+
-+		ep_release_epitem(epi);
-+	}
-+
-+	if (eventbuf) {
-+		if (__copy_to_user(&events[eventcnt], event,
-+				   eventbuf * sizeof(struct epoll_event)))
-+			return -EFAULT;
-+		eventcnt += eventbuf;
-+	}
-+
-+	return eventcnt;
-+}
-+
-+
-+/*
-+ * Perform the transfer of events to user space.
-+ */
-+static int ep_events_transfer(struct eventpoll *ep, struct epoll_event *events, int maxevents)
-+{
-+	int eventcnt, nepi, sepi, maxepi;
-+	struct epitem *aepi[EP_MAX_COLLECT_ITEMS];
-+
-+	/*
-+	 * We need to lock this because we could be hit by
-+	 * eventpoll_release() while we're transfering
-+	 * events to userspace. Read-holding "epsem" will lock
-+	 * out eventpoll_release() during the whole
-+	 * transfer loop and this will garantie us that the
-+	 * file will not vanish underneath our nose when
-+	 * we will call f_op->poll() from ep_send_events().
-+	 */
-+	down_read(&epsem);
-+
-+	for (eventcnt = 0; eventcnt < maxevents;) {
-+		/* Maximum items we can extract this time */
-+		maxepi = min(EP_MAX_COLLECT_ITEMS, maxevents - eventcnt);
-+
-+		/* Collect/extract ready items */
-+		nepi = ep_collect_ready_items(ep, aepi, maxepi);
-+
-+		if (nepi) {
-+			/* Send events to userspace */
-+			sepi = ep_send_events(ep, aepi, nepi, &events[eventcnt]);
-+			if (sepi < 0) {
-+				up_read(&epsem);
-+				return sepi;
-+			}
-+			eventcnt += sepi;
-+		}
-+
-+		if (nepi < maxepi)
-+			break;
-+	}
-+
-+	up_read(&epsem);
-+
-+	return eventcnt;
-+}
-+
-+
-+static int ep_poll(struct eventpoll *ep, struct epoll_event *events, int maxevents,
-+		   int timeout)
-+{
-+	int res, eavail;
-+	unsigned long flags;
-+	long jtimeout;
-+	wait_queue_t wait;
-+
-+	/*
-+	 * Calculate the timeout by checking for the "infinite" value ( -1 ).
-+	 * The passed timeout is in milliseconds, that why (t * HZ) / 1000.
-+	 */
-+	jtimeout = timeout == -1 ? MAX_SCHEDULE_TIMEOUT: (timeout * HZ) / 1000;
-+
-+retry:
-+	write_lock_irqsave(&ep->lock, flags);
-+
-+	res = 0;
-+	if (list_empty(&ep->rdllist)) {
-+		/*
-+		 * We don't have any available event to return to the caller.
-+		 * We need to sleep here, and we will be wake up by
-+		 * ep_poll_callback() when events will become available.
-+		 */
-+		init_waitqueue_entry(&wait, current);
-+		add_wait_queue(&ep->wq, &wait);
-+
-+		for (;;) {
-+			/*
-+			 * We don't want to sleep if the ep_poll_callback() sends us
-+			 * a wakeup in between. That's why we set the task state
-+			 * to TASK_INTERRUPTIBLE before doing the checks.
-+			 */
-+			set_current_state(TASK_INTERRUPTIBLE);
-+			if (!list_empty(&ep->rdllist) || !jtimeout)
-+				break;
-+			if (signal_pending(current)) {
-+				res = -EINTR;
-+				break;
-+			}
-+
-+			write_unlock_irqrestore(&ep->lock, flags);
-+			jtimeout = schedule_timeout(jtimeout);
-+			write_lock_irqsave(&ep->lock, flags);
-+		}
-+		remove_wait_queue(&ep->wq, &wait);
-+
-+		set_current_state(TASK_RUNNING);
-+	}
-+
-+	/* Is it worth to try to dig for events ? */
-+	eavail = !list_empty(&ep->rdllist);
-+
-+	write_unlock_irqrestore(&ep->lock, flags);
-+
-+	/*
-+	 * Try to transfer events to user space. In case we get 0 events and
-+	 * there's still timeout left over, we go trying again in search of
-+	 * more luck.
-+	 */
-+	if (!res && eavail &&
-+	    !(res = ep_events_transfer(ep, events, maxevents)) && jtimeout)
-+		goto retry;
-+
-+	return res;
-+}
-+
-+
-+static int eventpollfs_delete_dentry(struct dentry *dentry)
-+{
-+
-+	return 1;
-+}
-+
-+
-+static struct inode *ep_eventpoll_inode(void)
-+{
-+	int error = -ENOMEM;
-+	struct inode *inode = new_inode(eventpoll_mnt->mnt_sb);
-+
-+	if (!inode)
-+		goto eexit_1;
-+
-+	inode->i_fop = &eventpoll_fops;
-+
-+	/*
-+	 * Mark the inode dirty from the very beginning,
-+	 * that way it will never be moved to the dirty
-+	 * list because mark_inode_dirty() will think
-+	 * that it already _is_ on the dirty list.
-+	 */
-+	inode->i_state = I_DIRTY;
-+	inode->i_mode = S_IRUSR | S_IWUSR;
-+	inode->i_uid = current->fsuid;
-+	inode->i_gid = current->fsgid;
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	inode->i_blksize = PAGE_SIZE;
-+	return inode;
-+
-+eexit_1:
-+	return ERR_PTR(error);
-+}
-+
-+
-+static int __init eventpoll_init(void)
-+{
-+	int error;
-+
-+	/* Initialize the semaphore used to syncronize the file cleanup code */
-+	init_rwsem(&epsem);
-+
-+	/* Initialize the structure used to perform safe poll wait head wake ups */
-+	ep_poll_safewake_init(&psw);
-+
-+	/* Allocates slab cache used to allocate "struct epitem" items */
-+	error = -ENOMEM;
-+	epi_cache = kmem_cache_create("eventpoll epi",
-+				      sizeof(struct epitem),
-+				      0,
-+				      SLAB_HWCACHE_ALIGN | EPI_SLAB_DEBUG, NULL, NULL);
-+	if (!epi_cache)
-+		goto eexit_1;
-+
-+	/* Allocates slab cache used to allocate "struct eppoll_entry" */
-+	error = -ENOMEM;
-+	pwq_cache = kmem_cache_create("eventpoll pwq",
-+				      sizeof(struct eppoll_entry),
-+				      0,
-+				      EPI_SLAB_DEBUG, NULL, NULL);
-+	if (!pwq_cache)
-+		goto eexit_2;
-+
-+	/*
-+	 * Register the virtual file system that will be the source of inodes
-+	 * for the eventpoll files
-+	 */
-+	error = register_filesystem(&eventpoll_fs_type);
-+	if (error)
-+		goto eexit_3;
-+
-+	/* Mount the above commented virtual file system */
-+	eventpoll_mnt = kern_mount(&eventpoll_fs_type);
-+	error = PTR_ERR(eventpoll_mnt);
-+	if (IS_ERR(eventpoll_mnt))
-+		goto eexit_4;
-+
-+	return 0;
-+
-+eexit_4:
-+	unregister_filesystem(&eventpoll_fs_type);
-+eexit_3:
-+	kmem_cache_destroy(pwq_cache);
-+eexit_2:
-+	kmem_cache_destroy(epi_cache);
-+eexit_1:
-+
-+	return error;
-+}
-+
-+
-+static void __exit eventpoll_exit(void)
-+{
-+	/* Undo all operations done inside eventpoll_init() */
-+	unregister_filesystem(&eventpoll_fs_type);
-+	mntput(eventpoll_mnt);
-+	kmem_cache_destroy(pwq_cache);
-+	kmem_cache_destroy(epi_cache);
-+}
-+
-+module_init(eventpoll_init);
-+module_exit(eventpoll_exit);
-+
-+MODULE_LICENSE("GPL");
-+
---- linux-2.4.20/fs/file_table.c	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/fs/file_table.c	Mon Dec 16 16:24:04 2002
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/smp_lock.h>
- #include <linux/iobuf.h>
-+#include <linux/eventpoll.h>
- 
- /* sysctl tunables... */
- struct files_stat_struct files_stat = {0, 0, NR_FILE};
-@@ -42,6 +43,7 @@
- 		files_stat.nr_free_files--;
- 	new_one:
- 		memset(f, 0, sizeof(*f));
-+		eventpoll_init_file(f);
- 		atomic_set(&f->f_count,1);
- 		f->f_version = ++event;
- 		f->f_uid = current->fsuid;
-@@ -85,6 +87,7 @@
- int init_private_file(struct file *filp, struct dentry *dentry, int mode)
- {
- 	memset(filp, 0, sizeof(*filp));
-+	eventpoll_init_file(filp);
- 	filp->f_mode   = mode;
- 	atomic_set(&filp->f_count, 1);
- 	filp->f_dentry = dentry;
-@@ -104,6 +107,11 @@
- 	struct inode * inode = dentry->d_inode;
- 
- 	if (atomic_dec_and_test(&file->f_count)) {
-+		/*
-+	 	 * The function eventpoll_release() should be the 
-+	 	 * first called in the file cleanup chain.
-+	 	 */
-+		eventpoll_release(file);
- 		locks_remove_flock(file);
- 
- 		if (file->f_iobuf)
---- linux-2.4.20/fs/select.c	Mon Sep 10 13:04:33 2001
-+++ sys_epoll/fs/select.c	Mon Dec 16 16:24:04 2002
-@@ -19,6 +19,7 @@
- #include <linux/poll.h>
- #include <linux/personality.h> /* for STICKY_TIMEOUTS */
- #include <linux/file.h>
-+#include <linux/fs.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -52,10 +53,18 @@
-  * as all select/poll functions have to call it to add an entry to the
-  * poll table.
-  */
-+void __pollwait(struct file *filp, wait_queue_head_t *wait_address, poll_table *p);
- 
--void poll_freewait(poll_table* pt)
-+void poll_initwait(struct poll_wqueues *pwq)
- {
--	struct poll_table_page * p = pt->table;
-+	init_poll_funcptr(&pwq->pt, __pollwait);
-+	pwq->error = 0;
-+	pwq->table = NULL;
-+}
-+
-+void poll_freewait(struct poll_wqueues *pwq)
-+{
-+	struct poll_table_page * p = pwq->table;
- 	while (p) {
- 		struct poll_table_entry * entry;
- 		struct poll_table_page *old;
-@@ -72,8 +81,9 @@
- 	}
- }
- 
--void __pollwait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p)
-+void __pollwait(struct file *filp, wait_queue_head_t *wait_address, poll_table *_p)
- {
-+	struct poll_wqueues *p = container_of(_p, struct poll_wqueues, pt);
- 	struct poll_table_page *table = p->table;
- 
- 	if (!table || POLL_TABLE_FULL(table)) {
-@@ -103,6 +113,7 @@
- 	}
- }
- 
-+
- #define __IN(fds, n)		(fds->in + n)
- #define __OUT(fds, n)		(fds->out + n)
- #define __EX(fds, n)		(fds->ex + n)
-@@ -163,7 +174,8 @@
- 
- int do_select(int n, fd_set_bits *fds, long *timeout)
- {
--	poll_table table, *wait;
-+	struct poll_wqueues table;
-+	poll_table *wait;
- 	int retval, i, off;
- 	long __timeout = *timeout;
- 
-@@ -176,7 +188,7 @@
- 	n = retval;
- 
- 	poll_initwait(&table);
--	wait = &table;
-+	wait = &table.pt;
- 	if (!__timeout)
- 		wait = NULL;
- 	retval = 0;
-@@ -383,10 +395,10 @@
- }
- 
- static int do_poll(unsigned int nfds, unsigned int nchunks, unsigned int nleft, 
--	struct pollfd *fds[], poll_table *wait, long timeout)
-+	struct pollfd *fds[], struct poll_wqueues *wait, long timeout)
- {
- 	int count;
--	poll_table* pt = wait;
-+	poll_table* pt = &wait->pt;
- 
- 	for (;;) {
- 		unsigned int i;
-@@ -413,7 +425,7 @@
- {
- 	int i, j, fdcount, err;
- 	struct pollfd **fds;
--	poll_table table, *wait;
-+	struct poll_wqueues table, *wait;
- 	int nchunks, nleft;
- 
- 	/* Do a sanity check on nfds ... */
---- linux-2.4.20/include/asm-i386/unistd.h	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/include/asm-i386/unistd.h	Mon Dec 16 16:24:04 2002
-@@ -257,6 +257,10 @@
- #define __NR_alloc_hugepages	250
- #define __NR_free_hugepages	251
- #define __NR_exit_group		252
-+#define __NR_epoll_create	254
-+#define __NR_epoll_ctl		255
-+#define __NR_epoll_wait		256
-+
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
---- linux-2.4.20/include/asm-ppc/unistd.h	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/include/asm-ppc/unistd.h	Mon Dec 16 16:24:04 2002
-@@ -241,6 +241,9 @@
- #define __NR_io_submit		230
- #define __NR_io_cancel		231
- #endif
-+#define __NR_epoll_create   	254
-+#define __NR_epoll_ctl      	255
-+#define __NR_epoll_wait     	256
- 
- #define __NR(n)	#n
- 
---- linux-2.4.20/include/linux/eventpoll.h	Wed Dec 31 16:00:00 1969
-+++ sys_epoll/include/linux/eventpoll.h	Mon Dec 16 16:24:04 2002
-@@ -0,0 +1,49 @@
-+/*
-+ *  include/linux/eventpoll.h ( Efficent event polling implementation )
-+ *  Copyright (C) 2001,...,2002	 Davide Libenzi
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  Davide Libenzi <davidel@xmailserver.org>
-+ *
-+ */
-+
-+#ifndef _LINUX_EVENTPOLL_H
-+#define _LINUX_EVENTPOLL_H
-+
-+
-+/* Valid opcodes to issue to sys_epoll_ctl() */
-+#define EPOLL_CTL_ADD 1
-+#define EPOLL_CTL_DEL 2
-+#define EPOLL_CTL_MOD 3
-+
-+struct epoll_event {
-+	__u32 events;
-+	__u64 data;
-+};
-+
-+#ifdef __KERNEL__
-+
-+/* Forward declarations to avoid compiler errors */
-+struct file;
-+
-+
-+/* Kernel space functions implementing the user space "epoll" API */
-+asmlinkage int sys_epoll_create(int size);
-+asmlinkage int sys_epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-+asmlinkage int sys_epoll_wait(int epfd, struct epoll_event *events, int maxevents,
-+			      int timeout);
-+
-+/* Used to initialize the epoll bits inside the "struct file" */
-+void eventpoll_init_file(struct file *file);
-+
-+/* Used in fs/file_table.c:__fput() to unlink files from the eventpoll interface */
-+void eventpoll_release(struct file *file);
-+
-+#endif /* #ifdef __KERNEL__ */
-+
-+#endif /* #ifndef _LINUX_EVENTPOLL_H */
-+
---- linux-2.4.20/include/linux/fs.h	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/include/linux/fs.h	Mon Dec 16 16:24:04 2002
-@@ -542,6 +542,8 @@
- 	/* preallocated helper kiobuf to speedup O_DIRECT */
- 	struct kiobuf		*f_iobuf;
- 	long			f_iobuf_lock;
-+	struct list_head	f_ep_links;
-+	spinlock_t		f_ep_lock;
++2.11 /proc/sys/sched - scheduler tunables
++-----------------------------------------
++
++Useful knobs for tuning the scheduler live in /proc/sys/sched.
++
++child_penalty
++-------------
++
++Percentage of the parent's sleep_avg that children inherit.  sleep_avg is
++a running average of the time a process spends sleeping.  Tasks with high
++sleep_avg values are considered interactive and given a higher dynamic
++priority and a larger timeslice.  You typically want this some value just
++under 100.
++
++exit_weight
++-----------
++
++When a CPU hog task exits, its parent's sleep_avg is reduced by a factor of
++exit_weight against the exiting task's sleep_avg.
++
++interactive_delta
++-----------------
++
++If a task is "interactive" it is reinserted into the active array after it
++has expired its timeslice, instead of being inserted into the expired array.
++How "interactive" a task must be in order to be deemed interactive is a
++function of its nice value.  This interactive limit is scaled linearly by nice
++value and is offset by the interactive_delta.
++
++max_sleep_avg
++-------------
++
++max_sleep_avg is the largest value (in ms) stored for a task's running sleep
++average.  The larger this value, the longer a task needs to sleep to be
++considered interactive (maximum interactive bonus is a function of
++max_sleep_avg).
++
++max_timeslice
++-------------
++
++Maximum timeslice, in milliseconds.  This is the value given to tasks of the
++highest dynamic priority.
++
++min_timeslice
++-------------
++
++Minimum timeslice, in milliseconds.  This is the value given to tasks of the
++lowest dynamic priority.  Every task gets at least this slice of the processor
++per array switch.
++
++parent_penalty
++--------------
++
++Percentage of the parent's sleep_avg that it retains across a fork().
++sleep_avg is a running average of the time a process spends sleeping.  Tasks
++with high sleep_avg values are considered interactive and given a higher
++dynamic priority and a larger timeslice.  Normally, this value is 100 and thus
++task's retain their sleep_avg on fork.  If you want to punish interactive
++tasks for forking, set this below 100.
++
++prio_bonus_ratio
++----------------
++
++Middle percentage of the priority range that tasks can receive as a dynamic
++priority.  The default value of 25% ensures that nice values at the
++extremes are still enforced.  For example, nice +19 interactive tasks will
++never be able to preempt a nice 0 CPU hog.  Setting this higher will increase
++the size of the priority range the tasks can receive as a bonus.  Setting
++this lower will decrease this range, making the interactivity bonus less
++apparent and user nice values more applicable.
++
++starvation_limit
++----------------
++
++Sufficiently interactive tasks are reinserted into the active array when they
++run out of timeslice.  Normally, tasks are inserted into the expired array.
++Reinserting interactive tasks into the active array allows them to remain
++runnable, which is important to interactive performance.  This could starve
++expired tasks, however, since the interactive task could prevent the array
++switch.  To prevent starving the tasks on the expired array for too long. the
++starvation_limit is the longest (in ms) we will let the expired array starve
++at the expense of reinserting interactive tasks back into active.  Higher
++values here give more preferance to running interactive tasks, at the expense
++of expired tasks.  Lower values provide more fair scheduling behavior, at the
++expense of interactivity.  The units are in milliseconds.
++
+ ------------------------------------------------------------------------------
+ Summary
+ ------------------------------------------------------------------------------
+diff -urN linux-2.5.52/include/linux/sysctl.h linux/include/linux/sysctl.h
+--- linux-2.5.52/include/linux/sysctl.h	2002-12-15 21:08:09.000000000 -0500
++++ linux/include/linux/sysctl.h	2002-12-15 22:51:09.000000000 -0500
+@@ -66,7 +66,8 @@
+ 	CTL_DEV=7,		/* Devices */
+ 	CTL_BUS=8,		/* Busses */
+ 	CTL_ABI=9,		/* Binary emulation */
+-	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
++	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
++	CTL_SCHED=11,		/* scheduler tunables */
  };
- extern spinlock_t files_lock;
- #define file_list_lock() spin_lock(&files_lock);
---- linux-2.4.20/include/linux/hash.h	Wed Dec 31 16:00:00 1969
-+++ sys_epoll/include/linux/hash.h	Mon Dec 16 16:24:04 2002
-@@ -0,0 +1,58 @@
-+#ifndef _LINUX_HASH_H
-+#define _LINUX_HASH_H
-+/* Fast hashing routine for a long.
-+   (C) 2002 William Lee Irwin III, IBM */
-+
-+/*
-+ * Knuth recommends primes in approximately golden ratio to the maximum
-+ * integer representable by a machine word for multiplicative hashing.
-+ * Chuck Lever verified the effectiveness of this technique:
-+ * http://www.citi.umich.edu/techreports/reports/citi-tr-00-1.pdf
+ 
+ /* CTL_BUS names: */
+@@ -157,6 +158,18 @@
+ 	VM_LOWER_ZONE_PROTECTION=20,/* Amount of protection of lower zones */
+ };
+ 
++/* Tunable scheduler parameters in /proc/sys/sched/ */
++enum {
++	SCHED_MIN_TIMESLICE=1,		/* minimum process timeslice */
++	SCHED_MAX_TIMESLICE=2,		/* maximum process timeslice */
++	SCHED_CHILD_PENALTY=3,		/* penalty on fork to child */
++	SCHED_PARENT_PENALTY=4,		/* penalty on fork to parent */
++	SCHED_EXIT_WEIGHT=5,		/* penalty to parent of CPU hog child */
++	SCHED_PRIO_BONUS_RATIO=6,	/* percent of max prio given as bonus */
++	SCHED_INTERACTIVE_DELTA=7,	/* delta used to scale interactivity */
++	SCHED_MAX_SLEEP_AVG=8,		/* maximum sleep avg attainable */
++	SCHED_STARVATION_LIMIT=9,	/* no re-active if expired is starved */
++};
+ 
+ /* CTL_NET names: */
+ enum
+diff -urN linux-2.5.52/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.52/kernel/sched.c	2002-12-15 21:08:14.000000000 -0500
++++ linux/kernel/sched.c	2002-12-15 22:55:14.000000000 -0500
+@@ -57,16 +57,19 @@
+  * Minimum timeslice is 10 msecs, default timeslice is 150 msecs,
+  * maximum timeslice is 300 msecs. Timeslices get refilled after
+  * they expire.
 + *
-+ * These primes are chosen to be bit-sparse, that is operations on
-+ * them can use shifts and additions instead of multiplications for
-+ * machines where multiplications are slow.
-+ */
-+#if BITS_PER_LONG == 32
-+/* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
-+#define GOLDEN_RATIO_PRIME 0x9e370001UL
-+#elif BITS_PER_LONG == 64
-+/*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
-+#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
-+#else
-+#error Define GOLDEN_RATIO_PRIME for your wordsize.
-+#endif
-+
-+static inline unsigned long hash_long(unsigned long val, unsigned int bits)
-+{
-+	unsigned long hash = val;
-+
-+#if BITS_PER_LONG == 64
-+	/*  Sigh, gcc can't optimise this alone like it does for 32 bits. */
-+	unsigned long n = hash;
-+	n <<= 18;
-+	hash -= n;
-+	n <<= 33;
-+	hash -= n;
-+	n <<= 3;
-+	hash += n;
-+	n <<= 3;
-+	hash -= n;
-+	n <<= 4;
-+	hash += n;
-+	n <<= 2;
-+	hash += n;
-+#else
-+	/* On some cpus multiply is faster, on others gcc will do shifts */
-+	hash *= GOLDEN_RATIO_PRIME;
-+#endif
-+
-+	/* High bits are more random, so use them. */
-+	return hash >> (BITS_PER_LONG - bits);
-+}
-+	
-+static inline unsigned long hash_ptr(void *ptr, unsigned int bits)
-+{
-+	return hash_long((unsigned long)ptr, bits);
-+}
-+#endif /* _LINUX_HASH_H */
---- linux-2.4.20/include/linux/kernel.h	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/include/linux/kernel.h	Mon Dec 16 16:24:04 2002
-@@ -174,6 +174,18 @@
- extern void __out_of_line_bug(int line) ATTRIB_NORET;
- #define out_of_line_bug() __out_of_line_bug(__LINE__)
++ * They are configurable via /proc/sys/sched
++ * See Documentation/filesystems/proc.txt for descriptions
+  */
+-#define MIN_TIMESLICE		( 10 * HZ / 1000)
+-#define MAX_TIMESLICE		(300 * HZ / 1000)
+-#define CHILD_PENALTY		95
+-#define PARENT_PENALTY		100
+-#define EXIT_WEIGHT		3
+-#define PRIO_BONUS_RATIO	25
+-#define INTERACTIVE_DELTA	2
+-#define MAX_SLEEP_AVG		(2*HZ)
+-#define STARVATION_LIMIT	(2*HZ)
++int min_timeslice = (10 * HZ) / 1000;
++int max_timeslice = (300 * HZ) / 1000;
++int child_penalty = 95;
++int parent_penalty = 100;
++int exit_weight = 3;
++int prio_bonus_ratio = 25;
++int interactive_delta = 2;
++int max_sleep_avg = 2 * HZ;
++int starvation_limit = 2 * HZ;
  
-+/**
-+ * container_of - cast a member of a structure out to the containing structure
-+ *
-+ * @ptr:        the pointer to the member.
-+ * @type:       the type of the container struct this is embedded in.
-+ * @member:     the name of the member within the struct.
-+ *
-+ */
-+#define container_of(ptr, type, member) ({                      \
-+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-+	(type *)( (char *)__mptr - offsetof(type,member) );})
-+
- #endif /* __KERNEL__ */
+ /*
+  * If a task is 'interactive' then we reinsert it in the active
+@@ -76,7 +79,7 @@
+  *
+  * This part scales the interactivity limit depending on niceness.
+  *
+- * We scale it linearly, offset by the INTERACTIVE_DELTA delta.
++ * We scale it linearly, offset by the interactive_delta delta.
+  * Here are a few examples of different nice levels:
+  *
+  *  TASK_INTERACTIVE(-20): [1,1,1,1,1,1,1,1,1,0,0]
+@@ -100,8 +103,8 @@
+ 	(v1) * (v2_max) / (v1_max)
  
- #define SI_LOAD_SHIFT	16
---- linux-2.4.20/include/linux/poll.h	Thu Nov 22 11:46:26 2001
-+++ sys_epoll/include/linux/poll.h	Mon Dec 16 16:24:04 2002
-@@ -10,28 +10,39 @@
- #include <linux/mm.h>
- #include <asm/uaccess.h>
+ #define DELTA(p) \
+-	(SCALE(TASK_NICE(p), 40, MAX_USER_PRIO*PRIO_BONUS_RATIO/100) + \
+-		INTERACTIVE_DELTA)
++	(SCALE(TASK_NICE(p), 40, MAX_USER_PRIO*prio_bonus_ratio/100) + \
++		interactive_delta)
  
--struct poll_table_page;
-+struct poll_table_struct;
-+
-+/* 
-+ * structures and helpers for f_op->poll implementations
-+ */
-+typedef void (*poll_queue_proc)(struct file *, wait_queue_head_t *, struct poll_table_struct *);
+ #define TASK_INTERACTIVE(p) \
+ 	((p)->prio <= (p)->static_prio - DELTA(p))
+@@ -112,13 +115,13 @@
+  *
+  * The higher a thread's priority, the bigger timeslices
+  * it gets during one round of execution. But even the lowest
+- * priority thread gets MIN_TIMESLICE worth of execution time.
++ * priority thread gets min_timeslice worth of execution time.
+  *
+  * task_timeslice() is the interface that is used by the scheduler.
+  */
  
- typedef struct poll_table_struct {
--	int error;
--	struct poll_table_page * table;
-+	poll_queue_proc qproc;
- } poll_table;
+-#define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
+-	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
++#define BASE_TIMESLICE(p) (min_timeslice + \
++	((max_timeslice - min_timeslice) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
  
--extern void __pollwait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p);
--
- static inline void poll_wait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p)
+ static inline unsigned int task_timeslice(task_t *p)
  {
- 	if (p && wait_address)
--		__pollwait(filp, wait_address, p);
-+		p->qproc(filp, wait_address, p);
+@@ -244,7 +247,7 @@
+  * effective_prio - return the priority that is based on the static
+  * priority but is modified by bonuses/penalties.
+  *
+- * We scale the actual sleep average [0 .... MAX_SLEEP_AVG]
++ * We scale the actual sleep average [0 .... max_sleep_avg]
+  * into the -5 ... 0 ... +5 bonus/penalty range.
+  *
+  * We use 25% of the full 0...39 priority range so that:
+@@ -258,8 +261,8 @@
+ {
+ 	int bonus, prio;
+ 
+-	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
+-			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
++	bonus = MAX_USER_PRIO*prio_bonus_ratio*p->sleep_avg/max_sleep_avg/100 -
++			MAX_USER_PRIO*prio_bonus_ratio/100/2;
+ 
+ 	prio = p->static_prio - bonus;
+ 	if (prio < MAX_RT_PRIO)
+@@ -289,8 +292,8 @@
+ 		 * boost gets as well.
+ 		 */
+ 		p->sleep_avg += sleep_time;
+-		if (p->sleep_avg > MAX_SLEEP_AVG)
+-			p->sleep_avg = MAX_SLEEP_AVG;
++		if (p->sleep_avg > max_sleep_avg)
++			p->sleep_avg = max_sleep_avg;
+ 		p->prio = effective_prio(p);
+ 	}
+ 	enqueue_task(p, array);
+@@ -460,8 +463,8 @@
+ 		 * and children as well, to keep max-interactive tasks
+ 		 * from forking tasks that are max-interactive.
+ 		 */
+-		current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
+-		p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
++		current->sleep_avg = current->sleep_avg * parent_penalty / 100;
++		p->sleep_avg = p->sleep_avg * child_penalty / 100;
+ 		p->prio = effective_prio(p);
+ 	}
+ 	set_task_cpu(p, smp_processor_id());
+@@ -486,8 +489,8 @@
+ 	local_irq_save(flags);
+ 	if (p->first_time_slice) {
+ 		p->parent->time_slice += p->time_slice;
+-		if (unlikely(p->parent->time_slice > MAX_TIMESLICE))
+-			p->parent->time_slice = MAX_TIMESLICE;
++		if (unlikely(p->parent->time_slice > max_timeslice))
++			p->parent->time_slice = max_timeslice;
+ 	}
+ 	local_irq_restore(flags);
+ 	/*
+@@ -495,8 +498,8 @@
+ 	 * the sleep_avg of the parent as well.
+ 	 */
+ 	if (p->sleep_avg < p->parent->sleep_avg)
+-		p->parent->sleep_avg = (p->parent->sleep_avg * EXIT_WEIGHT +
+-			p->sleep_avg) / (EXIT_WEIGHT + 1);
++		p->parent->sleep_avg = (p->parent->sleep_avg * exit_weight +
++			p->sleep_avg) / (exit_weight + 1);
  }
  
--static inline void poll_initwait(poll_table* pt)
-+static inline void init_poll_funcptr(poll_table *pt, poll_queue_proc qproc)
- {
--	pt->error = 0;
--	pt->table = NULL;
-+	pt->qproc = qproc;
- }
--extern void poll_freewait(poll_table* pt);
+ /**
+@@ -870,7 +873,7 @@
+ #define EXPIRED_STARVING(rq) \
+ 		((rq)->expired_timestamp && \
+ 		(jiffies - (rq)->expired_timestamp >= \
+-			STARVATION_LIMIT * ((rq)->nr_running) + 1))
++			starvation_limit * ((rq)->nr_running) + 1))
  
-+/*
-+ * Structures and helpers for sys_poll/sys_poll
-+ */
-+struct poll_wqueues {
-+	poll_table pt;
-+	struct poll_table_page * table;
-+	int error;
+ /*
+  * This function gets called by the timer code, with HZ frequency.
+diff -urN linux-2.5.52/kernel/sysctl.c linux/kernel/sysctl.c
+--- linux-2.5.52/kernel/sysctl.c	2002-12-15 21:07:44.000000000 -0500
++++ linux/kernel/sysctl.c	2002-12-15 22:51:09.000000000 -0500
+@@ -55,6 +55,15 @@
+ extern int cad_pid;
+ extern int pid_max;
+ extern int sysctl_lower_zone_protection;
++extern int min_timeslice;
++extern int max_timeslice;
++extern int child_penalty;
++extern int parent_penalty;
++extern int exit_weight;
++extern int prio_bonus_ratio;
++extern int interactive_delta;
++extern int max_sleep_avg;
++extern int starvation_limit;
+ 
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
+ static int maxolduid = 65535;
+@@ -112,6 +121,7 @@
+ 
+ static ctl_table kern_table[];
+ static ctl_table vm_table[];
++static ctl_table sched_table[];
+ #ifdef CONFIG_NET
+ extern ctl_table net_table[];
+ #endif
+@@ -156,6 +166,7 @@
+ 	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
+ 	{CTL_DEBUG, "debug", NULL, 0, 0555, debug_table},
+         {CTL_DEV, "dev", NULL, 0, 0555, dev_table},
++	{CTL_SCHED, "sched", NULL, 0, 0555, sched_table},
+ 	{0}
+ };
+ 
+@@ -358,7 +369,29 @@
+ 
+ static ctl_table dev_table[] = {
+ 	{0}
+-};  
 +};
 +
-+extern void poll_initwait(struct poll_wqueues *pwq);
-+extern void poll_freewait(struct poll_wqueues *pwq);
++static ctl_table sched_table[] = {
++	{SCHED_MAX_TIMESLICE, "max_timeslice",
++	&max_timeslice, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_MIN_TIMESLICE, "min_timeslice",
++	&min_timeslice, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_CHILD_PENALTY, "child_penalty",
++	&child_penalty, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_PARENT_PENALTY, "parent_penalty",
++	&parent_penalty, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_EXIT_WEIGHT, "exit_weight",
++	&exit_weight, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_PRIO_BONUS_RATIO, "prio_bonus_ratio",
++	&prio_bonus_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_INTERACTIVE_DELTA, "interactive_delta",
++	&interactive_delta, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_MAX_SLEEP_AVG, "max_sleep_avg",
++	&max_sleep_avg, sizeof(int), 0644, NULL, &proc_dointvec},
++	{SCHED_STARVATION_LIMIT, "starvation_limit",
++	&starvation_limit, sizeof(int), 0644, NULL, &proc_dointvec},
++	{0}
++};
  
- /*
-  * Scaleable version of the fd_set.
---- linux-2.4.20/include/linux/sched.h	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/include/linux/sched.h	Mon Dec 16 16:24:04 2002
-@@ -145,6 +145,8 @@
- extern spinlock_t runqueue_lock;
- extern spinlock_t mmlist_lock;
+ extern void init_irq_proc (void);
  
-+typedef struct task_struct task_t;
-+
- extern void sched_init(void);
- extern void init_idle(void);
- extern void show_state(void);
---- linux-2.4.20/include/linux/sys.h	Sun Dec 10 20:56:37 1995
-+++ sys_epoll/include/linux/sys.h	Mon Dec 16 16:24:04 2002
-@@ -4,7 +4,7 @@
- /*
-  * system call entry points ... but not all are defined
-  */
--#define NR_syscalls 256
-+#define NR_syscalls 260 
- 
- /*
-  * These are system calls that will be removed at some time
---- linux-2.4.20/include/linux/wait.h	Thu Nov 22 11:46:19 2001
-+++ sys_epoll/include/linux/wait.h	Mon Dec 16 16:24:04 2002
-@@ -19,6 +19,9 @@
- #include <asm/page.h>
- #include <asm/processor.h>
- 
-+typedef struct __wait_queue wait_queue_t;
-+typedef void (*wait_queue_func_t)(wait_queue_t *wait);
-+
- /*
-  * Debug control.  Slow but useful.
-  */
-@@ -32,13 +35,13 @@
- 	unsigned int flags;
- #define WQ_FLAG_EXCLUSIVE	0x01
- 	struct task_struct * task;
-+	wait_queue_func_t func;
- 	struct list_head task_list;
- #if WAITQUEUE_DEBUG
- 	long __magic;
- 	long __waker;
- #endif
- };
--typedef struct __wait_queue wait_queue_t;
- 
- /*
-  * 'dual' spinlock architecture. Can be switched between spinlock_t and
-@@ -138,6 +141,7 @@
- 
- #define __WAITQUEUE_INITIALIZER(name, tsk) {				\
- 	task:		tsk,						\
-+	func:		NULL,						\
- 	task_list:	{ NULL, NULL },					\
- 			 __WAITQUEUE_DEBUG_INIT(name)}
- 
-@@ -174,10 +178,18 @@
- #endif
- 	q->flags = 0;
- 	q->task = p;
-+	q->func = NULL;
- #if WAITQUEUE_DEBUG
- 	q->__magic = (long)&q->__magic;
- #endif
- }
-+static inline void init_waitqueue_func_entry(wait_queue_t *q,
-+					wait_queue_func_t func)
-+{
-+	q->flags = 0;
-+	q->task = NULL;
-+	q->func = func;
-+}                      
- 
- static inline int waitqueue_active(wait_queue_head_t *q)
- {
-@@ -189,6 +201,22 @@
- 
- 	return !list_empty(&q->task_list);
- }
-+#define add_wait_queue_cond(q, wait, cond) \
-+	({                                                      \
-+		unsigned long flags;                            \
-+		int _raced = 0;                                 \
-+		wq_write_lock_irqsave(&(q)->lock, flags);       \
-+		(wait)->flags = 0;                              \
-+		__add_wait_queue((q), (wait));                  \
-+		rmb();                                          \
-+		if (!(cond)) {                                  \
-+			_raced = 1;                             \
-+			__remove_wait_queue((q), (wait));       \
-+		}                                               \
-+		wq_write_unlock_irqrestore(&(q)->lock, flags);  \
-+		_raced;                                         \
-+	})
-+
- 
- static inline void __add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
- {
---- linux-2.4.20/kernel/ksyms.c	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/kernel/ksyms.c	Mon Dec 16 16:24:04 2002
-@@ -257,7 +257,7 @@
- EXPORT_SYMBOL(generic_read_dir);
- EXPORT_SYMBOL(generic_file_llseek);
- EXPORT_SYMBOL(no_llseek);
--EXPORT_SYMBOL(__pollwait);
-+EXPORT_SYMBOL(poll_initwait);
- EXPORT_SYMBOL(poll_freewait);
- EXPORT_SYMBOL(ROOT_DEV);
- EXPORT_SYMBOL(__find_get_page);
---- linux-2.4.20/kernel/sched.c	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/kernel/sched.c	Mon Dec 16 16:24:04 2002
-@@ -714,16 +714,24 @@
- static inline void __wake_up_common (wait_queue_head_t *q, unsigned int mode,
- 			 	     int nr_exclusive, const int sync)
- {
--	struct list_head *tmp;
-+	struct list_head *tmp, *next;
- 	struct task_struct *p;
- 
- 	CHECK_MAGIC_WQHEAD(q);
- 	WQ_CHECK_LIST_HEAD(&q->task_list);
- 	
--	list_for_each(tmp,&q->task_list) {
-+	list_for_each_safe(tmp, next, &q->task_list) {
- 		unsigned int state;
-+		wait_queue_func_t func;
-                 wait_queue_t *curr = list_entry(tmp, wait_queue_t, task_list);
--
-+		func = curr->func;
-+		if (func) {
-+			unsigned flags = curr->flags;
-+			func(curr);
-+			if ((flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive)
-+				break;
-+			continue;
-+		}
- 		CHECK_MAGIC(curr->__magic);
- 		p = curr->task;
- 		state = p->state;
---- linux-2.4.20/fs/smbfs/sock.c	Thu Nov 28 15:53:15 2002
-+++ sys_epoll/fs/smbfs/sock.c	Mon Dec 16 16:24:29 2002
-@@ -314,16 +314,18 @@
- smb_receive_poll(struct smb_sb_info *server)
- {
- 	struct file *file = server->sock_file;
--	poll_table wait_table;
-+	struct poll_wqueues wait_table;
-+	poll_table *wait;
- 	int result = 0;
- 	int timeout = server->mnt->timeo * HZ;
- 	int mask;
- 
- 	for (;;) {
- 		poll_initwait(&wait_table);
-+		wait = &wait_table.pt;
-                 set_current_state(TASK_INTERRUPTIBLE);
- 
--		mask = file->f_op->poll(file, &wait_table);
-+		mask = file->f_op->poll(file, wait);
- 		if (mask & POLLIN) {
- 			poll_freewait(&wait_table);
- 			current->state = TASK_RUNNING;
---- linux-2.4.20/fs/ncpfs/sock.c	Sat Jan 20 08:51:51 2001
-+++ sys_epoll/fs/ncpfs/sock.c	Mon Dec 16 16:24:29 2002
-@@ -86,7 +86,8 @@
- 	struct socket *sock;
- 	int result;
- 	char *start = server->packet;
--	poll_table wait_table;
-+	struct poll_wqueues wait_table;
-+	poll_table *wait;
- 	int init_timeout, max_timeout;
- 	int timeout;
- 	int retrans;
-@@ -136,11 +137,12 @@
- 		}
- 	      re_select:
- 		poll_initwait(&wait_table);
-+		wait = &wait_table.pt;
- 		/* mb() is not necessary because ->poll() will serialize
- 		   instructions adding the wait_table waitqueues in the
- 		   waitqueue-head before going to calculate the mask-retval. */
- 		__set_current_state(TASK_INTERRUPTIBLE);
--		if (!(sock->ops->poll(file, sock, &wait_table) & POLLIN)) {
-+		if (!(sock->ops->poll(file, sock, wait) & POLLIN)) {
- 			int timed_out;
- 			if (timeout > max_timeout) {
- 				/* JEJB/JSP 2/7/94
-@@ -261,7 +263,8 @@
- }
- 
- static int do_tcp_rcv(struct ncp_server *server, void *buffer, size_t len) {
--	poll_table wait_table;
-+	struct poll_wqueues wait_table;
-+	poll_table *wait;
- 	struct file *file;
- 	struct socket *sock;
- 	int init_timeout;
-@@ -281,11 +284,12 @@
- 
- 	while (len) {
- 		poll_initwait(&wait_table);
-+		wait = &wait_table.pt;
- 		/* mb() is not necessary because ->poll() will serialize
- 		   instructions adding the wait_table waitqueues in the
- 		   waitqueue-head before going to calculate the mask-retval. */
- 		__set_current_state(TASK_INTERRUPTIBLE);
--		if (!(sock->ops->poll(file, sock, &wait_table) & POLLIN)) {
-+		if (!(sock->ops->poll(file, sock, wait) & POLLIN)) {
- 			init_timeout = schedule_timeout(init_timeout);
- 			poll_freewait(&wait_table);
- 			current->state = TASK_RUNNING;
+
+
+

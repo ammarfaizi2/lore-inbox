@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267033AbSLKG4R>; Wed, 11 Dec 2002 01:56:17 -0500
+	id <S267028AbSLKHBu>; Wed, 11 Dec 2002 02:01:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbSLKG4R>; Wed, 11 Dec 2002 01:56:17 -0500
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:15116 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267033AbSLKG4Q>; Wed, 11 Dec 2002 01:56:16 -0500
-X-Envelope-From: roubm9am@barbora.ms.mff.cuni.cz
-Message-ID: <043801c2a0e3$3fea3850$551b71c3@krlis>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: "Milton D. Miller II" <miltonm@realtime.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <200212110626.gBB6Qvt37089@sullivan.realtime.net>
-Subject: Re: IDE feature request & problem
-Date: Wed, 11 Dec 2002 08:02:15 +0100
+	id <S267035AbSLKHBu>; Wed, 11 Dec 2002 02:01:50 -0500
+Received: from mx11.dmz.fedex.com ([199.81.193.118]:49156 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S267028AbSLKHBt>; Wed, 11 Dec 2002 02:01:49 -0500
+Date: Wed, 11 Dec 2002 15:07:33 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: jchua@fedex.com, "" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.51 ide module problem
+In-Reply-To: <200212110650.WAA13780@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.50.0212111501310.30173-100000@boston.corp.fedex.com>
+References: <200212110650.WAA13780@adam.yggdrasil.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
+ 03:09:28 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
+ 03:09:31 PM,
+	Serialize complete at 12/11/2002 03:09:31 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-its only once in log - then the software raid made
-that disk fail and removed from the array:
-Nov 28 17:54:24 fileserver kernel: raid5: Disk failure on hdn1, disabling
-device. Operation continuing on 8 devices
-I don't want anymore disabled drive, that is good.
-    Thanx Milan
+On Tue, 10 Dec 2002, Adam J. Richter wrote:
 
------ Original Message -----
-From: "Milton D. Miller II" <miltonm@realtime.net>
-To: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, December 11, 2002 7:26 AM
-Subject: Re: IDE feature request & problem
-
-
-> (Barry pointed out the errors are all 7F.)
+> >depmod will ecounter "Segmentation fault" if the ide.ko and ide-io.ps
+> >modules are in /lib/modules/2.5.51/kernel
 >
-> And the sector LBA is hex 808087F7F7F  (high 80808 low 7f7f7f)
+> 	I think the new depmod recurses infinitely when it encounters
+> circular dependencies.  It eventually segfaults and leaves a huge
+> modules.dep file from the infinite loop.  If you look at the final
+> huge line in that file, you can see where the loop occurred.
 >
-> do you get this repeatedly?
+> 	depmod has no need to do any recursion, since it only needs
+> to determine the immediate dependencies of each module.  However,
+> noticing such loops and printing them out would be a handy feature.
 >
-> milton
+> 	I use IDE as a module, but I had to change the Makefile to
+> build a big ide-mod.o from most of the core objects rather than
+> allowing each one to be its own module.  I believe I posted IDE
+> modularization patches at least once a couple of months ago, but it
+> seems to have fallen between the cracks.  I could repost it if need
+> be
 
+Yes, please, send me your patch. I hope this patch works for
+module-init-tools-0.9.3
+
+>, although I have not yet booted 2.5.51.
+
+I had same problem with pre 2.5.51. With 2.5.51, kernel now boot and I'm
+able to get login prompt using ramdisk. Only catch is I've to specify
+root=/dev/ram0 instead of /dev/ram for it to boot.
+
+
+Thanks,
+Jeff.
+
+>
+> 	Also note that I have not used the in kernel-based module
+> loader recently, as I have been patching my kernels to use the user
+> level module code.  I am planning to try the kernel-base module loader
+> in 2.5.51 once I fix other problems it has finding the root device
+> under devfs.  So, it's remotely possible that you may also see module
+> problems that I've missed.
+>
+> Adam J. Richter     __     ______________   575 Oroville Road
+> adam@yggdrasil.com     \ /                  Milpitas, California 95035
+> +1 408 309-6081         | g g d r a s i l   United States of America
+>                          "Free Software For The Rest Of Us."
+>

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274595AbRITSWG>; Thu, 20 Sep 2001 14:22:06 -0400
+	id <S274597AbRITSY0>; Thu, 20 Sep 2001 14:24:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274594AbRITSVq>; Thu, 20 Sep 2001 14:21:46 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:48654 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274593AbRITSVm>;
-	Thu, 20 Sep 2001 14:21:42 -0400
-Message-ID: <XFMail.20010920112513.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
+	id <S274596AbRITSYQ>; Thu, 20 Sep 2001 14:24:16 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:7924 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274597AbRITSYH>;
+	Thu, 20 Sep 2001 14:24:07 -0400
+Date: Thu, 20 Sep 2001 20:24:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: manfred@colorfullife.com
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Deadlock on the mm->mmap_sem
+Message-ID: <20010920202436.N729@athlon.random>
+In-Reply-To: <3BA9CB84.16616163@stud.uni-saarland.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20010920010502.A7960@redhat.com>
-Date: Thu, 20 Sep 2001 11:25:13 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        "Christopher K. St. John" <cks@distributopia.com>
+Content-Disposition: inline
+In-Reply-To: <3BA9CB84.16616163@stud.uni-saarland.de>; from masp0008@stud.uni-sb.de on Thu, Sep 20, 2001 at 10:57:08AM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 20, 2001 at 10:57:08AM +0000, Studierende der Universitaet des Saarlandes wrote:
+> * A fair, recursive mmap_sem (a task that already owns the mmap_sem can
+> acquire it again without deadlocking, all other cases are fair). That's
+> what Andrea proposes. (Andrea, is that correct?)
 
-On 20-Sep-2001 Benjamin LaHaise wrote:
-> On Wed, Sep 19, 2001 at 11:43:57PM -0500, Christopher K. St. John wrote:
->>  Sorry, bad editing, that should be:
->> 
->>  Assume a large but bursty current of low bandwidth
->> high latency connections instead of a continuous steady
->> flood of high bandwidth low latency connections.
-> 
-> Isn't asynchronous io a better model for that case?
+Exactly.
 
-The advantage /dev/epoll has compared to aio_* and RTsig is 
-1) multiple event delivery/system call
-2) less user<->kernel memory moves
+> elf_core_dump should call down_write to prevent concurrent expand_stack
 
-The concept is very similar anyway coz you basically have to initiate the
-io-call and wait for an event.
-The difference is how events are collected.
+expand_stack doesn't need the write sem, see the locking comments in the
+00_silent-stack-overflow patch in -aa.
 
+> calls, and acquire the pagetable_lock around some lines (right now it
+> walks the page tables without locking). I'll check the other coredump
 
+Also expand_stack needs the page_table_lock, that's ok.
 
+> I'll write a patch that moves the locking into the coredump handlers,
+> then we can compare that with Andrea's proposal.
 
-- Davide
+Ok.
 
+Andrea

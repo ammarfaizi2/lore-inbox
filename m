@@ -1,25 +1,26 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316477AbSEaRqj>; Fri, 31 May 2002 13:46:39 -0400
+	id <S316232AbSEaRzT>; Fri, 31 May 2002 13:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316531AbSEaRqi>; Fri, 31 May 2002 13:46:38 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:54146 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S316477AbSEaRqh>; Fri, 31 May 2002 13:46:37 -0400
-Date: Fri, 31 May 2002 19:46:34 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
+	id <S316531AbSEaRzS>; Fri, 31 May 2002 13:55:18 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6383 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316232AbSEaRzR>; Fri, 31 May 2002 13:55:17 -0400
 Subject: Re: do_mmap
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <ad8bvv$3tr$1@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.05.10205311941360.10681-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 31 May 2002 19:59:30 +0100
+Message-Id: <1022871570.20348.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---snip/snip
-
+On Fri, 2002-05-31 at 18:30, Linus Torvalds wrote:
 > >> is it possible to have 0 as a valid address? - if not, this should
 > >> be the return on errors.
 > >
@@ -40,24 +41,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > 
 > and if SuS says that mmap must not return NULL for this case, then SuS
 > is so full of sh*t that it's not worth worrying about.
-> 
-> In short, under Linux 0 _is_, and will always be (at least on x86) a
-> perfectly valid return address from mmap() and friends. It's only going
-> to be returned when you explicitly ask for it with MAP_FIXED, but it
-> absolutely is a valid return.
 
-ok. so 0 or (NULL) is not an option, and also unnneccessary once someone
-know how the error retun is used. - wouldn't it be much more cleaner
-to convert this _ugly_ unsigned long vals into void * wherever these vals
-are carrying an address? (well at least for do_mmap*) and use ERR_PTR
-for returning, and IS_ERR for checking for an error?
+SuS doesn't have this requirement in the case of MAP_FIXED.
 
-btw, is err should (according to alans explaination be):
+For normal maps it says
 
-	return (unsigned long)ptr > (unsigned long)-1024UL;
+"When the implementation selects a value for pa, it never places a mapping 
+at address 0, nor does it replace any extant mapping."
 
-	tm
+For MAP_FIXED it says the return value shal be that of pa (first
+argument) exactly
 
--- 
-in some way i do, and in some way i don't.
+
 

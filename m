@@ -1,80 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSH0Fqj>; Tue, 27 Aug 2002 01:46:39 -0400
+	id <S314514AbSH0GEJ>; Tue, 27 Aug 2002 02:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSH0Fqj>; Tue, 27 Aug 2002 01:46:39 -0400
-Received: from mail.gmx.net ([213.165.64.20]:64624 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S314396AbSH0Fqi>;
-	Tue, 27 Aug 2002 01:46:38 -0400
-From: Felix Seeger <felix.seeger@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB keyboards (patch)
-Date: Tue, 27 Aug 2002 07:50:49 +0200
-User-Agent: KMail/1.4.6
-References: <200208270100.09037.nahshon@actcom.co.il>
-In-Reply-To: <200208270100.09037.nahshon@actcom.co.il>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S314529AbSH0GEJ>; Tue, 27 Aug 2002 02:04:09 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37118 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314514AbSH0GEI>;
+	Tue, 27 Aug 2002 02:04:08 -0400
+Date: Tue, 27 Aug 2002 11:41:52 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       davej@suse.de, Andrea Arcangeli <andrea@suse.de>,
+       Paul McKenney <paul.mckenney@us.ibm.com>
+Subject: Re: [BKPATCH] Read-Copy Update 2.5
+Message-ID: <20020827114152.A2072@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020827022239.C31269@in.ibm.com> <20020826193708.0C64C2C07B@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200208270750.49576.felix.seeger@gmx.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020826193708.0C64C2C07B@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Aug 27, 2002 at 10:24:30AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Rusty,
 
-Does this Patch solves the kernel panic on startup with USB Mouse plugged in 
-the second usb part and MS Usb keyboard plugged in the first port ?
+On Tue, Aug 27, 2002 at 10:24:30AM +1000, Rusty Russell wrote:
+> In message <20020827022239.C31269@in.ibm.com> you write:
+> > +static struct rcu_data rcu_data[NR_CPUS] __cacheline_aligned;
+> 
+> Not "static DEFINE_PER_CPU(struct rcu_data, rcu_data)"?
 
-thanks
-have fun
-Felix
+Yes, I can use per-cpu data areas here. Done.
 
-Am Dienstag, 27. August 2002 00:00 schrieb Itai Nahshon:
-> Vojtech, Would you accept this for the 2.4 kernels?
->
-> The attached patch is required to use some (buggy?)
-> USB keyboards. IMHO it should not cause new problems
-> with other HID devices (though, testing with hardware that
-> I do not have is a good idea).
->
-> I'm using it with recent 2.4 kernels for some time now.
->
-> Just removing the call to usb_set_idle also works (but
-> it is less efficient).
->
-> The 2.5 kernels do not need this changes - they already call
-> the equivalent of usb_set_idle (only for input reports) after
-> reading the first report.
->
-> -- Itai
->
-> --- linux/drivers/usb/hid-core.c.orig	Sun Jul 21 01:19:32 2002
-> +++ linux/drivers/usb/hid-core.c	Sun Jul 21 02:19:31 2002
-> @@ -1065,8 +1065,8 @@
->  			list = report_enum->report_list.next;
->  			while (list != &report_enum->report_list) {
->  				report = (struct hid_report *) list;
-> -				usb_set_idle(hid->dev, hid->ifnum, 0, report->id);
->  				hid_read_report(hid, report);
-> +				usb_set_idle(hid->dev, hid->ifnum, 0, report->id);
->  				list = list->next;
->  			}
->  		}
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+> 
+> > +/* Fake initialization to work around compiler breakage */
+> > +DEFINE_PER_CPU(long, cpu_quiescent) = 0L;
+> 
+> static?  And I assume you're talking about the tendency for gcc 2.95
+> to put uninitialized static vars in the bss, even if they are marked
+> as having a section attribute?  If so, you should say so.
+> 
+> > +#ifdef CONFIG_PREEMPT
+> > +/* Fake initialization to work around compiler breakage */
+> > +DEFINE_PER_CPU(atomic_t[2], rcu_preempt_cntr) = 
+> > +			{ATOMIC_INIT(0), ATOMIC_INIT(0)};
+> > +DEFINE_PER_CPU(atomic_t, *curr_preempt_cntr) = NULL;
+> > +DEFINE_PER_CPU(atomic_t, *next_preempt_cntr) = NULL;
+> 
+> Also static I assume?
 
-iD8DBQE9axM5S0DOrvdnsewRApKfAJ9sD2I/61znoiV0MEJXHCjgvNGuVACfRidm
-5vdlQPwSXEvzd/TxD4FbI+s=
-=xkNg
------END PGP SIGNATURE-----
+So, only statics are broken by gcc 2.95, right ? If so, then
+the fake initializers aren't required. I got bitten by this in
+another piece of RCU code where there was a static per-cpu
+tasklet and I got paranoic after that.
 
+> 
+> Other than that, it looks good.  You should probably cc: Ingo Molnar
+> as it touches the scheduler...
+
+Ok, I will do that from now on. Thanks for the review.
+I will have the new bits up as soon as I finish testing.
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

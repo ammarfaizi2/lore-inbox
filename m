@@ -1,132 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318349AbSGRURJ>; Thu, 18 Jul 2002 16:17:09 -0400
+	id <S318354AbSGRUTh>; Thu, 18 Jul 2002 16:19:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318350AbSGRURJ>; Thu, 18 Jul 2002 16:17:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:51586 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318349AbSGRURE>; Thu, 18 Jul 2002 16:17:04 -0400
-Date: Thu, 18 Jul 2002 16:23:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Daniel Gryniewicz <dang@fprintf.net>
-cc: Robert Love <rml@tech9.net>, Szakacsits Szabolcs <szaka@sienet.hu>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <1027021302.3439.8.camel@athena.fprintf.net>
-Message-ID: <Pine.LNX.3.95.1020718154521.1555A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318357AbSGRUTh>; Thu, 18 Jul 2002 16:19:37 -0400
+Received: from ns.suse.de ([213.95.15.193]:5129 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318354AbSGRUTf>;
+	Thu, 18 Jul 2002 16:19:35 -0400
+Date: Thu, 18 Jul 2002 22:22:29 +0200
+From: Dave Jones <davej@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020718222229.B21997@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D361091.13618.16DC46FB@localhost> <Pine.LNX.3.96.1020718123016.8220B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1020718123016.8220B-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 2002, Daniel Gryniewicz wrote:
+On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
 
-> On Thu, 2002-07-18 at 15:35, Richard B. Johnson wrote:
-> > On 18 Jul 2002, Robert Love wrote:
-> > 
-> > > I should also mention this is demand paging, not overcommit.
-> > > 
-> > > Overcommit is the property of succeeded more allocations than their is
-> > > memory in the address space.  The idea being that allocations are lazy,
-> > > things often do not use their full allocations, etc. etc. as you
-> > > mentioned.
-> > > 
-> > > It is typical a good thing since it lowers VM pressure.
-> > > 
-> > > It is not always a good thing, for numerous reasons, and it becomes
-> > > important in those scenarios to ensure that all allocations can be met
-> > > by the backing store and consequently we never find ourselves with more
-> > > memory committed than available and thus never OOM.
-> > > 
-> > > This has nothing to do with paging and resource limits as you say.  Btw,
-> > > without this it is possible to OOM any machine.  OOM is a by-product of
-> > > allowing overcommit and poor accounting (and perhaps poor
-> > > software/users), not an incorrectly configured machine.
-> > 
-> > It has everything to do with demand-paging. Since on single CPU
-> > machines, there is only one task executing at any one time, that
-> > single task can own and use every bit of RAM on the whole machine
-> > is virtual memory works correctly. For performance reasons, it
-> > may not actually use all the RAM but, in principle, it is possible.
-> > 
-> > If you don't allow that, the single task can use only the RAM that
-> > was not allocated to other tasks. At the time an allocation is made,
-> > the kernel cannot know what resources may be available when the task
-> > requesting the allocation actually starts to use those allocated
-> > resources. Instead, the kernel allocates resources based upon what
-> > it 'knows' at the present time. Since it can't see the future anymore
-> > than you or I, the fact that N processes just called exit() before
-> > the requesting task touched a single page can't be known.
-> > 
-> > FYI multiple CPU machines have compounded the problems because there
-> > can be several things happening at the same time. Although the MM
-> > is locked so it's single-threaded, you have a before/after resource 
-> > history condition that can't be anticipated.
-> > 
-> > Cheers,
-> > Dick Johnson
-> > 
-> 
-> Is it possible that you're confusing "backing store" with "physical
-> RAM"?  I was under the impression that strict overcommit used both RAM
-> and SWAP when deciding whether an allocation should succeed.  If you've
-> exceeded all of RAM and all of swap, you are OOM.  Period.
-> 
-> Daniel
+ > > o New kernel build system (kbuild 2.5)            (Keith Owens)
+ > 	I fear Keith might go SPC if this had to wait for 2.7
 
-No. And I'm not confused. Consider Virtual RAM as all the real RAM
-and all the backing store. If I consider this an absolute limit,
-then I am not able to fully use all the system resources.
+Bit by bit, either parts of Keith's work, or orthogonal ideas
+are making it in. Whether the big chunks make it by halloween remains
+to be seen.
 
-Lets say the system has 20 'units' of a resource (virtual RAM).
+ > > o Add XFS (A journaling filesystem from SGI)      (XFS team)
+ > > o Asynchronous IO (aio) support                   (Ben LaHaise)
+ > > o LVM (Logical Volume Manager) v2.0               (LVM team)
+ > 	I thought these were all progressing nicely
 
-Example:
+All are aiming for halloween, but none (afaik) have put forward
+anything that can be merged yet. The XFS & LVM folks are still
+cleaning bits and getting things presentable, whilst Ben is still
+at work with aio I guess (judging by his relative silence since
+the summit 8-)
 
-Task (1) allocates 10 units, actually uses 1 so far.
-Task (2) allocates 10 units, actually uses 2 so far.
-Task (3) wants to allocate 7 units. It can't so it exits in error.
-Task (1) uses all its units then exits normally.
-Task (2) uses 1 more unit then exits normally.
+ > > o Page table sharing                              (Daniel Phillips)
+ > > o ext2/ext3 online resize support                 (Andreas Dilger)
+ > 	Definitely want to stabilize these
 
-So you forced a task to terminate in error because you established
-hard limits on your resource.
+"would be nice".
 
-What could (should?) have happened, is that all the memory allocations
-could have succeeded, even though they exceeded the 20 units of resource.
->From the history, we see that Task (1) actually used 10. Task (2)
-actually used 3 units. This means that there were really 20 - 13 = 7 units
-available when task 3 requested 7 units. But, the system 'knew' what
-its commitment was so it refused.
+ > > o UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
+ > 	Hopefully this is close as well
 
-Now, since the system is dynamic, it is possible that Task (1) and
-Task (2) might not even exist by the time Task (3) actually wants to
-use its memory. In that case, there would have been 20 units available, 
-but we will never know because Task 3 exited in error.
+This has been around for an age, but I haven't seen anything for 2.5
+yet. Then again, I dropped off the packet-writing mailing list a long
+time ago, so I'm not sure how up to date those folks are.
 
-Now, what this should point out is that a complete VM system, although
-it can't anticipate the future, can put things off until the future
-where things may be better. This is the true 'fix' of OOM (if it
-needs fixing.
+ > > o Full compliance with IPv6                       (Alexey Kuznetzov, Jun Murai, Yoshifuji Hideaki, USAGI team)
+ > 	could ease in 2.6.x if not?
 
-Let's say I make a fork bomb, as root, no protection. The MM knows
-that it can't give me any more RAM right now so I am put to sleep.
-Other tasks run fine, at full speed. As they exit, the fork-bomb
-may get their memory. Since the MM knows how much resource could ever 
-become available, as a single task exceeds this limit, the MM
-knows that it cannot get any more in the future so the MM knows it's
-a bomb. If the system doesn't kill the bomb, eventually, I may fail the
-system because there may be no resource available to log-in and kill the
-bomb, but as long as there is one task running, connected to a terminal,
-that task can be used to kill the fork-bomb.
+Davem's call I guess. ISTR the USAGI work was a rather large patch which
+if in Davem's shoes, I'd be rather dubious about taking 'all-in-one'.
 
-The problem with putting memory allocation off to the future, as
-I see it, is the existing paging code wasn't designed for it. If
-a task that page-faulted could also sleep, the problem could be
-solved.
+ > > o Add support for NFS v4                          (NFS v4 team)
+ > 	This really shouldn't wait for 2.8!
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-                 Windows-2000/Professional isn't.
+Last I saw of this patch it was still against something like 2.4.1,
+so they have a lot of catch up to do. This fact asides, if it doesn't
+touch common code, there's no reason it can't go in post-feature freeze
+in the same way as a driver/additional fs. Depends how much it touches.
+That said, are there really that many NFSv4 hosts out there that make
+this a *must have* feature ? Are any other *nix vendors shipping NFSv4 yet?
 
+ > > o Remove the 2TB block device limit               (Peter Chubb)
+ > 	This would help db folks now, and who knows how big
+ > 	a single drive will be before 2.7?
+
+Agreed, a pretty important feature.
+
+ > > o Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
+ > 	Sure would be nice if it worked on desktops as well as laptops
+
+"works for me". Admittedly I've not played with pcmcia much, but it
+seems at least if you choose the right hardware it works fine.
+
+ > > o Add thrashing control                           (Rik van Riel)
+ > I sure would like to see documentation improvements on this list! For 2.6
+ > it would be beautiful is no features went into /proc/sys unless they went
+ > into the Documentation directory as well.	
+
+ObRelated: There was some shouting about a sysctlfs at some point
+which could clean up a lot of the crap in /proc/sys at the expense of
+an extra mount. Al ?
+
+        Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263931AbUDPX53 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 19:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbUDPX53
+	id S263895AbUDPX4v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 19:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263931AbUDPX4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 19:57:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:408 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263931AbUDPX5V (ORCPT
+	Fri, 16 Apr 2004 19:56:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60055 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263895AbUDPX40 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 19:57:21 -0400
-Date: Fri, 16 Apr 2004 16:59:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: msync() needed before munmap() when writing to shared mapping?
-Message-Id: <20040416165936.7fd9f5e1.akpm@osdl.org>
-In-Reply-To: <20040416231009.GA27775@mail.shareable.org>
-References: <20040416220223.GA27084@mail.shareable.org>
-	<20040416154652.7ab27e79.akpm@osdl.org>
-	<20040416231009.GA27775@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 16 Apr 2004 19:56:26 -0400
+Date: Fri, 16 Apr 2004 16:56:21 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Alex Riesen <fork0@users.sourceforge.net>, Chris Wright <chrisw@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+Message-ID: <20040416165621.V21045@build.pdx.osdl.net>
+References: <4080060F.7030604@redhat.com> <20040416213851.GA1784@steel.home> <20040416152217.C22989@build.pdx.osdl.net> <20040416234303.GA1932@steel.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040416234303.GA1932@steel.home>; from fork0@users.sourceforge.net on Sat, Apr 17, 2004 at 01:43:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> wrote:
->
-> ...
-> A related question.  The comment for MADV_DONTNEED says:
+* Alex Riesen (fork0@users.sourceforge.net) wrote:
+> Chris Wright, Sat, Apr 17, 2004 00:22:17 +0200:
+> > The kernel interface is simple and clean.  And in fact, requires no
+> > slashes else you'll get -EACCES.  It's not POSIX, but the library
+> > interface is.
+> > 
+> > We just discussed this yesterday:
+> > 
+> > http://marc.theaimsgroup.com/?t=108205593100003&r=1&w=2
 > 
->  * NB: This interface discards data rather than pushes it out to swap,
->  * as some implementations do.  This has performance implications for
->  * applications like large transactional databases which want to discard
->  * pages in anonymous maps after committing to backing store the data
->  * that was kept in them.  There is no reason to write this data out to
->  * the swap area if the application is discarding it.
->  *
->  * An interface that causes the system to free clean pages and flush
->  * dirty pages is already available as msync(MS_INVALIDATE).
-> 
-> MADV_DONTNEED calls zap_page_range().
-> That propagates dirtiness into the pagecache.
-> 
-> So it *doesn't* "discard data rather than push it out to swap", if the
-> same dirty data is mapped elsewhere e.g. as a shared anonymous
-> mapping, does it?
+> now, what's is the check in the library for? BTW, it is returning the
+> other error code (EINVAL instead of EACCES), just on top of all the
+> confusion with slashes.
 
-Sure.  If some other process is using the same pages we don't go toss them
-away.
+EINVAL in the library, sure.  EACCES is if you directly use the kernel
+interface and pass it a name with any slashes in it.  The two interfaces
+(library and kernel) aren't required to be identical.  Kernel is kept
+simplest w/ no slashes, library provides POSIX compliance.
 
-> The comment also mentions MS_INVALIDATE, but MS_INVALIDATE doesn't do
-> what the comment says and doesn't implement anything like POSIX
-> either.  (Linux's MS_INVALIDATE is practically equivalent to MS_ASYNC).
-
-Seems that way - MS_INVALIDATE will simply propagate pte dirtiness into
-page dirtiness.  For non-file-backed mappings it is a no-op.
-
-> Is there a call which does what the command about MS_INVALIDATE says,
-> i.e. free clean pages and flush dirty ones?
-
-Not really.  What is a clean anonymous page?  If it's ever been written to,
-it's conceptually dirty, whether or not it is physically dirty.  ie: if you
-invalidate it, you've lost your data.
-
-I guess you could get a similar result by munmap() and then mmapping it
-again.
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

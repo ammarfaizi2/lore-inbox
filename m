@@ -1,182 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135839AbRAJPSs>; Wed, 10 Jan 2001 10:18:48 -0500
+	id <S135829AbRAJPSt>; Wed, 10 Jan 2001 10:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135829AbRAJPSj>; Wed, 10 Jan 2001 10:18:39 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:25280 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S135833AbRAJPSg>; Wed, 10 Jan 2001 10:18:36 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] shmem truncate optimizations and cleanup
-From: Christoph Rohland <cr@sap.com>
-Date: 10 Jan 2001 16:22:13 +0100
-Message-ID: <m3g0iro2je.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135859AbRAJPSj>; Wed, 10 Jan 2001 10:18:39 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:34629 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S135839AbRAJPSh>; Wed, 10 Jan 2001 10:18:37 -0500
+Date: Wed, 10 Jan 2001 09:18:35 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200101101518.JAA57008@tomcat.admin.navo.hpc.mil>
+To: phillips@innominate.de, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        linux-kernel@vger.kernel.org
+Subject: Re: FS callback routines
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+---------  Received message begins Here  ---------
 
-The appended patch speeds up the truncate logic of shmem.c
-considerably and makes it more readable. 
+> 
+> Jesse Pollard wrote:
+> > Daniel Phillips <phillips@innominate.de>:
+> > > This may be the most significant new feature in 2.4.0, as it allows us
+> > > to take a fundamentally different approach to many different problems.
+> > > Three that come to mind: mail (get your mail instantly without polling);
+> > > make (don't rely on timestamps to know when rebuilding is needed, don't
+> > > scan huge directory trees on each build); locate (reindex only those
+> > > directories that have changed, keep index database current).  As you
+> > > noticed, there are many others.
+> > > ...
+> > 
+> > It would also be very nice if the security of the feature could be
+> > confirmed. The problem with SGI's implementation is that it becomes
+> > possible to monitor files that you don't own, don't have access to,
+> > or are not permitted to know even exist.
+> 
+> To receive notification about events in a given directory you have to be
+> able to open it.  Is this adequate for your needs?
 
-Would you apply it to your -ac series?
+It depends on the implementation - One problem is that you may be able
+to open the directory at the time you start monitoring, then the permission
+is removed. Most implementations do not recheck access rights on each
+notification (fair amount of overhead).
 
-I will go on with some cache lookup optimizations and probably
-read/write support.
+My belief is (and I could be wrong) that most such callbacks are done by
+placing a watch list on/for a device:inode identifier. When activity on
+a matching device:inode occurs, the matching callback is invoked. No path name
+access rights rechecking is performed since the scan of the path could
+easily overwhelm the the operation being performed on the file.
 
-Greetings
-                Christoph
+The only guard would be the path scan done at the time the callback is
+established. The justification is that "It's just like opening a file, the
+access rights are checked on open". A callback is not an open, UNLESS callbacks
+can only be placed on open file id's.
 
-diff -uNr 4-13-5/include/linux/shmem_fs.h c/include/linux/shmem_fs.h
---- 4-13-5/include/linux/shmem_fs.h	Thu Dec 28 23:19:27 2000
-+++ c/include/linux/shmem_fs.h	Thu Dec 28 23:22:58 2000
-@@ -19,6 +19,7 @@
- 
- struct shmem_inode_info {
- 	spinlock_t	lock;
-+	unsigned long	max_index;
- 	swp_entry_t	i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
- 	swp_entry_t   **i_indirect; /* doubly indirect blocks */
- 	unsigned long	swapped;
-diff -uNr 4-13-5/mm/shmem.c c/mm/shmem.c
---- 4-13-5/mm/shmem.c	Thu Dec 28 23:19:27 2000
-+++ c/mm/shmem.c	Thu Dec 28 23:31:20 2000
-@@ -51,11 +51,16 @@
- 
- static swp_entry_t * shmem_swp_entry (struct shmem_inode_info *info, unsigned long index) 
- {
-+	unsigned long offset;
-+
- 	if (index < SHMEM_NR_DIRECT)
- 		return info->i_direct+index;
- 
- 	index -= SHMEM_NR_DIRECT;
--	if (index >= ENTRIES_PER_PAGE*ENTRIES_PER_PAGE)
-+	offset = index % ENTRIES_PER_PAGE;
-+	index /= ENTRIES_PER_PAGE;
-+
-+	if (index >= ENTRIES_PER_PAGE)
- 		return NULL;
- 
- 	if (!info->i_indirect) {
-@@ -63,13 +68,13 @@
- 		if (!info->i_indirect)
- 			return NULL;
- 	}
--	if(!(info->i_indirect[index/ENTRIES_PER_PAGE])) {
--		info->i_indirect[index/ENTRIES_PER_PAGE] = (swp_entry_t *) get_zeroed_page(GFP_USER);
--		if (!info->i_indirect[index/ENTRIES_PER_PAGE])
-+	if(!(info->i_indirect[index])) {
-+		info->i_indirect[index] = (swp_entry_t *) get_zeroed_page(GFP_USER);
-+		if (!info->i_indirect[index])
- 			return NULL;
- 	}
- 	
--	return info->i_indirect[index/ENTRIES_PER_PAGE]+index%ENTRIES_PER_PAGE;
-+	return info->i_indirect[index]+offset;
- }
- 
- static int shmem_free_swp(swp_entry_t *dir, unsigned int count)
-@@ -99,7 +104,6 @@
-  * @dir:	pointer to swp_entries 
-  * @size:	number of entries in dir
-  * @start:	offset to start from
-- * @inode:	inode for statistics
-  * @freed:	counter for freed pages
-  *
-  * It frees the swap entries from dir+start til dir+size
-@@ -109,7 +113,7 @@
- 
- static unsigned long 
- shmem_truncate_part (swp_entry_t * dir, unsigned long size, 
--		     unsigned long start, struct inode * inode, unsigned long *freed) {
-+		     unsigned long start, unsigned long *freed) {
- 	if (start > size)
- 		return start - size;
- 	if (dir)
-@@ -121,21 +125,27 @@
- static void shmem_truncate (struct inode * inode)
- {
- 	int clear_base;
--	unsigned long start;
-+	unsigned long index, start;
- 	unsigned long mmfreed, freed = 0;
--	swp_entry_t **base, **ptr;
-+	swp_entry_t **base, **ptr, **last;
- 	struct shmem_inode_info * info = &inode->u.shmem_i;
- 
- 	spin_lock (&info->lock);
--	start = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-+	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-+	if (index >= info->max_index) {
-+		info->max_index = index;
-+		spin_unlock (&info->lock);
-+		return;
-+	}
- 
--	start = shmem_truncate_part (info->i_direct, SHMEM_NR_DIRECT, start, inode, &freed);
-+	start = shmem_truncate_part (info->i_direct, SHMEM_NR_DIRECT, index, &freed);
- 
- 	if (!(base = info->i_indirect))
--		goto out;;
-+		goto out;
- 
- 	clear_base = 1;
--	for (ptr = base; ptr < base + ENTRIES_PER_PAGE; ptr++) {
-+	last = base + ((info->max_index - SHMEM_NR_DIRECT + ENTRIES_PER_PAGE - 1) / ENTRIES_PER_PAGE);
-+	for (ptr = base; ptr < last; ptr++) {
- 		if (!start) {
- 			if (!*ptr)
- 				continue;
-@@ -145,16 +155,16 @@
- 			continue;
- 		}
- 		clear_base = 0;
--		start = shmem_truncate_part (*ptr, ENTRIES_PER_PAGE, start, inode, &freed);
-+		start = shmem_truncate_part (*ptr, ENTRIES_PER_PAGE, start, &freed);
- 	}
- 
--	if (!clear_base) 
--		goto out;
--
--	free_page ((unsigned long)base);
--	info->i_indirect = 0;
-+	if (clear_base) {
-+		free_page ((unsigned long)base);
-+		info->i_indirect = 0;
-+	}
- 
- out:
-+	info->max_index = index;
- 
- 	/*
- 	 * We have to calculate the free blocks since we do not know
-@@ -209,16 +219,16 @@
- 		return 1;
- 
- 	spin_lock(&info->lock);
--	entry = shmem_swp_entry (info, page->index);
-+	entry = shmem_swp_entry(info, page->index);
- 	if (!entry)	/* this had been allocted on page allocation */
- 		BUG();
- 	error = -EAGAIN;
- 	if (entry->val) {
--                __swap_free(swap, 2);
-+		__swap_free(swap, 2);
- 		goto out;
--        }
-+	}
- 
--        *entry = swap;
-+	*entry = swap;
- 	error = 0;
- 	/* Remove the from the page cache */
- 	lru_cache_del(page);
+In SGI's case, the file alteration monitor (a daemon) performs this activity
+while running as root, and providing RPC access to remote systems. This RPC
+is unauthenticated, permitting non-local users to track files that exist on
+local hosts. Since RPC cannot verify the identity of the remote user, it
+permits tracking of ANY file on the system (via RPC spoofing of user identity
+in the RPC call).
 
+This was determined to be A Bad Thing, and not allowed.
+
+> > For these reasons, we have disabled the feature.
+> 
+> It's nice to have that option, isn't it? ;-)
+
+It would be if it could be done in a secure manner.
+
+Also usefull (after callbacks work): an extension to callbacks to allow
+catching file read/write/seek/truncate/ioctl actions, and being able to
+perform actions on behalf of the owner of the file (as an implementation
+of the original action). This might reqire the user to provide a "daemon"
+to monitor the file, or to be activated by a callback established by the
+owner of the file. (I know, there is a lot to consider when implementing
+something like this - process environment, what executable is to be run
+to do this, the interface to getting the users request/returning results..)
+
+Use: ability to provide customized versions of the file based on the identity
+of the user that opened the file - fields could be hidden/generated, queries
+could be passed (via ioctl). This could provide a simple way to implement
+a small data manager, but without the overhead (ie $$$) for a data base system
+or the complexity of establishing a data base style client-server.
+
+I do think such an extension should be permitted/denied based on a capability
+though.
+
+Ahh well, rambling ideas....
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUIFCyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUIFC7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267404AbUIFCyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 22:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIFCyJ
+	id S263806AbUIFC7I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 22:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUIFC7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 22:54:09 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:37203 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267404AbUIFCyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 22:54:05 -0400
-Message-ID: <413BD14A.9050800@yahoo.com.au>
-Date: Mon, 06 Sep 2004 12:54:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-CC: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [ppc64] Allow SD_NODES_PER_DOMAIN to be overridden
-References: <20040902123713.GD26072@krispykreme> <20040904153316.GB7716@krispykreme> <413A1052.6020400@yahoo.com.au> <200409050824.47853.jbarnes@engr.sgi.com>
-In-Reply-To: <200409050824.47853.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Sep 2004 22:59:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29163 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263806AbUIFC7D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 22:59:03 -0400
+Date: Sun, 5 Sep 2004 17:20:23 -0700
+From: Greg KH <greg@kroah.com>
+To: James Lamanna <jamesl@appliedminds.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Remove Phidget Blacklist if kernel driver is not selected
+Message-ID: <20040906002023.GB16840@kroah.com>
+References: <auto-000000530333@appliedminds.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <auto-000000530333@appliedminds.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
+On Sun, Aug 29, 2004 at 03:21:06PM -0700, James Lamanna wrote:
+> This patch (compile-tested not runtime tested yet)
+> is to remove the blacklisting of Phidgets 
+> if the PhidgetServo kernel driver is not included
+> in the kernel.
+> (Right now it gets rid of all Phidget Blacklists, as more
+> drivers are added I would expect they would be per-driver
+> segmented).
+> 
+> It gets quite annoying to have to patch recent kernels 
+> everytime to use userspace tools (libhid + libphidgets)
+> as opposed to using the kernel driver, which cannot be
+> used because of the HID blacklist.
+> 
+> I don't understand why a kernel driver for the
+> PhidgetServo was included in the kernel. Wasn't the
+> point of the HID layer to be able to present HID devices
+> to userspace so that kernel drivers don't have to be 
+> written for each and every device?
+> It seems to be that the way to control a fairly simple
+> device like the PhidgetServo is through userspace and
+> the kernel shouldn't be bothered with the device control
+> details.
 
->
->Yep, if I add the arch define the domains are built correctly.  Though I'm 
->getting a warning:
->
->...
->ERROR groups don't span domain->span
->CPU31:  online
->...
->
->
+Yes, you are correct.  I'm going to rip out the in-kernel version (Oh
+no! Not again...) because this can all be done better and safer from
+userspace.
 
-Hmm, this might be a problem. I don't think it can have been different 
-before
-this patch though... Can you send the full output privately? Thanks.
+But the hid blacklist is still correct, even when using the userspace
+library, as the hid driver should never bind to these devices.
 
+thanks,
 
->Here's the updated patch.
->
->Jesse (note, no 'i')
->
->
-
-Sorry - I think it is one of those letter sequences that is hard-wired
-in my brain :\
-
+greg k-h

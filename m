@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265096AbUGBXWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUGBXZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265096AbUGBXWY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 19:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUGBXWY
+	id S265098AbUGBXZE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 19:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUGBXZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 19:22:24 -0400
-Received: from hell.org.pl ([212.244.218.42]:34578 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S265096AbUGBXWX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 19:22:23 -0400
-Date: Sat, 3 Jul 2004 01:22:28 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Stefan Seyfried <seife@gmane0305.slipkontur.de>,
-       swsusp-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [Swsusp-devel] Re: nvidia's driver and swsusp (need help w/ n forc e2 mobo)
-Message-ID: <20040702232228.GA19080@hell.org.pl>
-Mail-Followup-To: Terence Ripperda <tripperda@nvidia.com>,
-	Stefan Seyfried <seife@gmane0305.slipkontur.de>,
-	swsusp-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	Pavel Machek <pavel@suse.cz>
-References: <20040702192044.GO1815@hygelac> <20040702200012.GU1815@hygelac>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20040702200012.GU1815@hygelac>
-User-Agent: Mutt/1.4.2i
+	Fri, 2 Jul 2004 19:25:04 -0400
+Received: from av5-2-sn1.fre.skanova.net ([81.228.11.112]:5613 "EHLO
+	av5-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S265098AbUGBXY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 19:24:59 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
+References: <m2lli36ec9.fsf@telia.com> <m2u0wqqdpl.fsf@telia.com>
+	<20040702150819.646b6103.akpm@osdl.org>
+	<20040702224720.GA7969@kroah.com>
+	<20040702155945.5c375bd2.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 03 Jul 2004 01:24:41 +0200
+In-Reply-To: <20040702155945.5c375bd2.akpm@osdl.org>
+Message-ID: <m27jtm0z7q.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Terence Ripperda:
-> I tried hibernating/resuming while in X. but I don't see any acpi
-> calls coming through to our driver via the pci driver model. is this
-> expected?
+Andrew Morton <akpm@osdl.org> writes:
 
-I'm no PM expert, but I'm getting the idea that you're wrong at your
-principles. 
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > > const char *__bdevname(dev_t dev, char *buffer)
+> > > {
+> > > 	struct gendisk *disk;
+> > > 	int part;
+> > > 
+> > > 	disk = get_gendisk(dev, &part);
+> > > 	if (disk) {
+> > > 		buffer = disk_name(disk, part, buffer);
+> > > 		put_disk(disk);
+> > > 	} else {
+> > > 		snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
+> > > 				MAJOR(dev), MINOR(dev));
+> > > 	}
+> > > 
+> > > get_gendisk() did an internal module_get() in kobj_lookup().
+> > 
+> > But if kobj_lookup() succeeds, module_put() is called before returning
+> > (actually it's always called, right?) 
 
-To begin with, there's no such thing as acpi calls. There's driver model in
-2.6 (i.e. pci_module_init() / pci_register_driver()), and there's 2.4's
-lack of thereof (i.e. pm_register()). As far as I know, those two
-interfaces have nothing specifically to do with ACPI nor APM. 
+But kobj_lookup() also calls probe(), which equals ata_probe() in the
+IDE case, and ata_probe() calls get_disk() which calls
+try_module_get() to acquire another reference to the module. I guess
+all probe() functions behave the same way, as I've seen the same
+problem with the sr_mod module.
 
-I think the proper way to conditionalize this in the code is to check for
-CONFIG_PM as the prerequisite and KERNEL_2_6/!KERNEL_2_6 to choose between
-those interfaces (and only that: bear in mind swsusp2 and pmdisk require
-neither APM nor ACPI). Perhaps you're building with only CONFIG_PM defined?
+> Oop, sorry, yes.  Peter, are you sure this is where the leak is coming from?
 
-Hopefully others will be able to clarify this.
-Best regards,
+I'm sure that the module reference count as reported by lsmod
+increases each time I access /proc/driver/pktcdvd/pktcdvd0. I can make
+this problem go away either by patching __bdevname() or by deleting
+the call to __bdevname() in pktcdvd.c.
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

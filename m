@@ -1,140 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285093AbSA2Waf>; Tue, 29 Jan 2002 17:30:35 -0500
+	id <S284970AbSA2Wdd>; Tue, 29 Jan 2002 17:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285226AbSA2Wa1>; Tue, 29 Jan 2002 17:30:27 -0500
-Received: from rain.CC.Lehigh.EDU ([128.180.39.20]:32715 "EHLO
-	rain.CC.Lehigh.EDU") by vger.kernel.org with ESMTP
-	id <S285060AbSA2W3D>; Tue, 29 Jan 2002 17:29:03 -0500
-Date: Tue, 29 Jan 2002 17:28:23 -0500
-To: rubini@vision.unipv.it
-Cc: linux-kernel@vger.kernel.org
-Subject: Small kernel patch for Logitech iTouch
-Message-ID: <20020129222823.GA8154@schala>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Mike Paul <mbp2@Lehigh.EDU>
+	id <S285226AbSA2WdO>; Tue, 29 Jan 2002 17:33:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30481 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S285352AbSA2Wcc>; Tue, 29 Jan 2002 17:32:32 -0500
+Date: Tue, 29 Jan 2002 17:31:49 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <a354iv$ai9$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1020129165740.31511A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002, Linus Torvalds wrote:
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> In short, if you have areas or patches that you feel have had problems,
+> ask yourself _why_ those areas have problems. 
 
-The current discussion about dealing with patch integration in Linux has
-reminded me of this little patch I wrote a few months back for my Logitech
-iTouch cordless keyboard.  It's mainly to put an end to the "unknown scanco=
-de"
-messages that would appear on the console every few minutes and corrupt my
-display, but while I was at it I added keycodes for the special-function
-buttons on the keyboard too.
+Easy, because the patch process has bogged down due to bad design and has
+failed to scale. And you simply refuse to believe that there is a problem.
 
-Here's the patch, and it's a pretty straightforward one.  It should apply
-cleanly to 2.4.17.
+> A word of warning: good maintainers are hard to find.  Getting more of
+> them helps, but at some point it can actually be more useful to help the
+> _existing_ ones.  I've got about ten-twenty people I really trust, and
+> quite frankly, the way people work is hardcoded in our DNA.  Nobody
+> "really trusts" hundreds of people.  The way to make these things scale
+> out more is to increase the network of trust not by trying to push it on
+> me, but by making it more of a _network_, not a star-topology around me. 
 
---- linux/drivers/char/pc_keyb.c	Fri Mar  2 21:38:37 2001
-+++ linux-logitech/drivers/char/pc_keyb.c	Mon Oct  8 22:40:56 2001
-@@ -223,22 +223,46 @@
- #define E0_MSLW	125
- #define E0_MSRW	126
- #define E0_MSTM	127
-+/*
-+ * Extra buttons on the Logitech Cordless iTouch
-+ *
-+ * Note that the Sleep button generates both a press and release event when
-+ * pressed, and ignores subsequent presses until about 4 seconds after the=
- last
-+ * time it was pressed.
-+ */
-+/* Power-management */
-+#define E0_SLEEP  112
-+/* Audio controls */
-+#define E0_MUTE   113
-+#define E0_VOLDN  114
-+#define E0_VOLUP  115
-+#define E0_PLAY   116
-+#define E0_STOP   117
-+#define E0_PREV   120
-+#define E0_NEXT   121
-+/* Internet keys */
-+#define E0_EMAIL  122
-+#define E0_SEARCH 123
-+#define E0_RUN    124
-+#define E0_HOMEPG 125
-+/* Sent every few minutes for no apparent reason */
-+#define E1_PING   126
-=20
- static unsigned char e0_keys[128] =3D {
-   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x00-0x07 */
-   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x08-0x0f */
--  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x10-0x17 */
--  0, 0, 0, 0, E0_KPENTER, E0_RCTRL, 0, 0,	      /* 0x18-0x1f */
--  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x20-0x27 */
--  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x28-0x2f */
--  0, 0, 0, 0, 0, E0_KPSLASH, 0, E0_PRSCR,	      /* 0x30-0x37 */
-+  E0_PREV, 0, 0, 0, 0, 0, 0, 0,			      /* 0x10-0x17 */
-+  E0_MUTE, E0_NEXT, 0, 0, E0_KPENTER, E0_RCTRL, 0, 0, /* 0x18-0x1f */
-+  0, 0, E0_PLAY, 0, E0_STOP, 0, 0, 0,		      /* 0x20-0x27 */
-+  0, 0, 0, 0, 0, 0, E0_VOLDN, 0,		      /* 0x28-0x2f */
-+  E0_VOLUP, 0, E0_HOMEPG, 0, 0, E0_KPSLASH, 0, E0_PRSCR, /* 0x30-0x37 */
-   E0_RALT, 0, 0, 0, 0, E0_F13, E0_F14, E0_HELP,	      /* 0x38-0x3f */
-   E0_DO, E0_F17, 0, 0, 0, 0, E0_BREAK, E0_HOME,	      /* 0x40-0x47 */
-   E0_UP, E0_PGUP, 0, E0_LEFT, E0_OK, E0_RIGHT, E0_KPMINPLUS, E0_END,/* 0x4=
-8-0x4f */
-   E0_DOWN, E0_PGDN, E0_INS, E0_DEL, 0, 0, 0, 0,	      /* 0x50-0x57 */
--  0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, 0, 0,	      /* 0x58-0x5f */
--  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x60-0x67 */
--  0, 0, 0, 0, 0, 0, 0, E0_MACRO,		      /* 0x68-0x6f */
-+  0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, 0, E0_SLEEP,    /* 0x58-0x5f */
-+  0, 0, 0, 0, 0, E0_SEARCH, E0_RUN, 0,		      /* 0x60-0x67 */
-+  0, 0, 0, 0, E0_EMAIL, 0, 0, E0_MACRO,		      /* 0x68-0x6f */
-   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x70-0x77 */
-   0, 0, 0, 0, 0, 0, 0, 0			      /* 0x78-0x7f */
- };
-@@ -311,6 +335,10 @@
- 	  /*
- 	   * usually it will be 0xe0, but a Pause key generates
- 	   * e1 1d 45 e1 9d c5 when pressed, and nothing when released
-+	   *
-+	   * The Logitech Cordless iTouch generates e1 5c every few minutes for
-+	   * no apparent reason.  It might have something to do with reporting
-+	   * battery status, but I don't know.
- 	   */
- 	  if (prev_scancode !=3D 0xe0) {
- 	      if (prev_scancode =3D=3D 0xe1 && scancode =3D=3D 0x1d) {
-@@ -318,6 +346,9 @@
- 		  return 0;
- 	      } else if (prev_scancode =3D=3D 0x100 && scancode =3D=3D 0x45) {
- 		  *keycode =3D E1_PAUSE;
-+		  prev_scancode =3D 0;
-+	      } else if (prev_scancode =3D=3D 0xe1 && scancode =3D=3D 0x5c) {
-+		  *keycode =3D E1_PING;
- 		  prev_scancode =3D 0;
- 	      } else {
- #ifdef KBD_REPORT_UNKN
+The problem is that you don't trust ANYONE. There is no reason why you
+should be looking at small obvious patches to bugs (note bugs, not
+enhancements). In the last batch of messages I see agreement from Alan Cox
+and Eric Raymond that things are backed up. I see reiser filesystem
+patches, from the original developer, labeled "third try." Quite bluntly
+he is a hell of a lot better qualified to do bug fixes in that area than
+you are.
+ 
+> In short: don't try to come up with a "patch penguin".  Instead try to
+> help existing maintainers, or maybe help grow new ones. THAT is the way
+> to scalability.
 
---=20
+I'm sure this will be ignored, but here's what should happen, and will,
+just maybe not in the Linus kernel series.
 
-Mike Paul
-mbp2@lehigh.edu
-http://www.lehigh.edu/~mbp2/
+BUGS:
 
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+There should be a place to send bugs. Every bug should be acknowleged so
+mailbots to keep resending will not be needed. People are setting this up
+now, the question is not if it will be done this way, but if it will be
+done through or around you.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Each bug should be eyeballed by someone with a clue just to see that the
+report states a problem, a way to verify the problem, and doesn't grossly
+misstate the intended behaviour. Then someone at the maintainer level
+would look at the patch, check it carefully, and reject formally or apply.
 
-iD8DBQE8VyIH3SZkqUhyWy4RAgZ0AJ9uS/Jd+Sm+Sdps7JBrOcHH9FtRqgCgjT0q
-g7YCWjuTawKtJciy0Cx9IPc=
-=FB9y
------END PGP SIGNATURE-----
+Here's the heresy: every bug patch should be promoted to the current
+kernel unless it is rejected for reason. This will get fixes in, but more
+importantly will force people to look at the damn things...
 
---2fHTh5uZTiUOsy+g--
+Reasons to drop a patch:
+1 - no bug, this process is for bugs, no news features or improvements.
+Offhand I see bugs when you have a crash (oops), a failure to compile, or
+filesystem corruption. Someone may want to add drivers totally not
+working, but I didn't say it.
+
+2 - no bug, you misunderstand the behaviour, failed to provide a test case
+or persuasive argument (you are scanning from 0 to N instead of 0 to N-1
+type stuff, you are locking one lock and unlocking another, etc).
+
+3 - no fix, the solution doesn't work.
+
+4 - not readable or understandable.
+
+5 - changes some global part of the kernel and would or could impact other
+things.
+
+Note that while "there's a better way" can cause an add to the to-do list,
+I do not intend to have the users suffer an actual bug if there is a
+viable solution.
+
+To all the people who say that "if you don't like the way Linus does
+things write your own kernel," I say that's what is happening with the
+-aa, -ac, etc lines. That's why I'm typing this on something called
+2.4.17-jl15-ll, because I'm in need of a kernel which runs on a small
+machine and doesn't piss me off with lousy response to complex stuff like
+echoing what I type.
+
+Someone mentioned the army. Note that hte general doesn't decide where to
+dig the foxhole. It's about delegation, and while I doubt Linus read this
+far, that's how things scale beyond what one person can do.
+
+Fork is not just a system call, I'd hate to see FreeLinux, NetLinux,
+OpenLinux, Linux386, along BSD lines, but while people will wait for
+enhancements, I don't find that they are nearly so willing to wait for
+fixes. Before we have vendor versions which actually start to differ in
+syscall behaviour, let's get a handle on this. It's time for the
+maintenence to evolve just as the kernel has, and become something bigger
+and better. We need "patch-threads" soon, lest we thrash ourself silly.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267184AbUG1Xak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267331AbUG1XeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267184AbUG1Xak (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUG1X11
+	id S267331AbUG1XeP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUG1Xay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:27:27 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:30961 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267331AbUG1XYF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:24:05 -0400
-Subject: Re: [PATCH] don't pass mem_map into init functions
+	Wed, 28 Jul 2004 19:30:54 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:5553 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267330AbUG1X1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 19:27:52 -0400
+Subject: 2.6.8-rc2-mm1 link errors
 From: Dave Hansen <haveblue@us.ibm.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-mm <linux-mm@kvack.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davidm@hpl.hp.com, tony.luck@intel.com
-In-Reply-To: <200407281539.40049.jbarnes@engr.sgi.com>
-References: <1091048123.2871.435.camel@nighthawk>
-	 <200407281501.19181.jbarnes@engr.sgi.com>
-	 <1091053187.2871.526.camel@nighthawk>
-	 <200407281539.40049.jbarnes@engr.sgi.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1091056702.2871.617.camel@nighthawk>
+Message-Id: <1091057256.2871.637.camel@nighthawk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 16:18:22 -0700
+Date: Wed, 28 Jul 2004 16:27:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 15:39, Jesse Barnes wrote:
-> You're missing this little bit from your patchset.  Cc'ing Tony and David.
+I'm getting some odd link errors from -rc2-mm1 that don't happen in
+-rc1-mm1, or plain -rc2:
 
-Thanks for finding that.  That appears to be an ia64-ism, so I think the
-rest of the patch is OK.
+          LD      .tmp_vmlinux1
+        ldchk: .tmp_vmlinux1: final image has undefined symbols:
+        
+        
+        <bunch of blank lines>
+        
+        
+        make: *** [.tmp_vmlinux1] Error 1
+        
+Any ideas?
+
+Linux elm3b82 2.6.0-test4-autokern1 #1 SMP Mon Sep 8 08:12:06 PDT 2003
+i686 GNU/Linux
+
+Gnu C                  2.95.4
+Gnu make               3.80
+binutils               2.14.90.0.7
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.1-pre5
+e2fsprogs              1.35
+PPP                    2.4.2
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.1
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.2.1
+
 
 -- Dave
 

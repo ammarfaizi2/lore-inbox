@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbUKLXbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbUKLXZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262678AbUKLXbs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbUKLX3c
+	id S262693AbUKLXZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUKLXYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:29:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:505 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262694AbUKLXWq convert rfc822-to-8bit
+	Fri, 12 Nov 2004 18:24:32 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:61432 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262687AbUKLXWn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:22:46 -0500
+	Fri, 12 Nov 2004 18:22:43 -0500
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <11003017153578@kroah.com>
-Date: Fri, 12 Nov 2004 15:21:55 -0800
-Message-Id: <11003017152249@kroah.com>
+In-Reply-To: <11003017163000@kroah.com>
+Date: Fri, 12 Nov 2004 15:21:56 -0800
+Message-Id: <11003017161569@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,169 +23,87 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2026.35.4, 2004/10/28 15:56:14-05:00, akpm@osdl.org
+ChangeSet 1.2026.66.12, 2004/11/05 15:05:02-08:00, bunk@stusta.de
 
-[PATCH] PCI: remove unconditional PCI ACPI IRQ routing
+[PATCH] PCI: kill old PCI changelog
 
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+There's not much value in shipping a changelog who's last update was
+five years ago.
 
-Now that PCI interrupts are routed in pci_enable_device(), remove the
-unconditional routing previously done in pci_acpi_init().
 
-This has the potential to break drivers that don't use pci_enable_device()
-correctly, so I also added a "pci=routeirq" kernel option that restores the
-previous behavior.  I intend to remove that option, along with all the code
-below, in a month or so.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- Documentation/kernel-parameters.txt |    4 ++++
- arch/i386/pci/acpi.c                |   30 ++++++++++++++++++++++--------
- arch/i386/pci/common.c              |    4 ++++
- arch/ia64/pci/pci.c                 |   33 ++++++++++++++++++++++++++-------
- 4 files changed, 56 insertions(+), 15 deletions(-)
+ arch/i386/pci/changelog |   62 ------------------------------------------------
+ 1 files changed, 62 deletions(-)
 
 
-diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt	2004-11-12 15:14:28 -08:00
-+++ b/Documentation/kernel-parameters.txt	2004-11-12 15:14:28 -08:00
-@@ -912,6 +912,10 @@
- 					enabled.
- 		noacpi			[IA-32] Do not use ACPI for IRQ routing
- 					or for PCI scanning.
-+		routeirq		Do IRQ routing for all PCI devices.
-+					This is normally done in pci_enable_device(),
-+					so this option is a temporary workaround
-+					for broken drivers that don't call it.
- 
- 		firmware		[ARM] Do not re-enumerate the bus but
- 					instead just use the configuration
-diff -Nru a/arch/i386/pci/acpi.c b/arch/i386/pci/acpi.c
---- a/arch/i386/pci/acpi.c	2004-11-12 15:14:28 -08:00
-+++ b/arch/i386/pci/acpi.c	2004-11-12 15:14:28 -08:00
-@@ -15,6 +15,7 @@
- 	return pcibios_scan_root(busnum);
- }
- 
-+extern int pci_routeirq;
- static int __init pci_acpi_init(void)
- {
- 	struct pci_dev *dev = NULL;
-@@ -30,14 +31,27 @@
- 	pcibios_scanned++;
- 	pcibios_enable_irq = acpi_pci_irq_enable;
- 
--	/*
--	 * PCI IRQ routing is set up by pci_enable_device(), but we
--	 * also do it here in case there are still broken drivers that
--	 * don't use pci_enable_device().
--	 */
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
--		acpi_pci_irq_enable(dev);
--
-+	if (pci_routeirq) {
-+		/*
-+		 * PCI IRQ routing is set up by pci_enable_device(), but we
-+		 * also do it here in case there are still broken drivers that
-+		 * don't use pci_enable_device().
-+		 */
-+		printk(KERN_INFO "** Routing PCI interrupts for all devices because \"pci=routeirq\"\n");
-+		printk(KERN_INFO "** was specified.  If this was required to make a driver work,\n");
-+		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
-+		printk(KERN_INFO "** so I can fix the driver.\n");
-+		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
-+			acpi_pci_irq_enable(dev);
-+	} else {
-+		printk(KERN_INFO "** PCI interrupts are no longer routed automatically.  If this\n");
-+		printk(KERN_INFO "** causes a device to stop working, it is probably because the\n");
-+		printk(KERN_INFO "** driver failed to call pci_enable_device().  As a temporary\n");
-+		printk(KERN_INFO "** workaround, the \"pci=routeirq\" argument restores the old\n");
-+		printk(KERN_INFO "** behavior.  If this argument makes the device work again,\n");
-+		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
-+		printk(KERN_INFO "** so I can fix the driver.\n");
-+	}
- #ifdef CONFIG_X86_IO_APIC
- 	if (acpi_ioapic)
- 		print_IO_APIC();
-diff -Nru a/arch/i386/pci/common.c b/arch/i386/pci/common.c
---- a/arch/i386/pci/common.c	2004-11-12 15:14:28 -08:00
-+++ b/arch/i386/pci/common.c	2004-11-12 15:14:28 -08:00
-@@ -23,6 +23,7 @@
- unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2 |
- 				PCI_PROBE_MMCONF;
- 
-+int pci_routeirq;
- int pcibios_last_bus = -1;
- struct pci_bus *pci_root_bus = NULL;
- struct pci_raw_ops *raw_pci_ops;
-@@ -226,6 +227,9 @@
- 		return NULL;
- 	} else if (!strcmp(str, "assign-busses")) {
- 		pci_probe |= PCI_ASSIGN_ALL_BUSSES;
-+		return NULL;
-+	} else if (!strcmp(str, "routeirq")) {
-+		pci_routeirq = 1;
- 		return NULL;
- 	}
- 	return str;
-diff -Nru a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
---- a/arch/ia64/pci/pci.c	2004-11-12 15:14:28 -08:00
-+++ b/arch/ia64/pci/pci.c	2004-11-12 15:14:28 -08:00
-@@ -46,6 +46,8 @@
- #define DBG(x...)
- #endif
- 
-+static int pci_routeirq;
-+
- /*
-  * Low-level SAL-based PCI configuration access functions. Note that SAL
-  * calls are already serialized (via sal_lock), so we don't need another
-@@ -141,13 +143,28 @@
- 
- 	acpi_get_devices(NULL, acpi_map_iosapic, NULL, NULL);
- #endif
--	/*
--	 * PCI IRQ routing is set up by pci_enable_device(), but we
--	 * also do it here in case there are still broken drivers that
--	 * don't use pci_enable_device().
--	 */
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
--		acpi_pci_irq_enable(dev);
-+
-+	if (pci_routeirq) {
-+		/*
-+		 * PCI IRQ routing is set up by pci_enable_device(), but we
-+		 * also do it here in case there are still broken drivers that
-+		 * don't use pci_enable_device().
-+		 */
-+		printk(KERN_INFO "** Routing PCI interrupts for all devices because \"pci=routeirq\"\n");
-+		printk(KERN_INFO "** was specified.  If this was required to make a driver work,\n");
-+		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
-+		printk(KERN_INFO "** so I can fix the driver.\n");
-+		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
-+			acpi_pci_irq_enable(dev);
-+	} else {
-+		printk(KERN_INFO "** PCI interrupts are no longer routed automatically.  If this\n");
-+		printk(KERN_INFO "** causes a device to stop working, it is probably because the\n");
-+		printk(KERN_INFO "** driver failed to call pci_enable_device().  As a temporary\n");
-+		printk(KERN_INFO "** workaround, the \"pci=routeirq\" argument restores the old\n");
-+		printk(KERN_INFO "** behavior.  If this argument makes the device work again,\n");
-+		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
-+		printk(KERN_INFO "** so I can fix the driver.\n");
-+	}
- 
- 	return 0;
- }
-@@ -443,6 +460,8 @@
- char * __init
- pcibios_setup (char *str)
- {
-+	if (!strcmp(str, "routeirq"))
-+		pci_routeirq = 1;
- 	return NULL;
- }
- 
+diff -Nru a/arch/i386/pci/changelog b/arch/i386/pci/changelog
+--- a/arch/i386/pci/changelog	2004-11-12 15:13:28 -08:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,62 +0,0 @@
+-/*
+- * CHANGELOG :
+- * Jun 17, 1994 : Modified to accommodate the broken pre-PCI BIOS SPECIFICATION
+- *	Revision 2.0 present on <thys@dennis.ee.up.ac.za>'s ASUS mainboard.
+- *
+- * Jan 5,  1995 : Modified to probe PCI hardware at boot time by Frederic
+- *     Potter, potter@cao-vlsi.ibp.fr
+- *
+- * Jan 10, 1995 : Modified to store the information about configured pci
+- *      devices into a list, which can be accessed via /proc/pci by
+- *      Curtis Varner, cvarner@cs.ucr.edu
+- *
+- * Jan 12, 1995 : CPU-PCI bridge optimization support by Frederic Potter.
+- *	Alpha version. Intel & UMC chipset support only.
+- *
+- * Apr 16, 1995 : Source merge with the DEC Alpha PCI support. Most of the code
+- *	moved to drivers/pci/pci.c.
+- *
+- * Dec 7, 1996  : Added support for direct configuration access of boards
+- *      with Intel compatible access schemes (tsbogend@alpha.franken.de)
+- *
+- * Feb 3, 1997  : Set internal functions to static, save/restore flags
+- *	avoid dead locks reading broken PCI BIOS, werner@suse.de 
+- *
+- * Apr 26, 1997 : Fixed case when there is BIOS32, but not PCI BIOS
+- *	(mj@atrey.karlin.mff.cuni.cz)
+- *
+- * May 7,  1997 : Added some missing cli()'s. [mj]
+- * 
+- * Jun 20, 1997 : Corrected problems in "conf1" type accesses.
+- *      (paubert@iram.es)
+- *
+- * Aug 2,  1997 : Split to PCI BIOS handling and direct PCI access parts
+- *	and cleaned it up...     Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+- *
+- * Feb 6,  1998 : No longer using BIOS to find devices and device classes. [mj]
+- *
+- * May 1,  1998 : Support for peer host bridges. [mj]
+- *
+- * Jun 19, 1998 : Changed to use spinlocks, so that PCI configuration space
+- *	can be accessed from interrupts even on SMP systems. [mj]
+- *
+- * August  1998 : Better support for peer host bridges and more paranoid
+- *	checks for direct hardware access. Ugh, this file starts to look as
+- *	a large gallery of common hardware bug workarounds (watch the comments)
+- *	-- the PCI specs themselves are sane, but most implementors should be
+- *	hit hard with \hammer scaled \magstep5. [mj]
+- *
+- * Jan 23, 1999 : More improvements to peer host bridge logic. i450NX fixup. [mj]
+- *
+- * Feb 8,  1999 : Added UM8886BF I/O address fixup. [mj]
+- *
+- * August  1999 : New resource management and configuration access stuff. [mj]
+- *
+- * Sep 19, 1999 : Use PCI IRQ routing tables for detection of peer host bridges.
+- *		  Based on ideas by Chris Frantz and David Hinds. [mj]
+- *
+- * Sep 28, 1999 : Handle unreported/unassigned IRQs. Thanks to Shuu Yamaguchi
+- *		  for a lot of patience during testing. [mj]
+- *
+- * Oct  8, 1999 : Split to pci-i386.c, pci-pc.c and pci-visws.c. [mj]
+- */
+\ No newline at end of file
 

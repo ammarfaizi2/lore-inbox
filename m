@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315261AbSEBSel>; Thu, 2 May 2002 14:34:41 -0400
+	id <S315233AbSEBSdk>; Thu, 2 May 2002 14:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315256AbSEBSek>; Thu, 2 May 2002 14:34:40 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56545 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315261AbSEBSei>; Thu, 2 May 2002 14:34:38 -0400
-Date: Thu, 02 May 2002 12:31:52 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
+	id <S315256AbSEBSdj>; Thu, 2 May 2002 14:33:39 -0400
+Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:28064 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315233AbSEBSdi>;
+	Thu, 2 May 2002 14:33:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: discontiguous memory platforms
+Date: Thu, 2 May 2002 20:32:07 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
         Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <143790000.1020367912@flay>
-In-Reply-To: <20020502184037.J11414@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+In-Reply-To: <Pine.LNX.4.21.0205021539460.23113-100000@serv> <E172yOR-00026G-00@starship> <3CD184BB.ED7F349F@linux-m68k.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E173LNK-00027F-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You don't need any additional common code abstraction to make virtual
-> address 3G+256G to point to physical address 1G as in my example above,
-> after that you're free to put the physical ram between 1G and 1G+256M
-> into the zone normal of node 1 and the stuff should keep working but
-> with zone-normal spread in more than one node.  You just have full
-> control on virt_to_page, pci_map_single, __va.  Actually it may be as
-> well cleaner to just let the arch define page_address() when
-> discontigmem is enabled (instead of hacking on top of __va), that's a
-> few liner. (the only true limit you have is on the phys ram above 4G,
-> that cannot definitely go into zone-normal regardless if it belongs to a
-> direct mapping or not because of pci32 API)
+On Thursday 02 May 2002 20:26, Roman Zippel wrote:
+> Hi,
+> 
+> Daniel Phillips wrote:
+> 
+> > > Most of the time there are only a few nodes, I just don't know where and
+> > > how big they are, so I don't think a hash based approach will be a lot
+> > > faster. When I'm going to change this, I'd rather try the dynamic table
+> > > approach.
+> > 
+> > Which dynamic table approach is that?
+> 
+> I mean calculating the lookup table and patching the kernel at startup.
 
-The thing that's special about ZONE_NORMAL is that it's permanently
-mapped into kernel virtual address space, so you *cannot* put memory
-in other nodes into ZONE_NORMAL without changing the mapping
-between physical to virtual memory to a non 1-1 mapping.
+Patching the kernel how, and where?
 
-No, you don't need to call changing that mapping "CONFIG_NONLINEAR",
-but that's basically what the bulk of Dan's patch does, so I think we should 
-steal it with impunity ;-) 
+Calculating the lookup table automatically at startup is definitely planned,
+and yes, essential to avoid an unmanageble proliferation of configuration
+files.  It's also possible to pass the configuration as a list of
+mem=size@physaddr kernel command line entries, which is a pragmatic solution
+for configurations with unusual memory mappings, but not too many of them.
 
-M.
+> Anyway, I agree with Andrea, that another mapping isn't really needed.
+> Clever use of the mmu should give you almost the same result.
 
+We *are* making clever use of the mmu in config_nonlinear, it is doing the
+nonlinear kernel virtual mapping for us.  Did you have something more clever
+in mind?
 
+-- 
+Daniel

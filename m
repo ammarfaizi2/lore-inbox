@@ -1,71 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263100AbTCWQBL>; Sun, 23 Mar 2003 11:01:11 -0500
+	id <S263103AbTCWQOP>; Sun, 23 Mar 2003 11:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263103AbTCWQBL>; Sun, 23 Mar 2003 11:01:11 -0500
-Received: from mail-6.tiscali.it ([195.130.225.152]:32155 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263100AbTCWQBK>;
-	Sun, 23 Mar 2003 11:01:10 -0500
-Date: Sun, 23 Mar 2003 18:11:56 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, ajoshi@unixbox.com
-Subject: [PATCH] Make radeonfb work with R300
-Message-ID: <20030323171156.GA505@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S263104AbTCWQOP>; Sun, 23 Mar 2003 11:14:15 -0500
+Received: from mail0.mx.voyager.net ([216.93.66.205]:65030 "EHLO
+	mail0.mx.voyager.net") by vger.kernel.org with ESMTP
+	id <S263103AbTCWQOO>; Sun, 23 Mar 2003 11:14:14 -0500
+Message-ID: <3E7DE01B.2B6985DF@megsinet.net>
+Date: Sun, 23 Mar 2003 10:26:03 -0600
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.65 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mflt1@micrologica.com.hk
+CC: ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: ISAPNP BUG: 2.4.65 ne2000 driver w. isapnp not working
+Content-Type: multipart/mixed;
+ boundary="------------87F3FD1308A259EA1E5EEA2E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------87F3FD1308A259EA1E5EEA2E
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hi,
-radeonfb is  unable to  acquire the  pll clock values  from the  BIOS on
-newer radeon cards and uses default values which don't work.
+> Hello.
+> 
+> Have some trouble with loading modules (see earlier message).
+> Tried to compile a driver in.
+> 
+> dmesg:
+> -------
+> isapnp: Scanning for PnP cards...
+> isapnp: Card Plug & Play Ethernet card
+> isapnp: 1 Plug and Play card detected total
+> ------
+> 
+> - no further references do isapnp in logs
+> 
+> - Same card works (with pnp disabled (jumper) and driver compiled
+> as a module) by modprobing it with io=0x300
+> 
+> - Same card works with 2.4.21-pre5 driver as module both with pnp
+> and modual probing
+> 
+>         Regards
+>         Michael
+> -
 
-Using ATI binary driver for X I founded this in the log:
+Michael,
 
-(II) fglrx(0): PLL parameters: rf=2700 rd=12 min=20000 max=40000; xclk=27000
+NE2k ISAPNP broke around 2.5.64, again.  There are 2 parts to the attached
+patch, one to move the NIC initialization earlier in the boot sequence
+and the second is a HACK to get ne2k to work when compiled into the
+kernel, I've never tried NE2k as a module...
 
-This patch (against 2.5.65) sets pll values according to X:
+1. The level of isapnp_init was moved to after apci.  Since it is now
+   after net_dev_init, ISA PNP NICs fail to initialized at boot.
 
---- drivers/video/radeonfb.orig.c	Sun Mar 23 16:15:04 2003
-+++ drivers/video/radeonfb.c	Sun Mar 23 18:01:48 2003
-@@ -881,6 +881,16 @@
- 				rinfo->pll.ref_div = 12;
- 				rinfo->pll.ref_clk = 2700;
- 				break;
-+			case PCI_DEVICE_ID_ATI_RADEON_ND:
-+			case PCI_DEVICE_ID_ATI_RADEON_NE:
-+			case PCI_DEVICE_ID_ATI_RADEON_NF:
-+			case PCI_DEVICE_ID_ATI_RADEON_NG:
-+				rinfo->pll.ppll_max = 40000;
-+				rinfo->pll.ppll_min = 20000;
-+				rinfo->pll.xclk = 27000;
-+				rinfo->pll.ref_div = 12;
-+				rinfo->pll.ref_clk = 2700;
-+				break;
- 			case PCI_DEVICE_ID_ATI_RADEON_QD:
- 			case PCI_DEVICE_ID_ATI_RADEON_QE:
- 			case PCI_DEVICE_ID_ATI_RADEON_QF:
+   This fix allows ISA PNP NIC cards to work during net_dev_init, and still
+   leaves isapnp_init after apci_init.
 
+2. The second piece kills off a now ?unnecessary? probe.
 
-It works on  a R300 NE (9500 Pro),  but should be ok also  for the other
-R300 chips (don't have the hw to make a test though).
+Works for me,
+Martin
+--------------87F3FD1308A259EA1E5EEA2E
+Content-Type: text/plain; charset=us-ascii;
+ name="65.2k.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="65.2k.diff"
 
-In X log there is also this line:
+--- ./drivers/net/ne.c	Tue Mar  4 22:44:58 2003
++++ ../linux-2.5.65/./drivers/net/ne.c	Tue Mar  4 22:41:36 2003
+@@ -176,8 +176,10 @@
+ 		return -ENXIO;
+ 
+ 	/* Then look for any installed ISAPnP clones */
++/*  HACK to kill this probe, also done now by new isapnp code
+ 	if (isapnp_present() && (ne_probe_isapnp(dev) == 0))
+ 		return 0;
++*/
+ 
+ #ifndef MODULE
+ 	/* Last resort. The semi-risky ISA auto-probe. */
+--- ./drivers/pnp/isapnp/core.c	Tue Mar 18 05:43:40 2003
++++ ../linux-2.5.65/./drivers/pnp/isapnp/core.c	Tue Mar 18 05:43:14 2003
+@@ -1173,7 +1173,7 @@
+ 	return 0;
+ }
+ 
+-device_initcall(isapnp_init);
++subsys_initcall(isapnp_init);
+ 
+ /* format is: noisapnp */
+ 
 
-(II) fglrx(0): Primary V_BIOS segment is: 0xc000
+--------------87F3FD1308A259EA1E5EEA2E--
 
-I've no idea of what V_BIOS is (Video BIOS?), but it may be useful ;)
-
-
-HTH,
-Luca
--- 
-Home: http://kronoz.cjb.net
-Windows /win'dohz/ n. : thirty-two  bit extension and graphical shell to
-a sixteen  bit patch to an  eight bit operating system  originally coded
-for a  four bit microprocessor  which was  written by a  two-bit company
-that can't stand a bit of competition.

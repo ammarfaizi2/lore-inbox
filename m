@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTECGj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 02:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTECGj5
+	id S263265AbTECG42 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 02:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbTECG42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 02:39:57 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40644 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263264AbTECGj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 02:39:56 -0400
-Date: Sat, 3 May 2003 02:52:21 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-In-Reply-To: <3EB2E7B1.40006@gmx.net>
-Message-ID: <Pine.LNX.4.44.0305030249280.30960-100000@devserv.devel.redhat.com>
+	Sat, 3 May 2003 02:56:28 -0400
+Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:60812 "EHLO
+	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S263265AbTECG41
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 02:56:27 -0400
+Date: Sat, 3 May 2003 08:08:48 +0100 (BST)
+From: Matt Bernstein <mb--lkml@dcs.qmul.ac.uk>
+To: Andi Kleen <ak@muc.de>
+cc: Andrew Morton <akpm@digeo.com>, elenstev@mesatop.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm4
+In-Reply-To: <20030503025307.GB1541@averell>
+Message-ID: <Pine.LNX.4.55.0305030800140.1304@jester.mews>
+References: <20030502020149.1ec3e54f.akpm@digeo.com> <1051905879.2166.34.camel@spc9.esa.lanl.gov>
+ <20030502133405.57207c48.akpm@digeo.com> <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+ <20030502140508.02d13449.akpm@digeo.com> <1051910420.2166.55.camel@spc9.esa.lanl.gov>
+ <Pine.LNX.4.55.0305030014130.1304@jester.mews> <20030502164159.4434e5f1.akpm@digeo.com>
+ <20030503025307.GB1541@averell>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean (19Br8X-0006sz-EO)
+X-Auth-User: jonquil.thebachchoir.org.uk
+X-uvscan-result: clean (19Br8b-0002wJ-A3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 04:53 +0200 Andi Kleen wrote:
+>> > 
+>> > Bizarrely I have a nasty crash on modprobing e100 *without* kexec (having
+>> > previously modprobed unix, af_packet and mii) and then trying to modprobe
+>> > serio (which then deadlocks the machine).
+>> > 
+>> > 	http://www.dcs.qmul.ac.uk/~mb/oops/
+>> 
+>> Andi, it died in the middle of modprobe->apply_alternatives()
+>
+>The important part of the oops - the first lines are missing in the .png.
+>
+>What is the failing address? And can you send me your e100.o ?
 
-On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
+I'm sorry I can't get to the machine now till Tuesday. I'll try to get it 
+into a smaller font, or failing that a serial console if you like.
 
-> Ingo Molnar wrote:
-> > 
-> > Furthermore, the kernel also remaps all PROT_EXEC mappings to the
-> > so-called ASCII-armor area, which on x86 is the addresses 0-16MB. These
-> [snipped]
-> > In the above layout, the highest executable address is 0x01003fff, ie.
-> > every executable address is in the ASCII-armor.
-> 
-> If my math is correct,
-> 0x01000000 is 16 MB boundary
-> 0x01003fff is outside the ASCII-armor.
+I've posted e100.{,k}o, vmlinux and System.map to the above URL. FWIW, 
+they both give "c010e840 T apply_alternatives". I've also posted ".config" 
+which Apache elects not to list :)
 
-the ASCII-armor, more precisely, is between addresses 0x00000000 and
-0x0100ffff. Ie. 16 MB + 64K. [in the remaining 64K the \0 character is in
-the second byte of the address.] So the 0x01003fff address is still inside 
-the ASCII-armor.
-
-> Another question: Last time I checked, there were some problems with
-> binary only drivers (to name one, NVidia graphics) and a non-executable
-> stack. Has this been resolved?
-
-i'm not using any binary-only drivers, so i have no idea. But as long as
-they use PROT_EXEC areas for code, they should be safe.
-
-	Ingo
-
+Does any of the above help?

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291551AbSBSR7u>; Tue, 19 Feb 2002 12:59:50 -0500
+	id <S291547AbSBSR5L>; Tue, 19 Feb 2002 12:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291555AbSBSR7l>; Tue, 19 Feb 2002 12:59:41 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:8872 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291551AbSBSR7Y>;
-	Tue, 19 Feb 2002 12:59:24 -0500
-Date: Tue, 19 Feb 2002 09:59:28 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: Jens Schmidt <j.schmidt@paradise.net.nz>, linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-Message-ID: <31030000.1014141568@flay>
-In-Reply-To: <200202191732.SAA08008@cave.bitwizard.nl>
-In-Reply-To: <200202191732.SAA08008@cave.bitwizard.nl>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S291541AbSBSR5A>; Tue, 19 Feb 2002 12:57:00 -0500
+Received: from msp-dsl-42.datasync.com ([208.164.149.42]:64643 "HELO
+	gulf.gulfsales.com") by vger.kernel.org with SMTP
+	id <S291547AbSBSR44>; Tue, 19 Feb 2002 12:56:56 -0500
+From: "Glover George" <dime@gulfsales.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: st0: Block limits 1 - 16777215 bytes.
+Date: Tue, 19 Feb 2002 11:57:07 -0600
+Message-ID: <000201c1b96e$d8921d00$0300a8c0@yellow>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some success is rumored to be able to be achieved by sampling the
-> normal signal, and then subtracting the "expected signal assuming the
-> current sequence of bits that was read". That way you might be able to
-> recover the information that peeks out from below. 
+I've been experiencing mysterious lockups since upgrading to kernel
+2.4.17.  Looking in the /var/log/messages I hadn't seen anything
+suspicious until now.  I guess the machine hasn't had time to write this
+to disk except every now and then.  The message
 
-It's more than rumour - I've seen this done. Dr Solomon's (whatever
-they called their data recovery branch), early 1990's, England.
-Maybe it was easier on older hardware like the MFM / RLL disks,
-and certainly easier to piece together fragmented data with earlier
-file formats.
+Feb 19 11:29:55 butler kernel: st0: Block limits 1 - 16777215 bytes.
 
-I believe the point of overwriting 3 times (or whatever) is to reduce
-the "subtracted difference" to noise levels where it's no longer useful.
+I notice this after rebooting after the crash.  So I tried manually
+doing a tar to the tape drive and was able to successfully lock the
+machine up.  Can someone help me understand this and if it is simply a
+limit problem, why would the machine lock up?
 
-> In practise all this doesn't work: The head will not be mispositioned
-> 0.1 track to the same side during the whole revolution. Thus you will
-> have parts of the previous data generation peeking out on the left
-> side for part of the track and data from the generation before on the
-> other side. Which you will see is not predetermined.
+Thank you.
 
-This only deals with your first method (which I agree, sounds unlikely
-to work).
-
-M.
-
-PS. I've also seen a disk arm being wound across an opened disk
-platter by a micrometer strapped to the head by a rubber band, 
-to recover real data. Most amusing ;-).
+Glover George
+Systems/Networks Admin
+Gulf Sales & Supply, Inc.
+(228) 762-0268
+dime@gulfsales.com
+http://www.gulfsales.com
+ 
 

@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266829AbUBGKEL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 05:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUBGKEL
+	id S266977AbUBGKIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 05:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266983AbUBGKIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 05:04:11 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:26856 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266829AbUBGKEJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 05:04:09 -0500
-Date: Sat, 7 Feb 2004 11:04:07 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Josh McKinney <forming@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-In-Reply-To: <20040207063906.GA2188@forming>
-Message-ID: <Pine.LNX.4.55.0402071100550.12260@jurand.ds.pg.gda.pl>
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>
- <4022B55B.1090309@wanadoo.es> <20040205154059.6649dd74.akpm@osdl.org>
- <Pine.LNX.4.55.0402070021210.12260@jurand.ds.pg.gda.pl> <20040207035018.33ce01dc.ak@suse.de>
- <20040207063906.GA2188@forming>
-Organization: Technical University of Gdansk
+	Sat, 7 Feb 2004 05:08:46 -0500
+Received: from leticia.terra.com.br ([200.154.55.226]:43723 "EHLO
+	leticia.terra.com.br") by vger.kernel.org with ESMTP
+	id S266977AbUBGKIo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 05:08:44 -0500
+Date: Sat,  7 Feb 2004 07:08:42 -0300
+Message-Id: <HSPLII$18EA3AADF31F597AEFE6C2F60F56E369@terra.com.br>
+Subject: =?iso-8859-1?Q?Re:_[PATCH]_PSX_support_in_input/joystick/gamecon.c?=
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "=?iso-8859-1?Q?iuri.f?=" <iuri.f@terra.com.br>
+To: "=?iso-8859-1?Q?pnelson?=" <pnelson@andrew.cmu.edu>
+Cc: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
+Cc: "=?iso-8859-1?Q?vojtech?=" <vojtech@suse.cz>
+Cc: "=?iso-8859-1?Q?linux-joystick?=" 
+	<linux-joystick@atrey.karlin.mff.cuni.cz>
+X-XaM3-API-Version: 3.2 R28 (B53 pl3)
+X-type: 0
+X-SenderIP: 200.96.80.24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004, Josh McKinney wrote:
+Thanks, I'll surely give it a try this weekend. 
+I can't change to kernel 2.6 yet because of my damn winmodem :( 
+ 
+---------- Cabeçalho inicial  ----------- 
+ 
+De: Peter Nelson <pnelson@andrew.cmu.edu> 
+Para: "iuri.f" <iuri.f@terra.com.br> 
+Cópia: linux-kernel <linux-kernel@vger.kernel.org>,vojtech 
+<vojtech@suse.cz>,linux-joystick 
+<linux-joystick@atrey.karlin.mff.cuni.cz> 
+Data: Fri, 06 Feb 2004 18:17:38 -0500 
+Assunto: Re: [PATCH] PSX support in input/joystick/gamecon.c 
+ 
+> iuri.f wrote: 
+>  
+> >Looks nice, any chance of a 2.4.22+ kernel patch?  
+> >   
+> > 
+> Thanks.  I haven't booted into 2.4 for months now and for some 
+reason it  
+> doesn't want to boot back into it.  Anyway here is a port of the 
+current  
+> driver back to 2.4, keeping the 2.4 irq stuff and some things like  
+> that.  It compiles fine and should run, but can you test it?  Also  
+> vojtech should take a look at some of the name/comment changes but 
+since  
+> there will be no more features in 2.4 I'm sure this will never be  
+> applied officially. 
+>  
+> -Peter 
+>  
 
-> I tried the patch against 2.6.3-rc1 and it doesn't seem to fix
-> anything, timer is still on XT-PIC.  This is on a A7N8X Deluxe rev2,
-> nforce2.
-
- The patch fixes our bad interpretation of the ACPI spec -- it's not 
-sufficient to work around errors in the nforce2's ACPI tables, which 
-should really get fixed by the manufacturer with a BIOS update.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,76 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263639AbVBEJLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266039AbVBEJXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbVBEJLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 04:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbVBEJLt
+	id S266039AbVBEJXx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 04:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbVBEJXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 04:11:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:23272 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264094AbVBEJLC (ORCPT
+	Sat, 5 Feb 2005 04:23:52 -0500
+Received: from gprs214-76.eurotel.cz ([160.218.214.76]:20162 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266499AbVBEJWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 04:11:02 -0500
-Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olof Johansson <olof@austin.ibm.com>
-Cc: Pekka Enberg <penberg@gmail.com>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Tom Rini <trini@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi
-In-Reply-To: <20050204172041.GA17586@austin.ibm.com>
-References: <20050204072254.GA17565@austin.ibm.com>
-	 <84144f0205020400172d89eddf@mail.gmail.com>
-	 <20050204172041.GA17586@austin.ibm.com>
-Content-Type: text/plain
-Date: Sat, 05 Feb 2005 20:08:53 +1100
-Message-Id: <1107594534.30270.3.camel@gaston>
+	Sat, 5 Feb 2005 04:22:54 -0500
+Date: Sat, 5 Feb 2005 00:16:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: 2.6.11-rc[23]: swsusp & usb regression
+Message-ID: <20050204231649.GA1057@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 11:20 -0600, Olof Johansson wrote:
-> On Fri, Feb 04, 2005 at 10:17:48AM +0200, Pekka Enberg wrote:
-> > Please drop the CPU_FTR_##x macro magic as it makes grepping more
-> > complicated. If the enum names are too long, just do s/CPU_FTR_/CPU_/g
-> > or something similar. Also, could you please make this a static inline
-> > function?
+Hi!
 
-I tend to agree with Pekka...
+In 2.6.11-rc[23], I get problems after swsusp resume:
 
-> I considered that for a while, but decided against it because:
-> 
-> * cpu-has-feature(cpu-feature-foo) v cpu-has-feature(foo): I picked the
-> latter for readability.
+Feb  4 23:54:39 amd kernel: Restarting tasks...<3>hub 3-0:1.0:
+over-current change on port 1
+Feb  4 23:54:39 amd kernel:  done
+Feb  4 23:54:39 amd kernel: hub 3-0:1.0: connect-debounce failed, port
+1 disabled
+Feb  4 23:54:39 amd kernel: hub 3-0:1.0: over-current change on port 2
+Feb  4 23:54:39 amd kernel: usb 3-2: USB disconnect, address 2
 
-I don't think it really matters compared to the usefullness of grep, and
-is still more readable than the old way...
+After unplugging usb bluetooth key, machine hung. Sysrq still
+responded with help but I could not get any usefull output.
 
-> * Renaming CPU_FTR_<x> -> CPU_<x> makes it less obvious that
-> it's actually a cpu feature it's describing (i.e. CPU_ALTIVEC vs
-> CPU_FTR_ALTIVEC).
+Parts of .config:
+# CONFIG_USB_IRDA is not set
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_EHCI_HCD=y
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+# CONFIG_USB_SL811_HCD is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_MIDI is not set
+CONFIG_USB_ACM=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_RW_DETECT is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_HP8200e is not set
+CONFIG_USB_STORAGE_SDDR09=y
+# CONFIG_USB_STORAGE_SDDR55 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+CONFIG_USB_HID=y
 
-Agreed.
-
-> * Renaming would clobber the namespace, CPU_* definitions are used in
-> other places in the tree.
-> * Can't make it an inline and still use the preprocessor concatenation.
-
-I'd like to keep the constants as-is and have the stuff inline with no
-macro trick as Pekka suggest since I did use grep on those things quite
-often.
-
-> That being said, you do have a point about grepability. However,
-> personally I'd be more likely to look for CPU_HAS_FEATURE than the
-> feature itself when reading the code, and would find that easily. The
-> other way around (finding all uses of a feature) is harder, but the
-> concatenation macro is right below the bit definitions and easy to spot.
-
-No, when I grep, i'm looking for the feature itself...
-
-Ben.
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

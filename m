@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265669AbSJXXS0>; Thu, 24 Oct 2002 19:18:26 -0400
+	id <S265260AbSJXXVu>; Thu, 24 Oct 2002 19:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbSJXXS0>; Thu, 24 Oct 2002 19:18:26 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6930 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265669AbSJXXSZ>;
-	Thu, 24 Oct 2002 19:18:25 -0400
-Date: Thu, 24 Oct 2002 16:22:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Steven Dake <sdake@mvista.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
-Message-ID: <20021024232258.GA26093@kroah.com>
-References: <Pine.LNX.4.33L2.0210241350230.20950-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33.0210241839490.10937-100000@rancor.yyz.somanetworks.com>
-Mime-Version: 1.0
+	id <S265448AbSJXXVu>; Thu, 24 Oct 2002 19:21:50 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:46502 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265260AbSJXXVt>; Thu, 24 Oct 2002 19:21:49 -0400
+Message-ID: <3DB880E8.747C7EEC@us.ibm.com>
+Date: Thu, 24 Oct 2002 16:23:20 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Hugh Dickins <hugh@veritas.com>, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH]updated ipc lock patch
+References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain> <3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210241839490.10937-100000@rancor.yyz.somanetworks.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 07:00:23PM -0400, Scott Murray wrote:
+Andrew Morton wrote:
 > 
-> I've not implemented it yet, but I'm pretty sure I can detect surprise
-> extractions in my cPCI driver.  The only thing holding me back at the
-> moment is that there's no clear way to report this status change via
-> pcihpfs without doing something a bit funky like reporting "-1" in the
-> "adapter" node.
+> mingming cao wrote:
+> >
+> > Hi Andrew,
+> >
+> > Here is the updated ipc lock patch:
+> 
+> Well I can get you a bit of testing and attention, but I'm afraid
+> my knowledge of the IPC code is negligible.
+> 
+> So to be able to commend this change to Linus I'd have to rely on
+> assurances from people who _do_ understand IPC (Hugh?) and on lots
+> of testing.
 
-Why would you need to report anything other than if the card is present
-or not?  What would a "supprise" removal cause you to do differently?
-Hm, well I guess we should be extra careful in trying to shut down any
-driver bound to that card...
+Thanks for your quick feedback.  I did LTP tests on it--it passed(well,
+I saw a failure on shmctl(), but the failure was there since 2.5.43
+kernel).  I will do more stress tests on it soon.
 
-thanks,
-
-greg k-h
+Mingming

@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318857AbSH1Ozl>; Wed, 28 Aug 2002 10:55:41 -0400
+	id <S318868AbSH1PAQ>; Wed, 28 Aug 2002 11:00:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318859AbSH1Ozl>; Wed, 28 Aug 2002 10:55:41 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:36829 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S318857AbSH1Ozk>;
-	Wed, 28 Aug 2002 10:55:40 -0400
-From: Dean Nelson <dcn@sgi.com>
-Message-Id: <200208281459.JAA83371@cyan.americas.sgi.com>
-Subject: Re: atomic64_t proposal
-To: schwab@suse.de (Andreas Schwab)
-Date: Wed, 28 Aug 2002 09:59:54 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <je1y8kgjda.fsf@sykes.suse.de> from "Andreas Schwab" at Aug 27, 2002 10:02:57 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318869AbSH1PAP>; Wed, 28 Aug 2002 11:00:15 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:58541 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S318868AbSH1PAO>; Wed, 28 Aug 2002 11:00:14 -0400
+Date: Wed, 28 Aug 2002 17:04:33 +0200
+From: Frank.Otto@tc.pci.uni-heidelberg.de
+Message-Id: <200208281504.g7SF4Xl04292@goedel.pci.uni-heidelberg.de>
+To: linux-kernel@vger.kernel.org
+Cc: mdheffner@yahoo.com
+Subject: Re: PROBLEM:  conflict between apm and system clock on Inspiron 8100
+In-Reply-To: <1030381725.1750.10.camel@irongate.swansea.linux.org.uk>
+References: <20020826170037.69164.qmail@web40210.mail.yahoo.com> <1030381725.1750.10.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab writes:
-> 
-> Dean Nelson <dcn@sgi.com> writes:
-> 
-> |> +#define ia64_atomic_add(i,v)						\
-> |> +({									\
-> |> +	__typeof__((v)->counter) _old, _new;				\
-> |> +	CMPXCHG_BUGCHECK_DECL						\
-> |> +									\
-> |> +	do {								\
-> |> +		CMPXCHG_BUGCHECK(v);					\
-> |> +		_old = atomic_read(v);					\
-> |> +		_new = _old + (i);					\
-> |> +	} while (ia64_cmpxchg("acq", (v), _old, _new, sizeof(*(v))) != _old); \
-> |> +	(__typeof__((v)->counter)) _new;	/* return new value */	\
-> 
-> What's the purpose of the cast here? The type of _new is already the
-> right one.
+Alan Cox wrote:
+> On Mon, 2002-08-26 at 18:00, mike heffner wrote:
+> > Well, isn't that a nice feature.  Is there a
+> > workaround for this hardware?
+>  
+>  A thinkpad ;)
 
-You're right, the cast is meaningless and should be removed. It's an artifact
-of a macro that had several iterations of development.
+Unfortunately, that's not true -- I just got an IBM Thinkpad R32
+which exhibits the same behaviour as Mike's Dell Inspiron 8100,
+it's only a tad worse. When I have the battstat_applet running (which
+checks the battery every second), kernel time runs about 3% slow
+compared to the RTC (which seems to be half-way accurate on my machine).
 
-> |>  #define atomic_add_return(i,v)						\
-> |>  	((__builtin_constant_p(i) &&					\
-> |>  	  (   (i ==  1) || (i ==  4) || (i ==  8) || (i ==  16)		\
-> |>  	   || (i == -1) || (i == -4) || (i == -8) || (i == -16)))	\
-> |>  	 ? ia64_fetch_and_add(i, &(v)->counter)				\
-> |> -	 : ia64_atomic_add(i, v))
-> |> +	 : ia64_atomic_add((i), (v)))
-> 
-> The extra parens are useless.
+The cause seems to be definitely APM. If I shut off battstat_applet
+and apmd, kernel time and RTC are in sync. With only apmd, I lose about
+15 seconds per hour. With battstat_applet, I lose 2 minutes per hour.
+With
+  while true; do cat /proc/apm >/dev/null; done
+the system runs at about 1/4 of the right speed. Using a kernel with ACPI
+eliminates the problem (of course, you lose almost all power management
+functionality too).
 
-Yep, they're useless. I had introduced them merely to be consistent with
-how the other macros in asm-ia64/atomic.h were done (macros that I didn't
-modify). But the parentheses can be removed.
+BTW, I have set CONFIG_APM_ALLOW_INT, and on startup the kernel even says
+"IBM machine detected. Enabling interrupts during APM calls." Doesn't
+seem to help, though.
 
-Thanks for the corrections.
-Dean
+Alan Cox continues:
+>  In theory you could try writing some code to measure the elapsed time by
+>  other means and then correct the kernel for the number of lost ticks.
+>  Not trivial. Or for that matter dont run battstat
 
+I've hacked together a small daemon that tries to adjust the value
+and speed of the kernel clock (via adjtimex) to the RTC. An ugly solution,
+I know, but better than nothing. If anyone is interested, mail me.
+
+Regards,
+Frank
+
+-- 
+Please CC replies to me since I'm not on the list.

@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276842AbRJHKEH>; Mon, 8 Oct 2001 06:04:07 -0400
+	id <S276839AbRJHKO3>; Mon, 8 Oct 2001 06:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276844AbRJHKD6>; Mon, 8 Oct 2001 06:03:58 -0400
-Received: from pat.uio.no ([129.240.130.16]:24005 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S276841AbRJHKDo>;
-	Mon, 8 Oct 2001 06:03:44 -0400
-To: Padraig Brady <padraig@antefacto.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
-In-Reply-To: <m3r8slywp0.fsf@myware.mynet>
-	<Pine.LNX.4.33.0110031111470.29619-100000@devserv.devel.redhat.com>
-	<20011003232609.A11804@gruyere.muc.suse.de>
-	<3BBDAB24.7000909@antefacto.com>
-	<20011005150144.A11810@gruyere.muc.suse.de>
-	<3BBDB26D.2050705@antefacto.com>
-	<20011005163807.A13524@gruyere.muc.suse.de>
-	<3BBDCAF8.6070705@antefacto.com>
-	<20011005211235.A16163@gruyere.muc.suse.de>
-	<3BC16632.4040008@antefacto.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 08 Oct 2001 12:04:04 +0200
-In-Reply-To: Padraig Brady's message of "Mon, 08 Oct 2001 09:39:14 +0100"
-Message-ID: <shs4rpav46j.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S276841AbRJHKOU>; Mon, 8 Oct 2001 06:14:20 -0400
+Received: from elin.scali.no ([62.70.89.10]:4 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S276839AbRJHKOF>;
+	Mon, 8 Oct 2001 06:14:05 -0400
+Message-ID: <3BC17B6D.A656DAAB@scali.no>
+Date: Mon, 08 Oct 2001 12:09:49 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Roy-Magne Mo <rmo@sunnmore.net>
+CC: Willem Riede <wriede@home.com>, Steven Walter <srwalter@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Tyan Tiger MP AMD760 chipset support
+In-Reply-To: <20011007132349.A1424@linnie.riede.org> <20011007141205.B4000@hapablap.dyn.dhs.org> <20011007153942.C1424@linnie.riede.org> <20011007223400.C8033@akkar.interpost.no>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Padraig Brady <padraig@antefacto.com> writes:
+Roy-Magne Mo wrote:
+> 
+> On Sun, Oct 07, 2001 at 03:39:42PM -0400, Willem Riede wrote:
+> > That's not the issue, I'm not that ignorant. sensors-detect
+> > just doesn't find anything!
+> 
+> Upgrade to the cvs version of lm_sensors and the i2c drivers.
+> 
+> I can with these modules detect the eeprom, the AMD756 and the
+> winbond W83782D.
+> 
+> But, however, inserting the winbond driver locks the computer hard.
+> 
+I've had the same problem with two Tyan Thunder K7 motherboards, inserting the
+winbond driver locks the computer hard. However booting with the "noapic" option
+solves this. Ideas anyone ? Are the AMD erratas publicly available ?
 
-     > you then have the same problem with synchronising nanosecond
-     > times between the various processors (which could be the other
-     > side of a network cable in some
-
-     > configurations)? So perhaps the best solution is to maintain
-     > both a generation
-
-     > count which would do for many apps who just care if the file
-     > has changed relative
-
-     > to some moment it time and not relative to another file(s) on
-     > the filesystem .
-
-     > Then for make type applications you could maintain the full
-     > resolution timestamp,
-
-     > however this will still have the
-     > synchronisation/portability/CPU expense issues
-
-     > discussed previously.
-
-This `generation count' idea for file change stamping will eventually
-have to go into the kernel if only because things like NFSv4 will
-require it.
-
-Meanwhile though, you're going have to look elsewhere than ordinary
-NFS to be able to share the generation information over your
-network. The current protocols support microsecond(v2)/nanosecond(v3)
-timestamps only.
-
-Cheers,
-   Trond
+Regards,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

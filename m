@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbULHJFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbULHJQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbULHJFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 04:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbULHJFn
+	id S261161AbULHJQE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 04:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbULHJQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 04:05:43 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1740 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261156AbULHJF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 04:05:28 -0500
-Date: Tue, 7 Dec 2004 14:00:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-Message-ID: <20041207130015.GA983@openzaurus.ucw.cz>
-References: <87acsrqval.fsf@coraid.com> <20041206162153.GH16958@lug-owl.de>
+	Wed, 8 Dec 2004 04:16:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48075 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261161AbULHJQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 04:16:03 -0500
+Date: Wed, 8 Dec 2004 01:15:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Greaves <david@dgreaves.com>
+Cc: phil@dier.us, linux-kernel@vger.kernel.org
+Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm,
+ and xfs
+Message-Id: <20041208011546.2d509d1b.akpm@osdl.org>
+In-Reply-To: <41B6C34B.7030700@dgreaves.com>
+References: <20041122130622.27edf3e6.phil@dier.us>
+	<20041122161725.21adb932.akpm@osdl.org>
+	<20041124094549.4c51d6d5.phil@dier.us>
+	<20041124151234.714f30d4.akpm@osdl.org>
+	<41A9B693.30905@dgreaves.com>
+	<20041128102751.2dac71f7.akpm@osdl.org>
+	<41B6C34B.7030700@dgreaves.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041206162153.GH16958@lug-owl.de>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > The included patch allows the Linux kernel to use the ATA over
-> > Ethernet (AoE) network protocol to communicate with any block device
-> > that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
-> > Blade is the first hardware using AoE.
-> > 
-> > Like IP, AoE is an ethernet-level network protocol, registered with
-> > the IEEE.  Unlike IP, AoE is not routable.
+David Greaves <david@dgreaves.com> wrote:
+>
+> I did as you suggested and it's been fine until I got this last night.
 > 
-> So AoE is out of scope for many uses...
+>  Dec  8 06:50:04 cu kernel: slab: Internal list corruption detected in 
+>  cache 'vm_area_struct'(41), slabp cfedd000(13).
 
-Well, at least it has a chance to correctly work in low-memory conditions,
-and it might be possible to swap over AoE.
-ARPs are real problem there.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+That's totally different from the previous oops (it was in dcache).
+
+I'd be suspecting either a random memory scribble or flakey hardware.  It
+could well be the latter if you're not using any unusual
+drivers/filesystems/etc.
 

@@ -1,83 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUDNPPO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 11:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUDNPPN
+	id S264266AbUDNPRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 11:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUDNPPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 11:15:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55997 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264256AbUDNPOY (ORCPT
+	Wed, 14 Apr 2004 11:15:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53934 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264265AbUDNPN2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 11:14:24 -0400
-Date: Wed, 14 Apr 2004 08:14:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] BME, noatime and nodiratime
-In-Reply-To: <20040406231136.GN31500@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0404140803040.12398@ppc970.osdl.org>
-References: <20040406145544.GA19553@MAIL.13thfloor.at>
- <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
- <20040406231136.GN31500@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Apr 2004 11:13:28 -0400
+Date: Wed, 14 Apr 2004 17:12:55 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Shielded CPUs
+Message-ID: <20040414151255.GA3234@devserv.devel.redhat.com>
+References: <1081953482.11976.0.camel@laptop.fenrus.com> <Pine.LNX.4.33L2.0404141111290.20579-100000@rtlab.med.cornell.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0404141111290.20579-100000@rtlab.med.cornell.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 7 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
->
-> On Tue, Apr 06, 2004 at 09:48:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+On Wed, Apr 14, 2004 at 11:11:47AM -0400, Calin A. Culianu wrote:
+> On Wed, 14 Apr 2004, Arjan van de Ven wrote:
 > 
-> > noatime/nodiratime: OK, but we still have direct modifications of i_atime
-> > that need to be taken care of.
+> > On Wed, 2004-04-14 at 16:23, Calin A. Culianu wrote:
+> > > This might be a bit off-topic (and might belong in the rtlinux mailing
+> > > list), but I wanted people's opinion on LKML...
+> > >
+> > > There's an article in the May 2004 Linux Journal about some CPU affinity
+> > > features in Redhawk Linux that allow a process and a set of interrupts to
+> > > be locked to a particular CPU for the purposes of improving real-time
+> > > performance.
+> >
+> > well you can do both of those already in 2.6 and in all recent vendor
+> > 2.4's that I know of..... no patches needed.
 > 
-> Particulary interesting one is in tty_io.c.  There we
-> 	1) unconditionally touch i_atime on read()
-> 	2) do not touch it on write()
-> 	3) never mark the inode dirty.
+> 
+> Cool.. it's still not, strictly speaking, _hard_ realtime, though, is it?
+> Simply really good soft-realtime, right?
 
-All of 1-3 are correct.
+yep. Hard real time means you need to get a hard RT OS code. Simple as that.
+And you'll always see that those cores are kept relatively small so that the
+vendor can basically prove it's RT correctness.
 
-They all mean that:
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
- - atime never gets written out for tty devices, because there is no
-   point, and we shouldn't cause disk activity (or worse, network 
-   activity) just because somebody is typing at the keyboard. Thus #3.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
- - atime is maintained properly for "last effective read" purposes, which 
-   is what "ps"/"w" and friends want to see for idle time reporting.
-   Thus both #1 and #2 are important.
+iD8DBQFAfVT3xULwo51rQBIRArBuAJoCmUMfYlZfEux5kL2ota1JBvNnUQCeNWcg
+o6jNPRXSSHqywmY+aS3igOU=
+=Pd6w
+-----END PGP SIGNATURE-----
 
- - atime is only valid as long as the tty is open (again, think "idle 
-   time" - nobody actually cares what the atime is after the device has 
-   been closed). Thus "atime potentially going backwards" due to #3 is a 
-   non-issue.
-
-So yes, tty atime updates are strange, but they are strange on PURPOSE. 
-
-> Note that the last one means that doing stat() in a loop will sometimes
-> give atime going backwards.  We also completely ignore noatime here.
-
-Ignoring noatime is potentially the only one we should look at, but since 
-tty's really _are_ "noatime" as far as the filesystem is concerned, I 
-think it makes sense in the situation we are in anyway. The real reason 
-for "noatime" is to avoid unnecessary filesystem activity, not that we 
-necessarily want a constant atime.
-
-> There are similar places in some other char drivers.  Obvious step would
-> be to have them do file_accessed() instead; however, I'd really like to
-> hear the rationale for existing behaviour.  Comments?
-
-I don't know about other char drivers, those may well be wrong. But for
-tty's in particular, idle time calculations really do pretty much require
-the behaviour (apart from #3 - and #3 is, I think, effectively required by
-not wanting to touch the disk on keyboard accesses).
-
-Doing effectively a update_atime() on final tty close might be ok just to
-avoid the backwards-running time, but you'd have to open-code it to avoid 
-the "inode_times_differ()" check. Not worth it, I feel, since atime on a 
-tty that has been closed is irrelevant.
-
-		Linus
+--envbJBWh7q8WU6mo--

@@ -1,207 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbTEHOM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 10:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTEHOM3
+	id S261589AbTEHOWl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 10:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTEHOWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 10:12:29 -0400
-Received: from [212.59.42.147] ([212.59.42.147]:52566 "EHLO eurobird.dt.net")
-	by vger.kernel.org with ESMTP id S261577AbTEHOM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 10:12:26 -0400
-Message-ID: <3EBA68B9.9000202@keymile.com>
-Date: Thu, 08 May 2003 16:24:57 +0200
-From: Axel Ludszuweit <alu@keymile.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	Thu, 8 May 2003 10:22:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:9102 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261589AbTEHOWj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 10:22:39 -0400
+Date: Thu, 08 May 2003 05:20:56 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 678] New: ACPI only enables 16 ouf ot 24 interrupts in the local APIC killing network access (VIA KT400, VT6102)
+Message-ID: <24540000.1052396456@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: helper routines for flash chip probing, search sequence
-Content-Type: multipart/mixed;
- boundary="------------030901030006080801030600"
-X-OriginalArrivalTime: 08 May 2003 14:24:57.0560 (UTC) FILETIME=[99FCB580:01C3156D]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030901030006080801030600
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+http://bugme.osdl.org/show_bug.cgi?id=678
 
-I have sent this mail to David Woodhouse, the maintainer 
-of MTD (memory technology devices) part. 
-He answers 
-
-> At first glance, you seem to be right -- you'll not get false matches
-> for 4x interleave when in fact the interleave is 2x, so we should check
-> for 4x first. 
->
-> Can you send your patch (and explanation) to the mailing list too, so
-> that others can comment on it? It's been a while since I've looked hard
-> at anything but the CFI probes. Thanks.
-
-And now my original mail:
-
-I have a question, concerning the flash chip helper
-routines
-      linux/drivers/mtd/chips/gen_probe.c
-
-In my opinion, the searching sequence, to find the
-flash geometry, (cfi->device_type and cfi->interleave)
-must be reversed, to prevent wrong decisions.
-If the buswidth is given, the search should begin 
-with the highest meaningfull interleave and the lowest
-device type.
-With the current searching order I get the following
-effect.
-
-I have 4 8bit flashes working on a 32 bit data bus.
-The Manufacture ID is 0x89, the Device ID 0xAA.
-The flash type is SHARP LH28F016SCT-L95
-The correct values, which should be detected are:
-
-- cfi->device_type =  1   CFI_DEVICETYPE_X8
-- cfi->interleave  =  4   CFIDEV_INTERLEAVE_4
-
-but the probing detected 
-
-  cfi->interleave  = CFIDEV_INTERLEAVE_2 
-  cfi->device_type = CFI_DEVICETYPE_X16.
-
-as valid, so that the test with the correct values, following later,
-will not be done.
-The identifier codes of this SHARP flashes can be read at offset
-0 and 1 after writing 0x90 at any arbitrary address in the flash space.
-The unlock sequence 
-  0xaa at cfi->addr_unlock1 = 0x555 and 
-  0x55 at cfi->addr_unlock2 = 0x2aa
-seems not to be neccessary.
-The flashes 0 and 2 are unlocked by 0x00900090, flashes 1 and 4 not,
-so that 0 and 2 answers with th correct ID and 1 and 3 with 0x00.
-
-If the search order is reversed, the test with the correct values is made
-before the test with wrong parameters.
-
-I have attached a patch, which should prevent such wrong decisions, if
-the flashes are not correctly designed.
-
-Does anyone know reasons, that the search order should not be reversed?
+           Summary: ACPI only enables 16 ouf ot 24 interrupts in the local
+                    APIC killing network access (VIA KT400, VT6102)
+    Kernel Version: 2.5.63-2.5.69
+            Status: NEW
+          Severity: blocking
+             Owner: andrew.grover@intel.com
+         Submitter: thunder7@xs4all.nl
+                CC: thunder7@xs4all.nl
 
 
--- 
+Distribution: Debian Unstable
+Hardware Environment: Epox 8K9A3+ with most recent BIOS, VIA KT-400 + VT6102
+network on-board
+Software Environment: Debian Unstable
+Problem Description:
 
---------------------------------------------
+This bug also happened with earlier kernels, at least back to 2.5.63. Before
+that, no kernels were tested. I'll describe what happens with 2.5.69.
 
-Datentechnik GmbH
-Axel Ludszuweit
-D-30855 Langenhagen
+A kernel with acpi and local ioapic compiled in boots, but sees only 16 out of
+24 interrupts in the local apic. The onboard network (VIA VT6102) uses one of
+the 8 lost interrupts and doesn't work. USB not tested due to missing USB devices.
+Booting with 'pci=noacpi' or 'acpi=biosirq' doesn't help.
 
-Tel.: +49 511 / 978197-630
-Fax : +49 511 / 978197-670
-http://www.keymile.com
-mailto:axel.ludszuweit@keymile.com
+A kernel with acpi and no local ioapic compiled in doesn't boot, hangs after
+probing the second ide-controller at ide15: 'ide1 at 0x170-0x177,0x376 on irq
+15' is the last line before the system hangs.
 
---------------030901030006080801030600
-Content-Type: text/plain;
- name="patch_gen_probe.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch_gen_probe.c"
+Without ACPI, the local ioapic works perfectly, and the onboard network also.
 
---- linux-2.4.20/drivers/mtd/chips/gen_probe.c.orig	Fri Oct  5 00:14:59 2001
-+++ linux-2.4.20/drivers/mtd/chips/gen_probe.c	Thu May  8 15:34:52 2003
-@@ -159,13 +159,6 @@
- 
- #ifdef CFIDEV_BUSWIDTH_2		
- 	case CFIDEV_BUSWIDTH_2:
--#ifdef CFIDEV_INTERLEAVE_1
--		cfi->interleave = CFIDEV_INTERLEAVE_1;
--
--		cfi->device_type = CFI_DEVICETYPE_X16;
--		if (cp->probe_chip(map, 0, NULL, cfi))
--			return 1;
--#endif /* CFIDEV_INTERLEAVE_1 */
- #ifdef CFIDEV_INTERLEAVE_2
- 		cfi->interleave = CFIDEV_INTERLEAVE_2;
- 
-@@ -177,50 +170,56 @@
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
- #endif /* CFIDEV_INTERLEAVE_2 */
-+#ifdef CFIDEV_INTERLEAVE_1
-+		cfi->interleave = CFIDEV_INTERLEAVE_1;
-+
-+		cfi->device_type = CFI_DEVICETYPE_X16;
-+		if (cp->probe_chip(map, 0, NULL, cfi))
-+			return 1;
-+#endif /* CFIDEV_INTERLEAVE_1 */
- 		break;			
--#endif /* CFIDEV_BUSWIDTH_2 */
- 
-+#endif /* CFIDEV_BUSWIDTH_2 */
- #ifdef CFIDEV_BUSWIDTH_4
- 	case CFIDEV_BUSWIDTH_4:
--#if defined(CFIDEV_INTERLEAVE_1) && defined(SOMEONE_ACTUALLY_MAKES_THESE)
--                cfi->interleave = CFIDEV_INTERLEAVE_1;
-+#ifdef CFIDEV_INTERLEAVE_4
-+		cfi->interleave = CFIDEV_INTERLEAVE_4;
- 
--                cfi->device_type = CFI_DEVICETYPE_X32;
-+		cfi->device_type = CFI_DEVICETYPE_X8;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
--#endif /* CFIDEV_INTERLEAVE_1 */
--#ifdef CFIDEV_INTERLEAVE_2
--		cfi->interleave = CFIDEV_INTERLEAVE_2;
- 
--#ifdef SOMEONE_ACTUALLY_MAKES_THESE
--		cfi->device_type = CFI_DEVICETYPE_X32;
-+		cfi->device_type = CFI_DEVICETYPE_X16;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
--#endif
--		cfi->device_type = CFI_DEVICETYPE_X16;
-+
-+#ifdef SOMEONE_ACTUALLY_MAKES_THESE
-+		cfi->device_type = CFI_DEVICETYPE_X32;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
-+#endif /* SOMEONE_ACTUALLY_MAKES_THESE */
- 
--		cfi->device_type = CFI_DEVICETYPE_X8;
-+#endif /* CFIDEV_INTERLEAVE_4 */
-+#ifdef CFIDEV_INTERLEAVE_2
-+		cfi->interleave = CFIDEV_INTERLEAVE_2;
-+
-+		cfi->device_type = CFI_DEVICETYPE_X16;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
--#endif /* CFIDEV_INTERLEAVE_2 */
--#ifdef CFIDEV_INTERLEAVE_4
--		cfi->interleave = CFIDEV_INTERLEAVE_4;
- 
- #ifdef SOMEONE_ACTUALLY_MAKES_THESE
- 		cfi->device_type = CFI_DEVICETYPE_X32;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
--#endif
--		cfi->device_type = CFI_DEVICETYPE_X16;
--		if (cp->probe_chip(map, 0, NULL, cfi))
--			return 1;
-+#endif /* SOMEONE_ACTUALLY_MAKES_THESE */
-+#endif /* CFIDEV_INTERLEAVE_2 */
-+#if defined(CFIDEV_INTERLEAVE_1) && defined(SOMEONE_ACTUALLY_MAKES_THESE)
-+                cfi->interleave = CFIDEV_INTERLEAVE_1;
- 
--		cfi->device_type = CFI_DEVICETYPE_X8;
-+                cfi->device_type = CFI_DEVICETYPE_X32;
- 		if (cp->probe_chip(map, 0, NULL, cfi))
- 			return 1;
--#endif /* CFIDEV_INTERLEAVE_4 */
-+#endif /* CFIDEV_INTERLEAVE_1 */
- 		break;
- #endif /* CFIDEV_BUSWIDTH_4 */
- 
+dmesg with acpi on:
 
---------------030901030006080801030600--
+Processor #0 6:8 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] polarity[0x1] trigger[0x1] lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
+IOAPIC[0]: Assigned apic_id 2
+IOAPIC[0]: apic_id 2, version 3, address 0xfec00000, IRQ 0-23
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not
+connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 16.
+number of IO-APIC #2 registers: 24.
+
+dmesg with acpi off:
+I/O APIC #2 Version 17 at 0xFEC00000.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-0, 2-5, 2-10, 2-11, 2-20 not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 24.
+number of IO-APIC #2 registers: 24.
+
+
+Steps to reproduce:
+compile kernel-2.5.69 with ACPI and local ioapic
+boot on Epox 8K9A3+ system board
+
+Various files (dmesg, /proc/interrupts, dsdt etc) gladly available on request.
+
 

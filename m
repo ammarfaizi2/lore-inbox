@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273740AbRIXCIQ>; Sun, 23 Sep 2001 22:08:16 -0400
+	id <S273737AbRIXCDq>; Sun, 23 Sep 2001 22:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273739AbRIXCIG>; Sun, 23 Sep 2001 22:08:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20744 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273740AbRIXCHr>; Sun, 23 Sep 2001 22:07:47 -0400
+	id <S273738AbRIXCDg>; Sun, 23 Sep 2001 22:03:36 -0400
+Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:8832 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S273737AbRIXCDa>; Sun, 23 Sep 2001 22:03:30 -0400
+Date: Mon, 24 Sep 2001 04:02:08 +0200
+From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Linux-2.4.10 + ext3
-Date: Mon, 24 Sep 2001 02:06:05 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9om4ed$1hv$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house>
-X-Trace: palladium.transmeta.com 1001297268 1532 127.0.0.1 (24 Sep 2001 02:07:48 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 Sep 2001 02:07:48 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Subject: __alloc_pages: 0-order allocation failed
+Message-ID: <20010924040208.A624@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1001280620.3540.33.camel@gromit.house>,
-Michael Rothwell  <rothwell@holly-springs.nc.us> wrote:
->On 23 Sep 2001 11:54:13 -0700, Linus Torvalds wrote:
->> 
->> Ok, I released a real 2.4.10, let the fun begin..
->
->I'd love to have ext3 support in it... ;) Fun begins later, I suppose...
+I just installed 2.4.10, and...
 
-We'll merge ext3 soon enough.. As RH seems to start using it more and
-more, there's more reason to merge it into the standard kernel too.
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+VM: killing process donkey_s
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0) from c0126c2e
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+VM: killing process screen
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+VM: killing process bash
+(...)
 
-So don't worry. It will happen.
+I am changing kernels often, but never seen that kind of message. Last kernel I
+had before 2.4.10 was 2.4.10-pre4.
 
-		Linus
+PS. donkey_s is application which eats a lot of memory, but I have 384MB RAM
+and 100MB swap.

@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbTCJGvi>; Mon, 10 Mar 2003 01:51:38 -0500
+	id <S262059AbTCJGr0>; Mon, 10 Mar 2003 01:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262242AbTCJGvi>; Mon, 10 Mar 2003 01:51:38 -0500
-Received: from tag.witbe.net ([81.88.96.48]:52740 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262100AbTCJGvh>;
-	Mon, 10 Mar 2003 01:51:37 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Rusty Lynch'" <rusty@linux.co.intel.com>
-Cc: "'Paul Larson'" <plars@linuxtestproject.org>,
-       "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Available watchdog test cases
-Date: Mon, 10 Mar 2003 08:02:16 +0100
-Message-ID: <002601c2e6d2$fc7aebb0$3f00a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <1047273790.6399.13.camel@vmhack>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S262100AbTCJGrZ>; Mon, 10 Mar 2003 01:47:25 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:63761 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262059AbTCJGrY>;
+	Mon, 10 Mar 2003 01:47:24 -0500
+Date: Sun, 9 Mar 2003 22:47:38 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-security-module@mail.wirex.com
+Subject: Re: [PATCH] kobject support for LSM core
+Message-ID: <20030310064738.GD6512@kroah.com>
+References: <20030310001310.GU3917@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030310001310.GU3917@pasky.ji.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> > I know people are all trying to avoid Oops... but I think 
-> the testplan 
-> > should include that too...
+On Mon, Mar 10, 2003 at 01:13:10AM +0100, Petr Baudis wrote:
 > 
-> You can write a kernel module that when loaded will disable 
-> all interrupts and sit and spin, or even easier just call panic().
-> 
-Too easy I should have thought about it myself...
+>   the following patch (against 2.5.64) introduces kobject infrastructure
+> scaffolding to the LSM framework. It does nothing but allocating security root
+> subsystem for the LSMs, so that they are tied to one specific point in the
+> kobject hierarchy. They are suggested to create own subsystems under the
+> security subsystem, however such things are completely up to the individual
+> LSMs and not regulated by core in any way (it's not that I would so much like
+> such an approach, but I was advised so by GregKH and it makes sense in its own
+> way as well).
 
-Thanks for the tip...
+Hm, I thought I advised not doing this at all :)
 
-Regards,
-Paul
+Anyway, if we were to add this, you might want to:
+
+> +
+> +/* kobject stuff */
+> +
+> +/* We define only the base subsystem here and leave everything to a LSM. It is
+> + * heavily recommended that the LSM should create own subsystem under this one,
+> + * so that it can be easily made stackable and it doesn't confuse userland by
+> + * exporting its stuff directly to /sys/security/. */
+> +decl_subsys(security,NULL);
+
+Add a prototype of this variable to security.h so that everyone can
+actually see it who wants to use it.
+
+> +/**
+> + * security_kobj_init - initializes the security kobject subsystem
+> + *
+> + * This is called after security_scaffolding_startup as a regular initcall,
+> + * since we need sysfs mounted already.
+> + */
+> +static int __init security_kobj_init (void)
+> +{
+> +	subsystem_register (&security_subsys);
+> +	return 0;
+> +}
+> +
+> +subsys_initcall(security_kobj_init);
+
+Why not initialize this when the security core is initialized?  Why
+have a new initcall?
+
+And when do you unregister this subsystem?
+
+> +EXPORT_SYMBOL(security_subsys);
+
+No EXPORT_SYMBOL_GPL() for it?  :)
+
+thanks,
+
+greg k-h
 

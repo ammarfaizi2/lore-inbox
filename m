@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbULTMl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbULTMuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbULTMl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 07:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULTMl6
+	id S261499AbULTMuL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 07:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULTMuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 07:41:58 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:52876 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261499AbULTMl4 (ORCPT
+	Mon, 20 Dec 2004 07:50:11 -0500
+Received: from em.njupt.edu.cn ([202.119.230.11]:7341 "HELO njupt.edu.cn")
+	by vger.kernel.org with SMTP id S261499AbULTMuE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 07:41:56 -0500
-Message-ID: <41C6DB68.30607@trash.net>
-Date: Mon, 20 Dec 2004 15:02:16 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow,
- 2.6.10-rc3
-References: <41C6B3D4.6060207@einar-lueck.de>
-In-Reply-To: <41C6B3D4.6060207@einar-lueck.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 20 Dec 2004 07:50:04 -0500
+Message-ID: <303550202.05721@njupt.edu.cn>
+X-WebMAIL-MUA: [10.10.136.115]
+From: "Zhenyu Wu" <y030729@njupt.edu.cn>
+To: nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 20 Dec 2004 21:43:22 +0800
+Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
+X-Priority: 3
+Subject: Re: About kernel panic!
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Einar Lück wrote:
-> [PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow, 
-> 2.6.10-rc3
-> 
-> From: Einar Lueck <lkml@einar-lueck.de>
-> 
-> This patch splits up ip_route_[in|out]put_slow in inlined functions.
-> Basic idea:
-> * improve overall comprehensibility
-> * allow for an easier application of patch for improved multipath 
->  support (refer to the subsequent patch)
-> 
-> Please consider for application.
+Do you mean that there is something wrong with my Kernel Code? So, i have to use a
+new kernel code, but i can't understand why.
 
-Your patches have once again been made unreadable by
-your email-client. Please send them again as attachments.
+Thanks and Best,
 
-Regards
-Patrick
+
+>From: Nick Piggin <nickpiggin@yahoo.com.au>
+>Reply-To: 
+>To: Zhenyu Wu <y030729@njupt.edu.cn>
+>Subject: Re: About kernel panic!
+>Date:Mon, 20 Dec 2004 20:21:23 +1100
+>
+>Zhenyu Wu wrote:
+> > Hello, Everyone,
+> > 
+> > I think i have met lots of troubles when i am programming in the kernel, so,
+i
+> > want to get
+> > some help.
+> > 
+> > One of my troubles is that, sometimes, the program can work well, but
+sometimes,
+> > there are
+> > kernel panics. So, does someone else meet such questions, what is the major
+> > reasons? From the
+> > indication of the log messages, i can find the messages on allocting the
+memory, i
+> > remember, 
+> > i use the kmalloc to do it, but is there something wrong? 
+> > 
+> 
+> Yes, there is something wrong with your kernel code. The oops will
+> tell you what went wrong.
+> 
+> Reading Documentation/oops-tracing.txt is a good start.
+> 
+> Nick
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+

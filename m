@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290330AbSAPBTd>; Tue, 15 Jan 2002 20:19:33 -0500
+	id <S290327AbSAPBXS>; Tue, 15 Jan 2002 20:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290319AbSAPBTO>; Tue, 15 Jan 2002 20:19:14 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:12479 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S290327AbSAPBSw>;
-	Tue, 15 Jan 2002 20:18:52 -0500
-Date: Wed, 16 Jan 2002 02:18:44 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, John Weber <weber@nyc.rr.com>,
-        linux-kernel@vger.kernel.org
+	id <S290334AbSAPBWF>; Tue, 15 Jan 2002 20:22:05 -0500
+Received: from zero.tech9.net ([209.61.188.187]:12296 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290327AbSAPBU6>;
+	Tue, 15 Jan 2002 20:20:58 -0500
 Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
-Message-ID: <20020116021844.G5235@khan.acc.umu.se>
-In-Reply-To: <20020115194316.I17477@redhat.com> <Pine.LNX.4.33.0201151644180.1213-100000@penguin.transmeta.com> <20020115195204.K17477@redhat.com>
+From: Robert Love <rml@tech9.net>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020115194316.I17477@redhat.com>
+In-Reply-To: <20020115192048.G17477@redhat.com>
+	<Pine.LNX.4.33.0201151628440.1140-100000@penguin.transmeta.com> 
+	<20020115194316.I17477@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 15 Jan 2002 20:24:22 -0500
+Message-Id: <1011144263.8754.22.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20020115195204.K17477@redhat.com>; from bcrl@redhat.com on Tue, Jan 15, 2002 at 07:52:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 07:52:04PM -0500, Benjamin LaHaise wrote:
-> On Tue, Jan 15, 2002 at 04:44:54PM -0800, Linus Torvalds wrote:
-> > Numbers please.
-> > 
-> > I'd MUCH rather just clean up the include file hierarchy than have these
-> > kinds of non-local knowledge issues.
-> 
-> The last time I did it for fs.h et al (this meant pulling the fs.h and 
-> sched.h codependancy apart), it got 2.4 compiles back down to 2.2 compile 
-> times (3m -> 2m45s maybe 2m30s iirc) -- about a 10% drop in compile time.  
-> It's even more noticeable when you're doing a fully blown modular kernel 
-> build as distributions do.
+On Tue, 2002-01-15 at 19:43, Benjamin LaHaise wrote:
+> +#ifndef __ASM__ATOMIC_H
+> +#include <asm/atomic.h>
+> +#endif
 
-The difference between 3 minutes and 2.45 isn't really a lot imho. What
-is interesting if difference scales; that is, if you compile on a 486
-or so, does the 10% drop still hold, or are we still talking about a
-difference of 15 seconds. If the latter, I'd go for the cleanup,
-but if the former is true, maybe, just maybe, the ugly version might
-be the solution.
+gcc -D__KERNEL__ -I/home/rml/src/linux/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o brlock.o brlock.c
+brlock.c:21: initializer element is not constant
+brlock.c:21: (near initialization for `__brlock_array[0][0]')
+... for all the [x][y] elements ...
+brlock.c:21: initializer element is not constant
+brlock.c:21: (near initialization for `__brlock_array[31]')
 
-I'd prefer all includes that can be to be non-conditional, though.
+I get this compile error under 2.5.3-pre1, too.  System is SMP.  2.5.2
+worked fine.  I don't see a thing in the patch that would cause this ...
 
+	Robert Love
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

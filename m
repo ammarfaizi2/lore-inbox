@@ -1,62 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVAFQMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVAFQQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262895AbVAFQMC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:12:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVAFQMB
+	id S262891AbVAFQQf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVAFQQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:12:01 -0500
-Received: from dialpool1-19.dial.tijd.com ([62.112.10.19]:30088 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S262889AbVAFQL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:11:56 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: "Steve Iribarne" <steve.iribarne@dilithiumnetworks.com>
-Subject: Re: ARP routing issue
-Date: Thu, 6 Jan 2005 17:11:57 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-References: <B8561865DB141248943E2376D0E85215846787@DHOST001-17.DEX001.intermedia.net>
-In-Reply-To: <B8561865DB141248943E2376D0E85215846787@DHOST001-17.DEX001.intermedia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jan 2005 11:16:35 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:51943 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262891AbVAFQQb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 11:16:31 -0500
+Date: Thu, 6 Jan 2005 18:18:10 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, ak@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: [PATCH] fget_light/fput_light for ioctls (fixed)
+Message-ID: <20050106161810.GE25955@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106145103.GB25898@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501061711.59301.lkml@kcore.org>
+In-Reply-To: <20050106145103.GB25898@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 January 2005 17:06, Steve Iribarne wrote:
-> Hi Jan,
->
->
-> -> default gateway is set to 10.0.22.1, on eth0.
-> ->
-> -> Problem is, if I try to ping from another network
-> -> (10.216.0.xx) to 10.0.24.xx, i see the following ARP request:
-> ->
-> -> arp who-has 10.0.22.1 tell 10.0.24.xx
-> ->
->
-> You see that coming out the eth0 interface??
->
-> If that is the case it is most definately wrong.  Assuming that your
-> masks are setup properly.  But I haven't worked on the 2.4 kernel for a
-> long time so I'm not so sure if what you are seeing is a bug that has
-> been fixed.
+Hello!
+Sorry, that patch had a typo. Here's an updated version.
 
-The network information is:
-eth0 10.0.22.xxx mask 255.255.255.0
-eth1 10.0.24.xxx mask 255.255.255.0
+>>> Quoting r. Michael S. Tsirkin (mst@mellanox.co.il)
 
-routing:
-10.0.22.0 0.0.0.0 255.255.255.0 eth0
-10.0.24.0 0.0.0.0 255.255.255.0 eth1
-0.0.0.0  10.0.22.1 0.0.0.0  eth0
+With new unlocked_ioctl and ioctl_compat, ioctls can now
+be as fast as read/write.  So lets use fget_light/fput_light there,
+to get some speedup in common case on SMP.
 
-Jan
+mst
 
--- 
-If a man slept by day, he had little time to work.  That was a
-satisfying notion to Escargot.
-  -- "The Stone Giant", James P. Blaylock
+Signed-off-by: Michael s. Tsirkin <mst@mellanox.co.il>
+
+diff -rup linux-2.6.10/fs/compat.c linux-2.6.10-ioctls/fs/compat.c
+--- linux-2.6.10/fs/compat.c	2005-01-06 17:54:13.000000000 +0200
++++ linux-2.6.10-ioctls/fs/compat.c	2005-01-06 20:15:44.407259408 +0200
+@@ -431,8 +431,9 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 	struct file *filp;
+ 	int error = -EBADF;
+ 	struct ioctl_trans *t;
++	int fput_needed;
+ 
+-	filp = fget(fd);
++	filp = fget_light(fd, &fput_needed);
+ 	if (!filp)
+ 		goto out;
+ 
+@@ -476,7 +479,7 @@ asmlinkage long compat_sys_ioctl(unsigne
+  do_ioctl:
+ 	error = sys_ioctl(fd, cmd, arg);
+  out_fput:
+-	fput(filp);
++	fput_light(filp, fput_needed);
+  out:
+ 	return error;
+ }
+diff -rup linux-2.6.10/fs/ioctl.c linux-2.6.10-ioctls/fs/ioctl.c
+--- linux-2.6.10/fs/ioctl.c	2005-01-06 17:54:13.000000000 +0200
++++ linux-2.6.10-ioctls/fs/ioctl.c	2005-01-06 20:34:09.329285728 +0200
+@@ -80,8 +83,9 @@ asmlinkage long sys_ioctl(unsigned int f
+ 	struct file * filp;
+ 	unsigned int flag;
+ 	int on, error = -EBADF;
++	int fput_needed;
+ 
+-	filp = fget(fd);
++	filp = fget_light(fd, &fput_needed);
+ 	if (!filp)
+ 		goto out;
+ 
+@@ -154,7 +158,7 @@ asmlinkage long sys_ioctl(unsigned int f
+ 			break;
+ 	}
+  out_fput:
+-	fput(filp);
++	fput_light(filp, fput_needed);
+  out:
+ 	return error;
+ }

@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270503AbUJUC77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUJUDEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270503AbUJUC77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 22:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270527AbUJUC7Z
+	id S269059AbUJUDEF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 23:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJUDAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 22:59:25 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:24018 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S270605AbUJUClU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:41:20 -0400
-Date: Wed, 20 Oct 2004 19:40:54 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: LKML <linux-kernel@vger.kernel.org>,
-       user-mode-linux-devel@lists.sourceforge.net
-Cc: Jeff Dike <jdike@addtoit.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] UML: INITRAMFS_SOURCE noise/build fix
-Message-ID: <20041021024054.GA17968@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 20 Oct 2004 23:00:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13971 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270460AbUJUCwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 22:52:39 -0400
+Message-ID: <4177237D.8070502@osdl.org>
+Date: Wed, 20 Oct 2004 19:48:29 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Hunt <kinema@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: I/O scheduler recomendation for Linux as a VMware guest
+References: <b476569a0410201616415b0600@mail.gmail.com>
+In-Reply-To: <b476569a0410201616415b0600@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial patch (copy & yank) so UML builds don't generate a warning
-from linux/usr/Makefile:gen_cmd_list when CONFIG_INITRAMFS_SOURCE
-isn't defined (maybe the Makefile shouldn't require
-CONFIG_INITRAMFS_SOURCE to be set?).
+Adam Hunt wrote:
+> I am forced to spend quite a bit of time with my only relatively
+> powerful workstation booted into XP so I can do CAD work
+> (unfortunately Autodesk's Inventor only runs on Windows).  Because of
+> this unfortunate situation I am planning my first attempt to get the
+> Linux install that I have on the other drive in this workstation to
+> boot using VMware.  VMware has the ability to access raw disk
+> partitions (as apposed to partitions stored in a file on a host
+> partition) so I figure with some init and /etc magic I should be able
+> to boot the system using VMware and when I am not drawing in Inventor
+> I should be able to reboot and run Linux natively directly on the
+> hardware.
+> 
+> What I am wondering is what I/O scheduler should I be using when the
+> system is running within a VMware instance?  I figure that Windows
+> will be scheduling the access to the physical hardware so I would
+> assume that I want a bare bones priority based scheduler, something
+> with the lowest possible overhead.  Is this correct?  If so, what
+> would that scheduler be?
+> 
+> IIRC someone (Ingo?) was working on the ability to change schedules
+> during runtime.  How has that work progressed?  Is it available in any
+> kernel trees?
 
-Signed-off-by: cw@f00f.org
+It was Jens Axboe.
 
-diff -Nru a/arch/um/Kconfig_block b/arch/um/Kconfig_block
---- a/arch/um/Kconfig_block	2004-10-20 19:36:35 -07:00
-+++ b/arch/um/Kconfig_block	2004-10-20 19:36:35 -07:00
-@@ -52,6 +52,34 @@
- 	bool "Initial RAM disk (initrd) support"
- 	depends on BLK_DEV_RAM=y
- 
-+# copied directly from drivers/block/Kconfig
-+
-+config INITRAMFS_SOURCE
-+	string "Source directory of cpio_list"
-+	default ""
-+	help
-+	  This can be set to either a directory containing files, etc to be
-+	  included in the initramfs archive, or a file containing newline
-+	  separated entries.
-+
-+	  If it is a file, it should be in the following format:
-+	    # a comment
-+	    file <name> <location> <mode> <uid> <gid>
-+	    dir <name> <mode> <uid> <gid>
-+	    nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
-+
-+	  Where:
-+	    <name>      name of the file/dir/nod in the archive
-+	    <location>  location of the file in the current filesystem
-+	    <mode>      mode/permissions of the file
-+	    <uid>       user id (0=root)
-+	    <gid>       group id (0=root)
-+	    <dev_type>  device type (b=block, c=character)
-+	    <maj>       major number of nod
-+	    <min>       minor number of nod
-+
-+	  If you are not sure, leave it blank.
-+
- config MMAPPER
- 	tristate "Example IO memory driver"
- 	depends on BROKEN
+It was merged _after_ 2.6.9, so it's currently available in
+2.6.9-bkN.  See this BK changeset (and the lwn.net article that
+is referred to there):
+
+http://linux.bkbits.net:8080/linux-2.5/cset@41752c48DmUvWjzNzOcvM8RlMCIF4A?nav=index.html|ChangeSet@-4w
+
+-- 
+~Randy

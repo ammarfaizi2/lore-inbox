@@ -1,45 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263132AbSJBOuV>; Wed, 2 Oct 2002 10:50:21 -0400
+	id <S263119AbSJBOtb>; Wed, 2 Oct 2002 10:49:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbSJBOuU>; Wed, 2 Oct 2002 10:50:20 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:19628 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S263132AbSJBOuT>; Wed, 2 Oct 2002 10:50:19 -0400
-Date: Wed, 2 Oct 2002 15:45:39 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: Nick Sanders <sandersn@btinternet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40: menuconfig: no choice of keyboards
-Message-ID: <20021002144539.GA827@arwen.brautaset.org>
-References: <20021002113053.GA482@arwen.brautaset.org> <200210021431.25941.sandersn@btinternet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210021431.25941.sandersn@btinternet.com>
-User-Agent: Mutt/1.3.28i
-X-Location: London, UK
-X-URL: http://brautaset.org
-X-KeyServer: wwwkeys.nl.pgp.net
-X-PGP/GnuPG-Key: 9336ADC1
+	id <S263126AbSJBOta>; Wed, 2 Oct 2002 10:49:30 -0400
+Received: from 62-190-200-237.pdu.pipex.net ([62.190.200.237]:2308 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263119AbSJBOta>; Wed, 2 Oct 2002 10:49:30 -0400
+Date: Wed, 2 Oct 2002 16:03:22 +0100
+From: jbradford@dial.pipex.com
+Message-Id: <200210021503.g92F3M5l004937@darkstar.example.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40 compile fail in snd_emu8000_new
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 02 2002, Nick was overheard saying:
-> On Wednesday 02 October 2002 12:30 pm, Stig Brautaset wrote:
-> > Nothing happens if I go to the "Input Device Support" section in
-> > menuconf, and pick "Keyboards"; I get no new options. Got around it by
-> > manually selecting a keyboard in .config to be able to test it further.
-> > Either I chose the wrong one, or it just doesn't build it anyway, 'cause
-> > the machine would not respond on boot.
+ARGH!!!  :-)
 
-> I think you need 'Serial i/o support' just above the 'Keyboards' option
+This is a virgin 2.5.40 tree, except for a small hack to drivers/serial/core.c, compiled, (or not :-) ), with GCC 2.95.3
 
-You were indeed right. Sorry for the waste of bandwidth :)
+make[1]: Leaving directory `/usr/src/linux-2.5.40/init'
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+sound/built-in.o: In function `snd_emu8000_new':
+sound/built-in.o(.text.init+0x1793): undefined reference to `snd_seq_device_new'make: *** [vmlinux] Error 1
 
-Got it up and running now; a few warnings about unnused variables, but I
-guess you guys don't want those reported... or what? :)
-
-Stig, the embarrased one
--- 
-brautaset.org
+John.

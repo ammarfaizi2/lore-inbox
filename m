@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRDEOlU>; Thu, 5 Apr 2001 10:41:20 -0400
+	id <S132908AbRDEOrj>; Thu, 5 Apr 2001 10:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132912AbRDEOlQ>; Thu, 5 Apr 2001 10:41:16 -0400
-Received: from web12406.mail.yahoo.com ([216.136.173.133]:17421 "HELO
-	web12406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132913AbRDEOjy>; Thu, 5 Apr 2001 10:39:54 -0400
-Message-ID: <20010405143912.86227.qmail@web12406.mail.yahoo.com>
-Date: Thu, 5 Apr 2001 07:39:12 -0700 (PDT)
-From: Laura Dean <tralad@yahoo.com>
-Subject: compile error - ldmxcsr
-To: linux-kernel@vger.kernel.org
+	id <S132951AbRDEOr3>; Thu, 5 Apr 2001 10:47:29 -0400
+Received: from ns2.cypress.com ([157.95.67.5]:40110 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S132908AbRDEOrP>;
+	Thu, 5 Apr 2001 10:47:15 -0400
+Message-ID: <3ACC8538.8B2532FC@cypress.com>
+Date: Thu, 05 Apr 2001 09:46:16 -0500
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Config printk buffer size
+In-Reply-To: <200104050947.LAA08111@sunrise.pg.gda.pl>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrzej Krzysztofowicz wrote:
+> 
+> IMO, it would be nice to add a test here whether the CONFIG_PRINTK_BUF_LEN
+> value is really set as a power of two, eg.:
+> 
+> #if (LOG_BUF_LEN & LOG_BUF_MASK)
+> #error CONFIG_PRINTK_BUF_LEN must be a power of two
+> #endif
 
-When I try to compile the linux 2.4.2 kernel I am
-getting the following error:
+I couldn't figure out how to do it in the config,
+forgot about preprocessing. But Alan wants a menu
+option instead.
 
-{standard input}: Assembler messages:
-{standard input}:30: Error: no such 386 instruction:
-`ldmxcsr' 
+Anyone who uses the embedded systems want
+a different default? Let me know and I'll
+put it in the default config files.
+I'm sure a small hand held with fixed devices
+doesn't need even a 8K buffer. Just don't know
+which ones.
 
-It looks like an old assembler, but I am using
-binutils 2.10 and have also tried binutils 2.10.1.  I
-am using   egcs-2.91.66 as my compiler.
- 
-I am running Caldera OpenLinux 2.3, which uses
-glibc-2.1.1-1, which I know is kind of an old version
-and I am wondering if this could be the problem? Any
-other ideas as to what could cause this? Thanks in
-advance for any help or advice.
-
-Laura
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+	-Thomas

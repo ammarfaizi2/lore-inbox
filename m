@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318337AbSGXXzd>; Wed, 24 Jul 2002 19:55:33 -0400
+	id <S317994AbSGYAFQ>; Wed, 24 Jul 2002 20:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318341AbSGXXzd>; Wed, 24 Jul 2002 19:55:33 -0400
-Received: from B50a6.pppool.de ([213.7.80.166]:28420 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S318337AbSGXXzc>; Wed, 24 Jul 2002 19:55:32 -0400
-Subject: Re: Linux-2.5.28
-From: Daniel Egger <degger@fhm.edu>
+	id <S318049AbSGYAFQ>; Wed, 24 Jul 2002 20:05:16 -0400
+Received: from the-penguin.otak.com ([216.122.56.136]:4736 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id <S317994AbSGYAFN>; Wed, 24 Jul 2002 20:05:13 -0400
+Date: Wed, 24 Jul 2002 17:08:22 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <Pine.LNX.4.33.0207241551450.1423-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0207241551450.1423-100000@penguin.transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-I1QPQ1Bc3PnPEKqaA/gU"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 25 Jul 2002 01:31:21 +0200
-Message-Id: <1027553482.11881.5.camel@sonja.de.interearth.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CMIPCI
+Message-ID: <20020725000822.GA855@the-penguin.otak.com>
+References: <20020724220223.GA761@the-penguin.otak.com> <ahna16$akn$1@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ahna16$akn$1@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.5.24 on an i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds [torvalds@transmeta.com] wrote:
+> In article <20020724220223.GA761@the-penguin.otak.com>,
+> Lawrence Walton  <lawrence@the-penguin.otak.com> wrote:
+> >Looks like CMIPCI does not compile right now.
+> 
+> For "'synchronize_irq()' used without args", you only need to add the
+> irq number as the argument, and it should work. Please test to verify,
+> and send in a patch..
+> 
+> 		Linus
 
---=-I1QPQ1Bc3PnPEKqaA/gU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here it is my first LK patch.
+tested even. :)
 
-Am Don, 2002-07-25 um 00.52 schrieb Linus Torvalds:
 
-> Actually, that patch _was_ on the mailing list, with lots of discussion.
+--- cmipci.c.orig	2002-07-24 17:01:44.000000000 -0700
++++ cmipci.c	2002-07-24 17:02:43.000000000 -0700
+@@ -2479,7 +2479,7 @@
+ 		/* reset mixer */
+ 		snd_cmipci_mixer_write(cm, 0, 0);
+ 
+-		synchronize_irq();
++		synchronize_irq(dev->irq);
+ 
+ 		free_irq(cm->irq, (void *)cm);
+ 	}
 
-So IDE-101 equals to the small snippet of code pasted somewhere in the
-evil flamewar?
-=20
-> And since none of the discussion was civil, it didn't get a changelog. Bu=
-t=20
-> you can search it out yourself.
 
-Especially since the IDE code at the moment is not really something I
-would trust uncoditionally a bit more comentary would be adequate IMHO,
-even if it's just a: "Fixed race introduced in IDE-97, see flamewar"...
 
-Perhaps not everyone wanting to use 2.5.x for some development is=20
-eager to disassemble a patch to see whether it might be usable or
-trash the partition even more badly (given that one has the knowledge
-to judge for her-/himself).
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://www.otak-k.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
 
---=20
-Servus,
-       Daniel
-
---=-I1QPQ1Bc3PnPEKqaA/gU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9PzjJchlzsq9KoIYRAq75AJ4jdNJbLK65FpkFsSPoztrkBe4b+QCgv4Ww
-HKmroPSHLQxZh7yeuEuoor4=
-=o4vz
------END PGP SIGNATURE-----
-
---=-I1QPQ1Bc3PnPEKqaA/gU--
 

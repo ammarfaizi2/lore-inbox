@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbUCZX2a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 18:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUCZX2a
+	id S261440AbUCZXcG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 18:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUCZXcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 18:28:30 -0500
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:64496 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261439AbUCZX22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 18:28:28 -0500
-Message-ID: <4064BC9B.1040306@blueyonder.co.uk>
-Date: Fri, 26 Mar 2004 23:28:27 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.5-rc2-mm4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 Mar 2004 18:32:06 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56808 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261457AbUCZXcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 18:32:02 -0500
+Date: Fri, 26 Mar 2004 15:29:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org,
+       wli@holomorphy.com
+Subject: Re: Sparc64, cpumask_t and struct arguments (was: [PATCH] Introduce
+ nodemask_t ADT)
+Message-Id: <20040326152927.5992b011.pj@sgi.com>
+In-Reply-To: <20040326145423.74c1ce52.davem@redhat.com>
+References: <20040320031843.GY2045@holomorphy.com>
+	<20040320000235.5e72040a.pj@sgi.com>
+	<20040320111340.GA2045@holomorphy.com>
+	<20040322171243.070774e5.pj@sgi.com>
+	<20040323020940.GV2045@holomorphy.com>
+	<20040322183918.5e0f17c7.pj@sgi.com>
+	<20040323031345.GY2045@holomorphy.com>
+	<20040322193628.4278db8c.pj@sgi.com>
+	<20040323035921.GZ2045@holomorphy.com>
+	<20040325012457.51f708c7.pj@sgi.com>
+	<20040325101827.GO791@holomorphy.com>
+	<20040326143648.5be0e221.pj@sgi.com>
+	<20040326145423.74c1ce52.davem@redhat.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Mar 2004 23:28:28.0374 (UTC) FILETIME=[0AF94760:01C4138A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the same compile failure on -mm4 as I was on -mm3.
-  HOSTCC  usr/gen_init_cpio
-  CPIO    usr/initramfs_data.cpio
-  GZIP    usr/initramfs_data.cpio.gz
-  AS      usr/initramfs_data.o
-  LD      usr/built-in.o
-  CC      arch/x86_64/kernel/process.o
-  CC      arch/x86_64/kernel/semaphore.o
-  CC      arch/x86_64/kernel/signal.o
-arch/x86_64/kernel/signal.c: In function `do_signal':
-arch/x86_64/kernel/signal.c:426: warning: passing arg 2 of 
-`get_signal_to_deliver' from incompatible poi
-nter type
-arch/x86_64/kernel/signal.c:426: error: too few arguments to function 
-`get_signal_to_deliver'
-make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
-Regards
-Sid.
+> It's a problem moreso on sparc32.
+
+Ah good.  Then, since arch/sparc and include/asm-sparc make no use
+of cpumask_t, can I therefore conclude that you don't care whether
+it's really a struct, or not?
+
+That would be good news, if so.
 
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

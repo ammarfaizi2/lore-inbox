@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316779AbSEUX24>; Tue, 21 May 2002 19:28:56 -0400
+	id <S316785AbSEUXac>; Tue, 21 May 2002 19:30:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316783AbSEUX2z>; Tue, 21 May 2002 19:28:55 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51725 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316779AbSEUX2x>; Tue, 21 May 2002 19:28:53 -0400
-Date: Tue, 21 May 2002 16:28:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 65
-In-Reply-To: <20020521220854.A12368@ucw.cz>
-Message-ID: <Pine.LNX.4.33.0205211626530.22624-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316784AbSEUXaa>; Tue, 21 May 2002 19:30:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26639 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316785AbSEUX3a>; Tue, 21 May 2002 19:29:30 -0400
+Date: Wed, 22 May 2002 00:29:23 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.17
+Message-ID: <20020522002923.A10208@flint.arm.linux.org.uk>
+In-Reply-To: <86256BC0.00807DCA.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 21, 2002 at 06:20:56PM -0500, Wayne.Brown@altec.com wrote:
+> So, I'm just getting used to the idea of using new tools to build kernels,
+> and now I learn that 2.5 breaks an ordinary program that I use all day,
+> every day. It just keeps getting better and better...
 
-On Tue, 21 May 2002, Vojtech Pavlik wrote:
-> > 
-> > They aren't there to be respected by the ll_rw_blk layer - if some layer
-> > above it has created a request larger than the hard sector size, THAT is
-> > the problem, and there is nothing ll_rw_blk can do (except maybe BUG() on
-> > it, but I don't think we've ever really seen those kinds of bugs).
-> 
-> Hum, I'm confused here - shouldn't that be "if some layer above it has
-> created a request SMALLER than the hard sector size"? Or better a
-> request that is not a multiple of hard sector size?
+The 2.<odd> series, like 2.5 is a strictly development kernel series; new
+features go into these all the time.  You can expect it to:
 
-Yes, yes, you're obviously right, and I just had a brainfart when writing
-it. It should be basically: "higher levels must make sure on their own
-that all requests are nice integer multiples of the hw sector-size", and 
-ll_rw_blk should never have to care.
+1. not build.
+2. crash.
+3. silently eat your filesystems.
+4. break userspace programs.
 
-		Linus "neurons dying left and right" Torvalds
+or any combination of the above.  If you're looking for stability, stick
+with the 2.<even> series.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

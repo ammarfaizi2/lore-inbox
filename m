@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbUKKDyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbUKKECY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbUKKDyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 22:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbUKKDyr
+	id S262092AbUKKECY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 23:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUKKECX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 22:54:47 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:45066 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262051AbUKKDyp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 22:54:45 -0500
-Date: Thu, 11 Nov 2004 03:54:41 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Antonino Sergi <Antonino.Sergi@Roma1.INFN.it>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: isa memory address
-In-Reply-To: <1100079437.30102.66.camel@delphi.roma1.infn.it>
-Message-ID: <Pine.LNX.4.58L.0411110329260.10663@blysk.ds.pg.gda.pl>
-References: <1099901664.2718.92.camel@delphi.roma1.infn.it>  <418FA2F1.2090003@osdl.org>
-  <1100014956.30102.54.camel@delphi.roma1.infn.it> 
- <Pine.LNX.4.58L.0411091638570.9795@blysk.ds.pg.gda.pl>
- <1100079437.30102.66.camel@delphi.roma1.infn.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Nov 2004 23:02:23 -0500
+Received: from [61.48.53.74] ([61.48.53.74]:25084 "EHLO freya.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S262089AbUKKECM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 23:02:12 -0500
+Date: Thu, 11 Nov 2004 11:53:20 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200411111953.iABJrK204297@freya.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, linux-os@cahos.analogic.com
+Subject: Re: DEVFS_FS
+Cc: akpm@osdl.org, alebyte@gmail.com, gene.haskett@verizon.net,
+       linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Nov 2004, Antonino Sergi wrote:
+>What is the approved substitute for DEVFS_FS that is marked
+>obsolete?
 
-> >  Because you are trying to use the region in the I/O port space.  That's
-> > probably not what you want to do and an 8-bit ISA board cannot decode it
-> > at all anyway.  Actually for some platforms using the I/O space outside
-> > the low 16-bit range may be quite difficult even for buses and devices
-> > that support it and Linux does not support it then, either.  So Linux 
-> > correctly informs you you cannot use that range.
-> 
-> This is actually not clear for me.
+	DEVFS_FS is not obsolete.  Rather, this is a case of misstatements
+being repeated so many times that people start to believe it.
 
- The port I/O space range differs among platforms.  You get -EBUSY in a
-response to a request for a range of ports outside the supported range.
+	1. Only devfs (or the lookup trapping facility used in my remake
+of it) can configure new devices on demand based on accesses to files
+missing from /dev, which allows for faster boot time (no need
+to initialize device you won't use during this session), easier fixing
+of device driver bugs, and potentially less memory utilization (the new
+devfs implementation plus lookup traps have a code size of about 5kB combined;
+the inode+dname utilization of devfs is less than sysfs due to there
+being fewer nodes and you can run devfs without sysfs, and when
+inode+dname memory utilization of both are fixed, the size of the
+unnecessarily loaded kernel modules will dominate).
 
-> >  ... or better yet request_mem_region()/release_resource(), as the former 
-> > is deprecated and will be removed.
-> 
-> I tried but (on 2.4.2):
-> - request_region fails but, ignoring it and remapping physical address
-> to virtual, everything works fine, except for release_region, of course.
-> - request_mem_region works but what I get from communication with the
-> actual device are numbers that sometimes are surely wrong.
+	2. Only devfs allows a device driver to pass suggested names
+for arbitrary minor device numbers (e.g., /dev/sound/mixer,
+/dev/sound/dsp).  Otherwise, a configuration file or a static /dev
+has to know these things in advance.
 
- As both request_region() and request_mem_region() merely reserve
-different resources in Linux structures, you can't get a different
-behavior from your device depending on which one you call, if any at all,
-unless you change code elsewhere at the same time.
+	3. Only devfs allows a device driver to pass suggested names
+for arbitrary related facilities that do not fall under the same
+major device number (e.g., CD-ROM's, tapes).
 
-> I couldn't understand what is the actual difference between
-> ioport_resource and iomem_resource to track the problem.
+	Fundamentally, the functionality of being able to trap accesses
+to nonexistent devices and the ability to pass the additional string
+information in #2 and #3 provide a more flexible user interface as
+new kernel facilities are developed, and communicating the relevant
+information through a virtual file system is useful for avoid
+unnecessary serialization and deferring certain initializations (for
+example, until later in a boot process).
 
- The former holds I/O resources mapped in the port space, whilst the
-latter holds ones mapped in the memory space.  The spaces use different
-cycles each at the bus the destined device is located on.
+	By the way, with devfs, especially under the new implementation,
+it is not particularly difficult to remap the names using {,UN}REGISTER
+events from a shadow file system (or directly from /dev if you also
+want the default names), without the underlying configuration having
+any prior knowledge about device numbers.  Many statements in Greg
+Kroah-Hartmann's "udev and devfs - The final word" that seem to
+contract this seem to me to be wrong or misleading when it would
+be easy to be clearer (for example, "devfs does not handle the need
+for dynamic major/minor numbers", when devfs does not care and not
+know whether the major/minor device number passed to it were
+dynamically allocated).
 
-  Maciej
+	This is not to say that I am "against udev" by every possible
+interpretation of that term.  I think using sysfs or hotplug events to
+create nodes in /dev (but usually not to load the corresponding kernel
+modules) is a useful user interface improvement.  I also hope to see
+the devfs interface evolve to do things like be able to statically export
+the default /dev file mappers from kernel modules, just as hardware
+device ID tables are exported, and, if sysfs memory consumption were
+to improve radically (the sysfs backing store patch would really help),
+then the memory usage, the _requirement_ of a user level helper
+program (instead of it just being an option) and the loss of ability
+to select devfs and sysfs independently _might_ be offset by
+simplification of other user level helper code (by making /dev
+maintenance one of multiple duties of a sysfs watching facility).
+
+	I think that Linux users would be much better served by allowing
+the devfs functionality to be actively maintained, improved and exported
+to "non-devfs" systems (for example the tmpfs lookup trapping) in general,
+and, in particular, by integrating my devfs rewrite instead of
+refusing it (and I have offered to arrange it so that the kernel can
+be configured with either the old or the new devfs implementation).
+Whether this functionality is called "devfs" in the future is not
+important, but providing its functionality for those who want it is,
+and that is what is being undermined by not integrating the new devfs
+implementation.
+
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

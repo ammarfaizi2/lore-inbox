@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266811AbUBRAFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBRAFn
+	id S266669AbUBQX6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBQX61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:05:43 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:61916 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S266811AbUBRADR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:03:17 -0500
-Date: Tue, 17 Feb 2004 17:03:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] A different KGDB stub
-Message-ID: <20040218000315.GN16881@smtp.west.cox.net>
-References: <20040217220249.GB16881@smtp.west.cox.net> <20040217155036.33e37c67.akpm@osdl.org>
+	Tue, 17 Feb 2004 18:58:27 -0500
+Received: from 62-43-1-4.user.ono.com ([62.43.1.4]:27776 "EHLO
+	mortadelo.pirispons.net") by vger.kernel.org with ESMTP
+	id S266669AbUBQX6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 18:58:12 -0500
+Date: Wed, 18 Feb 2004 00:58:10 +0100
+From: Kiko Piris <kernel@pirispons.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Bas Mevissen <ml@basmevissen.nl>, "Theodore Ts'o" <tytso@mit.edu>,
+       Jan Dittmer <j.dittmer@portrix.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 on raid5 failure
+Message-ID: <20040217235810.GA6582@mortadelo.pirispons.net>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Nigel Cunningham <ncunningham@users.sourceforge.net>,
+	Bas Mevissen <ml@basmevissen.nl>, Theodore Ts'o <tytso@mit.edu>,
+	Jan Dittmer <j.dittmer@portrix.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040119153005.GA9261@thunk.org> <4010D9C1.50508@portrix.net> <20040127190813.GC22933@thunk.org> <401794F4.80701@portrix.net> <20040129114400.GA27702@thunk.org> <4020BA67.9020604@basmevissen.nl> <1075887812.2518.125.camel@laptop-linux> <4020D9A5.2040109@basmevissen.nl> <1075927775.2037.136.camel@laptop-linux> <20040217231429.GD666@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040217155036.33e37c67.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040217231429.GD666@elf.ucw.cz>
+User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 03:50:36PM -0800, Andrew Morton wrote:
+On 18/02/2004 at 00:14, Pavel Machek wrote:
 
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >
-> > The following is the core bits to this KGDB stub.
+> > Not everything! I have my email client set up to highlight messages that
+> > mention suspend or swsusp. :>
 > 
-> This still contains the kern_do_schedule() gunk.  Andi raised this issue
-> last week.  He identified several other significant issues as well, but
-> there was no followup.  Could you please dig out his email and address the
-> points which he raised?  (I can't find the email - perhaps Andi could
-> re-review this patch?)
+> Clever ;-). [How does one do that in mutt?]
 
-By my read of Andi's email, the kern_do_schedule() gunk is "I really
-don't like this change. It is completely useless because you can get the
-pt_regs as well from the stack.  Please don't add it. George's stub also
-didn't need it."
+color index yellow black '(~b suspend | ~b swsusp)'
 
-But I don't see how it does.  But I'll look again tomorrow.
+But if you use remote mailboxes (such as imap or pop) this sucks. So
+it's better to put something like:
 
-The next issue was about adding debuggerinfo to thread_struct.  By my
-read of the code, it's because of the thread handling bits that Amit's
-version does that George's does not.  So I'm not sure how it's not
-needed (unless all of the relevant code goes.  If that's too heavy, I
-can remove all of that).
 
-Next was that KGDB should use the notify_die hooks that are there, and
-I've done that.
+folder-hook . "uncolor index *"
+folder-hook . "color index yellow black '(~b suspend | ~b swsusp)'"
+folder-hook ^imaps?:// "uncolor index *"
+folder-hook ^pops?://  "uncolor index *"
 
-Finally, the save_context_frame stuff can go (x86_64-specific stuffs)
-but as I don't have x86_64 hw (I'll try and whip up a toolchain
-tomorrow, but I leave for FOSDEM Thursday) so I didn't touch that, in
-hopes that someone who could test it would.
+
+in your .muttrc to avoid downloading _all_ message bodies in the index
+when reading imap(s) or pop(s) mailboxes.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Kiko

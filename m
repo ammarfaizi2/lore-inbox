@@ -1,251 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUJIGJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUJIGJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUJIGJc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 02:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUJIGHp
+	id S266582AbUJIGJa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 02:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUJIGI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 02:07:45 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:37547 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266543AbUJIFwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 01:52:05 -0400
-Message-ID: <4166AF3D.9080808@sgi.com>
-Date: Fri, 08 Oct 2004 10:16:13 -0500
-From: Colin Ngam <cngam@sgi.com>
-Reply-To: cngam@sgi.com
-Organization: SSO
-User-Agent: Mozilla/5.0 (X11; U; IRIX64 IP35; en-US; rv:1.4.1) Gecko/20040105
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>, Grant Grundler <iod00d@hp.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-CC: Colin Ngam <cngam@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <41644301.9EC028B3@sgi.com> <20041006195424.GF25773@cup.hp.com> <200410061327.28572.jbarnes@engr.sgi.com> <20041006204832.GB26459@cup.hp.com> <20041006210525.GI16153@parcelfarce.linux.theplanet.co.uk> <41645BDE.E9732310@sgi.com>
-In-Reply-To: <41645BDE.E9732310@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 9 Oct 2004 02:08:28 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:12497 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266572AbUJIFyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 01:54:55 -0400
+Subject: [BKPATCH] ACPI for 2.6
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097301276.16793.5.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 09 Oct 2004 01:54:36 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colin Ngam wrote:
+Hi Linus, please do a 
 
-Gentlemen,
+	bk pull bk://linux-acpi.bkbits.net/26-latest-release
 
-I need you to say yes or no on this issue so that Tony can proceed with 
-his decision on the next step towards this patch.  Tony believes that 
-this is still an outstanding issue.  Basically, it does not matter which 
-way we go.
+thanks,
+-Len
 
-In the current patch, because pci_root_ops is static, we define 
-sn_pci_root_ops.  sn_pci_root_ops ends up calling raw_pci_ops - which is 
-exactly what we need.
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/26-latest-release/acpi-20040816-26-latest-release.diff.gz
 
-Now, if we can remove the static from pci_root_ops, I can use it in 
-io_init.c, that would be cleanest and that was what we started with.  
-This is what the patch would look like ontop of the 002_add* patch:
+This will update the following files:
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/07 11:53:49-05:00 cngam@attica.americas.sgi.com
-#   pci.h:
-#     Add prototype for pci_root_ops.
-#   io_init.c:
-#     Use pci_root_ops.
-#   pci.c:
-#     Remove static so that pci_root_ops can be externed.
-#
-# include/asm-ia64/pci.h
-#   2004/10/07 11:53:02-05:00 cngam@attica.americas.sgi.com +2 -0
-#   Add prototype for pci_root_ops.
-#
-# arch/ia64/sn/kernel/io_init.c
-#   2004/10/07 11:52:49-05:00 cngam@attica.americas.sgi.com +4 -27
-#   Use pci_root_ops.
-#
-# arch/ia64/pci/pci.c
-#   2004/10/07 11:52:30-05:00 cngam@attica.americas.sgi.com +1 -1
-#   Remove static so that pci_root_ops can be externed.
-#
-diff -Nru a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
---- a/arch/ia64/pci/pci.c       2004-10-07 11:54:17 -05:00
-+++ b/arch/ia64/pci/pci.c       2004-10-07 11:54:17 -05:00
-@@ -124,7 +124,7 @@
-                                  devfn, where, size, value);
- }
+ Documentation/kernel-parameters.txt |   14 ++
+ arch/i386/kernel/acpi/boot.c        |   13 +-
+ arch/i386/kernel/dmi_scan.c         |   39 -------
+ arch/i386/kernel/io_apic.c          |   10 -
+ arch/i386/pci/mmconfig.c            |    7 +
+ arch/x86_64/kernel/io_apic.c        |   10 -
+ arch/x86_64/kernel/setup.c          |    6 -
+ drivers/acpi/Kconfig                |   26 ++++
+ drivers/acpi/asus_acpi.c            |  125 +++++++++++-------------
+ drivers/acpi/blacklist.c            |   44 ++++++++
+ drivers/acpi/bus.c                  |   12 +-
+ drivers/acpi/debug.c                |  105 +++++++++++++++++++-
+ drivers/acpi/dispatcher/dsmethod.c  |   52 +++++----
+ drivers/acpi/dispatcher/dsutils.c   |   53 +++++++---
+ drivers/acpi/events/evgpe.c         |    6 -
+ drivers/acpi/events/evmisc.c        |   32 ++++--
+ drivers/acpi/events/evregion.c      |   17 +--
+ drivers/acpi/events/evrgnini.c      |   12 +-
+ drivers/acpi/events/evxface.c       |   11 --
+ drivers/acpi/executer/exfldio.c     |   37 -------
+ drivers/acpi/hardware/hwgpe.c       |    2 
+ drivers/acpi/hardware/hwregs.c      |   70 ++++---------
+ drivers/acpi/hardware/hwtimer.c     |   28 ++---
+ drivers/acpi/numa.c                 |   16 +--
+ drivers/acpi/osl.c                  |   10 +
+ drivers/acpi/pci_link.c             |    4 
+ drivers/acpi/tables.c               |    4 
+ drivers/acpi/thermal.c              |   17 ++-
+ drivers/acpi/utilities/utglobal.c   |    9 -
+ include/acpi/acconfig.h             |    2 
+ include/acpi/acexcep.h              |    2 
+ include/acpi/acglobal.h             |    2 
+ include/acpi/acmacros.h             |   18 ---
+ include/acpi/acpi_drivers.h         |   55 ----------
+ include/linux/acpi.h                |    7 -
+ init/main.c                         |    6 -
+ 36 files changed, 484 insertions(+), 399 deletions(-)
 
--static struct pci_ops pci_root_ops = {
-+struct pci_ops pci_root_ops = {
-        .read = pci_read,
-        .write = pci_write,
- };
-diff -Nru a/arch/ia64/sn/kernel/io_init.c b/arch/ia64/sn/kernel/io_init.c
---- a/arch/ia64/sn/kernel/io_init.c     2004-10-07 11:54:17 -05:00
-+++ b/arch/ia64/sn/kernel/io_init.c     2004-10-07 11:54:17 -05:00
-@@ -33,29 +33,6 @@
+through these ChangeSets:
 
- int sn_ioif_inited = 0;                /* SN I/O infrastructure 
-initialized? */
+<len.brown@intel.com> (04/10/09 1.1803.119.22)
+   [ACPI4ASUS] globalize hotk structure
+   
+   This cleans the code up a bit, but mainly allows most functions
+   to be called externally when need (read: video driver) arises.
+   
+   Signed-off-by: Karol Kozimor <sziwan@hell.org.pl
 
--static int
--sn_pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size,
--         u32 * value)
--{
--       return raw_pci_ops->read(pci_domain_nr(bus), bus->number,
--                                 devfn, where, size, value);
--}
--
--static int
--sn_pci_write(struct pci_bus *bus, unsigned int devfn, int where, int size,
--          u32 value)
--{
--
--       return raw_pci_ops->write(pci_domain_nr(bus), bus->number,
--                                  devfn, where, size, value);
--}
--
--struct pci_ops sn_pci_root_ops = {
--       .read = sn_pci_read,
--       .write = sn_pci_write,
--};
--
--
- /*
-  * Retrieve the DMA Flush List given nasid.  This list is needed
-  * to implement the WAR - Flush DMA data on PIO Reads.
-@@ -281,10 +258,10 @@
- }
+<len.brown@intel.com> (04/10/09 1.1803.119.21)
+   [ACPI4ASUS] support M6700R laptops
+   
+   Signed-off-by: Karol Kozimor <sziwan@hell.org.pl
 
- /*
-- * sn_pci_fixup_bus() - This routine sets up a bus's resources
-+ * sn_pci_controller_fixup() - This routine sets up a bus's resources
-  * consistent with the Linux PCI abstraction layer.
-  */
--static void sn_pci_fixup_bus(int segment, int busnum)
-+static void sn_pci_controller_fixup(int segment, int busnum)
- {
-        int status = 0;
-        int nasid, cnode;
-@@ -307,7 +284,7 @@
-                BUG();
-        }
+<len.brown@intel.com> (04/10/09 1.1803.119.20)
+   [ACPI4ASUS] acpi_bus_register_driver() return code
+   
+   Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
 
--       bus = pci_scan_bus(busnum, &sn_pci_root_ops, controller);
-+       bus = pci_scan_bus(busnum, &pci_root_ops, controller);
-        if (bus == NULL) {
-                return;         /* error, or bus already scanned */
-        }
-@@ -379,7 +356,7 @@
- #endif
+<len.brown@intel.com> (04/10/09 1.1803.119.19)
+   [ACPI] acpi4asus update: support W1N, v0.29
+   
+   Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
 
-        for (i = 0; i < PCI_BUSES_TO_SCAN; i++) {
--               sn_pci_fixup_bus(0, i);
-+               sn_pci_controller_fixup(0, i);
-        }
+<len.brown@intel.com> (04/10/08 1.1803.119.18)
+   [ACPI] thermal module race condition/memory leak (David Shaohua Li)
+   http://bugzilla.kernel.org/show_bug.cgi?id=3231
 
-        /*
-diff -Nru a/include/asm-ia64/pci.h b/include/asm-ia64/pci.h
---- a/include/asm-ia64/pci.h    2004-10-07 11:54:17 -05:00
-+++ b/include/asm-ia64/pci.h    2004-10-07 11:54:17 -05:00
-@@ -105,6 +105,8 @@
- #define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
- #define pci_domain_nr(busdev)    (PCI_CONTROLLER(busdev)->segment)
+<len.brown@intel.com> (04/10/08 1.1803.119.17)
+   [ACPI] fix double quoted params such as acpi_os_string="a b c"
+   by Christian Lupien
+   http://bugzilla.kernel.org/show_bug.cgi?id=3242
 
-+extern struct pci_ops pci_root_ops;
-+
-+extern struct pci_ops pci_root_ops;
-+
- static inline int pci_name_bus(char *name, struct pci_bus *bus)
- {
-        if (pci_domain_nr(bus) == 0) {
+<len.brown@intel.com> (04/10/08 1.1803.119.16)
+   [ACPI] x86_64 build fix
+   
+   Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+<len.brown@intel.com> (04/10/08 1.1803.119.15)
+   [ACPI] fix allmodconfig build
+   
+   Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+<len.brown@intel.com> (04/09/16 1.1832.46.34)
+   add GPL to mmconfig.c
+
+<len.brown@intel.com> (04/09/02 1.1803.119.14)
+   [ACPI] delete ACPI DMI/BIOS cutoff year by default
+   
+   CONFIG_ACPI_BLACKLIST_YEAR=2001 for old behaviour
+
+<len.brown@intel.com> (04/09/01 1.1803.119.13)
+   [ACPI] move acpi_bios_year() to blacklist.c from dmi_scan.c (Pavel
+Machek)
+
+<len.brown@intel.com> (04/09/01 1.1803.119.12)
+   [ACPI] debugging enhancements (Yi Zhu)
+   
+   new cmdline options: "acpi_dbg_layer=",  "acpi_dbg_level="
+   and /proc/acpi/debug_layer, debug_level now describe levels
+   
+   http://bugzilla.kernel.org/show_bug.cgi?id=2398
+
+<len.brown@intel.com> (04/09/01 1.1803.119.11)
+   [ACPI] allow config to specify custom DSDT (Ulf Dambacher)
+
+<len.brown@intel.com> (04/09/01 1.1803.119.10)
+   [ACPI] cleanup: use ioapic_register_intr()
+
+<len.brown@intel.com> (04/08/26 1.1803.119.9)
+   [ACPI] Export acpi_strict for use in modular drivers.
+   This will enable drivers to work around BIOS deficiencies,
+   while still allowing the drivers to be more picky with "acpi=strict"
+   
+   Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+<len.brown@intel.com> (04/08/26 1.1803.119.8)
+   [ACPI] fix numa build warnings (Keith Owens)
+   
+   Signed-off-by: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+
+<len.brown@intel.com> (04/08/24 1.1803.119.7)
+   [ACPI] quiet ACPI NUMA boot messages
+   Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+<len.brown@intel.com> (04/08/21 1.1803.119.6)
+   [ACPI] Enable ACPICA workarounds for 'RELAXED_AML' and 'implicit
+return'
+   These workarounds are disabled if "acpi=strict"
+
+<len.brown@intel.com> (04/08/20 1.1803.119.5)
+   [ACPI] ACPICA 20040816 update from Bob Moore
+   
+   Designed and implemented support within the AML interpreter
+   for the so-called implicit return.  This support returns
+   the result of the last ASL operation within a control
+   method, in the absence of an explicit Return() operator.
+   A few machines depend on this behavior, even though it
+   is not explicitly supported by the ASL language.  It is
+   optional support that can be enabled at runtime via the
+   acpi_gbl_enable_interpreter_slack flag.
+   
+   Removed support for the PCI_Config address space from the
+   internal low level hardware interfaces (acpi_hw_low_level_read
+   and acpi_hw_low_level_write).  This support was not used
+   internally, and would not work correctly anyway because
+   the PCI bus number and segment number were not supported.
+   There are separate interfaces for PCI configuration space
+   access because of the unique interface.
+   acpica-unix-20040816.patch
+   
+   AE_CODE_AML_MAX fix from Bjorn Helgaas
+
+<len.brown@intel.com> (04/08/19 1.1803.119.4)
+   [ACPI] fix __initdata bug in acpi_irq_penalty[]
+   
+   Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
 
-Basically, we add an extern for pci_root_ops in asm-ia64/pci.h and 
-remove the static for pci_root_ops in ia64/pci/pci.c.
-
-We need a resolution so that Tony can proceed.  Silence is not going to 
-help.
-
-Thank you so much for your help.
-
-colin
-
->Matthew Wilcox wrote:
->
->  
->
->>On Wed, Oct 06, 2004 at 01:48:32PM -0700, Grant Grundler wrote:
->>    
->>
->>>Agreed. I'm not real clear on why drivers/acpi didn't do that.
->>>But apperently ACPI supports many methods to PCI or PCI-Like (can you
->>>guess I'm not clear on this?) config space. raw_pci_ops supports
->>>multiple methods in i386. ia64 only happens to use one so far.
->>>It seems right for SN2 to use this mechanism if it needs a different
->>>method.
->>>
->>>Willy tried to explain this to me yesterday and I thought I understood
->>>most of it...apperently that was a transient moment of clarity. :^/
->>>      
->>>
->>Let's try it again, by email this time.
->>
->>Fundamentally, there is a huge impedence mismatch between how the ACPI
->>interpreter wants to access PCI configuration space, and how Linux wants
->>to access PCI configuration space.  Linux always has at least a pci_bus
->>around, if not a pci_dev.  So we can use dev->bus->ops to abstract the
->>architecture-specific implementation of "how do I get to configuration
->>space for this bus?"
->>
->>ACPI doesn't have a pci_bus.  It just passes around a struct of { domain,
->>bus, dev, function } and expects the OS-specific code to determine what
->>to do with it.  The original hacky code constructed a fake pci_dev on the
->>stack and called the regular methods.  This broke ia64 because we needed
->>something else to be valid (I forget what), so as part of the grand "get
->>ia64 fully merged upstream" effort, I redesigned the OS-specific code.
->>
->>Fortunately, neither i386 nor ia64 actually need the feature Linux has
->>to have a per-bus pci_ops -- it's always the same.  I think powerpc is
->>the only architecture that needs it.  So I introduced a pci_raw_ops that
->>both ACPI and a generic pci_root_ops could call.
->>
->>The part I didn't seem to be able to get across to you yesterday was
->>that pci_root_ops is not just used for the PCI root bridge, it's used
->>for accessing every PCI device underneath that root bridge.
->>    
->>
->
->Hi Guys,
->
->Therefore, would it be perfectly fine if we remove the static from pci_root_ops
->so that we can use it outside of pci/pci.c??  I can include this in a follow-on
->patch.
->
->Thanks.
->
->colin
->
->  
->
->>--
->>"Next the statesmen will invent cheap lies, putting the blame upon
->>the nation that is attacked, and every man will be glad of those
->>conscience-soothing falsities, and will diligently study them, and refuse
->>to examine any refutations of them; and thus he will by and by convince
->>himself that the war is just, and will thank God for the better sleep
->>he enjoys after this process of grotesque self-deception." -- Mark Twain
->>    
->>
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
 
 

@@ -1,127 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSGLJSB>; Fri, 12 Jul 2002 05:18:01 -0400
+	id <S315413AbSGLJkb>; Fri, 12 Jul 2002 05:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSGLJSA>; Fri, 12 Jul 2002 05:18:00 -0400
-Received: from [218.5.64.61] ([218.5.64.61]:15877 "HELO dave")
-	by vger.kernel.org with SMTP id <S315278AbSGLJR7>;
-	Fri, 12 Jul 2002 05:17:59 -0400
-From: davedudd <davedudd@ah163.com>
+	id <S315414AbSGLJka>; Fri, 12 Jul 2002 05:40:30 -0400
+Received: from stingr.net ([212.193.32.15]:55962 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S315413AbSGLJka>;
+	Fri, 12 Jul 2002 05:40:30 -0400
+Date: Fri, 12 Jul 2002 13:43:16 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
 To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=D3=F2=C3=FB=D6=BB=D0=E880=D4=AA=A3=A1=A3=A1=A3=A1=D6=F7=BB=FA=C8=AB=B9=FA=D7=EE=B5=D7=BC=DB=B8=F1=A3=A1=A3=A1=A3=A1?=
+Cc: Christoph Hellwig <hch@infradead.org>, Paul P Komkoff Jr <i@stingr.net>
+Subject: Re: Small fixes for -rc1 kernel
+Message-ID: <20020712094316.GC2280@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Paul P Komkoff Jr <i@stingr.net>
+References: <20020711195816.GA2280@stingr.net> <20020711210349.A11341@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-Id: <20020712091759Z315278-685+7656@vger.kernel.org>
-Date: Fri, 12 Jul 2002 05:17:59 -0400
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20020711210349.A11341@infradead.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-尊敬的客户：
-    您好，我司是专业域名主机提供商。优惠的价格及高速稳定的主机赢得了广大客户的肯定。
-国际域名 80元
-国内域名 300元
-200M(纯HTML)送国际域名只需150元
-60M(asp,access)送域名邮箱只需236元
-200M(asp,access)送域名邮箱只需336元
-更多......详见http://www.ondns.com
-诚征全国代理，优惠多多。
-请向QQ：1761020 MAIL：web@ondns.com索取代理价格表
-
-　　顺祝
-商褀！
-
-百忙中打扰了您，深感抱歉。如不想收到此类邮件。请过滤拒收此邮件：daveddudd@ah163.com
-============================================
-客户专员：肖先生 服务电话：0592-5557491和5557492
-邮编：361009 传真：0592-5557491
-http://www.ondns.com    mail:web@ondns.com
-============================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----------------------------------------------------------------
-沸点群发邮件,来自软件工程专家网(http://www.21cmm.com)
-
-进CMM网校(http://www.21cmm.com)，成项目管理专家
+Replying to Christoph Hellwig:
+> > 2. Long lasting issue with wan/comx and proc_get_inode
+> 
+> comx is broken.  exporting proc_get_inode is still ABSOLUTELY wrong.
+
+And who should fix it? I just don't understand the whole meaning of that
+piece of code which uses proc_get_inode (yet)
+
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

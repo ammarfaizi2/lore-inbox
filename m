@@ -1,84 +1,30 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154050AbPGTK30>; Tue, 20 Jul 1999 06:29:26 -0400
-Received: by vger.rutgers.edu id <S154079AbPGTK02>; Tue, 20 Jul 1999 06:26:28 -0400
-Received: from Cantor.suse.de ([194.112.123.193]:2164 "HELO Cantor.suse.de") by vger.rutgers.edu with SMTP id <S154093AbPGTKZN>; Tue, 20 Jul 1999 06:25:13 -0400
-Date: Tue, 20 Jul 1999 12:25:06 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: SuSE Kernel Developers <kernel@suse.de>, Linux kernel list <linux-kernel@vger.rutgers.edu>
-Subject: [PATCH] 2210 Make w/o /usr/include/linux
-Message-ID: <19990720122506.A21397@bari.suse.de>
-Mail-Followup-To: SuSE Kernel Developers <kernel@suse.de>, Linux kernel list <linux-kernel@vger.rutgers.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=IiVenqGWf+H9Y6IX; micalg=pgp-md5; protocol="application/pgp-signature"
-X-Mailer: Mutt 0.95.4i
-X-Operating-System: Linux 2.2.10 i686
-X-PGP-Info: on http://www.garloff.de/kurt/pgp.public.key.kurt.home.asc
-X-PGP-Version: 2.6.3i
-X-PGP-Key: 1024/CEFC9215
-X-PGP-Fingerprint: 92 00 AC 56 59 50 13 83  3C 18 6F 1B 25 A0 3A 5F
-Organization: =?iso-8859-1?Q?SuSE_GmbH=2C_N=FCrnberg=2C_FRG?=
+Received: by vger.rutgers.edu via listexpand id <S154140AbPGUUyJ>; Wed, 21 Jul 1999 16:54:09 -0400
+Received: by vger.rutgers.edu id <S154285AbPGUUvE>; Wed, 21 Jul 1999 16:51:04 -0400
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:36094 "HELO tsx-prime.MIT.EDU") by vger.rutgers.edu with SMTP id <S154302AbPGUUlQ>; Wed, 21 Jul 1999 16:41:16 -0400
+Date: Wed, 21 Jul 1999 16:41:08 -0400
+Message-Id: <199907212041.QAA10609@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: Lars Kellogg-Stedman <lars@bu.edu>
+CC: Nomad the Wanderer <nomad@orci.com>, linux-kernel <linux-kernel@vger.rutgers.edu>
+In-reply-to: Lars Kellogg-Stedman's message of Wed, 21 Jul 1999 15:26:33 -0400 (EDT), <Pine.GSO.4.03.9907211520330.12022-100000@csa.bu.edu>
+Subject: Re: Device naming???
+Address: 1 Amherst St., Cambridge, MA 02139
+Phone: (617) 253-8091
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+The other solution for avoiding problems if a specific SCSI drive fails
+to spin up is to use entries in /etc/fstab of the following form:
 
---IiVenqGWf+H9Y6IX
-Content-Type: multipart/mixed; boundary=zhXaljGHf11kAtnf
+LABEL=tmp              /tmp                     ext2    defaults 1 2
+UUID=3a30d6b4-08a5-11d3-91c3-e1fc5550af17  /usr ext2    defaults 1 2
 
+The latest mount supports this, as does the very latest e2fsprogs
+release (1.15, just released this week; see the e2fsprogs page at
+http://web.mit.edu/tytso/www/linux/e2fsprogs.html).
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+						- Ted
 
-Hi,
-
-if a link from /usr/include/linux to=20
-/usr/src/where_ever/your/kernel/tree/actually/is/include/linux
-is missing, you're in trouble for compiling some userspace apps.
-
-However, the kernel compilation should not depend on it.
-
-But the scripts/split-include does at the moment.H
-Attached a patch to fix it.
-
---=20
-Kurt Garloff  <garloff@suse.de>           SuSE GmbH, N=FCrnberg, FRG
-Linux kernel development;      SCSI drivers: tmscsim(DC390), DC395
-
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Description: 2210-ipath.diff
-Content-Disposition: attachment; filename=2210-ipath
-Content-Transfer-Encoding: quoted-printable
-
---- linux-2.2.10.SuSE/Makefile~	Tue Jul 20 01:44:26 1999
-+++ linux-2.2.10.SuSE/Makefile	Tue Jul 20 12:05:57 1999
-@@ -466,7 +466,7 @@
- #
-=20
- scripts/mkdep: scripts/mkdep.c
--	$(HOSTCC) $(HOSTCFLAGS) -o scripts/mkdep scripts/mkdep.c
-+	$(HOSTCC) $(HOSTCFLAGS) -I$(HPATH) -o scripts/mkdep scripts/mkdep.c
-=20
- scripts/split-include: scripts/split-include.c
--	$(HOSTCC) $(HOSTCFLAGS) -o scripts/split-include scripts/split-include.c
-+	$(HOSTCC) $(HOSTCFLAGS) -I$(HPATH) -o scripts/split-include scripts/split=
--include.c
-
---zhXaljGHf11kAtnf--
-
---IiVenqGWf+H9Y6IX
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: 2.6.3i
-
-iQCVAwUBN5ROghaQN/7O/JIVAQEUdQP+LIQJjQRPpFGJXqanJN1nrCDEKX2AEVJp
-Ycax1+70UWJMph9xxoW+FCArBMUJxGbX5c7Ad/WYqINLE7CO2QR52fUavLj0/vYi
-iGg3SlpoaqnFTKwNWuGhseNrEaAdMkSpBtF1Xqo9VlBHySvYbi658EnJDFqy/efE
-WT6RAfHSlKs=
-=pAva
------END PGP SIGNATURE-----
-
---IiVenqGWf+H9Y6IX--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

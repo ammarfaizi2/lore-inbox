@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292911AbSCIUfc>; Sat, 9 Mar 2002 15:35:32 -0500
+	id <S292839AbSCIUkx>; Sat, 9 Mar 2002 15:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292915AbSCIUfW>; Sat, 9 Mar 2002 15:35:22 -0500
-Received: from web14808.mail.yahoo.com ([216.136.224.224]:8714 "HELO
-	web14808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292911AbSCIUfJ>; Sat, 9 Mar 2002 15:35:09 -0500
-Message-ID: <20020309203507.19088.qmail@web14808.mail.yahoo.com>
-Date: Sat, 9 Mar 2002 12:35:07 -0800 (PST)
-From: Rock Gordon <rockgordon@yahoo.com>
-Subject: kswapd/kupdated
+	id <S292836AbSCIUkc>; Sat, 9 Mar 2002 15:40:32 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:17188 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S292654AbSCIUka>; Sat, 9 Mar 2002 15:40:30 -0500
+Message-ID: <3C7EF02B001C2A55@mail.libertysurf.net> (added by
+	    postmaster@libertysurf.fr)
+Content-Type: text/plain; charset=US-ASCII
+From: William Stinson <wstinson@infonie.fr>
+Reply-To: wstinson@infonie.fr
 To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix xconfig in 2.5.6
+Date: Sat, 9 Mar 2002 21:40:40 +0000
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi 
 
-Kernel version: 2.4.16
+this is a small patch to fix error: 
+	/tkparse < ../arch/i386/config.in >> kconfig.tk
+	sound/core/Config.in: 4: can't handle dep_bool/dep_mbool/dep_tristate condition
+upon make xconfig got with 2.5.6
 
-What does kupdated actually do ? I have a system where
-kupdated and bdflush take over both cpus, and the
-system freezes for 10 minutes ... there's no disk
-space left on the 2TB XFS file system, striped RAID0
-by an MD device over 2 1TB arrays. Assuming normal
-UNIX/POSIX functionality, XFS should return ENOSPC ...
-but it doesn't ... it still spins like hell trying to
-scavenge the 40k of disk space that's left of the 2TB
-filesystem.
+Please CC me for any answers/comments.
 
-This seems to cause kupdated/bdflush to spin like
-crazy ...
+I also put this patch at http://www.chez.com/wstinson/linux/kernel/patch-sound-core-Config.in
 
-The 2 1TB arrays are 13 disk hardware RAID5 arrays,
-with no hot spare.
-
-Any clues ?
+William Stinson (wstinson@infonie.fr)
 
 
-__________________________________________________
-Do You Yahoo!?
-Try FREE Yahoo! Mail - the world's greatest free email!
-http://mail.yahoo.com/
+
+--- linux-2.5.6/sound/core/Config.in	Sat Mar  9 21:03:45 2002
++++ linux-local/sound/core/Config.in	Sat Mar  9 21:04:57 2002
+@@ -1,13 +1,13 @@
+ # ALSA soundcard-configuration
+ 
+ if [ "$CONFIG_X86_64" = "y" -a "$CONFIG_IA32_EMULATION" = "y" ]; then
+-  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
++  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
+ fi
+ if [ "$CONFIG_PPC64" = "y" ]; then
+-  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
++  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
+ fi
+ if [ "$CONFIG_SPARC64" = "y" ]; then
+-  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
++  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
+ fi
+ dep_tristate '  Sequencer support' CONFIG_SND_SEQUENCER $CONFIG_SND
+ if [ "$CONFIG_SND_SEQUENCER" != "n" ]; then
+
+
+
+

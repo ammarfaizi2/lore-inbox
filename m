@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317750AbSFLRpl>; Wed, 12 Jun 2002 13:45:41 -0400
+	id <S317751AbSFLRqA>; Wed, 12 Jun 2002 13:46:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317751AbSFLRpk>; Wed, 12 Jun 2002 13:45:40 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:39435 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S317750AbSFLRpj>; Wed, 12 Jun 2002 13:45:39 -0400
-Date: Thu, 13 Jun 2002 03:45:32 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: kuznet@ms2.inr.ac.ru
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Multicast netlink for non-root process
-In-Reply-To: <200206121725.VAA16261@sex.inr.ac.ru>
-Message-ID: <Mutt.LNX.4.44.0206130341160.1944-100000@blackbird.intercode.com.au>
+	id <S317752AbSFLRp7>; Wed, 12 Jun 2002 13:45:59 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:52438 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S317751AbSFLRp6>; Wed, 12 Jun 2002 13:45:58 -0400
+Date: Wed, 12 Jun 2002 12:18:39 -0700 (PDT)
+From: Lance Larsh <llarsh@oracle.com>
+X-X-Sender: <llarsh@llarsh-pc3.us.oracle.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <marcelo@conectiva.com.br>
+Subject: [PATCH] arch/i386/kernel/bluesmoke.c, kernel 2.4.18
+Message-ID: <Pine.LNX.4.33.0206121202150.22214-100000@llarsh-pc3.us.oracle.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jun 2002 kuznet@ms2.inr.ac.ru wrote:
 
-> But you seem to raise CAP_NET_ADMIN at each netlink_broadcast,
-> so we do not get desired effect.
+In the i386 machine check exception handler, MSR_IA32_MCi_ADDR is not
+output correctly.  Instead, MSR_IA32_MCi_STATUS is output a second time in
+its place.
 
-Yep, this version of the patch tried to preserve existing behaviour; any 
-unnecesary cap_raise() calls can be removed as required.
+-Lance
 
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+--- 2.4.18/arch/i386/kernel/bluesmoke.c	Mon Nov 12 09:59:43 2001
++++ 2.4.18-fix/arch/i386/kernel/bluesmoke.c	Wed Jun 12 10:30:12 2002
+@@ -47,7 +47,7 @@
+ 			{
+ 				rdmsr(MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
+ 				printk(" at %08x%08x", 
+-					high, low);
++					ahigh, alow);
+ 			}
+ 			printk("\n");
+ 			/* Clear it */
 

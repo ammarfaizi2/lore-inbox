@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTJIUAh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 16:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbTJIUAh
+	id S262416AbTJIUKx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 16:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTJIUKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 16:00:37 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:29965 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S262070AbTJIUAg (ORCPT
+	Thu, 9 Oct 2003 16:10:53 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:9656 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262416AbTJIUKw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 16:00:36 -0400
-Date: Thu, 9 Oct 2003 22:00:13 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Nuno Silva <nuno.silva@vgertech.com>
-cc: herft <herft@sedal.usyd.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: CPU Usage for particular User Login
-In-Reply-To: <3F8592D6.6090905@vgertech.com>
-Message-ID: <Pine.LNX.4.44.0310092157290.30889-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Oct 2003 16:10:52 -0400
+Subject: [PATCH] BUG() in exec_mmap()
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1065730208.27064.20.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 09 Oct 2003 15:10:08 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> You can also run a lot of top programs, each for one user (type 'u' 
-> while in top).
-> 
-> Regards,
-> Nuno Silva
+Marcelo,
+A recent change to exec_mmap() removed the initialization of old_mm,
+leaving an uninitialized use of it.  This patch would completely remove
+old_mm from the function.  Is this what was intended?
 
-nb. is their a way to get fair 'equal time / proc percentage per user' 
-queueing of the CPU(s).
+===== fs/exec.c 1.30 vs edited =====
+--- 1.30/fs/exec.c	Thu Oct  9 08:48:43 2003
++++ edited/fs/exec.c	Thu Oct  9 14:58:42 2003
+@@ -423,7 +423,7 @@
+ 
+ static int exec_mmap(void)
+ {
+-	struct mm_struct * mm, * old_mm;
++	struct mm_struct * mm;
+ 
+ 	mm = mm_alloc();
+ 	if (mm) {
+@@ -447,11 +447,6 @@
+ 		task_unlock(current);
+ 		activate_mm(active_mm, mm);
+ 		mm_release();
+-		if (old_mm) {
+-			if (active_mm != old_mm) BUG();
+-			mmput(old_mm);
+-			return 0;
+-		}
+ 		mmdrop(active_mm);
+ 		return 0;
+ 	}
 
-i.e. not limiting the number of processes/user but limiting the total CPU 
-'power' in use by a given user, something like the CBQ network 
-schedulers... perhaps with some classes (like root) more priveledged 
-etc... or is this something for 2.7?
-
-Cheers,
-MaZe.
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

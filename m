@@ -1,101 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263764AbUCXQNe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 11:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbUCXQNe
+	id S263763AbUCXQVC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 11:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbUCXQVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 11:13:34 -0500
-Received: from gamemakers.de ([217.160.141.117]:8665 "EHLO www.gamemakers.de")
-	by vger.kernel.org with ESMTP id S263764AbUCXQNb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 11:13:31 -0500
-Message-ID: <4061B41B.30305@gamemakers.de>
-Date: Wed, 24 Mar 2004 17:15:23 +0100
-From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de>
-Reply-To: rudi@lambda-computing.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Wed, 24 Mar 2004 11:21:02 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32751 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263763AbUCXQU5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 11:20:57 -0500
+Message-ID: <4061B562.4060601@mvista.com>
+Date: Wed, 24 Mar 2004 08:20:50 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alexander Larsson <alexl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-References: <4061986E.6020208@gamemakers.de> <1080142815.8108.90.camel@localhost.localdomain>
-In-Reply-To: <1080142815.8108.90.camel@localhost.localdomain>
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org, Daniel Jacobowitz <djacobowitz@mvista.com>
+Subject: Re: [PATCH]Call frame debug info for 2.6 kernel
+References: <1AR5s-75I-27@gated-at.bofh.it> <1CHY0-1Uw-9@gated-at.bofh.it> <m3n0685nfp.fsf@averell.firstfloor.org> <4060B005.4020804@mvista.com> <20040324062548.GA96115@colin2.muc.de>
+In-Reply-To: <20040324062548.GA96115@colin2.muc.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Larsson wrote:
-
-[snip]
-> I think everyone agrees that dnotify is a POS that needs replacement,
-> however coming up with a good new API and implementation seems to be
-> hard (or at least uninteresting to kernel developers). 
+Andi Kleen wrote:
+>>The long and short of it is, to do it at all, you need to have a fair 
+>>knowledge of dwarf2.  Once you get to that, I suspect one way is as good as 
+>>another.
 > 
-I want something like this, so I am willing to spend some time 
-implementing it.
-
-> I for sure would welcome a sane file change notification API, i.e. one
-> that doesn't require the use of signals. However, I don't really care
-> about recursive monitors, and I'm actually unsure if you really want the
-> DN_EXTENDED functionallity in the kernel. It seems like a great way to
-> make the kernel use a lot of unswappable memory, unless you limit the
-> event queues, and if you do that you need to stat all files in userspace
-> anyway so you can correctly handle queue overflows.
 > 
-About recursive notification:
-
-Some way to watch for changes on a whole file system is a must. 
-Otherwise there is really no need to replace dnotify. When I start up 
-KDE it watches for 256 different directories in my /home directory. It 
-would probably watch even more directories if it could. With recursive 
-watching it would only need to watch two or three directories recursively.
-
-About the buffer memory usage problem:
-
-I have been testing the current approach for a few days continuously 
-now, and I don't get event buffer overflows even if I watch for all 
-events on "/". Of course the event buffer size should be limited. The 
-current implementation uses 10*4096 bytes, but in most cases starting 
-with a single 4096 byte page should be enough.
-
-Note that the most common events (read and write) are quite small. 
-Currently they are 32 bytes, but it would not be that hard to get them 
-even smaller if nessecary. This is quite good compared to libraries like 
-dazuko that report the complete path for each change.
-
-Extended information about the type of change has been requested by many 
-persons, and it is nessecary for many applications. People have been 
-writing ugly syscall table hacks for this, so they must be really 
-desperate to get this information...
-
-It should be optional though.
-
-> I think the most important properties for a good dnotify replacement is:
+> Did you contact the gdb and binutils maintainers about the problems?
+> Maybe it can be easily fixed.
 > 
-> * Don't use signals or any other global resource that makes it
-> impossible to use the API in a library thats supposed to be used by all
-> sorts of applications.
-> 
-Agreed.
+I mentioned it to Daniel Jacobowitz.
 
-> * Get sane semantics. i.e. if a hardlink changes notify a file change in
-> all directories the file is in. (This is hard though, it needs backlinks
-> from the inodes to the directories, at least for the directories with a
-> monitor, something i guess we don't have today.)
-> 
-This would require large changes, and I think figuring out all aliases 
-to a path might as well be done in userspace. You don't gain much by 
-putting this in the kernel, and it requires a lot of complexity.
+The problem is what is needed is access to the full dwarf2 expression code. 
+Actually only a small sub set is needed here, but I suspect they would only do 
+the whole thing, and it is rather rich.  I only implemented about 20% of the 
+opcodes.
 
-> * Some way to get an event when the last open fd to the file is closed
-> after a file change. This means you won't get hundreds of write events
-> for a single file change. (Of course, you won't catch writes to e.g.
-> logs which aren't closed, so this has to be optional. But for a desktop,
-> this is often what you want.)
-> 
-Should be no problem to add this with the current approach. But it is 
-not that bad if you are getting hundreds of write events for a single 
-file. They are just 32 bytes, so you can just throw them away in the 
-userspace if you are not interested in them.
+For example, the way gdb knows that "this is the bottom of the stack" is for the 
+CFI address to come back as zero.  Normally this is a stack address.  An 
+expression is needed to get zero, and, at least in interrupt / trap handling, 
+the expression needs to be conditional.  So, either a new language is invented 
+or access is provided to the dwarf2 language, or an abstracted version of it.
+
+The ladder is what I did.  I provided the dwarf2 opcodes with macros that 
+wrapped the required boiler plate around them.  I set it up the way C does, i.e. 
+as a separate block of asm code, rather than intermixed with the assembly thing 
+(which would require relocs to the debug space and back as well as additional 
+boiler plate).  This is artifact of how I figured out how to translate the 
+dwarf2 spec to real code, i.e. I looked at what C was doing.
+
+The thing is, we are talking assembly code here.  That means that just about 
+anything is possible WRT the call frame.
+
+If I had any sway over what the binutils folks do, I would argue for allowing 
+dwarf2 code intermixed with inline asm in the C asm() code.  At the moment this 
+is very hard (impossible) to do.
+
+An example of what I would like to be able to do is to build a call frame for 
+the out of line part of the spin lock.  It would be a very simple frame that 
+would just say it was called from the inline part of the spin lock.
+
+As second example is to properly describe the "switch frame" used for context 
+switching.  Currently x86 requires frame pointers to cover this, i.e. with frame 
+pointers off, gdb can not unwind tasks that are not active, even with dwarf2 
+frame stuff.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

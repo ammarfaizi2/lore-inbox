@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316225AbSEQN7z>; Fri, 17 May 2002 09:59:55 -0400
+	id <S316227AbSEQOB1>; Fri, 17 May 2002 10:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316226AbSEQN7y>; Fri, 17 May 2002 09:59:54 -0400
-Received: from adsl-66-127-87-238.dsl.sntc01.pacbell.net ([66.127.87.238]:5787
-	"HELO Developer.ChaoticDreams.ORG") by vger.kernel.org with SMTP
-	id <S316225AbSEQN7x>; Fri, 17 May 2002 09:59:53 -0400
-Date: Fri, 17 May 2002 06:59:45 -0700
-From: Paul Mundt <lethal@ChaoticDreams.ORG>
-To: Chandrasekhar <chandrasekhar.nagaraj@patni.com>
+	id <S316228AbSEQOB0>; Fri, 17 May 2002 10:01:26 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:48909 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S316227AbSEQOBY>;
+	Fri, 17 May 2002 10:01:24 -0400
+Date: Fri, 17 May 2002 15:01:18 +0100 (IST)
+From: Mel <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Port for SH7729
-Message-ID: <20020517065945.A5640@ChaoticDreams.ORG>
-In-Reply-To: <NFBBJJFKOKJEMFAEIPPJIEALCCAA.chandrasekhar.nagaraj@patni.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-Organization: Chaotic Dreams Development Team
+Subject: Re: [PATCH] Page replacement documentation
+In-Reply-To: <E178h81-0006OV-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0205171457580.6514-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 17 May 2002, Alan Cox wrote:
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > +     ----------------------------------------------------------------------
+> > +
+> > +     This document was translated from LATEX by HEVEA.
+>
+> If you switched it into DocBook format then the kernel shipped tools
+> will generate a document from it including html/pdf/ps etc as well as
+> being able to embed stuff
+>
 
-On Fri, May 17, 2002 at 10:24:48AM +0530, Chandrasekhar wrote:
-> We have a SH7729 based system(SH 7729 based hardware of V610/V612
-> Intelligent terminal).I want to know whether the basic CPU porting for the
-> SH7729 processor for Linux has been done.If so can you mention the details
-> of the web site where the patch for this processor is present
->=20
-You'll want to take a look at the LinuxSH project, located at
-http://www.sf.net/projects/linuxsh (CVS head against 2.5, linux-2_4-branch =
-for
-2.4).
+I'll look into it. I find DocBook very verbose to write in at the moment
+and much prefer LaTeX but I'm guessing I won't have a lot of choice in the
+matter when I release the rest of the documentation if anyone else is
+going to build on it.
 
-You'll probably also want to subscribe to the linuxsh-dev mailing list, sin=
-ce
-that's more of an appropriate venue for this kind of thing than l-k is.
+> > +/*
+> > + * shink_cache - Shrinks buffer caches in a zone
+> > + * nr_pages: Helps determine if process information needs to be sweapped
+>
+> You've not tested these. They should start
+>
 
-As for the SH7729, that's just another SH-3 DSP. It's supported in CVS
-already. If you have a custom board using it, the Harp board is another one
-that uses it as well, which should give you a decent starting point for
-bringing it up on your hardware.
+In this case, it was deliberate. I didn't want shrink_cache to be
+advertised on the kernel-doc because it's not a function people outside of
+vmscan.c should be calling so did not see the point in having it picked
+up.
 
-Regards,
+-- 
+			Mel Gorman
 
---=20
-Paul Mundt <lethal@chaoticdreams.org>
-
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjzlDNAACgkQYLvqhoOEA4Fw7gCdGkIbmxdkn28klqBkuKuMabca
-AeUAni/HUSVo9DTCu4cg14pJMQJ6JSEK
-=fndT
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--

@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263118AbREaRKs>; Thu, 31 May 2001 13:10:48 -0400
+	id <S262445AbREaRXE>; Thu, 31 May 2001 13:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262312AbREaRKi>; Thu, 31 May 2001 13:10:38 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:35847 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S263118AbREaRK2>; Thu, 31 May 2001 13:10:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Date: Thu, 31 May 2001 19:12:17 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <20010531013827.J16761@parcelfarce.linux.theplanet.co.uk> <p0510031ab73b43e89d24@[10.128.7.49]>
-In-Reply-To: <p0510031ab73b43e89d24@[10.128.7.49]>
-MIME-Version: 1.0
-Message-Id: <0105311912171L.06233@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S263120AbREaRWz>; Thu, 31 May 2001 13:22:55 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:17417 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262445AbREaRWo>;
+	Thu, 31 May 2001 13:22:44 -0400
+Date: Thu, 31 May 2001 13:24:54 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Cc: torvalds@transmeta.com, laughing@shared-source.org
+Subject: Configure.help is complete
+Message-ID: <20010531132454.A8361@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com,
+	laughing@shared-source.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 May 2001 02:44, Jonathan Lundell wrote:
-> At 1:38 AM +0100 2001-05-31, Joel Becker wrote:
-> >On Wed, May 30, 2001 at 05:24:37PM -0700, Jonathan Lundell wrote:
-> >>  FWIW (perhaps not much in this context), the POSIX way is
-> >>sysconf(_SC_CLK_TCK)
-> >>
-> >>  POSIX sysconf is pretty useful for this kind of thing (not just
-> >> HZ, either).
-> >
-> >	Well, how many hundred things on Linux are available from /proc
-> >but not from sysconf or the like?  :-)
->
-> Lots. Maybe we oughta have /proc/sysconf/... (there's no reason
-> sysconf() can't be a library reading /proc).
+It gives me great pleasure to announce that the Configure.help master
+file is now complete with respect to 2.4.5.  Every single one of the
+2699 configuration symbols actually used in the 2.4.5 codebase's C
+source files or Makefiles now has an entry in Configure.help.
 
-The other way round would make more sense.
+This does not, of course, mean the job of maintaining Configure.help
+is done; symbols will be added and dropped in the future (there are a
+handful of new ones in ac5, all now documented), and some existing
+entries could stand to be rewritten and expanded.  But we have passed
+a milestone -- maintainance will now be a matter of keeping the boat
+bailed rather than trying to ignore a hole in the side. 
 
---
-Daniel
+Thanks to all the contributors who helped put together the over 550 
+entries necessary to catch up, too many to name here.  The result
+is available at:
+
+	http://www.tuxedo.org/~esr/cml2/Configure.help.gz
+
+Though carried on the CML2 project page, it can be used with CML1 and
+is current with respect to both Linus's tree and Alan's.
+
+I now have two requests of Linus and Alan:
+
+1. Please pick up this work now.  It is a really substantial improvement
+   on what you have in your trees, incorporating it cannot break anything,
+   and you'll help prevent unnecessary hassles due to clashing patches
+   in the future.
+
+2. Please make a policy of rejecting patches that add new configuration 
+   symbols without also adding an explanatory Configure.help entry --
+   and please *announce* that you will do so.  We can raise our standards
+   now, and for the sake of having a well-documentated kernel and
+   configuration system I submit that we ought to.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Never could an increase of comfort or security be a sufficient good to be
+bought at the price of liberty.
+	-- Hillaire Belloc

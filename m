@@ -1,262 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUHNOds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUHNO7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUHNOds (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 10:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUHNOdr
+	id S263626AbUHNO7t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 10:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbUHNO7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 10:33:47 -0400
-Received: from verein.lst.de ([213.95.11.210]:23211 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S263100AbUHNOai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 10:30:38 -0400
-Date: Sat, 14 Aug 2004 16:30:32 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] reduce pty.c ifdef clutter
-Message-ID: <20040814143032.GA26012@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+	Sat, 14 Aug 2004 10:59:49 -0400
+Received: from 64.89.71.154.nw.nuvox.net ([64.89.71.154]:58577 "EHLO
+	gate.apago.com") by vger.kernel.org with ESMTP id S263626AbUHNO7o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 10:59:44 -0400
+SMTP-Relay: [0]
+Message-Id: <200408141144.i7EBi3qr002285@dogwood.freil.com>
+X-Mailer: exmh version 2.0.2 2/24/98
+To: Darren Williams <dsw@gelato.unsw.edu.au>
+cc: lef@dogwood.freil.com
+Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7 
+In-reply-to: Your message of "Sat, 14 Aug 2004 14:18:15 +1000."
+             <20040814041815.GA10742@cse.unsw.EDU.AU> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Date: Sat, 14 Aug 2004 07:42:43 -0400
+From: "Lawrence E. Freil" <lef@freil.com>
+Env-from: lef@freil.com
+Env-To: lef
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - build only if either CONFIG_LEGACY_PTYS or CONFIG_UNIX98_PTYS are set
-   instead of testing in the file
- - try to keep big CONFIG_LEGACY_PTYS and CONFIG_UNIX98_PTYS ifdef
-   blocks at the end of the file instead of cluttering all over
+Hello,
+   The systems in question are embedded server systems with no GUI loaded.
+The environment I use is a simple SSH into the system so minimal processes
+are running and the load average is about as close to zero as you can get.
+The exact command I am running is "/usr/bin/time ls -l MBRF >/dev/null".
 
+The problem first appeared in relation to a foxpro database application run
+off samba share from these systems (we have two identical systems that show 
+this behaviour).  The customer was concerned because they upgraded from a 400Mz
+celeron to a 2.5Gz P4-Xeon with double the RAM and Gigabit networking and
+it was slower than before.  I traced the packets with tcpdump to both the
+old and the new system and the slowdown was occuring on windows requests
+to find files (mostly dll's).  On further investigation it also appeared
+on simple commands like "ls" but I would not have noticed had I not been
+looking.  Here are the exact timeings from one system (approx 900 files
+in directory) without HIMEM and another with HIMEM on. 
 
---- 1.75/drivers/char/Makefile	2004-07-29 06:58:35 +02:00
-+++ edited/drivers/char/Makefile	2004-08-13 16:31:11 +02:00
-@@ -7,8 +7,11 @@
- #
- FONTMAPFILE = cp437.uni
- 
--obj-y	 += mem.o random.o tty_io.o n_tty.o tty_ioctl.o pty.o misc.o
-+obj-y	 += mem.o random.o tty_io.o n_tty.o tty_ioctl.o
- 
-+obj-$(CONFIG_LEGACY_PTYS)	+= pty.o
-+obj-$(CONFIG_UNIX98_PTYS)	+= pty.o
-+obj-y				+= misc.o
- obj-$(CONFIG_VT)		+= vt_ioctl.o vc_screen.o consolemap.o \
- 				   consolemap_deftbl.o selection.o keyboard.o
- obj-$(CONFIG_HW_CONSOLE)	+= vt.o defkeymap.o
-===== drivers/char/pty.c 1.26 vs edited =====
---- 1.26/drivers/char/pty.c	2004-06-30 08:02:10 +02:00
-+++ edited/drivers/char/pty.c	2004-08-13 16:50:22 +02:00
-@@ -32,12 +32,6 @@
- #include <asm/bitops.h>
- #include <linux/devpts_fs.h>
- 
--#if defined(CONFIG_LEGACY_PTYS) || defined(CONFIG_UNIX98_PTYS)
--
--#ifdef CONFIG_LEGACY_PTYS
--static struct tty_driver *pty_driver, *pty_slave_driver;
--#endif
--
- /* These are global because they are accessed in tty_io.c */
- #ifdef CONFIG_UNIX98_PTYS
- struct tty_driver *ptm_driver;
-@@ -205,19 +199,6 @@
- 	return ((count < N_TTY_BUF_SIZE/2) ? 0 : count);
- }
- 
--/* 
-- * Return the device number of a Unix98 PTY (only!).  This lets us open a
-- * master pty with the multi-headed ptmx device, then find out which
-- * one we got after it is open, with an ioctl.
-- */
--#ifdef CONFIG_UNIX98_PTYS
--static int pty_get_device_number(struct tty_struct *tty, unsigned __user *value)
--{
--	unsigned int result = tty->index;
--	return put_user(result, value);
--}
--#endif
--
- /* Set the lock flag on a pty */
- static int pty_set_lock(struct tty_struct *tty, int __user * arg)
- {
-@@ -231,41 +212,6 @@
- 	return 0;
- }
- 
--#ifdef CONFIG_LEGACY_PTYS
--static int pty_bsd_ioctl(struct tty_struct *tty, struct file *file,
--			 unsigned int cmd, unsigned long arg)
--{
--	if (!tty) {
--		printk("pty_ioctl called with NULL tty!\n");
--		return -EIO;
--	}
--	switch(cmd) {
--	case TIOCSPTLCK: /* Set PT Lock (disallow slave open) */
--		return pty_set_lock(tty, (int __user *) arg);
--	}
--	return -ENOIOCTLCMD;
--}
--#endif
--
--#ifdef CONFIG_UNIX98_PTYS
--static int pty_unix98_ioctl(struct tty_struct *tty, struct file *file,
--			    unsigned int cmd, unsigned long arg)
--{
--	if (!tty) {
--		printk("pty_unix98_ioctl called with NULL tty!\n");
--		return -EIO;
--	}
--	switch(cmd) {
--	case TIOCSPTLCK: /* Set PT Lock (disallow slave open) */
--		return pty_set_lock(tty, (int __user *)arg);
--	case TIOCGPTN: /* Get PT Number */
--		return pty_get_device_number(tty, (unsigned int __user *)arg);
--	}
--
--	return -ENOIOCTLCMD;
--}
--#endif
--
- static void pty_flush_buffer(struct tty_struct *tty)
- {
- 	struct tty_struct *to = tty->link;
-@@ -322,42 +268,22 @@
- 	.set_termios = pty_set_termios,
- };
- 
--/* sysctl support for setting limits on the number of Unix98 ptys allocated.
--   Otherwise one can eat up all kernel memory by opening /dev/ptmx repeatedly. */
--#ifdef CONFIG_UNIX98_PTYS
--int pty_limit = NR_UNIX98_PTY_DEFAULT;
--static int pty_limit_min = 0;
--static int pty_limit_max = NR_UNIX98_PTY_MAX;
-+/* Traditional BSD devices */
-+#ifdef CONFIG_LEGACY_PTYS
-+static struct tty_driver *pty_driver, *pty_slave_driver;
- 
--ctl_table pty_table[] = {
--	{
--		.ctl_name	= PTY_MAX,
--		.procname	= "max",
--		.maxlen		= sizeof(int),
--		.mode		= 0644,
--		.data		= &pty_limit,
--		.proc_handler	= &proc_dointvec_minmax,
--		.strategy	= &sysctl_intvec,
--		.extra1		= &pty_limit_min,
--		.extra2		= &pty_limit_max,
--	}, {
--		.ctl_name	= PTY_NR,
--		.procname	= "nr",
--		.maxlen		= sizeof(int),
--		.mode		= 0444,
--		.proc_handler	= &proc_dointvec,
--	}, {
--		.ctl_name	= 0
-+static int pty_bsd_ioctl(struct tty_struct *tty, struct file *file,
-+			 unsigned int cmd, unsigned long arg)
-+{
-+	switch (cmd) {
-+	case TIOCSPTLCK: /* Set PT Lock (disallow slave open) */
-+		return pty_set_lock(tty, (int __user *) arg);
- 	}
--};
--#endif
--
--/* Initialization */
-+	return -ENOIOCTLCMD;
-+}
- 
--static int __init pty_init(void)
-+static void __init legacy_pty_init(void)
- {
--#ifdef CONFIG_LEGACY_PTYS
--	/* Traditional BSD devices */
- 
- 	pty_driver = alloc_tty_driver(NR_PTYS);
- 	if (!pty_driver)
-@@ -404,11 +330,58 @@
- 		panic("Couldn't register pty driver");
- 	if (tty_register_driver(pty_slave_driver))
- 		panic("Couldn't register pty slave driver");
-+}
-+#else
-+static inline void legacy_pty_init(void) { }
-+#endif
- 
--#endif /* CONFIG_LEGACY_PTYS */
--
-+/* Unix98 devices */
- #ifdef CONFIG_UNIX98_PTYS
--	/* Unix98 devices */
-+/*
-+ * sysctl support for setting limits on the number of Unix98 ptys allocated.
-+ * Otherwise one can eat up all kernel memory by opening /dev/ptmx repeatedly.
-+ */
-+int pty_limit = NR_UNIX98_PTY_DEFAULT;
-+static int pty_limit_min = 0;
-+static int pty_limit_max = NR_UNIX98_PTY_MAX;
-+
-+ctl_table pty_table[] = {
-+	{
-+		.ctl_name	= PTY_MAX,
-+		.procname	= "max",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.data		= &pty_limit,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &pty_limit_min,
-+		.extra2		= &pty_limit_max,
-+	}, {
-+		.ctl_name	= PTY_NR,
-+		.procname	= "nr",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0444,
-+		.proc_handler	= &proc_dointvec,
-+	}, {
-+		.ctl_name	= 0
-+	}
-+};
-+
-+static int pty_unix98_ioctl(struct tty_struct *tty, struct file *file,
-+			    unsigned int cmd, unsigned long arg)
-+{
-+	switch (cmd) {
-+	case TIOCSPTLCK: /* Set PT Lock (disallow slave open) */
-+		return pty_set_lock(tty, (int __user *)arg);
-+	case TIOCGPTN: /* Get PT Number */
-+		return put_user(tty->index, (unsigned int __user *)arg);
-+	}
-+
-+	return -ENOIOCTLCMD;
-+}
-+
-+static void __init unix98_pty_init(void)
-+{
- 	devfs_mk_dir("pts");
- 	ptm_driver = alloc_tty_driver(NR_UNIX98_PTY_MAX);
- 	if (!ptm_driver)
-@@ -455,10 +428,15 @@
- 		panic("Couldn't register Unix98 pts driver");
- 
- 	pty_table[1].data = &ptm_driver->refcount;
--#endif /* CONFIG_UNIX98_PTYS */
-+}
-+#else
-+static inline void unix98_pty_init(void) { }
-+#endif
- 
-+static int __init pty_init(void)
-+{
-+	legacy_pty_init();
-+	unix98_pty_init();
- 	return 0;
- }
- module_init(pty_init);
--
--#endif /* CONFIG_LEGACY_PTYS || CONFIG_UNIX98_PTYS */
+yang (identical hardware and software to yin except HIMEM turned off)
+0.01user 0.00system 0:00.01elapsed 87%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+350minor)pagefaults 0swaps
+
+yin
+0.70user 0.00system 0:00.71elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+350minor)pagefaults 0swaps
+
+As you can see from this the additional time is entirely spent as user CPU 
+time.  I have run these multiple times and checked for disk I/O and there
+is no physical I/O operations between these two (everything is cached at this
+point).  The time increase is occuring on every directory manipulation, but
+read and update (as in my script that creates empty files), but does not
+appear to effect sequential file read/write operations.  I have not setup
+a test to see if it effects random file access which would be very similar
+to the directory read/update case. 
+
+I have run the same tests both on XFS and ext2 with identical results.  The
+physical filesystem appears to have no bearing.  I also eliminated the disk
+as the source of the problems.  The new systems have Serial ATA drives that
+read approx 54MB/second (four times that of the old system) and in file
+read tests over samba (and locally) the new systems much faster. I have also
+run the tests on a a very similar system (slackware 10, but Athlon and only
+512Meg of RAM) with 2.6.7 kernel and HIMEM on but did not see the problem.
+I suspect it only occurs when the high memory is used for disk block buffering
+but have not had time to attempt profiling the kernel to see where the CPU
+time difference occurs.  I do have kernel preemption turned on.  This morning
+I will generate a kernel with preemtion turned off and himem on and see if
+there is an interaction with that.  I can send kernel configs if you believe
+they are relevent but these are pretty much stock kernels with unused modules
+turned off.
+
+> Hi Lawrence
+> 
+> On Fri, 13 Aug 2004, Lawrence E. Freil wrote:
+> 
+> > Hello,
+> >    
+> > I'm following the kernel bug reporting format so:
+> > 
+> > 1. Linux 2.6.7 kernel slowdown in directory access with HIMEM on
+> > 
+> > 2. I have discovered an issue with the Linux 2.6.7 kernel when HIMEM is
+> >    enabled which exhibits itself as a slowdown in directory access regardless
+> >    of filesystem used.  When HIMEM is disabled the performance returns to
+> >    normal.  The test I ran was a simple "/usr/bin/time ls -l" of a directory
+> >    with 3000 empty files.  With HIMEM enabled in the kernel this takes
+> >    approximately 1.5 seconds.  Without HIMEM it takes 0.03 seconds.  The
+> >    time is 100% CPU and no I/O operations are done to disk.  "time" reports
+> >    there are 460 "minor" page faults with zero "major" page faults.
+> >    I believe the issue here is the mapping of pages between high-mem and
+> >    lowmem in the kernel paging code.  This increase in time for directory
+> >    accesses doubles to triples times for applications using samba.
+> >    I have also tested this on another system which had only 512Meg of RAM
+> >    but with HIMEM set in the kernel and did not experience the problem.
+> >    I believe it only effects the performance when the paging buffers end
+> >    up in highmem.
+> > 
+> > 3. Keywords: HIMEM, Performance
+> > 
+> Would you be running these in a gnome-terminal, I remember seeing a thread
+> that discussed gnome-terminal problems though a quick search did not turn
+> anything up. Here is what I get between a xterm and gnome-terminal.
+> 
+> xterm
+> # time ls -lR /etc
+> real    0m0.381s
+> user    0m0.056s
+> sys     0m0.130s
+> 
+> gnome-terminal
+> # time ls -lR /etc
+> real    0m0.869s
+> user    0m0.057s
+> sys     0m0.141s
+> 
+> I ran this twice in both teminals and reported the
+> second result.
+> 
+> system info
+> P4 3.06 HT
+> 2.6.7 SMP/SMT/HIGHMEM
+> 1GB ram
+> 
+> -------------------------------------------------
+> Darren Williams <dsw AT gelato.unsw.edu.au>
+> Gelato@UNSW <www.gelato.unsw.edu.au>
+> --------------------------------------------------
+
+-- 
+        Lawrence Freil                      Email:lef@freil.com
+        1768 Old Country Place              Phone:(770) 667-9274
+        Woodstock, GA 30188
+

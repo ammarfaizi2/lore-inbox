@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265295AbTLGD0b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 22:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbTLGD0a
+	id S265299AbTLGDak (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 22:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTLGDaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 22:26:30 -0500
-Received: from mail.kroah.org ([65.200.24.183]:35270 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265295AbTLGD03 (ORCPT
+	Sat, 6 Dec 2003 22:30:20 -0500
+Received: from tantale.fifi.org ([216.27.190.146]:41114 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S265299AbTLGDaN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 22:26:29 -0500
-Date: Sat, 6 Dec 2003 19:22:52 -0800
-From: Greg KH <greg@kroah.com>
-To: "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
-Cc: "''linux-kernel@vger.kernel.org' '" <linux-kernel@vger.kernel.org>
-Subject: Re: Visor USB hang
-Message-ID: <20031207032251.GA28879@kroah.com>
-References: <E37E01957949D611A4C30008C7E691E2F38C26@aples3.dom1.jhuapl.edu>
-Mime-Version: 1.0
+	Sat, 6 Dec 2003 22:30:13 -0500
+To: Mark Symonds <mark@symonds.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+References: <20031207023650.GA772@symonds.net>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 06 Dec 2003 19:30:08 -0800
+In-Reply-To: <20031207023650.GA772@symonds.net>
+Message-ID: <87he0ds3sv.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E37E01957949D611A4C30008C7E691E2F38C26@aples3.dom1.jhuapl.edu>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 12:52:52PM -0500, Collins, Bernard F. (Skip) wrote:
->  
-> Greg KH wrote:
-> >On Thu, Dec 04, 2003 at 09:49:31AM -0500, Bernard Collins wrote:
-> > On Wed, 2003-12-03 at 19:24, Greg KH wrote:
-> 
-> > Sounds like a uhci timing issue :(
-> 
-> Does :( mean that it is not likely to be fixed? If so, is that because
-> usb-uhci is going to be deprecated in favor of uhci?
+Mark Symonds <mark@symonds.net> writes:
 
-Well, in 2.6, uhci turned into uhci-hcd and the usb-uhci driver
-disappeared.
-
-> >> So is there a downside to uhci compared to usb-uhci?
+> Hi, 
 > 
-> > Not that I know of, it's what I use...
+> I've got a machine here that is locking hard under
+> 2.4.23.  Normally would suspect it's a hardware problem
+> but it runs fine on 2.4.22 and also 2.2 series kernels.  
+> In a bit of a quandry here since that box has shell
+> users... 
 > 
-> I did find one problem on my machine: VMware USB support depends on
-> usb-uhci. Oh, and my USB storage keychain device works with usb-uhci but not
-> uhci.
+> I'm getting no oopses on the monitor nor in the logs -
+> this is a hard, instantaneous crash.  No kbd, no nothing,
+> good night. 
 
-I've run vmware just fine with uhci, it just seems that some distros
-prefer usb-uhci.  But use what works for you.
+Not even sysrq?
+ 
+> I've got a kernel compiling right now with hacking
+> support, but none of the additional hacking  options
+> are enabled. 
+> 
+> Wondering if anyone else has seen this?  lspci output is
+> below, will wait until requested before dumping a bunch
+> of crap about my hardware onto the list. 
 
-greg k-h
+Same for me.
+
+2.4.23 locks up hard. 2.4.22 worked perfectly (save the random usb
+oops).
+
+I was not able to capture a register trace or a process dump with
+sysrq because this box has a usb keyboard and usb seems to get
+shot. I've plugged a ps/2 keyboard to get more details the next
+lock-up. If this fail, I might try the NMI oopser.
+
+lspci:
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 23)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 11)
+00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 30)
+00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
+00:0f.1 Input device controller: Creative Labs SB Live! (rev 08)
+00:10.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
+00:12.0 SCSI storage controller: Adaptec 7892A (rev 02)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+
+Phil.

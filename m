@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282596AbRK0SyT>; Tue, 27 Nov 2001 13:54:19 -0500
+	id <S282625AbRK0TFp>; Tue, 27 Nov 2001 14:05:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282584AbRK0SyA>; Tue, 27 Nov 2001 13:54:00 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:12928 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S282596AbRK0Sx6>; Tue, 27 Nov 2001 13:53:58 -0500
-Message-ID: <00f501c17774$dc297260$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Jordan Russell" <jr-list-kernel@quo.to>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <002301c1776c$b9776ef0$024d460a@neptune>
-Subject: Re: 2.4(.16) kernel logs messages in the wrong order
-Date: Tue, 27 Nov 2001 19:53:53 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282598AbRK0TFf>; Tue, 27 Nov 2001 14:05:35 -0500
+Received: from bagel.indexdata.dk ([212.242.69.115]:40113 "EHLO
+	bagel.indexdata.dk") by vger.kernel.org with ESMTP
+	id <S282625AbRK0TFY>; Tue, 27 Nov 2001 14:05:24 -0500
+Date: Tue, 27 Nov 2001 20:05:22 +0100
+From: Heikki Levanto <heikki@indexdata.dk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16: "Address family not supported" on RH IBM T23
+Message-ID: <20011127200522.B27480@indexdata.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Jordan Russell" <jr-list-kernel@quo.to>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 27, 2001 6:55 PM
-Subject: 2.4(.16) kernel logs messages in the wrong order
+Tried to compile 2.4.16 on my brand new IBM T23. 
+
+Small problem: Kernel panic at start, null pointer reference when
+initializing agp code. Disabled agp, and boots OK. Probably too new
+motherboard? Should I report what details?
 
 
-> Hi,
-> Here's an excerpt from my /var/log/messages. Notice how messages from two
-> different times are strangely mixed together. What's going on? Is there
-some
-> way to fix it? This does not happen when a 2.2.x kernel is used.
->
-> Nov 27 11:38:54 webby sysctl: net.ipv4.conf.default.rp_filter = 1
-> Nov 27 11:39:15 webby kernel: NET4: Linux TCP/IP 1.0 for NET4.0
-> Nov 27 11:38:54 webby sysctl: kernel.sysrq = 1
-> Nov 27 11:39:15 webby kernel: IP Protocols: ICMP, UDP, TCP
-> Nov 27 11:38:54 webby sysctl: net.ipv4.ip_forward = 1
-> Nov 27 11:39:15 webby kernel: IP: routing cache hash table of 4096
-buckets,
-> 32Kbytes
-> Nov 27 11:38:54 webby rc.sysinit: Configuring kernel parameters:
-succeeded
->
-> I'm using Red Hat 7.2 if it matters.
+Large problem: Network won't come up. Says:
+> Cannot open netlink socket: Address family not supported by protocol
 
-Just use "dmesg" instead, that will give you a correct order if you are
-looking for bootup messages.
+This happens both to lo and eth0, with a stock kernel, only option I changed
+was the agp (see above).  Can boot past this, but no networking configured.
 
-Problem is that /var/log/messages is not ordered according to the time when
-messages were contrieved, instead it is ordered in any order depending on
-when syslog wants to write the message to the file. The mess you are seeing
-propably has something to do with the fact that /var/log/messages isn't
-mounted immediately at boot, and thus cannot be written before syslog starts
-and has access to the file.
+Invoking ifup by hand causes same behaviour. 
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+Manually running ifconfig lo 127.0.0.1 and ifconfig lo up work. Same for
+eth0.
+
+More digging pointed me to redhat's ifup script (7.2 with latest updates),
+in the function is_available, there is a line that tests 'ip -o link'. This
+is what gives the error messages in ifup (as well as when run by hand).
+Could not find much documentation for that /sbin/ip, redhat special?
+
+Problem does not occur on redhat 7.2 default kernel 2.4.7-10, nor on the one
+their thing upgraded my box to, 2.4.9-13 
+
+Does this indicate a kernel problem, redhat problem, or my problem?
 
 
+Thank you in advance
+
+	Heikki Levanto
+
+
+P.S. I try to follow the list, but would still appreciate a direct cc if you
+have any comments, suggestions, or workarounds.
+
+
+-- 
+Heikki Levanto            heikki@indexdata.dk            "In Murphy We Turst"

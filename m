@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317894AbSGPRGs>; Tue, 16 Jul 2002 13:06:48 -0400
+	id <S317892AbSGPRIS>; Tue, 16 Jul 2002 13:08:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317891AbSGPRGr>; Tue, 16 Jul 2002 13:06:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:58523 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317895AbSGPRGq>;
-	Tue, 16 Jul 2002 13:06:46 -0400
-Date: Tue, 16 Jul 2002 19:09:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] loop.c oopses
-Message-ID: <20020716170921.GX811@suse.de>
-References: <20020716163636.GW811@suse.de> <Pine.LNX.4.44L.0207161349100.3009-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0207161349100.3009-100000@duckman.distro.conectiva>
+	id <S317895AbSGPRIS>; Tue, 16 Jul 2002 13:08:18 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:10001
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317892AbSGPRIQ> convert rfc822-to-8bit; Tue, 16 Jul 2002 13:08:16 -0400
+Date: Tue, 16 Jul 2002 10:07:28 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc1-ac5
+In-Reply-To: <3D340775.7F7AAFB9@daimi.au.dk>
+Message-ID: <Pine.LNX.4.10.10207161003300.6509-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16 2002, Rik van Riel wrote:
-> On Tue, 16 Jul 2002, Jens Axboe wrote:
-> > On Tue, Jul 16 2002, Rik van Riel wrote:
-> > > On Tue, 16 Jul 2002, Andrew Morton wrote:
-> > >
-> > > > That's maybe wrong - if there are a decent number of pages
-> > > > under writeback then we should be able to just wait it out.
-> > > > But it gets tricky with the loop driver...
-> > >
-> > > I wonder if it is possible to exhaust the mempool with
-> > > the loop driver requests before getting around to the
-> > > requests to the underlying block device(s)...
-> >
-> > Given the finite size of the pool and the possibly infinite stacking
-> > level, yes that is possible. You may just run out of loop minors before
-> > this happens [1]. Also note that you need more than a simple remapping,
-> > crypto setup for instance.
+
+The problem is not introduced by the patches, is the the hardware
+decoupling the GPIO used for HOST side cable detection.  Worse is they
+reused the GPIO for something else.
+
+On Tue, 16 Jul 2002, Kasper Dupont wrote:
+
+> DMA is still broken on the ALI15X3 IDE controller.
+> Does anybody know what the problem could be
+> ? The
+> problem was introduced by this patch:
 > 
-> Or maybe SMP, with multiple CPUs submitting requests at the
-> same time ?
+> http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
+> http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
+> 
+> But it is a 700K patch, without knowing a little
+> more about what is going on I'd have a hard time
+> finding the problem in that patch.
+> 
+> Symptoms are:
+> - DMA does not get enabled at boot.
+> - Manually switching on DMA will cause all disk
+>   access to hang, the IDE led stays light until
+>   IDE is initialized at next boot.
+> 
+> -- 
+> Kasper Dupont -- der bruger for meget tid på usenet.
+> For sending spam use mailto:razrep@daimi.au.dk
+> or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It would still require a totally pathetic loop setup. More than 2 or 3
-stacked loop devices that are not using remapping would crawl
-performance wise. Now make that eg 32 "indirections" (allocations and
-copies on _each_ i/o), and I think you'll find that the system would be
-impossible to use long before this theoretical dead lock would be hit.
-
--- 
-Jens Axboe
+Andre Hedrick
+LAD Storage Consulting Group
 

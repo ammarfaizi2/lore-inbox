@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUHJMgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUHJMiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUHJMgN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 08:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUHJMfz
+	id S264668AbUHJMiB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 08:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUHJMg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 08:35:55 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:61910 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264665AbUHJMfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 08:35:39 -0400
-Date: Tue, 10 Aug 2004 14:34:39 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408101234.i7ACYdwP013901@burner.fokus.fraunhofer.de>
-To: mpm@selenic.com, schilling@fokus.fraunhofer.de
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, linux-kernel@vger.kernel.org,
-       vonbrand@inf.utfsm.cl
-Subject: Re: Linux Kernel bug report (includes fix)
+	Tue, 10 Aug 2004 08:36:27 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:52940 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264726AbUHJMgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 08:36:01 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040810092249.GA29875@elte.hu>
+References: <1090832436.6936.105.camel@mindpipe>
+	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu>
+	 <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe>
+	 <20040810085849.GC26081@elte.hu>  <20040810092249.GA29875@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092137588.16885.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 10 Aug 2004 12:33:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-08-10 at 10:22, Ingo Molnar wrote:
+> another (more remote) possibility is that the timestamp counter gets
+> somehow messed up during MMX ops. Does the ALSA detector use the
+> timestamp counter, or does it only use jiffies? (if it only used jiffies
+> that would give us some robustness since it's an independent
+> time-source.) I suspect 'music indeed skips' isnt a good enough test for
+> this case, given that jackd starts up ...
 
->From: Matt Mackall <mpm@selenic.com>
+The standard VIA EPIA boards are 133Mhz SDRAM or 266Mhz DDR, which
+is shared with video and the graphics engine. Could the MMX copier
+simply be eating all the remaining memory bandwidth so that its
+in fact memory not latency ?
 
->> You should know that GLIBc is unrelated to the Linux kernel interfaces we are> talking about. Start using serious arguments please.
-
->If you had any inkling, you'd have caught on by now that using kernel
->headers in userspace programs has been deprecated for about six years.
-
-Well, everybody has the right to make mistakes and trying to force people
-not to use the official header is a big mistake.
-
-
-If Linux was a complete OS and not only a Kernel and if it was always released 
-with a full set of /usr/include files, libc, utilities,.... this could work.
-But even then only if somebody would test the consistence of everything.
-
-Releasing the kernel separately requires the kernel distribution to contain
-a usable set of include files that match the interfaces inside the kernel.
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

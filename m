@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUIKVQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268326AbUIKVQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268323AbUIKVQw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 17:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUIKVMy
+	id S268326AbUIKVQv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 17:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUIKVNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 17:12:54 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:21659 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S268323AbUIKVJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 17:09:46 -0400
-Date: Sat, 11 Sep 2004 22:10:24 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Latest microcode data from Intel.
-In-Reply-To: <20040910093904.R1973@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0409112208130.1911-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Sep 2004 17:13:13 -0400
+Received: from [217.132.60.104] ([217.132.60.104]:6022 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S268326AbUIKVIo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 17:08:44 -0400
+Date: Sun, 12 Sep 2004 01:11:28 +0300
+From: SashaK <sashak@smlink.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97
+ patch)
+Message-ID: <20040912011128.031f804a@localhost>
+In-Reply-To: <200409111850.i8BIowaq013662@harpo.it.uu.se>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
+X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Chris Wright wrote:
+On Sat, 11 Sep 2004 20:50:58 +0200 (MEST)
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 
-> * Tigran Aivazian (tigran@veritas.com) wrote:
-> > sense (as it is impossible under Linux to bind userspace app to a given 
-> > cpu then there is no "good" sense in which "per cpu" node can be defined).
-> 
-> sched_setaffinity(2) allows you to bind a userspace app to a given cpu.
-> 
+> No, I meant the 'slamr' kernel driver module, which is
+> built from a big binary-only library (amrlibs.o) and
+> a small amount of kernel glue source code. As long as
+> amrlibs.o is distributed only as a 32-bit x86 binary,
+> I won't be able to use it with a 64-bit amd64 kernel.
 
-Interesting, thank you, I didn't know that it is already possible to do 
-this.
+This is exactly that was discussed - 'slamr' is going to be replaced by
+ALSA drivers. I don't know which modem you have, but recent ALSA
+driver (CVS version) already supports ICH, SiS, NForce (snd-intel8x0m),
+ATI IXP (snd-atiixp-modem) and VIA (snd-via82xx-modem) AC97 modems.
 
-Kind regards
-Tigran
-
+Sasha.

@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVCTMEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVCTMZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVCTMEG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 07:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVCTMCC
+	id S261165AbVCTMZL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 07:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVCTMZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 07:02:02 -0500
-Received: from coderock.org ([193.77.147.115]:6284 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262150AbVCTMAe (ORCPT
+	Sun, 20 Mar 2005 07:25:11 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:16037 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261165AbVCTMZD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 07:00:34 -0500
-Date: Sun, 20 Mar 2005 13:00:29 +0100
-From: Domen Puncer <domen@coderock.org>
-To: sds@epoch.ncsc.mil
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, adobriyan@mail.ru
-Subject: Re: [patch 4/4 with proper signed-off] security/selinux/ss/conditional.c: fix sparse warnings
-Message-ID: <20050320120029.GW14273@nd47.coderock.org>
-References: <20050319131948.84AC51F1EE@trashy.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050319131948.84AC51F1EE@trashy.coderock.org>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 20 Mar 2005 07:25:03 -0500
+Date: Sun, 20 Mar 2005 13:25:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: linux-kernel@vger.kernel.org
+Subject: Short sleep precision
+Message-ID: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+Hello,
 
 
- kj-domen/security/selinux/ss/conditional.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+I have found that FreeBSD has a very good precision of small sleeps --
+what's holding Linux back from doing the same? Using the code snippet below, 
+FBSD yields between 2 and 80 us on the average while Linux is at 
+"constantly" ~100 (with HZ=1000) and ~1000 (HZ=100).
 
-diff -puN security/selinux/ss/conditional.c~sparse-security_selinux_ss_conditional security/selinux/ss/conditional.c
---- kj/security/selinux/ss/conditional.c~sparse-security_selinux_ss_conditional	2005-03-20 12:11:33.000000000 +0100
-+++ kj-domen/security/selinux/ss/conditional.c	2005-03-20 12:11:33.000000000 +0100
-@@ -219,7 +219,8 @@ int cond_read_bool(struct policydb *p, s
- {
- 	char *key = NULL;
- 	struct cond_bool_datum *booldatum;
--	u32 buf[3], len;
-+	__le32 buf[3];
-+	u32 len;
- 	int rc;
- 
- 	booldatum = kmalloc(sizeof(struct cond_bool_datum), GFP_KERNEL);
-@@ -263,7 +264,8 @@ static int cond_read_av_list(struct poli
- 	struct avtab_datum datum;
- 	struct avtab_node *node_ptr;
- 	int rc;
--	u32 buf[1], i, len;
-+	__le32 buf[1];
-+	u32 i, len;
- 	u8 found;
- 
- 	*ret_list = NULL;
-@@ -369,7 +371,8 @@ static int expr_isvalid(struct policydb 
- 
- static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
- {
--	u32 buf[2], len, i;
-+	__le32 buf[2];
-+	u32 len, i;
- 	int rc;
- 	struct cond_expr *expr = NULL, *last = NULL;
- 
-@@ -427,7 +430,8 @@ err:
- int cond_read_list(struct policydb *p, void *fp)
- {
- 	struct cond_node *node, *last = NULL;
--	u32 buf[1], i, len;
-+	__le32 buf[1];
-+	u32 i, len;
- 	int rc;
- 
- 	rc = next_entry(buf, fp, sizeof buf);
-_
+
+Jan Engelhardt
+-- 
+
+#include <sys/time.h>
+#include <stdio.h>
+#include <time.h>
+#define MICROSECOND 1000000
+static unsigned long calc_ovcorr(unsigned long ad, int rd) {
+    struct timespec s = {.tv_sec = 0, .tv_nsec = ad};
+    struct timeval start, stop;
+    unsigned long av = 0;
+    int count = rd;
+
+    while(count--) {
+        gettimeofday(&start, NULL);
+        nanosleep(&s, NULL);
+        gettimeofday(&stop, NULL);
+        av += MICROSECOND * (stop.tv_sec - start.tv_sec) +
+         stop.tv_usec - start.tv_usec;
+    }
+
+    av /= rd;
+    fprintf(stderr, " %lu us\n", av);
+    return av;
+}
+
+int main(void) {
+    calc_ovcorr(0, 100);
+    return 0;
+}
+
+//eof

@@ -1,68 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbTIDEPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 00:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTIDEPv
+	id S264550AbTIDEgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 00:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbTIDEgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 00:15:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48400 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264640AbTIDEPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 00:15:49 -0400
-Date: Thu, 4 Sep 2003 00:06:57 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up power managment in 2.6
-In-Reply-To: <20030903221455.GB4199@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1030904000316.12166A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 00:36:45 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:61888 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264550AbTIDEgl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 00:36:41 -0400
+Subject: [PATCH] linux-2.6.0-test4_cyclone-hpet-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, venkatesh.pallipadi@intel.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062649798.1312.1519.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 03 Sep 2003 21:29:59 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, Pavel Machek wrote:
+Andrew, All,
+	I probably should have been more active in reviewing the HPET code
+before it went in, but I've been somewhat occupied with other bugs
+recently. I'm excited to see someone else using my time-source
+interface, however the HPET patch definitely pushes the interface beyond
+its design (not a bad thing, just makes for some short term uglies).
+Having multiple interrupt sources as well as time sources will generate
+some work for 2.7 to clean it all up.
 
-> Hi!
-> 
-> 
-> > > >  #include "power.h"
-> > > > 
-> > > > -extern long sys_sync(void);
-> > > > -
-> > > > -unsigned char software_suspend_enabled = 0;
-> > > > +unsigned char software_suspend_enabled = 1;
-> > > > 
-> > > >  #define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
-> > > > 
-> > > > ...by this you enable suspend even before system is booted. That's bad
-> > > > idea. It could hurt in the past (when we had sysrq-D so swsusp), and
-> > > > it may hurt again in future when battery goes low during boot.
-> > > 
-> > > Does it or does it not cause a problem? Look at the old software_suspend() 
-> > > function - The handling of this flag was weird and non-standard. This is 
-> > > cleaner. 
-> > 
-> > I don't want to get in the middle of this, but having a laptop decide
-> > that it doesn't have enough battery to finish a boot is something which
-> > happens now and again. If this change could cause data corruption where
-> > the old code didn't, perhaps we could stand the overhead of moving the
-> > enable to the end of the boot, or wherever would be safe.
-> 
-> We do not yet do suspend-to-disk on battery low, so Patrick's code is
-> actually safe. Still I do not think that's good change.
+Anyway, the HPET changes made calibrate_tsc() static, which it probably
+should be, but it broke the timer_cyclone code. This patch fixes it back
+up by re-implementing calibrate_tsc() locally as it was done in
+timer_hpet.c 
 
-I'm not sure trying to suspect during boot is a good thing to do, either.
-Maybe that should wait and be enabled at user option at the end of boot.
-In any case, I think avoiding data damage is higher priority than
-efficiency, elegance, modularity, etc.
+Please apply.
 
-Beyond that I'll let you guys fight it out, I'm just worried that the new
-pm is going to bite me even if I don't use suspend.
+thanks
+-john
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+Also, while apparently unrelated, but touching code from the HPET patch,
+I'm seeing some form of memory corruption on the 16way x440 which is
+overwriting the wait_timer_tick pointer in apic.c I added some
+initialized corruption pad variables around the pointer and they're
+definitely being trampled. I'll have to look into it further tomorrow.
+
+
+
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Wed Sep  3 21:07:47 2003
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Wed Sep  3 21:07:47 2003
+@@ -18,8 +18,9 @@
+ #include <asm/pgtable.h>
+ #include <asm/fixmap.h>
+ 
++#include "mach_timer.h"
++
+ extern spinlock_t i8253_lock;
+-extern unsigned long calibrate_tsc(void);
+ 
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+@@ -132,6 +133,66 @@
+ 	/* convert to nanoseconds */
+ 	ret = base + ((this_offset - last_offset)&CYCLONE_TIMER_MASK);
+ 	return ret * (1000000000 / CYCLONE_TIMER_FREQ);
++}
++
++/* ------ Calibrate the TSC ------- 
++ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
++ * Too much 64-bit arithmetic here to do this cleanly in C, and for
++ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
++ * output busy loop as low as possible. We avoid reading the CTC registers
++ * directly because of the awkward 8-bit access mechanism of the 82C54
++ * device.
++ */
++
++#define CALIBRATE_TIME	(5 * 1000020/HZ)
++
++static unsigned long __init calibrate_tsc(void)
++{
++	mach_prepare_counter();
++
++	{
++		unsigned long startlow, starthigh;
++		unsigned long endlow, endhigh;
++		unsigned long count;
++
++		rdtsc(startlow,starthigh);
++		mach_countup(&count);
++		rdtsc(endlow,endhigh);
++
++
++		/* Error: ECTCNEVERSET */
++		if (count <= 1)
++			goto bad_ctc;
++
++		/* 64-bit subtract - gcc just messes up with long longs */
++		__asm__("subl %2,%0\n\t"
++			"sbbl %3,%1"
++			:"=a" (endlow), "=d" (endhigh)
++			:"g" (startlow), "g" (starthigh),
++			 "0" (endlow), "1" (endhigh));
++
++		/* Error: ECPUTOOFAST */
++		if (endhigh)
++			goto bad_ctc;
++
++		/* Error: ECPUTOOSLOW */
++		if (endlow <= CALIBRATE_TIME)
++			goto bad_ctc;
++
++		__asm__("divl %2"
++			:"=a" (endlow), "=d" (endhigh)
++			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
++
++		return endlow;
++	}
++
++	/*
++	 * The CTC wasn't reliable: we got a hit on the very first read,
++	 * or the CPU was so fast/slow that the quotient wouldn't fit in
++	 * 32 bits..
++	 */
++bad_ctc:
++	return 0;
+ }
+ 
+ static int __init init_cyclone(char* override)
+
+
+
 

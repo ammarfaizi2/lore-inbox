@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143871AbRAHONM>; Mon, 8 Jan 2001 09:13:12 -0500
+	id <S143834AbRAHOTo>; Mon, 8 Jan 2001 09:19:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143955AbRAHONC>; Mon, 8 Jan 2001 09:13:02 -0500
-Received: from jalon.able.es ([212.97.163.2]:42216 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S143871AbRAHOM5>;
-	Mon, 8 Jan 2001 09:12:57 -0500
-Date: Mon, 8 Jan 2001 15:12:34 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Giacomo Catenazzi <cate@student.ethz.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Coppermine is a PIII or a Celeron?
-Message-ID: <20010108151234.A1874@werewolf.able.es>
-In-Reply-To: <fa.dl37erv.6j04hb@ifi.uio.no> <fa.hcv7gqv.s3k9qk@ifi.uio.no> <3A5991BC.64525AF7@student.ethz.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A5991BC.64525AF7@student.ethz.ch>; from cate@student.ethz.ch on Mon, Jan 08, 2001 at 11:09:00 +0100
-X-Mailer: Balsa 1.0.1
+	id <S143836AbRAHOTe>; Mon, 8 Jan 2001 09:19:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:8091 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S143834AbRAHOTR>;
+	Mon, 8 Jan 2001 09:19:17 -0500
+Date: Mon, 8 Jan 2001 09:19:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Stefan Traby <stefan@hello-penguin.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        drepper@gnu.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+In-Reply-To: <20010108150011.A13441@stefan.sime.com>
+Message-ID: <Pine.GSO.4.21.0101080903160.4061-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2001.01.08 Giacomo Catenazzi wrote:
-> 
-> Thus the older Celerons should be compiled with CONFIG_M686 (Pentium
-> Pro),
-> but the Celeron Coppermine can be compiled with CONFIG_M686FXSR (Pentium
-> III), right?
-> In this case we should update the files Configure.help and the config.in
-> files.
-> 
 
-I am not an expert on arch codenames, models and so on. Perhaps you should
-launch a more specific question onto the list and see what happens...
+On Mon, 8 Jan 2001, Stefan Traby wrote:
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+> Because I have no knowledge on this I suggest that you and Ulrich fight
+> together on a more flexible solution than the current one. I guess
+> that Linus would accept this without thinking too much about it.
 
-Linux werewolf 2.4.0-ac3 #2 SMP Sun Jan 7 02:13:37 CET 2001 i686
+Unfortunately, Ulrich's taste was incompatible with mine in almost all
+cases I can recall. So "together" is very likely to be "hand-to-hand".
+glibc is hopelessly ugly. If it can be made cleaner without making
+the kernel API ugly - wonderful. If not - too bad. For glibc.
+
+IOW, if you can propose clean API - do it. If Ulrich can do that - great,
+I'm more than willing to listen. I'm not holding my breath on the last
+one, though.
+
+PS: The day when Linus will really switch to accepting API changes without
+thinking about them will be the day when I stop work on his tree.
+So far it had not happened and I like it that way, thank you very much.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

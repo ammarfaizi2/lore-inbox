@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbTFGOXA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 10:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTFGOXA
+	id S261444AbTFGOca (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 10:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFGOc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 10:23:00 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:40851 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id S262984AbTFGOW6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 10:22:58 -0400
-Date: Sat, 7 Jun 2003 16:36:39 +0100 (BST)
-From: James Stevenson <james@stev.org>
-To: chas williams <chas@cmf.nrl.navy.mil>
-cc: Werner Almesberger <wa@almesberger.net>,
-       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2) 
-In-Reply-To: <200306071121.h57BL4sG006740@ginger.cmf.nrl.navy.mil>
-Message-ID: <Pine.LNX.4.44.0306071634540.1776-100000@jlap.stev.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Jun 2003 10:32:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1493 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261444AbTFGOc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 10:32:28 -0400
+Date: Sat, 7 Jun 2003 16:45:58 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: bcollins@debian.org, linux1394-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [patch] 2.5.70-mm5: fix ieee1394_core.c compile if !CONFIG_PROC_FS
+Message-ID: <20030607144558.GO15311@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got the following compile error with !CONFIG_PROC_FS:
 
-> In message <Pine.LNX.4.44.0306071214110.19033-100000@god.stev.org>,James Steven
-> son writes:
-> >Think of a latop with a normall ethernet card in it.
-> >When you unplug the cable it wont disconnect all the tcp
-> >connection on the interface so that you could re route everything though
-> >a wireless card.
-> 
-> if i have a single interface and i physically remove it (not just unplug
-> the cable)  i would be willing to accept that certain tcp connections are
-> going to die.  particularly tcp which might be using keep alives.
+<--  snip  -->
 
->From how is understand it the tcp connections should be alive
-until they try to send data. As soon as they try to send
-data on a down interface as in they dont have a route any more
-an icmp packet of host / network unreachable should be generated
-then the connection can be killed.
+...
+  CC      drivers/ieee1394/ieee1394_core.o
+drivers/ieee1394/ieee1394_core.c: In function `ieee1394_cleanup':
+drivers/ieee1394/ieee1394_core.c:1231: `proc_bus' undeclared (first use in this function)
+drivers/ieee1394/ieee1394_core.c:1231: (Each undeclared identifier is reported only once
+drivers/ieee1394/ieee1394_core.c:1231: for each function it appears in.)
+make[2]: *** [drivers/ieee1394/ieee1394_core.o] Error 1
 
-	James
+<--  snip  -->
+
+
+The following patch fixes it:
+
+
+--- linux-2.5.70-mm5/drivers/ieee1394/ieee1394_core.c.old	2003-06-07 16:42:35.000000000 +0200
++++ linux-2.5.70-mm5/drivers/ieee1394/ieee1394_core.c	2003-06-07 16:42:47.000000000 +0200
+@@ -1228,7 +1228,9 @@
+ 
+ 	unregister_chrdev(IEEE1394_MAJOR, "ieee1394");
+ 	devfs_remove("ieee1394");
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ieee1394", proc_bus);
++#endif
+ }
+ 
+ module_init(ieee1394_init);
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

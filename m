@@ -1,91 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUI2OMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUI2OMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268430AbUI2OMo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUI2OMn
+	id S268440AbUI2OMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUI2OMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:12:43 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:2782 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S268430AbUI2OMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:12:05 -0400
-Date: Wed, 29 Sep 2004 16:11:51 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040929141151.GJ4084@dualathlon.random>
-References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com> <20040927130919.GE28865@dualathlon.random> <20040928194351.GC5037@devserv.devel.redhat.com> <20040928221933.GG4084@dualathlon.random> <20040929060521.GA6975@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040929060521.GA6975@devserv.devel.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Wed, 29 Sep 2004 10:12:48 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:50839 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S268440AbUI2OMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:12:06 -0400
+Message-ID: <415AC2B3.6070900@tungstengraphics.com>
+Date: Wed, 29 Sep 2004 15:12:03 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Discuss issues related to the xorg tree <xorg@freedesktop.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New DRM driver model - gets rid of DRM() macros!
+References: <9e4733910409280854651581e2@mail.gmail.com>	<20040929133759.A11891@infradead.org>	<415AB8B4.4090408@tungstengraphics.com>	<20040929143129.A12651@infradead.org> <415ABA34.9080608@tungstengraphics.com>
+In-Reply-To: <415ABA34.9080608@tungstengraphics.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 08:05:21AM +0200, Arjan van de Ven wrote:
-> oh? you mean that 1Mb gap between stack and topdown? Every ISV I talked to
-> said they could get more VA space with topdown than with the suse
-> mmaped_base hack... :)
-
-/*
- * Top of mmap area (just below the process stack).
- *
- * Leave an at least ~128 MB hole.
- */
-#define MIN_GAP (128*1024*1024)
-#define MAX_GAP (TASK_SIZE/6*5)
-
-where does your 1M comes from? it's a minimum 128Mbytes.
-
-> MAP_FIXED is to be used only on things YOU mmaped before. 
-
-where is that written?
-
-> > isn't the whole point of topdown to gain ~1G more of RAM. A 1G area that
-> > couldn't possibly be used before
+Keith Whitwell wrote:
+> Christoph Hellwig wrote:
 > 
-> wrong; brk() is there which is also used by malloc() and internally by the C
-> library.
+>> On Wed, Sep 29, 2004 at 02:29:24PM +0100, Keith Whitwell wrote:
+>>
+>>> Christoph Hellwig wrote:
+>>>
+>>>
+>>>> - drm_flush is a noop.  a NULL ->flush does the same thing, just easier
+>>>> - dito or ->poll
+>>>> - dito for ->read
+>>>
+>>>
+>>> Pretty sure you couldn't get away with null for these in 2.4, at least.
+>>
+>>
+>>
+>> Umm, of course you could.  There's only a hanfull instance defining a
+>> ->flush at all.  Similarly all file_ops for regular files and many char
+>> devices don't have ->poll.  no ->read is pretty rare but 2.4 chæcks it
+>> aswell.
+> 
+> 
+> I tried it, led to crashes (panics, I guess) & the change had to be 
+> reverted.  On reverting the crashes stopped.  This was for poll and read:
 
-that's malloc, but mmaps don't fit into it.
+Thinking about it, it may not have been a problem of crashing, but rather that 
+  the behaviour visible from a program attempting to read (or poll) was 
+different with noop versions of these functions to NULL versions, and that was 
+causing problems.  This is 18 months ago, so yes, I'm being vague.
 
-So sure, apps where careful about malloc, but not about mmap. mmap was
-guaranteed not to mess in the area below 1G, now it does and can break
-stuff.
+The X server does look at this file descriptor, which is where the problem 
+would have arisen, but only the gamma & maybe ffb drivers do anything with it.
 
-> do you have proof for that?
+Keith
 
-do I need to write the exploited testcase? just let me know, it'll take
-only a few minutes.
-
-as usual, since the screwup generated by topdown would be random and at
-runtime, one cannot exclude it could generate a security compromise.
-
-Amittedly it sounds very unlikely that can break stuff, but it can.
-
-> You missed that you can only use MAP_FIXED on mmaps YOU mmaped before.
-> That's true for basically all operating systems because the runtime
-> (including C library) is allowed to malloc, to brk(), to mmap etc etc.
-
-small malloc works below the 1G area, but it's the application that has
-to use malloc. I'm talking about an application that uses heavy mmap,
-MAP_FIXED below 1G and _never_ mallocs. It's up to you to call malloc,
-if you didn't, you had the guarantee that you could use the space near
-1G. The mapped_base is the safe API to tell the kernel it can use the
-memory below 1G for the heap.
-
-now the best thing is the ADDR_COMPAT_LAYOUT personality, that is what
-can make it safe, and I hope it's enabled by default on all apps, but
-I'm afraid it's the other way around, i.e. that the application will be
-marked "compatible" after it breaks at runtime. Plus the testing will be
-decreased since most people runs with unlimited stack (which defaults to
-bottomup beahviour).
-
-the single fact you added ADDR_COMPAT_LAYOUT means you're very well
-aware there are apps that will break, or there would be no point for a
-"COMPAT" option, if it was really backwards compatible by default, or do
-I misunderstand the semantics of ADDR_COMPAT_LAYOUT personality?

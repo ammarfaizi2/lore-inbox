@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbUKQQhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbUKQQnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbUKQQhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 11:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKQQfB
+	id S262416AbUKQQnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 11:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbUKQQlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 11:35:01 -0500
-Received: from sanosuke.troilus.org ([66.92.173.88]:39643 "EHLO
-	sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S262401AbUKQQdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:33:08 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Charles Cazabon <linux@discworld.dyndns.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL version, "at your option"?
-References: <1100614115.16127.16.camel@ghanima>
-	<20041116144029.GA6740@discworld.dyndns.org>
-	<1100704019.32698.24.camel@localhost.localdomain>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 17 Nov 2004 11:33:04 -0500
-In-Reply-To: <1100704019.32698.24.camel@localhost.localdomain>
-Message-ID: <87y8h08mgv.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 17 Nov 2004 11:41:17 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:15267 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262401AbUKQQik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 11:38:40 -0500
+Date: Wed, 17 Nov 2004 17:38:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix missing includes for isdn diversion
+In-Reply-To: <20041102142602.402316ef.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0411171728430.25776@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
 
-> The use of this by some kernel people is to issue "this version only"
-> licenses is unfortunate, ill advised and potentially harmful. Firstly it
-> isn't remotely clear what it means because the license itself never
-> talks about this case, only the "or later" case. Secondly it may force
-> code chunks to be rewritten if the GPL is modified to fix a legal
-> problem in future and the original author or their estate or company [*]
-> cannot be traced. Thirdly it may actually be meaningless anyway - the
-> GPL doesn't talk about "this version only" in any of its text so it may
-> be an "additional restriction" and thus a void clause.
+Andrew Morton wrote:
 
-I have no argument that restricting it to v2 is potentially harmful,
-but allowing distribution under GPL v3 is also potentially harmful
-since the terms are not yet known, and later v3plus changes would
-restrict the whole work to v3plus.
+>> # File:  isdn_divert.diff
+>> # Class: missing prototype addition
+>> #
+>> # Adds #include <linux/interrupt.h> to resolve missing calls to cli(),
+>> # sti() and restore_flags().
+>>
+>> Signed-off by: Jan Engelhardt <jengelh@linux01.gwdg.de>
+>>
+>> diff -dpru linux-2.6.4-52/drivers/isdn/divert/divert_init.c
+>
+>This appears to be against a 2.6.4 kernel, yes?
 
-As for the "additional restriction" theory, the FSF apparently does
-not think it is a restriction; the GPL says what happens *if* the
-program says "or any later version."  If the intent were to always
-allow newer license, that should be clearly written into the license
-rather than making it conditional.  The GPL FAQ[1] implies that "or
-any later version" is optional.  When the issue came up on
-debian-legal earlier this year, Dave Turner provided an answer[2].
+Yes, but I would not have posted it if it was not applicable to <current>.
 
-Michael Poole
+>The problem might have been fixed in the intervening months.  Please
+>confirm that the bug still exists in 2.6.10-rc1 and if so, send an updated
+>patch.
+>
+>Thanks.
 
-[1]- http://www.fsf.org/licenses/gpl-faq.html#VersionTwoOrLater
-[2]- http://lists.debian.org/debian-legal/2004/08/msg00821.html
+Anyway, for bulletproofness, I've taken a 2.6.10-rc2 try and tried a --dry-run.
+The patch utility ran fine, so it's now confirmed that it applies to
+2.6.10-rc2 too.
+
+Maybe this is in relation to the other thread "[PATCH] dss1_divert ISDN module
+compile fix for kernel" ?
+
+
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263311AbTFWPEl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 11:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTFWPEk
+	id S263945AbTFWPJG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 11:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTFWPJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 11:04:40 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:20115 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S263311AbTFWPEj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 11:04:39 -0400
-Message-ID: <3EF71A54.7010909@g-house.de>
-Date: Mon, 23 Jun 2003 17:18:44 +0200
-From: Christian Kujau <evil@g-house.de>
-Reply-To: evil@g-house.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kernel BUG at jfs_dmap.c:776 (2.4.21)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jun 2003 11:09:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35789 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263945AbTFWPJE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 11:09:04 -0400
+Date: Mon, 23 Jun 2003 16:23:10 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Martin Mares <mj@ucw.cz>
+Subject: [PCI] Various legacy probing options
+Message-ID: <20030623152310.GG2620@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-while doing some benchmarks, i noticed a segfault when trying to mount a 
-newly created JFS. mkfs.jfs passes, but mount gives:
+I'd like to take the logic that checks whether a bus has already
+been scanned out of pcibios_scan_root() and push it down into
+pci_scan_bus{,_parented}().
 
+The trouble is that pci_scan_bus() already has a check for whether
+a bus has been scanned or not and returns the opposite possibiity
+(pcibios_scan_root() returns the bus if it exists; pci_scan_bus()
+returns NULL if that bus already exists).
 
-BUG at jfs_dmap.c:776 assert(hint < mapSize)
-kernel BUG at jfs_dmap.c:776!
-mount(1055): Kernel Bug 1
-pc = [<fffffffc003236b4>]  ra = [<fffffffc003236a8>]  ps = 0000    Not 
-tainted
-v0 = 000000000000001e  t0 = 0000000000000001  t1 = 0000000000000000
-t2 = fffffc00011d2948  t3 = 0000000000000000  t4 = ffffffff00000000
-t5 = 0000000000000001  t6 = 343c0a29657a6953  t7 = fffffc0002cf8000
-a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
-a3 = 0000000000000001  a4 = 0000000000000001  a5 = 0000000000000002
-t8 = 0000000000000004  t9 = 0000000000001c0e  t10= 0000000000001c0f
-t11= fffffc00011f0988  pv = fffffc000101fb90  at = fffffc00011f0988
-gp = fffffffc00347c88  sp = fffffc0002cfb9e8
-Trace:fffffc0001029f50 fffffc0001053b88 fffffc0001054838 
-fffffc000103e1ac fffffc00010168b0 fffffc000105808c fffffc00010585a4 
-fffffc0001058434 fffffc0001070b28 fffffc0001070f3c fffffc0001070d18 
-fffffc000107155c fffffc0001071538 fffffc0001010d30 fffffc0001010c88
-Code: 22106a0c  47e90411  6b5b4106  27ba0002  23bd45e0  00000081 
-<c3fffecb> 47ff041f
+Most callers of pci_scan_bus() don't even bother to check the return
+value, so they don't care if this changes.  The only caller I can find
+that actually cares is arch/i386/pci/irq.c:pirq_peer_trick() [can someone
+check me on this?  some of the architectures are a bit strange].
 
+I wonder if this case ever occurs, though.  pirq_peer_trick() is called
+from pcibios_irq_init() which is a subsys_initcall.  irq.o is linked
+after legacy.o, which contains the subsys_initcall pci_legacy_init(),
+which calls pcibios_fixup_peer_bridges() which already iterates over
+0-pcibios_last_bus looking for busses.
 
-this is with vanilla 2.4.21 (Alpha), compiled with gcc3.3, glibc 2.3.1,
-util-linux 2.11z.
+Are there really broken PCs out there that will have additional bridges
+found in the PIRQ tables after pcibios_last_bus?
 
-
-thanks,
-Christian.
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

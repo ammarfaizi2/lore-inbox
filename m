@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSE1X5P>; Tue, 28 May 2002 19:57:15 -0400
+	id <S312590AbSE2AOT>; Tue, 28 May 2002 20:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312486AbSE1X5O>; Tue, 28 May 2002 19:57:14 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:31505 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S311898AbSE1X5N>;
-	Tue, 28 May 2002 19:57:13 -0400
-Date: Wed, 29 May 2002 01:57:13 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.5] Trivial compile fix to fs/binfmt_em86.c
-Message-ID: <20020528235713.GX4148@lug-owl.de>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U7NLafZe7Bh9OCap"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux mail 2.4.18 
+	id <S312560AbSE2AOS>; Tue, 28 May 2002 20:14:18 -0400
+Received: from pc132.utati.net ([216.143.22.132]:59299 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S312486AbSE2AOS>; Tue, 28 May 2002 20:14:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] New driver for Artop [Acard] controllers.
+Date: Tue, 28 May 2002 10:09:04 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10205261716410.3010-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020529004327.852457C7@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 26 May 2002 08:17 pm, Andre Hedrick wrote:
+> On 27 May 2002, Alan Cox wrote:
+> > On Mon, 2002-05-27 at 00:08, Andre Hedrick wrote:
+> > > All of the original code described how to make the hardware operate. 
+> > > If your code makes the hardware operate, then it uses material
+> > > copyrighted and owned by me.
+> >
+> > Really. You think if I read a GPL'd example of a piece of code I can't
+> > write a non GPL'd one. Companies use two sets of people to ensure that
+>
+> It is one thing to take and read a GPL code and write non-GPL.
+> This is different from taking GPL code and writing another GPL code.
 
---U7NLafZe7Bh9OCap
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Not from a legal standpoint, no.
 
-Hi Linus!
+Licensing is seperate from copyright.  A copyright exists on creation of the 
+code, before any license is issued.  It is perfectly valid for a copyright to 
+exist for which no license has been issued, in which case only the copyright 
+holder is allowed to make copies.  (Back in the days of paper and ink, you 
+didn't usually get a legal document bundled with your newspaper, did you?  
+That's because they weren't giving you any permission to make copies of it 
+period, they made the copy and you bought that copy, and that was all the 
+copying expected to occur.  With computers, they can't help BUT copy.  
+Loading from disk into memory is copying, and non-techie judges have no idea 
+what constitutes "fair use" in this space, and the most legally saavy dude 
+back around 1980 when the relevant case law was being fought over in court 
+seems to have been a greedy harvard law school dropout from Seattle...)
 
-Please apply this patch to let binfmt_em86.c compile again.
+The issuing of a license does not actually transfer a copyright.  (You can 
+give away a copyright, but that's NOT licensing, it falls more under the 
+heading of contract law.)
 
-MfG, JBG
+(No, I'm not a lawyer, but I could mail you my old Business Law textbook if 
+you think it would help.  Have to figure out which box it's in first...)
 
+> > Rude yes, but derived work.. open question. I guess Eben can give you a
+> > reasonably sane opinion if its so important.
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
 
+Any decent introduction to copyright (and licensing) should cover what 
+copyright law ISN'T, and it isn't trademark law, patent law, contract law, or 
+the mess known as "trade secrets".  (It can interact with all the above, but 
+let's not open that can of worms right now...)
 
-diff -Nur orig/linux-2.5.18/fs/binfmt_em86.c linux-2.5.18/fs/binfmt_em86.c
---- orig/linux-2.5.18/fs/binfmt_em86.c	Sat May 25 03:55:28 2002
-+++ linux-2.5.18/fs/binfmt_em86.c	Tue May 28 20:18:00 2002
-@@ -16,7 +16,9 @@
- #include <linux/binfmts.h>
- #include <linux/elf.h>
- #include <linux/init.h>
-+#include <linux/fs.h>
- #include <linux/file.h>
-+#include <linux/errno.h>
-=20
-=20
- #define EM86_INTERP	"/usr/bin/em86"
+An NDA like you mentioned earlier would be using contract law to preserve a 
+trade secret status, and as soon as you got permission to publish a GPL 
+driver, any potential trade secret status went bye-bye.  (If you screwed up 
+in that release, the trade secret status is probably still popped since 
+Vojtech isn't bound by a patent he didn't sign and he was definitely acting 
+in good faith: the trade secret holder's remedies would basically be against 
+you, the signer of the NDA.  Lawyers can go after trade secrets on a sort of 
+"trafficing in stolen goods" theory (the theory behind the decss nonsense), 
+but that's pretty clearly not the case here and you haven't got the money to 
+buy a judge.)
 
+Yeah, all this is modulo companies with deep pockets to fund frivolous 
+lawsuits, clueless/biased judges, and the crawling horrors known as the DMCA 
+and UCITA.  But you're not really in a position to make much use of any of 
+those, Andre.  You aren't stinking rich. :)
 
---=20
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+Rob
 
---U7NLafZe7Bh9OCap
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+(Now if you're complaining that the lack of attribution was impolite, and 
+trying to use social norms to get a "based on" citation as a sort of author's 
+credit for the brownie point value, by all means.  But screaming about 
+legalities isn't a very good way to do it.  Try going for guilt here, not 
+lawyers. :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE89BlSHb1edYOZ4bsRAkqTAJ9BXHvWukB36exceSdW7jyek3fG2wCfT0UR
-NZbTt6X7vDjqEcNGrcPb2k4=
-=+0AS
------END PGP SIGNATURE-----
-
---U7NLafZe7Bh9OCap--

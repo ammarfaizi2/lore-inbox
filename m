@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261402AbSJ1Rhe>; Mon, 28 Oct 2002 12:37:34 -0500
+	id <S261425AbSJ1RpP>; Mon, 28 Oct 2002 12:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSJ1RhX>; Mon, 28 Oct 2002 12:37:23 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:61711 "EHLO
+	id <S261451AbSJ1Roc>; Mon, 28 Oct 2002 12:44:32 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:2832 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261402AbSJ1RXu>; Mon, 28 Oct 2002 12:23:50 -0500
-Date: Tue, 29 Oct 2002 02:30:09 +0900
+	id <S261425AbSJ1RYG>; Mon, 28 Oct 2002 12:24:06 -0500
+Date: Tue, 29 Oct 2002 02:30:24 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 12/23] add support for PC-9800 architecture (network device)
-Message-ID: <20021029023009.A2289@precia.cinet.co.jp>
+Subject: [PATCHSET 23/23] add support for PC-9800 architecture (video)
+Message-ID: <20021029023024.A2355@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,1760 +19,1086 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 12/23 of patchset for add support NEC PC-9800 architecture,
+This is a part 23/23 of patchset for add support NEC PC-9800 architecture,
 against 2.5.44.
 
 Summary:
- network card modules
-  - add support for PC-9800 legacy bus network cards.
+ New driver support for PC-9800 standard text console.
 
 diffstat:
- drivers/net/3c509.c      |   33 +++
- drivers/net/8390.h       |    3 
- drivers/net/Config.in    |   24 ++
- drivers/net/Makefile     |    4 
- drivers/net/Makefile.lib |    1 
- drivers/net/Space.c      |    2 
- drivers/net/at1700.c     |  115 +++++++++-
- drivers/net/ne.c         |  517 +++++++++++++++++++++++++++++++++++++++++++++--
- drivers/net/ne2k_cbus.h  |  467 ++++++++++++++++++++++++++++++++++++++++++
- 9 files changed, 1137 insertions(+), 29 deletions(-)
+ drivers/video/Makefile |    1 
+ drivers/video/gdccon.c |  834 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/gdc.h |  217 ++++++++++++
+ 3 files changed, 1052 insertions(+)
 
 patch:
-diff -Nru linux-2.5.42/drivers/net/3c509.c linux98-2.5.42/drivers/net/3c509.c
---- linux-2.5.42/drivers/net/3c509.c	Wed Oct 16 12:27:09 2002
-+++ linux98-2.5.42/drivers/net/3c509.c	Sat Oct 19 10:49:31 2002
-@@ -52,6 +52,10 @@
- 		v1.19  16Oct2002 Zwane Mwaikambo <zwane@linuxpower.ca>
- 			- Additional ethtool features
- */
-+/*
-+  FIXES for PC-9800:
-+  Shu Iwanaga: 3c569B(PC-9801 C-bus) support
-+*/
- 
- #define DRV_NAME	"3c509"
- #define DRV_VERSION	"1.19"
-@@ -168,7 +172,11 @@
- 	struct pm_dev *pmdev;
- #endif
- };
-+#ifdef CONFIG_PC9800
-+static int id_port __initdata = 0x71d0;
-+#else
- static int id_port __initdata = 0x110;	/* Start with 0x110 to avoid new sound cards.*/
-+#endif
- static struct net_device *el3_root_dev;
- 
- static ushort id_read_eeprom(int index);
-@@ -389,6 +397,7 @@
- no_pnp:
- #endif /* __ISAPNP__ */
- 
-+#ifndef CONFIG_PC9800 /* Error for NEC C-bus */
- 	/* Select an open I/O location at 0x1*0 to do contention select. */
- 	for ( ; id_port < 0x200; id_port += 0x10) {
- 		if (check_region(id_port, 1))
-@@ -403,6 +412,7 @@
- 		printk(" WARNING: No I/O port available for 3c509 activation.\n");
- 		return -ENODEV;
- 	}
-+#endif /* CONFIG_PC9800 */
- 	/* Next check for all ISA bus boards by sending the ID sequence to the
- 	   ID_PORT.  We find cards past the first by setting the 'current_tag'
- 	   on cards as they are found.  Cards with their tag set will not
-@@ -458,7 +468,11 @@
- 	{
- 		unsigned int iobase = id_read_eeprom(8);
- 		if_port = iobase >> 14;
-+#ifndef CONFIG_PC9800
- 		ioaddr = 0x200 + ((iobase & 0x1f) << 4);
-+#else
-+		ioaddr = 0x40d0 + ((iobase & 0x1f) << 8);
-+#endif
- 	}
- 	irq = id_read_eeprom(9) >> 12;
- 
-@@ -482,7 +496,15 @@
- 	outb(0xd0 + ++current_tag, id_port);
- 
- 	/* Activate the adaptor at the EEPROM location. */
-+#ifndef CONFIG_PC9800
- 	outb((ioaddr >> 4) | 0xe0, id_port);
-+#else
-+	outb((ioaddr >> 8) | 0xe0, id_port);
-+	if (irq == 7)
-+		irq = 6;
-+	else if (irq == 15)
-+		irq = 13;
-+#endif
- 
- 	EL3WINDOW(0);
- 	if (inw(ioaddr) != 0x6d50) {
-@@ -1253,7 +1275,18 @@
- 	outw(0x0001, ioaddr + 4);
- 
- 	/* Set the IRQ line. */
-+#ifndef CONFIG_PC9800
- 	outw((dev->irq << 12) | 0x0f00, ioaddr + WN0_IRQ);
-+#else
-+	{
-+		int irq = dev->irq;
-+		if (irq == 6)
-+			irq = 7;
-+		else if (irq == 13)
-+			irq = 15;
-+		outw((irq << 12) | 0x0f00, ioaddr + WN0_IRQ);
-+	}
-+#endif
- 
- 	/* Set the station address in window 2 each time opened. */
- 	EL3WINDOW(2);
-diff -Nru linux-2.5.42/drivers/net/8390.h linux98-2.5.42/drivers/net/8390.h
---- linux-2.5.42/drivers/net/8390.h	Sat Oct 12 13:22:14 2002
-+++ linux98-2.5.42/drivers/net/8390.h	Tue Oct 15 23:03:22 2002
-@@ -123,7 +123,8 @@
- #define inb_p(port)   in_8(port)
- #define outb_p(val,port)  out_8(port,val)
- 
--#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE)
-+#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE) || \
-+      defined(CONFIG_NET_CBUS)
- #define EI_SHIFT(x)	(ei_local->reg_offset[x])
- #else
- #define EI_SHIFT(x)	(x)
-diff -Nru linux-2.5.42/drivers/net/Config.in linux98-2.5.42/drivers/net/Config.in
---- linux-2.5.42/drivers/net/Config.in	Sat Oct 12 13:21:30 2002
-+++ linux98-2.5.42/drivers/net/Config.in	Tue Oct 15 23:03:22 2002
-@@ -112,7 +112,11 @@
-       source drivers/net/tulip/Config.in
-    fi
-    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_MCA" = "y" ]; then
-+    if [ "$CONFIG_PC9800" != "y" ]; then
-          dep_tristate '  AT1700/1720 support (EXPERIMENTAL)' CONFIG_AT1700 $CONFIG_EXPERIMENTAL
-+    else
-+         dep_tristate '  Allied Telesis RE1000Plus support (EXPERIMENTAL)' CONFIG_AT1700 $CONFIG_EXPERIMENTAL
-+    fi
-    fi
-    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_MCA" = "y" ]; then
-       tristate '  DEPCA, DE10x, DE200, DE201, DE202, DE422 support' CONFIG_DEPCA
-@@ -120,6 +124,7 @@
-    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
-       tristate '  HP 10/100VG PCLAN (ISA, EISA, PCI) support' CONFIG_HP100
-    fi
-+  if [ "$CONFIG_PC9800" != "y" ]; then
-    dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
-    if [ "$CONFIG_NET_ISA" = "y" ]; then
-       tristate '    Cabletron E21xx support' CONFIG_E2100
-@@ -146,6 +151,25 @@
-       tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
-       tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
-    fi
-+  else	# CONFIG_PC9800 = y
-+   bool '  NEC PC-9800 C-bus cards' CONFIG_NET_CBUS
-+   if [ "$CONFIG_NET_CBUS" = "y" ]; then
-+      tristate '    Most NE2000-based Ethernet support' CONFIG_NE2K_CBUS
-+      if [ "$CONFIG_NE2K_CBUS" != "n" ]; then
-+	 bool '      Melco EGY-98 support' CONFIG_NE2K_CBUS_EGY98
-+	 bool '      Melco LGY-98 support' CONFIG_NE2K_CBUS_LGY98
-+	 bool '      ICM IF-27xxET support' CONFIG_NE2K_CBUS_ICM
-+	 bool '      I-O DATA LA-98 support (NOT TESTED!)' CONFIG_NE2K_CBUS_IOLA98
-+	 bool '      Contec C-NET(98)E/L support (NOT TESTED!)' CONFIG_NE2K_CBUS_CNET98EL
-+	 if [ "$CONFIG_NE2K_CBUS_CNET98EL" != "n" ]; then
-+	    hex '        C-NET(98)E/L I/O base address (aaed or 55ed)' CONFIG_NE2K_CBUS_CNET98EL_IO_BASE aaed
-+	 fi
-+	 bool '      Allied Telesis LA-98 Support (NOT TESTED!)' CONFIG_NE2K_CBUS_ATLA98
-+	 bool '      ELECOM Laneed LD-BDN[123]A Support (NOT TESTED!)' CONFIG_NE2K_CBUS_BDN
-+	 bool '      NEC PC-9801-108 Support (NOT TESTED!)' CONFIG_NE2K_CBUS_NEC108
-+      fi
-+   fi
-+  fi	# CONFIG_PC9800
-    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
-      bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-    else
-diff -Nru linux-2.5.42/drivers/net/Makefile linux98-2.5.42/drivers/net/Makefile
---- linux-2.5.42/drivers/net/Makefile	Sat Oct 12 13:21:36 2002
-+++ linux98-2.5.42/drivers/net/Makefile	Tue Oct 15 23:03:22 2002
-@@ -87,7 +87,11 @@
- obj-$(CONFIG_ARM_ETHERH) += 8390.o
- obj-$(CONFIG_WD80x3) += wd.o 8390.o
- obj-$(CONFIG_EL2) += 3c503.o 8390.o
-+ifneq ($(CONFIG_PC9800),y)
- obj-$(CONFIG_NE2000) += ne.o 8390.o
-+else
-+obj-$(CONFIG_NE2K_CBUS) += ne.o 8390.o
-+endif
- obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
- obj-$(CONFIG_HPLAN) += hp.o 8390.o
- obj-$(CONFIG_HPLAN_PLUS) += hp-plus.o 8390.o
-diff -Nru linux-2.5.42/drivers/net/Makefile.lib linux98-2.5.42/drivers/net/Makefile.lib
---- linux-2.5.42/drivers/net/Makefile.lib	Sat Oct 12 13:22:18 2002
-+++ linux98-2.5.42/drivers/net/Makefile.lib	Tue Oct 15 23:03:22 2002
+diff -urN linux/drivers/video/Makefile linux98/drivers/video/Makefile
+--- linux/drivers/video/Makefile	Sat Oct 19 13:01:12 2002
++++ linux98/drivers/video/Makefile	Mon Oct 28 23:47:29 2002
 @@ -19,6 +19,7 @@
- obj-$(CONFIG_MACMACE)		+= crc32.o
- obj-$(CONFIG_MIPS_AU1000_ENET)	+= crc32.o
- obj-$(CONFIG_NATSEMI)		+= crc32.o	
-+obj-$(CONFIG_NE2K_CBUS)		+= crc32.o
- obj-$(CONFIG_PCMCIA_FMVJ18X)	+= crc32.o
- obj-$(CONFIG_PCMCIA_SMC91C92)	+= crc32.o
- obj-$(CONFIG_PCMCIA_XIRTULIP)	+= crc32.o
-diff -Nru linux-2.5.42/drivers/net/Space.c linux98-2.5.42/drivers/net/Space.c
---- linux-2.5.42/drivers/net/Space.c	Sat Oct 12 13:21:32 2002
-+++ linux98-2.5.42/drivers/net/Space.c	Tue Oct 15 23:03:22 2002
-@@ -243,7 +243,7 @@
- #ifdef CONFIG_E2100		/* Cabletron E21xx series. */
- 	{e2100_probe, 0},
- #endif
--#ifdef CONFIG_NE2000		/* ISA (use ne2k-pci for PCI cards) */
-+#if defined(CONFIG_NE2000) || defined(CONFIG_NE2K_CBUS)	/* ISA & PC-9800 CBUS (use ne2k-pci for PCI cards) */
- 	{ne_probe, 0},
- #endif
- #ifdef CONFIG_LANCE		/* ISA/VLB (use pcnet32 for PCI cards) */
-diff -Nru linux-2.5.42/drivers/net/at1700.c linux98-2.5.42/drivers/net/at1700.c
---- linux-2.5.42/drivers/net/at1700.c	Sat Oct 19 13:01:49 2002
-+++ linux98-2.5.42/drivers/net/at1700.c	Sat Oct 19 21:58:24 2002
-@@ -34,6 +34,10 @@
- 	only is it difficult to detect, it also moves around in I/O space in
- 	response to inb()s from other device probes!
- */
+ obj-$(CONFIG_PROM_CONSOLE)        += promcon.o promcon_tbl.o
+ obj-$(CONFIG_STI_CONSOLE)         += sticon.o sticon-bmode.o sticore.o
+ obj-$(CONFIG_VGA_CONSOLE)         += vgacon.o
++obj-$(CONFIG_GDC_CONSOLE)         += gdccon.o
+ obj-$(CONFIG_MDA_CONSOLE)         += mdacon.o
+ 
+ obj-$(CONFIG_FONT_SUN8x16)        += font_sun8x16.o
+diff -urN linux/drivers/video/gdccon.c linux98/drivers/video/gdccon.c
+--- linux/drivers/video/gdccon.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/video/gdccon.c	Mon Oct 28 17:53:54 2002
+@@ -0,0 +1,834 @@
 +/*
-+	99/03/03  Allied Telesis RE1000 Plus support by T.Hagawa
-+	99/12/30	port to 2.3.35 by K.Takai
-+*/
- 
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -79,10 +83,17 @@
-  *	ISA
-  */
- 
-+#ifndef CONFIG_PC9800
- static int at1700_probe_list[] __initdata = {
- 	0x260, 0x280, 0x2a0, 0x240, 0x340, 0x320, 0x380, 0x300, 0
- };
- 
-+#else /* CONFIG_PC9800 */
-+static int at1700_probe_list[] __initdata = {
-+	0x1d6, 0x1d8, 0x1da, 0x1d4, 0xd4, 0xd2, 0xd8, 0xd0, 0
-+};
-+
-+#endif /* CONFIG_PC9800 */
- /*
-  *	MCA
-  */
-@@ -125,6 +136,7 @@
- 
- 
- /* Offsets from the base address. */
-+#ifndef CONFIG_PC9800
- #define STATUS			0
- #define TX_STATUS		0
- #define RX_STATUS		1
-@@ -139,6 +151,7 @@
- #define TX_START		10
- #define COL16CNTL		11		/* Controll Reg for 16 collisions */
- #define MODE13			13
-+#define RX_CTRL			14
- /* Configuration registers only on the '865A/B chips. */
- #define EEPROM_Ctrl 	16
- #define EEPROM_Data 	17
-@@ -147,8 +160,39 @@
- #define IOCONFIG		18		/* Either read the jumper, or move the I/O. */
- #define IOCONFIG1		19
- #define	SAPROM			20		/* The station address PROM, if no EEPROM. */
-+#define MODE24			24
- #define RESET			31		/* Write to reset some parts of the chip. */
- #define AT1700_IO_EXTENT	32
-+#define PORT_OFFSET(o) (o)
-+#else /* CONFIG_PC9800 */
-+#define STATUS			(0x0000)
-+#define TX_STATUS		(0x0000)
-+#define RX_STATUS		(0x0001)
-+#define TX_INTR			(0x0200)/* Bit-mapped interrupt enable registers. */
-+#define RX_INTR			(0x0201)
-+#define TX_MODE			(0x0400)
-+#define RX_MODE			(0x0401)
-+#define CONFIG_0		(0x0600)/* Misc. configuration settings. */
-+#define CONFIG_1		(0x0601)
-+/* Run-time register bank 2 definitions. */
-+#define DATAPORT		(0x0800)/* Word-wide DMA or programmed-I/O dataport. */
-+#define TX_START		(0x0a00)
-+#define COL16CNTL		(0x0a01)/* Controll Reg for 16 collisions */
-+#define MODE13			(0x0c01)
-+#define RX_CTRL			(0x0e00)
-+/* Configuration registers only on the '865A/B chips. */
-+#define EEPROM_Ctrl 	(0x1000)
-+#define EEPROM_Data 	(0x1200)
-+#define CARDSTATUS	16			/* FMV-18x Card Status */
-+#define CARDSTATUS1	17			/* FMV-18x Card Status */
-+#define IOCONFIG		(0x1400)/* Either read the jumper, or move the I/O. */
-+#define IOCONFIG1		(0x1600)
-+#define	SAPROM			20		/* The station address PROM, if no EEPROM. */
-+#define	MODE24			(0x1800)/* The station address PROM, if no EEPROM. */
-+#define RESET			(0x1e01)/* Write to reset some parts of the chip. */
-+#define PORT_OFFSET(o) ({ int _o_ = (o); (_o_ & ~1) * 0x100 + (_o_ & 1); })
-+#endif /* CONFIG_PC9800 */
-+
- 
- #define TX_TIMEOUT		10
- 
-@@ -228,8 +272,20 @@
- 	int slot, ret = -ENODEV;
- 	struct net_local *lp;
- 	
-+#ifndef CONFIG_PC9800
- 	if (!request_region(ioaddr, AT1700_IO_EXTENT, dev->name))
- 		return -EBUSY;
-+#else
-+	for (i = 0; i < 0x2000; i += 0x0200) {
-+		if (!request_region(ioaddr + i, 2, dev->name)) {
-+			while (i > 0) {
-+				i -= 0x0200;
-+				release_region(ioaddr + i, 2);
-+			}
-+			return -EBUSY;
-+		}
-+	}
-+#endif
- 
- 		/* Resetting the chip doesn't reset the ISA interface, so don't bother.
- 	   That means we have to be careful with the register values we probe for.
-@@ -320,10 +376,17 @@
- 		/* Reset the internal state machines. */
- 	outb(0, ioaddr + RESET);
- 
--	if (is_at1700)
-+	if (is_at1700) {
-+#ifndef CONFIG_PC9800
- 		irq = at1700_irqmap[(read_eeprom(ioaddr, 12)&0x04)
- 						   | (read_eeprom(ioaddr, 0)>>14)];
--	else {
-+#else
-+		{
-+			char re1000plus_irqmap[4] = {3, 5, 6, 12};
-+			irq = re1000plus_irqmap[inb(ioaddr + IOCONFIG1) >> 6];
-+		}
-+#endif
-+	} else {
- 		/* Check PnP mode for FMV-183/184/183A/184A. */
- 		/* This PnP routine is very poor. IO and IRQ should be known. */
- 		if (inb(ioaddr + CARDSTATUS1) & 0x20) {
-@@ -395,18 +458,22 @@
- 	/* Set the station address in bank zero. */
- 	outb(0x00, ioaddr + CONFIG_1);
- 	for (i = 0; i < 6; i++)
--		outb(dev->dev_addr[i], ioaddr + 8 + i);
-+		outb(dev->dev_addr[i], ioaddr + PORT_OFFSET(8 + i));
- 
- 	/* Switch to bank 1 and set the multicast table to accept none. */
- 	outb(0x04, ioaddr + CONFIG_1);
- 	for (i = 0; i < 8; i++)
--		outb(0x00, ioaddr + 8 + i);
-+		outb(0x00, ioaddr + PORT_OFFSET(8 + i));
- 
- 
- 	/* Switch to bank 2 */
- 	/* Lock our I/O address, and set manual processing mode for 16 collisions. */
- 	outb(0x08, ioaddr + CONFIG_1);
-+#ifndef CONFIG_PC9800
- 	outb(dev->if_port, ioaddr + MODE13);
-+#else
-+	outb(0, ioaddr + MODE13);
-+#endif
- 	outb(0x00, ioaddr + COL16CNTL);
- 
- 	if (net_debug)
-@@ -450,7 +517,12 @@
- 	kfree(dev->priv);
- 	dev->priv = NULL;
- err_out:
-+#ifndef CONFIG_PC9800
- 	release_region(ioaddr, AT1700_IO_EXTENT);
-+#else
-+	for (i = 0; i < 0x2000; i += 0x0200)
-+		release_region(ioaddr + i, 2);
-+#endif
- 	return ret;
- }
- 
-@@ -462,7 +534,11 @@
- #define EE_DATA_READ	0x80	/* EEPROM chip data out, in reg. 17. */
- 
- /* Delay between EEPROM clock transitions. */
-+#ifndef CONFIG_PC9800
- #define eeprom_delay()	do { } while (0)
-+#else
-+#define eeprom_delay()	__asm__ ("out%B0 %%al,%0" :: "N"(0x5f))
-+#endif
- 
- /* The EEPROM commands include the alway-set leading bit. */
- #define EE_WRITE_CMD	(5 << 6)
-@@ -545,12 +621,12 @@
- 		inw (ioaddr + STATUS), inb (ioaddr + TX_STATUS) & 0x80
- 		? "IRQ conflict" : "network cable problem");
- 	printk ("%s: timeout registers: %04x %04x %04x %04x %04x %04x %04x %04x.\n",
--	 dev->name, inw (ioaddr + 0), inw (ioaddr + 2), inw (ioaddr + 4),
--		inw (ioaddr + 6), inw (ioaddr + 8), inw (ioaddr + 10),
--		inw (ioaddr + 12), inw (ioaddr + 14));
-+	 dev->name, inw(ioaddr + TX_STATUS), inw(ioaddr + TX_INTR), inw(ioaddr + TX_MODE),
-+		inw(ioaddr + CONFIG_0), inw(ioaddr + DATAPORT), inw(ioaddr + TX_START),
-+		inw(ioaddr + MODE13 - 1), inw(ioaddr + RX_CTRL));
- 	lp->stats.tx_errors++;
- 	/* ToDo: We should try to restart the adaptor... */
--	outw (0xffff, ioaddr + 24);
-+	outw(0xffff, ioaddr + MODE24);
- 	outw (0xffff, ioaddr + TX_STATUS);
- 	outb (0x5a, ioaddr + CONFIG_0);
- 	outb (0xe8, ioaddr + CONFIG_1);
-@@ -696,7 +772,7 @@
- 				   dev->name, inb(ioaddr + RX_MODE), status);
- #ifndef final_version
- 		if (status == 0) {
--			outb(0x05, ioaddr + 14);
-+			outb(0x05, ioaddr + RX_CTRL);
- 			break;
- 		}
- #endif
-@@ -716,7 +792,7 @@
- 					   dev->name, pkt_len);
- 				/* Prime the FIFO and then flush the packet. */
- 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
--				outb(0x05, ioaddr + 14);
-+				outb(0x05, ioaddr + RX_CTRL);
- 				lp->stats.rx_errors++;
- 				break;
- 			}
-@@ -726,7 +802,7 @@
- 					   dev->name, pkt_len);
- 				/* Prime the FIFO and then flush the packet. */
- 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
--				outb(0x05, ioaddr + 14);
-+				outb(0x05, ioaddr + RX_CTRL);
- 				lp->stats.rx_dropped++;
- 				break;
- 			}
-@@ -753,7 +829,7 @@
- 			if ((inb(ioaddr + RX_MODE) & 0x40) == 0x40)
- 				break;
- 			inw(ioaddr + DATAPORT);				/* dummy status read */
--			outb(0x05, ioaddr + 14);
-+			outb(0x05, ioaddr + RX_CTRL);
- 		}
- 
- 		if (net_debug > 5)
-@@ -843,7 +919,7 @@
- 		/* Switch to bank 1 and set the multicast table. */
- 		outw((saved_bank & ~0x0C00) | 0x0480, ioaddr + CONFIG_0);
- 		for (i = 0; i < 8; i++)
--			outb(mc_filter[i], ioaddr + 8 + i);
-+			outb(mc_filter[i], ioaddr + PORT_OFFSET(8 + i));
- 		memcpy(lp->mc_filter, mc_filter, sizeof(mc_filter));
- 		outw(saved_bank, ioaddr + CONFIG_0);
- 	}
-@@ -853,7 +929,12 @@
- 
- #ifdef MODULE
- static struct net_device dev_at1700;
-+#ifndef CONFIG_PC9800
- static int io = 0x260;
-+#else
-+static int io = 0xd0;
-+#endif
-+
- static int irq;
- 
- MODULE_PARM(io, "i");
-@@ -893,7 +974,15 @@
- 
- 	/* If we don't do this, we can't re-insmod it later. */
- 	free_irq(dev_at1700.irq, NULL);
-+#ifndef CONFIG_PC9800
- 	release_region(dev_at1700.base_addr, AT1700_IO_EXTENT);
-+#else
-+	{
-+		int i;
-+		for (i = 0; i < 0x2000; i += 0x200)
-+			release_region(dev_at1700.base_addr + i, 2);
-+	}
-+#endif
- }
- #endif /* MODULE */
- MODULE_LICENSE("GPL");
-diff -Nru linux-2.5.42/drivers/net/ne.c linux98-2.5.42/drivers/net/ne.c
---- linux-2.5.42/drivers/net/ne.c	Sat Oct 12 13:22:07 2002
-+++ linux98-2.5.42/drivers/net/ne.c	Tue Oct 15 23:03:22 2002
-@@ -54,6 +54,26 @@
- #include <linux/etherdevice.h>
- #include "8390.h"
- 
-+/* backword compatibility for kernel version 2.1.57 */
-+#include <linux/version.h>
-+#ifndef LINUX_VERSION_CODE
-+#warning LINUX_VERSION_CODE is no defined!
-+#endif
-+#if LINUX_VERSION_CODE < 0x20200
-+#ifdef CONFIG_PCI
-+#undef CONFIG_PCI
-+#endif
-+#ifdef CONFIG_PC98
-+#define CONFIG_PC9800
-+#endif
-+#define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
-+#endif
-+
-+#ifdef CONFIG_NET_CBUS
-+#undef ei_debug
-+#define ei_debug 9
-+#endif /* CONFIG_NET_CBUS */
-+
- /* Some defines that people can play with if so inclined. */
- 
- /* Do we support clones that don't adhere to 14,15 of the SAprom ? */
-@@ -69,11 +89,13 @@
- /* #define PACKETBUF_MEMSIZE	0x40 */
- 
- /* A zero-terminated list of I/O addresses to be probed at boot. */
-+#ifndef CONFIG_NET_CBUS
- #ifndef MODULE
- static unsigned int netcard_portlist[] __initdata = {
- 	0x300, 0x280, 0x320, 0x340, 0x360, 0x380, 0
- };
- #endif
-+#endif
- 
- static struct isapnp_device_id isapnp_clone_list[] __initdata = {
- 	{	ISAPNP_CARD_ID('A','X','E',0x2011),
-@@ -94,6 +116,7 @@
- /* A list of bad clones that we none-the-less recognize. */
- static struct { const char *name8, *name16; unsigned char SAprefix[4];}
- bad_clone_list[] __initdata = {
-+#ifndef CONFIG_NET_CBUS
-     {"DE100", "DE200", {0x00, 0xDE, 0x01,}},
-     {"DE120", "DE220", {0x00, 0x80, 0xc8,}},
-     {"DFI1000", "DFI2000", {'D', 'F', 'I',}}, /* Original, eh?  */
-@@ -108,26 +131,54 @@
-     {"PCM-4823", "PCM-4823", {0x00, 0xc0, 0x6c}}, /* Broken Advantech MoBo */
-     {"REALTEK", "RTL8019", {0x00, 0x00, 0xe8}}, /* no-name with Realtek chip */
-     {"LCS-8834", "LCS-8836", {0x04, 0x04, 0x37}}, /* ShinyNet (SET) */
-+#else /* CONFIG_NET_CBUS */
-+    {"LA/T-98?", "LA/T-98", {0x00,0xa0,0xb0}},		/* I/O Data */
-+    {"EGY-98?", "EGY-98", {0x00,0x40,0x26}},		/* Melco EGY98 */
-+    {"ICM?", "ICM-27xx-ET", {0x00,0x80,0xc8}},		/* ICM IF-27xx-ET */
-+    {"CNET-98/EL?", "CNET(98)E/L", {0x00,0x80,0x4C}},	/* Contec CNET-98/EL */
-+#endif
-     {0,}
- };
- #endif
- 
- /* ---- No user-serviceable parts below ---- */
- 
-+#define NE_SHIFT(x) EI_SHIFT(x)
- #define NE_BASE	 (dev->base_addr)
--#define NE_CMD	 	0x00
--#define NE_DATAPORT	0x10	/* NatSemi-defined port window offset. */
--#define NE_RESET	0x1f	/* Issue a read to reset, a write to clear. */
-+#define NE_CMD	 	NE_SHIFT(0x00)
-+#define NE_DATAPORT	NE_SHIFT(0x10)	/* NatSemi-defined port window offset. */
-+#ifndef CONFIG_NET_CBUS
-+#define NE_RESET	NE_SHIFT(0x1f) /* Issue a read to reset, a write to clear. */
-+#else
-+#define NE_RESET	NE_SHIFT(0x11) /* Issue a read to reset, a write to clear. */
-+#endif
-+
- #define NE_IO_EXTENT	0x20
- 
- #define NE1SM_START_PG	0x20	/* First page of TX buffer */
- #define NE1SM_STOP_PG 	0x40	/* Last page +1 of RX ring */
- #define NESM_START_PG	0x40	/* First page of TX buffer */
- #define NESM_STOP_PG	0x80	/* Last page +1 of RX ring */
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+#ifndef CONFIG_NE2K_CBUS_CNET98EL_IO_BASE
-+#warning CONFIG_NE2K_CBUS_CNET98EL_IO_BASE is not defined(config error?)
-+#warning use 0xaaed as default
-+#define CONFIG_NE2K_CBUS_CNET98EL_IO_BASE 0xaaed /* or 0x55ed */
-+#endif
-+#define CNET98EL_START_PG 0x00
-+#define CNET98EL_STOP_PG 0x40
-+#endif
-+
-+#ifdef CONFIG_NET_CBUS
-+#include "ne2k_cbus.h"
-+#endif
- 
- int ne_probe(struct net_device *dev);
- static int ne_probe1(struct net_device *dev, int ioaddr);
- static int ne_probe_isapnp(struct net_device *dev);
-+#ifdef CONFIG_NET_CBUS
-+static int ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr);
-+#endif
- 
- static int ne_open(struct net_device *dev);
- static int ne_close(struct net_device *dev);
-@@ -162,6 +213,8 @@
- 	E2010	 starts at 0x100 and ends at 0x4000.
- 	E2010-x starts at 0x100 and ends at 0xffff.  */
- 
-+#ifndef CONFIG_NET_CBUS
-+
- int __init ne_probe(struct net_device *dev)
- {
- 	unsigned int base_addr = dev->base_addr;
-@@ -190,6 +243,95 @@
- 	return -ENODEV;
- }
- 
-+#else /* CONFIG_NET_CBUS */
-+
-+int __init ne_probe(struct net_device *dev)
-+{
-+	unsigned int base_addr = dev->base_addr;
-+
-+	SET_MODULE_OWNER(dev);
-+
-+	if (ei_debug > 2)
-+		printk(KERN_DEBUG "ne_probe(): entered.\n");
-+
-+	/* If CONFIG_NET_CBUS,
-+	   we need dev->priv->reg_offset BEFORE to probe */
-+	if (ne2k_cbus_init(dev) != 0) {
-+		return -ENOMEM;
-+	}
-+
-+	/* First check any supplied i/o locations. User knows best. <cough> */
-+	if (base_addr > 0) {
-+		int result;
-+		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
-+
-+		if (ei_debug > 2)
-+			printk(KERN_DEBUG "ne_probe(): call ne_probe_cbus(base_addr=0x%x)\n", base_addr);
-+
-+		result = ne_probe_cbus(dev, hw, base_addr);
-+		if (result != 0)
-+			ne2k_cbus_destroy(dev);
-+
-+		return result;
-+	}
-+
-+	if (ei_debug > 2)
-+		printk(KERN_DEBUG "ne_probe(): base_addr is not specified.\n");
-+
-+#ifndef MODULE
-+	/* Last resort. The semi-risky C-Bus auto-probe. */
-+	if (ei_debug > 2)
-+		printk(KERN_DEBUG "ne_probe(): auto-probe start.\n");
-+
-+	{
-+		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
-+
-+		if (hw && hw->hwtype) {
-+			const unsigned short *plist;
-+			for (plist = hw->portlist; *plist; plist++) {
-+				const struct ne2k_cbus_region *rlist;
-+				for (rlist = hw->regionlist; rlist->range; rlist++) {
-+					if (check_region(*plist+rlist->start, rlist->range))
-+						break;
-+				}
-+				if (rlist->range) {
-+					/* check_region() failed */ 
-+					continue; /* try next base port */
-+				}
-+				/* check_region() succeeded */
-+				if (ne_probe_cbus(dev,hw,*plist) == 0)
-+					return 0;
-+			}
-+		}else{
-+			for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
-+				const unsigned short *plist;
-+				for(plist=hw->portlist; *plist; plist++){
-+					const struct ne2k_cbus_region *rlist;
-+
-+					for (rlist = hw->regionlist; rlist->range; rlist++) {
-+						if (check_region(*plist+rlist->start, rlist->range))
-+							break;
-+					}
-+					if (rlist->range) {
-+						/* check_region() failed */ 
-+						continue; /* try next base port */
-+					}
-+					/* check_region() succeeded */
-+					if (ne_probe_cbus(dev,hw,*plist) == 0)
-+						return 0;
-+				}
-+			}
-+		}
-+	}
-+#endif
-+
-+	ne2k_cbus_destroy(dev);
-+
-+	return -ENODEV;
-+}
-+
-+#endif /* CONFIG_NET_CBUS */
-+
- static int __init ne_probe_isapnp(struct net_device *dev)
- {
- 	int i;
-@@ -231,42 +373,127 @@
- 	return -ENODEV;
- }
- 
-+#ifdef CONFIG_NET_CBUS
-+static int __init ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
-+{
-+	if (ei_debug > 2)
-+		printk(KERN_DEBUG "ne_probe_cbus(): entered. (called from %p)\n",
-+		       __builtin_return_address(0));
-+
-+	if (hw && hw->hwtype) {
-+		ne2k_cbus_set_hwtype(dev, hw, ioaddr);
-+		return ne_probe1(dev, ioaddr);
-+	} else {
-+		/* auto detect */
-+
-+		printk(KERN_DEBUG "ne_probe_cbus(): try to determine hardware types.\n");
-+		for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
-+			ne2k_cbus_set_hwtype(dev, hw, ioaddr);
-+			if (ne_probe1(dev, ioaddr)==0)
-+				return 0;
-+		}
-+	}
-+	return ENODEV;
-+}
-+#endif /* CONFIG_NET_CBUS */
-+
- static int __init ne_probe1(struct net_device *dev, int ioaddr)
- {
- 	int i;
- 	unsigned char SA_prom[32];
-+#ifndef CONFIG_NET_CBUS /* if CONFIG_NET_CBUS, wordlength is always 2! */
- 	int wordlength = 2;
-+#endif
- 	const char *name = NULL;
- 	int start_page, stop_page;
-+#ifndef CONFIG_NET_CBUS
- 	int neX000, ctron, copam, bad_card;
-+#else
-+	int neX000, bad_card;
-+#endif
- 	int reg0, ret;
- 	static unsigned version_printed;
-+#ifdef CONFIG_NET_CBUS
-+	const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+#endif
- 
-+#ifdef CONFIG_NET_CBUS
-+	if (ei_debug > 2) {
-+		printk(KERN_DEBUG "ne_probe1(): entered\n"
-+			   "ioaddr=0x%x, hardware_type = %d(%s)\n"
-+			   "ei_local->reg_offset = \n"
-+			   "{ 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, \n"
-+			   "  0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, \n"
-+			   "  0x%04x, 0x%04x }\n",
-+			   ioaddr, hw->hwtype, hw->hwident,
-+			   ei_local->reg_offset[0],  ei_local->reg_offset[1],
-+			   ei_local->reg_offset[2],  ei_local->reg_offset[3],
-+			   ei_local->reg_offset[4],  ei_local->reg_offset[5],
-+			   ei_local->reg_offset[6],  ei_local->reg_offset[7],
-+			   ei_local->reg_offset[8],  ei_local->reg_offset[9],
-+			   ei_local->reg_offset[10], ei_local->reg_offset[11],
-+			   ei_local->reg_offset[12], ei_local->reg_offset[13],
-+			   ei_local->reg_offset[14], ei_local->reg_offset[15],
-+			   ei_local->reg_offset[16], ei_local->reg_offset[17]);
-+	}
-+#endif
-+
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
-+		outb_p(0, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
-+		/* udelay(5000);	*/
-+		outb_p(1, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
-+		/* udelay(5000);	*/
-+		outb_p((ioaddr & 0xf000) >> 8 | 0x08 | 0x01, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE + 2);
-+		/* udelay(5000); */
-+	}
-+#endif
-+
-+#ifndef CONFIG_NET_CBUS
- 	if (!request_region(ioaddr, NE_IO_EXTENT, dev->name))
- 		return -EBUSY;
-+#else /* CONFIG_NET_CBUS */
-+	{
-+		const struct ne2k_cbus_region *rlist;
-+		for (rlist = hw->regionlist; rlist->range; rlist++) {
-+			if (!request_region(ioaddr + rlist->start,
-+						rlist->range, dev->name))
-+				return -EBUSY;
-+		}
-+	}
-+#endif /* !CONFIG_NET_CBUS */
- 
--	reg0 = inb_p(ioaddr);
-+	reg0 = inb_p(ioaddr + NE_SHIFT(0));
- 	if (reg0 == 0xFF) {
- 		ret = -ENODEV;
- 		goto err_out;
- 	}
- 
- 	/* Do a preliminary verification that we have a 8390. */
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	if (hw->hwtype != NE2K_CBUS_HARDWARE_TYPE_CNET98EL)
-+#endif
- 	{
- 		int regd;
- 		outb_p(E8390_NODMA+E8390_PAGE1+E8390_STOP, ioaddr + E8390_CMD);
--		regd = inb_p(ioaddr + 0x0d);
--		outb_p(0xff, ioaddr + 0x0d);
-+		regd = inb_p(ioaddr + NE_SHIFT(0x0d));
-+		outb_p(0xff, ioaddr + NE_SHIFT(0x0d));
- 		outb_p(E8390_NODMA+E8390_PAGE0, ioaddr + E8390_CMD);
- 		inb_p(ioaddr + EN0_COUNTER0); /* Clear the counter by reading. */
- 		if (inb_p(ioaddr + EN0_COUNTER0) != 0) {
- 			outb_p(reg0, ioaddr);
--			outb_p(regd, ioaddr + 0x0d);	/* Restore the old values. */
-+			outb_p(regd, ioaddr + NE_SHIFT(0x0d));	/* Restore the old values. */
- 			ret = -ENODEV;
- 			goto err_out;
- 		}
- 	}
- 
-+#ifdef CONFIG_NET_CBUS
-+	if (ei_debug > 2)
-+		printk(KERN_DEBUG "ne_probe1(): 8390 verification passed.\n");
-+#endif
-+
- 	if (ei_debug  &&  version_printed++ == 0)
- 		printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
- 
-@@ -285,6 +512,11 @@
- 	{
- 		unsigned long reset_start_time = jiffies;
- 
-+#ifdef CONFIG_NET_CBUS
-+		/* derived from CNET98EL-patch for bad clones */
-+		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD);
-+#endif
-+
- 		/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
- 		outb(inb(ioaddr + NE_RESET), ioaddr + NE_RESET);
- 
-@@ -303,15 +535,130 @@
- 		outb_p(0xff, ioaddr + EN0_ISR);		/* Ack all intr. */
- 	}
- 
-+#ifdef CONFIG_NE2K_CBUS_ICM
-+#if 0 /* obsoleted */
-+	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_ICM) {
-+		static const char pat[32] ="AbcdeFghijKlmnoPqrstUvwxyZ789012";
-+		char buf[sizeof(pat)];
-+		int maxwait = 200;
-+
-+		if (ei_debug > 2) {
-+			printk(" [ICM-specific initialize...");
-+		}
-+
-+		inb(ioaddr + EN0_ISR);
-+		outb_p(E8390_RXOFF, ioaddr+EN0_RXCR);
-+		outb_p(0x1| 0x40 | 0x8, ioaddr+EN0_DCFG); /* ENDCFG_WTS|ENDCFG_FT1|ENDCFG_LS */
-+		outb_p(16384 / 256, ioaddr + EN0_STARTPG);
-+		outb_p(32768 / 256, ioaddr + EN0_STOPPG);
-+		ne2k_cbus_writemem(dev, ioaddr, 16384, pat, sizeof(pat));
-+		while ((inb(ioaddr+EN0_ISR) & ENISR_RDC) != ENISR_RDC
-+			  && --maxwait)
-+			;
-+		if (ei_debug > 2) {
-+			printk("write pat...");
-+		}
-+		ne2k_cbus_readmem(dev, ioaddr, 16384, buf, sizeof(pat));
-+		if (ei_debug>2) {
-+			printk("read pat...");
-+		}
-+		if (memcmp(pat, buf, sizeof(pat))) {
-+			if (ei_debug > 2) {
-+				printk("compare failed.)");
-+			}
-+			printk(" memory failure\n");
-+			return ENODEV;
-+		}
-+		if (ei_debug > 2) {
-+			printk("compare ok...");
-+		}
-+		ne2k_cbus_readmem(dev, ioaddr, 0, SA_prom, 32);
-+		outb(0xff, ioaddr+EN0_ISR);
-+		printk("done)");
-+	}
-+	else
-+#endif
-+#endif /* CONFIG_NE2K_CBUS_ICM */
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
-+		static const char pat[32] ="AbcdeFghijKlmnoPqrstUvwxyZ789012";
-+		char buf[32];
-+		int maxwait = 200;
-+
-+		if (ei_debug > 2) {
-+			printk(" [CNET98EL-specific initialize...");
-+		}
-+		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD); /* 0x20|0x1 */
-+		i=inb(ioaddr);
-+		if ((i & ~0x2) != (0x20 | 0x01))
-+			return ENODEV;
-+		if ((inb(ioaddr + 0x7) & 0x80) != 0x80)
-+			return ENODEV;
-+		outb_p(E8390_RXOFF, ioaddr+EN0_RXCR); /* out(ioaddr+0xc, 0x20) */
-+		/* outb_p(ENDCFG_WTS|ENDCFG_FT1|ENDCFG_LS, ioaddr+EN0_DCFG); */
-+		outb_p(ENDCFG_WTS|0x48, ioaddr+EN0_DCFG); /* 0x49 */
-+		outb_p(CNET98EL_START_PG, ioaddr+EN0_STARTPG);
-+		outb_p(CNET98EL_STOP_PG, ioaddr+EN0_STOPPG);
-+		if (ei_debug > 2) {
-+			printk("memory check");
-+		}
-+		for (i = 0; i < 65536; i += 1024) {
-+			if (ei_debug > 2) {
-+				printk(" %04x",i);
-+			}
-+			ne2k_cbus_writemem(dev,ioaddr, i, pat, 32);
-+			while (((inb(ioaddr + EN0_ISR) & ENISR_RDC) != ENISR_RDC) && --maxwait)
-+				;
-+			ne2k_cbus_readmem(dev, ioaddr, i, buf, 32);
-+			if (memcmp(pat, buf, 32)) {
-+				if (ei_debug > 2) {
-+					printk(" failed.");
-+				}
-+				break;
-+			}
-+		}
-+		if (i != 16384) {
-+			if (ei_debug > 2) {
-+				printk("] ");
-+			}
-+			printk("memory failure at %x\n", i);
-+			return ENODEV;
-+		}
-+		if (ei_debug > 2) {
-+			printk(" good...");
-+		}
-+		if (!dev->irq) {
-+			if (ei_debug > 2) {
-+				printk("] ");
-+			}
-+			printk("IRQ must be specified for C-NET(98)E/L. probe failed.\n");
-+			return ENODEV;
-+		}
-+		outb((dev->irq>5) ? (dev->irq&4):(dev->irq>>1), ioaddr + (0x2 | 0x400));
-+		outb(0x7e, ioaddr + (0x4 | 0x400));
-+		ne2k_cbus_readmem(dev, ioaddr, 16384, SA_prom, 32);
-+		outb(0xff, ioaddr + EN0_ISR);
-+		if (ei_debug > 2) {
-+			printk("done]");
-+		}
-+	} else
-+#endif /* CONFIG_NE2K_CBUS_CNET98EL */
- 	/* Read the 16 bytes of station address PROM.
- 	   We must first initialize registers, similar to NS8390_init(eifdev, 0).
- 	   We can't reliably read the SAPROM address without this.
- 	   (I learned the hard way!). */
- 	{
--		struct {unsigned char value, offset; } program_seq[] =
-+		struct {unsigned char value; unsigned short offset;} program_seq[] = 
- 		{
- 			{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
-+#ifndef CONFIG_NET_CBUS
- 			{0x48,	EN0_DCFG},	/* Set byte-wide (0x48) access. */
-+#else
-+			/* NEC PC-9800: some board can only handle word-wide access? */
-+			{0x48 | ENDCFG_WTS,	EN0_DCFG},	/* Set word-wide (0x48) access. */
-+			{16384 / 256, EN0_STARTPG},
-+			{32768 / 256, EN0_STOPPG},
-+#endif
- 			{0x00,	EN0_RCNTLO},	/* Clear the count regs. */
- 			{0x00,	EN0_RCNTHI},
- 			{0x00,	EN0_IMR},	/* Mask completion irq. */
-@@ -325,17 +672,44 @@
- 			{E8390_RREAD+E8390_START, E8390_CMD},
- 		};
- 
-+#ifdef CONFIG_NET_CBUS
-+		if (ei_debug > 2) {
-+			printk(" [outb_p");
-+		}
-+#endif
-+
- 		for (i = 0; i < sizeof(program_seq)/sizeof(program_seq[0]); i++)
-+#ifdef CONFIG_NET_CBUS
-+		{
-+			if (ei_debug > 2)
-+				printk("(0x%x,0x%x)",program_seq[i].value, ioaddr + program_seq[i].offset);
-+#endif
- 			outb_p(program_seq[i].value, ioaddr + program_seq[i].offset);
--
--	}
-+#ifdef CONFIG_NET_CBUS
-+		}
-+		if (ei_debug > 2)
-+			printk("]");
-+#endif
-+#ifndef CONFIG_NET_CBUS
- 	for(i = 0; i < 32 /*sizeof(SA_prom)*/; i+=2) {
- 		SA_prom[i] = inb(ioaddr + NE_DATAPORT);
- 		SA_prom[i+1] = inb(ioaddr + NE_DATAPORT);
- 		if (SA_prom[i] != SA_prom[i+1])
- 			wordlength = 1;
- 	}
-+#else
-+	insw(ioaddr + NE_DATAPORT, SA_prom, 32 >> 1);
-+#endif
- 
-+	}
-+
-+	if (ei_debug > 2) {
-+		printk("[SA_prom[]={ ");
-+		for (i = 0; i < 32; i++) printk("%02x ", SA_prom[i]);
-+		printk("}]");
-+	}
-+
-+#ifndef CONFIG_NET_CBUS
- 	if (wordlength == 2)
- 	{
- 		for (i = 0; i < 16; i++)
-@@ -348,8 +722,24 @@
- 		start_page = NE1SM_START_PG;
- 		stop_page = NE1SM_STOP_PG;
- 	}
-+#else
-+	for (i = 0; i < 16; i++)
-+		SA_prom[i] = SA_prom[i + i];
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
-+		start_page = CNET98EL_START_PG;
-+		stop_page = CNET98EL_STOP_PG;
-+	} else {
-+#endif
-+		start_page = NESM_START_PG;
-+		stop_page = NESM_STOP_PG;
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	}
-+#endif
-+#endif
- 
- 	neX000 = (SA_prom[14] == 0x57  &&  SA_prom[15] == 0x57);
-+#ifndef CONFIG_NET_CBUS
- 	ctron =  (SA_prom[0] == 0x00 && SA_prom[1] == 0x00 && SA_prom[2] == 0x1d);
- 	copam =  (SA_prom[14] == 0x49 && SA_prom[15] == 0x00);
- 
-@@ -363,6 +753,11 @@
- 		start_page = 0x01;
- 		stop_page = (wordlength == 2) ? 0x40 : 0x20;
- 	}
-+#else
-+	if (neX000){
-+		name = "NE2000-compat";
-+	}
-+#endif
- 	else
- 	{
- #ifdef SUPPORT_NE_BAD_CLONES
-@@ -374,12 +769,16 @@
- 				SA_prom[1] == bad_clone_list[i].SAprefix[1] &&
- 				SA_prom[2] == bad_clone_list[i].SAprefix[2])
- 			{
-+#ifndef CONFIG_NET_CBUS
- 				if (wordlength == 2)
- 				{
- 					name = bad_clone_list[i].name16;
- 				} else {
- 					name = bad_clone_list[i].name8;
- 				}
-+#else
-+				name = bad_clone_list[i].name16;
-+#endif
- 				break;
- 			}
- 		}
-@@ -387,6 +786,12 @@
- 		{
- 			printk(" not found (invalid signature %2.2x %2.2x).\n",
- 				SA_prom[14], SA_prom[15]);
-+#ifdef CONFIG_NET_CBUS
-+			if (ei_debug > 2) {
-+				printk(KERN_DEBUG "PROM prefix is: %2.2x %2.2x %2.2x\n",
-+					   SA_prom[0], SA_prom[1], SA_prom[2]);
-+			}
-+#endif
- 			ret = -ENXIO;
- 			goto err_out;
- 		}
-@@ -409,10 +814,18 @@
- 		dev->irq = probe_irq_off(cookie);
- 		if (ei_debug > 2)
- 			printk(" autoirq is %d\n", dev->irq);
--	} else if (dev->irq == 2)
-+	} else
-+#ifndef CONFIG_PC9800
-+	if (dev->irq == 2)
- 		/* Fixup for users that don't know that IRQ 2 is really IRQ 9,
- 		   or don't know which one to set. */
- 		dev->irq = 9;
-+#else
-+	if (dev->irq == 7)
-+		/* Fixup for users that don't know that IRQ 7 is really IRQ 11,
-+		   or don't know which one to set. */
-+		dev->irq = 11;
-+#endif
- 
- 	if (! dev->irq) {
- 		printk(" failed to detect IRQ line.\n");
-@@ -443,13 +856,22 @@
- 		dev->dev_addr[i] = SA_prom[i];
- 	}
- 
-+#ifndef CONFIG_NET_CBUS
- 	printk("\n%s: %s found at %#x, using IRQ %d.\n",
- 		dev->name, name, ioaddr, dev->irq);
-+#else
-+	printk("\n%s: %s found at %#x, hardware type %d(%s), using IRQ %d.\n",
-+		   dev->name, name, ioaddr, hw->hwtype, hw->hwident, dev->irq);
-+#endif
- 
- 	ei_status.name = name;
- 	ei_status.tx_start_page = start_page;
- 	ei_status.stop_page = stop_page;
-+#ifndef CONFIG_NET_CBUS
- 	ei_status.word16 = (wordlength == 2);
-+#else
-+	ei_status.word16 = (2 == 2); /* wordlength is always 2 */
-+#endif
- 
- 	ei_status.rx_start_page = start_page + TX_PAGES;
- #ifdef PACKETBUF_MEMSIZE
-@@ -468,10 +890,23 @@
- 	return 0;
- 
- err_out_kfree:
-+#ifndef CONFIG_NET_CBUS
- 	kfree(dev->priv);
- 	dev->priv = NULL;
-+#else
-+	ne2k_cbus_destroy(dev);
-+#endif
- err_out:
-+#ifndef CONFIG_NET_CBUS
- 	release_region(ioaddr, NE_IO_EXTENT);
-+#else
-+	{
-+		const struct ne2k_cbus_region *rlist;
-+		for (rlist = hw->regionlist; rlist->range; rlist++) {
-+			release_region(ioaddr + rlist->start, rlist->range);
-+		}
-+	}
-+#endif
- 	return ret;
- }
- 
-@@ -495,10 +930,18 @@
- static void ne_reset_8390(struct net_device *dev)
- {
- 	unsigned long reset_start_time = jiffies;
-+#ifdef CONFIG_NET_CBUS
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+#endif
- 
- 	if (ei_debug > 1)
- 		printk(KERN_DEBUG "resetting the 8390 t=%ld...", jiffies);
- 
-+#ifdef CONFIG_NET_CBUS
-+	/* derived from CNET98EL-patch for bad clones... */
-+	outb_p(E8390_NODMA | E8390_STOP, NE_BASE + E8390_CMD);  /* 0x20 | 0x1 */
-+#endif
-+
- 	/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
- 	outb(inb(NE_BASE + NE_RESET), NE_BASE + NE_RESET);
- 
-@@ -521,6 +964,9 @@
- static void ne_get_8390_hdr(struct net_device *dev, struct e8390_pkt_hdr *hdr, int ring_page)
- {
- 	int nic_base = dev->base_addr;
-+#ifdef CONFIG_NET_CBUS
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+#endif
- 
- 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
- 
-@@ -563,6 +1009,9 @@
- #endif
- 	int nic_base = dev->base_addr;
- 	char *buf = skb->data;
-+#ifdef CONFIG_NET_CBUS
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+#endif
- 
- 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
- 	if (ei_status.dmaing)
-@@ -573,6 +1022,15 @@
- 		return;
- 	}
- 	ei_status.dmaing |= 0x01;
-+
-+#ifdef CONFIG_NET_CBUS
-+	/* derived from ICM-patch */
-+	/* round up count to a word */
-+	if (count & 1) {
-+	    count++;
-+	}
-+#endif
-+
- 	outb_p(E8390_NODMA+E8390_PAGE0+E8390_START, nic_base+ NE_CMD);
- 	outb_p(count & 0xff, nic_base + EN0_RCNTLO);
- 	outb_p(count >> 8, nic_base + EN0_RCNTHI);
-@@ -630,6 +1088,9 @@
- #ifdef NE_SANITY_CHECK
- 	int retries = 0;
- #endif
-+#ifdef CONFIG_NET_CBUS
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+#endif
- 
- 	/* Round the count up for word writes.  Do we need to do this?
- 	   What effect will an odd byte count have on the 8390?
-@@ -730,16 +1191,25 @@
- #ifdef MODULE
- #define MAX_NE_CARDS	4	/* Max number of NE cards per module */
- static struct net_device dev_ne[MAX_NE_CARDS];
--static int io[MAX_NE_CARDS];
--static int irq[MAX_NE_CARDS];
--static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
-+static int __initdata io[MAX_NE_CARDS];
-+static int __initdata irq[MAX_NE_CARDS];
-+static int __initdata bad[MAX_NE_CARDS];  /* 0xbad = bad sig or no reset ack */
-+#ifdef CONFIG_PC9800
-+static int __initdata hwtype[MAX_NE_CARDS] = { 0, }; /* board type */
-+#endif
- 
- MODULE_PARM(io, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
- MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
- MODULE_PARM(bad, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
-+#ifdef CONFIG_PC9800
-+MODULE_PARM(hwtype, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
-+#endif
- MODULE_PARM_DESC(io, "I/O base address(es),required");
- MODULE_PARM_DESC(irq, "IRQ number(s)");
- MODULE_PARM_DESC(bad, "Accept card(s) with bad signatures");
-+#ifdef CONFIG_PC9800
-+MODULE_PARM_DESC(hwtype, "Board type of PC-9800 C-Bus NIC");
-+#endif
- MODULE_DESCRIPTION("NE1000/NE2000 ISA/PnP Ethernet driver");
- MODULE_LICENSE("GPL");
- 
-@@ -757,6 +1227,9 @@
- 		dev->irq = irq[this_dev];
- 		dev->mem_end = bad[this_dev];
- 		dev->base_addr = io[this_dev];
-+#ifdef CONFIG_PC9800
-+		dev->mem_start = hwtype[this_dev];
-+#endif
- 		dev->init = ne_probe;
- 		if (register_netdev(dev) == 0) {
- 			found++;
-@@ -781,14 +1254,30 @@
- 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
- 		struct net_device *dev = &dev_ne[this_dev];
- 		if (dev->priv != NULL) {
-+#ifndef CONFIG_NET_CBUS
- 			void *priv = dev->priv;
-+#endif
- 			struct pci_dev *idev = (struct pci_dev *)ei_status.priv;
- 			if (idev)
- 				idev->deactivate(idev);
- 			free_irq(dev->irq, dev);
-+#ifndef CONFIG_NET_CBUS
- 			release_region(dev->base_addr, NE_IO_EXTENT);
-+#else /* CONFIG_NET_CBUS */
-+			{
-+				const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
-+				const struct ne2k_cbus_region *rlist;
-+				for (rlist = hw->regionlist; rlist->range; rlist++) {
-+					release_region(dev->base_addr + rlist->start, rlist->range);
-+				}
-+			}
-+#endif /* !CONFIG_NET_CBUS */
- 			unregister_netdev(dev);
-+#ifndef CONFIG_NET_CBUS
- 			kfree(priv);
-+#else
-+			ne2k_cbus_destroy(dev);
-+#endif
- 		}
- 	}
- }
-diff -Nru linux-2.5.42/drivers/net/ne2k_cbus.h linux98-2.5.42/drivers/net/ne2k_cbus.h
---- linux-2.5.42/drivers/net/ne2k_cbus.h	Thu Jan  1 09:00:00 1970
-+++ linux98-2.5.42/drivers/net/ne2k_cbus.h	Sat Oct 26 14:26:13 2002
-@@ -0,0 +1,467 @@
-+/* ne2k_cbus.h: 
-+   vender-specific information definition for NEC PC-9800
-+   C-bus Ethernet Cards
-+   Used in ne.c 
-+
-+   (C)1998,1999 KITAGWA Takurou & Linux/98 project
-+*/
++ * linux/drivers/video/gdccon.c
++ * Low level GDC based console driver for NEC PC-9800 series
++ *
++ * Created 24 Dec 1998 by Linux/98 project
++ *
++ * based on:
++ * linux/drivers/video/vgacon.c in Linux 2.1.131 by Geert Uytterhoeven
++ * linux/char/gdc.c in Linux/98 2.1.57 by Linux/98 project
++ * linux/char/console.c in Linux/98 2.1.57 by Linux/98 project
++ */
 +
 +#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/tty.h>
++#include <linux/console.h>
++#include <linux/console_struct.h>
++#include <linux/string.h>
++#include <linux/kd.h>
++#include <linux/slab.h>
++#include <linux/vt_kern.h>
++#include <linux/selection.h>
++#include <linux/spinlock.h>
++#include <linux/ioport.h>
++#include <linux/init.h>
 +
-+/* Hardware type definition (derived from *BSD) */
-+#define NE2K_CBUS_HARDWARE_TYPE_MASK 0xff
++#include <asm/io.h>
++#include <asm/pc9800.h>
 +
-+/* 0: reserved for auto-detect */
-+/* 1: (not tested)
-+   Allied Telesis CentreCom LA-98-T */
-+#define NE2K_CBUS_HARDWARE_TYPE_ATLA98 1
-+/* 2: (not tested)
-+   ELECOM Laneed
-+   LD-BDN[123]A
-+   PLANET SMART COM 98 EN-2298-C
-+   MACNICA ME98 */
-+#define NE2K_CBUS_HARDWARE_TYPE_BDN 2
-+/* 3:
-+   Melco EGY-98
-+   Contec C-NET(98)E*A/L*A,C-NET(98)P */
-+#define NE2K_CBUS_HARDWARE_TYPE_EGY98 3
-+/* 4:
-+   Melco LGY-98,IND-SP,IND-SS
-+   MACNICA NE2098 */
-+#define NE2K_CBUS_HARDWARE_TYPE_LGY98 4
-+/* 5:
-+   ICM DT-ET-25,DT-ET-T5,IF-2766ET,IF-2771ET
-+   PLANET SMART COM 98 EN-2298-T,EN-2298P-T
-+   D-Link DE-298PT,DE-298PCAT
-+   ELECOM Laneed LD-98P */
-+#define NE2K_CBUS_HARDWARE_TYPE_ICM 5
-+/* 6: (reserved for SIC-98, which is not supported in this driver.) */
-+/* 7: (unused in *BSD?)
-+   <Original NE2000 compatible>
-+   <for PCI/PCMCIA cards>
-+*/
-+#define NE2K_CBUS_HARDWARE_TYPE_NE2K 7
-+/* 8: (not tested)
-+   NEC PC-9801-108 */
-+#define NE2K_CBUS_HARDWARE_TYPE_NEC108 8
-+/* 9:
-+   I-O DATA LA-98,LA/T-98 */
-+#define NE2K_CBUS_HARDWARE_TYPE_IOLA98 9
-+/* 10: (reserved for C-NET(98), which is not supported in this driver.) */
-+/* 11:
-+   Contec C-NET(98)E,L */
-+#define NE2K_CBUS_HARDWARE_TYPE_CNET98EL 11
++static spinlock_t gdc_lock = SPIN_LOCK_UNLOCKED;
 +
-+#define NE2K_CBUS_HARDWARE_TYPE_MAX 11
-+
-+/* HARDWARE TYPE ID 12-31: reserved */
-+
-+struct ne2k_cbus_offsetinfo {
-+	unsigned short skip;
-+	unsigned short offset8; /* +0x8 - +0xf */
-+	unsigned short offset10; /* +0x10 */
-+	unsigned short offset1f; /* +0x1f */
++static char str_gdc_master[] = "GDC (master)";
++static char str_gdc_slave[] = "GDC (slave)";
++static char str_crtc[] = "crtc";
++static struct resource gdc_console_resources[] = {
++    {str_gdc_master, 0x60, 0x60, 0},
++    {str_gdc_master, 0x62, 0x62, 0},
++    {str_gdc_master, 0x64, 0x64, 0},
++    {str_gdc_master, 0x66, 0x66, 0},
++    {str_gdc_master, 0x68, 0x68, 0},
++    {str_gdc_master, 0x6a, 0x6a, 0},
++    {str_gdc_master, 0x6c, 0x6c, 0},
++    {str_gdc_master, 0x6e, 0x6e, 0},
++    {str_crtc, 0x70, 0x70, 0},
++    {str_crtc, 0x72, 0x72, 0},
++    {str_crtc, 0x74, 0x74, 0},
++    {str_crtc, 0x76, 0x76, 0},
++    {str_crtc, 0x78, 0x78, 0},
++    {str_crtc, 0x7a, 0x7a, 0},
++    {str_gdc_slave, 0xa0, 0xa0, 0},
++    {str_gdc_slave, 0xa2, 0xa2, 0},
++    {str_gdc_slave, 0xa4, 0xa4, 0},
++    {str_gdc_slave, 0xa6, 0xa6, 0},
 +};
 +
-+struct ne2k_cbus_region {
-+	unsigned short start;
-+	short range;
-+};
++#define GDC_CONSOLE_RESOURCES (sizeof(gdc_console_resources)/sizeof(struct resource))
 +
-+struct ne2k_cbus_hwinfo {
-+	const unsigned short hwtype;
-+	const unsigned char *hwident;
-+#ifndef MODULE
-+	const unsigned short *portlist;
-+#endif
-+	const struct ne2k_cbus_offsetinfo *offsetinfo;
-+	const struct ne2k_cbus_region *regionlist;
-+};
++#define BLANK 0x0020
++#define BLANK_ATTR 0x00e1
 +
-+/* XXX */
-+/* we can't use first __initdata with const? */
-+static struct {} ne2k_cbus_dummy_for_initdata __attribute__((unused)) __initdata = {};
++/* GDC/GGDC port# */
++#define GDC_COMMAND 0x62
++#define GDC_PARAM 0x60
++#define GDC_STAT 0x60
++#define GDC_DATA 0x62
 +
-+#ifdef CONFIG_NE2K_CBUS_ATLA98
-+#ifndef MODULE
-+static const unsigned short atla98_portlist[] __initdata = {
-+	0xd0,
-+	0
-+};
-+#endif
-+#define atla98_offsetinfo ne2k_offsetinfo
-+#define atla98_regionlist ne2k_regionlist
-+#endif /* CONFIG_NE2K_CBUS_ATLA98 */
++#define MODE_FF1	(0x0068)	/* mode F/F register 1 */
 +
-+#ifdef CONFIG_NE2K_CBUS_BDN
-+#ifndef MODULE
-+static const unsigned short bdn_portlist[] __initdata = {
-+	0xd0,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo bdn_offsetinfo __initdata = {
-+#if 0
-+	/* comes from FreeBSD(98) ed98.h */
-+	0x1000, 0x8000, 0x100, 0xc200 /* ??? */
-+#else
-+	/* comes from NetBSD/pc98 if_ne_isa.c */
-+	0x1000, 0x8000, 0x100, 0x7f00 /* ??? */
-+#endif
-+};
-+static const struct ne2k_cbus_region bdn_regionlist[] __initdata = {
-+	{0x0,1},{0x1000,1},{0x2000,1},{0x3000,1},
-+	{0x4000,1},{0x5000,1},{0x6000,1},{0x7000,1},
-+	{0x8000,1},{0x9000,1},{0xa000,1},{0xb000,1},
-+	{0xc000,1},{0xd000,1},{0xe000,1},{0xf000,1},{0x100,1},{0x7f00,1},
-+	{0x0,0}
-+};
-+#endif /* CONFIG_NE2K_CBUS_BDN */
++#define  MODE_FF1_ATR_SEL	(0x00)	/* 0: vertical line 1: 8001 graphic */
++#define  MODE_FF1_GRAPHIC_MODE	(0x02)	/* 0: color 1: mono */
++#define  MODE_FF1_COLUMN_WIDTH	(0x04)	/* 0: 80col 1: 40col */
++#define  MODE_FF1_FONT_SEL	(0x06)	/* 0: 6x8 1: 7x13 */
++#define  MODE_FF1_GRP_MODE	(0x08)	/* 0: display odd-y raster 1: not */
++#define  MODE_FF1_KAC_MODE	(0x0a)	/* 0: code access 1: dot access */
++#define  MODE_FF1_NVMW_PERMIT	(0x0c)	/* 0: protect 1: permit */
++#define  MODE_FF1_DISP_ENABLE	(0x0e)	/* 0: enable 1: disable */
 +
-+#ifdef CONFIG_NE2K_CBUS_EGY98
-+#ifndef MODULE
-+static const unsigned short egy98_portlist[] __initdata = {
-+	0xd0,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo egy98_offsetinfo __initdata = {
-+	0x02, 0x100, 0x200, 0x300
-+};
-+static const struct ne2k_cbus_region egy98_regionlist[] __initdata = {
-+	{0x0,1}, {0x2,1}, {0x4,1}, {0x6,1}, {0x8,1}, {0xa,1}, {0xc,1}, {0xe,1},
-+	{0x100,1}, {0x102,1}, {0x104,1}, {0x106,1},
-+	{0x108,1}, {0x10a,1}, {0x10c,1}, {0x10e,1},
-+	{0x200,1}, {0x300,1},
-+	{0x0,0}
-+};
-+#endif /* CONFIG_NE2K_CBUS_EGY98 */
++#define GGDC_COMMAND 0xa2
++#define GGDC_PARAM 0xa0
++#define GGDC_STAT 0xa0
++#define GGDC_DATA 0xa2
 +
-+#ifdef CONFIG_NE2K_CBUS_LGY98
-+#ifndef MODULE
-+static const unsigned short lgy98_portlist[] __initdata = {
-+	0xd0, 0x10d0, 0x20d0, 0x30d0, 0x40d0, 0x50d0, 0x60d0, 0x70d0,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo lgy98_offsetinfo __initdata = {
-+	0x01, 0x08, 0x200, 0x300
-+};
-+static const struct ne2k_cbus_region lgy98_regionlist[] __initdata = {
-+	{0x0,16}, {0x200,1}, {0x300,1},
-+	{0x0,0}
-+};
-+#endif /* CONFIG_NE2K_CBUS_LGY98 */
++/* GDC status */
++#define GDC_DATA_READY		(1 << 0)
++#define GDC_FIFO_FULL		(1 << 1)
++#define GDC_FIFO_EMPTY		(1 << 2)
++#define GGDC_FIFO_EMPTY		GDC_FIFO_EMPTY
++#define GDC_DRAWING		(1 << 3)
++#define GDC_DMA_EXECUTE		(1 << 4)	/* nonsense on 98 */
++#define GDC_VERTICAL_SYNC	(1 << 5)
++#define GDC_HORIZONTAL_BLANK	(1 << 6)
++#define GDC_LIGHTPEN_DETECT	(1 << 7)	/* nonsense on 98 */
 +
-+#ifdef CONFIG_NE2K_CBUS_ICM
-+#ifndef MODULE
-+static const unsigned short icm_portlist[] __initdata = {
-+	/* ICM */
-+	0x56d0,
-+	/* LD-98PT */
-+	0x46d0, 0x66d0, 0x76d0, 0x86d0, 0x96d0, 0xa6d0, 0xb6d0, 0xc6d0,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo icm_offsetinfo __initdata = {
-+	0x01, 0x08, 0x100, 0x10f
-+};
-+static const struct ne2k_cbus_region icm_regionlist[] __initdata = {
-+	{0x0,16}, {0x100,16},
-+	{0x0,0}
-+};
-+#endif /* CONFIG_NE2K_CBUS_ICM */
++#define ATTR_G		(1U << 7)
++#define ATTR_R		(1U << 6)
++#define ATTR_B		(1U << 5)
++#define ATTR_GRAPHIC	(1U << 4)
++#define ATTR_VERTBAR	ATTR_GRAPHIC	/* vertical bar */
++#define ATTR_UNDERLINE	(1U << 3)
++#define ATTR_REVERSE	(1U << 2)
++#define ATTR_BLINK	(1U << 1)
++#define ATTR_NOSECRET	(1U << 0)
++#define AMASK_NOCOLOR	(ATTR_GRAPHIC | ATTR_UNDERLINE | ATTR_REVERSE \
++			 | ATTR_BLINK | ATTR_NOSECRET)
 +
-+#if defined(CONFIG_NE2K_CBUS_NE2K) && !defined(MODULE)
-+static const unsigned short ne2k_portlist[] __initdata = {
-+	0xd0, 0x300, 0x280, 0x320, 0x340, 0x360, 0x380,
-+	0
-+};
-+#endif
-+#if defined(CONFIG_NE2K_CBUS_NE2K) || defined(CONFIG_NE2K_CBUS_ATLA98)
-+static const struct ne2k_cbus_offsetinfo ne2k_offsetinfo __initdata = {
-+	0x01, 0x08, 0x10, 0x1f
-+};
-+static const struct ne2k_cbus_region ne2k_regionlist[] __initdata = {
-+	{0x0,32},
-+	{0x0,0}
-+};
-+#endif
++/*
++ *  Interface used by the world
++ */
++static const char *gdccon_startup(void);
++static void gdccon_init(struct vc_data *c, int init);
++static void gdccon_deinit(struct vc_data *c);
++static void gdccon_cursor(struct vc_data *c, int mode);
++static int gdccon_switch(struct vc_data *c);
++static int gdccon_blank(struct vc_data *c, int blank);
++static int gdccon_scrolldelta(struct vc_data *c, int lines);
++static int gdccon_set_origin(struct vc_data *c);
++static void gdccon_save_screen(struct vc_data *c);
++static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines);
++static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse);
++static void gdccon_invert_region(struct vc_data *c, u16 *p, int count);
++static unsigned long gdccon_uni_pagedir[2];
 +
-+#ifdef CONFIG_NE2K_CBUS_NEC108
-+#ifndef MODULE
-+static const unsigned short nec108_portlist[] __initdata = {
-+    0x770, 0x2770, 0x4770, 0x6770,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo nec108_offsetinfo __initdata = {
-+	0x02, 0x1000, 0x888, 0x88a
-+};
-+static const struct ne2k_cbus_region nec108_regionlist[] __initdata = {
-+	{0x0,1}, {0x2,1}, {0x4,1}, {0x6,1}, {0x8,1}, {0xa,1}, {0xc,1}, {0xe,1},
-+	{0x1000,1}, {0x1002,1}, {0x1004,1}, {0x1006,1},
-+	{0x1008,1}, {0x100a,1}, {0x100c,1}, {0x100e,1},
-+	{0x118,1}, {0x11a,1}, {0x11c,1}, {0x11e,1},
-+	{0x0,0}
-+};
-+#endif
++/* Description of the hardware situation */
++static unsigned long   gdc_vram_base;		/* Base of video memory */
++static unsigned long   gdc_vram_end;		/* End of video memory */
++static unsigned int    gdc_video_num_columns = 80;
++						/* Number of text columns */
++static unsigned int    gdc_video_num_lines = 25;
++						/* Number of text lines */
++static int	       gdc_can_do_color = 1;	/* Do we support colors? */
++static unsigned char   gdc_video_type;		/* Card type */
++static unsigned char   gdc_hardscroll_enabled;
++static unsigned char   gdc_hardscroll_user_enable = 1;
++static int	       gdc_vesa_blanked = 0;
++static unsigned int    gdc_rolled_over = 0;
 +
-+#ifdef CONFIG_NE2K_CBUS_IOLA98
-+#ifndef MODULE
-+static const unsigned short iola98_portlist[] __initdata = {
-+	0xd0, 0xd2, 0xd4, 0xd6, 0xd8, 0xda, 0xdc, 0xde,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo iola98_offsetinfo __initdata = {
-+	0x1000, 0x8000, 0x100, 0xf100
-+};
-+static const struct ne2k_cbus_region iola98_regionlist[] __initdata = {
-+	{0x0,1},{0x1000,1},{0x2000,1},{0x3000,1},
-+	{0x4000,1},{0x5000,1},{0x6000,1},{0x7000,1},
-+	{0x8000,1},{0x9000,1},{0xa000,1},{0xb000,1},
-+	{0xc000,1},{0xd000,1},{0xe000,1},{0xf000,1},{0x100,1},{0xf100,1},
-+	{0x0,0}
-+};
-+#endif /* CONFIG_NE2K_CBUS_IOLA98 */
++#define DISP_FREQ_AUTO 0
++#define DISP_FREQ_25k  1
++#define DISP_FREQ_31k  2
 +
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+#ifndef MODULE
-+static const unsigned short cnet98el_portlist[] __initdata = {
-+	0x3d0, 0x13d0, 0x23d0, 0x33d0, 0x43d0, 0x53d0, 0x60d0, 0x70d0,
-+	0
-+};
-+#endif
-+static const struct ne2k_cbus_offsetinfo cnet98el_offsetinfo __initdata = {
-+	0x01, 0x08, 0x40e, 0x400
-+};
-+static const struct ne2k_cbus_region cnet98el_regionlist[] __initdata = {
-+	{0x0, 16}, {0x400, 16},
-+	{0x0,0}
-+};
-+#endif
++static unsigned int    gdc_disp_freq = DISP_FREQ_AUTO;
 +
++#define gdc_attr_offset(x) ((typeof(x))((unsigned long)(x)+0x2000))
 +
-+/* port information table (for ne.c initialize/probe process) */
++#define	gdc_outb(val, port)	outb_p((val), (port))
++#define	gdc_inb(port)		inb_p(port)
 +
-+static const struct ne2k_cbus_hwinfo ne2k_cbus_hwinfo_list[] __initdata = {
-+#ifdef CONFIG_NE2K_CBUS_ATLA98
-+/* NOT TESTED */
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_ATLA98,
-+		"LA-98-T",
-+#ifndef MODULE
-+		atla98_portlist,
-+#endif
-+		&atla98_offsetinfo, atla98_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_BDN
-+/* NOT TESTED */
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_BDN,
-+		"LD-BDN[123]A",
-+#ifndef MODULE
-+		bdn_portlist,
-+#endif
-+		&bdn_offsetinfo, bdn_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_ICM
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_ICM,
-+		"IF-27xxET",
-+#ifndef MODULE
-+		icm_portlist,
-+#endif
-+		&icm_offsetinfo, icm_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_NE2K
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_NE2K,
-+		"NE2000 compat.",
-+#ifndef MODULE
-+		ne2k_portlist,
-+#endif
-+		&ne2k_offsetinfo, ne2k_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_NEC108
-+/* NOT supported yet! */
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_NEC108,
-+		"PC-9801-108",
-+#ifndef MODULE
-+		nec108_portlist,
-+#endif
-+		&nec108_offsetinfo, nec108_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_IOLA98
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_IOLA98,
-+		"LA-98",
-+#ifndef MODULE
-+		iola98_portlist,
-+#endif
-+		&iola98_offsetinfo, iola98_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_CNET98EL
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_CNET98EL,
-+		"C-NET(98)E/L",
-+#ifndef MODULE
-+		cnet98el_portlist,
-+#endif
-+		&cnet98el_offsetinfo, cnet98el_regionlist
-+	},
-+#endif
-+/* NOTE: LGY98 must be probed before EGY98, or system stalled!? */
-+#ifdef CONFIG_NE2K_CBUS_LGY98
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_LGY98,
-+		"LGY-98",
-+#ifndef MODULE
-+		lgy98_portlist,
-+#endif
-+		&lgy98_offsetinfo, lgy98_regionlist
-+	},
-+#endif
-+#ifdef CONFIG_NE2K_CBUS_EGY98
-+	{
-+		NE2K_CBUS_HARDWARE_TYPE_EGY98,
-+		"EGY-98",
-+#ifndef MODULE
-+		egy98_portlist,
-+#endif
-+		&egy98_offsetinfo, egy98_regionlist
-+	},
-+#endif
-+	{
-+		0,"unsupported hardware",
-+#ifndef MODULE
-+		NULL,
-+#endif
-+		NULL,NULL
-+	}
-+};
++#define __gdc_write_command(cmd)	gdc_outb((cmd), GDC_COMMAND)
++#define __gdc_write_param(param)	gdc_outb((param), GDC_PARAM)
 +
-+static int __init ne2k_cbus_init(struct net_device *dev)
++static const char * __init gdccon_startup(void)
 +{
-+	struct ei_device *ei_local;
-+	if(dev->priv == NULL) {
-+		ei_local = kmalloc(sizeof(struct ei_device), GFP_KERNEL);
-+		if (ei_local == NULL)
-+			return -ENOMEM;
-+		memset(ei_local, 0, sizeof(struct ei_device));
-+		ei_local->reg_offset = kmalloc(sizeof(typeof(*ei_local->reg_offset))*18, GFP_KERNEL);
-+		if (ei_local->reg_offset == NULL){
-+			kfree(ei_local);
-+			return -ENOMEM;
++	const char *display_desc = NULL;
++	unsigned long hdots = gdc_video_num_lines * 16;
++	int i;
++
++	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++	while (!(inb_p(GGDC_STAT) & GDC_FIFO_EMPTY));
++	spin_lock_irq(&gdc_lock);	
++	outb_p(0x0c, GDC_COMMAND);	/* STOP */
++	outb_p(0x0c, GGDC_COMMAND);	/* STOP */
++	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_AUTO) {
++		if (gdc_video_num_lines >= 30 || (inb(0x9a8) & 0x01)) {
++			gdc_disp_freq = DISP_FREQ_31k;
 +		}
-+		spin_lock_init(&ei_local->page_lock);
-+		dev->priv = ei_local;
 +	}
++
++	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_31k) {
++		outb_p(0x01, 0x9a8);   /* 31.47KHz */
++		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x4b, GDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
++		outb_p(0x0c, GDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
++		outb_p(0x03, GDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
++		outb_p(0x06, GDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
++		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
++		outb_p(0x94 | ((hdots >> 8) & 0x03), GDC_PARAM);
++						/* VBP = 37   ; LFH */
++		outb_p(0x47, GDC_COMMAND);  /* PITCH */
++		outb_p(0x50, GDC_PARAM);
++
++		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
++		outb_p(0x00, GDC_PARAM);
++		outb_p(0x00, GDC_PARAM);
++		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
++		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
++
++		outb_p(0x0e, GGDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GGDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GGDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x4b, GGDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
++		outb_p(0x0c, GGDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
++		outb_p(0x03, GGDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
++		outb_p(0x06, GGDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
++		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
++		outb_p(0x94 | ((hdots >> 8) & 0x03), GGDC_PARAM);
++						/* VBP = 37   ; LFH */
++	} else {
++		outb_p(0x00, 0x9a8);   /* 24.83 KHz */
++		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x07, GDC_PARAM);  /* VSL = 0(3) ; HS = 7 */
++		outb_p(0x25, GDC_PARAM);  /* HFP = 9    ; VSH = 1(VS=8) */
++		outb_p(0x07, GDC_PARAM);  /* DS, PH = 0 ; HBP = 7 */
++		outb_p(0x07, GDC_PARAM);  /* VH, VL = 0 ; VFP = 7 */
++		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
++		outb_p(0x64 | ((hdots >> 8) & 0x03), GDC_PARAM);
++						/* VBP = 25   ; LFH */
++		outb_p(0x47, GDC_COMMAND);  /* PITCH */
++		outb_p(0x50, GDC_PARAM);
++
++		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
++		outb_p(0x00, GDC_PARAM);
++		outb_p(0x00, GDC_PARAM);
++		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
++		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
++
++		outb_p(0x0e, GGDC_COMMAND);  /* SYNC */
++		outb_p(0x00, GGDC_PARAM);
++		outb_p(0x4e, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(0x25, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
++		outb_p(0x64 | ((hdots >> 8) & 0x03), GGDC_PARAM);
++						/* VBP = 25   ; LFH */
++	}
++
++	outb_p(0x47, GGDC_COMMAND);  /* PITCH */ 
++	outb_p(0x28, GGDC_PARAM);
++
++	outb_p(0x0d, GDC_COMMAND);	/* START */
++	outb_p(0x0d, GGDC_COMMAND);	/* START */
++	spin_unlock_irq(&gdc_lock);	
++
++	gdc_vram_base = (unsigned long)phys_to_virt(0xa0000);
++	/* Last few bytes of text VRAM area are for NVRAM. */
++	gdc_vram_end = gdc_vram_base + 0x1fe0;
++
++	if (!PC9800_HIGHRESO_P()) {
++		gdc_video_type = VIDEO_TYPE_98NORMAL;
++		display_desc = "NEC PC-9800 Normal";
++	} else {
++		gdc_video_type = VIDEO_TYPE_98HIRESO;
++		display_desc = "NEC PC-9800 High Resolution";
++	}
++
++	gdc_hardscroll_enabled = gdc_hardscroll_user_enable;
++	
++	for (i = 0; i < GDC_CONSOLE_RESOURCES; i++)
++		request_resource(&ioport_resource, gdc_console_resources + i);
++
++	return display_desc;
++}
++
++static void gdccon_init(struct vc_data *c, int init)
++{
++	unsigned long p;
++	
++	/* We cannot be loaded as a module, therefore init is always 1 */
++	c->vc_can_do_color = gdc_can_do_color;
++	c->vc_cols = gdc_video_num_columns;
++	c->vc_rows = gdc_video_num_lines;
++	c->vc_complement_mask = ATTR_REVERSE << 8;
++	p = *c->vc_uni_pagedir_loc;
++	if (c->vc_uni_pagedir_loc == &c->vc_uni_pagedir
++	    || !--c->vc_uni_pagedir_loc[1])
++		con_free_unimap(c->vc_num);
++
++	c->vc_uni_pagedir_loc = gdccon_uni_pagedir;
++	gdccon_uni_pagedir[1]++;
++	if (!gdccon_uni_pagedir[0] && p)
++		con_set_default_unimap(c->vc_num);
++}
++
++static inline void gdc_set_mem_top(struct vc_data *c)
++{
++	unsigned long flags;
++	unsigned long origin = (c->vc_visible_origin - gdc_vram_base) / 2;
++
++	spin_lock_irqsave(&gdc_lock, flags);
++	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++	__gdc_write_command(0x70);			/* SCROLL */
++	__gdc_write_param(origin);			/* SAD1 (L) */
++	__gdc_write_param((origin >> 8) & 0x1f);	/* SAD1 (H) */
++	spin_unlock_irqrestore(&gdc_lock, flags);
++}
++
++static void gdccon_deinit(struct vc_data *c)
++{
++	/* When closing the last console, reset video origin */
++	if (!--gdccon_uni_pagedir[1]) {
++		c->vc_visible_origin = gdc_vram_base;
++		gdc_set_mem_top(c);
++		con_free_unimap(c->vc_num);
++	}
++
++	c->vc_uni_pagedir_loc = &c->vc_uni_pagedir;
++	con_set_default_unimap(c->vc_num);
++}
++
++#if 0
++/* Translate ANSI terminal color code to GDC color code.  */
++#define BGR_TO_GRB(bgr)	((((bgr) & 4) >> 2) | (((bgr) & 3) << 1))
++#else
++#define RGB_TO_GRB(rgb)	((((rgb) & 4) >> 1) | (((rgb) & 2) << 1) | ((rgb) & 1))
++#endif
++
++static const u8 gdccon_color_table[] = {
++#define C(color)	((RGB_TO_GRB (color) << 5) | ATTR_NOSECRET)
++	C(0), C(1), C(2), C(3), C(4), C(5), C(6), C(7)
++#undef C
++};
++
++static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse)
++{
++	u8 attr = gdccon_color_table[color & 0x07];
++
++	if (!gdc_can_do_color)
++		attr = (intensity == 0 ? 0x61
++			: intensity == 2 ? 0xe1 : 0xa1);
++
++	if (underline)
++		attr |= 0x08;
++
++	/* ignore intensity */
++#if 0
++	if(intensity == 0)
++		;
++	else if (intensity == 2)
++		attr |= 0x10; /* virtical line */
++#else
++	if (intensity == 0) {
++		if (attr == c->vc_def_attr)
++			attr = c->vc_half_attr;
++		else
++			attr |= c->vc_half_attr & AMASK_NOCOLOR;
++	} else if (intensity == 2) {
++		if (attr == c->vc_def_attr)
++			attr = c->vc_bold_attr;
++		else
++			attr |= c->vc_bold_attr & AMASK_NOCOLOR;
++	}
++#endif
++	if (reverse)
++		attr |= ATTR_REVERSE;
++
++	if ((color & 0x07) == 0) {	/* foreground color == black */
++		/* Fake background color by reversed character
++		   as GDC cannot set background color.  */
++		attr |= gdccon_color_table[(color >> 4) & 0x07];
++		attr ^= ATTR_REVERSE;
++	}
++
++	if (blink)
++		attr |= ATTR_BLINK;
++
++	return attr;
++}
++
++static void gdccon_invert_region(struct vc_data *c, u16 *p, int count)
++{
++	while (count--) {
++		*((u16 *)(gdc_attr_offset(p))) ^= ATTR_REVERSE;
++		p++;
++	}
++}
++
++static u8 gdc_csrform_lr = 15;			/* Lines/Row */
++static u16 gdc_csrform_bl_bd = ((12 << 6)	/* BLinking Rate */
++				| (0 << 5));	/* Blinking Disable */
++
++static inline void gdc_hide_cursor(void)
++{
++    __gdc_write_command(0x4b);		/* CSRFORM */
++    __gdc_write_param(gdc_csrform_lr);	/* CS = 0, CE = 0, L/R = ? */
++}
++
++static inline void gdc_show_cursor(int cursor_start, int cursor_finish)
++{
++    __gdc_write_command(0x4b);		/* CSRFORM */
++    __gdc_write_param(0x80 | gdc_csrform_lr);		/* CS = 1 */
++    __gdc_write_param(cursor_start | gdc_csrform_bl_bd);
++    __gdc_write_param((cursor_finish << 3) | (gdc_csrform_bl_bd >> 8));
++}
++
++static void gdccon_cursor(struct vc_data *c, int mode)
++{
++    unsigned long flags;
++    u16 ead;
++
++    if (c->vc_origin != c->vc_visible_origin)
++	gdccon_scrolldelta(c, 0);
++
++    spin_lock_irqsave(&gdc_lock, flags);
++    while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++    spin_unlock_irqrestore(&gdc_lock, flags);
++    switch (mode) {
++	case CM_ERASE:
++	    gdc_hide_cursor();
++	    break;
++
++	case CM_MOVE:
++	case CM_DRAW:
++	    switch (c->vc_cursor_type & 0x0f) {
++		case CUR_UNDERLINE:
++		    gdc_show_cursor(14, 15);	/* XXX font height */
++		    break;
++
++		case CUR_TWO_THIRDS:
++		    gdc_show_cursor(5, 15);	/* XXX */
++		    break;
++
++		case CUR_LOWER_THIRD:
++		    gdc_show_cursor(11, 15);	/* XXX */
++		    break;
++
++		case CUR_LOWER_HALF:
++		    gdc_show_cursor(8, 15);	/* XXX */
++		    break;
++
++		case CUR_NONE:
++		    gdc_hide_cursor();
++		    break;
++
++          	default:
++		    gdc_show_cursor(0, 15);	/* XXX */
++		    break;
++	    }
++
++	    spin_lock_irqsave(&gdc_lock, flags);
++	    __gdc_write_command(0x49);		/* CSRW */
++	    ead = (c->vc_pos - gdc_vram_base) >> 1;
++	    __gdc_write_param(ead);
++	    __gdc_write_param((ead >> 8) & 0x1f);
++	    spin_unlock_irqrestore(&gdc_lock, flags);
++	    break;
++    }
++
++}
++
++static int gdccon_switch(struct vc_data *c)
++{
++	/*
++	 * We need to save screen size here as it's the only way
++	 * we can spot the screen has been resized and we need to
++	 * set size of freshly allocated screens ourselves.
++	 */
++	gdc_video_num_columns = c->vc_cols;
++	gdc_video_num_lines = c->vc_rows;
++	if (c->vc_origin != (unsigned long)c->vc_screenbuf
++	    && gdc_vram_base <= c->vc_origin && c->vc_origin < gdc_vram_end) {
++		_scr_memcpyw_to((u16 *)c->vc_origin,
++				(u16 *)c->vc_screenbuf,
++				c->vc_screenbuf_size);
++		_scr_memcpyw_to((u16 *)gdc_attr_offset(c->vc_origin),
++				(u16 *)((char *)c->vc_screenbuf
++					 + c->vc_screenbuf_size),
++				c->vc_screenbuf_size);
++	} else
++		printk(KERN_WARNING
++			"gdccon: switch (vc #%d) called on origin=%lx\n",
++			c->vc_num, c->vc_origin);
++
++	return 0;	/* Redrawing not needed */
++}
++
++static int gdccon_set_palette(struct vc_data *c, unsigned char *table)
++{
++	return -EINVAL;
++}
++
++#define RELAY0		0x01
++#define RELAY0_GDC	0x00
++#define RELAY0_ACCEL	0x01
++#define RELAY1		0x02
++#define RELAY1_INTERNAL	0x00
++#define RELAY1_EXTERNAL	0x02
++#define IO_RELAY	0x0fac
++#define IO_DPMS		0x09a2
++static unsigned char relay_mode = RELAY0_GDC | RELAY1_INTERNAL;
++
++static void gdc_vesa_blank(int mode)
++{
++    unsigned char stat;
++
++    spin_lock_irq(&gdc_lock);
++
++    relay_mode = inb_p(IO_RELAY);
++    if ((relay_mode & (RELAY0 | RELAY1)) != (RELAY0_GDC | RELAY1_INTERNAL)) {
++#ifdef CONFIG_DONTTOUCHRELAY
++	spin_unlock_irq(&gdc_lock);
++	return;
++#else
++	outb_p((relay_mode & ~(RELAY0 | RELAY1)) |
++	       RELAY0_GDC | RELAY1_INTERNAL , IO_RELAY);
++#endif
++    }
++
++    if (mode & VESA_VSYNC_SUSPEND) {
++	stat = inb_p(IO_DPMS);
++	outb_p(stat | 0x80, IO_DPMS);
++    }
++    if (mode & VESA_HSYNC_SUSPEND) {
++	stat = inb_p(IO_DPMS);
++	outb_p(stat | 0x40, IO_DPMS);
++    }
++
++    spin_unlock_irq(&gdc_lock);
++}
++
++static void gdc_vesa_unblank(void)
++{
++    unsigned char stat;
++
++#ifdef CONFIG_DONTTOUCHRELAY
++    if (relay_mode & (RELAY0 | RELAY1))
++	return;
++#endif
++
++    spin_lock_irq(&gdc_lock);
++
++    stat = inb_p(0x09a2);
++    outb_p(stat & ~0xc0, IO_DPMS);
++    if (relay_mode & (RELAY0 | RELAY1))
++	outb_p(relay_mode, IO_RELAY);
++
++    spin_unlock_irq(&gdc_lock);
++}
++
++static int gdccon_blank(struct vc_data *c, int blank)
++{
++	switch (blank) {
++	case 0:				/* Unblank */
++		if (gdc_vesa_blanked) {
++			gdc_vesa_unblank();
++			gdc_vesa_blanked = 0;
++		}
++
++		outb(MODE_FF1_DISP_ENABLE | 1, MODE_FF1);
++
++		/* Tell console.c that it need not to restore the screen */
++		return 0;
++
++	case 1:				/* Normal blanking */
++		/* Disable displaying */
++		outb(MODE_FF1_DISP_ENABLE | 0, MODE_FF1);
++
++		/* Tell console.c that it need not to reset origin */
++		return 0;
++
++	case -1:			/* Entering graphic mode */
++		return 1;
++
++	default:			/* VESA blanking */
++		if (gdc_video_type == VIDEO_TYPE_98NORMAL
++		    || gdc_video_type == VIDEO_TYPE_9840
++		    || gdc_video_type == VIDEO_TYPE_98HIRESO) {
++			gdc_vesa_blank(blank - 1);
++			gdc_vesa_blanked = blank;
++		}
++
++		return 0;
++	}
++}
++
++static int gdccon_font_op(struct vc_data *c, struct console_font_op *op)
++{
++	return -ENOSYS;
++}
++
++static int gdccon_scrolldelta(struct vc_data *c, int lines)
++{
++	if (!lines)			/* Turn scrollback off */
++		c->vc_visible_origin = c->vc_origin;
++	else {
++		int vram_size = gdc_vram_end - gdc_vram_base;
++		int margin = c->vc_size_row /* * 4 */;
++		int ul, we, p, st;
++
++		if (gdc_rolled_over > c->vc_scr_end - gdc_vram_base + margin) {
++			ul = c->vc_scr_end - gdc_vram_base;
++			we = gdc_rolled_over + c->vc_size_row;
++		} else {
++			ul = 0;
++			we = vram_size;
++		}
++
++		p = (c->vc_visible_origin - gdc_vram_base - ul + we)
++			% we + lines * c->vc_size_row;
++		st = (c->vc_origin - gdc_vram_base - ul + we) % we;
++		if (p < margin)
++			p = 0;
++
++		if (p > st - margin)
++			p = st;
++		c->vc_visible_origin = gdc_vram_base + (p + ul) % we;
++	}
++
++	gdc_set_mem_top(c);
++	return 1;
++}
++
++static int gdccon_set_origin(struct vc_data *c)
++{
++	c->vc_origin = c->vc_visible_origin = gdc_vram_base;
++	gdc_set_mem_top(c);
++	gdc_rolled_over = 0;
++	return 1;
++}
++
++static void gdccon_save_screen(struct vc_data *c)
++{
++	static int gdc_bootup_console = 0;
++
++	if (!gdc_bootup_console) {
++		/* This is a gross hack, but here is the only place we can
++		 * set bootup console parameters without messing up generic
++		 * console initialization routines.
++		 */
++		gdc_bootup_console = 1;
++		c->vc_x = ORIG_X;
++		c->vc_y = ORIG_Y;
++	}
++
++	_scr_memcpyw_from((u16 *)c->vc_screenbuf,
++				(u16 *)c->vc_origin, c->vc_screenbuf_size);
++	_scr_memcpyw_from((u16 *)((char *)c->vc_screenbuf + c->vc_screenbuf_size), (u16 *)gdc_attr_offset(c->vc_origin), c->vc_screenbuf_size);
++}
++
++static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines)
++{
++	unsigned long oldo;
++	unsigned int delta;
++
++	if (t || b != c->vc_rows)
++		return 0;
++
++	if (c->vc_origin != c->vc_visible_origin)
++		gdccon_scrolldelta(c, 0);
++
++	if (!gdc_hardscroll_enabled || lines >= c->vc_rows / 2)
++		return 0;
++
++	oldo = c->vc_origin;
++	delta = lines * c->vc_size_row;
++	if (dir == SM_UP) {
++		if (c->vc_scr_end + delta >= gdc_vram_end) {
++			_scr_memcpyw((u16 *)gdc_vram_base,
++				    (u16 *)(oldo + delta),
++				    c->vc_screenbuf_size - delta);
++			_scr_memcpyw((u16 *)gdc_attr_offset(gdc_vram_base),
++				    (u16 *)gdc_attr_offset(oldo + delta),
++				    c->vc_screenbuf_size - delta);
++			c->vc_origin = gdc_vram_base;
++			gdc_rolled_over = oldo - gdc_vram_base;
++		} else
++			c->vc_origin += delta;
++
++		_scr_memsetw((u16 *)(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char & 0xff, delta);
++		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char >> 8, delta);
++	} else {
++		if (oldo - delta < gdc_vram_base) {
++			_scr_memmovew((u16 *)(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)oldo, c->vc_screenbuf_size - delta);
++			_scr_memmovew((u16 *)gdc_attr_offset(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)gdc_attr_offset(oldo), c->vc_screenbuf_size - delta);
++			c->vc_origin = gdc_vram_end - c->vc_screenbuf_size;
++			gdc_rolled_over = 0;
++		} else
++			c->vc_origin -= delta;
++
++		c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
++		_scr_memsetw((u16 *)(c->vc_origin), c->vc_video_erase_char & 0xff, delta);
++		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin), c->vc_video_erase_char >> 8, delta);
++	}
++
++	c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
++	c->vc_visible_origin = c->vc_origin;
++	gdc_set_mem_top(c);
++	c->vc_pos = (c->vc_pos - oldo) + c->vc_origin;
++	return 1;
++}
++
++static int gdccon_setterm_command(struct vc_data *c)
++{
++	switch (c->vc_par[0]) {
++	case 1: /* set attr for underline mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_ul_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		} else {
++			if (c->vc_par[2] < 256)
++				c->vc_ul_attr = c->vc_par[2];
++		}
++
++		if (c->vc_underline)
++			goto update_attr;
++
++		return 1;
++
++	case 2:	/* set attr for half intensity mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_half_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		}
++		else {
++			if (c->vc_par[2] < 256)
++				c->vc_half_attr = c->vc_par[2];
++		}
++
++		if (c->vc_intensity == 0)
++			goto update_attr;
++
++		return 1;
++
++	case 3: /* set color for bold mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_bold_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		} else {
++			if (c->vc_par[2] < 256)
++				c->vc_bold_attr = c->vc_par[2];
++		}
++
++		if (c->vc_intensity == 2)
++			goto update_attr;
++
++		return 1;
++	}
++
++	return 0;
++
++update_attr:
++	c->vc_attr = gdccon_build_attr(c,
++					c->vc_color, c->vc_intensity,
++					c->vc_blink, c->vc_underline,
++					c->vc_reverse);
++	return 1;
++}
++
++/*
++ *  The console `switch' structure for the GDC based console
++ */
++
++static int gdccon_dummy(struct vc_data *c)
++{
 +	return 0;
 +}
 +
-+static void ne2k_cbus_destroy(struct net_device *dev)
++#define DUMMY (void *) gdccon_dummy
++
++const struct consw gdc_con = {
++	.con_startup =		gdccon_startup,
++	.con_init =		gdccon_init,
++	.con_deinit =		gdccon_deinit,
++	.con_clear =		DUMMY,
++	.con_putc =		DUMMY,
++	.con_putcs =		DUMMY,
++	.con_cursor =		gdccon_cursor,
++	.con_scroll =		gdccon_scroll,
++	.con_bmove =		DUMMY,
++	.con_switch =		gdccon_switch,
++	.con_blank =		gdccon_blank,
++	.con_font_op =		gdccon_font_op,
++	.con_set_palette =	gdccon_set_palette,
++	.con_scrolldelta =	gdccon_scrolldelta,
++	.con_set_origin =	gdccon_set_origin,
++	.con_save_screen =	gdccon_save_screen,
++	.con_build_attr =	gdccon_build_attr,
++	.con_invert_region =	gdccon_invert_region,
++	.con_setterm_command =	gdccon_setterm_command
++};
++
++static int __init gdc_setup(char *str)
 +{
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+	if(ei_local != NULL){
-+		if(ei_local->reg_offset)
-+			kfree(ei_local->reg_offset);
-+		kfree(dev->priv);
-+		dev->priv=NULL;
++	unsigned long tmp_ulong;
++	char *opt, *orig_opt, *endp;
++
++	while ((opt = strsep(&str, ",")) != NULL) {
++		int force = 0;
++
++		orig_opt = opt;
++		if (!strncmp(opt, "force", 5)) {
++			force = 1;
++			opt += 5;
++		}
++
++		if (!strcmp(opt, "mono"))
++			gdc_can_do_color = 0;
++		else if ((tmp_ulong = simple_strtoul(opt, &endp, 0)) > 0) {
++			if (!strcmp(endp, "lines")
++			    || (!strcmp(endp, "linesforce") && (force == 1))) {
++				if (!force
++				    && (tmp_ulong < 20
++					|| (!PC9800_9821_P()
++					    && 25 < tmp_ulong)
++					|| 37 < tmp_ulong))
++					printk(KERN_ERR
++						"gdccon: %d is out of bound"
++						" for number of lines\n",
++						(int)tmp_ulong);
++				else
++					gdc_video_num_lines = tmp_ulong;
++			} else if (!strcmp(endp, "kHz")) {
++				if (tmp_ulong == 24 || tmp_ulong == 25)
++					gdc_disp_freq = DISP_FREQ_25k;
++				else
++					printk(KERN_ERR "gdccon: `%s' ignored\n",
++						orig_opt);
++			} else
++				printk(KERN_ERR "gdccon: unknown option `%s'\n",
++					orig_opt);
++		} else
++			printk(KERN_ERR "gdccon: unknown option `%s'\n",
++				orig_opt);
 +	}
++
++	return 1; 
 +}
 +
-+static const struct ne2k_cbus_hwinfo * __init ne2k_cbus_get_hwinfo(int hwtype)
-+{
-+	const struct ne2k_cbus_hwinfo *hw;
++__setup("gdccon=", gdc_setup);
++
++/*
++ * We will follow Linus's indenting style...
++ *
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+diff -urN linux/include/asm-i386/gdc.h linux98/include/asm-i386/gdc.h
+--- linux/include/asm-i386/gdc.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/gdc.h	Mon Oct 28 21:44:40 2002
+@@ -0,0 +1,217 @@
++/*
++ *  gdc.h - macro & inline functions for accessing GDC text-VRAM
++ *
++ *  Copyright (C) 1997-2002   Osamu Tomita <tomita@cinet.co.jp>
++ *			      KITAGAWA Takurou,
++ *			      UGAWA Tomoharu,
++ *			      TAKAI Kosuke
++ *			      (Linux/98 Project)
++ */
++#ifndef _LINUX_ASM_GDC_H_
++#define _LINUX_ASM_GDC_H_
 +
-+	for(hw=&ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++){
-+		if(hw->hwtype==hwtype) break;
-+	}
-+	return hw;
-+}
++#include <linux/config.h>
 +
-+static void __init ne2k_cbus_set_hwtype(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
-+{
-+	struct ei_device *ei_local=(struct ei_device *)(dev->priv);
-+	int i;
-+	int hwtype_old=(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK);
++#define PC9800_VRAM_ATTR_OFFSET 0x2000
 +
-+	if (!ei_local)
-+		panic("Gieee! ei_local == NULL!! (from %p)",
-+		       __builtin_return_address(0));
++#define GDC_MAP_MEM(x) (unsigned long)phys_to_virt(x)
 +
-+	dev->mem_start &= (~NE2K_CBUS_HARDWARE_TYPE_MASK);
-+	dev->mem_start |= (hw->hwtype & NE2K_CBUS_HARDWARE_TYPE_MASK);
++#define gdc_readb(x) (*(x))
++#define gdc_writeb(x,y) (*(y) = (x))
 +
-+	if(ei_debug>2){
-+		printk(KERN_DEBUG "hwtype changed: %d -> %d\n",hwtype_old,(int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
-+	}
++extern int	fbcon_softback_size;
 +
-+	if(hw->offsetinfo){
-+		for(i=0;i<8;i++){
-+			ei_local->reg_offset[i] = hw->offsetinfo->skip * i;
-+		}
-+		for(i=8;i<16;i++){
-+			ei_local->reg_offset[i] =
-+				hw->offsetinfo->skip*(i-8) + hw->offsetinfo->offset8;
-+		}
-+#ifdef CONFIG_NE2K_CBUS_NEC108
-+		if(hw->hwtype==NE2K_CBUS_HARDWARE_TYPE_NEC108){
-+			int adj = (ioaddr & 0xf000) /2;
-+			ei_local->reg_offset[16] = 
-+				(hw->offsetinfo->offset10 | adj) - ioaddr;
-+			ei_local->reg_offset[17] = 
-+				(hw->offsetinfo->offset1f | adj) - ioaddr;
-+		}else{
-+#endif /* CONFIG_NE2K_CBUS_NEC108 */
-+			ei_local->reg_offset[16] = hw->offsetinfo->offset10;
-+			ei_local->reg_offset[17] = hw->offsetinfo->offset1f;
-+#ifdef CONFIG_NE2K_CBUS_NEC108
-+		}
++#ifdef CONFIG_FB_EGC
++#define pc9800_attr_offset(p) \
++		((u16 *)((u32)(p) + \
++		(((u32)(p) >= (u32)(vc_cons[currcons].d->vc_screenbuf) \
++			&& (u32)(p) < (u32)(vc_cons[currcons].d->vc_screenbuf) \
++				+ vc_cons[currcons].d->vc_screenbuf_size) ? \
++		vc_cons[currcons].d->vc_screenbuf_size : fbcon_softback_size)))
++#else
++#define pc9800_attr_offset(p) \
++		((u16 *)((u32)(p) + \
++			(((u32)(p) >= (u32)(__va(0xa0000)) \
++				&& (u32)(p) < (u32)(__va(0xa2000))) ? \
++			0x2000 : vc_cons[currcons].d->vc_screenbuf_size)))
 +#endif
-+	}else{
-+		/* make dummmy offset list */
-+		for(i=0;i<16;i++){
-+			ei_local->reg_offset[i] = i;
-+		}
-+		ei_local->reg_offset[16] = 0x10;
-+		ei_local->reg_offset[17] = 0x1f;
++
++#define VT_BUF_HAVE_RW
++#define scr_writew(val, p) \
++	{ \
++		*((u16 *)(p)) = (u16)(((val) >> 16) & 0xff00) \
++			| (u16)((val) & 0xff); \
++		*(pc9800_attr_offset(p)) = (u16)((val) >> 8); \
 +	}
++
++#define scr_readw(p) \
++	( \
++		(*((u16 *)(p)) & 0xff) | ((*((u16 *)(p)) & 0xff00) << 16) \
++		| ((*(pc9800_attr_offset(p)) & 0xff) << 8) \
++	)
++
++#define VT_BUF_HAVE_MEMSETW
++extern inline void
++_scr_memsetw(u16 *s, u16 c, unsigned int count)
++{
++#ifdef CONFIG_GDC_32BITACCESS
++	__asm__ __volatile__ ("shr%L1 %1
++	jz 2f
++" /*	cld	kernel code now assumes DF = 0 any time */ "\
++	test%L0 %3,%0
++	jz 1f
++	stos%W2
++	dec%L1 %1
++1:	shr%L1 %1
++	rep
++	stos%L2
++	jnc 2f
++	stos%W2
++	rep
++	stos%W2
++2:"
++			      : "=D"(s), "=c"(count)
++			      : "a"((((u32) c) << 16) | c), "g"(2),
++			        "0"(s), "1"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tstosw"
++			      : "=D"(s), "=c"(count)
++			      : "0"(s), "1"(count / 2), "a"(c));
++#endif	
 +}
 +
-+#if defined(CONFIG_NE2K_CBUS_ICM) || defined(CONFIG_NE2K_CBUS_CNET98EL)
-+static void __init ne2k_cbus_readmem(struct net_device *dev, int ioaddr, unsigned short memaddr, char *buf, unsigned short len)
++#define scr_memsetw(s, c, count) \
++	{ \
++	_scr_memsetw((s), (u16)(((c) >> 16) & 0xff00) | (u16)((c) & 0xff), \
++		       	(count)); \
++	_scr_memsetw(pc9800_attr_offset(s), ((u16)(c)) >> 8, (count)); \
++	}
++
++#define VT_BUF_HAVE_MEMCPYW
++extern inline void
++_scr_memcpyw(u16 *d, u16 *s, unsigned int count)
 +{
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
-+	outb_p(               len & 0xff, ioaddr+EN0_RCNTLO);
-+	outb_p(               len >> 8  , ioaddr+EN0_RCNTHI);
-+	outb_p(           memaddr & 0xff, ioaddr+EN0_RSARLO);
-+	outb_p(           memaddr >> 8  , ioaddr+EN0_RSARHI);
-+	outb_p(E8390_RREAD | E8390_START, ioaddr+E8390_CMD);
-+	insw(ioaddr+NE_DATAPORT, buf, len>>1);
++#if 1 /* def CONFIG_GDC_32BITACCESS */
++	__asm__ __volatile__ ("shr%L2 %2
++	jz 2f
++" /*	cld	*/ "\
++	test%L0 %3,%0
++	jz 1f
++	movs%W0
++	dec%L2 %2
++1:	shr%L2 %2
++	rep
++	movs%L0
++	jnc 2f
++	movs%W0
++2:"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "0"(d), "1"(s), "2"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tmovsw"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"(d), "1"(s), "2"(count / 2));
++#endif
 +}
-+static void __init ne2k_cbus_writemem(struct net_device *dev, int ioaddr, unsigned short memaddr, const char *buf, unsigned short len)
++
++#define scr_memcpyw(d, s, count) \
++	{ \
++	_scr_memcpyw((d), (s), (count)); \
++	_scr_memcpyw(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
++	}
++
++extern inline void
++_scr_memrcpyw(u16 *d, u16 *s, unsigned int count)
 +{
-+	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
-+	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
-+	outb_p(                ENISR_RDC, ioaddr+EN0_ISR);
-+	outb_p(              len & 0xff , ioaddr+EN0_RCNTLO);
-+	outb_p(              len >> 8   , ioaddr+EN0_RCNTHI);
-+	outb_p(          memaddr & 0xff , ioaddr+EN0_RSARLO);
-+	outb_p(          memaddr >> 8   , ioaddr+EN0_RSARHI);
-+	outb_p(E8390_RWRITE | E8390_START, ioaddr+E8390_CMD);
-+	outsw(ioaddr+NE_DATAPORT, buf, len>>1);
++#if 1 /* def CONFIG_GDC_32BITACCESS */
++	u16 tmp;
++
++	__asm__ __volatile__ ("shr%L3 %3
++	jz 2f
++	std
++	lea%L1 -4(%1,%3,2),%1
++	lea%L2 -4(%2,%3,2),%2
++	test%L1 %4,%1
++	jz 1f
++	mov%W0 2(%2),%0
++	sub%L2 %4,%2
++	dec%L3 %3
++	mov%W0 %0,2(%1)
++	sub%L1 %4,%1
++1:	shr%L3 %3
++	rep
++	movs%L0
++	jnc 3f
++	mov%W0 2(%2),%0
++	mov%W0 %0,2(%1)
++3:	cld
++2:"
++			      : "=r"(tmp), "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "1"(d), "2"(s), "3"(count));
++#else
++	__asm__ __volatile__ ("std\n\trep\n\tmovsw\n\tcld"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"((void *) d + count - 2),
++			        "1"((void *) s + count - 2), "2"(count / 2));
++#endif	
 +}
++
++#define VT_BUF_HAVE_MEMMOVEW
++extern inline void
++_scr_memmovew(u16 *d, u16 *s, unsigned int count)
++{
++	if (d > s)
++		_scr_memrcpyw(d, s, count);
++	else
++		_scr_memcpyw(d, s, count);
++}	
++
++#define scr_memmovew(d, s, count) \
++	{ \
++	_scr_memmovew((d), (s), (count)); \
++	_scr_memmovew(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
++	}
++
++#define VT_BUF_HAVE_MEMCPYF
++extern inline void
++_scr_memcpyw_from(u16 *d, u16 *s, unsigned int count)
++{
++#ifdef CONFIG_GDC_32BITACCESS
++	/* VRAM is quite slow, so we align source pointer (%esi)
++	   to double-word alignment. */
++	__asm__ __volatile__ ("shr%L2 %2
++	jz 2f
++" /*	cld	*/ "\
++	test%L0 %3,%0
++	jz 1f
++	movs%W0
++	dec%L2 %2
++1:	shr%L2 %2
++	rep
++	movs%L0
++	jnc 2f
++	movs%W0
++2:"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "0"(d), "1"(s), "2"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tmovsw"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"(d), "1"(s), "2"(count / 2));
++#endif
++}
++
++#define scr_memcpyw_from(d, s, count) \
++	{ \
++	_scr_memcpyw_from((d), (s), (count)); \
++	_scr_memcpyw_from(pc9800_attr_offset(d), pc9800_attr_offset(s), \
++				(count)); \
++	}
++
++#ifdef CONFIG_GDC_32BITACCESS
++# define _scr_memcpyw_to _scr_memcpyw
++#else
++# define _scr_memcpyw_to _scr_memcpyw_from
 +#endif
 +
-+/* End of ne2k_cbus.h */
++#endif /* _LINUX_ASM_GDC_H_ */

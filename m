@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136001AbRAGQzp>; Sun, 7 Jan 2001 11:55:45 -0500
+	id <S136088AbRAGQ5f>; Sun, 7 Jan 2001 11:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136033AbRAGQzf>; Sun, 7 Jan 2001 11:55:35 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:13296 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S136001AbRAGQzS>; Sun, 7 Jan 2001 11:55:18 -0500
-Date: Sun, 7 Jan 2001 14:55:01 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jim Olsen <jim@browsermedia.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Which kernel fixes the VM issues?
-In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com>
-Message-ID: <Pine.LNX.4.21.0101071454060.21675-100000@duckman.distro.conectiva>
+	id <S136033AbRAGQ5Z>; Sun, 7 Jan 2001 11:57:25 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:37796 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S136108AbRAGQ5H>;
+	Sun, 7 Jan 2001 11:57:07 -0500
+Date: Sun, 7 Jan 2001 11:56:26 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+ policy!)
+In-Reply-To: <20010107162905.B1804@metastasis.f00f.org>
+Message-ID: <Pine.GSO.4.30.0101071144530.18916-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Jim Olsen wrote:
 
-> Hi... I have a question or two that would help me clear up a bit of the fuzz 
-> I have relating to the VM: do_try_to_free_pages issue.  
 
-> My question is, exactly which kernel should I use in order to
-> rid my server of this VM issue?
+On Sun, 7 Jan 2001, Chris Wedgwood wrote:
 
-2.2:  2.2.19pre2 and later
-2.4:  2.4.0  (and later ;))
+> That said, if this was done -- how would things like routing daemons
+> and bind cope?
 
-regards,
+I dont know of any routing daemons that are taking advantage of the
+alias interfaces today. This being said, i think that the fact that a
+lot of protocols that need IP-ization are coming up eg VLANs; you should
+see a good use for this. Out of curiosity for the VLAN people, how do you
+work with something like Zebra?
+One could have the route daemon take charge of management of these
+devices, a master device like "eth0" and a attached device like "vlan0".
+They both share the same ifindex but different have labels.
+Basically, i dont think there would be a problem.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
+cheers,
+jamal
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

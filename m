@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130149AbRAEOxL>; Fri, 5 Jan 2001 09:53:11 -0500
+	id <S131706AbRAEOyv>; Fri, 5 Jan 2001 09:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131706AbRAEOxB>; Fri, 5 Jan 2001 09:53:01 -0500
-Received: from ftp.apple.asimov.net ([209.249.142.209]:21001 "HELO
-	isaac.asimov.net") by vger.kernel.org with SMTP id <S130149AbRAEOwx>;
-	Fri, 5 Jan 2001 09:52:53 -0500
-Date: Fri, 5 Jan 2001 06:52:52 -0800
-From: Patrick Michael Kane <modus-linux-kernel@pr.es.to>
-To: linux-kernel@vger.kernel.org
-Subject: reset_xmit_timer errors with 2.4.0
-Message-ID: <20010105065251.A8690@pr.es.to>
-Mime-Version: 1.0
+	id <S131772AbRAEOyl>; Fri, 5 Jan 2001 09:54:41 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:47115 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131706AbRAEOyd>;
+	Fri, 5 Jan 2001 09:54:33 -0500
+Message-ID: <3A55DF78.F92AC570@innominate.de>
+Date: Fri, 05 Jan 2001 15:51:36 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: More better in mount(2)
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHIEPACJAA.law@sgi.com>  	<10101051142.ZM11680@wobbly.melbourne.sgi.com>  	<01010503292006.00477@gimli> <10101051340.ZM14895@wobbly.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-Mailer: Mutt http://www.mutt.org/
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Nathan Scott wrote:
+> On Jan 5,  3:26am, Daniel Phillips wrote:
+> > ...
+> > This filesystem mount option parsing code is completely ad hoc, and uses
+> > strtok which is horribly horribly broken.  (Do man strtok and read the
+> > 'Bugs' section.)
+> >
+> > It would be worth thinking about how to do this better.
+> 
+> hmm ... can't claim I wrote this code, just looked at it.
+> are you saying the kernel strtok is horribly broken or just
+> the way its being used here?  (and why?)
 
-I've installed 2.4.0 on a system that has been tracking 2.3.xx/2.4test for
-quite a while.  With 2.4.0 installed, I've started to see the following
-errors:
+>From the man page:
 
-reset_xmit_timer sk=cfd889a0 1 when=0x3b4a, caller=c01e0748
-reset_xmit_timer sk=cfd889a0 1 when=0x3a80, caller=c01e0748
-reset_xmit_timer sk=cfd889a0 1 when=0x398a, caller=c01e0748
-reset_xmit_timer sk=cfd889a0 1 when=0x389e, caller=c01e0748
-reset_xmit_timer sk=cfd889a0 1 when=0x37b6, caller=c01e0748
-
-It's a UP system with no kernel patches, running an eepro100 card.  I did
-not get these errors under any of the 2.4test kernels.  Should I be worried?
-
-Best,
--- 
-Patrick Michael Kane
-<modus@pr.es.to>
+BUGS        Never use this function. If you do, note that:  
+            This function modifies its first argument.  
+            The identity of the delimiting character is lost.  
+            This functions cannot be used on constant  strings.  
+            The  strtok  () function uses a static buffer while
+            parsing, so it's not thread safe. Use  strtok_r  ()
+            if this matters to
+you.                                                                                                        
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbTLaUtP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 15:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbTLaUtP
+	id S265242AbTLaVEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 16:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbTLaVEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 15:49:15 -0500
-Received: from rs9.luxsci.com ([66.216.98.59]:53480 "EHLO rs9.luxsci.com")
-	by vger.kernel.org with ESMTP id S265238AbTLaUtN (ORCPT
+	Wed, 31 Dec 2003 16:04:46 -0500
+Received: from mail3.bluewin.ch ([195.186.1.75]:64656 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265242AbTLaVEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 15:49:13 -0500
-Message-ID: <3FF33643.5080808@acm.org>
-Date: Wed, 31 Dec 2003 12:49:07 -0800
-From: Javier Fernandez-Ivern <ivern@acm.org>
-Reply-To: ivern@acm.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rudi@lambda-computing.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File change notification
-References: <3FF2FC85.5070906@lambda-computing.de>
-In-Reply-To: <3FF2FC85.5070906@lambda-computing.de>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 31 Dec 2003 16:04:44 -0500
+Date: Wed, 31 Dec 2003 22:03:54 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Jens Axboe <axboe@suse.de>
+Cc: Thomas Molina <tmolina@cablespeed.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andy Isaacson <adi@hexapodia.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+Message-ID: <20031231210354.GA9804@k3.hellgate.ch>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Thomas Molina <tmolina@cablespeed.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andy Isaacson <adi@hexapodia.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com> <20031230222403.GA8412@k3.hellgate.ch> <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain> <20031231101741.GA4378@k3.hellgate.ch> <20031231112119.GB3089@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031231112119.GB3089@suse.de>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rüdiger Klaehn wrote:
+On Wed, 31 Dec 2003 12:21:19 +0100, Jens Axboe wrote:
+> > Thanks. 2.5.39 alone will do, actually. I'm just curious how far the
+> > similarity between qsbench and bk export goes.
+> 
+> 2.5.39 is when the deadline io scheduler was merged. How do you define
+> the qsbench suckiness?
 
-Rudiger, I've been reading your code to try and understand it, and I 
-found one think I'm not so sure about:
+2.5.39 was the biggest regression for qsbench (fixed later, most notably
+in 2.5.41). 2.5.39 was a significant improvement for efax ("fixed"
+in 2.5.43).
 
-> +++ develop/fs/dnotify.c	2003-12-31 16:59:36.000000000 +0100
-> @@ -153,8 +153,9 @@
->  void dnotify_parent(struct dentry *dentry, unsigned long event)
->  {
->  	struct dentry *parent;
-> -
->  	spin_lock(&dentry->d_lock);
-> +	/* call inotify for this dentry */
-> +	inotify_dentrychange(dentry,event);
+All I'm doing here is reading the graph I posted at:
+http://hellgate.ch/bench/thrash.tar.gz
 
-...
+For the systematic testing, I used "qsbench -p 4 -m 96" on a 256 MB
+machine. This allowed the kernel to achieve high performance with
+unfairness -- that's what 2.4 does: One process dominates all others
+and finishes very early, taking away most of the memory pressure.
+The spike for qsbench in 2.5.39 remains if only one process is forked
+(-p1 -m 384), though.
 
-> +/*
-> + * This function should be called when something changes about a dentry, such
-> + * as attributes, creating, deleting, renaming etc.
-> + */
-> +void inotify_dentrychange(struct dentry *dentry,unsigned long event)
-> +{
-> +	in_info info;
-> +	struct dentry *parent;
-> +	memset(&info,0,sizeof(in_info));
-> +	info.event=event;
-> +	spin_lock(&dentry->d_lock);
+I asked for the bk export numbers with 2.5.39 because I'm curious how
+close to qsbench the behavior really is.
 
-inotify_dentrychange() is called from dnotify_parent() with the 
-dentry->d_lock spinlock held.  However, it also tries to attain the 
-spinlock.  Wouldn't this deadlock?  I thought spinlocks were not recursive.
+> Do you have numbers for 2.4.x and 2.6.1-rc with
+> the various io schedulers (it would be interesting to see stock,
+> elevator=deadline, and elevator=noop).
 
-Please let me know if I'm not understanding this...I'm a locking newbie.
+I planned to compare the io schedulers in 2.6.0 anyway. Do you expect
+different numbers for a recent bk snapshot?
 
--- 
-Javier Fernandez-Ivern
+Roger

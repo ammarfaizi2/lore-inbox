@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbTHYL5V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 07:57:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTHYL5V
+	id S261675AbTHYMCR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 08:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTHYMCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 07:57:21 -0400
-Received: from main.gmane.org ([80.91.224.249]:3217 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261238AbTHYL5U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 07:57:20 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 25 Aug 2003 08:02:17 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:20885 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S261675AbTHYMCK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 08:02:10 -0400
+Date: Mon, 25 Aug 2003 05:30:16 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
 To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: DMA timeouts on SIS IDE
-Date: Mon, 25 Aug 2003 13:57:18 +0200
-Message-ID: <yw1xfzjqar1d.fsf@users.sourceforge.net>
-References: <3F281C06.70707@inet6.fr> <yw1xbrvbgdx5.fsf@users.sourceforge.net>
- <yw1xptjhs9bj.fsf@users.sourceforge.net>
- <yw1xsmnqas8q.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:aCBgzf4W3Qt2PbBIec7+7Wb+9Y8=
+Subject: tasklet_kill will always hang for recursive tasklets on a UP
+Message-ID: <Pine.LNX.4.44.0308250518380.26988-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@users.sourceforge.net (Måns Rullgård) writes:
+Hi,
+	While going thru the code for tasklet_kill(), I cannot figure out 
+how recursive tasklets (tasklets that schedule themselves from within 
+their tasklet handler) can be killed by this function. To me it looks that 
+tasklet_kill will never complete for such tasklets.
 
->> I noticed that sometimes I also get this in the kernel log:
->>
->> hda: dma_timer_expiry: dma status == 0x21
->> hda: DMA timeout error
->> hda: dma timeout error: status=0xd0 { Busy }
->>
->> hda: DMA disabled
->> ide0: reset: success
->> Loosing too many ticks!
->> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
->> Falling back to a sane timesource.
->
-> This appears to have been fixed in 2.6.0-test4.
+void tasklet_kill(struct tasklet_struct *t)
+{
+	...
+ 	...
+	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+		current->state = TASK_RUNNING;
+		do
+			sys_sched_yield();
+		while (test_bit(TASKLET_STATE_SCHED, &t->state));
+	}
+	...
+	...
+}
 
-I'm afraid I was wrong.  It happened again.
+The above while loop will only exit if TASKLET_STATE_SCHED is not set 
+(tasklet is not scheduled).
+Now if we see tasklet_action
 
--- 
-Måns Rullgård
-mru@users.sf.net
+static void tasklet_action(struct softirq_action *a)
+{
+	...
+	...
+	if (!atomic_read(&t->count)) {
+	--> TASKLET_STATE_SCHED is set here
+		if(!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+			BUG();
+		t->func(t->data);
+	--> if we schedule the tasklet inside its handler, 
+	--> TASKLET_STATE_SCHED will be set here also
+		tasklet_unlock(t);
+		continue;
+	}
+	...
+	...
+}
+
+The only small window when TASKLET_STATE_SCHED is not set is between the 
+time when test_and_clear_bit above clears it and by the time the tasklet 
+handler again calls tasklet_schedule(). But since tasklet_kill is called 
+from user context the while loop in tasklet_kill checking for 
+TASKLET_STATE_SCHED to be cleared  cannot interleave between the above two 
+lines in tasklet_action and hence tasklet_kill will never come out of the 
+while loop.
+This is true only for UP machines.
+
+Pleae point me out if I am missing something.
+
+Thanx
+tomar
+
 

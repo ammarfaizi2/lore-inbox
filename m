@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262411AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
+	id <S262441AbSJVKn0>; Tue, 22 Oct 2002 06:43:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46297 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262411AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
-Date: Tue, 22 Oct 2002 16:36:00 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au, richard <richardj_moore@uk.ibm.com>,
-       suparna <suparna@in.ibm.com>, bharata <bharata@in.ibm.com>
-Subject: [patch 0/4] kprobes patches for 2.5.44
-Message-ID: <20021022163600.A26609@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
+	id <S262446AbSJVKn0>; Tue, 22 Oct 2002 06:43:26 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:54498 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262441AbSJVKnY>;
+	Tue, 22 Oct 2002 06:43:24 -0400
+Date: Tue, 22 Oct 2002 12:49:27 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCHSET 13/25] add support for PC-9800 architecture (keyboard)
+Message-ID: <20021022124926.C21346@ucw.cz>
+References: <20021019015636.A1588@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021019015636.A1588@precia.cinet.co.jp>; from tomita@cinet.co.jp on Sat, Oct 19, 2002 at 01:56:36AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the latest set of kprobes patches for 2.5.44. It is essentially 
-same as the last one I sent out for 2.5.40. On top of that, I am sending
-additional patches to get kprobes closer to dprobes full version.
+On Sat, Oct 19, 2002 at 01:56:36AM +0900, Osamu Tomita wrote:
+> This is part 13/26 of patchset for add support NEC PC-9800 architecture,
+> against 2.5.43.
+> 
+> Summary:
+>  console keyboard modules
+>   - adapted to PC-9800 hardware spec.
+>   - add jis-x201("kana") support.
+> 
+> diffstat:
+>  drivers/char/defkeymap_pc9800.c   |  285 ++++++++++++++++++++++++
+>  drivers/char/defkeymap_pc9800.map |  439 ++++++++++++++++++++++++++++++++++++++
+>  drivers/char/keyboard.c           |   79 ++++++
+>  include/linux/kbd_kern.h          |   11 
+>  include/linux/keyboard.h          |    4 
+>  include/linux/logibusmouse.h      |   30 ++
+>  include/linux/pc_keyb.h           |   18 +
+>  7 files changed, 865 insertions(+), 1 deletion(-)
 
-0/1 - this
-1/1 - kprobes - base - same as the one Rusty has been sending, just
-                upgraded to 2.5.44.
-2/1 - kprobes - debug register management
-3/1 - kprobes - kwatch points
-4/1 - kprobes - user space probes
+Still the same, see my previous mails.
 
-Any comments, especially about the addon patches welcome.
 -- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+Vojtech Pavlik
+SuSE Labs

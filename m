@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUGNTPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUGNTbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265199AbUGNTPk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 15:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUGNTPk
+	id S265211AbUGNTbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 15:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUGNTbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 15:15:40 -0400
-Received: from mail.homelink.ru ([81.9.33.123]:4268 "EHLO eltel.net")
-	by vger.kernel.org with ESMTP id S265199AbUGNTOm (ORCPT
+	Wed, 14 Jul 2004 15:31:40 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:2285 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265211AbUGNTba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 15:14:42 -0400
-Date: Wed, 14 Jul 2004 23:14:39 +0400
-From: Andrew Zabolotny <zap@homelink.ru>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Backlight and LCD module patches [1]
-Message-Id: <20040714231439.776d7b76.zap@homelink.ru>
-In-Reply-To: <20040714061138.GC11803@kroah.com>
-References: <20040617223514.2e129ce9.zap@homelink.ru>
-	<20040617194739.GA15983@kroah.com>
-	<20040618015504.661a50a9.zap@homelink.ru>
-	<20040617220510.GA4122@kroah.com>
-	<20040618095559.20763766.zap@homelink.ru>
-	<20040624213452.GC2477@kroah.com>
-	<20040627002152.20e2da7d.zap@homelink.ru>
-	<20040714061138.GC11803@kroah.com>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+	Wed, 14 Jul 2004 15:31:30 -0400
+Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <200407141709.i6EH9EYW029131@hera.kernel.org>
+References: <200407141709.i6EH9EYW029131@hera.kernel.org>
+Content-Type: text/plain
+Message-Id: <1089833270.11816.55.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 14 Jul 2004 14:27:50 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jul 2004 23:11:38 -0700
-Greg KH <greg@kroah.com> wrote:
+On Wed, 2004-07-14 at 11:25, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1853, 2004/07/14 09:25:57-07:00, eger@havoc.gtf.org
 
-> > It's not a question of b/l driver needing the framebuffer driver; it's the
-> > other way around: the framebuffer driver needs the b/l drivers (needs so
-> > much that it can fail initialization in some cases if it doesn't find the
-> > corresponding b/l device).
-> Ok, then put a pointer in the fb driver to the backlight.
-> And a pointer in the backlight to the fb.  What's wrong with that?
-Then arises the same question, but upside down. How the backlight driver will
-find the corresponding framebuffer device to put a pointer to himself into?
+> diff -Nru a/arch/ppc/defconfig b/arch/ppc/defconfig
+> --- a/arch/ppc/defconfig	2004-07-14 10:09:28 -07:00
+> +++ b/arch/ppc/defconfig	2004-07-14 10:09:28 -07:00
+> @@ -689,7 +689,7 @@
+>  # Input Device Drivers
+>  #
+>  CONFIG_INPUT_KEYBOARD=y
+> -CONFIG_KEYBOARD_ATKBD=y
+> +# CONFIG_KEYBOARD_ATKBD is not set
+>  # CONFIG_KEYBOARD_SUNKBD is not set
+>  # CONFIG_KEYBOARD_LKKBD is not set
+>  # CONFIG_KEYBOARD_XTKBD is not set
+> @@ -724,8 +724,8 @@
+>  #
+>  # Non-8250 serial port support
+>  #
+> -CONFIG_SERIAL_CORE=y
+> -CONFIG_SERIAL_PMACZILOG=y
+> +# CONFIG_SERIAL_CORE is not set
+> +# CONFIG_SERIAL_PMACZILOG is not set
+>  # CONFIG_SERIAL_PMACZILOG_CONSOLE is not set
+>  CONFIG_UNIX98_PTYS=y
+>  CONFIG_LEGACY_PTYS=y
 
-For example, mediaq 11xx chip can be connected to the PCI bus (apart from the
-fact that it can be connected to embedded CPUs directly), so suppose there are
-several PCI cards, every card has a LCD connected to it. Now you have a bl/lcd
-driver that can drive those LCDs; how you can know which LCD is connected to
-which framebuffer? You will have to do the same: examine the device structure
-and find the PCI device id, slot number and such - there are simply no other
-ways.
+Hi, could we not disable AT keyboards (used by CHRP and PReP machines)
+and PowerMac serial ports (used by PowerMacs) in the defconfig please?
 
-So I basically propose the same way - but unified from the bl/lcd driver
-perspective: bl/lcd looks at the framebuffer device structure and decides
-if it corresponds to the respective device or not. But this operation is
-initiated by the framebuffer device, not by bl/lcd, since the bl/lcd
-infrastructure already has a list of all bl/lcd drivers.
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
---
-Greetings,
-   Andrew

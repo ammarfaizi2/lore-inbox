@@ -1,82 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVA1Bos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVA1Boc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVA1Bos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 20:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVA1Bos
+	id S261375AbVA1Boc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 20:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVA1Boc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 20:44:48 -0500
-Received: from ernie.virtualdave.com ([198.216.116.246]:53256 "EHLO
-	ernie.virtualdave.com") by vger.kernel.org with ESMTP
-	id S261377AbVA1Bog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 20:44:36 -0500
-Date: Thu, 27 Jan 2005 19:44:35 -0600 (CST)
-From: David Sims <dpsims@virtualdave.com>
-To: linux-kernel@vger.kernel.org
-Subject: I need a hardware wizard... I have been beating my head on the wall..
-Message-ID: <Pine.LNX.4.21.0501271929270.26803-100000@ernie.virtualdave.com>
+	Thu, 27 Jan 2005 20:44:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55183 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261375AbVA1BoZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 20:44:25 -0500
+Date: Thu, 27 Jan 2005 20:43:18 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jasper Spaans <jasper@vs19.net>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, <ajgrothe@yahoo.com>, <bunk@stusta.de>
+Subject: Re: crypto algoritms failing?
+In-Reply-To: <20050128004755.GA6676@spaans.vs19.net>
+Message-ID: <Xine.LNX.4.44.0501272023080.7174-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 28 Jan 2005, Jasper Spaans wrote:
 
-  I have posted a couple of times in the past to no avail... I have an
-Intel 31244 SATA controller that is supposed to work with the sata_vsc
-driver module... It does in fact, almost....
+> On Thu, Jan 27, 2005 at 07:38:43PM -0500, James Morris wrote:
+> > > Is this supposed to happen?
+> > 
+> > No.  What is your kernel version?
+> 
+> Current bitkeeper + latest swsusp2 patches and hostap driver, however, those
+> two don't come near touching the crypto stuff[1] so they're not really on my
+> suspect shortlist, but I'll see if I can find time to build a vanilla one
+> tomorrow (that is, without swsusp/hostap).. right now, it's time to sleep in
+> my local timezone..
 
-  You can insert the module in a running kernel and after barking as
-follows (once for each disk attached) it runs just fine.
+Looks like a cleanup broke the test vectors:
+http://linux.bkbits.net:8080/linux-2.5/gnupatch@41ad5cd9EXGuUhmmotTFBIZdIkTm0A
 
-Jan 24 13:55:37 linux kernel: irq 3: nobody cared!
-Jan 24 13:55:37 linux kernel: [<c0128972>] __report_bad_irq+0x22/0x90
-Jan 24 13:55:37 linux kernel: [<c0128a68>] note_interrupt+0x58/0x90
-Jan 24 13:55:37 linux kernel: [<c01285f8>] __do_IRQ+0xd8/0xe0
-Jan 24 13:55:37 linux kernel: [<c0103a7a>] do_IRQ+0x1a/0x30
-Jan 24 13:55:37 linux kernel: [<c010254a>] common_interrupt+0x1a/0x20
-Jan 24 13:55:37 linux kernel: [<c0114fc0>] __do_softirq+0x30/0x90
-Jan 24 13:55:37 linux kernel: [<c0115055>] do_softirq+0x35/0x40
-Jan 24 13:55:37 linux kernel: [<c0103a7f>] do_IRQ+0x1f/0x30
-Jan 24 13:55:37 linux kernel: [<c010254a>] common_interrupt+0x1a/0x20
-Jan 24 13:55:37 linux kernel: [<c0100590>] default_idle+0x0/0x40
-Jan 24 13:55:37 linux kernel: [<c01005b4>] default_idle+0x24/0x40
-Jan 24 13:55:37 linux kernel: [<c010063e>] cpu_idle+0x2e/0x40
-Jan 24 13:55:37 linux kernel: [<c03d277b>] start_kernel+0x15b/0x190
+Patch below, please apply.
 
-Jan 24 13:55:37 linux kernel: handlers:
-Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
-Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
-Jan 24 13:55:37 linux kernel: [<e08ef250>] (vsc_sata_interrupt+0x0/0xa0
-[sata_vsc])
-Jan 24 13:55:37 linux kernel: Disabling IRQ #3
+Signed-off-by: James Morris <jmorris@redhat.com>
 
 
-  The problem is that when you insert the module at boot time, the machine
-just hangs while trying to enumerate the first disk.... Same when booting
-with the module builtin to a monolithic kernel....
+---
 
-  To facilitate helping me, I have gathered the requisite stuff and posted
-it on my website as follows:
+diff -purN -X dontdiff linux-2.6.11-rc1-mm1.o/crypto/tcrypt.h linux-2.6.11-rc1-mm1.w/crypto/tcrypt.h
+--- linux-2.6.11-rc1-mm1.o/crypto/tcrypt.h	2005-01-19 09:30:32.000000000 -0500
++++ linux-2.6.11-rc1-mm1.w/crypto/tcrypt.h	2005-01-27 20:28:23.312918312 -0500
+@@ -1986,7 +1986,7 @@ static struct cipher_testvec arc4_dec_tv
+ #define TEA_ENC_TEST_VECTORS	4
+ #define TEA_DEC_TEST_VECTORS	4
+ 
+-static struct cipher_testvec xtea_enc_tv_template[] =
++static struct cipher_testvec tea_enc_tv_template[] =
+ {
+ 	{
+ 		.key    = { [0 ... 15] = 0x00 },
+@@ -2080,7 +2080,7 @@ static struct cipher_testvec tea_dec_tv_
+ #define XTEA_ENC_TEST_VECTORS	4
+ #define XTEA_DEC_TEST_VECTORS	4
+ 
+-static struct cipher_testvec tea_enc_tv_template[] =
++static struct cipher_testvec xtea_enc_tv_template[] =
+ {
+ 	{
+ 		.key    = { [0 ... 15] = 0x00 },
 
-   http://www.dpsims.com/~dpsims/31244/
 
-  If someone would be so kind as to help me, I would be willing to provide
-access to the machine in question for testing, etc... I believe the
-problem is caused by the Intel 31244 having multiple ways of sending
-interrupts... The Intel documentation is located at:
 
-   http://www.dpsims.com/~dpsims/31244/31244_developers_guide.pdf
-
-and I draw your attention to section 5.8 and 5.9.... The code for the
-sata_vsc.c from kernel 2.6.10 can be found at
-
-   http://www.dpsims.com/~dpsims/31244/sata_vsc.c
-
-I would make this work myself if I had the required skill sets... but I
-don't.... Thus I am reduced to pleading ;)
-
-Please help me. I will try to contribute whatever I can... quickly
-test.... /etc...
-
-Dave
 

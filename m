@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316573AbSFZNLX>; Wed, 26 Jun 2002 09:11:23 -0400
+	id <S316571AbSFZNLW>; Wed, 26 Jun 2002 09:11:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSFZNLX>; Wed, 26 Jun 2002 09:11:23 -0400
-Received: from pop.gmx.de ([213.165.64.20]:61601 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316573AbSFZNLV>;
-	Wed, 26 Jun 2002 09:11:21 -0400
-Message-ID: <000101c21d12$b643aae0$0200a8c0@MichaelKerrisk>
+	id <S316574AbSFZNLV>; Wed, 26 Jun 2002 09:11:21 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:19644 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316571AbSFZNLU>;
+	Wed, 26 Jun 2002 09:11:20 -0400
+Message-ID: <000001c21d12$b52df520$0200a8c0@MichaelKerrisk>
 From: "Michael Kerrisk" <m.kerrisk@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Status of capabilities?
-Date: Wed, 26 Jun 2002 14:40:45 +0200
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [2.4.18 Patch] Update comments in include/linux/capabilities.h
+Date: Wed, 26 Jun 2002 13:50:06 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -22,40 +23,83 @@ X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I asked the question below a while back, I got no response.  Is there
-really noone who can say anything about the future of capabilities?
+Hello Marcelo
+
+After doing a fairly extensive scan of the 2.4.18 source code, I notice that
+a few comments in include/linux/capabilities.h were wrong, and that a few
+more things could be added.
 
 Cheers
 
-Michael
+Miichael
 
-------- Forwarded message follows -------
-Date sent:       Fri, 10 May 2002 08:28:55 +0200 (MEST)
-From:            Michael Kerrisk <m.kerrisk@gmx.net>
-Subject:         Status of capabilities?
-To:              linux-kernel@vger.kernel.org
+--- linux-2.4.18/include/linux/capability.h Mon Jun 24 10:07:00 2002
++++ linux/include/linux/capability.h Wed Jun 26 12:52:04 2002
+@@ -90,12 +90,12 @@
 
-Gidday,
+ #define CAP_FOWNER           3
 
-What are the current status and future of capabilites?  There seems to be no
-up-to-date information on this anywhere.
+-/* Overrides the following restrictions that the effective user ID
+-   shall match the file owner ID when setting the S_ISUID and S_ISGID
+-   bits on that file; that the effective group ID (or one of the
+-   supplementary group IDs) shall match the file owner ID when setting
+-   the S_ISGID bit on that file; that the S_ISUID and S_ISGID bits are
+-   cleared on successful return from chown(2) (not implemented). */
++/* Overrides the following restrictions that:
++   the S_ISUID and S_ISGID bits will be turned off when a file is modified;
++   the effective group ID (or one of the supplementary group IDs) shall
++   match the file owner ID when setting the S_ISGID bit on that file;
++   the S_ISUID and S_ISGID bits are cleared on successful return
++   from chown(2) (not implemented). */
 
-It seems capabilities have been partly implemented since 2.2.  That is to
-say:
+ #define CAP_FSETID           4
 
-1. The kernel checks (effective) capabilities when performing various
-operations.
+@@ -104,7 +104,7 @@
+ #define CAP_FS_MASK          0x1f
 
-2. System calls are provided to raise and lower capabilties
+ /* Overrides the restriction that the real or effective user ID of a
+-   process sending a signal must match the real or effective user ID
++   process sending a signal must match the real or saved-set-user ID
+    of the process receiving the signal. */
 
-What's still missing in 2.4, as far as I can see after reading the sources,
-is the ability to set capabilities on executable files so that a process
-gains those privileges when executing the file.  I recall seeing some
-information somewhere saying this wasn't possible / wasn't going to happen
-for ext2.  Is it on the drawing board for any file system?
+ #define CAP_KILL             5
+@@ -116,7 +116,7 @@
+ #define CAP_SETGID           6
 
-Thanks
+ /* Allows set*uid(2) manipulation (including fsuid). */
+-/* Allows forged pids on socket credentials passing. */
++/* Allows forged uids on socket credentials passing. */
 
-Michael
+ #define CAP_SETUID           7
+
+@@ -139,7 +139,7 @@
+
+ #define CAP_NET_BIND_SERVICE 10
+
+-/* Allow broadcasting, listen to multicast */
++/* Allow broadcasting, listen to multicast (unused) */
+
+ #define CAP_NET_BROADCAST    11
+
+@@ -210,7 +210,7 @@
+ /* Allow irix_prctl on mips (setstacksize) */
+ /* Allow flushing all cache on m68k (sys_cacheflush) */
+ /* Allow removing semaphores */
+-/* Used instead of CAP_CHOWN to "chown" IPC message queues, semaphores
++/* Perform IPC_SET and IPC_RMID operations on IPC message queues,
+semaphores
+    and shared memory */
+ /* Allow locking/unlocking of shared memory segment */
+ /* Allow turning swap on/off */
+@@ -231,6 +231,8 @@
+ /* Allow enabling/disabling tagged queuing on SCSI controllers and sending
+    arbitrary SCSI commands */
+ /* Allow setting encryption key on loopback filesystem */
++/* Allow calling of setdomainname() and sethostname() */
++/* Allow RLIMIT_NPROC to be overridden */
+
+ #define CAP_SYS_ADMIN        21
+
+
 
 

@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUDZTvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbUDZTuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUDZTvG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 15:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbUDZTvG
+	id S263407AbUDZTuX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 15:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbUDZTuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 15:51:06 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:35077 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S263415AbUDZTuy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 15:50:54 -0400
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Load hid.o module synchronously?
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
-	<408D65A7.7060207@nortelnetworks.com>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gisfm34kq.fsf@patl=users.sf.net>
-Date: 26 Apr 2004 15:50:52 -0400
-In-Reply-To: <408D65A7.7060207@nortelnetworks.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Apr 2004 15:50:23 -0400
+Received: from mailoff.mtu.edu ([141.219.70.111]:13473 "EHLO mailoff.mtu.edu")
+	by vger.kernel.org with ESMTP id S263407AbUDZTuT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 15:50:19 -0400
+Date: Mon, 26 Apr 2004 15:50:16 -0400
+From: Jon DeVree <jadevree@mtu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: hsf modem drivers lying about their license
+Message-ID: <20040426195015.GA23220@icu2.csl.mtu.edu>
+Reply-To: jadevree@mtu.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortelnetworks.com> writes:
 
-> Patrick J. LoPresti wrote:
-> 
-> > For example, I invoke "modprobe hid" to make my USB keyboard work.
-> > This loads the module and exits immediately, causing my script to
-> > proceed, before the USB keyboard is probed and ready.
-> > I want to wait until the driver is finished initializing (i.e., a USB
-> > keyboard is either found or not found) before my script continues.
-> > How can I do that?
-> 
-> How about scanning the usb device tree to see if the keyboard is
-> present and properly detected?
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You mean under sysfs or usbfs?  Or both?
+Someone needs to take a look at the MODULE_LICENSE string reported by
+the HSF modem drivers made by LinuxAnt.
 
-I see how I can scan for a USB keyboard after loading the USB host
-controller module.  I think.  But what do I look for, exactly, to tell
-when hid.o has hooked itself up to the keyboard?
+http://www.linuxant.com/drivers/hsf/full/downloads.php
 
- - Pat
+They creatively inserted a \0 character in it.
+MODULE_LICENSE("GPL\0for files in the \"GPL\" directory; for others,
+only LICENSE file applies");
+
+Runnning modinfo -F license on the compiled driver gives:
+GPL because of their creative null character. The actual license for most of
+the files is NOT GPL.
+--=20
+Jon
+http://tesla.resnet.mtu.edu
+The only meaning in life is the meaning you create for it.
+
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQFAjWf2rd+yBMYSKYIRAqTrAKCraveF0bPk4gRhP93hRbC6szcMkQCdFRxa
+Jx2rEaE/7wfeH4MylGMrFTs=
+=9shk
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
+

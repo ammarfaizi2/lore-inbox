@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUIAXOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267999AbUIAXN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUIAXOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268114AbUIAXNh
+	id S267999AbUIAXN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUIAVBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:13:37 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:151 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S264726AbUIAXIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:08:46 -0400
-Date: Thu, 2 Sep 2004 01:08:40 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kj <kernel-janitors@osdl.org>
-Subject: Re: [patch 21/25]  hvc_console: replace schedule_timeout() with msleep()
-Message-ID: <20040901230840.GG7467@stro.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, kj <kernel-janitors@osdl.org>
-References: <E1C2cAg-0007UH-3I@sputnik> <20040901153034.35104957.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040901153034.35104957.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 1 Sep 2004 17:01:17 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:64915 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267846AbUIAU5e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:57:34 -0400
+Subject: [patch 21/25]  hvc_console: replace schedule_timeout() 	with msleep()
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:57:33 +0200
+Message-ID: <E1C2cAg-0007UH-3I@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Sep 2004, Andrew Morton wrote:
 
-> janitor@sternwelten.at wrote:
-> >
-> > -#define TIMEOUT		((HZ + 99) / 100)
-> > +#define TIMEOUT		10
-> >  
-> >  static struct tty_driver *hvc_driver;
-> >  static int hvc_offset;
-> > @@ -276,8 +277,7 @@ int khvcd(void *unused)
-> >  			for (i = 0; i < MAX_NR_HVC_CONSOLES; ++i)
-> >  				hvc_poll(i);
-> >  		}
-> > -		set_current_state(TASK_INTERRUPTIBLE);
-> > -		schedule_timeout(TIMEOUT);
-> > +		msleep(TIMEOUT);
-> 
-> This one is wrong: we need to sleep in interruptible state here, otherwise
-> this kernel thread will contribute to the system load average.
 
-could we add for such cases msleep_interruptible()?
-patch for that function was sent separately.
+
+
+
+
+I would appreciate any comments from the janitor@sternweltens list. This is one (of
+many) cases where I made a decision about replacing
+
+set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout(some_time);
+
+with
+
+msleep(jiffies_to_msecs(some_time));
+
+msleep() is not exactly the same as the previous code, but I only did
+this replacement where I thought long delays were *desired*. If this is
+not the case here, then just disregard this patch.
+
+Thanks,
+Nish
+
+
+
+Description: Uses msleep() instead of schedule_timeout() to guarantee
+the task delays at least the desired time amount.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/char/hvc_console.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN drivers/char/hvc_console.c~msleep-drivers_char_hvc_console drivers/char/hvc_console.c
+--- linux-2.6.9-rc1-bk7/drivers/char/hvc_console.c~msleep-drivers_char_hvc_console	2004-09-01 21:01:32.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/hvc_console.c	2004-09-01 21:02:32.000000000 +0200
+@@ -26,6 +26,7 @@
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
+ #include <linux/sched.h>
++#include <linux/delay.h>
+ #include <linux/kbd_kern.h>
+ #include <asm/uaccess.h>
+ #include <linux/spinlock.h>
+@@ -40,7 +41,7 @@ extern int hvc_put_chars(int index, cons
  
-> Several other of your msleep conversion patches actually fix bugs.  You've
-> found drivers which want to sleep for a fixed period, but they do that with
-> TASK_INTERRUPTIBLE.  If someone sends the calling process a signal, these
-> drivers will end up not sleeping at all and may fail.
-
-i'll instantly queue some more msleep conversions up.
+ #define MAX_NR_HVC_CONSOLES	4
  
-> I'll going through these patches and shall apply the ones which look right.
-> Please consider them all to have been handled, thanks.
-
-thanks cool :)
+-#define TIMEOUT		((HZ + 99) / 100)
++#define TIMEOUT		10
  
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+ static struct tty_driver *hvc_driver;
+ static int hvc_offset;
+@@ -276,8 +277,7 @@ int khvcd(void *unused)
+ 			for (i = 0; i < MAX_NR_HVC_CONSOLES; ++i)
+ 				hvc_poll(i);
+ 		}
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(TIMEOUT);
++		msleep(TIMEOUT);
+ 	}
+ }
+ 
 
+_

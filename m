@@ -1,69 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281066AbRKYVaA>; Sun, 25 Nov 2001 16:30:00 -0500
+	id <S281068AbRKYVck>; Sun, 25 Nov 2001 16:32:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281068AbRKYV3u>; Sun, 25 Nov 2001 16:29:50 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:39428 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S281066AbRKYV3e>; Sun, 25 Nov 2001 16:29:34 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Message-ID: <86256B0F.0075ED4C.00@smtpnotes.altec.com>
-Date: Sun, 25 Nov 2001 15:28:39 -0600
-Subject: Re: Linux 2.5.0
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S281072AbRKYVcU>; Sun, 25 Nov 2001 16:32:20 -0500
+Received: from jik-0.dsl.speakeasy.net ([66.92.77.120]:5380 "EHLO
+	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
+	id <S281068AbRKYVcK>; Sun, 25 Nov 2001 16:32:10 -0500
+Date: Sun, 25 Nov 2001 16:32:09 -0500
+From: Jonathan Kamens <jik@kamens.brookline.ma.us>
+Message-Id: <200111252132.fAPLW9H02704@jik.kamens.brookline.ma.us>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10111251617280.7477-100000@coffee.psychology.mcmaster.ca>
+	(message from Mark Hahn on Sun, 25 Nov 2001 16:22:39 -0500 (EST))
+Subject: Re: IDE: 2.2.19+IDE patches works fine; 2.4.x fails miserably; please
+ help me figure out why!
+In-Reply-To: <Pine.LNX.4.10.10111251617280.7477-100000@coffee.psychology.mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(Responding to E-mail sent to me privately by Mark Hahn....)
 
+>  > This clearly isn't a problem with my cables (and I've just wasted over
+>  > $40 to prove it, unless I can convince Staples to take back the opened
+>  > cables).
+>  
+>  are the cables 18"?  lots of places sell 24" cables, which have never
+>  been valid...
 
-Yes, I realize that.  When switching from one tree to another I reverse the
-patches back to the fork point (using patch -R) and then apply the appropriate
-patches for the tree I want.  That's the method I've used for a long time for
-keeping up with both Linus' -preX kernels and Alan's -acX kernels with only a
-single source tree.  (After 2.5 has been out for awhile I'll just drop 2.4
-altogether and then it won't be an issue.)
+No, both the new cables I put in and my old ones were 18" cables.
 
-Wayne
+>  > If it's a problem with my drives, then how is it that I don't have any
+>  > problems at all when I run 2.2.19+IDE on exactly the same hardware? 
+>  
+>  2.2 doesn't contain chipset-specific mode tuning code, afaik.
+>  in general, it just uses the mode as programmed by the bios.
 
+Perhaps I have not explained myself clearly enough, or perhaps my
+understanding of what Andre's 2.2.x IDE patch is, is incorrect.
 
+I am not using stock 2.2.  I am using 2.2 plus Andre Hedrick's IDE
+backport patch.  I thought that the whole point of this patch was to
+backport the enhanced IDE functionality from 2.4 back to 2.2.
 
+Without Andre's patch, I wouldn't be able to send you the output of
+/proc/ide/pdc202xx, because it wouldn't exist, because (as you point
+out) there would be no code in the kernel specific to that chipset.
+With the patch, there *is* code in the kernel specific to that
+chipset.
 
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> on 11/25/2001 10:51:28 AM
+>  > Bus Clocking                         : 33 PCI Internal
+>  
+>  my best theory is that this is wrong.  I assume you're not overclocking,
+>  but have you scrutinized your bios settings?  the ide clock is usually
+>  hung off the PCI clock, divided down from AGP, divided down from FSB.
 
-To:   Wayne Brown/Corporate/Altec@Altec
-cc:   lkml <linux-kernel@vger.kernel.org>
+This is all Greek to me.  Could you translate a bit for the
+kernel-internals-impaired?  What should I be looking at/for, exactly?
 
-Subject:  Re: Linux 2.5.0
+>  wrong clocking (or the driver somehow using the wrong timing)
+>  would explain both the messages you're seeing.
 
+But the settings are the same as those used by 2.2.19+IDE, with which
+I'm not having any problems.  Here's /proc/ide/pdc202xx when I'm
+running 2.2.19+IDE:
 
+                                PDC20262 Chipset.
+------------------------------- General Status ---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 33 PCI Internal
+IO pad select                        : 10 mA
+Status Polling Period                : 15
+Interrupt Check Status Polling Delay : 13
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                enabled                          enabled 
+66 Clocking     enabled                          enabled 
+           Mode PCI                         Mode PCI   
+                FIFO Empty                       FIFO Empty  
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+DMA enabled:    yes              yes             yes               yes
+DMA Mode:       UDMA 4           NOTSET          UDMA 4            NOTSET
+PIO Mode:       PIO 4            NOTSET           PIO 4            NOTSET
 
-Em Sun, Nov 25, 2001 at 09:16:17AM -0600, Wayne.Brown@altec.com escreveu:
->
->
-> Thanks.  I had hoped the version number was the only change, but wanted to be
-> sure.  I'll be keeping just one source tree for both 2.4.x and 2.5.x and
-> switching between the versions by applying and reversing patches as needed, so
-> it's important that my copy of the source stay *exactly* in sync with Linus'
+Thanks,
 
-But keep in mind that this is only the fork point, from now on more and
-more things will diverge and patches for one will not necessarily apply to
-both trees.
-
-> copy (otherwise I've have just altered the version in the Makefile myself).
-> With the help of your patch I've just built both 2.4.16-pre1 and 2.5.1-pre1
-from
-> the same 2.4.15 source, which is what I wanted.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+  Jonathan Kamens

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbUCXKTO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 05:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbUCXKTO
+	id S263258AbUCXKXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 05:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbUCXKXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 05:19:14 -0500
-Received: from gprs214-213.eurotel.cz ([160.218.214.213]:26497 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263271AbUCXKTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 05:19:08 -0500
-Date: Wed, 24 Mar 2004 11:17:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040324101704.GA512@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <opr5ci61g54evsfm@smtp.pacific.net.th>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 24 Mar 2004 05:23:37 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:57230 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263258AbUCXKXf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 05:23:35 -0500
+Message-ID: <4061619F.4020704@stesmi.com>
+Date: Wed, 24 Mar 2004 11:23:27 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Non-Exec stack patches
+References: <1D3lO-3dh-13@gated-at.bofh.it> <1D3YZ-3Gl-1@gated-at.bofh.it> <m3n066eqbf.fsf@averell.firstfloor.org>
+In-Reply-To: <m3n066eqbf.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Andi.
 
-> >>So why aren't you arguing against bootsplash too? That definitely
-> >>obscures such an error :> Of course we could argue that such an error
-> >>shouldn't happen and/or will be obvious via other means (assuming it
-> >>indicates hardware failure).
-> >
-> >Of course I *am* against bootsplash. Unfortunately I've probably lost
-> >that war already. But at least it is not in -linus tree (and that's
-> >what I use anyway) => I gave up with bootsplash-equivalents, as long
-> >as they don't come to linus.
-> >
-> >[And I believe Linus would shoot down bootsplash-like code, anyway.]
+>>Which architectures are currently making their pre-page execute permissions
+>>depend upon VM_EXEC?  
+>>Would additional arch patches be needed for this?
 > 
-> Solution: Auto switch to non-swsusp VT on error showing the error message.
+> 
+> Yes, they would need some straight forward minor patches e.g. in the
+> 32bit emulation. IA64 would be a candidate I guess.
+> 
+> i386 could do it on NX capable CPUs with PAE kernels (but it would require 
+> backporting some fixes from x86-64). However currently it doesn't make
+> much sense because all x86 CPUs that support NX (AMD K8 currently only) 
+> support 64bit kernels and people can as well run 64bit kernels.
+>  
+> Doing it on i386 would only make sense if non 64bit capable CPUs ever get
+> NX. I heard VIA may be planning that, but so far there is nothing in their
+> shipping CPUs, so I guess we can skip that for now.
 
-Hmm, at that point you loose context, like now you know what error
-happened, but do not know at which phase of suspend. That's pretty bad
-too.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Well, there's also the case that (unknown if rumour or confirmed) there
+will be AthlonXPs based on the K8 core that do NOT run 64bit code.
+
+I would THINK they would include the NX bit but that's just a guess of
+course.
+
+// Stefan

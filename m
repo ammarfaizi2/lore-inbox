@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261622AbTC0Xws>; Thu, 27 Mar 2003 18:52:48 -0500
+	id <S261732AbTC0X7v>; Thu, 27 Mar 2003 18:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261619AbTC0XwA>; Thu, 27 Mar 2003 18:52:00 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:28651 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S261622AbTC0XqJ>;
-	Thu, 27 Mar 2003 18:46:09 -0500
-Subject: Re: process creation/deletions hooks
-From: Shaya Potter <spotter@yucs.org>
-To: Nathan Straz <nstraz@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030327213131.GA936@sgi.com>
-References: <1048799290.31010.62.camel@zaphod>
-	 <20030327213131.GA936@sgi.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048809375.30988.140.camel@zaphod>
+	id <S261736AbTC0X7v>; Thu, 27 Mar 2003 18:59:51 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:44778 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261732AbTC0X7u>; Thu, 27 Mar 2003 18:59:50 -0500
+Date: Fri, 28 Mar 2003 00:10:15 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Larry McVoy <lm@work.bitmover.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: ECC error in 2.5.64 + some patches
+Message-ID: <20030328001015.GA19146@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Larry McVoy <lm@work.bitmover.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org> <20030324234410.GB10520@work.bitmover.com> <20030324182508.A15039@vger.timpanogas.org> <20030327160220.GA29195@work.bitmover.com> <20030327082212.252159e0.rddunlap@osdl.org> <20030327163120.GC29195@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 27 Mar 2003 18:56:15 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030327163120.GC29195@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, the ideas are somewhat similar, but I'm viewing it more from a
-module perspective that lets any module author implement something, so
-it's not specialized, and hopefully has a better chance of getting in
-the kernel (i.e. I think your system could work for this as well).
+On Thu, Mar 27, 2003 at 08:31:20AM -0800, Larry McVoy wrote:
+ > > | Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
+ > > | slovax kernel: Bank 1: 9000000000000151
+ > > You can try the Dave Jones "parsemce" tool on it, from
+ > >   http://www.codemonkey.org.uk/cruft/parsemce.c/
+ > 
+ > slovax /tmp a.out -b 1 -e 9000000000000151
+ > Status: (-8070450532247928495) Restart IP valid.
+ > 
+ > What does that mean?
 
-basically what I envision is something simple, in process creation and
-deletion we do something like
+It means Dave sucks and hasn't done a good enough job on the parser.
+parsemce is really really unintuitive to use.
 
-item = some list_head;
-while (item)
-{
-	item->function(task_struct);
-	item = item->next;
-}
+There's some bits missing from your dump. Usually, MCEs look like..
 
-so it has very little overhead into the actual kernel if it's not being
-used (1 memory load and 1 compare/branch).
+ Sep  4 21:43:41 hamlet kernel: CPU 0: Machine Check Exception: 0000000000000004
+ Sep  4 21:43:41 hamlet kernel: Bank 1: f600200000000152 at 7600200000000152
 
-the way pagg would work (I think, just did a cursory reading) is that
-instead of storing the data in the task_struct, you'd have a seperate
-struct that deal with it.  Not as pretty in that regards, but also the
-standard way modules that want to extend the linux kernel have to work,
-and therefore hopefully linus would be willing to include it in his
-kernel.
+All we have to go on in your example is the bank status code.
+(which is -s, not -e. -e would be the 00000000000000004 in the example above. [*])
 
-shaya
+So, without the missing bits, we have to fake it..
 
-On Thu, 2003-03-27 at 16:31, Nathan Straz wrote:
-> On Thu, Mar 27, 2003 at 04:08:10PM -0500, Shaya Potter wrote:
-> > We are trying to write a module that does it's own accounting of
-> > processes as they are created and deleted.  We have an extremely ugly
-> > hack of taking care of process creation (wrap fork() and clone() in a
-> > syscall wrapper, as that's the only way processes can be created).  
-> 
-> You might want to look at the PAGG patch.  SGI did something like this
-> to implement CSA, an accounting package.  Here are some links that might
-> interest you:
-> 
-> Linux PAGG home page:
-> http://oss.sgi.com/projects/pagg/
-> 
-> Design Doc:
-> http://oss.sgi.com/projects/pagg/pagg-lkd.txt
+(davej@deviant:davej)$ ./a.out -b 1 -e 1 -s 9000000000000151 -a 0
+Status: (1) Restart IP valid.
+parsebank(1): 9000000000000151 @ 0
+	External tag parity error
+	Error enabled in control register
+	Memory heirarchy error
+	Request: Generic error
+	Transaction type : Instruction
+	Memory/IO : Reserved
+
+Ignore the Status: line, thats decoded from the (faked) -e 1.
+
+Any the wiser ? 8-)  [*]
+
+		Dave
+
+[*] See, unintuitive, evil and nasty.
+    Given the time, I'd start over from scratch.
 

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272072AbTHDSN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272073AbTHDSN7
+	id S272060AbTHDSKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272073AbTHDSKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:13:59 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:6885 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S272072AbTHDSN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:13:58 -0400
-Date: Mon, 4 Aug 2003 20:13:07 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22-pre10 Problems with radeonfb and suspend mode
-Message-ID: <20030804181307.GB31178@puettmann.net>
+	Mon, 4 Aug 2003 14:10:37 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:38603 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S272060AbTHDSKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:10:34 -0400
+Date: Mon, 4 Aug 2003 11:10:33 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: davidm@hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+Message-ID: <20030804181033.GA17265@lucon.org>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com> <20030804175308.GB16804@lucon.org> <20030804180015.GA543@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *19jjpU-00087s-00*zHhUtEnfX7.* (Puettmann.NeT, Germany)
+In-Reply-To: <20030804180015.GA543@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 04, 2003 at 11:00:16AM -0700, Jesse Barnes wrote:
+> On Mon, Aug 04, 2003 at 10:53:08AM -0700, H. J. Lu wrote:
+> > On Mon, Aug 04, 2003 at 10:37:39AM -0700, David Mosberger wrote:
+> > > As of this morning, Linus's current bk tree
+> > > (http://linux.bkbits.net:8080/linux-2.5) builds and works out of the
+> > > box for ia64!
+> > > 
+> > 
+> > Does it work on bigsur? Does it support kernel modules?
+> 
+> I just tried the latest on my big sur, and though I think modules work
+> (at least they build for other machines), big sur is broken because
+> non-ACPI based PCI enumeration has been removed from the tree.
+> 
 
-        hello,
-
-If i load the radeonfb module and send my thinkpad with apm -s to
-suspend all seems fine but on comming back the screen is still black.
-
-Kernel: 2.4.22-pre10 
-Hardware: Thinkpad R40 2722 / Sony Z1
-          01:00.0 VGA compatible controller: ATI Technologies Inc 
-          Radeon Mobility M7 LW [Radeon Mobility 7500]
-
-        Ruben
+Can you try this patch for bigsur?
 
 
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+H.J.
+---
+--- linux/drivers/acpi/osl.c.acpi	Mon Jul 28 11:41:53 2003
++++ linux/drivers/acpi/osl.c	Mon Jul 28 15:12:44 2003
+@@ -250,7 +250,12 @@ acpi_os_install_interrupt_handler(u32 ir
+ 	irq = acpi_fadt.sci_int;
+ 
+ #ifdef CONFIG_IA64
+-	irq = gsi_to_vector(irq);
++	irq = acpi_irq_to_vector (irq);
++	if (irq < 0) {
++		printk(KERN_ERR PREFIX "SCI (IRQ%d/%d) not registerd\n",
++		       irq, acpi_fadt.sci_int);
++		return AE_OK;
++	}
+ #endif
+ 	acpi_irq_irq = irq;
+ 	acpi_irq_handler = handler;

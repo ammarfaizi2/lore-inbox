@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbTIMUQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 16:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbTIMUQp
+	id S262193AbTIMU13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 16:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTIMU13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 16:16:45 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:48646 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262178AbTIMUQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 16:16:44 -0400
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 13 Sep 2003 15:16:09 -0500
-Message-Id: <1063484193.1781.48.camel@mulgrave>
+	Sat, 13 Sep 2003 16:27:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48146 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262193AbTIMU1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 16:27:22 -0400
+Date: Sat, 13 Sep 2003 21:27:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: presario laptop pcmcia loading problems
+Message-ID: <20030913212719.A23169@flint.arm.linux.org.uk>
+Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain>; from tmolina@cablespeed.com on Fri, Sep 12, 2003 at 04:20:23PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 12, 2003 at 04:20:23PM -0400, Thomas Molina wrote:
+> My Presario 12XL325 laptop is having a number of problems (see bugzilla 
+> 973).  During late test4 or early test5 it started refusing to properly 
+> initialize my wireless ethernet card, an SMC2632W.  I am getting the 
+> following output when the card is inserted:
 
-    Oh, and I'm pondering the best way to deliver out-of-bang ATA taskfiles
-    and SCSI cdbs to a device.  (for the uninitiated, this is lower level
-    than block devices / cdrom devices / etc.)
-    
-     ... AF_BLOCK is not out of the question ;-)
-    
-    
-Well, I think the main issue to doing this is one of layering.  What
-SAM-3 did for SCSI was essentially give us a 3 layer stack which the
-kernel represents as the upper, the mid and the lower layers  (Note,
-these layers are subdividable too).
+> # CONFIG_ISA is not set
 
-For SCSI commands, queuecommand() is a natural handoff point from the
-mid to lower layer representing a pure scsi command with no transport
-dependent details.
+Turn this on.
 
-For ATA, a task file does contain transport dependent knowledge, thus it
-should enter the stack at a slightly lower level (and a level which the
-current SCSI model doesn't even represent).
-
-Thus, the two ways of approaching this would seem to be either to derive
-somehow a way of removing the transport dependence from the taskfile (a
-sort of Task CDB for ATA), or redo the driver model stack to subdivide
-the current low level drivers correctly.  I think the latter will
-probably be more productive, particularly if the subdivision is made
-optional (and thus wouldn't affect most of the drivers currently in the
-tree).  Even in SCSI, there are certain register based SCSI Parallel
-cards that would benefit from being driven at the same level as a task
-file.
-
-James
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

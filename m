@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312790AbSD2QsB>; Mon, 29 Apr 2002 12:48:01 -0400
+	id <S312891AbSD2QxL>; Mon, 29 Apr 2002 12:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312889AbSD2QsA>; Mon, 29 Apr 2002 12:48:00 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:61909 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S312790AbSD2Qr7>; Mon, 29 Apr 2002 12:47:59 -0400
-Date: Mon, 29 Apr 2002 18:47:12 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Stephan Maciej <stephan@maciej.muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sony Vaio Laptop problems
-Message-ID: <20020429164712.GA12419@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Stephan Maciej <stephan@maciej.muc.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200204261728.39745.stephan@maciej.muc.de> <20020429002811.GB3108@arthur.ubicom.tudelft.nl> <200204291630.22969.stephan@maciej.muc.de>
-Mime-Version: 1.0
+	id <S312894AbSD2QxK>; Mon, 29 Apr 2002 12:53:10 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:54418 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S312891AbSD2QxK>; Mon, 29 Apr 2002 12:53:10 -0400
+Date: Mon, 29 Apr 2002 10:50:05 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>, Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <5390000.1020102605@flay>
+In-Reply-To: <20020427004641.L19278@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 29, 2002 at 04:30:22PM +0200, Stephan Maciej wrote:
+>>                 page = virt_to_page(__va(phys_addr));
+>>
+>> ...
+>>
+>> __va() is defined, on Alpha, to be:
+>> 
+>> 	# define __va(x)  ((void *)((unsigned long) (x) + PAGE_OFFSET))
+>> 
+>> ...
+>> 
+>> Now, what happens if 'kaddr' is below PAGE_OFFSET (because the user has
+>> opened /dev/mem and mapped some random bit of physical memory space)?
 
-> > 1) Update the BIOS, my laptop shipped with an old version and a BIOS
-> >    update fixed some keyboard related problems. (you need to boot into
-> >    windows for this)
-> 
-> Can I do this with a DOS bootdisk? I remember that most of the Flash updates 
-> require you to startup the computer in a real DOS environment, at least those 
-> I have seen for my ASUS P5A and A7V boards.
+But we generated kaddr by using __va, as above? If the user mapped /dev/mem
+and created a second possible answer for a P->V mapping, that seems
+irrelevant, as long as __va always returns the "primary" mapping into kernel
+virtual address space.
 
-Unfortunatelly (at least for the C1VM windows XP bios) it 
-requires windows installed, so it could launch a fancy graphical
-installer, which will test if your laptop is the correct version and 
-if it is, it will create the dos boot disk.
+I'd agree we're lacking some error checking here (maybe virt_to_page should
+be an inline that checks that kaddr really is a kernel virtual address), but I 
+can't see a real practical problem in the scenario you describe. As other
+people seem to be able to, maybe I'm missing something ;-)
 
-Of course it didn't work for me (since I have a C1VE, which is the
-european version of the C1VM, and the bios wasn't "certified" for
-my version). But I was able to workaround by manually looking at
-the temporary files (windows\temp directory) while the fancy setup
-utility was running....
+I'm not sure if your arch is a 32-bit or 64-bit arch, but I see more of a problem
+in this code if we do "page = virt_to_page(__va(phys_addr));" on a physaddr
+that's in HIGHMEM on a 32 bit arch, in which we get garbage from the wrapping,
+and Daniel's "page = phys_to_page(phys_addr);" makes infintely more sense.
 
-Just in case it's useful...
+Martin.
 
-> > 2) Apply the latest ACPI patch.
-> 
-> I'll try. Is anyone interested in getting positive feedback? You?
-
-Probably the acpi mailing list.
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

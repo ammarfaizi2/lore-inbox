@@ -1,89 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVANEzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVANEzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVANEzk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 23:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVANEzj
+	id S261897AbVANEzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 23:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVANEzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 23:55:39 -0500
-Received: from smtp.nuvox.net ([64.89.70.9]:16212 "EHLO
-	smtp04.gnvlscdb.sys.nuvox.net") by vger.kernel.org with ESMTP
-	id S261894AbVANEzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 23:55:20 -0500
-Subject: Re: [UPDATE PATCH] ieee1394/sbp2: use ssleep() instead of
-	schedule_timeout()
-From: Dan Dennedy <dan@dennedy.org>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
-       kj <kernel-janitors@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Ben Collins <bcollins@debian.org>
-In-Reply-To: <20050110173945.GB3099@us.ibm.com>
-References: <20050107213400.GD2924@us.ibm.com>
-	 <17a9eec54394ded0a28295a6548a5c65@localhost>
-	 <20050110173945.GB3099@us.ibm.com>
+	Thu, 13 Jan 2005 23:55:21 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:22712 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261897AbVANEzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 23:55:06 -0500
+Subject: Re: page table lock patch V15 [0/7]: overview
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+In-Reply-To: <20050114043944.GB41559@muc.de>
+References: <41E5AFE6.6000509@yahoo.com.au>
+	 <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
+	 <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+	 <41E5BC60.3090309@yahoo.com.au>
+	 <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+	 <20050113031807.GA97340@muc.de>
+	 <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+	 <20050113180205.GA17600@muc.de>
+	 <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+	 <20050114043944.GB41559@muc.de>
 Content-Type: text/plain
-Date: Thu, 13 Jan 2005 23:52:55 -0500
-Message-Id: <1105678375.7830.81.camel@kino.dennedy.org>
+Date: Fri, 14 Jan 2005 15:54:59 +1100
+Message-Id: <1105678499.5402.105.camel@npiggin-nld.site>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-10 at 09:39 -0800, Nishanth Aravamudan wrote:
-> On Sun, Jan 09, 2005 at 10:01:21AM +0100, Stefan Richter wrote:
-> > Nishanth Aravamudan wrote:
-> > >Description: Use ssleep() instead of schedule_timeout() to guarantee 
-> > >the task
-> > >delays as expected. The existing code should not really need to run in
-> > >TASK_INTERRUPTIBLE, as there is no check for signals (or even an 
-> > >early return
-> > >value whatsoever). ssleep() takes care of these issues.
-> > 
-> > >--- 2.6.10-v/drivers/ieee1394/sbp2.c	2004-12-24 13:34:00.000000000 
-> > >-0800
-> > >+++ 2.6.10/drivers/ieee1394/sbp2.c	2005-01-05 14:23:05.000000000 -0800
-> > >@@ -902,8 +902,7 @@ alloc_fail:
-> > >	 * connected to the sbp2 device being removed. That host would
-> > >	 * have a certain amount of time to relogin before the sbp2 device
-> > >	 * allows someone else to login instead. One second makes sense. */
-> > >-	set_current_state(TASK_INTERRUPTIBLE);
-> > >-	schedule_timeout(HZ);
-> > >+	ssleep(1);
-> > 
-> > Maybe the current code is _deliberately_ accepting interruption by 
-> > signals but trying to complete sbp2_probe() anyway. However it seems 
-> > more plausible to me to abort the device probe, for example like this:
-> > if (msleep_interruptible(1000)) {
-> > 	sbp2_remove_device(scsi_id);
-> > 	return -EINTR;
-> > }
+On Fri, 2005-01-14 at 05:39 +0100, Andi Kleen wrote:
+
+> As you can see cmpxchg is slightly faster for the cache hot case,
+> but incredibly slow for cache cold (probably because it does something
+> nasty on the bus). This is pretty consistent to Intel and AMD CPUs.
+> Given that page tables are likely more often cache cold than hot 
+> I would use the lazy variant. 
 > 
-> You might be right, but I'd like to get Ben's input on this, as I honeslty am
 
-Don't hold your breath waiting for Ben's input. However, I would like to
-get one of the two proposed committed and tested by more users as this
-is a sore spot. I am not in a position at this time to fully research
-and test to make a call.
+I have a question about your trickery with the read_pte function ;)
 
-> unsure. To be fair, I am trying to audit all usage of schedule_timeout() and the
-> semantic interpretation (to me) of using TASK_INTERRUPTIBLE is that you wish to
-> sleep a certain amount of time, but also are prepared for an early return on
-> either signals or wait-queue events. msleep_interruptible() cleanly removes this
-> second issue, but still requires the caller to respond appropriately if there is
-> a return value. Hence, I like your change. I think it makes the most sense.
-> Since I didn't/don't know how the device works, I was not able to make the
-> change myself. Thanks for your input!
+pte_t read_pte(volatile pte_t *pte)
+{
+	pte_t n;
+	do {
+		n.pte_low = pte->pte_low;
+		rmb();
+		n.pte_high = pte->pte_high;
+		rmb();
+	} while (n.pte_low != pte->pte_low);
+	return pte;
+}
 
-Sounds like a sign-off. Any other input before I request Stefan to make
-the final decision?
+Versus the existing set_pte function. Presumably the order here
+can't be changed otherwise you could set the present bit before
+the high bit, and race with the hardware MMU?
 
-> > Anyway, signal handling does not appear to be critical there.
-> 
-> Just out of curiousity, doesn't that run the risk, though, of
-> signal_pending(current) being true for quite a bit of time following the
-> timeout?
+static inline void set_pte(pte_t *ptep, pte_t pte)
+{
+        ptep->pte_high = pte.pte_high;
+        smp_wmb();
+        ptep->pte_low = pte.pte_low;
+}
 
-How much of this is "curiosity" vs a real risk?
+Now take the following interleaving:
+CPU0 read_pte                        CPU1 set_pte
+n.pte_low = pte->pte_low;
+rmb();
+                                     ptep->pte_high = pte.pte_high;
+                                     smp_wmb();
+n.pte_high = pte->pte_high;
+rmb();
+while (n.pte_low != pte->pte_low);
+return pte;
+                                     ptep->pte_low = pte.pte_low;
+
+So I think you can get a non atomic result. Are you relying on
+assumptions about the value of pte_low not causing any problems
+in the page fault handler?
+
+Or am I missing something?
 
 
+Find local movie times and trailers on Yahoo! Movies.
+http://au.movies.yahoo.com

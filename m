@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSJ2Eak>; Mon, 28 Oct 2002 23:30:40 -0500
+	id <S261550AbSJ2Er0>; Mon, 28 Oct 2002 23:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSJ2Eak>; Mon, 28 Oct 2002 23:30:40 -0500
-Received: from rakshak.ishoni.co.in ([164.164.83.140]:3621 "EHLO
-	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
-	id <S261545AbSJ2Eak>; Mon, 28 Oct 2002 23:30:40 -0500
-Message-ID: <7CFD7CA8510CD6118F950002A519EA3001FE5748@leonoid.in.ishoni.com>
-From: Amol Kumar Lad <amolk@ishoni.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: query: light weight TCP/IP stack for Linux
-Date: Tue, 29 Oct 2002 10:10:14 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261557AbSJ2Er0>; Mon, 28 Oct 2002 23:47:26 -0500
+Received: from alpha8.cc.monash.edu.au ([130.194.1.8]:43269 "EHLO
+	ALPHA8.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
+	id <S261550AbSJ2ErZ>; Mon, 28 Oct 2002 23:47:25 -0500
+Date: Tue, 29 Oct 2002 14:39:59 +1100 (EST)
+From: netdev-bounce@oss.sgi.com
+To: undisclosed-recipients:;
+Message-id: <20021029033959.B76CD12CE75@blammo.its.monash.edu.au>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I am looking for a very light weight TCP/IP stack(small memory footprint)
-that I can hook in Linux (i.e. replace linux's native stack with new one).
-Are there any such stacks available ?? If yes, Is intergrating that stack in
-our kernel is seamless or I have to dig real hard in kernel to do that .
+> The e1000 can very well do hardware checksumming on transmit.
+>
+> The missing piece of the puzzle is that his application is not
+> using sendfile(), without which no transmit checksum offload
+> can take place.
 
-Please CC me.
+As far as I've understood, sendfile() won't do much good with large files. Is 
+this right?
 
-Thanks
-Amol
+We're talking of 3-6GB files here ...
 
-Ps: I am using linux kernel 2.4.2 (please don't flame..)
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+
+

@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVAUJMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVAUJMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVAUJMN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 04:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVAUJMM
+	id S261869AbVAUJMV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 04:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVAUJMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 21 Jan 2005 04:12:20 -0500
+Received: from [81.23.229.73] ([81.23.229.73]:49894 "EHLO mail.eduonline.nl")
+	by vger.kernel.org with ESMTP id S261869AbVAUJMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 21 Jan 2005 04:12:12 -0500
-Received: from mail-gw1.york.ac.uk ([144.32.128.246]:57996 "EHLO
-	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S261663AbVAUJMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 04:12:02 -0500
-Subject: Re: 2.6.9 suspend-to-disk bug (during resume)
-From: Alan Jenkins <aj504@student.cs.york.ac.uk>
-To: Pavel Machek <pavel@ucw.cz>
+From: Norbert van Nobelen <Norbert@edusupport.nl>
+Organization: EduSupport
+To: Alasdair G Kergon <agk@redhat.com>,
+       "Trever L. Adams" <tadams-lists@myrealbox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: LVM2
+Date: Fri, 21 Jan 2005 10:12:10 +0100
+User-Agent: KMail/1.6.2
+References: <1106250687.3413.6.camel@localhost.localdomain> <1106259735.3413.21.camel@localhost.localdomain> <20050120223419.GB14097@agk.surrey.redhat.com>
+In-Reply-To: <20050120223419.GB14097@agk.surrey.redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050120145804.GJ476@openzaurus.ucw.cz>
-References: <1106210882.7975.9.camel@linux.site>
-	 <1106210985l.8224l.0l@linux>  <20050120145804.GJ476@openzaurus.ucw.cz>
-Content-Type: text/plain
-Date: Fri, 21 Jan 2005 09:08:20 +0000
-Message-Id: <1106298500.10018.2.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-York-MailScanner: Found to be clean
-X-York-MailScanner-From: aj504@student.cs.york.ac.uk
+Message-Id: <200501211012.10728.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-20 at 15:58 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> 
-> > ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 10 (level, low) -> IRQ 10
-> > bad: scheduling while atomic!
-> >  [<c030164e>] schedule+0x4be/0x570
-> >  [<c011ce69>] call_console_drivers+0x79/0x110
-> >  [<c0124817>] __mod_timer+0x177/0x190
-> >  [<c0301b8a>] schedule_timeout+0x5a/0xb0
-> >  [<c0293ed9>] 
-
-> Try without preempt for an ugly workaround. 
-Check.
-
-> Also try to reproduce it
-> on 2.6.11-rc1.
-Looks the same.  I can send demsg output if required.
-
-> 				Pavel
-> 
-
-
+Even as LVM user, guess what I used before answering (-:
+On Thursday 20 January 2005 23:34, Alasdair G Kergon wrote:
+> On Thu, Jan 20, 2005 at 03:22:14PM -0700, Trever L. Adams wrote:
+> > PV = the device
+> > VG = groups of them (the RAID5 array?)
+> > LV = what? the file system?
+>
+> http://www.tldp.org/HOWTO/LVM-HOWTO/anatomy.html
+> http://www.novell.com/products/linuxenterpriseserver8/whitepapers/LVM.pdf
+>   [Out-of-date now, but descriptions of concepts still useful.]
+>
+> LVM mailing list for LVM questions:
+>   https://www.redhat.com/mailman/listinfo/linux-lvm
+>
+> Alasdair

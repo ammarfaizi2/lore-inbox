@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbTEHR07 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 13:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTEHR07
+	id S261888AbTEHRYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 13:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTEHRYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 13:26:59 -0400
-Received: from holomorphy.com ([66.224.33.161]:37017 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261895AbTEHR06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 13:26:58 -0400
-Date: Thu, 8 May 2003 10:39:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030508173926.GO8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA4529.7050507@aitel.hist.no> <20030508120450.GT823@suse.de> <20030508133908.GA824@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508133908.GA824@hh.idb.hist.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 8 May 2003 13:24:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37388 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261888AbTEHRYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 13:24:38 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: The magical mystical changing ethernet interface order
+Date: 8 May 2003 17:36:41 GMT
+Organization: Transmeta Corp
+Message-ID: <1052415401.563221@palladium.transmeta.com>
+References: <20030507141458.B30005@flint.arm.linux.org.uk> <20030507150414.1eaeae75.akpm@digeo.com> <3EB98878.5060607@us.ibm.com> <1052395526.23259.0.camel@rth.ninka.net>
+X-Trace: palladium.transmeta.com 1052415401 9984 127.0.0.1 (8 May 2003 17:36:41 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 8 May 2003 17:36:41 GMT
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: torvalds@penguin.transmeta.com (Linus Torvalds)
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08 2003, Helge Hafting wrote:
->>> 2.5.69-mm3 died in exactly the same way - the oops was identical.
->>> I'm back to running mm2 without netfilter, to see how
->>> stable it is.
+In article <1052395526.23259.0.camel@rth.ninka.net>,
+David S. Miller <davem@redhat.com> wrote:
+>On Wed, 2003-05-07 at 15:28, Dave Hansen wrote:
+>> The linker will order things in the final object in the order that you
+>> passed them.  We depend on this for getting __init functions run in the
+>> right order:
+>
+>This is absolutely not guarenteed.  The linker is at liberty to
+>reorder objects in any order it so desires, for performance reasons
+>etc.
+>
+>Any reliance on link ordering is broken and needs to be fixed.
 
-On Thu, May 08, 2003 at 02:04:50PM +0200, Jens Axboe wrote:
->> See my mail to rusty, I'm seeing the same thing. Back out the changeset
->> that wli pasted here too, and it will work.
+No. Last time this came up rth spoke up and said that link ordering _is_
+guaranteed. 
 
-On Thu, May 08, 2003 at 03:39:08PM +0200, Helge Hafting wrote:
-> Much fuzz and two rejects.  Seems there is ongoing netfilter
-> work in mm3.
+The kernel depends on this in a lot more ways than just initcalls, btw:
+all the exception handling etc also depend on the linker properly
+preserving ordering of text/data sections.
 
-This is fine for my purposes; we narrowed down the cause to the current
-netfilter issue (and exonerated what I'd otherwise have to fix) so all
-is well.
+If the linker ever starts re-orderign things, we'll just either not
+upgrade to a broken linker, or we'll require a flag that disables the
+re-ordering. 
 
-It sounds like the fix for the issue merged in -mm3 was incomplete. It
-should get straightened out soon.
+End of discussion. 
 
-
--- wli
+			Linus

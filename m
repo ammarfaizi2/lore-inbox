@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262591AbSI0THY>; Fri, 27 Sep 2002 15:07:24 -0400
+	id <S262558AbSI0S5v>; Fri, 27 Sep 2002 14:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262596AbSI0THY>; Fri, 27 Sep 2002 15:07:24 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:29175 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262591AbSI0TGn>; Fri, 27 Sep 2002 15:06:43 -0400
-Subject: Re: [patch] 'virtual => physical page mapping
-	cache',vcache-2.5.38-B8
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Chris Wedgwood <cw@f00f.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D94A4D9.D458D453@digeo.com>
-References: <Pine.LNX.4.44.0209271952540.17034-100000@localhost.localdomain>
-	<1033149675.16758.8.camel@irongate.swansea.linux.org.uk> 
-	<3D94A4D9.D458D453@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Sep 2002 20:16:26 +0100
-Message-Id: <1033154186.16726.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262561AbSI0S5u>; Fri, 27 Sep 2002 14:57:50 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:56771 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262558AbSI0S5t>;
+	Fri, 27 Sep 2002 14:57:49 -0400
+Date: Fri, 27 Sep 2002 21:12:30 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 'virtual => physical page mapping cache' take #2,
+ vcache-2.5.38-C4
+In-Reply-To: <Pine.LNX.4.44.0209272043260.17678-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209272111130.18454-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-27 at 19:35, Andrew Morton wrote:
-> O_DIRECT writes operate under i_sem, which provides exclusion
-> from trucate.  Do you know something which I don't??
 
-So it does, hidden away in generic_file_write rather than the lower
-layers. Interesting. So now I have a new question to resolve, which is
-why doing O_DIRECT and truncate together corrupted my disk when I tried
-it trying to break stuff
-
+> [...] The method is to do a cheap physpage lookup (ie. only the
+> read-lock is taken, the page is forced writable), [...]
+                                 ^---not
 

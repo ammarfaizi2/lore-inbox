@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264399AbTFEEKV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 00:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTFEEKU
+	id S264393AbTFEEc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 00:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTFEEc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 00:10:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21509 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264399AbTFEEKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 00:10:20 -0400
-Date: Wed, 4 Jun 2003 21:23:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <davem@redhat.com>,
-       <bcollins@debian.org>, <wli@holomorphy.com>, <tom_gall@vnet.ibm.com>,
-       <anton@samba.org>
-Subject: Re: /proc/bus/pci
-In-Reply-To: <1054783303.22104.5569.camel@cube>
-Message-ID: <Pine.LNX.4.44.0306042117440.2761-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jun 2003 00:32:27 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.92.226.49]:57755 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S264393AbTFEEc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 00:32:26 -0400
+Date: Thu, 5 Jun 2003 00:45:57 -0400
+From: Dan Maas <dmaas@maasdigital.com>
+To: linux-kernel@vger.kernel.org
+Subject: Alpha hang after 24hrs (2.4.21-rc6)
+Message-ID: <20030605004557.A22504@morpheus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Info: http://www.maasdigital.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I recently upgraded my Alpha EV56 PC164 system from kernel 2.2.25 to
+2.4.21-rc6. With the newer kernel the system hangs reliably after
+roughly 24 hours of uptime.
 
-On Wed, 4 Jun 2003, Albert Cahalan wrote:
->
-> I notice that /proc/bus/pci doesn't offer a sane
-> interface for multiple PCI domains and choice of BAR.
-> What do people think of this?
-> 
-> bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
+Normally I would suspect heat or RAM failure, but the system seems to
+work fine with the older kernel. 
 
-Why do we have that stupid "hose" name? Only because of strange alpha 
-naming, or did somebody else also use that incredibly silly name?
+The symptom is a total lock-up/freeze, nothing is printed to the
+console or syslog. I have not tried a serial console yet but that is
+my next step.
 
-Please talk about "domains", at least it makes some sense as a name.
+The system is a stock 1-CPU 500MHz Alpha, 128MB RAM, nothing special,
+just two 3c59x ethernet cards and an AIC788x SCSI controller. It
+functions as a web server and NAT gateway. Most of the time it is just
+idle. The only unusual thing in the 2.4 kernel configuration is that
+I'm using the new QoS packet filtering options (for wondershaper).
 
-I'm also hoping that /proc/bus will eventually go away, so I don't see a 
-major problem with not understanding multiple domains at that level.
+This machine has served me reliably for years, and I'd hate to see it
+go down for good ;). I really do need the new QoS stuff in 2.4 though.
 
-On a /sys/bus/xxx level we actually should already be able to handle 
-multiple domains, but the naming is broken. However, in /sys we should be 
-able to nicely handling non-zero domains by just extending the name space 
-a bit.
+Any ideas? Please CC to me.
 
-		Linus
-
+Thanks,
+Dan

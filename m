@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVASCH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVASCb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVASCH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 21:07:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVASCH0
+	id S261297AbVASCb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 21:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVASCb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 21:07:26 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:57531 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261542AbVASCHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 21:07:19 -0500
-Message-ID: <41EDC118.6050105@kolivas.org>
-Date: Wed, 19 Jan 2005 13:08:24 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Jack O'Quin" <joq@io.com>, hihone@bigpond.net.au,
-       linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>,
-       paul@linuxaudiosystems.com
-Subject: Re: [ck] [PATCH][RFC] sched: Isochronous class for unprivileged	soft
- rt	scheduling
-References: <41ED08AB.5060308@kolivas.org> <41ED2F1F.1080905@bigpond.net.au>	 <87d5w2u2xd.fsf@sulphur.joq.us> <1106100122.30792.23.camel@krustophenia.net>
-In-Reply-To: <1106100122.30792.23.camel@krustophenia.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 21:31:56 -0500
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:33733 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S261297AbVASCby
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 21:31:54 -0500
+Date: Wed, 19 Jan 2005 04:31:51 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH - 2.6.10] generic_file_buffered_write handle partial DIO writes with multiple iovecs
+Message-ID: <20050119023151.GK6725@m.safari.iki.fi>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1106097764.3041.16.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106097764.3041.16.camel@ibm-c.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2005-01-18 at 10:17 -0600, Jack O'Quin wrote:
+On Tue, Jan 18, 2005 at 05:22:44PM -0800, Daniel McNeil wrote:
+> Andrew,
 > 
->>Cal <hihone@bigpond.net.au> writes:
->>
->>
->>>There's a collection of test summaries from jack_test3.2 runs at
->>><http://www.graggrag.com/ck-tests/ck-tests-0501182249.txt>
->>>
->>>Tests were run with iso_cpu at 70, 90, 99, 100, each test was run
->>>twice. The discrepancies between consecutive runs (with same
->>>parameters) is puzzling.  Also recorded were tests with SCHED_FIFO and
->>>SCHED_RR.
->>
->>It's probably suffering from some of the same problems of thread
->>granularity we saw running nice --20.  It looks like you used
->>schedtool to start jackd.  IIUC, that will cause all jackd processes
->>to run in the specified scheduling class.  JACK is carefully written
->>not to do that.  Did you also use schedtool to start all the clients?
->>
->>I think your puzzling discrepancies are probably due to interference
->>from non-realtime JACK threads running at elevated priority.
+> This is a patch to generic_file_buffered_write() to correctly
+> handle partial O_DIRECT writes (because of unallocated blocks)
+> when there is more than 1 iovec.  Without this patch, the code is
+> writing the wrong iovec (it writes the first iovec a 2nd time).
 > 
+> Included is a test program dio_bug.c that shows the problem by:
+> 	writing 4k to offset 4k
+> 	writing 4k to offset 12k
+> 	writing 8k to offset 4k
+> The result is that 8k write writes the 1st 4k of the buffer twice.
 > 
-> Isn't this going to be a showstopper?  If I understand the scheduler
-> correctly, a nice -20 task is not guaranteed to preempt a nice -19 task,
-> if the scheduler decides that one is more CPU bound than the other and
-> lowers its dynamic priority.  The design of JACK, however, requires the
-> higher priority threads to *always* preempt the lower ones.
+> $ rm f; ./dio_bug f
+> wrong value offset 8k expected 0x33 got 0x11
+> wrong value offset 10k expected 0x44 got 0x22
+> 
+> with patch
+> $ rm f; ./dio_bug f
 
-The point was the application was started in a manner which would not 
-make best use of this policy. The way it was started put everything 
-under the same policy, and had equal performance with doing the same 
-thing as SCHED_FIFO. So if it's a showstopper for SCHED_ISO then it is a 
-showstopper for SCHED_FIFO. Which is, of course, not the case. The test 
-needs to be performed again with the rt threads running SCHED_ISO, which 
-  Jack has pointed out is trivial. Nice -n -20 on the other hand will 
-suffer from this problem even if only the real time thread was run at -20.
+I have Linux 2.6.10-ac9 + bio clone memory corruption -patch,
+and dio_bug does not give errors (without your patch).
 
-Cheers,
-Con
+-- 

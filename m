@@ -1,124 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVCIUBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVCIUBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVCIUBS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 15:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVCIUAu
+	id S262175AbVCIUBW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 15:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVCIT7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 15:00:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4065 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261168AbVCIT4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:56:53 -0500
-Date: Wed, 9 Mar 2005 12:39:00 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.30-pre3
-Message-ID: <20050309153900.GF15690@logos.cnet>
+	Wed, 9 Mar 2005 14:59:48 -0500
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:6668 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262188AbVCITdO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 14:33:14 -0500
+Date: Wed, 9 Mar 2005 20:33:17 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux1394-devel@lists.sourceforge.net, video4linux-list@redhat.com,
+       sensors@Stimpy.netroedge.com
+Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
+Message-Id: <20050309203317.64916119.khali@linux-fr.org>
+In-Reply-To: <200503090243.06270.gene.heskett@verizon.net>
+References: <200503082326.28737.gene.heskett@verizon.net>
+	<20050308224441.2e29f895.akpm@osdl.org>
+	<200503090243.06270.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__9_Mar_2005_20_33_17_+0100_6keH1tl5j.I1_Ilk"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
 
-Here goes the third pre of v2.4.30.
+--Multipart=_Wed__9_Mar_2005_20_33_17_+0100_6keH1tl5j.I1_Ilk
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+Hi Gene, Andrew, all,
 
-It contains a small number of scattered fixes, most notably e1000 update, 
-a backport of v2.6's nForce override fix, and SATA update. 
+(Gene, note that I cannot write to you directly because Verizon are
+idiots. Let's just hope you'll read that.)
 
-The changes which broke "tar --verify" on tapes have been reverted.
+[Gene Heskett]
+> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:362:
+> error: unknown field `id' specified in initializer
 
-Please read the changelog for more details.
+I've dropped the "id" member of struct i2c_client, as it were useless.
+Third-party driver authors now need to do the same.
 
+Patches to pcHDTV 1.6 and 2.0 attached (untested). Feel free to push the
+latter to the author of hdPCTV. Note that the removed struct member was
+really not used before, so the driver will still work with earlier
+kernels.
 
-Summary of changes from v2.4.30-pre2 to v2.4.30-pre3
-============================================
+[Andrew Morton]
+> What's pcHDTV-1.6.tar.gz?  If it was merged up then these things
+> wouldn't happen.
 
-<davem:northbeach.davemloft.net.davemloft.net>:
-  o [SPARC64]: Tomatillo PCI controller bug fixes
-  o [TIGON3]: Do not touch NIC_SRAM_FIRMWARE_MBOX when TG3_FLG2_SUN_570X
-  o [TIGON3]: Update driver version and reldate
+I second that, especially since the pcHDTV package is made up of
+modified bttv and cx88 drivers, not an original driver. Merging the
+changes into the kernel would obviously make everyone's life easier.
 
-<hifumi.hisashi:lab.ntt.co.jp>:
-  o BUG on error handlings in Ext3 under I/O
+As a side note, I have (many) other changes to the i2c subystem in my
+plans, some of them are rather intrusive, so expect pcHDTV to break
+again soon, unless it gets merged until then.
 
-<krzysztof.h1:wp.pl>:
-  o [SPARC]: DBRI fixes and improvements
+[Gene Heskett]
+> Third, somewhere between 2.6.11-rc5-RT-V0.39-02 and 2.6.11, I've
+> lost my sensors except for one on the motherboard called THRM by
+> gkrellm-2.28.  Nothing seems to be able to bring the w83627hf back
+> to life.
 
-<liml:rtr.ca>:
-  o sata_qstor: eh_timeout fix
+THRM is most likely a temperature you get from /proc/acpi/thermal_zone,
+and isn't related with the w83627hf driver.
 
-<mallikarjuna.chilakala:intel.com>:
-  o e1000: 1 Robert Olsson's fix and
-  o e1000: 2 use netif_poll_{enable|disable}
-  o e1000: Avoid race between e1000_watchdog
-  o e1000: Delay clean-up of last Tx buffer
-  o e1000: Fix WOL settings in 82544 based
-  o e1000: Patch from Peter Kjellstroem --
-  o e1000: Checks for desc ring/rx data
-  o e1000: Report failure code when loopback
-  o e1000: Fixes related to Cable length
-  o e1000: Driver version white space,
+I think that you are affected by recent changes made by the ACPI folks
+to the way resources are reserved. See bug #4014:
+  http://bugzilla.kernel.org/show_bug.cgi?id=4014
 
-<mat.loikkanen:synopsys.com>:
-  o [libata] add ->bmdma_{stop,status} hooks
+You can check /proc/ioports on the working system after loading
+w83627hf, and compare with /proc/ioports on the non-working system. I'd
+expect you to find that the non-working system has reserved a subrange
+of what the w83627hf driver attempts to grab, making it fail.
 
-<phil:fifi.org>:
-  o sk98lin workaround Asus K8V SE Deluxe buggy firmware
+-- 
+Jean Delvare
 
-<slee:netengine1.com>:
-  o Fix units/partition count in sd.c
+--Multipart=_Wed__9_Mar_2005_20_33_17_+0100_6keH1tl5j.I1_Ilk
+Content-Type: text/plain;
+ name="pcHDTV-1.6-kill-i2c-client-id.diff"
+Content-Disposition: attachment;
+ filename="pcHDTV-1.6-kill-i2c-client-id.diff"
+Content-Transfer-Encoding: 7bit
 
-Adrian Bunk:
-  o drivers/scsi/sata_*: make code static
+diff -u -rN pcHDTV-1.6/kernel-2.6.x/driver.orig/bttv-i2c.c pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c
+--- pcHDTV-1.6/kernel-2.6.x/driver.orig/bttv-i2c.c	Fri Dec 10 19:42:38 2004
++++ pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c	Wed Mar  9 13:52:24 2005
+@@ -359,7 +359,6 @@
+ 
+ static struct i2c_client bttv_i2c_client_template = {
+ 	I2C_DEVNAME("bttv internal"),
+-        .id       = -1,
+ };
+ 
+ 
+diff -u -rN pcHDTV-1.6/kernel-2.6.x/driver.orig/cx88-i2c.c pcHDTV-1.6/kernel-2.6.x/driver/cx88-i2c.c
+--- pcHDTV-1.6/kernel-2.6.x/driver.orig/cx88-i2c.c	Fri Dec 10 19:42:39 2004
++++ pcHDTV-1.6/kernel-2.6.x/driver/cx88-i2c.c	Wed Mar  9 13:51:19 2005
+@@ -136,7 +136,6 @@
+ 
+ static struct i2c_client cx8800_i2c_client_template = {
+         I2C_DEVNAME("cx88xx internal"),
+-        .id   = -1,
+ };
+ 
+ /* init + register i2c algo-bit adapter */
 
-David S. Miller:
-  o [SPARC64]: Fix 32bit compat layer bugs in sys_ipc() and sys_rt_sigtimedwait()
-  o [AF_UNIX]: Fix SIOCINQ for STREAM
-  o [SPARC64]: Accept 'm5823' clock chip as seen on SB1500
+--Multipart=_Wed__9_Mar_2005_20_33_17_+0100_6keH1tl5j.I1_Ilk
+Content-Type: text/plain;
+ name="pcHDTV-2.0-kill-i2c-client-id.diff"
+Content-Disposition: attachment;
+ filename="pcHDTV-2.0-kill-i2c-client-id.diff"
+Content-Transfer-Encoding: 7bit
 
-Jeff Garzik:
-  o [libata sata_via] minor cleanups
-  o [libata sata_via] add support for VT6421 SATA
-  o [libata] resync with 2.6 msleep() updates
-  o [libata] trivial: whitespace sync with 2.6
-  o [libata] do not call pci_disable_device() for certain errors
-  o [libata] Add missing hooks, to avoid oops in advanced SATA drivers
-  o [libata] Use DMA_{32,64}BIT_MASK in ahci, sata_vsc drivers
-  o [libata ahci] Print out port id on error messages
-  o [libata] remove_one helper cleanup
+diff -u -rN pcHDTV-2.0.orig/bttv-i2c.c pcHDTV-2.0/bttv-i2c.c
+--- pcHDTV-2.0.orig/bttv-i2c.c	Fri Feb 18 21:54:35 2005
++++ pcHDTV-2.0/bttv-i2c.c	Wed Mar  9 13:56:34 2005
+@@ -317,7 +317,6 @@
+ 
+ static struct i2c_client bttv_i2c_client_template = {
+ 	I2C_DEVNAME("bttv internal"),
+-        .id       = -1,
+ };
+ 
+ 
+diff -u -rN pcHDTV-2.0.orig/cx88-i2c.c pcHDTV-2.0/cx88-i2c.c
+--- pcHDTV-2.0.orig/cx88-i2c.c	Fri Feb 18 21:54:38 2005
++++ pcHDTV-2.0/cx88-i2c.c	Wed Mar  9 13:56:58 2005
+@@ -142,7 +142,6 @@
+ 
+ static struct i2c_client cx8800_i2c_client_template = {
+         I2C_DEVNAME("cx88xx internal"),
+-        .id   = -1,
+ };
+ 
+ static char *i2c_devs[128] = {
+diff -u -rN pcHDTV-2.0.orig/dpl3518.c pcHDTV-2.0/dpl3518.c
+--- pcHDTV-2.0.orig/dpl3518.c	Fri Feb 18 21:54:36 2005
++++ pcHDTV-2.0/dpl3518.c	Wed Mar  9 13:57:11 2005
+@@ -374,7 +374,6 @@
+ static struct i2c_client client_template =
+ {
+         I2C_DEVNAME("dpl3518"),
+-        .id         = -1,
+         .driver     = &driver
+ };
+ 
+diff -u -rN pcHDTV-2.0.orig/saa7134-i2c.c pcHDTV-2.0/saa7134-i2c.c
+--- pcHDTV-2.0.orig/saa7134-i2c.c	Fri Feb 18 21:54:36 2005
++++ pcHDTV-2.0/saa7134-i2c.c	Wed Mar  9 13:57:22 2005
+@@ -361,7 +361,6 @@
+ 
+ static struct i2c_client saa7134_client_template = {
+ 	I2C_DEVNAME("saa7134 internal"),
+-        .id        = -1,
+ };
+ 
+ /* ----------------------------------------------------------- */
+diff -u -rN pcHDTV-2.0.orig/tda9875.c pcHDTV-2.0/tda9875.c
+--- pcHDTV-2.0.orig/tda9875.c	Fri Feb 18 21:54:38 2005
++++ pcHDTV-2.0/tda9875.c	Wed Mar  9 13:57:42 2005
+@@ -418,7 +418,6 @@
+ static struct i2c_client client_template =
+ {
+         I2C_DEVNAME("tda9875"),
+-        .id        = -1,
+         .driver    = &driver,
+ };
+ 
 
-John W. Linville:
-  o libata: fix command queue leak when xlat_func fails
-  o tulip: make tulip_stop_rxtx() wait for DMA to fully stop
-
-Marcelo Tosatti:
-  o Cset exclude: solar@openwall.com|ChangeSet|20041125155150|65356
-  o Allow lseek on SCSI tapes
-  o Allow lseek on osst to keep tar --verify happy
-  o Change VERSION to 2.4.30-pre3
-  o Early ACPI PCI quirk depends on CONFIG_X86_IO_APIC
-
-Mark Lord:
-  o sata_qstor: new basic driver for Pacific Digital
-  o [libata qstor] minor update per LKML comments
-
-Matt Domsch:
-  o aic7xxx: don't reset chip on pause
-
-Mikael Pettersson:
-  o fix undefined behaviour in cistpl.c
-
-Paul Fulghum:
-  o fix synclinkmp register access typo
-
-Solar Designer:
-  o Fix for swapoff after re-creating device files
-  o Fix proc_tty.c comment typos
-
-Zwane Mwaikambo:
-  o Fix timer override on nforce
-
+--Multipart=_Wed__9_Mar_2005_20_33_17_+0100_6keH1tl5j.I1_Ilk--

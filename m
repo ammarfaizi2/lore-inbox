@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbTIUFiY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 01:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTIUFiY
+	id S262342AbTIUFhE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 01:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbTIUFhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 01:38:24 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:8716 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S262349AbTIUFiX (ORCPT
+	Sun, 21 Sep 2003 01:37:04 -0400
+Received: from mail.g-housing.de ([62.75.136.201]:23271 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262342AbTIUFhC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 01:38:23 -0400
-Date: Sun, 21 Sep 2003 07:38:16 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: evil <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 21 Sep 2003 01:37:02 -0400
+Message-ID: <3F6D38FC.2020408@g-house.de>
+Date: Sun, 21 Sep 2003 07:37:00 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030917
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: lockups with 2.4.2x
-Message-ID: <20030921053816.GD589@alpha.home.local>
 References: <3F6D134E.2080505@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <3F6D134E.2080505@g-house.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 04:56:14AM +0200, evil wrote:
- 
-> the machine:
-> Dual Athlon, 1GB RAM (HighMem enabled), gcc 3.3.1, libc 2.3.2,
-> (Debian/Testing) some more infos are on:
-> 
+Some updates from me:
+
+evil aka Christian wrote:
 > http://nerdbynature.de/bits/freeze/config|cpuinfo|dmesg|lspci
+> 
+> (directory listing follows...)
 
-Hmmm, there is a lot of hardware in this box. Have you tried disabling IDE ?
-ServeRaid ? SymBIOS ? Your hangs may be related to an updatedb or slocate
-indexing all your filesystems, and triggering a bug in one of those drivers.
-Also, the DMESG shows that you have an AMD bug on your CPUs, and tells you
-that if you have problems, you should restart with 'noapic'. Did you try it ?
-You could also try to boot in 'nosmp' mode, and even with network unplugged.
-I believe it will be relatively quick to find the problem if the system
-usually hangs in no more than 3 minutes.
+now it's all here: http://www.nerdbynature.de/bits/
 
-You may also have a defect in your RAM. Someone else here had problems since
-2.4.20, and only when saving disks to tape. It was finally tracked down to
-a RAM problem which only showed up on SMP with newer kernels which seem to
-torture the hardware a bit more. So if your GB ram is 4*256, you can try to
-remove 2 sticks and see what happens.
+> before this whole mess i was using 2.4.19, but i wanted to upgrade to
+> 2.4.20, 2.4.21, did not make it, due to lack of time or need. 2.4.19 was
+> running fine. but i need netfilter now, so i had to recompile
+> modules+kernel!  but, mysteriously, i fail to recompile my 2.4.19. i did
 
-Hope this helps,
-Willy
+i was able to recompile 2.4.19, but i had to use gcc-2.95.4 (from 
+debian/testing.) Kernel boots fine, even loads my 3rd party module
+(ISDN/CAPI related, taints the kernel), no freezes. i have compiled 
+2.4.22 with gcc2.95 too, but it's still freezing.
+
+Thanks,
+Christian.
+-- 
+BOFH excuse #201:
+
+RPC_PMAP_FAILURE
+
 

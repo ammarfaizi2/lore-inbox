@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292991AbSB0Wah>; Wed, 27 Feb 2002 17:30:37 -0500
+	id <S293012AbSB0WeZ>; Wed, 27 Feb 2002 17:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293011AbSB0WaK>; Wed, 27 Feb 2002 17:30:10 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39181 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293009AbSB0W3l>;
-	Wed, 27 Feb 2002 17:29:41 -0500
-Date: Wed, 27 Feb 2002 14:23:05 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: [BK PATCH] PCI Hotplug driver changes for 2.5.6-pre1
-Message-ID: <20020227222305.GA7760@kroah.com>
+	id <S293016AbSB0WeI>; Wed, 27 Feb 2002 17:34:08 -0500
+Received: from dhcp065-025-113-164.neo.rr.com ([65.25.113.164]:44798 "EHLO
+	zahra") by vger.kernel.org with ESMTP id <S293013AbSB0WdG>;
+	Wed, 27 Feb 2002 17:33:06 -0500
+Date: Wed, 27 Feb 2002 17:33:02 -0500
+From: James Cassidy <jcassidy@cs.kent.edu>
+To: Tom Eastep <teastep@shorewall.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
+Message-ID: <20020227223301.GA632@qfire.net>
+In-Reply-To: <20020226195730.BD7691B93C@mail.shorewall.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
+In-Reply-To: <20020226195730.BD7691B93C@mail.shorewall.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Pull from:  bk://linuxusb.bkbits.net/pci_hp-2.5
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Feb 26, 2002 at 11:57:30AM -0800, Tom Eastep wrote:
+> [2.] Full description of the problem/report:
+>=20
+> System is an Athlon 1.2GZ with VIA KT133 Northbridge and VT82C686 Southbr=
+idge. This is a
+> Compaq Presario with onboard S3 Savage Video that uses 8 or 16mb of syste=
+m RAM as Video
+> RAM. Prior to my installing 2.4.18, I have experienced none of the Athlon=
+/VIA problems
+> that have plagued other users (including the one addressed by the workaro=
+und).
+>=20
+> With 2.4.18:
 
- drivers/hotplug/Config.help        |   11 
- drivers/hotplug/Config.in          |    5 
- drivers/hotplug/Makefile           |   12 
- drivers/hotplug/cpqphp_proc.c      |    2 
- drivers/hotplug/ibmphp.h           |  745 +++++++++++++
- drivers/hotplug/ibmphp_core.c      | 1480 ++++++++++++++++++++++++++
- drivers/hotplug/ibmphp_ebda.c      |  851 +++++++++++++++
- drivers/hotplug/ibmphp_hpc.c       | 1135 ++++++++++++++++++++
- drivers/hotplug/ibmphp_pci.c       | 1719 ++++++++++++++++++++++++++++++
- drivers/hotplug/ibmphp_res.c       | 2067 +++++++++++++++++++++++++++++++++++++
- drivers/hotplug/pci_hotplug_core.c |   98 -
- 11 files changed, 8061 insertions(+), 64 deletions(-)
+	Odd, I have had constant problems with crashes when ever I stressed
+my memory system with Athlon kernel selected in the kernel config. Same
+machine,  Compaq Presario 700 series. Usually a kernel compile was enough
+to cause an opps on one of these kernels.=20
+	When the path in 2.4.18 in pre1 or pre2 don't remember, it fixed the
+problem on my Compaq Presario 700. I've been running the 2.4.18 series
+since the patch was added and as of today I have not experienced another
+opps of this kind with the Athlon option enabled in the kernel.
 
-------
-ChangeSet@1.423, 2002-02-27 14:12:18-08:00, greg@kroah.com
-  PCI Hotplug Core cleanups:
-  	- pcihpfs cleanup, removing unneeded file operations.
-  	- Added facility to have the files change their timestamps if the data
-  	  within the file changes.
+	I'll compile a 2.4.18 kernel without the patch tonight and see if I
+can generated the crash again.
 
- drivers/hotplug/pci_hotplug_core.c |   98 ++++++++++++++-----------------------
- 1 files changed, 38 insertions(+), 60 deletions(-)
+	I've never seen the VGA console go berserk, and I used it pretty
+often.=20
+	Although I have seen vesafb generate noise on the console, never looked
+into it much, because it usually could easily be cleared. I've never noticed
+any flicker in vesafb.
 
-------
-ChangeSet@1.424, 2002-02-27 14:13:28-08:00, greg@kroah.com
-  Compaq PCI Hotplug controller driver:
-  	- changed proc entry creation to use the proper parent directory variable.
+						-- James Cassidy (QFire)
 
- drivers/hotplug/cpqphp_proc.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-------
-ChangeSet@1.425, 2002-02-27 14:15:44-08:00, greg@kroah.com
-  Added new IBM PCI Hotplug controller driver.
-  
-  Written by Irene Zubarev, Tong Yu, Jyoti Shah, Chuck Cole, and me.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
- drivers/hotplug/Config.help   |   11 
- drivers/hotplug/Config.in     |    5 
- drivers/hotplug/Makefile      |   12 
- drivers/hotplug/ibmphp.h      |  745 +++++++++++++++
- drivers/hotplug/ibmphp_core.c | 1480 ++++++++++++++++++++++++++++++
- drivers/hotplug/ibmphp_ebda.c |  851 +++++++++++++++++
- drivers/hotplug/ibmphp_hpc.c  | 1135 +++++++++++++++++++++++
- drivers/hotplug/ibmphp_pci.c  | 1719 ++++++++++++++++++++++++++++++++++
- drivers/hotplug/ibmphp_res.c  | 2067 ++++++++++++++++++++++++++++++++++++++++++
- 9 files changed, 8022 insertions(+), 3 deletions(-)
+iD8DBQE8fV6dJanLLdMos+kRAtlwAKC1/c2KCcM99aUo7Y0OzQYPX8v+rQCeOiTi
+HRwOYuTW5ag1EdwU1Ebi/6U=
+=Q6X3
+-----END PGP SIGNATURE-----
 
+--qDbXVdCdHGoSgWSk--

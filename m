@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbSKESAc>; Tue, 5 Nov 2002 13:00:32 -0500
+	id <S265102AbSKERvF>; Tue, 5 Nov 2002 12:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265136AbSKESAc>; Tue, 5 Nov 2002 13:00:32 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:500 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S265135AbSKESAb>; Tue, 5 Nov 2002 13:00:31 -0500
-Date: Tue, 5 Nov 2002 10:06:44 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Reconfiguring one SW-RAID when other RAIDs are running
-Message-ID: <20021105180644.GF17573@nic1-pc.us.oracle.com>
-References: <3DC762FC.8070007@zytor.com> <15815.32292.689774.895238@notabene.cse.unsw.edu.au> <3DC7A2B1.3050402@zytor.com>
+	id <S265106AbSKERvF>; Tue, 5 Nov 2002 12:51:05 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:36757 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265102AbSKERuN>; Tue, 5 Nov 2002 12:50:13 -0500
+Subject: Re: When laptop is docked, eth0 moves from pcmcia to docking
+	station nic (both work wth same driver)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Buddy Lumpkin <b.lumpkin@attbi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <002601c284ef$395ef5d0$0472e50c@peecee>
+References: <002601c284ef$395ef5d0$0472e50c@peecee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Nov 2002 18:18:57 +0000
+Message-Id: <1036520337.4791.111.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC7A2B1.3050402@zytor.com>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 02:51:29AM -0800, H. Peter Anvin wrote:
-> I actually ended up using mdadm... I actually dislike it not using the 
-> raidtab file at least as an option; I find the raidtab file to be good 
-> documentation for what one had done.
+On Tue, 2002-11-05 at 17:17, Buddy Lumpkin wrote:
+> I have a laptop with a 3com PCMCIA NIC and a 3com NIC built into a
+> docking station. When I dock my laptop, eth0 becomes the docking station
+> NIC. I just want to know where to look to be able to control which
+> device becomes which device. Im used to Solaris where a path_to_inst
+> file correlates a device path to an instance number and device links are
+> made accordingly. Does Linux have a similar capability?
 
-	Well, lsraid -R can give you the raidtab back from an mdadm
-created array.  This can be nice and easy documentation.  In fact,
-there's no reason a boot script can't run
-'lsraid -R -p > /etc/raidtab.boot'
+You can ask for the MAC or PCI address of an interface, and you can
+rename interfaces if you wish. The Red Hat 8.0 scripts are one example
+that supports this
 
-Joel
-
--- 
-
-"We will have to repent in this generation not merely for the
- vitriolic words and actions of the bad people, but for the 
- appalling silence of the good people."
-	- Rev. Dr. Martin Luther King, Jr.
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSD3NgF>; Tue, 30 Apr 2002 09:36:05 -0400
+	id <S313533AbSD3NfJ>; Tue, 30 Apr 2002 09:35:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313555AbSD3NgE>; Tue, 30 Apr 2002 09:36:04 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:59402 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S313537AbSD3NgC>; Tue, 30 Apr 2002 09:36:02 -0400
-Date: Tue, 30 Apr 2002 23:37:32 +1000
-From: john slee <indigoid@higherplane.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The tainted message
-Message-ID: <20020430133732.GB22705@higherplane.net>
-In-Reply-To: <20020429192107.GA26369@louise.pinerecords.com> <26170.1020121574@ocs3.intra.ocs.com.au>
+	id <S313537AbSD3NfI>; Tue, 30 Apr 2002 09:35:08 -0400
+Received: from smtp.intrex.net ([209.42.192.250]:15112 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S313533AbSD3NfH>;
+	Tue, 30 Apr 2002 09:35:07 -0400
+Date: Tue, 30 Apr 2002 09:36:35 -0400
+From: jlnance@intrex.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+Message-ID: <20020430093635.A1655@tricia.dyndns.org>
+In-Reply-To: <5.1.0.14.2.20020427191820.04003500@pop.cus.cam.ac.uk> <5.1.0.14.2.20020429115231.00b1d900@pop.cus.cam.ac.uk> <15565.13742.140693.146727@laputa.namesys.com> <200204301217.g3UCGtX02871@Port.imtp.ilyichevsk.odessa.ua> <20020430131523.GA22705@hig <20020430131523.GA22705@higherplane.net> <200204301324.g3UDOQW00938@dps2.dpscon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 30, 2002 at 09:06:14AM +1000, Keith Owens wrote:
-> Solution:
-> 
->   modutils 2.4.16 says
-> 
->   Warning: loading <module> will taint the kernel.  Reason <reason>
->     See <TAINT_URL> for information on tainted modules
->   Module loaded, with warnings
-> 
->   Printing 'Module loaded, with warnings' makes it clear that the
->   module has been loaded.  TAINT_URL defaults to lkml FAQ.  Vendors can
->   ship modutils with a TAINT_URL that points to their support policy.
+On Tue, Apr 30, 2002 at 08:24:26AM -0500, Billy O'Connor wrote:
 
-how about adding an optional tag to modules for a support/faq URL?
-there's no real need to add it for stuff in the kernel tree (unlike the
-license tag stuff) but external projects could make good use of it.
-sounds much better to me than arguing over the subtleties of the warning
-message.
+>    much like the missing e in creat().
+> 
+> Wasn't that the one thing Ken Thompson said he would do differently
+> if he had it to do all over(unix)?
 
-j.
+Actually that was the only thing he said he would do differently, which
+puts a little different spin on that statement :-)
 
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+Jim

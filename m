@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268679AbUH3Rb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268694AbUH3Rfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268679AbUH3Rb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUH3Rb4
+	id S268694AbUH3Rfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUH3Rfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:31:56 -0400
-Received: from main.gmane.org ([80.91.224.249]:23969 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268582AbUH3R2g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:28:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
-Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
-     IDE bus)
-Date: Mon, 30 Aug 2004 19:31:12 +0200
-Message-ID: <cgvo40$t0d$2@sea.gmane.org>
-References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com> <20040830010712.GC12313@logos.cnet> <cguj7n$gur$1@sea.gmane.org> <41333879.2040902@redhat.com> <cgvi5l$t0d$1@sea.gmane.org> <41335F8B.3000207@redhat.com>
-Mime-Version: 1.0
+	Mon, 30 Aug 2004 13:35:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30906 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268650AbUH3RdN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:33:13 -0400
+Message-ID: <413364CC.8090901@pobox.com>
+Date: Mon, 30 Aug 2004 13:33:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Peter Holik <peter@holik.at>, linux-kernel@vger.kernel.org,
+       Francois Romieu <romieu@fr.zoreil.com>, netdev@oss.sgi.com
+Subject: Re: PROBLEM: fix fealnx.c hangs on SMP, 2.4.27
+References: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at> <200408301157.03334.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408301157.03334.vda@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p508ea078.dip.t-dialin.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-In-Reply-To: <41335F8B.3000207@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> <snip<
+Denis Vlasenko wrote:
+> On Monday 30 August 2004 10:28, Peter Holik wrote:
 > 
-> 1) older SanDisk cards are detected as CFA devices and are working, but 
-> not bootable.
+>>static void set_rx_mode(struct net_device *dev)
+>>{
+>>   spinlock_t *lp = &((struct netdev_private *)dev->priv)->lock;
+>>   unsigned long flags;
+>>   spin_lock_irqsave(lp, flags);
+>>   __set_rx_mode(dev);
+>>-  spin_unlock_irqrestore(&lp, flags);
+>>+  spin_unlock_irqrestore(lp, flags);
+>>}
 > 
-> 2) newer SanDisk cards are detected as ATA disks, and are bootable as 
-> such, but do not seem to be operating correctly (the aforementioned ide 
-> errors).
 > 
+> Oh... it was my change which was buggy... Thanks for the fix!
 > 
-> Is this correct?
+> Jeff, 2.6 most probably has the same bug.
 
-Not fully, actually both are bootable, but the second one gets 
-read/write errors after booting, and when accessed after booting from 
-another boot device (NFS)
 
-for the other points, actually both cards are used in the same adapter 
-hardware. I can switch both cards in ONE system, and the error only 
-appears with the newer card.
+Upstream 2.6 already has the fix...
 
-I found some other subtlety, in the dmesg of the nonworking card there 
-is a message:
+	Jeff
 
-hdb: C/H/S=0/0/0 from BIOS ignored
-
-which doesnt appear with the working card, so the card is already 
-treated differently by the bios, or the different information from the 
-bios somehow interfers with hardware probing? (just speculating on this 
-point)
-I will do some more tests and tell you what i find out.
 

@@ -1,124 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSFQKPF>; Mon, 17 Jun 2002 06:15:05 -0400
+	id <S316885AbSFQKQi>; Mon, 17 Jun 2002 06:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316891AbSFQKPE>; Mon, 17 Jun 2002 06:15:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:46747 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316884AbSFQKPC>;
-	Mon, 17 Jun 2002 06:15:02 -0400
-Date: Mon, 17 Jun 2002 12:15:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] ide locking botch
-Message-ID: <20020617101501.GA811@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S316887AbSFQKQh>; Mon, 17 Jun 2002 06:16:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:7642 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316885AbSFQKQf>; Mon, 17 Jun 2002 06:16:35 -0400
+Date: Mon, 17 Jun 2002 12:16:33 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rogier Wolff <R.E.Wolff@bitwizard.nl>
+Subject: [2.5 patch] drivers/char/rio/func.h needs linux/kdev_t.h
+Message-ID: <Pine.NEB.4.44.0206171213370.1866-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin et al,
+Hi,
 
-I took a quick look at why 2.5.21 hung at boot detecting partitions,
-because a 2.5.22 did the exact same thing on my test box today... The
-tcq locking is completely screwed now, and as I said before the weekend
-I think the entire locking is just getting worse now.
+while compiling 2.5.22 the compilation failed with the following error:
 
-Anyways, this patch at least attempts to make tcq follow the channel
-lock usage to make it work for me.
+<--  snip  -->
 
---- /opt/kernel/linux-2.5.22/drivers/ide/tcq.c	Mon Jun 17 04:31:35 2002
-+++ linux/drivers/ide/tcq.c	Mon Jun 17 12:09:08 2002
-@@ -175,13 +175,8 @@
- 		tcq_invalidate_queue(drive);
- }
- 
--static void set_irq(struct ata_device *drive, ata_handler_t *handler)
-+static void __set_irq(struct ata_channel *ch, ata_handler_t *handler)
- {
--	struct ata_channel *ch = drive->channel;
--	unsigned long flags;
--
--	spin_lock_irqsave(ch->lock, flags);
--
- 	/*
- 	 * always just bump the timer for now, the timeout handling will
- 	 * have to be changed to be per-command
-@@ -194,7 +189,15 @@
- 	ch->timer.data = (unsigned long) ch->drive;
- 	mod_timer(&ch->timer, jiffies + 5 * HZ);
- 	ch->handler = handler;
-+}
+...
+  gcc -Wp,-MD,./.rioinit.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.22-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=rioinit   -c -o
+rioinit.o rioinit.c
+In file included from rioinit.c:68:
+func.h:167: parse error before `device'
+func.h:167: warning: function declaration isn't a prototype
+func.h:168: parse error before `device'
+func.h:168: warning: function declaration isn't a prototype
+make[3]: *** [rioinit.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.22-full/drivers/char/rio'
+
+<--  snip  -->
+
+
+It seems func.h needs to inlude linux/kdev_t.h:
+
+
+--- drivers/char/rio/func.h.old	Mon Jun 17 12:08:02 2002
++++ drivers/char/rio/func.h	Mon Jun 17 12:10:09 2002
+@@ -33,6 +33,8 @@
+ #ifndef __func_h_def
+ #define __func_h_def
+
++#include <linux/kdev_t.h>
 +
-+static void set_irq(struct ata_device *drive, ata_handler_t *handler)
-+{
-+	struct ata_channel *ch = drive->channel;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(ch->lock, flags);
-+	__set_irq(ch, handler);
- 	spin_unlock_irqrestore(ch->lock, flags);
- }
- 
-@@ -230,8 +233,10 @@
-  */
- static ide_startstop_t service(struct ata_device *drive, struct request *rq)
- {
--	u8 feat;
--	u8 stat;
-+	struct ata_channel *ch = drive->channel;
-+	ide_startstop_t ret;
-+	unsigned long flags;
-+	u8 feat, stat;
- 	int tag;
- 
- 	TCQ_PRINTK("%s: started service\n", drive->name);
-@@ -291,9 +296,12 @@
- 
- 	TCQ_PRINTK("%s: stat %x, feat %x\n", __FUNCTION__, stat, feat);
- 
-+	spin_lock_irqsave(ch->lock, flags);
-+
- 	rq = blk_queue_find_tag(&drive->queue, tag);
- 	if (!rq) {
- 		printk(KERN_ERR"%s: missing request for tag %d\n", __FUNCTION__, tag);
-+		spin_unlock_irqrestore(ch->lock, flags);
- 		return ide_stopped;
- 	}
- 
-@@ -304,7 +312,10 @@
- 	 * interrupt to indicate end of transfer, release is not allowed
- 	 */
- 	TCQ_PRINTK("%s: starting command %x\n", __FUNCTION__, stat);
--	return udma_tcq_start(drive, rq);
-+
-+	ret = udma_tcq_start(drive, rq);
-+	spin_unlock_irqrestore(ch->lock, flags);
-+	return ret;
- }
- 
- static ide_startstop_t check_service(struct ata_device *drive, struct request *rq)
-@@ -538,7 +549,7 @@
- 	if (ata_start_dma(drive, rq))
- 		return ide_stopped;
- 
--	set_irq(drive, ide_dmaq_intr);
-+	__set_irq(ch, ide_dmaq_intr);
- 	udma_start(drive, rq);
- 
- 	return ide_started;
-@@ -590,7 +601,7 @@
- 	if ((feat = GET_FEAT()) & NSEC_REL) {
- 		drive->immed_rel++;
- 		drive->rq = NULL;
--		set_irq(drive, ide_dmaq_intr);
-+		__set_irq(drive->channel, ide_dmaq_intr);
- 
- 		TCQ_PRINTK("REL in queued_start\n");
- 
+ #ifdef SCCS_LABELS
+ #ifndef lint
+ static char *_func_h_sccs_ = "@(#)func.h	1.3";
+
+
+cu
+Adrian
 
 -- 
-Jens Axboe
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262364AbRERQBn>; Fri, 18 May 2001 12:01:43 -0400
+	id <S262360AbRERQEd>; Fri, 18 May 2001 12:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262367AbRERQBg>; Fri, 18 May 2001 12:01:36 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:48879 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S262364AbRERQAZ>; Fri, 18 May 2001 12:00:25 -0400
-Message-Id: <l03130303b72af49d4f0a@[192.168.239.105]>
-In-Reply-To: <20010518112625.A14309@thyrsus.com>
-In-Reply-To: <3B053B9B.23286E6C@redhat.com>; from arjanv@redhat.com on Fri,
- May 18, 2001 at 04:11:23PM +0100 <20010518034307.A10784@thyrsus.com>
- <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com>
- <3B053B9B.23286E6C@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 18 May 2001 16:59:47 +0100
-To: esr@thyrsus.com, Arjan van de Ven <arjanv@redhat.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: CML2 design philosophy heads-up
-Cc: linux-kernel@vger.kernel.org
+	id <S262367AbRERQEP>; Fri, 18 May 2001 12:04:15 -0400
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:30217 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S262360AbRERQEC>; Fri, 18 May 2001 12:04:02 -0400
+Date: Fri, 18 May 2001 18:02:16 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tom Rini <trini@kernel.crashing.org>,
+        Michael Meissner <meissner@spectacle-pond.org>,
+        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <20010518105353.A13684@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0105181751050.5809-100000@chaos.tp1.ruhr-uni-bochum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Aunt Tillie doesn't even know what a kernel is, nor does she want
->> to. I think it's fair to assume that people who configure and
->> compile their own kernel (as opposed to using the distribution
->> supplied ones) know what they are doing.
+On Fri, 18 May 2001, Eric S. Raymond wrote:
+
+> That being the case, we do face a question of design
+> philosophy, expressed as a policy question about how to design
+> rulesets.  Actually two questions:
 >
->I'd like to break these assumptions.  Or at the very least see how far
->they can be bent.  I know this sounds crazy to a lot of hackers, but
->I think there's a certain amount of unhelpful elitism and self-puffery
->in the "kernels are hard to configure and they *should* be hard to
->configure* attitude.  Let's give Aunt Tillie a chance to surprise us.
+> 1. When we have a platform symbol for a reference design like MVME147, do
+>    we stick to its spec sheet or consider it representative of all derivatives
+>    (which may have other facilities)?
+>
+> I know my answer to this one, which I will implement unless there's
+> strong consensus otherwise.  I go for explicitness.  If we're going to
+> support MVME147 derivatives and variants in the ruleset, they get
+> their own platform symbols.
 
-Not everyone falls into the "expert user" and "Aunt Tillie" categories.
-It's a *very* big grey area.  If some semi-computer-literate user (ie. some
-friends of mine!) wants to upgrade their kernel so they have access to
-newer hardware (such as a cheap USB webcam), it should be made as simple as
-possible for them.  CML1 doesn't handle that very well, I'd like to see
-it's replacement do better.
+I believe it's important two distinguish between two things here,
+auto-configuration and normal configuration.
 
-So, the first questions should be along the lines of "Do you have
-(approximately) these kinds of standard configuration?" starting with "x86
-PC", "Apple PowerMac" and other sensible defaults - followed by "none of
-the above".  Then later on, things like "Do you have SCSI?" followed by
-"What type of SCSI card(s)".  And under IDE configuration, we have "Do you
-want IDE-SCSI emulation (useful for CD-writers and such)?" which turns on
-SCSI without any of the card drivers.
+One should take care to not mix these things up. Of course I don't know
+about the specific hardware there, but I believe selecting NVME147 will
+give you arch specific code which will cope with general aspects of that
+board, but also for derived designs. That makes sense, and no need to
+introduce different config symbols at that level.
+I'd call CONFIG symbols like that basic, and they should be described by a
+ruleset which ensures that building the kernel will actually work, and
+that you have a chance that it even runs. (Things like a SCSI driver
+requires the SCSI midlayer, etc. which would normally lead to unresolved
+symbols or the inability to load the driver module into the running kernel
+later).
 
-The above strategy, if extended properly, would allow novice users to get
-*something* which worked, more easily.  More advanced users could then
-fiddle with settings they knew about, and experiment.  Those who *really*
-know what they're up to can create a wholly customised setup by choosing
-"none of the above", right at the beginning.
+On the other hand, for some people it would be nice to say I've got the
+reference board, build the right kernel. That's okay, but it should be
+another option, and rules like that should be in a separate files, so they
+don't clutter up the "basic" rulesets.
 
-As for the language CML2 is written in, surely C would work just as well as
-Python if the config-ruleset file is in a known format.  GCC is required
-for the kernel to build, I don't see why anything else should be required
-simply to configure it.
+So, leave the flexibility to people who need, and on top of that you can
+have a mechanism which allows easier configuration for people who don't
+want to care about the details.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+However, more important there would be some option like "build me a kernel
+for the hardware I'm currently running on" (and let the user fine tune
+afterwards).
 
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+--Kai
 

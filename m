@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292508AbSB0Oqy>; Wed, 27 Feb 2002 09:46:54 -0500
+	id <S292108AbSB0OpR>; Wed, 27 Feb 2002 09:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292533AbSB0Oqq>; Wed, 27 Feb 2002 09:46:46 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:14611 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292508AbSB0Oqe>; Wed, 27 Feb 2002 09:46:34 -0500
-Message-ID: <3C7CF0F6.5060300@evision-ventures.com>
-Date: Wed, 27 Feb 2002 15:45:10 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292535AbSB0OpH>; Wed, 27 Feb 2002 09:45:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46348 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292529AbSB0Oo7>; Wed, 27 Feb 2002 09:44:59 -0500
+Subject: Re: [PATCH] Re: IDE error on 2.4.17
+To: andersen@codepoet.org
+Date: Wed, 27 Feb 2002 14:59:28 +0000 (GMT)
+Cc: vojtech@suse.cz (Vojtech Pavlik), turveysp@ntlworld.com (Simon Turvey),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20020227102544.GA3226@codepoet.org> from "Erik Andersen" at Feb 27, 2002 03:25:44 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: Roberto Nibali <ratz@drugphish.ch>, Helge Hafting <helgehaf@aitel.hist.no>,
-        Nathan <wfilardo@fuse.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Dave Jones <davej@suse.de>, Jaroslav Kysela <perex@perex.cz>
-Subject: Re: 2.5.5-dj2 compile failures
-In-Reply-To: <Pine.LNX.4.44.0202271614450.16294-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16g5YG-0004gk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a sinde note
-> -	snd_pcm_lib_preallocate_isa_pages_for_all(pcm, 64*1024, chip->dma1 > 3 || chip->dma2 > 3 ? 128*1024 : 64*1024, GFP_KERNEL|GFP_DMA);
-> +	snd_pcm_lib_preallocate_isa_pages_for_all(pcm, 64*1024, chip->dma1 > 3 || chip->dma2 > 3 ? 128*1024 : 64*1024);
+> > Any chance it's one of those fast IBM 30 or 45 gig drives? They seem to
+> > be dying pretty fast ...
+> 
+> I expect a patch like this would help avoid these sort of
+> questions...
 
-
-I think this method should be named as follows:
-
-i_have_no_fear_of_wirst_desease_from_programming_linux_alsa_or_sound_drivers_at_all()
-
-
-BAH! It should be: spl_alloc_isap() at most!
-
-
-
+This is the wrong approach. That information is available properly if and
+when the vendors install the smart utilities

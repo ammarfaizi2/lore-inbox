@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVAXUMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVAXUOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVAXUMn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVAXUMm
+	id S261611AbVAXUOc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVAXUOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:12:42 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:50620 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261609AbVAXUMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:12:31 -0500
-Message-ID: <41F54CBC.9030606@colorfullife.com>
-Date: Mon, 24 Jan 2005 20:30:04 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Andrew Morton <akpm@zip.com.au>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, dhowells@redhat.com
-Subject: Re: [PATCH] Make slab use alloc_pages directly
-References: <20050124165412.GL31455@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050124165412.GL31455@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 15:14:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33183 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261611AbVAXUOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:14:20 -0500
+Date: Mon, 24 Jan 2005 20:14:17 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Matthew Wilcox <matthew@wil.cx>,
+       Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Message-ID: <20050124201417.GN31455@parcelfarce.linux.theplanet.co.uk>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <41ED3BD2.1090105@pobox.com> <9e473391050122083822a7f81c@mail.gmail.com> <200501240847.51208.jbarnes@sgi.com> <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk> <9e473391050124111767a9c6b7@mail.gmail.com> <41F54FC1.6080207@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F54FC1.6080207@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-
->__get_free_pages() calls alloc_pages, finds the page_address() and
->throws away the struct page *.  Slab then calls virt_to_page to get it
->back again.  Much more efficient for slab to call alloc_pages itself,
->as well as making the NUMA and non-NUMA cases more similarr to each other.
->
->Signed-off-by: Matthew Wilcox <matthew@wil.cx>
->
->  
->
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-
->Index: linux-2.6/mm/slab.c
->===================================================================
->RCS file: /var/cvs/linux-2.6/mm/slab.c,v
->retrieving revision 1.29
->diff -u -p -r1.29 slab.c
->--- linux-2.6/mm/slab.c	12 Jan 2005 20:18:07 -0000	1.29
->+++ linux-2.6/mm/slab.c	24 Jan 2005 16:47:02 -0000
->@@ -894,16 +894,13 @@ static void *kmem_getpages(kmem_cache_t 
+On Mon, Jan 24, 2005 at 02:42:57PM -0500, Jeff Garzik wrote:
+> Jon Smirl wrote:
+> >Is this a justification for doing device drivers for bridge chips? It
+> >has been mentioned before but no one has done it.
 > 
-> 	flags |= cachep->gfpflags;
-> 	if (likely(nodeid == -1)) {
->-		addr = (void*)__get_free_pages(flags, cachep->gfporder);
->-		if (!addr)
->-			return NULL;
->-		page = virt_to_page(addr);
->+		page = alloc_pages(flags, cachep->gfporder);
-> 	} else {
-> 		page = alloc_pages_node(nodeid, flags, cachep->gfporder);
->-		if (!page)
->-			return NULL;
->-		addr = page_address(page);
-> 	}
->+	if (!page)
->+		return NULL;
->+	addr = page_address(page);
+> Yeah, people are usually slack and work around the problem.
 > 
-> 	i = (1 << cachep->gfporder);
-> 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
->
->  
->
+> A bridge driver is really wanted for several situations in today's 
+> hardware...
 
+Annoyingly, we already have one, it's just special-cased for PCI Express.
+On my todo for this week is to take it out of the pcie directory and fix it.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

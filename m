@@ -1,98 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUBKCGj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 21:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUBKCGj
+	id S262965AbUBKCOT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 21:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUBKCOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 21:06:39 -0500
-Received: from waste.org ([209.173.204.2]:7338 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261595AbUBKCGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 21:06:37 -0500
-Date: Tue, 10 Feb 2004 20:06:26 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: wdebruij@dds.nl, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Re: missing vprintf in kernel.api. Interest in patch?
-Message-ID: <20040211020626.GA7931@waste.org>
-References: <1076408579.4028b1036a8ae@webmail.dds.nl>
+	Tue, 10 Feb 2004 21:14:19 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:40109 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S262913AbUBKCOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 21:14:16 -0500
+Date: Tue, 10 Feb 2004 17:36:23 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Vasquez <praka@users.sourceforge.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, veeresh <vanami@india.hp.com>
+Subject: Re: Kernel panic on Redhat Linux AS2.1 with QLogic 2342 HBA
+Message-ID: <20040211013623.GN4902@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Vasquez <praka@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+	veeresh <vanami@india.hp.com>
+References: <005601c3ef94$f8c9d140$3bda4c0f@nt21859> <20040210182513.GA114@praka.local.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1076408579.4028b1036a8ae@webmail.dds.nl>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040210182513.GA114@praka.local.home>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 11:22:59AM +0100, wdebruij@dds.nl wrote:
-> Therefore my question is this: is there any interest in 
+On Tue, Feb 10, 2004 at 10:25:13AM -0800, Andrew Vasquez wrote:
+> On Tue, 10 Feb 2004, veeresh wrote:
 > 
-> (1) a small patch that extracts the vsnprintf(printk_buf,...) from printk and
-> thus creates a vprintf function (trivial change, perhaps +5 lines of code).
+> > Kernel panic information:
+> > kernel BUG at /usr/src/linux-2.4/include/asm/pci.h:145!
+> > invalid operand: 0000
+> > Kernel 2.4.9-e.25smp
+> > CPU: 2
+> > EIP: 0010:[<f8891658>] Tainted: P
+> > EFLAGS: 00010086
+> > EIP is at qla2x00_64bit_start_scsi [qla2300] 0x498
+> 
+> One of the scatter-gather entries of a SCSI command was NULL.  Is any
+> of the software you are running preparing SCSI commands and sending
+> them down via SG perhaps?  What type of I/O is occuring when the
+> failure occurs?
 
-I already have this patch in my -tiny tree as well as some other patches to
-convert some would-be users like ext3_error. Andrew, interested in these? 
+Andrew,
+	This appears to be the same bug we discussed a while back.  I
+thought QLogic was working on a fix?  We saw it with absolutely no SG
+involved.  It was something to do with error retry, wasn't it?
 
-Add vprintk call
-
-
- tiny-mpm/include/linux/kernel.h |    1 +
- tiny-mpm/kernel/printk.c        |   14 ++++++++++++--
- 2 files changed, 13 insertions(+), 2 deletions(-)
-
-diff -puN include/linux/kernel.h~vprintk include/linux/kernel.h
---- tiny/include/linux/kernel.h~vprintk	2004-02-04 14:55:22.000000000 -0600
-+++ tiny-mpm/include/linux/kernel.h	2004-02-04 14:55:22.000000000 -0600
-@@ -84,6 +84,7 @@ extern unsigned long long memparse(char 
- extern int kernel_text_address(unsigned long addr);
- extern int session_of_pgrp(int pgrp);
- 
-+asmlinkage int vprintk(const char *fmt, va_list args);
- asmlinkage int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
- 
-diff -puN kernel/printk.c~vprintk kernel/printk.c
---- tiny/kernel/printk.c~vprintk	2004-02-04 14:55:22.000000000 -0600
-+++ tiny-mpm/kernel/printk.c	2004-02-04 14:55:22.000000000 -0600
-@@ -474,6 +474,17 @@ static void emit_log_char(char c)
- asmlinkage int printk(const char *fmt, ...)
- {
- 	va_list args;
-+	int r;
-+
-+	va_start(args, fmt);
-+	r = vprintk(fmt, args);
-+	va_end(args);
-+
-+	return r;
-+}
-+
-+asmlinkage int vprintk(const char *fmt, va_list args)
-+{
- 	unsigned long flags;
- 	int printed_len;
- 	char *p;
-@@ -491,9 +502,7 @@ asmlinkage int printk(const char *fmt, .
- 	spin_lock_irqsave(&logbuf_lock, flags);
- 
- 	/* Emit the output into the temporary buffer */
--	va_start(args, fmt);
- 	printed_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
--	va_end(args);
- 
- 	/*
- 	 * Copy the output into log_buf.  If the caller didn't provide
-@@ -543,6 +552,7 @@ out:
- 	return printed_len;
- }
- EXPORT_SYMBOL(printk);
-+EXPORT_SYMBOL(vprintk);
- 
- /**
-  * acquire_console_sem - lock the console system for exclusive use.
-
-_
-
+Joel
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+
+ Brain: I shall pollute the water supply with this DNAdefibuliser,
+        turning everyone into mindless slaves.
+ Pinky: What about the people who drink bottled water?
+ Brain: Pinky, people who pay 5 dollars for a bottle of water are
+        already mindless slaves.
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

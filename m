@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265770AbUHHQOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUHHQRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265770AbUHHQOd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 12:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUHHQOd
+	id S265772AbUHHQRY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 12:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUHHQRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 12:14:33 -0400
-Received: from vivaldi.madbase.net ([81.173.6.10]:23503 "HELO
-	vivaldi.madbase.net") by vger.kernel.org with SMTP id S265770AbUHHQOc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 12:14:32 -0400
-Date: Sun, 8 Aug 2004 12:14:30 -0400 (EDT)
-From: Eric Lammerts <eric@lammerts.org>
-X-X-Sender: eric@vivaldi.madbase.net
-To: Juergen Pabel <jpabel@akkaya.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Masking kernel commandline parameters (2.6.7)
-In-Reply-To: <200408081430.59840.jpabel@akkaya.de>
-Message-ID: <Pine.LNX.4.58.0408081204270.7223@vivaldi.madbase.net>
-References: <200408080413.29905.jpabel@akkaya.de>
- <Pine.LNX.4.58.0408072238570.22657@vivaldi.madbase.net>
- <200408081430.59840.jpabel@akkaya.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Aug 2004 12:17:24 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:2006 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265772AbUHHQRW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 12:17:22 -0400
+Date: Sun, 8 Aug 2004 16:02:59 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2/3] via-rhine: de-isolate PHY
+Message-ID: <20040808140259.GA8575@k3.hellgate.ch>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040808140216.GA8181@k3.hellgate.ch>
+X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+PHYs may come up isolated. Make sure we can send data to them. This code
+section needs a clean-up, but I prefer to merge this fix in isolation.
 
-On Sun, 8 Aug 2004, Juergen Pabel wrote:
-> ps: in case you're referring to the feature itself, what would be a
-> more sensible way of passing sensitive data to the kernel? -I didn't
-> see any other way.
+Report and suggested fix by Tam, Ming Dat (Tommy).
 
-Yes, I was referring to the feature itself.
+Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
-I don't know much about dmcrypt, but in the (similar) case of
-loop-encrypt, the initrd program could simply call losetup (or mount
--oloop), which would prompt the user for the key and pass it to the
-kernel using the LOOP_SET_STATUS64 ioctl. After the mount, you can
-pivot_root to your encrypted fs and get rid of the initrd.
-
-I'm sure you can do something similar for dmcrypt.
-
-Eric
+--- linux-2.6.8-rc3-mm1/drivers/net/via-rhine.c.01	2004-08-08 12:36:03.440855262 +0200
++++ linux-2.6.8-rc3-mm1/drivers/net/via-rhine.c	2004-08-08 13:15:24.527527919 +0200
+@@ -896,7 +896,10 @@ static int __devinit rhine_init_one(stru
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	{
++		u16 mii_cmd;
+ 		int mii_status = mdio_read(dev, phy_id, 1);
++		mii_cmd = mdio_read(dev, phy_id, MII_BMCR) & ~BMCR_ISOLATE;
++		mdio_write(dev, phy_id, MII_BMCR, mii_cmd);
+ 		if (mii_status != 0xffff && mii_status != 0x0000) {
+ 			rp->mii_if.advertising = mdio_read(dev, phy_id, 4);
+ 			printk(KERN_INFO "%s: MII PHY found at address "

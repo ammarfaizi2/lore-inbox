@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281201AbRKEQEe>; Mon, 5 Nov 2001 11:04:34 -0500
+	id <S281200AbRKEQKf>; Mon, 5 Nov 2001 11:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281200AbRKEQEY>; Mon, 5 Nov 2001 11:04:24 -0500
-Received: from mail016.mail.bellsouth.net ([205.152.58.36]:23860 "EHLO
-	imf16bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281202AbRKEQEE>; Mon, 5 Nov 2001 11:04:04 -0500
-Message-ID: <3BE6B869.D79E93B1@mandrakesoft.com>
-Date: Mon, 05 Nov 2001 11:03:53 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
-X-Accept-Language: en
+	id <S281202AbRKEQKZ>; Mon, 5 Nov 2001 11:10:25 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:8709 "HELO abasin.nj.nec.com")
+	by vger.kernel.org with SMTP id <S281200AbRKEQKJ>;
+	Mon, 5 Nov 2001 11:10:09 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
-To: stephane@tuxfinder.org
-CC: Massimo Dal Zotto <dz@debian.org>, LKLM <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-In-Reply-To: <20011105100346.A1511@emeraude.kwisatz.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15334.47576.741548.776511@abasin.nj.nec.com>
+Date: Mon, 5 Nov 2001 11:10:00 -0500 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Google's mm problems
+In-Reply-To: <20011104032828Z16097-4784+757@humbolt.nl.linux.org>
+In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin>
+	<20011103205601.2170.qmail@thales.mathematik.uni-ulm.de>
+	<20011104032828Z16097-4784+757@humbolt.nl.linux.org>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Jourdois wrote:
-> 
-> Hello,
-> 
-> First, a very big thanx to Massimo for this great piece of code :-)
-> I've been trying to catch those events with no sucess for weeks.
-> 
-> I've got a Dell Inspiron 8100, which seems to differ slightly from
-> i8000. Here is a patch that fixes that. Please do not hesitate to ask me
-> to test some new code or anything on my laptop.
-> 
-> You should also replace your printk("string") with printk(KERN_INFO "string")
 
-Has this been tested in I8000?  You are changing a lot of magic numbers
-in the code, and noone but you/Massimo know whether that is ok or not...
+With some in house code, on 2.4.14-pre8 I'm still getting some
+unwanted swapping after filling up the cache that i'm not getting with
+the 2.4.14-pre6aa1 kernel of a 4G system.  With pre8 if fills up the
+memory with cache and does some minor swapping, on pre6aa1 it fills up
+the memory with cache and happily works.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+    Sven
+
 

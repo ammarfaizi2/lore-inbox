@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310370AbSCLCyl>; Mon, 11 Mar 2002 21:54:41 -0500
+	id <S310367AbSCLDBm>; Mon, 11 Mar 2002 22:01:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310367AbSCLCyV>; Mon, 11 Mar 2002 21:54:21 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:59369 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S310363AbSCLCyS>; Mon, 11 Mar 2002 21:54:18 -0500
-Message-ID: <01a901c1c971$307d25c0$1125a8c0@wednesday>
-From: "J. Dow" <jdow@earthlink.net>
-To: "Linus Torvalds" <torvalds@transmeta.com>,
-        "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: <andersen@codepoet.org>, "Bill Davidsen" <davidsen@tmr.com>,
-        "LKML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203111810220.8121-100000@home.transmeta.com>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Date: Mon, 11 Mar 2002 18:54:12 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S310371AbSCLDBd>; Mon, 11 Mar 2002 22:01:33 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:54691 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S310367AbSCLDBW>;
+	Mon, 11 Mar 2002 22:01:22 -0500
+Date: Tue, 12 Mar 2002 13:59:49 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: oskar@osk.mine.nu, linux-kernel@vger.kernel.org
+Subject: Re: directory notifications lost after fork?
+Message-Id: <20020312135949.3be7d9ca.sfr@canb.auug.org.au>
+In-Reply-To: <20020312022046.R10413@dualathlon.random>
+In-Reply-To: <20020310210802.GA1695@oskar>
+	<20020311112652.E10413@dualathlon.random>
+	<20020312120452.3038c4bc.sfr@canb.auug.org.au>
+	<20020312022046.R10413@dualathlon.random>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Linus Torvalds" <torvalds@transmeta.com>
+Hi Adrea,
 
-> Yeah yeah. You can add additional levels of protection, and we have
-> capabilities.
-> 
-> Add a special password-protected capability, so that only YOU can enable
-> certain hardware access stuff. Where does it end? Is one such capability
-> enough? How do you initialize the default values for the system if you
-> need to be there to type in the password at bootup every time? We're
-> talking about some rather fundamental things here, and these are issues
-> that go _far_ beyond some silly ATA stack layer.
+On Tue, 12 Mar 2002 02:20:46 +0100 Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> If somebody overrides the dnotify on the same file, he should become the
+> new owner, that's not handled in the below patch.
 
-Linus, this discussion hung on long enough I decided to start reading it.
-So I may have missed something. However, I notice you speak of a networking
-example. I believe it is a strawman. The real comparison is closer to that
-between IDE and SCSI. Do the SCSI device drivers filter? What and how do
-they filter if they do at all? Aren't they a better model to adopt for
-a system consistent interface philosophy?
+My contention is that if some process (not in the same thread group as the
+process that originally set up the directory notifier) tries to set up a
+directory notifier on the same file descriptor (i.e. they are a child of
+the original process), then they should get their own notifier.  The
+parent can remove their notifier if they want to.
 
-{^_^}   Joanne Dow, jdow@earthlink.net
+Notice that multiple processes can have notifiers enabled for the same
+directory (even with a different set of flags).
 
+My patch makes directory notifiers per thread group instead of per process
+tree (which they are now).
 
+> Secondly I prefer to return -EPERM to userspace if somebody tries to
+> drop a dnotify that it doesn't own, it gives more information back to
+> userspace.
+
+This would be equivalent to returning -EPERM if you tried to remove a
+lock on a file when you didn't set it ...
+
+-- 
+Cheers, Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

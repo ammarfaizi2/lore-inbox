@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbTHZFuB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 01:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTHZFuA
+	id S262634AbTHZF7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 01:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTHZF67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 01:50:00 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:27029 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262612AbTHZFt7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 01:49:59 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: Theewara Vorakosit <g4685034@alpha.cpe.ku.ac.th>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Ramdisk memory usage
-Date: Tue, 26 Aug 2003 02:50:01 -0300
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.33.0308261222380.12086-100000@alpha.cpe.ku.ac.th>
-In-Reply-To: <Pine.LNX.4.33.0308261222380.12086-100000@alpha.cpe.ku.ac.th>
+	Tue, 26 Aug 2003 01:58:59 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:12358 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262634AbTHZF65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 01:58:57 -0400
+Date: Tue, 26 Aug 2003 01:58:51 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: rusty@rustcorp.com.au, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
+In-Reply-To: <20030825225011.2ad47c85.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0308260155490.1912-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308260250.01499.lucasvr@gobolinux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 02:26, Theewara Vorakosit wrote:
-> Dear All,
-> 	I use redhat linux 9 with kernel 2.4.20-20.9. Linux supports 16
-> ramdisks with size of 4MB. So, all memory needed are 64MB. I want to know
-> that memory space for ram disk is allocated at boot time or when I really
-> use it?
-> Thanks,
-> Theewara
 
-It's dynamically allocated.
+On Mon, 25 Aug 2003, Andrew Morton wrote:
 
-Lucas
+> > but if all futexes pin down one page (worst-case), then to make it really
+> >  safe we'll have to use a fairly low default RLIM_NRFUTEX value - which
+> >  will decrease the generic utility of futexes.
+> 
+> We could make it RLIM_NRFUTEX_PAGES: the number of pages which the user
+> can pin via futexes, perhaps.
+
+the problem is that this is not really a deterministic limit. The nr of
+thread or open files limit is deterministic: it will either fail or
+succeed at clone() or open() time - and can be freely used afterwards. The
+kernel doesnt in fact know about the first use of a futex: no-contention
+futexes have zero kernel footprint. This is the big plus of them. So i'd
+really favor some sort of hashing method and no limits, that way the Linux
+VM is extended and every VM address is waitable and wakable on - a pretty
+powerful concept.
+
+	Ingo
+

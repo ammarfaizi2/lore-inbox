@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUBTMta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 07:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUBTMrp
+	id S261185AbUBTOAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 09:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUBTOAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 07:47:45 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:2364 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261186AbUBTMq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:46:56 -0500
-Date: Fri, 20 Feb 2004 13:46:41 +0100
-Message-Id: <200402201246.i1KCkf5u004217@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 398] Atari Pamsnet warning
+	Fri, 20 Feb 2004 09:00:37 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:41130 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S261185AbUBTN5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 08:57:40 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: OT Intel to release Centrino drivers
+Date: Fri, 20 Feb 2004 13:57:36 +0000
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402201357.36706.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atari Pamsnet Ethernet: Kill warning
+Perhaps they've been listening to my and other rants after all. About fscking 
+time is all I have to say
 
---- linux-2.6.3/drivers/net/atari_pamsnet.c	2003-07-29 18:18:57.000000000 +0200
-+++ linux-m68k-2.6.3/drivers/net/atari_pamsnet.c	2003-11-24 13:36:07.000000000 +0100
-@@ -488,7 +488,7 @@
- 	    !acsi_wait_for_IRQ(TIMEOUTDMA) ||
- 	    get_status())
- 		goto bad;
--	ret = phys_to_virt(&(((DMAHWADDR *)buffer)->hwaddr));
-+	ret = phys_to_virt((unsigned long)&(((DMAHWADDR *)buffer)->hwaddr));
- 	dma_cache_maintenance((unsigned long)buffer, 512, 0);
- bad:
- 	return (ret);
+http://news.zdnet.co.uk/business/0,39020645,39146677,00.htm
 
-Gr{oetje,eeting}s,
+With Intel trailing in AMD's 64bit wake, and Linus using ppc64, perhaps the 
+age of complacency is over...
 
-						Geert
+Andrew Walrond
+[Off to the next witch hunt. Do you believe and trust in Linux? No? Burn 
+heretic, burn!]
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

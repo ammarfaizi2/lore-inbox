@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVASEP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVASERT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbVASEP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVASEP6
+	id S261556AbVASERT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVASERT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:15:58 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35041 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261555AbVASEPu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:15:50 -0500
-Subject: Re: [PATCH] raid6: altivec support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Olaf Hering <olh@suse.de>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <1105956993.26551.327.camel@hades.cambridge.redhat.com>
-References: <200501082324.j08NOIva030415@hera.kernel.org>
-	 <20050109151353.GA9508@suse.de>
-	 <1105956993.26551.327.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 19 Jan 2005 15:11:15 +1100
-Message-Id: <1106107876.4534.163.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 23:17:19 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:25324 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261556AbVASERA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:17:00 -0500
+Date: Wed, 19 Jan 2005 07:18:23 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Edjard Souza Mota <edjard@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ilias Biris <xyz.biris@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: User space out of memory approach
+In-Reply-To: <4d6522b905011805154bf27b52@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0501190629490.5090@be1.lrz>
+References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
+  <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org> <4d6522b905011805154bf27b52@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-17 at 10:16 +0000, David Woodhouse wrote:
-> On Sun, 2005-01-09 at 16:13 +0100, Olaf Hering wrote:
-> > 
-> > > ChangeSet 1.2347, 2005/01/08 14:02:27-08:00, hpa@zytor.com
-> > > 
-> > >       [PATCH] raid6: altivec support
-> > >       
-> > >       This patch adds Altivec support for RAID-6, if appropriately configured on
-> > >       the ppc or ppc64 architectures.  Note that it changes the compile flags for
-> > >       ppc64 in order to handle -maltivec correctly; this change was vetted on the
-> > >       ppc64 mailing list and OK'd by paulus.
-> > 
-> > This fails to compile on ppc, enable_kernel_altivec() is an exported but
-> > undeclared function. cpu_features is also missing.
-> >
+On Tue, 18 Jan 2005, Edjard Souza Mota wrote:
 
-I sent Linus & Andrew a patch fixing the enable_kernel_altivec() thing
-yesterday. cpu_features isn't missing, it's defined differently.
-
-> > drivers/md/raid6altivec1.c: In function `raid6_altivec1_gen_syndrome':
-> > drivers/md/raid6altivec1.c:99: warning: implicit declaration of function `enable_kernel_altivec'
-> > drivers/md/raid6altivec1.c: In function `raid6_have_altivec':
-> > drivers/md/raid6altivec1.c:111: error: request for member `cpu_features' in something not a structure or union
-> > drivers/md/raid6altivec2.c: In function `raid6_altivec2_gen_syndrome':
-> > drivers/md/raid6altivec2.c:110: warning: implicit declaration of function `enable_kernel_altivec'
+> > If my system needs the OOM killer, it's usurally unresponsive to most
+> > userspace applications. A normal daemon would be swapped out before the
+> > runaway dhcpd grows larger than the web cache. It would have to be a mlocked
+> > RT task started from early userspace. It would be difficult to set up (unless
+> > you upgrade your distro), and almost nobody will feel like tweaking it to
+> > take the benefit (OOM == -ECANNOTHAPPEN).
 > 
-> This makes it compile on PPC, but highlights the difference between
-> 'cur_cpu_spec' on ppc32 and ppc64. Why is 'cur_cpu_spec' an array on
-> ppc32? Isn't 'cur' supposed to imply 'current'?
+> Please correct me if I got it wrong: as deamon in this case is not a normal one,
+> since it never gets rate for its own safety,
 
-It's history. When I wrote that on ppc in the first place, I decided to
-leave room for having slightly different CPUs so I defined it as an
-array of NR_CPUs.
+That's it's own task, it must make sure not to commit suicide. I forgot
+about that.
 
-When we ported this to ppc64, we figured out we never actually used that
-"feature", and that the way the dynamic patching works with CPU features
-makes it mandatory to have identical feature sets anyway.
+> then it needs an RT lock whenever
+> system boots.
 
-We should probably "backport" that simplification to ppc32...
+It may not be blocked by a random RT task iff the RT task is supposed to
+be OOM-killed. Therefore it *MUST* run at the highest priority and be
+locked into the RAM.
 
-Ben.
+It *SHOULD* be run at boot time, too, just in case it's needed early.
 
+> > What about creating a linked list of (stackable) algorhithms which can be
+> > extended by loading modules and resorted using {proc,sys}fs? It will avoid
+> > the extra process, the extra CPU time (and task switches) to frequently
+> > update the list and I think it will decrease the typical amount of used
+> > memory, too.
+> 
+> Wouldn't this bring the (set of ) ranking algorithm(s) back to the kernel? This
+> is exactly what we're trying to avoid.
 
+You're trying to avoid it in order to let admins try other ranking
+algorhithms (at least that's what I read). The module approach seems to be
+flexible enough to do that, and it avoids the mentioned issues. If you
+really want a userspace daemon, it can be controled by a module.-)
+
+I 'm thinking of something like that:
+
+[X] support stacking of OOM killer ranking algorhythms
+[X] Task blessing OOM filter
+[X] Userspace OOM ranking daemon
+[X] Default OOM killer ranking
+
+-vs-
+
+[ ] support stacking of OOM killer ranking algorhythms
+( ) Userspace OOM ranking daemon
+(o) Default OOM killer ranking
+
+-- 
+Exceptions prove the rule, and destroy the battle plan. 

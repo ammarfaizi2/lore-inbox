@@ -1,68 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbULPWy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbULPWvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbULPWy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 17:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbULPWyb
+	id S262053AbULPWvY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 17:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbULPWuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 17:54:31 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:3201 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262056AbULPWwO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 17:52:14 -0500
-Message-ID: <41C211E3.8040601@tmr.com>
-Date: Thu, 16 Dec 2004 17:53:23 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Jacoby <dj@outpost24.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel IGMP vulnerabilities, PATCH IS BROKEN!
-References: <200412151254.37612@WOLK><200412151254.37612@WOLK> <41C0268B.2030708@outpost24.com>
-In-Reply-To: <41C0268B.2030708@outpost24.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Dec 2004 17:50:35 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45750 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262062AbULPWsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 17:48:15 -0500
+Date: Thu, 16 Dec 2004 14:48:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement --updated version
+Message-ID: <20041216224803.GA10542@kroah.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Jacoby wrote:
-> Marc-Christian Petersen wrote:
-> 
->> On Wednesday 15 December 2004 12:49, David Jacoby wrote:
->>
->>  
->>
->>> Anyone else tried to apply this patch? The patch does work but not
->>> properly.
->>> I guess the machie is secure against the DoS attack but after i
->>> installed the patch
->>> i cant use SSH.When i tryed to SSH i didnt get any password prompt.
->>> user@autopsia:~$ ssh user@192.168.0.1
->>> Permission denied, please try again.
->>> Permission denied, please try again.
->>> Permission denied (publickey,password,keyboard-interactive).
->>> The patch will crash SSH :|
->>>   
->>
->>
->> without looking at the patch, I think this isn't the causer of the 
->> patch at all.
->>
->> ciao, Marc
->>
->>  
->>
-> Well it is, i booted on the old kernel and SSH worked perfect and then 
-> on the new kernel with the patch i cant SSH, i dont even
-> get an password prompt. I tried to ssh to more than one host aswell, i 
-> also removed the key in .known_hosts but it still doesnt work.
+On Thu, Dec 16, 2004 at 04:37:34PM -0600, Kylene Hall wrote:
+> +config TCG_TPM
+> +	tristate "TPM Hardware Support"
+> +	depends on EXPERIMENTAL
+> +	---help---
+> +	  If you have a TPM security chip in your system, which
+> +	  implements the Trusted Computing Group's specification,
+> +	  say Yes and it will be accessible from within Linux. To 
+> +	  compile this driver as a module, choose M here; the module 
+> +	  will be called tpm. For more information see 
+> +	  www.trustedcomputinggroup.org. A implementation of the 
+> +	  Trusted Software Stack (TSS), the userspace enablement piece 
+> +	  of the specification, can be obtained at 
+> +	  http://sourceforge.net/projects/trousers
+> +	  If unsure, say N.
 
-Are you claiming that the unpatched 2.6 kernel works and the patched 
-didn't? Or that 2.6 doesn't work right in general on your system because 
-of configuration issues? Unless the same 2.6 kernel works without the 
-patch how can you even tell what is failing?
+What happened to the "if built as a module..." text?
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> +
+> +config TCG_NSC
+> +	tristate "National Semiconductor TPM Interface"
+> +	depends on TCG_TPM
+> +
+> +config TCG_ATMEL
+> +	tristate "Atmel TPM Interface"
+> +	depends on TCG_TPM
+
+Please provide help text for these options.
+
+> +/*
+> + * Vendor specific TPMs will have a unique name and probe function.
+> + * Those fields should be populated prior to calling this function in
+> + * tpm_<specific>.c's module init function.
+> + */
+> +int register_tpm_driver(struct pci_driver *drv)
+> +{
+> +	drv->id_table = tpm_pci_tbl;
+> +	drv->remove = __devexit_p(tpm_remove);
+> +	drv->suspend = tpm_pm_suspend;
+> +	drv->resume = tpm_pm_resume;
+> +
+> +	return pci_register_driver(drv);
+> +}
+> +
+> +EXPORT_SYMBOL(register_tpm_driver);
+
+Why not EXPORT_SYMBOL_GPL()?  Based on the content of these drivers, I'd
+feel better if they all were that way, but that's just me :)
+
+Actually, why even have this function at all?  It's not needed, just
+export the suspend, resume, and remove functions, and you are set.
+
+Also, don't say that other drivers really support the other pci devices,
+when they do not.  The MODULE_DEVICE_TABLE() stuff needs to be in the
+driver that actually supports that hardware.  Otherwise all of the
+hotplug functionality will not work properly.
+
+> +
+> +void unregister_tpm_driver(struct pci_driver *drv)
+> +{
+> +	pci_unregister_driver(drv);
+> +}
+> +
+> +EXPORT_SYMBOL(unregister_tpm_driver);
+
+Um, why even have such a function?
+
+
+> +EXPORT_SYMBOL(register_tpm_hardware);
+
+EXPORT_SYMBOL_GPL() (same goes for all of these exported symbols...)
+
+> diff -uprN linux-2.6.9/drivers/char/tpm.h linux-2.6.9-tpm/drivers/char/tpm.h
+> --- linux-2.6.9/drivers/char/tpm.h	1969-12-31 18:00:00.000000000 -0600
+> +++ linux-2.6.9-tpm/drivers/char/tpm.h	2004-12-16 17:16:50.000000000 -0600
+> +extern void tpm_time_expired(unsigned long);
+> +extern int rdx(int);
+> +extern void wrx(int, int);
+
+Please use better names for these functions.  That's very cryptic for a
+global symbol.
+
+> +extern int lpc_bus_init(struct pci_dev *, u16);
+
+No "tpm"?
+
+> +extern int register_tpm_driver(struct pci_driver *);
+> +extern void unregister_tpm_driver(struct pci_driver *);
+> +extern int register_tpm_hardware(struct pci_dev *, struct tpm_chip_ops *,
+> +				 u16);
+
+Try putting "tpm" first here, for these functions, so the namespace is sane.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbRGHQq6>; Sun, 8 Jul 2001 12:46:58 -0400
+	id <S266918AbRGHQrs>; Sun, 8 Jul 2001 12:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266918AbRGHQqs>; Sun, 8 Jul 2001 12:46:48 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:15630 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S266917AbRGHQqk>; Sun, 8 Jul 2001 12:46:40 -0400
-Date: Sun, 8 Jul 2001 17:46:39 +0100
-From: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
+	id <S266919AbRGHQrk>; Sun, 8 Jul 2001 12:47:40 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:6660 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266918AbRGHQrY>;
+	Sun, 8 Jul 2001 12:47:24 -0400
+Date: Sat, 30 Jun 2001 14:24:39 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Zach Brown <zab@osdlab.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: linux-2.4.7-pre3/drivers/char/sonypi.c would hang some non-Sony notebooks
-Message-ID: <20010708174639.A7477@xyzzy.clara.co.uk>
-In-Reply-To: <200107081026.DAA22119@baldur.yggdrasil.com>
+Subject: Re: [RFC][PATCH] cutting up struct kernel_stat into cpu_stat
+Message-ID: <20010630142438.A255@toy.ucw.cz>
+In-Reply-To: <20010621113107.A16934@osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107081026.DAA22119@baldur.yggdrasil.com>; from adam@yggdrasil.com on Sun, Jul 08, 2001 at 03:26:48AM -0700
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010621113107.A16934@osdlab.org>; from zab@osdlab.org on Thu, Jun 21, 2001 at 11:31:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+Hi!
 
-On Sun, Jul 08, 2001 at 03:26:48AM -0700, Adam J. Richter wrote:
-> 
-> 	Yes, although that is a task that is never complete.  So, I
-> would recommend that we adopt a simple test that should work into the
-> stock kernels with the expectation that the test will probably be
-> refined in the future.  Perhaps we could check the Cardbus bridge.
-> Does "lspci -v" on your Sony Vaio indicate that its cardbus bridge
-> have a subsystem vendor ID of Sony?
+> The attached patch-in-progress removes the per-cpu statistics from
+> struct kernel_stat and puts them in a cpu_stat structure, one per cpu,
+> cacheline padded.  The data is still coolated and presented through
+> /proc/stat, but another file /proc/cpustat is also added.  The locking
+> is as nonexistant as it was with kernel_stat, but who cares, they're
+> just fuzzy stats to be eyeballed by system tuners :).
 
-OK. lspic -v shows
+Looks good to me... Should improve performance plus adds per-cpu data...
 
-  CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-  Subsystem: Sony Corporation: Unknown device 8082
-
-Class 0x0607, vendor 0x1180, dev 0x0x0475, subv 0x104D, subd 0x8082
-
-I guess that's a pretty safe signature if the other VAIO lap and
-palmtops have it.
 
 -- 
-        Bob Dunlop
-        rjd@xyzzy.clara.co.uk
-        www.xyzzy.clara.co.uk
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

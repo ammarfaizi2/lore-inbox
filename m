@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283924AbRLARvq>; Sat, 1 Dec 2001 12:51:46 -0500
+	id <S284178AbRLARxg>; Sat, 1 Dec 2001 12:53:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284176AbRLARvh>; Sat, 1 Dec 2001 12:51:37 -0500
-Received: from f63.law4.hotmail.com ([216.33.149.63]:3600 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S283924AbRLARvZ>;
-	Sat, 1 Dec 2001 12:51:25 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Bidirectional USB Printer
-Date: Sat, 01 Dec 2001 17:51:19 +0000
+	id <S284177AbRLARx1>; Sat, 1 Dec 2001 12:53:27 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:63623 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S284174AbRLARxV>;
+	Sat, 1 Dec 2001 12:53:21 -0500
+Date: Sat, 1 Dec 2001 18:53:12 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+Cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011201185312.P5770@khan.acc.umu.se>
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <3C07CCCD.EA5E340A@randomlogic.com> <3C07D669.6C234598@mandrakesoft.com> <3C07E6D3.89A648AB@randomlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F63HzGkzMcvsq9IcVux00007d18@hotmail.com>
-X-OriginalArrivalTime: 01 Dec 2001 17:51:19.0362 (UTC) FILETIME=[C8128220:01C17A90]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C07E6D3.89A648AB@randomlogic.com>; from pgallen@randomlogic.com on Fri, Nov 30, 2001 at 12:06:43PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a bidirectional usb printer and I was woundering how I would get that 
-to work with user space programs and if it really is supported. When I load 
-all my USB things and the printer.o it says Bidirectional USB Printer = 
-usblp0
-Pleaze help.
-Thanx´s in advance
+On Fri, Nov 30, 2001 at 12:06:43PM -0800, Paul G. Allen wrote:
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+[snip]
+> A person shouldn't _need_ a decent editor to pick out the beginning/end
+> of a code block (or anything else for that matter). The problem is
+> exacerbated when such a block contains other blocks and quickly picking
+> out where each begins/ends becomes tiresome. I _do_ have excellent
+> editors, IDEs, and source code browsers and have used many different
+> kinds in many different jobs. They still can not replace what the human
+> eye and mind perceive.
 
+Uhhhm, knowing when a code block begins? Usually you'll notice this from
+the indentation. It's quite hard not to notice a tabsized shift
+to the right...
+
+[snip]
+
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129307AbRBTRK7>; Tue, 20 Feb 2001 12:10:59 -0500
+	id <S129406AbRBTRLt>; Tue, 20 Feb 2001 12:11:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRBTRKt>; Tue, 20 Feb 2001 12:10:49 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:51466 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129307AbRBTRKe>;
-	Tue, 20 Feb 2001 12:10:34 -0500
-Envelope-To: <linux-kernel@vger.kernel.org>
-Date: Tue, 20 Feb 2001 17:03:23 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: /dev/netlink/tap0
-Message-ID: <Pine.LNX.4.21.0102201646270.6033-100000@cyrix.home>
+	id <S130114AbRBTRLj>; Tue, 20 Feb 2001 12:11:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19985 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129406AbRBTRLZ>; Tue, 20 Feb 2001 12:11:25 -0500
+Date: Tue, 20 Feb 2001 09:11:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __lock_page calls run_task_queue(&tq_disk) unecessarily?
+In-Reply-To: <20010220170000.J26544@athlon.random>
+Message-ID: <Pine.LNX.4.10.10102200909350.30652-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
 
-if i have a valid tap0 device i should be able to
-read write to /dev/netlink/tap0 but for some reson
-only as root should it be like this ?
+On Tue, 20 Feb 2001, Andrea Arcangeli wrote:
+> 
+> Looks perfect. I'd also remove the `continue' from __lock_page, it's wake-one
+> so it should get the wakeup only when it's time to lock the page down.
 
-eg i would think that is the file permissions are like
-crw-rw-rw-  /dev/netlink/tap0
+NO!
 
-anyone should be able to open it.
-is it meant to be like this if it is it seems very misleading
-from what i can tell it calls
-ethertap_open then it calls
-etlink_kernel_create then it calls
-sock_create where i think it is failing because it does not
-have CAP_NET_RAW
+Even if it is wake-one, others may have claimed it before. There can be
+new users coming in and doing a "trylock()" etc.
 
+NEVER *EVER* think that "exclusive wait-queue" implies some sort of
+critical region protection. An exlcusive wait-queue is _not_ a lock. It's
+only an optimization heuristic.
 
-thanks
-	James
-
--- 
----------------------------------------------
-Check Out: http://stev.org
-E-Mail: mistral@stev.org
-  4:40pm  up 19 days, 25 min,  6 users,  load average: 0.08, 0.12, 0.42
+		Linus
 

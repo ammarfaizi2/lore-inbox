@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268222AbTGOO1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 10:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbTGOO1X
+	id S268171AbTGOOkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 10:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbTGOOkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 10:27:23 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:2233
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S268222AbTGOO1W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 10:27:22 -0400
-Date: Tue, 15 Jul 2003 10:42:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Marcelo Penna Guerra <eu@marcelopenna.org>
-Cc: Lars Duesing <ld@stud.fh-muenchen.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
-Message-ID: <20030715144212.GB13207@gtf.org>
-References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de> <200307151027.06474.eu@marcelopenna.org>
+	Tue, 15 Jul 2003 10:40:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22286 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268171AbTGOOkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 10:40:53 -0400
+Date: Tue, 15 Jul 2003 15:55:39 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Sven Dowideit <svenud@ozemail.com.au>
+Cc: jt@hpl.hp.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@brodo.de>
+Subject: Re: mis-identified cisco aironet pccard (and Re: hang with pcmcia wlan card)
+Message-ID: <20030715155539.C14491@flint.arm.linux.org.uk>
+Mail-Followup-To: Sven Dowideit <svenud@ozemail.com.au>, jt@hpl.hp.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Dominik Brodowski <linux@brodo.de>
+References: <1058100731.778.5.camel@localhost> <20030714164852.GC22238@bougret.hpl.hp.com> <20030714175243.B1076@flint.arm.linux.org.uk> <1058275220.758.5.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307151027.06474.eu@marcelopenna.org>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1058275220.758.5.camel@localhost>; from svenud@ozemail.com.au on Tue, Jul 15, 2003 at 11:20:20PM +1000
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 10:27:06AM -0300, Marcelo Penna Guerra wrote:
-> Hi Lars,
-> 
-> On Monday 14 July 2003 12:06, Lars Duesing wrote:
-> > btw: this driver_data is used by the networking part of the
-> > nforce2-driver. If anybody knows a hint, tell me.
-> > Else I will try to wake up someone at nvidia.
-> 
-> There are patches for nvnet to work with 2.5.x. I'm using it right now with 
-> 2.6.0-test1.
-> 
-> Step by in www.nforcershq.com and join us in the linux forum.
+On Tue, Jul 15, 2003 at 11:20:20PM +1000, Sven Dowideit wrote:
+> okely, for me it happened for the first time between 2.5.70 and
+> 2.6-test1. and now its every time :) what can i send you that will help,
+> or, what do i need to figure it out.
 
+TBH, I'm going to have to leave this problem until after OLS - I don't
+have much time to do any lengthy debugs before then.  Bother me again
+on this problem if it isn't fixed by August.
 
-I really would love some person with an nForce NIC to try and use
-amd8111e.c or pcnet32.c with their nForce2 NIC, and see what happens.
-
-(you would need to add PCI ids, obviously, and perhaps turn on debugging
-to see what happens)
-
-	Jeff
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

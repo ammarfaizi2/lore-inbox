@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287284AbSACN3F>; Thu, 3 Jan 2002 08:29:05 -0500
+	id <S287287AbSACNbe>; Thu, 3 Jan 2002 08:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287279AbSACN2y>; Thu, 3 Jan 2002 08:28:54 -0500
-Received: from NILE.GNAT.COM ([205.232.38.5]:58086 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S287276AbSACN2n>;
-	Thu, 3 Jan 2002 08:28:43 -0500
-From: dewar@gnat.com
-To: Dautrevaux@microprocess.com, paulus@samba.org
-Subject: RE: [PATCH] C undefined behavior fix
-Cc: Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
-        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
-        trini@kernel.crashing.org, velco@fadata.bg
-Message-Id: <20020103132837.71EFBF3257@nile.gnat.com>
-Date: Thu,  3 Jan 2002 08:28:37 -0500 (EST)
+	id <S287283AbSACNbZ>; Thu, 3 Jan 2002 08:31:25 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:14598 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287276AbSACNbN>;
+	Thu, 3 Jan 2002 08:31:13 -0500
+Date: Thu, 3 Jan 2002 11:30:58 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Harald Holzer <harald.holzer@eunet.at>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Timothy D. Witham" <wookie@osdl.org>
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+In-Reply-To: <E16LvZ0-0006CX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0201031129410.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<No, in fact the kernel isn't written in ANSI C. :)
-If nothing else, the fact that it uses a lot of gcc-specific
-extensions rules that out.  And it assumes that you can freely cast
-pointers to unsigned longs and back again.  I'm sure others can add to
-this list.
->>
+On Thu, 3 Jan 2002, Alan Cox wrote:
 
-Most certainly this list should exist in precise defined form. It is not
-unreasonable to have a specific list of features that
+> > Which function does the reserved memory fulfill ?
+> > Is it all for paging ?
+>
+> A lot of it is the page structs (64bytes per page - which really
+> should be nearer the 32 some rival Unix OS's achieve on x86)
 
-a) significant programs rely on, and are allowed to rely on
-b) gcc promises to implement as specified, regardless of the standard
+The 2.4 kernel has the page struct at 52 bytes in size,
+William Lee Irwin and I have brought this down to 36.
 
-What is not reasonable is to have various people informally guess at things
-that "obviously" can be expected to work in any "reasonable" C implementation.
-It is this kind of informality that is asking for trouble.
+Expect to see this integrated into the rmap VM soon ;)
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

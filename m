@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbTLVMu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 07:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbTLVMu4
+	id S264410AbTLVNHN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 08:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTLVNHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 07:50:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:48853 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264409AbTLVMuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 07:50:55 -0500
-Date: Mon, 22 Dec 2003 13:51:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Message-ID: <20031222125130.GA13685@elte.hu>
-References: <1071864709.1044.172.camel@localhost> <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au> <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <14897962.1072137278@[192.168.1.249]>
+	Mon, 22 Dec 2003 08:07:13 -0500
+Received: from mail.szintezis.hu ([195.56.253.241]:27333 "HELO
+	hold.szintezis.hu") by vger.kernel.org with SMTP id S264410AbTLVNHL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 08:07:11 -0500
+Subject: [2.6.0] intel pro/wireless 2011 vs. orinoco
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 22 Dec 2003 14:07:08 +0100
+Message-Id: <1072098429.3831.13.camel@gmicsko03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14897962.1072137278@[192.168.1.249]>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-OriginalArrivalTime: 22 Dec 2003 13:07:10.0356 (UTC) FILETIME=[824CE540:01C3C88C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Andrew McGregor <andrew@indranet.co.nz> wrote:
+if i try download big files from the internet or my local network throuh
+my intel pro/wireless 2011 card, i get sometimes (rare) the following
+error messages:
 
-> Hmm.  Gnomemeeting has a history of strange threading issues
-> (actually, all OpenH323 derived projects do).  Is there a threading
-> change that might explain this?
+Dec 22 13:54:55 gmicsko03 kernel: eth1: Error -110 writing Tx descriptor
+to BAP
+Dec 22 13:54:55 gmicsko03 last message repeated 82 times
 
-we tracked down the bug to pwlib's sched_yield() usage. Other code that
-uses sched_yield() to 'sleep a bit' could be affected as well.
+in this situation my CPU load jump to 100%, traffic stopping. if i
+remove the pcmcia card, and reinsert everything is OK.
 
-	Ingo
+it is a driver bug, or my wireless card old/buggy/etc ?
+
+snip from syslog:
+
+Dec 22 14:05:11 gmicsko03 cardmgr[231]: socket 0: Intel PRO/Wireless
+2011
+Dec 22 14:05:11 gmicsko03 kernel: eth1: Station identity
+001f:0002:0002:0001
+Dec 22 14:05:11 gmicsko03 kernel: eth1: Looks like a Symbol firmware
+version [V2.51-04] (parsing to 25104)
+Dec 22 14:05:11 gmicsko03 kernel: eth1: Ad-hoc demo mode supported
+Dec 22 14:05:11 gmicsko03 kernel: eth1: IEEE standard IBSS ad-hoc mode
+supported
+Dec 22 14:05:11 gmicsko03 kernel: eth1: WEP supported, 104-bit key
+Dec 22 14:05:11 gmicsko03 kernel: eth1: MAC address 00:02:B3:04:7B:F6
+Dec 22 14:05:11 gmicsko03 kernel: eth1: Station name "Prism  I"
+Dec 22 14:05:11 gmicsko03 kernel: eth1: ready
+Dec 22 14:05:11 gmicsko03 kernel: eth1: index 0x01: Vcc 5.0, irq 3, io
+0x0100-0x0147
+Dec 22 14:05:11 gmicsko03 cardmgr[231]: executing: './network start
+eth1'
+Dec 22 14:05:11 gmicsko03 cardmgr[231]: + SIOCSIFFLAGS: Cannot assign
+requested address
+Dec 22 14:05:11 gmicsko03 kernel: eth1: New link status: Disconnected
+(0002)
+Dec 22 14:05:12 gmicsko03 kernel: eth1: New link status: Connected
+(0001)
+
+[...]
+
+

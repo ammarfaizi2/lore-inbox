@@ -1,85 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbTJ0Psj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 10:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTJ0Psi
+	id S263076AbTJ0PwG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 10:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbTJ0PwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 10:48:38 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:11701 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262960AbTJ0Psh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 10:48:37 -0500
-Date: Mon, 27 Oct 2003 10:43:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Egbert Eich <eich@xfree86.org>, Jon Smirl <jonsmirl@yahoo.com>,
-       Eric Anholt <eta@lclark.edu>, kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-Message-ID: <20031027154309.GB19711@gtf.org>
-References: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org> <3F9ACC58.5010707@pobox.com> <200310271537.30435.ioe-lkml@rameria.de>
-Mime-Version: 1.0
+	Mon, 27 Oct 2003 10:52:06 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:55979 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263076AbTJ0Pvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 10:51:42 -0500
+Date: Mon, 27 Oct 2003 07:51:30 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: spam@agurk.com
+Subject: [Bug 1431] New: Crash accessing /proc/ide/*/identify on	promise 20265 (fasttrak bios not loaded) 
+Message-ID: <605440000.1067269890@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200310271537.30435.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 04:37:30PM +0200, Ingo Oeser wrote:
-> On Saturday 25 October 2003 21:17, Jeff Garzik wrote:
-> > Graphics processors are growing more general, too -- moving towards
-> > generic vector/data processing engines.  I bet you'll see an optimal
-> > model emerge where you have some sort of "JIT" for GPU microcode in
-> > userspace.  Multiple apps pipeline X/GL/hardware commands into the JIT,
-> > which in turn pipelines data and microcode commands to the GPU kernel
-> > driver.
-> 
-> These "JIT" is needed also for another reason: 
-> 
-> 	There are contraints for GPU commands and the pipelines need to
-> 	be modelled, like CPU piplines are modelled in a compiler. But
-> 	more like the pipelines of some early long instruction word
-> 	processors, where issuing to a used pipeline will cause random
-> 	behavior and crashes. So the JIT doesn't should also emit
-> 	synchronization points. 
-> 
-> With this JIT in place, there need to be just some hardware description
-> files (backends) and some API (GL, DirectX, X) description files
-> (frontends).
+http://bugme.osdl.org/show_bug.cgi?id=1431
 
-I agree 60%  ;-)   This JIT emits GPU-specific microcode, so it should
-lean towards being hardware-dependent.  Speed and efficiency IMO demand
-that.
-
-Looking at existing, open-source CPU JITs, there are certainly general
-pieces and CPU-specific pieces.  But for GPUs, I think the best method
-is to start at the more-GPU-specific end of the spectrum, and _evolve_
-towards a more general solution, as hardware needs dictate.
-
-In other terms, let the hardware drive the JIT design and evolution, and
-don't over-design for a future that may never come.  That was part of
-GGI's problem, IMO.
+           Summary: Crash accessing /proc/ide/*/identify on promise 20265
+                    (fasttrak bios not loaded)
+    Kernel Version: 2.6.0-test9
+            Status: NEW
+          Severity: high
+             Owner: bzolnier@elka.pw.edu.pl
+         Submitter: spam@agurk.com
 
 
-> Now we just need some funding for that and the datasheets. Then it's
-> doable.
-
-Yep ;-)
+Distribution:
+Redhat 9 + upgrade fixes for kernel 2.6
 
 
-> I see just one showstopper: Cheating in benchmarks isn't possible anymore.
-> 
-> PS: That's basically the GGI approach taken further.
+Hardware Environment:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC 
+Bus Master IDE (rev 06)
+00:04.2 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:04.3 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:09.0 Multimedia controller: Philips Semiconductors SAA7134 (rev 01)
+00:0b.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+00:11.0 RAID bus controller: Promise Technology, Inc. 20265 (rev 02)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
 
-I followed GGI for a while.  Trying to be all things to all people was
-their principle mistake.  As Pat Morita said in Karate Kid,
-"Focus, Daniel-san!"  Be specific before general.
-
-	Jeff
+The promise "raid" controller is my 2nd ide controller on the motherboard and since it is not very good 
+for raid I use linux software raid instead. Problem occur when the fasttrak100 "speed" bios (the promise 
+bios) is not loaded during startup (before grub boot).
 
 
+Software Environment:
+Redhat 9 + upgrade fixes for kernel 2.6
+
+Problem Description:
+The command 'cat /proc/ide/hde/identify' crashes the computer hard (no keyboard/net response).
+This only happens when the fastrak100 bios (the promise bios) is not loaded during startup.
+
+This will crash a normal redhat configurating which uses the devlabel script which use the command to 
+identify the disks.
+
+Steps to reproduce:
+Compile kernel 2.6-test9 with pdc20xxx_old.
+Boot with loading of the promise raid bios disabled
+With a normal redhat config your computer will hang during init
+cat /proc/ide/hde/identify
+where hde is one of the disks controlled by the promise controller
 

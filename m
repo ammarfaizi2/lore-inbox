@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132556AbRAJAFl>; Tue, 9 Jan 2001 19:05:41 -0500
+	id <S132650AbRAJAFA>; Tue, 9 Jan 2001 19:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132584AbRAJAFc>; Tue, 9 Jan 2001 19:05:32 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:33876 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S132556AbRAJAF0>;
-	Tue, 9 Jan 2001 19:05:26 -0500
-Date: Wed, 10 Jan 2001 01:07:55 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19pre6aa1 degraded performance for me...
-In-Reply-To: <Pine.LNX.4.30.0101090722580.22161-100000@iq.rulez.org>
-Message-ID: <Pine.LNX.4.30.0101100106160.25024-100000@iq.rulez.org>
+	id <S132627AbRAJAEu>; Tue, 9 Jan 2001 19:04:50 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:3576 "EHLO rob.devdep.sysgo.de")
+	by vger.kernel.org with ESMTP id <S130157AbRAJAEl>;
+	Tue, 9 Jan 2001 19:04:41 -0500
+From: Robert Kaiser <rob@sysgo.de>
+Reply-To: rob@sysgo.de
+To: <mingo@elte.hu>
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+Date: Wed, 10 Jan 2001 00:44:03 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.30.0101092354140.9990-100000@e2>
+In-Reply-To: <Pine.LNX.4.30.0101092354140.9990-100000@e2>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01011001040704.03050@rob>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Sasi Peter wrote:
-> On Tue, 9 Jan 2001, Andrea Arcangeli wrote:
-> > On Mon, Jan 08, 2001 at 10:46:29PM +0100, Sasi Peter wrote:
-> > > What I had w/2.2.18pre19 (+raid+ide):
-> > > ~80MB more in cache and ~80MB swapped out (eg. currently unused notes
-> > > server and squid) There is enough of swap over 3 disks (like the
-> > > raid), so I did not bother disabling squid and notes, since - I thought -
-> > > they would only take up some swap unused.
-> > There are many variables. However I guess the slowdown is because your idle
-> > apps didn't got swapped out in favour of cache as you noticed. An aggressive
-> > aging algorithm would probably fix that but it then would hurt other cases
-> > (after you don't need a frequenty accessed part of filesystem cache anymore it
-> > would take ages before it gets collected potentially causing an unnecessary
-> > swapout storms because the kernel doesn't know you don't need such cache
-> > anymore).  Furthmore if notes and squid are rarely running but they provides
-> > critical services if they would go totally into swap in favour of fs cache you
-> > would get very bad latencies the first time somebody connects to the server. So
-> > the fix I suggest you is to buy more ram or to shutdown squid and notes. Than
-> Oh well I thought 384MB should be enought for everyone aiming at this
-> performance (almost TM ;). At least it would up till now :(
-> > you may as well see a performance improvement compared to 2.2.18pre19
-> > (+raid+ide).  Otherwise you can push the machine low on memory a bit until they
-> > both goes totally into swap (check with `ps v`). Hope this helps.
-> I'll try this, thanks. (so no echo '1 23 456' >/proc/sys/vm/...?)
+On Die, 09 Jan 2001 you wrote:
+> On Tue, 9 Jan 2001, Robert Kaiser wrote:
+> 
+> > Now comes the amazing (to me) part: I split the above statement up into:
+> >
+> > 	temp = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
+> > 	*pte = temp;
+> 
+> this is almost impossible (except some really weird compiler bug) - unless
+> the mem_map address is invalid. This could happen if your kernel image is
+> *just* too large. Do things improve if you disable eg. ext2fs support (i
+> know, but should be enough to boot).
 
-I thought it over again. I still have to say it is a nonsense for a kernel
-not to  have _anything_ (zero pages) currently unused swapped out under
-such an I/O load!
+Sorry, no ext2fs in this kernel (it is for a diskless embedded system). I seem
+to recall though that the problem at one point magically went away when I
+disabled the FPU emulation, but I have not been able to reproduce this
+recently, so I'm not sure. Making minor changes to the kernel code (such as
+adding/removing some test-prints) certainly does not affect the behavior.
 
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+> Or if that part is not mapped
+> correctly (which does happen sometimes as well).
+
+What could I do to check/fix this ? 
+
+> 
+> and are you sure it crashes there? [are you putting delays between your
+> printouts?]
+
+I have put a "halting statement" (i.e. "while(1);") after my printouts to make
+sure execution does not go any further than that point. I moved this halting
+statement ahead in the code line by line until the crash would occur again.
+So, yes, I am pretty sure.
+
+> 
+> > where temp is declared "volatile pte_t". I inserted test-prints between the
+> > above two lines. Accoding to that, the _first_ line , i.e. the evaluation of the
+> > mk_pte_phys() macro is causing the crash!
+> 
+> it accesses mem_map variable, which is near to the end of the kernel
+> image, so it could indeed something of that sort. An uncompressed kernel
+> image (including the data area) must not be bigger than 4MB (IIRC).
+
+According to my System.map file, mem_map is at 0xc0244f78. Does that help ?
 
 
+
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

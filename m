@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbREXNSZ>; Thu, 24 May 2001 09:18:25 -0400
+	id <S261913AbREXN1r>; Thu, 24 May 2001 09:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261912AbREXNSO>; Thu, 24 May 2001 09:18:14 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:43020 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261894AbREXNSH>;
-	Thu, 24 May 2001 09:18:07 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "peter k." <spam-goes-to-dev-null@gmx.net>
-Date: Thu, 24 May 2001 15:16:44 MET-1
+	id <S261925AbREXN1h>; Thu, 24 May 2001 09:27:37 -0400
+Received: from www.wen-online.de ([212.223.88.39]:50952 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261913AbREXN1Z>;
+	Thu, 24 May 2001 09:27:25 -0400
+Date: Thu, 24 May 2001 15:27:10 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Maciek Nowacki <maciek@Voyager.powersurfr.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Busy on BLKFLSBUF w/initrd
+In-Reply-To: <Pine.GSO.4.21.0105240724000.21818-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0105241524290.824-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: patch to put IDE drives in sleep-mode after an halt
-CC: linux-kernel@vger.kernel.org, adrianb@ntsp.nec.co.jp
-X-mailer: Pegasus Mail v3.40
-Message-ID: <3D34A656448@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 May 01 at 14:59, peter k. wrote:
+On Thu, 24 May 2001, Alexander Viro wrote:
 
-> > auto-parking), and since all drives are voice coil drives, then they
-> > should auto-park. But i've had problems with some hard drives that were
-> > spinned down (when Win____ was shutdown)..  if i reset the PC (instead
-> > of turning it off), the hard drives wouldn't come back on so i'd have to
-> > do a full shutdown of the machine.
-> 
-> well, my new 40gb ones are auto-parking i think but all the other ones from
-> last year aren't
-> and older hardware (although 1 year isnt even old for a hd) should be
-> supported by the kernel, right?
-> plus, its really not difficult to implement spinning down the hds before
-> halt anyway and then the kernel
-> leaves the system as clean as it was before booting ;) !!
+> On Thu, 24 May 2001, Mike Galbraith wrote:
+>
+> > On Thu, 24 May 2001, Alexander Viro wrote:
+> >
+> > > On Thu, 24 May 2001, Mike Galbraith wrote:
+> > >
+> > > > On Wed, 23 May 2001, Alexander Viro wrote:
+> > > >
+> > > > > Folks, who the hell is responsible for rd_inodes[] idiocy?
+> > > >
+> > > > That would have been me.  It was simple and needed at the time..
+> > > > feel free to rip it up :)
+> > >
+> > > Mike, I see what you are using it for, but you do realize that it
+> > > means that creating /tmp/ram0 and opening it once will make /tmp
+> > > impossible to unmount?
+> >
+> > I don't _think_ that was the case at the time I did it.  I tested
+> > the idio^Wbandaid before submission.. mighta fscked up though :)
+>
+> Erm... You pin the inode down. That makes filesystem busy by any
+> definition I can think of...
 
-I'm using (at the end of /etc/init.d/halt):
+Yes. I pulled the pins when I was done with them though.
+(at least I think I did.. been a long time)
 
-cat /sbin/halt > /dev/null
-cat /bin/sleep > /dev/null
-hdparm -Y /dev/hdd
-hdparm -Y /dev/hdc
-hdparm -Y /dev/hdb
-hdparm -Y /dev/hda
-/bin/sleep 2
-/sbin/halt -d -f -i -p
+	-Mike
 
-It works fine for me for years... I had to put sleep 2 here, as otherwise
-CDROM drive does not park its head correctly (as hdparm /dev/hdc causes
-ide-cd/cdrom to load - and this causes CDROM to spin up :-( )
-So I do not see any reason for doing HDD park by kernel...
-                                                 Best regards,
-                                                      Petr Vandrovec
-                                                      vandrove@vc.cvut.cz
-
-P.S.: AFAIK all IDE disks autopark. At least my 41MB KALOK from 1990
-did. Or at least tried...

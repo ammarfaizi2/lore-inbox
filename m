@@ -1,52 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319127AbSIDLK3>; Wed, 4 Sep 2002 07:10:29 -0400
+	id <S319130AbSIDLMa>; Wed, 4 Sep 2002 07:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319128AbSIDLK3>; Wed, 4 Sep 2002 07:10:29 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:47110 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S319127AbSIDLK3>; Wed, 4 Sep 2002 07:10:29 -0400
-Date: Wed, 4 Sep 2002 13:14:16 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.enlightnet.local
-To: Panu Matilainen <pmatilai@welho.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 32bit UID wraps around with smbfs
-In-Reply-To: <Pine.LNX.4.44.0209041115590.7970-100000@chip.ath.cx>
-Message-ID: <Pine.LNX.4.44.0209041252590.7921-100000@cola.enlightnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319135AbSIDLM3>; Wed, 4 Sep 2002 07:12:29 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:46323
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319130AbSIDLM3>; Wed, 4 Sep 2002 07:12:29 -0400
+Subject: Re: PROBLEM: Linux consistently crashes running grip. (continued)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nuitari <nuitari@balthasar.nuitari.net>
+Cc: Kenneth Corbin <kencx@peak.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209040257470.28297-100000@balthasar.nuitari.net>
+References: <Pine.LNX.4.44.0209040257470.28297-100000@balthasar.nuitari.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 04 Sep 2002 12:17:22 +0100
+Message-Id: <1031138242.2796.29.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Sep 2002, Panu Matilainen wrote:
+> Also be careful with Gcc 2.96, there is a lot of problems related to it.
 
-> Hi,
-> 
-> Smbfs has problems with 32bit UID/GID's: when you do
-> 'smbmount //some/share /mnt/samba -o uid=100000' the mountpoint UID (and 
-> GID) wrap around at 65535.
-> 
-> The attached patch, along with samba recompile against fixed headers
-> apparently fixes it. This problem is present at least in all 2.4 kernels,
-> I haven't looked at 2.5.
-
-I don't think this is an acceptable fix for the main kernel. You are
-changing a binary interface in a stable kernel series.
-
-
-I personally think that smb_mount_data is a bad idea and are slowly
-working on moving smbfs to an ascii interface. With 2.4 any recent
-smbmount should be using the ascii interface already, the problem there is
-that smbmnt uses the smb_mount_data internally ...
-
-This patch contains stuff I want to have included in samba 2.2.6,
-including fixes for smbmnt's uid-abuse:
-http://www.hojdpunkten.ac.se/054/samba/smbmount-2.2.5-misc-2.patch.gz
-
-And this is needed to change the storage size of the in-kernel mount
-struct:
-http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.18-uid32.patch
-
-/Urban
+2.96 >= 79 is just fine, so thats been fine for oh over a year now.
 

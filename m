@@ -1,87 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319220AbSH2PLM>; Thu, 29 Aug 2002 11:11:12 -0400
+	id <S319221AbSH2PMG>; Thu, 29 Aug 2002 11:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319221AbSH2PLM>; Thu, 29 Aug 2002 11:11:12 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:6408 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S319220AbSH2PLL>;
-	Thu, 29 Aug 2002 11:11:11 -0400
-Date: Thu, 29 Aug 2002 16:15:28 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
-Subject: VM Regress 0.7
-Message-ID: <Pine.LNX.4.44.0208291605410.31984-100000@skynet>
+	id <S319222AbSH2PMG>; Thu, 29 Aug 2002 11:12:06 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:19371 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S319221AbSH2PMF>; Thu, 29 Aug 2002 11:12:05 -0400
+Message-ID: <3D6E3ADE.470CF7E5@pp.inet.fi>
+Date: Thu, 29 Aug 2002 18:16:46 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: hch@infradead.org, aia21@cantab.net, kernel@bonin.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: Loop devices under NTFS
+References: <200208291100.EAA11337@adam.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: VM Regress 0.7
+"Adam J. Richter" wrote:
+>         Bruce Schneier's x86 implementation of twofish encrypts at 18
+> cycles per byte on Pentium 3, which should be about 55MB/sec on a 1GHz
+> P3.  Here is a URL for someone who claims to have an x86 AES
+> implementation that does up to 58MB/sec.:
+> http://fp.gladman.plus.com/cryptography_technology/rijndael/ and one
+> that does 45MB/sec on an 800MHz Pentium III:
+> http://home.cyber.ee/helger/implementations/.  I believe that is about
+> the sustained transfer rate of one top of the line hard disk (although
+> the file system means there will be some seeks slowing that down), and
+> the file system will have a slower sustained transfer rate on one
+> disk, due at least to some seeking.  So, depending on CPU speed and
+> other computing that there is to be done, it is possible that with
+> read-ahead and write-behind that encryption one one CPU can be fast
+> enough to keep up with the maximum throughput of the filesystem on a
+> one disk drive.
 
-Project page: http://www.csn.ul.ie/~mel/projects/vmregress/
-Download:     http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.7.tar.gz
+Adam,
 
-This is the fourth release of VM Regress. It is a regression, benchmarking
-and test tool for the Linux VM in it's early stages. This will be the last
-release for a while as funding in my University is a bit tight these days.
-Mine is due to run out in a few months and I have to re-prioritise
-what I'm doing unfortunately. I hope to get back working on this once I
-have secured external funding to work full time on VM management in
-general and Linux in particular.
+If you had followed what is going on with loop crypto, you would have known
+that loop-AES' AES cipher is based on Dr Brian Gladman's implementation, and
+as such is about twice as fast as the one in cryptoapi. Here is some data on
+AMD Duron 800 MHz:
 
-This release has at least one major bug fix. It would have been triggered by
-an SMP machine running an alloc or page faulting validation test. I haven't
-heard any reports and I haven't triggered it myself but I'm pretty sure it
-would deadlock. The project will now compile cleanly against late 2.5.32
-which is the first 2.5 kernel since 2.5.28 it compiled against.  I haven't
-managed to test with a 2.5.x kernel but there is no reason it shouldn't
-work. I'd be interested in hearing any success/failure stories with 2.5.x
+key length 128 bits, encrypt speed 354.3 Mbits/sec
+key length 128 bits, decrypt speed 359.3 Mbits/sec
+key length 192 bits, encrypt speed 298.8 Mbits/sec
+key length 192 bits, decrypt speed 297.7 Mbits/sec
+key length 256 bits, encrypt speed 258.8 Mbits/sec
+key length 256 bits, decrypt speed 260.6 Mbits/sec
 
-Perl scripts are now provided to run each test and benchmark, produce a
-report, graph vmstat output etc so running tests is a lot easier. It will
-load/unload modules as necessary to run the test. This reduces a lot of the
-drudge work involved with setting up a test. There is also scripts
-available for replotting graphs to a given scale so comparing vm's is a
-bit easier. man pages and online help is available for each of them.
+So if you really cared about speed, you would not be using cryptoapi. Also,
+your loop patch will deadlock when used to encrypt swap. My loop patch does
+not.
 
-The mmap module will now run read or write benchmarks on either anonymous or
-file backed maps. It produces graphs showing age of pages, reference counts,
-page present/swapped, what pages were referenced over time, vmstat output
-and some timing information. It still doesn't do statistical analysis but
-that was in the works for 0.9 . the data files are all preserved as .data
-files so any stats tool that can import space separated files can be used.
-Links to sample test output is on the webpage.
-
-If I get back working on this, 0.8 will have the simulated webserver originally
-outlined by Rik Van Riel. Most of what is needed is already there with the
-mmap module bench_mmap.pl uses.
-
-Documentation is reasonably up to data and provided with the package. If
-people have suggestions or reports, send them on and I'll add them to the
-ToDo list. I'll continue to work on this periodically.
-
-Full changelog for 0.7
-
-Version 0.7
------------
-  o Updated bench_mapanon.pl to perform read/write tests
-  o Adapted mapanon.o and changed to mmap.o so it can map file descriptors
-  o Adapted bench_mapanon.pl to bench_mmap.pl to be a generate mmap benchmark
-  o Told benchmark to preserve sampling data
-  o Time.pm exports new timing functions
-  o mapanon.o changed to mmap.o, handles files or anonymous memory
-  o Added graph to show page age vs page presence
-  o Added graph to show reference pattern
-  o Added replot.pl for easy replotting of time data
-  o Fixed access permissions to alloc and fault tests
-  o Removed stupid deadlock with alloc and fault modules
-  o Various perl lib updates
-  o Will now compile against late 2.5.x kernels (untested)
-  o Automatically load and unload kernel modules
-
--- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVDAWF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbVDAWOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbVDAWF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 17:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbVDAUyR
+	id S262917AbVDAWOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 17:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbVDAWL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:54:17 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:35887 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262892AbVDAUvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:51:05 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][5/27] IB/mthca: allow unaligned memory regions
-In-Reply-To: <2005411249.dKg4ijljsqXo1Rt6@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Fri, 1 Apr 2005 12:49:52 -0800
-Message-Id: <2005411249.cEJmE9mY2eziJTR6@topspin.com>
+	Fri, 1 Apr 2005 17:11:29 -0500
+Received: from colo.lackof.org ([198.49.126.79]:26559 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262918AbVDAWJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 17:09:39 -0500
+Date: Fri, 1 Apr 2005 15:11:31 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Jim Gifford <maillist@jg555.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       pdh@colonel-panic.org
+Subject: Re: 64bit build of tulip driver
+Message-ID: <20050401221131.GB11749@colo.lackof.org>
+References: <424AE9E0.8040601@jg555.com> <20050331161206.GB19219@colo.lackof.org> <424CC566.3080007@jg555.com> <20050401065120.GD29734@colo.lackof.org> <424D7AE9.5050100@jg555.com> <20050401182609.GB8178@colo.lackof.org> <424DADBD.9010509@jg555.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 20:49:52.0481 (UTC) FILETIME=[5A507D10:01C536FC]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424DADBD.9010509@jg555.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+On Fri, Apr 01, 2005 at 12:23:25PM -0800, Jim Gifford wrote:
+> Grant,
+>    Thank you, I took your driver as a reference and added in the cobalt 
+> specifics to the eeprom.c file, works perfectly now.
 
-The first buffer of a memory region is not required to be
-page-aligned, so don't return an error if it's not.
+Cool! very welcome.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Can you do me a favor and submit a diff of all the tulip changes
+you have at this point back to lkml (and whatever other lists are cc'd)?
 
+jgarzik might accept your bits and ignore the parts that have been
+submitted/rejected before.  But whatever you post will get archived
+with this thread for others to find in the future.
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-01 12:38:20.839437009 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-01 12:38:21.926201103 -0800
-@@ -494,7 +494,7 @@
- 	mask = 0;
- 	total_size = 0;
- 	for (i = 0; i < num_phys_buf; ++i) {
--		if (buffer_list[i].addr & ~PAGE_MASK)
-+		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
- 			return ERR_PTR(-EINVAL);
- 		if (i != 0 && i != num_phys_buf - 1 &&
- 		    (buffer_list[i].size & ~PAGE_MASK))
-
+thanks,
+grant

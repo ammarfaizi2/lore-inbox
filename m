@@ -1,57 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVBON3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVBONhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVBON3z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 08:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVBON3z
+	id S261720AbVBONhU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 08:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVBONhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 08:29:55 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:32951 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261719AbVBON3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 08:29:53 -0500
-Message-ID: <4211F90F.5030705@grupopie.com>
-Date: Tue, 15 Feb 2005 13:28:47 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Tue, 15 Feb 2005 08:37:20 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:3844 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261720AbVBONhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 08:37:05 -0500
+Message-ID: <4211FB8B.5000307@aitel.hist.no>
+Date: Tue, 15 Feb 2005 14:39:23 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-kernel@vger.kernel.org, Tim Bird <tim.bird@am.sony.com>,
-       Prakash Punnoor <prakashp@arcor.de>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Roland Dreier <roland@topspin.com>
-Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
- release)
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>	 <20050211011609.GA27176@suse.de>	 <1108354011.25912.43.camel@krustophenia.net>	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>	 <1108422240.28902.11.camel@krustophenia.net> <524qge20e2.fsf@topspin.com>	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>	 <1108430245.32293.16.camel@krustophenia.net>	 <4B923A81-7EF3-11D9-86CC-000393ACC76E@mac.com>	 <4211B8FC.8000600@aitel.hist.no> <1108459982.438.9.camel@tara.firmix.at> <4211F706.4030104@aitel.hist.no>
-In-Reply-To: <4211F706.4030104@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-os@analogic.com
+CC: kernel <kernel@crazytrain.com>, Larry McVoy <lm@bitmover.com>,
+       Matthew Jacob <lydianconcepts@gmail.com>,
+       Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+References: <20050214020802.GA3047@bitmover.com>  <58cb370e05021404081e53f458@mail.gmail.com>  <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com>  <7579f7fb0502141017f5738d1@mail.gmail.com>  <20050214185624.GA16029@bitmover.com> <1108469967.3862.21.camel@crazytrain> <Pine.LNX.4.61.0502150732110.9562@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0502150732110.9562@chaos.analogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Now that is a really good idea.  Init could simply run "make -j init2" to
-> enter runlevel 2.  A suitable makefile would list all dependencies, and
-> of course the targets needed for "init2", "init3" and so on.
-> 
-> It might not be that much work either.  Parallel make exists already, 
-> and the
-> first attempt at a makefile could simply implement the current sequence 
-> that
-> is known to work. Then the tweaking comes. :-)
+linux-os wrote:
 
-Someone already mentioned this work before on this thread. I just 
-googled for it and found the link:
+> On Tue, 15 Feb 2005, kernel wrote:
+>
+>> On Mon, 2005-02-14 at 13:56, Larry McVoy wrote:
+>>
+>>> All we are trying to do is
+>>>
+>>>     1.  Provide the open source community with a useful tool.
+>>>     2.  Prevent that from turning into the open source community
+>>>         creating a clone of our tool.
+>>>
+>>
+>> lol
+>>
+>>
+>>
+>>> I agree that this sucks, having a license that restricts your 
+>>> creativity
+>>> is very annoying.  On the other hand, you don't have to agree to it.
+>>
+>>
+>>
+>> Just catching up on this thread.  I guess I'm ultimately surprised that
+>> the developers here don't create a system *they* like with *their*
+>> knowledge and skillsets.
+>>
+>> With all of the complaining about BK you'd think there'd be an equal
+>> alternative.
+>>
+>> For everyone not liking Larry nor BK, why don't you use that as
+>> inspiration to develop together a better app with terms more agreeable?
+>> Surely that would put a bit of vinegar in his p*ss, wouldn't it?
+>>
+>> -fd
+>
+>
+> I have two questions for Larry.
+>
+> (1) If I use BK for company source-code development (purchased
+> product, I didn't buy it, the company did and they require
+> me to use it for my work) and I go to work for another company
+> that also uses BK, your license says I can't use BK at the other
+> company, which means that I can't work there.
 
-http://www-106.ibm.com/developerworks/linux/library/l-boot.html?ca=dgr-lnxw04BootFaster
+You can dislike the BK licencing all you want, but isn't there some 
+misunderstandings here?
+I believe you can _use_ any SCM-system you want whenever you want. Using 
+bitkeeper in
+one place does not prevent you from using it in another company also.  
+Neither does using
+any other SCM.
 
--- 
-Paulo Marques - www.grupopie.com
+The limit lies in that you can't both use the *free* version of 
+bitkeeper while also
+*developing* some other SCM.  Note that the non-free bitkeeper, the one 
+you pay for,
+is licenced differently.   So if you use the *free* bitkeeper and some 
+employer
+want you to work developing another SCM, then you have these options:
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+1. Quit the job because you cannot legally do it while using the free 
+bitkeeper.
+2. Quit using the free bitkeeper, by switching to another SCM for that 
+project.
+3. Quit using the free bitkeeper by purchasing a commercial licence for 
+bitkeeper instead.
+
+So, you can have bitkeeper for free with a limiting license, or you can 
+pay for an
+unencumbered bitkeeper.  Or you can keep your money and not use bitkeeper,
+
+>
+> This is unlawful. How do you intend to enforce this?
+>
+> (2) If I use BK and I decide that I don't want to do business with
+> you or the courts say that I have to return the software, will my
+> source-code still be usable with, perhaps CVS? In other words
+> do I need BK to retrieve my company's intellectual property?
+
+I don't really see the problem here - if they tell you to cease and desist
+using bitkeeper, then extract all your source first, before scrapping 
+bitkeeper.
+Then install some other SCM and get the source tree into that.  It is some
+work of course, but not a rewrite!
+
+> Note that there is a little company (was a big company until
+> the lawsuit), that used VOBS (container files) to store source-
+> code. Seems that when the license expired, the users couldn't get
+> their source code out. There was a lawsuit. Company lost
+> (of course). Seems you can't hold somebody's intellectual
+> property for ransom, at least in the United States.
+
+That's good.  It should mean that nobody can prevent you from switching
+away from bitkeeper in an orderly fashion then.
+
+Helge Hafting
+

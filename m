@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUHEPVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267753AbUHEP1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUHEPVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 11:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHEPVv
+	id S267753AbUHEP1T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 11:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUHEP1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 11:21:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51120 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267748AbUHEPVu convert rfc822-to-8bit
+	Thu, 5 Aug 2004 11:27:19 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:7841 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267753AbUHEP1R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 11:21:50 -0400
-Date: Thu, 5 Aug 2004 08:21:30 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: =?ISO-8859-1?B?UGF3ZV9f?= Sikora <pluto@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org, spot@redhat.com, akpm@osdl.org
-Subject: Re: Make MAX_INIT_ARGS 25
-Message-Id: <20040805082130.354fac9f@lembas.zaitcev.lan>
-In-Reply-To: <200408050752.46409.pluto@pld-linux.org>
-References: <20040804193243.36009baa@lembas.zaitcev.lan>
-	<200408050752.46409.pluto@pld-linux.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Aug 2004 11:27:17 -0400
+Date: Thu, 05 Aug 2004 08:25:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Rick Lindsley <ricklind@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1: SCHEDSTATS compile error
+Message-ID: <42030000.1091719559@[10.10.2.4]>
+In-Reply-To: <20040805111835.GB2746@fs.tum.de>
+References: <20040805031918.08790a82.akpm@osdl.org> <20040805111835.GB2746@fs.tum.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004 07:52:46 +0200
-Pawe__ Sikora <pluto@pld-linux.org> wrote:
+--Adrian Bunk <bunk@fs.tum.de> wrote (on Thursday, August 05, 2004 13:18:35 +0200):
 
-> > -#define MAX_INIT_ARGS 8
-> > -#define MAX_INIT_ENVS 8
-> > +#define MAX_INIT_ARGS 25
-> > +#define MAX_INIT_ENVS 25
+> On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
+>> ...
+>> Changes since 2.6.8-rc2-mm2:
+>> ...
+>> +schedstats-2.patch
+>> ...
+>>  CPU scheduler statitics
+>> ...
 > 
-> You should also increase the COMMAND_LINE_SIZE.
+> <--  snip  -->
+> 
+> ...
+>   CC      kernel/sched.o
+> kernel/sched.c: In function `show_schedstat':
+> kernel/sched.c:372: error: structure has no member named `sd'
+> kernel/sched.c:372: error: dereferencing pointer to incomplete type
+> kernel/sched.c:375: error: dereferencing pointer to incomplete type
+> kernel/sched.c:380: error: dereferencing pointer to incomplete type
+> kernel/sched.c:381: error: dereferencing pointer to incomplete type
+> kernel/sched.c:382: error: dereferencing pointer to incomplete type
+> kernel/sched.c:383: error: dereferencing pointer to incomplete type
+> kernel/sched.c:384: error: dereferencing pointer to incomplete type
+> kernel/sched.c:387: error: dereferencing pointer to incomplete type
+> kernel/sched.c:387: error: dereferencing pointer to incomplete type
+> kernel/sched.c:388: error: dereferencing pointer to incomplete type
+> kernel/sched.c:388: error: dereferencing pointer to incomplete type
+> make[1]: *** [kernel/sched.o] Error 1
 
-I'm not doing it because I have nothing better to do, but because we
-have a specific requirement. Our software works fine with the current
-maximum buffer size. If you have different requirement, please let
-me know what kind of situation it is in detail, it might help advocacy.
+Any chance you could try the version Ingo just posted instead?
 
--- Pete
+M.
+

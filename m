@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUIDTBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUIDTDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUIDTBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 15:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUIDTBN
+	id S265768AbUIDTDv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 15:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUIDTDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 15:01:13 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:524 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265805AbUIDTA5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 15:00:57 -0400
-Message-ID: <413A10FE.5050209@cs.aau.dk>
-Date: Sat, 04 Sep 2004 21:01:18 +0200
-From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: umbrella-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <200409040241.i842fZxa003725@localhost.localdomain>
-In-Reply-To: <200409040241.i842fZxa003725@localhost.localdomain>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 4 Sep 2004 15:03:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:19281 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S265768AbUIDTDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 15:03:48 -0400
+Message-ID: <a728f9f904090412036e662e45@mail.gmail.com>
+Date: Sat, 4 Sep 2004 15:03:45 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: New proposed DRM interface design
+Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sf.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040904012510.77417.qmail@web14929.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0409040158400.25475@skynet>
+	 <20040904012510.77417.qmail@web14929.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
->>Also simple bufferoverflows in suid-root programs may be avoided.
+On Fri, 3 Sep 2004 18:25:10 -0700 (PDT), Jon Smirl <jonsmirl@yahoo.com> wrote:
+> --- Dave Airlie <airlied@linux.ie> wrote:
+> > >
+> > > Will this redesign allow for multiple 3d accelerated cards in the
+> > same
+> > > machine?  could I have say an AGP radeon and a PCI radeon or a AGP
+> > > matrox and a PCI sis and have HW accel on :0 and :1.  If not, I
+> > think
+> > > it's something we should consider.
+> >
+> > should be no problem at all, this is what I consider a DRM
+> > requirement so
+> > any design that doesn't fulfill it isn't acceptable...
+> >
+> > of course implemented code may need a bit of testing :-)
 > 
+> I've been reworking the DRM code to better support two dissimilar video
+> card. I pratice on a PCI Rage128 and AGP Radeon.
 > 
-> How?
-You can (naturally) not avoid the attack and thereby the process from 
-crashing - but you can avoid the effects of it. E.g. if you restrict the 
-suid-root process form spawning new processes, it would not be able to 
-spawn a root shell, programs liks passwd and cdrecord would be good 
-candidates to this restriction.
+> I would also like to start making infastructure changes to allow two
+> independently logged in users, one on each head. Multihead DRM cards
+> will show one device per head. If you set a merged fb mode the other
+> head will get disabled.
 
+I'm not sure mergedfb is really "the way" to go long term.  It has
+certain limitations (drawing engine limits, scrolling viewport when
+using dissimilar modes on each head, etc.).  We might be better off
+sharing access to the 3d engine like we do for 2D with "regular"
+multihead.  xinerama could then be handled by indirect rendering mixed
+with DMX and GLproxy.  some sort of fast path could be designed for
+dualhead cards if a 3D window strattled both heads.  Just a thought.
 
->>                                                                  The 
->>simple way would to set the restriction "no fork", and thus if an 
->>attacker tries to fork a (root) shell, this would be denied.
-> 
-> 
-> A simple exec(2) will do. Or overwriting a file. Or... If you restrict all
-> potentially dangerous operations, you have nothing useful left.
-> 
-> 
->>                                                             Another way 
->>could be to heavily restrict access to the filesystem. If the program is 
->>restricted from /var, the root shell spawned by the attack would not 
->>have access either. (restrictions are enherited from parent to children).
-> 
-> 
-> Just delete /var. Oops, it is there for a purpose...
-Sure... but not all programs really need access to this. My calendar on 
-my PDA for one do not. It (restricting /var) was, as I hope you 
-guessed?, an example!
+Alex
 
-
-A cool thing is also, that if you restrict the init process from 
-accessing a secific directory, then all processes in the system will be 
-restricted from this. This will be utilized by Umbrella, to introduce 
-signed files (public key cryptography). The area of the public keys will 
-be protected by the kernel - simply by restricting Init from this location.
-
-
-KS.
+> 
+> This is the general plan I am working towards...
+> http://lkml.org/lkml/2004/8/2/111
+> 
+> 
+> 
+> 
+> =====
+> Jon Smirl
+> jonsmirl@yahoo.com
+>

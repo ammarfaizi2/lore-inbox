@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUJOAib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUJOAmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267454AbUJOAib (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUJOAib
+	id S267515AbUJOAmG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUJOAmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:38:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20901 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267454AbUJOAgg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 20:36:36 -0400
-Date: Fri, 15 Oct 2004 01:36:33 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Colin Ngam <cngam@sgi.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Christoph Hellwig <hch@infradead.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
-Message-ID: <20041015003633.GX16153@parcelfarce.linux.theplanet.co.uk>
-References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014125348.GA9633@infradead.org> <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk> <20041014180005.GA11954@infradead.org> <20041014180748.GS16153@parcelfarce.linux.theplanet.co.uk> <416EFFBE.7B8F702@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <416EFFBE.7B8F702@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Oct 2004 20:42:06 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:131 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267515AbUJOAl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:41:57 -0400
+Date: Thu, 14 Oct 2004 19:41:52 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
+In-Reply-To: <Pine.LNX.4.58.0410141930440.1221@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0410141941320.1221@gradall.private.brainfood.com>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+ <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+ <Pine.LNX.4.58.0410141930440.1221@gradall.private.brainfood.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 05:37:51PM -0500, Colin Ngam wrote:
-> On SGI's Altix system, the sysdata for the device is very much different than
-> the sysdata for the bus.
+On Thu, 14 Oct 2004, Adam Heath wrote:
 
-That's fascinating, because ia64 is one of the architectures that relies
-on sysdata being the same in both the bus and the device:
+> On Fri, 15 Oct 2004, Ingo Molnar wrote:
+>
+> >
+> > i have released the -U2 PREEMPT_REALTIME patch:
+> >
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U2
+>
+> kernel/latency.c: In function `add_preempt_count':
+> kernel/latency.c:390: error: structure has no member named `preempt_trace_eip'
+> kernel/latency.c:394: error: structure has no member named `preempt_trace_parent_eip'
 
-#define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
+Here's a patch:
 
-In various places, we have
-        struct pci_controller *controller = PCI_CONTROLLER(dev);
-and
-        if (PCI_CONTROLLER(bus)->iommu)
+--- kernel/latency.c.orig	2004-10-14 19:36:26.000000000 -0500
++++ kernel/latency.c	2004-10-14 19:33:30.000000000 -0500
+@@ -387,11 +387,9 @@
+ 	if (val <= 10) {
+ 		unsigned int idx = preempt_count() & PREEMPT_MASK;
+ 		if (idx < MAX_PREEMPT_TRACE) {
+-			current->preempt_trace_eip[idx] = eip;
+ #ifdef CONFIG_LATENCY_TRACE
++			current->preempt_trace_eip[idx] = eip;
+ 			current->preempt_trace_parent_eip[idx] = parent_eip;
+-#else
+-			current->preempt_trace_parent_eip[idx] = 0;
+ #endif
+ 		}
+ 	}
+--
 
-So what the hell does Altix do?  Which sysdata can be used to get to the
-pci_controller?  This seems like a horrible mistake to me.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

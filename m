@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTBSViT>; Wed, 19 Feb 2003 16:38:19 -0500
+	id <S261724AbTBSVjD>; Wed, 19 Feb 2003 16:39:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTBSViT>; Wed, 19 Feb 2003 16:38:19 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:9095 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261868AbTBSViS>;
-	Wed, 19 Feb 2003 16:38:18 -0500
-Date: Wed, 19 Feb 2003 16:48:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	id <S261874AbTBSVjC>; Wed, 19 Feb 2003 16:39:02 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:16794 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261724AbTBSVjA>;
+	Wed, 19 Feb 2003 16:39:00 -0500
+Subject: Re: [PATCH] IPSec protocol application order
 To: "David S. Miller" <davem@redhat.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Ion Badulescu <ionut@badula.org>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
-Message-ID: <20030219214817.GD4977@gtf.org>
-References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com> <20030219092046.458c2876.rddunlap@osdl.org> <1045692372.14268.9.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045692372.14268.9.camel@rth.ninka.net>
-User-Agent: Mutt/1.3.28i
+Cc: "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
+From: "Tom Lendacky" <toml@us.ibm.com>
+Date: Wed, 19 Feb 2003 15:48:14 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 02/19/2003 04:48:16 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 19, 2003 at 02:06:12PM -0800, David S. Miller wrote:
-> On Wed, 2003-02-19 at 09:20, Randy.Dunlap wrote:
-> > Does this help with being able to printk() a <dma_addr_t>?  How?
-> > Always use a cast to (u64) or something else?
-> 
-> One should always cast to long long and use %llx.  There is no
-> printf format appropriate for a 'u64'.
 
-/me wishes gcc would let the user application define printf formats
-for arbitrary [non-struct] user data types...
+>> The IPSec RFC (2401) and IPComp RFC (3173) specify the order in which
+>> the COMP, ESP and AH protocols must be applied when being applied in
+>> transport mode.  Specifically, COMP must be applied first, then ESP
+>> and then AH.  Also, transport mode protocols must be applied before
+>> tunnel mode protocols.
 
-	Jeff
+> Did you even read the email from Alexey yesterday that described
+> why none of this is a kernel issue and we merely do exactly what
+> the user application tells us to do when it uploads key configuration?
+
+> Just like you aparently ignored his email, I will ignore your patch.
+
+Yes, I read Alexey's email.  He said that it is not a kernel or a setkey
+issue.  One of them is responsible for making sure the proper order is set
+in order to insure RFC conformance and interoperability.  You are saying
+that it is up to the user application, which would be setkey.  So if you
+would prefer to not do this in the kernel you can ignore the patch, but
+then the setkey application needs to be fixed.
+
+Tom
 
 
 

@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVB0T2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVB0TcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVB0T2t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 14:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVB0T2s
+	id S261480AbVB0TcV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 14:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVB0TcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 14:28:48 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:3210
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261478AbVB0T2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 14:28:45 -0500
-Date: Sun, 27 Feb 2005 11:27:12 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: kaigai@ak.jp.nec.com, akpm@osdl.org, davem@redhat.com, jlan@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050227112712.4ade67ac.davem@davemloft.net>
-In-Reply-To: <20050227140355.GA23055@logos.cnet>
-References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-	<421CEC38.7010008@sgi.com>
-	<421EB299.4010906@ak.jp.nec.com>
-	<20050224212839.7953167c.akpm@osdl.org>
-	<20050227094949.GA22439@logos.cnet>
-	<4221E548.4000008@ak.jp.nec.com>
-	<20050227140355.GA23055@logos.cnet>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sun, 27 Feb 2005 14:32:21 -0500
+Received: from smtpout17.mailhost.ntl.com ([212.250.162.17]:58737 "EHLO
+	mta09-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S261480AbVB0Tbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 14:31:53 -0500
+Date: Sun, 27 Feb 2005 19:34:45 +0000
+From: Stuart Brady <sdbrady@ntlworld.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RESEND] [PATCH] include/linux/soundcard.h: endianness fix
+Message-ID: <20050227193445.GA13683@ntlworld.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Feb 2005 11:03:55 -0300
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+This fixes the AFMT_S16_NE and _PATCHKEY macros in
+include/linux/soundcard.h on some big-endian architectures.
 
-> Yep, the netlink people should be able to help - they known what would be
-> required for not sending messages in case there is no listener registered.
+Signed-off-by: Stuart Brady <sdbrady@ntlworld.com>
 
-Please CC: netdev@oss.sgi.com to get some netlink discussions
-going if wanted.
+--- include/linux/soundcard.h	29 Jul 2003 17:02:14 -0000	1.1
++++ include/linux/soundcard.h	21 Jan 2005 18:51:45 -0000
+@@ -39,6 +39,13 @@
+ /* In Linux we need to be prepared for cross compiling */
+ #include <linux/ioctl.h>
+ 
++/* Endian macros. */
++#ifdef __KERNEL__
++#  include <asm/byteorder.h>
++#else
++#  include <endian.h>
++#endif
++
+ /*
+  *	Supported card ID numbers (Should be somewhere else?)
+  */
+@@ -179,13 +186,26 @@
+  * Some big endian/little endian handling macros
+  */
+ 
+-#if defined(_AIX) || defined(AIX) || defined(sparc) || defined(__sparc__) || defined(HPPA) || defined(PPC) || defined(__mc68000__)
+-/* Big endian machines */
+-#  define _PATCHKEY(id) (0xfd00|id)
+-#  define AFMT_S16_NE AFMT_S16_BE
+-#else
+-#  define _PATCHKEY(id) ((id<<8)|0xfd)
+-#  define AFMT_S16_NE AFMT_S16_LE
++#if defined(__KERNEL__)
++#  if defined(__BIG_ENDIAN)
++#    define AFMT_S16_NE AFMT_S16_BE
++#    define _PATCHKEY(id) (0xfd00|id)
++#  elif defined(__LITTLE_ENDIAN)
++#    define AFMT_S16_NE AFMT_S16_LE
++#    define _PATCHKEY(id) ((id<<8)|0x00fd)
++#  else
++#    error "could not determine byte order"
++#  endif
++#elif defined(__BYTE_ORDER)
++#  if __BYTE_ORDER == __BIG_ENDIAN
++#    define AFMT_S16_NE AFMT_S16_BE
++#    define _PATCHKEY(id) (0xfd00|id)
++#  elif __BYTE_ORDER == __LITTLE_ENDIAN
++#    define AFMT_S16_NE AFMT_S16_LE
++#    define _PATCHKEY(id) ((id<<8)|0x00fd)
++#  else
++#    error "could not determine byte order"
++#  endif
+ #endif
+ 
+ /*

@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317713AbSFLOuA>; Wed, 12 Jun 2002 10:50:00 -0400
+	id <S317714AbSFLOxU>; Wed, 12 Jun 2002 10:53:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317714AbSFLOt7>; Wed, 12 Jun 2002 10:49:59 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:2576 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S317713AbSFLOt6>; Wed, 12 Jun 2002 10:49:58 -0400
-Date: Thu, 13 Jun 2002 00:52:13 +1000
-From: john slee <indigoid@higherplane.net>
-To: Lincoln Dale <ltd@cisco.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-Message-ID: <20020612145212.GF27429@higherplane.net>
-In-Reply-To: <greearb@candelatech.com> <3D06E9A0.5060801@candelatech.com> <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S317716AbSFLOxT>; Wed, 12 Jun 2002 10:53:19 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57984 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S317714AbSFLOxS>; Wed, 12 Jun 2002 10:53:18 -0400
+Date: Wed, 12 Jun 2002 15:52:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: <3D06FEA9.AB40CC79@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0206121455560.1032-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ trimmed cc ]
+On Wed, 12 Jun 2002, Andrew Morton wrote:
+> 
+> A more serious form of data loss occurs when an application has a shared
+> mapping over a sparse file.  If the filesystem is out of space when
+> the VM decides to write back some pages, your data simply gets dropped
+> on the floor.  Even a subsequent msync() won't tell you that you have
+> a shiny new bunch of zeroes in your file.
+> 
+> It's not simple to fix.  Approaches might be:
+> 
+> 1: Map the page to disk at fault time, generate SIGBUS on
+>    ENOSPC  (the standards don't seem to address this issue, and
+>    this is a non-standard overload of SIGBUS).
 
-On Wed, Jun 12, 2002 at 10:28:15PM +1000, Lincoln Dale wrote:
-> right now, those bills are anywhere between 10% to 25% incorrect.
+I've looked at this issue in the past: it's a familiar problem
+for various filesystems on various flavours of UNIX.  Some of the
+strangeness in tmpfs (shmem_recalc_inode, or ac's shmem_removepage)
+can be traced to this issue, I believe.  The filesystem does not
+know when a clean page is dirtied, and somehow has to cope afterwards.
 
-10-25% is roughly equivalent to the hit rates i've seen on my web caches
-in real life, with MANY users.  i can't believe people are actually
-using this for data accounting.
+I believe your option 1 is closest to the right direction; and SIGBUS
+is entirely appropriate, I don't see it as a non-standard overload.
 
-i also can't think of many decent "free" (whatever your interpretation
-of that is) ways to do it either.  interface packet counters wrap
-around, most commercial firewalls i've used have inaccurate or
-incomplete logging (to put it lightly), and packet sniffers sometimes
-can't keep up.
+But you didn't spell out the worst news on that option: read faults
+into a read-only shared mapping of a file which the application had
+open for read-write when it mmapped: the page must be mapped to disk
+at read fault time (because the mapping just might be mprotected for
+read-write later on, and the page then dirtied).
 
-surely if profit (or just keeping your head above the water) is the goal
-you can justify the necessary resources to use something like netflow, a
-product designed to do exactly what you seem to want, among other
-things.  (search cisco.com, and no, i'm not a cisco employee)
+Most apps would have opened the file read-only anyway, and no
+problem then.  Perhaps it's acceptable to penalize those that don't;
+but it does seem distasteful to have to desparsify a file when
+accessing it through a read-only mapping.
 
-fiddling the network stack so that you can do dubious hacks in an
-allegedly apparently dubious aspect of squid just doesn't seem to be the
-ideal way to fix this problem.
+What I wanted was a "wppage" method (I seem to recall stealing the
+name from a different now defunct method) in vm_operations_struct:
+int (*wppage)(struct vm_area_struct * area, struct page * page, int write_now);
 
-regards,
+This was called by do_no_page after calling FS nopage, when mapping
+shared writable, the write_now flag true if write fault.  If write_now,
+FS wppage would return success if page already backed, or hole now backed,
+and do_no_page would give write permission to the pte, failure SIGBUS;
+if not write_now, FS wppage could decide for itself whether to back
+hole now (success) or defer (failure, no SIGBUS, but write permission
+withheld from pte).  Code in do_wp_page to call FS wppage again if
+shared mapping, to allocate if deferred.  Code in mprotect_fixup to
+withhold write permission from shared mapping if FS has wppage method.
 
-j.
+Hugh
 
--- 
-toyota power: http://indigoid.net/

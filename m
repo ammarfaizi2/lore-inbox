@@ -1,90 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSHFWvg>; Tue, 6 Aug 2002 18:51:36 -0400
+	id <S316586AbSHFWwW>; Tue, 6 Aug 2002 18:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSHFWu0>; Tue, 6 Aug 2002 18:50:26 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:42250 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316408AbSHFWsO>; Tue, 6 Aug 2002 18:48:14 -0400
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] module cleanup (3/5)
-Message-Id: <E17cDB7-0002v5-00@scrub.xs4all.nl>
-From: Roman Zippel <zippel@linux-m68k.org>
-Date: Wed, 07 Aug 2002 00:51:49 +0200
+	id <S316342AbSHFWvj>; Tue, 6 Aug 2002 18:51:39 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50677 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316408AbSHFWvU>; Tue, 6 Aug 2002 18:51:20 -0400
+Subject: Re: intel chipsets not recognized in 2.4.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Walter A. Boring IV" <wboring@qualys.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1028673358.2551.4.camel@hemna.qualys.com>
+References: <1028673358.2551.4.camel@hemna.qualys.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 01:14:12 +0100
+Message-Id: <1028679252.18156.222.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2002-08-06 at 23:35, Walter A. Boring IV wrote:
+> Howdy, 
+>   I just compiled/installed 2.4.19 on my new Dell box.
+> I can't seem to enable dma on it due to the kernel not detecting the IDE
+> chipset correctly, as you can see from the lspci dump below.
 
-This patch removes __MODULE_STRING() in favour of __stringify().
+>  Any ideas how to hack around this so I can get dma running?
 
-diff -ur linux-2.5/include/linux/module.h linux-mod/include/linux/module.h
---- linux-2.5/include/linux/module.h	Thu Aug  1 16:43:07 2002
-+++ linux-mod/include/linux/module.h	Thu Aug  1 14:41:01 2002
-@@ -10,6 +10,7 @@
- #include <linux/config.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
-+#include <linux/stringify.h>
- 
- #include <asm/atomic.h>
- 
-@@ -147,11 +141,6 @@
- 	(mod_member_present((mod), can_unload) && (mod)->can_unload	\
- 	 ? (mod)->can_unload() : atomic_read(&(mod)->uc.usecount))
- 
--/* Indirect stringification.  */
--
--#define __MODULE_STRING_1(x)	#x
--#define __MODULE_STRING(x)	__MODULE_STRING_1(x)
--
- /* Generic inter module communication.
-  *
-  * NOTE: This interface is intended for small amounts of data that are
-@@ -221,12 +210,12 @@
- #define MODULE_PARM(var,type)			\
- const char __module_parm_##var[]		\
- __attribute__((section(".modinfo"))) =		\
--"parm_" __MODULE_STRING(var) "=" type
-+"parm_" __stringify(var) "=" type
- 
- #define MODULE_PARM_DESC(var,desc)		\
- const char __module_parm_desc_##var[]		\
- __attribute__((section(".modinfo"))) =		\
--"parm_desc_" __MODULE_STRING(var) "=" desc
-+"parm_desc_" __stringify(var) "=" desc
- 
- /*
-  * MODULE_DEVICE_TABLE exports information about devices
-@@ -392,7 +394,7 @@
-  *         #include <linux/modversions.h>
-  *         
-  *         #define EXPORT_SYMBOL(var) \
-- *          __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
-+ *          __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
-  *
-  *   The first two lines will in essence include
-  *
-@@ -468,17 +470,17 @@
- #define _set_ver(sym) sym
- #include <linux/modversions.h>
- 
--#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
--#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
-+#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
-+#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
- 
- #else /* !defined (CONFIG_MODVERSIONS) || defined(MODULE) */
- 
--#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
--#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL_GPL(var, __MODULE_STRING(var))
-+#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __stringify(var))
-+#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL_GPL(var, __stringify(var))
- 
- #endif /* defined(CONFIG_MODVERSIONS) && !defined(MODULE) */
- 
--#define EXPORT_SYMBOL_NOVERS(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
-+#define EXPORT_SYMBOL_NOVERS(var)  __EXPORT_SYMBOL(var, __stringify(var))
- 
- #endif /* __GENKSYMS__ */
- 
+2.4.19-ac4 will do the job. And hopefully 2.4.20 base
+

@@ -1,136 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUHTTCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268689AbUHTTGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268672AbUHTTCm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268678AbUHTS76
+	id S268689AbUHTTGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHTTDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 14:59:58 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:22184 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S268667AbUHTS4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 14:56:06 -0400
-Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
-From: Alex Williamson <alex.williamson@hp.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Paul Jackson <pj@sgi.com>,
-       haveblue@us.ibm.com, acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <2550950000.1092019997@[10.10.2.4]>
-References: <1091738798.22406.9.camel@tdi>
-	 <1091739702.31490.245.camel@nighthawk><1091741142.22406.28.camel@tdi>
-	 <249150000.1091763309@[10.10.2.4]>
-	 <20040805205059.3fb67b71.rddunlap@osdl.org>
-	 <20040807105729.6adea633.pj@sgi.com>
-	 <20040808143631.7c18cae9.rddunlap@osdl.org>
-	 <2550950000.1092019997@[10.10.2.4]>
-Content-Type: text/plain
-Organization: LOSL
-Date: Fri, 20 Aug 2004 12:55:51 -0600
-Message-Id: <1093028151.4993.42.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 15:03:48 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:42695 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S268679AbUHTTAr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 15:00:47 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+Date: Fri, 20 Aug 2004 12:00:18 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+Thread-Index: AcSG1B8NKA/yvNTfSIKG2utFIIsxDgAEsBHQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <stefandoesinger@gmx.at>, "Nathan Bryant" <nbryant@optonline.net>
+Cc: <acpi-devel@lists.sourceforge.net>, "Brown, Len" <len.brown@intel.com>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+X-OriginalArrivalTime: 20 Aug 2004 19:00:17.0406 (UTC) FILETIME=[EEBBA9E0:01C486E7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-   I'm not sure where we stand on this, sorry for the delay.  To recap,
-the first patch I submitted cleaned up the original functions, but moved
-the ugliness up into multi-line macros.  People didn't like the macros
-and suggested static inlines.  However, static inlines don't work for
-this application because the debug print needs state setup by the
-ACPI_FUNCTION_NAME call.  IMHO, it's not worth setting up that state in
-the static inline function for this little bit of cleanup.
-
-   So, I think we left it at nobody liked the macros and static inlines
-don't work.  General unhappiness.  Below is a patch that doesn't attempt
-to cleanup the original code, it just adds the #ifdefs and range
-checking w/ no macros.  Does this look better?  Below is the original
-submit comment outlining the goal.  Thanks,
-
-	Alex
-
-   The patch below removes these warnings:
-
-  CC      drivers/acpi/numa.o
-drivers/acpi/numa.c: In function `acpi_table_print_srat_entry':
-drivers/acpi/numa.c:55: warning: unused variable `p'
-drivers/acpi/numa.c:65: warning: unused variable `p'
-drivers/acpi/numa.c: In function `acpi_numa_init':
-drivers/acpi/numa.c:179: warning: passing arg 2 of
-`acpi_table_parse_srat' from incompatible pointer type
-drivers/acpi/numa.c:182: warning: passing arg 2 of
-`acpi_table_parse_srat' from incompatible pointer type
-
-And propagates the MADT error checking code into the SRAT code.
-
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-
-===== drivers/acpi/numa.c 1.10 vs edited =====
---- 1.10/drivers/acpi/numa.c	2004-02-18 02:19:31 -07:00
-+++ edited/drivers/acpi/numa.c	2004-08-10 16:58:37 -06:00
-@@ -51,6 +51,7 @@
- 	switch (header->type) {
- 
- 	case ACPI_SRAT_PROCESSOR_AFFINITY:
-+#ifdef ACPI_DEBUG_OUTPUT
- 	{
- 		struct acpi_table_processor_affinity *p =
- 			(struct acpi_table_processor_affinity*) header;
-@@ -58,9 +59,11 @@
- 		       p->apic_id, p->lsapic_eid, p->proximity_domain,
- 		       p->flags.enabled?"enabled":"disabled"));
- 	}
-+#endif
- 		break;
- 
- 	case ACPI_SRAT_MEMORY_AFFINITY:
-+#ifdef ACPI_DEBUG_OUTPUT
- 	{
- 		struct acpi_table_memory_affinity *p =
- 			(struct acpi_table_memory_affinity*) header;
-@@ -70,6 +73,7 @@
- 		       p->flags.enabled ? "enabled" : "disabled",
- 		       p->flags.hot_pluggable ? " hot-pluggable" : ""));
- 	}
-+#endif
- 		break;
- 
- 	default:
-@@ -103,12 +107,14 @@
- 
- 
- static int __init
--acpi_parse_processor_affinity (acpi_table_entry_header *header)
-+acpi_parse_processor_affinity (acpi_table_entry_header *header, unsigned long size)
- {
- 	struct acpi_table_processor_affinity *processor_affinity;
- 
- 	processor_affinity = (struct acpi_table_processor_affinity*) header;
--	if (!processor_affinity)
-+	if (!processor_affinity || (unsigned long)processor_affinity +
-+	    sizeof(*processor_affinity) > size ||
-+	    header->length != sizeof(*processor_affinity))
- 		return -EINVAL;
- 
- 	acpi_table_print_srat_entry(header);
-@@ -121,12 +127,14 @@
- 
- 
- static int __init
--acpi_parse_memory_affinity (acpi_table_entry_header *header)
-+acpi_parse_memory_affinity (acpi_table_entry_header *header, unsigned long size)
- {
- 	struct acpi_table_memory_affinity *memory_affinity;
- 
- 	memory_affinity = (struct acpi_table_memory_affinity*) header;
--	if (!memory_affinity)
-+	if (!memory_affinity || (unsigned long)memory_affinity +
-+	    sizeof(*memory_affinity) > size ||
-+	    header->length != sizeof(*memory_affinity))
- 		return -EINVAL;
- 
- 	acpi_table_print_srat_entry(header);
 
 
+>-----Original Message-----
+>From: acpi-devel-admin@lists.sourceforge.net 
+>[mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of 
+>Stefan Dösinger
+>Sent: Friday, August 20, 2004 9:36 AM
+>To: Nathan Bryant
+>Cc: acpi-devel@lists.sourceforge.net; Brown, Len; Linux Kernel 
+>list; Li, Shaohua
+>Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+>
+>Am Freitag, 20. August 2004 14:18 schrieb Nathan Bryant:
+>> Stefan -
+>>
+>> Also - did suspend/resume for the ipw2100 ever work under any kernel
+>> version?
+>Yes, it works with acpi=noirq at least up to 2.6.7(not tested 
+>with later 
+>versions, but I'm sure it does)
+>It works with 2.6.8-rc2 and 2.6.8-rc4 and 2.6.8.1 with acpi IRQs and a 
+>modified dsdt which forces LNKE to IRQ 10. I attached a dmesg 
+>output of a 
+>successful resume.
+>
+>Cheers,
+>Stefan
 
+This seems to be the same resume order issue, that Shaohua is hitting.
+
+On my system the resume order looks like this:
+Resuming System Devices
+Resuming type 'cpu':
+ cpu0
+aux driver resume 0xc010e410 (mtrr_restore)
+aux driver resume 0xc03365f0 (cpufreq_resume)
+Resuming type 'i8259':
+ i82590
+Resuming type 'timer':
+ timer0
+Resuming type 'pit':
+ pit0
+Resuming type 'lapic':
+ lapic0
+Resuming type 'irqrouter':
+ irqrouter0
+Resuming type 'i8042':
+ i80420
+
+The current theory I have for this issue is we resume pci_link driver
+A bit too late, which is causing this problem.
+
+Say a particular device doesn't do anything for suspend and resume.
+So, as soon as we resume this particular device can start  
+generating interrupts. Once we have PIC enabled, it starts sending 
+interrupts and no one handles that original IRQ. As pci_link that 
+resumes later is reprogramming the device to different IRQ, where the 
+driver is handling the device.
+
+That's probably the reason why it works with acpi=noirq or 
+modified DSDT. Does it make sense?
+
+I think we have to resume pci_link device before PIC. 
+We should be able to achieve this my changing the makefile orders.
+
+Thanks,
+Venki
+ 

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292873AbSCGE2T>; Wed, 6 Mar 2002 23:28:19 -0500
+	id <S293013AbSCGE6M>; Wed, 6 Mar 2002 23:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292877AbSCGE2J>; Wed, 6 Mar 2002 23:28:09 -0500
-Received: from altus.drgw.net ([209.234.73.40]:22282 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S292873AbSCGE2D>;
-	Wed, 6 Mar 2002 23:28:03 -0500
-Date: Wed, 6 Mar 2002 22:27:02 -0600
+	id <S293210AbSCGE5x>; Wed, 6 Mar 2002 23:57:53 -0500
+Received: from altus.drgw.net ([209.234.73.40]:24330 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S293013AbSCGE5l>;
+	Wed, 6 Mar 2002 23:57:41 -0500
+Date: Wed, 6 Mar 2002 22:56:52 -0600
 From: Troy Benjegerdes <hozer@drgw.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Andi Kleen <ak@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020306222702.P1682@altus.drgw.net>
-In-Reply-To: <Pine.GSO.4.21.0203061424190.14695-100000@vervain.sonytel.be> <Pine.LNX.4.21.0203061525160.6899-100000@serv> <20020306090011.G15303@work.bitmover.com> <3C865BEA.78C7F827@linux-m68k.org>
+To: Larry McVoy <lm@work.bitmover.com>, Tom Lord <lord@regexps.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: Why not an arch mirror for the kernel?
+Message-ID: <20020306225652.Q1682@altus.drgw.net>
+In-Reply-To: <200203071425.GAA06679@morrowfield.home> <20020306190419.E31751@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C865BEA.78C7F827@linux-m68k.org>; from zippel@linux-m68k.org on Wed, Mar 06, 2002 at 07:11:54PM +0100
+In-Reply-To: <20020306190419.E31751@work.bitmover.com>; from lm@bitmover.com on Wed, Mar 06, 2002 at 07:04:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 07:11:54PM +0100, Roman Zippel wrote:
-> Hi,
+> > I am working on some tools that will help to implement automatic,
+> > incremental, bidirectional gateways between arch, Subversion, and Bk.
 > 
-> Larry McVoy wrote:
-> 
-> > Is the problem that you can't figure out how to extract all the patches
-> > from BK so you can put them up for FTP?  Here, I'll do it for you:
-> 
-> Do it for the ppc guys, not me.
-> 
-> bye, Roman
+> Gateways, yes, bidirectional, no.  Arch doesn't begin to maintain
+> the metadata which BK maintains, so it can't begin to solve the
+> same problems.  If you have a bidirectional gateway, you reduce BK
+> to the level of arch or subversion, in which case, why use BK at all?
+> If CVS/Arch/Subversion/whatever works for you, I'd say just use it and
+> leave BK out of it.
 
-You really don't want every changeset as a patch :-/
+Okay Larry, reality check here... 
 
-Please talk to Jeramy, or someone else running penguinppc.org. At one 
-point we had patches being generated for every changesets. It got to be 
-too much of a headache.
+We really *DO* need to have more than one source control system available 
+for people to use.
 
-Write some scripts to generage a patch every week or so, and we'll put it 
-up.
+So maybe Arch and Subversion don't maintain all the metadata BK maintains.  
+That just means that the $OTHER_SCM->BK gateway process has some manual
+involvement. This is no different conceptually than sending a 'plain old
+patch' in email to $MAINTAINER. 
 
-What I'd really like is some kind of one-way bk->$OTHER_SCM mirror setup 
-simply so people can pull stuff out without BK.
+It is in everyone's best interest to make a functional *bidirectional* 
+BK<->Arch gateway. (Including you Larry)
+
+This keeps the all the open source zealots quiet, and reduces the support 
+load of Bitmover to those people that actually *want* to use Larry's stuff 
+because it's better, not those that use it now because there is no '90%' 
+alternative.
+
+I'd love to see Larry and Tom sit down in a room and come up with an 
+*easy* way for $MAINTAINER to take patches from both Arch and BK. (I have 
+only left Subversion out because I haven't seen anyone from the project 
+take an interest in making changes for kernel developers)
+
+Now, obviously, my time would have been a lot better spent actually 
+working on this myself, but I have deadlines, and wouldn't have time to 
+finish it right now. So, I'm trying to spread some sanity around in the 
+hopes it is contagious. (doubtfull, but I suppose I'll try)
 
 -- 
 Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net

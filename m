@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269622AbUICLeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269626AbUICLeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269622AbUICLeL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269626AbUICLeK
+	id S269626AbUICLeo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 07:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICLen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:34:10 -0400
-Received: from pD9E0E92F.dip.t-dialin.net ([217.224.233.47]:34696 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S269622AbUICLeA (ORCPT
+	Fri, 3 Sep 2004 07:34:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:25507 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269626AbUICLel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:34:00 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-From: Thomas Charbonnel <thomas@undata.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
+	Fri, 3 Sep 2004 07:34:41 -0400
+Date: Fri, 3 Sep 2004 13:36:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Free Ekanayaka <free@agnula.org>, Eric St-Laurent <ericstl34@sympatico.ca>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        "K.R. Foley" <kr@cybsft.com>,
        Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
        Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
        "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
-In-Reply-To: <20040903092547.GA18594@elte.hu>
-References: <20040902221402.GA29434@elte.hu>
-	 <1094171082.19760.7.camel@krustophenia.net>
-	 <1094181447.4815.6.camel@orbiter>
-	 <1094192788.19760.47.camel@krustophenia.net>
-	 <20040903063658.GA11801@elte.hu>
-	 <1094194157.19760.71.camel@krustophenia.net>
-	 <20040903070500.GB13100@elte.hu>
-	 <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org>
-	 <1094198755.19760.133.camel@krustophenia.net>
-	 <20040903092547.GA18594@elte.hu>
-Content-Type: text/plain
-Message-Id: <1094211218.5453.3.camel@localhost>
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R2
+Message-ID: <20040903113600.GA29108@elte.hu>
+References: <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org> <1094198755.19760.133.camel@krustophenia.net> <20040903092547.GA18594@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 13:33:38 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040903092547.GA18594@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote :
-> Florian Schmidt reported a minor bug that prevents a successful build if
-> !CONFIG_LATENCY_TRACE - i've uploaded -R1 that fixes this:
->   
->  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R1
-> 
 
-I still get > 170 us latency from rtl8139 :
-http://www.undata.org/~thomas/R1_rtl8139.trace
+i've uploaded -R2:
 
-And again this one :
-preemption latency trace v1.0.5 on 2.6.9-rc1-VP-R1
---------------------------------------------------
- latency: 597 us, entries: 12 (12)
-    -----------------
-    | task: swapper/0, uid:0 nice:0 policy:0 rt_prio:0
-    -----------------
- => started at: smp_apic_timer_interrupt+0x32/0xd0
- => ended at:   smp_apic_timer_interrupt+0x86/0xd0
-=======>
-00010000 0.000ms (+0.000ms): smp_apic_timer_interrupt
-(apic_timer_interrupt)
-00010000 0.000ms (+0.000ms): profile_tick (smp_apic_timer_interrupt)
-00010000 0.000ms (+0.000ms): profile_hook (profile_tick)
-00010001 0.000ms (+0.595ms): notifier_call_chain (profile_hook)
-00010000 0.595ms (+0.000ms): do_nmi (mcount)
-00020000 0.596ms (+0.000ms): profile_tick (nmi_watchdog_tick)
-00020000 0.596ms (+0.000ms): profile_hook (profile_tick)
-00020001 0.597ms (+0.000ms): notifier_call_chain (profile_hook)
-00020000 0.597ms (+689953.444ms): profile_hit (nmi_watchdog_tick)
-00010001 689954.042ms (+1.141ms): update_process_times (do_timer)
-00000001 0.597ms (+0.000ms): sub_preempt_count
-(smp_apic_timer_interrupt)
-00000001 0.598ms (+0.000ms): update_max_trace (check_preempt_timing)
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R2
 
-Thomas
+no function changes, only fixing some rough edges: it fixes an UP
+boot-time assert that occurs right after 'checking hlt'. I also fixed
+PREEMPT_TIMING + !LATENCY_TRACE build bugs, and another boot bug that
+occurs when PREEMPT_TIMING + !FRAME_POINTERS is used.
 
+(the reboot assert i'm not sure about - tried to reproduce but here
+reboot works fine. Will need some sort of serial log to debug this.)
 
+	Ingo

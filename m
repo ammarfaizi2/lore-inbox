@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVBXFVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVBXFXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVBXFVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 00:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVBXFVj
+	id S261817AbVBXFXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 00:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVBXFXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 00:21:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1166 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261798AbVBXFVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 00:21:35 -0500
-Message-ID: <421D6442.3030308@pobox.com>
-Date: Thu, 24 Feb 2005 00:21:06 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <mlord@pobox.com>
-CC: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11+ sata_qstor] libata: sata_qstor cosmetic fixes
-References: <421CE018.5030007@pobox.com> <200502232345.23666.adobriyan@mail.ru> <421D1113.9030502@pobox.com>
-In-Reply-To: <421D1113.9030502@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 00:23:40 -0500
+Received: from calma.pair.com ([209.68.1.95]:7432 "HELO calma.pair.com")
+	by vger.kernel.org with SMTP id S261799AbVBXFXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 00:23:31 -0500
+Date: Thu, 24 Feb 2005 00:23:30 -0500
+From: "Chad N. Tindel" <chad@tindel.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+Message-ID: <20050224052330.GA99006@calma.pair.com>
+References: <20050223230639.GA33795@calma.pair.com> <20050223183634.31869fa6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050223183634.31869fa6.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Minor patch for new 2.6.xx sata_qstor driver attached,
-> as per Alexey's fine-toothed comb!  :)
+> `xterm' is waiting for the other CPU to schedule a kernel thread (which is
+> bound to that CPU).  Once that kernel thread has done a little bit of work,
+> `xterm' can terminate.
 > 
-> Signed-off-by: Mark Lord <mlord@pobox.com>
+> But kernel threads don't run with realtime policy, so your userspace app
+> has permanently starved that kernel thread.
+> 
+> It's potentially quite a problem, really.  For example it could prevent
+> various tty operations from completing, it will prevent kjournald from ever
+> writing back anything (on uniprocessor, etc).  I've been waiting for
+> someone to complain ;)
+> 
+> But the other side of the coin is that a SCHED_FIFO userspace task
+> presumably has extreme latency requirements, so it doesn't *want* to be
+> preempted by some routine kernel operation.  People would get irritated if
+> we were to do that.
+> 
+> So what to do?
 
-I had to apply this manually, since your mailer "corrupts" the patch by 
-encoding text/plain as base64.  Please fix your mailer...
+It shouldn't need to preempt the kernel operation.  Why is the design such that
+the necessary kernel thread can't run on the other CPU?
 
-The ideal is an inline patch, rather than an attachment anyway.  e.g.
-
-To: ...
-From: ...
-Subject: ...
-<blank line>
-Patch description
-Patch
-
-cat'd to 'sendmail -t'.  Sendmail (or another MTA which provides a 
-/usr/sbin/sendmail wrapper) will automatically fill in other headers 
-like Message-ID and Date.
-
-	Jeff
-
-
-
+Chad

@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263094AbVCDUWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263081AbVCDUls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263094AbVCDUWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbVCDUSU
+	id S263081AbVCDUls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 15:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbVCDUdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:18:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53965 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263116AbVCDUL2 (ORCPT
+	Fri, 4 Mar 2005 15:33:09 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52619 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263093AbVCDU04 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:11:28 -0500
-Date: Fri, 4 Mar 2005 21:11:09 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
-Message-ID: <20050304201109.GB2385@elf.ucw.cz>
-References: <200502252237.04110.rjw@sisk.pl> <200503030902.48038.rjw@sisk.pl> <20050304110408.GL1345@elf.ucw.cz> <200503041415.35162.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503041415.35162.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 4 Mar 2005 15:26:56 -0500
+Date: Fri, 4 Mar 2005 12:28:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nicolas Pitre <nico@cam.org>
+cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       tglx@linutronix.de, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: <Pine.LNX.4.62.0503041352480.15953@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0503041223210.11349@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+ <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
+ <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random>
+ <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org>
+ <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de>
+ <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de>
+ <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+ <Pine.LNX.4.62.0503041352480.15953@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > IIRC kernel code/data is marked as PageReserved(), that's why we need
-> > > > to save that :(. Not sure what to do with data e820 marked as
-> > > > reserved...
-> > > 
-> > > Perhaps we need another page flag, like PG_readonly, and mark the pages
-> > > reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
-> > > that are not returned by e820 at all).  Would that be acceptable?
-> > 
-> > This flags are little in the short supply, but being able to tell
-> > kernel code from memory hole seems like "must have", so yes, that
-> > looks ok.
-> > 
-> > You could get subtle and reuse some other pageflag. I do not think
-> > PG_reserved can have PG_locked... So using for example PG_locked for
-> > this purpose should be okay.
+
+On Fri, 4 Mar 2005, Nicolas Pitre wrote:
 > 
-> The following patch does this.  It is only for x86-64 without
-> CONFIG_DISCONTIGMEM, but it has no effect in other cases.
+> It might still be worth a try, especially since so many people are 
+> convinced this is the way to go (your fault or not is not the point).
 
-Actually, take a look at Nigel's patch. He simply uses PageNosave
-instead of PageLocked -- that is cleaner. He also found a few places
-where reserved page becomes un-reserved, and you probably need to fix
-those, too.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Making releases is actually a fair bit of work. Not the script itself, but 
+just deciding and trying to synchronize. The fatc that people won't really 
+appreciate it anyway, and just complain about "that's not stable anyway" 
+just makes me even less interested.
+
+The undeniable _fact_ in this discussion is that we're merging a lot of
+patches - which is good, because that's how we keep 2.6.x relevant, and
+not just a dead branch. And that is also what makes it fundamentally
+different from 2.4.x, and I think a lot of people are just ignoring that
+fact.
+
+If people want a stable branch, they have to freeze their own thing. I and
+Andrew do a lot of work to keep 2.6.x releases high-quality, and I think
+we've been very successful in it too. The _whining_ from people who don't
+realize that we can't just stop running (because if we did, quality would
+go _down_ when we're then overwhelmed afterwards) is really quite grating,
+though.
+
+		Linus

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317239AbSEXSmQ>; Fri, 24 May 2002 14:42:16 -0400
+	id <S317246AbSEXSrQ>; Fri, 24 May 2002 14:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317244AbSEXSmP>; Fri, 24 May 2002 14:42:15 -0400
-Received: from p50886BFF.dip.t-dialin.net ([80.136.107.255]:57001 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317239AbSEXSmO>; Fri, 24 May 2002 14:42:14 -0400
-Date: Fri, 24 May 2002 12:41:25 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Martin Dalecki <dalecki@evision-ventures.com>, Jan Kara <jack@suse.cz>,
-        Nathan Scott <nathans@sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Quota patches
-In-Reply-To: <E17BHha-0006m7-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0205241237580.15928-100000@hawkeye.luckynet.adm>
+	id <S314829AbSEXSrP>; Fri, 24 May 2002 14:47:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61198 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314811AbSEXSrO>; Fri, 24 May 2002 14:47:14 -0400
+Subject: Linux I2O Status
+To: linux-kernel@vger.kernel.org
+Date: Fri, 24 May 2002 20:07:52 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BKPo-00078P-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I asked folks to avoid touching the I2O stuff in 2.5 because major surgery
+and work was needed in 2.4 before even tackling 2.5
 
-On Fri, 24 May 2002, Alan Cox wrote:
->       Add a CONFIG_SMALL where users can pick to have very small hash
-> tables on older systems with little RAM.
+The 2.4.19pre8-ac5  status is:
 
-On Fri, 24 May 2002, Alan Cox wrote:
-> I'd been thinking about a set of options buried in a config menu item
-> like "Fine tune configuration for small/embedded devices" CONFIG_SMALL
+-	The i2o_pci layer has been cleaned up massively and might well
+	be both 32/64bit clean
+-	The i2o_block layer has been half rewritten to deal with firmware
+	bugs now that the I/O layers can hand down blocks of 64K or more
+-	The i2o_core should be pretty clean. 
+-	The i2o_scsi layer is still not 64bit clean and still uses the old
+	eh code. Basically it needs the same work as the other scsi drivers
+	plus some pointer into 32bit message field abuses fixing
 
-I'd prefer CONFIG_TIGHT_MEMORY. You never know what things in the world 
-might be called small.
+On x86 32bit it is all stable again and now works on my DPT and on the
+AMI Megaraid as well as the cards it handled before. Block caching strategy
+is now configurable.
 
-Regards,
-Thunder
--- 
-Was it a black who passed along in the sand?
-Was it a white who left his footprints?
-Was it an african? An indian?
-Sand says, 'twas human.
+I still have to do the pci mapping and try and find the rest of the
+64bit bogons, however the core code is now in a shape where it ought to be
+possible to move it forward into 2.5 if anyone with i2o kit feels the urge.
 
+I'll look at the SCSI 64bit cleanness and PCI mapping over time. They are not
+priority items to me right now (at least until AMD Hammer hits the mass
+market)
 
+Alan
 
 

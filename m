@@ -1,118 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRBWRZt>; Fri, 23 Feb 2001 12:25:49 -0500
+	id <S129156AbRBWR1t>; Fri, 23 Feb 2001 12:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129156AbRBWRZa>; Fri, 23 Feb 2001 12:25:30 -0500
-Received: from cthulhu.lls.se ([193.15.114.2]:28596 "HELO cthulhu.lls.se")
-	by vger.kernel.org with SMTP id <S129115AbRBWRZH>;
-	Fri, 23 Feb 2001 12:25:07 -0500
-From: "Magnus Walldal" <magnus.walldal@b-linc.com>
-To: "Rik van Riel" <riel@conectiva.com.br>
-Cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.1 under heavy network load - more info
-Date: Fri, 23 Feb 2001 18:26:06 +0100
-Message-ID: <HFEDLHHPHHEOBHLNPJOKGEIECAAA.magnus.walldal@b-linc.com>
+	id <S131136AbRBWR1j>; Fri, 23 Feb 2001 12:27:39 -0500
+Received: from [194.25.167.189] ([194.25.167.189]:266 "EHLO
+	trweb5.isp.icteam.de") by vger.kernel.org with ESMTP
+	id <S129156AbRBWR11> convert rfc822-to-8bit; Fri, 23 Feb 2001 12:27:27 -0500
+Date: Fri, 23 Feb 2001 18:27:10 +0100
+From: Rolf Offermanns <rolf@offermanns.de>
+To: linux-kernel@vger.kernel.org
+Subject: isapnp question
+Message-ID: <3700287292.982952830@[192.168.120.254]>
+X-Mailer: Mulberry/2.0.6 (Win32 Demo)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.31.0102212031240.21127-100000@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+X-OriginalArrivalTime: 23 Feb 2001 17:32:42.0438 (UTC) FILETIME=[A041AE60:01C09DBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi kernel developers!
 
+Can someone tell me how to find out the parameter i have to pass to the ISAPNP_FUNCTION(x)?
 
-> In that case, could I see some vmstat (and/or top) output of
-> when the kernel is no longer able to keep up, or maybe even
-> a way I could reproduce these things at the office ?
+This is my cat '/proc/isapnp' output:
+------------
+Card 1 'TER2111:TerraTec ActiveRadio' PnP version 1.0 Product version 1.1
+  Logical device 0 'TER2111:Unknown'
+    Supported registers 0x2
+    Device is not active
+    Active DMA ,0
+    Resources 0
+      Priority preferred
+      Port 0x590-0x590, align 0x0, size 0x1, 16-bit address decoding
+      Port 0x591-0x591, align 0x0, size 0x1, 16-bit address decoding
+      Alternate resources 0:1
+        Priority acceptable
+        Port 0x590-0x5a8, align 0x7, size 0x1, 16-bit address decoding
+        Port 0x591-0x5a9, align 0x7, size 0x1, 16-bit address decoding
+      Alternate resources 0:2
+        Priority functional
+        Port 0x590-0x5c8, align 0x7, size 0x1, 16-bit address decoding
+        Port 0x591-0x5c9, align 0x7, size 0x1, 16-bit address decoding
+-------
+To start, I would call (taken from the radio-cadet.c driver):	
+dev = isapnp_find_dev (NULL, ISAPNP_VENDOR('T','E','R'),
+		                       ISAPNP_FUNCTION(???), NULL);
 
-Interactive response is actually pretty OK, the only thing I'm seeing is
-short (about 1 sec) pauses, they could be due to network problems or VM
-stuff...
-hard to say because I work with the machine over the net and not from
-console.
-What I do see during these short pauses is that sendq is building up on the
-remote end, nothing happens for a short while and then things continue as
-nothing bad happened ;)
+Is this correct? How do I know what to pass to the ISAPNP_FUNCTION?
+The doc. says, I can take it from the /proc/isapnp file, but which value is 
+it?
+I tried '0', but that didn´t work.
 
-It feels like a subtle problem, nothing terribly wrong, but the system does
-not feel
-100% OK either. Be it a networking or a VM-problem.
+Can someone help me please?
+(If possible please CC me)
 
-Some data from vmstat
-root@mcquack:/root# vmstat 3
-   procs                      memory    swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-id
- 1  0  0  76572   2400    324  48160   4   2     1     1   22    14  47  39
-14
- 1  0  0  76572   2400    324  48160   0   0     0     1 3889     5  49  51
-0
- 1  0  0  76572   2400    324  48160   0   0     0     1 3698     7  48  52
-0
- 1  0  0  76572   2400    324  48160   0   0     0     0 3759     6  46  54
-0
- 1  0  0  76572   2400    324  48160   0   0     0     0 2987     6  48  52
-1
- 1  0  0  76572   2400    324  48160   0   0     0     0 3015     5  46  54
-0
- 1  0  0  76572   2400    324  48160   0   0     0     0 4024     4  45  55
-0
- 2  0  0  76572   2396    324  48160   0   0     0     0 4066    21  44  42
-14
- 1  0  0  76572   2400    324  48160   0   0     0     0 3995    75  29  26
-44
- 1  0  0  76572   2400    324  48160   0   0     0     0 3747    30  43  40
-16
- 1  0  0  76572   2400    324  48160   0   0     0     0 3568     5  44  56
-0
- 1  0  0  76572   2400    324  48160   0   0     0     0 3942     4  43  57
-0
- 1  0  0  76572   2400    324  48160   0   0     0     0 3702     5  44  56
-0
- 1  0  0  76572   2376    320  48176   0   0     0     0 3994    50  33  32
-34
- 1  0  0  76572   2376    320  48176   0   0     0     0 3637    31  25  24
-51
- 1  0  0  76572   2376    320  48176   0   0     0     0 3445     5  48  52
-0
- 1  0  0  76572   2376    320  48176   0   0     0     0 3709     5  52  48
-0
+Thanks,
+Rolf
 
-This goes on and on, long periods of zero idle time and then a short period
-with some idle time and some more cs, the "short pauses" are (when they
-happen to occur) just before or slightly after the period with more context
-switches.
-
-Top says:
- 4:53pm  up 5 days, 13:42,  1 user,  load average: 0.62, 0.69, 0.64
-22 processes: 19 sleeping, 3 running, 0 zombie, 0 stopped
-CPU states: 47.1% user, 52.8% system,  0.0% nice,  0.0% idle
-Mem:   127264K av,  125052K used,    2212K free,       0K shrd,     452K
-buff
-Swap:  499960K av,   76680K used,  423280K free                   48480K
-cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
- 1152 adm       20   0  110M  78M 42792 R       0 99.3 63.1  6772m ircd
-
-
-Btw..the box is a PII-450 so it's not terribly slow ;)
-
-
-> I'm really interested in things which make Linux 2.4 break
-> performance-wise since I'd like to have them fixed before the
-> distributions start shipping 2.4 as default.
-
-
-As always, I'm happy to provide you with more information if I can!
-
-Regards,
-Magnus
 

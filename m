@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314294AbSDRKrp>; Thu, 18 Apr 2002 06:47:45 -0400
+	id <S314295AbSDRKsx>; Thu, 18 Apr 2002 06:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314295AbSDRKro>; Thu, 18 Apr 2002 06:47:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64017 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314294AbSDRKro>;
-	Thu, 18 Apr 2002 06:47:44 -0400
-Message-ID: <3CBEA42B.5707A305@zip.com.au>
-Date: Thu, 18 Apr 2002 03:47:07 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hans-Peter Jansen <hpj@urpla.net>
-CC: Mel <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-Subject: Re: page_alloc.c comments patch
-In-Reply-To: <Pine.LNX.4.44.0204180306050.4760-100000@skynet> <20020418103219.3ADBAEC@shrek.lisa.de>
+	id <S314296AbSDRKsw>; Thu, 18 Apr 2002 06:48:52 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:7177 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314295AbSDRKsw>; Thu, 18 Apr 2002 06:48:52 -0400
+Date: Thu, 18 Apr 2002 11:48:44 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 38
+Message-ID: <20020418114844.A15930@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBED42.50003@evision-ventures.com> <3CBE8E61.6070702@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Peter Jansen wrote:
-> 
-> On Thursday, 18. April 2002 04:26, Mel wrote:
-> > This patch is a first cut effort at commenting how the buddy algorithm
-> > works for allocating and freeing blocks of pages. No code is changed so
-> > the impact is minimal to put it mildly
-> 
-> Sure?
-> 
-> > -     index = page_idx >> (1 + order);
+On Thu, Apr 18, 2002 at 11:14:09AM +0200, Martin Dalecki wrote:
+> @@ -523,6 +513,12 @@
+>  	unsigned	autodma    : 1;	/* automatically try to enable DMA at boot */
+>  	unsigned	udma_four  : 1;	/* 1=ATA-66 capable, 0=default */
+>  	unsigned	highmem	   : 1; /* can do full 32-bit dma */
+> +	byte		slow;		/* flag: slow data port */
+> +	unsigned no_io_32bit	   : 1;	/* disallow enabling 32bit I/O */
+> +	byte		io_32bit;	/* 0=16-bit, 1=32-bit, 2/3=32bit+sync */
+> +	unsigned no_unmask	   : 1;	/* disallow setting unmask bit */
+> +	byte		unmask;		/* flag: okay to unmask other irqs */
+> +
 
-It's OK:
+Just cosmetic... This causes the layout to be:
 
--       index = page_idx >> (1 + order);
+	1 bit
+	1 bit
+	1 bit
+	align to word
+	1 byte
+	align to word
+	1 bit
+	align to word
+	1 byte
+	align to word
+	1 bit
+	align to word
+	1 byte
+	align to word
 
-+       /* index is the number bit inside the free_area_t bitmap stored in
-+        * area->map
-+        */
-+       index = page_idx >> (1 + order);
+which is rather wasteful.  Any chance you can group the bits together
+and the bytes together?
 
-> Nevertheless, great attempt, Mel.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-yes, it is.
-
--

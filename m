@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264813AbTB0MZd>; Thu, 27 Feb 2003 07:25:33 -0500
+	id <S264830AbTB0M07>; Thu, 27 Feb 2003 07:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264820AbTB0MZd>; Thu, 27 Feb 2003 07:25:33 -0500
-Received: from mail1.bluewin.ch ([195.186.1.74]:65420 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S264813AbTB0MZb>;
-	Thu, 27 Feb 2003 07:25:31 -0500
-Date: Thu, 27 Feb 2003 13:35:31 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Subject: [3/2][via-rhine][PATCH] fixing the reset fix
-Message-ID: <20030227123531.GA5366@k3.hellgate.ch>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@digeo.com>, Rogier Wolff <R.E.Wolff@BitWizard.nl>
+	id <S264844AbTB0M07>; Thu, 27 Feb 2003 07:26:59 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:26000 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264830AbTB0M0z>; Thu, 27 Feb 2003 07:26:55 -0500
+Date: Thu, 27 Feb 2003 18:12:20 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Software Suspend Functionality in 2.5
+Message-ID: <20030227181220.A3082@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1046238339.1699.65.camel@laptop-linux.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030227114417.GA3970@k3.hellgate.ch>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.63 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1046238339.1699.65.camel@laptop-linux.cunninghams>; from ncunningham@clear.net.nz on Wed, Feb 26, 2003 at 07:46:47AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nigel,
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+When I noticed some of your discussions on swsusp mailing
+list earlier, a question that crossed my mind was whether
+you'd thought about the possibility of compression of data 
+at the time of copy. 
 
-Bad semicolon in previous patch ([1/2]). Thanks to
-Erik@harddisk-recovery.nl for spotting this.
+Would that have been another way to helped achieve the 
+objective you have in mind ? Do any issues come to mind ?
 
+Regards
+Suparna
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="via-rhine-1.17rc-03_reset_trivial.diff"
+On Wed, Feb 26, 2003 at 07:46:47AM +0000, Nigel Cunningham wrote:
+> Hi Linus.
+> 
+> Pavel and I have been discussing what functionality should be in
+> software suspend, and I wanted to ask your opinion since you're the
+> final decision maker anyway.
+> 
+> Under 2.4, I've added a lot functionality which has recently been merged
+> by Florent (swsusp beta 18). This functionality brings us as close as I
+> can get to the point where what you have in memory when you initiate the
+> suspend is very close to what you have when you finish resuming.
+> Settings on the proc interface and the amount of swap available do mean 
+> the degree to which this is true varies - you can set a soft limit on
+> the image size, for example - but that's the gist of the changes. I
+> implemented all the changes because as a user, I wanted the system to be
+> as responsive as possible upon resume - I didn't want a ton of thrashing
+> and an unresponsive system while processes tried to get back whatever
+> had been discarded or forced to swap. Performance with the changes does
+> not seem to be degraded, even though pages are currently write
+> synchronously (batching of requests is in the pipeline).
+> 
+> Where the rubber hits the road, I guess, is that the process is a bit
+> more complicated than the one in the kernel at the moment:
+> - Rather than freeing memory until no more can be freed, memory is freed
+> until the image fits in available swap, will be able to be saved and
+> reloaded and meets the user's size limit. (The limit can be disabled by
+> setting it to zero. If we can't reduce the image size to the requested
+> amount (eg the user requests a 1MB image), we continue anyway - hence
+> the description of 'soft limit' above.
+> - Pages to be saved are put into two categories - those we definitely
+> won't need during suspend and those that might/will be needed (simple
+> algorithm). The two sets of pages are saved separately - those not
+> needed are saved directly to disk, those needed are later copied and
+> then the copy is saved (as per current algorithm).
+> - Since we're saving more pages, we need more pages for the pagedir
+> (index). Unlike now, we probably won't be able to allocate (say) a
+> hundred contiguous set of pages, so we need to be able to have a
+> scattered (discontiguous) pagedir.
+> - We also need to be careful to free buffers & swap cache generated
+> during the save/resume process, so as to not corrupt the image.
+> 
+> Naturally there are other changes, but perhaps the simplest comparison
+> is to say that the 2.5.62 suspend.c is 34549 bytes (suspend.o 25132),
+> whereas beta18 is 77945 bytes (suspend.o 53756 with all the debugging
+> code turned off).
+> 
+> So can we please get your thoughts? Would you be willing to accept these
+> additions when they're ready?
+> 
+> Regards,
+> 
+> Nigel
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---- 08_tdwb_race/drivers/net/via-rhine.c	Thu Feb 27 11:45:47 2003
-+++ 09_reset_trivial/drivers/net/via-rhine.c	Thu Feb 27 13:27:00 2003
-@@ -562,7 +562,7 @@ static void wait_for_reset(struct net_de
- 
- 		/* VT86C100A may need long delay after reset (dlink) */
- 		/* Seen on Rhine-II as well (rl) */
--		while ((readw(ioaddr + ChipCmd) & CmdReset) && --boguscnt);
-+		while ((readw(ioaddr + ChipCmd) & CmdReset) && --boguscnt)
- 			udelay(5);
- 
- 	}
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 
---MGYHOYXEY6WxJCY8--

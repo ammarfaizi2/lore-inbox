@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269178AbTCBKVJ>; Sun, 2 Mar 2003 05:21:09 -0500
+	id <S269180AbTCBKV6>; Sun, 2 Mar 2003 05:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269180AbTCBKVJ>; Sun, 2 Mar 2003 05:21:09 -0500
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:13457 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id <S269178AbTCBKVI>; Sun, 2 Mar 2003 05:21:08 -0500
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200303021029.h22ATsnP001379@wildsau.idv.uni.linz.at>
-Subject: Re: emm386 hangs when booting from linux
-In-Reply-To: <200303021026.h22AQALn001315@wildsau.idv.uni.linz.at> from "H.Rosmanith" at "Mar 2, 3 11:26:10 am"
-To: kernel@wildsau.idv.uni.linz.at (H.Rosmanith)
-Date: Sun, 2 Mar 2003 11:29:54 +0100 (MET)
-Cc: kasperd@daimi.au.dk, kernel@wildsau.idv.uni.linz.at,
-       root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-       herp@wildsau.idv.uni.linz.at
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S269181AbTCBKV6>; Sun, 2 Mar 2003 05:21:58 -0500
+Received: from holomorphy.com ([66.224.33.161]:30605 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S269180AbTCBKVz>;
+	Sun, 2 Mar 2003 05:21:55 -0500
+Date: Sun, 2 Mar 2003 02:31:58 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple & vs. && and | vs. || bugs in 2.4 and 2.5
+Message-ID: <20030302103158.GE1195@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Norbert Kiesel <nkiesel@tbdnetworks.com>,
+	linux-kernel@vger.kernel.org
+References: <20030302102751.GA26028@defiant>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030302102751.GA26028@defiant>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've still not found a solution, but at least I know what's happening
-> when emm386 or similar crash the system. e.g., when starting "loadlin"
-> (with no parameters!) the system will hang too. Reason is that loadlin
-> will generate an int 0x13, which is the general protection fault.
-> I wonder *why*. Well, the int 0x13 handler I wrote just writes
+On Sun, Mar 02, 2003 at 02:27:51AM -0800, Norbert Kiesel wrote:
+> Should I create patches for these and send them to the maintainers?
 
-just to be a bit more specific: yes, it is somehow related to
-protected mode switching, but the in eflags, the VM86 bit is clear!
-So I dont understand what's causing the fault.
+Yes.
 
-best regards,
-herbert
 
+-- wli

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbUJaPlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbUJaPr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbUJaPlI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 10:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbUJaPlI
+	id S261171AbUJaPr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 10:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbUJaPr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 10:41:08 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:60831 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261153AbUJaPlE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 10:41:04 -0500
-Date: Sun, 31 Oct 2004 16:41:00 +0100 (MET)
-Message-Id: <200410311541.i9VFf0ah023857@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, pluto@pld-linux.org
-Subject: Re: unit-at-a-time...
+	Sun, 31 Oct 2004 10:47:28 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:24496 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261171AbUJaPr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 10:47:26 -0500
+Subject: Re: [OT] Re: code bloat [was Re: Semaphore assembly-code bug]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Tim Hockin <thockin@hockin.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
+	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <20041030222720.GA22753@hockin.org>
+	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1099178405.1441.7.camel@krustophenia.net>
+	 <1099176751.25194.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099233850.16420.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 31 Oct 2004 14:44:11 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Oct 2004 15:57:00 +0100, pluto@pld-linux.org wrote:
->/i386/Makefile:# Disable unit-at-a-time mode, it makes gcc use a lot morestack
->/i386/Makefile:CFLAGS += $(call cc-option,-fno-unit-at-a-time)
->
->/x86_64/Makefile:# -funit-at-a-time shrinks the kernel .text considerably
->/x86_64/Makefile:CFLAGS += $(call cc-option,-funit-at-a-time)
->
->Which solution is correct?
+On Sul, 2004-10-31 at 01:09, Ken Moffat wrote:
+> and the time to load it is irrelevant.  Since then I've had an anecdotal
+> report that -Os is known to cause problems with gnome.  I s'pose people
+> will say it serves me right for doing my initial testing on ppc which
+> didn't have this problem ;)  The point is that -Os is *much* less tested
+> than -O2 at the moment.
 
-Disabling unit-at-a-time for i386 is definitely correct.
-I've personally observed horrible runtime corruption bugs
-in early 2.6 kernels when they were compiled with gcc-3.4
-without the -fno-unit-at-a-time fix.
+I've seen no real problems - x86-32 or x86-64, and my gnumeric appears
+happy. Could be that the Red Hat gcc 3.3 has the relevant fixes already
+in it from upstream I guess.
 
-x86-64 is a different architecture. It's possible its larger
-number of registers reduces spills enough that gcc's failure
-to merge stack slots doesn't matter.
-
-/Mikael

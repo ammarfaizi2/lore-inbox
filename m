@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSJVCKC>; Mon, 21 Oct 2002 22:10:02 -0400
+	id <S262034AbSJVCHl>; Mon, 21 Oct 2002 22:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262042AbSJVCKC>; Mon, 21 Oct 2002 22:10:02 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:6370 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262040AbSJVCKB>; Mon, 21 Oct 2002 22:10:01 -0400
-Date: Mon, 21 Oct 2002 19:13:55 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>, landley@trommello.org
-cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Son of crunch time: the list v1.2.
-Message-ID: <2616143285.1035227635@[10.10.2.3]>
-In-Reply-To: <3DB4B1B9.4070303@pobox.com>
-References: <3DB4B1B9.4070303@pobox.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262036AbSJVCHl>; Mon, 21 Oct 2002 22:07:41 -0400
+Received: from packet.digeo.com ([12.110.80.53]:35235 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262034AbSJVCHk>;
+	Mon, 21 Oct 2002 22:07:40 -0400
+Message-ID: <3DB4B455.921467D3@digeo.com>
+Date: Mon, 21 Oct 2002 19:13:41 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
+References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 22 Oct 2002 02:13:42.0262 (UTC) FILETIME=[A47B0960:01C27970]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 5) VM large page support  (Many people) (in -mm tree)
->> http://lse.sourceforge.net/
+Jeff Garzik wrote:
 > 
-> Rob - this URL doesn't seen to have anything directly to do with large page support.
+> Murray J. Root wrote:
+> > Much as I disagree with Stallman about nearly everything, and much as I agree
+> > that his posts recently have been way off-topic, I cannot agree with such a
+> > disgusting and unethical solution. Silencing one viewpoint simply because you
+> > disagree with it is just ...
 > 
-> Others-
-> Is this not already in the kernel?  I still want to actually see someone from Oracle actually say "I will use this" or "we find this useful".
+> Please re-read Christoph's message -- the request was made because RMS
+> simply has never posted a single on-topic message.  By that measure he
+> could easily and quite rightly be labelled a spammer...
 > 
-> [I cynically propose a sys_oracle and be done with it <g>]
 
-Oracle are not the only users of this, nor the only database in
-the world (though they often think they are) ;-)
+Richard's emails to this list are very occasional, and short.
 
-There is *something* in the kernel ... whether it's useful or not
-is a matter of opinion - what we see as remaining to do is to 
-provide hooks for generic interfaces (eg shmem, mmap, sbrk).
- 
->> 6) Page table sharing  (Daniel Phillips, Dave McCracken) (in -mm tree)
->> http://www.geocrawler.com/mail/msg.php3?msg_id=7855063&list=35
->> (A newer version of which seems to be at:)
->> http://lists.insecure.org/lists/linux-kernel/2002/Oct/6446.html
-> 
-> IMO 2.7.x item...
+To this reader at least, they are interesting and welcome.
 
-Would be if it wasn't needed to alleviate all the overhead incurred
-by rmap. As it is, the extra ZONE_NORMAL load kills large boxes dead ;-( 
-Will provide speedups for the fork+exec cycle for the low end too.
-
-M.
-
+Guys, this whole issue is never going to go away.  There are
+legitimate views on both sides.  We just have to be accommodating.

@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271808AbRICUld>; Mon, 3 Sep 2001 16:41:33 -0400
+	id <S271809AbRICUoD>; Mon, 3 Sep 2001 16:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271806AbRICUlX>; Mon, 3 Sep 2001 16:41:23 -0400
-Received: from are.twiddle.net ([64.81.246.98]:39812 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S271808AbRICUlI>;
-	Mon, 3 Sep 2001 16:41:08 -0400
-Date: Mon, 3 Sep 2001 13:41:25 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: David Mosberger <davidm@hpl.hp.com>
-Cc: Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] avoid unnecessary cache flushes
-Message-ID: <20010903134125.B16069@twiddle.net>
-Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
-	Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15251.59286.154267.431231@napali.hpl.hp.com>; from davidm@hpl.hp.com on Mon, Sep 03, 2001 at 01:27:02PM -0700
+	id <S271813AbRICUnz>; Mon, 3 Sep 2001 16:43:55 -0400
+Received: from dsl-212-135-211-72.dsl.easynet.co.uk ([212.135.211.72]:60165
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S271809AbRICUnm>; Mon, 3 Sep 2001 16:43:42 -0400
+Date: Mon, 3 Sep 2001 21:42:41 +0100 (BST)
+From: Simon Hay <simon@haywired.org>
+X-X-Sender: <sjeh@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Multiple monitors
+In-Reply-To: <20010903164953.A3243@animx.eu.org>
+Message-ID: <Pine.LNX.4.33.0109032139340.2297-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 03, 2001 at 01:27:02PM -0700, David Mosberger wrote:
->   >> +		if (!test_bit(PG_arch_1, &page->flags)) {
->   >> +			__flush_dcache_icache((unsigned long)kmap(page));
->   >> +			kunmap(page);
->   >> +			set_bit(PG_arch_1, &page->flags);
-> 
->   Richard> Race.  Use test_and_set_bit.
-> 
-> Nope, the old code is correct: you must turn on PG_arch_1 *after*
-> flushing the cache.  Yes, you might sometimes double flush, but that's
-> both safe and rare.
+On Mon, 3 Sep 2001, Wakko Warner wrote:
 
-You can get a missed flush from
+> I thought of doing something like this but using a matrox g400 or g450 dual
+> head card.  primary would be for X, secondary would be a console.  Not sure
+> if that's more difficult or not.  Something I'd like to have, however.
+>
 
-	bit == 0
-	flush cache
+I don't know how the Matrox cards work so I couldn't comment, although
+presumably having code to support multiple monitors on multiple cards
+would at least make it _easier_ to support dual head video adaptors.
+Also, presumably if you could assign virtual consoles to either monitor
+and they both behaved like the standard primary console there'd be no
+particular reason why X shouldn't run on one or both as normal...
 
-				modify page
-				bit = 0
+Simon
 
-	bit = 1
-
-unless this is protected from some outer lock of which 
-I am not aware.
-
-I do see your point about the early set though.
-
-
-r~

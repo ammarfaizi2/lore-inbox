@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUHXSdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUHXSen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268175AbUHXSdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 14:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268179AbUHXSdi
+	id S268179AbUHXSen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 14:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUHXSem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 14:33:38 -0400
-Received: from ftpbox.mot.com ([129.188.136.101]:43920 "EHLO ftpbox.mot.com")
-	by vger.kernel.org with ESMTP id S268175AbUHXSdg (ORCPT
+	Tue, 24 Aug 2004 14:34:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1712 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268179AbUHXSec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 14:33:36 -0400
-Date: Tue, 24 Aug 2004 13:33:31 -0500 (CDT)
-From: Kumar Gala <galak@somerset.sps.mot.com>
-To: akpm@osdl.org, <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
-Subject: [PATCH][netdrv gianfar] fix printk output
-Message-ID: <Pine.LNX.4.44.0408241329260.22219-100000@blarg.somerset.sps.mot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 14:34:32 -0400
+Date: Tue, 24 Aug 2004 11:34:07 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lcaron@apartia.fr, linux-kernel@vger.kernel.org
+Subject: Re: TG3(Tigoon) & Kernel 2.4.27
+Message-Id: <20040824113407.287f0408.davem@redhat.com>
+In-Reply-To: <20040824092533.65cb32da.rddunlap@osdl.org>
+References: <412B5B35.7020701@apartia.fr>
+	<20040824092533.65cb32da.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Tue, 24 Aug 2004 09:25:33 -0700
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-Fix usage of printk on the output of mac address.
+> | --------------
+> | drivers/net/net.o(.text+0x17550): In function `tg3_request_firmware': : 
+> | undefined reference to `request_firmware'
+> | drivers/net/net.o(.text+0x17652): In function `tg3_request_firmware': : 
+> | undefined reference to `release_firmware'
+> | -------------
+> | 
+> | Any clue?
+> | 
+> | PS: I can include a part of my .config
+> 
+> You need to enable CONFIG_EXPERIMENTAL and CONFIG_HOTPLUG
+> and then CONFIG_FW_LOADER in the Library routines menu.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Oh on the contrary, I've never seen a call to request_firmware()
+in any copy of the tg3 driver and that's strange being that I'm
+the maintainer. :-)
 
---
-
-diff -Nru a/drivers/net/gianfar.c b/drivers/net/gianfar.c
---- a/drivers/net/gianfar.c	2004-08-24 13:28:18 -05:00
-+++ b/drivers/net/gianfar.c	2004-08-24 13:28:18 -05:00
-@@ -307,8 +307,8 @@
- 	/* Print out the device info */
- 	printk(KERN_INFO DEVICE_NAME, dev->name);
- 	for (idx = 0; idx < 6; idx++)
--		printk(KERN_INFO "%2.2x%c", dev->dev_addr[idx], idx == 5 ? ' ' : ':');
--	printk(KERN_INFO "\n");
-+		printk("%2.2x%c", dev->dev_addr[idx], idx == 5 ? ' ' : ':');
-+	printk("\n");
- 
- 	/* Even more device info helps when determining which kernel */
- 	/* provided which set of benchmarks.  Since this is global for all */
-
+People, if you're going to use patched up kernels, report your
+problems to the people you got the kernel from.  Thanks.

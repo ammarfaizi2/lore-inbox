@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSEYTel>; Sat, 25 May 2002 15:34:41 -0400
+	id <S315266AbSEYTlE>; Sat, 25 May 2002 15:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315266AbSEYTek>; Sat, 25 May 2002 15:34:40 -0400
-Received: from mailhost2.teleline.es ([195.235.113.141]:62037 "EHLO
-	tsmtp9.mail.isp") by vger.kernel.org with ESMTP id <S315265AbSEYTek>;
-	Sat, 25 May 2002 15:34:40 -0400
-Date: Sat, 25 May 2002 21:34:40 +0200
-From: Diego Calleja <DiegoCG@teleline.es>
+	id <S315267AbSEYTlD>; Sat, 25 May 2002 15:41:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26129 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315266AbSEYTlD>; Sat, 25 May 2002 15:41:03 -0400
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, pavel@ucw.cz
-Subject: Re: 2.5.18, pdflush 100% cpu utilization
-Message-Id: <20020525213440.32860d08.DiegoCG@teleline.es>
-In-Reply-To: <20020525212512.7a14d1d9.DiegoCG@teleline.es>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: isofs unhide option:  troubles with Wine
+Date: Sat, 25 May 2002 19:40:04 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <acopak$1th$1@penguin.transmeta.com>
+In-Reply-To: <1022301029.2443.28.camel@jwhiteh>
+X-Trace: palladium.transmeta.com 1022355642 16519 127.0.0.1 (25 May 2002 19:40:43 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 25 May 2002 19:40:43 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 May 2002 21:25:11 +0200
-Diego Calleja <DiegoCG@teleline.es> escribió:
+In article <1022301029.2443.28.camel@jwhiteh>,
+Jeremy White  <jwhite@codeweavers.com> wrote:
+>
+>    3.  Make it so that isofs/dir.c still strips out hidden
+>        files, but enable isofs/namei.c to return a hidden file that
+>        is opened directly by name.
 
-I've forgiven to say that I added 
-#include <linux/buffer_head.h>
-(as posted in lkml)
+I think this is the right solution.
 
-to get Software suspend to compile ;)
-
-
-Diego Calleja
+		Linus

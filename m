@@ -1,105 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289375AbSAOCrk>; Mon, 14 Jan 2002 21:47:40 -0500
+	id <S289372AbSAOCyk>; Mon, 14 Jan 2002 21:54:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289372AbSAOCrb>; Mon, 14 Jan 2002 21:47:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20486 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289367AbSAOCrU>; Mon, 14 Jan 2002 21:47:20 -0500
-Date: Mon, 14 Jan 2002 18:45:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux-2.5.2
-Message-ID: <Pine.LNX.4.33.0201141840070.2544-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289371AbSAOCyV>; Mon, 14 Jan 2002 21:54:21 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:62185 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S289370AbSAOCyO>; Mon, 14 Jan 2002 21:54:14 -0500
+Date: Tue, 15 Jan 2002 02:55:30 +0000
+From: Dave Jones <davej@suse.de>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Defining new section for bus driver init
+Message-ID: <20020115025530.A11314@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Patrick Mochel <mochel@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Attached is a patch that creates a new section for device subsystem init
+> calls. With it, the root bus init calls are handled just like init calls
+> - the section consists of a table of function pointers.
+> device_driver_init() iterates over that table and calls each one.
+> (device_driver_init() currently happens just before that pci_init() call
+> above).
+> What do people think about the concept? 
 
-Ok, lots of various changes between 2.5.1->2, mainly in bio, kdev_t and
-scheduler (and several USB updates).
+Well, it chops out a load of ugly ifdefs, and makes adding support
+for a new bus less intrusive than it currently is. I quite like it.
 
-		Linus
+> I will warn that the name is kinda clumsy, but it's the best that I could
+> come up with (I wasted my creativity for the day on thinking about
+> Penelope). I used "subsystem" because I have alterior motives.
 
-----
+I think you hit the nail on the head with the subject line.
+struct BusDriver also conjures up amusing[*] imagery.
 
-final:
- - Matt Domsch: combine common crc32 library
- - Pete Zaitcev: ymfpci update
- - Davide Libenzi: scheduler improvements
- - Al Viro: almost there: "struct block_device *" everywhere
- - Richard Gooch: devfs cpqarray update, race fix
- - Rusty Russell: PATH_MAX should include the final '\0' count
- - David Miller: various random updates (mainly net and sparc)
+One thing I'm wondering about though. Is it possible for a new
+bus to be added after boot ? Docking stations etc show up as
+children on the root PCI bus, so that shouldn't be an issue.
 
-pre11:
- - Davide Libenzi, Ingo Molnar: scheduler updates
- - Greg KH: USB update
- - Jean Tourrilhes: IrDA and wireless updates
- - Jens Axboe: bio/block updates
+Ah! hotplug PCI USB controller ?
 
-pre10:
- - Kai Germaschewski: ISDN updates
- - Al Viro: start moving buffer cache indexing to "struct block_device *"
- - Greg KH: USB update
- - Russell King: fix up some ARM merge issues
- - Ingo Molnar: scalable scheduler
+Dave.
 
-pre9:
- - Russell King: large ARM update
- - Adam Richter et al: more kdev_t updates
+[*] I'm easily amused.
 
-pre8:
- - Greg KH: USB updates
- - various: kdev_t updates
- - Al Viro: more bread()/filesystem cleanups
-
-pre7:
- - Jeff Garzik: fix up loop and md for struct kdev_t typechecking
- - Jeff Garzik: improved old-tulip network driver
- - Arnaldo: more scsi driver bio updates
- - Kai Germaschewski: ISDN updates
- - various: kdev_t updates
-
-pre6:
- - Davide Libenzi: nicer timeslices for scheduler
- - Arnaldo: wd7000 scsi driver cleanups and bio update
- - Greg KH: USB update (including initial 2.0 support)
- - me: strict typechecking on "kdev_t"
-
-pre5:
- - Dave Jones: more merging, fix up last merge..
- - release to sync with Dave
-
-pre4:
- - Jens Axboe: more bio updates, fix some request list bogosity under load
- - Al Viro: export seq_xxx functions
- - Manfred Spraul: include file cleanups, pc110pad compile fix
- - David Woodhouse: fix JFFS2 write error handling
- - Dave Jones: start merging up with 2.4.x patches
- - Manfred Spraul: coredump fixes, FS event counter cleanups
- - me: fix SCSI CD-ROM sectorsize BIO breakage
-
-pre3:
- - Christoph Hellwig: scsi_register_module cleanup
- - Mikael Pettersson: apic.c LVTERR fixes
- - Russell King: ARM update (including bio update for icside)
- - Jens Axboe: more bio updates
- - Al Viro: make ready to switch bread away from kdev_t..
- - Davide Libenzi: scheduler cleanups
- - Anders Gustafsson: LVM fixes for bio
- - Richard Gooch: devfs update
-
-pre2:
- - Al Viro: task-private namespaces, more cleanups
-
-pre1:
- - me: revert the "kill(-1..)" change.  POSIX isn't that clear on the
-   issue anyway, and the new behaviour breaks things.
- - Jens Axboe: more bio updates
- - Al Viro: rd_load cleanups. hpfs mount fix, mount cleanups
- - Ingo Molnar: more raid updates
- - Jakub Jelinek: fix Linux/x86 confusion about arg passing of "save_v86_state" and "do_signal"
- - Trond Myklebust: fix NFS client race conditions
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbSKOUoG>; Fri, 15 Nov 2002 15:44:06 -0500
+	id <S266690AbSKOUrP>; Fri, 15 Nov 2002 15:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266688AbSKOUoG>; Fri, 15 Nov 2002 15:44:06 -0500
-Received: from dav35.sea2.hotmail.com ([207.68.164.92]:8466 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266379AbSKOUoG>;
-	Fri, 15 Nov 2002 15:44:06 -0500
-X-Originating-IP: [216.36.75.11]
-From: "Arcot Arumugam" <arcot_arumugam@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: TCPPureAcks TCPHPAcks - Definition?
-Date: Fri, 15 Nov 2002 13:03:29 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <DAV35iMCIqtQvAauNjV00005dc0@hotmail.com>
-X-OriginalArrivalTime: 15 Nov 2002 20:50:57.0554 (UTC) FILETIME=[B28AD720:01C28CE8]
+	id <S266701AbSKOUrP>; Fri, 15 Nov 2002 15:47:15 -0500
+Received: from gzp11.gzp.hu ([212.40.96.53]:65030 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id <S266690AbSKOUrO>;
+	Fri, 15 Nov 2002 15:47:14 -0500
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: Re: Status of the CMD680 IDE driver
+References: <73fe.3dd52324.188a7@gzp1.gzp.hu> <73fe.3dd52324.188a7@gzp1.gzp.hu> <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
+Organization: Who, me?
+User-Agent: tin/1.5.15-20021115 ("Spiders") (UNIX) (Linux/2.4.20-rc1 (i686))
+Message-ID: <39d7.3dd55ef1.9a92d@gzp1.gzp.hu>
+Date: Fri, 15 Nov 2002 20:54:09 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+* Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-I am browsing linux TCP MIB header code and I see many fields but no
-explanation on what those fields are.
+|> Seems like it is in the later 2.4, but removed from the -ac
+|> line, and missing from the 2.5 tree.
+| 
+| siimage driver drives the CMD680 and the SATA SII3112 version of the
+| chip.
 
-Some of them are obvious but others are not.
-
-you can see all of them by typing
-
-/proc/net/netstat
-
-Does anyone know about what these fields contain? Is it documented anywhere?
-
-I did a google but could not find anything.
-
-Thanks
-
-Arcot
+Thanks. In this case the config help file for CONFIG_BLK_DEV_CMD64X
+should be fixed.
 

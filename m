@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288190AbSAHRVR>; Tue, 8 Jan 2002 12:21:17 -0500
+	id <S288191AbSAHRhB>; Tue, 8 Jan 2002 12:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288188AbSAHRU6>; Tue, 8 Jan 2002 12:20:58 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:57736
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S288190AbSAHRUs>; Tue, 8 Jan 2002 12:20:48 -0500
-Date: Tue, 8 Jan 2002 12:15:40 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Petro <petro@auctionwatch.com>, Stevie O <stevie@qrpff.net>,
-        Ricky Beam <jfbeam@bluetronic.net>,
-        Mark Hahn <hahn@physics.mcmaster.ca>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-Message-ID: <20020108121540.A27969@animx.eu.org>
-In-Reply-To: <20020107201938.GB1227@auctionwatch.com> <E16Nwdk-0006SG-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <E16Nwdk-0006SG-00@the-village.bc.nu>; from Alan Cox on Tue, Jan 08, 2002 at 01:50:08PM +0000
+	id <S288192AbSAHRgv>; Tue, 8 Jan 2002 12:36:51 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:15374 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S288191AbSAHRgd>;
+	Tue, 8 Jan 2002 12:36:33 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Chris Wedgwood <cw@f00f.org>
+Date: Tue, 8 Jan 2002 18:35:35 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: "APIC error on CPUx" - what does this mean?
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, swsnyder@home.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        macro@ds2.pg.gda.pl
+X-mailer: Pegasus Mail v3.40
+Message-ID: <E542D8F46A1@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > You're all DEAD WRONG.
-> > > IDE and SCSI both suck!
-> > > The way of the future is punch cards!
-> > 
-> >     Are there any drivers for a paper-tape reader? 
+On  9 Jan 02 at 1:30, Chris Wedgwood wrote:
+> On Tue, Jan 08, 2002 at 01:12:04PM +0100, Maciej W. Rozycki wrote:
 > 
-> 2.2 S/390 code seems to have one
+>     A possible reason is the 8259A in the chipset deasserts its INT
+>     output late enough for the Athlon CPU's local APIC to register
+>     another ExtINTA interrupt sometimes, possibly under specific
+>     circumstances.
+> 
+> Actully... we could potentially measure this... after an interrupt it
+> serviced (or before, or both) we could store the interrupt source
+> globally and the cycle counter... when a suprrious interrupt is
+> received check the last interrupt and how long ago it was and then
+> start looking for a pattern...
 
-I thought paper-tape readers were serial ???
+I instrumented kernel at home, and when spurious interrupt happens,
+stack trace almost always says that spurious interrupt happened
+during HLT in default_idle (if I disable ACPI...), ISR is always zero,
+and IRR contains 0x00 (before parport driver is loaded) or 0x80
+(after parport driver is loaded (without IRQ support)). Few times
+stack trace was different, and pointed to ide__sti() in ide_do_request,
+but it was < 5% of occurences. 
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+As spurious IRQ happens during HLT, and IRR is clear at the time
+we are going to ack IRQ, it looks like real spurious IRQ (caused by
+noise?). Or delay between spurious one and real IRQ is really long. 
+I'll try some of your suggestions today night.
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

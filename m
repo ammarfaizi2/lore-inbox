@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261413AbSJCWpl>; Thu, 3 Oct 2002 18:45:41 -0400
+	id <S261374AbSJCWmp>; Thu, 3 Oct 2002 18:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbSJCWpG>; Thu, 3 Oct 2002 18:45:06 -0400
-Received: from pat.uio.no ([129.240.130.16]:42479 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S261413AbSJCWow>;
-	Thu, 3 Oct 2002 18:44:52 -0400
-To: Andreas Pfaller <apfaller@yahoo.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.20-pre8-ac3: NFS performance regression
-References: <200210032024.47664.apfaller@yahoo.com.au>
-	<1033683184.28814.35.camel@irongate.swansea.linux.org.uk>
+	id <S261390AbSJCWmp>; Thu, 3 Oct 2002 18:42:45 -0400
+Received: from mons.uio.no ([129.240.130.14]:46017 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261387AbSJCWmm>;
+	Thu, 3 Oct 2002 18:42:42 -0400
+To: Christian Reis <kiko@async.com.br>
+Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19+trond and diskless locking problems
+References: <20021003184418.K3869@blackjesus.async.com.br>
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 Oct 2002 00:50:04 +0200
-In-Reply-To: <1033683184.28814.35.camel@irongate.swansea.linux.org.uk>
-Message-ID: <shsu1k316jn.fsf@charged.uio.no>
+Date: 04 Oct 2002 00:47:38 +0200
+In-Reply-To: <20021003184418.K3869@blackjesus.async.com.br>
+Message-ID: <shsy99f16np.fsf@charged.uio.no>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+>>>>> " " == Christian Reis <kiko@async.com.br> writes:
 
-     > On Thu, 2002-10-03 at 19:32, Andreas Pfaller wrote:
-    >> However I noticed a significant NFS performance drop with
-    >> 2.4.20-pre8-ac3. Other network throughput is not affected.
+     > When this happens, there is always a file left in
+     > /var/lib/nfs/sm (normally there are no files in there for none
+     > of the clients, even when they are on) for the hanging box. Is
+     > this normal?
 
-     > I see this with all recent 2.4.20pre and 2.4.20pre-ac
-     > kernels. I've not had time to retest with Trond's fixes to
-     > recheck it all
+It means that rpc.statd did not manage to unmonitor the NFS locks
+before it shut down. The reasons for this could be multiple, such as
+for instance if the client crashed and/or rebooted. It might also
+indicate that the server could not be contacted in order to unmonitor
+the lock.
 
-FYI, here is the 'fix' Alan is talking about. It could be worth
-trying...
+     > We also occasionally get a log message in the server for this
+     > box like:
+
+     >     kernel:Aug 10 17:39:22 anthem kernel: lockd: cannot monitor
+     >     192.168.99.7
+
+Means that the kernel was unable to contact rpc.statd, or that was
+unable to contact the server's rpc.statd for some reason.
+
+     > Trond, can I get you more troubleshooting information, or
+     > should I try 2.4.20-pre on server *and* clients? This is a bit
+     > wierd, but since I don't know a lot of what went on in the last
+     > changes, I'm not sure where to start looking.
+
+There is nothing in the above to suggest that this must be a kernel
+problem. The fact that you are seeing files in /var/lib/nfs/sm
+in these cases rather suggests that the problem lies with rpc.statd.
+Can you see any reason in your setup why it should be failing?
 
 Cheers,
   Trond
-
---- linux/net/sunrpc/xprt.c.orig	Fri Aug 30 20:16:17 2002
-+++ linux/net/sunrpc/xprt.c	Tue Sep 24 00:08:59 2002
-@@ -171,10 +171,10 @@
- 
- 	if (xprt->snd_task)
- 		return;
--	if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
--		return;
- 	task = rpc_wake_up_next(&xprt->resend);
- 	if (!task) {
-+		if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
-+			return;
- 		task = rpc_wake_up_next(&xprt->sending);
- 		if (!task)
- 			return;
-@@ -1013,7 +1013,6 @@
- 		}
- 		rpc_inc_timeo(&task->tk_client->cl_rtt);
- 		xprt_adjust_cwnd(req->rq_xprt, -ETIMEDOUT);
--		__xprt_put_cong(xprt, req);
- 	}
- 	req->rq_nresend++;
- 
-@@ -1150,10 +1149,7 @@
- 		req->rq_bytes_sent = 0;
- 	}
-  out_release:
--	spin_lock_bh(&xprt->sock_lock);
--	__xprt_release_write(xprt, task);
--	__xprt_put_cong(xprt, req);
--	spin_unlock_bh(&xprt->sock_lock);
-+	xprt_release_write(xprt, task);
- 	return;
-  out_receive:
- 	dprintk("RPC: %4d xmit complete\n", task->tk_pid);
-
-

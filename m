@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTECSCe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 14:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTECSCe
+	id S263411AbTECSUN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 14:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTECSUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 14:02:34 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:32735 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S263369AbTECSCd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 14:02:33 -0400
-From: john stultz <johnstul@us.ibm.com>
-Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jfv@bluesong.net,
-       linux-kernel@vger.kernel.org
-Date: Sat, 03 May 2003 11:14:18 -0700
-References: <fa.g8lvrtk.1ljcjgg@ifi.uio.no> <fa.n5c25ld.cl09r3@ifi.uio.no>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <S263369AbTECSCd/20030503180233Z+2415@vger.kernel.org>
+	Sat, 3 May 2003 14:20:12 -0400
+Received: from smtp.terra.es ([213.4.129.129]:23726 "EHLO tsmtp3.ldap.isp")
+	by vger.kernel.org with ESMTP id S263411AbTECSUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 14:20:12 -0400
+Date: Sat, 3 May 2003 20:41:09 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Daniele Pala <dandario@libero.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make xconfig & qt
+Message-Id: <20030503204109.328cbba2.diegocg@teleline.es>
+In-Reply-To: <3EB41C28.2030007@libero.it>
+References: <3EB41C28.2030007@libero.it>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Sat, 03 May 2003 21:44:40 +0200
+Daniele Pala <dandario@libero.it> wrote:
 
-> On Mer, 2003-04-30 at 19:36, Jack F. Vogel wrote:
->> I has nothing to do with gcc, Alan mentioned the magic (or cursed is
->> probably the better choice :) word, ACPI. The kernel in SLES 8 has
->> the x440 blacklisted so ACPI gets turned off automagically :)
+> Hello.
 > 
-> Perhaps someone could submit the x440 blacklist entry to the base kernel
-> ?
+> Sorry for the pretty OT and stupid question, but i just started getting 
+> interested in the linux kernel, so i downloaded kernel 2.5.68. Trying to 
+> run 'make xconfig' i got into the message 'you don't have installed 
+> qt!'...so the xconfig is now dependant from qt? why? what about us poor 
+> guy who only use twm and not kde? isn't qt pretty big and fat? ah well, 
+> falling back to menuconfig...
 
-Acatually, the blacklist is only needed on the SuSE kernel because they are
-using a backport of the 2.5 ACPI code.  However a tiny bit of code used to
-ID and enable the summit bits sliped through and the quick solution was to
-blacklist it until the proper fix is included. 
+make gconfig?
 
-Right now there are no x440 specific patches pending for Vanilla 2.4 or
-Vanilla 2.5. As issues are found and resolved, patches will be submitted
-first thing for inclusion into mainline.
-
-thanks
--john
 
 

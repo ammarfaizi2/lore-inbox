@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbTCTRx3>; Thu, 20 Mar 2003 12:53:29 -0500
+	id <S261617AbTCTRqk>; Thu, 20 Mar 2003 12:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbTCTRx3>; Thu, 20 Mar 2003 12:53:29 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63924 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261605AbTCTRx2>; Thu, 20 Mar 2003 12:53:28 -0500
-Subject: Re: Updated ext3 patch set for 2.4
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: ext3 users list <ext3-users@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030316085951.GC24857@charite.de>
-References: <1047681775.2566.664.camel@sisko.scot.redhat.com>
-	 <20030316085951.GC24857@charite.de>
+	id <S261618AbTCTRqk>; Thu, 20 Mar 2003 12:46:40 -0500
+Received: from sprocket.loran.com ([209.167.240.9]:31216 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S261617AbTCTRqj>; Thu, 20 Mar 2003 12:46:39 -0500
+Subject: re: Deprecating .gz format on kernel.org
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030320174842.GC6083@louise.pinerecords.com>
+References: <3E78D0DE.307@zytor.com> <20030320163207.GH28454@lug-owl.de> 
+	<20030320174842.GC6083@louise.pinerecords.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048183466.2491.310.camel@sisko.scot.redhat.com>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Mar 2003 12:57:40 -0500
+Message-Id: <1048183060.31056.117.camel@dlacoste.ottawa.loran.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 20 Mar 2003 18:04:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2003-03-20 at 12:48, Tomas Szepe wrote:
+> Well, you see, hpa probably made a mistake in his original proposal.
 
-On Sun, 2003-03-16 at 08:59, Ralf Hildebrandt wrote:
-> > all-patches.tar.gz		tarball of the above
-> > combo-patch-10to21.patch.gz	combo patch of the 10--21 dirs above
-> 
-> Some of those apparently went into pre5-ac3 -- which ones?
+> Likely he meant to say he intended to deprecate bz2 and was about
+> to introduce lzo instead.  ;)
 
-I don't see any ext3-specific diffs in pre5-ac3 itself.
+LZO rocks!
 
-Cheers,
- Stephen
+It's got my vote :)
+
+--
+Dana Lacoste
+Ottawa, Canada
 

@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263607AbTCUMYw>; Fri, 21 Mar 2003 07:24:52 -0500
+	id <S263601AbTCUMbO>; Fri, 21 Mar 2003 07:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263606AbTCUMYw>; Fri, 21 Mar 2003 07:24:52 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:27068 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S263605AbTCUMYv> convert rfc822-to-8bit; Fri, 21 Mar 2003 07:24:51 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <ifilipau@sussdd.de>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Fri, 21 Mar 2003 04:35:50 -0800
-In-Reply-To: <7A5D4FEED80CD61192F2001083FC1CF9065139@CHARLY>
-Subject: Re: read() & close()
+	id <S263603AbTCUMbN>; Fri, 21 Mar 2003 07:31:13 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:31763 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S263601AbTCUMbM>;
+	Fri, 21 Mar 2003 07:31:12 -0500
+Date: Fri, 21 Mar 2003 13:42:13 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Torsten Foertsch <torsten.foertsch@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: current->fs->root vs. current->fs->altroot
+Message-ID: <20030321124213.GA9434@win.tue.nl>
+References: <200303211116.44735.torsten.foertsch@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Illegal-Object: Syntax error in Message-ID: value found on vger.kernel.org:
-	Message-ID:	<20030321123536.AAA18341@shell.webmaster.com@whenever>
-									    ^-illegal end of message identification
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303211116.44735.torsten.foertsch@gmx.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Message-Id: <20030321122452Z263606-25575+33907@vger.kernel.org>
 
-On Thu, 20 Mar 2003 15:14:52 +0100, Filipau, Ihar wrote:
+On Fri, Mar 21, 2003 at 11:16:41AM +0100, Torsten Foertsch wrote:
 
->I have/had a simple issue with multi-threaded programs:
->
->one thread is doing blocking read(fd) or poll({fd}) on
->file/socket.
->
->another thread is doing close(fd).
->
->I expected first thread will unblock with some kind
->of error - but nope! It is blocked!
->
->Is it expected behaviour?
+> can someone please explain the difference between a task's root and altroot.
 
-	It is impossible to make this work reliably, so *please* don't do 
-that. For example, how can you possibly assure that the first thread 
-is actually in 'poll' when call 'close'? There is no atomic 'release 
-mutex and poll' function.
+[below a fragment of some old docs:]
 
-	So what happens if the system pre-empts the thread right before it 
-calls 'poll'. Then you call 'close'. Perhaps next a thread started by 
-some library function calls 'socket' and gets the file descriptor you 
-just 'close'd. Now your call to 'poll' polls on the *wrong* socket!
+A <tt>struct fs_struct</tt> determines the interpretation
+of pathnames referred to by a process (and also, somewhat
+illogically, contains the umask). The typical reference
+is <tt>current->fs</tt>. The definition lives in <tt>fs_struct.h</tt>:
+<tscreen><verb>
+struct fs_struct {
+        atomic_t count;
+        rwlock_t lock;
+        int umask;
+        struct dentry * root, * pwd, * altroot;
+        struct vfsmount * rootmnt, * pwdmnt, * altrootmnt;
+};
+</verb></tscreen>
 
-	You simply must accept the fact that you cannot free a resource in 
-one thread while another thread is or might be using it.
+Semantics of <tt>root</tt> and <tt>pwd</tt> are clear.
+Remains to discuss <tt>altroot</tt>.
 
-	DS
+<sect1>altroot<p>
+In order to support emulation of different operating systems
+like BSD and SunOS and Solaris, a small wart has been added
+to the <tt>walk_init_root</tt> code that finds the root directory
+for a name lookup.
 
+The <tt>altroot</tt> field of an <tt>fs_struct</tt>
+is usually NULL. It is a function of the personality
+and the current root, and the <tt>sys_personality</tt>
+and <tt>sys_chroot</tt> system calls call <tt>set_fs_altroot()</tt>.
+
+The effect is determined at kernel compile time.
+One can define <tt>__emul_prefix()</tt> in <tt>&lt;asm/namei.h&gt;</tt>
+as some pathname, say <tt>"usr/gnemul/myOS/"</tt>.
+The default is NULL, but some architectures have a
+definition depending on <tt>current->personality</tt>.
+If this prefix is non-NULL, and the corresponding file is found,
+then <tt>set_fs_altroot()</tt> will set the <tt>altroot</tt>
+and <tt>altrootmnt</tt> fields of <tt>current->fs</tt>
+to dentry and vfsmnt of that file.
+
+A subsequent lookup of a pathname starting with '/' will now
+first try to use the altroot. If that fails the usual root is used.
 

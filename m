@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265150AbUA2N0a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 08:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUA2N0a
+	id S266156AbUA2OTX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 09:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUA2OTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 08:26:30 -0500
-Received: from mail.shareable.org ([81.29.64.88]:9091 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S265150AbUA2N03 (ORCPT
+	Thu, 29 Jan 2004 09:19:23 -0500
+Received: from [62.177.234.166] ([62.177.234.166]:55370 "HELO netscpe1827.com")
+	by vger.kernel.org with SMTP id S266156AbUA2OTV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 08:26:29 -0500
-Date: Thu, 29 Jan 2004 13:26:23 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040129132623.GB13225@mail.shareable.org>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <401894DA.7000609@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Jan 2004 09:19:21 -0500
+From: DEBBIE JOHNSON (Mrs) <americatrust@netscpe.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: americatrust@netscape.net
+Subject: FAMOUS WINNING INFORMATION
+Date: Thu, 29 Jan 2004 15:18:32 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="08ceca61-d8cf-49e0-8d06-3688e088bdb9"
+Message-Id: <S266156AbUA2OTV/20040129141921Z+455@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> ~ alternatively use the symbol table the vdso has.  Export the new code
-> only via the symbol table.  No fixed address for the function, the
-> runtime gets it from the symbol table.  glibc will use weak symbol
-> references; if the symbol isn't there, the old code is used.  This will
-> require that every single optimized syscall needs to be handled special.
-> 
-> 
-> I personally like the first approach better.  The indirection table can
-> maintained in sync with the syscall table inside the kernel.  It all
-> comes at all times from the same source.  The overhead of the memory
-> load should be neglectable.
 
-I like the second approach more.  You can change glibc to look up the
-weak symbol for _all_ syscalls, then none of them are special and it
-will work with future kernel optimisations.
+This is a multi-part message in MIME format
+--08ceca61-d8cf-49e0-8d06-3688e088bdb9
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- Jamie
+ABSOLUTELY FAMOUS LOTTERY INTERNATIONAL ACCREDITED LICENSED AGENTTO AMERICA =
+LOTTERY INTERNATIONAL; 
+ 
+Ref. Number:  (90)(46)(78)(23)(13)(17)
+Batch Number: (7)(14)(21)(28)(35)(42)
+ 
+Sir/Madam,
+ 
+We are pleased to inform you about the result of Lottery Winners =
+International programs held on the 3rd of January, 2003. Your e-mail address =
+was used for membership confirmation and prize notification which =
+subsequently was attached to a ticket number 6/5/3/8/9/0 with serial number =
+3/5/8/8/7/5 drew lucky numbers 6/8/6/0/1/7 which consequently won in the 1st =
+category, you have therefore been approved for a lump sum pay out of
+US$1,000.000.000.00 (One Million   United States Dollars)
+ 
+CONGRATULATIONS!!!
+ However you are to keep this information  confidential until your claims has =
+been duly processed and your winning sum confirm to your nominated bank =
+account. This is part of the measure taken to ensure the winning sum is paid =
+out to the right person and also to avoid unwarranted abuse of this program =
+by some participants. 
+ 
+All participants were selected through a computer ballot system drawn  from =
+over 30,000.00 company and 30,000,000 individual email addresses and names =
+from all over the world. This promotional program takes place every year. The =
+Absolutely Famous motto is if you want to be famous, you've got to have =
+money.... so we encourage you to keep playing until you hit the big Jackpot =
+in our next year USD25 million international lottery stake. To file for your
+claim, please contact our Europe 
+ 
+FIDUCIAL AGENT: Mr. Edward Martins of: ABSOLUTELY FAMOUS AGENCY.
+TEL:   31:645 724 781
+EMAIL: absolutelyfamous@patmail.com
+ 
+For your immediate attention, your winning must be claimed not later than =
+13th of Febuary 2004. After this date your winning sum will be carried over =
+and included in the next USD25 million lottery stake .Please remember to =
+quote your reference number and batch numbers in all correspondence with your =
+agent to avoid any complication. Furthermore, should there be any change of =
+address do notify your agent as soon as possible. Once again Congratulations =
+from our members of staff and thank you for being part of our program.
+Note:  Anybody under the age of 20 is automatically disqualified.
+ 
+Sincerely yours,
+ 
+Debbie Johnson (Mrs.)
+(Lottery Coordinator)  
+--08ceca61-d8cf-49e0-8d06-3688e088bdb9--
+

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318128AbSIJVAU>; Tue, 10 Sep 2002 17:00:20 -0400
+	id <S318124AbSIJU7y>; Tue, 10 Sep 2002 16:59:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318131AbSIJVAT>; Tue, 10 Sep 2002 17:00:19 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:50441 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S318128AbSIJVAR>;
-	Tue, 10 Sep 2002 17:00:17 -0400
-Date: Tue, 10 Sep 2002 23:05:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] sound/oss: Files to be deleted during mrproper 3/6
-Message-ID: <20020910230500.C18386@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20020910225530.A17094@mars.ravnborg.org>
+	id <S318128AbSIJU7y>; Tue, 10 Sep 2002 16:59:54 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:28863 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S318124AbSIJU7w>;
+	Tue, 10 Sep 2002 16:59:52 -0400
+Subject: Re: XFS?
+From: Steve Lord <lord@sgi.com>
+To: Nick LeRoy <nleroy@cs.wisc.edu>
+Cc: John Alvord <jalvo@mbay.net>, Shawn <core@enodev.com>,
+       Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200209101518.31538.nleroy@cs.wisc.edu>
+References: <p73wupuq34l.fsf@oldwotan.suse.de>
+	<20020910142347.A5000@q.mn.rr.com>
+	<92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com> 
+	<200209101518.31538.nleroy@cs.wisc.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Sep 2002 16:01:25 -0500
+Message-Id: <1031691685.22954.133.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020910225530.A17094@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Sep 10, 2002 at 10:55:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updates to the sound makefile
+On Tue, 2002-09-10 at 17:18, Nick LeRoy wrote:
+> > So does Redhat/Suse/??? ship XFS yet?
+> 
+> Don't know about RedHat & others, but SuSE _does_ ship XFS.
+> 
 
-	Sam
+I should probably keep out of the discussion and I am not presenting
+this as an argument for inclusion, but for an incomplete list of XFS
+users and distribution including it look here:
 
-diff -Nru a/sound/oss/Makefile b/sound/oss/Makefile
---- a/sound/oss/Makefile	Tue Sep 10 22:37:49 2002
-+++ b/sound/oss/Makefile	Tue Sep 10 22:37:49 2002
-@@ -96,6 +96,10 @@
- 
- host-progs	:= bin2hex hex2hex
- 
-+# Files generated that shall be removed upon make mrproper
-+mrproper := maui_boot.h msndperm.c msndinit.c pndsperm.c pndspini.c \
-+pss_boot.h trix_boot.h
-+
- include $(TOPDIR)/Rules.make
- 
- # Firmware files that need translation
+http://oss.sgi.com/projects/xfs/xfs_users.html
+
+Steve
+
+
+

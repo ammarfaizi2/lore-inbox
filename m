@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267837AbRGUWNH>; Sat, 21 Jul 2001 18:13:07 -0400
+	id <S267834AbRGUWNH>; Sat, 21 Jul 2001 18:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267838AbRGUWM5>; Sat, 21 Jul 2001 18:12:57 -0400
-Received: from [64.81.246.98] ([64.81.246.98]:29834 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S267837AbRGUWMx>;
-	Sat, 21 Jul 2001 18:12:53 -0400
-Date: Sat, 21 Jul 2001 15:10:55 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S267837AbRGUWM5>; Sat, 21 Jul 2001 18:12:57 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30127 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S267834AbRGUWMs>;
+	Sat, 21 Jul 2001 18:12:48 -0400
+Message-ID: <3B59FE8B.CEB83605@mandrakesoft.com>
+Date: Sat, 21 Jul 2001 18:13:31 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Griesser <tuxx@aon.at>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Message-ID: <20010721151055.A3676@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org> <20010704002436.C1294@ftsoj.fsmlabs.com> <9hvjd4$1ok$1@penguin.transmeta.com>
-Mime-Version: 1.0
+Subject: Re: Another 2.4.7 build failure
+In-Reply-To: <20010721222826.A1953@lucretia.debian.net> <20010722000203.A25593@aon.at>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9hvjd4$1ok$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jul 04, 2001 at 05:22:44PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Jul 04, 2001 at 05:22:44PM +0000, Linus Torvalds wrote:
-> [ And yes, I know there are optimizing linkers for the alpha around that
->   improve this and notice when they don't need to change GP and can do a
->   straight branch etc.  I don't think GNU ld _still_ does that, but who
->   knows.
+Alexander Griesser wrote:
+> 
+> On Sat, Jul 21, 2001 at 10:28:26PM +0200, you wrote:
+> > Building fails for me with following error:
+> > ll_rw_blk.c:25: linux/completion.h: No such file or directory
+> 
+> Maybe a bad patch?
+> $TOPDIR/include/linux/completion.h exists, at least on my platform :)
 
-GNU ld does it with the "-relax" flag.
+sounds like someone forgot a 'cvs add' or similar...
 
->   Even the "good" Digital compilers tended to nop out unnecessary
->   instructions rather than remove them, causing more icache pressure on
->   a CPU that was already famous for needing tons of icache ]
-
-But you're absolutely right about the nopping -- removing the nops would
-require debug info and EH info to be re-coded.  The later being a matter
-of correctness.  This is a bit nastier than I ever cared to deal with.
-
-
-r~
+-- 
+Jeff Garzik      | "I wouldn't be so judgemental
+Building 1024    |  if you weren't such a sick freak."
+MandrakeSoft     |             -- goats.com

@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVCJNOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVCJNRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVCJNOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 08:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbVCJNOh
+	id S262577AbVCJNRY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 08:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVCJNRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 08:14:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28053 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262257AbVCJNOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 08:14:33 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050310050209.1d95a5dc.akpm@osdl.org> 
-References: <20050310050209.1d95a5dc.akpm@osdl.org>  <20050310042217.3ba5b9bc.akpm@osdl.org> <4181.1110456111@redhat.com> <5005.1110459008@redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, trond.myklebust@fys.uio.no,
+	Thu, 10 Mar 2005 08:17:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23705 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262577AbVCJNRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 08:17:22 -0500
+Subject: Re: BUG: using smp_processor_id() in preemptible [00000001] code:
+	hotplug/461
+From: Arjan van de Ven <arjan@infradead.org>
+To: Knut J Bjuland <knutjbj@online.no>
+Cc: rml@tech9.net, kpreempt-tech@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] keys: Discard key spinlock and use RCU for key payload [try #3] 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Thu, 10 Mar 2005 13:14:14 +0000
-Message-ID: <12591.1110460454@redhat.com>
+In-Reply-To: <423043BE.2040105@online.no>
+References: <423043BE.2040105@online.no>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 14:17:13 +0100
+Message-Id: <1110460634.6291.86.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-
-> > Do you want me to redo the patch?
-> > 
+On Thu, 2005-03-10 at 13:55 +0100, Knut J Bjuland wrote:
+>  caller is arch_add_exec_range+0x49/0x6a
+> Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+> Content-Transfer-Encoding: 7bit
 > 
-> That, or a delta.  At your convenience.
+> When booting linux 2.6.11 with preemetable enable I get BUG: using 
+> smp_processor_id() in preemptible [00000001] code: hotplug/461caller is 
+> arch_add_exec_range+0x49/0x6a
+> when I load the kernel. I get this error messeage before loading xorg 
+> ,and the kernel is untained.
 
-A new patch is just as easy. There'll be one with you shortly.
 
-> What's your feeling on the stability
+that function isn't in kernel.org kernels... but only in the Exec Shield
+patch series.. sounds like you have a misapplied patch somewhere...
 
-Well... it boots:-) That involves creating and destroying keyrings and linking
-keyrings into keyrings when knowledge about users other than uid 0 is added to
-or removed from the kernel. No other key management code is touched except by
-explicit invocation by syscall or from its in-kernel APIs, and no code in the
-kernel does that yet.
 
-I've also prodded it with my key utilities; adding keys, requesting keys,
-linking keys, unlinking keys, finding keys, revoking keys, expiring keys,
-reading keys, listing/describing keys, joining sessions. I've also checked that
-user-defined keys work using that same set of tools. These tools can be found
-at:
-
-	http://people.redhat.com/~dhowells/keys/key-utils.tar.bz2
-
-I've worked them into a form more suitable for release. I still need to write
-documentation/manual pages and a spec file, and to get it to run on more than
-just i386, ppc and ppc64.
-
-> &&priority of this work?
-
-Well... this changes the API for key type implementations, if only in the way
-locking is used. Various people are looking at using keys for various things,
-and this change will affect all of them.
-
-David

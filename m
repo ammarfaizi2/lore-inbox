@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbTD1BaO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 21:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTD1BaN
+	id S263156AbTD1Bdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 21:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbTD1Bdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 21:30:13 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:36490
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263118AbTD1BaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 21:30:13 -0400
-Message-ID: <3EAC86C4.5070200@redhat.com>
-Date: Sun, 27 Apr 2003 18:41:24 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030426
-X-Accept-Language: en-us, en
+	Sun, 27 Apr 2003 21:33:55 -0400
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:4736 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263156AbTD1Bdw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 21:33:52 -0400
+Message-ID: <3EAC87CD.82C5F4A6@cinet.co.jp>
+Date: Mon, 28 Apr 2003 10:45:49 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.68-pc98smp i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Mark Grosberg <mark@nolab.conman.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Combined fork-exec syscall.
-References: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org> <Pine.LNX.4.50.0304271814410.7601-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.50.0304271814410.7601-100000@blue1.dev.mcafeelabs.com>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.67-ac2 fix new PIO handlers
+References: <Pine.SOL.4.30.0304272011560.27252-200000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Davide Libenzi wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> 
+> Hi,
+> 
+> During rewrite of bio walking patch to use rq->cbio instead
+> of rq->hard_bio I've realized I had screwed orig 2.5.66 patches :\
+> 
+> I somehow forgot to update task_map_rq(), it should use
+> __bio_kmap_irq(rq->bio, current_idx, flags) instead of
+> bio_kmap_irq(rq->bio, flags). The result is that you get
+> bio corruption (-> data corruption) when using PIO multiple
+> with sectors multiply > 8 (PAGE_SIZE == bio_vec size).
+> 
+> Attached patch fixes it and fixes TASKFILE ioctl.
+> 
+> Please apply to next -ac.
+Could you please tell me how to apply your patch. Aginst 2.5.62-ac2?
+I have a ext2 fs corruption problem at PIO mode on 2.5.67-ac2.
+There is no problem on vanilla 2.5.67.
+I tryed the all patches below.
+ tf-ioctls-1.diff
+ tf-ioctls-2a.diff
+ tf-ioctls-2b.diff
+ tf-ioctls-3.diff
+ tf-ioctls-4.diff
+ tf-dio-1.diff
+ tf-dio-2.diff
+ tf-dio-3.diff
+ tf-dio-4.diff
+ masked-irq.diff
+They didn't solve problem.
+This pio-fixes.diff can't be applied after them?
 
-> This is very much library stuff. I don't think that saving a couple of
-> system calls will give you an edge, expecially when we're talking of
-> spawning another process. Even if the process itself does nothing but
-> return. Ulrich might be eventually interested ...
-
-POSIX has a spawn interface, see <spawn.h> on modern systems.  A syscall
-should be compatible with this interface.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+rIbE2ijCOnn/RHQRAstmAKClxTVl6JUUsKycwat1o3UGqPF64wCgsH5j
-imxS5VWcVU0li0nNK2Aa99o=
-=Z49l
------END PGP SIGNATURE-----
-
+Regards,
+Osamu Tomita

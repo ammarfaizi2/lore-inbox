@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbUCCMtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 07:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbUCCMsT
+	id S261773AbUCCMxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 07:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbUCCMva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 07:48:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10881 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262455AbUCCMhX
+	Wed, 3 Mar 2004 07:51:30 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:19722 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S261788AbUCCMt5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 07:37:23 -0500
-Date: Wed, 3 Mar 2004 07:38:40 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Roland Dreier <roland@topspin.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: poll() in 2.6 and beyond
-In-Reply-To: <52vflmpoe9.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.53.0403030736350.11111@chaos>
-References: <Pine.LNX.4.53.0403021817050.9351@chaos> <404521B2.2030504@americasm01.nt.com>
- <Pine.LNX.4.53.0403022006250.9695@chaos> <52vflmpoe9.fsf@topspin.com>
+	Wed, 3 Mar 2004 07:49:57 -0500
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl>
+	<200402292130.55743.mmazur@kernel.pl>
+	<c1tk26$c1o$1@terminus.zytor.com>
+	<200402292221.41977.mmazur@kernel.pl> <yw1xn0711sgw.fsf@kth.se>
+	<40434BD7.9060301@nortelnetworks.com>
+	<m37jy4cuaw.fsf@defiant.pm.waw.pl>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 03 Mar 2004 13:49:31 +0100
+In-Reply-To: <m37jy4cuaw.fsf@defiant.pm.waw.pl> (Krzysztof Halasa's message
+ of "Mon, 01 Mar 2004 19:10:31 +0100")
+Message-ID: <yw1x8yiiksdg.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Roland Dreier wrote:
+Krzysztof Halasa <khc@pm.waw.pl> writes:
 
->     Richard> Well the device's poll function isn't getting called the
->     Richard> second time with 2.6.0. I never checked it in 2.4.x
->     Richard> because it always worked.  This problem occurs in a
->     Richard> driver that only returns the fact that one event
->     Richard> occurred. When it failed to report the event when built
->     Richard> with a newer kernel, I added diagnostics which showed
->     Richard> that the poll in the driver was only called once --and
->     Richard> that the return from poll_wait happened immediately.
->
-> Your driver is buggy.  It's not surprising since you fundamentally
-> don't understand the kernel interface you're trying to use.
->
->     Richard> So, if the poll_wait isn't a wait-function, but just some
->     Richard> add-wakeup to the queue function, then its name probably
->     Richard> should have been changed when it changed. At one time it
->     Richard> did, truly, wait until it was awakened with
->     Richard> wake_up_interruptible.
->
-> When did it change?  Show me a kernel version where poll_wait() waited
-> until the driver woke it up.  (Kernel versions at least as far back as
-> 1.0 are readily available from kernel.org, so it should be easy for
-> you)
->
->  - Roland
->
+> The "non-problem" here is, IMHO, that the cleaning of kernel headers
+> is quite trivial, and thus nobody is interested :-)
 
-I never said the DRIVER woke up, but that poll sleeps.
+It usually is.  I guess I'll start sending patches whenever I need to
+change one to get something compiled.  Usually it's so trivial that I
+think I must have made a mistake somewhere else.
 
- FLAGS   UID   PID  PPID PRI  NI   SIZE   RSS WCHAN       STA TTY TIME COMMAND
-   100     0     1     0   6   0    224   148 do_select   S   ?   0:01 /sbin/init auto
-[SNIPPED....]
-
-    40     0   115   114   9   0   1452   728 pipe_wait   S   ?   0:00 /usr/sbin/nmbd -D
-100000     0 11109  9459  16   0   1044   476             R    1  0:00 ps -laxw
-     0     0 11107  9504  12   0    692   216 do_poll     S    2  0:00 ./tester
-
-
-.... and if it DOESN'T then ps is buggy and/or the entry in /proc
-in buggy.
-
-Clearly this task is sleeping in do_poll.
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Måns Rullgård
+mru@kth.se

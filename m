@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbUKSIMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbUKSIWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbUKSIMa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 03:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbUKSIMa
+	id S261289AbUKSIWl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 03:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUKSIWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 03:12:30 -0500
-Received: from mproxy.gmail.com ([216.239.56.245]:4774 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261201AbUKSIM2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 03:12:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=J5tJL+TM7azSkFvCYC1WErsAPQ4CyydHh9eO8J4ThLw/+yG0hvhrFUTENdBRxmPNm/+MrlnuiP5KVlyrv3cTW20mIksxY4yyV5lvHBsD5FRgVZW/aMQMSheEq7OnW3n5/L7bK8ADwzoCV+cNVVMVvhoPeigozytGECXBZCCOPdw=
-Message-ID: <21d7e9970411190012a2d1f34@mail.gmail.com>
-Date: Fri, 19 Nov 2004 19:12:27 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Ralf Gerbig <rge@quengel.org>
-Subject: Re: 2.6.10-rc2-mm1 (8139too interrupt)
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e9970411182348704d2f0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 Nov 2004 03:22:41 -0500
+Received: from siaag1ab.compuserve.com ([149.174.40.4]:62939 "EHLO
+	siaag1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261289AbUKSIWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 03:22:38 -0500
+Date: Fri, 19 Nov 2004 03:19:34 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: X86_64: Many Lost ticks
+To: Andi Kleen <ak@suse.de>
+Cc: "kernel-stuff@comcast.net" <kernel-stuff@comcast.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Message-ID: <200411190322_MC3-1-8EFA-5B2@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	 <87lld0rb2i.fsf-news@hsp-law.de>
-	 <20041117110640.1c7ccccd.akpm@osdl.org>
-	 <87actgt8zy.fsf-news@hsp-law.de> <87sm76q40b.fsf-news@hsp-law.de>
-	 <21d7e9970411182348704d2f0@mail.gmail.com>
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > investigating further, radeon.ko nukes the NIC / INT
-> >
-> 
+On Thu, 18 Nov 2004 at 19:50:32 +0100, Andi Kleen wrote:
 
-btw I'm running 2.6.10-rc1 on my machine with a shared radeon IRQ no problems,
- 11:    2542086          XT-PIC  uhci_hcd, uhci_hcd, eth0,
-radeon@pci:0000:01:00.0
+> On Thu, Nov 18, 2004 at 05:10:17PM +0000, Alan Cox wrote:
+>
+> > Ok ACPI timer override probably goes back into the broken bucket and out
+> > of -ac in -ac11 then.
+>
+> The timer override should be fine (I have confirmation from Nvidia
+> about this). The only thing that you can take out if you're conservative
+> is the change to not disable the IOAPIC by default when Nvidia 
+> is detected (in check_ioapic()) 
 
-I'll see if I can get time to grab Andrews tree over the weekend and
-build it locally....
 
-Dave.
+I did that long ago; the below patch is dated Oct 28 on my fileserver.
+
+Alan could save himself some work if we shared patches... I already
+backported even more of the networking stuff to 2.6.9 than he did.
+
+# ioapic_on_nvidia_boards.patch
+#
+#       Originally suggested by Zwane Mwaikumbo
+#
+#       Ignore all ACPI timer overrides on all Nvidia boards.  The fallback doesn't
+#       work and no Nvidia boards needs a timer override.  But some buggy BIOS have
+#       it anyways.
+#
+#       Thanks to Andy Currid for confirming this.
+#
+#       Original patch enabled the IO-APIC.
+#       Enable of IO-APIC removed by Chuck Ebbert <76306.1226@compuserve.com>
+#
+#       Signed-off-by: Andi Kleen <ak@suse.de>
+#       Signed-off-by: Andrew Morton <akpm@osdl.org>
+#       Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+#
+--- 2.6.9/arch/x86_64/kernel/io_apic.c
++++ 2.6.9.1/arch/x86_64/kernel/io_apic.c
+@@ -271,6 +271,14 @@ void __init check_ioapic(void) 
+                                               num,slot,vendor); 
+                                        skip_ioapic_setup = 1;
+ #endif
++#ifdef CONFIG_ACPI
++                                       /* All timer overrides on Nvidia
++                                          seem to be wrong. Skip them. */
++                                       printk(KERN_INFO 
++            "Nvidia board detected. Ignoring ACPI timer override.\n");
++                                       acpi_skip_timer_override = 1;
++                                       /* RED-PEN skip them on mptables too? */
++#endif
+                                        return;
+                                } 
+ 
+--- 2.6.9/include/asm-x86_64/acpi.h
++++ 2.6.9.1/include/asm-x86_64/acpi.h
+@@ -166,6 +166,8 @@ extern int acpi_pci_disabled;
+ 
+ extern u8 x86_acpiid_to_apicid[];
+ 
++extern int acpi_skip_timer_override;
++
+ #endif /*__KERNEL__*/
+ 
+ #endif /*_ASM_ACPI_H*/
+
+--Chuck Ebbert  19-Nov-04  03:19:18

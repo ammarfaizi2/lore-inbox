@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270007AbTHGSdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 14:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270040AbTHGSdc
+	id S270462AbTHGSlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 14:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270471AbTHGSlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 14:33:32 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:29968
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270007AbTHGSdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 14:33:25 -0400
-Date: Thu, 7 Aug 2003 11:33:22 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Patrick McLean <pmclean@cs.ubishops.ca>
+	Thu, 7 Aug 2003 14:41:11 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:37849 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S270462AbTHGSlH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 14:41:07 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Paul Clements <Paul.Clements@steeleye.com>
+Subject: Re: [2.4.21]: nbd ksymoops-report
+Date: Thu, 7 Aug 2003 20:40:58 +0200
+User-Agent: KMail/1.5.3
+References: <Pine.LNX.4.10.10308071245130.13289-100000@clements.sc.steeleye.com> <3F328DB9.4EF38D9A@SteelEye.com>
+In-Reply-To: <3F328DB9.4EF38D9A@SteelEye.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interactivity improvements
-Message-ID: <20030807183322.GB23303@matchmail.com>
-Mail-Followup-To: Patrick McLean <pmclean@cs.ubishops.ca>,
-	linux-kernel@vger.kernel.org
-References: <3F3261A2.9000405@cs.ubishops.ca> <20030807152418.GA509@malvern.uk.w2k.superh.com> <3F327382.5000200@cs.ubishops.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <3F327382.5000200@cs.ubishops.ca>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308072040.58144.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 11:42:58AM -0400, Patrick McLean wrote:
-> 
-> 
-> Richard Curnow wrote:
-> >* Patrick McLean <pmclean@cs.ubishops.ca> [2003-08-07]:
-> >
-> >>Another point is compilers, they tend to do a lot of disk I/O then 
-> >>become major CPU hogs, could we have some sort or heuristic that reduces 
-> >>the bonuses for sleeping on block I/O rather than other kinds of I/O 
-> >>(say pipes and network I/O in the case of X).
-> >
-> >
-> >What about compilers chewing on source files coming in over NFS rather
-> >than resident on local block devices?  The network waits need to be
-> >broken out into NFS versus other, or UDP versus TCP or something.  e.g.
-> >waits due to the user not having typed anything yet, or moved the mouse,
-> >are going to be on TCP connections.
-> >
-> Maybe if we had it reduce sleeping bonuses if it's waiting on filesystem 
+Hello!
 
-We are already doing this.
+Yes we are using the nbd-client from sf.net (due to other problems we replaced 
+the debian (non-standard) sf.net binary with our own compiled binary).
 
-> access, this would cover NFS as the kernel does consider it a 
-> filesystem, this would cover SMB, AFS, etc as well.
+On Thursday 07 August 2003 19:34, you wrote:
+> Paul Clements wrote:
+> > On Thu, 7 Aug 2003, Bernd Schubert wrote:
+> > > every time when nbd-client disconnects a nbd-device the decoded oops
+> > > from below will happen.
+> > > This only happens after we upgraded from 2.4.20 to 2.4.21,
+> > > so I guess the backported update from 2.5.50 causes this.
+>
+> [snip]
+>
+> > This corresponds to the following source:
+> >
+> > lo->sock->ops->shutdown(lo->sock, SEND_SHUTDOWN|RCV_SHUTDOWN);
+> >
+> > Somehow, lo->sock is NULL here. The only way I see that this could
+>
+> Alright, looking back over the nbd-client source I now see what's going
+> on. You're calling "nbd-client -d" to manually disconnect?
 
-Network interactivity is dealing with sockets, and such.  Accessing NFS (and
-other network filesystems) deals with a virtual block device, and gives
-similar patterns to a local block device.
+The debian /etc/init.d/nbd-client script calls this on stopping stopping nbd. 
+To make nbd working again after this oops we always need to reboot now (found 
+this out after my first mail), so I'm really looking for an alternative way 
+of stopping nbd. Would 'killall nbd-client' work?
+
+>
+> > Would you be willing to test a patch against 2.4.21?
+>
+> If you're willing to test the attached patch, I'd be grateful. Otherwise
+> I'll test it in the next few days and forward on to Marcelo...
+
+I will first test it at home. Unfortunality my laptop is in repair at IBM, so 
+I only can use nbd via localhost.
+If there is a way to prevent the reboot of the client, I can test it on monday 
+on our cluster at work. 
+
+Thanks a lot for your very fast help. Since we are using nbd to have a 
+fallback server of our main server, we really need a working solution.
+
+
+Thanks again and best regards,
+	Bernd
+
+-- 
+Bernd Schubert
+Physikalisch Chemisches Institut / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+e-mail: bernd.schubert@pci.uni-heidelberg.de

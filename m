@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUJDSdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUJDShJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268279AbUJDSdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 14:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUJDSds
+	id S268300AbUJDShJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 14:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268304AbUJDShJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 14:33:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3487 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268279AbUJDScF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 14:32:05 -0400
-Date: Mon, 4 Oct 2004 11:29:47 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: efocht@hpce.nec.com, akpm@osdl.org, nagar@watson.ibm.com,
-       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041004112947.020d3cc3.pj@sgi.com>
-In-Reply-To: <118630000.1096913944@flay>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<200410032221.26683.efocht@hpce.nec.com>
-	<20041003134842.79270083.akpm@osdl.org>
-	<200410041605.30395.efocht@hpce.nec.com>
-	<842970000.1096901859@[10.10.2.4]>
-	<20041004083045.1432f511.pj@sgi.com>
-	<850440000.1096904504@[10.10.2.4]>
-	<20041004090232.1180b3f8.pj@sgi.com>
-	<118630000.1096913944@flay>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Oct 2004 14:37:09 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47762 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268300AbUJDShG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 14:37:06 -0400
+Message-ID: <4161989F.9050607@tmr.com>
+Date: Mon, 04 Oct 2004 14:38:23 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+References: <200410012226.23565.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410012226.23565.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin writes:
->
-> One doesn't need to completely subsume the other ;-)
+Denis Vlasenko wrote:
+> Resend.
+> 
+> With all alignment options set to 1 (minimum alignment),
+> I've got 5% smaller vmlinux compared to one built with
+> default code alignment.
 
-Well, close to it.
+It would be interesting to know if this is better WRT cache usage than 
+alignment which ensures that loops fit within the minimum number of 
+cache lines. That's not quite the same thing as starting on a cache line 
+in all cases.
 
-It's not a marriage of equals in his challenge:
->
-> And CKRM is much more general than the cpu/memsets code, and hence it
-> should be possible to realize your end-users requirements using an
-> appropriately modified CKRM, and a suitable controller.
+This may be of interest to embedded builds.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

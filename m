@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130251AbRBLTJQ>; Mon, 12 Feb 2001 14:09:16 -0500
+	id <S131141AbRBLTIg>; Mon, 12 Feb 2001 14:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131468AbRBLTI5>; Mon, 12 Feb 2001 14:08:57 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:10231 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S130251AbRBLTIp>; Mon, 12 Feb 2001 14:08:45 -0500
-Date: Mon, 12 Feb 2001 15:27:07 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org, jschlst@turbolinux.com,
-        Andrew Morton <andrewm@uow.edu.au>,
-        "Bryan K. Walton" <bryan@bryansweb.com>,
-        Russell Coker <russell@coker.com.au>, dahinds@sourceforge.net,
-        kuznet@ms2.inr.ac.ru, jgarzik@mandrakesoft.com
-Subject: Re: [PATCH] to deal with bad dev->refcnt in unregister_netdevice()
-Message-ID: <20010212152707.B31354@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>,
-	linux-kernel@vger.kernel.org, jschlst@turbolinux.com,
-	Andrew Morton <andrewm@uow.edu.au>,
-	"Bryan K. Walton" <bryan@bryansweb.com>,
-	Russell Coker <russell@coker.com.au>, dahinds@sourceforge.net,
-	kuznet@ms2.inr.ac.ru, jgarzik@mandrakesoft.com
-In-Reply-To: <3A8831D2.7EDB25D3@yahoo.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A8831D2.7EDB25D3@yahoo.co.uk>; from jdthoodREMOVETHIS@yahoo.co.uk on Mon, Feb 12, 2001 at 01:56:18PM -0500
-X-Url: http://advogato.org/person/acme
+	id <S130251AbRBLTI0>; Mon, 12 Feb 2001 14:08:26 -0500
+Received: from [63.109.146.2] ([63.109.146.2]:36605 "EHLO mail0.myrio.com")
+	by vger.kernel.org with ESMTP id <S131141AbRBLTIV>;
+	Mon, 12 Feb 2001 14:08:21 -0500
+Message-ID: <4461B4112BDB2A4FB5635DE19958743202240E@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'rhairyes@lee.k12.nc.us'" <rhairyes@lee.k12.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: RE: linux-logo.h
+Date: Mon, 12 Feb 2001 11:08:12 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Feb 12, 2001 at 01:56:18PM -0500, Thomas Hood escreveu:
-> Sorry, but it turns out that the bug is not completely
-> fixed by the change that acme made.  With the change,
-> ifup-ing and if-downing eth0 with the ipx module loaded
-> no longer reduces eth0's refcnt to an indefinitely low
-> (larger and larger negative) number.  However if the ipx
-> module is loaded first and ipx configured on eth0, and
-> then the network card inserted and "ifconfig eth0 up" done,
-> and then "ifconfig eth0 down" done, then once again the
-> refcnt is too low, so that when I try to "cardctl eject"
-> my ethernet card, "modprobe -r xirc2ps_cs" hangs up.
-> This whole business of refcnts needs to be thought 
-> through more carefully.
+Ryan Hairyes (rhairyes@lee.k12.nc.us) said:
+>Could anyone tell me about linux_logo.h.  I want to put my
+>own picture in there. What format is the picture written in?
+>Any any idea on how I could change it?  Also, could the
+>picture be any bigger than 80x80,  I would like for it to take
+>up the whole screen.
 
-As I've told in the message I've sent, I'm unfortunately damn busy these
-days and wrote this patch in a hurry, was waiting for your feedback to see
-if it fixed the problem or not, but it was applied because it seemed
-obviously correct. I'll try to work on this as soon as possible, but this
-can take some time.
+Probably the best thing for you do is to check out the 
+FreeLords LPP patch, at http://lpp.freelords.org.  
 
-- Arnaldo
- 
-> > This bug was fixed by "acme" in 2.4.1-ac10.  :)
-> > The ipx driver now increments refcnt on NETDEV_UP to
-> > match downing the interface on NETDEV_DOWN.
+Some people consider that one overkill, however...
+
+If you want to do it yourself, then the easiest way to put 
+your own picture into linux_logo.h is to get the GIMP plugin 
+called "glogo".  I found a copy by searching on some GIMP 
+plugin index web pages.  The linux_logo.h just stores the
+images (and the palettes) as big arrays of hex numbers.
+
+In the GIMP, you create three versions of your image - one
+with 214 colors, one with 16, and one in black and white.
+Then you run the glogo plugin and feed it your three images.
+It will output a file that you can name linux_logo.h and
+copy into the include/linux directory.
+
+However, if I recall correctly, the 80x80 restriction is 
+coded into the kernel in at least two places, as well as the 
+glogo plug in.  (yuck!)
+
+So, what you really want is a patch I made for the 2.2.17 
+and later series which makes it easy to put bigger logos in, 
+and also center them on the screen and other little things.
+My patch is not that exciting though, anyone with some C
+programming skill could do the same thing in a couple of
+hours, no previous kernel experience necessary.
+
+I have a hacked up version of glogo to go along with my
+kernel patch, which moves some of the LOGO_W and LOGO_H 
+#defines around to tidy it up a bit.  It also makes it easy
+to have completely different images for the 16 color and
+B&W images - you could leave the 80x80 penguin in for those
+if you want, while putting in a nice big 214 color logo.
+
+If you want my patch and glogo hack, just email me.
+
+There are other, similar patches out there.  I read
+about one last fall that actually had the ability to convert 
+a png into the linux_logo.h during a kernel build.  
+
+Also note that putting in a huge logo will make your kernel 
+bzImage or zImage noticeably larger.  This is not likely to be 
+a problem if you use modules for most things.
+
+Best wishes,
+
+Torrey Hoffman
+torrey.hoffman@myrio.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

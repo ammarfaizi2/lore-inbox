@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286904AbSASSlp>; Sat, 19 Jan 2002 13:41:45 -0500
+	id <S286925AbSASSnf>; Sat, 19 Jan 2002 13:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286925AbSASSlf>; Sat, 19 Jan 2002 13:41:35 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:20754 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S286904AbSASSla>;
-	Sat, 19 Jan 2002 13:41:30 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200201191841.VAA31776@ms2.inr.ac.ru>
-Subject: Re: Oops in sock_poll
-To: davem@redhat.COM (David S. Miller)
-Date: Sat, 19 Jan 2002 21:41:21 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020118.025554.133432828.davem@redhat.com> from "David S. Miller" at Jan 18, 2 02:15:00 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S286934AbSASSnZ>; Sat, 19 Jan 2002 13:43:25 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:28861 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S286925AbSASSnO>; Sat, 19 Jan 2002 13:43:14 -0500
+Date: Sat, 19 Jan 2002 20:43:00 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  January 18, 2002
+Message-ID: <20020119184259.GE135220@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C477B7F.22875.11D4078A@localhost> <Pine.GSO.4.21.0201180546310.296-100000@weyl.math.psu.edu> <3C488E84.A1453ED2@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C488E84.A1453ED2@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
->    The kernel used is customized in many ways, it is a long work to upgrade
+Alexander Viro wrote:
 > 
-> Then I can't help you... there have probably been many
-> networking bugs fixed since 2.4.9
+> Merged: Per-process namespaces, late-boot cleanups.
+> Ready: switch to ->get_super() as primary file_system_type method.
+> Ready: ->getattr() handling and changes of ->setattr()/->permission()
+> prototypes.
+> Pending: proper UFS fixes, ext2 cleanups and locking
+> changes.
+> Pending: per-mountpoint read-only, union-mounts and unionfs.
+> Pending: lifting limitations on mount(2)
+> In progress: killing kdev_t for block devices (switch to struct block_device *)
+> Started: UMSDOS rewrite (the damn thing blocks struct inode trimming)
+> Planned: new mount API.
 
-I do not remember that we _ever_ had problems with leaking f_count.
-And it is so far of networking... :-)
+All this seems very neat. One question: what about forced umount / forced
+remount readonly stuff? Any plans on that?
 
-"customized in many ways" bug sounds as better candidate to be fixed.
 
-Alexey
+-- v --
+
+v@iki.fi

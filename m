@@ -1,74 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135173AbRDRNkJ>; Wed, 18 Apr 2001 09:40:09 -0400
+	id <S135178AbRDRNnt>; Wed, 18 Apr 2001 09:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135178AbRDRNj7>; Wed, 18 Apr 2001 09:39:59 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:48596 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S135173AbRDRNjs>;
-	Wed, 18 Apr 2001 09:39:48 -0400
-Date: Wed, 18 Apr 2001 15:39:25 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200104181339.PAA27353@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] 2.4.3-ac9 console unblank at resume fix
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+	id <S135179AbRDRNnj>; Wed, 18 Apr 2001 09:43:39 -0400
+Received: from smtp1.sentex.ca ([199.212.134.4]:18956 "EHLO smtp1.sentex.ca")
+	by vger.kernel.org with ESMTP id <S135178AbRDRNnW>;
+	Wed, 18 Apr 2001 09:43:22 -0400
+Message-ID: <3ADD99E8.FB7F8542@coplanar.net>
+Date: Wed, 18 Apr 2001 09:43:04 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bjorn Wesen <bjorn@sparta.lu.se>
+CC: Laurent Chavet <lchavet@av.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to turn file caching off ?
+In-Reply-To: <Pine.LNX.3.96.1010418134153.20558A-100000@medusa.sparta.lu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+Bjorn Wesen wrote:
 
-I think I've finally eliminated the X screen corruption my laptop
-has been seeing at resume from suspend events.
+> A similar phenomenon happens when you simply copy a file - file A is read
+> into the cache and file B is written to the cache, until the memory runs
+> out. Then both start to flush at the same time, creating a horrible
 
-The fix in -ac3 eliminated the corruption but left the console
-blank if I exited X. The fix in -ac4 didn't actually work --
-the corruptions resurfaced later. (Sorry about that.) I've tested
-a lot of variations of it, but all had the same problem.
+in this example only file B needs uses IO when being flushed; A's
+buffers aren't dirty, so they're just 'forgotten'
 
-The new fix goes back to the original (exit early if not in text
-mode), with one crucial change: console_blanked is NOT reset to zero.
-This appears to have the desired effect: while X is running we
-don't mess with the hardware, and the first unblank after X has
-exited does the right thing. Works fine over here (so far..).
-Patch below for -ac9, please apply.
+>
+> performance hit (especially if A and B are on the same disk :)
+>
 
-[To recap: Dell Latitude, 2.4 kernel, XFree86-SVGA-3.3.6, APM,
-no frame buffer device. After a few (1-3) days of use with
-frequent suspend/resume cycles, the X screen would partially
-wrap around after a resume. Restarting X would fix this temporarily,
-but the next resume would see the same problem. Reboot, and I'd get
-another few days before it happened again. 2.2 kernel was fine.]
+bdflush and 2.4's equivalent are tunable; if all you do is this copying
+then optimise these parameters for this task.
 
-/Mikael
+>
+> I don't know a way to fix this except having the kernel correctly identify
+> the access pattern and optimize for it (i.e. if it recognizes that cache
 
---- linux-2.4.3-ac9/drivers/char/console.c.~1~	Wed Apr 18 13:50:00 2001
-+++ linux-2.4.3-ac9/drivers/char/console.c	Wed Apr 18 13:50:24 2001
-@@ -2713,23 +2713,21 @@
- 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
- 		return;
- 	}
-+	currcons = fg_console;
-+	if (vcmode != KD_TEXT)
-+		return; /* but leave console_blanked != 0 */
- 	console_timer.function = blank_screen;
- 	if (blankinterval) {
- 		mod_timer(&console_timer, jiffies + blankinterval);
- 	}
--	currcons = fg_console;
-+
- 	console_blanked = 0;
- 	if (console_blank_hook)
- 		console_blank_hook(0);
- 	set_palette(currcons);
--	if (sw->con_blank(vc_cons[currcons].d, 0)) {
--		if (vcmode != KD_TEXT)
--			return;
-+	if (sw->con_blank(vc_cons[currcons].d, 0))
- 		/* Low-level driver cannot restore -> do it ourselves */
- 		update_screen(fg_console);
--	}
--	if (vcmode != KD_TEXT)
--		return;
- 	set_cursor(fg_console);
- }
- 
+currently all the kernel's heuristics are feed-back control loops.
+what you are asking for is a feed-forward system: a way for the application
+to tell kernel "I'm only reading this once, so after I'm done, throw it out
+straight away"
+and "I'm only writing this data, so after I'm done, start writing it out and
+then forget it"
+
+perhaps you could try mounting the destinatinon 'sync'
+with dd at least you could specify block size,
+there is also raw devices (no cache) mmaped files with madvise,
+fdatasync()... lots of ways.
+
+>
+> pages are flushed in order to make room for more pages from the same
+> inode, then it's probably a suboptimal caching pattern and instead it
+> should probably increase the readahead and flush bigger chunks of pages at
+> the same time). I don't think anything can be done to the writing queue
+> (except maybe make the kernel understand that seek-time is more expensive
+> than transfer-time, so it does not schedule the read/writeing each odd
+
+there is the elevator seek mechanism...
+
+>
+> page..)
+>
+> I'm still using 2.4.0 though so maybe this behaviour has been fixed to the
+> better in later kernels..
+>
+> As a sidenote, try the same thing on an WinNT box and watch it die :) Like
+> unpacking a 1 GB file on a machine with 128 MB ram.. after it has unpacked
+> the first 100 MB's or so, performance drops to 1% or something..
+
+Isn't this due to the journaling filesystem?  All that seeking sure slows
+things down...
+
+>
+>
+> -BW
+>
+> On Tue, 17 Apr 2001, Laurent Chavet wrote:
+> >     First cache grows to the size of RAM (2GB) with transfer rate
+> > slowing down as the cache grows.
+> >     Then the transfer rates drops a lot (2 to 3 time slower than the
+> > drive capacity) and there is a very high CPU usage of system time (more
+> > than a CPU) used by bdflush and kswapd (and some others like kupdated).
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

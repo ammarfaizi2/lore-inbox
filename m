@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVA2Ebd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVA2Edz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbVA2Ebd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 23:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbVA2Ebd
+	id S262850AbVA2Edz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 23:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVA2Edz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 23:31:33 -0500
-Received: from trantor.org.uk ([213.146.130.142]:58348 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S262849AbVA2Eba (ORCPT
+	Fri, 28 Jan 2005 23:33:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50410 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262850AbVA2Ecv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 23:31:30 -0500
-Subject: Re: compat ioctl for submiting URB
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Christopher Li <chrisl@vmware.com>
-Cc: linux kernel mail list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050128212304.GA11024@64m.dyndns.org>
-References: <20050128212304.GA11024@64m.dyndns.org>
-Content-Type: text/plain
-Date: Sat, 29 Jan 2005 04:29:51 +0000
-Message-Id: <1106972991.3972.57.camel@sherbert>
+	Fri, 28 Jan 2005 23:32:51 -0500
+Date: Fri, 28 Jan 2005 20:06:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, brking@us.ibm.com,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH 1/2] pci: Arch hook to determine config space size
+Message-ID: <20050129040647.GA6261@kroah.com>
+References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com> <20050128185234.GB21760@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050128185234.GB21760@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-28 at 16:23 -0500, Christopher Li wrote:
-> +#ifdef CONFIG_IA32_EMULATION
-> +
-> +       case USBDEVFS_SUBMITURB32:
-> +               snoop(&dev->dev, "%s: SUBMITURB32\n", __FUNCTION__);
-> +               ret = proc_submiturb_compat(ps, p);
-> +               if (ret >= 0)
-> +                       inode->i_mtime = CURRENT_TIME;
-> +               break;
-> +#endif
+On Fri, Jan 28, 2005 at 06:52:34PM +0000, Christoph Hellwig wrote:
+> > +int __attribute__ ((weak)) pcibios_exp_cfg_space(struct pci_dev *dev) { return 1; }
+> 
+>  - prototypes belong to headers
+>  - weak linkage is the perfect way for total obsfucation
+> 
+> please make this a regular arch hook
 
-Why don't other 64bit architectures need this chunk?
+I agree.  Also, when sending PCI related patches, please cc the
+linux-pci mailing list.
 
--- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+thanks,
 
+greg k-h

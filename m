@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTLPVk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTLPVk7
+	id S262817AbTLPVtP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLPVtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:40:59 -0500
-Received: from s383.jpl.nasa.gov ([137.79.94.127]:37566 "EHLO
-	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S262714AbTLPVk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:40:57 -0500
-Message-ID: <3FDF7BE0.205@jpl.nasa.gov>
-Date: Tue, 16 Dec 2003 13:40:48 -0800
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-Organization: Jet Propulsion Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
+	Tue, 16 Dec 2003 16:49:15 -0500
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:2639 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262817AbTLPVtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 16:49:11 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Kari Hameenaho <khaho@kolumbus.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Change of setitimer() handling in 2.6.0-testX against 2.5.69 (and 2.4.x) ?
+Date: Tue, 16 Dec 2003 23:49:46 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: tsuchiya@labs.fujitsu.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com>
-In-Reply-To: <1071582242.5462.1.camel@sisko.scot.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20031216214910.UOCO15326.fep02-app.kolumbus.fi@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this problem all the time here at JPL. I can always get the files 
-back by remounting the filesystem.
+There was previously a linux-kernel mailing list thread about scheduling 
+degration (actually change of nanosleep timeout handling). I am not so 
+interrested in nanosleep, but I do have an application using setitimer().
 
-For example if /dev/sdb1 mounted on /export/project is getting wierd 
-"Input/output" errors I can simply run this command:
-mount -o remount /dev/sdb1 /export/project
+I did some test code and noticed that it_interval handling in 
+setitimer(ITIMER_REAL ...) has also changed:
 
-It's been about a year of these problems... I'll try running the test 
-Tsuchiya Yoshihiro made to reproduce. (I have not been able to create a 
-test that can consistantly reproduce... but the problem has sure screwed 
-up some data-gathering runs in the lab).
+- machine is otherwise idle, SMP, threads RT priority or not
+- SIGALRM comes in average every 1 ms in 2.5.x (and 1000 Hz patched 2.4.x)
+- SIGALRM comes in average every 2 ms in 2.6.0-test11 (also 2.6.0-test8)
 
-These are all on Mandrake kernels though.... (from the 9.0 series). so 
-that's 2.4.19+tonOfPatches.
+Setting of the timer:
 
-Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Mon, 2003-12-15 at 09:25, Tsuchiya Yoshihiro wrote:
-> 
-> 
->>Following is an Ext2 result and the inode is filled by zero.
->>I think the inode becomes a badinode.
-> 
-> 
->>[root@dell04 tsuchiya]# ls -l /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
->>ls: /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html: Input/output error
-> 
-> 
-> "Input/output error" can sometimes mean that the kernel has found a
-> filesystem problem, but it also often indicates a device-layer problem. 
-> Is there anything helpful in the kernel logs?
-> 
-> Cheers,
->  Stephen
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  it.it_value.tv_sec = 0;
+  it.it_value.tv_usec = 1000;
+  it.it_interval.tv_sec = 0;
+  it.it_interval.tv_usec = 1000;
+  setitimer(ITIMER_REAL,&it,NULL);
 
+Of course when asked for longer timeouts, the 1 ms difference remains.
+
+Looking at the man page, this also seems to be OK (if this interval is 
+interpreted as a timeout, which can be longer but not shorter than expected).
+
+However, building a timebase for an application by setitimer() has definitely 
+changed, so every code relying on the interval really being averaged 
+correctly is now a little bit broken.
+
+Is this intended or some side effect of other recent changes ?
 
 -- 
-Bryan Whitehead
-SysAdmin - JPL - Interferometry and Large Optical Systems
-Phone: 818 354 2903
-driver@jpl.nasa.gov
-
+Kari Hämeenaho

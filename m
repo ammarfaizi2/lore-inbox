@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263473AbRFANB1>; Fri, 1 Jun 2001 09:01:27 -0400
+	id <S263493AbRFANCh>; Fri, 1 Jun 2001 09:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263493AbRFANBR>; Fri, 1 Jun 2001 09:01:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11271 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263473AbRFANBJ>; Fri, 1 Jun 2001 09:01:09 -0400
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for realthis
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Fri, 1 Jun 2001 13:58:58 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        bogdan.costescu@iwr.uni-heidelberg.de (Bogdan Costescu),
-        zaitcev@redhat.com (Pete Zaitcev),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3B1790FB.82FC9251@mandrakesoft.com> from "Jeff Garzik" at Jun 01, 2001 08:56:27 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155oW2-0000Ta-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S263494AbRFANC1>; Fri, 1 Jun 2001 09:02:27 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:3851 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S263493AbRFANCO>;
+	Fri, 1 Jun 2001 09:02:14 -0400
+Date: Fri, 1 Jun 2001 15:02:11 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: linux-kernel@vger.kernel.org
+Cc: fritz@isdn4linux.de, keil@isdn4linux.de
+Subject: [NEW ISDN DRIVER] TurboPAM isdn card
+Message-ID: <20010601150211.A14317@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Only some of them can be cached...  (some of the MIIs in some drivers
-> are already cached, in fact)   you can't cache stuff like what your link
-> partner is advertising at the moment, or what your battery status is at
-> the moment.
+Hi,
 
-I am sure that to an unpriviledged application reporting back the same result
-as we saw last time we asked the hardware unless it is over 30 seconds old
-will work fine. Maybe 10 for link partner ?
+I've wrote a driver for the ISDN active card TurboPAM made
+by Auvertech:
+	http://www.auvertech.fr
 
+This is a card targeted at ISPs / access providers, supporting
+up to 30 B-channel connections simultaneously.
+
+The patch is available against Linux 2.4.5 and 2.2.19.
+
+Since it is rather big, I won't post it here but just give the URL:
+
+http://download.alcove-labs.org/software/tpam/tpam-2.4.5.patch.bz2
+
+and
+
+http://download.alcove-labs.org/software/tpam/tpam-2.2.19.patch.bz2
+
+Please apply.
+
+Thanks,
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|------------- Ingénieur Informatique Libre --------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|----------- Alcôve, l'informatique est libre ------------|

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSDKPhn>; Thu, 11 Apr 2002 11:37:43 -0400
+	id <S314095AbSDKPim>; Thu, 11 Apr 2002 11:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314093AbSDKPhl>; Thu, 11 Apr 2002 11:37:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:18051 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314085AbSDKPh0>; Thu, 11 Apr 2002 11:37:26 -0400
-Date: Thu, 11 Apr 2002 11:39:38 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "David S. Miller" <davem@redhat.com>
-cc: abraham@2d3d.co.za, linux-kernel@vger.kernel.org
-Subject: Re: CHECKSUM_HW not behaving as expected
-In-Reply-To: <20020411.082811.127950223.davem@redhat.com>
-Message-ID: <Pine.LNX.3.95.1020411113911.14642A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314101AbSDKPim>; Thu, 11 Apr 2002 11:38:42 -0400
+Received: from userk185.dsl.pipex.com ([62.188.58.185]:54145 "EHLO
+	userk185.dsl.pipex.com") by vger.kernel.org with ESMTP
+	id <S314095AbSDKPiD>; Thu, 11 Apr 2002 11:38:03 -0400
+From: "Sean Hunter" <sean@uncarved.com>
+Date: Thu, 11 Apr 2002 16:38:01 +0100
+To: "MRS. MARIAM ABACHA" <m.abacha@totalise.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Private
+Message-ID: <20020411153801.GB6372@uncarved.com>
+Mail-Followup-To: Sean Hunter <bite_my_shorts@uncarved.com>,
+	"MRS. MARIAM ABACHA" <m.abacha@totalise.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020411151343Z314087-22651+4132@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, David S. Miller wrote:
+Dear Mrs Abacha (if that is your real name, which I doubt)
 
+I think that all of your problems would go away if you installed Rick
+Hohensee's l33t forth module and rewrote your kernel in java.
+
+Futhermore, I am a sucker.  I'd really like to give you my bank details so you
+can take all of my money and possibly kill me on the promise of fabulous ilicit
+wealth.
+
+Please email me at bite_my_shorts@uncarved.com and visit my website at
+http://www.quatloos.com/scams/nigerian.htm
+
+Cheers
+
+Sean Hunter
+
+On Wed, Apr 10, 2002 at 06:38:39PM -0700, MRS. MARIAM ABACHA wrote:
 > 
-> The CRC is not his problem, ipv4 will truncate it off it is
-> there.  In any event, see my other email, he thinks CHECKSUM_HW is
-> CHECKSUM_UNNECESSARY due to a bug in Rubinni's book.
+> HAJIA MARIAM ABACHA (MRS).
+> FROM: MRS. MARIAM ABACHA
+> C/O BARRISTER BISI MUSTAPHA & CO.
+> LAGOS NIGERIA.
 > 
-
-Okay. Good.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+> Good day,
+>
+> [Nigerian 419 scam snipped] 

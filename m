@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTLEHjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 02:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTLEHjE
+	id S263909AbTLEHlG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 02:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTLEHlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 02:39:04 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:28134 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263902AbTLEHjB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 02:39:01 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Fri, 5 Dec 2003 08:38:58 +0100
-User-Agent: KMail/1.5.4
-Cc: fuzzy77@free.fr, mfedyk@matchmail.com, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org
-References: <3FC4E8C8.4070902@free.fr> <200312041214.33376.baldrick@free.fr> <20031204085704.12d398df.rddunlap@osdl.org>
-In-Reply-To: <20031204085704.12d398df.rddunlap@osdl.org>
+	Fri, 5 Dec 2003 02:41:05 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:30156 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263909AbTLEHlC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 02:41:02 -0500
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200312050838.58349.baldrick@free.fr>
+Message-ID: <16336.13962.285442.228795@alkaid.it.uu.se>
+Date: Fri, 5 Dec 2003 08:40:58 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jesse Allen <the3dfxdude@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <20031205045404.GA307@tesore.local>
+References: <20031205045404.GA307@tesore.local>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 December 2003 17:57, Randy.Dunlap wrote:
-> On Thu, 4 Dec 2003 12:14:33 +0100 Duncan Sands <baldrick@free.fr> wrote:
-> | > EIP is at releaseintf+0x62/0x80 [usbcore]
-> |
-> | I haven't found time to work on this, sorry -
-> | I'm really busy with my real jobs right now.
-> |
-> | > <0>Fatal exception: panic in 5 seconds
-> |
-> | What is this, by the way?  I never saw it.
->
-> That comes from setting the sysctl "panic_on_oops" so that an oops
-> goes straight to a panic condition.
+Jesse Allen writes:
+ > Hi,
+ > 
+ > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
+ > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
+ > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
+ > NMI watchdog doesn't seem to work.
+ > 
+ > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
+ > /var/log/syslog:
+ > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
+ > IO-APIC
+ > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
+ > disabling NMI Watchdog!
+ > 
+ > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
+ > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
+ > but it still locks up.
 
-That explains why this relatively harmless Oops was
-freezing Vince's box.  I guess he should turn it off.
-
-Thanks for the info,
-
-Duncan.
+The NMI watchdog can only handle software lockups, since it relies on
+the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
+Hardware lockups result in, well, hardware lockups :-(

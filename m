@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280012AbRKNCVP>; Tue, 13 Nov 2001 21:21:15 -0500
+	id <S280029AbRKNCd6>; Tue, 13 Nov 2001 21:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280024AbRKNCU4>; Tue, 13 Nov 2001 21:20:56 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:3968 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S280012AbRKNCUp>; Tue, 13 Nov 2001 21:20:45 -0500
-Date: Tue, 13 Nov 2001 21:20:37 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Pascal Schmidt <pleasure.and.pain@web.de>
-cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: fdutils.
-In-Reply-To: <Pine.LNX.4.33.0111140135420.1297-100000@neptune.sol.net>
-Message-ID: <Pine.LNX.4.40.0111132119200.249-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280027AbRKNCdi>; Tue, 13 Nov 2001 21:33:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:25485 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280017AbRKNCd2>;
+	Tue, 13 Nov 2001 21:33:28 -0500
+Date: Tue, 13 Nov 2001 18:32:56 -0800 (PST)
+Message-Id: <20011113.183256.15406047.davem@redhat.com>
+To: hiryuu@envisiongames.net
+Cc: calin@ajvar.org, nitrax@giron.wox.org, linux-kernel@vger.kernel.org
+Subject: Re: What Athlon chipset is most stable in Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200111132137.fADLbdW01289@demai05.mw.mediaone.net>
+In-Reply-To: <Pine.LNX.4.30.0111131559580.8219-100000@rtlab.med.cornell.edu>
+	<200111132137.fADLbdW01289@demai05.mw.mediaone.net>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Brian <hiryuu@envisiongames.net>
+   Date: Tue, 13 Nov 2001 16:37:28 -0500
 
-	Hello Pascal ,  Which can mean that I can not use the floppy
-	drive either (?) .  Also one can easily have more than 1 device
-	which gets by the can not use for both floppy & cdrom .
-		Hth ,  JimL
-
-On Wed, 14 Nov 2001, Pascal Schmidt wrote:
-
-> On Tue, 13 Nov 2001, H. Peter Anvin wrote:
->
-> >> Shameless plug: I use my own distribtion
-> >> 	http://www.tzi.de/~pharao90/ttylinux/
-> >> for the same purpose. ;)
-> > And some not-so-minimalistic systems... you can fit an awful lot on a CD.
-> > 	http://www.kernel.org/pub/dist/superrescue/
->
-> Sure, but having to mount the CDROM means the drive is inaccessible during
-> a rescue operation, so no restore from CDROM or CDRW backups is possible.
-> ;) Mine runs out of a 4 MB ramdisk image.
->
-> --
-> Ciao, Pascal
->
-> -<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
+   We've tried a number of boards for our application servers and the only UP 
+   AMD DDR board I trust right now is the Gigabyte GA-7DX.  They are rock 
+   solid.
+   
+Try to use the AGP slot with a Radeon of GeForce card, do something
+as simple as playing some quake with com_maxfps > 85 and the machine
+will hang solidly.

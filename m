@@ -1,83 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278309AbRJ1NLc>; Sun, 28 Oct 2001 08:11:32 -0500
+	id <S278338AbRJ1NPw>; Sun, 28 Oct 2001 08:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278320AbRJ1NLW>; Sun, 28 Oct 2001 08:11:22 -0500
-Received: from robin.mail.pas.earthlink.net ([207.217.120.65]:18593 "EHLO
-	robin.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S278316AbRJ1NLH>; Sun, 28 Oct 2001 08:11:07 -0500
-Date: Sun, 28 Oct 2001 08:13:32 -0500
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: VM test on 2.4.14-pre3aa1 (compared to 2.4.14-pre3)
-Message-ID: <20011028081332.A302@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S278320AbRJ1NPm>; Sun, 28 Oct 2001 08:15:42 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17388 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278354AbRJ1NPh>;
+	Sun, 28 Oct 2001 08:15:37 -0500
+Date: Sun, 28 Oct 2001 08:16:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Richard Gooch <rgooch@atnf.csiro.au>, Rik van Riel <riel@conectiva.com.br>,
+        Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <3BDBF9C8.8E1F96AB@linux-m68k.org>
+Message-ID: <Pine.GSO.4.21.0110280805220.24880-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Summary:  2.4.14-pre3aa1 takes more wall time for
-	tests.  Audio sounds closer to the "edge",
-	I.E more likely to skitter or skip.
 
-Test:	Run "mtest01 -w 80" and mmap001 from LTP.
-	Listen to long mp3 sampled at 128k.
-	Light console irc client and lynx use.
+On Sun, 28 Oct 2001, Roman Zippel wrote:
 
+> What about putting them somewhere in a CVS repository, so people can see
+> what's going on and maybe even can help out?
 
-2.4.14-pre3aa1
+Looks like I'll get around to creating a CVS repository starting at the
+last known code in a couple of days anyway...
 
-About 2-3 seconds of sound skitter when typing
-a URL in lynx or something in irc client. 
+> BTW you should really do something about your coding style, your code is
+> very confusing to read. I wouldn't care if it would be just some driver,
+> but devfs is supposed to be a very important part, so it would be nice
+> to use the same rules that apply to other important parts of the kernel.
 
-Averages for 10 mtest01 runs
-bytes allocated:                    1246232576
-User time (seconds):                2.105
-System time (seconds):              2.773
-Elapsed (wall clock) time:          59.503
-Percent of CPU this job got:        7.80
-Major (requiring I/O) page faults:  132.8
-Minor (reclaiming a frame) faults:  305043.1
+Good luck.
 
-About 2-3 seconds of sound drop on mmap001 for
-2.4.14-pre3aa1. 
+BTW, Richard - the last one for tonight:
 
-Average for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.660
-System time (seconds):              16.272
-Elapsed (wall clock seconds) time:  287.13
-Percent of CPU this job got:        12.00
-Major (requiring I/O) page faults:  500168.0
-Minor (reclaiming a frame) faults:  38.8
-
-
-
-2.4.14-pre3
-
-Same two tests on 2.4.14-pre3 for comparison:
-
-Averages for 10 mtest01 runs
-bytes allocated:                    1233859379
-User time (seconds):                2.034
-System time (seconds):              3.036
-Elapsed (wall clock) time:          30.517
-Percent of CPU this job got:        16.10
-Major (requiring I/O) page faults:  107.0
-Minor (reclaiming a frame) faults:  302029.3
-
-Average for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.578
-System time (seconds):              17.388
-Elapsed (wall clock seconds) time:  171.45
-Percent of CPU this job got:        21.20
-Major (requiring I/O) page faults:  500158.8
-Minor (reclaiming a frame) faults:  41.4
-
--- 
-Randy Hron
+devfs_unregister() vs. get_vfs_inode().  The latter blocks, so devfs_lookup()
+and devfs_d_revalidate() can give you a nasty surprise - entry gets
+unregistered while we allocate the inode and there's no connection between
+it and inode or dentry at that point.  Then we merrily get dentry/inode
+tied to unregistered devfs_entry.  And that includes reference _to_ dentry.
+Enjoy...
 

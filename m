@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUGNXjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUGNXjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUGNXjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 19:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGNXjX
+	id S265144AbUGNXjq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 19:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGNXjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 19:39:23 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:33249 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S265119AbUGNXjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 19:39:22 -0400
-Date: Wed, 14 Jul 2004 16:39:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Eger <eger@havoc.gtf.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
-Message-ID: <20040714233920.GP21856@smtp.west.cox.net>
-References: <20040712075113.GB19875@havoc.gtf.org> <20040712082104.GA22366@havoc.gtf.org> <20040712220935.GA20049@havoc.gtf.org> <20040713003935.GA1050@havoc.gtf.org> <1089692194.1845.38.camel@gaston> <20040714040403.GA29729@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040714040403.GA29729@havoc.gtf.org>
-User-Agent: Mutt/1.5.6+20040523i
+	Wed, 14 Jul 2004 19:39:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43738 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265124AbUGNXjl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 19:39:41 -0400
+Message-ID: <40F5C42E.1060708@pobox.com>
+Date: Wed, 14 Jul 2004 19:39:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
+References: <200407141751.i6EHprhf009045@harpo.it.uu.se>	<40F57D14.9030005@pobox.com> <20040714143508.3dc25d58.akpm@osdl.org>
+In-Reply-To: <20040714143508.3dc25d58.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 12:04:03AM -0400, David Eger wrote:
-
-[snip]
-> > > ( of course, it still spews diahrea of 'IN from bad port XXXXXXXX'
-> > >   but then, I don't have the hardware.... still, seems weird that OF
-> > >   would report that I do have said hardware :-/ )
-> > 
-> > The IN from bad port is a different issue, it's probably issued by
-> > another driver trying to tap legacy hardware, either serial.o or
-> > ps/2 kbd, I suppose, check what else of that sort you have in your
-> >  .config
+Andrew Morton wrote:
+> Yeah, but doing:
 > 
-> Sure enough, the "IN from bad port XXXXXXXX" ended up being the i8042
-> serial PC keyboard driver, enabled with CONFIG_SERIO_I8042.  Don't know
-> why that's in ppc defconfig....
+> 	static inline foo(void);
+> 
+> 	bar()
+> 	{
+> 		...
+> 		foo();
+> 	}
+> 
+> 	static inline foo(void)
+> 	{
+> 		...
+> 	}
+> 
+> is pretty dumb too.  I don't see any harm if this compiler feature/problem
+> pushes us to fix the above in the obvious way.
 
-That's on for all of the ppc boards with an i8042 which the defconfig is
-supposed to support (prep & chrp hardware).
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+???  C does not require ordering of function _implementations_, except 
+for this gcc brokenness.
+
+The above example allows one to do what one normally does with 
+non-inlines:  order code to enhance readability, and the compiler will 
+Do The Right Thing and utilize it in the best way the CPU will function.
+
+Just because you stick a modifier on a function doesn't mean it's time 
+to stop using C as it was meant to be used :)
+
+	Jeff
+
+

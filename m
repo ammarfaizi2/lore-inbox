@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312887AbSCZAQu>; Mon, 25 Mar 2002 19:16:50 -0500
+	id <S312891AbSCZAR2>; Mon, 25 Mar 2002 19:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312888AbSCZAQj>; Mon, 25 Mar 2002 19:16:39 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54289 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312887AbSCZAQd>; Mon, 25 Mar 2002 19:16:33 -0500
-Date: Mon, 25 Mar 2002 20:11:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] smaller kernels
-In-Reply-To: <3C9FBCDA.C898E977@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0203252010300.3409-100000@freak.distro.conectiva>
+	id <S312890AbSCZARU>; Mon, 25 Mar 2002 19:17:20 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:54414 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S312888AbSCZARH>;
+	Mon, 25 Mar 2002 19:17:07 -0500
+Message-ID: <3C9FBD13.7030302@candelatech.com>
+Date: Mon, 25 Mar 2002 17:13:07 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: per@computer.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mcp@linux-systeme.de" <mcp@linux-systeme.de>
+Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
+In-Reply-To: <E16pec1-00023g-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > Alan Cox wrote:
 
-
-On Mon, 25 Mar 2002, Andrew Morton wrote:
-
-> Marcelo Tosatti wrote:
-> > 
-> > I've just readded all asserts which you removed... if you really want to
-> > remove any of those, please prove me that they are useless.
+>>>o   add:        ISDN LZS Compression
+>>>
+>>I thought there was some fairly good reason as to why the LZS compression
+>>patch is not in the official kernel ? Isn't somebodys patent getting in
+>>the way ?
+>>
 > 
-> I grepped a year's lkml traffic - nobody is hitting any
-> of them...
+> LZS isn't shippable in the USA, only the free world
 
-Anyway, they may catch bugs introduced by new modifications...
 
-> The quotaops.h checks were useless:
-> 
-> 	if (pointer == NULL)
-> 		BUG();
-> 	dereference(pointer);
-> 
-> The others can become calls to out_of_line_bug() if
-> you want.
+Maybe you mean it isn't shippable from the USA to anywhere else
+in the world?  Still a reason not to include it, but I was under
+the impression that the real restrictions on encryption were about
+exports only.
 
-Please do, thanks.
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 

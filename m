@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263007AbSJBJSy>; Wed, 2 Oct 2002 05:18:54 -0400
+	id <S263020AbSJBJUj>; Wed, 2 Oct 2002 05:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263019AbSJBJSy>; Wed, 2 Oct 2002 05:18:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11171 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S263007AbSJBJSw>;
-	Wed, 2 Oct 2002 05:18:52 -0400
-Date: Wed, 2 Oct 2002 11:31:36 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sigfix-2.5.40-A0
-Message-ID: <Pine.LNX.4.44.0210021129290.6714-100000@localhost.localdomain>
+	id <S263021AbSJBJUj>; Wed, 2 Oct 2002 05:20:39 -0400
+Received: from netcore.fi ([193.94.160.1]:26888 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S263020AbSJBJUh>;
+	Wed, 2 Oct 2002 05:20:37 -0400
+Date: Wed, 2 Oct 2002 12:25:37 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
+cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: Re: [PATCH] Mobile IPv6 for 2.5.40 (request for kernel inclusion)
+In-Reply-To: <20021002092111.GB17010@morphine.tml.hut.fi>
+Message-ID: <Pine.LNX.4.44.0210021224350.27873-100000@netcore.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I believe MIPL implements an old version of MIPv6 (draft -15 or so).
 
-the attached patch (against BK-curr) fixes yet another thread signal
-detail, reported by Axel Zeuner (and also reproduced in Ulrich's thread
-signal testcases) - sigwaiting threads do count as if they had those
-signals unblocked. Fortunately fixing this means the removal of the
-real_blocked field from task_struct.
+Or do you support -18 ?
 
-	Ingo
+On Wed, 2 Oct 2002, Antti Tuominen wrote:
+> Hello Dave, Alexey, and all,
+> 
+> I am part of the MIPL Mobile IPv6 for Linux Team at Helsinki
+> University of Technology, and we have been working on an
+> implementation of Mobility Support in IPv6 specification for the past
+> 3 years.  Now the code has matured to the point, that we feel
+> confident enough to ask for kernel inclusion.
+> 
+> Our implementation has been to several interop and conformance testing
+> events, and has proven to be very compliant and to interoperate with
+> all major vendors' implementations.  Code has been tested on several
+> UP and SMP configurations, and performs quite well.
+> 
+> Implementation consists of two kernel modules, changes to IPv6 stack,
+> and userspace configuration tools.  First module provides support for
+> 6over6 (IPv6 in IPv6) tunneling.  Second module is the Mobile IPv6
+> module, and adds support for Mobile IPv6 Correspondent Node, Mobile
+> Node, and Home Agent.  IPv6 stack has been modified to provide some
+> MIPv6 mandated features as well as hooks to our module.
+> 
+> Latest code for 2.5 series can be pulled from our public BitKeeper
+> repository (parent is http://linux.bkbits.net/linux-2.5): 
+> 	bk://bk.mipl.mediapoli.com/linux25-mipl
+> 
+> Diff against latest BK bits can be downloaded from:
+> 	http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
+> 
+> Latest userspace tools are found at:
+> 	bk://bk.mipl.mediapoli.com/mipv6-tools
+> 
+> More information of the project can be found at our website:
+> 	http://www.mipl.mediapoli.com/
+> 
+> The team continues the development work to have fully RFC compliant
+> (when the specification moves to RFC) implementation of Mobile IPv6 in
+> the Linux kernel, as well as work on improving the code.
+> 
+> On behalf of the MIPL Team,
+> 
+> Antti Tuominen
+> 
+> 
 
---- linux/include/linux/sched.h.orig	Wed Oct  2 11:22:32 2002
-+++ linux/include/linux/sched.h	Wed Oct  2 11:23:28 2002
-@@ -378,7 +378,7 @@
- /* signal handlers */
- 	struct signal_struct *sig;
- 
--	sigset_t blocked, real_blocked, shared_unblocked;
-+	sigset_t blocked, shared_unblocked;
- 	struct sigpending pending;
- 
- 	unsigned long sas_ss_sp;
---- linux/kernel/signal.c.orig	Wed Oct  2 11:22:16 2002
-+++ linux/kernel/signal.c	Wed Oct  2 11:23:22 2002
-@@ -843,8 +843,7 @@
- 	struct pid *pid;
- 
- 	for_each_task_pid(p->tgid, PIDTYPE_TGID, tmp, l, pid)
--		if (!sigismember(&tmp->blocked, signr) &&
--					!sigismember(&tmp->real_blocked, signr))
-+		if (!sigismember(&tmp->blocked, signr))
- 			return tmp;
- 	return NULL;
- }
-@@ -1482,7 +1481,8 @@
- 			/* None ready -- temporarily unblock those we're
- 			 * interested while we are sleeping in so that we'll
- 			 * be awakened when they arrive.  */
--			current->real_blocked = current->blocked;
-+			sigset_t orig_blocked = current->blocked;
-+
- 			sigandsets(&current->blocked, &current->blocked, &these);
- 			recalc_sigpending();
- 			spin_unlock_irq(&current->sig->siglock);
-@@ -1494,8 +1494,7 @@
- 			sig = dequeue_signal(&current->sig->shared_pending, &these, &info);
- 			if (!sig)
- 				sig = dequeue_signal(&current->pending, &these, &info);
--			current->blocked = current->real_blocked;
--			siginitset(&current->real_blocked, 0);
-+			current->blocked = orig_blocked;
- 			recalc_sigpending();
- 		}
- 	}
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
 

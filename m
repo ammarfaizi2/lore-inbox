@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262483AbSJISr3>; Wed, 9 Oct 2002 14:47:29 -0400
+	id <S262008AbSJITDw>; Wed, 9 Oct 2002 15:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262485AbSJISr3>; Wed, 9 Oct 2002 14:47:29 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:61359 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262483AbSJISr1>;
-	Wed, 9 Oct 2002 14:47:27 -0400
-Subject: [PATCH] Eliminate compiler warnings from jbd_kmalloc
-From: Stephen Hemminger <shemminger@osdl.org>
-To: viro@math.psu.edu
+	id <S262007AbSJITDu>; Wed, 9 Oct 2002 15:03:50 -0400
+Received: from edinburgh.cisco.com ([144.254.112.76]:7578 "EHLO cisco.com")
+	by vger.kernel.org with ESMTP id <S261920AbSJITCv>;
+	Wed, 9 Oct 2002 15:02:51 -0400
+Date: Wed, 9 Oct 2002 20:05:53 +0100
+From: Derek Fawcus <dfawcus@cisco.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 11:52:50 -0700
-Message-Id: <1034189570.1895.33.camel@dell_ss3.pdx.osdl.net>
+Subject: Re: Looking for testers with these NICs
+Message-ID: <20021009200553.I29133@edinburgh.cisco.com>
+References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Oct 09, 2002 at 07:31:17PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks trivial and fixes compiler warnings. __FUNCTION__ is a
-constant and gcc warns about passing it as a mutuable string.
+On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
+> ni65.c
 
---- linux-2.5/include/linux/jbd.h	2002-09-09 10:27:12.000000000 -0700
-+++ dcl-latest/include/linux/jbd.h	2002-10-09 11:40:00.000000000 -0700
-@@ -54,7 +54,7 @@
- #define jbd_debug(f, a...)	/**/
- #endif
- 
--extern void * __jbd_kmalloc (char *where, size_t size, int flags, int retry);
-+extern void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry);
- #define jbd_kmalloc(size, flags) \
- 	__jbd_kmalloc(__FUNCTION__, (size), (flags), journal_oom_retry)
- #define jbd_rep_kmalloc(size, flags) \
---- linux-2.5/fs/jbd/journal.c	2002-09-30 10:00:49.000000000 -0700
-+++ dcl-latest/fs/jbd/journal.c	2002-10-09 11:41:07.000000000 -0700
-@@ -1526,7 +1526,7 @@
-  * Simple support for retying memory allocations.  Introduced to help to
-  * debug different VM deadlock avoidance strategies. 
-  */
--void * __jbd_kmalloc (char *where, size_t size, int flags, int retry)
-+void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry)
- {
- 	void *p;
- 	static unsigned long last_warning;
+I've got some of these knocking about,  but rather than use that driver,
+I have a (quite old) patch,  that allows the normal lance driver to be
+used.  The patch dates back from 1.3.x,  but I think I may have a more
+recent version around.
 
-
-
+DF

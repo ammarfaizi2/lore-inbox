@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265095AbSKNRoc>; Thu, 14 Nov 2002 12:44:32 -0500
+	id <S265114AbSKNRsp>; Thu, 14 Nov 2002 12:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265111AbSKNRoc>; Thu, 14 Nov 2002 12:44:32 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14292 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S265095AbSKNRoa>; Thu, 14 Nov 2002 12:44:30 -0500
-Date: Thu, 14 Nov 2002 10:51:10 -0700
-Message-Id: <200211141751.gAEHpAVm021359@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] devfs API
-In-Reply-To: <Pine.GSO.4.21.0211101348350.24061-100000@steklov.math.psu.edu>
-References: <Pine.GSO.4.21.0211101348350.24061-100000@steklov.math.psu.edu>
+	id <S265126AbSKNRso>; Thu, 14 Nov 2002 12:48:44 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:7568 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S265114AbSKNRsn> convert rfc822-to-8bit;
+	Thu, 14 Nov 2002 12:48:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Irfan Hamid <irfan_hamid@softhome.net>
+Reply-To: irfan_hamid@softhome.net
+Organization: Air Weapons Complex
+To: chandrasekhar.nagaraj@patni.com, linux-kernel@vger.kernel.org
+Subject: Re: Path Name to kdev_t
+Date: Thu, 14 Nov 2002 22:50:48 +0000
+User-Agent: KMail/1.4.1
+References: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
+In-Reply-To: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211142250.48514.irfan_hamid@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 	During the last couple of weeks I'd done a lot of digging in
-> devfs-related code.  Results are interesting, and not in a good sense.
-> 
-> 	1) a _lot_ of functions exported by devfs are never used.  At
-> all.
-[...]
+in all functions of the driver where you will need the kdev_t (e.g.: the VFS 
+layer hooks) you will receive either a struct inode* and/or the struct file* 
+of the device file. the i_rdev member of struct inode is defined as the 
+kdev_t of the particular device.
 
-I don't have time right now do deal with all the points you raised,
-I'll deal with each of the points you raise over the next week or
-so. However, I'll make a couple of quick points:
+hope this helps.
 
-- I'm leery of changing the API and breaking compatibility between 2.4
-  and 2.5 drivers. I also don't want to break out-of-tree drivers
-  without giving maintainers plenty of warning. There are a number
-  such out there
+regards,
+irfan.
 
-- I have far more drastic plans for code reduction in devfs. The plan
-  I've mentioned since OLS is to leverage sysfs so that devfsd can be
-  used to populate devfs from user-space. For the root FS device, I
-  figure on writing a mini devfsd for initramfs. From the perspective
-  of user-space, this will provide functional compatibility. From
-  kernel-space it will effectively be an API change, so I don't want
-  to do this twice.
+On Thursday 14 November 2002 01:49 pm, chandrasekhar.nagaraj wrote:
+> Hi,
+>
+> In one of the part of my driver module , I have a path name to a device
+> file (for eg:- /dev/hda1) .Now if I want to obtain the associated major
+> number and minor number i.e. device ID(kdev_t) of this file what would be
+> the procedure?
+>
+> Thanks and Regards
+> Chandrasekhar
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I'd hoped to get the new major version of devfs ready before the
-freeze, but limited time (read: funding) has been available. Oh, well.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

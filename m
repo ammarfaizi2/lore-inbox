@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286411AbSAQAcN>; Wed, 16 Jan 2002 19:32:13 -0500
+	id <S287344AbSAQAfX>; Wed, 16 Jan 2002 19:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbSAQAcD>; Wed, 16 Jan 2002 19:32:03 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20998 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286411AbSAQAbp>;
-	Wed, 16 Jan 2002 19:31:45 -0500
-Date: Wed, 16 Jan 2002 22:31:26 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: V-man <venom@DarkStar.sns.it>
-Cc: <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-In-Reply-To: <200201170008.g0H08IEp014359@DarkStar.sns.it>
-Message-ID: <Pine.LNX.4.33L.0201162230550.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287332AbSAQAfN>; Wed, 16 Jan 2002 19:35:13 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:58809 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286557AbSAQAfF>; Wed, 16 Jan 2002 19:35:05 -0500
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+In-Reply-To: <Pine.LNX.4.33.0201161011010.12591-100000@twinlark.arctic.org>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 17 Jan 2002 01:34:27 +0100
+Message-ID: <87u1tlizn0.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, V-man wrote:
+dean gaudet <dean-list-linux-kernel@arctic.org> writes:
 
-> So basically Ri's assertion is far from truth on many aspects.
+> no kernel impact ... i was just suggesting that any accompanying
+> documentation should be careful to imply that the one change to allow www
+> to open 80 is all that's required to get rid of apache's root privs.  i'm
+> just worried folks will blindly chown their logs to www.
 
-That assumes it is my assertion, it appears the journalist in
-question is missing a few lines from his IRC log though...
+Ok, now I understand your suggestion. Seems, I have to learn a lot
+more about security. Thanks, I will think about this issue.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Regards, Olaf.

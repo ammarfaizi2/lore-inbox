@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269657AbUICMM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269643AbUICMRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269657AbUICMM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 08:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269665AbUICMMp
+	id S269643AbUICMRH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269632AbUICMRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 08:12:45 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:7145 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269657AbUICMLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 08:11:02 -0400
-Date: Fri, 3 Sep 2004 08:15:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, takata@linux-m32r.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm3
-In-Reply-To: <20040903104239.A3077@infradead.org>
-Message-ID: <Pine.LNX.4.58.0409030814100.4481@montezuma.fsmlabs.com>
-References: <20040903014811.6247d47d.akpm@osdl.org> <20040903104239.A3077@infradead.org>
+	Fri, 3 Sep 2004 08:17:07 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:20685 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S269645AbUICMM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 08:12:26 -0400
+Message-ID: <41385FA5.806@cs.aau.dk>
+Date: Fri, 03 Sep 2004 14:12:21 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040619)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: umbrella-devel@lists.sourceforge.net
+Subject: Getting full path from dentry in LSM hooks
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, Christoph Hellwig wrote:
+Hi!
 
-> On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm3/
-> >
-> > - Added the m32r architecture.  Haven't looked at it yet.
->
-> Just from looking at the diffstat and not actual code: the actual code:
->
->  - it adds new drivers under arch/m32r instead of drivers/
+I have a short question, concerning how to get the full path of a file 
+from a LSM hook.
 
-Lucky you didn't look ;)
+- If the "file" of the dentry is located in the root filesystem: no
+   problem - simply traverse the dentrys, to generate the path.
 
-diff -puN /dev/null arch/m32r/drivers/8390.c
---- /dev/null	Thu Apr 11 07:25:15 2002
-+++ 25-akpm/arch/m32r/drivers/8390.c	Wed Sep  1 15:02:27 2004
-@@ -0,0 +1 @@
-+#include "../../../drivers/net/8390.c"
-diff -puN /dev/null arch/m32r/drivers/8390.h
---- /dev/null	Thu Apr 11 07:25:15 2002
-+++ 25-akpm/arch/m32r/drivers/8390.h	Wed Sep  1 15:02:27 2004
-@@ -0,0 +1 @@
-+#include "../../../drivers/net/8390.h"
-diff -puN /dev/null arch/m32r/drivers/cs_internal.h
---- /dev/null	Thu Apr 11 07:25:15 2002
-+++ 25-akpm/arch/m32r/drivers/cs_internal.h	Wed Sep  1 15:02:27 2004
-@@ -0,0 +1,2 @@
-+#include "../../../drivers/pcmcia/cs_internal.h"
-+
+- If the "file" is mounted from another partition, you do not get the
+   full path by traversing the dentrys.
+
+Example:
+If we have a system with a normal root (/) and a seperate boot partition 
+(mounted on /boot :). In the LSM hook inode_permission, you get the 
+arguments (struct inode *inode, int mask, struct nameidata *nd).
+Finding the path, we traverse the dentrys from (nd->dentry). But if the 
+inode is a file in /boot we only get the filename (e.g. kernel-2.6.8.1 
+instead of /boot/kernel-2.6.8.1)
+
+
+Can some one reveal the trick to get the full path nomater if the 
+filesystem is root or mounted elsewhere in the filesystem?
+
+
+Best regards,
+Kristian Sørensen.
+The Umbrella Project -- http://umbrella.sf.net

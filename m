@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbTJ3V2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTJ3V2P
+	id S262881AbTJ3VdO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTJ3VdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:28:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23980 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262855AbTJ3V2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:28:13 -0500
-Date: Thu, 30 Oct 2003 13:30:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: sluskyb@paranoiacs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
-Message-Id: <20031030133000.6a04febf.akpm@osdl.org>
-In-Reply-To: <3FA15506.B9B76A5D@users.sourceforge.net>
-References: <20031030134137.GD12147@fukurou.paranoiacs.org>
-	<3FA15506.B9B76A5D@users.sourceforge.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Oct 2003 16:33:13 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12786 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262881AbTJ3VdJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:33:09 -0500
+Message-ID: <3FA1838C.3060909@mvista.com>
+Date: Thu, 30 Oct 2003 13:33:00 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Chubb <peter@chubb.wattle.id.au>
+CC: Stephen Hemminger <shemminger@osdl.org>, Gabriel Paubert <paubert@iram.es>,
+       john stultz <johnstul@us.ibm.com>, Joe Korty <joe.korty@ccur.com>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: gettimeofday resolution seriously degraded in test9
+References: <20031027234447.GA7417@rudolph.ccur.com>	<1067300966.1118.378.camel@cog.beaverton.ibm.com>	<20031027171738.1f962565.shemminger@osdl.org>	<20031028115558.GA20482@iram.es>	<20031028102120.01987aa4.shemminger@osdl.org>	<20031029100745.GA6674@iram.es>	<20031029113850.047282c4.shemminger@osdl.org> <16288.17470.778408.883304@wombat.chubb.wattle.id.au>
+In-Reply-To: <16288.17470.778408.883304@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jari Ruusu <jariruusu@users.sourceforge.net> wrote:
->
-> Ben Slusky wrote:
-> > The attached patch changes the loop device transfer functions (including
-> > cryptoloop transfers) to accept page/offset pairs instead of virtual
-> > addresses, and removes the redundant kmaps in do_lo_send, do_lo_receive,
-> > and loop_transfer_bio. Per Andrew Morton's request a while back.
+Peter Chubb wrote:
+>>>>>>"Stephen" == Stephen Hemminger <shemminger@osdl.org> writes:
 > 
-> Cryptoloop is not the only user of loop transfer interface. Please don't
-> change that interface as it breaks code outside of mainline kernel.
+> 
+> Stephen> On Wed, 29 Oct 2003 11:07:45 +0100 Gabriel Paubert
+> Stephen> <paubert@iram.es> wrote:
+> 
+>>>for example.
+> 
+> 
+> Stephen> The suggestion of using time interpolation (like ia64) would
+> Stephen> make the discontinuities smaller, but still relying on fine
+> Stephen> grain gettimeofday for controlling servo loops with NTP
+> Stephen> running seems risky. Perhaps what you want to use is the
+> Stephen> monotonic_clock which gives better resolution (nanoseconds)
+> Stephen> and doesn't get hit by NTP.
+> 
+> monotonic_clock:
+> 	-- isn't implemented for most architectures
+> 	-- even for X86 only works for some timing sources
+> 	-- and for the most common case is variable rate because of
+> 	   power management functions changing the TSC clock rate.
+> 
+> As far as I know, there isn't a constant-rate monotonic clock
+> available at present for all architectures in the linux kernel.  The
+> nearest thing is scheduler_clock().
 
-We really should not retain ugly interfaces in the mainline kernel because
-some external, unmerged piece of code relies on the old interfaces.  That
-way lies madness.
+What you want is the POSIX clocks and timers CLOCK_MONOTONIC which is available 
+on all archs (as of 2.6).  The call is:
 
-Especially as that external code has, I think, remained unmerged for years,
-and there appears to be no momentum moving it forwards.
+       cc [ flag ... ] file -lrt [ library ... ]
 
-We *have* to get the mainline codebase up-to-date with current kernel
-idioms and working as well as possible.  If you want to submit sane-sized
-and documented patches to help us get there then sheesh, go wild.  But
-please do not try to stop the rest of us.
+        #include <time.h>
 
-> Cryptoapi interface is quite broken. Your change extends that breakage to
-> loop transfer interface. Please don't do that.
+        int clock_gettime(clockid_t which_clock, struct timespec *setting);
 
-Please describe this breakage.
+where you want "which_clock" to be CLOCK_MONOTONIC.
 
 
-Ben, I confess that I'd forgotten about #1198.  I'll take a look at your
-memory allocation fix - it seems to be unfortunately large, but we may need
-to go that way.
-
-One question is: why do we go down a different code path for blockdevs
-nowadays anyway?  The handoff to the loop thread seems to work OK for
-file-backed loop, and providing a bmap() for blockdevs is easy enough?
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264837AbTH3O7G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 10:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbTH3O7G
+	id S262037AbTH3PHM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 11:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTH3PHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 10:59:06 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:59046 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S264837AbTH3O7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 10:59:03 -0400
-Date: Sat, 30 Aug 2003 16:59:00 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re:Re: Linux 2.6.0-test4
-Message-ID: <20030830145900.GB6862@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030830095858.0895.CHRIS@heathens.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030830095858.0895.CHRIS@heathens.co.nz>
-User-Agent: Mutt/1.5.4i
+	Sat, 30 Aug 2003 11:07:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39404 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262037AbTH3PHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 11:07:08 -0400
+Date: Sat, 30 Aug 2003 12:02:49 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: john stultz <johnstul@us.ibm.com>
+Cc: olof@austin.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: /proc/ioports overrun patch
+Message-ID: <Pine.LNX.4.55L.0308301140060.31588@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Heath <chris@heathens.co.nz>:
-> > I still have issues with the keyboard -- sometimes when typing in the
-> > frambuffer console I get an "unknown scancode" and after that the CTRL
-> > key is stuck forever, which forces me to reboot.
-> 
-> Please post the full error message.  Does the error message always
-> contain the same scancode?
 
-I'll do that.
+> If so, I would prefer to have a fix which outputs the full resource
+> information. For that we would need seq_file().
 
-Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> I have a patch that converts /proc/interrupts to use seq_file as well,
+> however it would be much cleaner if Randy's backport of the "single"
+> interface went in first
 
-Basically, CTRL was stuck. Even when I switched to X11.
+>http://www.ussg.iu.edu/hypermail/linux/kernel/0308.3/0296.html
 
-> My guess is you can get out of that without a reboot.  Next time it
-> happens, try this:
->    1. Press and release each Ctrl key. (This makes sure the key_down
->       array is correct.)
->    2. Switch to another console and back again. (This executes the
->       compute_shiftstate function, which recalculates the shift
->       state from the key_down array.)
+>Are you planning on taking that patch? Or should I just resend my patch
+> w/o it?
 
-Ah, good idea.
-
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix
+I applied the seq file single interfaces now.

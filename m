@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbUBXVoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUBXVoH
+	id S262485AbUBXVnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbUBXVnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:44:07 -0500
-Received: from lightning.hereintown.net ([141.157.132.3]:3999 "EHLO
-	prime.hereintown.net") by vger.kernel.org with ESMTP
-	id S262482AbUBXVmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:42:53 -0500
-Subject: Re: /proc/mounts "stuff"
-From: Chris Meadors <clubneon@hereintown.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0402241630500.4054@chaos>
-References: <Pine.LNX.4.53.0402241630500.4054@chaos>
-Content-Type: text/plain
-Message-Id: <1077658970.7783.62.camel@clubneon.priv.hereintown.net>
+	Tue, 24 Feb 2004 16:43:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:42662 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262485AbUBXVm5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:42:57 -0500
+Date: Tue, 24 Feb 2004 13:41:07 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Kai Makisara <Kai.Makisara@metla.fi>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, kai.makisara@kolumbus.fi
+Subject: Re: [BK PATCH] SCSI update for 2.6.3
+Message-ID: <20040224214107.GB2045@kroah.com>
+References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi> <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave> <20040224171629.GA31369@kroah.com> <20040224101512.A19617@beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 24 Feb 2004 16:42:50 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224101512.A19617@beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-24 at 16:34, Richard B. Johnson wrote:
-> Linux version 2.2.24 (actually since pivot-root), have a
-> problem with what's in /proc/mounts vs. what's written
-> to /etc/mtab when mounting file-systems.
-
-[file contents snipped]
-
-> On that system /dev/root doesn't even exist!
-> Neither does rootfs in any accessible way. Therefore,
-> the shutdown routine(s) that read /proc/mounts will
-> fail, leaving improperly dismounted volumes.  Basically,
-> if I execute `init 0` from the console, everything's
-> fine, but executing 'reboot' from a network connection
-> will result in a long fsucking startup.
+On Tue, Feb 24, 2004 at 10:15:12AM -0800, Patrick Mansfield wrote:
+> On Tue, Feb 24, 2004 at 09:16:29AM -0800, Greg KH wrote:
 > 
-> I think the two unusable entries should not show in
-> /proc/mounts,
-> 	rootfs / rootfs rw 0 0
-> 	/dev/root / ext2 rw 0 0
-> That would fix the problem because there is no way to
-> umount either of them. Try it, `umount rootfs` returns
-> ENOENT as does `umount /dev/root'`.
+> > 
+> > Can you print out the sysfs tree this patch creates?
+> > 
+> > What's that "tape" symlink for?  Does it go from the scsi device in
+> > /sys/devices/... to the class device?  Or the other way around?
+> > 
+> > Other than that question, the patch looks sane to me.
+> 
+> Current 2.6 kernel default names are of the form: st[0-9]m[0-3][n]
+> 
+> Current /dev naming is of the form: [n]st[0-9][alm]
+> 
+> Should the st kernel names be changed to map to current /dev names?
 
-I have been considering making this same post for a while.
+Yes, to make it easier for everyone, they should.  Any reason why the
+kernel names are currently different from what we have in
+Documentation/devices.txt?  I really feel we should follow the standard
+here :)
 
-I do have a /dev/root (a symlink to my actual root device), and it is no
-better.  At shutdown/reboot time rootfs is still tried to be umounted
-and fails leaving me with a dirty root at the next boot.
+thanks,
 
-
--- 
-Chris
-
+greg k-h

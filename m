@@ -1,106 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbTBHUI6>; Sat, 8 Feb 2003 15:08:58 -0500
+	id <S267094AbTBHUYV>; Sat, 8 Feb 2003 15:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbTBHUI6>; Sat, 8 Feb 2003 15:08:58 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:48912 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267083AbTBHUI4>;
-	Sat, 8 Feb 2003 15:08:56 -0500
-Message-ID: <3E45661A.90401@mvista.com>
-Date: Sat, 08 Feb 2003 14:18:34 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
+	id <S267097AbTBHUYV>; Sat, 8 Feb 2003 15:24:21 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:33975 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267094AbTBHUYT>; Sat, 8 Feb 2003 15:24:19 -0500
+Date: Sat, 08 Feb 2003 12:33:56 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 326] New: BUG at drivers/scsi/scsi_error.c:1522! loading
+ ServeRaid driver
+Message-ID: <19900000.1044736436@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kexec, DMA, and SMP
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>
-In-Reply-To: <m1isvuzjj2.fsf@frodo.biederman.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
 
->Corey Minyard <cminyard@mvista.com> writes:
->  
->
->>Eric,
->>
->>I saw that you are working on kexec.  I'm using and have hacked on a similar
->>piece of software named bootimg (and I'll be glad when yours is done and ready
->>and we can jettison bootimg).  From the looks of the code, it looks like you
->>have seen bootimg, too.  I looked through your patch, and I noticed a few
->>things.  Hopefully it's the newest version of the patch.
->>
->>First was that you don't turn of DMA bus masters.  There seemed to be some
->>discussion of this on lkml, but I didn't see anything in the patch for it.  We
->>are actually having problems with bootimg and DMA bus master devices, so the
->>problem is real.  And turning of DMA bus mastering for everything on the PCI bus
->>didn't seem to work, Ken Sumrall tried it, and at least the device in question
->>(a bcm5700) seemed to ignore the bit.  We are looking at adding an ioctl or a
->>notifier list that will allow devices to register non-blocking calls to shut off
->>DMA.  Is anything like that under consideration, or are you thinking of using
->>the reboot notifier for this, or what?
->>    
->>
->
->The reboot notifier + device->shutdown(), are called.  As you have noted
->the problem is not as easy as clearing the bus master bit, so I leave it
->up to the device driver.  The device driver is responsible for placing
->the device into a quiescent state.
->
->Generally that code is present in the driver somewhere already, as it
->is needed for the rmmod case.   
->
->In addition going through the normal shutdown path, downing interfaces
->etc, usually helps as well.
->
->So for when kexec is not used in a panic case this is easy.
->
-The panic case is actually the most interesting for us.  We are using 
-bootimg with the MCL coredump to take a kernel core to memory and pick 
-it up on the next boot.  You cannot call most shutdown() functions from 
-a panic, since they will block.
+http://bugme.osdl.org/show_bug.cgi?id=326
 
->>The patch doesn't make sure it is running on processor zero for SMP machines.
->>You must do this on x86 machines, the kernel assumes it comes up on processor
->>zero.  I assume this is true for other machines, too.
->>    
->>
->
->I have a secondary patch.  kexec-hwfixes, that does this.  I am I need to review
->it a little closer and make certain the code is clean enough to go into
->the general purpose kernel.  But I do have the code.
->
-I have code that does this for bootimg, too, if you are interested, and 
-it has received extensive testing.
+           Summary: BUG at drivers/scsi/scsi_error.c:1522! loading ServeRaid
+                    driver
+    Kernel Version: 2.5.59-bk pull on 2/7/2003
+            Status: NEW
+          Severity: normal
+             Owner: andmike@us.ibm.com
+         Submitter: plars@austin.ibm.com
 
->>Hopefully I'm not looking at an old version of the patch, but these are
->>important things you need to handle.
->>    
->>
->
->Yep.  I am a little scatter brained on the maintenance side but I am handling
->them all.
->
->If you are after the kexec on panic case that is much, more
->interesting because it is quite possible we cannot afford to call some
->of those functions.  But I am quite willing to discuss and work with
->people on what is really going on.  
->
->For any more conversation though can we please cc linux-kernel?
->
->I like to keep things public so I don't have to answer the same
->question too many times.
->
-No problem.  As you have requested, lkml is copied.
 
-Thanks,
+Distribution:
+Hardware Environment:
+Netfinity 5500R ServeRaid with 3 drives attached (BSOD)
+Software Environment:
+Problem Description:
+I had previously been getting other errors on the ips driver that were
+preventing it from booting and I decided to take a look at it today as some
+changes had been made.
 
--Corey
+A log of ACPI errors came before this, I'm not sure if they are related or
+not.
+
+ACPI: No IRQ known for interrupt pin A of device 00:03.0<4>Warning ! ! !
+ServeRAID Version Mismatch
+Bios = 4.30.04, Firmware = 2.88.13, Device Driver = 5.99.00-BETA
+These levels should match to avoid possible compatibility problems.
+scsi0 : IBM PCI ServeRAID 5.99.00-BETA Build 1132 <ServeRAID II>
+scsi_eh_get_failed: host_failed: 1 != found: 0
+kernel BUG at drivers/scsi/scsi_error.c:1522!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c02d23f2>]    Not tainted
+EFLAGS: 00010202
+EIP is at scsi_unjam_host+0x7a/0xc8
+eax: 00000001   ebx: f7cffc00   ecx: ffffa9d5   edx: 0000562b
+esi: 00000000   edi: f7c31fd8   ebp: f7cffc00   esp: f7c31fa0
+ds: 007b   es: 007b   ss: 0068
+Process scsi_eh_0 (pid: 15, threadinfo=f7c30000 task=f7c2f920)
+Stack: f7c30000 00000000 c02d2636 f7cffc00 c02d2440 00000000 00000000
+00000000        00000000 00000000 00000001 dead4ead f7c31fe8 f7c31fe8
+00000000 00000000        00000001 dead4ead f7c31fe8 f7c31fe8 c0106f01
+f7cffc00 00000000 00000000 Call Trace:
+ [<c02d2636>] scsi_error_handler+0x1f6/0x22c
+ [<c02d2440>] scsi_error_handler+0x0/0x22c
+ [<c0106f01>] kernel_thread_helper+0x5/0xc
+
+Code: 0f 0b f2 05 e7 2a 46 c0 8d b6 00 00 00 00 80 a3 9a 00 00 00
+Steps to reproduce:
 

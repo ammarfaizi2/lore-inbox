@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268370AbRGXRPm>; Tue, 24 Jul 2001 13:15:42 -0400
+	id <S268375AbRGXRRw>; Tue, 24 Jul 2001 13:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268368AbRGXRPc>; Tue, 24 Jul 2001 13:15:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9227 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268366AbRGXRPX>; Tue, 24 Jul 2001 13:15:23 -0400
-Date: Tue, 24 Jul 2001 14:14:57 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "David L. Nicol" <david@kasey.umkc.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: When will ETCP be in linux kernels? Is there a patch?
-In-Reply-To: <3B5CD756.536118C5@kasey.umkc.edu>
-Message-ID: <Pine.LNX.4.33L.0107241414380.20326-100000@duckman.distro.conectiva>
+	id <S268374AbRGXRRm>; Tue, 24 Jul 2001 13:17:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40201 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268368AbRGXRRg>; Tue, 24 Jul 2001 13:17:36 -0400
+Subject: Re: 2.4.7 cyclades-Y crash
+To: kas@informatics.muni.cz (Jan Kasprzak)
+Date: Tue, 24 Jul 2001 18:17:32 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010724190103.J1033@informatics.muni.cz> from "Jan Kasprzak" at Jul 24, 2001 07:01:03 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15P5oK-0000Vs-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 23 Jul 2001, David L. Nicol wrote:
+> connected to 16-port box). The 2.4.7 kernel crashes when initializing the
+> cyclades driver (either as a module or a built-in driver). I've tried
+> the stock kernel from Red Hat 7.1, and the cyclades.o module causes the
+> system to lock up when loaded.
 
-> It's time for the annual question and answer:
-> Will ETCP
->
-> http://www.chem.ucla.edu/~beichuan/etcp/
->
-> be appearing in linux kernels any time soon?  We have ECN...
-
-You may want to ask the people who made that page back in '97.
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Is this an SMP box ?
 

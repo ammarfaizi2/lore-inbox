@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTBXXgZ>; Mon, 24 Feb 2003 18:36:25 -0500
+	id <S262604AbTBXXgT>; Mon, 24 Feb 2003 18:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTBXXgZ>; Mon, 24 Feb 2003 18:36:25 -0500
-Received: from holomorphy.com ([66.224.33.161]:28339 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262812AbTBXXgY>;
-	Mon, 24 Feb 2003 18:36:24 -0500
-Date: Mon, 24 Feb 2003 15:45:36 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Paul Larson <plars@linuxtestproject.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pte_alloc_kernel needs additional check
-Message-ID: <20030224234536.GT10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>,
-	Paul Larson <plars@linuxtestproject.org>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <1046123680.13919.67.camel@plars> <20030224143341.0b3e1faa.akpm@digeo.com>
-Mime-Version: 1.0
+	id <S262812AbTBXXgT>; Mon, 24 Feb 2003 18:36:19 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:19584 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262604AbTBXXgS>;
+	Mon, 24 Feb 2003 18:36:18 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: finger @zeuz.kernel.org modification?
+References: <87n0kl5krq.fsf@lapper.ihatent.com>
+	<20030224152156.3c3c00e1.rddunlap@osdl.org>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 25 Feb 2003 00:46:26 +0100
+In-Reply-To: <20030224152156.3c3c00e1.rddunlap@osdl.org>
+Message-ID: <87el5x5jjh.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224143341.0b3e1faa.akpm@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson <plars@linuxtestproject.org> wrote:
--	return pte_offset_kernel(pmd, address);
-+	if (pmd_present(*pmd))
-+		return pte_offset_kernel(pmd, address);
-+	return NULL;
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-On Mon, Feb 24, 2003 at 02:33:41PM -0800, Andrew Morton wrote:
-> Confused.  I cannot see a codepath which makes this test necessary?
+> On 25 Feb 2003 00:19:53 +0100
+> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+> 
+> | I've been using the above command as a quick reference to get a view
+> | of whats state of the art kernel-wise, and wondered who is the right
+> | person to pest^H^H^H^Hask about getting the 2.5-mm releases into the
+> | same list? :)
+> 
+> 
+> and how to have kernel announcements show up on linux-kernel-announce
+> again too...
+> 
 
-Looks like it's OOM handling by analogy with pte_alloc_map().
+Lets not get carried away featurewise now, shall we? :)
 
--- wli
+> ~Randy
+
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

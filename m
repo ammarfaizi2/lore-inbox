@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269474AbRGaV2d>; Tue, 31 Jul 2001 17:28:33 -0400
+	id <S269481AbRGaVaz>; Tue, 31 Jul 2001 17:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269475AbRGaV2X>; Tue, 31 Jul 2001 17:28:23 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:40129 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S269474AbRGaV2O>; Tue, 31 Jul 2001 17:28:14 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200107312127.WAA15043@mauve.demon.co.uk>
-Subject: Re: Virii on vger.kernel.org lists
-To: linux-kernel@vger.kernel.org
-Date: Tue, 31 Jul 2001 22:27:45 +0100 (BST)
-In-Reply-To: <OE62GLinwB3IW0X1Rmi00003344@hotmail.com> from "William Scott Lockwood III" at Jul 31, 2001 02:18:55 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269475AbRGaVao>; Tue, 31 Jul 2001 17:30:44 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:21006 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269483AbRGaVaY>; Tue, 31 Jul 2001 17:30:24 -0400
+Date: Tue, 31 Jul 2001 23:30:31 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Lawrence Greenfield <leg+@andrew.cmu.edu>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010731233031.D13258@emma1.emma.line.org>
+Mail-Followup-To: Lawrence Greenfield <leg+@andrew.cmu.edu>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L.0107302219340.5582-100000@duckman.distro.conectiva> <200107310525.f6V5P6HE002271@acap-dev.nas.cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200107310525.f6V5P6HE002271@acap-dev.nas.cmu.edu>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> 
-> |  > No. If you look carefully, you would be surprised at how many
-> |  > are using OutlookSExpress to handle their email.
-> |  > Of course in case of Viruses using OE security bugs, we all are
-> |  > seeing the distilled evil.
+On Tue, 31 Jul 2001, Lawrence Greenfield wrote:
 
-> Of course, non of the common "holes" in OE are left unfixed.  People
-> should be responsible to update their mail clients.  People using
-> Windows (like me) should also be responsible to maintain current virus
-> software themselves, rather than leaving that job to the mail server,
-> which seems like an unfair burden on the mail server to me.  
+> Not to mention us whiny application writers won't be happy throwing
+> lsync()s all over the place.
 
-Not everyone has control of the system they can post from.
-Some IS departments are poor at keeping systems secure, but still
-won't let users touch them.
+Not portable -> won't happen usually.
 
+-- 
+Matthias Andree

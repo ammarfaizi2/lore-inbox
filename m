@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129859AbRAIXJ1>; Tue, 9 Jan 2001 18:09:27 -0500
+	id <S132556AbRAIXJ5>; Tue, 9 Jan 2001 18:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAIXJK>; Tue, 9 Jan 2001 18:09:10 -0500
-Received: from kanga.kvack.org ([216.129.200.3]:63502 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S132419AbRAIXIv>;
-	Tue, 9 Jan 2001 18:08:51 -0500
-Date: Tue, 9 Jan 2001 18:06:05 -0500 (EST)
-From: "Benjamin C.R. LaHaise" <blah@kvack.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.10.10101091252330.2331-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1010109175317.7868A-100000@kanga.kvack.org>
+	id <S132554AbRAIXJv>; Tue, 9 Jan 2001 18:09:51 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:26621 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S132551AbRAIXJh>; Tue, 9 Jan 2001 18:09:37 -0500
+Date: Tue, 9 Jan 2001 15:09:30 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Paul Powell <moloch16@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'console=' kernel parameter questions
+In-Reply-To: <20010108165050.13240.qmail@web119.yahoomail.com>
+Message-ID: <Pine.LNX.4.21.0101091508570.20058-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Linus Torvalds wrote:
+append="console=/dev/ttyS0"
 
-> The _lower-level_ stuff (ie TCP and the drivers) want the "array of
-> tuples", and again, they do NOT want an array of pages, because if
-> somebody does two sendfile() calls that fit in one packet, it really needs
-> an array of tuples.
+that should do the trick
 
-A kiobuf simply provides that tuple plus the completion callback.  Stick a
-bunch of them together and you've got a kiovec.  I don't see the advantage
-of moving to simpler primatives if they don't provide needed
-functionality.
+enjoy
+-kelsery
 
-> In short, the kiobuf interface is _always_ the wrong one.
+On Mon, 8 Jan 2001, Paul Powell wrote:
 
-Please tell me what you think the right interface is that provides a hook
-on io completion and is asynchronous.
+> Hello,
+> 
+> I am running an unmodified RedHat 6.2 kernel 
+> (kernel version 2.2.14-5.0)
+> 
+> I am trying to redirect the linux startup messages to
+> the serial port.  I've added the 'console=' parameter
+> to my lilo.conf file.  I've tried several iterations
+> such as
+> 'console=ttys0','console=cua0','console=ttys0,9600n8',
+> etc....
+> 
+> They all fail to produce any output to the serial port
+> although they do remove the text from my screen.  When
+> I have booted RedHat I can type 'echo blah >
+> /dev/cua0' and I see text output from the serial port.
+>  Interestingly when I try to echo to /dev/ttys0 I get
+> an IO error message. I'm using a null modem cable
+> connect to a windows machine to watch the serial port.
+> 
+> My question: why can I see output when booted into
+> RedHat but not when booting the OS?  I've read that
+> you have to compile this feature into the kernel. 
+> Does anyone know if RedHat's kernel come with this
+> feature built in?
+> 
+> Your help appreciated,
+> Paul
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Photos - Share your holiday photos online!
+> http://photos.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-		-ben
-
+-- 
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

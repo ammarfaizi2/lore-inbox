@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUGFFpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUGFGEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUGFFpz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 01:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUGFFpz
+	id S263095AbUGFGEE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 02:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUGFGEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 01:45:55 -0400
-Received: from bender.bawue.de ([193.7.176.20]:17612 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S263088AbUGFFpx (ORCPT
+	Tue, 6 Jul 2004 02:04:04 -0400
+Received: from pcp03394610pcs.midltn01.ct.comcast.net ([68.54.120.154]:14607
+	"HELO pcp03394610pcs.midltn01.ct.comcast.net") by vger.kernel.org
+	with SMTP id S263095AbUGFGD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 01:45:53 -0400
-Date: Tue, 6 Jul 2004 07:45:46 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: Len Brown <len.brown@intel.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: System not booting after acpi_power_off()
-Message-ID: <20040706054546.GA5016@sommrey.de>
-Mail-Followup-To: Len Brown <len.brown@intel.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <A6974D8E5F98D511BB910002A50A6647615FF35A@hdsmsx403.hd.intel.com> <1089059128.15675.77.camel@dhcppc4> <20040705210420.GA23177@sommrey.de> <1089062436.15675.128.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089062436.15675.128.camel@dhcppc4>
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 6 Jul 2004 02:03:58 -0400
+Date: Tue, 06 Jul 2004 06:00:38 +0000
+From: Kliszka@pcp03394610pcs.midltn01.ct.comcast.net
+Subject: Free Morgage Quotes... TheBest rates Nationwide... Inside
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <CDIF7FKDA38A0C58@vger.kernel.org>
+In-Reply-To: <CDIF7FKDA38A0C58@vger.kernel.org>
+Message-ID: <34HFJ9160DG3AJF1@pcp03394610pcs.midltn01.ct.comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 05:20:36PM -0400, Len Brown wrote:
-> Hmm, I don't see any messages from the button driver,
-> do you have CONFIG_ACPI_BUTTON enabled?
-> If yes, can you send me the output
-> from acpidmp?  acpidmp is in /usr/sbin
-> or in pmtools: 
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+Programs for You
 
-Oops, that's not obvious: from config help I got the impression, the
-button module wasn't of any use at this time.  After loading the button
-module everything works fine.  
+> Programs For Every Credit Situation
+> Lenders Reply Within 24hours 
+> Borrow Up To 120 % of Your Homes Value
+> Special Programs For Self Employed
+> No Income Verification Programs
 
-Thanks a lot,
--jo
+http://uNyVakh.fkmjecb.info/?7k9qFX7NcbK4s77Zpmttou
 
--- 
--rw-r--r--    1 jo       users          80 2004-07-06 07:35 /home/jo/.signature
+
+
+
+
+ My love it knows no bounds
+ You have awakened an unkindled fire
+ It grows by leaps and bounds
+ Larger than any pyre
+ 
+ Rather than ending, just beginning
+ To grow higher, and higher
+ With only the sun up above
+ All else, neath the fire
+ 
+ Ecstasy growing
+ Adventure and passion lie ahead
+ Earth Shakers, down Thunder Road
+ Trailing paths of glory, do we go
+ 
+ Take my hand, my love
+ We have many miles to explore
+ Until we rest, adventure is with us
+ Until we rest, adventure is with us
+ 
+

@@ -1,38 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135341AbRDLVbj>; Thu, 12 Apr 2001 17:31:39 -0400
+	id <S135343AbRDLVdj>; Thu, 12 Apr 2001 17:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135342AbRDLVb3>; Thu, 12 Apr 2001 17:31:29 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:31220
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S135341AbRDLVbT>; Thu, 12 Apr 2001 17:31:19 -0400
-Date: Thu, 12 Apr 2001 14:31:19 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-Message-ID: <20010412143119.C29808@mikef-linux-x86>
-Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <20010404012102Z131724-406+7418@vger.kernel.org> <20010408023228.L805@mea-ext.zmailer.org> <20010407231729.A24163@d-131-151-189-65.dynamic.umr.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010407231729.A24163@d-131-151-189-65.dynamic.umr.edu>; from dfries@mail.win.org on Sat, Apr 07, 2001 at 11:17:29PM -0500
+	id <S135344AbRDLVdU>; Thu, 12 Apr 2001 17:33:20 -0400
+Received: from [204.178.40.224] ([204.178.40.224]:3456 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135343AbRDLVdR>; Thu, 12 Apr 2001 17:33:17 -0400
+Date: Thu, 12 Apr 2001 17:27:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniel Podlejski <underley@underley.eu.org>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Incorect signal handling ?
+In-Reply-To: <20010412223128.A11625@witch.underley.eu.org>
+Message-ID: <Pine.LNX.3.95.1010412170827.1515A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 07, 2001 at 11:17:29PM -0500, David Fries wrote:
-> There is a lot of comfort looking at /var/log/mail.log and seeing mail
-> accepted by the computer servicing the other person's account.  Now
-> all I have is, accepted by university, hope it gets there...
+On Thu, 12 Apr 2001, Daniel Podlejski wrote:
+
+> Hi,
 > 
-While I operate my own mail server at home and work, and agree that having
-logs for the entire transaction is great, I may have a solution for you:
+> there is litlle programm:
+> 
+> #include <stdio.h>
+> #include <unistd.h>
+> #include <sys/types.h>
+> #include <signal.h>
+> #include <errno.h>
+> #include <sys/stat.h>
+> #include <fcntl.h>
+> 
+> static void empty(int sig)
+> {
+> 	printf ("hello\n");
+> 	return;
+> }
+> 
+> void main()
+> {
+>         int fd, a;
+>         char buf[512];
+> 
+> 	if (fd = open("/tmp/nic", O_RDONLY) < 0)
+> 	{
+> 		perror ("open");
+> 		exit(1);
+> 	}
+> 
+> 	signal (SIGALRM, empty);
+> 	alarm (1);
+> 
+>         a = read(fd, buf, 511);
+> 
+>         while (a && a != -1) a = read(fd, buf, 511);
+> 
+> 	if (a == -1)
+> 	{
+> 		perror ("read");
+> 		exit(1);
+> 	}
+> 	else printf ("EOF\n");
+> 
+>         exit(0);
+> }
+> 
+> I open /tmp/nic and run compiled program.
+> There should be error EINTR in read, but isn't.
+> Why ?
+> 
 
-Setup your email program to bcc to an address that is also on the internet
-(bigfoot.com is what I use) and have it forward to your account at the
-university.  That way, when it comes back you'll have a good idea that the
-other recipient on the internet received the message also.
+The test program contains several errors. Here is a 'fixed' version.
 
-Mike
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+static void empty(int sig)
+{
+	printf ("hello\n");
+	return;
+}
+
+void main()
+{
+        int fd, a;
+        struct sigaction sa;
+        char buf[512];
+
+	if (fd = open("/dev/zero", O_RDONLY) < 0)
+	{
+		perror ("open");
+		exit(1);
+	}
+        sigaction(SIGALRM, NULL, &sa);
+        sa.sa_handler = empty;
+        sa.sa_flags   = SA_INTERRUPT;
+        sigaction(SIGALRM, &sa, NULL);
+	alarm (1);
+
+        while ((a = read(fd, buf, 511)) > 0)
+            ;
+
+	if (a == -1)
+	{
+		perror ("read");
+		exit(1);
+	}
+	else printf ("EOF\n");
+        exit(0);
+}
+
+
+First, you need to read something that can be interrupted. A 511 byte
+read from a small file will probably never be interrupted. The code
+can be spending much more time in the 'while (funny stuff)' loop than
+it takes to read that file.
+
+I chose to read from an infinite-size 'file'.
+
+Second, your 'C' runtime library probably defaults to non-BSD signals.
+That is to say, the "SA_RESTART" bit is probably set in the flags.
+To get the system call interrupted, you need to have that bit clear.
+The way to do it is with sigaction(); signal() is just not capable
+of doing what you want, now that 'C' runtime libraries default to
+POSIX-signal behavior rather than BSD-signals.
+
+FYI, main() can never be void. It must return an 'int'.
+  while (a && a != -1) a = read(fd, buf, 511);
+doesn't make much sense. (a && a) is either TRUE or FALSE. It
+will, therefore NEVER be -1. Maybe you meant (a & a)? If so,
+why not just (a != -1) or (a > 0) ?
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

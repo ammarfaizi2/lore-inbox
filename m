@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbRGFLtK>; Fri, 6 Jul 2001 07:49:10 -0400
+	id <S266448AbRGFL5b>; Fri, 6 Jul 2001 07:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbRGFLtA>; Fri, 6 Jul 2001 07:49:00 -0400
-Received: from [203.197.249.146] ([203.197.249.146]:42672 "EHLO
-	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
-	id <S266435AbRGFLsu>; Fri, 6 Jul 2001 07:48:50 -0400
-From: "Naveen Kumar Pagidimarri" <naveen.pagidimarri@wipro.com>
-To: linux-kernel@vger.kernel.org
-Subject: access to sysinfo structure
-X-Mailer: Netscape Messenger Express 3.5.2 [Mozilla/4.72 [en] (X11; U; Linux 2.2.14-12 i686)]
-Date: Fri, 6 Jul 2001 17:18:43 +0530
-Message-ID: <GG1VH700.L3W@vindhya.mail.wipro.com>
+	id <S266444AbRGFL5V>; Fri, 6 Jul 2001 07:57:21 -0400
+Received: from [202.140.153.5] ([202.140.153.5]:54024 "EHLO
+	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
+	id <S266438AbRGFL5H>; Fri, 6 Jul 2001 07:57:07 -0400
+Message-ID: <3B45A7C1.7E684A7@techmas.hcltech.com>
+Date: Fri, 06 Jul 2001 17:27:53 +0530
+From: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
+Organization: HCL Technologies
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel Linux <linux-kernel@vger.kernel.org>
+Subject: scheduling in kmalloc()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hai All,
-	 
-	 Is it possible to access sysinfo structure(which is in 
+if we use any thing other than GFP_ATOMIC, does it result in scheduling
+out the process if there is no memory available?
+with GFP_KERNRL, I think we try freeing pages to service the current
+request.
+or is there any possibility of kmalloc() failing even with GFP_KERNEL?
 
-kernel.h) .This is related to system detailes(like Ram and other info)
-
-Actually this is updarted in init.c.Is it possible to access this
-
-information from userspace.
-
-Thank u all
-Naveen
-
+thx,
+Vasu.
 

@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317184AbSGCQtq>; Wed, 3 Jul 2002 12:49:46 -0400
+	id <S317221AbSGCRF0>; Wed, 3 Jul 2002 13:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317192AbSGCQte>; Wed, 3 Jul 2002 12:49:34 -0400
-Received: from mail.clsp.jhu.edu ([128.220.34.27]:52445 "EHLO
-	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
-	id <S317181AbSGCQrs>; Wed, 3 Jul 2002 12:47:48 -0400
-Date: Wed, 3 Jul 2002 05:04:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@zip.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
-Message-ID: <20020703030447.GC474@elf.ucw.cz>
-References: <1024948946.30229.19.camel@turbulence.megapathdsl.net> <3D18A273.284F8EDD@zip.com.au> <20020628215942.GA3679@pelks01.extern.uni-tuebingen.de> <20020702131314.B4711@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020702131314.B4711@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S317230AbSGCRFZ>; Wed, 3 Jul 2002 13:05:25 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12268 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S317221AbSGCRFY>; Wed, 3 Jul 2002 13:05:24 -0400
+Date: Wed, 3 Jul 2002 18:07:15 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit
+In-Reply-To: <200207031553.IAA04513@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.21.0207031803250.1391-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > If it's because of the disk-spins-up-too-much problem then
-> > > that can be addressed by allowing the commit interval to be
-> > > set to larger values.
-> > 
-> > The updated commit interval will only affect new transactions, correct?
-> > In other words, when changing the commit interval from t_old to t_new,
-> > it will take t_old seconds until we can be certain there are only
-> > transactions with a t_new expiry interval in the queue?
+On Wed, 3 Jul 2002, Adam J. Richter wrote:
+> On Wed, 03 Jul 2002 22:27:33 +1000, Keith Owens wrote:
 > 
-> Yes, unless:
-> > Or is there a
-> > way to flush the current queue of transactions, eg. by fsync()ing the
-> > underlying block device, or by sending a magic signal to kjournald? 
+> >It does not.  There is no code to adjust any tables after discarding
+> >kernel __init sections.  We rely on the fact that the discarded kernel
+> >area is not reused for executable text.
 > 
-> an fsync() on any file or directory on the filesystem will ensure that
-> all old transactions have completed, and a sync() will ensure that any
-> old transactions are at least on their way to disk.
+> 	Come to think of it, if the core kernel's .text.init pages could
+> later be vmalloc'ed for module .text section, then I think you may have
+> found a potential kernel bug.
 
-Ugh, does that mean that if I 
+No: the virtual address (which is what matters) would be different:
+core kernel's .text.init is not in vmalloc virtual address range.
 
-"sync ; poweroff"
+Hugh
 
-my data are not safe?
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

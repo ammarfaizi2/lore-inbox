@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVAKTYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVAKT3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262853AbVAKTYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbVAKTXc
+	id S262126AbVAKT3a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVAKT3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:23:32 -0500
-Received: from waste.org ([216.27.176.166]:12434 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262853AbVAKTRd (ORCPT
+	Tue, 11 Jan 2005 14:29:23 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19855 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262189AbVAKT2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:17:33 -0500
-Date: Tue, 11 Jan 2005 11:17:02 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050111191701.GT2940@waste.org>
-References: <20050110212019.GG2995@waste.org> <200501111305.j0BD58U2000483@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501111305.j0BD58U2000483@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+	Tue, 11 Jan 2005 14:28:46 -0500
+Message-ID: <41E4295F.1010909@sgi.com>
+Date: Tue, 11 Jan 2005 13:30:39 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Longerbeam <stevel@mvista.com>
+CC: Andi Kleen <ak@muc.de>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: page migration patchset
+References: <41DB35B8.1090803@sgi.com> <m1wtusd3y0.fsf@muc.de> <41DB5CE9.6090505@sgi.com> <41DC34EF.7010507@mvista.com> <41E3F2DA.5030900@sgi.com> <41E42268.5090404@mvista.com>
+In-Reply-To: <41E42268.5090404@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 08:05:08AM -0500, Paul Davis wrote:
-> >> Running `nice --20' is still significantly worse than SCHED_FIFO, but
-> >> not the unmitigated disaster shown in the middle column.  But, this
-> >> improved performance is still not adequate for audio work.  The worst
-> >> delay was absurdly long (~1/2 sec).
-> >
-> >Let's work on that. It'd be _far_ better to have unprivileged near-RT
-> >capability everywhere without potential scheduling DoS.
+Steve Longerbeam wrote:
+
+
 > 
-> I am not sure what you mean here. I think we've established that
-> SCHED_OTHER cannot be made adequate for realtime audio work. Its
-> intended purpose (timesharing the machine in ways that should
-> generally benefit tasks that don't do a lot and/or are dominated by
-> user interaction, thus rendering the machine apparently responsive) is
-> really at odds with what we need.
+> isn't this already taken care of? read_swap_cache_async() is given
+> a vma, and passes it to alloc_page_vma(). So if you have earlier
+> changed the policy for that vma, the new policy will be used
+> when allocating the page during the swap in.
+> 
+> Steve
+> 
 
-We have not established that at all. In principle, because SCHED_OTHER
-tasks running at full priority lie on the boundary between SCHED_OTHER
-and SCHED_FIFO, they can be made to run arbitrarily close to the
-performance of tasks in SCHED_FIFO. With the upside that they won't be
-able to deadlock the machine.
-
-And I mean arbitrarily close in the strict delta-epsilon sense.
-It's not perfect, but neither is SCHED_FIFO, in principle or in
-practice. 
+What if the policy associated with a vma is the default policy?
+Then the page will be swapped in on the node that took the page
+fault -- this is >>probably<< correct in most cases, but if a
+page is accessed from several nodes, and predominately accessed
+from a particular node, it can end up moving due to being swapped
+out, and that is probably not what the application intended.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

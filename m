@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284422AbRLDBCY>; Mon, 3 Dec 2001 20:02:24 -0500
+	id <S284668AbRLDAVD>; Mon, 3 Dec 2001 19:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279952AbRLDA7s>; Mon, 3 Dec 2001 19:59:48 -0500
-Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:11941 "EHLO
-	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S282175AbRLDA6y>; Mon, 3 Dec 2001 19:58:54 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ethan <Ethan@stinkfoot.org>, <linux-kernel@vger.kernel.org>
-Cc: <paulus@samba.org>
-Subject: Re: PPC kernel fails when IDE built as modules
-Date: Tue, 4 Dec 2001 01:59:15 +0100
-Message-Id: <20011204005915.4996@smtp.wanadoo.fr>
-In-Reply-To: <20011204004457.6930@smtp.wanadoo.fr>
-In-Reply-To: <20011204004457.6930@smtp.wanadoo.fr>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S284495AbRLDAQJ>; Mon, 3 Dec 2001 19:16:09 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33029 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S284406AbRLCKXn>; Mon, 3 Dec 2001 05:23:43 -0500
+Date: Mon, 3 Dec 2001 11:23:40 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011203112339.A3529@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011125133020.C1811@emma1.emma.line.org> <20011125150433.CEAE889CAD@pobox.com> <20011125173125.A13119@emma1.emma.line.org> <20011127023923.A38@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20011127023923.A38@toy.ucw.cz>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Just thought I'd drop a note that recent kernel builds (2.4.17-pre1,2) 
->>on PPC fail when IDE is built as modules.
->
->The fix for this is part of the big pmac merge I'm about to start
->with Marcelo. In the meantime, use the bitkeeper PPC tree
->(see http://www.penguinppc.org/dev/kernel.shtml for details).
+On Tue, 27 Nov 2001, Pavel Machek wrote:
 
-Hrm.. Sorry, it looks like you indeed have a good point here.
+> > Note, the specifications say that the write cache setting is ignored
+> > when the drive runs out of spare blocks for reassignment after defects
+> > (so that the drive can return the error code right away when it cannot
+> > guarantee the write actually goes to disk).
+> 
+> They should turn off write-back after number-of-spare-block < cache-size,
+> otherwise they are not safe.
 
-I'll see how we can fix that tomorrow.
-
-Ben.
-
-
+I don't know exactly what they're doing, but they also need to safeguard
+against defective spare blocks, so number-of-space-blocks < cache-size
+is not sufficient.

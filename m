@@ -1,221 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbSKZTxT>; Tue, 26 Nov 2002 14:53:19 -0500
+	id <S266746AbSKZTuo>; Tue, 26 Nov 2002 14:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbSKZTxS>; Tue, 26 Nov 2002 14:53:18 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:8064 "EHLO
+	id <S266750AbSKZTuo>; Tue, 26 Nov 2002 14:50:44 -0500
+Received: from dexter.citi.umich.edu ([141.211.133.33]:7296 "EHLO
 	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S266755AbSKZTxD>; Tue, 26 Nov 2002 14:53:03 -0500
-Date: Tue, 26 Nov 2002 15:00:17 -0500 (EST)
+	id <S266746AbSKZTuj>; Tue, 26 Nov 2002 14:50:39 -0500
+Date: Tue, 26 Nov 2002 14:57:45 -0500 (EST)
 From: Chuck Lever <cel@citi.umich.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] check initial RPC timeout values more carefully
-Message-ID: <Pine.LNX.4.44.0211261457520.9482-100000@dexter.citi.umich.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>
+Subject: [PATCH] new timeout behavior for RPC requests on TCP sockets
+Message-ID: <Pine.LNX.4.44.0211261447320.9482-100000@dexter.citi.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Description:
-  this patch provides better checking of initial RPC timeout values, and
-  moves protocol-specific setup (part of which is timeout value setup)
-  into separate functions.  this will ease the addition of support for new
-  networking protocols later.
+  make RPC timeout behavior over TCP sockets behave more like reference
+  client implementations.  reference behavior is to transmit the same
+  request three times at 60 second intervals; if there is no response,
+  close and reestablish the socket connection.  note that this patch
+  provides a way to support NFSv4 (RFC3010) reliable stream retrans-
+  mission behavior as well.
+
+  we modify the Linux RPC client as follows:
+
++  after a minor RPC retransmit timeout, the RPC client uses the same
+   retransmit timeout value when retransmitting the request rather than
+   doubling the value, as it would on a UDP socket.
+
++  after a major RPC retransmit timeout, close the socket.  the RPC
+   finite state machine will notice the socket is no longer connected,
+   and attempt to reestablish a fresh TCP connection when it retries
+   the request again.
+
+  today, mount uses a 6 second timeout with 5 retries for NFS over
+  TCP by default; proper default behavior is 2 retries each with 60
+  second timeouts.  a separate patch for mount is pending, but in the
+  meantime, sysadmins can use "timeo=600,retrans=2" to get standard
+  behavior for NFSv2 and NFSv3 over TCP.  for NFSv4, which does not
+  use RPC retransmits over reliable network connections (RFC3010), use
+  "timeo=600,retrans=0".
 
 Apply Against:
   2.5.49
 
 Test status:
-  Compiles, links, and boots.
+  Pull ethernet cable and watch RPC debug output.  Passes Connectathon
+  '02 and other stress tests.  Tested with NFSv2 and NFSv3.
 
-
-diff -Naur 05-timeout/fs/nfs/inode.c 06-timeout-check/fs/nfs/inode.c
---- 05-timeout/fs/nfs/inode.c	Fri Nov 22 16:40:55 2002
-+++ 06-timeout-check/fs/nfs/inode.c	Mon Nov 25 13:28:45 2002
-@@ -392,7 +392,6 @@
- 	/* Initialize timeout values */
- 	timeparms.to_initval = data->timeo * HZ / 10;
- 	timeparms.to_retries = data->retrans;
--	timeparms.to_maxval  = tcp? RPC_MAX_TCP_TIMEOUT : RPC_MAX_UDP_TIMEOUT;
- 	timeparms.to_exponential = 1;
+diff -Naur 04-connect3/include/linux/sunrpc/xprt.h 05-timeout/include/linux/sunrpc/xprt.h
+--- 04-connect3/include/linux/sunrpc/xprt.h	Mon Nov 25 13:24:29 2002
++++ 05-timeout/include/linux/sunrpc/xprt.h	Mon Nov 25 13:26:36 2002
+@@ -182,9 +182,10 @@
+ void			xprt_reserve(struct rpc_task *);
+ void			xprt_transmit(struct rpc_task *);
+ void			xprt_receive(struct rpc_task *);
+-int			xprt_adjust_timeout(struct rpc_timeout *);
++void			xprt_adjust_timeout(struct rpc_timeout *);
+ void			xprt_release(struct rpc_task *);
+ void			xprt_connect(struct rpc_task *);
++void			xprt_disconnect(struct rpc_xprt *);
+ int			xprt_clear_backlog(struct rpc_xprt *);
+ void			xprt_sock_setbufsize(struct rpc_xprt *);
  
- 	if (!timeparms.to_initval)
-@@ -1307,12 +1306,10 @@
- 	/* Which IP protocol do we use? */
- 	switch (proto) {
- 	case IPPROTO_TCP:
--		timeparms.to_maxval  = RPC_MAX_TCP_TIMEOUT;
- 		if (!timeparms.to_initval)
- 			timeparms.to_initval = 600 * HZ / 10;
+diff -Naur 04-connect3/net/sunrpc/clnt.c 05-timeout/net/sunrpc/clnt.c
+--- 04-connect3/net/sunrpc/clnt.c	Mon Nov 25 13:24:29 2002
++++ 05-timeout/net/sunrpc/clnt.c	Mon Nov 25 13:26:36 2002
+@@ -656,6 +656,9 @@
+ 		if (clnt->cl_autobind)
+ 			clnt->cl_port = 0;
+ 		task->tk_action = call_bind;
++		/* A disconnect can happen after only part of an RPC was
++		 * sent on a TCP socket.  send all of this request again */
++		req->rq_bytes_sent = 0;
  		break;
- 	case IPPROTO_UDP:
--		timeparms.to_maxval  = RPC_MAX_UDP_TIMEOUT;
- 		if (!timeparms.to_initval)
- 			timeparms.to_initval = 11 * HZ / 10;
- 		break;
-diff -Naur 05-timeout/include/linux/sunrpc/xprt.h 06-timeout-check/include/linux/sunrpc/xprt.h
---- 05-timeout/include/linux/sunrpc/xprt.h	Mon Nov 25 13:26:36 2002
-+++ 06-timeout-check/include/linux/sunrpc/xprt.h	Mon Nov 25 13:28:45 2002
-@@ -40,7 +40,21 @@
- #define RPC_INITCWND		RPC_CWNDSCALE
- #define RPCXPRT_CONGESTED(xprt) ((xprt)->cong >= (xprt)->cwnd)
+ 	case -EAGAIN:
+ 		task->tk_action = call_transmit;
+@@ -677,20 +680,34 @@
+  * 6a.	Handle RPC timeout
+  * 	We do not release the request slot, so we keep using the
+  *	same XID for all retransmits.
++ *	For stream transports, shut down the transport socket when
++ *	a request sees a major time out.  When any request on this
++ *	connection is retried, the FSM notices the socket has been
++ *	shut down, and attempts to reconnect.
+  */
+ static void
+ call_timeout(struct rpc_task *task)
+ {
+ 	struct rpc_clnt	*clnt = task->tk_client;
+-	struct rpc_timeout *to = &task->tk_rqstp->rq_timeout;
++	struct rpc_xprt *xprt = clnt->cl_xprt;
++	struct rpc_rqst *req = task->tk_rqstp;
++	struct rpc_timeout *to = &req->rq_timeout;
  
-+/*
-+ * RTO for stream transports should always be long.  The RPC client
-+ * handles a major timeout by first closing and reconnecting the
-+ * underlying stream transport socket.
-+ */
-+#define RPC_MIN_UDP_TIMEOUT    (HZ/10)
-+#define RPC_MIN_TCP_TIMEOUT    (6*HZ)
+-	if (xprt_adjust_timeout(to)) {
+-		dprintk("RPC: %4d call_timeout (minor)\n", task->tk_pid);
++	if (!xprt->stream)
++		xprt_adjust_timeout(to);
 +
- /* Default timeout values */
-+#define RPC_DEF_UDP_TIMEOUT    (5*HZ)
-+#define RPC_DEF_UDP_RETRIES    (5)
-+#define RPC_DEF_TCP_TIMEOUT    (60*HZ)
-+#define RPC_DEF_TCP_RETRIES    (2)
++	if (to->to_retries--) {
++		dprintk("RPC: %4d call_timeout (minor, retries=%d)\n",
++				task->tk_pid, to->to_retries);
+ 		goto retry;
+ 	}
+-	to->to_retries = clnt->cl_timeout.to_retries;
++	to->to_retries = xprt->timeout.to_retries;
+ 
+ 	dprintk("RPC: %4d call_timeout (major)\n", task->tk_pid);
 +
-+/* Maximum timeout values */
- #define RPC_MAX_UDP_TIMEOUT	(60*HZ)
- #define RPC_MAX_TCP_TIMEOUT	(600*HZ)
- 
-@@ -175,7 +189,6 @@
- 					struct rpc_timeout *toparms);
- int			xprt_destroy(struct rpc_xprt *);
- void			xprt_shutdown(struct rpc_xprt *);
--void			xprt_default_timeout(struct rpc_timeout *, int);
- void			xprt_set_timeout(struct rpc_timeout *, unsigned int,
- 					unsigned long);
- 
-diff -Naur 05-timeout/net/sunrpc/xprt.c 06-timeout-check/net/sunrpc/xprt.c
---- 05-timeout/net/sunrpc/xprt.c	Mon Nov 25 13:26:36 2002
-+++ 06-timeout-check/net/sunrpc/xprt.c	Mon Nov 25 13:28:45 2002
-@@ -355,10 +355,6 @@
- 		to->to_current = to->to_initval;
++	if (xprt->stream)
++		xprt_disconnect(xprt);
++
+ 	if (clnt->cl_softrtry) {
+ 		if (clnt->cl_chatty && !task->tk_exit)
+ 			printk(KERN_NOTICE "%s: server %s not responding, timed out\n",
+@@ -699,15 +716,18 @@
+ 		return;
  	}
  
--	if (!to->to_current) {
--		printk(KERN_WARNING "xprt_adjust_timeout: to_current = 0!\n");
--		to->to_current = 5 * HZ;
--	}
+-	if (clnt->cl_chatty && !(task->tk_flags & RPC_CALL_MAJORSEEN) && rpc_ntimeo(&clnt->cl_rtt) > 7) {
+-		task->tk_flags |= RPC_CALL_MAJORSEEN;
+-		printk(KERN_NOTICE "%s: server %s not responding, still trying\n",
+-			clnt->cl_protname, clnt->cl_server);
++	if (clnt->cl_chatty && !(task->tk_flags & RPC_CALL_MAJORSEEN)) {
++		if (xprt->stream || (rpc_ntimeo(&clnt->cl_rtt) > 7)) {
++			task->tk_flags |= RPC_CALL_MAJORSEEN;
++			printk(KERN_NOTICE "%s: server %s not responding, still trying\n",
++				clnt->cl_protname, clnt->cl_server);
++		}
+ 	}
+ 	if (clnt->cl_autobind)
+ 		clnt->cl_port = 0;
+ 
+ retry:
++	req->rq_bytes_sent = 0;		/* send all of this request again */
+ 	clnt->cl_stats->rpcretrans++;
+ 	task->tk_action = call_bind;
+ 	task->tk_status = 0;
+diff -Naur 04-connect3/net/sunrpc/xprt.c 05-timeout/net/sunrpc/xprt.c
+--- 04-connect3/net/sunrpc/xprt.c	Mon Nov 25 13:24:29 2002
++++ 05-timeout/net/sunrpc/xprt.c	Mon Nov 25 13:26:36 2002
+@@ -85,7 +85,6 @@
+ static void	xprt_request_init(struct rpc_task *, struct rpc_xprt *);
+ static void	do_xprt_transmit(struct rpc_task *);
+ static inline void	do_xprt_reserve(struct rpc_task *);
+-static void	xprt_disconnect(struct rpc_xprt *);
+ static void	xprt_conn_status(struct rpc_task *task);
+ static struct rpc_xprt * xprt_setup(int proto, struct sockaddr_in *ap,
+ 						struct rpc_timeout *to);
+@@ -336,7 +335,7 @@
+ /*
+  * Adjust timeout values etc for next retransmit
+  */
+-int
++void
+ xprt_adjust_timeout(struct rpc_timeout *to)
+ {
+ 	if (to->to_retries > 0) {
+@@ -362,7 +361,7 @@
+ 	}
  	pprintk("RPC: %lu %s\n", jiffies,
  			to->to_retries? "retrans" : "timeout");
- 	return;
-@@ -1327,18 +1323,6 @@
+-	return to->to_retries-- > 0;
++	return;
  }
  
  /*
-- * Set default timeout parameters
-- */
--void
--xprt_default_timeout(struct rpc_timeout *to, int proto)
--{
--	if (proto == IPPROTO_UDP)
--		xprt_set_timeout(to, 5,  5 * HZ);
--	else
--		xprt_set_timeout(to, 5, 60 * HZ);
--}
--
--/*
-  * Set constant timeout
-  */
- void
-@@ -1352,6 +1336,56 @@
- 	to->to_exponential = 0;
- }
- 
-+static void
-+xprt_udp_setup(struct rpc_xprt *xprt, struct rpc_timeout *to)
-+{
-+	xprt->prot = IPPROTO_UDP;
-+
-+	xprt->cwnd = RPC_INITCWND;
-+
-+	/* Set timeout parameters */
-+	if (to) {
-+		xprt->timeout = *to;
-+
-+		to->to_maxval = RPC_MAX_UDP_TIMEOUT;
-+
-+		if (to->to_initval < RPC_MIN_UDP_TIMEOUT)
-+			to->to_initval = RPC_MIN_UDP_TIMEOUT;
-+		if (to->to_initval > RPC_MAX_UDP_TIMEOUT)
-+			to->to_initval = RPC_MAX_UDP_TIMEOUT;
-+
-+		xprt->timeout.to_current = to->to_initval;
-+	} else
-+		xprt_set_timeout(&xprt->timeout,
-+				 RPC_DEF_UDP_RETRIES, RPC_DEF_UDP_TIMEOUT);
-+}
-+
-+static void
-+xprt_tcp_setup(struct rpc_xprt *xprt, struct rpc_timeout *to)
-+{
-+	xprt->prot = IPPROTO_TCP;
-+
-+	xprt->stream = 1;
-+	xprt->nocong = 1;
-+	xprt->cwnd = RPC_MAXCWND;
-+
-+	/* Set timeout parameters */
-+	if (to) {
-+		xprt->timeout = *to;
-+
-+		to->to_maxval = RPC_MAX_TCP_TIMEOUT;
-+
-+		if (to->to_initval < RPC_MIN_TCP_TIMEOUT)
-+			to->to_initval = RPC_MIN_TCP_TIMEOUT;
-+		if (to->to_initval > RPC_MAX_TCP_TIMEOUT)
-+			to->to_initval = RPC_MAX_TCP_TIMEOUT;
-+
-+		xprt->timeout.to_current = to->to_initval;
-+	} else
-+		xprt_set_timeout(&xprt->timeout,
-+				 RPC_DEF_TCP_RETRIES, RPC_DEF_TCP_TIMEOUT);
-+}
-+
+@@ -394,7 +393,7 @@
  /*
-  * Initialize an RPC client
+  * Mark a transport as disconnected
   */
-@@ -1370,26 +1404,26 @@
- 	memset(xprt, 0, sizeof(*xprt)); /* Nnnngh! */
- 
- 	xprt->addr = *ap;
--	xprt->prot = proto;
--	xprt->stream = (proto == IPPROTO_TCP)? 1 : 0;
--	if (xprt->stream) {
--		xprt->cwnd = RPC_MAXCWND;
--		xprt->nocong = 1;
--	} else
--		xprt->cwnd = RPC_INITCWND;
-+
-+	switch (proto) {
-+	case IPPROTO_UDP:
-+		xprt_udp_setup(xprt, to);
-+		break;
-+	case IPPROTO_TCP:
-+		xprt_tcp_setup(xprt, to);
-+		break;
-+	default:
-+		printk(KERN_WARNING "RPC: unsupported protocol %d\n", proto);
-+		kfree(xprt);
-+		return NULL;
-+	}
-+
- 	spin_lock_init(&xprt->sock_lock);
- 	spin_lock_init(&xprt->xprt_lock);
- 	init_waitqueue_head(&xprt->cong_wait);
- 
- 	INIT_LIST_HEAD(&xprt->recv);
- 
--	/* Set timeout parameters */
--	if (to) {
--		xprt->timeout = *to;
--		xprt->timeout.to_current = to->to_initval;
--	} else
--		xprt_default_timeout(&xprt->timeout, xprt->prot);
--
- 	INIT_RPC_WAITQ(&xprt->pending, "xprt_pending");
- 	INIT_RPC_WAITQ(&xprt->sending, "xprt_sending");
- 	INIT_RPC_WAITQ(&xprt->resend, "xprt_resend");
+-static void
++void
+ xprt_disconnect(struct rpc_xprt *xprt)
+ {
+ 	dprintk("RPC:      disconnected transport %p\n", xprt);
 

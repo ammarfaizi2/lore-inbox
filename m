@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUAMW5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 17:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbUAMW5S
+	id S265820AbUAMWwA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 17:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUAMWt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 17:57:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12454 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265915AbUAMW4v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 17:56:51 -0500
-Date: Tue, 13 Jan 2004 22:56:46 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jure Pe??ar <pegasus@nerv.eu.org>
-Cc: Scott Long <scott_long@adaptec.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       neilb@cse.unsw.edu.au
+	Tue, 13 Jan 2004 17:49:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45036 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265886AbUAMWep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 17:34:45 -0500
+Date: Tue, 13 Jan 2004 23:34:25 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
 Subject: Re: Proposed enhancements to MD
-Message-ID: <20040113225646.GC21151@parcelfarce.linux.theplanet.co.uk>
-References: <40043C75.6040100@pobox.com> <400457E3.5030602@adaptec.com> <20040113233320.23e4cfef.pegasus@nerv.eu.org>
+Message-ID: <20040113223425.GD20696@devserv.devel.redhat.com>
+References: <40033D02.8000207@adaptec.com> <1074031592.4981.1.camel@laptop.fenrus.com> <20040113174422.B16728@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ycz6tD7Th1CMF4v7"
 Content-Disposition: inline
-In-Reply-To: <20040113233320.23e4cfef.pegasus@nerv.eu.org>
+In-Reply-To: <20040113174422.B16728@animx.eu.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 11:33:20PM +0100, Jure Pe??ar wrote:
-> Looking at this chicken-and-egg problem of booting from an array from
-> administrator's point of view ...
-> 
-> What do you guys think about Intel's EFI? I think it would be the most
-> apropriate place to put a piece of code that would scan the disks, assemble
-> any arrays and present them to the OS as bootable devices ... If we're going
-> to get a common metadata layout, that would be even easier.
-> 
-> Thoughts?
 
-Why bother?  We can have userland code running before any device drivers
-are initialized.  And have access to
-	* all normal system calls
-	* normal writable filesystem already present (ramfs)
-	* normal multitasking
-All of that - within the heavily tested codebase; regular kernel codepaths
-that are used all the time by everything.  Oh, and it's portable.
+--Ycz6tD7Th1CMF4v7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What's the benefit of doing that from EFI?  Pure masochism?
+On Tue, Jan 13, 2004 at 05:44:22PM -0500, Wakko Warner wrote:
+> > > Adaptec has been looking at the MD driver for a foundation for their
+> > > Open-Source software RAID stack.
+> >=20
+> > Hi,
+> >=20
+> > Is there a (good) reason you didn't use Device Mapper for this? It
+> > really sounds like Device Mapper is the way to go to parse and use
+> > raid-like formats to the kernel, since it's designed to be independent
+> > of on disk formats, unlike MD.
+>=20
+> As I've understood it, the configuration for DM is userspace and the kern=
+el
+> can't do any auto detection.  This would be a "put off" for me to use as a
+> root filesystem.  Configurations like this (and lvm too last I looked at =
+it)
+> require an initrd or some other way of setting up the device.  Unfortunat=
+ely
+> this means that there's configs in 2 locations (one not easily available,=
+  if
+> using initrd.  easily !=3D mounting via loop!)
+
+the kernel is moving into that direction fast, with initramfs etc etc...
+It's not like the userspace autodetector needs configuration (although it
+can have it of course)
+
+--Ycz6tD7Th1CMF4v7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFABHJwxULwo51rQBIRAroaAJ4oVZhnlqXQhdPHEFLPjZxo5aCFNQCfYZWR
+J+aEG+G9Py0PkQRYZWBn5xo=
+=yPN1
+-----END PGP SIGNATURE-----
+
+--Ycz6tD7Th1CMF4v7--

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUK0Q0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbUK0Qud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUK0Q0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 11:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUK0Q0E
+	id S261253AbUK0Qud (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 11:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbUK0Qud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 11:26:04 -0500
-Received: from gprs214-10.eurotel.cz ([160.218.214.10]:34688 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261252AbUK0QYO (ORCPT
+	Sat, 27 Nov 2004 11:50:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49339 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261253AbUK0Qu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 11:24:14 -0500
-Date: Sat, 27 Nov 2004 17:23:58 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend2 merge: 1/51: Device trees
-Message-ID: <20041127162358.GC1012@elf.ucw.cz>
-References: <20041125165413.GB476@openzaurus.ucw.cz> <20041125185304.GA1260@elf.ucw.cz> <1101421336.27250.80.camel@desktop.cunninghams> <20041127161319.GB2472@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041127161319.GB2472@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 27 Nov 2004 11:50:28 -0500
+Message-ID: <41A8AF8F.8060005@osdl.org>
+Date: Sat, 27 Nov 2004 08:47:11 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Tonnerre <tonnerre@thundrix.ch>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, hch@infradead.org, dwmw2@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <19865.1101395592@redhat.com> <20041127042942.GA10774@pauli.thundrix.ch> <20041127035113.GK29035@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041127035113.GK29035@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matthew Wilcox wrote:
+> On Sat, Nov 27, 2004 at 05:29:42AM +0100, Tonnerre wrote:
+> 
+>>Fnord alert: you're trying to change the API and the ABI of Linux. The thing
+> 
+> 
+> No we aren't.  We're just trying to make the kernel interface more
+> explicit.  Nothing should change as far as userspace programs are
+> concerned.  It might need some coordination with the various libcs.
 
-> > SUSPEND all but swap device and parents
-> > WRITE LRU pages
-> > SUSPEND swap device and parents (+sysdev)
-> > Snapshot
-> > RESUME swap device and parents (+sysdev)
-> > WRITE snapshot
-> > SUSPEND swap device and parents
-> > POWERDOWN everything
-> > 
-> -device-tree.diff-
+Speaking of more explicit, there are various asm-ARCH header
+files that do or do not hide (via __KERNEL__) interfaces
+such as:	get_unaligned()
+and the atomic operations.
 
-(snipped 420 lines of diff)
+So are these Linux kernel exported APIs, or do they belong
+in some library?
 
-No, this one should not be neccessary. It is there only to solve some
-memory problems, and it does not solve them anyway.
-								Pavel
+We'll need to decide on a consistent remedy for these,
+and such changes could be made at any time IMO (i.e., soon).
+
+
+> And enough with the doom-and-gloom big-companies-are-scared approach, OK?
+> It's (a) untrue, (b) irrelevant, and (c) many of us work for big companies
+> that are doing Linux already.  We don't need to be lectured by you.
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+~Randy

@@ -1,115 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTFPAXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 20:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTFPAXM
+	id S263077AbTFPAVP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 20:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTFPAVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 20:23:12 -0400
-Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:17550 "HELO
-	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
-	id S263131AbTFPAXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 20:23:06 -0400
-To: mikpe@csd.uu.se
-Cc: perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: hyoshiok@miraclelinux.com
-Subject: Re: [Perfctr-devel] perfctr-2.5.5 released
-In-Reply-To: <200306152229.h5FMTa93026063@harpo.it.uu.se>
-References: <200306152229.h5FMTa93026063@harpo.it.uu.se>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20030616091846G.hyoshiok@miraclelinux.com>
-Date: Mon, 16 Jun 2003 09:18:46 +0900
-From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-X-Dispatcher: imput version 20000228(IM140)
+	Sun, 15 Jun 2003 20:21:15 -0400
+Received: from RJ089180.user.veloxzone.com.br ([200.141.89.180]:9088 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id S263077AbTFPAVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 20:21:12 -0400
+Date: Sun, 15 Jun 2003 21:34:49 -0300 (BRT)
+From: =?UTF-8?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.21 released
+Message-ID: <Pine.LNX.4.56.0306152053160.160@pervalidus.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mikael,
+Daniel Egger wrote:
 
-I just download perfctr 2.5.5 and see the difference
-between 2.5.4 and 2.5.5 but I could not find code
-changes except the changelog and todo.
+>> with module via-rhine on ECS_L7VTA works for you or not..?
 
-$ diff -u perfctr-2.5.4 perfctr-2.5.5
-diff -u perfctr-2.5.4/CHANGES perfctr-2.5.5/CHANGES
---- perfctr-2.5.4/CHANGES       2003-06-01 21:32:45.000000000 +0900
-+++ perfctr-2.5.5/CHANGES       2003-06-16 07:11:23.000000000 +0900
-@@ -1,4 +1,4 @@
--$Id: CHANGES,v 1.106 2003/06/01 12:32:45 mikpe Exp $
-+$Id: CHANGES,v 1.107 2003/06/15 22:11:23 mikpe Exp $
- 
-                        CHANGES
-                        =======
-@@ -6,6 +6,15 @@
- [High-level changes in reverse chronological order. Detailed
-  driver changes are in linux/drivers/perfctr/RELEASE-NOTES.]
- 
-+Version 2.5.5, 2003-06-15
-+- Updates for driver model changes in kernel 2.5.71.
-+- Minor updates to the library's event descriptions for Pentium 4.
-+- Now supports SuSE's 2.4.19.SuSE-206 kernel for SLES 8 users.
-+  Autodetection of SuSE kernel versions is not yet implemented:
-+  pass "--patch=2.4.19.SuSE-206" to perfctr's update-kernel script
-+  to ensure that the correct patch is applied.
-+- Patch kit updates for 2.4.21 final and 2.4.20-18 RH kernels.
-+
- Version 2.5.4, 2003-06-01
- - Corrected the driver's handling of OVF_PMI+FORCE_OVF counters
-   on Pentium 4. This configuration didn't work at all, and
-diff -u perfctr-2.5.4/TODO perfctr-2.5.5/TODO
---- perfctr-2.5.4/TODO  2003-06-01 21:27:53.000000000 +0900
-+++ perfctr-2.5.5/TODO  2003-06-16 07:09:57.000000000 +0900
-@@ -1,4 +1,6 @@
- Changes during perfctr-2.5:
-+- SuSE kernels don't use EXTRAVERSION. Fix update-kernel to use
-+  rpm to identify the exact version instead.
- - New AoS counter state layout:
-        struct perfctr_cpu_user_state {
-                unsigned int cstatus;
-Common subdirectories: perfctr-2.5.4/etc and perfctr-2.5.5/etc
-Common subdirectories: perfctr-2.5.4/examples and perfctr-2.5.5/examples
-Common subdirectories: perfctr-2.5.4/linux and perfctr-2.5.5/linux
-Common subdirectories: perfctr-2.5.4/patches and perfctr-2.5.5/patches
-Common subdirectories: perfctr-2.5.4/usr.lib and perfctr-2.5.5/usr.lib
+> Nope, it doesn't work, but the problem is the IOAPIC not
+> ACPI....
+> It works if I disable the IOAPIC in the BIOS.
 
-What's wrong? Any hints?
+I don't use ACPI (should I ?) but have the same problem with my
+ECS K7VTA3 5.0C and the onboard Realtek or a 3Com 3C905CX-TXNM,
+although I had and still have other problems without IO-APIC,
+like modprobe bttv instant freezes when USB 2.0 shared the same
+IRQ. To "solve" I moved the card to another slot.
 
-Regards,
-  Hiro
+The problem is that loading USB without IO-APIC still gives
+instant freezes. I first experienced it with bare.i from
+Slackware 9.0 and SuperRescue 2.1.1, which stop at
 
-From: mikpe@csd.uu.se
-Subject: [Perfctr-devel] perfctr-2.5.5 released
-Date: Mon, 16 Jun 2003 00:29:36 +0200 (MEST)
-Message-ID: <200306152229.h5FMTa93026063@harpo.it.uu.se>
+hcd.c:ehci-hcd@00:10:3,VIA Technologies, Inc. USB 2.0
 
-> Version 2.5.5 of perfctr, the Linux/x86 performance
-> monitoring counters driver, is now available at the usual
-> place: http://www.csd.uu.se/~mikpe/linux/perfctr/
-> 
-> x86-64 users please note that the 2.5.71 kernel won't
-> compile on x86-64 due to incomplete 'driver model' changes.
-> A patch to fix this and two other x86-64 bugs is in the
-> patch-x86_64-2.5.71 file in perfctr's download directory.
-> 
-> Version 2.5.5, 2003-06-15
-> - Updates for driver model changes in kernel 2.5.71.
-> - Minor updates to the library's event descriptions for Pentium 4.
-> - Now supports SuSE's 2.4.19.SuSE-206 kernel for SLES 8 users.
->   Autodetection of SuSE kernel versions is not yet implemented:
->   pass "--patch=2.4.19.SuSE-206" to perfctr's update-kernel script
->   to ensure that the correct patch is applied.
-> - Patch kit updates for 2.4.21 final and 2.4.20-18 RH kernels.
-> 
-> / Mikael Pettersson
-> 
-> 
-> -------------------------------------------------------
-> This SF.NET email is sponsored by: eBay
-> Great deals on office technology -- on eBay now! Click here:
-> http://adfarm.mediaplex.com/ad/ck/711-11697-6916-5
-> _______________________________________________
-> Perfctr-devel mailing list
-> Perfctr-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/perfctr-devel
+, and later doing the usual modprobe with 2.4.2{0,1}.
+
+I just tested with 2.4.21. With IO-APIC everything worked
+except the ethernet. Testing USB:
+
+# modprobe usbcore
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+
+# modprobe usb-uhci
+usb-uhci.c: $Revision: 1.275 $ time 01:28:00 Jun 14 2003
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 21
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 21
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: USB UHCI at I/O 0xdc00, IRQ 21
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 3
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+hub.c: new USB device 00:10.0-1, assigned address 2
+usb.c: USB device 2 (vend/prod 0x46d/0xc20a) is not claimed by any active driver.
+
+# modprobe ehci-hcd
+ehci-hcd 00:10.3: VIA Technologies, Inc. USB 2.0
+ehci-hcd 00:10.3: irq 19, pci mem e2865000
+usb.c: new USB bus registered, assigned bus number 4
+PCI: 00:10.3 PCI cache line size set incorrectly (32 bytes) by BIOS/FW.
+PCI: 00:10.3 PCI cache line size corrected to 64.
+ehci-hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jan-22
+usb.c: USB disconnect on device 00:10.0-1 address 2
+hub.c: USB hub found
+hub.c: 6 ports detected
+hub.c: new USB device 00:10.0-1, assigned address 3
+usb.c: USB device 3 (vend/prod 0x46d/0xc20a) is not claimed by any active driver.
+
+Without IO-APIC (noapic boot option) modprobe usbcore worked,
+but modprobe usb-uhci freezed after printing
+
+usb-uhci.c: $Revision: 1.275 $ time 01:28:00 Jun 14 2003
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 11 for device 00:10:0
+usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+
+I'm starting to think there's something wrong with the
+motherboard as the BIOS couldn't locate my Sound Blaster Live!
+5.1 in any slot. I think I tried everything, also disabling all
+onboard options, RAID, and FireWire. At the end I just sold it
+and am now using the onboard sound.
+
+USB works on Windows XP Professional SP1 (I could only test a
+game pad) along with the ethernet, and I didn't have to move
+the capture card to get it working there. I moved it to get it
+working on Linux.
+
+I uploaded my 2.4.21 .config, /proc/{ioports,interrupts,pci},
+and the last 4 dmesg just in case someone is interested.
+
+http://www.fredlwm.hpg.com.br/tmp/.config-2.4.21.txt
+http://www.fredlwm.hpg.com.br/tmp/2.4.21-IO-APIC.txt
+http://www.fredlwm.hpg.com.br/tmp/2.4.21-noapic.txt
+
+http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:13:09.txt
+http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:33:45.txt
+http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:44:53.txt
+http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:51:51.txt
+
+BTW, what does noapic do when you enable all APIC options and
+when you don't enable IO-APIC ?

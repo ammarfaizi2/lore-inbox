@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263334AbRFRVhd>; Mon, 18 Jun 2001 17:37:33 -0400
+	id <S261894AbRFRV4E>; Mon, 18 Jun 2001 17:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263346AbRFRVhX>; Mon, 18 Jun 2001 17:37:23 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:24018 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S263334AbRFRVhN>; Mon, 18 Jun 2001 17:37:13 -0400
-Message-ID: <3B2E7585.703CEC41@earthlink.net>
-Date: Mon, 18 Jun 2001 16:41:25 -0500
-From: Kelledin Tane <runesong@earthlink.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id <S261628AbRFRVzy>; Mon, 18 Jun 2001 17:55:54 -0400
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:51206 "EHLO sith.mimuw.edu.pl")
+	by vger.kernel.org with ESMTP id <S261561AbRFRVzp>;
+	Mon, 18 Jun 2001 17:55:45 -0400
+Date: Mon, 18 Jun 2001 23:55:37 +0200
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: Kelledin Tane <runesong@earthlink.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Why can't I flush /dev/ram0?
-In-Reply-To: <Pine.LNX.3.95.1010618172045.4490A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010618235537.B17458@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+	Kelledin Tane <runesong@earthlink.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>; from runesong@earthlink.net on Mon, Jun 18, 2001 at 04:12:03PM -0500
+X-Operating-System: Linux 2.4.5-pre3-xfs i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you have a directory called /initrd, in your root file-system,
-> you may find that the old initrd is still mounted:
->
-> Script started on Mon Jun 18 17:22:20 2001
-> # ls /initrd
-> bin  dev  etc  lib  linuxrc  sbin
-> # umount /initrd
-> # ls /initrd
-> # exit
-> exit
-> Script done on Mon Jun 18 17:22:44 2001
->
-> Unmount it first.
+On Mon, 18 Jun 2001, Kelledin Tane wrote:
 
-I actually had something to that effect in my rc.sysinit file.  It unmounted
-/initrd, removed it, and attempted to flush ram0.  I started trying it
-manually when that didn't work =(
+> At this point, I'm trying to get an initrd working properly.  So far, it
+> works, the system boots, etc. etc., but whenever I try to do a "blockdev
+> --flushbufs /dev/ram0", I get "device or resource busy"
+> 
+> When I mount the filesystem to check it out, nothing appears to have
+> anything open on the filesystem.  So why am I not able to flush it
+> clean?
 
-Funny thing though (not entirely unexpected)--/initrd's not in /etc/mtab.
-I can see why.  Also, /proc/sys/kernel/real-root-dev is still 0x0100
-(/dev/ram0).  Changing it to 0x0301 (/dev/hda1) doesn't help, but it might be
-a clue for those who know this stuff better than I do.
+Because of a bug present in Linus tree. Try this patch:
 
-Kelledin
+--- linux.orig/drivers/block/rd.c	Mon Nov 20 02:07:47 2000
++++ linux/drivers/block/rd.c	Mon Nov 20 04:03:42 2000
+@@ -690,6 +690,7 @@
+ done:
+ 	if (infile.f_op->release)
+ 		infile.f_op->release(inode, &infile);
++	blkdev_put(out_inode->i_bdev, BDEV_FILE);
+ 	set_fs(fs);
+ 	return;
+ free_inodes: /* free inodes on error */ 
 
+BTW, it's fixed in -ac patches.
+
+Jan
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio

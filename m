@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265406AbUADMWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 07:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbUADMWa
+	id S265438AbUADM1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 07:27:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbUADM1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 07:22:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22196 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265406AbUADMW2 (ORCPT
+	Sun, 4 Jan 2004 07:27:48 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:10913 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265438AbUADM1q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 07:22:28 -0500
-Date: Sun, 4 Jan 2004 13:22:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Long pauses (IO?) whilst ripping DVDs
-Message-ID: <20040104122224.GG3418@suse.de>
-References: <2950000.1073111086@[10.10.2.4]> <20040103122614.GW5523@suse.de> <34270000.1073154474@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <34270000.1073154474@[10.10.2.4]>
+	Sun, 4 Jan 2004 07:27:46 -0500
+Date: Sun, 4 Jan 2004 13:27:40 +0100 (MET)
+Message-Id: <200401041227.i04CReNI004912@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: szepe@pinerecords.com
+Subject: Re: Pentium M config option for 2.6
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03 2004, Martin J. Bligh wrote:
-> 
-> 
-> --Jens Axboe <axboe@suse.de> wrote (on Saturday, January 03, 2004 13:26:14 +0100):
-> 
-> > On Fri, Jan 02 2004, Martin J. Bligh wrote:
-> >> Start transcode in one window, doing something like:
-> >> "transcode -i /dev/hdc -x dvd -U file_name -y divx4"
-> >> on a DVD ... probably pretty CPU intensive as well as IO.
-> >> 
-> >> Now do ls in another window ... hangs for about 5 seconds before
-> >> giving any output ;-( Anyone else seeing that? I do get a lot of
-> >> "*** libdvdread: CHECK_VALUE failed in nav_read.c:202 ***"
-> >> messages as well ... but I always seem to get those from DVD stuff.
-> > 
-> > DMA or PIO? vmstat info would be very handy here.
-> > 
-> > -- 
-> > Jens Axboe
-> > 
-> > 
-> 
-> OK, now I'm really confused ... sometimes it happens. sometimes it doesn't
-> with no apparent rhyme or reason. You're welcome to the data I have though.
+On Sun, 4 Jan 2004 03:28:48 +0100, Tomas Szepe wrote:
+>Since the Pentium M has 64 byte cache lines and is not a K7 or K8...  ;)
+...
+>--- a/arch/i386/Makefile	2003-09-28 11:38:05.000000000 +0200
+>+++ b/arch/i386/Makefile	2004-01-04 03:02:52.000000000 +0100
+>@@ -35,6 +35,7 @@
+> cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
+> cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
+> cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
+>+cflags-$(CONFIG_MPENTIUMM)	+= $(call check_gcc,-march=pentium4,-march=i686)
+> cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
+> # Please note, that patches that add -march=athlon-xp and friends are pointless.
+> # They make zero difference whatsosever to performance at this time.
 
-You have periods of excessive system usage, although DMA is enabled on
-the drive. Depending on what transcode does, it might still be using pio
-though. Any chance you can profile such a 'sy' peak so we can see what's
-going on?
+P-M is not a P4 core, it's an enhanced PIII core.
+SSE2 was added, but compiler support for SSE2 f.p.
+math shouldn't matter for the kernel.
 
-Looks odds, though. I'm inclined to guess this is a CPU scheduler
-problem. Does booting with elevator=deadline change anything at all?
+Using P4 optimisations on a P-M may actually reduce
+performance, due to the different micro-architectures.
+(P4 made shifts and some leas more expensive, and
+simple add/and/sub/etc less expensive.)
 
--- 
-Jens Axboe
+IOW, don't lie to the compiler and pretend P-M == P4
+with that -march=pentium4.
 
+And since P-M doesn't do SMP, does cache line size even
+matter? There are no locks to protect from ping-ponging.
+
+/Mikael

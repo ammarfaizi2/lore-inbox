@@ -1,68 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbTIAIf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 04:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTIAIf2
+	id S262758AbTIAI33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 04:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTIAI32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 04:35:28 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:28159 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263561AbTIAIfU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 04:35:20 -0400
-Date: Mon, 1 Sep 2003 10:34:47 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+	Mon, 1 Sep 2003 04:29:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42121 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262758AbTIAI30
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 04:29:26 -0400
+Date: Mon, 1 Sep 2003 09:29:11 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mfedyk@matchmail.com, lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030901055804.GG748@mail.jlokier.co.uk>
-Message-ID: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030901082911.GA1638@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com> <20030829230521.GD3846@matchmail.com> <20030830221032.1edf71d0.davem@redhat.com> <20030831224937.GA29239@mail.jlokier.co.uk> <20030831223102.3affcb34.davem@redhat.com> <20030901064231.GJ748@mail.jlokier.co.uk> <20030901000615.28d93760.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901000615.28d93760.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Sep 2003, Jamie Lokier wrote:
-> Geert Uytterhoeven wrote:
-> > Are you also interested in m68k? ;-)
+David S. Miller wrote:
+> I disagree, MAP_FIXED means "I know what I am doing don't override
+> this unless the mapping area is not available in my address space."
+> You should never specify MAP_FIXED unless you _REALLY_ know what you
+> are doing.
+
+So explain this from the Sparc architecture code:
+
+	if (flags & MAP_FIXED) {
+		/* We do not accept a shared mapping if it would violate
+		 * cache aliasing constraints.
+		 */
+		if ((flags & MAP_SHARED) && (addr & (SHMLBA - 1)))
+			return -EINVAL;
+		return addr;
+	}
+
+Ok, I'll explain it :)  At one time, the code did what the comment says,
+but nowadays linux/mm/mmap.c doesn't call arch_get_unmapped_area() for
+MAP_FIXED, so the above code is redundant and misleading.  It already
+mislead me, so please remove it.  sparc and sparc64 both have it.
+
+> > Thus I have three Sparc-specific questions:
 > > 
-> > cassandra:/tmp# time ./test
-> > Test separation: 4096 bytes: FAIL - store buffer not coherent
+> > 	1. How does userspace find out the value of SHMLBA?
+> > 	   On Sparc, it is not a compile-time constant.
 > 
-> Especially!  I hadn't expected to see any machine that would print
-> "store buffer not coherent".  It means that if there's an L1 cache, it
-> is coherent, but any store-then-load bypass in the CPU pipeline is
-> using the virtual address with no rollback after MMU translation.
+> Don't specify MAP_FIXED for MAP_SHARED mapping if you want
+> proper coherency, that's my answer for this one.
+
+I can't safely set up this kind of mapping without MAP_FIXED, unless I
+know SHMLBA.
+
+This is my strategy:
+
+	mmap MAP_ANON without MAP_FIXED to find a free area
+	mmap MAP_FIXED over the anon area at same address
+	mmap MAP_FIXED over the anon area at larger address
+
+I don't see any strategy that lets me establish this kind of circular
+mapping on Sparc without either (a) knowing the value of SHMLBA, or
+(b) risking clobbering another thread's mmap.
+
+> > 	3. Is there a kernel bug on Sparc, because the test program
+> > 	   is either getting mappings that aren't aligned to run time
+> > 	   SHMLBA, or the kernel's run time SHMLBA value is not correct.
 > 
-> I had thought it would only be the case with chips using an external
-> MMU, but now that I think about it, the older simpler chips aren't
-> going to bother with things like pipeline rollback wherever they can
-> get away without it!
+> No, the user is allowed to hang himself with MAP_FIXED.
+> The bug is in your code :)
 
-As you probably know the 68020 had an external MMU (68551, or Sun-3 or Apollo
-MMU). Probably Motorola didn't bother to change the behavior when the MMU got
-integrated in later generations (68030 and up).
+Well, my code has no bug because I do run-time tests to see what
+rubbish the architecture gave me.  As we see, they work :)
 
-BTW, probably you want us to run your test program on other m68k boxes? Mine
-got a 68040, that leaves us with:
-  - 68020+68551
-  - 68020+Sun-3 MMU
-  - 68030
-  - 68060
+I don't see any real alternative to doing that.  But that's ok, it
+seems robust and portable.  It's a shame about the slow cache flush,
+because I can sometimes use fast cache flushing to improve my DSP
+buffering algorithms.
 
-For linux-m68k: You can find the test program source in Jamie's original
-posting on lkml. For your convenience, I put a binary for m68k at
-http://home.tvd.be/cr26864/Linux/m68k/jamie_test.gz. Just tell us the
-program's output and give us a copy of your /proc/cpuinfo. Thanks!
+> > 	2. Is flushing part of the data cache something I can do from
+> > 	   userspace?  (I'll figure out the exact machine instructions
+> > 	   myself if I need to do this, but it'd be nice to know if
+> > 	   it's possible before I have a go).
+> 
+> There is no efficient way to do this from userspace, only the
+> kernel has access to the more efficient cache flushing instructions.
+> You'd need to flush via loads to displace the aliasing cache lines.
 
-Gr{oetje,eeting}s,
+Will msync() do it?
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Thanks,
+-- Jamie

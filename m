@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263087AbUJ1WSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263123AbUJ1W1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263087AbUJ1WSK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 18:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUJ1WOm
+	id S263123AbUJ1W1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 18:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbUJ1WUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 18:14:42 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48398 "HELO
+	Thu, 28 Oct 2004 18:20:48 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62734 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263089AbUJ1WNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 18:13:06 -0400
-Date: Fri, 29 Oct 2004 00:12:27 +0200
+	id S263058AbUJ1WQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 18:16:07 -0400
+Date: Fri, 29 Oct 2004 00:15:35 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: ctindel@users.sourceforge.net, fubar@us.ibm.com
-Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: [2.6 patch] bonding: remove an unused function
-Message-ID: <20041028221227.GJ3207@stusta.de>
+To: dri-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] DRM: remove unused functions
+Message-ID: <20041028221535.GL3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -26,48 +25,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-The patch below removes an unsed function from 
-drivers/net/bonding/bond_3ad.c
+The patch below removes two unused functions from DRM.
 
 
 diffstat output:
- drivers/net/bonding/bond_3ad.c |   10 ----------
- 1 files changed, 10 deletions(-)
+ drivers/char/drm/i810_dma.c |   18 ------------------
+ drivers/char/drm/i915_dma.c |   18 ------------------
+ 2 files changed, 36 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/net/bonding/bond_3ad.c.old	2004-10-28 23:18:00.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/net/bonding/bond_3ad.c	2004-10-28 23:18:19.000000000 +0200
-@@ -130,7 +130,6 @@
- static u16 __get_link_speed(struct port *port);
- static u8 __get_duplex(struct port *port);
- static inline void __initialize_port_locks(struct port *port);
-- -static inline void __deinitialize_port_locks(struct port *port);
- //conversions
- static void __ntohs_lacpdu(struct lacpdu *lacpdu);
- static u16 __ad_timer_to_ticks(u16 timer_type, u16 Par);
-@@ -445,15 +444,6 @@
- 	spin_lock_init(&(SLAVE_AD_INFO(port->slave).rx_machine_lock));
- }
+- --- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c.old	2004-10-28 22:55:34.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c	2004-10-28 22:55:45.000000000 +0200
+@@ -51,24 +51,6 @@
+ #define up_write up
+ #endif
  
-- -/**
-- - * __deinitialize_port_locks - deinitialize a port's RX machine spinlock
-- - * @port: the port we're looking at
-- - *
-- - */
-- -static inline void __deinitialize_port_locks(struct port *port)
+- -static inline void i810_print_status_page(drm_device_t *dev)
 - -{
+- -   	drm_device_dma_t *dma = dev->dma;
+- -      	drm_i810_private_t *dev_priv = dev->dev_private;
+- -	u32 *temp = dev_priv->hw_status_page;
+- -   	int i;
+- -
+- -   	DRM_DEBUG(  "hw_status: Interrupt Status : %x\n", temp[0]);
+- -   	DRM_DEBUG(  "hw_status: LpRing Head ptr : %x\n", temp[1]);
+- -   	DRM_DEBUG(  "hw_status: IRing Head ptr : %x\n", temp[2]);
+- -      	DRM_DEBUG(  "hw_status: Reserved : %x\n", temp[3]);
+- -	DRM_DEBUG(  "hw_status: Last Render: %x\n", temp[4]);
+- -   	DRM_DEBUG(  "hw_status: Driver Counter : %d\n", temp[5]);
+- -   	for(i = 6; i < dma->buf_count + 6; i++) {
+- -	   	DRM_DEBUG( "buffer status idx : %d used: %d\n", i - 6, temp[i]);
+- -	}
 - -}
 - -
- //conversions
- /**
-  * __ntohs_lacpdu - convert the contents of a LACPDU to host byte order
-
+ static drm_buf_t *i810_freelist_get(drm_device_t *dev)
+ {
+    	drm_device_dma_t *dma = dev->dma;
+- --- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c.old	2004-10-28 22:56:35.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c	2004-10-28 22:56:47.000000000 +0200
+@@ -13,24 +13,6 @@
+ #include "i915_drm.h"
+ #include "i915_drv.h"
+ 
+- -static inline void i915_print_status_page(drm_device_t * dev)
+- -{
+- -	drm_i915_private_t *dev_priv = dev->dev_private;
+- -	u32 *temp = dev_priv->hw_status_page;
+- -
+- -	if (!temp) {
+- -		DRM_DEBUG("no status page\n");
+- -		return;
+- -	}
+- -
+- -	DRM_DEBUG("hw_status: Interrupt Status : %x\n", temp[0]);
+- -	DRM_DEBUG("hw_status: LpRing Head ptr : %x\n", temp[1]);
+- -	DRM_DEBUG("hw_status: IRing Head ptr : %x\n", temp[2]);
+- -	DRM_DEBUG("hw_status: Reserved : %x\n", temp[3]);
+- -	DRM_DEBUG("hw_status: Driver Counter : %d\n", temp[5]);
+- -
+- -}
+- -
+ /* Really want an OS-independent resettable timer.  Would like to have
+  * this loop run for (eg) 3 sec, but have the timer reset every time
+  * the head pointer changes, so that EBUSY only happens if the ring
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgW7LmfzqmE8StAARAk7TAJ0cVwlvMQ1fX3f9lEs9Rs6zQ17q9gCff6im
-vqlZA3/rLdhqLNRTdU3aVgM=
-=eHej
+iD8DBQFBgW+HmfzqmE8StAARAttqAJ4h16xPCGoaSdpSQISliKrGQ4U6xwCgqOwN
+uU4Jwi0yuUSGoB4AbZHHN1U=
+=Oppa
 -----END PGP SIGNATURE-----

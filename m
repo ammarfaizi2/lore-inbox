@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBLQus>; Mon, 12 Feb 2001 11:50:48 -0500
+	id <S129372AbRBLQxs>; Mon, 12 Feb 2001 11:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129299AbRBLQui>; Mon, 12 Feb 2001 11:50:38 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:6151 "EHLO quark.didntduck.org")
-	by vger.kernel.org with ESMTP id <S129181AbRBLQud>;
-	Mon, 12 Feb 2001 11:50:33 -0500
-Message-ID: <3A881438.99746625@didntduck.org>
-Date: Mon, 12 Feb 2001 11:50:00 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Powell <moloch16@yahoo.com>
-CC: linux-kernel@vger.kernel.org
+	id <S129620AbRBLQxi>; Mon, 12 Feb 2001 11:53:38 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4627 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129299AbRBLQxZ>; Mon, 12 Feb 2001 11:53:25 -0500
 Subject: Re: Programmatically probe video chipset
-In-Reply-To: <20010212164358.2762.qmail@web119.yahoomail.com>
+To: moloch16@yahoo.com (Paul Powell)
+Date: Mon, 12 Feb 2001 16:54:06 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010212164358.2762.qmail@web119.yahoomail.com> from "Paul Powell" at Feb 12, 2001 08:43:58 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14SMEr-0007UM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Powell wrote:
-> 
 > Is there an API or other means to determine what video
 > card, namely the chipset, that the user has installed
 > on his machine?
-> 
-> Thanks,
-> Paul
 
-The only real way is to correlate the PCI id with a chipset.  This is
-what XFree86 does.
-
---
-
-				Brian Gerst
+On a modern X86 machine use the PCI/AGP bus data. On a PS/2 use the MCA bus
+data. On nubus use the nubus probe data. On old style ISA bus PCs done a large
+pointy hat and spend several years reading arcane and forbidden scrolls
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317310AbSFCI1d>; Mon, 3 Jun 2002 04:27:33 -0400
+	id <S317314AbSFCI2Z>; Mon, 3 Jun 2002 04:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317311AbSFCI1c>; Mon, 3 Jun 2002 04:27:32 -0400
-Received: from [212.234.221.113] ([212.234.221.113]:8513 "EHLO mail.cev-sa.com")
-	by vger.kernel.org with ESMTP id <S317310AbSFCI1c>;
-	Mon, 3 Jun 2002 04:27:32 -0400
-Message-ID: <035001c20ad8$5d897b60$6601a8c0@stlo.cevsa.com>
-From: =?ISO-8859-1?Q? "Fran=E7ois?= Leblanc" 
-	<francois.leblanc@cev-sa.com>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>
-Cc: "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0205251543260.15278-100000@vervain.sonytel.be>
-Subject: Re: [PATCH] kernel 2.4.18 endianness logical mistakes correction onfbcon-cfb2.c and fbcon-cfb4.c
-Date: Mon, 3 Jun 2002 10:26:28 +0200
+	id <S317313AbSFCI2Y>; Mon, 3 Jun 2002 04:28:24 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:16080 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317311AbSFCI2W>;
+	Mon, 3 Jun 2002 04:28:22 -0400
+Date: Mon, 3 Jun 2002 10:28:14 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+X-X-Sender: <roy@mail.pronto.tv>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RAID-6 support in kernel?
+In-Reply-To: <3CFB1C42.A03ACABC@daimi.au.dk>
+Message-ID: <Pine.LNX.4.33.0206031025400.30424-100000@mail.pronto.tv>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patchs correct the endianness logical of nibbletab, the first table
-is
-> > u_char mades so no endian needed and the second swap correctly bytes in
-> > LITTLE_ENDIAN. (old version swap half bytes instead of bytes).
->
-> For pixels smaller than a byte, it also depends on what's the order of the
-> pixels in a byte. So all possibilities are actually possible.
+> > RAID-6 layout: http://www.acnc.com/04_01_06.html
+> 
+> If it is supposed to survive two arbitrary disk failures something is
+> wrong with that figure. They store 12 logical sectors in 20 physical
+> sectors across 4 drives. With two lost disks there are 10 physical
+> sectors left from which we want to reconstruct 12 logical sectors.
+> That is impossible.
 
-All is possible but for LITTLE ENDIAN and BIG ENDIAN are clearly defined by
-the swap of bytes only and not the order of bytes, you can't use the same
-definition LITTLE_ENDIAN for swapping bytes in part of hardware (0xABCD ->
-0xCDAB) and swapping bytes orders in overs hardwares parts (0xABCD ->
-0xDCBA). I suppose this swap order has been introduced for specifics
-hardwares requirements, it's ok but only with another option than LITTLE
-ENDIAN, since it's incoherent.
+Might be the diagram is wrong. Ok. But I know people like Compaq are 
+already doing RAID-6.
 
-François.
+> OTOH it is possible to construct a system with optimal capacity and
+> ability to survive any chosen number of disk failures. This can be
+> done using either a Reed-Soloman code or Lagrange interpolation of
+> polynomials over a finite field.
+> 
+> However I guess those techniques would be inefficient in software.
 
+Yeah? That's what the hardware RAID vendors all say, and I yet haven't 
+seen one single test where Linux Software RAID can't beat hardware RAID. 
+That is also after some testing I did on a high-end intel server at 
+Compaq's lab in Oslo. How can RAID-6 be so much different?
+
+roy
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTFJTUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 15:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTFJSkx
+	id S261444AbTFJTR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 15:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTFJTRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:40:53 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:38575 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264042AbTFJShc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:37:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10552709683321@kroah.com>
-Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <10552709681370@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:28 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Tue, 10 Jun 2003 15:17:18 -0400
+Received: from holomorphy.com ([66.224.33.161]:27353 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261444AbTFJTQV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 15:16:21 -0400
+Date: Tue, 10 Jun 2003 12:29:21 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Rik van Riel <riel@redhat.com>, colin@colina.demon.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Maximum swap space?
+Message-ID: <20030610192921.GD26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Rik van Riel <riel@redhat.com>,
+	colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
+References: <ltptlqb72n.fsf@colina.demon.co.uk> <Pine.LNX.4.44.0306071827450.24170-100000@chimarrao.boston.redhat.com> <20030610120039.31e8ee47.rddunlap@osdl.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030610120039.31e8ee47.rddunlap@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1364, 2003/06/09 16:08:46-07:00, greg@kroah.com
+On Tue, Jun 10, 2003 at 12:00:39PM -0700, Randy.Dunlap wrote:
+> So do we know what the 2.4.current and 2.5.current limits are?
+> You have used a 20 GB swap partition on 2.4.recent.
+> Andrew has used (tested) a 52 GB partition on some unmentioned
+> kernel.
 
-PCI: remove pci_present() from drivers/scsi/sym53c8xx.c
+I apologize for failing to do a proper wrap-up. AIUI, we have:
+
+(1) both 2.4.x and 2.5.x kernels support swapspaces of up to 64GB in size
+
+(2) 2.4.x supports 64 swapspaces and 2.5.x supports 32 (not reparable)
+
+(3) mkswap(8) needs fixes for creating swapspaces larger than 2GB merged
+	back to util-linux; aeb (util-linux maintainer) has publicly
+	requested the code be sent back to him for merging, presumably
+	with some evidence of its correctness. One of the several distro
+	people who are maintaining such patches against mkswap(8) is
+	going to send that in.
 
 
- drivers/scsi/sym53c8xx.c |    8 --------
- 1 files changed, 8 deletions(-)
-
-
-diff -Nru a/drivers/scsi/sym53c8xx.c b/drivers/scsi/sym53c8xx.c
---- a/drivers/scsi/sym53c8xx.c	Tue Jun 10 11:18:39 2003
-+++ b/drivers/scsi/sym53c8xx.c	Tue Jun 10 11:18:39 2003
-@@ -493,8 +493,6 @@
- #define PciDeviceFn(d)		((d)&0xff)
- #define __PciDev(busn, devfn)	(((busn)<<8)+(devfn))
- 
--#define pci_present pcibios_present
--
- #define pci_read_config_byte(d, w, v) \
- 	pcibios_read_config_byte(PciBusNumber(d), PciDeviceFn(d), w, v)
- #define pci_read_config_word(d, w, v) \
-@@ -12903,12 +12901,6 @@
- #ifdef SCSI_NCR_NVRAM_SUPPORT
- 	ncr_nvram  nvram0, nvram, *nvp;
- #endif
--
--	/*
--	**    PCI is required.
--	*/
--	if (!pci_present())
--		return 0;
- 
- 	/*
- 	**    Initialize driver general stuff.
-
+-- wli

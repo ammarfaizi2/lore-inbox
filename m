@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129892AbQKVOk5>; Wed, 22 Nov 2000 09:40:57 -0500
+        id <S130063AbQKVOnH>; Wed, 22 Nov 2000 09:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129412AbQKVOkr>; Wed, 22 Nov 2000 09:40:47 -0500
-Received: from PTP283.UNI-MUENSTER.DE ([128.176.197.201]:17024 "EHLO
-        pt2037.uni-muenster.de") by vger.kernel.org with ESMTP
-        id <S129283AbQKVOki>; Wed, 22 Nov 2000 09:40:38 -0500
-From: Bernd Nottelmann <nottelm@uni-muenster.de>
-Organization: Universitaet Muenster
-Date: Wed, 22 Nov 2000 15:10:31 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: Jens Axboe <axboe@suse.de>
-In-Reply-To: <00111022341900.16665@pt2037> <20001111051829.A484@suse.de>
-In-Reply-To: <20001111051829.A484@suse.de>
-Subject: Success with 2.4.0-test11(-final) [was: Re: Oops with 2.4.0-test10 during ripping an audio cd with cdda2wav]
-Cc: linux-kernel@vger.kernel.org.nottelm@uni-muenster.de
+        id <S130073AbQKVOm5>; Wed, 22 Nov 2000 09:42:57 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:29935 "EHLO
+        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+        id <S130063AbQKVOmu>; Wed, 22 Nov 2000 09:42:50 -0500
+Date: Wed, 22 Nov 2000 12:07:48 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Daniel Stone <daniel@kabuki.eyep.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Rik's bad process killer - how to kill _IT_?
+In-Reply-To: <20001122123115Z129851-8303+80@vger.kernel.org>
+Message-ID: <Pine.LNX.4.21.0011221205320.12459-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <00112215103100.01219@pt2037>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 November 2000 05:18, you wrote:
- [...]
->
-> This looks like cdrom.c:mmc_ioctl, CDROMREADAUDIO, kmalloc'ing too
-> much memory, which triggers the BUG() in slab.c. I'm not quite sure
-> how this is happening though, unless cdda2wav sets a negative ra.nframes
-> (a quick browse on a version I have here shows it does not, maybe you
-> have a different version).
->
-> Is it reproducable? If so, could you try with this patch?
+On Wed, 22 Nov 2000, Daniel Stone wrote:
 
-As I already told you, the bug was reproducible, as well in 2.4.0-test10 as in
-2.4.0-test11. Today I tried it with 2.4.0-test11, the oops did happen again.
-After applying your patch I ripped the song again (I figured out that it
-was only one song, not the whole cd) and oops occured. Additionally
-I checked the song out and it was ok.
+> I've been having a bit of a problem with Rik's new VM, in particular the bad
+> process-killer. Basically put, I have a reasonably underpowered system
+> (P166) running Helix GNOME & Sawfish, and half the time when I load my Eterm
+> (admittedly, transparent, but it looks cool, damnit!), or Netscape (or
+> both!) it seems to be Rik's VM killer slaying them. No error message is
+> logged anywhere, not even if I start 'em from the console.
 
-  Bernd
+> Daniel Stone
+> Linux Kernel Developer
+  ^^^^^^^^^^^^^^^^^^^^^^
 
-PS: for unknown reasons your attached patch was included twice
-in the file I saved on disk from it, so it came to this weird error messages
-I mentioned in my last mail.
+If you were, you'd have written something that makes sense.
+
+1. my OOM killer *always* spits out a message when it kills
+   something
+2. you haven't written what kernel version you're using;
+   judging from your lack of error messages you're running
+   2.2 (which has the nasty habit of killing processes under
+   heavy load ... I have a patch out which fixes that)
+
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

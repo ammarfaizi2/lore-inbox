@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129498AbRCLFIo>; Mon, 12 Mar 2001 00:08:44 -0500
+	id <S129511AbRCLFzV>; Mon, 12 Mar 2001 00:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129501AbRCLFIf>; Mon, 12 Mar 2001 00:08:35 -0500
-Received: from turing.une.edu.au ([129.180.11.17]:56334 "EHLO
-	turing.une.edu.au") by vger.kernel.org with ESMTP
-	id <S129498AbRCLFIX>; Mon, 12 Mar 2001 00:08:23 -0500
-Date: Mon, 12 Mar 2001 16:07:36 +1100
-From: Norman Gaywood <norm@turing.une.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: How many dquots is enough?
-Message-ID: <20010312160736.A11879@turing.une.edu.au>
-Mime-Version: 1.0
+	id <S129517AbRCLFzL>; Mon, 12 Mar 2001 00:55:11 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:54789 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S129511AbRCLFzD>; Mon, 12 Mar 2001 00:55:03 -0500
+Message-ID: <3AAC7009.BFA260CD@evision-ventures.com>
+Date: Mon, 12 Mar 2001 07:43:21 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Penguin logos
+In-Reply-To: <200103120112.f2C1Csj165543@saturn.cs.uml.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have not been able to run quotas for several versions of 2.2.x now. I
-always get stuff like:
+"Albert D. Cahalan" wrote:
+> 
+> Geert Uytterhoeven writes:
+> 
+> >   - The colors for the 16 color logo are wrong. We used a hack to
+> >     give the logo its own color palette, but this no longer works
+> >     as a side effect of a console color map bug being fixed a while
+> >     ago. The solution is to replace the logo with a new one that
+> >     uses the standard VGA console palette.
+> 
+> Good idea, but the feet don't look too good. Either dither a bit,
+> or pick a single color for the feet. Maybe a checkerboard-dither
+> would get close to the right color without looking grainy.
+> 
+> >   - There are still some politically-incorrect (PI) logos of a penguin
+> >     holding a glass of beer or wine (or perhaps even worse? :-).
+> 
+> Those also just look bad. The drink sort of floats above the penguin's
+> foot. It really looks like it was just pasted onto the image.
+> 
+> The arch-specific logos look bad in general, and the swirly gray
+> background isn't so great either. Why not use the original image?
 
-Mar 11 18:56:17 turing kernel: Unable to handle kernel paging request at virtual address 6c206f8f 
-Mar 11 18:56:17 turing kernel: current->tss.cr3 = 2b4e1000, %%cr3 = 2b4e1000 
-Mar 11 18:56:17 turing kernel: *pde = 00000000 
-Mar 11 18:56:17 turing kernel: Oops: 0002 
-Mar 11 18:56:17 turing kernel: CPU:    0 
-Mar 11 18:56:17 turing kernel: EIP:    0010:[kmem_cache_alloc+19/348] 
-Mar 11 18:56:17 turing kernel: EFLAGS: 00010006 
-Mar 11 18:56:17 turing kernel: eax: 6c206f6f   ebx: 00000000   ecx: 00000000   edx: f66cf208 
-Mar 11 18:56:17 turing kernel: esi: 6c206f6f   edi: 00000080   ebp: 00000206   esp: b3381f08 
-Mar 11 18:56:17 turing kernel: ds: 0018   es: 0018   ss: 0018 
-Mar 11 18:56:17 turing kernel: Process in.ftpd (pid: 9193, process nr: 305, stackpage=b3381000) 
-Mar 11 18:56:17 turing kernel: Stack: 00000080 f778ade0 8013b275 6c206f6f 00000015 00000000 00000000 00000080  
-Mar 11 18:56:17 turing kernel:        00000000 8013b3fa 00000000 8013b571 00000000 00000001 08084580 fffffffd  
-Mar 11 18:56:17 turing kernel:        0000027a 00000002 00000000 00000000 00000811 00000020 08110000 8013c086  
-Mar 11 18:56:17 turing kernel: Call Trace: [grow_dquots+21/132] [get_empty_dquot+194/284] [dqget+285/660] [get_quota+130/272] [sys_quotactl+526/784] [system_call+52/56]  
-Mar 11 18:56:17 turing kernel: Code: f0 0f ba 6e 20 00 0f 82 56 e5 0d 00 90 8b 06 89 c3 81 78 08  
+I agree fully about the swirly gray - it's just looks ugly chlidish,
+dilletantic
+and very tasteless... plain color or some gui alike border would look
+much better.
 
-The process in question will then hang in the D state. More and processes
-get like this until the system becomes unusable. The Oops is always in
-kmem_cache_alloc called from grow_dquots.
-
-I solve it by turning off quotas with "quotaoff -a" after a reboot.
-
-I thought that I probably didn't have enough dquots so I increased
-dquot-max to 16384. But I still get these Oops-es.
-
-In Documentation/proc.txt it tells me:
-
-  dquot-nr and dquot-max
-     ...
-     If the number of free cached disk quotas is very low and you have
-     a large number of simultaneous system users, you might want
-     to raise the limit.
-
-Problem is I have no handle on what "very low", "large number", and
-whether I "might want to" mean. I'm not even sure how you define what a
-"simultaneous system user" is.
-
-Our system typically would have 20-100 ssh/rlogin/telnet sessions which
-overlaps with 20-60 "Xterminal" sessions. Also < 10 ftp sessions,
-< 20 samba connections and 10-50 WWW hits a minute.
-
-The current kernel is a RedHat 6.2 rpm based install of 2.2.16, rebuilt
-for PPro/6x86MX, with Bigmem set for 2Gig, CONFIG_UNIX98_PTY_COUNT=2048,
-and SCSI_AIC7XXX built into the kernel (not a module).
-
-I'm happy to supply more details if anyone is interested.
-
-Cheers.
--- 
-Norman Gaywood -- School of Mathematical and Computer Sciences
-University of New England, Armidale, NSW 2351, Australia
-norm@turing.une.edu.au     http://turing.une.edu.au/~norm
-Phone: +61 2 6773 2412     Fax: +61 2 6773 3312
-
+> 
+> > Changes:
+> >  1. Update the frame buffer console code to no longer change the
+> >     palette when displaying the 16 color logo. Remove the tricks
+> >     to load the logo palette in unused palette entries on displays
+> >     with >= 32 colors.
+> 
+> I used to have only 256 colors on my display. I upgraded because
+> there still isn't a global system palette. I'd have been happy
+> enough with 256 colors allocated in a sane way, for kernel & X:
+> 
+> 1. the 16 VGA colors and extra 4 Windows colors (so Wine can work)
+> 2. the 216 Netscape colors
+> 3. gray: 0x00, 0x11, 0x22... 0xff, plus both 0x7f and 0x80
+> 4. everything else reserved for future global allocation
+> 
+> The current situation is way too painful to use.

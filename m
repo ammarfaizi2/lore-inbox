@@ -1,115 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280059AbRKOBsv>; Wed, 14 Nov 2001 20:48:51 -0500
+	id <S279717AbRKOBsl>; Wed, 14 Nov 2001 20:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279963AbRKOBsm>; Wed, 14 Nov 2001 20:48:42 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:4736 "HELO fargo")
-	by vger.kernel.org with SMTP id <S279995AbRKOBs0> convert rfc822-to-8bit;
-	Wed, 14 Nov 2001 20:48:26 -0500
-From: "David Gomez" <davidge@jazzfree.com>
-Date: Thu, 15 Nov 2001 02:47:49 +0100 (CET)
-X-X-Sender: <huma@fargo>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: Re: generic_file_llseek() broken?
-In-Reply-To: <20011114165147.S5739@lynx.no>
-Message-ID: <Pine.LNX.4.33.0111150235330.782-100000@fargo>
+	id <S279998AbRKOBsa>; Wed, 14 Nov 2001 20:48:30 -0500
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:30881 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S279717AbRKOBsW>;
+	Wed, 14 Nov 2001 20:48:22 -0500
+Message-ID: <3BF31F92.27CF811@randomlogic.com>
+Date: Wed, 14 Nov 2001 17:51:14 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Stuart Young <sgy@amc.com.au>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: What Athlon chipset is most stable in Linux?
+In-Reply-To: <3BF31459.BB4BE456@randomlogic.com> <5.1.0.14.0.20011115122046.02028de0@mail.amc.localnet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stuart Young wrote:
+> 
+> At 05:15 PM 14/11/01 -0800, Dan Hollis wrote:
+> >On Wed, 14 Nov 2001, Paul G. Allen wrote:
+> > > I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly tweaked
+> > > compiled in, and a tweaked Detonator 3 nVidia driver
+> >                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> >???
+> 
 
-After your message i tried to play a bit with dd. Bad idea.
+I made a couple small changes so that it would recognize the MP chipset and not drop to a generic operational mode. The generic mode did not work properly and
+would cause occasional system hangs. Fast writes still won't work, but I think a BIOS upgrade might fix that.
 
-I did 'dd if=/dev/zero of=test bs=1024k seek=2G' in a 10Gb ide disk, and
-guess what ?
+> Damn binary thing.
+> 
+> It's the same core code as the Windows Detonator 3 driver. Hence the mention.
+> 
+> The next one will be based on the Detonator 4 core code, so things like
+> OpenGL 1.3 (which is supposedly available with the Detonator 4 drivers
+> under Windows) will be available.
+> 
+> Paul, you may want to see my post earlier re 2.4.14 vanilla and my
+> experiences so far, which have all been good.
+> 
 
-$ ls -l test
--rw-r--r--    1 huma     huma     2251799813685248 Nov 15 02:39 test
-$ ls -lh test
--rw-r--r--    1 huma     huma         2.0P Nov 15 02:39 test
+I just saw it. I am a registered nVidia developer, but have been too busy with other things (mainly working on the V12 game engine) to look into updating my
+actual system software and ping on nVidia about their Linux driver. I asked them once a while back, and they said "A new driver will be released soon, so wait
+for that."
 
-Yep, it says i have a 2 Petabyte file in a 10gb drive. Something is
-_really_ broken here.
-Deleting this file gave me some errors like this:
+I'm getting ready to do it though, since I need to wait for another developer to fix some code (in the game engine) before I can continue.
 
-Nov 15 01:50:07 fargo kernel: EXT2-fs error (device ide3(34,1)):
-ext2_free_blocks: Freeing blocks not in datazone - block = 161087505,
-count = 1
-Nov 15 01:50:07 fargo kernel: EXT2-fs error (device ide3(34,1)):
-ext2_free_blocks: Freeing blocks not in datazone - block = 161153041,
-count = 1
-
-After that, i unmounted the partition and did an fsck, lots of errors and
-several files corrupted that fsck ask me to delete because some inodes had
-illegal blocks.
-
-By the way, is a ext2 partition. Versions are: kernel 2.4.14, fileutils
-4.1 and glibc 2.2.3.
-
-
-
-> Hello,
-> I was recently testing a bit with creating very large files on ext2/ext3
-> (just to see if limits were what they should be).  Now, I know that ext2/3
-> allows files just shy of 2TB right now, because of an issue with i_blocks
-> being in units of 512-byte sectors, instead of fs blocks.
->
-> I tried to create a (sparse!) file of 2TB size with:
->
-> dd if=/dev/zero of=/tmp/tt bs=1k count=1 seek=2047M
->
-> and it worked fine (finished immediately, don't try this with reiserfs...).
->
-> When I tried to make it just a bit bigger, with:
->
-> dd if=/dev/zero of=/tmp/tt bs=1k count=1 seek=2048M
->
-> dd fails the "llseek(fd, 2T, SEEK_SET)" with -EINVAL, and then proceeds
-> to loop "infinitely" reading from the file to try and manually advance
-> the file descriptor offset to the desired offset.  That is bad.
->
-> I _think_ there is a bug in generic_file_llseek(), with it returning -EINVAL
-> instead of -EFBIG in the case where the offset is larger than the s_maxbytes.
-> AFAICS, the return -EINVAL is for the case where "whence" is invalid, not the
-> case where "offset" is too large for the underlying filesystem (I can see
-> -EINVAL for seeking to a negative position).
->
-> If I use:
->
-> dd if=/dev/zero of=/tmp/tt bs=1k count=1025 seek=2097151k
->
-> I correctly get "EFBIG (file too large)" and "SIGXFSZ" from write(2).
->
-> Does anyone know the correct LFS interpretation on this?  From what I can
-> see (I have not read the whole thing) lseek() should return EOVERFLOW if
-> the resulting offset is too large to fit in the passed type.  It doesn't
-> really say what should happen in this particular case - can someone try
-> on a non-Linux system and see what the result is?
->
-> Either way, I think the kernel is broken in this regard.
->
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
-
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630

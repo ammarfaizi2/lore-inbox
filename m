@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311568AbSCNJ1A>; Thu, 14 Mar 2002 04:27:00 -0500
+	id <S311570AbSCNJhu>; Thu, 14 Mar 2002 04:37:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311569AbSCNJ0s>; Thu, 14 Mar 2002 04:26:48 -0500
-Received: from mail.spylog.com ([194.67.35.220]:9447 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S311568AbSCNJ0p>;
-	Thu, 14 Mar 2002 04:26:45 -0500
-Date: Thu, 14 Mar 2002 12:27:15 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: SpyLOG
-X-Priority: 3 (Normal)
-Message-ID: <1781804867952.20020314122715@spylog.ru>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re[2]: MMAP vs READ/WRITE
-In-Reply-To: <20020313164158.A1219@namesys.com>
-In-Reply-To: <861732271654.20020313161718@spylog.ru>
- <20020313164158.A1219@namesys.com>
-MIME-Version: 1.0
+	id <S311571AbSCNJhj>; Thu, 14 Mar 2002 04:37:39 -0500
+Received: from are.twiddle.net ([64.81.246.98]:19845 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S311570AbSCNJh3>;
+	Thu, 14 Mar 2002 04:37:29 -0500
+Date: Thu, 14 Mar 2002 01:37:21 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
+Message-ID: <20020314013721.A23274@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>, davidm@hpl.hp.com,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <15504.7958.677592.908691@napali.hpl.hp.com> <E16lMzi-0002bb-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16lMzi-0002bb-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Thu, Mar 14, 2002 at 03:37:38PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Oleg,
+On Thu, Mar 14, 2002 at 03:37:38PM +1100, Rusty Russell wrote:
+> > I am also a bit concerned however about aliasing that the compiler
+> > might not detect.  For example, with this code:
+> > 
+> > 	this_cpu(foo) = 13;
+> > 	per_cpu(foo, 0) = 15;
+> > 	printf("foo=%d\n", this_cpu(foo);
+> > 
+> > might print the wrong value if gcc thinks that the first and second
+> > assignment never alias each other.  Does HIDE_RELOC() take care of
+> > this also?
+> 
+> I'd be pretty sure the compiler can't assume that.  Richard would
+> know...
 
-Wednesday, March 13, 2002, 4:41:58 PM, you wrote:
+I can't think of a way your current code is invalid.  It's all
+hidden behind an asm.  The compiler could guess the two addresses
+are the same iff smp_processor_id() is the constant 0, aka UP.
 
-OD> Hello!
+> > On a side-note, would you mind moving __per_cpu_data from smp.h into
+> > compiler.h?  I'd like to use it in processor.h and from that file, I
+> > can't include smp.h due to a recursive dependency.
 
-OD> On Wed, Mar 13, 2002 at 04:17:18PM +0300, Peter Zaitsev wrote:
->>   So I would say mmap is not really optimized nowdays in Linux and so
->>   read() may be wining in cases it should not. May be read-ahead is
->>   used with read and is not used with mmap.
-
-OD> how about reading manual page on madvise(2) and redoing your test?
-
-OK. I did but no luck.  The results are quite the same.
-
-I think the hugest problem is:
-
- 0  2  0 210736  19472   2000 733188 216   0  5068     2  382   340   4   2  94
- 0  2  0 210424  20108   1860 729596 219   0  4732     0  319   352   4   1  96
- 0  2  0 210216  19652   1616 727280 254   0  4718    10  313   298   3   4  93
- 1  1  0 209756  19988   1744 723940 285   0  4523    14  313   197   6   6  88
- 0  2  0 209700  20096   1904 722236 223   0  4485    15  307   265   7   5  88
-
- So then file is memory mapped and is read from some pages are coming
- out from swap instead of being read from file....
- 
-
-OD> Also cache is best cleaned by unmounting filesystem in question
-OD> and then mounting it back.
-
-Well. This was not really needed as I repeated the test several times
-in a loop without clearing the cache after initial cleaning to see how
-stable are results.
+This definitely needs to be per-architecture.  On Alpha, I think I
+can use the Thread Local Storage model to be added to binutils 2.13
+(and potentially compiler support to gcc 3.[23]).  IA-64 may be able
+to do the same.  It's certain that x86 can't, since the userland
+model requires %gs:0 point to the thread base, and the kernel folk
+would never cotton to the segment swapping that would be needed.
 
 
 
-
--- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
-
+r~

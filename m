@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131689AbQLJWTt>; Sun, 10 Dec 2000 17:19:49 -0500
+	id <S131752AbQLJWW2>; Sun, 10 Dec 2000 17:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131752AbQLJWTj>; Sun, 10 Dec 2000 17:19:39 -0500
-Received: from f39.law9.hotmail.com ([64.4.9.39]:22533 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S131689AbQLJWTc>;
-	Sun, 10 Dec 2000 17:19:32 -0500
-X-Originating-IP: [213.73.164.155]
-From: "Jonathan Brugge" <jonathan_brugge@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: fatal lockup, BIOS/CMOS reset?
-Date: Sun, 10 Dec 2000 22:49:05 +0100
+	id <S133054AbQLJWWI>; Sun, 10 Dec 2000 17:22:08 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:56074 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S131752AbQLJWWD>;
+	Sun, 10 Dec 2000 17:22:03 -0500
+Date: Sun, 10 Dec 2000 22:55:29 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] truncate () doesn't clear partial pages
+Message-ID: <20001210225529.A3730@linux.localdomain>
+In-Reply-To: <20001210210352.A764@linux.localdomain> <Pine.GSO.4.21.0012101529470.4846-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F394unQVK110xQGocT0000136aa@hotmail.com>
-X-OriginalArrivalTime: 10 Dec 2000 21:49:05.0712 (UTC) FILETIME=[046BC300:01C062F3]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012101529470.4846-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Dec 10, 2000 at 03:30:41PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was experimenting with Hunt, a program I found. This caused some heavy 
-load, and my system had already quite some programs running, so I think I 
-got out of memory (no programs got killed, shouldn't that be done by the 
-VM?). Maybe it was for some other reason, but my system locked, I had to use 
-CTRL-ALT-DELETE. This seemed to work, my HD made some sound and it rebooted. 
-But then: I got a message about a bad CMOS and when I looked in my 
-BIOS-settings I saw they were totally reset... No HD's, date was 1/1/2000, 
-etc.
-After setting everything to the correct value I tried to boot again and no 
-problem this time, not even about a partition that was unmounted 
-incorrectly. It seems to me that no program may EVER have a chance to change 
-things in BIOS/CMOS.I'm running kernel 2.4.0test11 with libc6-2.2.5 (Debian 
-woody, if it matters).
+Hi,
+On Sun, Dec 10, 2000 at 03:30:41PM -0500, Alexander Viro wrote:
+> On Sun, 10 Dec 2000, Miloslav Trmac wrote:
+> > Hi,
+> > vmtruncate () in test11 doesn't clear ends of partial pages. Patch is attached
+> 
+> It doesn't and it shouldn't. That's done in ->truncate(). Check ext2_truncate()
+> for example.
+ext2_truncate () (or block_truncate_page (), to be precise) clears end of
+page-cache page. partial_clear () in mm/memory.c is IMHO supposed to clear
+ends of anonymous pages (created from COW on MAP_PRIVATE mappings).
+I wasn't adding any new functionality, just correcting the old
+implementation (which would never trigger).
 
-1: Is it possible that a program sets options in BIOS/CMOS?
-2: If so, should it be possible?
-3: Any other things that could cause this to happen?
+[Yes, currently it would clear the end of the page-cache
+page as many times as the page is accessible trough a pte.
+partial_clear () should probably clear *only* anonymous
+and swap pages.]
 
-I'm not sure it's a kernel-related problem, but it's something that should 
-never happen, in my opinion (except BIOS-flashing).
-
-Thanks,
-
-Jonathan Brugge
-
-P.S.: My system: Gigabyte GA-7IXE mainboard, K7-700, 128 MB, AMD 751/756 
-chipset.
-_____________________________________________________________________________________
-Get more from the Web.  FREE MSN Explorer download : http://explorer.msn.com
-
+Actually, I'm not that sure that MAP_PRIVATE partial pages should be
+cleared; SuSv2 only says "the whole pages beyond the new end will be
+discarded" [ftruncate ()] and "It is unspecified whether modifications
+to the underlying object done after the MAP_PRIVATE mapping is established
+are visible through the MAP_PRIVATE mapping." [mmap ()].
+So maybe not clearing the pages is The Right Thing - especially as it avoids
+the trouble with swapped-out pages. Remove partial_clear () completely, then.
+	Mirek Trmac
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

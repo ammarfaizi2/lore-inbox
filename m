@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265542AbTGHCDe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 22:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbTGHCDe
+	id S265962AbTGHCIP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 22:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbTGHCIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 22:03:34 -0400
-Received: from mpls-qmqp-02.inet.qwest.net ([63.231.195.113]:3332 "HELO
-	mpls-qmqp-02.inet.qwest.net") by vger.kernel.org with SMTP
-	id S265542AbTGHCDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 22:03:32 -0400
-Date: Mon, 7 Jul 2003 21:14:48 -0700
-Message-ID: <001501c34507$7a19baa0$6801a8c0@oemcomputer>
-From: "Paul Albrecht" <palbrecht@qwest.net>
-To: "Andi Kleen" <ak@suse.de>
-Cc: niv@us.ibm.com, linux-kernel@vger.kernel.org,
-       "netdev" <netdev@oss.sgi.com>
-References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel><001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel><3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel><000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel><3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel><001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel> <p73fzliqa91.fsf@oldwotan.suse.de>
-Subject: Re: question about linux tcp request queue handling
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 7 Jul 2003 22:08:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:6039 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265962AbTGHCIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 22:08:14 -0400
+Date: Mon, 07 Jul 2003 19:14:38 -0700 (PDT)
+Message-Id: <20030707.191438.71104854.davem@redhat.com>
+To: ak@suse.de
+Cc: alan@lxorguk.ukuu.org.uk, grundler@parisc-linux.org,
+       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030703212415.GA30277@wotan.suse.de>
+References: <20030702235619.GA21567@wotan.suse.de>
+	<1057263988.21508.18.camel@dhcp22.swansea.linux.org.uk>
+	<20030703212415.GA30277@wotan.suse.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
+   From: Andi Kleen <ak@suse.de>
+   Date: Thu, 3 Jul 2003 23:24:15 +0200
 
->
-> The 4.4BSD-Lite code described in Stevens is long outdated.
->
+   But of course it doesn't help much in practice because all the interesting
+   block devices support DAC anyways and the IOMMU is disabled for that.
+   
+Platform dependant.  SAC DMA transfers are faster on sparc64 so
+we only allow the device to specify a 32-bit DMA mask successfully.
 
-I was referring to volume one subtitled: "The Protocols."  It doesn't
-describe implementation and the examples are not limited to bsd-lite.
-
->
->All modern BSDs (and probably most other Unixes too) do it in a similar way
-to what
-> Nivedita described.
->
-
-Linux doesn't operate in the manner  Nivedita describes ... the tcp layer on
-the server side moves to the syn_recd state, but doesn't accept the ack back
-from client. Instead it times out and sends its syn/ack back to the client
-and again ignores the client's ack, ... Eventually, either there's room on
-backlog queue and the server side moves to the established state or the
-server side stops resending the its syn/ack.  This doesn't seem to make much
-sense. If the tcp layer can send the syn/ack it seems like it should
-probably respond to the client's ack.
-
->
->The keywords are "syn flood attack" and "DoS".
->
-
-I'd be interested in a more specific reference detailing the changes
-required to the listen syscall as a consequence of the changes required for
-avoidance of syn flood attacks.  Thanks.
-
-
-
-
+And actually, I would recommend other platforms that have a IOMMU do
+this too (unless there is some other reason not to) since virtual
+merging causes less scatter-gather entries to be used in the device
+and thus you can stuff more requests into it.

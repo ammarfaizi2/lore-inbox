@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312696AbSCVGkN>; Fri, 22 Mar 2002 01:40:13 -0500
+	id <S312533AbSCVGxi>; Fri, 22 Mar 2002 01:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312697AbSCVGkE>; Fri, 22 Mar 2002 01:40:04 -0500
-Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:64131
-	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
-	id <S312696AbSCVGjt>; Fri, 22 Mar 2002 01:39:49 -0500
-Message-ID: <3C9AD26F.6060306@ruault.com>
-Date: Thu, 21 Mar 2002 22:42:55 -0800
-From: Charles-Edouard Ruault <ce@ruault.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S312701AbSCVGx2>; Fri, 22 Mar 2002 01:53:28 -0500
+Received: from pec-92-174.tnt5.f.uunet.de ([149.225.92.174]:59652 "EHLO
+	dd8ne.ofr.de.ampr.org") by vger.kernel.org with ESMTP
+	id <S312533AbSCVGxT> convert rfc822-to-8bit; Fri, 22 Mar 2002 01:53:19 -0500
+From: Hans-Joachim Hetscher <hans-joachim@hetscher.bnv-bamberg.de>
+Date: Fri, 22 Mar 2002 06:53:48 GMT
+Message-ID: <20020322.6534800@dd8ne.ofr.de.ampr.org>
+Subject: Re: 2.5.7 does not compile
+To: davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org
+Reply-To: dd8ne@bnv-bamberg.de
+In-Reply-To: <20020321173953.F22861@suse.de>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [UPDATED] Problem on Linux 2.4 with usage of ip_default_ttl
-In-Reply-To: <3C992FD4.6010705@724.com> <20020321.214959.62736326.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO_8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Hallo,
 
->I've applied your patch, thank you.
->
-I'm glad i could help !
+It seeems to be the same bug in 6pack.c
+
+So, I solved the problem in line 259 of 6pack.c by changing
+
+dev->last_rx = jiffies;
+
+into 
+
+sp->dev->last_rx = jiffies; 
+
+
+
+>>>>>>>>>>>>>>>>>> Ursprüngliche Nachricht <<<<<<<<<<<<<<<<<<
+
+Am 21.03.02, 17:45:01, schrieb davej@suse.de (Dave Jones) zum Thema Re: 
+2.5.7 does not compile:
+
+
+> On Thu, Mar 21, 2002 at 05:15:49PM +0100, Jean-Luc Coulon wrote:
+>  > -DKBUILD_BASENAME=scc  -c -o scc.o scc.c
+>  > scc.c: In function `scc_net_rx':
+>  > scc.c:1664: `dev' undeclared (first use in this function)
+
+> Line should read..
+
+> scc->dev->last_rx = jiffies;
+
+vy 73 de Hans-Joachim
 
 -- 
-Charles-Edouard Ruault
-PGP Key ID 4370AF2D
 
-
-
+ DD8NE   : Hans-Joachim Hetscher    IP-Adr. : [44.130.62.1] 
+ amprNet : dd8ne@db0lj.ampr.org     AX25    :DD8NE@DB0LJ.#RPL.DEU.EU 
+ Internet: dd8ne@bnv-bamberg.de     hans-joachim.hetscher@de.michelin.com

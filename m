@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313016AbSDTWOl>; Sat, 20 Apr 2002 18:14:41 -0400
+	id <S313199AbSDTWSq>; Sat, 20 Apr 2002 18:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSDTWOk>; Sat, 20 Apr 2002 18:14:40 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:39694 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S313016AbSDTWOj>; Sat, 20 Apr 2002 18:14:39 -0400
-Date: Sat, 20 Apr 2002 16:14:34 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: [PATCH] (Correction) 2.4.18 model 0x02 CPU for family 0x0F
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.44.0204201607580.18397-200000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)"
+	id <S313201AbSDTWSp>; Sat, 20 Apr 2002 18:18:45 -0400
+Received: from codepoet.org ([166.70.14.212]:29132 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S313199AbSDTWSo>;
+	Sat, 20 Apr 2002 18:18:44 -0400
+Date: Sat, 20 Apr 2002 16:18:46 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK patches exported.
+Message-ID: <20020420221846.GA29608@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <31608.1019318609@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat Apr 20, 2002 at 05:03:29PM +0100, David Woodhouse wrote:
+> For the benefit of the BK haters, or more to the point for my benefit to 
+> shut up the occasional whinging I've heard about needing to use BK to get 
+> at the very latest patches from Linus' tree...
+> 
+> 	http://www.kernel.org/~dwmw2/bk-2.5/
+> 
+> It should be updated every hour on the hour, and has the last week's worth 
+> of changesets exported as patches.
 
---Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+You rock, this is great!  Any chance you could setup the same for
+kernel 2.4 as well for those watching the bleeding edge of the
+stable tree?
 
-Thanks to Jeff Nguyen for pointing out this error.  The P4 XEON processors
-are orficially referred to as XEON processors by Intel.  
+ -Erik
 
-Patch adds the ident of model 0x02 to family 0x0F.
-
-A rose by any other name..
-
-Regards,
-James Bourne
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
-
-
---Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)
-Content-id: <Pine.LNX.4.44.0204201614340.18397@skuld.mtroyal.ab.ca>
-Content-type: TEXT/PLAIN; name=2.4.18-xeon-ident.patch; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=2.4.18-xeon-ident.patch
-Content-description: 
-
---- linux-2.4.18/arch/i386/kernel/mpparse.c~	Sat Apr 20 15:59:10 2002
-+++ linux-2.4.18/arch/i386/kernel/mpparse.c	Sat Apr 20 16:03:10 2002
-@@ -113,6 +113,8 @@
- 		case 0x0F:
- 			if (model == 0x00)
- 				return("Pentium 4(tm)");
-+			if (model == 0x02)
-+				return("XEON(tm)");
- 			if (model == 0x0F)
- 				return("Special controller");
- 	}
-
---Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

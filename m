@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273668AbRIURXG>; Fri, 21 Sep 2001 13:23:06 -0400
+	id <S273997AbRIURZ4>; Fri, 21 Sep 2001 13:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273887AbRIURW5>; Fri, 21 Sep 2001 13:22:57 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:7696 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S273668AbRIURWl>; Fri, 21 Sep 2001 13:22:41 -0400
-Date: Fri, 21 Sep 2001 13:22:20 -0400
-Message-Id: <200109211722.f8LHMKI04360@deathstar.prodigy.com>
-To: goemon@anime.net
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <Pine.LNX.4.30.0109191249130.26700-100000@anime.net>
-Organization: TMR Associates, Schenectady NY
-Cc: linux-kernel@vger.kernel.org
-From: davidsen@tmr.com (bill davidsen)
+	id <S274153AbRIURZk>; Fri, 21 Sep 2001 13:25:40 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:60165 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S273997AbRIURZ1>;
+	Fri, 21 Sep 2001 13:25:27 -0400
+Message-ID: <XFMail.20010921192411.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <41B7E064ABA@vcnet.vc.cvut.cz>
+Date: Fri, 21 Sep 2001 19:24:11 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: spurious interrupt with ac kernel but not with vanilla
+Cc: alan@lxorguk.ukuu.org.uk, Linux Kernel <linux-kernel@vger.kernel.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.30.0109191249130.26700-100000@anime.net> you write:
-| On Wed, 19 Sep 2001, Arjan van de Ven wrote:
-| > If it were only 5%, I would vote for disabling the optimisation given the
-| > number of problems; however it's 2x _and_ you can trigger the bug as normal
-| > user from userspace too... so we need to fix the hardware/bios.
-| 
-| But we really dont know what the hell that bit is doing. It might trigger
-| some other obscure bugs and make things a real mess.
-| 
-| Until we get some answer from VIA its IMHO a bad idea to start twiddling
-| this bit willy-nilly on all machines.
+> This happens to me too (Asus A7V, KT133). It happens since I remember -
+> at least since Christmas, and for me it happens after unspecified time
+> after boot - varying from few seconds (during initscripts) to few
+> minutes. After it happens once, everything is apparently satisified
+> and no more spurious interrupts occurs (until next reboot).
 
-We know one thing it's doing, keeping user programs from causing errors.
-If the error didn't occur in user mode I would be more careful, but
-having been shown that it does, I will use the fix. Since the older BIOS
-versions set it the other way, I'm willing to assume it's safe and move
-forward.
+Same behaviour on a bunch of EpoX 8KTA+, KT133. Didn't care about it. Doesn't
+happen on a variety of PIII boards (Intel clones and Asus) so it looks like a
+KT133 issue. Kernel config is UP with APIC support on all systems.
 
--- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

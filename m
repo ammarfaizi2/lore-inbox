@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135867AbRDYOs4>; Wed, 25 Apr 2001 10:48:56 -0400
+	id <S135854AbRDYOmq>; Wed, 25 Apr 2001 10:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135868AbRDYOsg>; Wed, 25 Apr 2001 10:48:36 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:2054 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S135867AbRDYOsc>;
-	Wed, 25 Apr 2001 10:48:32 -0400
-Date: Wed, 25 Apr 2001 16:45:48 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: Helge Hafting <helgehaf@idb.hist.no>
-Cc: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: where can I find the IP address ?
-Message-Id: <20010425164548.3767d2cb.sebastien.person@sycomore.fr>
-In-Reply-To: <3AE6CE87.9F9A1DA7@idb.hist.no>
-In-Reply-To: <20010425143636.038539aa.sebastien.person@sycomore.fr>
-	<3AE6CE87.9F9A1DA7@idb.hist.no>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S135867AbRDYOmg>; Wed, 25 Apr 2001 10:42:36 -0400
+Received: from NS.CenSoft.COM ([208.219.23.2]:31762 "EHLO
+	ns.centurysoftware.com") by vger.kernel.org with ESMTP
+	id <S135854AbRDYOm2>; Wed, 25 Apr 2001 10:42:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jordan Crouse <jordanc@Censoft.com>
+Reply-To: jordanc@Censoft.com
+Organization: The Microwindows Project
+To: Daniel Stone <daniel@kabuki.openfridge.net>
+Subject: Re: [PATCH] Single user linux
+Date: Wed, 25 Apr 2001 08:42:49 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net> <20010424172027.G19171@vitelus.com> <20010425103246.C11099@piro.kabuki.openfridge.net>
+In-Reply-To: <20010425103246.C11099@piro.kabuki.openfridge.net>
+MIME-Version: 1.0
+Message-Id: <01042508424902.00886@cosmic>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Wed, 25 Apr 2001 15:17:59 +0200
-Helge Hafting <helgehaf@idb.hist.no> à écrit :
+So, are you saying, right now in front of the whole community, that you only 
+use Linux because you can develop on it?  That if it wasn't for GCC you would 
+be playing Minesweeper right now?  
 
-> sébastien person wrote:
-> > 
-> > Début du message transféré :
-> > 
-> > Date: Tue, 24 Apr 2001 16:43:18 +0200
-> > From: sébastien person <sebastien.person@sycomore.fr>
-> > To: liste noyau linux <linux-kernel@vger.kernel.org>
-> > Subject: where can I find the IP address ?
-> > 
-> > I'm dealing with a driver wich need the IP address for specifics using.
-> > 
-> The IP address of what?
-> Rememeber, a computer can have an arbitrary number of different
-> IP addresses assigned to various interfaces.  It may even have
-> several IP addresses on the same network card.
-> 
-> So, which of them do you want?
-> 
-> Helge Hafting
+I know thats not what you are saying, but thats how you come across.  We 
+always tell everybody who would listen that Linux can hold its own as an 
+operating system.  Not just because the code is open, and not just for the 
+development environment.  Linux can hold its own because it is *good*.  Not 
+perfect (there is no perfect operating system), but when you put it against 
+its peers, it rises to the top (<bigotry>along with its other unix 
+cousins</bigotry>). 
 
-Yes that's right. In fact (excuse my bad english), my driver is 'iconfiged- up' with an
-IP in a script, and there is only one IP attach to the adapter. The adapter is a serial
-modem wich will work like an ethernet card, I'm working on the encapsulation of packets
-on the serial line and I need the IP that ifconfig attach to it.
+So why wouldn't linux be ideal for an embedded situation.  Why wouldn't an 
+open MP3 player be a better option that Media Player?  We can't we use the 
+security, stability and power of Linux for a a suite of PIMs and Doom?I
 
-I've seen in the rubini linux device driver that it exists one field in the struture
-that contain the IP but it doesn't exist in my structure so I though that I can find it
-elsewhere. So the IP that I need for the driver of the device, is the one the device is
-attached to. I expect to explain myself clearly else don't hesitate to tell me more.
+Be proud of your operating system - you have 32 bits of multitasking power 
+and stability, and you can fit it into 512K.  Lets see Redmond try that!
 
-thanks
-
-sebastien person
-
+Jordan
+  
+On Tuesday 24 April 2001 18:32, Daniel Stone mentioned:
+> On Tue, Apr 24, 2001 at 05:20:27PM -0700, Aaron Lehmann wrote:
+> > On Wed, Apr 25, 2001 at 10:07:48AM +1000, Daniel Stone wrote:
+> > > What real value does it have, apart from the geek "look at me, I'm
+> > > using bash" value?
+> >
+> > I don't really want to get into it at the moment, but imagine hacking
+> > netfilter without lugging a laptop around. PDA's are sleek and cool,
+> > and using UNIX on them lets you write shell scripts to sort your
+> > addresses and stuff like that. Basically it's everything that's cool
+> > about Unix as a workstation OS scaled down to PDA-size.
+>
+> True, but then imagine trying to hack C (no, that's a CURLY BRACE, and a
+> tab! not space! you just broke my makefiles! aargh!), and compiling
+> Netfilter (it takes HOW MANY hours to compile init/main.c?!?) on a PDA.
+> Hrmz.

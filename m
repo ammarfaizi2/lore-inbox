@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbTJ0MhE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 07:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJ0MhE
+	id S261684AbTJ0MiN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 07:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTJ0MiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 07:37:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42506 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261656AbTJ0MhB (ORCPT
+	Mon, 27 Oct 2003 07:38:13 -0500
+Received: from mail.gmx.de ([213.165.64.20]:42703 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261684AbTJ0MiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 07:37:01 -0500
-Date: Mon, 27 Oct 2003 12:36:49 +0000
-From: Dave Jones <davej@redhat.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, Burton Windle <bwindle@fint.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: fsstress causes memory leak in test6, test8
-Message-ID: <20031027123649.GB27611@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-	Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.58.0310251842570.371@morpheus> <20031026170241.628069e3.akpm@osdl.org> <20031027121609.GA27611@redhat.com> <3F9D1014.5000006@namesys.com>
+	Mon, 27 Oct 2003 07:38:09 -0500
+X-Authenticated: #2034091
+Message-ID: <2523214.1067258282491.JavaMail.jpl@remotejava>
+Date: Mon, 27 Oct 2003 13:38:02 +0100 (CET)
+From: Jan Ploski <jpljpl@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-testX and pppd/pppoe stuck after connecting
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F9D1014.5000006@namesys.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 03:31:16PM +0300, Hans Reiser wrote:
- > >This could explain the random reiserfs oopses/hangs I was seeing several
- > >months back after running fsstress for a day or so. The reiser folks
- > >were scratching their heads, and we even put it down to flaky hardware
- > >or maybe even a CPU bug back then.
- > > 
- > This means we failed to make a properly serious effort at replicating it 
- > on our hardware.  My apologies for that.
+Andrew Borzenkov wrote:
+> I can confirm it with 2.6.0-test8 and simple modem connection (no
+> pppoe). Connection is established, I get IP, DNS - everything but no
+> IP packet ever seems to either go out or come in. The same works just
+> fine with 2.6.0-test5
 
-It happens.
+Thanks to everyone who has replied.
 
- > Who at Namessys was it that 
- > investigated your bug report?
+I just wanted to remark that I had earlier the same problem with
+2.6.0-test4, so it seems strange to me that 2.6.0-test5 would work ok.
 
-Can't remember, it's in the archives somewhere.
+I upgraded pppoe to 3.5 in hope that it would help, but that was
+probably pointless given that the same problem occurs in pure dialup
+context.
 
-		Dave
+I can also offer help with diagnosing, but I feel that I would need some
+even more detailed guidance than Andrev (preferably in form of patches,
+as I have zero experience with kernel debugging).
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+Regards -
+Jan Ploski
+

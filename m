@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262370AbSJEPQk>; Sat, 5 Oct 2002 11:16:40 -0400
+	id <S262368AbSJEPNu>; Sat, 5 Oct 2002 11:13:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262372AbSJEPQk>; Sat, 5 Oct 2002 11:16:40 -0400
-Received: from 62-190-217-225.pdu.pipex.net ([62.190.217.225]:12293 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262370AbSJEPQj>; Sat, 5 Oct 2002 11:16:39 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210051530.g95FUiS8000588@darkstar.example.net>
-Subject: Re: New BK License Problem?
-To: lm@bitmover.com (Larry McVoy)
-Date: Sat, 5 Oct 2002 16:30:43 +0100 (BST)
+	id <S262369AbSJEPNt>; Sat, 5 Oct 2002 11:13:49 -0400
+Received: from zero.aec.at ([193.170.194.10]:21769 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S262368AbSJEPNs>;
+	Sat, 5 Oct 2002 11:13:48 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021005081039.Z835@work.bitmover.com> from "Larry McVoy" at Oct 05, 2002 08:10:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+Subject: TIOCGDEV
+References: <Pine.NEB.4.44.0210041654570.11119-100000@mimas.fachschaften.tu-muenchen.de. suse.lists.linux.kernel>
+	<p73adltqz9g.fsf@oldwotan.suse.de> <3D9E72C8.1070203@pobox.com>
+	<20021005071003.A15345@wotan.suse.de>
+	<1033824115.3425.2.camel@irongate.swansea.linux.org.uk>
+From: Andi Kleen <ak@muc.de>
+Date: 05 Oct 2002 17:19:20 +0200
+In-Reply-To: <1033824115.3425.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m3elb4gbgn.fsf_-_@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Try and think about this from our point of view.  We provide a complex
-> yet useful product for free.  While doing so accomplishes our goal of
-> helping the kernel community, it also puts us at far greater risk that
-> someone will just reimplement the software.  Creating this software 
-> was quite difficult and we are not in the business of providing a 
-> roadmap to our competitors, they get to find their own way.  
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-That's somewhat analogous to the situation with Trolltech's QT, before it was GPLed.
+(changed flamebait subject)
 
-> If you want to suggest license changes do so showing that you understand
-> why we did what we did and show how your changes accomplish that in
-> a better way.  Suggestions like "you guys are idiots, just GPL it and
-> you can make money from support" just get ignored.  Suggestions which
-> increase, rather than decrease, our risk also get ignored.
+> On Sat, 2002-10-05 at 06:10, Andi Kleen wrote:
+> > > * viro might have a cow at the use of kdev_t_to_nr...  is that required 
+> > > for compatibility with some existing apps?  It seems like you want to 
+> > > _decompose_ a number into major/minor, to be an interface that 
+> > > withstands the test of time
+> > 
+> > It withstands the test of time as well as stat(2) or the loop ioctls.
+> 
+> Is that old stat, stat, stat64 or the proposed new stat64 ?
 
-You could do what Trolltech originally did, before they GPLed QT, and grant free licenses to developers who are developing free software - no matter who they work for.  I.E. If they work for BigFatCompany, Inc, but work on kernel patches in their lunch break, they get to have a free Bitkeeper license, whether they use it on the work computer or their own laptop.
+stat64 uses 64bit dev_t, but I have never heard anybody propose that
+for the kernel too. This ioctl supports 32bit dev_t, which is where
+all the current proposals go as far as I'm aware.
 
-John.
+old stat and stat provide 16bit dev_t.
+
+I cannot comment on the "proposed" one, because I haven't seen it.
+
+If someone had a good case for the kernel ever implementing 64bit dev_t
+then it would be of course possible to change the ioctl to copy 64bit
+to the user space. So far this doesn't seem likely though.
+
+> I see no good reason for this ioctl at all, in any tree.
+
+Can you propose a different way to do the same thing then ? 
+
+(again parsing /proc/cmdline doesn't work here) 
+
+As background this is used for the "bootlogd" program that comes with sysvinit.
+It is used to log all output that reaches /dev/console to a file
+("console tee" basically). bootlogd intercepts the real console
+for this using TIOCCONS, but to still output something it has to copy
+the output to the original underlying device. Thus the ioctl - to find
+this device.
+
+The current bootlogd actually has some fallback code for the case
+when the ioctl isn't there, but it's so incredibly ugly that I won't
+try to describe it on a family list.
+
+Thank you for your useful feedback.
+
+-Andi

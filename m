@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSGKVhb>; Thu, 11 Jul 2002 17:37:31 -0400
+	id <S317914AbSGKVl1>; Thu, 11 Jul 2002 17:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317914AbSGKVha>; Thu, 11 Jul 2002 17:37:30 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:36618 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S311898AbSGKVha>; Thu, 11 Jul 2002 17:37:30 -0400
-Date: Thu, 11 Jul 2002 14:39:51 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Emmanuel Fuste <fuste@worldnet.fr>, Peter De Schrijver <p2@mind.be>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: m68k and input api
-In-Reply-To: <20020711143546.D1196@linux-m68k.org>
-Message-ID: <Pine.LNX.4.44.0207111439230.21561-100000@www.transvirtual.com>
+	id <S317915AbSGKVl0>; Thu, 11 Jul 2002 17:41:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20985 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317914AbSGKVlZ>;
+	Thu, 11 Jul 2002 17:41:25 -0400
+Message-ID: <3D2DFC08.445B2723@mvista.com>
+Date: Thu, 11 Jul 2002 14:43:36 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: mbs <mbs@mc.com>, dank@kegel.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Periodic clock tick considered harmful (was: Re: HZ, preferably as
+References: <E17SlUl-0001ai-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> isn't it time to simply drop in all of the input layer into
-> our 2.5 CVS branch and fix it later? I certainly won't mind if
-> my keyboard doesn't work for a while and I am sure that fixing
-> it will be actually *much* easier than hunting together all
-> the input-api pieces.
-
-Great!!! The stuff I sent was the latest stuff that will be going in soon.
-
+Alan Cox wrote:
+> 
+> > First blush is HELL YES!  The issue is accounting.  When you
+> > ask how long a program ran, you are looking at the
+> > accounting that happens on a tick.  This is where one of two
+> 
+> Thats also an implementation issue. Note that the current code is also
+> wildly inaccurate. Mr Shannon says we are good to at best 50 run/sleep
+> changes a second.  I've got "100% busy" workloads that are 99% asleep.
+> 
+> Tracking cpu usage at task switch works a lot better for newer processors
+> which as well as having rdtsc also have performance counters. In fact you
+> can do much more interesting things on modern PC class platforms like
+> scheduling using pre-emption interrupts based on instructions executed,
+> memory accesses and more.
+> 
+Oh, I agree.  Hardware could make all this a lot easier.  
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSKTTBK>; Wed, 20 Nov 2002 14:01:10 -0500
+	id <S262446AbSKTTDQ>; Wed, 20 Nov 2002 14:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSKTTBK>; Wed, 20 Nov 2002 14:01:10 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:13008 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262420AbSKTTBI>;
-	Wed, 20 Nov 2002 14:01:08 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A52A@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Ducrot Bruno'" <poup@poupinou.org>, Felix Seeger <seeger@sitewaerts.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux 2.4.20 ACPI
-Date: Wed, 20 Nov 2002 11:08:05 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S262425AbSKTTDQ>; Wed, 20 Nov 2002 14:03:16 -0500
+Received: from mail-01.med.umich.edu ([141.214.93.149]:29031 "EHLO
+	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
+	id <S262446AbSKTTDO> convert rfc822-to-8bit; Wed, 20 Nov 2002 14:03:14 -0500
+Message-Id: <sddb96af.096@mail-01.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.2
+Date: Wed, 20 Nov 2002 14:09:41 -0500
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <andre@linux-ide.org>, <alan@lxorguk.ukuu.org.uk>
+Cc: <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+       <ross@willow.seitz.com>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ducrot Bruno [mailto:poup@poupinou.org] 
-> What I mean is that the two seems to conflict.
-> Compiling with sonypi but without acpi is OK, without sonypi but
-> with acpi should also be OK, but the two should be not safe because
-> they use the same io registers in order to ack/clean/enable the same
-> interrupt.
 
-It would be great if someone could take a look at the sonypi driver and see
-what can be done to integrate it better with ACPI. ACPI includes an EC
-driver, so at the minimum, sonypi should use that instead of poking the EC
-itself, perhaps.
 
-Regards -- Andy
+>>> Andre Hedrick <andre@linux-ide.org> 11/20/02 01:57PM >>>
+<snip>
+
+> The double negative unwrapped:
+
+> "Being a module doesnt make it not a derivative work."
+
+> 'Being a module does (not) make it not a derivative work.'
+> 'Being a module does (not) make it (not) a derivative work.'
+
+> 'Being a module does make it a derivative work.'
+
+> Is this the intent of the statement?
+
+> Andre Hedrick
+> LAD Storage Consulting Group
+
+Logical fallacy. You're converting a universal proposition.
+
+Not being on lkml does not make me a fool !=
+Being on lkml  makes me a fool.
+
+Nik
+
+

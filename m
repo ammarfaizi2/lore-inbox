@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266075AbUBKSoo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 13:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266083AbUBKSoo
+	id S266128AbUBKSk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 13:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUBKSk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 13:44:44 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:14608 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S266075AbUBKSok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 13:44:40 -0500
-Date: Thu, 12 Feb 2004 03:45:37 +0900 (JST)
-Message-Id: <20040212.034537.11291491.yoshfuji@linux-ipv6.org>
-To: kas@informatics.muni.cz
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [Patch] Netlink BUG() on AMD64
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040211181113.GA2849@fi.muni.cz>
-References: <20040205183604.N26559@fi.muni.cz>
-	<20040211181113.GA2849@fi.muni.cz>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 11 Feb 2004 13:40:59 -0500
+Received: from ultra12.almamedia.fi ([193.209.83.38]:60577 "EHLO
+	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
+	id S266128AbUBKSk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 13:40:57 -0500
+Message-ID: <402A7765.FD5A7F9E@users.sourceforge.net>
+Date: Wed, 11 Feb 2004 20:41:41 +0200
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michal Kwolek <miho@centrum.cz>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
+References: <402A4B52.1080800@centrum.cz>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040211181113.GA2849@fi.muni.cz> (at Wed, 11 Feb 2004 19:11:14 +0100), Jan Kasprzak <kas@informatics.muni.cz> says:
-
-> 	I suggest the following patch, but all occurences of
-> nlmsg_failure: and rtattr_failure: labels should be checked for a similar
-> problem.
+Michal Kwolek wrote:
+> I've got a reproducible oops when using cryptoloop on vanilla 2.6.0,
+> 2.6.1 and 2.6.2 (2.4.* works fine).
 > 
-> --- linux-2.6.2/net/ipv4/fib_rules.c.orig	2004-02-11 18:55:58.000000000 +0100
-> +++ linux-2.6.2/net/ipv4/fib_rules.c	2004-02-11 19:03:08.319215408 +0100
-> @@ -438,7 +438,7 @@
->  
->  nlmsg_failure:
->  rtattr_failure:
-> -	skb_put(skb, b - skb->tail);
-> +	skb_trim(skb, b - skb->data);
->  	return -1;
->  }
->  
-> Please apply or let me know what the proper fix should be.
+> Way to reproduce:
+> dd if=/dev/urandom of=crypto bs=1024 count=some_size
+> losetup -e some_cipher /dev/loop0 crypto
+> #Any of those commands causes oops and hard lockup:
+> cp /dev/loop0 /dev/null
+> mkreiserfs /dev/loop0
+> mkfs.ext2 /dev/loop0
+> 
+> Loop without cryptoapi works fine:
+> dd if=/dev/urandom of=crypto bs=1024 count=some_size
+> losetup /dev/loop0 crypto
+> cp /dev/loop0 /dev/null
+> #ok, no oops
 
-looks good to me.
-Other places including net/ipv6/{addrconf.c,route.c} seems okay.
+Can you try again using loop-AES? loop-AES does not fall apart like the
+mainline implementation does. loop-AES is here:
 
---yoshfuji
+http://mail.nl.linux.org/linux-crypto/2004-02/msg00006.html
+
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

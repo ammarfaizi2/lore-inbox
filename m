@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbRAOX3I>; Mon, 15 Jan 2001 18:29:08 -0500
+	id <S130549AbRAOXcI>; Mon, 15 Jan 2001 18:32:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130549AbRAOX27>; Mon, 15 Jan 2001 18:28:59 -0500
-Received: from snowstorm.mail.pipex.net ([158.43.192.97]:48015 "HELO
-	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S129835AbRAOX2r>; Mon, 15 Jan 2001 18:28:47 -0500
-From: "Trevor Hemsley" <Trevor-Hemsley@dial.pipex.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 15 Jan 2001 23:31:29 +0000
-Reply-To: "Trevor Hemsley" <Trevor-Hemsley@dial.pipex.com>
-X-Mailer: PMMail 1.96a For OS/2
+	id <S131039AbRAOXbs>; Mon, 15 Jan 2001 18:31:48 -0500
+Received: from smtp3.jp.psi.net ([154.33.63.113]:19724 "EHLO smtp3.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S130792AbRAOXbh>;
+	Mon, 15 Jan 2001 18:31:37 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops with 4GB memory setting in 2.4.0 stable
+Date: Tue, 16 Jan 2001 08:31:22 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGCENGCMAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Subject: Initio 9x00 SCSI driver status
-Message-Id: <20010115232851Z129835-403+553@vger.kernel.org>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3A637E15.DDC8C38@telemach.net>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been doing some work on the Initio 9100UW SCSI driver that is
-distributed with 2.4.0. I've fixed a couple of bugs and added /proc
-support to my copy of the source.
+Hi all,
 
-Is there an active maintainer of this driver at present? 
+	I have a 100% reproducable bug in all of the 2.4.0 kernels including the
+latest stable one. The issue is that if I compile the kernel to support 4GB
+RAM (I have 1 GB) and then try to access a samba mount I get an oops. This
+ALWAYS happens. Usually after this the system is frozen (although the magic
+SYSREQ still works). If the system isn't frozen then any commands that
+access the disk will freeze. Fortunately GPM worked and I was able to paste
+the oops to a file via telnet.
 
-Is there anything that tells what to do to add support for the new
-error handling code so it doesn't use scsi_old.c any more?
+	Attached is my oops.txt and the result sent through ksymoops. The results
+don't look particularly useful to me so perhaps I'm doing something wrong.
+PLEASE tell me if I should parse this differently. Likewise, if there is
+anything else I can do to help debug this, please tell me.
 
-I'm reading this via fa.linux.kernel so should pick up replies that way
-but email is fine too.
-
-
-Trevor Hemsley, Brighton, UK.
-Trevor-Hemsley@dial.pipex.com
+--Rainer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

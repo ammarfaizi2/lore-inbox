@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUISUqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUISVHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUISUqx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 16:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUISUqx
+	id S263893AbUISVHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 17:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUISVHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 16:46:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:61843 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263818AbUISUqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 16:46:51 -0400
-Date: Sun, 19 Sep 2004 22:48:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
-Message-ID: <20040919204841.GA7004@elte.hu>
-References: <200409192232.20139.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Sep 2004 17:07:04 -0400
+Received: from imf25aec.mail.bellsouth.net ([205.152.59.73]:13722 "EHLO
+	imf25aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S263893AbUISVHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 17:07:01 -0400
+From: David Sanders <linux@sandersweb.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Kernel Panic, Fedora Core 2, Virtual PC
+Date: Sun, 19 Sep 2004 17:07:03 -0400
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <200409192232.20139.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200409191707.04177.linux@sandersweb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+Trying to install Fedora Core 2 on Virtual PC (using Dell Dimension 4600 with 
+2.8 GHz with HT, 1 GB or RAM.) it crashes right after typing 'linux text'.
+ 
+ Here is what's left on the screen:
+ 
+ apm: overridden by ACPI.
+ audit: initializing netlink socket (disabled)
+ audit(1093558315.547:0): initialized
+ Total HugeTLB memory allocated, 0
+ VFS: Disk quotas dquot_6.5.1
+ Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+ SELinux:  Registering netfilter hooks
+ invalid operand: 0000 [#1]
+ CPU:    0
+  
+ EIP:    0060:[<c01040c2>]    Not tainted
+ EFLAGS: 00000286   (2.6.5-1.358)
+ EIP is at mwait_idle+0x23/0x40
+ eax: c031f008   ebx: c031f000   ecx: 00000000   edx: 00000000
+ esi: 00039100   edi: c034e7a0   ebp: 003b2007   esp: c031ffec
+ ds: 007b   es: 007b   ss: 0068
+ Process swapper (pid: 0, threadinfo=c031f000 task=c02cdaa0)
+ Stack: 00020800 c010408a c03205fe c034e7c0 c010019f
+ Call Trace:
+     
+  [<c010408a>] cpu_idle+0x1d/0x32
+  [<c03205fe>] start_kernel+0x174/0x176
+                                                              
+          
+ Code: 0f 01 c8 8b 43 08 a8 08 75 0c 89 c8 0f 01 c9 8b 43 08 a8 08
+  <0>Kernel panic: Attempted to kill the idle task!
+ In idle task - not syncing
 
-> Just 1 small correction:
-> >>>>
-> --- kernel/time.c~      2004-09-19 15:09:38.000000000 +0200
-> +++ kernel/time.c       2004-09-19 17:02:35.000000000 +0200
-> @@ -96,8 +96,10 @@
->  asmlinkage long sys_gettimeofday(struct timeval __user *tv, struct timezone 
-> __user *tz)
->  {
->  #ifdef CONFIG_LATENCY_TRACE
-> -       if (!tv && ((long)tz == 1))
-> +       if (!tv && ((long)tz == 1)) {
->                 user_trace_start();
-> +               tz = NULL;
-> +       }
->         if (!tv && !tz)
->                 user_trace_stop();
 
-The point is to let gettimeofday(0,1) start tracing and
-gettimeofday(0,0) stop tracing - a system-call-controlled tracing
-facility (if trace_enabled=2). This was used to trace weird latencies
-before, but it's not the normal mode of operation.
-
-	Ingo
+What to do?

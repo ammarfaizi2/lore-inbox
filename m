@@ -1,288 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264990AbSK1Aa6>; Wed, 27 Nov 2002 19:30:58 -0500
+	id <S264976AbSK1A1C>; Wed, 27 Nov 2002 19:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSK1Aaw>; Wed, 27 Nov 2002 19:30:52 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11525 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264990AbSK1A3T>;
-	Wed, 27 Nov 2002 19:29:19 -0500
-Date: Wed, 27 Nov 2002 16:28:34 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] More LSM changes for 2.5.49
-Message-ID: <20021128002833.GG7187@kroah.com>
-References: <20021127230626.GB7187@kroah.com> <20021128002638.GD7187@kroah.com> <20021128002730.GE7187@kroah.com> <20021128002805.GF7187@kroah.com>
+	id <S264978AbSK1A1C>; Wed, 27 Nov 2002 19:27:02 -0500
+Received: from mail.copper.net ([65.247.64.20]:40464 "EHLO bert.copper.net")
+	by vger.kernel.org with ESMTP id <S264976AbSK1A1A>;
+	Wed, 27 Nov 2002 19:27:00 -0500
+Subject: [PATCH] README change
+From: Thomas Molina <tmolina@copper.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 18:26:05 -0600
+Message-Id: <1038443167.2063.28.camel@lap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021128002805.GF7187@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.928, 2002/11/27 15:13:40-08:00, greg@kroah.com
+A suggestion was made the other day that the README file needed to be
+changed to delete the reference to make dep in line with the changes to
+the make procedure.  Here is a patch to make that change in addition to
+some other changes I thought would help.  While poking around in the
+documentation I see some other files which could use some updating;
+00-INDEX is next on the hitlist if no one objects.
 
-LSM: change if statements into something more readable for the kernel.* files.
+--- README.orig	2002-11-27 16:10:48.000000000 -0600
++++ README	2002-11-27 17:43:47.000000000 -0600
+@@ -40,8 +40,9 @@
+    these typically contain kernel-specific installation notes for some 
+    drivers for example. See ./Documentation/00-INDEX for a list of what
+    is contained in each file.  Please read the Changes file, as it
+-   contains information about the problems, which may result by upgrading
+-   your kernel.
++   contains information about the version of software and utilities  
++   required to run 2.5 kernels as well as any "Gotchas" that could be
++   encountered.
+ 
+  - The Documentation/DocBook/ subdirectory contains several guides for
+    kernel developers and users.  These guides can be rendered in a
+@@ -55,14 +56,18 @@
+    directory where you have permissions (eg. your home directory) and
+    unpack it:
+ 
+-		gzip -cd linux-2.5.XX.tar.gz | tar xvf -
++		tar xvzf linux-2.5.XX.tar.gz
++
++or
++
++		tar xvjf linux-2.5.XX.tar.bz2
+ 
+    Replace "XX" with the version number of the latest kernel.
+ 
+-   Do NOT use the /usr/src/linux area! This area has a (usually
+-   incomplete) set of kernel headers that are used by the library header
+-   files.  They should match the library, and not get messed up by
+-   whatever the kernel-du-jour happens to be.
++   Do NOT use /usr/src/linux! This directory should contain the source 
++   and headers of the kernel gcc was compile with.  They should match 
++   the compiler, and not get messed up by whatever the kernel-du-jour 
++   happens to be.
+ 
+  - You can also upgrade between 2.5.xx releases by patching.  Patches are
+    distributed in the traditional gzip and the new bzip2 format.  To
+@@ -84,11 +89,15 @@
+    process.  It determines the current kernel version and applies any
+    patches found.
+ 
+-		linux/scripts/patch-kernel linux
++   usage: patch-kernel [ sourcedir [ patchdir [ stopversion ] [ -acxx ] ] ]
++   
++   The source directory defaults to /usr/src/linux, and the patch
++   directory defaults to the current directory.
++
+ 
+-   The first argument in the command above is the location of the
+-   kernel source.  Patches are applied from the current directory, but
+-   an alternative directory can be specified as the second argument.
++   The first argument is the location of the kernel source.  Patches 
++   are applied from the current directory, but an alternative directory 
++   can be specified as the second argument.
+ 
+  - Make sure you have no stale .o files and dependencies lying around:
+ 
+@@ -131,9 +140,9 @@
+ 	- having unnecessary drivers will make the kernel bigger, and can
+ 	  under some circumstances lead to problems: probing for a
+ 	  nonexistent controller card may confuse your other controllers
+-	- compiling the kernel with "Processor type" set higher than 386
+-	  will result in a kernel that does NOT work on a 386.  The
+-	  kernel will detect this on bootup, and give up.
++	- compiling the kernel with an incorrect "Processor type" will 
++          result in a kernel that does NOT work.  The kernel will detect 
++          this on bootup, and give up.
+ 	- A kernel with math-emulation compiled in will still use the
+ 	  coprocessor if one is present: the math emulation will just
+ 	  never get used in that case.  The kernel will be slightly larger,
+@@ -146,13 +155,20 @@
+ 	  should probably answer 'n' to the questions for
+           "development", "experimental", or "debugging" features.
+ 
+- - Check the top Makefile for further site-dependent configuration
+-   (default SVGA mode etc). 
++ - Check the top Makefile for further site-dependent configuration 
++   information such as host compiler or cross-platform information.
+ 
+- - Finally, do a "make dep" to set up all the dependencies correctly. 
++ - A "make dep" command was previously required at this point, but is
++   no longer necessary. 
+ 
+ COMPILING the kernel:
+ 
++   The steps for compiling the kernel are:
++   make bzImage
++   make modules
++   make modules_install
++   make install
++
+  - Make sure you have gcc 2.95.3 available.
+    gcc 2.91.66 (egcs-1.1.2), and gcc 2.7.2.3 are known to miscompile
+    some parts of the kernel, and are *no longer supported*.
+@@ -163,12 +179,11 @@
+ 
+  - Do a "make bzImage" to create a compressed kernel image.  If you want
+    to make a boot disk (without root filesystem or LILO), insert a floppy
+-   in your A: drive, and do a "make bzdisk".  It is also possible to do
+-   "make install" if you have lilo installed to suit the kernel makefiles,
+-   but you may want to check your particular lilo setup first. 
++   in your A: drive, and do a "make bzdisk". 
+ 
+-   To do the actual install you have to be root, but none of the normal
+-   build should require that. Don't take the name of root in vain.
++   To do the make modules_install and make install you have to be root, 
++   but none of the other build should require that. 
++   Don't take the name of root in vain.
+ 
+  - In the unlikely event that your system cannot boot bzImage kernels you
+    can still compile your kernel as zImage. However, since zImage support
+@@ -190,9 +205,11 @@
+    working kernel, make a backup of your modules directory before you
+    do a "make modules_install".
+ 
+- - In order to boot your new kernel, you'll need to copy the kernel
++ - In order to boot your new kernel you'll need to copy the kernel
+    image (found in .../linux/arch/i386/boot/bzImage after compilation)
+-   to the place where your regular bootable kernel is found. 
++   to the place where your regular bootable kernel is found.  The
++   "make install" step will do this for you as well as changing 
++   the lilo or grub configuration files.
+ 
+    For some, this is on a floppy disk, in which case you can copy the
+    kernel bzImage file to /dev/fd0 to make a bootable floppy.
+@@ -213,6 +230,10 @@
+    After reinstalling LILO, you should be all set.  Shutdown the system,
+    reboot, and enjoy!
+ 
++   The other popular boot manager is grub.  If you use this boot 
++   manager, no additional actions are required beyond changing the
++   /boot/grub/grub.conf configuration file.
++
+    If you ever need to change the default root device, video mode,
+    ramdisk size, etc.  in the kernel image, use the 'rdev' program (or
+    alternatively the LILO boot options when appropriate).  No need to
+@@ -222,19 +243,23 @@
+ 
+ IF SOMETHING GOES WRONG:
+ 
++ - Please read the file REPORTING-BUGS before forwarding any reports
++   of suspected kernel problems to maintainers or mailing lists.  It 
++   contains a suggested format for bug reports as well as what
++   information is most helpful to developers.
++
+  - If you have problems that seem to be due to kernel bugs, please check
+    the file MAINTAINERS to see if there is a particular person associated
+    with the part of the kernel that you are having trouble with. If there
+    isn't anyone listed there, then the second best thing is to mail
+-   them to me (torvalds@transmeta.com), and possibly to any other
++   them to the linux-kernel mailing list and possibly to any other
+    relevant mailing-list or to the newsgroup.  The mailing-lists are
+-   useful especially for SCSI and networking problems, as I can't test
+-   either of those personally anyway. 
++   useful especially for SCSI and networking problems
+ 
+  - In all bug-reports, *please* tell what kernel you are talking about,
+    how to duplicate the problem, and what your setup is (use your common
+-   sense).  If the problem is new, tell me so, and if the problem is
+-   old, please try to tell me when you first noticed it.
++   sense).  If the problem is new, say so, and if the problem is
++   old, please try to explain when you first noticed it.
+ 
+  - If the bug results in a message like
+ 
 
-
-diff -Nru a/kernel/acct.c b/kernel/acct.c
---- a/kernel/acct.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/acct.c	Wed Nov 27 15:17:58 2002
-@@ -223,7 +223,8 @@
- 		}
- 	}
- 
--	if ((error = security_acct(file)))
-+	error = security_acct(file);
-+	if (error)
- 		return error;
- 
- 	spin_lock(&acct_globals.lock);
-diff -Nru a/kernel/fork.c b/kernel/fork.c
---- a/kernel/fork.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/fork.c	Wed Nov 27 15:17:58 2002
-@@ -717,7 +717,8 @@
- 	if ((clone_flags & CLONE_DETACHED) && !(clone_flags & CLONE_THREAD))
- 		return ERR_PTR(-EINVAL);
- 
--	if ((retval = security_task_create(clone_flags)))
-+	retval = security_task_create(clone_flags);
-+	if (retval)
- 		goto fork_out;
- 
- 	retval = -ENOMEM;
-diff -Nru a/kernel/ptrace.c b/kernel/ptrace.c
---- a/kernel/ptrace.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/ptrace.c	Wed Nov 27 15:17:58 2002
-@@ -101,7 +101,8 @@
- 	/* the same process cannot be attached many times */
- 	if (task->ptrace & PT_PTRACED)
- 		goto bad;
--	if ((retval = security_ptrace(current, task)))
-+	retval = security_ptrace(current, task);
-+	if (retval)
- 		goto bad;
- 
- 	/* Go */
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/sched.c	Wed Nov 27 15:17:58 2002
-@@ -1348,7 +1348,8 @@
- 	if (nice > 19)
- 		nice = 19;
- 
--	if ((retval = security_task_setnice(current, nice)))
-+	retval = security_task_setnice(current, nice);
-+	if (retval)
- 		return retval;
- 
- 	set_user_nice(current, nice);
-@@ -1469,7 +1470,8 @@
- 	    !capable(CAP_SYS_NICE))
- 		goto out_unlock;
- 
--	if ((retval = security_task_setscheduler(p, policy, &lp)))
-+	retval = security_task_setscheduler(p, policy, &lp);
-+	if (retval)
- 		goto out_unlock;
- 
- 	array = p->array;
-@@ -1532,7 +1534,8 @@
- 	read_lock(&tasklist_lock);
- 	p = find_process_by_pid(pid);
- 	if (p) {
--		if (!(retval = security_task_getscheduler(p)))
-+		retval = security_task_getscheduler(p);
-+		if (!retval)
- 			retval = p->policy;
- 	}
- 	read_unlock(&tasklist_lock);
-@@ -1561,7 +1564,8 @@
- 	if (!p)
- 		goto out_unlock;
- 
--	if ((retval = security_task_getscheduler(p)))
-+	retval = security_task_getscheduler(p);
-+	if (retval)
- 		goto out_unlock;
- 
- 	lp.sched_priority = p->rt_priority;
-@@ -1820,7 +1824,8 @@
- 	if (!p)
- 		goto out_unlock;
- 
--	if ((retval = security_task_getscheduler(p)))
-+	retval = security_task_getscheduler(p);
-+	if (retval)
- 		goto out_unlock;
- 
- 	jiffies_to_timespec(p->policy & SCHED_FIFO ?
-diff -Nru a/kernel/signal.c b/kernel/signal.c
---- a/kernel/signal.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/signal.c	Wed Nov 27 15:17:58 2002
-@@ -739,7 +739,8 @@
- 	ret = -EPERM;
- 	if (bad_signal(sig, info, t))
- 		goto out;
--	if ((ret = security_task_kill(t, info, sig)))
-+	ret = security_task_kill(t, info, sig);
-+	if (ret)
- 		goto out;
- 
- 	/* The null signal is a permissions and process existence probe.
-diff -Nru a/kernel/sys.c b/kernel/sys.c
---- a/kernel/sys.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/sys.c	Wed Nov 27 15:17:58 2002
-@@ -485,7 +485,8 @@
- 	int new_egid = old_egid;
- 	int retval;
- 
--	if ((retval = security_task_setgid(rgid, egid, (gid_t)-1, LSM_SETID_RE)))
-+	retval = security_task_setgid(rgid, egid, (gid_t)-1, LSM_SETID_RE);
-+	if (retval)
- 		return retval;
- 
- 	if (rgid != (gid_t) -1) {
-@@ -530,7 +531,8 @@
- 	int old_egid = current->egid;
- 	int retval;
- 
--	if ((retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_ID)))
-+	retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_ID);
-+	if (retval)
- 		return retval;
- 
- 	if (capable(CAP_SETGID))
-@@ -603,7 +605,8 @@
- 	int old_ruid, old_euid, old_suid, new_ruid, new_euid;
- 	int retval;
- 
--	if ((retval = security_task_setuid(ruid, euid, (uid_t)-1, LSM_SETID_RE)))
-+	retval = security_task_setuid(ruid, euid, (uid_t)-1, LSM_SETID_RE);
-+	if (retval)
- 		return retval;
- 
- 	new_ruid = old_ruid = current->uid;
-@@ -663,7 +666,8 @@
- 	int old_ruid, old_suid, new_ruid, new_suid;
- 	int retval;
- 
--	if ((retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_ID)))
-+	retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_ID);
-+	if (retval)
- 		return retval;
- 
- 	old_ruid = new_ruid = current->uid;
-@@ -700,7 +704,8 @@
- 	int old_suid = current->suid;
- 	int retval;
- 
--	if ((retval = security_task_setuid(ruid, euid, suid, LSM_SETID_RES)))
-+	retval = security_task_setuid(ruid, euid, suid, LSM_SETID_RES);
-+	if (retval)
- 		return retval;
- 
- 	if (!capable(CAP_SETUID)) {
-@@ -751,7 +756,8 @@
- {
- 	int retval;
- 
--	if ((retval = security_task_setgid(rgid, egid, sgid, LSM_SETID_RES)))
-+	retval = security_task_setgid(rgid, egid, sgid, LSM_SETID_RES);
-+	if (retval)
- 		return retval;
- 
- 	if (!capable(CAP_SETGID)) {
-@@ -804,7 +810,8 @@
- 	int old_fsuid;
- 	int retval;
- 
--	if ((retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS)))
-+	retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
-+	if (retval)
- 		return retval;
- 
- 	old_fsuid = current->fsuid;
-@@ -820,7 +827,8 @@
- 		current->fsuid = uid;
- 	}
- 
--	if ((retval = security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS)))
-+	retval = security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
-+	if (retval)
- 		return retval;
- 
- 	return old_fsuid;
-@@ -834,7 +842,8 @@
- 	int old_fsgid;
- 	int retval;
- 
--	if ((retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS)))
-+	retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS);
-+	if (retval)
- 		return retval;
- 
- 	old_fsgid = current->fsgid;
-@@ -959,7 +968,8 @@
- 
- 		retval = -ESRCH;
- 		if (p) {
--			if (!(retval = security_task_getpgid(p)))
-+			retval = security_task_getpgid(p);
-+			if (!retval)
- 				retval = p->pgrp;
- 		}
- 		read_unlock(&tasklist_lock);
-@@ -986,7 +996,8 @@
- 
- 		retval = -ESRCH;
- 		if(p) {
--			if (!(retval = security_task_getsid(p)))
-+			retval = security_task_getsid(p);
-+			if (!retval)
- 				retval = p->session;
- 		}
- 		read_unlock(&tasklist_lock);
-@@ -1067,7 +1078,8 @@
- 		return -EINVAL;
- 	if(copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
- 		return -EFAULT;
--	if ((retval = security_task_setgroups(gidsetsize, groups)))
-+	retval = security_task_setgroups(gidsetsize, groups);
-+	if (retval)
- 		return retval;
- 	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;
-@@ -1230,7 +1242,8 @@
- 			return -EPERM;
- 	}
- 
--	if ((retval = security_task_setrlimit(resource, &new_rlim)))
-+	retval = security_task_setrlimit(resource, &new_rlim);
-+	if (retval)
- 		return retval;
- 
- 	*old_rlim = new_rlim;
-@@ -1304,7 +1317,8 @@
- 	int error = 0;
- 	int sig;
- 
--	if ((error = security_task_prctl(option, arg2, arg3, arg4, arg5)))
-+	error = security_task_prctl(option, arg2, arg3, arg4, arg5);
-+	if (error)
- 		return error;
- 
- 	switch (option) {
-diff -Nru a/kernel/uid16.c b/kernel/uid16.c
---- a/kernel/uid16.c	Wed Nov 27 15:17:58 2002
-+++ b/kernel/uid16.c	Wed Nov 27 15:17:58 2002
-@@ -140,7 +140,8 @@
- 		return -EFAULT;
- 	for (i = 0 ; i < gidsetsize ; i++)
- 		new_groups[i] = (gid_t)groups[i];
--	if ((i = security_task_setgroups(gidsetsize, new_groups)))
-+	i = security_task_setgroups(gidsetsize, new_groups);
-+	if (i)
- 		return i;
- 	memcpy(current->groups, new_groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;

@@ -1,220 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136649AbREAQ20>; Tue, 1 May 2001 12:28:26 -0400
+	id <S136650AbREAQa4>; Tue, 1 May 2001 12:30:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136650AbREAQ2Q>; Tue, 1 May 2001 12:28:16 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:15710 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S136649AbREAQ2K>; Tue, 1 May 2001 12:28:10 -0400
-Date: Tue, 1 May 2001 18:27:57 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: linux-kernel@vger.kernel.org
-Subject: [cliff@oisec.net: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)]
-Message-ID: <20010501182757.A24833@oisec.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-It seems that only ICMPv6 packages panic the kernel, sshing to the box on IPv6 keeps it alive, but ping6 and traceroute6 to the box kill it in about 10 seconds.
-
--- 
-Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
-cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
--[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
-
---VbJkn9YxBvnuCH5J
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Delivered-To: cliff@oisec.net
-Received: from lunchbox.oisec.net (lunchbox.oisec.net [3ffe:8114:2000:0:a00:20ff:fec0:ffee])
-	by hercules.oisec.net (Postfix) with ESMTP id 5A79111EE2
-	for <cliff@oisec.net>; Tue,  1 May 2001 15:48:14 +0200 (CEST)
-Received: from vger.kernel.org (vger.kernel.org [199.183.24.194])
-	by lunchbox.oisec.net (Postfix) with ESMTP id 565F6153F
-	for <cliff@oisec.net>; Tue,  1 May 2001 15:48:11 +0200 (CEST)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136611AbREANpF>; Tue, 1 May 2001 09:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136613AbREANo4>; Tue, 1 May 2001 09:44:56 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:21854 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S136611AbREANoo>; Tue, 1 May 2001 09:44:44 -0400
-Received: from hercules.oisec.net (hercules.oisec.net [3ffe:8114:2000:0:210:4bff:feb3:1fb4])
-	by lunchbox.oisec.net (Postfix) with ESMTP id CDE4B153F
-	for <linux-kernel@vger.kernel.org>; Tue,  1 May 2001 15:44:39 +0200 (CEST)
-Received: by hercules.oisec.net (Postfix, from userid 1000)
-	id 2E92411EE2; Tue,  1 May 2001 15:44:38 +0200 (CEST)
-Date: Tue, 1 May 2001 15:44:37 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
-Message-ID: <20010501154437.A23200@oisec.net>
+	id <S136653AbREAQaq>; Tue, 1 May 2001 12:30:46 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:30480 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S136650AbREAQa2>;
+	Tue, 1 May 2001 12:30:28 -0400
+Date: Tue, 1 May 2001 12:31:12 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+Cc: Peter Samuelson <peter@cadcamlab.org>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
+Message-ID: <20010501123112.A7699@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Giacomo A. Catenazzi" <cate@dplanet.ch>,
+	Peter Samuelson <peter@cadcamlab.org>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <15085.37569.205459.898540@gargle.gargle.HOWL> <20010430133932.B28849@thyrsus.com> <20010430141623.A15821@cadcamlab.org> <20010430152536.A29699@thyrsus.com> <3AEE80A3.EB0ACEB1@dplanet.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AEE80A3.EB0ACEB1@dplanet.ch>; from cate@dplanet.ch on Tue, May 01, 2001 at 11:23:47AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Giacomo A. Catenazzi <cate@dplanet.ch>:
+> I think that a fundamental requirment is that 'make oldconfig' should
+> validate any configurations (also the wrong conf).
+> (If you correct your rules, our old .config can be invalid on a new
+> kernel, and we don't want regualary edit our .config).
 
-When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
+Validating is exactly what it's doing now.  What you really want is for it to
+semi-automatically *correct* broken configurations, which is very
+different and much harder.
 
-2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
+> My proposal is instaed of complain about configuration violatation,
+> you just wrote the possible correct configuration and prompt user to
+> select the correct configuration.
+> In the case you cite, e.g. oldconfig shoud prompt:
+>   1) SMP=n
+>   2) RTC=m
+>   3) RTC=y
+> (assuming the ARCH is invariant).
 
----- traceroute6 output ----
-traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
- 1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
+You, and the other person who proposed this previously, are getting
+way too hung up on this particular easy case and not thinking about
+the general problem.
 
+The number of prompts goes up with the number of variables in the constraint. 
+But the number of possible correct configurations goes up as 2**n -- actually,
+3**n because we have trits.
 
-wait 10 seconds and the following appears (unfortunately no stack dumps :()
+What you're saying, in effect, is that if f is number of frozen variables
+in the constraint then the configurator ought to generate 3 ** (n - f)
+possible correct models and prompt for one of them.  Since f typically 
+equals just 1 that number goes up really fast with n.
 
----- panic info 2.4.4-ac2 ----
-CPU	0
-EIP	0010:[<c0217314>]
-EFLAGS  00010206
-eax: c13c2060
-ebx: fffffffd
-ecx: 00000000
-edx: ca65b1dc
-esi: 00000000
-edi: 00000018
-ebp: cbf72000
-esp: c029feb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c029f000)
+And what if one of the variables in the constraint is of integer or
+string type?  In that case the number of possible models to be
+prompted for is effectively infinite.  (Finite but very very large).
 
-Call Trace:
-
- c021e828 [ndisc_send_ns]
- c01e912c [deliver_to_old_ones]
- c021ecfd [ndisc_error_report]
- c01efd2b [ip_route_input_slow]
- c01eb7ab [neigh_timer_handler]
- c01eb664 [neigh_timer_handler]
- c0119f12 [timer_bh]
- c010b2db [timer_interrupt]
- c0116e5f [bh_action]
- c0116d98 [tasklet_hi_action]
- c0116c9f [do_softirq]
- c0107e41 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b14 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
-
----- panic info 2.4.4-ac1 ----
-CPU	0
-EIP	0010:[<c0217354>]
-EFLAGS  00010206
-eax: c13c2060
-ebx: fffffffd
-ecx: 00000000
-edx: cb73e35c
-esi: 00000000
-edi: 00000018
-ebp: cbf72000
-esp: c029feb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c029f000)
-
-Call Trace:
-
- c021e868 [ndisc_send_ns]
- c01e916c [deliver_to_old_ones]
- c021ed3d [ndisc_error_report]
- c01e5d6b [ip_route_input_slow]
- c01eb7eb [neigh_timer_handler]
- c01eb6a4 [neigh_timer_handler]
- c0119f02 [timer_bh]
- c010b2db [timer_interrupt]
- c0116e4f [bh_action]
- c0116d88 [tasklet_hi_action]
- c0116c8f [do_softirq]
- c0107e41 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b14 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
-
----- panic info 2.4.4 ----
-
-CPU	0
-EIP	0010:[<c021aa64>]
-EFLAGS  00010206
-eax: c13e3060
-ebx: fffffffd
-ecx: 00000000
-edx: c80ef3dc
-esi: 00000000
-edi: 00000018
-ebp: cbf7ac00
-esp: c02b9eb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c02b9000)
-
-Call Trace:
-
- c0221fe8 [ndisc_send_ns]
- c01ec2bc [deliver_to_old_ones]
- c02224ed [ndisc_error_report]
- c01e8d0b [ip_route_input_slow]
- c01ee93b [neigh_timer_handler]
- c01ee7f4 [neigh_timer_handler]
- c0119402 [timer_bh]
- c010aa3c [timer_interrupt]
- c011634f [bh_action]
- c0116288 [tasklet_hi_action]
- c011618f [do_softirq]
- c0107ec1 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b24 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
-
-
+You are proposing an interface that will handle easy cases but blow
+up in the user's face in any hard one.  That's poor design, frustrating
+the user exactly when he/she most needs help.
 -- 
-Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
-cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
--[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
---VbJkn9YxBvnuCH5J--
+"The bearing of arms is the essential medium through which the
+individual asserts both his social power and his participation in
+politics as a responsible moral being..."
+        -- J.G.A. Pocock, describing the beliefs of the founders of the U.S.

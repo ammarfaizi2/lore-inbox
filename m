@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULUWZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbULUWdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbULUWZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 17:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbULUWZ3
+	id S261745AbULUWdW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 17:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbULUWdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 17:25:29 -0500
-Received: from mail.dif.dk ([193.138.115.101]:12515 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261883AbULUWZR (ORCPT
+	Tue, 21 Dec 2004 17:33:22 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8891 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261745AbULUWdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 17:25:17 -0500
-Date: Tue, 21 Dec 2004 23:36:01 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][trivial] change rmqueue_bulk argument 'count' to be int
-Message-ID: <Pine.LNX.4.61.0412212317040.3518@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Dec 2004 17:33:18 -0500
+Date: Wed, 22 Dec 2004 09:32:42 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] XFS crash using Realtime Preemption patch
+Message-ID: <20041222093242.B674830@wobbly.melbourne.sgi.com>
+References: <Pine.LNX.4.60-041.0412182025220.5487@unix49.andrew.cmu.edu> <20041221104042.GA31843@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041221104042.GA31843@elte.hu>; from mingo@elte.hu on Tue, Dec 21, 2004 at 11:40:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 21, 2004 at 11:40:43AM +0100, Ingo Molnar wrote:
+> 
+> * Nathaniel W. Filardo <nwf@andrew.cmu.edu> wrote:
+> 
+> > Hello all.
+> > 
+> > Using 2.6.10-rc3-mm1-V0.7.33-04 and TCFQ ver 17, I get the following
+> > crash while trying to sync the portage tree, though the system seems
+> > stable under interactive load (read: an rm command went OK prior to
+> > this crash).
+> > 
+> > Machine is a 933MHz transmeta laptop with IDE disk.
+> > 
+> > Any more information you need?
+> > --nwf;
+> > 
+> > kernel BUG at kernel/rt.c:1210!
+> 
+> Seems like an XFS bug at first sight. The BUG() means that an up_write()
+> was done while a down_read() was active for the lock. Does XFS really do
+> this?
 
-Hi,
+That should definately not happen.  Something has gone wrong in
+mrlock.h if so - or it could be the incore xfs_inode has been
+trampled on, and the mrlock writer state has become inappropriately
+set.. that would cause the wrong branch to be taken and we'd end
+up with the situation you've described here.
 
-Here's a trivial little patch (hopefully without trivial mistakes) to fix 
-the function definition for rmqueue_bulk to only accept values it can 
-actually handle. 
+cheers.
 
-Let me explain (and please do let me know if I'm mistaken :) ,
-in mm/page_alloc.c the function rmqueue_bulk() is defined to take a 
-unsigned long as its third argument (count). This argument is then used in 
-a for loop and being compared to a signed int - /if/ someone was to ever 
-pass in a value larger than what a signed int can hold we'll have an 
-infinite loop on our hands. 
-This does not currently happen since the only caller of rmqueue_bulk is 
-passing in the 'batch' member of 'struct per_cpu_pages' which is an int. 
-But, should someone in the future make a change that causes the function 
-to be called with a >int value we'll have a nice little infinite loop to 
-debug at runtime, so why not let the compiler help us ensure such a 
-mistake will be found at compile time? 
-If the function can only deal with being passed values up to the maximum 
-of a signed int, then it seems wrong to allow it to be passed something 
-else. If however situations could arise where it would be desired to pass 
-the function something larger than int, then it should stay unsigned long, 
-but then the counter variable 'i' used in the for loop should be changed 
-to unsigned long instead - I don't know the code well enough to be able to 
-judge if that's what should happen instead (but since it currently gets 
-passed only int's that seemed like the proper type to normalize to - 
-ohh and it'll also get rid of a signed vs unsigned comparison warning 
-when building with -W, but that's just a tiny added bonus :).
-
-note. I've only compile tested this patch atm.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc3-bk13-orig/mm/page_alloc.c linux-2.6.10-rc3-bk13/mm/page_alloc.c
---- linux-2.6.10-rc3-bk13-orig/mm/page_alloc.c	2004-12-06 22:24:56.000000000 +0100
-+++ linux-2.6.10-rc3-bk13/mm/page_alloc.c	2004-12-21 23:11:51.000000000 +0100
-@@ -396,7 +396,7 @@ static struct page *__rmqueue(struct zon
-  * Returns the number of new pages which were placed at *list.
-  */
- static int rmqueue_bulk(struct zone *zone, unsigned int order, 
--			unsigned long count, struct list_head *list)
-+			int count, struct list_head *list)
- {
- 	unsigned long flags;
- 	int i;
-
-
-
+-- 
+Nathan

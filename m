@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263476AbTDSVpn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 17:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbTDSVpn
+	id S263477AbTDSVqX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 17:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTDSVqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 17:45:43 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:56436 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263476AbTDSVpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 17:45:43 -0400
-Date: Sat, 19 Apr 2003 17:57:38 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: folkert@vanheusden.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: atm's (the ones giving you money)
-In-Reply-To: <Pine.LNX.4.33.0304192231180.21065-100000@muur.intranet.vanheusden.com>
-Message-ID: <Pine.LNX.4.44.0304191755380.8710-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Apr 2003 17:46:23 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:30677 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263477AbTDSVqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 17:46:21 -0400
+Date: Sat, 19 Apr 2003 14:58:23 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Prasanta Sadhukhan" <prasanta@tataelxsi.co.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: calling context of unregister_netdev
+Message-Id: <20030419145823.4867d595.akpm@digeo.com>
+In-Reply-To: <3EA14DD6.4B5983EA@tataelxsi.co.in>
+References: <3EA14DD6.4B5983EA@tataelxsi.co.in>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Apr 2003 21:58:13.0731 (UTC) FILETIME=[C651D330:01C306BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Apr 2003 folkert@vanheusden.com wrote:
+"Prasanta Sadhukhan" <prasanta@tataelxsi.co.in> wrote:
+>
+> So my question is whether we can call unregister_netdev() function from
+> interrupt context(i.e, in ISR process context)
 
-> Anyone out there anything doing with Linux on ATM's?
+No, you cannot.
 
-Yes.  Banrisul (the state bank of Rio Grande do Sul, the
-southernmost state in Brazil) uses Linux on their ATMs.
+This is a bug which occurs in multiple places in the pcmcia code.  usually it
+is doing illegal things from within timer handlers.  In your case, within
+hard IRQ context.
 
-This shown mentioned in an article in Linux Journal not
-too long ago ... well, maybe last year in june or july.
+Your fix (using schedule_task()) is fine.  It is the preferred way to resolve
+this bug.
 

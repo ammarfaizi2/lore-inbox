@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265379AbUBFKLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 05:11:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbUBFKLk
+	id S265359AbUBFKTG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 05:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbUBFKTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 05:11:40 -0500
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:17875 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265353AbUBFKLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 05:11:39 -0500
-From: Christian Unger <chakkerz@optusnet.com.au>
-Reply-To: chakkerz@optusnet.com.au
-Organization: naiv.sourceforge.net
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: psmouse.c, throwing 3 bytes away
-Date: Fri, 6 Feb 2004 21:12:32 +1100
-User-Agent: KMail/1.5.4
-References: <4022BC15.4090502@wanadoo.es> <200402060702.15930.ctpm@rnl.ist.utl.pt>
-In-Reply-To: <200402060702.15930.ctpm@rnl.ist.utl.pt>
+	Fri, 6 Feb 2004 05:19:06 -0500
+Received: from smtp.ncy.finance-net.fr ([62.161.220.65]:27145 "EHLO
+	smtp.ncy.finance-net.fr") by vger.kernel.org with ESMTP
+	id S265359AbUBFKTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 05:19:05 -0500
+Date: Fri, 06 Feb 2004 11:19:42 +0100
+From: Fabian Fenaut <fabian.fenaut@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031015 Debian/1.4-0jds2
+X-Accept-Language: fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402062112.32212.chakkerz@optusnet.com.au>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+CC: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: libata strangeness in 2.6.2-mm1 based kernel
+References: <40236290.1090106@gmx.de>
+In-Reply-To: <40236290.1090106@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+Message-Id: <S265359AbUBFKTF/20040206101905Z+2239@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Hi, I think that's not really the problem. I'm not using KDE 3.2 and I
-> still have the problem. I'm running Debian unstable with XFree86 4.2.1 and
-> KDE 3.1.5.
+Prakash K. Cheemplavam a écrit le 06.02.2004 10:46:
+> 
+> What is causing this? I am using libata with siimage and Samsung HD.
 
-Could be that there was a change in KDE that is present in both 3.1.5 and 
-3.2.0 ... they are only 3 weeks appart.
-
->   The kernel is not tainted and was compiled with gcc 2.95.4.
-What is a good version of GCC to use for all of this anyway ? Does / Should it 
-make a difference ? (It probably does, but should it?)
--- 
-with kind regards,
-  Christian Unger
-
--<< Contact Details >>- < > - < > - < > - < > - < > -<< Naiv Status >>- < > -
-
-  Alt. Email:  chakkerz_dev@optusnet.com.au      |   Stable:    0.2.3 r3
-  ICQ:         204184156                         |   Latest:    0.3.1
-  Mobile:      0402 268904                       |   Current:   0.3.2
-  Web:         http://naiv.sourceforge.net       |   Focus:     test images
-
-  "You don't need eyes to see ... You need vision" (Faithless - Reverence)
+libata OR siimage ?
 

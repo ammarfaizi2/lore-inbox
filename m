@@ -1,135 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUEQPZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUEQP0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUEQPZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUEQPZ6
+	id S261668AbUEQP0R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUEQP0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:25:58 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:4149 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261654AbUEQPXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:23:51 -0400
-Date: Mon, 17 May 2004 11:23:11 -0400
-From: Mathieu Chouquet-Stringer <mchouque@online.fr>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
- 3:{EoxBR
-Subject: Re: [PATCH] Fix for 2.6.6 Makefiles to get KBUILD_OUTPUT working
-In-reply-to: <20040516203322.GA4784@mars.ravnborg.org>
-To: linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
-       ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
-       dev-etrax@axis.com, mikael.starvik@axis.com, sam@ravnborg.org
-Mail-followup-to: Mathieu Chouquet-Stringer <mchouque@online.fr>,
- linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
- ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
- dev-etrax@axis.com, mikael.starvik@axis.com, sam@ravnborg.org
-Message-id: <20040517152311.GA29999@localhost>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.4.1i
-References: <20040516012245.GA11733@localhost>
- <20040516203322.GA4784@mars.ravnborg.org>
+	Mon, 17 May 2004 11:26:16 -0400
+Received: from mail45.messagelabs.com ([140.174.2.179]:62897 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261638AbUEQPYC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:24:02 -0400
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-15.tower-45.messagelabs.com!1084807438!2416841
+X-StarScan-Version: 5.2.11; banners=-,-,-
+X-Originating-IP: [141.156.156.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
+Date: Mon, 17 May 2004 11:23:37 -0400
+Message-ID: <5D3C2276FD64424297729EB733ED1F7605FAE6AC@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
+Thread-Index: AcQ6yVeBMlJYfp+xQ1aEOp2X0K6lLQBWWRIA
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Justin Piszcz" <jpiszcz@lucidpixels.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 16, 2004 at 10:33:22PM +0200, Sam Ravnborg wrote:
-> > --- arch/mips/Makefile.orig	2004-05-15 20:48:52.000000000 -0400
-> > +++ arch/mips/Makefile	2004-05-15 20:49:58.000000000 -0400
-> >  
-> > -makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/mips/boot $(1)
-> > +makeboot =$(Q)$(MAKE) $(build)=arch/mips/boot $(1)
-> 
-> Please get rid of makeboot. Use $(Q)$(MAKE) ... instead.
-> Hereby the '+' sign is no longer needed (used today where makeboot is used.
+Does creative still help maintain this module?
+Is there an #include <string-something.h> missing in the module (WHEN
+COMPILED W/SMP support, or?)
+jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101k
+jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101
+jpiszcz@slack91:/usr/src/linux/Documentation$ grep emu101k -r *
+grep: networking/netif-msg.txt: Permission denied
+grep: scsi/ChangeLog.megaraid: Permission denied
+jpiszcz@slack91:/usr/src/linux/Documentation$
 
-Ok, I applied the changes you requested, please check the diff for mips as
-I had to modify some other lines too.
+(2.6.5 kernel)
 
---- arch/alpha/Makefile.orig	2004-05-15 20:46:06.000000000 -0400
-+++ arch/alpha/Makefile	2004-05-15 20:47:52.000000000 -0400
-@@ -106,10 +106,10 @@ boot := arch/alpha/boot
- all boot: $(boot)/vmlinux.gz
- 
- $(boot)/vmlinux.gz: vmlinux
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
-+	$(Q)$(MAKE) $(build)=$(boot) $@
- 
- bootimage bootpfile bootpzfile: vmlinux
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $(boot)/$@
-+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
- 
- prepare: include/asm-$(ARCH)/asm_offsets.h
-@@ -121,8 +121,8 @@ include/asm-$(ARCH)/asm_offsets.h: arch/
- 	$(call filechk,gen-asm-offsets)
- 
- archclean:
--	$(Q)$(MAKE) -f scripts/Makefile.clean obj=$(boot)
-+	$(Q)$(MAKE) $(clean)=$(boot)
- 
- CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
- 
---- arch/mips/Makefile.orig	2004-05-15 20:48:52.000000000 -0400
-+++ arch/mips/Makefile	2004-05-17 11:11:57.000000000 -0400
-@@ -686,8 +686,6 @@ vmlinux.64: vmlinux
- 		--change-addresses=0xa800000080000000 $< $@
- endif
- 
--makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/mips/boot $(1)
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Justin Piszcz
+Sent: Saturday, May 15, 2004 6:08 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
+
+Let me remind all; this is with _SMP_ kernel only, with a regular kernel
+it makes the module and loads it fine.
+
+Anyone aware of this problem?
+
+On Sat, 15 May 2004, Justin Piszcz wrote:
+
+> Script started on Sat May 15 14:47:08 2004
+> # modprobe emu10k1
+> FATAL: Error inserting emu10k1
+> (/lib/modules/2.6.5/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown
+symbol
+> in module, or unknown parameter (see dmesg)
+> root@war:~# dmesg | tail -n 1
+>  emu10k1: Unknown symbol strcpy
+>
+>
 -
- ifdef CONFIG_SGI_IP27
- all:	vmlinux.64
- endif
-@@ -697,10 +695,10 @@ all:	vmlinux.ecoff
- endif
- 
- vmlinux.ecoff vmlinux.rm200: vmlinux
--	+@$(call makeboot,$@)
-+	$(Q)$(MAKE) $(build)=arch/mips/boot $@
- 
- vmlinux.srec: vmlinux
--	+@$(call makeboot,$@)
-+	$(Q)$(MAKE) $(build)=arch/mips/boot $@
- 
- CLEAN_FILES += vmlinux.ecoff \
- 	       vmlinux.srec \
-@@ -708,10 +706,10 @@ CLEAN_FILES += vmlinux.ecoff \
- 	       vmlinux.rm200
- 
- archclean:
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/boot
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/baget
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/lasat
-+	$(Q)$(MAKE) $(clean)=arch/mips/boot
-+	$(Q)$(MAKE) $(clean)=arch/mips/baget
-+	$(Q)$(MAKE) $(clean)=arch/mips/lasat
- 
- # Generate <asm/offset.h 
- #
---- arch/sh/boot/Makefile.orig	2004-05-15 20:50:11.000000000 -0400
-+++ arch/sh/boot/Makefile	2004-05-15 20:50:41.000000000 -0400
-@@ -16,5 +16,5 @@ $(obj)/zImage: $(obj)/compressed/vmlinux
- 	@echo 'Kernel: $@ is ready'
- 
- $(obj)/compressed/vmlinux: FORCE
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(obj)/compressed $@
-+	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
- 
---- arch/cris/Makefile.orig	2004-05-15 20:59:49.000000000 -0400
-+++ arch/cris/Makefile	2004-05-15 21:00:36.000000000 -0400
-@@ -81,7 +81,7 @@ compressed: zImage
- 
- archmrproper:
- archclean:
--	$(Q)$(MAKE) -f scripts/Makefile.clean obj=arch/$(ARCH)/boot	
-+	$(Q)$(MAKE) $(clean)=arch/$(ARCH)/boot	
- 	rm -f timage vmlinux.bin cramfs.img
- 	rm -rf $(LD_SCRIPT).tmp
- 
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Mathieu Chouquet-Stringer                 E-Mail: mchouque@online.fr
-       Never attribute to malice that which can be adequately
-                    explained by stupidity.
-                     -- Hanlon's Razor --
+

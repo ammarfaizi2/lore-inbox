@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVAWIKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVAWIRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVAWIKq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 03:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVAWIKq
+	id S261256AbVAWIRz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 03:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVAWIRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 03:10:46 -0500
-Received: from brn35.neoplus.adsl.tpnet.pl ([83.29.107.35]:54835 "EHLO
-	thinkpaddie") by vger.kernel.org with ESMTP id S261251AbVAWIKm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 03:10:42 -0500
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: can't compile 2.6.11-rc2 on sparc64
-Date: Sun, 23 Jan 2005 09:09:16 +0100
-User-Agent: KMail/1.7.91
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200501230238.55584@gj-laptop> <200501230248.27332@gj-laptop> <41F30848.6050408@osdl.org>
-In-Reply-To: <41F30848.6050408@osdl.org>
-X-Face: ?m}EMc-C]"l7<^`)a1NYO-(=?utf-8?q?=27xy3=3A5V=7B82Z=5E-/D3=5E=5BMU8IHkf=24o=60=7E=25CC5D4=5BGhaIgk?=
- =?utf-8?q?/=24oN7=0A=09Y7=3Bf=7D!?=(<IG>ooAGiKCVs$m~P1B-8Vt=]<V,FX{h4@fK/?Qtg]5ofD|P~&)q:6H>
- =?utf-8?q?=7E1Nt2fh=0A=09s-iKbN=24=2ENe=5E1?=(4tdwmmW>ew'=LPv+{{=YE=LoZU-5kfYnZSa`P7Q4pW]tKmUk`@&}M,
- =?utf-8?q?dn-=0A=09Kh=7BhA=7B=7ELs4a=24NjJI?=@1_f')]3|_}!GoJZss[Q$D-#l^.4GxPp[p:s<S~B&+6)
-gj-laptop: yes
+	Sun, 23 Jan 2005 03:17:55 -0500
+Received: from opersys.com ([64.40.108.71]:62986 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261256AbVAWIRy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 03:17:54 -0500
+Message-ID: <41F3602E.9050204@opersys.com>
+Date: Sun, 23 Jan 2005 03:28:30 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home> <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home> <41F0A0A2.1010109@opersys.com> <Pine.LNX.4.61.0501211754110.30794@scrub.home> <41F355AD.50901@opersys.com>
+In-Reply-To: <41F355AD.50901@opersys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501230909.17148@gj-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 January 2005 03:13, Randy.Dunlap wrote:
 
-> It's the '-Werror' option that makes warnings become fatal
-> errors that is stopping you here.  You could edit
-> arch/sparc64/kernel/Makefile and remove/comment that for now.
+Karim Yaghmour wrote:
+> This is not good for any client that doesn't know beforehand the exact
+> size of their data units, as in the case of LTT. If LTT has to use this
+> code that means we are going to loose performance because we will need to
+> fill an intermediate data structure which will only be used for relay_write().
+> Instead of zero-copy, we would have an extra unnecessary copy. There has
+> got to be a way for clients to directly reserve and write as they wish.
+> Even Zach Brown recognized this in his tracepipe proposal, here's from
+> his patch:
+> + * 	- let caller reserve space and get a pointer into buf
 
-Thanks, I didn't noticed that.
-Have built only x86_74 and i386 archs before, these don't use -Wall I guess. 
-(too many warnings on different signess comparation, btw, IMO security 
-problem - might be in the future).
+Also, if the reserve is exported, then a client that chooses so, can
+do something like:
 
+	local_irq_save();
+	relay_reserve();
+	write(); write(); write(); ...
+	local_irq_restore();
+
+And therefore enforce in-order events is he so chooses.
+
+Karim
 -- 
-GJ
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,17 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbREPPPA>; Wed, 16 May 2001 11:15:00 -0400
+	id <S261982AbREPPMA>; Wed, 16 May 2001 11:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261984AbREPPOu>; Wed, 16 May 2001 11:14:50 -0400
-Received: from comverse-in.com ([38.150.222.2]:57342 "EHLO
+	id <S261981AbREPPLu>; Wed, 16 May 2001 11:11:50 -0400
+Received: from comverse-in.com ([38.150.222.2]:51198 "EHLO
 	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S261978AbREPPOd>; Wed, 16 May 2001 11:14:33 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED2@mail-in.comverse-in.com>
+	id <S261978AbREPPLk>; Wed, 16 May 2001 11:11:40 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED1@mail-in.comverse-in.com>
 From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Joachim Backes'" <backes@rhrk.uni-kl.de>
-Cc: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: IRQ usage for PCI devices, Kernel 2.4.4
-Date: Wed, 16 May 2001 11:13:40 -0400
+To: "'H. Peter Anvin'" <hpa@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chip Salzenberg <chip@valinux.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: RE: LANANA: To Pending Device Number Registrants
+Date: Wed, 16 May 2001 11:06:55 -0400
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
@@ -19,57 +25,24 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If your PCI devices advertised they don't mind sharing the IRQs with each
-other, ignore it if they're really capable of it. Otherwise, you'll probably
-have to force one of the drivers and/or the bios to make them use separate
-ones.
+Well, even if you spank the future violators, what about the current
+overlaps?
+E.g., the CD-ROM ioctls are overlapping
+with the STREAMS ioctls (the latter ones used by LiS and honored by glibc).
+
+V.
 
 > -----Original Message-----
-> From: Joachim Backes [mailto:backes@rhrk.uni-kl.de]
-> Sent: Wednesday, May 16, 2001 1:46 AM
-> To: LINUX Kernel
-> Subject: IRQ usage for PCI devices, Kernel 2.4.4
+> From: H. Peter Anvin [mailto:hpa@transmeta.com]
+> Alan Cox wrote:
+> > 
+> > > 1. is of course a problem in itself.  Someone who creates 
+> overlapping
+> > > ioctls should be spanked, hard.
+> > 
+> > No argument there. But there is no LANANA ioctl body
+> > 
 > 
-> 
-> Hi,
-> 
-> sometimes the following messages appear in /var/log/messages:
-> 
->         May 13 14:24:41 sunny kernel: PCI: Found IRQ 10 for 
-> device 00:0e.0
->         May 13 14:24:41 sunny kernel: PCI: The same IRQ used 
-> for device 00:0a.0
-> 
-> "0e" is my PCI sound card, and "0a" is my PCI ethernet card. 
-> The messages apppear in
-> the following environment: I send from another linux machine 
-> (per ssh) a command
-> wich plays some sound on my sound card, therefore the eth0 
-> event and the sound
-> event occur at almost the same time.
-> 
-> Question: Can I ignore these messages, or is there any buggy 
-> behaviour?
-> 
-> Regards
-> 
-> 
-> Joachim Backes
-> 
-> --
-> 
-> Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
-> Computer Center, High Performance Computing  | Phone: 
-> +49-631-205-2438 
-> D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   
-> +49-631-205-3056 
-> ---------------------------------------------+------------------------
-> WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I though Michael Chastain was maintaining this set.  No, we 
+> haven't made
+> it an official LANANA function, mostly because I didn't want to push.

@@ -1,58 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUHBWzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUHBXAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUHBWzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 18:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUHBWzJ
+	id S263795AbUHBXAG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUHBXAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 18:55:09 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:29715 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S264502AbUHBWzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 18:55:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Mon, 2 Aug 2004 22:54:48 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <cemgno$hun$2@abraham.cs.berkeley.edu>
-References: <1091193219.11944.17.camel@leto.cs.pocnet.net> <200407310044.i6V0iOZe032440@taverner.CS.Berkeley.EDU> <20040731020534.GX5414@waste.org>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1091487288 18391 128.32.168.222 (2 Aug 2004 22:54:48 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Mon, 2 Aug 2004 22:54:48 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Mon, 2 Aug 2004 19:00:06 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1018 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263795AbUHBW77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 18:59:59 -0400
+Date: Tue, 3 Aug 2004 00:59:52 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL (fwd)
+Message-ID: <20040802225951.GR2746@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall  wrote:
->Here's a probable scenario: encrypted mail spool in maildir format.
->Attacker can send mail of his choosing and then later capture the
->machine with the hope of breaking in.
+Hi Andrew,
 
-No, actually, that's the kind of simple scenario where existing Cryptoloop
-does a more or less reasonable job (in my opinion).  In a simple scenario,
-the attacker can choose or exert partial control over some of the data
-stored on your disk, then can steal your hard disk and see what is stored
-on it, and you never see the hard disk again.  This is the scenario where
-Saarinen's watermarking attack is possible, and if you're unlucky there
-may be some partial information leakage as detailed in my previous email,
-but nothing much worse than this (as far as I know).
+I'd like to see the patch below included in 2.6.8 .
 
-The point I was making is that there are other scenarios where Cryptoloop
-falls apart in much more devastating ways.  For instance, if the attacker
-can modify the ciphertexts stored on your hard disk and you continue
-using the hard disk afterwards, then really nasty attacks become possible.
-Other attacks become possible if the attacker can observe the ciphertexts
-stored on your hard disk at multiple points in time.  The question I was
-asking is this: Does anyone care about these latter types of scenarios?
 
->Ideally, we'd ship a requirements and specification document that
->describes the security trade-offs of cryptoloop/dm-crypt in some
->detail. There are way too many unstated assumptions here.
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-Yes, that sounds like something that would make a lot of sense.
+Date:	Sun, 1 Aug 2004 21:02:41 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+	"Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
+	Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
+	linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL
+
+On Fri, Jul 30, 2004 at 08:30:40AM +1000, Nathan Scott wrote:
+>...
+> Adrian wrote:
+> > 2.6 is a stable kernel series used in production environments.
+> > 
+> > Regarding Linus' tree, it's IMHO the best solution to work around it 
+> > this way until all issues are sorted out.
+> 
+> I'm not really convinced - the EXPERIMENTAL marking should
+> be plenty of a deterent to folks in production environments.
+> There are reports of stack overruns on other filesystems as
+> well with 4KSTACKS, so doesn't seem worthwhile to me to do
+> this just for XFS.
+
+
+OK, below is a patch that only adds a dependency of 4KSTACKS on 
+EXPERIMENTAL.
+
+Considering that not all issues with 4kb stacks are currently corrected, 
+this patch should IMHO go in 2.6.8 .
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc2-mm1-full/arch/i386/Kconfig.old	2004-08-01 20:59:02.000000000 +0200
++++ linux-2.6.8-rc2-mm1-full/arch/i386/Kconfig	2004-08-01 20:59:46.000000000 +0200
+@@ -1474,7 +1474,8 @@
+ 	  to solve problems without frame pointers.
+ 
+ config 4KSTACKS
+-	bool "Use 4Kb for kernel stacks instead of 8Kb"
++	bool "Use 4Kb for kernel stacks instead of 8Kb (EXPERIMENTAL)"
++	depends on EXPERIMENTAL
+ 	help
+ 	  If you say Y here the kernel will use a 4Kb stacksize for the
+ 	  kernel stack attached to each process/thread. This facilitates
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+
+

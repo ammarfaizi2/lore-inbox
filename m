@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVBZAou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVBZAsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVBZAou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 19:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVBZAot
+	id S262111AbVBZAsf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 19:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVBZAse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 19:44:49 -0500
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:2745 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S262105AbVBZAnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 19:43:55 -0500
-Message-ID: <421FC534.1000602@mech.kuleuven.ac.be>
-Date: Sat, 26 Feb 2005 01:39:16 +0100
-From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Fri, 25 Feb 2005 19:48:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38345 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262111AbVBZAsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 19:48:30 -0500
+Date: Fri, 25 Feb 2005 16:49:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olh@suse.de>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.6.11-rc5
+In-Reply-To: <20050226004137.GA25539@suse.de>
+Message-ID: <Pine.LNX.4.58.0502251648420.9237@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
+ <20050224145049.GA21313@suse.de> <20050226004137.GA25539@suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: takis@lumumba.luc.ac.be, prism54-devel@prism54.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: prism54 not releasing region
-References: <20050226010126.A28793@lumumba.luc.ac.be> <20050225164054.2c512daf.akpm@osdl.org>
-In-Reply-To: <20050225164054.2c512daf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->Panagiotis Issaris <takis@lumumba.luc.ac.be> wrote:
->  
->
->>To my newbie eye it looked as if the region requested at line 154
->>weren't released in case of the line 166 failure handling. Is
->>my assumption right?
->>    
->>
->
->It is.  I can take care of this patch for you, thanks.
->  
->
-Great! :-) Thanks!
 
-With friendly regards,
-Takis
+On Sat, 26 Feb 2005, Olaf Hering wrote:
+> 
+> modedb can not be __init because fb_find_mode() may get db == NULL.
+> fb_find_mode() is called from modules.
 
--- 
-  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
-  http://people.mech.kuleuven.ac.be/~pissaris/
+Ack. Maybe somebody should run the scripts again to check that we don't 
+reference __init data from non-init functions.
 
+		Linus

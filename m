@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264327AbTDPMRE (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTDPMRE 
+	id S264329AbTDPMTb (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTDPMTb 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:17:04 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41742 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264327AbTDPMRE (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:17:04 -0400
-Date: Wed, 16 Apr 2003 14:28:56 +0200
-From: Jan Kara <jack@suse.cz>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [TRIVIAL PATCH] sync_dquots_dev in Linux 2.4.21-pre7-ac1
-Message-ID: <20030416122856.GA21806@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.53.0304151217310.28540@marabou.research.att.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0304151217310.28540@marabou.research.att.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 16 Apr 2003 08:19:31 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:17306
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264329AbTDPMT3 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 08:19:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Driver for Netgear FA120 USB2 ethernet
+References: <yw1x65ped5jv.fsf@zaphod.guide>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 16 Apr 2003 14:30:10 +0200
+In-Reply-To: <yw1x65ped5jv.fsf@zaphod.guide>
+Message-ID: <yw1x1y02d3ql.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mru@users.sourceforge.net (Måns Rullgård) writes:
 
-> sync_dquots_dev() is only implemented if CONFIG_QUOTA is defined.
-> However, quote.c uses it unconditionally.  include/linux/quotaops.h has
-> some macros to disable some functions when CONFIG_QUOTA is undefined, so
-> it's probably where the fix belongs.  This patch helps:
+> Is there any chance to get a linux driver for a Netgear FA120 USB2
+> ethernet adaptor?  It's got two chips inside.  One is a Realtek
+> RTL8201BL and the other an ASIX AX88172.
 > 
-> ==============================
-> --- linux.orig/include/linux/quotaops.h
-> +++ linux/include/linux/quotaops.h
-> @@ -193,6 +193,7 @@
->  #define DQUOT_SYNC_SB(sb)			do { } while(0)
->  #define DQUOT_OFF(sb)				do { } while(0)
->  #define DQUOT_TRANSFER(inode, iattr)		(0)
-> +#define sync_dquots_dev(dev, type)		do { } while(0)
->  extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
->  {
->  	lock_kernel();
-> ==============================
-  Oops... Yes. Please apply the patch Alan.
+> /proc/bus/usb/devices:
+> 
+> T:  Bus=01 Lev=01 Prnt=01 Port=03 Cnt=01 Dev#=  4 Spd=480 MxCh= 0
+> D:  Ver= 2.00 Cls=02(comm.) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+> P:  Vendor=0846 ProdID=1040 Rev= 0.01
+> S:  Manufacturer=NETGEAR
+> S:  Product=NETGEAR FA120 Adapter
+> C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=300mA
+> I:  If#= 0 Alt= 0 #EPs= 3 Cls=00(>ifc ) Sub=00 Prot=00 Driver=(none)
+> E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=128ms
+> E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+> E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-								Thanks
-									Honza
+Documentation is available:
+
+http://www.asix.com.tw/datasheet/mac/Ax88172.PDF
+ftp://152.104.125.40/cn/phy/rtl8201bl/spec-8201bl(120).pdf
+
+Is anyone working on it, or should I do it?  Not that I know how...
 
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Måns Rullgård
+mru@users.sf.net

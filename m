@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVADLQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVADLXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVADLQr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 06:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVADLQr
+	id S261161AbVADLXh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 06:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVADLXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 06:16:47 -0500
-Received: from gprs214-29.eurotel.cz ([160.218.214.29]:42673 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261160AbVADLQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 06:16:32 -0500
-Date: Tue, 4 Jan 2005 12:15:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 resuming laptop from suspension f*cks usb subsystem
-Message-ID: <20050104111518.GG18777@elf.ucw.cz>
-References: <41D2C4FA.7010806@telefonica.net> <20050103220704.GB25250@elf.ucw.cz> <41DA79EB.20102@telefonica.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DA79EB.20102@telefonica.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 06:23:37 -0500
+Received: from cmu-24-35-113-109.mivlmd.cablespeed.com ([24.35.113.109]:4085
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261161AbVADLXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 06:23:36 -0500
+Date: Tue, 4 Jan 2005 06:23:22 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm1 [failure on AMD64]
+In-Reply-To: <200501040029.15623.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.61.0501040613240.4992@localhost.localdomain>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103100725.GA17856@infradead.org>
+ <200501030919.20670.jbarnes@engr.sgi.com> <200501040029.15623.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 4 Jan 2005, Rafael J. Wysocki wrote:
 
-> >>In 2.6.10, resuming from suspend mode just (randomly) crashes the USB 
-> >>subsystem, and I get the same messages (not sure about the whole message 
-> >>but the "-84" part really is there) over and over again until I reboot.
-> >>   
-> >>
-> >
-> >Does it still happen with noapic? 2.6.10 has some interrupt related
-> >problems with APIC...
+> On a UP AMD64 it boots, but then it does not work appropriately (eg. at KDE
+> startup the box hangs for a while and I get the message like "The process for
+> the file protocol has terminated unexpectedly" and desktop icons are not
+> displayed, and I get a "cpu overload" message from arts etc.).
 
-> I have just rebooted 2.6.10 with this LILO command line
-> 
->    LILO Boot: Linux-2.6.10 noapic
-> 
-> and if that disables APIC, then I've got the same problem. After 
-> suspending the laptop
-> two times, I get the same lines (described below) and the usb system 
-> goes nuts. After
-> removing & inserting uhci_hcd everything works fine again.
-> 
-> The lines are (endless loop):
-> drivers/usb/input/hid-core.c: input irq status -84 received
+I also tried it on an AMD64 system (3500+ on A8V Deluxe) and did not 
+observe any anomalies, but I am using Gnome, not KDE.
 
-I guess you need to ask on usb lists. If removing/inserting uhci_hcd
-helps, it is likely that uhci_hcd needs to do a bit more in its
-suspend/resume callbacks.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I saw a message that latency tests were wanted, but I don't normally have 
+a workload in which this can be observed.  Perhaps someone could provide a 
+suggestion?  I did try some dvd-burning sessions.  Subjectively speaking, 
+there didn't seem to be any improvement over 2.6.10, and it may have been 
+a bit worse.

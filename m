@@ -1,100 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132819AbQL1XqI>; Thu, 28 Dec 2000 18:46:08 -0500
+	id <S132846AbQL1XsS>; Thu, 28 Dec 2000 18:48:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132817AbQL1Xp6>; Thu, 28 Dec 2000 18:45:58 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31492 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132792AbQL1Xpv>; Thu, 28 Dec 2000 18:45:51 -0500
-Date: Thu, 28 Dec 2000 15:15:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S132847AbQL1XsI>; Thu, 28 Dec 2000 18:48:08 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:37394 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132846AbQL1Xr5>;
+	Thu, 28 Dec 2000 18:47:57 -0500
+Date: Fri, 29 Dec 2000 00:17:21 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, torvalds@transmeta.com, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
 Subject: Re: test13-pre5
-In-Reply-To: <20001228231722.A24875@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.10.10012281459150.995-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001229001721.B25388@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.21.0012281637200.12364-100000@freak.distro.conectiva> <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com> <20001228231722.A24875@gruyere.muc.suse.de> <200012282233.OAA01433@pizda.ninka.net> <20001228235836.A25388@gruyere.muc.suse.de> <200012282254.OAA01772@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200012282254.OAA01772@pizda.ninka.net>; from davem@redhat.com on Thu, Dec 28, 2000 at 02:54:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 28 Dec 2000, Andi Kleen wrote:
+On Thu, Dec 28, 2000 at 02:54:52PM -0800, David S. Miller wrote:
+>    Date: Thu, 28 Dec 2000 23:58:36 +0100
+>    From: Andi Kleen <ak@suse.de>
 > 
-> BTW..
+>    Why exactly a power of two ? To get rid of ->index ? 
 > 
-> The current 2.4 struct page could be already shortened a lot, saving a lot
-> of cache.
+> To make things like "page - mem_map" et al. use shifts instead of
+> expensive multiplies...
 
-Not that much, but some.
+I thought that is what ->index is for ? 
 
-> (first number for 32bit, second for 64bit) 
-> 
-> - Do not compile virtual in when the kernel does not support highmem
-> (saves 4/8 bytes) 
+Also gcc seems to be already quite clever at dividing through small
+integers, e.g. using mul and shift and sub, so it may not be even worth to reach
+for a real power-of-two. 
 
-Even on UP, "virtual" often helps. The conversion from "struct page" to
-the linear address is quite common, and if "struct page" isn't a
-power-of-two it gets slow.
+I suspect doing the arithmetics is at least faster than eating the 
+cache misses because of ->index. 
 
-> - Instead of having a zone pointer mask use a 8 or 16 byte index into a 
-> zone table. On a modern CPU it is much cheaper to do the and/shifts than
-> to do even a single cache miss during page aging. On a lot of systems 
-> that zone index could be hardcoded to 0 anyways, giving better code.
-> - Instead of using 4/8 bytes for the age use only 16bit (FreeBSD which
-> has the same swapping algorithm even only uses 8bit) 
+-Andikkk
 
-This would be good, but can be hard.
-
-FreeBSD doesn't try to be portable any more, but Linux does, and there are
-architectures where 8- and 16-bit accesses aren't atomic but have to be
-done with read-modify-write cycles.
-
-And even for fields like "age", where we don't care whether the age itself
-is 100% accurate, we _do_ care that the fields close-by don't get strange
-effects from updating "age". We used to have exactly this problem on alpha
-back in the 2.1.x timeframe.
-
-This is why a lot of fields are 32-bit, even though we wouldn't need more
-than 8 or 16 bits of them.
-
-> - Remove the waitqueue debugging (obvious @)
-
-Not obvious enough. There are magic things that could be done, like hiding
-the wait-queue lock bit in the waitqueue lists themselves etc. That could
-be done with some per-architecture magic etc.
-
-> - flags can be __u32 on 64bit hosts, sharing 64bit with something that
-> is tolerant to async updates (e.g. the zone table index or the index) 
-> - index could be probably u32 instead of unsigned long, saving 4 bytes
-> on i386
-
-It already _is_ 32-bit on x86. 
-
-Only the LSF patches made it 64-bit. That never made it into the standard
-kernel.
-
-Sure, we could make it "u32" and thus force it to be 32-bit even on 64-bit
-architectures, but some day somebody will want to have more than 46 bits
-of file mappings, and which 46 bits is _huge_ on a 32-bit machine, on a
-64-bit one in 5 years it will not be entirely unreasonable. 
-
-Anyway, I don't want to increase "struct page" in size, but I also don't
-think it's worth micro-optimizing some of these things if the code gets
-harder to maintain (like the partial-word stuff would be).
-
-The biggest win by far would come from increasing the page-size, something
-we can do even in software. Having a "kernel page size" of 8kB even on x86
-would basically cut the overhead in half. As that would also improve some
-other things (like having better throughput due to bigger contiguous
-chunks), that's something I'd like to see some day.
-
-(And user space wouldn't ever have to know - we could map in "half pages"
-aka "hardware pages" without mappign the whole page).
-
-		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286252AbRLTOBA>; Thu, 20 Dec 2001 09:01:00 -0500
+	id <S286258AbRLTOGl>; Thu, 20 Dec 2001 09:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286254AbRLTOAu>; Thu, 20 Dec 2001 09:00:50 -0500
-Received: from unthought.net ([212.97.129.24]:23714 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S286252AbRLTOAi>;
-	Thu, 20 Dec 2001 09:00:38 -0500
-Date: Thu, 20 Dec 2001 15:00:37 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: svein.ove@aas.no,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: File copy system call proposal
-Message-ID: <20011220150037.E16650@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	svein.ove@aas.no,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu> <E16GnIg-0000V5-00@starship.berlin> <20011220110936.A18142@atrey.karlin.mff.cuni.cz> <200112201338.OAA23947@mail48.fg.online.no> <20011220145328.C16650@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <20011220145328.C16650@unthought.net>; from jakob@unthought.net on Thu, Dec 20, 2001 at 02:53:28PM +0100
+	id <S286259AbRLTOGc>; Thu, 20 Dec 2001 09:06:32 -0500
+Received: from unamed.infotel.bg ([212.39.68.18]:33036 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S286258AbRLTOGR>;
+	Thu, 20 Dec 2001 09:06:17 -0500
+Date: Thu, 20 Dec 2001 16:10:11 +0200 (EET)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@l>
+To: bert hubert <ahu@ds9a.nl>
+cc: <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG/FIXED !] Equal Cost Multipath Broken in 2.4.x
+In-Reply-To: <20011220145332.A15230@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.33.0112201605120.9578-100000@l>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 02:53:28PM +0100, Jakob Østergaard wrote:
-...
-> > Now there's a real world example for you.
-> 
-> No graphical file manager would use it - how would you show progress
-> information to the user when coping a single huge file ?
 
-Sorry for replying to my own mail - I shouldn't send mail while talking
-to people at the same time...
+	Hello,
 
-The progress stuff is of course relevant only when you cannot do COW.
+On Thu, 20 Dec 2001, bert hubert wrote:
 
-> 
-> So, someone might hack up a 'cp' that used it, and in a few years when
-> everyone is at 2.4.x (where x >= version with copyfile()) maybe some
-> distribution would ship it.
-> 
-> Take a look at Win32, then have it. Then, look further, and you'll see
-> that they have system calls for just about everything else.  It's
-> a slippery slope, leading to horrors like CreateProcess() which takes
-> TEN arguments, where about half of them are pointers to STRUCTURES.
+> must have not been awake this morning. It does apply now, AND fixes the
+> problem. Thanks!
 
-s/then have it/they have it/
+	Very good
 
-Sorry,
+> > [010803]
+> >  * If "dev" is not specified in multipath route, ifindex remained
+> >    uninitialized. Grr. Thanks to Kunihiro Ishiguro <kunihiro@zebra.org>.
+>
+> I do specify dev on the commandline, however, you are right in that is the
+> compiler that fixes the behaviour. Apparently, gcc-3.0 is lucky in this
+> respect.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+	Yes, it seems dev is an old problem. IMO the right fix is to
+memset with 0 the struct before usage. This will avoid any further errors.
+
+> I happened to be compiling with gcc-3.0 at the time, while debian compile
+> their packages with gcc-2.95. I'll mention this patch on the LARTC
+> mailinglist too.
+
+	Yes, it must depend somehow on the compiler, may be from
+previous calls of other functions, no time to investigate.
+
+> Will you push this patch towards Alexey?
+
+	If he is not reading the whole thread, please, do it directly.
+
+> Regards,
+>
+> bert
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

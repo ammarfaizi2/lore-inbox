@@ -1,109 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTD1F37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 01:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTD1F37
+	id S263462AbTD1GCy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 02:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263499AbTD1GCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 01:29:59 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:54496 "EHLO
-	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263467AbTD1F35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 01:29:57 -0400
-Message-Id: <200304280546.h3S5kWBq028443@pasta.boston.redhat.com>
-To: David Mosberger-Tang <davidm@hpl.hp.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.68 fixes for semtimedop() ia32-compat handling on ia64
-Date: Mon, 28 Apr 2003 01:46:32 -0400
-From: Ernie Petrides <petrides@redhat.com>
+	Mon, 28 Apr 2003 02:02:54 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:38288 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S263462AbTD1GCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 02:02:53 -0400
+Date: Mon, 28 Apr 2003 02:15:08 -0400
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Houston, I think we have a problem
+Message-ID: <20030428061508.GC23469@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Mike Galbraith <efault@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+User-Agent: Mutt/1.5.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, David.  Here are two fixes for the ia32-compatibility mode handling
-for the new semtimedop() system call for the ia64 architecture.
+On Sun, Apr 27, 2003 at 12:52:49PM +0200, Mike Galbraith wrote:
+> <SQUEAK!  SQUEAK!  SQUEAK!>
+<description>
 
-The first problem was that treatment of user-mode calls to semtimedop()
-with a NULL 4th (struct timespec *) parameter was inconsistent with the
-behavior of the same executable on i386 and also with a natively compiled
-ia64 binary.  A NULL 4th arg to semtimedop() should result in no timeout
-being used (like a straight semop() call) rather than in an EFAULT error.
+Hehe, at first I thought you were describing the excessive flamewars
+where someone of 'low priority' downs a semaphore (flameworthy topic)
+which then 'starves' useful discussions for several days. One good thing
+is that is looks like fewer core developers seem to get sucked up in
+these nowadays. (perhaps they have switched to some lockless RCU scheme?)
 
-The second problem was that a legitimate semtimedop() with a timeout was
-also resulting in an EFAULT because the fetch of the internal timespec
-strucure by sys_semtimedop() from semtimedop32()'s kernel stack was
-treated as an invalid user-data reference.  This requires temporarily
-switching the addressing limit with set_fs(), further requiring that
-appropriate parameter checking by performed prior to the switch.
+In any case, I have seen minute long stalls with 100% cpu usage about 3
+or 4 times. I believe it started around the time the interactive
+scheduler changes went in. One time it looked like the xserver, the
+windowmanager and an inactive xterm were having a foodfight (when the
+stall cleared a top showed 50%/25%/25% cpu usage for those processes).
 
-The const qualifier was removed from the (struct compat_timespec *) arg
-to semtimedop32() so that the call to get_compat_timespec() wouldn't
-generate a compilation warning.
+Interestingly this was right after a reboot, so most of the 1GB of
+memory was not used.
 
-Cheers.  -ernie
-
-
-
-diff -urpN linux-2.5.68/arch/ia64/ia32/sys_ia32.c{.orig,}
---- linux-2.5.68/arch/ia64/ia32/sys_ia32.c.orig	2003-04-19 22:50:02.000000000 -0400
-+++ linux-2.5.68/arch/ia64/ia32/sys_ia32.c	2003-04-28 01:12:41.000000000 -0400
-@@ -1648,19 +1648,35 @@ shmctl32 (int first, int second, void *u
- 	return err;
- }
- 
-+extern int sem_ctls[];
-+#define sc_semopm	(sem_ctls[2])
-+
- static long
--semtimedop32(int semid, struct sembuf *tsems, int nsems,
--	     const struct compat_timespec *timeout32)
-+semtimedop32(int semid, struct sembuf *tsops, int nsops,
-+	     struct compat_timespec *timeout32)
- {
- 	struct timespec t;
--	if (get_user (t.tv_sec, &timeout32->tv_sec) ||
--	    get_user (t.tv_nsec, &timeout32->tv_nsec))
-+	mm_segment_t oldfs;
-+	long ret;
-+
-+	/* parameter checking precedence should mirror sys_semtimedop() */
-+	if (nsops < 1 || semid < 0)
-+		return -EINVAL;
-+	if (nsops > sc_semopm)
-+		return -E2BIG;
-+	if (!access_ok(VERIFY_READ, tsops, nsops * sizeof(struct sembuf)) ||
-+	    get_compat_timespec(&t, timeout32))
- 		return -EFAULT;
--	return sys_semtimedop(semid, tsems, nsems, &t);
-+
-+	oldfs = get_fs();
-+	set_fs(KERNEL_DS);
-+	ret = sys_semtimedop(semid, tsops, nsops, &t);
-+	set_fs(oldfs);
-+	return ret;
- }
- 
- asmlinkage long
--sys32_ipc (u32 call, int first, int second, int third, u32 ptr, u32 fifth)
-+sys32_ipc(u32 call, int first, int second, int third, u32 ptr, u32 fifth)
- {
- 	int version;
- 
-@@ -1668,12 +1684,15 @@ sys32_ipc (u32 call, int first, int seco
- 	call &= 0xffff;
- 
- 	switch (call) {
-+	      case SEMTIMEDOP:
-+		if (fifth)
-+			return semtimedop32(first, (struct sembuf *)AA(ptr),
-+				second, (struct compat_timespec *)AA(fifth));
-+		/* else fall through for normal semop() */
- 	      case SEMOP:
- 		/* struct sembuf is the same on 32 and 64bit :)) */
--		return sys_semtimedop(first, (struct sembuf *)AA(ptr), second, NULL);
--	      case SEMTIMEDOP:
--		return semtimedop32(first, (struct sembuf *)AA(ptr), second,
--				    (const struct compat_timespec *)AA(fifth));
-+		return sys_semtimedop(first, (struct sembuf *)AA(ptr), second,
-+				      NULL);
- 	      case SEMGET:
- 		return sys_semget(first, second, third);
- 	      case SEMCTL:
+Jan

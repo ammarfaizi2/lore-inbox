@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUFQSRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUFQSTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUFQSRn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 14:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUFQSRn
+	id S261451AbUFQSTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 14:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUFQSTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 14:17:43 -0400
-Received: from ceiriog1.demon.co.uk ([194.222.75.230]:44161 "EHLO
-	ceiriog1.demon.co.uk") by vger.kernel.org with ESMTP
-	id S261378AbUFQSRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 14:17:42 -0400
-Subject: Re: Irix NFS servers, again :-)
-From: Peter Wainwright <prw@ceiriog1.demon.co.uk>
-To: Steve Lord <lord@xfs.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <40D1DAEA.8030103@xfs.org>
-References: <1087411925.30092.35.camel@ceiriog1.demon.co.uk>
-	 <20040617134424.GA32272@infradead.org>
-	 <1087491319.3677.5.camel@ceiriog1.demon.co.uk>  <40D1DAEA.8030103@xfs.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1087495972.15215.2.camel@ceiriog1.demon.co.uk>
+	Thu, 17 Jun 2004 14:19:25 -0400
+Received: from [61.49.235.7] ([61.49.235.7]:47612 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261451AbUFQSSI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 14:18:08 -0400
+Date: Thu, 17 Jun 2004 10:09:30 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: hch@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: more files with licenses that aren't GPL-compatible
+Message-ID: <20040617100930.A9108@adam>
+References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <87n032xk82.fsf@sanosuke.troilus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 17 Jun 2004 19:12:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <87n032xk82.fsf@sanosuke.troilus.org>; from mdpoole@troilus.org on Thu, Jun 17, 2004 at 11:44:29AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 18:54, Steve Lord wrote:
-
+On Thu, Jun 17, 2004 at 11:44:29AM -0400, Michael Poole wrote:
+> The first "official" version of Linux that included USB serial code
+> that mentioned you (Adam Richter and/or Yggdrasil) was 2.4.  That same
+> version included the same binary firmware you complained about in
+> 2001, and the changelog in usbserial.c makes it clear that *at least*
+> the WhiteHEAT firmware was already present when you contributed your
+> code.
 > 
-> Part of the fix for these issues with Irix NFS was version 2
-> directories in XFS, this made directory offsets in XFS into
-> real offsets rather than 64 bit hash values.
-> 
-> If your filesystem is old enough, it will have version 1
-> directories - and the only conversion process is to do
-> a dump/mkfs/restore.
-> 
-> xfs_growfs -n /mntpnt will report the directory version
-> as naming=1 or naming=2 if I recall correctly.
-> 
-> Steve
+> Would you explain why your claim of copyright infringement is not
+> estopped by the pre-existing condition of firmware being present?
 
-Thanks, that explains it. The filesystem in question
-indeed has naming=1. Now I just have to work out whether it is
-worth the effort of conversion or whether I can live with a
-kludged linux client (glibc or kernel).
-Thanks to all who replied...
+	Why would it be, and what kind of stopping ("estoppel")
+are you referring to?
 
+	I do not believe that when one contributes to Linux that
+one is promising not to pursue other copyright problems anywhere
+elsewhere in the code.  If you can point to a court decision or law
+that says something analogous, I would be interesting in hearing
+about it.
 
-Peter
+	I believe the pre-exising condition, if it was pre-existing,
+of the firmware being present in a few infringing drivers among many
+non-infringing drivers would not mean that permission was granted
+to produce a derivative work comingling the few illegal drivers
+(or even prove prior knowledge of the few illegal drivers).
 
+	I know I have been complaining about the infringing drivers
+and asking that people stop infringing approximately since I became
+aware of the infringement.
+
+	Again, I'm not a lawyer, so please do not use my layman's
+opinions as legal advice.
+
+-- 
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

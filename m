@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263395AbREXHbo>; Thu, 24 May 2001 03:31:44 -0400
+	id <S263397AbREXHcy>; Thu, 24 May 2001 03:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263397AbREXHbe>; Thu, 24 May 2001 03:31:34 -0400
-Received: from ns.caldera.de ([212.34.180.1]:27579 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S263395AbREXHbY>;
-	Thu, 24 May 2001 03:31:24 -0400
-Date: Thu, 24 May 2001 09:31:17 +0200
-Message-Id: <200105240731.f4O7VH104345@ns.caldera.de>
-From: Marcus Meissner <mm@ns.caldera.de>
-To: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac15
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010523200128.A15260@lightning.swansea.linux.org.uk>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S263398AbREXHch>; Thu, 24 May 2001 03:32:37 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:21488 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S263397AbREXHcX>; Thu, 24 May 2001 03:32:23 -0400
+Message-Id: <200105240732.f4O7WLH23332@smtp2.Stanford.EDU>
+Content-Type: text/plain; charset=US-ASCII
+From: Praveen Srinivasan <praveens@stanford.edu>
+Organization: Stanford University
+To: torvalds@transmeta.com
+Subject: [PATCH] md.c - null ptr fixes for 2.4.4
+Date: Thu, 24 May 2001 00:33:27 -0700
+X-Mailer: KMail [version 1.2.2]
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, mingo@redhat.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010523200128.A15260@lightning.swansea.linux.org.uk> you wrote:
+Hi,
+This patch fixes some unchecked ptr bugs in the multiple devices driver 
+(RAID) code (md.c).
 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+Praveen Srinivasan and Frederick Akalin
 
-> 		 Intermediate diffs are available from
-> 			http://www.bzimage.org
-
-
-> 2.4.4-ac15
-> o	Merge Linus 2.4.5pre5
-> 	| Also fixes a dumb bug in my mmx fixups I=20
-> 	| managed to forget to test and spot
-> o	Dump the ACPI changes - new ones are pending	(me)
-> 	and the old ones are better than this lot
-> o	Revert serial incompatibility pending nice fix	(me)
-> o	Move a few other oddments to match Linus
-> o	Rip format conversion out of the pwc driver	(me)
-> 	| It belongs in user space..
-
-You appear to have reverted the DAC960 driver back to the previous version.
-Was this intended?
-
-Ciao, Marcus
-
-diff -u -r1.10 -r1.11
---- Documentation/README.DAC960 2001/05/03 13:02:39     1.10
-+++ Documentation/README.DAC960 2001/05/23 21:56:42     1.11
-@@ -1,17 +1,17 @@
-    Linux Driver for Mylex DAC960/AcceleRAID/eXtremeRAID PCI RAID Controllers
-
--                       Version 2.2.10 for Linux 2.2.18
--                       Version 2.4.10 for Linux 2.4.1
-+                       Version 2.2.9 for Linux 2.2.17
-+                       Version 2.4.9 for Linux 2.4.0
-
-                              PRODUCTION RELEASE
-
--                              1 February 2001
-+                              7 September 2000
-
+--- ../linux/./drivers/md/md.c	Fri Apr  6 10:42:55 2001
++++ ./drivers/md/md.c	Mon May  7 22:08:02 2001
+@@ -3756,6 +3756,7 @@
+ 			continue;
+ 		}
+ 		mddev = alloc_mddev(MKDEV(MD_MAJOR,minor));
++
+ 		if (md_setup_args.pers[minor]) {
+ 			/* non-persistent */
+ 			mdu_array_info_t ainfo;
+@@ -3773,7 +3774,12 @@
+ 			ainfo.spare_disks = 0;
+ 			ainfo.layout = 0;
+ 			ainfo.chunk_size = md_setup_args.chunk[minor];
+-			err = set_array_info(mddev, &ainfo);
++			if(mddev==NULL){
++			    err=1;
++			  }
++			else {
++			  err = set_array_info(mddev, &ainfo);
++			}
+ 			for (i = 0; !err && (dev = md_setup_args.devices[minor][i]); i++) {
+ 				dinfo.number = i;
+ 				dinfo.raid_disk = i;
+@@ -3797,9 +3803,12 @@
+ 		if (!err)
+ 			err = do_md_run(mddev);
+ 		if (err) {
+-			mddev->sb_dirty = 0;
+-			do_md_stop(mddev, 0);
+-			printk("md: starting md%d failed\n", minor);
++		  if(mddev !=NULL){
++		    mddev->sb_dirty = 0;
++		    do_md_stop(mddev, 0);
++		  }
++		
++		  printk("md: starting md%d failed\n", minor);
+ 		}
+ 	}
+ }

@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292855AbSEAJP6>; Wed, 1 May 2002 05:15:58 -0400
+	id <S293076AbSEAJYQ>; Wed, 1 May 2002 05:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292857AbSEAJP5>; Wed, 1 May 2002 05:15:57 -0400
-Received: from marvin.axion.bt.co.uk ([132.146.16.82]:25061 "EHLO
-	marvin.axion.bt.co.uk") by vger.kernel.org with ESMTP
-	id <S292855AbSEAJP4>; Wed, 1 May 2002 05:15:56 -0400
-Message-ID: <F66469FCE9C5D311B8FF0000F8FE9E070965D2AD@mbtlipnt03.btlabs.bt.co.uk>
-From: chris.2.dobbs@bt.com
-To: linux-kernel@vger.kernel.org
-Subject: wvlan_cs
-Date: Wed, 1 May 2002 10:14:50 +0100 
-X-Mailer: Internet Mail Service (5.5.2654.89)
-MIME-version: 1.0
-Content-type: text/plain; charset="iso-8859-1"
+	id <S293135AbSEAJYP>; Wed, 1 May 2002 05:24:15 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:5892 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S293076AbSEAJYP>; Wed, 1 May 2002 05:24:15 -0400
+Date: Wed, 1 May 2002 10:23:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+        Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] discontigmem support for ia32 NUMA box against 2.4.19pre7
+Message-ID: <20020501102328.B1238@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200204300115.g3U1FQc16634@w-gaughen.des.beaverton.ibm.com> <20020430072654.B2262@infradead.org> <20020501012213.GA32767@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all, 
-might be a stupid question this but i wondered what have happened to the
-wvlan_cs.o module in the 2.5 kernels; it was present in 2.4.4 and was
-delived
-as part of the standard install; I am trying to use an SMC wireless lan card
-and the 
-kernel is asking for wvlan_cs.....?
- Cheers
--Chris Dobbs
+On Tue, Apr 30, 2002 at 06:22:13PM -0700, William Lee Irwin III wrote:
+> > Umm, NUMA without SMP looks rather strange to me..
+> 
+> It's still fully possible, though I'm not clear on whether NUMA-Q
+> supports it.
+
+It doesn't really make sense :)
+
+Still I think it makes sense to have CONFIG_NUMAQ or whatever to depend
+on CONFIG_SMP
+

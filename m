@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbTGXMlE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 08:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTGXMlE
+	id S263861AbTGXMyH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 08:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTGXMyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 08:41:04 -0400
-Received: from mail.gmx.de ([213.165.64.20]:7649 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263875AbTGXMlD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 08:41:03 -0400
-Date: Thu, 24 Jul 2003 14:56:09 +0200
-From: Dominik Brugger <ml.dominik83@gmx.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: OHCI problems with suspend/resume
-Message-Id: <20030724145609.4a8c8e67.ml.dominik83@gmx.net>
-In-Reply-To: <20030724143731.5fe40b4e.ml.dominik83@gmx.net>
-References: <20030723220805.GA278@elf.ucw.cz>
-	<20030724143731.5fe40b4e.ml.dominik83@gmx.net>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 24 Jul 2003 08:54:07 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:27912 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263861AbTGXMyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 08:54:06 -0400
+Subject: Re: 2.6.0-test1-mm2 ext3-related OOPS while running tar
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <87adb4hwde.fsf@gw.home.net>
+References: <1059038117.577.23.camel@teapot.felipe-alfaro.com>
+	 <87adb4hwde.fsf@gw.home.net>
+Content-Type: text/plain
+Message-Id: <1059052151.577.7.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 24 Jul 2003 15:09:11 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+On Thu, 2003-07-24 at 15:45, Alex Tomas wrote:
 
-I have a few things to add:
+> please, try this patch
 
-1) If uhci_hcd was never loaded before suspend, one has to press a key on the keyboard after `echo 3 > /proc/acpi/sleep` in order to get the machine suspended. Wakeup does not work in that case, reboot required.
+Well, at least with your patch applied I can't reproduce the previous
+oops while untarring the kernel sources. I'm going to use
+2.6.0-test1-mm2 with your patch as my main kernel and will see if the
+oops is gone forever.
 
-2) It makes no difference whether the Logitech USB Mouse is connected or not.
+Thanks! :-)
 
--Dominik Brugger

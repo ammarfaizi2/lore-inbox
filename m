@@ -1,200 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131671AbRBQNyX>; Sat, 17 Feb 2001 08:54:23 -0500
+	id <S131672AbRBQODq>; Sat, 17 Feb 2001 09:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131672AbRBQNyO>; Sat, 17 Feb 2001 08:54:14 -0500
-Received: from ns.caldera.de ([212.34.180.1]:37897 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131671AbRBQNyC>;
-	Sat, 17 Feb 2001 08:54:02 -0500
-Date: Sat, 17 Feb 2001 14:27:06 +0100
-Message-Id: <200102171327.OAA00342@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: thomas.widmann@icn.siemens.de ("Thomas Widmann")
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP: bind process to cpu
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <BGEDIODHBENLENEMBEPAEEDFCAAA.thomas.widmann@icn.siemens.de>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S131691AbRBQOD0>; Sat, 17 Feb 2001 09:03:26 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:59436 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131672AbRBQODN>; Sat, 17 Feb 2001 09:03:13 -0500
+Date: Sat, 17 Feb 2001 13:15:42 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+cc: Keith Owens <kaos@ocs.com.au>,
+        linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] a more efficient BUG() macro
+In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com>
+Message-ID: <Pine.LNX.4.21.0102171200530.2029-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <BGEDIODHBENLENEMBEPAEEDFCAAA.thomas.widmann@icn.siemens.de> you wrote:
-> Hi,
->
-> I run an 3*XEON 550MHz Primergy with 2GB of RAM.
-> On this machine, i have compiled kernel 2.4.0SMP.
->
-> Is it possible to bind a process to a specific
-> cpu on this SMP machine (process affinity) ?
+On Sat, 17 Feb 2001, Paul Gortmaker wrote:
+> I was poking around in a vmlinux the other day and was surprised at the 
+> amount of repetitive crap text that was in there.  For example, try:
+> 
+> strings vmlinux|grep $PWD|wc -c
+> 
+> which gets some 70KB in my case - depends on strlen($PWD) obviously.  The 
+> culprit is BUG() in a static inline that is in a header file.  In this 
+> case cpp expands __FILE__ to the full path of the header file in question. 
 
-Linux 2.4 is mostlu ready for process affinity, but it is not (yet)
-exported to userspace.  I've attached at patch by Nick Pollitt from SGI
-that allows to enable process pinning using prctl().
+Well done, dammit!  I've been sitting on that observation
+for a couple of weeks, now you've beaten me to the patch.
 
-> I there something like pset ?
+gcc 2.97 (snapshot) does a much better job here, eliminating the
+strings from the many objects in which those inline functions are not
+used.  But that still leaves quite a lot of full pathnames of build
+tree header files in the resultant vmlinux.  And it'll be quite some
+while before gcc 3.0 becomes the choice for building the kernel.
 
-I've seen patches for SGI-like psets for 2.2.<something>, but not for 2.4.
+> (IIRC there is a __BASEFILE__ that would be a better choice than __FILE__)
 
-	Christoph
+Not that I've found.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+> There is also some 5 to 10k worth of "kernel BUG at %s:%d!\n" scattered 
+> through a typical vmlinux.  Note that neither of these show up in [b]zImage 
+> size since they compress to something like 99%, but they do cost memory once 
+> the kernel is booted.
 
+Indeed.
 
-diff -X /home/npollitt/dontdiff -Nur origlinux/fs/proc/array.c linux/fs/proc/array.c
---- origlinux/fs/proc/array.c	Tue Nov 14 11:22:36 2000
-+++ linux/fs/proc/array.c	Thu Jan 25 15:17:35 2001
-@@ -347,7 +347,7 @@
- 	read_unlock(&tasklist_lock);
- 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %lu %lu %ld %lu %lu %lu %lu %lu \
--%lu %lu %lu %lu %lu %lu %lu %lu %d %d\n",
-+%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu\n",
- 		task->pid,
- 		task->comm,
- 		state,
-@@ -390,7 +390,8 @@
- 		task->nswap,
- 		task->cnswap,
- 		task->exit_signal,
--		task->processor);
-+		task->processor,
-+		task->cpus_allowed);
- 	if(mm)
- 		mmput(mm);
- 	return res;
-diff -X /home/npollitt/dontdiff -Nur origlinux/include/linux/prctl.h linux/include/linux/prctl.h
---- origlinux/include/linux/prctl.h	Sun Mar 19 11:15:32 2000
-+++ linux/include/linux/prctl.h	Thu Jan 25 15:17:35 2001
-@@ -20,4 +20,9 @@
- #define PR_GET_KEEPCAPS   7
- #define PR_SET_KEEPCAPS   8
- 
-+#define PR_GET_RUNON	  9
-+#define PR_SET_RUNON	  10
-+#define PR_MUSTRUN_PID    11
-+#define PR_RUNANY_PID     12
-+
- #endif /* _LINUX_PRCTL_H */
-diff -X /home/npollitt/dontdiff -Nur origlinux/kernel/sched.c linux/kernel/sched.c
---- origlinux/kernel/sched.c	Thu Jan  4 13:50:38 2001
-+++ linux/kernel/sched.c	Thu Jan 25 17:22:23 2001
-@@ -108,6 +108,10 @@
- #ifdef CONFIG_SMP
- 
- #define idle_task(cpu) (init_tasks[cpu_number_map(cpu)])
-+#define can_schedule_goodness(p,cpu) ( (!(p)->has_cpu ||  \
-+                                        p->processor == cpu) &&  \
-+                                        ((p)->cpus_allowed & (1 << cpu)))
-+
- #define can_schedule(p,cpu) ((!(p)->has_cpu) && \
- 				((p)->cpus_allowed & (1 << cpu)))
- 
-@@ -568,7 +572,7 @@
- still_running_back:
- 	list_for_each(tmp, &runqueue_head) {
- 		p = list_entry(tmp, struct task_struct, run_list);
--		if (can_schedule(p, this_cpu)) {
-+		if (can_schedule_goodness(p, this_cpu)) {
- 			int weight = goodness(p, this_cpu, prev->active_mm);
- 			if (weight > c)
- 				c = weight, next = p;
-diff -X /home/npollitt/dontdiff -Nur origlinux/kernel/sys.c linux/kernel/sys.c
---- origlinux/kernel/sys.c	Mon Oct 16 12:58:51 2000
-+++ linux/kernel/sys.c	Thu Jan 25 15:17:35 2001
-@@ -1203,12 +1203,95 @@
- 			}
- 			current->keep_capabilities = arg2;
- 			break;
-+		case PR_GET_RUNON:
-+			error = put_user(current->cpus_allowed, (long *)arg2);
-+			break;
-+		case PR_SET_RUNON:
-+			if (arg2 == 0)
-+				arg2 = 1 << smp_processor_id();
-+			arg2 &= cpu_online_map;
-+			if (!arg2)
-+				error = -EINVAL;
-+			else {
-+				current->cpus_allowed = arg2;
-+				if (!(arg2 & (1 << smp_processor_id())))
-+					current->need_resched = 1;
-+			}
-+			break;
-+		case PR_MUSTRUN_PID:
-+			/* arg2 is cpu, arg3 is pid */
-+			if (arg2 == 0)
-+				arg2 = 1 << smp_processor_id();
-+			arg2 &= cpu_online_map;
-+			if (!arg2)
-+				error = -EINVAL;
-+			error = mp_mustrun_pid(arg2, arg3);
-+			break;
-+		case PR_RUNANY_PID:
-+			/* arg2 is pid */
-+			if (!arg2)
-+				error = -EINVAL;
-+			error = mp_runany_pid(arg2);
-+			break;
- 		default:
- 			error = -EINVAL;
- 			break;
- 	}
- 	return error;
- }
-+
-+static int mp_mustrun_pid(int cpu, int pid) 
-+{
-+	struct task_struct *p;
-+	int ret;
-+
-+	ret = -EPERM;
-+	/* Not allowed to change 1 */
-+	if (pid == 1) 
-+		goto out;
-+
-+	read_lock(&tasklist_lock);
-+	p = find_task_by_pid(pid);
-+	if (p)
-+		get_task_struct(p);
-+	read_unlock(&tasklist_lock);
-+	if (!p)
-+		ret = -ESRCH;
-+
-+	p->cpus_allowed = cpu;
-+	p->need_resched = 1;
-+	free_task_struct(p);
-+	ret = 0;
-+out:
-+	return ret;
-+}
-+
-+static int mp_runany_pid(int pid) 
-+{
-+	struct task_struct *p;
-+	int ret;
-+
-+	ret = -EPERM;
-+	/* Not allowed to change 1 */
-+	if (pid == 1) 
-+		goto out;
-+
-+	read_lock(&tasklist_lock);
-+	p = find_task_by_pid(pid);
-+	if (p)
-+		get_task_struct(p);
-+	read_unlock(&tasklist_lock);
-+	if (!p)
-+		ret = -ESRCH;
-+
-+	p->cpus_allowed = 0xFFFFFFFF;
-+	p->need_resched = 0;
-+	free_task_struct(p);
-+	ret = 0;
-+out:
-+	return ret;
-+}
-+
- 
- EXPORT_SYMBOL(notifier_chain_register);
- EXPORT_SYMBOL(notifier_chain_unregister);
+> Anyway this small patch makes sure there is only one "kernel BUG..." string,
+> and dumps __FILE__ in favour of an address value since System.map data is 
+> needed to make full use of the BUG() dump anyways.  The memory stats of two 
+> otherwise identical kernels:
+
+Well, in many cases, no System.map data is needed to decipher a BUG():
+a particular problem can quickly become familiar just by its file:line;
+which a reliance on System.map might sometimes obscure.
+
+I was leaving BUG()'s printk format unchanged (though shared); but
+inline functions in header files using INLINE_BUG() instead, its
+format "kernel BUG inlined from header:%d!\n" i.e. no __FILE__, but
+peculiarly __LINE__ even so to help identify familiar bugs quickly.
+
+That never quite satisfied me.  I think the best would be to
+combine approaches: keep BUG() as it was (though sharing format),
+substitute INLINE_BUG() in inline functions, but use your macro
+(with 0x%p address) for it instead of mine.  What do others think?
+Keith, does the address format need adjusting to suit ksymoops?
+
+These changes need not be kept to i386,
+but like you I hadn't yet gone further.
+
+I'd very much like to see some such changes go into Linus' tree.
+I'm fortunate that I can afford the waste of memory: what bothers
+me about those strings is, I'm interested in whether objects built
+with different CONFIG options are equivalent or not, and those
+strings make that hard to establish (I'm thinking particularly
+of CONFIG_NOHIGHMEM v. CONFIG_HIGHMEM4G v. CONFIG_HIGHMEM64G,
+which pull in different header files with inlined BUG()s).
+
+Paul, I apologize if I seem to be trying to steal your thunder:
+just a subject close to my heart right now!
+
+Hugh
+

@@ -1,79 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266405AbUAODgk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 22:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAODgk
+	id S266403AbUAODbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 22:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAODbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 22:36:40 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32250 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266443AbUAODgi
+	Wed, 14 Jan 2004 22:31:07 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17146 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266403AbUAODa7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 22:36:38 -0500
-Message-ID: <40060ABC.6080208@mvista.com>
-Date: Wed, 14 Jan 2004 19:36:28 -0800
+	Wed, 14 Jan 2004 22:30:59 -0500
+Message-ID: <40060966.80204@mvista.com>
+Date: Wed, 14 Jan 2004 19:30:46 -0800
 From: George Anzinger <george@mvista.com>
 Organization: MontaVista Software
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Nick Piggin <piggin@cyberone.com.au>, Guillaume Foliard <guifo@wanadoo.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scheduler degradation since 2.5.66
-References: <200312142048.51579.guifo@wanadoo.fr> <3FDD205A.6040807@cyberone.com.au> <3FDD35F9.7090709@cyberone.com.au> <3FDE5449.60507@mvista.com> <4005E24C.2030807@tmr.com>
-In-Reply-To: <4005E24C.2030807@tmr.com>
+To: Greg KH <greg@kroah.com>
+CC: Matt Mackall <mpm@selenic.com>, "Amit S. Kale" <amitkale@emsyssoft.com>,
+       Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net,
+       discuss@x86-64.org, ak@suse.de, shivaram.upadhyayula@wipro.com,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com> <200401122020.08578.amitkale@emsyssoft.com> <40046296.1050702@mvista.com> <20040114063155.GF28521@waste.org> <4005A03A.40409@mvista.com> <20040114232631.GB9983@kroah.com> <4005D8A5.3010002@mvista.com> <20040115002334.GC10153@kroah.com>
+In-Reply-To: <20040115002334.GC10153@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> George Anzinger wrote:
+Greg KH wrote:
+> On Wed, Jan 14, 2004 at 04:02:45PM -0800, George Anzinger wrote:
 > 
->> We get the request at some time t between tick tt and tt+1 to sleep 
->> for N ticks.
->> We round this up to the next higher tick count convert to jiffies 
->> dropping any fraction and then add 1.  So that should be 2 right?  
->> This is added to NOW which, in the test code, is pretty well pined to 
->> the last tick plus processing time.  So why do you see 3?
+>>Greg KH wrote:
 >>
->> What is missing here is that the request was for 1.000000 ms and a 
->> tick is really 0.999849 ms.  So the request is for a bit more than a 
->> tick which we are obligated to round up to 2 ticks.  Then adding the 1 
->> tick guard we get the 3 you are seeing.  Now if you actually look at 
->> that elapsed time you should see it at about 2.999547 ms and ranging 
->> down to 1.999698 ms.
+>>>On Wed, Jan 14, 2004 at 12:02:02PM -0800, George Anzinger wrote:
+>>>
+>>>
+>>>>Right.  I had hoped that we might one day be able to use the USB and I am 
+>>>>sure there are others.
+>>>
+>>>
+>>>Raw USB?  Or some kind of USB to serial device?
+>>>
+>>>Remember, USB needs interrupts to work, see the kdb patches for the mess
+>>>that people have tried to go through to send usb data without interrupts
+>>>(doesn't really work...)
+>>
+>>I gave up on USB when I asked the following questions:
+>>1. How many different HW USB master devices need to be supported (i.e. 
+>>appear on your normal line of MBs)? (answer, too many)
 > 
 > 
-> Clearly the rounding between what you want and the resolution of the 
-> hardware tick is never going to be perfect if there is a non-integer 
-> ratio between the values. If this is a real concern, you can play with 
-> the algorithm and/or go to a faster clock. Or both.
+> There are only 3, UHCI, OHCI, and EHCI.  You can forget about EHCI, as
+> all EHCI controllers contain either a UHCI or OHCI controller embedded
+> in them (EHCI only handles the USB2 high speed data.)  So you really
+> only have to handle 2.
 > 
-> You might also be much happier simply setting target times 2ms apart, 
-> and sleeping for target-NOW ns. That allows for the processing time.
 > 
-> If the kernel had a better idea of when the next tick would be instead 
-> of assuming counting from NOW instead of "last tick" you could probably 
-> do better, 
+>>2. Can I isolate a USB port from the kernel so that it does not even know 
+>>it is there? (answer: NO)
+> 
+> 
+> Sorry, this is correct.  Unless you want to take over the whole pci
+> device that the USB controller is on.  That's a possiblity you might
+> want to look into.
 
-But then you have a better resolution.  For this, see the high-res-timers patch 
-in my signature, which will get you much closer, but still plays by the standard 
-rules.
+Each cpu, usually, has several USB controllers.  I would only want to take over 
+one.  Is that possible?  If not, it means we can not debug USB drivers...
 
-but I'm not suggesting that overhead be added to the ticks
-> code in case someone needs a better nanosleep. I don't know how well 
-> that would work in the SMP case in any event. Sort of
->   wait_ticks = 1 + int((NOW + delay - time_since_last_tick)/ns_per_tick)
-> or
->   wait_ticks =
->     int((NOW-delay - time_since_tick + ns_per_tick - 1)/ns_per_tick)
-> 
-> I think there's too much caution about going over, but without playing 
-> with the code I'm just dropping ideas.
-
-The "caution" is around the standard that says "thou shalt never wake early" or 
-words to that effect.
 
 -- 
 George Anzinger   george@mvista.com

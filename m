@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317230AbSFKXi5>; Tue, 11 Jun 2002 19:38:57 -0400
+	id <S317251AbSFKXzR>; Tue, 11 Jun 2002 19:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSFKXi4>; Tue, 11 Jun 2002 19:38:56 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:17794 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317230AbSFKXiz>; Tue, 11 Jun 2002 19:38:55 -0400
-To: "Philippe Veillette (LMC)" <Philippe.Veillette@ericsson.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sk->socket is invalid in tcp stack
-In-Reply-To: <7B2A7784F4B7F0409947481F3F3FEF8303A070D4@eammlnt051.lmc.ericsson.se>
-From: Andi Kleen <ak@muc.de>
-Date: 12 Jun 2002 01:38:51 +0200
-Message-ID: <m3it4p5qt0.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
-MIME-Version: 1.0
+	id <S317256AbSFKXzQ>; Tue, 11 Jun 2002 19:55:16 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:8663 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317251AbSFKXzP>;
+	Tue, 11 Jun 2002 19:55:15 -0400
+Date: Tue, 11 Jun 2002 16:55:16 -0700
+To: Andi Kleen <ak@suse.de>
+Cc: kuznet@ms2.inr.ac.ru, jt@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: Multicast netlink for non-root process
+Message-ID: <20020611165516.B23007@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020611141330.A22927@bougret.hpl.hp.com> <200206112140.BAA14401@sex.inr.ac.ru> <20020612013101.A22399@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Philippe Veillette (LMC)" <Philippe.Veillette@ericsson.ca> writes:
-
-> I've found what could be a problem in the tcp stack with linux-2.4.17 &
-> 2.4.18.  When i run lmbench-2.0-patch2 and that i add the following line of
-> code in tcp_v4_rcv, it<s get added between the if (!ipsec_sk_policy(sk,skb))
-> ... and if (sk->state == TCP_TIME_WAIT)
+On Wed, Jun 12, 2002 at 01:31:01AM +0200, Andi Kleen wrote:
+> On Wed, Jun 12, 2002 at 01:40:45AM +0400, A.N.Kuznetsov wrote:
+> > Hello!
+> > 
+> > > 	One potential reason is that some of the message may contain
+> > > data that is root only. But this should be handled with a finer
+> > > granularity.
+> > 
+> > Exactly. Taking into account that it is not handled with a finer granularity,
+> > it is restricted in a facsict manner.
 > 
-> if (sk->socket) {	
-> 	if (sk->socket->inode) {
-> 		printk("Boum\n");
-> 	}
-> }
+> The only problematic protocols are nf_queue and the firewall netlink I guess.
 > 
-> I get a crash, i can give the dump later but for now, I am just wondering if
-> the sk->socket could be invalid when we are receiving a tcp packet.  Since
+> This (barely tested) patch should relax it for rtnetlink at least:
 
-It likely did receive to a time-wait socket. time-wait buckets are 
-"inherited" by hand from struct sock and live in similar hash tables, 
-but only some fields at the beginning are valid. Yes, it's rather ugly, but ...
+	The path works fine here. At least, my non-root app get all
+the event proper.
+	Thanks a lot for your quick turnaround. I hope it will show up
+in 2.5.X someday ;-)
 
--Andi
+	Jean

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263082AbTC2B54>; Fri, 28 Mar 2003 20:57:56 -0500
+	id <S263079AbTC2B5r>; Fri, 28 Mar 2003 20:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263374AbTC2B54>; Fri, 28 Mar 2003 20:57:56 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:61870 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263082AbTC2B5x>; Fri, 28 Mar 2003 20:57:53 -0500
-Date: Fri, 28 Mar 2003 17:59:14 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 516] New: Removing wireless card triggers might_sleep warnings
-Message-ID: <72780000.1048903154@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S263082AbTC2B5r>; Fri, 28 Mar 2003 20:57:47 -0500
+Received: from CPE-203-51-31-188.nsw.bigpond.net.au ([203.51.31.188]:59899
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S263079AbTC2B5q>; Fri, 28 Mar 2003 20:57:46 -0500
+Message-ID: <3E85003A.3DE4DDE7@eyal.emu.id.au>
+Date: Sat, 29 Mar 2003 13:08:58 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.4.20: problem with "ps -olstart"
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=516
+I have a program that needs to check if a process is still running.
+It issues a ps and saves the pid and start time. It then uses this
+info to compare against a later "ps --pid".
 
-           Summary: Removing wireless card triggers might_sleep warnings.
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: davej@codemonkey.org.uk
+The monitored process is long-running and unlikely to restart at the
+same second and with the same pid. I am trying to go better than
+just using a pid sentry (I also compare the cmd to be really sure).
 
+I see a different start time returned on different calls. An example
+is attached below. This is a show stopper for me. Is this a known
+problem? Does it have a solution?
 
-orinoco_lock() called with hw_unavailable (dev=cf899800)
-orinoco_lock() called with hw_unavailable (dev=cf899800)
-orinoco_lock() called with hw_unavailable (dev=cf899800)
-Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
-Call Trace:
- [<c01212d5>] __might_sleep+0x55/0x60
- [<d08488d8>] +0x14/0x93 [ds]
- [<d084857a>] get_socket_info_by_nr+0x1a/0xb0 [ds]
- [<d08488d8>] +0x14/0x93 [ds]
- [<d08473d0>] handle_removal+0x0/0x30 [ds]
- [<d08473dd>] handle_removal+0xd/0x30 [ds]
- [<c012eadd>] run_timer_softirq+0x14d/0x3b0
- [<c0129d73>] do_softirq+0xb3/0xc0
- [<c010cd95>] do_IRQ+0x215/0x310
- [<c0107280>] default_idle+0x0/0x50
- [<c0105000>] _stext+0x0/0xe0
- [<c010af68>] common_interrupt+0x18/0x20
- [<c0107280>] default_idle+0x0/0x50
- [<c0105000>] _stext+0x0/0xe0
- [<c01072a7>] default_idle+0x27/0x50
- [<c010734a>] cpu_idle+0x2a/0x40
+This is vanilla (my build) 2.4.20 on i386.
 
-orinoco_lock() called with hw_unavailable (dev=cf899800)
+$ ps
+  PID TTY          TIME CMD
+  906 pts/0    00:00:01 bash
+ 3026 pts/0    00:00:00 sh
+ 8254 pts/0    00:00:00 ps
+$ while true ; do ps --pid "3026" -olstart,cmd --no-headers ; done
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:11 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:12 2003 sh
+Thu Mar 27 22:03:11 2003 sh
 
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

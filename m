@@ -1,90 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317330AbSGDEmQ>; Thu, 4 Jul 2002 00:42:16 -0400
+	id <S317331AbSGDEt3>; Thu, 4 Jul 2002 00:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSGDEmP>; Thu, 4 Jul 2002 00:42:15 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41156 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S317330AbSGDEmO>; Thu, 4 Jul 2002 00:42:14 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jens Axboe <axboe@suse.de>
-Date: Thu, 4 Jul 2002 14:46:20 +1000 (EST)
+	id <S317334AbSGDEt2>; Thu, 4 Jul 2002 00:49:28 -0400
+Received: from [24.114.147.133] ([24.114.147.133]:25734 "EHLO starship")
+	by vger.kernel.org with ESMTP id <S317331AbSGDEt1>;
+	Thu, 4 Jul 2002 00:49:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Date: Thu, 4 Jul 2002 06:48:45 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
+       Christopher Li <chrisl@gnuchina.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+References: <20020619113734.D2658@redhat.com> <E17LF65-0001K4-00@starship> <20020621160659.C2805@redhat.com>
+In-Reply-To: <20020621160659.C2805@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15651.54044.557070.109158@notabene.cse.unsw.edu.au>
-cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: [linux-lvm] LVM2 modifies the buffer_head struct?
-In-Reply-To: message from Jens Axboe on Wednesday July 3
-References: <F19741gcljD2E2044cY00004523@hotmail.com>
-	<20020702141702.GA9769@fib011235813.fsnet.co.uk>
-	<20020703100838.GH14097@suse.de>
-	<20020703120124.GB615@fib011235813.fsnet.co.uk>
-	<20020703121024.GC21568@suse.de>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17PyXt-0000hm-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday July 3, axboe@suse.de wrote:
+(I wrote this about 10 days ago and somehow didn't get around to posting it)
+
+(please note my new, permanent email address)
+
+On Friday 21 June 2002 17:06, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> Now we are in a grey area. The 'usual' stacked drivers work like this:
+> On Fri, Jun 21, 2002 at 05:28:28AM +0200, Daniel Phillips wrote:
 > 
-> some fs path
-> 	submit_bh(bh_orig);
+> > I ran a bakeoff between your new half-md4 and dx_hack_hash on Ext2.  As 
+> > predicted, half-md4 does produce very even bucket distributions.  For 200,000 
+> > creates:
+> > 
+> >    half-md4:        2872 avg bytes filled per 4k block (70%)
+> >    dx_hack_hash:    2853 avg bytes filled per 4k block (69%)
+> > 
+> > but guess which was faster overall?
+> > 
+> >    half-md4:        user 0.43 system 6.88 real 0:07.33 CPU 99%
+> >    dx_hack_hash:    user 0.43 system 6.40 real 0:06.82 CPU 100%
+> > 
+> > This is quite reproducible: dx_hack_hash is always faster by about 6%.  This 
+> > must be due entirely to the difference in hashing cost, since half-md4 
+> > produces measurably better distributions.  Now what do we do?
 > 
-> ...
-> 
-> stacked driver make_request_fn:
-> 	bh_new = alloc_bh
-> 	bh_new->b_private = bh_orig;
-> 	...
-> 	submit_bh(bh_new);
-> 
-> if you are just modifying b_private, how exactly is your stacking
-> working? ie what about lvm2 on lvm2?
+> I want to get this thing tested!  
 
-I think this can work sanely and is something I have considered for
-raid1-read and multipath in md.
+Yes :-)
 
-struct privatebit {
-  bio_end_io_t  *oldend;
-  void          *oldprivate;
-  ...other...stuff;
-};
+> There are far too many factors for this to be resolved very quickly.
+> In reality, there will be a lot of disk cost under load which you
+> don't see in benchmarks, too.  We also know for a fact that the early
+> hashes used in Reiserfs were quick but were vulnerable to terribly bad
+> behaviour under certain application workloads.  With the half-md4, at
+> least we can expect decent worst-case behaviour unless we're under
+> active attack (ie. only maliscious apps get hurt).
 
-make_request(struct request_queue_t *q, struct buffer_head *bh, int rw)
-{
+OK, anti-hash-attack is on the list of things to do, and it's fairly
+clear how to go about it:
 
- struct privatebit *pb = kmalloc(...);
+  - When we create a volume, generate and store some number of bits of
+    random seed in the superblock, or if we are creating the first-ever
+    index on an existing volume, generate the seed at that time.
 
-  pb->oldend = bh->b_end_io;
-  pb->oldprivate = bh->b_private;
-  bh->b_private = pb;
-  bh->b_end_io = my_end_handler;
+  - Every dx_hash starts by seeding the hash function from the value in
+    the superblock.
 
-  ..remap b_rdev, b_rsector ...
+The width of the superblock seed doesn't have to match the value needed
+by the directory hash exactly since we can easily widen the value by
+seeding a pseudo-random generator with the smaller seed.  If the
+superblock seed is wider than we need, we can fold it down via xor, or
+better, just take as much as we need (all bits of our seed are supposed
+to be eually random, so xoring parts of the seed together does't make
+the result any more random).
 
-  generic_make_request(bh, rw);
+We would do whatever seed-adjusting we need to at mount time, so the
+process of seeding the per-dirop hash is just a memory->memory or
+memory->register move.  This part of the hashing process, at least,
+should impose no measurable overhead.
 
-}
+Originally, I'd put aside the 'reserve_zero' field in the per-directory
+dx_info for this purpose, but I later realized that it doesn't make
+sense to do this anti-hash-attack protection at any finer granuality
+than a volume, plus we save valuable real estate in the directory root
+and gain a little efficiency.  Putting it in the superblock is a clear
+win.
 
-Then my_end_handler have do some local cleanup,
-re-instate oldend and oldprivate, and pass the bh back up.
-For raid1/multipath it would arrange to resubmit the request if there
-as an error.
+By the way, the dx_info area is not hardwired to 8 bytes.  The current
+code is written so that dx_info can be expanded without breaking
+forward compatibility.  At least it's supposed to be written that way.
+We should put that on the list of things to test.
 
-This stacks nicely and allows for the extra bit to be alloced to be
-minimal.
+> I think the md4 is a safer bet until we know more, so I'd vote that we
+> stick with the ext3 cvs code which uses hash version #1 for that, and
+> defer anything else until we've seen more --- the hash versioning lets
+> us do that safely.
 
-We just want ext3/jbd to make sure that it only calls bh2jh on
-an unlocked buffer... is that easy?
+Yes, I agree we should err on the side of safety.  The 6% overhead I see
+in my stripped down test will certainly be diluted quite a bit under real
+loads.  Hash version #1 does not have to be the release version.  We can
+reasonably require a fsck at the end of the alpha-testing period, which
+would rebuild all the hash indexes with the final, release hash.  This
+would have the added advantage of enlisting our alpha-testers to test
+Ted's new e2fsck code as well.
 
-Ofcourse this ceases to be an issue in 2.5 because the filesys uses 
-pages or buffer_heads and the device driver uses bios.
+I think we're making progress here.  An 'aha' I had while working with
+this new hash code is that there's a one statistical property we're
+looking for more than any other in a good hash: the hash value should
+yield as little information as possible about the input string.  Then
+any statistical change in input strings over time won't cause a
+statistical change in output hash values over time - precisely the
+property htree wants, in order to keep leaf blocks filled uniformly
+and slow the hash range fragmentation rate.  This is why cryptographic
+hash analysis is the right approach to this problem.
 
-NeilBrown
+-- 
+Daniel
+
+P.S., in retrospect, pretty much all of the above survived scrutiny
+at Ottawa.
+

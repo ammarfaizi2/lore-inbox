@@ -1,158 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUFCPAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUFCO46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbUFCPAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUFCO6H
+	id S264147AbUFCO46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFCOxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:58:07 -0400
-Received: from imap.gmx.net ([213.165.64.20]:53126 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264192AbUFCOxl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:53:41 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-rc2-mm2
-Date: Thu, 3 Jun 2004 17:03:34 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040603015356.709813e9.akpm@osdl.org>
-In-Reply-To: <20040603015356.709813e9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406031703.38722.dominik.karall@gmx.net>
+	Thu, 3 Jun 2004 10:53:11 -0400
+Received: from [63.225.89.126] ([63.225.89.126]:38017 "EHLO lade.trondhjem.org")
+	by vger.kernel.org with ESMTP id S265550AbUFCOtc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:49:32 -0400
+Subject: Re: [PATCH/RFC] Lustre VFS patch, version 2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org,
+       axboe@suse.de, kevcorry@us.ibm.com, arjanv@redhat.com,
+       iro@parcelfarce.linux.theplanet.co.uk, anton@samba.org,
+       lustre-devel@clusterfs.com
+In-Reply-To: <20040603141922.GI4423@marowsky-bree.de>
+References: <20040602231554.ADC7B3100AE@moraine.clusterfs.com>
+	 <20040603135952.GB16378@infradead.org>
+	 <20040603141922.GI4423@marowsky-bree.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086274140.3798.37.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 03 Jun 2004 07:49:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 June 2004 10:53, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2/2.6
->.7-rc2-mm2/
+På to , 03/06/2004 klokka 07:19, skreiv Lars Marowsky-Bree:
+> The hooks (once cleaned up, no disagreement here, the technical feedback
+> so far has been very valuable and continues to be) are useful and in
+> effect needed not just for Lustre, but in principle for all cluster
+> filesystems, such as (Open)GFS and others, even potentially NFS4 et al.
+> 
+> The logic that _all_ modules and functionality need to be "in the tree"
+> right from the start for hooks to be useful is flawed, I'm afraid. Pure
+> horror that a proprietary cluster file system might also profit from it
+> is not, exactly, a sound technical argument. (I can assure you I don't
+> care at all for the proprietary cluster-fs.)
 
-SiS framebuffer works here. But my kernel does not boot, it stops at
+Whereas I agree that NFSv4 could use some of this (I'm mainly interested
+in the intent_release() stuff in order to fix up an existing race), I
+also agree with Christoph on the principle that having in-tree users
+right from the start should be the norm rather than the exception.
 
-Starting hotplug subsystem:
-   input
-   net
-   pci
-     sis900: already loaded
-     8139too: already loaded
-     ignore pci display device on 01:00.0
-   usb
+Otherwise, exactly what is the plan for how to determine when an
+interface is obsolete? Are we going to rely on all the out-of-tree
+vendors to collectively step up and say "by the way - we're not using
+this anymore."?
 
-and right here it stops.
-
-Normally it looks this way:
-
-Starting hotplug subsystem:
-   input
-   net
-   pci
-     sis900: already loaded
-     8139too: already loaded
-     ignore pci display device on 01:00.0
-   usb
-done
-
-Here is my lspci -vvv output of the USB controllers:
-
-0000:00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 
-Controller (rev 0f) (prog-if 10 [OHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 20
-        Region 0: Memory at e2420000 (32-bit, non-prefetchable)
-
-0000:00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 
-Controller (rev 0f) (prog-if 10 [OHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin B routed to IRQ 21
-        Region 0: Memory at e2421000 (32-bit, non-prefetchable)
-
-0000:00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 
-Controller (rev 0f) (prog-if 10 [OHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin C routed to IRQ 22
-        Region 0: Memory at e2422000 (32-bit, non-prefetchable)
-
-0000:00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 
-Controller (prog-if 20 [EHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (20000ns max)
-        Interrupt: pin D routed to IRQ 23
-        Region 0: Memory at e2423000 (32-bit, non-prefetchable)
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-
-By the way, with 2.6.6-mm5 (the last working -mm patch on my machine), I get 
-only following PHY messages:
-
-eth0: Realtek RTL8201 PHY transceiver found at address 1.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:dc:8f:a9:ac.
-
-with the current 2.6.7-rc2-mm2 patch, I get
-
-eth0: Unknown PHY transceiver found at address 0.
-eth0: Realtek RTL8201 PHY transceiver found at address 1.
-eth0: Unknown PHY transceiver found at address 2.
-eth0: Unknown PHY transceiver found at address 3.
-eth0: Unknown PHY transceiver found at address 4.
-eth0: Unknown PHY transceiver found at address 5.
-eth0: Unknown PHY transceiver found at address 6.
-eth0: Unknown PHY transceiver found at address 7.
-eth0: Unknown PHY transceiver found at address 8.
-eth0: Unknown PHY transceiver found at address 9.
-eth0: Unknown PHY transceiver found at address 10.
-eth0: Unknown PHY transceiver found at address 11.
-eth0: Unknown PHY transceiver found at address 12.
-eth0: Unknown PHY transceiver found at address 13.
-eth0: Unknown PHY transceiver found at address 14.
-eth0: Unknown PHY transceiver found at address 15.
-eth0: Unknown PHY transceiver found at address 16.
-eth0: Unknown PHY transceiver found at address 17.
-eth0: Unknown PHY transceiver found at address 18.
-eth0: Unknown PHY transceiver found at address 19.
-eth0: Unknown PHY transceiver found at address 20.
-eth0: Unknown PHY transceiver found at address 21.
-eth0: Unknown PHY transceiver found at address 22.
-eth0: Unknown PHY transceiver found at address 23.
-eth0: Unknown PHY transceiver found at address 24.
-eth0: Unknown PHY transceiver found at address 25.
-eth0: Unknown PHY transceiver found at address 26.
-eth0: Unknown PHY transceiver found at address 27.
-eth0: Unknown PHY transceiver found at address 28.
-eth0: Unknown PHY transceiver found at address 29.
-eth0: Unknown PHY transceiver found at address 30.
-eth0: Unknown PHY transceiver found at address 31.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:dc:8f:a9:ac.
-
-It works ok, as the address 1 is used as default, but I just wanted to mention 
-that.
-
-greets dominik
+Cheers,
+  Trond

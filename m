@@ -1,74 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264851AbUFHIB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264872AbUFHIEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264851AbUFHIB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 04:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUFHIB7
+	id S264872AbUFHIEo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 04:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264883AbUFHIEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 04:01:59 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:12205 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S264851AbUFHIBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 04:01:55 -0400
-Message-ID: <40C572C8.20B13640@nospam.org>
-Date: Tue, 08 Jun 2004 10:03:20 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Reply-To: Zoltan.Menyhart@bull.net
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Who owns those locks ?
-References: <40A1F4BE.4A298352@nospam.org> <200406031139.58964.bjorn.helgaas@hp.com> <40C42E4B.15F1E605@nospam.org> <200406070906.54132.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 8 Jun 2004 04:04:44 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:34732 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S264872AbUFHIEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 04:04:24 -0400
+Date: Tue, 8 Jun 2004 12:04:17 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm2
+Message-ID: <20040608080417.GD19170@pazke>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040603015356.709813e9.akpm@osdl.org> <20040607124125.GT3776@pazke> <20040607220157.1e67ec39.akpm@osdl.org> <20040608051808.GA19170@pazke> <20040607222513.6bebcbb6.akpm@osdl.org> <20040608063417.GB19170@pazke> <20040607234235.1728f826.akpm@osdl.org> <20040608071828.GC19170@pazke> <20040608002245.04a3de55.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="EXKGNeO8l0xGFBjy"
+Content-Disposition: inline
+In-Reply-To: <20040608002245.04a3de55.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
+
+--EXKGNeO8l0xGFBjy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On 160, 06 08, 2004 at 12:22:45AM -0700, Andrew Morton wrote:
+> Andrey Panin <pazke@donpac.ru> wrote:
+> >
+> > 
+> >  Do you remember the reason of dropping my previous DMI patchset ? ;) 
+> > 
+> >  I can do it again, but this conversion will lead to new reject
+> >  horrors, due to changes in cursed dmi_blacklist array.
 > 
-> There are a couple issues I was thinking of when
-> I wrote "clean it up, pull the bits together...":
-> 
->         1) Tony Luck's question about what happens when
->            "shr.u r30 = r13, 12" yields zero in the 32-bit
->            lock value.  I'm not the 2.6 maintainer, but I'd
->            sure like to see some solution for this.  It would
->            be a nightmare to debug a system where one random
->            task didn't release locks correctly.  Since other
->            arches use a trick like this, I'm hoping they've
->            figured out something we can copy (I haven't looked).
+> Not the whole thing.  Just a couple of examples.
 
-Sure, I did not want to make an error like saying:
-"640 K ought to be enough for everyone".
+Ok, first example attached. Port HP Pavilion irq workaround
+to new DMI probing.
 
-I'm afraid, there is no perfect solution.
+-- 
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-- We do not want to change the lock size to 64 bits, do we ?
-  -- Couple of new alignment problems.
+--EXKGNeO8l0xGFBjy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-dmi-pciirq
 
-- You keep my code, it is correct for a memory size up to 16 Tbytes.
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc2-mm2.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.7-rc2-mm2/arch/i386/kernel/dmi_scan.c
+--- linux-2.6.7-rc2-mm2.vanilla/arch/i386/kernel/dmi_scan.c	2004-06-08 11:51:39.000000000 +0400
++++ linux-2.6.7-rc2-mm2/arch/i386/kernel/dmi_scan.c	2004-06-08 11:29:08.000000000 +0400
+@@ -317,23 +317,6 @@ static __init int disable_smbus(struct d
+ }
+ 
+ /*
+- * Work around broken HP Pavilion Notebooks which assign USB to
+- * IRQ 9 even though it is actually wired to IRQ 11
+- */
+-static __init int fix_broken_hp_bios_irq9(struct dmi_blacklist *d)
+-{
+-#ifdef CONFIG_PCI
+-	extern int broken_hp_bios_irq9;
+-	if (broken_hp_bios_irq9 == 0)
+-	{
+-		broken_hp_bios_irq9 = 1;
+-		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
+-	}
+-#endif
+-	return 0;
+-}
+-
+-/*
+  *  Check for clue free BIOS implementations who use
+  *  the following QA technique
+  *
+@@ -823,14 +806,6 @@ static __initdata struct dmi_blacklist d
+ 			NO_MATCH, NO_MATCH
+ 			} },
+ 	 
+-	{ fix_broken_hp_bios_irq9, "HP Pavilion N5400 Series Laptop", {
+-			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+-			MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
+-			MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
+-			MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736")
+-			} },
+- 
+-
+ 	/*
+ 	 *	Generic per vendor APM settings
+ 	 */
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc2-mm2.vanilla/arch/i386/pci/irq.c linux-2.6.7-rc2-mm2/arch/i386/pci/irq.c
+--- linux-2.6.7-rc2-mm2.vanilla/arch/i386/pci/irq.c	2004-06-08 10:13:51.000000000 +0400
++++ linux-2.6.7-rc2-mm2/arch/i386/pci/irq.c	2004-06-08 11:28:37.000000000 +0400
+@@ -12,6 +12,7 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
++#include <linux/dmi.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
+ #include <asm/io_apic.h>
+@@ -22,7 +23,7 @@
+ #define PIRQ_SIGNATURE	(('$' << 0) + ('P' << 8) + ('I' << 16) + ('R' << 24))
+ #define PIRQ_VERSION 0x0100
+ 
+-int broken_hp_bios_irq9;
++static int broken_hp_bios_irq9;
+ 
+ static struct irq_routing_table *pirq_table;
+ 
+@@ -893,6 +894,33 @@ static void __init pcibios_fixup_irqs(vo
+ 	}
+ }
+ 
++/*
++ * Work around broken HP Pavilion Notebooks which assign USB to
++ * IRQ 9 even though it is actually wired to IRQ 11
++ */
++static int __init fix_broken_hp_bios_irq9(struct dmi_system_id *d)
++{
++	if (!broken_hp_bios_irq9) {
++		broken_hp_bios_irq9 = 1;
++		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
++	}
++	return 0;
++}
++
++static struct dmi_system_id __initdata pciirq_dmi_table[] = {
++	{
++		.callback = fix_broken_hp_bios_irq9,
++		.ident = "HP Pavilion N5400 Series Laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
++			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736"),
++		},
++	},
++	{ }
++};
++
+ static int __init pcibios_irq_init(void)
+ {
+ 	DBG("PCI: IRQ init\n");
+@@ -900,6 +928,8 @@ static int __init pcibios_irq_init(void)
+ 	if (pcibios_enable_irq || raw_pci_ops == NULL)
+ 		return 0;
+ 
++	dmi_check_system(pciirq_dmi_table);
++
+ 	pirq_table = pirq_find_routing_table();
+ 
+ #ifdef CONFIG_PCI_BIOS
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc2-mm2.vanilla/arch/i386/pci/visws.c linux-2.6.7-rc2-mm2/arch/i386/pci/visws.c
+--- linux-2.6.7-rc2-mm2.vanilla/arch/i386/pci/visws.c	2004-06-08 10:13:51.000000000 +0400
++++ linux-2.6.7-rc2-mm2/arch/i386/pci/visws.c	2004-06-08 11:29:32.000000000 +0400
+@@ -15,8 +15,6 @@
+ #include "pci.h"
+ 
+ 
+-int broken_hp_bios_irq9;
+-
+ extern struct pci_raw_ops pci_direct_conf1;
+ 
+ static int pci_visws_enable_irq(struct pci_dev *dev) { return 0; }
 
-- You shift by PAGE_SHIFT, rather than by 12 (using page size of
-  16 Kbytes) => up to  64 Tbytes.
-  -- Not that much human readable lock values.
-
-- You move to PAGE_SIZE = 64 K, you get human readable lock values
-  up to 256 Tbytes.
-
-- You could store the "PID | miraculous bit" (to avoid PID = 0
-  problem).
-  -- Somewhat longer code.
-
-I expect the main stream IA64 kernel to move to PAGE_SIZE = 64 K by
-the time there will be machines with more than 16 Tbytes of memory
-(as the processors have got just a very limited number of
-translation look aside buffer entries, and the ever growing
-application / memory sizes result in higher TLB miss rate unless the
-page size increases).
-
-
-Regards,
-
-Zoltán
+--EXKGNeO8l0xGFBjy--

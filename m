@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265339AbUFOHDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265334AbUFOHLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUFOHDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 03:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUFOHDS
+	id S265334AbUFOHLK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 03:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUFOHLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 03:03:18 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:41856 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265339AbUFOHDQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 03:03:16 -0400
-Subject: Re: In-kernel Authentication Tokens (PAGs)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Blair Strang <bls@asterisk.co.nz>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <87smcxqqa2.fsf@asterisk.co.nz>
-References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
-	 <1087080664.4683.8.camel@lade.trondhjem.org>
-	 <D822E85F-BCC8-11D8-888F-000393ACC76E@mac.com>
-	 <1087084736.4683.17.camel@lade.trondhjem.org>
-	 <DD67AB5E-BCCF-11D8-888F-000393ACC76E@mac.com>
-	 <87smcxqqa2.fsf@asterisk.co.nz>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1087282990.13680.13.camel@lade.trondhjem.org>
+	Tue, 15 Jun 2004 03:11:10 -0400
+Received: from [196.25.168.8] ([196.25.168.8]:1929 "EHLO lbsd.net")
+	by vger.kernel.org with ESMTP id S265334AbUFOHLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 03:11:06 -0400
+Date: Tue, 15 Jun 2004 09:10:38 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: webvenza@libero.it, linux-kernel@vger.kernel.org
+Subject: Re: [HANG] SIS900 + P4 Hyperthread
+Message-ID: <20040615071038.GI18169@lbsd.net>
+References: <40C0E37C.4030905@lbsd.net> <20040604214721.GC22679@picchio.gall.it> <20040605005033.A26051@electric-eye.fr.zoreil.com> <20040605070239.GM14247@lbsd.net> <20040605130526.A31872@electric-eye.fr.zoreil.com> <20040614182737.GG18169@lbsd.net> <20040614203917.A12228@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 15 Jun 2004 03:03:10 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="smOfPzt+Qjm5bNGJ"
+Content-Disposition: inline
+In-Reply-To: <20040614203917.A12228@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.1i
+X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 15/06/2004 klokka 02:38, skreiv Blair Strang:
 
-> Surely the only logical reason to tag a process with extra security
-> information /in the kernel/ is because that information is going to be
-> used /by the kernel/.  I can't think of a good reason to put a
-> generalised keystore in the kernel.
-
-Here are three good reasons.
-
- - You want the key lifetime to be the same as your process lifetime
- - You want the key to be readable ONLY by that one process.
- - The kernel wants to supports multiple security realms and mechanisms.
-Not everybody is happy with just kerberosV credentials, and we already
-have beta code for the SPKM mechanism in RPCSEC_GSS.
+--smOfPzt+Qjm5bNGJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-As for the AFS PAG idea: it's already been shot down. See the
-linux-fsdevel thread I referred to earlier.
+Can't remember if i tried it last time, but i just tried it again now
+and increased it to 256 each. It got 30Mb further than last time in the
+2Gb file i was ftp'ing over, but died with the exact same symptoms.
 
-Cheers,
-  Trond
+
+
+On Mon, Jun 14, 2004 at 08:39:17PM +0200, Francois Romieu wrote:
+>=20
+> Tried to increase NUM_{RX/TX}_DESC ?
+>=20
+> --
+> Ueimor
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--smOfPzt+Qjm5bNGJ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAzqDuKoUGSidwLE4RAiWKAJ44sQ5GK7W74lOrlVEf+BiqhEQVngCgvJsN
+boim0jDdG4Dl+5kFuganNuQ=
+=X+sE
+-----END PGP SIGNATURE-----
+
+--smOfPzt+Qjm5bNGJ--

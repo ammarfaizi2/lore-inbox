@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317081AbSGNUYe>; Sun, 14 Jul 2002 16:24:34 -0400
+	id <S317107AbSGNUb6>; Sun, 14 Jul 2002 16:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSGNUYd>; Sun, 14 Jul 2002 16:24:33 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:18629 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S317081AbSGNUYc>; Sun, 14 Jul 2002 16:24:32 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
-	<xltznwujc0u.fsf@shookay.newview.com>
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Date: 14 Jul 2002 16:27:18 -0400
-In-Reply-To: <xltznwujc0u.fsf@shookay.newview.com>
-Message-ID: <xltvg7ijbrt.fsf@shookay.newview.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317091AbSGNUb5>; Sun, 14 Jul 2002 16:31:57 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21488 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317107AbSGNUb4>; Sun, 14 Jul 2002 16:31:56 -0400
+Subject: Re: [RFC][Patch] DMA for CD-ROM audio
+From: Robert Love <rml@tech9.net>
+To: Kristian Peters <kristian.peters@korseby.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020714113341.786b3600.kristian.peters@korseby.net>
+References: <20020714113341.786b3600.kristian.peters@korseby.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Jul 2002 13:34:43 -0700
+Message-Id: <1026678886.1244.417.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mathieu@newview.com (Mathieu Chouquet-Stringer) writes:
-> I'm running tar (the regular version not star) right now on an Athlon @
-> 850. The fs is ext3 and the disk is a scsi drive.
-> So far, tar has been running for 17 min 25 sec, and that's what top says:
-> CPU states:  1.7% user, 98.2% system,  0.0% nice,  0.0% idle
-> 
-> (FYI, nothing else is taking some large amount of cpu time)
-> 
-> So I would say Joerg is right... :-(
+On Sun, 2002-07-14 at 02:33, Kristian Peters wrote:
 
-BTW my kernel is 2.4.18 vanilla. I'll keep you posted when it's done.
+> I've taken the CD-audio-DMA patch from Andrew Morton and made it available
+> as a config option. You're now able to choose whether you still want
+> the old code which uses PIO or the new code which decreases CPU load
+> (on some systems up to 70%) and improves total time of read.
+> 
+> It should be safe with old systems. My broken AMD 386 falls back to PIO.
 
--- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-    It is exactly because a man cannot do a thing that he is a
-                      proper judge of it.
-                      -- Oscar Wilde
+If the code is truly safe on older systems, what I think makes more
+sense is merging it without a configure option and having DMA-capable
+systems use DMA CD-audio and older systems fall back to PIO.
+
+It seems wiser to me to support something entirely as correct and sane
+or consider it not an issue.  This is not a separate feature, for
+example like IDE itself which should be an option, but an evolutionary
+feature of which we should just do it.
+
+This would clean up all those nasty ifdefs and perhaps we could
+generalize the two codepaths together, further reducing size.
+
+I like the patch... up for my idea for 2.5?
+
+I wonder what akpm thinks..
+
+	Robert Love
+

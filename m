@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267559AbSLLXBT>; Thu, 12 Dec 2002 18:01:19 -0500
+	id <S267558AbSLLXAs>; Thu, 12 Dec 2002 18:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267564AbSLLXBT>; Thu, 12 Dec 2002 18:01:19 -0500
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:34443 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S267559AbSLLXBQ>;
-	Thu, 12 Dec 2002 18:01:16 -0500
-Message-ID: <3DF916EA.10504@candelatech.com>
-Date: Thu, 12 Dec 2002 15:08:26 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Roger Luethi <rl@hellgate.ch>,
-       netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pci-skeleton duplex check
-References: <Pine.LNX.4.44.0212121539110.10674-100000@beohost.scyld.com>
-In-Reply-To: <Pine.LNX.4.44.0212121539110.10674-100000@beohost.scyld.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267559AbSLLXAs>; Thu, 12 Dec 2002 18:00:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:7627 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267558AbSLLXAr>;
+	Thu, 12 Dec 2002 18:00:47 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Matt Reppert <arashi@arashi.yi.org>
+Cc: linux-kernel@vger.kernel.org, wz6b@arrl.net
+Subject: Re: 2.5.50 Up and running but 
+In-reply-to: Your message of "Thu, 12 Dec 2002 01:21:01 MDT."
+             <20021212012101.238ae459.arashi@arashi.yi.org> 
+Date: Fri, 13 Dec 2002 09:20:04 +1100
+Message-Id: <20021212230836.B5D2D2C07C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Donald Becker wrote:
-
-> I've been actively developing Linux drivers for over a decade, and run
-> about two dozen mailing lists for specific drivers.  I write diagnostic
-> routines for every released driver.  I thoroughly test and frequently
-> update the driver set I maintain.  And since about 2000, my patches were
-> ignored while the first notice I've have gotten to changes in my drivers
-> is the bug reports.  And the response: "submit a patch to fix those
-> newly introduced bugs".  I've even had patches ignore in favor of people
-> that wrote "I don't have the NIC, but here is a change".
+In message <20021212012101.238ae459.arashi@arashi.yi.org> you write:
+> On Wed, 11 Dec 2002 22:59:10 -0800
+> Matt Young <wz6b@arrl.net> wrote:
 > 
-> A good example is the tulip driver.  You repeatedly restructured my
-> driver in the kernel, splitting into different files.  It was still 90+%
-> my code, but the changes made it impossible to track the modification
-> history.  The kernel driver was long-broken with 21143-SYM cards, but no
-> one took the responsibility for fixing it.
+> > Boot couldn't find the module dependency file, even though I did make modul
+es 
+> > and make modules_install
+> 
+> Yeah, the make rule for depmod got removed in one of the module merges. This
+> will put it back. (Untested, my init scripts run depmod so it's not a big dea
+l
+> for me.) Rusty, am I being stupid or is this okay now that depmod
+> works?
 
-For what it's worth, I have yet to find a tulip driver that works with
-all of my 4-port NICs.  Becker's fails with the Phobos 4-port NIC,
-a very recent kernel driver fails to negotiate correctly (sometimes)
-with the DFE-570tx NIC.  Both of them failed a while back when I tried
-to put 3 DFE-570tx's into a single machine.
+Yep, that's fine: the original modprobe replacement didn't need
+modules.dep, but Adam Richter has 1300 modules and he complained about
+the speed (and provided the patch to modprobe to use modules.dep, so
+what could I say?)
 
-On average, I've had better luck with the kernel driver than with
-Becker's, and since it is quite a pain to compile and test it, I
-have been ignoring it more and more.
-
-Mr Becker:  Perhaps you could rename your tulip driver becker_tulip and have
-it separately buildable and configurable in the kernel config options?  If
-it was back into the kernel proper it would be much easier to experiment with.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Hopefully when Linus comes back he'll take my patches,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

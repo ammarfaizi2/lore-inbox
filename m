@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272980AbTGaK5f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 06:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272982AbTGaK5e
+	id S272991AbTGaLD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 07:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272992AbTGaLD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 06:57:34 -0400
-Received: from smithers.nildram.co.uk ([195.112.4.34]:54795 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S272980AbTGaK53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 06:57:29 -0400
-Date: Thu, 31 Jul 2003 11:57:28 +0100
-From: Joe Thornber <thornber@sistina.com>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 7/6 (so I can't count)] dm: resume() name clash
-Message-ID: <20030731105728.GK394@fib011235813.fsnet.co.uk>
-References: <20030731104517.GD394@fib011235813.fsnet.co.uk>
+	Thu, 31 Jul 2003 07:03:26 -0400
+Received: from main.gmane.org ([80.91.224.249]:63164 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272991AbTGaLDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 07:03:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: DMA timeouts on SIS IDE
+Date: Thu, 31 Jul 2003 12:59:18 +0200
+Message-ID: <yw1xbrvbgdx5.fsf@users.sourceforge.net>
+References: <3F281C06.70707@inet6.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030731104517.GD394@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:5oXR2MWWsp8ri741EYYPiQrzuvI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some architectures define an extern function called resume(), which
-clashes with a static function in dm-ioctl-v4.c.  Rename static one to
-do_resume().
---- diff/drivers/md/dm-ioctl-v4.c	2003-07-31 11:55:02.000000000 +0100
-+++ source/drivers/md/dm-ioctl-v4.c	2003-07-31 11:53:51.000000000 +0100
-@@ -594,7 +594,7 @@
- 	return dm_hash_rename(param->name, new_name);
- }
- 
--static int suspend(struct dm_ioctl *param)
-+static int do_suspend(struct dm_ioctl *param)
- {
- 	int r = 0;
- 	struct mapped_device *md;
-@@ -613,7 +613,7 @@
- 	return r;
- }
- 
--static int resume(struct dm_ioctl *param)
-+static int do_resume(struct dm_ioctl *param)
- {
- 	int r = 0;
- 	struct hash_cell *hc;
-@@ -676,9 +676,9 @@
- static int dev_suspend(struct dm_ioctl *param, size_t param_size)
- {
- 	if (param->flags & DM_SUSPEND_FLAG)
--		return suspend(param);
-+		return do_suspend(param);
- 
--	return resume(param);
-+	return do_resume(param);
- }
- 
- /*
+Lionel Bouton <Lionel.Bouton@inet6.fr> writes:
+
+> the lspci output you previously sent confirmed that the SiS IDE driver
+> does set the UDMA timings correctly. Given this is out of the suspects
+> list, I'd advise to :
+>
+> - test the hardware (uneasy on a notebook, 2.5" IDE drives aren't as
+> common as 3.5" ones)
+
+As you say, testing could be tricky.  However, the machine is only
+about one month old, so it shouldn't be dying already.
+
+> - try latest ACPI on sourceforge and enable ACPI in the BIOS if not
+> already done (seems to have helped once :
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=104212864518052&w=4)
+
+patch tells me those are already applied to 2.6.0-test2.  I tried
+booting with pci=noacpi, just in case, but the problem remains.  I
+can't find any BIOS settings relating to ACPI.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
+

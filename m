@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272889AbRIGWws>; Fri, 7 Sep 2001 18:52:48 -0400
+	id <S272893AbRIGW7V>; Fri, 7 Sep 2001 18:59:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272890AbRIGWwi>; Fri, 7 Sep 2001 18:52:38 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:9998 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S272889AbRIGWwX>; Fri, 7 Sep 2001 18:52:23 -0400
-Message-ID: <3B994F74.F97196BC@t-online.de>
-Date: Sat, 08 Sep 2001 00:51:32 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S272895AbRIGW7K>; Fri, 7 Sep 2001 18:59:10 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:22278 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S272893AbRIGW7F>;
+	Fri, 7 Sep 2001 18:59:05 -0400
+Date: Sat, 8 Sep 2001 00:59:24 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Dropped packets with the newest tulip driver due to FIFO overflow
+Message-ID: <Pine.LNX.4.33.0109080040060.31881-100000@boris.prodako.se>
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-In-Reply-To: <200109072232.f87MWWY92133@aslan.scsiguy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" schrieb:
-> 
-> >Okay, I had it again today:
-> 
-> You need to be running with aic7xxx=verbose for these messages to be
-> useful.  In the 6.2.2 driver release I've turned these messages on
-> by default.
+Hi, Jeff, LKML!
 
-Could you please shortly explain what this option does...(before it
-fills my logfiles with notes "succesfully wrote 1 Byte to disk abc"..:-)
-i had recently also some problems with aic7xxx, but they where due to a
-misconfigured scsi-bus and perhaps a bad drive (is still under test), so
-i enabled scsi error logging in the kernel (2.4.3, RH7.1) and by sending
-the following strings to /proc/scsi/scsi:
+With the newest tulip driver (1.1.8 or the one in linux-2.4.9), I'm
+getting extremely bad receive performance, with around 30-90% of all
+received packets beeing mysteriously and silently dropped.  This on a
+Cardbus DC21143, which works very well with "all" previous versions.
+(...and it's not a duplex issue, trust me...)
 
-/bin/echo "scsi log error 5" > /proc/scsi/scsi
-/bin/echo "scsi log mlqueue 3" > /proc/scsi/scsi
-/bin/echo "scsi log hlcomplete 1" > /proc/scsi/scsi
-/bin/echo "scsi log scan 5" > /proc/scsi/scsi
+After some head-scratching, I traced the packet loss to receive FIFO
+overflows.  The missing packets are accounted for in CSR8<27:17>, which is
+the FIFO overflow counter.  The driver does not read this counter for some
+reason, and that's why the packets are silently dropped.  FIFO errors are
+what you get if the DMA to memory is not happening fast enough.  It is not
+obvious to me why the changes in the driver caused this, but I do have
+some ideas to try tomorrow, after some sleep.  I find it strange that the
+packet loss is so extreme, though.
 
-But it did not give me that kind of info i wanted to see...does the
-"aic7xxx=verbose" something similar or something completly different ?
- 
-> >Kernel was 2.4.9ac9 with (new) AIC driver 6.2.1, compiled with "Maximum
-> >Number of TCQ Commands per Device" set to 64.
-> 
-> This is 8 times the tag load the old driver defaults to.
+I'm writing this to verify that this is not a known problem, to make sure
+I'm not wasting my time.
 
-Thats true, and e.g., my relatively new IBM-drives (DGHS18V, 2x
-DNES-309170W,  DDRS-39130W, all Server-disks according to IBM) can only
-64...and the kernel complains, if i compile it with 255 and locks to
-64...as i have played with this feature a while ago, i did not realize a
-big performance-plus from 8 to 64, so i switched to 32...and i would go
-down to <8 if i where in doubt....
+Any ideas or comments?
 
-> >So I compiled the same kernel with the old AIC driver and it works fine.
+/Tobias
 
-Test it longer and under load...i also "cured" a bad scsi-bus by
-switching drivers one time...sometimes it really seems to work...for
-some days...:-)
- 
-> Which may be due to a lighter load on the drive.  Its hard to say without
-> the verbose messages and the full dmesg for the machine.  You're IBM drive
-> may be running the "if I miss a seek, I fall off the bus" firmware where
-> the bug is only triggered under high load.  Send the dmesg output and we'll
-> see.
-
-Solong...
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-

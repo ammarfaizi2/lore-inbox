@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVBOJFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVBOJRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVBOJFa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 04:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVBOJFa
+	id S261656AbVBOJRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 04:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVBOJRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 04:05:30 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:49112 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261657AbVBOJEd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 04:04:33 -0500
-Message-ID: <4211BB15.9020100@andrew.cmu.edu>
-Date: Tue, 15 Feb 2005 04:04:21 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+	Tue, 15 Feb 2005 04:17:10 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28110 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261656AbVBOJRF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 04:17:05 -0500
+Message-ID: <4211BD88.70904@sgi.com>
+Date: Tue, 15 Feb 2005 03:14:48 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tom Felker <tfelker2@uiuc.edu>
-CC: lm@bitmover.com, Matthew Jacob <lydianconcepts@gmail.com>,
-       Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-References: <20050214020802.GA3047@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com> <20050214185624.GA16029@bitmover.com> <200502141530.47019.tfelker2@uiuc.edu>
-In-Reply-To: <200502141530.47019.tfelker2@uiuc.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Paul Jackson <pj@sgi.com>
+CC: ak@muc.de, holt@sgi.com, marcelo.tosatti@cyclades.com,
+       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>	<m1vf8yf2nu.fsf@muc.de>	<20050212155426.GA26714@logos.cnet>	<20050212212914.GA51971@muc.de>	<20050214163844.GB8576@lnx-holt.americas.sgi.com>	<20050214191509.GA56685@muc.de>	<42113921.7070807@sgi.com> <20050214191651.64fc3347.pj@sgi.com>
+In-Reply-To: <20050214191651.64fc3347.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree with this 100%, and this is exactly the same conclusion we came 
-to in our research lab.
-
-Tom Felker wrote:
-> I really think the fewer restrictions you put on BK's use, the less likely it 
-> will be copied.  When the open source community copies something, it's not out 
-> of a desire to screw somebody over.  It's because they had an itch, a 
-> software need that couldn't easily be fulfilled otherwise, a demand.
+Paul Jackson wrote:
+> Ray wrote:
 > 
-> Apparently there is a demand for good SCM, and BK can satisfy this, and you've 
-> done the very admirable thing of letting the open source community use BK at 
-> no cost.  But by putting such a heavy restriction on its use, you create a 
-> large portion of the community who won't or can't use it, and who therefore 
-> need a "copy" of it, which is exactly what you are trying to prevent.
-> ...
-> Better for you would be to just not create this segment in the first place, by 
-> making the license as unrestrictive as you can while still making money.  If 
-> you take the non-compete clause out and leave it at "open repository and 
-> logs," then BT would be good enough for most everybody, and you wouldn't have 
-> to worry about a copy until after we're all using the Hurd.
+>>[Thus the disclaimer in
+>>the overview note that we have figured all the interaction with
+>>memory policy stuff yet.]
+> 
+> 
+> Does the same disclaimer apply to cpusets?
+> 
+> Unless it causes some undo pain, I would think that page migration
+> should _not_ violate a tasks cpuset.  I guess this means that a typical
+> batch manager would move a task to its new cpuset on the new nodes, or
+> move the cpuset containing some tasks to their new nodes, before asking
+> the page migrator to drag along the currently allocated pages from the
+> old location.
+> 
+No, I think we understand the interaction between manual page migration
+and cpusets.  We've tried to keep the discussion here disjoint from cpusets
+for tactical reasons -- we didn't want to tie acceptance of the manual
+page migration code to acceptance of cpusets.
 
-One person (out of 20 or so), refused to use BK   because he 
-occasionally worked on a binary tree-diff in his spare time.  He was, of 
-course, properly following the BK-free license, but it meant the 
-projects he worked on never got switched from CVS, while everything else 
-went BK.  It also kept us looking for replacements to make everyone 
-happy.  We consider every possible alternative, even though by most 
-measures they are inferior (There isn't an SCM that I've heard of that 
-someone in our lab hasn't tried using).  The peer pressure, if you will, 
-also made the holdout *more* involved in SCM development, which is 
-almost surely *not* a help for BitMover.  New projects are not being put 
-in BK anymore, either.
+The exact ordering of when a task is moved to a new cpuset and when the
+migration occurs doesn't matter, AFAIK, if we accept the notion that
+a migrated task is in suspended state until after everything associated
+with it (including the new cpuset definition) is done.
 
-Maybe this is an overly long and excessively detailed account, but my 
-interpretation of it is the following:  Without the no-compete (1) We'd 
-all be using BK happily, (2) The holdout would not be working on an SCM 
-anymore, and (3) Other SCM projects would not get the user testing they 
-now enjoy from us.  I cannot speak for anyone else, but this is the 
-effect on our lab, and for us, the clause has hurt BitMover's stated 
-intention, not helped it.
-
-  - Jim Bruce
-
-P.S. According to what is now legend, one of the things that drove RMS 
-to the FSF philosophy was a person at CMU who wouldn't share printer 
-driver source code with him.
-(http://www.catb.org/~esr/writings/rms-bio.html)
+-- 
+-----------------------------------------------
+Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+	 so I installed Linux.
+-----------------------------------------------

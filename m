@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVACEc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVACEnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVACEc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 23:32:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVACEc4
+	id S261290AbVACEnr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 23:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVACEnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 23:32:56 -0500
-Received: from mail.tmr.com ([216.238.38.203]:12160 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S261381AbVACEcy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 23:32:54 -0500
-Message-ID: <41D8C86D.4090603@tmr.com>
-Date: Sun, 02 Jan 2005 23:22:05 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+	Sun, 2 Jan 2005 23:43:47 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:64478 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S261290AbVACEnp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 23:43:45 -0500
+Message-ID: <41D8CD93.8000200@verizon.net>
+Date: Sun, 02 Jan 2005 23:44:03 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel M/L <linux-kernel@vger.kernel.org>
-Subject: 2.6.10 IRQ 18 issues gone away
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: Keith Owens <kaos@ocs.com.au>, Jim Nelson <james4765@cwazy.co.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       David Howells <dhowells@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: printk loglevel policy?
+References: <28707.1104722227@ocs3.ocs.com.au> <41D8C161.5000102@osdl.org>
+In-Reply-To: <41D8C161.5000102@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [209.158.220.243] at Sun, 2 Jan 2005 22:43:43 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My ongoing issue with runaway IRQ 18 floods has gone away, although I am 
-not totally sure they are "solved" in the usual sense. I flashed the 
-latest BIOS from Asus and had various problems (P4P81019) then flashed 
-one I got as a gift from a nameless source (P4P81086). That did the 
-trick, all the IRQs are no longer shared, even though they worked 
-perfectly as shared on 2.4.22-1.2199 (FC1) with the original BIOS.
+Randy.Dunlap wrote:
+> Keith Owens wrote:
+> 
+>> On Sun, 02 Jan 2005 13:41:34 -0800, "Randy.Dunlap" <rddunlap@osdl.org> 
+>> wrote:
+>>
+>>> Jim Nelson wrote:
+>>>
+>>>> Or does printk() do some tracking that I didn't see as to where in 
+>>>> the kernel the strings are coming from?
+>>>
+>>>
+>>> That kind of garbled output has been known to happen, but
+>>> the <console_sem> is supposed to prevent that (along with
+>>> zap_locks() in kernel/printk.c).
+>>
+>>
+>>
+>> Using multiple calls to printk to print a single line has always been
+>> subject to the possibility of interleaving on SMP.  We just live with
+>> the risk.  Printing a complete line in a single call to printk is
+>> protected by various locks.  Print a line in multiple calls is not
+>> protected.  If it bothers you that much, build up the line in a local
+>> buffer then call printk once.
+> 
+> 
+> True, I was thinking about the single line case, which I
+> have seen garbled/mixed in the past (on SMP).  Hopefully
+> that one is fixed.
+> 
 
-Since the system worked with 2.4 and not with 2.6, even though a BIOS 
-change made the problem go away, I suspect that there is still some 
-issue with the shared IRQ, although I am certainly NOT interested in 
-going back to help find it!
-
-Many thanks to people who suggested BIOS upgrade as a workaround for the 
-kernel, and pointed me at installing from CD instead of floppy (I don't 
-have floppy). The system is now stable although there are a number of 
-"not in 2.6" issues to solve eventually.
-
-My new interrupt map if anyone cares:
-           CPU0       CPU1
-  0:    4770773    4751617    IO-APIC-edge  timer
-  1:       8275       9223    IO-APIC-edge  i8042
-  8:          1          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 12:      52649      44985    IO-APIC-edge  i8042
- 14:      15451      12645    IO-APIC-edge  ide0
- 15:      99181     135233    IO-APIC-edge  ide1
- 16:     332255     330935   IO-APIC-level  radeon@PCI:1:0:0
- 17:     246658     257869   IO-APIC-level  Intel ICH5
- 22:       6069       6292   IO-APIC-level  SysKonnect SK-98xx
-NMI:          0          0
-LOC:    9453797    9458470
-ERR:          0
-MIS:          0
-
+Okay, that answered my question.  Is is frowned upon to use strncat/strcat in the 
+kernel?  I have yet to see any use of them outside of the definition in 
+lib/string.c.  It would seem to be faster (less potential contention for the 
+printk locks).

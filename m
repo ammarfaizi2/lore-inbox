@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUIJPwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267535AbUIJP4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUIJPwR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267535AbUIJPsd
+	id S267535AbUIJP4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUIJPw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:48:33 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:14091 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S267519AbUIJPrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:47:53 -0400
-Message-ID: <4141CCA8.30807@optonline.net>
-Date: Fri, 10 Sep 2004 11:47:52 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: Latest microcode data from Intel.
-References: <Pine.LNX.4.44.0409091726010.2713-100000@einstein.homenet> <4141CAAB.4020708@tmr.com>
-In-Reply-To: <4141CAAB.4020708@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 11:52:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:13700 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267507AbUIJPtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:49:02 -0400
+Date: Fri, 10 Sep 2004 07:30:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm4, visor.c, Badness in usb_unlink_urb
+Message-ID: <20040910143032.GC15934@kroah.com>
+References: <20040910082601.GA32746@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910082601.GA32746@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Fri, Sep 10, 2004 at 10:26:01AM +0200, Norbert Preining wrote:
+> Hi!
+> 
+> Syncing my PalmOne T|C I get a lot of error messages (see below).
+> Suprisingly this didn't disturb my palm to be synced. 
 
-> Why are you using /dev/cpu/microcode instead of /dev/cpu/N/microcode for 
-> each CPU? Today they are all the same device, but for the future I would 
-> think this was an obvious CYA.
+Fixed and will show up in the next -mm released.
 
-Potentially stupid question, how does microcode update interact with CPU 
-hotplug?
+thanks,
 
-Nathan
+greg k-h

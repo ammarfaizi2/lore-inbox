@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130165AbRBZO5O>; Mon, 26 Feb 2001 09:57:14 -0500
+	id <S130260AbRBZPKk>; Mon, 26 Feb 2001 10:10:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130203AbRBZO4m>; Mon, 26 Feb 2001 09:56:42 -0500
-Received: from omecihuatl.rz.Uni-Osnabrueck.DE ([131.173.17.35]:54799 "EHLO
-	omecihuatl.rz.uni-osnabrueck.de") by vger.kernel.org with ESMTP
-	id <S130215AbRBZOza>; Mon, 26 Feb 2001 09:55:30 -0500
-Date: Mon, 26 Feb 2001 15:51:57 +0100 (MET)
-From: Arnd Bergmann <std7652@et.FH-Osnabrueck.DE>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ (routing ?) problem [was Re: epic100 in current -ac kernels]<
-In-Reply-To: <Pine.GSO.4.21.0102151137500.19331-200000@gamma10>
-Message-ID: <Pine.GSO.4.21.0102261547470.11657-100000@gamma10>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130255AbRBZPJw>; Mon, 26 Feb 2001 10:09:52 -0500
+Received: from orbita.don.sitek.net ([213.24.25.98]:40454 "EHLO
+	orbita.don.sitek.net") by vger.kernel.org with ESMTP
+	id <S130263AbRBZPHQ>; Mon, 26 Feb 2001 10:07:16 -0500
+Date: Mon, 26 Feb 2001 18:06:32 +0300
+From: Andrey Panin <pazke@orbita.don.sitek.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/char/serial.c unchecked ioremap() calls
+Message-ID: <20010226180632.A13876@orbita1.ru>
+In-Reply-To: <20010223105359.A20170@orbita1.ru> <20010223064543.C12444@conectiva.com.br> <3A967081.5CDF5797@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <3A967081.5CDF5797@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Feb 23, 2001 at 09:15:29AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that there have been updates to epic100 again and just wanted
-to note that the problem remains:
-2.4.2-ac3 still crashes, but it works fine when I use the epic100.c
-from 2.4.0-test9, which was the last working version for me.
 
-Arnd <><
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 15 Feb 2001, ARND BERGMANN wrote:
+On Fri, Feb 23, 2001 at 09:15:29AM -0500, Jeff Garzik wrote:
+> Arnaldo Carvalho de Melo wrote:
+> >=20
+> > Em Fri, Feb 23, 2001 at 10:53:59AM +0300, Andrey Panin escreveu:
+> > >
+> > > Hi all,
+> > >
+> > > 16x50 serial driver doesn't check ioremap() return value.
+> > > Atached patch should fix this it.
+> >=20
+> > humm, have not checked, but it seems as if you don't release the previo=
+us
+> > successful mappings on failure. Wipe out this message if I was too quic=
+k to
+> > answer and this is not true. 8)
+>=20
+> Also, the proper return from a failed ioremap is -ENOMEM, so I think
+> Andrey's serial.c patch should modify some functions to return a failure
+> code...
+>=20
 
-> Sorry for the delay, I could not get physical access to the machine
-> for the last days.
-> 
-> I was able to do some more testing today and found this:
-> - The problem is not the IRQ /sharing/, after getting rid of all the
->   other PCI cards, the problem was still there.
-> - The only thing that seems to have any effect on the symptoms is the
->   presence of the USB driver, either usb-uhci or uhci. I am not using
->   USB at all. As described before, the system behaves is either of those
->   ways:
->    * epic100 driver without DMA mapping (e.g. 2.4.0-ac9): normal operation
->    * driver with DMA mapping+USB driver loaded: lots of interrupts -> slow
->    * driver with DMA mapping, USB driver not loaded: hang after ~2 seconds
-> - I sometimes get 'spurious interrupt: IRQ7', even though no device is 
->   connected there. Probably not important.
-> 
-> On Sat, 10 Feb 2001, Francois Romieu wrote:
-> 
-> > 
-> > The following informations may help:
-> > - motherboard type
-> Asus A7V, onboard USB hub and Promise ATA/100 chip
-> 
-> > - bios revision
-> Can't see right now, system was bought in October 2000
-> I think it was 1.004, but I am not sure.
-> 
-> > - lspci -x 
-> see attachment, this was when I ripped out sound, tv and scsi
-> 
-> > - 2.4.2pre3 + whatever recent ac epic100 = ?
-> Still no improvement until latest -ac (2.4.1-ac13)
-> 
-> Arnd <><
-> 
-> 
-> 
+All these ioremap() failures are not fatal,=20
+just fail to init one PCI/ISAPNP device or one serial port.
+IMHO a warning message will be enough for them :)
 
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6mnD4Bm4rlNOo3YgRAqeUAJwPiKrPeU3rO1V/DSw3brUHKWeBrQCfcxR5
+WAuOYOlHgMyxF/MpydSJJ+Y=
+=pjwN
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

@@ -1,102 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUBGW7O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 17:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUBGW7O
+	id S261262AbUBGXHW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 18:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUBGXHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 17:59:14 -0500
-Received: from may.nosdns.com ([207.44.240.96]:54680 "EHLO may.nosdns.com")
-	by vger.kernel.org with ESMTP id S261188AbUBGW7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 17:59:12 -0500
-Date: Sat, 7 Feb 2004 16:00:43 -0700
-From: Elikster <elik@webspires.com>
-X-Mailer: The Bat! (v2.02.3 CE) Personal
-Reply-To: Elikster <elik@webspires.com>
-Organization: WebSpires Technologies
-X-Priority: 3 (Normal)
-Message-ID: <169747427.20040207160043@webspires.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.2 Compile Failure - Redhat 7.3 Distro
-In-Reply-To: <20040207222148.GA3209@bitwiser.org>
-References: <20040207222148.GA3209@bitwiser.org>
+	Sat, 7 Feb 2004 18:07:22 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:19636 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261262AbUBGXHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 18:07:20 -0500
+Message-ID: <40257081.50706@myrealbox.com>
+Date: Sat, 07 Feb 2004 15:10:57 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040131
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - may.nosdns.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - webspires.com
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.1] Kernel panic with ppa driver updates
+References: <4023D098.1000904@myrealbox.com> <20040206182844.GJ21151@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040206182844.GJ21151@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Folks,
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Fri, Feb 06, 2004 at 09:36:24AM -0800, walt wrote:
+> 
+>>This panic started with the bk changesets applied by Linus yesterday.
+>>
+>>The ppa driver works fine when compiled as a module, but when compiled in
+>>I get this during boot:
+(panic message snipped)
 
-	It seems that the compile of 2.6.2 is sort of hit and miss depending on the configuration among various Redhat 7.3 distros with gcc 2.96 compiler.  The most common miscompile usually shows up when it reaches this point here:
+> Could you post the actual oops?...
 
-  CC      fs/proc/task_mmu.o
-  CC      fs/proc/inode.o
-  CC      fs/proc/root.o
-  CC      fs/proc/base.o
-  CC      fs/proc/generic.o
-  CC      fs/proc/array.o
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:398: Unrecognizable insn:
-(insn/i 721 1009 1003 (parallel[
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 38))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 38))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 715 (nil))
-    (nil))
-fs/proc/array.c:398: confused by earlier errors, bailing out
-make[2]: *** [fs/proc/array.o] Error 1
-make[1]: *** [fs/proc] Error 2
-make: *** [fs] Error 2
-root@longmont [/usr/src/linux-2.6.2]#
-
-   Any ideas?  I have 2 Redhat 7.3 compiled with no problem and some compiles with errors.  It seems to be sort of hit and miss since they are all identical as far the distro goes, but with various hardware.
-
-   This error is coming up with this hardware specs as shown:
-
- root@longmont [/usr/src/linux-2.6.2]# lspci
-00:00.0 Host bridge: Intel Corp. e7500 [Plumas] DRAM Controller (rev 03)
-00:00.1 Class ff00: Intel Corp. e7500 [Plumas] DRAM Controller Error Reporting (rev 03)
-00:02.0 PCI bridge: Intel Corp. e7500 [Plumas] HI_B Virtual PCI Bridge (F0) (rev 03)
-00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 42)
-00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
-01:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-01:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-01:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-01:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-04:04.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-04:05.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
-
-   Got Dual Xeons 2.4 on it with 3Ware IDE RAID Controller.
+Whew!  I had to relearn everything I was happy to forget about
+serial communications to get this!  I even stopped to repair a
+broken RS-232 break-out box that I haven't used in years ;0)
+I hope this helps:
 
 
--- 
-Best regards,
- Elikster                            mailto:elik@webspires.com
+ppa: Version 2.07 (for Linux 2.4.x)
+Unable to handle kernel paging request at virtual address 7232b403
+  printing eip:
+c027bc25
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c027bc25>]    Not tainted
+EFLAGS: 00010002
+EIP is at got_it+0x15/0x40
+eax: 7232b2df   ebx: dff92000   ecx: 00000778   edx: dfd67940
+esi: dfd67940   edi: 00000286   ebp: 00000000   esp: dff93f10
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=dff92000 task=dff918c0)
+Stack: c027bd3b dfd67940 dfd67940 dff93f8c dff93f6c fffffff0 c027d577 dfd67940
+        c03b1a06 00000000 c027bc50 00000000 00000000 dfd67940 00001c70 00000000
+        dff918c0 c011aa40 dff93f78 dff93f78 00001c70 dff92000 00001c70 00000000
+Call Trace:
+  [<c027bd3b>] ppa_pb_claim+0x7b/0x80
+  [<c027d577>] __ppa_attach+0x127/0x350
+  [<c027bc50>] ppa_wakeup+0x0/0x70
+  [<c011aa40>] autoremove_wake_function+0x0/0x50
+  [<c011aa40>] autoremove_wake_function+0x0/0x50
+  [<c023a746>] parport_register_driver+0x36/0x70
+  [<c0485b83>] ppa_driver_init+0x23/0x30
+  [<c046e74c>] do_initcalls+0x2c/0xa0
+  [<c012c9ff>] init_workqueues+0xf/0x30
+  [<c01050d2>] init+0x32/0x140
+  [<c01050a0>] init+0x0/0x140
+  [<c0106fe9>] kernel_thread_helper+0x5/0xc
+
+Code: c7 80 24 01 00 00 01 00 00 00 c3 8b 42 50 b9 01 00 00 00 ba
+  <0>Kernel panic: Attempted to kill init!
 

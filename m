@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbTAOJvL>; Wed, 15 Jan 2003 04:51:11 -0500
+	id <S266091AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbTAOJvL>; Wed, 15 Jan 2003 04:51:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47375 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266064AbTAOJvK>; Wed, 15 Jan 2003 04:51:10 -0500
-Date: Wed, 15 Jan 2003 10:00:01 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add module reference to struct tty_driver
-Message-ID: <20030115100001.D31372@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030113054708.GA3604@kroah.com> <20030114200719.B4077@flint.arm.linux.org.uk> <20030114220859.GA17226@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030114220859.GA17226@kroah.com>; from greg@kroah.com on Tue, Jan 14, 2003 at 02:08:59PM -0800
+	id <S266100AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
+Received: from web21006.mail.yahoo.com ([216.136.227.60]:65122 "HELO
+	web21006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266091AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
+Message-ID: <20030115101133.10886.qmail@web21006.mail.yahoo.com>
+Date: Wed, 15 Jan 2003 07:11:33 -0300 (ART)
+From: =?iso-8859-1?q?ednei=5Fgp?= <ednei_gp@yahoo.com.br>
+Subject: Kernel patch
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 02:08:59PM -0800, Greg KH wrote:
-> Woah!  Hm, this is going to cause lots of problems in drivers that have
-> been assuming that the BKL is grabbed during module unload, and during
-> open().  Hm, time to just fallback on the argument, "module unloading is
-> unsafe" :(
+I'm testing the devel kernel 2.5.52 but I've a problem
+if framebuffer , so I'll use a patch to uptade my
+kernel but I'dont know if to me use the patch 2.5.58 I
+need to install the other patchs before, like patch
+2.5.53,2.5.54,2.5.55...
+Because if I'll need do this I'll download the last
+version than use all that patchs...
+Thanks!!!
+Ah!! Sorry about my english... I'm brasilian :o)
 
-Note that its the same in 2.4 as well.  iirc, the BKL was removed from
-module loading/unloading sometime in the 2.3 timeline.
+=====
+------------------------------------------
+#####(Dark_M@n1X)#####
+Ednei Gonçalves Pereira
+Técnico em Telecomunicações
+Certificação CCNA | CCNP (estudando)
+Linux user 282184 | ICQ:157953794
+------------------------------------------
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+_______________________________________________________________________
+Busca Yahoo!
+O melhor lugar para encontrar tudo o que você procura na Internet
+http://br.busca.yahoo.com/

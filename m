@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132167AbRDFRtJ>; Fri, 6 Apr 2001 13:49:09 -0400
+	id <S132186AbRDFRvS>; Fri, 6 Apr 2001 13:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRDFRs6>; Fri, 6 Apr 2001 13:48:58 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53230 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132167AbRDFRsi>; Fri, 6 Apr 2001 13:48:38 -0400
-Date: Fri, 6 Apr 2001 19:27:24 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <m13dbmw4he.fsf@frodo.biederman.org>
-Message-ID: <Pine.GSO.3.96.1010406191454.15958I-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132194AbRDFRvE>; Fri, 6 Apr 2001 13:51:04 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:24844 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S132186AbRDFRul>; Fri, 6 Apr 2001 13:50:41 -0400
+Date: Fri, 6 Apr 2001 19:49:10 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Norbert Preining <preining@logic.at>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: gcc oopses with 2.4.3
+Message-ID: <20010406194910.J19691@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Norbert Preining <preining@logic.at>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010406174442.A19874@alpha.logic.tuwien.ac.at> <123100000.986572812@tiny> <20010406183303.A20867@alpha.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="wHh0aNzodMFDTGdO"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010406183303.A20867@alpha.logic.tuwien.ac.at>; from preining@logic.at on Fri, Apr 06, 2001 at 06:33:03PM +0200
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Apr 2001, Eric W. Biederman wrote:
 
-> I recall on the ev6 all memory accesses to locations with bit 40 set 
-> are always to IO space are never cached and are never write buffered.
+--wHh0aNzodMFDTGdO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- If that is the case then EV6 is seriously flawed.  You normally have
-non-cached locations buffered (since you don't always need peripheral
-device accesses to be posted immediately) and can force a writeback with a
-memory barrier.  I don't have my 21264 handbook handy, so I can't check
-EV6 details at the moment, especially why it is different.
+On Fri, Apr 06, 2001 at 06:33:03PM +0200, Norbert Preining wrote:
+> On Fre, 06 Apr 2001, Chris Mason wrote:
+> > sigbus from gcc usually points to the ram, have you run a tester?
+>=20
+> But sig 4 is sigill (whatever this may be) and 1ig11 sigsegv, so
+> no sigbus!?
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Illegal Instruction. Your CPU was reading some machine insn from memory it
+never heard about. =3D> exception 6 =3D> signal 4 (SIGILL)
 
+If your main memory is not faulty, it's your cache or your CPU. Or your
+compiler.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+
+--wHh0aNzodMFDTGdO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6zgGVxmLh6hyYd04RAusuAJ9Yav0FZQF9Uql8OGxc61yIhX1QwwCeKGtL
+z24kvcrdzPlto9BLr5327bo=
+=tcjP
+-----END PGP SIGNATURE-----
+
+--wHh0aNzodMFDTGdO--

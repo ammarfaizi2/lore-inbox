@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132850AbRD1Na7>; Sat, 28 Apr 2001 09:30:59 -0400
+	id <S132500AbRD1NbS>; Sat, 28 Apr 2001 09:31:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132835AbRD1Nat>; Sat, 28 Apr 2001 09:30:49 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:3187 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S132562AbRD1Nai>; Sat, 28 Apr 2001 09:30:38 -0400
-Date: Sat, 28 Apr 2001 16:30:30 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Fabio Riccardi <fabio@chromium.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-Message-ID: <20010428163030.D3682@niksula.cs.hut.fi>
-In-Reply-To: <20010428161502.I3529@niksula.cs.hut.fi> <Pine.LNX.4.33.0104281521210.10295-100000@localhost.localdomain>
+	id <S132479AbRD1NbI>; Sat, 28 Apr 2001 09:31:08 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:33296
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S132562AbRD1Nay>; Sat, 28 Apr 2001 09:30:54 -0400
+Date: Sat, 28 Apr 2001 09:37:22 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+Message-ID: <20010428093722.A17218@animx.eu.org>
+In-Reply-To: <20010427182228.D9778@animx.eu.org> <200104281317.PAA04172@cave.bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104281521210.10295-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Apr 28, 2001 at 03:24:25PM +0200
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <200104281317.PAA04172@cave.bitwizard.nl>; from Rogier Wolff on Sat, Apr 28, 2001 at 03:17:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 03:24:25PM +0200, you [Ingo Molnar] claimed:
-> 
-> On Sat, 28 Apr 2001, Ville Herva wrote:
-> 
-> > Uhh, perhaps I'm stupid, but why not cache the date field and update
-> > the field once a five seconds? Or even once a second?
-> 
-> perhaps the best way would be to do this updating in the sending code
-> itself.
-> 
-> first there would be a 'current time thread', which updates a global
-> shared variable that shows the current time. (ie. no extra system-call is
-> needed to access current time.) If the header-sending code detects that
-> current time is not equal to the timestamp stored in the header itself,
-> then the header is reconstructed. Pretty simple.
+> So you've spent almost $200 for RAM, and refuse to spend $4 for 1Gb of
+> swap space. Fine with me. 
 
-Yes, that's vaguely resembles what I had in mind. Of course I had no idea
-about the data structures Tux or X15 use internally, so I couldn't think it
-too thoroughly.
+I put this much ram into the system to keep from having swap.  I still say
+swap=2x ram is a stupid idea.  I fail to see the logic in that.  Disk is
+much much slower than ram and if you're writing all ram to disk that's also
+slow.
 
+I have a machine with 256mb of ram and no disk.  It runs just fine w/o swap. 
+Only reason I even had swap here is if I ran something that used up all my
+memory and it has happened.
 
--- v --
+Since when has linux started to be like windows "our way or no way"?
 
-v@iki.fi
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVABUZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVABU15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVABUZp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVABUZo
+	id S261325AbVABU15 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVABU1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:25:44 -0500
-Received: from holomorphy.com ([207.189.100.168]:36245 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261318AbVABUZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:25:39 -0500
-Date: Sun, 2 Jan 2005 12:25:29 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, riel@redhat.com, andrea@suse.de,
-       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
-       kernel@kolivas.org
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20050102202529.GK29332@holomorphy.com>
-References: <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com> <20050102151147.GA1930@suse.de> <20050102120324.2b52a848.akpm@osdl.org>
+	Sun, 2 Jan 2005 15:27:42 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19472 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261321AbVABU1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:27:17 -0500
+Date: Sun, 2 Jan 2005 21:27:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users
+Message-ID: <20050102202712.GC4183@stusta.de>
+References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no> <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050102120324.2b52a848.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->>> Lifting the artificial lowmem restrictions on blockdev mappings
->>> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
->>> problems, not that anything making that much sense could ever happen.
+On Sun, Jan 02, 2005 at 01:38:29PM +0100, Bodo Eggert wrote:
+> Andy Lutomirski wrote:
+> 
+> > I have this complaint too, and MNT_DETACH doesn't really do it.
+> > Sometimes I want to "unmount cleanly, damnit, and I don't care if
+> > applications that are currently accessing it lose data."  Windows can do
+> > this, and it's _useful_.
+> 
+> I have an additional feature request: The umount -l will currently not work
+> for unmounting the cwd of something like the midnight commander without
+> closing it. On the other hand, rmdiring the cwd of running application
+> works just fine.
 
-Jens Axboe <axboe@suse.de> wrote:
->>  It should be lifted for block devices, it doesn't make any sense.
+A rm does not actually remove things that are still accessed.
 
-On Sun, Jan 02, 2005 at 12:03:24PM -0800, Andrew Morton wrote:
-> Before we can permit blockdev pagecache to use highmem we must convert
-> every piece of code which accesses the cache to use kmap/kmap_atomic.  If
-> you grep around for b_data you'll see there are a lot of such places.
-> Probably the migration could be done on a per-fs basis.
+As an example, do the following (1 and 2 are shells, cdimage is a full
+CD image):
 
-I'd regard such an incremental conversion strategy as a prerequisite, and
-would have no trouble working within such constraints.
+1> less cdimage
+2> df .
+2> rm cdimage
+2> df . 
+1> q (quit less)
+2> df .
 
+> Maybe it's possible to extend the semantics of umount -l to change all
+> cwds under that mountpoint to be deleted directories which will no
+> longer cause the mountpoint to be busy (e.g. by redirecting them to a
+> special inode on initramfs). Most applications can cope with that (if
+> not, they're buggy), and it will do 90% of the usural cases while still
+> avoiding data loss.
+>...
 
--- wli
+If the appication of a user was writing some important output to a file 
+on the NFS mount you want to umount there will be data loss...
+
+If you _really_ want to umount something still accessed by applications 
+simply kill all applications with "fuser -k".
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

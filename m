@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTE3XHl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 19:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbTE3XHk
+	id S264044AbTE3XHn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 19:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbTE3XHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 30 May 2003 19:07:43 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:7070 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S264044AbTE3XHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 30 May 2003 19:07:40 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6111
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264030AbTE3XHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 19:07:40 -0400
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function
-	declarations.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0305301535100.4421@bigblue.dev.mcafeelabs.com>
-References: <20030530212013.GE3308@wohnheim.fh-wedel.de>
-	 <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
-	 <20030530222630.GF3308@wohnheim.fh-wedel.de>
-	 <Pine.LNX.4.55.0305301535100.4421@bigblue.dev.mcafeelabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054333383.27312.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 May 2003 23:23:04 +0100
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jeffrey Baker <jwbaker@acm.org>
+Date: Sat, 31 May 2003 01:20:45 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Different geometry settings for identical drives
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <306584240A9@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-30 at 23:39, Davide Libenzi wrote:
-> Talking about the code, there are still a bunch of files that uses spaces
-> with tabsize=4. Shouldn't those be reformatted with real TABs ? An emacs
-> lisp (indent+tabify) might do it pretty fast ...
+On 30 May 03 at 15:46, Jeffrey Baker wrote:
 
-indent -kr -i8 -bri0 -l255 
+> hda: host protected area => 1
+> hda: setmax LBA 234441648, native  234375000
+> hda: 234375000 sectors (120000 MB) w/8192KiB Cache, CHS=232514/16/63, UDMA(100)
+> hdc: attached ide-disk driver.
+> hdc: host protected area => 1
+> hdc: setmax LBA 234441648, native  234375000
+> hdc: 234375000 sectors (120000 MB) w/8192KiB Cache, CHS=232514/16/63, UDMA(100)
+> hdd: attached ide-cdrom driver.
+> hdd: ATAPI 24X CD-ROM drive, 128kB Cache, UDMA(33)
+> 
+> The result is that hda works fine but hdc doesn't.  When I try to mke2fs
+> on the latter I see:
+> 
+> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hdc: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=234441583, sector=232343808
+> 
+> You can see that LBAsect (234441583) is higher than the "native" sectors
+> quoted by the kernel (234375000, difference 66583 sectors).  Why are
+> these two disks being addressed differently?  
 
-seems to do the job even faster. I did a pile of the scsi drivers when I
-went over them. The big thing is not to mix indent with real changes.
-Its always a temptation but its vital that there are no outstanding
-changes and that a patch exists where you can test before and after
-indent to verify that change didnt cause the problems
+As far as I can tell, it has nothing to do with disk geometry.
+
+Someone just cut couple of sectors at the end from disk, you compiled
+your kernel without CONFIG_IDEDISK_STROKE, but still kernel for some
+reason reports block size as if idedisk_set_max_address() was invoked.
+
+I do not see how this could happen with 2.4.21-rc3... Can you recheck
+that you are using 2.4.21-rc3 without any additional patches?
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
 

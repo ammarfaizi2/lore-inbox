@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbTKMNGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 08:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbTKMNGW
+	id S264209AbTKMNTp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 08:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264222AbTKMNTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 08:06:22 -0500
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:12295
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S264093AbTKMNGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 08:06:21 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Paging request oops in 2.6.0-test9-bk16
-X-Home-Page: http://www.krose.org/~krose/
-References: <87islohptz.fsf@nausicaa.krose.org>
-	<shsr80cer6p.fsf@charged.uio.no>
-From: Kyle Rose <krose+linux-kernel@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 13 Nov 2003 08:06:15 -0500
-In-Reply-To: <shsr80cer6p.fsf@charged.uio.no> (Trond Myklebust's message of
- "13 Nov 2003 01:08:30 -0500")
-Message-ID: <87ekwch0zc.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) XEmacs/21.4 (Reasonable
- Discussion, linux)
+	Thu, 13 Nov 2003 08:19:44 -0500
+Received: from mail3-126.ewetel.de ([212.6.122.126]:35548 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S264209AbTKMNTf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 08:19:35 -0500
+Date: Thu, 13 Nov 2003 14:19:19 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Jens Axboe <axboe@suse.de>
+cc: Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <20031113122039.GJ4441@suse.de>
+Message-ID: <Pine.LNX.4.44.0311131418070.947-100000@neptune.local>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+On Thu, 13 Nov 2003, Jens Axboe wrote:
 
->>>>>> " " == Kyle Rose <krose@krose.org> writes:
->
->      > Got an oops tonight when trying to access an NFS mounted
->      > partition through SFS (www.fs.net):
->
-> Can it be duplicated against a normal NFS server?
+>> Are there any cases when the last_written size is really what's wanted,
+>> rather than the capacity? Such as unclosed multi-session iso9660, ufs, or
+>> whatever else I'm ignoring?
+> Yes, for packet written media.
+ 
+My patch from yesterday should handle that situation. 
+cdrom_get_last_written is allowed to override the capacity from
+cdrom_read_capacity.
 
-I haven't tried: I'll set one up and do some stress testing.
+-- 
+Ciao,
+Pascal
 
-> Why is your kernel labelled as "tainted"? Are you loading any modules
-> other than the ones listed in you .config?
-
-Yep, nvidia driver.
-
-Cheers,
-Kyle

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbUKXL2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbUKXLeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbUKXL2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 06:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbUKXL2u
+	id S262620AbUKXLeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 06:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbUKXLeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 06:28:50 -0500
-Received: from gprs214-182.eurotel.cz ([160.218.214.182]:7040 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262618AbUKXL2r (ORCPT
+	Wed, 24 Nov 2004 06:34:00 -0500
+Received: from tri-e2k.ethz.ch ([129.132.112.23]:57614 "EHLO tri-e2k.ethz.ch")
+	by vger.kernel.org with ESMTP id S262620AbUKXLd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 06:28:47 -0500
-Date: Wed, 24 Nov 2004 12:28:34 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATH] swsusp update 1/3
-Message-ID: <20041124112834.GA1128@elf.ucw.cz>
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com> <20041120224937.GA979@elf.ucw.cz> <20041122072215.GA13874@hugang.soulinfo.com> <20041122102612.GA1063@elf.ucw.cz> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz> <20041122165823.GA10609@hugang.soulinfo.com> <20041123221430.GF25926@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123221430.GF25926@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 24 Nov 2004 06:33:57 -0500
+Message-ID: <41A470F9.4000407@dbservice.com>
+Date: Wed, 24 Nov 2004 12:31:05 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@hist.no>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com,
+       dri-devel@lists.sourceforge.net
+Subject: Re: Kernel thoughts of a Linux user
+References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com> <41A19E44.9080005@hist.no> <41A1CAD4.20101@dbservice.com> <41A46085.5050602@hist.no>
+In-Reply-To: <41A46085.5050602@hist.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Nov 2004 11:31:06.0129 (UTC) FILETIME=[162D2810:01C4D219]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Ok, Now I finised ppc part, it works. :) 
-> > 
-> > Here is all of the patch relative with your big diff.
-> >  core.diff - swsusp core part.
-> >  i386.diff - i386 part.
-> >  ppc.diff  - PowerPC part.
-> > 
-> > Now we have a option in /proc/sys/kernel/swsusp_pagecache, if that is
-> > sure using swsusp pagecache, otherwise.
+Helge Hafting wrote:
+>> From the [ruby patch] documentation:
+>> The main problem up to this date (November 2004) is that linux kernel 
+>> has only one behaviour regarding multiple keyboards : any key pressed 
+>> catched on any keyboard is redirected to the one and only active 
+>> Virtual Terminal (VT).
+>>
+>> Will this be changed/improved when the console code is moved into 
+>> userspace, like some have proposed?
 > 
-> Hmm, okay, I guess temporary sysctl is okay. [I'd probably just put
-> there variable, and not export it to anyone. That way people will not
-> want us to retain that in future.]
+> 
+> I don't know about any userspace console, but the ruby patch lets
+> you have several independent active VTs at the same time.  So
+> the above mentioned problem is solved - they keyboards does
+> not interfere with each other.
+> 
 
-I've tried 11-24 version here, and it killed my machine during
-suspend. (While radeonfb was suspended -> no usefull output). Can you
-enable CONFIG_PREEMPT and CONFIG_HIGHMEM and get it to work?
+I think the it would be much nicer to habe the console code in 
+userspace, ruby is only a patch, not in the mainline kernel, and AFAIK 
+not even in any experimental (-mm/-ac/-etc) tree.
+There are many aproaches how to solve the problem of having more than 
+one ative VT, and the userspace console seems to be the nicest one.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I know that Jon Smirl wrote an email some time ago, here it is: 
+http://lkml.org/lkml/2004/8/2/111, look at point 15. I like the idea and 
+I've written him several times, but he didn't answer :(
+Anyone knows what's happened with him?
+I know he's involved in the DRM development, so I CC to the dri-devel list.
+
+I'd really like to help with this, as I like and share his ideas.
+
+Is anyone already working on this? I mean pulling the console code out 
+of the kernel into the userspace.
+
+tom

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292730AbSCVHlB>; Fri, 22 Mar 2002 02:41:01 -0500
+	id <S293151AbSCVHvM>; Fri, 22 Mar 2002 02:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292813AbSCVHkw>; Fri, 22 Mar 2002 02:40:52 -0500
-Received: from c17877.carlnfd1.nsw.optusnet.com.au ([210.49.140.231]:498 "EHLO
-	cskk.homeip.net") by vger.kernel.org with ESMTP id <S292730AbSCVHka>;
-	Fri, 22 Mar 2002 02:40:30 -0500
-Date: Fri, 22 Mar 2002 18:40:37 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: debugging eth driver
-Message-ID: <20020322074036.GA28009@amadeus.home>
-Reply-To: cs@zip.com.au
-In-Reply-To: <3C93945A.8040305@lnxw.com> <25257.1016329003@ocs3.intra.ocs.com.au>
+	id <S293095AbSCVHvB>; Fri, 22 Mar 2002 02:51:01 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:9993 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S293035AbSCVHux>; Fri, 22 Mar 2002 02:50:53 -0500
+Date: Fri, 22 Mar 2002 00:50:37 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: max partition size
+Message-ID: <20020322005037.A9256@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12:36 17 Mar 2002, Keith Owens <kaos@ocs.com.au> wrote:
-| 			printf "%-25s%s\n", $head[$i], $f[$i];
+Who knows for sure what is the current upper limit on ext2/ext3
+file system size (4KiB blocks as this is what tools will accept)?  It
+definitely is not 1 TB as we were making working partition nearly twice
+that.  But practice seems to indicate that 2 TB, or whereabout, can be
+too much.  Is this a property of a file system or we bumping into
+block device boundaries or this are just tools?
 
-Just a remark on a piece of code I see done a lot,
-when formatting things for printf in columns, do this:
+BTW - mke2fs goes most of the way but gets stuck eventually when
+writing inode tables if that it is too close to 2 TB.  Yes, there
+are people who really want that much of a file system or maybe even
+more. :-)   This was not done for a sake of a record.
 
-	print "%-25s %s\n", ...
-	  note! ----^
+  Michal
 
-This _guarentees_ a space between one field ond the next. Ps and ls are
-examples of commands whose output is regularly mangled in this way by
-wide column values. Enforcing a single space between fields in the format
-string avoids this. If the extra width bugs you, notch the %-25s down one.
-
-There's plenty of formatting out there subject to this problem; let's
-not help it with examples.
-
-Cheers,
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
-
-Disclaimer: Opinions expressed here are CORRECT, mine, and not PSLs or NMSUs..
-	- Larry Cunningham <larry@psl.nmsu.edu>

@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273137AbRIYTiC>; Tue, 25 Sep 2001 15:38:02 -0400
+	id <S273141AbRIYTkM>; Tue, 25 Sep 2001 15:40:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273135AbRIYThx>; Tue, 25 Sep 2001 15:37:53 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:1284 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273127AbRIYThl>;
-	Tue, 25 Sep 2001 15:37:41 -0400
-Message-ID: <20010924210951.A165@bug.ucw.cz>
-Date: Mon, 24 Sep 2001 21:09:51 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: GFP_FAIL?
+	id <S273143AbRIYTkC>; Tue, 25 Sep 2001 15:40:02 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:3332 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273141AbRIYTjv>;
+	Tue, 25 Sep 2001 15:39:51 -0400
+Message-ID: <20010924135702.A19530@bug.ucw.cz>
+Date: Mon, 24 Sep 2001 13:57:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jonathan@buzzard.org.uk
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Toshiba driver from 2.4.10 detects my desktop athlon as toshiba notebook...
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
@@ -19,9 +20,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-I need to alloc as much memory as possible, *but not more*. I do not
-want to OOM-kill anything. How do I do this? Tried GFP_KERNEL, will
-oom-kill. GFP_USER will OOM-kill, too.
+When I do cat /proc/toshiba, it says
+
+1.1 0x0000 255.192 70.44 0x1a86 0xff
+
+Machine is MVP3 based. Do you want lspci?
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

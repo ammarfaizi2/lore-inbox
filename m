@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275291AbTHSBv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 21:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275294AbTHSBv1
+	id S275289AbTHSBus (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 21:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275291AbTHSBus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 21:51:27 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:59341 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S275291AbTHSBvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 21:51:25 -0400
-Date: Tue, 19 Aug 2003 02:50:43 +0100
-From: Dave Jones <davej@redhat.com>
+	Mon, 18 Aug 2003 21:50:48 -0400
+Received: from bay9-f25.bay9.hotmail.com ([64.4.47.25]:36882 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S275289AbTHSBur (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 21:50:47 -0400
+X-Originating-IP: [24.44.12.210]
+X-Originating-Email: [seandarcy@hotmail.com]
+From: "sean darcy" <seandarcy@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'the the' in mails ...
-Message-ID: <20030819015043.GA6164@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20030819012411.GA30871@www.13thfloor.at>
+Subject: 2.4.22-rc2: bad direction 65536
+Date: Mon, 18 Aug 2003 21:50:46 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030819012411.GA30871@www.13thfloor.at>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY9-F25U4RlDUh84Zf0004a4ca@hotmail.com>
+X-OriginalArrivalTime: 19 Aug 2003 01:50:47.0080 (UTC) FILETIME=[4F25AA80:01C365F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 03:24:11AM +0200, Herbert P?tzl wrote:
- > Please, could one of the native english
- > speaker enlighten me about 'the the' ...
- > I know this is absolutely off topic, but
- > about 30 threads, in the last two months,
- > on lkml contain this strange construct, 
- > and I'm worried that I miss something very
- > important ...
- > 
- > or is this just such a common typo? if so
- > please tell me, and I will simply ignore it 
- > from now on ...
+I'm running 2.4.22-rc2. Syslog gets a *lot* of the following:
 
-It's a moderately common typo, particularly common at end of line wraps.
-It turns up quite often for reasons I can't explain.
-There's likely some deep seated psychological reason
-why people selectively blank one of the "the"'s out.
+kernel: svc: bad direction 65536, dropping request
 
-		Dave
+What is this? what's it from? How do I fix it? do I need to?
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+sean
+
+_________________________________________________________________
+<b>Get MSN 8</b> and help protect your children with advanced parental 
+controls.  http://join.msn.com/?page=features/parental
+

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271313AbTGWUvN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 16:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271316AbTGWUvN
+	id S271318AbTGWUxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 16:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271319AbTGWUxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 16:51:13 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19464 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271313AbTGWUvL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 16:51:11 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test1: some modules refuse to autoload
-Date: 23 Jul 2003 20:58:45 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bfmsu5$l2k$1@gatekeeper.tmr.com>
-References: <20030717215139.GA19877@glitch.localdomain>
-X-Trace: gatekeeper.tmr.com 1058993925 21588 192.168.12.62 (23 Jul 2003 20:58:45 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 23 Jul 2003 16:53:51 -0400
+Received: from qlink.QueensU.CA ([130.15.126.18]:11241 "EHLO qlink.queensu.ca")
+	by vger.kernel.org with ESMTP id S271318AbTGWUxn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 16:53:43 -0400
+Subject: hyperthreading-aware scheduler
+From: Nathan Fredrickson <8nrf@qlink.queensu.ca>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058994421.3186.89.camel@rocky>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jul 2003 17:07:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030717215139.GA19877@glitch.localdomain>,
-Greg Norris  <haphazard@kc.rr.com> wrote:
+On Fri, Jul 11, 2003, Andrew Theurer wrote:
+> On Friday 11 July 2003 14:59, Mike Fedyk wrote:
+> > On Fri, Jul 11, 2003 at 02:37:12PM -0500, Andrew Theurer wrote:
+> > > On Friday 11 July 2003 09:02, Dave Jones wrote:
+> > > > Process scheduler improvements.
+> > > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > > - Scheduler is now Hyperthreading SMP aware and will disperse processes
+> > > >   over physically different CPUs, instead of just over logical CPUs.
+> > >
+> > > I'm pretty sure this is not in 2.5 (unless it's in bk after 2.5.75)
+> >
+> > wasn't this merged back in 2.4.6x?
+> 
+> I believe that was support of, not enhancement for HT.  Actually there may 
+> have been some enhancements in other areas, but not scheduler.
 
-| I'm currently running Debian sid, with module-init-tools 0.9.13-pre.
-| I've defined the alias "block-major-22 ide-cd", and verified that both
-| "modprobe -nv block-major-22" and "modprobe -nv ide-cd" give the
-| expected results.  When I try to mount a CD, however, I get the message
-| "/dev/hdc not a valid block device".  Browsing the system logfiles, I
-| don't see any indication that a module load was even attempted.
-| Everything works fine if I load the ide-cd module manually first.
+Now that we have support of HT, what is the status hyperthreading-aware
+scheduler?  Do any of the testing-trees have a hyperthreading-aware
+scheduler?
 
-Is hdd set to anything special? And is hdc set to cdrom? If not, try an
-explicit "hdc=cdrom" on the boot line. I have had to do this on several
-systems, in spite of dmesg telling me the kernel knows that it's a CD.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Ingo has some HT-scheduler patches here: 
+http://people.redhat.com/mingo/O(1)-scheduler/
+The most recent is for 2.5.68, but unfortunately due to other problems I
+have only been able to run kernels 2.5.70 and greater.  Also my attempts
+at forward-porting Ingo's 2.5.68 patch have not been successful.
+
+I have access to dual and quad HT-enabled systems and would be happy to
+do some testing as I learn more about the scheduler.  SMP w/ HT systems
+have scheduling issues that don't exist in a UP w/ HT system.  For
+example when there are 4 compute intensive threads in quad HT system
+they should be scheduled on physically unique processors.  This does not
+happen with the current scheduler even in an otherwise completely idle
+system.  Two threads often end up on the same physical processor and
+remain there due to their affinity.
+
+Nathan
+

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUGOMdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266023AbUGOMr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUGOMdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 08:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUGOMdK
+	id S266023AbUGOMr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 08:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUGOMr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 08:33:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15563 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266186AbUGOMdC (ORCPT
+	Thu, 15 Jul 2004 08:47:56 -0400
+Received: from cantor.suse.de ([195.135.220.2]:20387 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266023AbUGOMrz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 08:33:02 -0400
-Date: Thu, 15 Jul 2004 14:31:51 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Paul Jakma <paul@clubi.ie>
-Cc: christophe.varoqui@free.fr, dm-devel@redhat.com,
+	Thu, 15 Jul 2004 08:47:55 -0400
+Date: Thu, 15 Jul 2004 14:47:50 +0200
+From: Stefan Seyfried <seife@gmane0305.slipkontur.de>
+To: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>,
        linux-kernel@vger.kernel.org
-Subject: Re: namespaces (was Re: [Q] don't allow tmpfs to page out)
-Message-ID: <20040715123148.GA23112@devserv.devel.redhat.com>
-References: <1089878317.40f6392d7e365@imp5-q.free.fr> <20040715080017.GB20889@devserv.devel.redhat.com> <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
+Subject: Re: swsuspend not working
+Message-ID: <20040715124750.GA8065@suse.de>
+References: <20040715121042.GB9873@lps.ens.fr.suse.lists.linux.kernel>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040715121042.GB9873@lps.ens.fr>
+X-Operating-System: SUSE LINUX Enterprise Server 9 (i586), Kernel 2.6.5-7.97-default
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 15, 2004 at 12:13:10PM +0000, Éric Brunet wrote:
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I booted with " root=/dev/hda2 resume=/dev/hda5 init=/bin/sh". No initrd,
+> of course. Once I had a prompt, I mounted /proc and echoed 4 to
+> /proc/acpi/sleep. The screen blinked and 3 seconds later I was back at my
 
-On Thu, Jul 15, 2004 at 01:31:08PM +0100, Paul Jakma wrote:
-> On Thu, 15 Jul 2004, Arjan van de Ven wrote:
-> 
-> >sure; namespaces can do a LOT
-> 
-> speaking of which, how does one use namespaces exactly? The kernel 
-> appears to maintain mount information per process, but how do you set 
-> this up?
-> 
-> neither 'man mount/namespace' nor 'appropos namespace' show up 
-> anything.
+you have to swapon your swap partition.
 
-it's a clone() flag....
+> Here are the kernel messages I got:
+> -----------------------------------------
+> dsmthdat-0462 [36] ds_method_data_get_val: Uninitialized Local[0] at node df72f10c
+> Freeing memory: .....|
+> PM: Attempting to suspend to disk.
+> PM: snapshotting memory.
 
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+that's not swsusp, that's pmdisk. check your kernel config.
+-- 
+Stefan Seyfried
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA9nk0xULwo51rQBIRAtAnAJsGc1In6DEGNXJMfdenWV60rH48fQCbBk0i
-YyOHIyOG34MW1BblRplvSfM=
-=eFrb
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--
+"Any ideas, John?"
+"Well, surrounding thems out."

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274288AbRIYAkp>; Mon, 24 Sep 2001 20:40:45 -0400
+	id <S274292AbRIYAlp>; Mon, 24 Sep 2001 20:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274289AbRIYAkf>; Mon, 24 Sep 2001 20:40:35 -0400
-Received: from anime.net ([63.172.78.150]:32524 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S274288AbRIYAkR>;
-	Mon, 24 Sep 2001 20:40:17 -0400
-Date: Mon, 24 Sep 2001 17:40:39 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-In-Reply-To: <1001378096.1430.13.camel@gromit.house>
-Message-ID: <Pine.LNX.4.30.0109241738300.16371-100000@anime.net>
+	id <S274293AbRIYAlg>; Mon, 24 Sep 2001 20:41:36 -0400
+Received: from myth7.Stanford.EDU ([171.64.15.21]:7351 "EHLO
+	myth7.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S274292AbRIYAlb>; Mon, 24 Sep 2001 20:41:31 -0400
+Date: Mon, 24 Sep 2001 17:41:44 -0700 (PDT)
+From: Ken Ashcraft <kash@stanford.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] two probable security holes
+In-Reply-To: <20010924.172608.105430357.davem@redhat.com>
+Message-ID: <Pine.GSO.4.31.0109241733010.17545-100000@myth7.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Sep 2001, Michael Rothwell wrote:
-> I wonder if I could be put in jail next week because of all that stupid
-> cuecat stuff I was involved in?
+On Mon, 24 Sep 2001, David S. Miller wrote:
+> ifreq copied safely to kernel space, ifr.ifr_name[] is inside the
+> struct and NOT a user pointer.
 
-The "WEP crack" fallout will be interesting to watch also.
+Sorry, my explanation of the checker may not have been clear enough-- a
+format string error does not occur because the kernel dereferences a user
+pointer.  It happens because the format string to a printing function is
+set by the user.  You are correct that ifr_name[] is not a user pointer,
+but the contents of that array could contain dangerous placeholders set by
+the user.  I hope that clears things up.
 
-In theory under the new law anyone whos computer was infected by
-nimda/codered could be imprisoned for life -- the new law says nothing
-about intent. So basically we would have a few million microsoft windows
-users serving life sentences...
-
--Dan
-
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+Ken
 

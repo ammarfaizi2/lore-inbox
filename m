@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTDWL2F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 07:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbTDWL2F
+	id S264000AbTDWLhK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 07:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTDWLhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 07:28:05 -0400
-Received: from bamb-d9b9753e.pool.mediaWays.net ([217.185.117.62]:10244 "EHLO
-	rz.zidlicky.org") by vger.kernel.org with ESMTP id S263997AbTDWL2E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 07:28:04 -0400
-Date: Wed, 23 Apr 2003 13:27:00 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: alan@lxorguk.ukuu.org.uk, geert@linux-m68k.org, torvalds@transmeta.com,
-       paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] M68k IDE updates
-Message-ID: <20030423112700.GA973@linux-m68k.org>
-References: <Pine.GSO.4.21.0304221802570.16017-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.21.0304221802570.16017-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.4i
+	Wed, 23 Apr 2003 07:37:10 -0400
+Received: from mxout3.netvision.net.il ([194.90.9.24]:3003 "EHLO
+	mxout3.netvision.net.il") by vger.kernel.org with ESMTP
+	id S264000AbTDWLhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 07:37:09 -0400
+Date: Wed, 23 Apr 2003 14:58:21 +0200
+From: Nir Livni <nir_l3@netvision.net.il>
+Subject: Re: FileSystem Filter Driver
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <000601c30998$4ab21690$4ee1db3e@pinguin>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <000501c30983$1ffb8950$ade1db3e@pinguin>
+ <1051092516.1896.7.camel@abhilinux.cygnet.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: 22 Apr 2003 15:49:15 +0100
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Linus Torvalds <torvalds@transmeta.com>, Paul Mackerras <paulus@samba.org>,
->      Linux Kernel Development <linux-kernel@vger.kernel.org>
-> Subject: Re: [PATCH] M68k IDE updates
-> 
-> On Llu, 2003-04-21 at 17:55, Geert Uytterhoeven wrote:
-> > However, there's also a routine that involves more magic:
-> > taskfile_lib_get_identify(). While trying to understand that one, I found more
-> > commands that should call the (possible byteswapping) hwif->ata_input_id()
-> > operations, like SMART commands. So first we need a clearer differentiation
-> > between commands that transfer on-platter data, or other drive data.
-> > 
-> > Any comments from the IDE experts?
-> 
-> Only one, stop abusing the IDE layer and do your byte swapping via a loopback/md 
-> or similar piece of code.
 
-It seems that Geert´ idea would fit neatly into the current IDE 
-system. Endianness of on disk data and drive control data are
-clearly different things. A while ago Andre suggested to switch
-the transport based on opcode to make it work, it might be even
-more straightforward to set some flag when the handler is selected
-or take a distinct handler altogether (ide_cmd_type_parser or
-ide_handler_parser).
 
-Otoh trying to solve that with loopback would mean new kernels 
-wouldn´t even see the partition table of old installed harddisks
-on some machines. Fixing that would require an initial ramdisk
-that does setup the loopback device according to kernel version,
-reading the partition table from a loop device and magically make
-it appear compatible to the old devices.
 
-Richard
+> On Wed, 2003-04-23 at 15:58, Nir Livni wrote:
+> > Hi all,
+> > I am looking for information about writing a FileSystem Filter Driver on
+RH.
+> > Any documentation or source code samples whould be appreciated.
+> >
+>
+> What's a FileSystem Filter Driver?
+>
+A FileSystem Filter Driver, is a driver the is located above the file system
+driver, and filters calls. It may pass the call to the filesystem as is,
+maybe change it, or fail it ("access denied" for example).
+It is actually something that exists on Windows file systems, but I'm sure
+it can also be done on Linux.
+
 

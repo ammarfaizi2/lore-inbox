@@ -1,109 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbUANTOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 14:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUANTNu
+	id S263953AbUANTXw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 14:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUANTV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 14:13:50 -0500
-Received: from smtp02.web.de ([217.72.192.151]:47367 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262683AbUANTMh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 14:12:37 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: 2.6.1-mm3
-Date: Wed, 14 Jan 2004 20:12:01 +0100
-User-Agent: KMail/1.5.4
-References: <20040114014846.78e1a31b.akpm@osdl.org>
-In-Reply-To: <20040114014846.78e1a31b.akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Wed, 14 Jan 2004 14:21:27 -0500
+Received: from [81.193.98.140] ([81.193.98.140]:31366 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S263370AbUANTU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 14:20:29 -0500
+Message-ID: <4005971F.4020608@vgertech.com>
+Date: Wed, 14 Jan 2004 19:23:11 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_BSZBA6wgnbQ7Nx+";
-  charset="iso-8859-1"
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 013 release
+References: <20040113235213.GA7659@kroah.com> <4004D084.1050106@vgertech.com> <20040114171527.GB5472@kroah.com> <40058086.5000106@nortelnetworks.com>
+In-Reply-To: <40058086.5000106@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401142012.01649.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-03=_BSZBA6wgnbQ7Nx+
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_BSZBAjGzyMjP+7Y"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+Hi Chris!
+Hi Greg!
 
---Boundary-01=_BSZBAjGzyMjP+7Y
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
+Chris Friesen wrote:
+> Greg KH wrote:
+  >
+>> Yeah, but what exactly would udev print out?  All of the sysfs files in
+>> the device it found?  Would it print it out for every device that comes
+>> through?  Or just for ones that no rule applied to?
+> 
+> 
+> 
+> Maybe for ones with a matching rule, you could print something like:
+> 
+> udev[1234]: new device found matching rule <blah>, creating device node 
+> <nodename>
+> 
+> For ones that don't match any rules, you could dump out all the info:
+> 
+> udev[1234]: new device found with no matching rules, device info: blah blah
+> 
 
-Hi,
+This would be nice but I think that full info for every new hotplugged 
+device is even better. It's only 1 line :-)
 
-the patch "serial-03-fixups.patch" introduced following compile error:
+Lame people, like myself, will make this rule:
 
-  CC [M]  drivers/char/moxa.o
-drivers/char/moxa.c: In function `moxa_tiocmget':
-drivers/char/moxa.c:754: error: `port' undeclared (first use in this functi=
-on)
-drivers/char/moxa.c:754: error: (Each undeclared identifier is reported onl=
-y=20
-once
-drivers/char/moxa.c:754: error: for each function it appears in.)
-drivers/char/moxa.c: In function `moxa_tiocmset':
-drivers/char/moxa.c:779: error: `port' undeclared (first use in this functi=
-on)
+BUS="scsi", SYSFS_model="CD-Writer cd4f*", KERNEL="sr*", NAME="cdrw"
 
-The attached patch fixes it...
+When I connect a second drive (same model) /udev/cdrw will be 
+overwritten. So I'd want to check the logs, find some difference between 
+the two and create a new entry "myfriends-cdrw".
 
-  Thomas Schlichter
+(I know that NAME="cdrw%n" would work but that depends on the order you 
+plug things).
 
---Boundary-01=_BSZBAjGzyMjP+7Y
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="fix_moxa.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="fix_moxa.diff"
-
-=2D-- linux-2.6.1-mm3/drivers/char/moxa.c.orig	2004-01-14 19:04:43.66355645=
-6 +0100
-+++ linux-2.6.1-mm3/drivers/char/moxa.c	2004-01-14 19:18:54.179258416 +0100
-@@ -749,6 +749,7 @@
- static int moxa_tiocmget(struct tty_struct *tty, struct file *file)
- {
- 	struct moxa_str *ch =3D (struct moxa_str *) tty->driver_data;
-+	register int port;
- 	int flag =3D 0, dtr, rts;
-=20
- 	port =3D PORTNO(tty);
-@@ -774,6 +775,7 @@
- 			 unsigned int set, unsigned int clear)
- {
- 	struct moxa_str *ch =3D (struct moxa_str *) tty->driver_data;
-+	register int port;
- 	int flag =3D 0, dtr, rts;
-=20
- 	port =3D PORTNO(tty);
-
---Boundary-01=_BSZBAjGzyMjP+7Y--
-
---Boundary-03=_BSZBA6wgnbQ7Nx+
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBABZSBYAiN+WRIZzQRAuWUAJ4qm0CU+YUduhlQNYOyi+hqQO3rHACgivP/
-zMK1aW1puz/8SeGKqr7c6JU=
-=bm7N
------END PGP SIGNATURE-----
-
---Boundary-03=_BSZBA6wgnbQ7Nx+--
+Regards,
+Nuno Silva
 

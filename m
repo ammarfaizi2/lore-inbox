@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbQKHOzJ>; Wed, 8 Nov 2000 09:55:09 -0500
+	id <S129416AbQKHO47>; Wed, 8 Nov 2000 09:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKHOyu>; Wed, 8 Nov 2000 09:54:50 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:86 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129094AbQKHOyS>; Wed, 8 Nov 2000 09:54:18 -0500
-Date: Wed, 8 Nov 2000 08:53:19 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200011081453.IAA340590@tomcat.admin.navo.hpc.mil>
-To: riel@conectiva.com.br, Szabolcs Szakacsits <szaka@f-secure.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Looking for better VM
-X-Mailer: [XMailTool v3.1.2b]
+	id <S129451AbQKHO4k>; Wed, 8 Nov 2000 09:56:40 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:18195 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129130AbQKHO4W>;
+	Wed, 8 Nov 2000 09:56:22 -0500
+Date: Wed, 8 Nov 2000 15:56:15 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Message-ID: <20001108155615.B2430@pcep-jamie.cern.ch>
+In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> <E13spzE-0006Q3-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13spzE-0006Q3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 06, 2000 at 05:23:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------
-> On Wed, 8 Nov 2000, Szabolcs Szakacsits wrote:
-> > On Mon, 6 Nov 2000, Rik van Riel wrote:
-[snip]
-> > You could ask, so what's the point for non-overcommit if we use
-> > process killing in the end? And the answer, in *practise* this almost
-> > never happens, root can always clean up and no processes are lost
-> > [just as when disk is "full" except the reserved area for root]. See?
-> > Human get a chance against hard-wired AI.
-> > 
-> > I also didn't say non-overcommit should be used as default and a
-> > patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
-> > developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
-> > ignored completely, implemented it this way. 
-> 
-> OK. This is a lot more reasonable. I'm actually looking
-> into putting non-overcommit as a configurable option in
-> the kernel.
-> 
-> However, this does not save you from the fact that the
-> system is essentially deadlocked when nothing can get
-> more memory and nothing goes away. Non-overcommit won't
-> give you any extra reliability unless your applications
-> are very well behaved ... in which case you don't need
-> non-overcommit.
+Alan Cox wrote:
+> Add a 'preserved' tag for one section of module memory. On load look up the
+> data, if its from this boot memcpy it into the module. On unload write it
+> back to disk. No kernel code needed.
 
-Applications are not usually the problem, users are. If a user starts
-one "well behaved" process, and then starts another, and another....
-The system WILL go OOM, and with unpredictable results (as far as the user
-is concerned).
+I like!  No kernel code, yet no races or delay.
 
-The Eduardo Horvath patch works exactly as he designed. It allowed overcommit
-by root, disallowed user generating overcommit. or it could disallow
-overcommit by all, or operate the same as without the patch (but it did
-accumulate some statistics).
+As written that removes the possibilities of variable length persistant
+data, and the data is opaque to user space.
 
-The problem is that unless user memory resource controls are available to
-the administrator to establish some policy, system deadlock will always
-occur, OR you have random shutdowns, or random process aborts. The resource
-controls should allow an administrator defined policy, established in user
-space, and enforced by the kernel. The kernel should be able to enforce any
-policy from no memory restriction (current, and reasonable for single user
-workstations), to fully disabled overcommit (dedicated multi-user batch
-processing in clustered environments).
+MODULE_PARM provides type information and structure to the data.  Why
+not mark certain PARMS as persistent?  Not all would be named -- a block
+of opaque data is useful.  But certain things like all the mixer levels
+could be named parameters, giving you both persistant storage _and_
+explicit configuration when you want that.  "s" PARMS (or similar)
+can hold variable length data.
 
-I know the patch was an early prototype. It did provide some identification
-of the locations that resource controls could/should be done (this should be a
-2.5 developement item).
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,331 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267109AbUBFAim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 19:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267110AbUBFAim
+	id S267105AbUBFAeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 19:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267045AbUBFAeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 19:38:42 -0500
-Received: from mail.gmx.net ([213.165.64.20]:9407 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267109AbUBFAii (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 19:38:38 -0500
-X-Authenticated: #4512188
-Message-ID: <4022E209.3040909@gmx.de>
-Date: Fri, 06 Feb 2004 01:38:33 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 19:34:13 -0500
+Received: from clem.clem-digital.net ([68.16.168.10]:10245 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S267105AbUBFAd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 19:33:28 -0500
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200402060033.TAA21433@clem.clem-digital.net>
+Subject: Re: psmouse.c, throwing 3 bytes away
+In-Reply-To: <20040205203840.GA13114@ucw.cz> from Vojtech Pavlik at "Feb 5, 2004  9:38:40 pm"
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Thu, 5 Feb 2004 19:33:21 -0500 (EST)
+Cc: murilo_pontes@yahoo.com.br, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-CC: Craig Bradney <cbradney@zip.com.au>, Andrew Morton <akpm@osdl.org>,
-       david+challenge-response@blue-labs.org,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       a.verweij@student.tudelft.nl
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org> <1076026496.16107.23.camel@athlonxp.bradney.info> <4022DE3C.1080905@wanadoo.es>
-In-Reply-To: <4022DE3C.1080905@wanadoo.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luis Miguel García wrote:
-> Craig Bradney wrote:
-> 
->>
->>
->>
->> One day hopefully this will be sorted in the BIOSes and in mainline. I
->> keep having to patch for every release (although as thats the only patch
->> I have to do I'm sure there are many worse off than me). I use the 3com
->> n/w on my A7N8X Deluxe v2 BIOS 1007 so no need for nforcedeth.
->>
->> Best patches are at:
->> http://lkml.org/lkml/2003/12/21/7
->>
->> Ive applied them to 2.6.0 and 2.6.1 and give no crashes and no heat
->> issues.
+Quoting Vojtech Pavlik
+  > 
+  > Hey, guys, could you possibly try to figure out what your machines have
+  > in common? I've switched all my computers to PS/2 mice so that I have a
+  > bigger chance to reproduce the problem, but it is not happening on any
+  > of them.
+  > 
+  > -- 
+  > Vojtech Pavlik
+  > SuSE Labs, SuSE CR
+  > -
+I'll join in on this. Have two systems that have this problem.  Do not
+recall when first observed, believe post 2.6.0 bk's/rc's.  Occurance is
+totally random, only common thread is the mouse lost sync message. Running
+Debian 3.0r2, one system SMP, both bare bones X.  Config for the smp system 
+below (2.6.2-bk1 have not actually seen problem on this kernel yet).
 
-Unfortunately that patch doesn't work for me. Still locks if I try APIC 
-+CPU DIsc.
+-- 
+Pete Clements 
 
->>
->> (XP2600+ runs at 31/32C normal use and 38C compiling with Zalman cooler
->> +exhaust fans in box)
->>
->> Craig
->>  
->>
-> you mean 31 - 38 C readed from /proc/acpi/temp[........]????
-> 
-> I'm having readings of 53 in idle and even 64 while compiling!! I have 
-> no case fan, but I don't think it's so important for this bug difference.
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
 
-The problem is, you cannot trust those infos esp not across board 
-manufacturers. In case of Abit nearly every bios shows different values...
+CONFIG_EXPERIMENTAL=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
 
-I have an Athon XP running at 2.1Gz with 1.65vcore. Idle: 50°C (with CPU 
-Disc usually about 44-40°C) and under load about 54°C. I am usign a more 
-or less self-made watercooling.
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HAVE_DEC_LOCK=y
 
 
-Prakash
+CONFIG_ACPI_BOOT=y
+
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+
+
+
+
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+
+
+CONFIG_BLK_DEV_FD=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDE_TASKFILE_IO=y
+
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDE_CHIPSETS=y
+
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_SCSI_QLA2XXX_CONFIG=y
+
+
+
+
+
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+
+CONFIG_IPV6=m
+CONFIG_NETFILTER=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+
+
+CONFIG_IPV6_SCTP__=m
+
+
+CONFIG_NETDEVICES=y
+
+
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL3=y
+
+
+
+CONFIG_PPP=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+
+
+
+
+
+
+
+
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+
+
+
+CONFIG_RTC=y
+
+
+
+
+
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+
+
+
+CONFIG_EXT2_FS=y
+
+CONFIG_ISO9660_FS=y
+
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_RAMFS=y
+
+
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+
+
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y

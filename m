@@ -1,56 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261285AbSJBA0W>; Tue, 1 Oct 2002 20:26:22 -0400
+	id <S261331AbSJBAaL>; Tue, 1 Oct 2002 20:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261331AbSJBA0W>; Tue, 1 Oct 2002 20:26:22 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:10743 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261285AbSJBA0V>; Tue, 1 Oct 2002 20:26:21 -0400
-Subject: Re: [PATCH] 8390.c: preemption and disable_irq
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1033509479.12851.34.camel@phantasy>
-References: <1033509479.12851.34.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Oct 2002 01:39:01 +0100
-Message-Id: <1033519141.20103.32.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261529AbSJBAaL>; Tue, 1 Oct 2002 20:30:11 -0400
+Received: from gw.glou.org ([62.4.18.209]:5132 "EHLO godet.glou.org")
+	by vger.kernel.org with ESMTP id <S261331AbSJBAaI>;
+	Tue, 1 Oct 2002 20:30:08 -0400
+To: linux-kernel@vger.kernel.org
+Subject: No mouse wheel in 2.5.40
+Organization: Hipss canal alcoolique
+Mail-Copies-To: nobody
+X-No-Productlinks: yes
+From: Arnaud Gomes-do-Vale <arnaud@carrosse.frmug.org>
+Date: 02 Oct 2002 02:35:28 +0200
+Message-ID: <m3fzvpr833.fsf@carrosse.in.glou.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-01 at 22:58, Robert Love wrote:
-> P.S. Note there is a much simpler solution of merely flipping the
-> spin_lock() and disable_irq() calls - the spin_lock() will provide the
-> atomicity without the explicit preempt_disable().  I do not think this
-> is safe, however, since the IRQ handler could deadlock if it grabbed
-> this lock (which I assume it does).
+Hi,
+
+I have just tried 2.5.40, my mouse wheel doesn't work anymore. It
+still works as a third button, bot not as a wheel. It works OK with
+2.4.20-pre7 with the same configuration. The mouse is a Logitech OEM
+PS/2 wheel mouse (with black logo). Here is the input device section
+from my .config:
+
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=y
+# CONFIG_INPUT_EVBUG is not set
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+# CONFIG_GAMEPORT_NS558 is not set
+# CONFIG_GAMEPORT_L4 is not set
+# CONFIG_GAMEPORT_EMU10K1 is not set
+# CONFIG_GAMEPORT_VORTEX is not set
+# CONFIG_GAMEPORT_FM801 is not set
+# CONFIG_GAMEPORT_CS461x is not set
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_JOYSTICK_ANALOG is not set
+# CONFIG_JOYSTICK_A3D is not set
+# CONFIG_JOYSTICK_ADI is not set
+# CONFIG_JOYSTICK_COBRA is not set
+# CONFIG_JOYSTICK_GF2K is not set
+# CONFIG_JOYSTICK_GRIP is not set
+# CONFIG_JOYSTICK_GRIP_MP is not set
+# CONFIG_JOYSTICK_GUILLEMOT is not set
+# CONFIG_JOYSTICK_INTERACT is not set
+# CONFIG_JOYSTICK_SIDEWINDER is not set
+# CONFIG_JOYSTICK_TMDC is not set
+# CONFIG_JOYSTICK_IFORCE is not set
+# CONFIG_JOYSTICK_WARRIOR is not set
+# CONFIG_JOYSTICK_MAGELLAN is not set
+# CONFIG_JOYSTICK_SPACEORB is not set
+# CONFIG_JOYSTICK_SPACEBALL is not set
+# CONFIG_JOYSTICK_STINGER is not set
+# CONFIG_JOYSTICK_TWIDDLER is not set
+# CONFIG_JOYSTICK_DB9 is not set
+# CONFIG_JOYSTICK_GAMECON is not set
+# CONFIG_JOYSTICK_TURBOGRAFX is not set
+# CONFIG_INPUT_JOYDUMP is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_TOUCHSCREEN_GUNZE is not set
+# CONFIG_INPUT_MISC is not set
+# CONFIG_INPUT_PCSPKR is not set
+# CONFIG_INPUT_UINPUT is not set
 
 
-The actual game the driver is playing goes like this
+-- 
+Arnaud
 
-ne2k-pci hardware is often very slow (some of it is isa chips nailed to
-crappy pci/isa glue). 8390's also have the fun property that the
-registers are windowed and you can't clear a pending IRQ without
-flipping windows. 
-
-When we do a transmit we want to do the packet upload with most
-interrupts enabled (or you drop serial interrupts and life sucks a lot).
-We take the lock with the irq. We switch window (safely under the lock)
-and we turn interrupts off on the card. We then release the lock. 
-
-At this point you might think all is safe. However IRQ delivery on x86
-is asynchronous so an IRQ can be in flight after we turn it off but not
-yet at the CPU. To cover this case we disable that IRQ line, then take
-the lock - possibly waiting briefly for an IRQ handler to clear on
-another CPU, but not where one can begin to occur and deadlock.
-
-The end result of this little pile of tricks is that you can run ne2k
-cards and a modem on a PC at the same time. I think you want to
-disable pre-empt before we take the lock with irqsave - to cover the
-moment we have the irq disabled against pre-emption and packet loss too
-- ie move the pre-empt disable further backwards.
-
-
+http://www.glou.org/~arnaud/

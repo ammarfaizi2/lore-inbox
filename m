@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVCISgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVCISgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVCISgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVCISdP
+	id S262169AbVCISgX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVCISdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:33:15 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:37986 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262217AbVCISax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:30:53 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [patch 1/1] x86-64: forgot asmlinkage on sys_mmap
-Date: Wed, 9 Mar 2005 19:24:00 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-References: <20050305190005.0943C4B47@zion> <m1br9swx54.fsf@muc.de>
-In-Reply-To: <m1br9swx54.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 13:33:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:58532 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262208AbVCIS3v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 13:29:51 -0500
+Date: Wed, 9 Mar 2005 10:29:43 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309182943.GV5389@shell0.pdx.osdl.net>
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <1110391244.28860.208.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503091924.00518.blaisorblade@yahoo.it>
+In-Reply-To: <1110391244.28860.208.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 March 2005 18:24, Andi Kleen wrote:
-> blaisorblade@yahoo.it writes:
-> > CC: Andi Kleen <ak@suse.de>
-> >
-> > I think it should be there, please check better.
->
-> It doesn't matter. asmlinkage is a nop on x86-64.
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Mer, 2005-03-09 at 09:56, Andi Kleen wrote:
+> > - It must be accepted to mainline. 
+> 
+> Strongly disagree. What if the mainline fix is a rewrite of the core API
+> involved. Some times you need to put in the short term fix. What must
+> never happen is people accepting that fix as long term.
+> 
+> How about
+> 
+>  - It must be accepted to mainline, or the accepted mainline patch be
+> deemed too complex or risky to backport and thus a simple obvious
+> alternative fix applied to stable ONLY.
 
-Yes, otherwise nothing would work on x86-64 with mmap broken, but for 
-cleanness and for the case this change it should be there (otherwise why 
-asmlinkage is used in the rest of the file).
-
-And for i386 asmlinkage acquired significance only recently.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+Yes.
 

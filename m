@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270387AbRILWPX>; Wed, 12 Sep 2001 18:15:23 -0400
+	id <S271795AbRILWg5>; Wed, 12 Sep 2001 18:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271055AbRILWPO>; Wed, 12 Sep 2001 18:15:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36619 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270387AbRILWPG>; Wed, 12 Sep 2001 18:15:06 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: User Space Emulation of Devices
-Date: 12 Sep 2001 15:14:57 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9nomp1$jt7$1@cesium.transmeta.com>
-In-Reply-To: <54045BFDAD47D5118A850002A5095CC30AC57D@exchange1.cam.pace.co.uk> <20010912122826.A6153@bug.ucw.cz> <20010912214444Z271795-760+12170@vger.kernel.org>
+	id <S271820AbRILWgr>; Wed, 12 Sep 2001 18:36:47 -0400
+Received: from mx6.port.ru ([194.67.57.16]:11524 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S271795AbRILWgk>;
+	Wed, 12 Sep 2001 18:36:40 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109130259.f8D2xKZ00746@vegae.deep.net>
+Subject: 2.4.9-ac10 - plague still lives
+To: alan@lxorguk.ukuu.org.uk
+Date: Thu, 13 Sep 2001 02:59:19 +0000 (UTC)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010912214444Z271795-760+12170@vger.kernel.org>
-By author:    Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-In newsgroup: linux.dev.kernel
-> 
-> How do you pass an ioctl ? If any parameter is a pointer you actually need a 
-> complex protocol for passing memory content to make it useful.
-> 
+	Alan i finally (hmm already a week or so ago) catched the process 
+  which forces to oops all kernels since 2.4.7 - it is kupdated, and 
+  it is signed as author of all oopses from the first one appearing to the last.
+  It is very likely that i was wrong earlier claiming oopses were related to 
+  sound issues - since i never then seen oops with not kupdated being the cause.
+        More: ac10 causes mc and vi to segfault badly
+  after some time from bootup. While vi segfaults while being tried to run,
+  mc segfaults while trying to open some file and edit it (ie you open
+  a file, then press anykey and then - you know).
+        I suspect here that the fact i havent recompiled glibc and mc 
+  to reflect possible kernel interface changes is being the cause.
+       Actually 2.4.7 was last stable for me, and i still use it even
+ regarding the fact it suffers console-losing issues which recent acs
+ dont suffer from.
 
-You need a parameter marshalling system; however, they do exist.  It
-might actually be that the best way to deal with this is to make a
-general module framework and compile a specific module to marshall the
-parameters of the device you want to emulate.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+cheers, Sam
+ 

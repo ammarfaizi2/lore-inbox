@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVAYRLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVAYRQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVAYRLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVAYRIt
+	id S262030AbVAYRQo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVAYRQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:08:49 -0500
-Received: from iPass.cambridge.arm.com ([193.131.176.58]:16013 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262023AbVAYRI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:08:26 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: CVSps@dm.cobite.com, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: kernel CVS troubles with cvsps
-References: <20050125164203.GY7587@dualathlon.random>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Tue, 25 Jan 2005 17:10:17 +0000
-In-Reply-To: <20050125164203.GY7587@dualathlon.random> (Andrea Arcangeli's
- message of "Tue, 25 Jan 2005 17:42:03 +0100")
-Message-ID: <tnxsm4po2o6.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 25 Jan 2005 12:16:42 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:27102 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262030AbVAYROe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:14:34 -0500
+Date: Tue, 25 Jan 2005 09:13:50 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       spyro@f2s.com
+Subject: Re: [PATCH] Use MM_VM_SIZE in exit_mmap
+Message-ID: <20050125171350.GA18433@taniwha.stupidest.org>
+References: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com> <20050125164642.GA17927@taniwha.stupidest.org> <20050125165745.GA27433@krispykreme.ozlabs.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050125165745.GA27433@krispykreme.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
-> sorry to annoy you about this, but something is going wrong with either
-> cvsps or the kernel CVS.
->
-> I reproducibly get this as the last changeset, note the date. The
-> --bkcvs breaks completely too, but that would be a minor issue since
-> cvsps by default will get it right from the dates that are atomic with
-> the bk2cvs conversion.
+On Wed, Jan 26, 2005 at 03:57:45AM +1100, Anton Blanchard wrote:
 
-I noticed this problem some time ago when trying to see whether the
-darcs repository is consistent with the BK one:
+> > >  #ifndef MM_VM_SIZE
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110026570201544&w=2
-
-A solution is to use the "(Logical change ...)" string within each
-file's commit log instead of the date (I realised that it is simpler
-to write a shell script to generate the diffs rather than modifying
-cvsps).
-
-Catalin
-
+i didn't read carefull, so no it won't warn.... still, i don't like
+that being there but that can wait i guess

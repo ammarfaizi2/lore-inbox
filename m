@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275146AbRJAPbj>; Mon, 1 Oct 2001 11:31:39 -0400
+	id <S275156AbRJAPfT>; Mon, 1 Oct 2001 11:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275144AbRJAPb3>; Mon, 1 Oct 2001 11:31:29 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:15272 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S275139AbRJAPbL>;
-	Mon, 1 Oct 2001 11:31:11 -0400
-Date: Mon, 1 Oct 2001 10:31:37 -0500
-From: Nathan Straz <nstraz@sgi.com>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: [LTP] growfiles and other processes in "ps aux" STAT D
-Message-ID: <20011001103136.A7136@sgi.com>
-Mail-Followup-To: "M. Edward Borasky" <znmeb@aracnet.com>,
-	rwhron@earthlink.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20010930143610.A15607@earthlink.net> <HBEHIIBBKKNOBLMPKCBBMENPDNAA.znmeb@aracnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBMENPDNAA.znmeb@aracnet.com>
-User-Agent: Mutt/1.3.22i
+	id <S275155AbRJAPfL>; Mon, 1 Oct 2001 11:35:11 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6413 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275161AbRJAPeu>; Mon, 1 Oct 2001 11:34:50 -0400
+Date: Mon, 1 Oct 2001 08:35:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Mason <mason@suse.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.11-pre1 oops in bdget()
+In-Reply-To: <1262100000.1001940100@tiny>
+Message-ID: <Pine.LNX.4.33.0110010832060.1610-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 30, 2001 at 02:19:13PM -0700, M. Edward Borasky wrote:
-> Where can I get a copy of "growfiles"??
 
-growfiles is part of the Linux Test Project (see my sig).  
+On Mon, 1 Oct 2001, Chris Mason wrote:
+>
+> >>> EIP; c0133664 <bdget+f8/180>   <=====
+> > Trace; c0133792 <bd_acquire+26/80>
+> > Trace; c0133c16 <blkdev_open+16/b8>
+>
+> Well, this isn't good, looks like we've already freed something and are
+> still using it.  Could you please turn on 'Debug memory allocations' in the
+> kernel debugging section of make config, and try to reproduce again?
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/
+No, it's actually the thing that Al already warned me about, and I didn't
+realize how serious it was.
+
+The thing we oops on is the _old_ blksize_size[] array information for the
+floppy, which was loaded as a module and then unloaded - it's ugly that it
+doesn't clean up its copy of the blksize_size array, but the real cause
+for the problem is that bdget() references it before it has opened the
+device.
+
+The (untested) fix is to just remove the line in bdget() that sets
+i_blkbits, as the thing is later set correctly in blkdev_get().
+
+		Linus
+

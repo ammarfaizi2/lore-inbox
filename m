@@ -1,133 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbULWW7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbULWXBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbULWW7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 17:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbULWWwn
+	id S261333AbULWXBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 18:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbULWXBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 17:52:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32416 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261331AbULWWuL (ORCPT
+	Thu, 23 Dec 2004 18:01:21 -0500
+Received: from ozlabs.org ([203.10.76.45]:27372 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261330AbULWXAb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 17:50:11 -0500
-Date: Thu, 23 Dec 2004 14:54:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Robin Holt <holt@sgi.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
-Message-Id: <20041223145433.596db88c.akpm@osdl.org>
-In-Reply-To: <20041223173749.GA18887@lnx-holt.americas.sgi.com>
-References: <20041222220800.GB6213@lnx-holt.americas.sgi.com>
-	<20041223173749.GA18887@lnx-holt.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Dec 2004 18:00:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16843.19972.17026.69228@cargo.ozlabs.ibm.com>
+Date: Fri, 24 Dec 2004 10:00:20 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: clameter@sgi.com, linux-ia64@vger.kernel.org, torvalds@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Prezeroing V2 [0/3]: Why and When it works
+In-Reply-To: <20041223133745.1d95bb08.akpm@osdl.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
+	<41C20E3E.3070209@yahoo.com.au>
+	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
+	<16843.13418.630413.64809@cargo.ozlabs.ibm.com>
+	<20041223133745.1d95bb08.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt <holt@sgi.com> wrote:
->
-> We have uncovered a very difficult to trip AB-BA deadlock between the
-> uidhash_lock and tasklist_lock.
+Andrew Morton writes:
 
-yup.  I made some changes to your patch - please review.
+> When the workload is a gcc run, the pagefault handler dominates the system
+> time.  That's the page zeroing.
 
-- s/spin_lock_irqsave/spin_lock_irq/ in those places where local
-  interrupts are obviously always enabled.
+For a program which uses a lot of heap and doesn't fork, that sounds
+reasonable.
 
-- your second patch still missed find_user().
+> x86's movnta instructions provide a way of initialising memory without
+> trashing the caches and it has pretty good bandwidth, I believe.  We should
+> wire that up to these patches and see if it speeds things up.
 
-- add comment.
+Yes.  I don't know the movnta instruction, but surely, whatever scheme
+is used, there has to be a snoop for every cache line's worth of
+memory that is zeroed.
 
+The other point is that having the page hot in the cache may well be a
+benefit to the program.  Using any sort of cache-bypassing zeroing
+might not actually make things faster, when the user time as well as
+the system time is taken into account.
 
---- 25/kernel/user.c~ab-ba-deadlock-between-uidhash_lock-and-tasklist_lock	Thu Dec 23 14:45:02 2004
-+++ 25-akpm/kernel/user.c	Thu Dec 23 14:52:07 2004
-@@ -26,6 +26,14 @@
- 
- static kmem_cache_t *uid_cachep;
- static struct list_head uidhash_table[UIDHASH_SZ];
-+
-+/*
-+ * uidhash_lock is taken inside write_lock_irq(&tasklist_lock).  If a timer
-+ * interrupt were to occur while we hold uidhash_lock, and that interrupt takes
-+ * read_lock(&tasklist_lock) then we have an ab/ba deadlock scenario.  Hence
-+ * uidhash_lock must always be taken in an ir-qsafe manner to hold off the
-+ * timer interrupt.
-+ */
- static spinlock_t uidhash_lock = SPIN_LOCK_UNLOCKED;
- 
- struct user_struct root_user = {
-@@ -81,15 +89,19 @@ static inline struct user_struct *uid_ha
- struct user_struct *find_user(uid_t uid)
- {
- 	struct user_struct *ret;
-+	unsigned long flags;
- 
--	spin_lock(&uidhash_lock);
-+	spin_lock_irqsave(&uidhash_lock, flags);
- 	ret = uid_hash_find(uid, uidhashentry(uid));
--	spin_unlock(&uidhash_lock);
-+	spin_unlock_irqrestore(&uidhash_lock, flags);
- 	return ret;
- }
- 
- void free_uid(struct user_struct *up)
- {
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
- 	if (up && atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
- 		uid_hash_remove(up);
- 		key_put(up->uid_keyring);
-@@ -97,6 +109,7 @@ void free_uid(struct user_struct *up)
- 		kmem_cache_free(uid_cachep, up);
- 		spin_unlock(&uidhash_lock);
- 	}
-+	local_irq_restore(flags);
- }
- 
- struct user_struct * alloc_uid(uid_t uid)
-@@ -104,9 +117,9 @@ struct user_struct * alloc_uid(uid_t uid
- 	struct list_head *hashent = uidhashentry(uid);
- 	struct user_struct *up;
- 
--	spin_lock(&uidhash_lock);
-+	spin_lock_irq(&uidhash_lock);
- 	up = uid_hash_find(uid, hashent);
--	spin_unlock(&uidhash_lock);
-+	spin_unlock_irq(&uidhash_lock);
- 
- 	if (!up) {
- 		struct user_struct *new;
-@@ -132,7 +145,7 @@ struct user_struct * alloc_uid(uid_t uid
- 		 * Before adding this, check whether we raced
- 		 * on adding the same user already..
- 		 */
--		spin_lock(&uidhash_lock);
-+		spin_lock_irq(&uidhash_lock);
- 		up = uid_hash_find(uid, hashent);
- 		if (up) {
- 			key_put(new->uid_keyring);
-@@ -142,7 +155,7 @@ struct user_struct * alloc_uid(uid_t uid
- 			uid_hash_insert(new, hashent);
- 			up = new;
- 		}
--		spin_unlock(&uidhash_lock);
-+		spin_unlock_irq(&uidhash_lock);
- 
- 	}
- 	return up;
-@@ -178,9 +191,9 @@ static int __init uid_cache_init(void)
- 		INIT_LIST_HEAD(uidhash_table + n);
- 
- 	/* Insert the root user immediately (init already runs as root) */
--	spin_lock(&uidhash_lock);
-+	spin_lock_irq(&uidhash_lock);
- 	uid_hash_insert(&root_user, uidhashentry(0));
--	spin_unlock(&uidhash_lock);
-+	spin_unlock_irq(&uidhash_lock);
- 
- 	return 0;
- }
-_
+> > I did some measurements once on my G5 powermac (running a ppc64 linux
+> > kernel) of how long clear_page takes, and it only takes 96ns for a 4kB
+> > page.
+> 
+> 40GB/s.  Is that straight into L1 or does the measurement include writeback?
 
+It is the average elapsed time in clear_page, so it would include the
+writeback of any cache lines displaced by the zeroing, but not the
+writeback of the newly-zeroed cache lines (which we hope will be
+modified by the program before they get written back anyway).
+
+This is using the dcbz (data cache block zero) instruction, which
+establishes a cache line in modified state with zero contents without
+any memory traffic other than a cache line kill transaction sent to
+the other CPUs and possible writeback of a dirty cache line displaced
+by the newly-zeroed cache line.  The new cache line is established in
+the L2 cache, because the L1 is write-through on the G5, and all
+stores and dcbz instructions have to go to the L2 cache.
+
+Thus, on the G5 (and POWER4, which is similar) I don't think there
+will be much if any benefit from having pre-zeroed cache-cold pages.
+We can establish the zero lines in cache much faster using dcbz than
+we can by reading them in from main memory.  If the program uses only
+a few cache lines out of each new page, then reading them from memory
+might be faster, but that seems unlikely.
+
+Paul.

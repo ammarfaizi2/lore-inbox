@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311211AbSDUJ6T>; Sun, 21 Apr 2002 05:58:19 -0400
+	id <S312031AbSDUKAW>; Sun, 21 Apr 2002 06:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312031AbSDUJ6S>; Sun, 21 Apr 2002 05:58:18 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3849 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S311211AbSDUJ6S>; Sun, 21 Apr 2002 05:58:18 -0400
-Message-Id: <200204210955.g3L9tUX08427@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: /proc/stat weirdness
-Date: Sun, 21 Apr 2002 12:58:41 -0200
-X-Mailer: KMail [version 1.3.2]
+	id <S312638AbSDUKAV>; Sun, 21 Apr 2002 06:00:21 -0400
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:23683 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S312031AbSDUKAU>; Sun, 21 Apr 2002 06:00:20 -0400
+Message-ID: <004b01c1e91b$61f52890$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <ivangurdiev@yahoo.com>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <02042101022001.00833@cobra.linux>
+Subject: Re: [PATCH] Via-rhine minor issues
+Date: Sun, 21 Apr 2002 12:00:35 +0200
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was curious about top showing unwieldy numbers for idle%
-(start top, hold down [space] and you'll see).
+----- Original Message -----
+From: "Ivan G." <ivangurdiev@yahoo.com>
+To: "Urban Widmark" <urban@teststation.com>; "Shing Chuang"
+<ShingChuang@via.com.tw>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+Sent: Sunday, April 21, 2002 9:02 AM
+Subject: [PATCH] Via-rhine minor issues
 
-top reads /proc/stat in order to get these percents.
-A little script which cats /proc/stat continually
-and greps for 'cpu  ' yield:
-cpu  39778 0 46829 337191
-cpu  39778 0 46831 337192
-cpu  39778 0 46833 337193
-cpu  39778 0 46834 337194
-cpu  39778 0 46835 337195
-cpu  39778 0 46836 337196
-cpu  39778 0 46838 337197 <<<
-cpu  39778 0 46840 337196 <<< 
-cpu  39780 0 46840 337198
-cpu  39780 0 46842 337199
-cpu  39780 0 46843 337201
-cpu  39782 0 46844 337201
-cpu  39782 0 46846 337201
-cpu  39782 0 46848 337201
-cpu  39782 0 46849 337202
-cpu  39782 0 46849 337204
-cpu  39782 0 46850 337205
-cpu  39782 0 46852 337205
-cpu  39782 0 46853 337206
-cpu  39783 0 46853 337207
-cpu  39783 0 46855 337207 <<<
-cpu  39784 0 46856 337206 <<<
-...
 
-Kernel: 2.4.18-pre6
---
-vda
+> Please comment on this before I send to Marcello.
+> I am a newbie and would like some help.
+> Patch fixes minor issues in the driver.
+>
+> Note: Shing Chuang, this includes your own patch for Rhine-III support
+> since it's not yet in the kernel and I diff-ed against the original
+source,
+> while I added your patch to my driver version.
+>
+> BTW your own patch wouldn't patch cleanly for some reason.
+>
+> DIFF-ED AGAINST:
+> 2.4.19-pre3 ( I don't think there were changes to via-rhine
+> b-ween pre3 and pre7)
+>
+> CONTENTS:
+> - Shing Chuang's Rhine III support and 6100 cleanup patch.
+> - edited comments on supported cards
+> - removed unused W_MAX_TIMEOUT
+> - added flag HasDavicomPhy for VT86C100A card
+> - changed chip_id in wait_for_reset as parameter since np is not
+initialized
+> the first time this function is called (should this be fixed differently?)
+> - enable all interrupts (add 4 additional ones)
+> - fix debug message - frame is off by one
+> - change "Something Wicked" message to "PCI Error" (I still don't see the
+> purpose of the trap)
+
+I don't think "PCI Error" is such a great message.. sounds too serious.
+
+What about "Unhandled <something>"?
+
+ _____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
+

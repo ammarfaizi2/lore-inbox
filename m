@@ -1,389 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUEIIDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264311AbUEIIU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUEIIDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 04:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbUEIIDZ
+	id S264311AbUEIIU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 04:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUEIIU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 04:03:25 -0400
-Received: from qfep05.superonline.com ([212.252.122.161]:48523 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S264308AbUEIICs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 04:02:48 -0400
-Message-ID: <409DE596.8000808@superonline.com>
-Date: Sun, 09 May 2004 11:02:30 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: len.brown@intel.com
-Subject: Re: OOPS :  2.4.27-pre2 + latest ACPI
-References: <409D50AE.2020908@superonline.com> <409D52D3.5080500@superonline.com>
-In-Reply-To: <409D52D3.5080500@superonline.com>
-Content-Type: multipart/mixed;
- boundary="------------030900070302040504000308"
+	Sun, 9 May 2004 04:20:57 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:13072 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264309AbUEIIUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 04:20:50 -0400
+Date: Sun, 9 May 2004 09:20:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Smart, James" <James.Smart@Emulex.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [(re)Announce] Emulex LightPulse Device Driver
+Message-ID: <20040509092045.A22643@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Smart, James" <James.Smart@Emulex.com>,
+	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <3356669BBE90C448AD4645C843E2BF28034F92F0@xbl.ma.emulex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3356669BBE90C448AD4645C843E2BF28034F92F0@xbl.ma.emulex.com>; from James.Smart@Emulex.com on Sun, May 09, 2004 at 12:33:35AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030900070302040504000308
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+A bunch of comments from looking over the headers and itnerface to
+upper layers a little:  (next I'll try to understand what's going on
+in the I/O submission path - it's just to freakin complicated..):
 
-I backed-out the new module hunks and the
-oops went-away. Seems like there are still
-problems with the module unloading code.
-
-I attached what I backed-out as a diff below.
-
-Regards;
-Özkan Sezer
-
---------------030900070302040504000308
-Content-Type: text/plain;
- name="acpi_backout_module.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="acpi_backout_module.diff"
-
-diff -urN orig/drivers/acpi/ac.c work/drivers/acpi/ac.c
---- orig/drivers/acpi/ac.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/ac.c	2004-05-09 10:52:20.000000000 +0300
-@@ -156,7 +156,6 @@
- 			acpi_ac_dir);
- 		if (!acpi_device_dir(device))
- 			return_VALUE(-ENODEV);
--		acpi_device_dir(device)->owner = THIS_MODULE;
- 	}
- 
- 	/* 'state' [R] */
-@@ -169,7 +168,6 @@
- 	else {
- 		entry->read_proc = acpi_ac_read_state;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	return_VALUE(0);
-@@ -320,7 +318,6 @@
- 	acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
- 	if (!acpi_ac_dir)
- 		return_VALUE(-ENODEV);
--	acpi_ac_dir->owner = THIS_MODULE;
- 
- 	result = acpi_bus_register_driver(&acpi_ac_driver);
- 	if (result < 0) {
-diff -urN orig/drivers/acpi/battery.c work/drivers/acpi/battery.c
---- orig/drivers/acpi/battery.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/battery.c	2004-05-09 10:52:20.000000000 +0300
-@@ -613,7 +613,6 @@
- 			acpi_battery_dir);
- 		if (!acpi_device_dir(device))
- 			return_VALUE(-ENODEV);
--		acpi_device_dir(device)->owner = THIS_MODULE;
- 	}
- 
- 	/* 'info' [R] */
-@@ -626,7 +625,6 @@
- 	else {
- 		entry->read_proc = acpi_battery_read_info;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'status' [R] */
-@@ -639,7 +637,6 @@
- 	else {
- 		entry->read_proc = acpi_battery_read_state;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'alarm' [R/W] */
-@@ -653,7 +650,6 @@
- 		entry->read_proc = acpi_battery_read_alarm;
- 		entry->write_proc = acpi_battery_write_alarm;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	return_VALUE(0);
-@@ -805,7 +801,6 @@
- 	acpi_battery_dir = proc_mkdir(ACPI_BATTERY_CLASS, acpi_root_dir);
- 	if (!acpi_battery_dir)
- 		return_VALUE(-ENODEV);
--	acpi_battery_dir->owner = THIS_MODULE;
- 
- 	result = acpi_bus_register_driver(&acpi_battery_driver);
- 	if (result < 0) {
-diff -urN orig/drivers/acpi/bus.c work/drivers/acpi/bus.c
---- orig/drivers/acpi/bus.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/bus.c	2004-05-09 10:52:20.000000000 +0300
-@@ -1769,23 +1769,15 @@
- }
- 
- 
--struct acpi_device *acpi_fixed_pwr_button;
--struct acpi_device *acpi_fixed_sleep_button;
--
--EXPORT_SYMBOL(acpi_fixed_pwr_button);
--EXPORT_SYMBOL(acpi_fixed_sleep_button);
--
- static int
- acpi_bus_scan_fixed (
- 	struct acpi_device	*root)
- {
- 	int			result = 0;
-+	struct acpi_device	*device = NULL;
- 
- 	ACPI_FUNCTION_TRACE("acpi_bus_scan_fixed");
- 
--	acpi_fixed_pwr_button = NULL;
--	acpi_fixed_sleep_button = NULL;
--
- 	if (!root)
- 		return_VALUE(-ENODEV);
- 
-@@ -1793,11 +1785,11 @@
- 	 * Enumerate all fixed-feature devices.
- 	 */
- 	if (acpi_fadt.pwr_button == 0)
--		result = acpi_bus_add(&acpi_fixed_pwr_button, acpi_root, 
-+		result = acpi_bus_add(&device, acpi_root, 
- 			NULL, ACPI_BUS_TYPE_POWER_BUTTON);
- 
- 	if (acpi_fadt.sleep_button == 0)
--		result = acpi_bus_add(&acpi_fixed_sleep_button, acpi_root, 
-+		result = acpi_bus_add(&device, acpi_root, 
- 			NULL, ACPI_BUS_TYPE_SLEEP_BUTTON);
- 
- 	return_VALUE(result);
-@@ -1972,10 +1964,8 @@
- 	acpi_ec_init();		/* ACPI Embedded Controller */
- #endif
- #ifdef CONFIG_ACPI_PCI
--	if (!acpi_pci_disabled) {
--		acpi_pci_link_init();	/* ACPI PCI Interrupt Link */
--		acpi_pci_root_init();	/* ACPI PCI Root Bridge */
--	}
-+	acpi_pci_link_init();	/* ACPI PCI Interrupt Link */
-+	acpi_pci_root_init();	/* ACPI PCI Root Bridge */
- #endif
- 	/*
- 	 * Enumerate devices in the ACPI namespace.
-diff -urN orig/drivers/acpi/button.c work/drivers/acpi/button.c
---- orig/drivers/acpi/button.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/button.c	2004-05-09 10:52:20.000000000 +0300
-@@ -69,8 +69,6 @@
-    -------------------------------------------------------------------------- */
- 
- static struct proc_dir_entry	*acpi_button_dir;
--extern struct acpi_device 	*acpi_fixed_pwr_button;
--extern struct acpi_device	*acpi_fixed_sleep_button;
- 
- static int
- acpi_button_read_info (
-@@ -173,15 +171,10 @@
- 				acpi_button_dir);
- 		break;
- 	}
--	
--	if (!entry)
--		return_VALUE(-ENODEV);
--	entry->owner = THIS_MODULE;
- 
- 	acpi_device_dir(device) = proc_mkdir(acpi_device_bid(device), entry);
- 	if (!acpi_device_dir(device))
- 		return_VALUE(-ENODEV);
--	acpi_device_dir(device)->owner = THIS_MODULE;
- 
- 	/* 'info' [R] */
- 	entry = create_proc_entry(ACPI_BUTTON_FILE_INFO,
-@@ -193,7 +186,6 @@
- 	else {
- 		entry->read_proc = acpi_button_read_info;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 	
- 	if (button->type==ACPI_BUTTON_TYPE_LID){
-@@ -207,7 +199,6 @@
- 	    else {
- 		entry->read_proc = acpi_button_lid_read_state;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	    }
- 	}
- 
-@@ -219,28 +210,10 @@
- acpi_button_remove_fs (
- 	struct acpi_device	*device)
- {
--	struct acpi_button	*button = NULL;
--
- 	ACPI_FUNCTION_TRACE("acpi_button_remove_fs");
- 
--	button = acpi_driver_data(device);
- 	if (acpi_device_dir(device)) {
--		switch (button->type) {
--			case ACPI_BUTTON_TYPE_POWER:
--			case ACPI_BUTTON_TYPE_POWERF:
--				remove_proc_entry(ACPI_BUTTON_SUBCLASS_POWER, 
--					acpi_button_dir);
--				break;
--			case ACPI_BUTTON_TYPE_SLEEP:
--			case ACPI_BUTTON_TYPE_SLEEPF:
--				remove_proc_entry(ACPI_BUTTON_SUBCLASS_SLEEP, 
--					acpi_button_dir);
--				break;
--			case ACPI_BUTTON_TYPE_LID:
--				remove_proc_entry(ACPI_BUTTON_SUBCLASS_LID, 
--					acpi_button_dir);
--				break;
--		}
-+		remove_proc_entry(acpi_device_bid(device), acpi_button_dir);
- 		acpi_device_dir(device) = NULL;
- 	}
- 
-@@ -497,7 +470,6 @@
- 	acpi_button_dir = proc_mkdir(ACPI_BUTTON_CLASS, acpi_root_dir);
- 	if (!acpi_button_dir)
- 		return_VALUE(-ENODEV);
--	acpi_button_dir->owner = THIS_MODULE;
- 
- 	result = acpi_bus_register_driver(&acpi_button_driver);
- 	if (result < 0) {
-@@ -514,12 +486,6 @@
- {
- 	ACPI_FUNCTION_TRACE("acpi_button_exit");
- 
--	if(acpi_fixed_pwr_button) 
--		acpi_button_remove(acpi_fixed_pwr_button, ACPI_BUS_TYPE_POWER_BUTTON);
--
--	if(acpi_fixed_sleep_button)
--		acpi_button_remove(acpi_fixed_sleep_button, ACPI_BUS_TYPE_SLEEP_BUTTON);
--
- 	acpi_bus_unregister_driver(&acpi_button_driver);
- 
- 	remove_proc_entry(ACPI_BUTTON_CLASS, acpi_root_dir);
-diff -urN orig/drivers/acpi/fan.c work/drivers/acpi/fan.c
---- orig/drivers/acpi/fan.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/fan.c	2004-05-09 10:52:20.000000000 +0300
-@@ -151,7 +151,6 @@
- 			acpi_fan_dir);
- 		if (!acpi_device_dir(device))
- 			return_VALUE(-ENODEV);
--		acpi_device_dir(device)->owner = THIS_MODULE;
- 	}
- 
- 	/* 'status' [R/W] */
-@@ -165,7 +164,6 @@
- 		entry->read_proc = acpi_fan_read_state;
- 		entry->write_proc = acpi_fan_write_state;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	return_VALUE(0);
-@@ -269,7 +267,6 @@
- 	acpi_fan_dir = proc_mkdir(ACPI_FAN_CLASS, acpi_root_dir);
- 	if (!acpi_fan_dir)
- 		return_VALUE(-ENODEV);
--	acpi_fan_dir->owner = THIS_MODULE;
- 
- 	result = acpi_bus_register_driver(&acpi_fan_driver);
- 	if (result < 0) {
-diff -urN orig/drivers/acpi/Makefile work/drivers/acpi/Makefile
---- orig/drivers/acpi/Makefile	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/Makefile	2004-05-09 10:52:20.000000000 +0300
-@@ -14,7 +14,7 @@
- 
- EXTRA_CFLAGS	+= $(ACPI_CFLAGS)
- 
--export-objs 	:= acpi_ksyms.o processor.o bus.o
-+export-objs 	:= acpi_ksyms.o processor.o
- 
- obj-$(CONFIG_ACPI)	:= acpi_ksyms.o 
- 
-diff -urN orig/drivers/acpi/thermal.c work/drivers/acpi/thermal.c
---- orig/drivers/acpi/thermal.c	2004-05-09 10:50:52.000000000 +0300
-+++ work/drivers/acpi/thermal.c	2004-05-09 10:52:20.000000000 +0300
-@@ -1051,7 +1051,6 @@
- 			acpi_thermal_dir);
- 		if (!acpi_device_dir(device))
- 			return_VALUE(-ENODEV);
--		acpi_device_dir(device)->owner = THIS_MODULE;
- 	}
- 
- 	/* 'state' [R] */
-@@ -1064,7 +1063,6 @@
- 	else {
- 		entry->read_proc = acpi_thermal_read_state;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'temperature' [R] */
-@@ -1077,7 +1075,6 @@
- 	else {
- 		entry->read_proc = acpi_thermal_read_temperature;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'trip_points' [R/W] */
-@@ -1091,7 +1088,6 @@
- 		entry->read_proc = acpi_thermal_read_trip_points;
- 		entry->write_proc = acpi_thermal_write_trip_points;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'cooling_mode' [R/W] */
-@@ -1105,7 +1101,6 @@
- 		entry->read_proc = acpi_thermal_read_cooling_mode;
- 		entry->write_proc = acpi_thermal_write_cooling_mode;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	/* 'polling_frequency' [R/W] */
-@@ -1119,7 +1114,6 @@
- 		entry->read_proc = acpi_thermal_read_polling;
- 		entry->write_proc = acpi_thermal_write_polling;
- 		entry->data = acpi_driver_data(device);
--		entry->owner = THIS_MODULE;
- 	}
- 
- 	return_VALUE(0);
-@@ -1338,7 +1332,6 @@
- 	acpi_thermal_dir = proc_mkdir(ACPI_THERMAL_CLASS, acpi_root_dir);
- 	if (!acpi_thermal_dir)
- 		return_VALUE(-ENODEV);
--	acpi_thermal_dir->owner = THIS_MODULE;
- 
- 	result = acpi_bus_register_driver(&acpi_thermal_driver);
- 	if (result < 0) {
-diff -urN orig/drivers/acpi/toshiba_acpi.c work/drivers/acpi/toshiba_acpi.c
---- orig/drivers/acpi/toshiba_acpi.c	2004-05-09 10:50:53.000000000 +0300
-+++ work/drivers/acpi/toshiba_acpi.c	2004-05-09 10:52:20.000000000 +0300
-@@ -503,8 +503,6 @@
- 		proc = create_proc_read_entry(item->name,
- 			S_IFREG | S_IRUGO | S_IWUSR,
- 			toshiba_proc_dir, (read_proc_t*)dispatch_read, item);
--		if (proc)
--			proc->owner = THIS_MODULE;
- 		if (proc && item->write_func)
- 			proc->write_proc = (write_proc_t*)dispatch_write;
- 	}
-@@ -552,7 +550,6 @@
- 	if (!toshiba_proc_dir) {
- 		status = AE_ERROR;
- 	} else {
--		toshiba_proc_dir->owner = THIS_MODULE;
- 		status = add_device();
- 		if (ACPI_FAILURE(status))
- 			remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
-
---------------030900070302040504000308--
-
+ - the hba api crap must die
+ - lots of strange typedefs in sSuDly Caps that want to die.
+ - Dito for the strange pfoo pointer naming.
+ - please explain USE_HGP_HOST_SLIM and why only ppc64 sets it,
+   per-arch ifdefs in LLDDs are very suspect
+ - do you really care for pre-2.6.5 compat?
+ - lpfc_fcp.h duplicates the scsi opcode - use those from scsi/scsi.h
+ - lpfc_msg* stuff is not acceptable.   simply put the string you
+   want to print into the printks
+ - your module_param usage is b0rked.  Instead of duplicating every
+   option 31 times use module_param_array.  You also seem to miss
+   the paramter descriptions (MODULE_PARAM_DESC)
+ - lpfc_clock.c should go away, just use add_timer/etc. diretly and
+   embedd the timer into your structures.  Yes, I know that's not
+   how SVR4-derivates work, but Linux does.  You also have an
+   unchecked kmalloc and a list_head cast in there..
+ - you're using list_for_each{,_safe} a lot where you'd want to
+   use the _entry versions.
+ - #define EXPORT_SYMTAB in lpfc_fcp.c is wrong, you never need that
+   one in 2.6.
+ - why do you need <linux/if_arp.h> and <linux/rtnetlink.h> in there?
+ - please always include <linux/*> first, then <asm/*>, then <scsi/*>,
+   then private headers.
+ - OpenSource in the module description is useless - MODULE_LICENSE
+   already tels us that.
+ - why do you disable clustering in the 2.6 driver?
+ - lpfcDRVR_t should go away in favour of a bunch of global variables
+ - lpfc_linux_attach should be merged into lpfc_pci_detect, which would
+   better be named lpfc_{,pci_}probe{,one}
+ - same for lpfc_linux_detach into lpfc_pci_release
+ - formatting of lpfc_driver is broken
+ - not need to memset lpfcDRVR, it's 0 if it's in .bss already
+ - what do you need lpfcDRVR.loadtime for?
+ - lpfcDRVR.hba_list_head should be initializes at compile time
+   LIST_HEAD(hba_list); if properly taken out of the struct.
+ - you must attach the driver attributes always unless pci_module_init
+   failed, alese hotpluggin does´t work.
+ - lpfc_sleep_ms is broken, it'll happily sleep under spinlock, please
+   use mdelay directly in contexts where you can't sleep and schedule_timeout
+   only where you can sleep.
+ - lpfc_sleep needs to die, it's just a broken reimplementation of
+   sleep_on{,_interruptible,}{_timeout,}
+ - lpfc_tasklet would probably benefit from a list_splice_init early on
+   so the proceasing can happen without retaking the spinlock all the time
+ - why all the EXPORT_SYMBOLS?
+ - pleae kill all those silly one-line wrappers in lpfc_mem.c.
+ - four mempool per hba seems a little much, care to explain why they're
+   needed?
+ - you don't need a pci_pool per hba, just one per driver
+ - lpfc_sysfs_set_show/lpfc_sysfs_set_store violate the one value per
+   attribute rule
+ - dito for lpfc_sysfs_params_show/lpfc_sysfs_params_store
+ - dito for lpfc_sysfs_info_show, in short all your sysfs work is completely
+   wrong, also you seem to use driver attributes instead of scsi device/host
+   attributes.  why?
+ - in lpfc_queuecommand you don't need to spin_lock_irqsave your drvlock
+   as the host_lock is already taken with irqs disabled.  you should probably
+   redesign your driver to use the host_lock instead of the drvlock everywhere.
+ - the error return if queuecommand lpfc_get_scsi_buf fails looks bogus,
+   why do you set DID_BUS_BUSY?  also instead of 1 please return
+   SCSI_MLQUEUE_HOST_BUSY
+ - you shouldn't need the scsi_{bus,target,lun} members in lpfc_cmd but
+   always use the scsi_cmnd->device linked from there.
+ - the lpfc_find_target usage in queuecommand looks bogus.  You have
+   scsi_device->hostdata to put per-lun data, from which you can trivially
+   link per-target data directly.  All the checks for inquiry and valid
+   luns are similarly b0rked - scsi probing works by calling ->slave_alloc
+   first so you'll a) have a place where you know the midlayer is probing
+   and b) always private data when quecommand is called.
+ - in lpfc_scsi_cmd_start you use lpfc_find_lun_device which is copletely
+   bogus again, use scsi_cmnd->device->hostdata
+ - don't mess with eh_timeout from a LLDD please

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131345AbRCSCOr>; Sun, 18 Mar 2001 21:14:47 -0500
+	id <S131327AbRCSCem>; Sun, 18 Mar 2001 21:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131344AbRCSCOh>; Sun, 18 Mar 2001 21:14:37 -0500
-Received: from csl.Stanford.EDU ([171.64.66.149]:53437 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S131336AbRCSCOX>;
-	Sun, 18 Mar 2001 21:14:23 -0500
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200103190213.SAA23463@csl.Stanford.EDU>
-Subject: Re: [CHECKER] blocking w/ spinlock or interrupt's disabled
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Sun, 18 Mar 2001 18:13:29 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <001801c0af8e$bda30c10$5517fea9@local> from "Manfred Spraul" at Mar 18, 2001 10:35:00 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131336AbRCSCeb>; Sun, 18 Mar 2001 21:34:31 -0500
+Received: from ruthenium.btinternet.com ([194.73.73.138]:34280 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S131327AbRCSCeS>;
+	Sun, 18 Mar 2001 21:34:18 -0500
+Date: Mon, 19 Mar 2001 02:33:03 +0000 (GMT)
+From: <davej@suse.de>
+X-X-Sender: <davej@athlon>
+To: <asenec@senechalle.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/cpuinfo for Intel P4 D850GB
+In-Reply-To: <200103190207.UAA13397@senechalle.net>
+Message-ID: <Pine.LNX.4.31.0103190231270.5005-100000@athlon>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it difficult to split it into "interrupts disabled" and "spin lock
-> held"?
+On Sun, 18 Mar 2001 asenec@senechalle.net wrote:
 
-Nope, since it's already done ;-)  The suffix of each error message
-should say whether it's because you have a spinlock, ints disabled, or
-both:
+> On a 2.0.36 kernel the above-referenced mb
+> shows:
+> ...
+> Is the problem is due to the older 2.0.36 kernel,
 
-2.4.1/drivers/atm/idt77105.c:153:fetch_stats: ERROR:BLOCK:151:153:
-    calling blocking fn '__constant_copy_to_user' w/ int's disabled
-2.4.1/drivers/atm/iphase.c:2426:ia_led_timer: ERROR:BLOCK:2423:2426:
-    calling blocking fn 'ia_tx_poll' w/ spin lock held
+Yes.
 
-Dawson
+> or would the problem also present itself on a newer 2.2.x kernel?
+
+Current 2.2 and 2.4 are both fixed for this problem.
+
+
+This and a few other CPU related fixes should probably be backported
+to 2.0 if someone has the spare time.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

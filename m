@@ -1,116 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRJPLlF>; Tue, 16 Oct 2001 07:41:05 -0400
+	id <S275968AbRJPLkY>; Tue, 16 Oct 2001 07:40:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275994AbRJPLkp>; Tue, 16 Oct 2001 07:40:45 -0400
-Received: from elin.scali.no ([62.70.89.10]:41743 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S275990AbRJPLkg>;
-	Tue, 16 Oct 2001 07:40:36 -0400
-Subject: Q: A reliable way of testing if O_DIRECT is supported
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S275990AbRJPLkP>; Tue, 16 Oct 2001 07:40:15 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:1243 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S275968AbRJPLkE>; Tue, 16 Oct 2001 07:40:04 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Date: Tue, 16 Oct 2001 21:40:22 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 16 Oct 2001 13:41:07 +0200
-Message-Id: <1003232468.1964.6.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+Message-ID: <15308.7334.369332.30384@notabene.cse.unsw.edu.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: very slow RAID-1 resync
+In-Reply-To: message from Jeffrey W. Baker on Monday October 15
+In-Reply-To: <15307.44327.541413.250400@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.33.0110152052510.415-100000@desktop>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a reliable way of testing if O_DIRECT is supported by the
-kernel?
+On Monday October 15, jwbaker@acm.org wrote:
+> On Tue, 16 Oct 2001, Neil Brown wrote:
+> 
+> > On Monday October 15, hahn@physics.mcmaster.ca wrote:
+> > > > raid1d and raid1syncd are barely getting any CPU time on this otherwise
+> > > > idle SMP system.
+> > >
+> > > I noticed this too, on a uni, raid5 system;
+> > > the resync-throttling code doesn't seem to work well.
+> >
+> > It works great for me...
+> > What sort of drives do you have? SCSI? IDE? are you using both master
+> > and slave on an IDE controller?
+> 
+> 15,000 RPM SCSI u160 disks.
 
-I've a test program as follows:
+Just like mine.....
 
-======================================================================
-#include <errno.h>
-#include <unistd.h>
+I would expect around 30Mb/sec when resyncing a single mirrored pair,
+and slightly less than that on each if you are syncing two mirrored
+pairs at once, as you would be getting close to the theoretical buss
+max (to resync two pairs at once at 30Mb/sec each you would need to
+but pushing 120Mb/sec over the buss, and I doubt that you would get
+that from u160 in practice).
 
-#define __USE_GNU
-#include <fcntl.h>
+Thats a big more than the 20Mb/sec that you report, but less than the
+60Mb/sec that you hoped for...
 
-int main()
-{
-  int fd, flags, rc;
-  char * buffer;
+NeilBrown
 
-  buffer = (char *) malloc(getpagesize()*2);
-  buffer = (char *) (((long)buffer) / getpagesize() * getpagesize()) +
-getpagesize();
-  fd = open ("/tmp/checkdirect.dat", O_RDWR|O_CREAT|O_TRUNC|O_DIRECT,
-0600);
-  if (fd == -1) {
-    printf("open failed with errno=%d\n", errno);
-    exit(errno);
-  };
-
-  printf("open OK\n", errno);
-  unlink ("/tmp/checkdirect.dat");
-
-  flags = fcntl(fd, F_GETFL);	
-  printf("fcntl(fd, F_GETFL) retuned %#o \n", flags);
-
-  printf("setting O_DIRECT(=%#o) flag with fcntl()\n", O_DIRECT);
-  fcntl(fd, F_SETFL, O_DIRECT|flags);	
-
-  flags = fcntl(fd, F_GETFL);	
-  printf("fcntl(fd, F_GETFL) retuned %#o \n", flags, O_DIRECT);
-  if (!(flags & O_DIRECT)) {
-    printf("failed to set O_DIRECT flag errno=%d\n", errno);
-    exit(errno);
-  };
-
-  rc = write(fd, buffer, getpagesize());
-  if (rc !=  getpagesize()) {
-    printf("aligned write failed with errno=%d\n", errno);
-    exit(errno);
-  };
-  printf("aligned write OK\n", errno);
-  rc = write(fd, buffer+100, 100);
-  if (rc !=  100) {
-    printf("unaligned write failed with errno=%d\n", errno);
-    exit(errno);
-  };
-  printf("unaligned write OK\n", errno);
-};
-======================================================================
-
-Now on a 2.4.10 kernel it produces (correctly)
-
-open OK
-fcntl(fd, F_GETFL) retuned 040002 
-setting O_DIRECT(=040000) flag with fcntl()
-fcntl(fd, F_GETFL) retuned 040002 
-aligned write OK
-unaligned write failed with errno=22
-
-But on both a RH6.2 with a 2.2.19 and a RH7.1 with 2.4.3 (both non
-stock) it gives:
-
-open OK
-fcntl(fd, F_GETFL) retuned 040002 
-setting O_DIRECT(=040000) flag with fcntl()
-fcntl(fd, F_GETFL) retuned 040002 
-aligned write OK
-unaligned write OK
-
-
-I guess the open(,,O_DIRECT) *should* have failed on earlier kernels,
-but since they don't I need another way of testing if directio is
-supported.
-
-TJ
- 
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
+> 
+> -jwb
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

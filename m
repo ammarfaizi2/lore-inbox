@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTFVWrA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 18:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTFVWrA
+	id S263633AbTFVXAx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 19:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTFVXAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 18:47:00 -0400
-Received: from lucidpixels.com ([66.45.37.187]:65455 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263152AbTFVWq7 (ORCPT
+	Sun, 22 Jun 2003 19:00:53 -0400
+Received: from granite.he.net ([216.218.226.66]:52996 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263633AbTFVXAw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 18:46:59 -0400
-Date: Sun, 22 Jun 2003 19:01:05 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A Interrupt IRQ 7
-In-Reply-To: <1056322074.2075.40.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.56.0306221900080.4923@p500>
-References: <20030622222014.7827.qmail@lucidpixels.com>
- <1056322074.2075.40.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 19:00:52 -0400
+Date: Sun, 22 Jun 2003 15:53:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alex Goddard <agoddard@purdue.edu>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.73
+Message-ID: <20030622225352.GA3319@kroah.com>
+References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com> <Pine.LNX.4.56.0306221453010.1455@dust> <20030622131526.0dbb39d0.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030622131526.0dbb39d0.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will put my old ATA/100 board (Promise ATA/100 TX1) back in the box and
-remove the ATA/133 (Promise TX2) and see if there are any more of these
-spurious msgs.
+On Sun, Jun 22, 2003 at 01:15:26PM -0700, Andrew Morton wrote:
+> Alex Goddard <agoddard@purdue.edu> wrote:
+> >
+> > drivers/usb/host/ehci-hcd.c:977: error: pci_ids causes a section type 
+> > conflict
+> 
+> 
+> Yup.
+> 
+> __devinitdata declarations should not be marked const.
 
+Did anyone ever figure out why this is true?
 
-On Sun, 22 Jun 2003, Alan Cox wrote:
-
-> IRQ7 is raised if an interrupt appears and then vanishes again before it
-> can be serviced. For 2.4.20/21 at least it can occur from the IDE layer
-> and maybe others
->
->
+greg k-h

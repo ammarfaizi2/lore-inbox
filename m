@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262995AbRFAHpK>; Fri, 1 Jun 2001 03:45:10 -0400
+	id <S263404AbRFAHva>; Fri, 1 Jun 2001 03:51:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbRFAHpA>; Fri, 1 Jun 2001 03:45:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15109 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262995AbRFAHov>; Fri, 1 Jun 2001 03:44:51 -0400
-Subject: Re: [CHECKER] 2.4.5-ac4 security holes
-To: engler@csl.Stanford.EDU (Dawson Engler)
-Date: Fri, 1 Jun 2001 08:42:20 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200106010449.VAA17373@csl.Stanford.EDU> from "Dawson Engler" at May 31, 2001 09:49:14 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263402AbRFAHvU>; Fri, 1 Jun 2001 03:51:20 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:30200 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S263399AbRFAHvE>;
+	Fri, 1 Jun 2001 03:51:04 -0400
+Date: Fri, 1 Jun 2001 09:48:38 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        mc@cs.Stanford.EDU, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [CHECKER] 2.4.5-ac4 non-init functions calling init functions
+In-Reply-To: <200105302008.NAA07710@csl.Stanford.EDU>
+Message-ID: <Pine.LNX.4.05.10106010941190.18375-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155jZc-00009b-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [BUG] looks really broken.
-> /u2/engler/mc/oses/linux/2.4.5-ac4/fs/ioctl.c:108:sys_ioctl: ERROR:PARAM:70:108: Deref tainted var 'arg' (tainted from line 70)
-
-Been meaning to dump that anyway so that was solved by the delete approach
-- real bug
-
-> [BUG] sure seems like it.  In general, all 4 dereferences seem pretty bad.
-> /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/net/wan/cosa.c:1049:cosa_download: ERROR:PARAM:1046:1049: Deref tainted var 'd' (tainted from line 1046)
-> 		return -EPERM;
-
-Fixed .. only available to root anyway
-
-> /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/net/wan/cosa.c:1057:cosa_download: ERROR:PARAM:1046:1057: Deref tainted var 'd' (tainted from line 1046)
-> 		return -EPERM;
-> 	}
+On Wed, 30 May 2001, Dawson Engler wrote:
+> Here are *uninspected* 2.4.5-ac4 results of a checker that warns when a
+> non-__init function calls an __init function (suggested by
+> jlundell@lobitos.net).  There seem to be two cases:
 > 
-Ditto
+>         1. The best case: the caller should actually be an __init function
+> 	as well.  This is a performance bug since it won't be freed.
+> 
+>         2. The worst case: some random post-initialization routine
+>         calls an __init routine which can cause the kernel to go into
+>         hyperspace if the __init routine's code has been deleted.
+> 
+> The current messages do not differentiate between these two cases.  If these
+> results are generally useful, I can fix up the checker, but as it now stands
+> there shouldn't be that many false positives.
+> 
+> Dawson
+> MC linux bug database: http://hands.stanford.edu/linux
+> 
+> /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/video/cyber2000fb.c:1548:cyberpro_probe: ERROR:INIT: non-init fn 'cyberpro_probe' calling init fn 'fb_find_mode'
 
-> 	switch (cmd) {
-> 	case SNDCTL_SYNTH_INFO:
-> 		memcpy (&((char *) arg)[0], &wavefront_info,
+[ I'm responding to this one only, woken up by Russell ]
 
-Fixed
+But cyberpro_probe() is marked __devinit, so it's used during driver
+initialization only.
 
-> [BUG] [RESURRECTED]  Should be fixed in ac5, though.
-> /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/isdn/eicon/linchr.c:128:do_ioctl: ERROR:PARAM:60:128: tainted var 'arg' (from line 60) used as arg 0 to 'DivasGetList'
+And fb_find_mode() is special: it's indeed an __init function, but there's also
+a special inline variant in <linux/fb.h>, protected by #ifdef MODULE. So this
+doesn't harm.
 
-Done (wasnt fixed in ac5)
+For clarification, fb_find_mode() finds a suitable video mode in the video mode
+database (drivers/video/modedb.c). Since we don't want to waste memory, this
+database is __initdata. To make life easier for the driver writers, they
+can still use fb_find_mode() through the inline function, which knows only
+about 640x480@60 Hz.
+
+I guess the correct fix is to (re)implement __init for modules, then we can
+link the whole modedb with every frame buffer device driver module...
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
 

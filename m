@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313971AbSDKD2C>; Wed, 10 Apr 2002 23:28:02 -0400
+	id <S313937AbSDKDoV>; Wed, 10 Apr 2002 23:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313973AbSDKD2B>; Wed, 10 Apr 2002 23:28:01 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:5512 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S313971AbSDKD2A>; Wed, 10 Apr 2002 23:28:00 -0400
+	id <S313974AbSDKDoU>; Wed, 10 Apr 2002 23:44:20 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:38639 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S313937AbSDKDoU>; Wed, 10 Apr 2002 23:44:20 -0400
 Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
 Organization: DN
-To: "J.A. Magallon" <jamagallon@able.es>
+To: Robert Love <rml@tech9.net>
 Subject: Re: 0(1)-patch, where did it go?
-Date: Thu, 11 Apr 2002 05:27:35 +0200
+Date: Thu, 11 Apr 2002 05:44:13 +0200
 X-Mailer: KMail [version 1.4]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
         "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Robert Love <rml@tech9.net>,
-        George Anzinger <george@mvista.com>, Andrew Morton <akpm@zip.com.au>
+        Ingo Molnar <mingo@redhat.com>, George Anzinger <george@mvista.com>,
+        Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <200204110527.35486.Dieter.Nuetzel@hamburg.de> <1018495836.6529.153.camel@phantasy>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <200204110527.35486.Dieter.Nuetzel@hamburg.de>
+Message-Id: <200204110544.13799.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can get an up-to-date version in the 2.4.19-pre6-jam1 patcset in
-> 
-> http://giga.cps.unizar.es/~magallon/linux/kernel/
+On Donnerstag, 11. April 2002 :30, Robert Love wrote:
+> On Wed, 2002-04-10 at 23:27, Dieter Nützel wrote:
+> > But I see some kernel hangs with preemption on UP.
+> > It happens only during "make bzlilo" (the linking stage). Robert?
+> > Apart from that it works well.
+>
+> It is probably lock-break, not preempt.  I don't have lock-break patches
+> for 2.4.19-pre yet.  Lock-break/low-latency and the more general lock
+> breaking / explicit schedule work is very reliant on the version of the
+> kernel they were designed against.  This is why this approach is not a
+> proper long-term solution ...
 
-Didn't you noticed any of the reports about very bad numbers for latency since 
-Ingo's latest 2.4.17-K3 version?
-Even Alan's tree show the same (latest I've checked was 2.4.19-pre2-ac2).
+OK, thanks Robert will try without it after some sleep.
 
-We do need some words from Ingo first.
-He haven't answered my posts since February ;-(
-But yaybe he didn't got them 'cause I send them to mingo@elte.hu ???
+But preemption without lock-break on 2.4 is like running without preemption.
+The general latency problem with O(1) for 2.4 still stands.
+Do you have similar observations with the current -ac tree?
+You should have my numbers.
 
-If you run without O(1) latency is like before.
-You'll get better numbers with preemption+lock-break (ongoing merge of 
-Andrew's lowlatency patches).
+I only would bring your focus somewhat back to 2.4 'cause 2.6 is so far...
 
-But I see some kernel hangs with preemption on UP.
-It happens only during "make bzlilo" (the linking stage). Robert?
-Apart from that it works well.
-
--Dieter
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
-
+Thanks,
+	Dieter

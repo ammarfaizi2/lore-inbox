@@ -1,27 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSHVQDI>; Thu, 22 Aug 2002 12:03:08 -0400
+	id <S313113AbSHVQJd>; Thu, 22 Aug 2002 12:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313113AbSHVQDI>; Thu, 22 Aug 2002 12:03:08 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:51178 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S312590AbSHVQDI>; Thu, 22 Aug 2002 12:03:08 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208221606.g7MG6uF24237@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.20-pre2-ac6
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Thu, 22 Aug 2002 12:06:56 -0400 (EDT)
-Cc: andersen@codepoet.org (Erik Andersen), alan@redhat.com (Alan Cox),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10208211828570.10353-100000@master.linux-ide.org> from "Andre Hedrick" at Aug 21, 2002 06:29:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313563AbSHVQJd>; Thu, 22 Aug 2002 12:09:33 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:7014 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S313113AbSHVQJc>; Thu, 22 Aug 2002 12:09:32 -0400
+Date: Thu, 22 Aug 2002 18:15:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
+Message-ID: <20020822161505.GR1117@dualathlon.random>
+References: <2159880183.1029535922@[10.10.2.3]> <Pine.LNX.4.44.0208170953190.3062-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208170953190.3062-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Erm Alan, what happened boss ?
-> Lemme resend that jewel.
+On Sat, Aug 17, 2002 at 10:02:23AM -0700, Linus Torvalds wrote:
+> So to make this work, you'd have to have:
+>  - architecture-specific hacks
+>  - realize that not all architectures can do it at all, so the places that 
+>    depend on this would have to have some abstraction that makes it go 
+>    away when not needed.
+>  - fix up lazy TLB switching (conditionally on the hack).
+> 
+> It just sounds really messy to me.
 
-I dont think you ever sent me code with that one included
+Indeed. Assuming this is an hack under a CONFIG_X86_NUMA_HACK hardwired
+for certain config options and certain architecture, the tlb flushing
+across threads sounds the worst part in particular because it's an x86.
+
+Andrea

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUDORrx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbUDORrZ
+	id S264373AbUDORwy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDORvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:47:25 -0400
-Received: from mail.kroah.org ([65.200.24.183]:23222 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263062AbUDORmI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:42:08 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
-In-Reply-To: <10820509131538@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 15 Apr 2004 10:41:53 -0700
-Message-Id: <10820509132751@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Thu, 15 Apr 2004 13:51:10 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55834 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264370AbUDORuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:50:50 -0400
+Date: Thu, 15 Apr 2004 18:50:42 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <178970000.1082049291@flay>
+Message-ID: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.17, 2004/04/09 11:51:13-07:00, hannal@us.ibm.com
+On Thu, 15 Apr 2004, Martin J. Bligh wrote:
+> 
+> I still think my list-of-lists patch fixes the original problem, and is
+> simpler ... I'll try to get it updated, and sent out.
 
-[PATCH] Fix class support to istallion.c
+Please do, I never saw it before.
 
-Realized I put a / in the filename of this device too.
+Though I have to admit I'm sceptical: prio_tree appears to be well
+designed for the issue in question, list-of-lists sounds, well,
+no offence, but a bit of a hack.
 
-Here is the fix:
+But we may well have overlooked the overhead of prio_tree's
+complexity relative to list, and need to reconsider options.
 
-
- drivers/char/istallion.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/char/istallion.c b/drivers/char/istallion.c
---- a/drivers/char/istallion.c	Thu Apr 15 10:20:13 2004
-+++ b/drivers/char/istallion.c	Thu Apr 15 10:20:13 2004
-@@ -5323,7 +5323,7 @@
- 			       S_IFCHR | S_IRUSR | S_IWUSR,
- 			       "staliomem/%d", i);
- 		class_simple_device_add(istallion_class, MKDEV(STL_SIOMEMMAJOR, i), 
--				NULL, "staliomem/%d", i);
-+				NULL, "staliomem%d", i);
- 	}
- 
- /*
+Hugh
 

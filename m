@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUIJQbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUIJQms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267585AbUIJQbp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUIJQad
+	id S267720AbUIJQms (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUIJQjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:30:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26531 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267582AbUIJQ2B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:28:01 -0400
-Date: Fri, 10 Sep 2004 17:27:56 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IA32 (2.6.9-rc1 - 2004-09-09.21.30) - 2 New warnings (gcc 3.2.2)
-Message-ID: <20040910162756.GO23987@parcelfarce.linux.theplanet.co.uk>
-References: <200409101418.i8AEIjjJ020039@cherrypit.pdx.osdl.net>
+	Fri, 10 Sep 2004 12:39:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58311 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267561AbUIJQjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:39:08 -0400
+Date: Fri, 10 Sep 2004 09:39:04 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Latest microcode data from Intel.
+Message-ID: <20040910093904.R1973@build.pdx.osdl.net>
+References: <1094828066.17442.4.camel@localhost.localdomain> <Pine.LNX.4.44.0409101702270.1294-100000@einstein.homenet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409101418.i8AEIjjJ020039@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0409101702270.1294-100000@einstein.homenet>; from tigran@veritas.com on Fri, Sep 10, 2004 at 05:04:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 07:18:45AM -0700, John Cherry wrote:
-> drivers/net/tulip/dmfe.c:1808: warning: passing arg 1 of `__le16_to_cpup' from incompatible pointer type
-> drivers/net/tulip/dmfe.c:1820: warning: passing arg 1 of `__le32_to_cpup' from incompatible pointer type
+* Tigran Aivazian (tigran@veritas.com) wrote:
+> sense (as it is impossible under Linux to bind userspace app to a given 
+> cpu then there is no "good" sense in which "per cpu" node can be defined).
 
-Real alignment bugs, BTW.  The first one happens to be OK, but line 1820 is
-guaranteed to be misaligned (32bit reads on addresses that differ by 2, so
-at least one is guaranteed to fsck up).  The value we are calculating there
-looks bogus, while we are at it...
+sched_setaffinity(2) allows you to bind a userspace app to a given cpu.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

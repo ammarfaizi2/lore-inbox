@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281218AbRKEQcA>; Mon, 5 Nov 2001 11:32:00 -0500
+	id <S281225AbRKEQeJ>; Mon, 5 Nov 2001 11:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281217AbRKEQbu>; Mon, 5 Nov 2001 11:31:50 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51958 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281215AbRKEQbj>;
-	Mon, 5 Nov 2001 11:31:39 -0500
-Date: Sat, 3 Nov 2001 19:27:42 -0700
+	id <S281222AbRKEQdv>; Mon, 5 Nov 2001 11:33:51 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:54262 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281217AbRKEQdl>;
+	Mon, 5 Nov 2001 11:33:41 -0500
+Date: Sat, 3 Nov 2001 16:29:15 -0700
 From: Andreas Dilger <adilger@turbolabs.com>
 To: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, becker@scyld.com, p_gortmaker@yahoo.com
-Subject: [PATCH] ne2k-pci jiffies cleanup
-Message-ID: <20011103192741.G12523@lynx.no>
+Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
+Subject: [PATCH] net/core/dev.c jiffies cleanup
+Message-ID: <20011103162914.A12523@lynx.no>
 Mail-Followup-To: torvalds@transmeta.com,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	becker@scyld.com, p_gortmaker@yahoo.com
+	acme@conectiva.com.br
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,90 +24,79 @@ X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some more cleanups of jiffies wrap problems, nothing unusual (includes a
-couple of long line reformats, and moving jiffies calcs outside the loop).
+Linus, Alan,
+here is the first of the jiffies cleanups, this one of the files that
+Tim Schmielau flagged as "suspicious" users of jiffies.  Yes, I'm
+selfish, I'll only be sending patches for now for drivers/subsystems
+that I actually use.  The jiffies audit should probably become an
+item on the kernel janitor list of things to do (Arnaldo CC'd).
+
+Some places in the network code are hairy users of jiffies values,
+and it is not always clear that they are being used safely, but I
+can only do my best.
+
+Where possible, I've also moved end-time calculations outside the
+loop and removed some confusing uses of "now".
 
 Cheers, Andreas
-===========================================================================
---- linux.orig/drivers/net/ne2k-pci.c	Thu Oct 25 02:02:09 2001
-+++ linux/drivers/net/ne2k-pci.c	Sat Nov  3 19:08:50 2001
-@@ -268,17 +268,18 @@
- 
- 	/* Reset card. Who knows what dain-bramaged state it was left in. */
- 	{
--		unsigned long reset_start_time = jiffies;
-+		unsigned long reset_end_time = jiffies + 2;
- 
- 		outb(inb(ioaddr + NE_RESET), ioaddr + NE_RESET);
- 
--		/* This looks like a horrible timing loop, but it should never take
--		   more than a few cycles.
--		*/
-+		/* This looks like a horrible timing loop, but it should never
-+		 * take more than a few cycles.
-+		 */
- 		while ((inb(ioaddr + EN0_ISR) & ENISR_RESET) == 0)
--			/* Limit wait: '2' avoids jiffy roll-over. */
--			if (jiffies - reset_start_time > 2) {
--				printk(KERN_ERR PFX "Card failure (no reset ack).\n");
-+			/* Limit wait */
-+			if (time_after(jiffies, reset_end_time)) {
-+				printk(KERN_ERR PFX
-+				       "Card failure (no reset ack).\n");
- 				goto err_out_free_netdev;
- 			}
- 
-@@ -417,10 +418,10 @@
-    8390 reset command required, but that shouldn't be necessary. */
- static void ne2k_pci_reset_8390(struct net_device *dev)
+=========================================================================
+--- linux/net/core/dev.c.orig	Thu Oct 25 02:55:57 2001
++++ linux/net/core/dev.c	Fri Nov  2 22:47:49 2001
+@@ -1407,7 +1407,7 @@
  {
--	unsigned long reset_start_time = jiffies;
-+	unsigned long reset_end_time = jiffies + 2;
+ 	int this_cpu = smp_processor_id();
+ 	struct softnet_data *queue = &softnet_data[this_cpu];
+-	unsigned long start_time = jiffies;
++	unsigned long end_time = jiffies + 1;
+ 	int bugdet = netdev_max_backlog;
  
--	if (debug > 1) printk("%s: Resetting the 8390 t=%ld...",
--						  dev->name, jiffies);
-+	if (debug > 1)
-+		printk("%s: Resetting the 8390 t=%ld...", dev->name, jiffies);
+ 	br_read_lock(BR_NETPROTO_LOCK);
+@@ -1504,7 +1504,7 @@
  
- 	outb(inb(NE_BASE + NE_RESET), NE_BASE + NE_RESET);
+ 		dev_put(rx_dev);
  
-@@ -429,8 +430,9 @@
+-		if (bugdet-- < 0 || jiffies - start_time > 1)
++		if (bugdet-- < 0 || time_after(jiffies, end_time))
+ 			goto softnet_break;
  
- 	/* This check _should_not_ be necessary, omit eventually. */
- 	while ((inb(NE_BASE+EN0_ISR) & ENISR_RESET) == 0)
--		if (jiffies - reset_start_time > 2) {
--			printk("%s: ne2k_pci_reset_8390() did not complete.\n", dev->name);
-+		if (time_after(jiffies, reset_end_time)) {
-+			printk("%s: ne2k_pci_reset_8390() did not complete.\n",
-+			       dev->name);
- 			break;
+ #ifdef CONFIG_NET_HW_FLOWCONTROL
+@@ -2585,7 +2585,7 @@
+ 
+ int unregister_netdevice(struct net_device *dev)
+ {
+-	unsigned long now, warning_time;
++	unsigned long notify_time, warning_time;
+ 	struct net_device *d, **dp;
+ 
+ 	/* If device is running, close it first. */
+@@ -2686,20 +2686,21 @@
+ 
+ 	 */
+ 
+-	now = warning_time = jiffies;
++	notify_time = jiffies + 1*HZ;
++	warning_time = jiffies + 10*HZ;
+ 	while (atomic_read(&dev->refcnt) != 1) {
+-		if ((jiffies - now) > 1*HZ) {
++		if (time_after(jiffies, notify_time)) {
+ 			/* Rebroadcast unregister notification */
+ 			notifier_call_chain(&netdev_chain, NETDEV_UNREGISTER, dev);
  		}
- 	outb(ENISR_RESET, NE_BASE + EN0_ISR);	/* Ack intr. */
-@@ -524,7 +526,7 @@
- 				  const unsigned char *buf, const int start_page)
- {
- 	long nic_base = NE_BASE;
--	unsigned long dma_start;
-+	unsigned long dma_end;
- 
- 	/* On little-endian it's always safe to round the count up for
- 	   word writes. */
-@@ -575,11 +577,12 @@
+ 		current->state = TASK_INTERRUPTIBLE;
+ 		schedule_timeout(HZ/4);
+ 		current->state = TASK_RUNNING;
+-		if ((jiffies - warning_time) > 10*HZ) {
+-			printk(KERN_EMERG "unregister_netdevice: waiting for %s to "
+-					"become free. Usage count = %d\n",
++		if (time_after(jiffies, warning_time)) {
++			printk(KERN_EMERG "unregister_netdevice: waiting for %s"
++					" to become free. Usage count = %d\n",
+ 					dev->name, atomic_read(&dev->refcnt));
+-			warning_time = jiffies;
++			warning_time = jiffies + 10*HZ;
  		}
  	}
- 
--	dma_start = jiffies;
-+	dma_end = jiffies + 2;
- 
- 	while ((inb(nic_base + EN0_ISR) & ENISR_RDC) == 0)
--		if (jiffies - dma_start > 2) {			/* Avoid clock roll-over. */
--			printk(KERN_WARNING "%s: timeout waiting for Tx RDC.\n", dev->name);
-+		if (time_after(jiffies, dma_end)) {
-+			printk(KERN_WARNING "%s: timeout waiting for Tx RDC.\n",
-+			       dev->name);
- 			ne2k_pci_reset_8390(dev);
- 			NS8390_init(dev,1);
- 			break;
+ 	dev_put(dev);
 --
 Andreas Dilger
 http://sourceforge.net/projects/ext2resize/

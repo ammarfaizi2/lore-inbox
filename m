@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVCHLtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVCHLuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVCHLtp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 06:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVCHLqS
+	id S261975AbVCHLuW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 06:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVCHLuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 06:46:18 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:21123 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261975AbVCHLpV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 06:45:21 -0500
-Subject: PATCH: Allow ATI SATA to use siimage if serial ATA layer is not in
-	use
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110282209.28860.115.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 08 Mar 2005 11:43:29 +0000
+	Tue, 8 Mar 2005 06:50:20 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17388 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261975AbVCHLqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 06:46:31 -0500
+Date: Tue, 8 Mar 2005 11:45:42 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Christoph Hellwig <hch@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mm/swap_state.c: unexport swapper_space
+In-Reply-To: <20050308090943.A26847@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0503081125110.7085@goblin.wat.veritas.com>
+References: <20050306144758.GJ5070@stusta.de> 
+    <Pine.LNX.4.61.0503061515200.19898@goblin.wat.veritas.com> 
+    <20050306224912.GE5827@infradead.org> 
+    <20050308090943.A26847@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ATI chipset serial ATA is an SI3112 cell. While this is supported by
-the sata layer (you'll need to grep by id because naughty Mr Garzik
-doesn't use the PCI ID defines) the sata layer driver still gives some
-users real problems.
+On Tue, 8 Mar 2005, Russell King wrote:
+> On Sun, Mar 06, 2005 at 10:49:12PM +0000, Christoph Hellwig wrote:
+> > I disagree.  swapper_state is far too much of an internal detail to be
+> > exported.  I argued that way when page_mapping was changed to use it and
+> > that's why the architectures moved their helpers out of line.
+> > Looks like the exported unfortunately got added anyway although we settled
+> > that discussion.
+> 
+> Well, since ARM's usage of page_mapping() is out of line
 
-Alan
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.11/drivers/ide/pci/siimage.c linux-2.6.11/drivers/ide/pci/siimage.c
---- linux.vanilla-2.6.11/drivers/ide/pci/siimage.c	2005-03-05 15:17:01.000000000 +0000
-+++ linux-2.6.11/drivers/ide/pci/siimage.c	2005-03-07 13:18:10.000000000 +0000
-@@ -48,6 +48,8 @@
- 	{
- 		case PCI_DEVICE_ID_SII_3112:
- 		case PCI_DEVICE_ID_SII_1210SA:
-+		case PCI_DEVICE_ID_ATI_IXP300_SATA:
-+		case PCI_DEVICE_ID_ATI_IXP400_SATA:
- 			return 1;
- 		case PCI_DEVICE_ID_SII_680:
- 			return 0;
-@@ -1088,7 +1090,9 @@
- static ide_pci_device_t siimage_chipsets[] __devinitdata = {
- 	/* 0 */ DECLARE_SII_DEV("SiI680"),
- 	/* 1 */ DECLARE_SII_DEV("SiI3112 Serial ATA"),
--	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
-+	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA"),
-+	/* 3 */ DECLARE_SII_DEV("ATI IXP300"),
-+	/* 4 */ DECLARE_SII_DEV("ATI IXP400")
- };
- 
- /**
-@@ -1110,6 +1114,8 @@
- #ifdef CONFIG_BLK_DEV_IDE_SATA
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SATA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SATA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
- #endif
- 	{ 0, },
- };
+ARM is out of line, again?
 
+> (which is where it'll now stay) I think Christoph is correct.
+
+Oh, I misunderstood you, sorree ;)
+
+> Maybe this is something which should be aired on linux-arch
+> for the other arch maintainers?
+
+I've heard of that, I got the impression we're discouraged from
+mailing it.  This is probably too minor to engage their attention.
+
+Currently there is no arch using page_mapping in its header files,
+presumably they were all forced out of line at that time.  I think
+it's wrong to bump people into rearranging their code to get around
+a missing export, but if you're happy with the status quo, so be it.
+
+I expect Christoph and I would agree that what's really wrong is
+for page_mapping to be referring to that strange implementation
+detail swapper_space at all.  I'd say the export should remain so
+long as the reference remains, to avoid post-release surprises
+like last time; but I've had my say, que sera sera.
+
+Hugh

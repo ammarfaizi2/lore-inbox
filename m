@@ -1,82 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269125AbUIRErj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269127AbUIREwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269125AbUIRErj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 00:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269130AbUIRErj
+	id S269127AbUIREwg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 00:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269130AbUIREwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 00:47:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10929 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269125AbUIRErf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 00:47:35 -0400
-Subject: Re: Radeon: do not blank screen during suspend
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ajoshi@shell.unixbox.com,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20040915112652.GA21386@elf.ucw.cz>
-References: <20040915112652.GA21386@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1095482822.3574.24.camel@gaston>
+	Sat, 18 Sep 2004 00:52:35 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:43276 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S269127AbUIREwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 00:52:31 -0400
+Date: Sat, 18 Sep 2004 06:52:23 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: achim.leubner@intel.com, linux-kernel@vger.kernel.org, achim@vortex.de
+Subject: Re: memory allocation error messages in system log
+Message-ID: <20040918045223.GH2780@alpha.home.local>
+References: <NEBBILBHKLDLOMLDGKGNEEKDCIAA.Ingo.Freund@e-dict.net> <20040916211408.GE12022@logos.cnet> <20040918010459.GA5660@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 18 Sep 2004 14:47:02 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040918010459.GA5660@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 21:26, Pavel Machek wrote:
-> Hi!
+Hi Marcelo,
+
+there are a lot of sprintf() in gdth_get_info(). There are a few overflow
+checks, but they're being done *after* the problem happens, so it may
+be possible that people experiencing problems get some data overwritten
+which prevents something else from been released later.
+
+Moreover, when some of those checks decide that the buffer is full, they
+jump to stop_output without calling gdth_ioctl_free(). So it may also be
+possible that this user who regularly reads /proc has his output truncated
+and some memory never freed.
+
+Regards,
+Willy
+
+On Fri, Sep 17, 2004 at 10:04:59PM -0300, Marcelo Tosatti wrote:
 > 
-> This stops ugly flashing from radeon during suspend/resume, please
-> apply,
-
-Shoud be fine.
-
-BTW. What is the status with Patrick merge of pmdisk & swsusp ? Has it
-been merged at all ? (No time to check at the moment). I still hope I'll
-find some time to do real work on it (& cleanup the ppc support that I
-had working experimentally at OLS) sooner or later...
-
-Ben.
-							Pavel
+> Achim,
 > 
-> --- clean-mm/drivers/video/aty/radeon_pm.c	2004-08-24 09:03:18.000000000 +0200
-> +++ linux-mm/drivers/video/aty/radeon_pm.c	2004-09-15 13:00:51.000000000 +0200
-> @@ -871,7 +871,8 @@
->  	agp_enable(0);
->  #endif
->  
-> -	fb_set_suspend(info, 1);
-> +	if (system_state != SYSTEM_SNAPSHOT)
-> +		fb_set_suspend(info, 1);
->  
->  	if (!(info->flags & FBINFO_HWACCEL_DISABLED)) {
->  		/* Make sure engine is reset */
-> @@ -880,12 +881,14 @@
->  		radeon_engine_idle();
->  	}
->  
-> -	/* Blank display and LCD */
-> -	radeonfb_blank(VESA_POWERDOWN, info);
+> This is not the first person I see complaining about 
+> exact same bug (memory allocation failure while reading
+> /proc/scsi/gdt/xxx
+> 
+> Do you have a card around so we can test?
+> 
+> Thanks
+> 
+> On Thu, Sep 16, 2004 at 06:14:08PM -0300, Marcelo Tosatti wrote:
+> > On Thu, Sep 16, 2004 at 02:48:40PM +0200, Ingo Freund wrote:
+> > > Hello,
+> > > 
+> > > I hope you guys can help, I cannot use any kernel 2.4 >23 without
+> > > the here described problem.
+> > > 
+> > > [1.] One line summary of the problem:
+> > > strange error messages concerning memory allocation
+> > > 
+> > > searching teh web for solutions to my problem I have already found
+> > > a thread in a mailing list but no solution was mentioned, also the
+> > > guys who talked about the error didn't answer to my direct mail.
+> > > 
+> > > [2.] Full description of the problem/report:
+> > > The machine is a database server without any other service except sshd
+> > > running. I do some tests on the ICP-Vortex GDT controller every 2 minutes.
+> > > by using
+> > > # cat /proc/scsi/gdt/2
+> > > but the output of cat stops without beeing completed.
+> > > 
+> > > This is what I see in the syslog file every time when I use the cat
+> > > command (the messages beginn after 3 days uptime):
+> > > --> /var/log/messages
+> > > kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
+> > 
+> > Ingo,
+> > 
+> > I've seen another report like this one - I'm convinced there
+> > is something odd with the gdth proc handling code.
+> > 
+> > Can you "echo 1 > /proc/sys/vm/vm_gfp_debug" and 
+> > rerun the "cat /proc/scsi/gdt/2" please?
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 > -
-> -	/* Sleep */
-> -	rinfo->asleep = 1;
-> -	rinfo->lock_blank = 1;
-> +	if (system_state != SYSTEM_SNAPSHOT) {
-> +		/* Blank display and LCD */
-> +		radeonfb_blank(VESA_POWERDOWN, info);
-> +
-> +		/* Sleep */
-> +		rinfo->asleep = 1;
-> +		rinfo->lock_blank = 1;
-> +	}
->  
->  	/* Suspend the chip to D2 state when supported
->  	 */
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

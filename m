@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285481AbRLSU2b>; Wed, 19 Dec 2001 15:28:31 -0500
+	id <S285473AbRLSUZm>; Wed, 19 Dec 2001 15:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285496AbRLSU20>; Wed, 19 Dec 2001 15:28:26 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:17305 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S285481AbRLSU05>; Wed, 19 Dec 2001 15:26:57 -0500
-Message-ID: <3C206BEF.95F7E905@earthlink.net>
-Date: Wed, 19 Dec 2001 05:29:03 -0500
-From: Jeff <piercejhsd009@earthlink.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S285458AbRLSUZc>; Wed, 19 Dec 2001 15:25:32 -0500
+Received: from dsl-213-023-043-155.arcor-ip.net ([213.23.43.155]:36364 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285459AbRLSUYB>;
+	Wed, 19 Dec 2001 15:24:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pavel Machek <pavel@suse.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Quinn Harris <quinn@nmt.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: File copy system call proposal
+Date: Wed, 19 Dec 2001 21:26:49 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu> <20011213030107.L940@lynx.no> <20011213221712.A129@elf.ucw.cz>
+In-Reply-To: <20011213221712.A129@elf.ucw.cz>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA sound and SNDCTL_DSP_NONBLOCK error.....
-In-Reply-To: <3C1EEDFF.231F36B8@earthlink.net> <3C1F7E9D.DED578C7@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16GnIg-0000V5-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, upgrading from 1.4.x version supplied with Slackware 8.0 to
-the latest version 1.9.1 solved the SNDCTL_DSP_NONBLOCK problem.
-The new problem is now
-
-      val = 0;  // no input sigs get to output
-      if (ioctl(mixer_fd, MIXER_WRITE(SOUND_MIXER_OUTSRC), &val) < 0)
-      {
-         fprintf (stderr, "mixer outsrc failed\n");
-
-Failing, all the other of the many ioctl calls work ok. 
-
-p.s sorry about saying suse, weak memory :-).
- 
-Jeff Garzik wrote:
+On December 13, 2001 10:17 pm, Pavel Machek wrote:
+> [Andreas Dilger <adilger@turbolabs.com> wrote:]
+> > No, I think he means just the opposite - that having a "copy(2)" syscall
+> > would greatly _help_ SMB in that the copy could be done entirely at the
+> > server side, rather than having to pull _all_ of the data to the client
+> > and then sending it back again.
+> > 
+> > When I was working on another network storage system (formerly called
+> > Lustre, don't know what it is called now) we had a "copy" primitive in
+> > the VFS interface, and there were lots of useful things you could do
+> > with it.
+> > 
+> > Consider the _very_ common case (that nobody has mentioned yet) where you
+> > are editing a large file.  When you write to the file, the editor copies
+> > the file to a backup, then immediately truncates the original file and
+> > writes the new data there.  What would be _far_ preferrable is to
+> > just
 > 
-> Jeff wrote:
-> >
-> > I am a ham radio operator who wishes to use the sound card for digital
-> > comunications. However, my system has the VIA 82c686/ac97 sound. While I
-> > can ofcourse make the sound work, playing/recording,etc, I cannot use it
-> > with ham software.
-> > Take twpsk31 for example, it compiles, but when trying to run it stops
-> > on:
-> > SNDCTL_DSP_NONBLOCK: illegal parameter.
-> 
-> update the software to use normal fcntl(2)
-> 
-> --
-> Jeff Garzik      | Only so many songs can be sung
-> Building 1024    | with two lips, two lungs, and one tongue.
-> MandrakeSoft     |         - nomeansno
+> Are you sure? I think editor just _moves_ original to backup.
 
-jeff
-piercejhsd009@earthlink.net
+Hi,
+
+It would be so nice if all editors did that, but most don't according to the 
+tests I've done, especially the newer ones like kedit, gnome-edit etc.  I 
+think this is largely due to developers not knowing why it's good to do it 
+this way.
+
+--
+Daniel
+

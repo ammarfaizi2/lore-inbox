@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTKBVJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 16:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTKBVJ5
+	id S261821AbTKBVTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 16:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbTKBVTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 16:09:57 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:19974 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261823AbTKBVJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 16:09:55 -0500
-Date: Mon, 3 Nov 2003 08:09:42 +1100
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
-Message-ID: <20031102210942.GA9635@gondor.apana.org.au>
-References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <20031102014011.09001c81.akpm@osdl.org> <20031102095441.GA5248@gondor.apana.org.au> <3FA4F085.4080002@namesys.com>
+	Sun, 2 Nov 2003 16:19:23 -0500
+Received: from h80ad263a.async.vt.edu ([128.173.38.58]:43754 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261837AbTKBVTW (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 16:19:22 -0500
+Message-Id: <200311022119.hA2LJFr5000511@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Martin Wierich <wmartinw30@tiscali.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: turning off harddisk and listen music from ramdisk under Linux 
+In-Reply-To: Your message of "Sun, 02 Nov 2003 23:04:54 +0100."
+             <3FA57F86.7CEAC8A8@tiscali.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <3FA57F86.7CEAC8A8@tiscali.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FA4F085.4080002@namesys.com>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: multipart/signed; boundary="==_Exmh_1568146184P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 02 Nov 2003 16:19:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 02, 2003 at 02:54:45PM +0300, Hans Reiser wrote:
->
-> Why in the world do you guys do this?  Andrew and Marcelo do a good job, 
-> and I haven't heard much complaint about patches being ignored by them, 
-> so follow the leader.  If you have patches you need, send them to them.
+--==_Exmh_1568146184P
+Content-Type: text/plain; charset=us-ascii
 
-Andrew and Marcelo do an excellent job.  I have never said otherwise
-nor attempted to infer that.
+On Sun, 02 Nov 2003 23:04:54 +0100, Martin Wierich <wmartinw30@tiscali.de>  said:
 
-The reasons that we need patches are mostly the same as other distributions:
+>  - for religious reasons I only use _old_ hardware (64MB, 100Mhz)
 
-1. Our release schedule is different from the vanilla kernels.
+Note that you'll only be able to fit an hour or so of music in there, and
+figuring out how to switch playlists is left as an exercise for the masochists. :)
 
-When we release a kernel based on a vanilla release there may be bug
-fixes that are going to be in the next vanilla release that we can
-apply straight away.
+Other than that, it's pretty straightforward conceptually - just create a very
+minimal kernel that supports only your sound card and whatever else you need,
+boot it with 'init=/boot/music.sh' or similar, and have music.sh be a tiny
+script that mounts your music stuff, copies the files to a ramdisk, then
+unmounts the disk and does an hdparm command to spin it down.
 
-2. Our goals are different from the vanilla kernel.
+If you're clever, you'll think of a way to have an initrd that has all the filesystem
+you need on it, except maybe for the actual audio that you'll load from another disk.
 
-Some issues are not critical to the vanilla kernel, e.g., IDE modules
-but are release-critical for us.
+--==_Exmh_1568146184P
+Content-Type: application/pgp-signature
 
-3. Licensing problems.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-This is specific to Debian.  For anything to be included in our release,
-it has to pass the DFSG.  The vanilla kernel does not have this
-restriction so we may need to remove bits before it's suitable for us.
+iD8DBQE/pXTScC3lWbTT17ARAmDlAJ49L3KXy93U9YVoufPfetzv9QHm0QCfSL1Y
+65ngqzFYqCWPSiZaGDMq74Q=
+=lp7u
+-----END PGP SIGNATURE-----
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--==_Exmh_1568146184P--

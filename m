@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136009AbRAGRWY>; Sun, 7 Jan 2001 12:22:24 -0500
+	id <S136063AbRAGRYE>; Sun, 7 Jan 2001 12:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136063AbRAGRWP>; Sun, 7 Jan 2001 12:22:15 -0500
-Received: from celticclans.com ([216.181.87.36]:41989 "EHLO celticclans.com")
-	by vger.kernel.org with ESMTP id <S136009AbRAGRWB>;
-	Sun, 7 Jan 2001 12:22:01 -0500
-Message-Id: <5.0.2.1.2.20010107121926.03587280@sirius.onopordon.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 07 Jan 2001 12:21:58 -0500
-To: Scott Laird <laird@internap.com>
-From: Jeff Forbes <jgf@stellarhost.com>
-Subject: Re: PROBLEM with raid5 and 2.4.0 kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101070842391.13842-100000@lairdtest1.intern
- ap.com>
-In-Reply-To: <5.0.2.1.2.20010107112405.03223780@celticclans.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S135961AbRAGRXy>; Sun, 7 Jan 2001 12:23:54 -0500
+Received: from mons.uio.no ([129.240.130.14]:14547 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S135371AbRAGRXm>;
+	Sun, 7 Jan 2001 12:23:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14936.42515.988953.602296@charged.uio.no>
+Date: Sun, 7 Jan 2001 18:23:31 +0100 (CET)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Even slower NFS mounting with 2.4.0
+In-Reply-To: <E14FJIN-0002xW-00@the-village.bc.nu>
+In-Reply-To: <shs1yufxqvq.fsf@charged.uio.no>
+	<E14FJIN-0002xW-00@the-village.bc.nu>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure enough, when I changed the processor type from
-Pentium-Pro/Celeron/Pentium-II
-to
-Pentium-III
-(which is the type of processor in the machine) it works.
+>>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
+    >> > This is caused by 2.3/2.4 changes in the network code error
+    >> > reporting of unreachables with UDP I suspect. It looks like
+    >> > the NFS code hasn't yet caught up with the error notification
+    >> > stuff
+    >>
+    >> No. It was the fact that he was forgetting to start the
+    >> portmapper before mounting an NFS partition with locking
+    >> enabled.
 
-At 08:43 AM 01/07/2001 -0800, Scott Laird wrote:
+     > Its both. If you support the error notification then you see
+     > the PORT UNREACH and you abandon early even if the user makes
+     > that error
 
->It works if you compile the kernel with the processor type set to Pentium
->II or higher, or disable RAID5.  I've been meaning to report this one, but
->2.4.0 was released before I had time to test the last prerelease, and I
->haven't had time to test the final release yet.
+Hmm... How should we respond to that sort of thing? In principle the
+NFS layer supposes that if we have a hard mount, then unreachable
+ports etc are a temporary problem, and we should wait them out.  (In
+fact, I've made an RPC 'ping' routine that improves on that behaviour
+but which unfortunately didn't make it into 2.4.0.)
 
-Jeffrey Forbes, Ph.D.
-http://www.stellarhost.com
+If we want to check that the port is reachable at the moment when we
+mount, I think we should concentrate on making 'mount' more
+intelligent. Perhaps have it RPC-ping the various ports (including the
+local portmapper when we specify locking)?
 
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbVALBQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbVALBSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbVALBQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 20:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbVALBQY
+	id S262973AbVALBSm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 20:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVALBSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 20:16:24 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:14305 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262972AbVALBQU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 20:16:20 -0500
-Date: Tue, 11 Jan 2005 17:16:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, domen@coderock.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, hannal@us.ibm.com, janitor@sternwelten.at
-Subject: Re: [patch 03/11] arch/i386/pci/i386.c: Use new for_each_pci_dev macro
-Message-ID: <20050112011620.GA22575@kroah.com>
-References: <20050111233458.9B8E01F228@trashy.coderock.org> <20050112004618.GT29712@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112004618.GT29712@redhat.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 11 Jan 2005 20:18:41 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:33034 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S262973AbVALBSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 20:18:35 -0500
+Message-ID: <41E47ACB.4000905@tuleriit.ee>
+Date: Wed, 12 Jan 2005 03:18:03 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: DSP like TCP/IP processing in linux kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 07:46:19PM -0500, Dave Jones wrote:
-> On Wed, Jan 12, 2005 at 12:34:58AM +0100, domen@coderock.org wrote:
-> 
->  > As requested by Christoph Hellwig I've created a new macro called
->  > for_each_pci_dev. It is a wrapper for this common use of pci_get/find_device:
->  > 
->  > (while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL))
->  > 
->  > This macro will return the pci_dev *for all pci devices.  Here is the first patch I 
->  > used to test this macro with. Compiled and booted on my T23. There will be
->  > 53 more patches using this new macro.
-> 
-> Which looks just like the pci_for_each_dev we used to have.
-> That function got removed due some shortcoming or other that I never
-> fully understood, but ISTR it had something to do with locking.
-> (why it couldnt be hidden inside for_each_pci_dev is a mystery to me)
-> 
-> We've had lots of code in the kernel go from this..
-> 
-> pci_for_each_dev(loop_dev) {
+Hi!
 
-Which did not have any locks at all, and was broken for hotplug systems.
+My goal is to:
+- learn more about DSP like TCP/IP processing
+- investigate network/transport layer implementation in Linux
+- investigate the possibility to increase network performance by SIMD 
+processing
+- maybe compile some kind of document from my work
+- ask lot of questions here :)
 
-> to the disgustingly unreadable..
-> 
-> while ((loop_dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, loop_dev)) != NULL) {
 
-Yeah, blame me for that, but it was race proof for hotplug boxes.
+There are lot of quite basic questions to think about. The most basic is 
+how to cope with SIMD at all.
 
-> and now its going to ..
-> 
-> for_each_pci_dev(loop_dev) {
+Hardware
+----------
+CPU + ext. == DSP?
+(+) SIMD (vertical/horisontal vectorized processing)
+(-) (??) h/w MAC/shifter/flow control, separate x/y path
 
-Which is because I didn't think of that in the first place, sorry.
+* ARM/MIPS/PowerPC/SPARC/x86 - they all have (or planned) somekind of 
+SIMD extension but how much theory I can borrow from DSP world for SIMD 
+CPUs? (quite a lot I think)
+* network processors (Intel,Broadcom etc.) - can I borrow something from 
+there? (only maybe how/why work is distributed between multiple cores)
 
-> So,.. what has all this churn bought us, and where does it end ?
-> With four words in the function name, we've enough possibilities
-> for quite a few more iterations yet.
 
-We now have a simple macro to iterate over all pci devices, in a
-reference count and lock safe manner.
+Software (compiler)
+--------------------
+Is it possible at all to build a framework to cover those different 
+ext.'s in common way?
+* gcc builtins for particular arch (well, arm,x86,powerpc are there)
+* intrinsics. only intel (?)
+* somekind of layer above gcc builtins? (ehh...)
 
-The next change will be to just delete the thing alltogether, as most
-all drivers shouldn't be walking the list of pci devices in the first
-place.
+Tools
+-------
+How should I produce SIMD code?
+* Which tools I have to work with SIMD ext.? (umm...vim)
+* Which way I should choose: "look, feel and think" or pure math and 
+modelling? (I don't like J.B.J. Fourier...)
 
-Yeah yeah yeah, I know I can't really do that, as there are lots of
-places where it is valid to do so, but I can dream...
+
+Method
+-------
+How to start?
+* tracing, profiling - squeeze out the performance hotspot and optimize 
+it (is the underlying design suitable at all for this?)
+* sketch down current implementation in linux and think again about 
+whole thing (results after one year...for me :) )
+* in networking context: start with the most common part: calculate 
+checksums for IP and TCP (I like this idea)
+* Forget about it: turn on -ftree-vectorize when gcc 4.x is here (no-no...)
+* Forget about it: this kind of tweaking is not for Linux kernel (what 
+about RAID-6 driver? :) )
+
+
+Well, before I look into Documentation/, kernelnewbies.org, source etc. 
+I'd like to ask: is it worth to go further? At least I hope so :)
+
 
 thanks,
+Indrek
 
-greg k-h

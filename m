@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278988AbRJVWRA>; Mon, 22 Oct 2001 18:17:00 -0400
+	id <S278982AbRJVWRA>; Mon, 22 Oct 2001 18:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278982AbRJVWQs>; Mon, 22 Oct 2001 18:16:48 -0400
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:23049 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S278989AbRJVWPs>;
-	Mon, 22 Oct 2001 18:15:48 -0400
-From: "Tony Hoyle" <tmh@nothing-on.tv>
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 23:16:21 +0100
-Organization: Magenta netLogic
-Message-ID: <9r25rk$a3l$1@sisko.my.home>
-In-Reply-To: <Pine.LNX.4.30.0110221508450.19190-100000@anime.net>
-Mime-Version: 1.0
+	id <S278989AbRJVWQu>; Mon, 22 Oct 2001 18:16:50 -0400
+Received: from [212.113.174.249] ([212.113.174.249]:61731 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S278990AbRJVWQS>;
+	Mon, 22 Oct 2001 18:16:18 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Pedro Corte-Real <typo@netcabo.pt>
+To: stimits@idcomm.com
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 23:17:32 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011022135759.A17384@crdic.ath.cx> <20011022163755.A2727@kittpeak.ece.umn.edu> <3BD4978E.3802AC91@idcomm.com>
+In-Reply-To: <3BD4978E.3802AC91@idcomm.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-X-Trace: sisko.my.home 1003788980 10357 192.168.100.2 (22 Oct 2001 22:16:20 GMT)
-X-Complaints-To: abuse@cvsnt.org
-User-Agent: Pan/0.10.0.93 (Unix)
-X-Comment-To: "Dan Hollis" <goemon@anime.net>
-X-No-Productlinks: Yes
-To: linux-kernel@vger.kernel.org
+Message-ID: <EXCH01SMTP01rMum5Tj0005a0a7@smtp.netcabo.pt>
+X-OriginalArrivalTime: 22 Oct 2001 22:13:42.0677 (UTC) FILETIME=[CF4BBC50:01C15B46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the ancient scrolls of Usenet, page
-<Pine.LNX.4.30.0110221508450.19190-100000@anime.net>, "Dan Hollis"
-<goemon@anime.net> spake thus:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Mon, 22 Oct 2001, Bill Davidsen wrote:
->> Last I heard Linus was in the USA, his not being able to participate in
->> security discussions worries me very much. Ditto Redhat and IBM.
-> 
-> I wonder if Linus has an exit-usa plan in case the SSSCA passes. If the
-> SSSCA does pass, Linus would be in extreme danger.
+On Monday 22 October 2001 23:02, D. Stimits wrote:
+>
+>
+> Too bad the option only applies to people with enough money to relocate.
+>
 
-It wouldn't surprise me if half of silicon valley had an exit plan...
-The fallout will be fun to watch from 3000 miles away :-)
+Well, freedom in the US has always been about money. The independence war was 
+about getting rid of taxes and modern freedom is bought in the courtrooms 
+with expensive lawyers. Why should it change now? 
 
-Tony
+Greetings,
 
--- 
-"Only wimps use tape backup: _real_ men just upload their important stuff on
- ftp, and let the rest of the world mirror it ;)"  -- Linus Torvalds
+Pedro.
 
-tmh@nothing-on.tv	http://www.nothing-on.tv
+
+PS: sorry for fueling offtopic posts into an offtopic thread.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE71JsD2SBo0jBmgGARAvx8AKDFN+CuPqCYZDbBryK9dKRcy+8OGgCfVcPl
+gCZ4lh5AQZkzubm+M4qYE7A=
+=SK5+
+-----END PGP SIGNATURE-----

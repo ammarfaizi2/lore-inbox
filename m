@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289229AbSANMGb>; Mon, 14 Jan 2002 07:06:31 -0500
+	id <S289222AbSANMGb>; Mon, 14 Jan 2002 07:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289222AbSANMGW>; Mon, 14 Jan 2002 07:06:22 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:32517 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S289220AbSANMGM>;
-	Mon, 14 Jan 2002 07:06:12 -0500
-Date: Mon, 14 Jan 2002 13:07:20 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mario Mikocevic <mozgy@hinet.hr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FC & MULTIPATH !? (any hope?)
-Message-ID: <20020114130720.J917@marowsky-bree.de>
-In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tvOENZuN7d6HfOWU"
-Content-Disposition: inline
-In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
-User-Agent: Mutt/1.3.22.1i
-X-Ctuhulu: HASTUR
+	id <S289220AbSANMGW>; Mon, 14 Jan 2002 07:06:22 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38927 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289212AbSANMGL>;
+	Mon, 14 Jan 2002 07:06:11 -0500
+Date: Mon, 14 Jan 2002 10:05:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <ebiederm@xmission.com>, <akropel1@rochester.rr.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18pre3-ac1
+In-Reply-To: <20020114.012831.44983761.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0201141003420.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Jan 2002, David S. Miller wrote:
+>  From: ebiederm@xmission.com (Eric W. Biederman)
+>
+>    But for make -j the forking is done by make and it is nearly a
+>    fork bomb
+>
+> Someone has probably mentioned this, but it is important to recognize
+> that make uses vfork().
 
---tvOENZuN7d6HfOWU
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed.  In the beginning I was also afraid I'd hit the fork()
+problem Eric mentions, but after running lots of tests I can't
+really say it has shown up in the profiles anywhere.
 
-On 2002-01-14T12:33:01,
-   Mario Mikocevic <mozgy@hinet.hr> said:
+I'm sure you could make a benchmark to clearly show it, but for
+most common workloads it doesn't seem to be much of an issue.
+A possible exception to this is apache, I need to look into that
+a bit more.
 
-> is there any hope of working combination of MULTIPATH with FC !?
+regards,
 
-Yes. QLogic's newest 2200 HBA can do that. I don't know whether that is a
-possible solution for your problem though.
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-Sincerely,
-    Lars Marowsky-Br=E9e <lmb@suse.de>
+http://www.surriel.com/		http://distro.conectiva.com/
 
---=20
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
-
-
---tvOENZuN7d6HfOWU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjxCyfcACgkQudf3XQV4S2eMgQCeOkSNSz93ufJnuojSCvqLrECC
-22MAn2bnTESF+cSGH4qq4g+4pgvdWOLU
-=X1xy
------END PGP SIGNATURE-----
-
---tvOENZuN7d6HfOWU--

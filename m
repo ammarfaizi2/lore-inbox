@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281484AbRKPSvr>; Fri, 16 Nov 2001 13:51:47 -0500
+	id <S281478AbRKPSwS>; Fri, 16 Nov 2001 13:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281478AbRKPSvh>; Fri, 16 Nov 2001 13:51:37 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:58597 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S281480AbRKPSvZ>; Fri, 16 Nov 2001 13:51:25 -0500
-Date: Fri, 16 Nov 2001 19:51:19 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Message-ID: <20011116195119.A23877@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0111141421230.14971-100000@gurney> <E1646xi-00015T-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E1646xi-00015T-00@gondolin.me.apana.org.au>; from herbert@gondor.apana.org.au on Thu, Nov 15, 2001 at 07:48:46AM +1100
+	id <S281480AbRKPSwI>; Fri, 16 Nov 2001 13:52:08 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:43517 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S281478AbRKPSwD>; Fri, 16 Nov 2001 13:52:03 -0500
+Message-Id: <200111161851.fAGIpwE24877@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: jap3003+response@ksu.edu, linux-kernel@vger.kernel.org
+Subject: Re: CacheFS for Linux?
+Date: Fri, 16 Nov 2001 13:51:47 -0500
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011116123500.A12988@ksu.edu>
+In-Reply-To: <20011116123500.A12988@ksu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 07:48:46AM +1100, Herbert Xu wrote:
-> Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk> wrote:
-> 
-> > I installed Red Hat 7.2 and the machine boots fine, using SMP or UP
-> > kernels (Red Hat 2.4.9-7), but totally HANGS at the login prompt. Can't
-> > type, can't reboot, can't do anything. Single user mode _does_ let me
-> > in, however, and this is the only progress so far.
-> 
-> Try plugging in a mouse or stop running gpm.
+I don't claim to be an expert on the subject, but you may want to look at 
+the coda client/server.  Local caching and multiple origin servers are two 
+of its major features.
 
-But what causes the problem then?
+Of course, this is entirely separate from NFS, so if an NFS server is your 
+only option, it means nothing.
 
-Regards,
+	-- Brian
 
-bert
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+On Friday 16 November 2001 01:35 pm, Joseph Pingenot wrote:
+> Hello.
+>
+> Has any work been done on creating a sort of CacheFS for Linux
+>   (local NFS caching)?  If so, where can I go to get more info
+>   on getting it up and running?  Or is it already implemented
+>   somewhere?
+> Thanks!

@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271371AbRHOTTR>; Wed, 15 Aug 2001 15:19:17 -0400
+	id <S271383AbRHOT0G>; Wed, 15 Aug 2001 15:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271373AbRHOTTG>; Wed, 15 Aug 2001 15:19:06 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:64274 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S271370AbRHOTTB>;
-	Wed, 15 Aug 2001 15:19:01 -0400
-Date: Wed, 15 Aug 2001 14:23:06 -0500
-From: AJ Lewis <lewis@sistina.com>
-To: "Todd M. Roy" <troy@holstein.com>
-Cc: mauelshagen@sistina.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
-Message-ID: <20010815142306.A17510@sistina.com>
-In-Reply-To: <20010815191736.A32547@sistina.com> <200108151835.f7FIZ3802147@pcx4168.holstein.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+	id <S271381AbRHOTZ5>; Wed, 15 Aug 2001 15:25:57 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:57558 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271379AbRHOTZq>;
+	Wed, 15 Aug 2001 15:25:46 -0400
+Date: Wed, 15 Aug 2001 20:25:56 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Steve Hill <steve@navaho.co.uk>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: /dev/random in 2.4.6
+Message-ID: <125898493.997907155@[169.254.45.213]>
+In-Reply-To: <Pine.LNX.4.21.0108151605180.2107-100000@sorbus.navaho>
+In-Reply-To: <Pine.LNX.4.21.0108151605180.2107-100000@sorbus.navaho>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108151835.f7FIZ3802147@pcx4168.holstein.com>; from troy@holstein.com on Wed, Aug 15, 2001 at 02:35:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve,
 
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Until recently I've been using the 2.2.16 kernel on Cobalt Qube 3's, but
+> I've just upgraded to 2.4.6.  Since there's no mouse, keyboard, etc, there
+> isn't much entropy data.  I had no problem getting plenty of data from
+> /dev/random under 2.2, but under 2.4.6 there seems to be a distinct lack
+> of data - it takes absolutely ages to extract about 256 bytes from it
+> (whereas under 2.2 it was relatively quick).  Has there been a major
+> change in the way the random number generator works under 2.4?
 
-On Wed, Aug 15, 2001 at 02:35:03PM -0400, Todd M. Roy wrote:
-> >From reading the README.1st file, is my understanding
-> correct that if  one  already has migrated from
-> lvm 0.9.1b7 to 0.9.1b8, it is
-> *NOT* necessary to run pvvversion again?
+Some network drivers generate entropy on network interrupts, some
+don't. Apparently this inconsistent state is the way people want
+to keep it.
 
-That is correct.
+If you want to add entropy on network interrupts, look for the line
+in your driver which does a request_irq, and | in SA_SAMPLE_RANDOM
+to the flags value.
 
---=20
-AJ Lewis
-Sistina Software Inc.                  Voice:  612-638-0500
-1313 5th St SE, Suite 111              Fax:    612-638-0500
-Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
-http://www.sistina.com
+I'd prefer a single /proc/ entry to turn entropy on from ALL network
+devices for precisely the reason you state (SCSI means no IDE
+entity either), even if its off by default for ALL network
+devices for paranoia reasons, but there seems to be some religious
+issue at play which means the state currently depends on which
+brand of network card you have.
 
-Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
-648
-Get my key at: http://www.sistina.com/~lewis/gpgkey
- (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
+Example 'fix:' (and do this in reverse to remove entropy from
+network interrupts if you are paranoid) below.
 
------Begin Obligatory Humorous Quote----------------------------------------
-"We succeed because our competitors are idiots" - anonymous
------End Obligatory Humorous Quote------------------------------------------
+(tabs probably broken in the text below but easier to do it manually
+anyway)
 
---wac7ysb48OaltWcw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--- eepro100.c~ Tue Feb 13 21:15:05 2001
++++ eepro100.c  Sun Apr  8 22:17:00 2001
+@@ -923,7 +923,7 @@
+        sp->in_interrupt = 0;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+        /* .. we can safely take handler calls during init. */
+-       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ, 
+dev->name, dev);
++       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ | 
+SA_SAMPLE_RANDOM, dev->name, dev);
+        if (retval) {
+                MOD_DEC_USE_COUNT;
+                return retval;
 
-iD8DBQE7eswapE6/iGtdjLERAiPpAJ9eQ4a7h/0tA+pT3A0iwueuQ2NQagCePdlH
-3Q71O7DRCRRAsRdxtbi7B/w=
-=Qicl
------END PGP SIGNATURE-----
 
---wac7ysb48OaltWcw--
+
+--
+Alex Bligh

@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbSLNMkJ>; Sat, 14 Dec 2002 07:40:09 -0500
+	id <S267606AbSLNNJa>; Sat, 14 Dec 2002 08:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267606AbSLNMkJ>; Sat, 14 Dec 2002 07:40:09 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:9088 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S267605AbSLNMkI>;
-	Sat, 14 Dec 2002 07:40:08 -0500
-Message-ID: <3DFB2859.80401@walrond.org>
-Date: Sat, 14 Dec 2002 12:47:21 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org
-Subject: Re: Symlink indirection
-References: <3DF9F780.1070300@walrond.org> <mailman.1039792562.8768.linux-kernel2news@redhat.com> <200212131616.gBDGGH302861@devserv.devel.redhat.com> <3DFA0F6D.1010904@walrond.org> <20021213115508.A16493@devserv.devel.redhat.com> <3DFA130C.1030106@walrond.org> <20021214055716.GA14721@zion.rivenstone.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267607AbSLNNJa>; Sat, 14 Dec 2002 08:09:30 -0500
+Received: from mail.hometree.net ([212.34.181.120]:31675 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S267606AbSLNNJ3>; Sat, 14 Dec 2002 08:09:29 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: pci-skeleton duplex check
+Date: Sat, 14 Dec 2002 13:17:20 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <atfb10$nc6$1@forge.intermeta.de>
+References: <1039771036.1509.5.camel@rth.ninka.net> <20021213.102918.102902274.davem@redhat.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039871840 20259 212.34.181.4 (14 Dec 2002 13:17:20 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sat, 14 Dec 2002 13:17:20 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" <davem@redhat.com> writes:
 
-Joseph Fannin wrote:
-> 
->     I don't understand what you are trying to explain.  Do you mean a
-> union mount, or a variation thereof?
-> 
->     I thought Al Viro was going to do union mount support for 2.5, but
-> I haven't heard about it in a while.  Maybe it went in and no one noticed?
-> 
+>   From: Donald Becker <becker@scyld.com>
+>   Date: Fri, 13 Dec 2002 11:56:17 -0500 (EST)
+>   
+>   The development criteria used to be technically based, and that is still
+>   the public statement.  Now, as your statement makes clear, working code
+>   is an irrelevant criteria.
 
-Hi Joseph
+>No, working code is only part of the equation.  If you're a total and
+>complete asshole, your work is likely to get lost to the sands of
+>time.  In such a case nobody wants to deal with you.
 
-I'm not familiar with the phrase 'union mount' and although google gives 
-wads of hits, I can't find a good description of it
+The IDE code and one of its current maintainers disproves your point.
 
-What I mean is (contrived example with made-up mount option --overlay)
+I did notice that it was you and not Donald who started using swear
+words. Ego problem?
 
-mkdir a
-echo "a/x" > a/x
-echo "a/y" > a/y
-echo "a/z" > a/z
+	Regards
+		Henning
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-mkdir b
-echo "b/y" > b/y
-
-mkdir c
-echo "c/z" > c/z
-
-mkdir d
-mount --bind a d
-mount --bind --overlay b d
-mount --bind --overlay c d
-
-cat d/x
-"a/x"
-
-cat d/y
-"b/x"
-
-cat d/z
-"c/z"
-
-This would be *really* useful and nice. I currently emulate this 
-behavior with a bash script which creates hard or soft links, but the 
-mounting system would be much nicer, easier to unwind etc.
-
-I assume this isn't possible now (man mount gives no hint), but how 
-feasible is it? Has anybody tried to implement this? If yes and No 
-perhaps I could (with some initial guidance) have a look at implementing 
-this.
-
-I don't use HD's much anymore, so it would need to work for tmpfs.
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

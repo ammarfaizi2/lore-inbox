@@ -1,24 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVCGGin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCGGjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVCGGin (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 01:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVCGGhj
+	id S261654AbVCGGjh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 01:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCGGjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 01:37:39 -0500
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:24266 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261650AbVCGGh3 (ORCPT
+	Mon, 7 Mar 2005 01:39:37 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:54720 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261654AbVCGGjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 01:37:29 -0500
-Date: Mon, 7 Mar 2005 15:37:17 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: yuasa@hh.iij4u.or.jp, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ralf@linux-mips.org
-Subject: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok
-Message-Id: <20050307153717.24810dcb.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <Pine.LNX.4.62.0503070050390.2971@dragon.hygekrogen.localhost>
-References: <20050306232450.104fd7b7.yuasa@hh.iij4u.or.jp>
-	<Pine.LNX.4.62.0503070050390.2971@dragon.hygekrogen.localhost>
+	Mon, 7 Mar 2005 01:39:18 -0500
+Date: Mon, 7 Mar 2005 17:39:14 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] add and use COMPAT_SIGEV_PAD_SIZE
+Message-Id: <20050307173914.347c30e0.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,22 +22,99 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Mar 2005 00:55:30 +0100 (CET)
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
+Hi all,
 
-> On Sun, 6 Mar 2005, Yoichi Yuasa wrote:
-> 
-> > This patch converts verify_area to access_ok for include/asm-mips.
-> > 
-> Yeah, that's one of the few bits I had not done yet. Thank you for taking 
-> a look at that.
-> 
-> I don't believe your patch is correct though. See below for what I think 
-> is a better one.
+All the 32 bit architectures (effectively) define SIGEV_PAD_SIZE to be
+((SIGEV_MAX_SIZE/sizeof(int)) - 3).  So define COMPAT_SIGEV_PAD_SIZE to be
+this and replace SIGEV_PAD_SIZE32 where it is used.  It also needs to be
+used in the definition of struct compat_sigevent as most of the
+architectures would have had it 4 bytes too small in the kernel (since we
+were using SIGEV_PAD_SIZE).
 
-That's right.
-I forgot to assign 0 to __gu_err/__pu_err after access_ok().
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-Thanks,
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Yoichi
+diff -ruNp linus/arch/ia64/ia32/ia32priv.h linus-SIGEV/arch/ia64/ia32/ia32priv.h
+--- linus/arch/ia64/ia32/ia32priv.h	2005-01-05 17:06:07.000000000 +1100
++++ linus-SIGEV/arch/ia64/ia32/ia32priv.h	2005-02-21 12:02:07.000000000 +1100
+@@ -230,8 +230,6 @@ typedef union sigval32 {
+ 	unsigned int sival_ptr;
+ } sigval_t32;
+ 
+-#define SIGEV_PAD_SIZE32 ((SIGEV_MAX_SIZE/sizeof(int)) - 3)
+-
+ typedef struct compat_siginfo {
+ 	int si_signo;
+ 	int si_errno;
+@@ -289,7 +287,7 @@ typedef struct sigevent32 {
+ 	int sigev_signo;
+ 	int sigev_notify;
+ 	union {
+-		int _pad[SIGEV_PAD_SIZE32];
++		int _pad[COMPAT_SIGEV_PAD_SIZE];
+ 		struct {
+ 			u32 _function;
+ 			u32 _attribute; /* really pthread_attr_t */
+diff -ruNp linus/arch/s390/kernel/compat_linux.h linus-SIGEV/arch/s390/kernel/compat_linux.h
+--- linus/arch/s390/kernel/compat_linux.h	2005-02-04 13:05:31.000000000 +1100
++++ linus-SIGEV/arch/s390/kernel/compat_linux.h	2005-02-21 12:02:07.000000000 +1100
+@@ -199,7 +199,6 @@ struct ucontext32 {
+ 	compat_sigset_t		uc_sigmask;	/* mask last for extensibility */
+ };
+ 
+-#define SIGEV_PAD_SIZE32 ((SIGEV_MAX_SIZE/sizeof(int)) - 3)
+ struct sigevent32 {
+ 	union {
+ 		int sival_int;
+@@ -208,7 +207,7 @@ struct sigevent32 {
+ 	int sigev_signo;
+ 	int sigev_notify;
+ 	union {
+-		int _pad[SIGEV_PAD_SIZE32];
++		int _pad[COMPAT_SIGEV_PAD_SIZE];
+ 		int _tid;
+ 		struct {
+ 			u32 *_function;
+diff -ruNp linus/include/asm-sparc64/siginfo.h linus-SIGEV/include/asm-sparc64/siginfo.h
+--- linus/include/asm-sparc64/siginfo.h	2005-01-05 17:06:08.000000000 +1100
++++ linus-SIGEV/include/asm-sparc64/siginfo.h	2005-02-21 12:02:07.000000000 +1100
+@@ -4,7 +4,6 @@
+ #define SI_PAD_SIZE32	((SI_MAX_SIZE/sizeof(int)) - 3)
+ 
+ #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
+-#define SIGEV_PAD_SIZE32 ((SIGEV_MAX_SIZE/sizeof(int)) - 3)
+ 
+ #define __ARCH_SI_PREAMBLE_SIZE	(4 * sizeof(int))
+ #define __ARCH_SI_TRAPNO
+@@ -47,7 +46,7 @@ typedef struct sigevent32 {
+ 	int sigev_signo;
+ 	int sigev_notify;
+ 	union {
+-		int _pad[SIGEV_PAD_SIZE32];
++		int _pad[COMPAT_SIGEV_PAD_SIZE];
+ 
+ 		struct {
+ 			u32 _function;
+diff -ruNp linus/include/linux/compat.h linus-SIGEV/include/linux/compat.h
+--- linus/include/linux/compat.h	2005-03-07 13:06:24.000000000 +1100
++++ linus-SIGEV/include/linux/compat.h	2005-03-07 14:07:26.000000000 +1100
+@@ -101,12 +101,14 @@ typedef union compat_sigval {
+ 	compat_uptr_t	sival_ptr;
+ } compat_sigval_t;
+ 
++#define COMPAT_SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 3)
++
+ typedef struct compat_sigevent {
+ 	compat_sigval_t sigev_value;
+ 	compat_int_t sigev_signo;
+ 	compat_int_t sigev_notify;
+ 	union {
+-		compat_int_t _pad[SIGEV_PAD_SIZE];
++		compat_int_t _pad[COMPAT_SIGEV_PAD_SIZE];
+ 		compat_int_t _tid;
+ 
+ 		struct {

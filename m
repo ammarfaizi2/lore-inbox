@@ -1,61 +1,132 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315183AbSD3TsZ>; Tue, 30 Apr 2002 15:48:25 -0400
+	id <S315188AbSD3T6u>; Tue, 30 Apr 2002 15:58:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315185AbSD3TsY>; Tue, 30 Apr 2002 15:48:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51474 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315183AbSD3TsX>;
-	Tue, 30 Apr 2002 15:48:23 -0400
-Message-ID: <3CCEF4CC.C56E31B8@zip.com.au>
-Date: Tue, 30 Apr 2002 12:47:24 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: suparna@in.ibm.com
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-        marcelo@brutus.conectiva.com.br, linux-mm@kvack.org
-Subject: Re: [PATCH]Fix: Init page count for all pages during higher order allocs
-In-Reply-To: <20020429202446.A2326@in.ibm.com> <m1r8ky1jzu.fsf@frodo.biederman.org> <20020430110108.A1275@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315191AbSD3T6t>; Tue, 30 Apr 2002 15:58:49 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:3246 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id <S315188AbSD3T6s>;
+	Tue, 30 Apr 2002 15:58:48 -0400
+Date: Tue, 30 Apr 2002 21:58:44 +0200
+From: Martin Schewe <m@xsms.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Aaron Tiensivu <mojomofo@mojomofo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE TCQ #4
+Message-ID: <20020430195844.GA18504@linux01.gwdg.de>
+In-Reply-To: <20020415125606.GR12608@suse.de> <02db01c1e498$7180c170$58dc703f@bnscorp.com> <20020416102510.GI17043@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DBIVS5p969aUjpLe"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya wrote:
-> 
-> ...
-> > It might make sense to add a PG_large flag and
-> > then in the immediately following struct page add a pointer to the next
-> > page, so you can identify these pages by inspection.  Doing something
-> > similar to the PG_skip flag.
-> 
-> Maybe different solutions could emerge for this in 2.4 and 2.5.
-> 
-> Even a PG_partial flag for the partial pages will enable us to
-> traverse back to the main page, and vice-versa to determine the
-> partial pages covered by the main page, without any additional
-> pointers. Is that an acceptable option for 2.4 ? (That's one
-> more page flag ...)
-> 
 
-I'd suggest that you go with the PG_partial thing for the
-follow-on pages.
+--DBIVS5p969aUjpLe
+Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
 
-If you have a patch for crashdumps, and that patch is
-included in the main kernel, and it happens to rely on the
-addition of a new page flag well gee, that's a tiny change.
 
-Plus it only affects code paths in the `order > 0' case,
-which are rare.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Plus you can independently use PG_partial to detect when
-someone is freeing pages from the wrong part of a higher-order
-allocation - that's a feature ;)
+Hi,
 
-An alternative is to just set PG_inuse against _all_ pages
-in rmqueue(), and clear PG_inuse against all pages in
-__free_pages_ok().  Which seems cleaner, and would fix other
-problems, I suspect.
+On Tue, Apr 16, 2002 at 12:25:10PM +0200, Jens Axboe wrote:
 
--
+> Mark Hahn wrote this little script to detect support for TCQ, modified
+> by me to not use the hdX symlinks.
+>=20
+> [...]
+>=20
+> #!/usr/bin/perl
+>=20
+> # bit 1 (TCQ) and 14 (word is valid) must be set to indicate tcq support
+> $mask =3D (1 << 1) | (1 << 14);
+>=20
+> # bit 15 must be cleared too
+> $bits =3D $mask | (1 << 15);
+>=20
+> # mail me the results!
+> $addr =3D "linux-tcq\@kernel.dk";
+>=20
+> foreach $i (</proc/ide/ide*>) {
+> 	foreach $d (<$i/hd*>) {
+> 		@words =3D split(/\s/,`cat $d/identify`);
+> 		$w83 =3D hex($words[83]);
+> 		if (!(($w83 & $bits) ^ $mask)) {
+> 			$model =3D `cat $d/model`;
+> 			push(@goodies, $model);
+> 			chomp($model);
+> 			print "$d ($model) supports TCQ\n";
+> 		}
+> 	}
+> }
+>=20
+> if ($addr && $#goodies) {
+
+$#goodies refers to the last index of the array and scalar @goodies to
+the actual number of elements.  So you probably got only mails from
+people having more than two drives supporting TCQ...  :)
+
+> 	open(M, "| mail -s TCQ-report $addr");
+> 	print M @goodies;
+> 	close(M);
+> }
+
+Fixed version attached.
+
+		Martin
+
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=tcq_support
+
+#!/usr/bin/perl
+
+# bit 1 (TCQ) and 14 (word is valid) must be set to indicate tcq support
+$mask = (1 << 1) | (1 << 14);
+
+# bit 15 must be cleared too
+$bits = $mask | (1 << 15);
+
+# mail me the results!
+$addr = "linux-tcq\@kernel.dk";
+
+foreach $i (</proc/ide/ide*>) {
+	foreach $d (<$i/hd*>) {
+		@words = split(/\s/,`cat $d/identify`);
+		$w83 = hex($words[83]);
+		if (!(($w83 & $bits) ^ $mask)) {
+			$model = `cat $d/model`;
+			push(@goodies, $model);
+			chomp($model);
+			print "$d ($model) supports TCQ\n";
+		}
+	}
+}
+
+if ($addr && @goodies) {
+	open(M, "| mail -s TCQ-report $addr");
+	print M @goodies;
+	close(M);
+}
+
+--uAKRQypu60I7Lcqm--
+
+--DBIVS5p969aUjpLe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE8zvdzvFdT+uCkj6sRAsVzAJ4pf9iCW5P3mQduCeOxXP92z1ca7ACgqCAj
+3WhceQ0Vqgrao/HdlR0klTc=
+=XiIg
+-----END PGP SIGNATURE-----
+
+--DBIVS5p969aUjpLe--

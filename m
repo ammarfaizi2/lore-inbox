@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268496AbTCFW70>; Thu, 6 Mar 2003 17:59:26 -0500
+	id <S268501AbTCFW6Z>; Thu, 6 Mar 2003 17:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268511AbTCFW7Z>; Thu, 6 Mar 2003 17:59:25 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39080
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268496AbTCFW7W>; Thu, 6 Mar 2003 17:59:22 -0500
-Subject: Re: Make ipconfig.c work as a loadable module.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <20030306222546.K838@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com>
-	 <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
-	 <20030306221136.GB26732@gtf.org>
-	 <20030306222546.K838@flint.arm.linux.org.uk>
+	id <S268496AbTCFW6Y>; Thu, 6 Mar 2003 17:58:24 -0500
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:20698 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S268501AbTCFW5X>; Thu, 6 Mar 2003 17:57:23 -0500
+Subject: Re: Linux 2.5.64-ac1
+From: Steven Cole <elenstev@mesatop.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, aeb@cwi.nl
+In-Reply-To: <20030306225823.GA2764@win.tue.nl>
+References: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
+	<1046985881.4992.99.camel@spc9.esa.lanl.gov>
+	<1046991076.17715.129.camel@irongate.swansea.linux.org.uk> 
+	<20030306225823.GA2764@win.tue.nl>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046996037.18158.142.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Mar 2003 16:03:39 -0700
+Message-Id: <1046991819.4872.109.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 00:13:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 22:25, Russell King wrote:
-> > > The right fix is to delete ipconfig.c, it has been the right fix for a long
-> > > long time. There are initrd based bootp/dhcp setups that can also then mount
-> > > a root NFS partition and they do *not* need any kernel helper.
+On Thu, 2003-03-06 at 15:58, Andries Brouwer wrote:
+> On Thu, Mar 06, 2003 at 10:51:16PM +0000, Alan Cox wrote:
+> > On Thu, 2003-03-06 at 21:24, Steven Cole wrote:
+> > > I backed out the same partitions stuff as before, and 2.5.64-ac1 boots
+> > > fine.  This is the resulting diff.
 > > 
-> > The klibc tarball on kernel.org also has ipconfig-type code, waiting for
-> > initramfs early userspace :)
-> > 
-> > Many have wanted to delete ipconfig.c for a while now...
+> > Backing it out isnt an option in the end, it has to get fixed 8(
 > 
-> Yep, can't the deletion wait a couple more weeks or so until klibc gets
-> merged?  It's not like ipconfig.c is broken currently, is it?
+> Usually I try to follow partition and geometry stuff, but this
+> is a discussion I missed.  What is wrong?
+> 
+> Andries
 
-Thats how it ended up in 2.4. Klibc doesnt really matter, the apps exist
-linked with dietlibc and stuff even without klibc.
+Here are the symptoms if that will help.  
+Copied by hand when it died on boot.
 
-Time for it to die
+Call Trace:
+
+ide_xlate_1024+0xf5
+read_dev_sector+0x69
+handle_ide_mess+0x179
+msdos_partition+0x3c
+call_console_drivers+0xeb
+printk+0x17d
+check_partition+0xac
+register_disk+0xd0
+blk_register_region+0x24
+add_disk+0x35
+exact_match+0x0
+exact_lock+0x0
+sd_attach+0x291
+scsi_register_device+0x94
+init+0x62
+init+0x0
+kernel_thread_helper+0x5
+
+Steven
 

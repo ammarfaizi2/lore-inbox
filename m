@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbTCSNLd>; Wed, 19 Mar 2003 08:11:33 -0500
+	id <S262991AbTCSNcq>; Wed, 19 Mar 2003 08:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263032AbTCSNLd>; Wed, 19 Mar 2003 08:11:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14857 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263031AbTCSNLc>; Wed, 19 Mar 2003 08:11:32 -0500
-Date: Wed, 19 Mar 2003 14:22:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: mikpe@csd.uu.se
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: apic-to-drivermodel conversion
-Message-ID: <20030319132214.GA24278@atrey.karlin.mff.cuni.cz>
-References: <20030318202858.GA154@elf.ucw.cz> <20030318161852.41a703a4.akpm@digeo.com> <15992.18243.605716.244572@gargle.gargle.HOWL>
+	id <S262997AbTCSNcq>; Wed, 19 Mar 2003 08:32:46 -0500
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:43714 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id <S262991AbTCSNcp>; Wed, 19 Mar 2003 08:32:45 -0500
+Date: Wed, 19 Mar 2003 16:43:41 +0300
+From: "Vladimir B. Savkin" <savkin@shade.msu.ru>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: fxzhang@ict.ac.cn, linux-kernel@vger.kernel.org
+Subject: Re: eepro100+NAPI failure
+Message-ID: <20030319134341.GA26128@tentacle.sectorb.msk.ru>
+References: <20030318202728.GA15796@tentacle.sectorb.msk.ru> <1048020884.1521.60.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <15992.18243.605716.244572@gargle.gargle.HOWL>
+In-Reply-To: <1048020884.1521.60.camel@tux.rsn.bth.se>
 User-Agent: Mutt/1.3.28i
+X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
+X-Operating-System: Linux 2.4.21-pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->  > > This converts apic code to use driver model. It is neccessary for S3
->  > > when you are using apic. 
->  > 
->  > Seems to be missing something.
->  > 
->  > arch/i386/kernel/apm.c: In function `suspend':
->  > arch/i386/kernel/apm.c:1242: warning: implicit declaration of function `device_suspend'
->  > arch/i386/kernel/apm.c:1242: `SUSPEND_POWER_DOWN' undeclared (first use in this function)
->  > arch/i386/kernel/apm.c:1242: (Each undeclared identifier is reported only once
->  > arch/i386/kernel/apm.c:1242: for each function it appears in.)
->  > arch/i386/kernel/apm.c:1264: warning: implicit declaration of function `device_resume'
->  > arch/i386/kernel/apm.c:1264: `RESUME_POWER_ON' undeclared (first use in this function)
->  > arch/i386/kernel/apm.c: In function `check_events':
->  > arch/i386/kernel/apm.c:1378: `RESUME_POWER_ON' undeclared (first use in this function)
+On Tue, Mar 18, 2003 at 09:54:44PM +0100, Martin Josefsson wrote:
+> > Can anyone help me to make NAPI work? Does anyone even use NAPI
+> > with eepro100, I guess not many people since the patch is pretty old
+> > and I could not find it ported to 2.4.21-pre.
 > 
-> Try this patch instead. This is my merge of my and Pavel's earlier
-> patches, so it differs from Pavel's in some details.
-> My patch works with APM -- I can do repeated synchronous and
-> asynchronous suspends with it.
-> I haven't tested oprofile. There are some issues wrt oprofile's
-> interface with the local-APIC NMI watchdog. Pavel suggested one
-> (IMHO ugly) workaround, I and John suggested another (viz, an
-> enable/disable API with one bit of history). My patch implements
-> that API.
+> I havn't heard of anyone using it. I've understood that the recieve path
+> in the eepro100 chip can be quite fragile and has to be treated right or
+> it'll hang... maybe the NAPI patch changes things too much...
+> 
+> Anyway, please let me know if you manage to get it working
 
-Yes this looks nice, too. Linus please apply one of them, probably
-Mikael's since he has worked on this code before.
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+It seems to work with this one:
+
+02:03.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev
+02)
+        Subsystem: IBM 82558B Ethernet Pro 10/100
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max)
+        Interrupt: pin A routed to IRQ 16
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=4K]
+        Region 1: I/O ports at a400 [size=32]
+        Region 2: Memory at df000000 (32-bit, non-prefetchable)
+[size=1M]
+        Expansion ROM at <unassigned> [disabled] [size=1M]
+
+
+No problem with more than 10^7 packets
+It just drops packets under heavy load, without live-locking, 
+so NAPI kinda works :)
+
+Unfortunally, I could not get this NIC to work with oversized frames
+to implement 802.1q, both with eepro100 and e100 drivers :(
+
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
+

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131600AbQLQBva>; Sat, 16 Dec 2000 20:51:30 -0500
+	id <S131697AbQLQCOC>; Sat, 16 Dec 2000 21:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131697AbQLQBvV>; Sat, 16 Dec 2000 20:51:21 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:25102 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131600AbQLQBvH>; Sat, 16 Dec 2000 20:51:07 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S131773AbQLQCNw>; Sat, 16 Dec 2000 21:13:52 -0500
+Received: from main.cornernet.com ([209.98.65.1]:23307 "EHLO
+	main.cornernet.com") by vger.kernel.org with ESMTP
+	id <S131697AbQLQCNg>; Sat, 16 Dec 2000 21:13:36 -0500
+Date: Sat, 16 Dec 2000 19:43:53 -0600 (CST)
+From: Chad Schwartz <cwslist@main.cornernet.com>
+To: Tom Vier <thomassr@erols.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Dropping chars on 16550
+In-Reply-To: <20001216152833.A7536@zero>
+Message-ID: <Pine.LNX.4.30.0012161943240.6348-100000@main.cornernet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14908.5332.693556.59249@wire.cadcamlab.org>
-Date: Sat, 16 Dec 2000 19:20:20 -0600 (CST)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: infernix@infernix.nl (infernix),
-        nkbj@image.dk (Niels Kristian Bech Jensen),
-        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list)
-Subject: Re: Unable to boot 2.4.0-test12 (0224 AX:0212 BX:BC00 CX:5101 DX:000.)
-In-Reply-To: <20001216172518.M3199@cadcamlab.org>
-	<E147RXw-0003OG-00@the-village.bc.nu>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+heh. yep.
 
-  [me]
-> > Is there *anything* the builtin code can do better than syslinux?
+Thats why I didn't list them.
 
-[ac]
-> 	scp arch/i386/boot/bzImage somebox:/dev/fd0
-> 	ssh root@somebox reboot
+z85's are good chips, but they perform JUST LIKE a 16550.
 
-Never thought of that one.  I would probably instead use
+Chad
 
-	scp arch/i386/boot/bzImage somebox:/tmp
-	ssh root@somebox 'mcopy -o /tmp/bzImage a: && reboot'
+> On Thu, Dec 14, 2000 at 08:51:42AM -0600, Chad Schwartz wrote:
+> > And what kind of serial ports do you find on your Alpha?  16550's!  Your
+> > PowerPC?  16550's!  Your PA-RISC box? 16550's!  Hey! Even RS/6000's use
+> > 16550's!
+>
+> macs and sun machines use z85c30 chips, so there are some non-16550 boxes
+> out there.
+>
+> --
+> Tom Vier <thomassr@erols.com>
+> DSA Key id 0x27371A2C
+>
 
-with a known good syslinux floppy in place, but I suppose your method
-*is* somewhat simpler.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

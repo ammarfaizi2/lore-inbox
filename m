@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313362AbSDKIup>; Thu, 11 Apr 2002 04:50:45 -0400
+	id <S313531AbSDKI5o>; Thu, 11 Apr 2002 04:57:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313531AbSDKIuo>; Thu, 11 Apr 2002 04:50:44 -0400
-Received: from smtp.cs.curtin.edu.au ([134.7.1.4]:18959 "EHLO
-	smtp.cs.curtin.edu.au") by vger.kernel.org with ESMTP
-	id <S313362AbSDKIun>; Thu, 11 Apr 2002 04:50:43 -0400
-Message-Id: <5.1.0.14.2.20020411164152.02fb87a0@pop.cs.curtin.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 11 Apr 2002 16:50:41 +0800
-To: linux-kernel@vger.kernel.org
-From: David Shirley <dave@cs.curtin.edu.au>
-Subject: The process of NFS mounting?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313553AbSDKI5n>; Thu, 11 Apr 2002 04:57:43 -0400
+Received: from eowyn.iae.nl ([212.61.25.227]:20237 "HELO eowyn.vianetworks.nl")
+	by vger.kernel.org with SMTP id <S313531AbSDKI5m>;
+	Thu, 11 Apr 2002 04:57:42 -0400
+Date: Thu, 11 Apr 2002 11:35:02 +0200
+Message-Id: <200204110935.LAA03761@fikkie.vesc.nl>
+From: "E. Abbink" <esger@bumblebeast.com>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Reply-To: esger@bumblebeast.com
+Subject: Re: Problem using mandatory locks (other apps can read/delete etc)
+X-Mailer: NeoMail 1.25
+X-IPAddress: 192.0.0.12
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-
-I'm not sure that this is the correct list for this question,
-so I apologise if you think so.
-
-Basically I want to understand the process of NFS mounting
-in terms of network activity and transactions from client
-to server.
-
- From my understanding basically the client requests the mountd
-port from the servers portmapper.
-
-Then the client talks to mountd
-
-etc etc etc..
-
-Well the problem I have is that it seems that mountd is trying to
-establish a new UDP connection (yeah yeah i know...) to the mount
-client process. Is this what is supposed to happen?
-
-Cheers
-Dave
 
 
+> On 10 April 2002 15:08, E. Abbink wrote:
+> > I'm trying to solve a problem using mandatory locks but am having some
+> > difficulty in doing so. (if there's a more appropriate place for
+> > discussing this please ignore the rest of this post. pointers to that
+> > place would be appreciated ;) )
+> >
+> > my problem:
+> >
+> > when I lock a file with a mandatory write lock (ie. fcntl, +s-x bits and
+> > mand mount option. for code see below) it is still possible:
+> >
+> > - for me to rm the file in question
+> > - for the file to be read by an other process
+> 
+> [snip]
+> 
+> >     lock.l_type = F_WRLCK ;   <================
+> >     lock.l_whence = SEEK_SET ;
+> >     lock.l_start = 0 ;
+> >     lock.l_len = 0 ;
+> >     lock.l_pid = 0 ; // ignored
+> >
+> >     int err = fcntl (fd, F_SETLK, &lock) ;
+> 
+> I know nothing about file locking in Unix, but it looks like you
+> requested write lock, i.e. forbid writing to a file. Why are you
+> surprised that reads are allowed?
+> 
+> Probably someone else would comment on why rm is working, though...
+> --
+> vda
 
+as i understand it what is called a "write" lock is actually an
+exclusive lock (ie both read/write). Also, afaik, you cant set both a
+read & write lock through fcntl which supports that assumption.
+ 
+Esger
 
-
-/-----------------------------------
-David Shirley
-System's Administrator
-Computer Science - Curtin University
-(08) 9266 2986
------------------------------------/
-
+-- 
+NeoMail - Webmail that doesn't suck... as much.
+http://neomail.sourceforge.net

@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268356AbUIQARY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268404AbUIQAUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268356AbUIQARY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 20:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUIQARX
+	id S268404AbUIQAUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 20:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUIQAUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 20:17:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28801 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268356AbUIQARN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 20:17:13 -0400
-Message-ID: <414A2CFB.5000900@pobox.com>
-Date: Thu, 16 Sep 2004 20:16:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tharbaugh@lnxi.com
-CC: akpm@digeo.com, linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [PATCH] gen_init_cpio uses external file list
-References: <1095372672.19900.72.camel@tubarao> <414A1C92.3070205@pobox.com> <1095375235.19900.82.camel@tubarao>
-In-Reply-To: <1095375235.19900.82.camel@tubarao>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 16 Sep 2004 20:20:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31624 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268404AbUIQAUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 20:20:01 -0400
+Date: Thu, 16 Sep 2004 17:23:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ncunningham@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Suspend2 Merge: Supress various actions/errors while
+ suspending [0/5]
+Message-Id: <20040916172347.0f540b9d.akpm@osdl.org>
+In-Reply-To: <1095379419.5902.112.camel@laptop.cunninghams>
+References: <1095378659.5897.96.camel@laptop.cunninghams>
+	<20040916170017.0f14d202.akpm@osdl.org>
+	<1095379419.5902.112.camel@laptop.cunninghams>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thayne Harbaugh wrote:
-> On Thu, 2004-09-16 at 19:06 -0400, Jeff Garzik wrote:
+Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+>
+> > Until we get the existing rework settled and Pat has time to look at
+> > suspend2 I'd rather not have to take it on.
 > 
->>Seems OK to me...
->>
->>	Jeff, the original gen_init_cpio author
-> 
-> 
-> There's been some minor discussion about the use of _GNU_SOURCE (needed
-> for getline()).  Comments?  I can rework the getline() if anyone can
-> make a case - otherwise I'm a bit lazy.
+> Fair enough. Shall I just post the remainder to LKML for now, get it
+> reviewed and apply the changes? Then, when everyone is happy and Patrick
+> has done his stuff, I could simply ask you to pull from
+> suspend.bkbits.net.
 
-
-I am a bit leery of _GNU_SOURCE but whatever :)
-
+That works for me.

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293217AbSCFEwO>; Tue, 5 Mar 2002 23:52:14 -0500
+	id <S293222AbSCFE5f>; Tue, 5 Mar 2002 23:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293222AbSCFEwD>; Tue, 5 Mar 2002 23:52:03 -0500
-Received: from ns0.auctionwatch.com ([66.7.130.2]:48648 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S293217AbSCFEvv>; Tue, 5 Mar 2002 23:51:51 -0500
-Date: Tue, 5 Mar 2002 20:51:50 -0800
-From: Petro <petro@auctionwatch.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SSSCA: We're in trouble now
-Message-ID: <20020306045150.GJ22934@auctionwatch.com>
-In-Reply-To: <1015028463.2276.231.camel@thanatos> <20020302183041.P6075@stingr.net>
-Mime-Version: 1.0
+	id <S293223AbSCFE5Y>; Tue, 5 Mar 2002 23:57:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30736 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293222AbSCFE5J>;
+	Tue, 5 Mar 2002 23:57:09 -0500
+Message-ID: <3C85A1BA.512E0324@mandrakesoft.com>
+Date: Tue, 05 Mar 2002 23:57:30 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.19-pre2]
+In-Reply-To: <20020305163840.B1525@bougret.hpl.hp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020302183041.P6075@stingr.net>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 02, 2002 at 06:30:42PM +0300, Paul P Komkoff Jr wrote:
+We don't need the silly spinlock wrappers in 2.4 either.....
+
 > 
-> the one difference between govt and corporations - corporations want
-> citizens become idiots that generate money and gift it to a corporate CEO :)
-
-    Nope. 
-
-    The biggest difference is that Corporations have to convince you to
-    give them money so they can pay the governments to point guns at
-    you, while goverments just point guns at you to take your money. 
-
-    It's all about money and force. 
+> + * Wrapper for disabling interrupts.
+> + * (note : inline, so optimised away)
+> + */
+> +static inline void
+> +wv_splhi(net_local *           lp,
+> +        unsigned long *        pflags)
+> +{
+> +  spin_lock_irqsave(&lp->spinlock, *pflags);
+> +  /* Note : above does the cli(); itself */
+> +}
+> +
+> +/*------------------------------------------------------------------*/
+> +/*
+> + * Wrapper for re-enabling interrupts.
+> + */
+> +static inline void
+> +wv_splx(net_local *            lp,
+> +       unsigned long *         pflags)
+> +{
+> +  spin_unlock_irqrestore(&lp->spinlock, *pflags);
+> +
+> +  /* Note : enabling interrupts on the hardware is done in wv_ru_start()
+> +   * via : outb(OP1_INT_ENABLE, LCCR(base));
+> +   */
+> +}
+> +
 
 -- 
-Share and Enjoy. 
+Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
+Building 1024    | censorship as damage and routes around it."
+MandrakeSoft     |

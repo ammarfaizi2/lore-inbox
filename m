@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265103AbUFGWzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUFGW6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265103AbUFGWzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbUFGWzx
+	id S265110AbUFGW6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUFGW6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:55:53 -0400
-Received: from ozlabs.org ([203.10.76.45]:43655 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265103AbUFGWzo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:55:44 -0400
-Date: Tue, 8 Jun 2004 08:51:15 +1000
-From: Anton Blanchard <anton@samba.org>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix PCI hotplug of promise IDE cards
-Message-ID: <20040607225115.GC7412@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Jun 2004 18:58:34 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:62672 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265108AbUFGW6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:58:21 -0400
+Message-ID: <40C4F40A.8060205@elegant-software.com>
+Date: Mon, 07 Jun 2004 19:02:34 -0400
+From: Russell Leighton <russ@elegant-software.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid()
+ bug in 2.6?]
+References: <40C1E6A9.3010307@elegant-software.com>	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>	<40C32A44.6050101@elegant-software.com>	<40C33A84.4060405@elegant-software.com>	<1086537490.3041.2.camel@laptop.fenrus.com>	<40C3AD9E.9070909@elegant-software.com>	<20040607121300.GB9835@devserv.devel.redhat.com>	<6uu0xn5vio.fsf@zork.zork.net>	<20040607140009.GA21480@infradead.org> <16580.46864.290708.33518@napali.hpl.hp.com>
+In-Reply-To: <16580.46864.290708.33518@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Mosberger wrote:
 
-Hi,
+>>>>>>On Mon, 7 Jun 2004 15:00:09 +0100, Christoph Hellwig <hch@infradead.org> said:
+>>>>>>            
+>>>>>>
+>
+>  Christoph> On Mon, Jun 07, 2004 at 02:48:31PM +0100, Sean Neakums
+>  Christoph> wrote:
+>  >> > for example ia64 doesn't have it.
+>
+>  >> Then what is the sys_clone2 implementation in
+>  >> arch/is64/kernel/entry.S for?
+>
+>  Christoph> It's clone with a slightly different calling convention.
+>
+>Note that the only difference is that the stack-area is expressed as a
+>range (starting-address + size), rather than a direct stack-pointer
+>value.  IMHO, it was a mistake to not do it that way right from the
+>beginning (consider that different arches grow stacks in different
+>directions, for example).
+>
+>	
+>
+So Ia64 does have it..that's good. Does glibc wrap it?
 
-It looks like no one has tried hotplugging Promise IDE cards :)
+I agree with the above...could glibc's clone() should have a size added? 
+Then the arch specific stack issues
+could be hidden.
 
-Anton
-
---
-
-Change some __init functions in the pdc202xx driver to be __devinit, they
-are used when hotpluging.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
-
-
-diff -puN drivers/ide/pci/pdc202xx_new.c~fix_promise_hotplug drivers/ide/pci/pdc202xx_new.c
---- gr_work/drivers/ide/pci/pdc202xx_new.c~fix_promise_hotplug	2004-06-07 02:44:59.180717024 -0500
-+++ gr_work-anton/drivers/ide/pci/pdc202xx_new.c	2004-06-07 02:46:04.067307100 -0500
-@@ -404,7 +404,7 @@ static void __devinit apple_kiwi_init(st
- }
- #endif /* CONFIG_PPC_PMAC */
- 
--static unsigned int __init init_chipset_pdcnew (struct pci_dev *dev, const char *name)
-+static unsigned int __devinit init_chipset_pdcnew (struct pci_dev *dev, const char *name)
- {
- 	if (dev->resource[PCI_ROM_RESOURCE].start) {
- 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-@@ -429,7 +429,7 @@ static unsigned int __init init_chipset_
- 	return dev->irq;
- }
- 
--static void __init init_hwif_pdc202new (ide_hwif_t *hwif)
-+static void __devinit init_hwif_pdc202new (ide_hwif_t *hwif)
- {
- 	hwif->autodma = 0;
- 
-@@ -457,12 +457,12 @@ static void __init init_hwif_pdc202new (
- #endif /* PDC202_DEBUG_CABLE */
- }
- 
--static void __init init_setup_pdcnew (struct pci_dev *dev, ide_pci_device_t *d)
-+static void __devinit init_setup_pdcnew (struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	ide_setup_pci_device(dev, d);
- }
- 
--static void __init init_setup_pdc20270 (struct pci_dev *dev, ide_pci_device_t *d)
-+static void __devinit init_setup_pdc20270 (struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	struct pci_dev *findev = NULL;
- 
-@@ -488,7 +488,7 @@ static void __init init_setup_pdc20270 (
- 	ide_setup_pci_device(dev, d);
- }
- 
--static void __init init_setup_pdc20276 (struct pci_dev *dev, ide_pci_device_t *d)
-+static void __devinit init_setup_pdc20276 (struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	if ((dev->bus->self) &&
- 	    (dev->bus->self->vendor == PCI_VENDOR_ID_INTEL) &&
-
-_
+BTW, does gcc have a built-in #define like __STACK_GROWSUP__ that would 
+allow one to deal with the missing size parameter
+when you called clone() by adjusting what you passed with and #ifdef?.

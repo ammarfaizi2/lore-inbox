@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVAaB5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVAaCVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVAaB5S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 20:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVAaB5R
+	id S261891AbVAaCVY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 21:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVAaCVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 20:57:17 -0500
-Received: from cantor.suse.de ([195.135.220.2]:28603 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261889AbVAaB5M (ORCPT
+	Sun, 30 Jan 2005 21:21:24 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:14321 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261891AbVAaCVU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 20:57:12 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: kbuild: shorthand ym2y, ym2m etc
-Date: Mon, 31 Jan 2005 02:57:10 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050130193733.GA8984@mars.ravnborg.org>
-In-Reply-To: <20050130193733.GA8984@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 30 Jan 2005 21:21:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VvFjwMawjeSgsijtyfvsgPRaVHMRc+zu4XtuzLEk8lFkq2uSLuweNPBCVmlVu3Xpj+EuD+KUv68mxvZ40qIzMjnp/HODF1WENFLCp+AE4IHpJ5uxbGkIPBtPsl8054/hwgB8mjpIAGOLp09HOB95D5jy/S2pTReCSmBQ4C9ClRM=
+Message-ID: <35fb2e590501301821410eb605@mail.gmail.com>
+Date: Mon, 31 Jan 2005 02:21:19 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Eugene K <evgfpeters@yahoo.com>
+Subject: Re: Interface between BSP and the kernel
+Cc: lunux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050130220617.91509.qmail@web51002.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501310257.10962.agruen@suse.de>
+References: <20050130220617.91509.qmail@web51002.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 January 2005 20:37, Sam Ravnborg wrote:
-> We have in several cases the need to transpose a i'm' to 'y' in the Kbuild
-> files.
+On Sun, 30 Jan 2005 14:06:17 -0800 (PST), Eugene K <evgfpeters@yahoo.com> wrote:
 
-I assume you mean what you write in the text rather than what the example 
-shows. If so, why not use this:
+> Where could I find a documented interface between a
+> Board Support Package layer and Linux Kernel itself ?
 
-obj-$(CONFIG_SND:m=y) += last.o
+There is no Board Support Package layer of which you speak. Linux
+doesn't have a hal (well it does, but it's a userspace solution to a
+different problem) like you might be used to.
 
-> One example is the following snippet from sound/Makefile:
-> ifeq ($(CONFIG_SND),y)
->   obj-y += last.o
-> endif
->
-> [...]
->
-> To be complete the full set would be:
->
-> ym2y
-> ym2m
-> empty2y
-> empty2m
-> y2y
-> m2y
-> y2m
-> m2m
-> yx2x
-> mx2x
->
->
-> Would that be considered usefull?
+> Will highly appreciate any kind of pointers.
 
-That would take the kbuild makefile obfuscation contest to the next level. Who 
-should understand that stuff?
+Perhaps if you can provide some specific information about what you
+want to do, then we can point you in the correct direction. For
+example, were you to be developing on a Freescale board I would point
+you towards the linuxppc-embedded lists on ozlabs.org. For ARM boards
+you would probably head over to the arm.linux.org.uk website.
 
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+There are various books available on kernel hacking and device
+drivers. Jonathan Corbet says a new version of Linux Device Drivers
+will be out soon, that covers kernel 2.6 (kudos to Jon for the earlier
+books, as he mentions on http://www.lwn.net/, it's not going to be
+easy to document this moving target) while several other more generic
+books exist. Check out material available on the LWN site and refer
+also to the http://www.kernelnewbies.org/ webiste and IRC channel for
+more generic assistance.
+
+Consider also various training and professional consulting services
+available from your board vendor or Linux supplier.
+
+Jon.

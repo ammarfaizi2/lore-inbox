@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUGLUcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUGLUcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUGLUcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUGLU2I
+	id S262279AbUGLUcF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUGLUbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:28:08 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:17106 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262756AbUGLUYV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:24:21 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 12 Jul 2004 16:31:45 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:11775 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262837AbUGLU3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 16:29:41 -0400
+Message-ID: <40F2F4B2.3080104@acm.org>
+Date: Mon, 12 Jul 2004 15:29:38 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Joerg Paysen <paysen@rob.uni-luebeck.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stock 2.6.7: modprobe ipmi_si hangs
+References: <1089454814.2869.10.camel@ing>
+In-Reply-To: <1089454814.2869.10.camel@ing>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16626.62318.880165.774044@napali.hpl.hp.com>
-Date: Mon, 12 Jul 2004 13:24:14 -0700
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
-       davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
-	<20040711123803.GD21264@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 12 Jul 2004 13:17:20 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
+Sorry, I've been on vacation for a week.
 
-  Linus> No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant
-  Linus> architectures do a
+This is fixed in the next release of the kernel.  If you want a fix now, 
+you can download the patch to fix it from http://openipmi.sf.net.  Go 
+there, and then to the downloads page.
 
-  Linus> 	define_bool DEFAULT_NOEXEC y
+-Corey
 
-  Linus> in their Kconfig files.
+Joerg Paysen wrote:
 
-  Linus> In general, we should _never_ use an
-  Linus> architecture-define. They just always end up becoming more
-  Linus> and more hairy, and less and less obvious what they are all
-  Linus> about.
+>hello,
+>
+>i have a intel serverboard SE7501WV2 wich supports ipmi 1.5.
+>i compiled ipmi_devintf, ipmi_msghandler and ipmi_si as kernel
+>modules. modprobing ipmi_msghandler and ipmi_devintf works fine and
+>dmesg shows:
+> 
+>ipmi message handler version v31
+>ipmi device interface version v31
+>IPMI System Interface driver version v31, KCS version v31, SMIC version
+>v31, BT
+>version v31
+> 
+>when i do a 'modprobe ipmi_si' modprobe does not return and ps ax
+>shows:
+> 
+>6380 ?        D      0:00 modprobe ipmi_si
+> 
+>and dmesg shows:
+> 
+>ipmi_si: Found SMBIOS-specified state machine at I/O address 0xca2
+> 
+>any help?
+> 
+>thanks all
+>joerg
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-  Linus> So instead, make a readable and explicit config define, and
-  Linus> let each architecture just set it (or not) as they wish.
 
-Oops, I responded too fast here.  This is still wrong: on ia64 (and
-x86-64, I believe), you'll want DEFAULT_NOEXEC for native binaries,
-but DEFAULT_EXEC for x86 binaries.
-
-So I think it would be better to have a VM_STACK_EXEC_FLAGS macro in
-an asm header file (with suitable default in asm-generic).
-
-	--david

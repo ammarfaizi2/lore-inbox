@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130215AbRAFVXQ>; Sat, 6 Jan 2001 16:23:16 -0500
+	id <S133118AbRAFV1I>; Sat, 6 Jan 2001 16:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131350AbRAFVXG>; Sat, 6 Jan 2001 16:23:06 -0500
-Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:47878 "HELO arava.co.il")
-	by vger.kernel.org with SMTP id <S130215AbRAFVW5>;
-	Sat, 6 Jan 2001 16:22:57 -0500
-Date: Sat, 6 Jan 2001 23:22:18 +0200 (IST)
-From: Matan Ziv-Av <matan@svgalib.org>
-Reply-To: Matan Ziv-Av <matan@svgalib.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] svgalib error in mmap documentation
-In-Reply-To: <E14EvUA-0001Bg-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21_heb2.09.0101062320210.808-100000@matan.home>
+	id <S133116AbRAFV06>; Sat, 6 Jan 2001 16:26:58 -0500
+Received: from tweetie.comstar.net ([130.205.120.2]:16777 "EHLO
+	tweetie.comstar.net") by vger.kernel.org with ESMTP
+	id <S131350AbRAFV0t>; Sat, 6 Jan 2001 16:26:49 -0500
+Date: Sat, 6 Jan 2001 16:25:13 -0500 (EST)
+From: Gregory McLean <gregm@comstar.net>
+To: Leslie Donaldson <donaldlf@i-55.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Major Failure  2.4.0-test12 Alpha
+In-Reply-To: <3A38E509.1030402@i-55.com>
+Message-ID: <Pine.LNX.4.30.0101061619030.30939-100000@tweetie.comstar.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2001, Alan Cox wrote:
+On Thu, 14 Dec 2000, Leslie Donaldson wrote:
 
-> > +If you want svgalib programs to run with kernel 2.4.0 or newer, svgalib
-> > +needs to be compiled without background support (BACKGROUND not defined in
-> > +Makefile.cfg). This is relevant to any svgalib version.
-> > +This is because svgalib uses mmap of/proc/mem to emulate vga's memory bank
-> > +switching when in background, and kernel 2.4.0 stopped supporting this feature.
-> 
-> 2.4 has real support for shared mappings, so you can I suspect do it properly
-> now
+> Hello,
+>   Just writing in to report a bug in 2.4.0-test12.
+> Hardware:
+>   PCI-Matrox_Mill
+>   PCI-Adaptec 39160 / 160M scsi card
+>   PCI-Generic TNT-2 card
+>   PCI-Sound blaster -128 (es1370)
+>
+> CPU 21164a - Alpha
 
-I hope it is reasonable to ask, how?
+I'm also seeing this on 2.4.0 proper with almost the same hardware:
+ SCSI storage controller: Adaptec AIC-7881U (rev 01) (aic71xxxx driver)
+VGA compatible controller: Matrox Graphics, Inc. MGA 1064SG [Mystique]
+(rev 03)
+SB Vibra16X sound card.
 
-What I need is to allocate a big amount of memory (say 1MB, for
-example), copy the video memory to it, and then have fixed 64K of
-virutal address of the process point to any 64K window of the large
-allocated memory. How can I do it?
+I swap to scsi as the ide performance on this board just blows, I get into
+a heavy swap situation and *boom* deadlocked.
 
-
--- 
-Matan Ziv-Av.                         matan@svgalib.org
+>
+> Problem:
+>   There is a race condition in the aic7xxxx driver that causes the
+> kernel to lock up.
+> I don't have a kernel dump yet as the machine reported by it'self..
+> This problem has been easy to reproduce. ergo about 3 crashes a day.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

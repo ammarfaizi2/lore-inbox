@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264516AbRFOUYt>; Fri, 15 Jun 2001 16:24:49 -0400
+	id <S264517AbRFOU0t>; Fri, 15 Jun 2001 16:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264517AbRFOUYj>; Fri, 15 Jun 2001 16:24:39 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:47019 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264516AbRFOUYX>;
-	Fri, 15 Jun 2001 16:24:23 -0400
-Message-ID: <3B2A6EED.86A318F3@mandrakesoft.com>
-Date: Fri, 15 Jun 2001 16:24:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
+	id <S264521AbRFOU0j>; Fri, 15 Jun 2001 16:26:39 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:21703 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264517AbRFOU0a>; Fri, 15 Jun 2001 16:26:30 -0400
+Subject: Announcing Journaled File System (JFS)  release 0.3.5 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF4B0C2473.9C1D6552-ON85256A6C.00700F83@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 15 Jun 2001 15:26:25 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 06/15/2001 04:26:26 PM
 MIME-Version: 1.0
-To: ddstreet@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ps2 keyboard filter hook
-In-Reply-To: <Pine.LNX.4.10.10106151345510.25518-200000@ddstreet.raleigh.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ddstreet@us.ibm.com wrote:
-> In order to use these keyboards, a the standard PS/2 driver needs to behave a
-> bit differently; thus attached is a modifcation to the PS/2 driver which allows
-> other drivers to register with the PS/2 driver as 'filters'.  There is a
-> arbitrary max number of 'filters' set to 1, which is a compile-time define.
-> The registered drivers are called (in order of registration) for every scancode,
-> and they may change or consume the scancode (or allow it to pass).  Also the
-> 'filters' are given a function to send an variable-sized buffer to the keyboard
-> output port; this function is synchronized using a semaphore which also
-> coordinates with pckbd_leds().
+Release 0.3.5 of JFS was made available today.
 
-Didn't we just conclude a discussion here on linux-kernel, which said
-that patches which simply add hooks allowing proprietary extensions are
-not accepted into the kernel?
+Drop 35 on June 15, 2001 (jfs-0.3.5-patch.tar.gz) includes fixes to the
+file system and utilities. There is now a patch being provided that will
+make it easier to move from release 0.3.4 to 0.3.5, the patch file
+is call jfs-0_3_4-to-0_3_5.patch.gz.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Function and Fixes in release 0.3.5
+
+- updated fsck error handling
+- updated mkfs config options and the man page for fsck
+- Increase the performance of unlinking files, most unlinks are done
+  asynchronously now
+- Fixed "XT_GETPAGE: xtree page corrupt" during creating files on nfs
+  mounted partition
+
+For more details about the problems fixed, please see the README.
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
+
+
+
+

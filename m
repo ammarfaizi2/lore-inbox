@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261829AbSJNFg7>; Mon, 14 Oct 2002 01:36:59 -0400
+	id <S261831AbSJNFiR>; Mon, 14 Oct 2002 01:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261830AbSJNFg7>; Mon, 14 Oct 2002 01:36:59 -0400
-Received: from adsl-63-202-107-149.dsl.lsan03.pacbell.net ([63.202.107.149]:53241
-	"EHLO pavillion") by vger.kernel.org with ESMTP id <S261829AbSJNFg6>;
-	Mon, 14 Oct 2002 01:36:58 -0400
-To: linux-kernel@vger.kernel.org
-From: "Lingerie Airlines" <natasha@ecstaskyair.com>
-Subject: The flight of your life!
-Date: Mon, 14 Oct 2002 22:44:19 -0700
-MIME-Version: 1.0 
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S261839AbSJNFiQ>; Mon, 14 Oct 2002 01:38:16 -0400
+Received: from bgp01116664bgs.westln01.mi.comcast.net ([68.42.104.18]:57938
+	"HELO blackmagik.dynup.net") by vger.kernel.org with SMTP
+	id <S261831AbSJNFiP>; Mon, 14 Oct 2002 01:38:15 -0400
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not
+	suspend devices
+From: Eric Blade <eblade@blackmagik.dynup.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m1of9xlw7g.fsf@frodo.biederman.org>
+References: <200210132359.QAA01092@adam.yggdrasil.com> 
+	<m1of9xlw7g.fsf@frodo.biederman.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <20021014053658Z261829-32597+1136@vger.kernel.org>
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 14 Oct 2002 01:38:45 -0400
+Message-Id: <1034573925.2786.55.camel@cpq>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again! 
-
-This is Natasha from Ecstasky Air, the world's first "Lingerie Airline". 
-
-I'm surprised we haven't heard from you yet! When you have a chance, I hope you 
-take a look at our latest updates at the link below...there is new video from 
-new Nationally Broadcasted TV shows with some good shots of me and my friends 
-in our 'uniforms'...and now you can BOOK FLIGHTS ONLINE securely and discreetly 
-through PayPal. 
-
-Travel agents can also offer our flights and get a commission on every ticket 
-sold. With service that beats ANY airline and prices to match, how can anyone 
-stand to miss this? 
-
-Please feel free to give Don or me a call anytime at (310) 858-5700 or just click 
-onto our website for more. 
-
-Cheers, 
-
-Natasha 
-
-natasha@ecstaskyair.com 
-http://www.ecstaskyair.com
+Here is where I realize that I've forgotten to CC: the list on all the
+traffic that I keep sending between Eric and Adam.  D'oh.
 
 
-If you really don't want to hear from us anymore, just click "Reply" and type 
-"unsubscribe in the subject field.
+On Sun, 2002-10-13 at 20:07, Eric W. Biederman wrote:
+> > 
+> > 	However, I'm not trying to quash what you want to discuss.
+> > I'd be interested in hearing about clarifications and perhaps
+> > extensions of the struct device_driver methods, which I think is what
+> > you're getting at, perhaps here or on linux-hotplug.  It's just that,
+> > for this thread, I'm trying to focus on my patch that eliminates the
+> > software suspend on reboot (pros and cons, alternatives to it, etc.).
+> 
+> The 2.5.41 variant is below.  The bug is reusing the old enumeration value
+> as was previously mentioned.
+> 
+
+I tried to submit a fix to this, but the only response I've gotten back
+is that it failed to apply.  My original patch excluded the bit from
+device.h that added a new state to the enumeration, and when it got into
+the tree, it got into the tree using the current states that were
+available.  My bad.  
+
+Eric has already indicated earlier, that Adam's issue is, however, not
+with the changes to drivers/base/power.c but to the changes to the IDE
+driver.  
+
+ - Eric
 
 
---------------------
-
-E-Mail sent using the Free Trial Version of WorldMerge, the fastest
-and easiest way to send personalized e-mail messages. For more
-information visit http://www.coloradosoft.com/worldmrg
-
-71767
 

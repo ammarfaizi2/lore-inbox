@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266783AbUBRABs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbUBRABs
+	id S266695AbUBQXyC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:54:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUBQXyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:01:48 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16375 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266783AbUBRAAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:00:37 -0500
-Date: Wed, 18 Feb 2004 01:00:28 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: zippel@linux-m68k.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       GCS <gcs@lsc.hu>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vandrove@vc.cvut.cz
-Subject: Re: Linux 2.6.3-rc4
-Message-ID: <20040218000028.GR1308@fs.tum.de>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org> <20040217184543.GA18495@lsc.hu> <Pine.LNX.4.58.0402171107040.2154@home.osdl.org> <20040217200545.GP1308@fs.tum.de> <Pine.LNX.4.58.0402171214230.2154@home.osdl.org> <20040217225905.GQ1308@fs.tum.de> <Pine.LNX.4.58.0402171503150.2154@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402171503150.2154@home.osdl.org>
-User-Agent: Mutt/1.4.2i
+	Tue, 17 Feb 2004 18:54:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17865 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266628AbUBQXx4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 18:53:56 -0500
+Date: Tue, 17 Feb 2004 15:53:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: davidm@hpl.hp.com
+cc: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: radeon warning on 64-bit platforms
+In-Reply-To: <16434.41884.249541.156083@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.58.0402171552140.2154@home.osdl.org>
+References: <16434.35199.597235.894615@napali.hpl.hp.com>
+ <1077054385.2714.72.camel@thor.asgaard.local> <16434.36137.623311.751484@napali.hpl.hp.com>
+ <1077055209.2712.80.camel@thor.asgaard.local> <16434.37025.840577.826949@napali.hpl.hp.com>
+ <1077058106.2713.88.camel@thor.asgaard.local> <16434.41884.249541.156083@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 03:11:08PM -0800, Linus Torvalds wrote:
+
+
+On Tue, 17 Feb 2004, David Mosberger wrote:
 > 
-> 
-> On Tue, 17 Feb 2004, Adrian Bunk wrote:
-> > 
-> > No, I2C_ALGOBIT depends on I2C.
-> > 
-> > > That's really what the true dependency is, logically.
-> > 
-> > Below is a suggested fix that lets FB_RADEON_I2C select I2C.
-> 
-> Thinking about it, this does the wrong thing for _another_ reason.
-> 
-> Basically, if you compile radeonfb as a module, and say "Y" to RADEON_I2C, 
-> then that should _not_ force I2C to be built-in to the kernel, but that 
-> is in fact exactly what this would force.
->...
+> Here is a proposed patch for fixing the compile-warning that shows up
+> when compiling radeon_state.c on a 64-bit platform (Itanium, in my
+> case).
 
-I don't claim to fully understand the 2.6 Kconfig language, but 
-according to my testings my patch does exactly what you describe.
+How about this alternate edited one that gets indentation right
+and is more explicit about what's going on? Does this work for you?
 
-> 			Linus
+		Linus
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+---
+===== drivers/char/drm/radeon_state.c 1.23 vs edited =====
+--- 1.23/drivers/char/drm/radeon_state.c	Tue Feb  3 21:29:26 2004
++++ edited/drivers/char/drm/radeon_state.c	Tue Feb 17 15:51:53 2004
+@@ -2185,10 +2185,21 @@
+ 	case RADEON_PARAM_STATUS_HANDLE:
+ 		value = dev_priv->ring_rptr_offset;
+ 		break;
++#if BITS_PER_LONG == 32
++	/*
++	 * This ioctl() doesn't work on 64-bit platforms because hw_lock is a
++	 * pointer which can't fit into an int-sized variable.  According to
++	 * Michel Dänzer, the ioctl() is only used on embedded platforms, so not
++	 * supporting it shouldn't be a problem.  If the same functionality is
++	 * needed on 64-bit platforms, a new ioctl() would have to be added, so
++	 * backwards-compatibility for the embedded platforms can be maintained.
++	 *      --davidm 4-Feb-2004.
++	 */
+ 	case RADEON_PARAM_SAREA_HANDLE:
+ 		/* The lock is the first dword in the sarea. */
+ 		value = (int)dev->lock.hw_lock; 
+ 		break;	
++#endif
+ 	case RADEON_PARAM_GART_TEX_HANDLE:
+ 		value = dev_priv->gart_textures_offset;
+ 		break;

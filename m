@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTENMjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 08:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTENMjM
+	id S262023AbTENMk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 08:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbTENMk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 08:39:12 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:28361 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S261960AbTENMjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 08:39:11 -0400
-Subject: Re: odd db4 error with 2.5.69-mm4 [was Re: Huraaa for 2.5]
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Shawn <core@enodev.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <1052877161.3569.17.camel@www.enodev.com>
-References: <1052866461.23191.4.camel@www.enodev.com>
-	 <20030514012731.GF8978@holomorphy.com>
-	 <1052877161.3569.17.camel@www.enodev.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052916589.1912.8.camel@iso-8590-lnx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 May 2003 08:49:49 -0400
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.8, required 10,
-	AWL, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
+	Wed, 14 May 2003 08:40:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22357 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262023AbTENMk4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 08:40:56 -0400
+To: Andrew Morton <akpm@digeo.com>
+Cc: andyp@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [KEXEC][2.5.69] Re: Updated kexec diffs...
+References: <3EBA626E.6040205@cyberone.com.au>
+	<20030508121211.532dcbcf.akpm@digeo.com>
+	<3EBC37C4.9090602@cyberone.com.au>
+	<20030509162911.2cd5321e.akpm@digeo.com>
+	<m1u1c37d2o.fsf@frodo.biederman.org>
+	<20030509201327.734caf9e.akpm@digeo.com>
+	<m1of2978ao.fsf@frodo.biederman.org>
+	<20030511121753.7a883afb.akpm@digeo.com>
+	<m1fznl57ss.fsf_-_@frodo.biederman.org>
+	<1052861167.1324.15.camel@andyp.pdx.osdl.net>
+	<m1k7cu3yey.fsf@frodo.biederman.org>
+	<20030513222343.74a3d817.akpm@digeo.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 May 2003 06:50:18 -0600
+In-Reply-To: <20030513222343.74a3d817.akpm@digeo.com>
+Message-ID: <m1el314rqt.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As root, I basically can't use rpm at all. I think it's select() related
-> as strace shows it timing out. The odd thing is that it works great as a
-> non-privileged user.
+Andrew Morton <akpm@digeo.com> writes:
+
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > And Andrew has it in 2.5.69-mm4 and is busy pestering me about compile
+> >  errors. 
 > 
-> 2.5.69-mm4, otherwise mostly stock rh90 setup.
-> 
-> [root@www root]# rpm -qi iptables
-> rpmdb: unable to join the environment
-> error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-> error: cannot open Packages index using db3 - Resource temporarily
-> unavailable (11)
-> error: cannot open Packages database in /var/lib/rpm
-> package iptables is not installed
-> [root@www root]#
+> I'm like that.
 
-This is a long known problem, you can work around it with
-LD_ASSUME_KERNEL=2.4.19 or get the 4.2-1 rpms from
-ftp://ftp.rpm.org/pub/rpm/test-4.2/.
+And I appreciate it.  This was mostly an observation there was
+something reminding me to get back and fix the issue.
+ 
+> I've dropped out a lot of the NORET stuff.  It generates warnings on all
+> other architectures, because their machine_restart, machine_halt and
+> machine_power_off definitions don't have necessary attributes and don't
+> have the while(1); at the end.
 
-Basically follow the steps in Redhat Bugzilla
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=89662 and you
-should be all set.
+Yes there is a big const correctness type problem here.
 
-Later,
-Tom
+First for machine_restart it is 100% correct.  And at least sys_reboot
+assumes that machine_restart will not return, even before my patch.
 
+And I don't know of a case where it makes sense for machine_halt and
+machine_power_off to return.  Hence I deliberately made those cases
+the same.  Especially as every real implementation I traced does not
+return.  It is only the stupid cases like on x86 where we don't do
+anything that these routines actually return.
 
+In the context of my patch stop_this_cpu needs to be marked noreturn.
+As long as the fundamental routines get marked I don't expect to see
+a lot of routines getting a while(1);  I admit stop_apics also
+needs a while(1); but only because gcc cannot trace it.
+
+And since this also generates warnings on other architectures
+it looks like someone (me) needs to go through the various
+architectures and add a bunch of noreturn attributes to
+the appropriate functions.
+
+The basic question is for documenting and enforcing the noreturn
+dependency.  Is it more of a help or a hindrance to use gcc noreturn
+tag?
+
+And while I am pretty certain this is the correct thing to do I
+should break this out from the reboot_on_bsp patch.  With the
+other architectures involved this is enough of a separate issue that a
+second set of patches is needed to maintain this cleanly.
+
+Eric

@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265298AbUAJShv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUAJShv
+	id S265292AbUAJSwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 13:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265299AbUAJSwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:37:51 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:58247 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265298AbUAJShm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:37:42 -0500
-Subject: Re: Q re /proc/bus/i2c
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: "J. Ryan Earl" <heretic@clanhk.org>
-Cc: gene.heskett@verizon.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FFFE8E4.8080004@clanhk.org>
-References: <200401100117.42252.gene.heskett@verizon.net>
-	 <3FFF59A0.2080503@clanhk.org> <200401100754.47752.gene.heskett@verizon.net>
-	 <3FFFE8E4.8080004@clanhk.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yIzmcJ8wBhv4o4pPMrBO"
-Message-Id: <1073760037.9096.16.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 10 Jan 2004 20:40:37 +0200
+	Sat, 10 Jan 2004 13:52:23 -0500
+Received: from zork.zork.net ([64.81.246.102]:45444 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S265292AbUAJSwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 13:52:21 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, vojtech@suse.cz
+Subject: Re: Do not use synaptics extensions by default
+References: <20040110175930.GA1749@elf.ucw.cz>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, kernel list
+ <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>, 
+ vojtech@suse.cz
+Date: Sat, 10 Jan 2004 18:52:15 +0000
+In-Reply-To: <20040110175930.GA1749@elf.ucw.cz> (Pavel Machek's message of
+ "Sat, 10 Jan 2004 18:59:30 +0100")
+Message-ID: <6ubrpb7i1s.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@suse.cz> writes:
 
---=-yIzmcJ8wBhv4o4pPMrBO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> ..aka "make synaptics touchpad usable in 2.6.1" -- synaptics support
+> is not really suitable to be enabled by default. You can not click by
+> tapping the touchpad (well, unless you have very new X with right
+> configuration, but than you can't go back to 2.4), and touchpad senses
+> your finger even when it is not touching, doing spurious movements =>
+> you can't hit anything on screen. Without synaptics extensions
+> everything works just fine. You can reenable synaptics support using
+> commandline.
 
-On Sat, 2004-01-10 at 13:58, J. Ryan Earl wrote:
-> Gene Heskett wrote:
->=20
-> >On Friday 09 January 2004 20:47, J. Ryan Earl wrote:
-> > =20
-> >
-> >I've also got a bttv card, whose init seems to be done quite early in=20
-> >the bootup, and that requires I have i2c-dev in the kernel.  So I=20
-> >might as well put it all in, the current situation.  All in, or all=20
-> >out, it doesn't work.  A run of sensors right now, returns this:
-> > =20
-> >
->=20
-> A couple questions:
->=20
-> 1) Have you installed the lm-sensors package?
-> 2) What kernel version?
->=20
-> Even with 2.6, you need to install the lm-sensors package, but not the=20
-> i2c package as the kernel already has everything needed in it.  The=20
-> lm-sensors packages contains drivers for all the sensor chips.  After=20
-> you get lm-sensors installed on your current kernel, run sensors-detect=20
-> to get the proper modules loaded for your hardware.
->=20
-
-Uhm, AFIAK, you should _NOT_ install the drivers from the lm-sensors
-package, but use those in the kernel.  Check the docs, they explicitly
-say that you should only do:
-
-  # make user user_install
-
-if you have 2.6 kernel.  Further, you do not _need_ lm-sensors package,
-as if you only want to check/monitor one setting, you can get it from
-/sys, and if you use gkrellm, it do not even use libsensors anymore
-(and thus works without, as it have since 2.6 support, before even
-libsensors was ported to understand sysfs) ...
-
-
---=20
-Martin Schlemmer
-
---=-yIzmcJ8wBhv4o4pPMrBO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAAEckqburzKaJYLYRAmfdAJ9og2T6HbL0Yj8vFgnDxnEB75ZBMQCeIT04
-8wiTmsrj3pdWJo9gK27QLOM=
-=es4o
------END PGP SIGNATURE-----
-
---=-yIzmcJ8wBhv4o4pPMrBO--
+My laptop has a dodgy trackpoint attached to the passthrough port,
+although the touchpad works fine.  Before 2.6.1 this didn't matter,
+because whether by accident or design, the passthrough was disabled.
+Does this patch disable the passthrough port by default?  If not,
+would it be possible to add a boot parameter or something to allow it
+to be disabled?
 

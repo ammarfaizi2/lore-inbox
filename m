@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSEWVyb>; Thu, 23 May 2002 17:54:31 -0400
+	id <S317026AbSEWV5L>; Thu, 23 May 2002 17:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317024AbSEWVya>; Thu, 23 May 2002 17:54:30 -0400
-Received: from daimi.au.dk ([130.225.16.1]:60014 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317023AbSEWVy2>;
-	Thu, 23 May 2002 17:54:28 -0400
-Message-ID: <3CED6510.4FB31E7A@daimi.au.dk>
-Date: Thu, 23 May 2002 23:54:24 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] trivial - remove unused field
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317027AbSEWV5K>; Thu, 23 May 2002 17:57:10 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:23801 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317026AbSEWV5I>; Thu, 23 May 2002 17:57:08 -0400
+Date: Thu, 23 May 2002 17:57:08 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@redhat.com
+Subject: Re: [PATCH] 2.4.19-pre8 vm86 smp locking fix
+Message-ID: <20020523175708.A29031@redhat.com>
+In-Reply-To: <20020523165105.A27881@redhat.com> <3CED60D7.9E5032D7@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the unused v86mode field from the
-thread_struct. It was tested against 2.4.19-pre8-ac5,
-and I also verified that 2.5.17 did compile with
-this patch.
+On Thu, May 23, 2002 at 11:36:23PM +0200, Kasper Dupont wrote:
+> The pagetable access in arch/i386/kernel/vm86.c is related
+> to another access in arch/i386/mm/fault.c. Did anybody
+> verify that the other file does correct locking?
 
-This field appears to be unused in all 2.4 and 2.5
-kernels.
+That should be safe: the vmalloc pgds can only be filled from the 
+main kernel page table.  They never change afterwards, so even if 
+two CPUs entered that code at the same time it would be okay.
 
-diff -Nur linux.old/include/asm-i386/processor.h linux.new/include/asm-i386/processor.h
---- linux.old/include/asm-i386/processor.h	Thu May 23 08:50:25 2002
-+++ linux.new/include/asm-i386/processor.h	Thu May 23 08:50:38 2002
-@@ -378,7 +378,7 @@
- /* virtual 86 mode info */
- 	struct vm86_struct	* vm86_info;
- 	unsigned long		screen_bitmap;
--	unsigned long		v86flags, v86mask, v86mode, saved_esp0;
-+	unsigned long		v86flags, v86mask, saved_esp0;
- /* IO permissions */
- 	int		ioperm;
- 	unsigned long	io_bitmap[IO_BITMAP_SIZE+1];
-
+		-ben
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+"You will be reincarnated as a toad; and you will be much happier."

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133056AbRDRInc>; Wed, 18 Apr 2001 04:43:32 -0400
+	id <S133055AbRDRIdK>; Wed, 18 Apr 2001 04:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133057AbRDRInW>; Wed, 18 Apr 2001 04:43:22 -0400
-Received: from 100m.mp200-2.esr.lvcm.net ([24.234.0.81]:32033 "EHLO
-	100m.mp200-2.esr.lvcm.net") by vger.kernel.org with ESMTP
-	id <S133056AbRDRInH>; Wed, 18 Apr 2001 04:43:07 -0400
-Message-ID: <3ADD5391.57CC6978@lvcm.com>
-Date: Wed, 18 Apr 2001 01:42:57 -0700
-From: "Anthony D. Saxton" <lna@lvcm.com>
-Reply-To: lna@bigfoot.com
-Organization: LnA Concepts
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Giuliano Pochini <pochini@denise.shiny.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: I can eject a mounted CD
-In-Reply-To: <3AD779CB.ED7C1656@denise.shiny.it> <3AD78C81.51D8ED35@lvcm.com> <3ADB4511.E3F6F6F1@denise.shiny.it>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S133056AbRDRIdA>; Wed, 18 Apr 2001 04:33:00 -0400
+Received: from jalon.able.es ([212.97.163.2]:34493 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S133055AbRDRIc4>;
+	Wed, 18 Apr 2001 04:32:56 -0400
+Date: Wed, 18 Apr 2001 10:32:45 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac9
+Message-ID: <20010418103245.A4458@werewolf.able.es>
+In-Reply-To: <E14pfRK-0003bR-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14pfRK-0003bR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 02:03:18 +0200
+X-Mailer: Balsa 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
 
-> > > My fstab:
-> > >
-> > > /dev/cdrom              /mnt/cdrom              iso9660
-> > > noauto,user,ro           0 0
-> > > /dev/cdrom              /mnt/cdmac              hfs
-> > > noauto,user,ro           0 0
-> >
-> > Change your fstab to read instead:
-> >
-> > /dev/cdrom        /mnt/cdrom        auto        noauto,user,ro    0 0
-> >
-> > And remove the other cdrom listing. This will allow mounting any
-> > supported format and eliminate the duel support for one device.
->
-> That's not the point. The kernel should not allow someone to
-> eject a mounted media.
->
-> Bye.
+On 04.18 Alan Cox wrote:
+> 
+> 2.4.3-ac9
+.. 
+> 2.4.3-ac8
+> o	ACPI updates					(Andrew Grover)
 
-The kernel actually should allow a misconfigured system to behave as
-configured. Basically, your /etc/fstab is telling the kernel that you have
-two different devices occupying the same device address. In my case, I
-have two cdrom drives. With the original configuration, either one would
-mount to /mnt/cdrom. I changed /etc/fstab to identify the first drive as
-being at /dev/scd0, mounted to /mnt/cdrom and the second at /dev/scd1,
-mounted to /mnt/cd-r. Now I can have to independent drives. I could have
-just as easily setup the fstab as above, but  I would not be able to use
-both drives.
+Patch for ac9 generates a file named linux/acpi-20010413.diff. It partially
+applies, some hunks failed and some offset. Is this rest of your work ?
 
-One cannot expect any program to behave properly when configured
-improperly. Your kernel was behaving exactly as it had been programmed it
-to.
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
 
-Anthony D. Saxton
-LnA Concepts
+Linux werewolf 2.4.3-ac8 #2 SMP Wed Apr 18 01:10:27 CEST 2001 i686
 

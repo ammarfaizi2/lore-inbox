@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131497AbRBWRvp>; Fri, 23 Feb 2001 12:51:45 -0500
+	id <S131447AbRBWRvf>; Fri, 23 Feb 2001 12:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131504AbRBWRvg>; Fri, 23 Feb 2001 12:51:36 -0500
-Received: from dsl-64-192-216-221.telocity.com ([64.192.216.221]:13060 "EHLO
-	topgun.unixexchange.com") by vger.kernel.org with ESMTP
-	id <S131497AbRBWRvX>; Fri, 23 Feb 2001 12:51:23 -0500
-Date: Fri, 23 Feb 2001 12:49:56 -0500 (EST)
-From: "Carl D. Speare" <carlds@attglobal.net>
-X-X-Sender: <carlds@topgun.unixexchange.com>
-To: David Weinehall <tao@acc.umu.se>
-cc: Quim K Holland <qkholland@my-deja.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: need to suggest a good FS:
-In-Reply-To: <20010223183423.N5465@khan.acc.umu.se>
-Message-ID: <Pine.BSF.4.33.0102231247350.4409-100000@topgun.unixexchange.com>
+	id <S131504AbRBWRv0>; Fri, 23 Feb 2001 12:51:26 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23680 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131447AbRBWRvK>; Fri, 23 Feb 2001 12:51:10 -0500
+Date: Fri, 23 Feb 2001 12:50:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Sean Hunter <sean@dev.sportingbet.com>
+cc: Matt Johnston <mlkm@caifex.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: random PID generation
+In-Reply-To: <20010223171440.K10620@dev.sportingbet.com>
+Message-ID: <Pine.LNX.3.95.1010223123332.3967A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, David Weinehall wrote:
+On Fri, 23 Feb 2001, Sean Hunter wrote:
 
-> Date: Fri, 23 Feb 2001 18:34:23 +0100
-> From: David Weinehall <tao@acc.umu.se>
-> To: Carl D. Speare <carlds@attglobal.net>
-> Cc: Quim K Holland <qkholland@my-deja.com>, linux-kernel@vger.kernel.org
-> Subject: Re: need to suggest a good FS:
-> On Fri, Feb 23, 2001 at 12:20:34PM -0500, Carl D. Speare wrote:
-> > Actually there isn't. Hmmm, sounds like I'll have some hacking to do...
-> >
-> > But I have to ask if this is something that would actually be desirable.
-> > Given how rare it is, does the Linux community actually want to have YAFS
-> > (yet another file system) added to the list, especially for an even more
-> > rare OS like OpenServer 5.0.x? Maybe now that Caldera is involved more
-> > with SCO, it might be something that happens in a few months anyway...
->
-> Make a read-only version; this will make transition from HTFS to
-> {ext2fs, reiserfs, xfs, jfs, ...} easy. Read-only also has the property
-> that it won't cause on-disk corruption; at worst, you get in-memory
-> corruption...
->
->
-> /David
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-> //  Project MCA Linux hacker        //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+> I have already written a 2.2 implementation which does not suffer from these
+> problems.  It was rejected because Alan Cox (and others) felt it only provided
+> security through obscurity.
+> 
+> Sean
 
-I'll see if I can get something started this weekend. At some point, if it
-gets anywhere, I'll toss is into sourceforge. I'll post a link when I get
-the baseline functionality going.
+The following is a simple random generator that will never give two
+consecutive like numbers (therefore it's not really random). It's
+pretty good for things like non-guessible PIDs, TCP/IP ports, etc.
+Just mask off the length that you don't need. It this was called 
+occasionally from some timer or other interrupt, you don't even know its
+starting value. With the current magic number, it's period is 0xfffnnnnn.
+Several years ago, I ran an exhaustive search program (133MHz CPU) looking
+for a magic number to produce a longer period. I'm told that there
+is a magic number that will give a period of 0xffffffff.
 
---Carl
+
+static int rnn = 0;
+
+static int rnd()
+{
+    int ret;
+    __asm__ __volatile__(
+    "\tmovl (rnn), %%eax\n"
+    "\trorl $3,  %%eax\n" 
+    "\taddl $0x586c3ec3, %%eax\n"
+    "\tmovl %%eax, (rnn)\n"
+		: "=eax" (ret) );
+    return ret;
+}
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

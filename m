@@ -1,202 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265308AbRF0I6e>; Wed, 27 Jun 2001 04:58:34 -0400
+	id <S265218AbRF0JIY>; Wed, 27 Jun 2001 05:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265311AbRF0I6O>; Wed, 27 Jun 2001 04:58:14 -0400
-Received: from delrom.ro ([193.231.234.28]:13828 "HELO delrom.ro")
-	by vger.kernel.org with SMTP id <S265308AbRF0I6J>;
-	Wed, 27 Jun 2001 04:58:09 -0400
-Date: Wed, 27 Jun 2001 11:59:22 +0300
-From: Silviu Marin-Caea <silviu@delrom.ro>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtek 8139 driver or sucky hardware?
-Message-Id: <20010627115922.1d592bbc.silviu@delrom.ro>
-In-Reply-To: <20010627100520.B18183@emma1.emma.line.org>
-In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
-	<20010627100520.B18183@emma1.emma.line.org>
-Organization: Delta Romania
-X-Mailer: Sylpheed version 0.4.99cvs3 (GTK+ 1.2.9; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__27_Jun_2001_11:59:22_+0300_0811b950"
-X-AntiVirus: OK (checked by AntiVir Version 6.7.0.1)
+	id <S265222AbRF0JIO>; Wed, 27 Jun 2001 05:08:14 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:50354 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S265218AbRF0JH5> convert rfc822-to-8bit;
+	Wed, 27 Jun 2001 05:07:57 -0400
+Message-ID: <3B39A269.4C7E60@Sun.COM>
+Date: Wed, 27 Jun 2001 11:07:53 +0200
+From: Julien Laganier <Julien.Laganier@Sun.COM>
+Organization: Sun Microsystems
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Nilsson <pzycrow@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Some experience of linux on a Laptop
+In-Reply-To: <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
---Multipart_Wed__27_Jun_2001_11:59:22_+0300_0811b950
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Wed, 27 Jun 2001 10:05:20 +0200
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> wrote:
-
-> On Wed, 27 Jun 2001, Silviu Marin-Caea wrote:
+John Nilsson wrote:
 > 
-> > No matter what stupid things I do on it, I shouldn't be able to take
-the
-> > kernel down, right?
-> > 
-> > After I replaced the Realtek with a 3com, I could see all of the 60
-> > instances fighting like worms in shit, but the server survived.
+> Well I thought that it was time for me to give some feedback to the linux
+> community. So I will tell you guys a little of my experience with linux so
+> far.
 > 
-> Did the card share IRQs with another card?
+> I have a Toshiba Portégé 3010CT laptop. That is:
+> 266MHz Pentium-MMX
+> 4GB HD with 512kb cache (which linux reduces to 0kb)
+> 32 Mb EDO RAM
+> 
+> After have tried
+> Slackware
+> Gentoo
+> Linux From Scratch
+> Debian
+> Mandrake
+> and soon ROCK linux
+> 
+> I have come to the conclusion that linux is NOT suitable for the general
+> desktop market, I have configured a number of linux routers/fierwalls and am
+> really pleased with the scalability, but the harware compatibility is to
+> damn low for a general user base. I know this isn't really a Linux issue
+> rather a distribution issue, but in the end it's you guys that make the
+> drivers. So a little plea is that you let the optimization phase cooldown a
+> little and concern your self a little more with compatibility, and ease of
+> installation, (tidy up the kernel build system).
+> 
+> On my particular computer the chipset (toshiba specific) is not supported
+> wich makes the harddrive unable to run in UDMA and/or use it's cache.
+> Somehow this make X totaly unusable. With a little luck if it doesn't hang
+> it takes several minutes to launch a simple program.
+> This could be X specific, but I doub't it.
+> 
+> So when you speak of being able to run on 386:es I still have problem
+> starting X on 266MHz with 32Mb mem. This should not be =)
 
-I can tell you about the present situation, with the 3com plugged in the
-same PCI slot.
-
-After looking at dmesg and lspci -vv, I see that it shares the same IRQ
-with the USB controller; but I did not compile USB support into the
-kernel.
-
-PCI: PCI BIOS revision 2.10 entry at 0xfb1b0, last bus=2
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
-PCI: Found IRQ 10 for device 00:07.2
-PCI: The same IRQ used for device 00:0d.0
-Limiting direct PCI/PCI transfers.
-[...]
-PCI: Enabling device 00:0e.0 (0005 -> 0007)
-PCI: Found IRQ 11 for device 00:0e.0
-PCI: The same IRQ used for device 00:0a.1
-[...]
-PCI: Found IRQ 11 for device 00:0a.1
-PCI: The same IRQ used for device 00:0e.0
-
-> What driver did you use? 8129/8139 or 8139too?
-
-8139too
-
--- 
-Systems and Network Administrator - Delta Romania
-Phone +4093-267961
-
---Multipart_Wed__27_Jun_2001_11:59:22_+0300_0811b950
-Content-Type: application/octet-stream;
- name="lspci"
-Content-Disposition: attachment;
- filename="lspci"
-Content-Transfer-Encoding: base64
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNDQwQlgvWlggLSA4MjQ0M0JY
-L1pYIEhvc3QgYnJpZGdlIChyZXYgMDMpCiAgICAgICAgQ29udHJvbDogSS9PLSBNZW0rIEJ1c01h
-c3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
-Ui0gRmFzdEIyQi0KICAgICAgICBTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFy
-RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8UEVS
-Ui0KICAgICAgICBMYXRlbmN5OiA2NAogICAgICAgIFJlZ2lvbiAwOiBNZW1vcnkgYXQgZTAwMDAw
-MDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NE1dCiAgICAgICAgQ2FwYWJpbGl0aWVz
-OiBbYTBdIEFHUCB2ZXJzaW9uIDEuMAogICAgICAgICAgICAgICAgU3RhdHVzOiBSUT0zMSBTQkEr
-IDY0Yml0LSBGVy0gUmF0ZT14MSx4MgogICAgICAgICAgICAgICAgQ29tbWFuZDogUlE9MCBTQkEt
-IEFHUC0gNjRiaXQtIEZXLSBSYXRlPTxub25lPgoKMDA6MDEuMCBQQ0kgYnJpZGdlOiBJbnRlbCBD
-b3Jwb3JhdGlvbiA0NDBCWC9aWCAtIDgyNDQzQlgvWlggQUdQIGJyaWRnZSAocmV2IDAzKSAocHJv
-Zy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pCiAgICAgICAgQ29udHJvbDogSS9PKyBNZW0rIEJ1c01h
-c3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
-UisgRmFzdEIyQi0KICAgICAgICBTdGF0dXM6IENhcC0gNjZNaHorIFVERi0gRmFzdEIyQi0gUGFy
-RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0KICAgICAgICBMYXRlbmN5OiA2NAogICAgICAgIEJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5
-PTAxLCBzdWJvcmRpbmF0ZT0wMSwgc2VjLWxhdGVuY3k9MzIKICAgICAgICBNZW1vcnkgYmVoaW5k
-IGJyaWRnZTogZDgwMDAwMDAtZGZmZmZmZmYKICAgICAgICBCcmlkZ2VDdGw6IFBhcml0eS0gU0VS
-Ui0gTm9JU0EtIFZHQSsgTUFib3J0LSA+UmVzZXQtIEZhc3RCMkIrCgowMDowNy4wIElTQSBicmlk
-Z2U6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgSVNBIChyZXYgMDIpCiAgICAgICAg
-Q29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlKyBNZW1XSU5WLSBWR0FTbm9v
-cC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KICAgICAgICBTdGF0dXM6IENhcC0g
-NjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJv
-cnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KICAgICAgICBMYXRlbmN5OiAwCgowMDowNy4xIElE
-RSBpbnRlcmZhY2U6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgSURFIChyZXYgMDEp
-IChwcm9nLWlmIDgwIFtNYXN0ZXJdKQogICAgICAgIENvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0
-ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIt
-IEZhc3RCMkItCiAgICAgICAgU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVy
-ci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
-CiAgICAgICAgTGF0ZW5jeTogMzIKICAgICAgICBSZWdpb24gNDogSS9PIHBvcnRzIGF0IGYwMDAg
-W3NpemU9MTZdCgowMDowNy4yIFVTQiBDb250cm9sbGVyOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjM3
-MUFCIFBJSVg0IFVTQiAocmV2IDAxKSAocHJvZy1pZiAwMCBbVUhDSV0pCiAgICAgICAgQ29udHJv
-bDogSS9PKyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFy
-RXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KICAgICAgICBTdGF0dXM6IENhcC0gNjZNaHot
-IFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxN
-QWJvcnQtID5TRVJSLSA8UEVSUi0KICAgICAgICBMYXRlbmN5OiAzMgogICAgICAgIEludGVycnVw
-dDogcGluIEQgcm91dGVkIHRvIElSUSAxMAogICAgICAgIFJlZ2lvbiA0OiBJL08gcG9ydHMgYXQg
-ZDAwMCBbc2l6ZT0zMl0KCjAwOjA3LjMgQnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjM3MUFC
-IFBJSVg0IEFDUEkgKHJldiAwMikKICAgICAgICBDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVy
-LSBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBG
-YXN0QjJCLQogICAgICAgIFN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnIt
-IERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQog
-ICAgICAgIEludGVycnVwdDogcGluID8gcm91dGVkIHRvIElSUSA5CgowMDowYS4wIFBDSSBicmlk
-Z2U6IEludGVsIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmljZSAwOTYyIChyZXYgMDIpIChwcm9n
-LWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkKICAgICAgICBDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
-dGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJS
-LSBGYXN0QjJCLQogICAgICAgIFN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJF
-cnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJS
-LQogICAgICAgIExhdGVuY3k6IDMyLCBjYWNoZSBsaW5lIHNpemUgMDgKICAgICAgICBCdXM6IHBy
-aW1hcnk9MDAsIHNlY29uZGFyeT0wMiwgc3Vib3JkaW5hdGU9MDIsIHNlYy1sYXRlbmN5PTMyCiAg
-ICAgICAgQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlIrIE5vSVNBKyBWR0EtIE1BYm9ydC0gPlJlc2V0
-LSBGYXN0QjJCLQoKMDA6MGEuMSBSQUlEIGJ1cyBjb250cm9sbGVyOiBNeWxleCBDb3Jwb3JhdGlv
-bjogVW5rbm93biBkZXZpY2UgMDA1MCAocmV2IDAyKQogICAgICAgIFN1YnN5c3RlbTogTXlsZXgg
-Q29ycG9yYXRpb246IFVua25vd24gZGV2aWNlIDAwNTIKICAgICAgICBDb250cm9sOiBJL08tIE1l
-bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
-aW5nLSBTRVJSLSBGYXN0QjJCLQogICAgICAgIFN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0
-QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNF
-UlItIDxQRVJSLQogICAgICAgIExhdGVuY3k6IDMyLCBjYWNoZSBsaW5lIHNpemUgMDgKICAgICAg
-ICBJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTEKICAgICAgICBSZWdpb24gMDogTWVt
-b3J5IGF0IGU3MDAwMDAwICgzMi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9OEtdCiAgICAgICAg
-RXhwYW5zaW9uIFJPTSBhdCBlNDAwMDAwMCBbZGlzYWJsZWRdIFtzaXplPTMyS10KICAgICAgICBD
-YXBhYmlsaXRpZXM6IFs4MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKICAgICAgICAgICAg
-ICAgIEZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQx
-LSxEMi0sRDNob3QtLEQzY29sZC0pCiAgICAgICAgICAgICAgICBTdGF0dXM6IEQwIFBNRS1FbmFi
-bGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMDowZC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IDND
-b20gQ29ycG9yYXRpb24gM2M5MDVCIDEwMEJhc2VUWCBbQ3ljbG9uZV0gKHJldiA2NCkKICAgICAg
-ICBTdWJzeXN0ZW06IDNDb20gQ29ycG9yYXRpb24gM0M5MDVCIEZhc3QgRXRoZXJsaW5rIFhMIDEw
-LzEwMAogICAgICAgIENvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVt
-V0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCiAgICAgICAg
-U3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+
-VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCiAgICAgICAgTGF0ZW5jeTog
-MzIgKDI1MDBucyBtaW4sIDI1MDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKICAgICAgICBJ
-bnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTAKICAgICAgICBSZWdpb24gMDogSS9PIHBv
-cnRzIGF0IGQ0MDAgW3NpemU9MTI4XQogICAgICAgIFJlZ2lvbiAxOiBNZW1vcnkgYXQgZTcwMDIw
-MDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MTI4XQogICAgICAgIEV4cGFuc2lv
-biBST00gYXQgZTUwMDAwMDAgW2Rpc2FibGVkXSBbc2l6ZT0xMjhLXQogICAgICAgIENhcGFiaWxp
-dGllczogW2RjXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMQogICAgICAgICAgICAgICAgRmxh
-Z3M6IFBNRUNsay0gRFNJLSBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDErLEQyKyxE
-M2hvdCssRDNjb2xkLSkKICAgICAgICAgICAgICAgIFN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNl
-bD0wIERTY2FsZT0wIFBNRS0KCjAwOjBlLjAgVW5rbm93biBtYXNzIHN0b3JhZ2UgY29udHJvbGxl
-cjogVHJpb25lcyBUZWNobm9sb2dpZXMsIEluYy4gSFBUMzY2IChyZXYgMDMpCiAgICAgICAgU3Vi
-c3lzdGVtOiBUcmlvbmVzIFRlY2hub2xvZ2llcywgSW5jLjogVW5rbm93biBkZXZpY2UgMDAwMQog
-ICAgICAgIENvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0g
-VkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCiAgICAgICAgU3RhdHVz
-OiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0
-LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCiAgICAgICAgTGF0ZW5jeTogNjQgKDIw
-MDBucyBtaW4sIDIwMDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKICAgICAgICBJbnRlcnJ1
-cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTEKICAgICAgICBSZWdpb24gMDogSS9PIHBvcnRzIGF0
-IGQ4MDAgW3NpemU9OF0KICAgICAgICBSZWdpb24gMTogSS9PIHBvcnRzIGF0IGRjMDAgW3NpemU9
-NF0KICAgICAgICBSZWdpb24gMjogSS9PIHBvcnRzIGF0IGUwMDAgW3NpemU9OF0KICAgICAgICBS
-ZWdpb24gMzogSS9PIHBvcnRzIGF0IGU0MDAgW3NpemU9NF0KICAgICAgICBSZWdpb24gNDogSS9P
-IHBvcnRzIGF0IGU4MDAgW3NpemU9MjU2XQogICAgICAgIEV4cGFuc2lvbiBST00gYXQgZTYwMDAw
-MDAgW2Rpc2FibGVkXSBbc2l6ZT0xMjhLXQogICAgICAgIENhcGFiaWxpdGllczogWzYwXSBQb3dl
-ciBNYW5hZ2VtZW50IHZlcnNpb24gMgogICAgICAgICAgICAgICAgRmxhZ3M6IFBNRUNsay0gRFNJ
-KyBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkK
-ICAgICAgICAgICAgICAgIFN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBN
-RS0KCjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogUzMgSW5jLiA4NmMzNjggW1Ry
-aW8gM0QvMlhdIChyZXYgMDIpIChwcm9nLWlmIDAwIFtWR0FdKQogICAgICAgIFN1YnN5c3RlbTog
-UzMgSW5jLiBUcmlvM0QvMlgKICAgICAgICBDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBT
-cGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
-QjJCLQogICAgICAgIFN0YXR1czogQ2EgICAgICAgIFJlZ2lvbiAwOiBNZW1vcnkgYXQgZDgwMDAw
-MDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NjRNXQogICAgICAgIEV4cGFuc2lv
-biBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9NjRLXQogICAgICAgIENhcGFi
-aWxpdGllczogW2RjXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMQogICAgICAgICAgICAgICAg
-RmxhZ3M6IFBNRUNsay0gRFNJKyBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQy
-LSxEM2hvdC0sRDNjb2xkLSkKICAgICAgICAgICAgICAgIFN0YXR1czogRDAgUE1FLUVuYWJsZS0g
-RFNlbD0wIERTY2FsZT0wIFBNRS0KICAgICAgICBDYXBhYmlsaXRpZXM6IFs4MF0gQUdQIHZlcnNp
-b24gMS4wCiAgICAgICAgICAgICAgICBTdGF0dXM6IFJRPTMxIFNCQS0gNjRiaXQtIEZXLSBSYXRl
-PXgxLHgyCiAgICAgICAgICAgICAgICBDb21tYW5kOiBSUT0wIFNCQS0gQUdQLSA2NGJpdC0gRlct
-IFJhdGU9eDIKcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9bWVkaXVtID5U
-QWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KICAgICAgICBMYXRlbmN5OiAz
-MiAoMTAwMG5zIG1pbiwgNjM3NTBucyBtYXgpCg==
-
---Multipart_Wed__27_Jun_2001_11:59:22_+0300_0811b950--
+Take a look at http://www.linux-laptop.net
+It's quite useful :-)

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUHPSYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUHPS2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266149AbUHPSYG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUHPSYG
+	id S266327AbUHPS2f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUHPS2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 14:24:06 -0400
-Received: from apollo.tuxdriver.com ([24.172.12.4]:18957 "EHLO
-	ra.tuxdriver.com") by vger.kernel.org with ESMTP id S266149AbUHPSYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:24:02 -0400
-Date: Mon, 16 Aug 2004 13:19:34 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-Message-Id: <200408161719.i7GHJYJ06048@ra.tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6 -- add to snd-intel8x0 AC97 quirk list
-Cc: alsa-devel@alsa-project.org, perex@suse.cz
+	Mon, 16 Aug 2004 14:28:35 -0400
+Received: from mail.timesys.com ([65.117.135.102]:44044 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S266327AbUHPS2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:28:33 -0400
+Message-ID: <4120FCD0.2090305@timesys.com>
+Date: Mon, 16 Aug 2004 14:28:32 -0400
+From: Greg Weeks <greg.weeks@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Dan Malek <dan@embeddededge.com>, Kumar Gala <kumar.gala@freescale.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [BUG] PPC math-emu multiply problem
+References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com> <20040809165650.GA22109@smtp.west.cox.net> <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com> <20040809222328.GB22109@smtp.west.cox.net> <4120B055.8090503@timesys.com> <20040816144829.GC2377@smtp.west.cox.net>
+In-Reply-To: <20040816144829.GC2377@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Aug 2004 18:27:10.0203 (UTC) FILETIME=[A49D8CB0:01C483BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some additions to the AC97 quirk list for the snd-intel8x0 driver.
+Tom Rini wrote:
 
-"It works for me!" -- pretty simple patch...
+>>The way I got the LSB tests to pass was to remove the round in the 
+>>denormalised underflow case. This appears to match the hardware 
+>>behavior. I've not looked at the PPC floating point model close enough 
+>>to know if this is proper behavior. It is what the LSB tests are 
+>>expecting and doesn't cause a failure in any of the other LSB tests.
+>>    
+>>
+>
+>Have you guys run the LSB tests on some PPC with hw floating point (is
+>that what you mean by 'matches the hardware behavior' ?) to see if the
+>test also passes there as-is?  And does anyone object to this patch?
+>Now that 2.6.8.1 is out I'm gonna start committing in a bunch of stuff
+>I've had queued up and see if I can get Linus to pull.  Thanks.
+>
+>  
+>
+I didn't run the entire LSB, just some of the math tests. I had an 8260 
+and the 8560 we found the problem on and also a normal x86 box. I think 
+this is the correct fix. At least all of the LSB math tests pass now and 
+the LTP float tests don't complain.
 
-John
-
-diff -urNp linux-2.6.8.orig/sound/pci/intel8x0.c linux-2.6.8/sound/pci/intel8x0.c
---- linux-2.6.8.orig/sound/pci/intel8x0.c	2004-08-14 01:37:15.000000000 -0400
-+++ linux-2.6.8/sound/pci/intel8x0.c	2004-08-16 10:45:22.018793582 -0400
-@@ -1823,6 +1823,24 @@ static struct ac97_quirk ac97_quirks[] _
- 		.type = AC97_TUNE_HP_ONLY
- 	},
- #endif
-+	{
-+		.vendor = 0x1028,
-+		.device = 0x012d,
-+		.name = "Dell Precision 450",	/* AD1981B*/
-+		.type = AC97_TUNE_HP_ONLY
-+	},
-+	{
-+		.vendor = 0x103c,
-+		.device = 0x3008,
-+		.name = "HP xw4200",	/* AD1981B*/
-+		.type = AC97_TUNE_HP_ONLY
-+	},
-+	{
-+		.vendor = 0x103c,
-+		.device = 0x12f1,
-+		.name = "HP xw8200",	/* AD1981B*/
-+		.type = AC97_TUNE_HP_ONLY
-+	},
- 	{ } /* terminator */
- };
- 
+Greg Weeks

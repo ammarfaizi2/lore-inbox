@@ -1,79 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUH2Rve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268240AbUH2Rwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268249AbUH2Rve (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 13:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2Rve
+	id S268240AbUH2Rwm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 13:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUH2Rwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 13:51:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:65454 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268249AbUH2RvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 13:51:14 -0400
-Date: Sun, 29 Aug 2004 10:50:58 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
-Message-ID: <20040829175058.GP5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Matthew Dobson <colpatch@us.ibm.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1093786747.1708.8.camel@mulgrave> <200408290948.06473.jbarnes@engr.sgi.com> <20040829170328.GK5492@holomorphy.com> <1093799390.10990.19.camel@mulgrave> <20040829172250.GM5492@holomorphy.com> <20040829172923.GN5492@holomorphy.com> <20040829174039.GO5492@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829174039.GO5492@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 29 Aug 2004 13:52:42 -0400
+Received: from mail5.dslextreme.com ([66.51.199.81]:56536 "HELO
+	mail5.dslextreme.com") by vger.kernel.org with SMTP id S268240AbUH2Rwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 13:52:40 -0400
+Message-ID: <413217A3.4020906@colannino.org>
+Date: Sun, 29 Aug 2004 10:51:31 -0700
+From: James Colannino <lkml@colannino.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040821
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: submitting kernel patch for 3w-9xxx in 2.4
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 10:40:39AM -0700, William Lee Irwin III wrote:
-> Okay, if you prefer the #ifdef:
+Everyone,
 
-And for the other half of it:
+I've created a kernel patch for 2.4.27 that adds the newer 3w-9xxx 3Ware 
+driver (for the 3Ware 9000 series of controllers).  If anyone here is 
+interested, I can patch the latest pre-release for 2.4.28 and submit it 
+to the list.  Just let me know.
 
+http://james.colannino.org/downloads/patches/3w-9xxx-2.4.27.diff
 
-Index: wait-2.6.9-rc1-mm1/kernel/sched.c
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/kernel/sched.c	2004-08-28 11:41:47.000000000 -0700
-+++ wait-2.6.9-rc1-mm1/kernel/sched.c	2004-08-29 10:46:52.543081208 -0700
-@@ -4224,7 +4224,11 @@
- 		sd = &per_cpu(phys_domains, i);
- 		group = cpu_to_phys_group(i);
- 		*sd = SD_CPU_INIT;
-+#ifdef CONFIG_NUMA
- 		sd->span = nodemask;
-+#else
-+		sd->span = cpu_possible_map;
-+#endif
- 		sd->parent = p;
- 		sd->groups = &sched_group_phys[group];
- 
-@@ -4262,6 +4266,7 @@
- 						&cpu_to_isolated_group);
- 	}
- 
-+#ifdef CONFIG_NUMA
- 	/* Set up physical groups */
- 	for (i = 0; i < MAX_NUMNODES; i++) {
- 		cpumask_t nodemask = node_to_cpumask(i);
-@@ -4273,6 +4278,10 @@
- 		init_sched_build_groups(sched_group_phys, nodemask,
- 						&cpu_to_phys_group);
- 	}
-+#else
-+	init_sched_build_groups(sched_group_phys, cpu_possible_map,
-+							&cpu_to_phys_group);
-+#endif
- 
- #ifdef CONFIG_NUMA
- 	/* Set up node groups */
+James
+

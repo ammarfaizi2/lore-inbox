@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265826AbUA1DKI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 22:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUA1DKI
+	id S265836AbUA1DUO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 22:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbUA1DUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 22:10:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59326 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265826AbUA1DKC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 22:10:02 -0500
-Date: Wed, 28 Jan 2004 03:09:58 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
-Message-ID: <20040128030958.GH11844@parcelfarce.linux.theplanet.co.uk>
-References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Jan 2004 22:20:14 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:31688 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S265836AbUA1DUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 22:20:08 -0500
+Message-ID: <40172A31.6060901@oracle.com>
+Date: Wed, 28 Jan 2004 04:19:13 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@intel.com
+Subject: Re: 2.6.2-rc2-bk1 oopses on boot (ACPI patch)
+References: <40171B5B.4020601@oracle.com> <20040127184228.3a0b8a86.akpm@osdl.org> <Pine.LNX.4.58.0401271907070.10794@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401271907070.10794@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 10:54:37AM +0900, Hironobu Ishii wrote:
-> This is a readX_check() prototype patch to evaluate
-> the performance disadvantage.
+Linus Torvalds wrote:
+> 
+> On Tue, 27 Jan 2004, Andrew Morton wrote:
+> 
+>>Divide by zero.  Looks like ACPI is now passing bad values into the
+>>frequency change notifier.
+>>
+>>Does this make the oops go away?
+> 
+> 
+> Other values will still cause divide-by-zero (any divisor in 0..9 will do 
+> it). Besides, we're dividing with _old_, not new, so that's the one we 
+> should likely check.
+> 
+> 		Linus
 
-I think you've just demonstrated why this type of interface is unacceptable:
+Indeed... I get two of the debug printks from the patch, but in the
+  end I still oops due to a div-by-zero with EIP in time_cpufreq_notifier.
 
-> + #ifdef CONFIG_PCI_RECOVERY
-> +   {
-> +    int read_fail;
-> +    read_fail = CHIPREG_READ32(&pa, &ioc->chip->ReplyFifo);
-> +    if (read_fail) {
-> +     printk("PCI PIO read error:%d\n", read_fail);
-> +     /* recovery code */
-> +    }
-> +    if (pa == 0xFFFFFFFF)
-> +     return IRQ_HANDLED;
-> +   }
-> + #else
->     if ((pa = CHIPREG_READ32(&ioc->chip->ReplyFifo)) == 0xFFFFFFFF)
->      return IRQ_HANDLED;
-> ! #endif
+I'll try and look into Linus' suggestion about printing out stuff from
+  adjust_jiffies() in cpufreq.c and will report later.
 
-We go from two easily understood lines to ten plus the recovery code.
-If indeed recovery is even possible.  An exception framework is clearly
-the way to do this.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Thanks,
+
+--alessandro
+
+  "Two rivers run too deep
+   The seasons change and so do I"
+       (U2, "Indian Summer Sky")
+

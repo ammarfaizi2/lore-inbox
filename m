@@ -1,136 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265514AbTFZJjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 05:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbTFZJjh
+	id S265515AbTFZJqO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 05:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbTFZJqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 05:39:37 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:16399 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265514AbTFZJjf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 05:39:35 -0400
-Message-ID: <3EFAC408.4020106@aitel.hist.no>
-Date: Thu, 26 Jun 2003 11:59:36 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Thu, 26 Jun 2003 05:46:14 -0400
+Received: from [203.124.166.107] ([203.124.166.107]:20491 "EHLO
+	mail.pune.nevisnetworks.com") by vger.kernel.org with ESMTP
+	id S265515AbTFZJqL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 05:46:11 -0400
+content-class: urn:content-classes:message
+Subject: RE: INIT:ld"2" respawning too fast:disabled for 5 minutes
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler & interactivity improvements
-References: <20030623164743.GB1184@hh.idb.hist.no> <5.2.0.9.2.20030624215008.00ce73b8@pop.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 26 Jun 2003 15:31:29 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Message-ID: <36993D449C7FA647BF43568E0793AB3E061D2D@nevis_pune_xchg.pune.nevisnetworks.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: INIT:ld"2" respawning too fast:disabled for 5 minutes
+Thread-Index: AcM7xt8XWg+9BPZbSearvcCSbCZHFgAAkk/Q
+From: "Girish Kale" <girish.kale@nevisnetworks.com>
+To: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> At 02:12 PM 6/24/2003 -0400, Bill Davidsen wrote:
+Please see inline with >>
+
+Regards,
+Girish
+-----Original Message-----
+From: Zeno R.R. Davatz [mailto:zdavatz@ywesee.com] 
+Sent: Thursday, June 26, 2003 3:05 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: INIT:ld"2" respawning too fast:disabled for 5 minutes
+
+Hi 
+
+thanks for the input.
+
+You mean I need to check the config in 'make menuconfig'?
+>> yes
+
+Any idea where exactly I could look?
+>> no. But when the kernel is booting, you can see if it is giving any
+errors. That can be a clue.
+
+Also, how did you boot into the old kernel, getting your maschine back
+up again? I only manage to reinstall from zero...
+
+>> When I experimented with my new kernel I added another entry in my
+grub file. That gave me 2 options - to load from my previous kernel or
+to load from my new kernel. So everytime things went wrong with my new
+kernel I booted from the new kernel (which was always intact, not
+overwritten by the new kernel), made modifications for the new kernel
+and then tried out with the new kernel.
+
+
+Thanks for your time and help.
+
+Zeno
+
+On Thu, 26 Jun 2003 14:44:34 +0530
+"Girish Kale" <girish.kale@nevisnetworks.com> wrote:
+
+> Hi,
 > 
->> On Mon, 23 Jun 2003, Helge Hafting wrote:
->>
->> > On Mon, Jun 23, 2003 at 12:18:29PM +0200, Felipe Alfaro Solana wrote:
->>
->> > > I don't consider compiling the kernel an interactive process as it's
->> > > done almost automatically without any user intervention. XMMS is 
->> not a
->> > > complete interactive application as it spends most of the time 
->> decoding
->> > > and playing sound.
->> > >
->> > A kernel compile isn't interactive - sure.  It may get some boosts
->> > anyway for io waiting.  This quite correctly puts it above a
->> > pure cpu hog like a mandelbrot calculation.
->>
->> Why? Not why does the scheduler do that, but why *should* a compile be in
->> any way more deserving that a Mandelbrot? It isn't obvious to me that
->> either are interacting with the user, and if they are it would be the
->> Mandelbrot doing realtime display.
+> What this message means is that :
 > 
+> "if you make a mistake that prevents a particular program from
+starting,
+> and the action is respawned, init might get caught in a loop. That is,
+> init tries to start the program, cannot, for whatever reason and then
+> tries to start it again. If init finds that it is starting the program
+> more than 10 times within 2 minutes, it will treat this as an error
+and
+> stops trying. Typically you will get messages in the system log that
+the
+> process is "respawning too rapidly"." Please read :
 > 
-> If the compile didn't receive a boost for it's io waits, the mandelbrot 
-> would have an unfair advantage.  While the compile is sleeping, the 
-> mandelbrot has sole access to the cpu.  Seems to me that this is quite 
-> fair...
+> http://www.linux-tutorial.info/cgi-bin/display.pl?65&0&64&0&3
 > 
->         -Mike
+> I also faced a similar problem - it gave me INIT:ID"1" respawning too
+> fast" , when I tried to login to my machine. This got resolved when I
+> reconfigured the kernel. But yet to figure out the "exact" change
+which
+> causes my problem.
 > 
-> <semi-random thoughts>
+> Regards,
+> Girish
 > 
-> ...until total sleep credit being accrued per unit time approaches unit 
-> time?
+> -----Original Message-----
+> From: Zeno R.R. Davatz [mailto:zdavatz@ywesee.com] 
+> Sent: Thursday, June 26, 2003 2:28 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: INIT:ld"2" respawning too fast:disabled for 5 minutes
 > 
-> At any rate, as soon as your cpu becomes saturated, tasks which 
-> participate in the sleep bonus program can take over and starve the 
-> sleep deprived _literally_ forever (iff the expired array is empty, 
-> otherwise it's limited by STARVATION_TIMEOUT).  I think that hole needs 
-> to be closed... at least the scheduler shouldn't default to starve 
-> forever.  One way to combat active starvation would be to use lengthy 
-> lack of idle calls to trigger periodic array switches.  That would 
-> guarantee that everybody gets _some_ cpu.
+> Hi List
 > 
-> ponders obnoxious ($&#!...;) irman process_load...
+> I succeded twice in making a kernel_image with the Debian
+kernel-package
+> and installaing the .deb file (2.4.18, 2.4.20).
 > 
-> Too many random sleeper tasks steadily becoming runnable can DoS lower 
-> priority tasks accidentally, but the irman process_load kind of DoS 
-> seems to indicate a very heavy favoritism toward cooperating threads.  
-> It seems to me that any thread group who's members sleep longer than 
-> they run, and always has one member runnable is absolutely guaranteed to 
-> cause terminal DoS.  Even if there isn't _always_ a member runnable, 
-> waking a friend and waiting for him to do something seems like a very 
-> likely thing for threaded process to do, which gives the threaded 
-> process a huge advantage because the cumulative sleep_avg pool will 
-> become large simply because it's members spend a lot of time jabbering 
-> back and forth.
+> My Installation where I boot from is bf24-2.4.20 (floppies).
+> 
+> I download the kernel sources to /usr/src/linux-2.4.21 I do make
+clean,
+> make menuconfig and then make-kpkg -rev ywesee.1 kernel_image. 
+> 
+> The maschine ends the compilation just fine and I do dpkg -i
+> kernel_image-2.4.21-ywesee.1-i386.deb.
+> 
+> Then I reboot, everythings starts fine _without a kernel panic.
+> 
+> But: After starting the cron daemon I get:
+> INIT:ld"2" respawning too fast:disabled for 5 minutes 
+> 
+> I get this several times...
+> 
+> Why do I get this message and how can I get rid of it so my 2.4.21
+boots
+> nicely.
+> 
+> (I need to start my installation again from the beginning as I can not
+> boot into the old system).
+> 
+> Many thanks in advance for any help and hints.
+> 
+> Zeno
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-How about _removing_ the io-wait bonus for waiting on pipes then?
-If you wait for disk io, someone else gets to use
-the cpu for their work.  So you get a boost for
-giving up your share of time, waiting
-for that slow device.
 
-But if you wait for a pipe, you wait for some other
-cpu hog to do the first part of _your_ work.
-I.e. nobody else benefitted from your waiting,
-so you don't get any boost either.
+-- 
+Mit freundlichen Gruessen / Best regards
 
-This solves the problem of someone artifically
-dividing up a job, using token passing
-to get unfair priority.
+Zeno Davatz
+Strategie und Akquisition
 
++41 1 350 85 86
 
-This can be fine-tuned a bit: We may want the pipe-waiter
-to get a _little_ bonus at times, but that has to be
-subtracted from whatever bonus the process at the
-other end of the pipe has.  I.e. no new bonus
-created, just shift some the existing bonus around.
-The "other end" may, after all, have gained legitimate
-bonus from waiting on the disk/network/paging/os, and passing
-some of that on to "clients" might make sense.
-
-So irman and similar pipe chains wouldn't be able to build
-artifical priority, but if it get some priority
-in an "acceptable" way then it is passed
-along until it expires.
-
-I.e. "bzcat file.bz2 | grep something | sort | less" could
-pass priority down the chain when bzcat suffers
-a long nfs wait...
-
-Helge Hafting
-
-
-> Take any two cpu hungry products.  Run one monolithic version, and one 
-> chopped into little cooperative pieces at the same time, and the 
-> monolithic version can get down to zero cpu.  An application developer 
-> can greatly improve a shoddy product's appeal by chopping it up and 
-> making the other guy's nice high speed low drag monolithic product look 
-> like doggy doo in comparison.  He can show the other guy's product being 
-> torn to ribbons by light load while his keeps right on ticking.  (he'll 
-> cleverly avoid pointing out the fact that the light load he ripped his 
-> competition's head off with gets no cpu while _his_ product is running)
-
-
-
+www.ywesee.com > intellectual capital connected > www.generika.cc
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

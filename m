@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbTCCPOT>; Mon, 3 Mar 2003 10:14:19 -0500
+	id <S265339AbTCCPLb>; Mon, 3 Mar 2003 10:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbTCCPOS>; Mon, 3 Mar 2003 10:14:18 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:46721 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S265543AbTCCPNb>;
-	Mon, 3 Mar 2003 10:13:31 -0500
-Message-ID: <3E63736F.6090000@walrond.org>
-Date: Mon, 03 Mar 2003 15:23:27 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Dmesg: Use a PAE enabled kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265424AbTCCPLb>; Mon, 3 Mar 2003 10:11:31 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42139
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265339AbTCCPLa>; Mon, 3 Mar 2003 10:11:30 -0500
+Subject: Re: 2.4 iget5_locked port attempt to 2.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Oleg Drokin <green@namesys.com>
+Cc: Andrew Morton <akpm@digeo.com>, mason@suse.com, trond.myklebust@fys.uio.no,
+       jaharkes@cs.cmu.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030303170924.B3371@namesys.com>
+References: <20030220175309.A23616@namesys.com>
+	 <20030220154924.7171cbd7.akpm@digeo.com> <20030221220341.A9325@namesys.com>
+	 <20030221200440.GA23699@delft.aura.cs.cmu.edu>
+	 <20030303170924.B3371@namesys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046708741.6509.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 03 Mar 2003 16:25:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During bootup I see
+On Mon, 2003-03-03 at 14:09, Oleg Drokin wrote:
+> Hello!
+> 
+>    It's me again, I basically got no reply for this iget5_locked patch
+>    I have now. Would there be any objections if I try push it to Marcelo
+>    tomorrow? ;)
 
-   Warning only 4GB will be used.
-   Use a PAE enabled kernel.
-
-But I only have 4Gb installed, so is this message wrong?
-
-Andrew Walrond
+I just binned it. Certainly its not the kind of stuff I want to test in -ac, 
+too many VFS changes outside reiserfs
 

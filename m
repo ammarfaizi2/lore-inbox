@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270269AbRHMP62>; Mon, 13 Aug 2001 11:58:28 -0400
+	id <S269223AbRHMQQD>; Mon, 13 Aug 2001 12:16:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270268AbRHMP6S>; Mon, 13 Aug 2001 11:58:18 -0400
-Received: from ams8uucp0.ams.ops.eu.uu.net ([212.153.111.69]:29577 "EHLO
-	ams8uucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
-	id <S270264AbRHMP6C>; Mon, 13 Aug 2001 11:58:02 -0400
-Date: Mon, 13 Aug 2001 17:46:52 +0200 (CEST)
-From: kees <kees@schoen.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Q. wipe behaves different
-Message-ID: <Pine.LNX.4.33.0108131746020.4292-100000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270271AbRHMQPx>; Mon, 13 Aug 2001 12:15:53 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:38650 "HELO
+	lustre.dyn.ca.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S269223AbRHMQPg>; Mon, 13 Aug 2001 12:15:36 -0400
+Date: Mon, 13 Aug 2001 10:15:01 -0600
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8-ac2 USB keyboard capslock hang
+Message-ID: <20010813101501.A1451@lustre.dyn.ca.clusterfilesystem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+I have a Logitech Internet USB keyboard, attached to an IBM TP T20. 
 
-Using wipe works different on 2.4.8 wrt 2.4.7
+In the above system pressing Caps lock twice (i.e. switching capslock
+off) freezes the system completely. 
 
-why?
+The last system that didn't do so for me was Rosswell's kernel. 
 
-Kees
+Does anyone know about this?  Thanks a lot!
 
-
+- Peter -

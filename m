@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266819AbUGVHGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266621AbUGVHKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266819AbUGVHGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 03:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUGVHGS
+	id S266621AbUGVHKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 03:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUGVHKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 03:06:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43204 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266819AbUGVHGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 03:06:16 -0400
-Date: Thu, 22 Jul 2004 09:07:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040722070743.GA7553@elte.hu>
-References: <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721154428.GA24374@elte.hu> <40FF48F9.1020004@yahoo.com.au>
+	Thu, 22 Jul 2004 03:10:46 -0400
+Received: from 209-87-233-98.storm.ca ([209.87.233.98]:5788 "EHLO
+	ottawa.interneqc.com") by vger.kernel.org with ESMTP
+	id S266621AbUGVHKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 03:10:46 -0400
+Date: Thu, 22 Jul 2004 03:08:31 -0400
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: Greg KH <gregkh@us.ibm.com>, Mike Wortman <wortman@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pci_bus_lock question
+Message-ID: <20040722070830.GB21907@kroah.com>
+References: <1090447841.544.7.camel@sinatra.austin.ibm.com> <1090448467.544.10.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40FF48F9.1020004@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1090448467.544.10.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 21, 2004 at 05:21:08PM -0500, John Rose wrote:
+> But then, most of these violations are in __init functions.  I think I
+> just answered my own question :)
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Yes, we don't protect the lists in those __init functions, as it isn't
+needed at that point in time.
 
-> Given that we're looking for something acceptable for 2.6, how about
-> adding
->
-> if (rt_task(current))
-> 	kick ksoftirqd instead
-> 
-> Otherwise, what is the performance penalty of doing all softirq
-> processing from ksoftirqd?
+thanks,
 
-this is insufficient too. An RT task might be _waiting to run_ and
-spending our time in a non-RT context (including the idle task) doing
-softirq processing might delay it indefinitely.
-
-what we could do is to add a rq->nr_running_rt and do the deferred
-softirq processing unconditionally if (rq->nr_running_rt). I'd still add
-a sysctl to make it unconditional for user processes too - if someone
-really cares about latency and doesnt want to make all his tasks RT. 
-I'll code this up for the next version of the patch.
-
-	Ingo
+greg k-h

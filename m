@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263552AbTDDRzo (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDDRzo (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:55:44 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:60688 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S263552AbTDDRzm (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 12:55:42 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Keep de2104x quiet
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 04 Apr 2003 20:01:53 +0200
-Message-ID: <wrpsmsydtv2.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
+	id S263890AbTDDRXC (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:23:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTDDRVt (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:21:49 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:4494 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263881AbTDDRTO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 12:19:14 -0500
+Date: Fri, 4 Apr 2003 09:32:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] convert via686a i2c driver to sysfs
+Message-ID: <20030404173250.GA1537@kroah.com>
+References: <3E8D3A59.8010401@portrix.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E8D3A59.8010401@portrix.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Fri, Apr 04, 2003 at 09:55:05AM +0200, Jan Dittmer wrote:
+> Hey,
+> 
+> I thought I posted this yesterday but cannot find it on the list.
 
-The included patch tries to keep the de2104x driver quiet if there is
-link change. Without this patch, I'm getting lots of :
+I got a copy of it in my inbox, just haven't had a chance to apply it
+yet.
 
-eth0: link up, media 10baseT-HD
-eth0: link up, media 10baseT-HD
-eth0: link up, media 10baseT-HD
+> So 
+> here it goes again. Tested w/ Via KT133A board and using centiVolt and 
+> deziDegrees. Still waiting for a final decision. My vote goes to 
+> milliVolt and milliDegree.
 
-about one a minute... Quite annoying. With this patch, the driver only
-logs when state changes (which is already taken care of in
-de_link_up()).
+I thought that was the final decision, as it's what I wrote up in the
+Documentation/i2c/sysfs-interface document that now's in the kernel :)
 
-Tested on an AlphaStation-500 (21040, UP).
+Do you want to change this patch to use those units before I apply it?
 
-Thanks,
+thanks,
 
-        M.
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1004  -> 1.1005 
-#	drivers/net/tulip/de2104x.c	1.15    -> 1.16   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/04/04	maz@hina.wild-wind.fr.eu.org	1.1005
-# Keep the de2104x driver quiet if link stays up.
-# --------------------------------------------
-#
-diff -Nru a/drivers/net/tulip/de2104x.c b/drivers/net/tulip/de2104x.c
---- a/drivers/net/tulip/de2104x.c	Fri Apr  4 19:56:27 2003
-+++ b/drivers/net/tulip/de2104x.c	Fri Apr  4 19:56:27 2003
-@@ -984,11 +984,7 @@
- 		add_timer(&de->media_timer);
- 		if (!netif_carrier_ok(dev))
- 			de_link_up(de);
--		else
--			if (netif_msg_timer(de))
--				printk(KERN_INFO "%s: %s link ok, status %x\n",
--				       dev->name, media_name[de->media_type],
--				       status);
-+		
- 		return;
- 	}
- 
-
--- 
-Places change, faces change. Life is so very strange.
+greg k-h

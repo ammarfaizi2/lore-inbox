@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275117AbRJJJLA>; Wed, 10 Oct 2001 05:11:00 -0400
+	id <S275119AbRJJJMu>; Wed, 10 Oct 2001 05:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275120AbRJJJKu>; Wed, 10 Oct 2001 05:10:50 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:20489 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S275117AbRJJJKp>; Wed, 10 Oct 2001 05:10:45 -0400
-Message-ID: <3BC41086.6EB2056D@idb.hist.no>
-Date: Wed, 10 Oct 2001 11:10:30 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre5 i686)
-X-Accept-Language: no, en
+	id <S275122AbRJJJMn>; Wed, 10 Oct 2001 05:12:43 -0400
+Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:51393 "EHLO
+	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S275120AbRJJJMg>; Wed, 10 Oct 2001 05:12:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: Andrew Morton <akpm@zip.com.au>, BALBIR SINGH <balbir.singh@wipro.com>
+Subject: Re: is reparent_to_init a good thing to do?
+Date: Tue, 9 Oct 2001 16:26:18 -0400
+X-Mailer: KMail [version 1.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BC3118B.8050001@wipro.com> <3BC3223E.902FB7E@zip.com.au>
+In-Reply-To: <3BC3223E.902FB7E@zip.com.au>
 MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel size, kcore fun
-In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua> <15298.64405.809099.635670@beta.reiserfs.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01100916261802.09423@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+On Tuesday 09 October 2001 12:13, Andrew Morton wrote:
 
-> Haha, I got several pieces of your mail message while doing this.
-> (/proc/kcore is unique file, because grep of *any* string on it would
-> succeeded).
+> I think yes, more kernel threads need to use this function.  Most
+> particularly, threads which are parented by a userspace application
+> and which can terminate.  For example, the nfsd threads.
+>
+> Right now, it's probably the case that nfsd threads will turn
+> into zombies when they terminate, *if* their parent is still
+> running.   But of course, most kernel threads are parented
+> by very short-lived userspace applications, so nobody has
+> ever noticed.
 
-I tried 
-strings /proc/kcore | grep any_weird_string_tsst_testtesttest
-I expected it to hit a few times - the command line buffer,
-the parameter to grep - but I got 7 screenfulls.
+Or long lived kernel threads from short lived login sessions.
 
-Then I understood - this hits the xterm scrollback buffer
-too, which makes for some nice recursion.
-Doing the same with output to a file hits the cache and
-got some repetitions out of that.  And then there's
-internal buffers of strings and grep.
+You have a headless gateway box for your local subnet, administered via ssh 
+from a machine on the local subnet.  So you SSH into the box through eth1, 
+ifconfig eth0 down back up again.  If eth0 is an rtl8039too, this fires off a 
+kernel thread (which, before reparent_to_init, was parented to your ssh login 
+session).
 
-This reminded me of the commodore 64 game "fort apocalypse",
-where your fly a helicopter around in caves.  I patched the
-machine code once so I could fly through walls.  The game simply
-loads memory into screen memory depending on coordinates.
-So I got an interesting look at how code and state variables
-look when interpreted as "terrain".   I could identify
-the variables holding x and y coordinates by looking at how
-they changed when I moved in the two directions. 
+Now exit the login session.  SSH does not exit until all the child processes 
+exit, so it just hangs there until you kill it from another console window...
 
-Then I came upon a very weird area, where everything
-moved around in big jumps, changing in weird ways.  After a while,
-I figured out that I was looking at screen memory, having it
-reloaded into itself with a different mapping.  Crazy.
+Rob
 
-Finally - being able to press the fire button and fire
-upon pieces of code and variables is the ultimate in
-madman debugging and single-click crashes. :-)
-
-Helge Hafting

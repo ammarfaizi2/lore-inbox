@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272886AbRIGWk0>; Fri, 7 Sep 2001 18:40:26 -0400
+	id <S272887AbRIGWp0>; Fri, 7 Sep 2001 18:45:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272877AbRIGWkQ>; Fri, 7 Sep 2001 18:40:16 -0400
-Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:26351 "EHLO
-	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272886AbRIGWkC>; Fri, 7 Sep 2001 18:40:02 -0400
-Message-ID: <3B994BEC.F418F342@didntduck.org>
-Date: Fri, 07 Sep 2001 18:36:28 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-pre4 i686)
-X-Accept-Language: en
+	id <S272877AbRIGWpS>; Fri, 7 Sep 2001 18:45:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9223 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272887AbRIGWpH>; Fri, 7 Sep 2001 18:45:07 -0400
+Date: Fri, 7 Sep 2001 15:41:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Morten Welinder <terra@diku.dk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Type checking MIN with standard interface
+In-Reply-To: <20010906192815.28608.qmail@ntyr.diku.dk>
+Message-ID: <Pine.LNX.4.33.0109071540180.15361-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-CC: kernelnewbies <kernelnewbies@nl.linux.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Reg lilo.conf changed and system doesn't boot
-In-Reply-To: <Pine.LNX.4.10.10109072322550.30022-100000@blrmail>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"SATHISH.J" wrote:
-> 
-> Hi,
-> I know that this is not the place to ask this question.Please forgive me.
-> I changed the lilo.conf on my machine(redhat 2.2.14-12 kernel) and it
-> doesn't boot up. I don't have
-> a boot floppy to boot. I have another disk which has an older version of
-> linux(2.2.6). I can mount the disk if I boot from the other
-> disk(2.2.6). Can I
-> in some way alter the lilo.conf of my disk(2.2.14) and boot linux from
-> that. Please tell me any ideas to do that.
 
-Boot your 2.2.6 disk, and make a boot floppy from that.  Put in the
-original disk and boot from the floppy.  Check your lilo.conf and rerun
-lilo.
+On 6 Sep 2001, Morten Welinder wrote:
+>
+> All the silent-cast properties of integer types do not apply to
+> pointers.  Therefore...
 
--- 
+Ok, we have a winner. Nice (and more understandable) warning message,
+along with strict type-checking.
 
-						Brian Gerst
+I'm happy. Will do this for 2.4.10-pre5.
+
+		Linus
+

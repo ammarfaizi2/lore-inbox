@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281381AbRKLMnA>; Mon, 12 Nov 2001 07:43:00 -0500
+	id <S281357AbRKLMmI>; Mon, 12 Nov 2001 07:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281382AbRKLMmt>; Mon, 12 Nov 2001 07:42:49 -0500
-Received: from castle.nmd.msu.ru ([193.232.112.53]:47886 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S281381AbRKLMml>;
-	Mon, 12 Nov 2001 07:42:41 -0500
-Message-ID: <20011112155003.A26401@castle.nmd.msu.ru>
-Date: Mon, 12 Nov 2001 15:50:03 +0300
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: eepro100 pm fix (fwd)
+	id <S281381AbRKLMls>; Mon, 12 Nov 2001 07:41:48 -0500
+Received: from 10fwd.cistron-office.nl ([195.64.65.197]:35591 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id <S281357AbRKLMlj>; Mon, 12 Nov 2001 07:41:39 -0500
+Date: Mon, 12 Nov 2001 13:41:37 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: disk write cache and poweroff
+Message-ID: <20011112134137.A17482@cistron.nl>
+Reply-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hello Andre,
 
-Could you apply it, please?
+A few users of the debian sysvinit package have complained that on
+their laptop, shutdown + poweroff is too fast. The disk is turned
+off before the write-cache on the disk is completely written,
+resulting in some filesystem corruption.
 
-	Andrey
+After some experimentation with turning off the write cache before
+shutdown etc, I found out that a side-effect of putting the IDE
+disk in standby mode is that the write cache is flushed. So now
+halt(8) has an extra option to put all IDE disks it can find
+(through /proc/ide/hd*) in standby mode just before it calls
+reboot(LINUX_REBOOT_CMD_POWER_OFF). Thus flag is used in the
+/etc/rc0.d/S90halt script, and appears to fix the problem. I think
+windows does the same :|
 
------ Forwarded message from Jens Axboe <axboe@suse.de> -----
+Anyway this should probably be done in the kernel. Perhaps the
+IDE driver should register a reboot notifier with
+register_reboot_notifier() that puts all IDE disks on the
+system in standby mode on SYS_HALT and SYS_POWER_OFF ?
 
-Date: Mon, 12 Nov 2001 13:24:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: saw@saw.sw.com.sg
-Subject: eepro100 pm fix
-Message-ID: <20011112132453.B786@suse.de>
+Many other drivers do this too, grep for SYS_HALT in linux/drivers/*/*.c
 
-Hi Andrey,
+Hmm I just noticed that a lot of driver check for SYS_DOWN (which
+is the same as SYS_RESTART: reboot) and SYS_HALT but not for
+SYS_POWEROFF, which is a bug in those drivers. Ugh.
 
-This patch posted by Andrew Morton makes the eepro100 actually survive a
-apm suspend and resume without totally croaking (a problem I reported
-probably a year or so ago :-). Any chance you could include it?
-
+Mike.
 -- 
-Jens Axboe
-
-
---- /opt/kernel/linux-2.4.15-pre3/drivers/net/eepro100.c	Mon Nov 12 13:21:27 2001
-+++ linux/drivers/net/eepro100.c	Mon Nov 12 13:20:47 2001
-@@ -499,6 +499,9 @@
- 	unsigned short phy[2];				/* PHY media interfaces available. */
- 	unsigned short advertising;			/* Current PHY advertised caps. */
- 	unsigned short partner;				/* Link partner caps. */
-+#ifdef CONFIG_PM
-+	u32 pm_state[16];
-+#endif
- };
- 
- /* The parameters for a CmdConfigure operation.
-@@ -2193,8 +2196,11 @@
- static int eepro100_suspend(struct pci_dev *pdev, u32 state)
- {
- 	struct net_device *dev = pci_get_drvdata (pdev);
-+	struct speedo_private *sp = (struct speedo_private *)dev->priv;
- 	long ioaddr = dev->base_addr;
- 
-+	pci_save_state(pdev, sp->pm_state);
-+
- 	if (!netif_running(dev))
- 		return 0;
- 
-@@ -2210,6 +2216,8 @@
- 	struct net_device *dev = pci_get_drvdata (pdev);
- 	struct speedo_private *sp = (struct speedo_private *)dev->priv;
- 	long ioaddr = dev->base_addr;
-+
-+	pci_restore_state(pdev, sp->pm_state);
- 
- 	if (!netif_running(dev))
- 		return 0;
-
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270621AbTHJSyn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 14:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTHJSyn
+	id S270643AbTHJStE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 14:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270645AbTHJStE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 14:54:43 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:22029 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270621AbTHJSym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 14:54:42 -0400
-Date: Sun, 10 Aug 2003 14:42:52 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Stuart Longland <stuartl@longlandclan.hopto.org>,
-       Linux Lernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Yamaha opl3sa2 under 2.4.20 and ongoing PCMCIA &
- USB problems on 2.6.0-test2
-In-Reply-To: <Pine.LNX.4.53.0308072127590.12875@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.53.0308101442240.31799@montezuma.mastecende.com>
-References: <3F32417D.3090000@longlandclan.hopto.org>
- <Pine.LNX.4.53.0308072127590.12875@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Aug 2003 14:49:04 -0400
+Received: from 4demon.com ([217.160.186.4]:52905 "EHLO pro-linux.de")
+	by vger.kernel.org with ESMTP id S270643AbTHJStB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 14:49:01 -0400
+Date: Sun, 10 Aug 2003 20:48:58 +0200
+From: Hans-Joachim Baader <hjb@pro-linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3: "core" module
+Message-ID: <20030810184857.GA23829@kiwi.hjbaader.home>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Aug 2003, Zwane Mwaikambo wrote:
 
-> On Thu, 7 Aug 2003, Stuart Longland wrote:
-> 
-> > Under 2.4.20:
-> > 	Everything works flawlessly, except the sound card (Yamaha OPL3-SAx)
-> > refuses to work, the opl3sa2 driver does not recognise the card.
-> 
-> Hmm i wonder how that got broken..
-> 
-> > Is it possible to, say, backport the opl3sa2 driver to Linux 2.4.2x?
-> 
-> I'll fix the 2.4 one instead, there are a number of differences in the PnP 
-> system in 2.5 and 2.4 which would make backporting more work (with more 
-> likelyhood of bugs being introduced).
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could you please send me /var/log/dmesg from 2.4 and 2.6
+Hi!
 
-Thanks,
-	Zwane
+The serial driver module 8250 depends on a module named "core". Isn't
+that a silly name? I suggest renaming it to serialcore or sercore.
 
+Regards,
+hjb
+--=20
+Pro-Linux - Germany's largest volunteer Linux support site
+http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/NpOZLbySPj3b3eoRAlD5AJ9AehaVBbq7qCKh1w9rbbVlwXpp7QCgih2H
+RLXYK/ra/lyhi1K0z6zTEE8=
+=Vp91
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

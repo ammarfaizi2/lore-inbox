@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSGAQBJ>; Mon, 1 Jul 2002 12:01:09 -0400
+	id <S315708AbSGAQCs>; Mon, 1 Jul 2002 12:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSGAQBI>; Mon, 1 Jul 2002 12:01:08 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:12935 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S315709AbSGAQBH> convert rfc822-to-8bit;
-	Mon, 1 Jul 2002 12:01:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: lilo/raid?
-Date: Mon, 1 Jul 2002 18:02:28 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1020701115130.23428A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020701115130.23428A-100000@gatekeeper.tmr.com>
+	id <S315717AbSGAQCr>; Mon, 1 Jul 2002 12:02:47 -0400
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:51758 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id <S315708AbSGAQCp>; Mon, 1 Jul 2002 12:02:45 -0400
+Message-ID: <3D207DB1.80902@fabbione.net>
+Date: Mon, 01 Jul 2002 18:05:05 +0200
+From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207011802.28264.roy@karlsbakk.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lilo/raid?
+References: <200207011604.58253.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 July 2002 17:52, Bill Davidsen wrote:
-> On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
-> > still - sorry if this is OT - I'm just too close to tear my hair or head
-> > off or something
-> >
-> > The documentation everywhere, including the lilo 22.3.1 sample conf ffile
-> > tells me "use boot = /dev/md0", but lilo, when run, just tells me
-> >
-> > Fatal: Filesystem would be destroyed by LILO boot sector: /dev/md0
+Roy Sigurd Karlsbakk wrote:
+
+>hi
 >
-> I saw something like that when someone had made a raid device by hand and
-> used hda and hdb instead of hda1 and hdb1.
+>still - sorry if this is OT - I'm just too close to tear my hair or head off 
+>or something
+>
+>The documentation everywhere, including the lilo 22.3.1 sample conf ffile 
+>tells me "use boot = /dev/md0", but lilo, when run, just tells me 
+>
+>Fatal: Filesystem would be destroyed by LILO boot sector: /dev/md0
+>
+>Please help
+>
+>roy
+>
+>  
+>
+Hi Roy,
+            I have some machines running root on raid but I always have
+boot=/dev/hda and a second copy of lilo.con with boot pointing to /dev/hdb
+or whatever drive it was.
+What is really importat for you anyway is to be able to boot again if one of
+the disk is failing. The raid will ensure you to keep the root but I 
+always keep
+a boot floppy for emergencies. Not all the BIOS supports a boot from 
+/dev/hdb
+(I used hda/b just as an example...).
+At end if you loose a disk you will be always able to change it and boot 
+again
+to rebuilt it.
 
-problem is: lilo does not seem to install at all with hd[ab]1 given. only 
-hdm(!!!), and then it just goes LI
-
-See dmesg log at http://karlsbakk.net/bugs/ for more info
-
-thanks for all help
-
-roy
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Fabio
 

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129722AbQKBOPp>; Thu, 2 Nov 2000 09:15:45 -0500
+	id <S131532AbQKBOX7>; Thu, 2 Nov 2000 09:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131845AbQKBOPf>; Thu, 2 Nov 2000 09:15:35 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:46612 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S129722AbQKBOPY>; Thu, 2 Nov 2000 09:15:24 -0500
-Date: Thu, 2 Nov 2000 15:15:08 +0100 (CET)
-From: Narancs 1 <narancs1@externet.hu>
-To: Brett <bpemberton@dingoblue.net.au>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, kraxel@goldbach.in-berlin.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: vesafb doesn't work in 240t10?
-In-Reply-To: <Pine.LNX.4.21.0011022137270.16072-100000@tae-bo.generica.dyndns.org>
-Message-ID: <Pine.LNX.4.02.10011021512560.5828-100000@prins.externet.hu>
+	id <S131668AbQKBOXj>; Thu, 2 Nov 2000 09:23:39 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:41988 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131532AbQKBOXf>; Thu, 2 Nov 2000 09:23:35 -0500
+Date: Thu, 2 Nov 2000 09:23:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Thomas Sailer <sailer@ife.ee.ethz.ch>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Poll and OSS API
+In-Reply-To: <3A017443.8E436A97@ife.ee.ethz.ch>
+Message-ID: <Pine.LNX.3.95.1001102091346.8760A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2000, Brett wrote:
+On Thu, 2 Nov 2000, Thomas Sailer wrote:
 
-> On Thu, 2 Nov 2000, Jeff Garzik wrote:
-
-> 	vga=0x317
+> The OSS API (http://www.opensound.com/pguide/oss.pdf, page 102ff)
+> specifies that a select _with the sounddriver's filedescriptor
+> set in the read mask_ should start the recording.
 > 
-> in /etc/lilo.conf,
+> Implementing this is currently not possible, as the driver does
+> not get to know whether the application had the filedescriptor
+> set in the select call. Similarily for poll, the driver does not
+> get the caller's events.
 
-works fine on the other machine, containing a savage4 agp card
+The specification is bogus and should be fixed. select() is not
+a function that was designed to start/stop anything. Writing
+a specification to qualify some particular implementation's
+side-affects is patently wrong. ioctl() was designed to control
+things.
 
-It seems that the i815 is not vesa compliant?
-Cheap!
+You should contact a committee member and get it fixed. Further,
+all should fail to write code to such a so-called specification.
 
-What fb driver would support it?
-does vga16 support 1024x768?
+If specifications are allowed to be written like this, soon
+the lights will go out when you open a file. This cannot be
+allowed. Don't support such diatribe.
 
-thx4all 
+Cheers,
+Dick Johnson
 
-Narancs v1
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

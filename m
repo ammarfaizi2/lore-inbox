@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264798AbSJaKXr>; Thu, 31 Oct 2002 05:23:47 -0500
+	id <S264803AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264803AbSJaKXr>; Thu, 31 Oct 2002 05:23:47 -0500
-Received: from robur.slu.se ([130.238.98.12]:28683 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S264798AbSJaKXq>;
-	Thu, 31 Oct 2002 05:23:46 -0500
-From: Robert Olsson <Robert.Olsson@data.slu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264807AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54404 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264803AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
+Subject: Re: [STATUS 2.5]  October 30, 2002
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, boissiere@adiglobal.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1iszjgmaz.fsf@frodo.biederman.org>
+References: <20021030161708.GA8321@suse.de> 
+	<m1iszjgmaz.fsf@frodo.biederman.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15809.2056.151239.230395@robur.slu.se>
-Date: Thu, 31 Oct 2002 11:38:00 +0100
-To: Lucio Maciel <abslucio@terra.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: [PATCH 2.5.44] Pktgen for 2.5.44
-In-Reply-To: <1035921624.601.11.camel@walker>
-References: <1035921624.601.11.camel@walker>
-X-Mailer: VM 6.92 under Emacs 19.34.1
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 10:56:49 +0000
+Message-Id: <1036061809.8584.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-31 at 06:22, Eric W. Biederman wrote:
+> I actually like the idea of ECC drivers, and routinely make certain
+> there is a working ECC driver on the systems I ship.  It is so much
+> very easier to catch memory errors with good ECC error reporting.  But
+> unless I have slept soundly through a fundamental change, the
+> linux-ecc project currently does not ship quality drivers.  The
+> infrastructure is bad, and the code is not quite correct. 
+> 
+> If you want I can dig up the drivers I am currently using and send
+> them to you.
 
-> Hello...
-
-> I have ported (integrated sounds better i think...) pktgen from
-> 2.4.20-rc1 to 2.5.44...
-
-> I only need to change current->need_resched to need_resched() in the
-> source... works fine for me....
-
-> I also correct the documentation changing multiskb to clone_skb
-> best regards
-
-Thanks!
-
-There is also work going on with a "threaded" version with one process per CPU 
-a la ksoftirqd. And to each thread/CPU you can add single or multiple devices.
-
-But this work needs some more time. So your patch should be fine now.
-
-Cheers.
-						--ro
+That would be really cool
 

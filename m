@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUGFWpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUGFWo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUGFWpr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 18:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUGFWpr
+	id S264647AbUGFWo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 18:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUGFWo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 18:45:47 -0400
-Received: from pirx.hexapodia.org ([65.103.12.242]:47962 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S264640AbUGFWpk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 18:45:40 -0400
-Date: Tue, 6 Jul 2004 17:45:39 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: John Richard Moser <nigelenki@comcast.net>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: post 2.6.7 BK change breaks Java?
-Message-ID: <20040706224539.GA6060@hexapodia.org>
-References: <20040705231131.GA5958@merlin.emma.line.org> <40EACB64.2010503@comcast.net> <20040706161451.GA26925@merlin.emma.line.org>
+	Tue, 6 Jul 2004 18:44:57 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:61412 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264582AbUGFWoy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 18:44:54 -0400
+Date: Wed, 7 Jul 2004 00:44:53 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jamie Lokier <jamie@shareable.org>, shemminger@osdl.org,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+Message-ID: <20040706224453.GA6694@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>,
+	Jamie Lokier <jamie@shareable.org>, shemminger@osdl.org,
+	netdev@oss.sgi.com, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20040629222751.392f0a82.davem@redhat.com> <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net> <20040630153049.3ca25b76.davem@redhat.com> <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net> <20040706194034.GA11021@mail.shareable.org> <20040706131235.10b5afa8.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040706161451.GA26925@merlin.emma.line.org>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <20040706131235.10b5afa8.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 06:14:51PM +0200, Matthias Andree wrote:
-> I've been pointed to the NX feature off-list and investigated, my CPU
-> (AMD Athlon XP 2500+ Model 10 "Barton") doesn't support the noexec flag,
-> and dmesg does not contain any output that MX was enabled, and the Java
-> "Killed" problem persists when the kernel is booted with noexec=off.
+On Tue, Jul 06, 2004 at 01:12:35PM -0700, David S. Miller wrote:
+
+> It is this specific case:
 > 
-> It must have entered the tree between v2.6.7 and revision 1.1757 in
-> Linus' tree.
+> 1) SYN packet contains window scale option of ZERO.
 
-BK revision numbers aren't stable, so "1.1757" doesn't say much.
-Instead, quote keys, either :KEY: or :MD5KEY:, like so:
-% bk prs -hnd:KEY: -r1.1657 ChangeSet
-akpm@osdl.org[torvalds]|ChangeSet|20040323152307|55600
-% bk prs -hnd:MD5KEY: -r1.1657 ChangeSet
-4060565bRhJji9RfHpiUg8dYxnHR1A
+Not true - the outgoing SYN packet had window scale 7, when it was sent. The
+SYN|ACK had window scale 0, when received by the initiating system.
 
-Those identifiers are eternal and unchanging, and can be used almost
-anywhere a revision number can be used.  (Note that I used a different
-rev, as I don't have 1.1757 in my tree at the moment.)
+Also - even if the remote were to assume a 47 byte window size, would it not
+be able to send small packets? Or does the window size also include
+packet haders?
 
-> BTW, how do I tell BitKeeper "pull up to revision..."?  bk pull and bk
-> undo -aREV is a way, but it's wasteful.
+Regards,
 
-bk clone has a -r option, but it just does an undo internally.  You
-should definitely have a local mirror of the kernel source and make
-temporary clones to work in, then the only things that you're wasting
-are compute cycles and disk IO (rather than network bandwidth).
+bert
 
-% (cd mirror/linux-2.5; bk pull)
-% bk clone -ql -r4060565bRhJji9RfHpiUg8dYxnHR1A mirror/linux-2.5 tmptree
 
-This works better if you have enough RAM to cache the entire BK tree
-comfortably (at least 768MB, preferably a gig).
-
--andy (not speaking for or associated with BitMover)
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268582AbRH0UKa>; Mon, 27 Aug 2001 16:10:30 -0400
+	id <S268675AbRH0URl>; Mon, 27 Aug 2001 16:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbRH0UKW>; Mon, 27 Aug 2001 16:10:22 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:25766 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S268582AbRH0UKR>;
-	Mon, 27 Aug 2001 16:10:17 -0400
-Message-ID: <3B8AAAC6.6330014E@randomlogic.com>
-Date: Mon, 27 Aug 2001 13:17:10 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268614AbRH0URa>; Mon, 27 Aug 2001 16:17:30 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:53000 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268792AbRH0URU>; Mon, 27 Aug 2001 16:17:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 22:24:04 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+In-Reply-To: <20010827155621Z16272-32385+261@humbolt.nl.linux.org> <516781015.998944596@[169.254.198.40]>
+In-Reply-To: <516781015.998944596@[169.254.198.40]>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: VCool - cool your Athlon/Duron during idle
-In-Reply-To: <E15bJr2-0003fx-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827201728Z16121-32383+1728@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On August 27, 2001 09:36 pm, Alex Bligh - linux-kernel wrote:
+> --On Monday, 27 August, 2001 6:02 PM +0200 Daniel Phillips 
+> <phillips@bonn-fries.net> wrote:
 > 
-> > handle a too-hot cpu, but all C2/C3 gets you is reduced power when =
-> > idle.
-> > This results in better battery life on a laptop but that is irrelevant =
-> > on a
-> > desktop system.
+> > On the other hand, we
+> > will penalize faster streams that way
 > 
-> Thus speaks the country with chronic californian power shortages, and that
-> wouldn't sign up to a global accord on global warming 8)
-> 
+> Penalizing faster streams for the same number
+> of pages is probably a good thing
+> as they cost less time to replace.
 
-In reality, California has no power shortage. The problem is deregulation and greed together causing an artificial power shortage. Tell those of us in San Diego
-that we're using too much power and there's a shortage. We started conserving a year before the "shortage" - an average of 20% in fact - and we still had
-blackouts and higher rates and were told to cut back even more or pay even more. But, this thread digresses.
+Let me clarify, the stream is fast because its client is fast.  The disk will 
+service the reads at the same speed for all the streams.  (Let's not go into 
+the multi-disk case just now, ok?)
 
-> C2 and C3 are useful IMHO even on a desktop PC. The slight hit on the
-> transition is not noticable, the change on the power bill is.
-
-At our rates, you're darn right it is. An average PC costs ~$.05 per hour to run in California.
-
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+--
+Daniel

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312408AbSC3Hmg>; Sat, 30 Mar 2002 02:42:36 -0500
+	id <S312403AbSC3HkG>; Sat, 30 Mar 2002 02:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312410AbSC3Hm0>; Sat, 30 Mar 2002 02:42:26 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:27899 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S312408AbSC3HmQ>; Sat, 30 Mar 2002 02:42:16 -0500
-Date: Sat, 30 Mar 2002 02:47:42 -0500
-To: eyal@eyal.emu.id.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre5: neofb.c compile failure
-Message-ID: <20020330024742.A9076@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S312408AbSC3Hj4>; Sat, 30 Mar 2002 02:39:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13329 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312403AbSC3Hjr>;
+	Sat, 30 Mar 2002 02:39:47 -0500
+Message-ID: <3CA56B5E.7030508@mandrakesoft.com>
+Date: Sat, 30 Mar 2002 02:38:06 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Ford <david+cert@blue-labs.org>
+CC: Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org
+Subject: Re: tulip driver again
+In-Reply-To: <20020328174724.A24374@mail.harddata.com> <3CA50662.6090709@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> neofb.c:644: `FB_ACCEL_NEOMAGIC_NM2070' undeclared (first use in this
-> function)
+David Ford wrote:
 
-This is a diff based on 2.5.7 for include/linux/fb.h.
-Console scrolling is 40% faster with neofb on a Toshiba
-Tecra 8000 compared to vesafb. :)
-
-My lilo.conf append for 2.4.19-pre5:
-append = "video:neofb:ywrap,depth:8"
-I.E. replace "vesa" with "neofb"
+> "Me too" however I managed to get mine to work by swaping PCI cards 
+> in/out and doing power off reboots.  It is working on this particular 
+> boot up so I'm leaving it running.
+>
+> Jeff Garzik, if you want the lspci, register dump, etc, please speak up.
 
 
---- fb.h.orig	Fri Mar 29 21:34:57 2002
-+++ fb.h	Fri Mar 29 21:36:40 2002
-@@ -95,6 +95,18 @@
- #define FB_ACCEL_SIS_GLAMOUR    36	/* SiS 300/630/540              */
- #define FB_ACCEL_3DLABS_PERMEDIA3 37	/* 3Dlabs Permedia 3		*/
- 
-+
-+#define FB_ACCEL_NEOMAGIC_NM2070 90	/* NeoMagic NM2070              */
-+#define FB_ACCEL_NEOMAGIC_NM2090 91	/* NeoMagic NM2090              */
-+#define FB_ACCEL_NEOMAGIC_NM2093 92	/* NeoMagic NM2093              */
-+#define FB_ACCEL_NEOMAGIC_NM2097 93	/* NeoMagic NM2097              */
-+#define FB_ACCEL_NEOMAGIC_NM2160 94	/* NeoMagic NM2160              */
-+#define FB_ACCEL_NEOMAGIC_NM2200 95	/* NeoMagic NM2200              */
-+#define FB_ACCEL_NEOMAGIC_NM2230 96	/* NeoMagic NM2230              */
-+#define FB_ACCEL_NEOMAGIC_NM2360 97	/* NeoMagic NM2360              */
-+#define FB_ACCEL_NEOMAGIC_NM2380 98	/* NeoMagic NM2380              */
-+
-+
- struct fb_fix_screeninfo {
- 	char id[16];			/* identification string eg "TT Builtin" */
- 	unsigned long smem_start;	/* Start of frame buffer mem */
+Yes, please do.
+
+The more bug reports I can receive (in private or CC'd to lkml), the 
+better picture I get.  If you have multiple tulips, feel free to email 
+reports on those too :)
+
+Best output is:
+    lspci -vvvn
+    dmesg, after updating drivers/net/tulip/tulip.h TULIP_DEBUG to 5, 
+and recompiling
+    tulip-diag -mmaavvveef
+
+tulip-diag was written by Donald Becker, and is available from 
+ftp://www.scyld.com/pub/diag/  Compiling instructions are at the end of 
+tulip-diag.c.  You should grab libmii.c as well.
+
+    Jeff
+
 
 
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277039AbRJVQj1>; Mon, 22 Oct 2001 12:39:27 -0400
+	id <S277048AbRJVQm5>; Mon, 22 Oct 2001 12:42:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277047AbRJVQjR>; Mon, 22 Oct 2001 12:39:17 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:29406 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S277039AbRJVQjK>;
-	Mon, 22 Oct 2001 12:39:10 -0400
-Date: Mon, 22 Oct 2001 14:34:25 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: bill davidsen <davidsen@tmr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <200110221620.f9MGKHD15890@deathstar.prodigy.com>
-Message-ID: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277053AbRJVQms>; Mon, 22 Oct 2001 12:42:48 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:3805 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S277048AbRJVQme>;
+	Mon, 22 Oct 2001 12:42:34 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 22 Oct 2001 16:39:21 GMT
+Message-Id: <UTC200110221639.QAA184571.aeb@cwi.nl>
+To: linux-kernel@vger.kernel.org, moz@compsoc.man.ac.uk
+Subject: Re: Making diff(1) of linux kernels faster
+Cc: p_gortmaker@yahoo.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, bill davidsen wrote:
+>> Who's the maintainer for "diff" these days?
 
->   And who will be maintaining the world and us-castrated kernel
-> source? I can't imagine anything worse for the security of this
-> country than not allow computer users access to security issues.
+> afaict, there is no maintainer.
+> The stated maintainer has been ignoring patches for years.
 
-Don't worry, there are more than enough kernel hackers
-outside of the US to keep maintaining the kernel.
+-rw-r--r--   1 aeb        312312 Oct  2  1994 diffutils-2.7.tar.gz
 
-The worst that could happen is that the US cripples
-itself by not allowing the kernel hackers outside the
-US to publish security info to people in the US, but
-only to the rest of the world.
+Yes, if that is the latest, that is old.
 
-That's tough, they're a democratic country, they can
-change the law if it hurts them too much.
+I wouldn't mind adding diff to util-linux until
+the FSF maintainer wakes up.
 
-cheers,
+(Am using a modified diff myself - one that doesn't give
+a lot of output for diff after a successful cp -a,
+and does not get into a loop when /etc/net is a symlink to /etc.)
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+Andries
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+[But try the FSF first. Is it Paul Eggert?]

@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279902AbRKVPiN>; Thu, 22 Nov 2001 10:38:13 -0500
+	id <S279903AbRKVPrq>; Thu, 22 Nov 2001 10:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279860AbRKVPiC>; Thu, 22 Nov 2001 10:38:02 -0500
-Received: from mammut.nsc.liu.se ([130.236.104.31]:48133 "EHLO
-	mammut.nsc.liu.se") by vger.kernel.org with ESMTP
-	id <S279902AbRKVPhy>; Thu, 22 Nov 2001 10:37:54 -0500
-Date: Thu, 22 Nov 2001 16:37:52 +0100 (CET)
-From: =?ISO-8859-1?Q?Peter_Kjellstr=F6m?= <cap@nsc.liu.se>
+	id <S279904AbRKVPrh>; Thu, 22 Nov 2001 10:47:37 -0500
+Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:25881 "EHLO
+	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id <S279903AbRKVPrW>; Thu, 22 Nov 2001 10:47:22 -0500
+Date: Thu, 22 Nov 2001 16:47:21 +0100
+From: Sven.Riedel@tu-clausthal.de
 To: linux-kernel@vger.kernel.org
-Subject: Re: anyone got the same problem with DIGITAL 21143 network card ?
-Message-ID: <Pine.LNX.4.21.0111221620010.25529-100000@mammut.nsc.liu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.4.14 Oops during boot (KT133A Problem?)
+Message-ID: <20011122164721.A10968@moog.heim1.tu-clausthal.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I too have the same problem with atleast 2.4.9 and later (I think
-it broke somewhere around 2.4.4). However, in my case there is a fix (not
-a practical one though). Simply pull the ethernet cable out and plug it
-back in again and it starts working.
+[Again, I did not see my mail make it to the linux-kernel mailing list.
+Again my apologies if you receive this mail twice. Now, who is munching
+the mail I'm sending to the list?]
 
-I see no errors and the cards signal link and 100fdx.
+On Tue, Nov 20, 2001 at 08:31:05AM +0900, nakai wrote:
+> Excuse me, I had holidays.
+We all need those :)
 
-I currently run 2.4.1 which is ok (tulip version 0.9.13a).
+> May I ask you how to get /proc/pci ?
+Well as I said in my original posting:
+Sidenote: booting the exact same kernel from floppy (debian rescue with
+kernels exchanged and booting with 'linux root=/dev/hda6') gives me a
+rather unstable system for a short while (uptime usually < 6 hours before
+oopsing).
+Currently, the "unstable" attribute doesn't really seem to apply
+anymore, I get uptimes >1 day at the moment. Maybe /dev/random likes me
+better now...
+Anyway, I boot from floppy, so I do get a somewhat useable system. It's
+just very annoying, and I don't really trust things showing this sort of
+behaviour (likes floppy, dislikes harddisk).
 
-My card is a dlink 500TX detected (2.4.1) like this:
+> Is there any kernel which can run ?
+2.4.7 ran fine from floppy (rather stable, I had uptimes > 14 days),
+2.4.14 seems to work semi-fine from floppy. Other kernels may or may not
+boot from floppy, most oops before the bootscripts finish running. No
+kernel likes to be booted from harddisk at the moment.
 
+> Is it correctly hardware trouble or kernel trouble ?
+Good question, since there is _no_ difference between the kernels that
+boot from harddisk and those that boot from floppy (at least I did not
+change anything). So what is different?
+* Bootlocation/Bootsector/MBR 
+  I doubt it, since linux booted fine off the very same harddisk before I 
+  exchanged board and CPU, and lilo (nor kernel) complain when writing
+  a new setup to the harddisks MBR.
 
- Linux Tulip driver version 0.9.13a (January 20, 2001)
- PCI: Found IRQ 5 for device 00:09.0
- eth0: Digital DS21143 Tulip rev 65 at 0xbc00, 00:80:C8:F7:14:BA, IRQ 5.
+* Speed
+  The kernel will be loaded much slower from floppy than from harddisk.
 
+* NOT Mainboard, CPU, RAM
+  Don't change when I boot from floppy ;). Maybe memory is used in a
+  different way when the kernel is loaded from floppy?
+  I severely doubt there is a problem with the RAM, I already ran
+  memcheck86 for several hours, put the speed down to 100MHz in the
+  BIOS, and the RAM is the same I used in my previous hardware
+  configuration and linux booted fine from harddisk then. 
 
-some version info (guessing it broke somewhere around 2.4.4)
-2.4.1      tulip-0.9.13a     OK
-2.4.4-ac12 tulip-0.9.14e     bad*
-2.4.6      tulip-0.9.15-pre6 bad*
+* Interrupts Triggered
+  Maybe I should try writing a kernel to a bootable CDROM and try to
+  boot from that (my CDROM drive is attached to a SCSI Adapter, so if
+  this causes the kernel to Oops as well, the chances that it's the IDE
+  Controller interrupt requests is lessened).
 
-* can't reboot the machine in question, but IIRC...
+* Lilo version
+  I doubt this is the cause either, since the kernel has already been
+  loaded and is executing.
 
+I can't think of anything else that may be different between floppy and
+harddisk boot. I guess it may be more of a kernel problem now than
+hardware problem, since the KT133A patch made it into the kernel and
+I've tested the other KT133A patch with no different results as well. 
+Although with the x86 architecture, who can be sure? :)
 
-/Peter
+Regs,
+Sven
 
-On Thu, 22 Nov 2001, Ishak Hartono wrote:
-> I tried to compile 2.4.14 and successfully detect the digital 21143
-> network
-> card, however, i can't ping out
->
-> this is just a curiosity, because it works with my 2.2.17 kernel
->
-> the reason why i didn't move to 2.4.x yet because i got this problem
-> with
-> 2.4.5 as well and gave it a try again on 2.4.14 kernel
->
-> anyone know what should i check in the system  other than blaming on the
-> kernel ?
->
-> -Ishak-
-
-
+-- 
+Sven Riedel                      sr@gimp.org
+Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
+38678 Clausthal                  "Call me bored, but don't call me boring."
+                                 - Larry Wall 

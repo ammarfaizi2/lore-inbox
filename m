@@ -1,40 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291802AbSBHUoU>; Fri, 8 Feb 2002 15:44:20 -0500
+	id <S291809AbSBHUyN>; Fri, 8 Feb 2002 15:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291806AbSBHUoC>; Fri, 8 Feb 2002 15:44:02 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5134 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S291802AbSBHUnt>; Fri, 8 Feb 2002 15:43:49 -0500
-Date: Fri, 8 Feb 2002 18:43:23 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] get_request starvation fix
-In-Reply-To: <3C642A90.751BB750@zip.com.au>
-Message-ID: <Pine.LNX.4.33L.0202081842560.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291806AbSBHUyD>; Fri, 8 Feb 2002 15:54:03 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:13532 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S291812AbSBHUxr>; Fri, 8 Feb 2002 15:53:47 -0500
+Date: Fri, 8 Feb 2002 15:53:46 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200202082053.g18KrkT11677@devserv.devel.redhat.com>
+To: aia21@cam.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: Linus' email account is full. - Fwd: Mail System Error -  Returned Mail
+In-Reply-To: <mailman.1013199608.6544.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1013199608.6544.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Andrew Morton wrote:
+> Linus' email account appears to be full if we can believe this returned email:
+> 
+> >To: aia21@cam.ac.uk
+> >From: Mail Administrator <Postmaster@transmet.com>
 
-> In other words: if you run dbench, then lilo, lilo will not complete
-> until after dbench terminates.
+Read closer - it's a trap account that intercepts Linus's emails.
+One more reason to always use PGP/GPG, BTW.
 
-Actually, lilo completed after 5 minutes, but still only
-about halfway through the dbench.
-
-Rik
--- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+-- Pete

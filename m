@@ -1,55 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbUKBWMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbUKBWRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUKBWMG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUKBWME
+	id S262038AbUKBWRy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUKBWRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:12:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57489 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262224AbUKBWLO (ORCPT
+	Tue, 2 Nov 2004 17:17:42 -0500
+Received: from gateway.penguincomputing.com ([64.243.132.186]:34446 "EHLO
+	inside.penguincomputing.com") by vger.kernel.org with ESMTP
+	id S262265AbUKBWQ0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:11:14 -0500
-Date: Tue, 2 Nov 2004 14:10:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] PPC64 mmu_context_init needs to run earlier
-In-Reply-To: <1099432625.23845.93.camel@pants.austin.ibm.com>
-Message-ID: <Pine.LNX.4.58.0411021406010.2187@ppc970.osdl.org>
-References: <16775.5912.788675.644838@cargo.ozlabs.ibm.com> 
- <20041101221336.5f6d8534.akpm@osdl.org> <1099432625.23845.93.camel@pants.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Nov 2004 17:16:26 -0500
+X-Mda: Mail::Internet Mail::Sendmail Sendmail +mmhack 1.1 on Linux
+Cc: Greg KH <greg@kroah.com>
+User-Agent: Mutt/1.4.1i
+Subject: Re: adm1026 driver port for kernel 2.6.X - [REVISED DRIVER]
+In-Reply-To: <20041102203122.7e7a8366.khali@linux-fr.org>
+Content-Disposition: inline
+Date: Tue, 2 Nov 2004 14:17:45 -0800
+Message-Id: <20041102221745.GB18020@penguincomputing.com>
+References: <20041025210057.GB19053@penguincomputing.com>
+ <GNXY8AG6.1098776962.4770080.khali@gcu.info>
+ <20041029191229.GB803@penguincomputing.com>
+ <20041102164642.GA16378@penguincomputing.com>
+ <20041102203122.7e7a8366.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 8BIT
+From: Justin Thiessen <jthiessen@penguincomputing.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 02, 2004 at 08:31:22PM +0100, Jean Delvare wrote:
+> Hi justin,
 
+<snip>
 
-On Tue, 2 Nov 2004, Nathan Lynch wrote:
+> On a side note, MBM lists the ADM1026 as being used on only two
+> motherboard models, one being yours. Considering this and the fact that
+> nobody ever requested us to port the adm1026 driver to Linux 2.6, I
+> would conclude that the motherboard you use is possibly the only one
+> worth supporting. Do not bother with anything that you don't personally
+> need. We can still add it later on request.
+
+Ok.
+
+> Hysteresis temperatures have to be absolute temperatures as per
+> interface standard.
+
+Ok.
+
+> > temp[1-3]_auto_point2_temp        {temp[1-3]_auto_point1_temp + 20000}
 > 
-> Using idr_get_new_above in init_new_context lets us get rid of an
-> awkward init function which wasn't running early enough in boot
-> anyway.
+> I'm a bit surprised not to see temp[1-3]_auto_point[1-2]_pwm. Trip
+> points are supposed to be (temp, pwm) pairs. Doesn't pwm1_auto_pwm_min
+> above correspond to one or more of these?
 
-Ok, call me stupid, but what's the difference between
+Yes.  On its way.  I think it got lost somewhere in my reading of the 
+discussion over auto-fan interface proposals.
 
-	idr_get_new(&mmu_context_idr, NULL, &index);
+> > Failsafe critical temperatures at which the fans go to maximum speed
+> > are controled via:
+> > 
+> > temp_crit_enable       {0-1}  (off, on)
+> > temp[1-3]_crit         {-128000 - 127000}
+> 
+> Granted it's not part of the standard yet, but you would have three
+> files temp[1-3]_crit_enable if we stick to our chip-indenpendent
+> interface logic. Either make 1 read-write and [2-3] read-only, or make
+> all read-write and each one changes the three values.
 
-and
+Any reason not to simply provide 3 sysfs files pointing at the same variable/
+register bit?  Maintaining separate variables for a single, uncomplicated 
+value seems rather overkill.
 
-	idr_get_new_above(&mmu_context_idr, NULL, 0, &index);
+> > These values override any values set for the pwm-mediated automatic
+> > fan control.
+> 
+> Doesn't this mean that you could integrate these in the auto-pwm
+> interface as point3?
 
-because as far as I can tell, they are exactly the same.
+No.  It is important for this to remain seperate from the auto-pwm interface.
+It can be set to operate when PWM control is set to "manual", providing a
+useful fail-safe mechanism, or when PWM control is set to "off"  (Although 
+it should not be needed in the latter case, as in theory the fans are running 
+at full speed when PWM control is disabled.)
 
-They both just do a "idr_get_new_above_int(idp, ptr, 0)".
+Moreover, integrating it into the *auto_pointN_temp heirarchy would be
+ugly, as there is really only one set of values (temp[1-3]_auto_point1_temp)
+that can be independently changed by the end-user.  
+temp[1-3]_auto_point1_temp_hyst and temp[1-3]_auto_point2_temp are fixed in 
+hardware at positions relative to temp[1-3]_auto_point1_temp.  The function
+of temp[1-3]_crit essentially overlaps that of temp[13]_auto_point2_temp
+when both automatic PWM fan control and critical temperature monitoring
+are enabled.  Both provide temperatures at which fan speeds are ramped up
+to maximum.  This means integrating the temp[1-3]_crit function into the
+*_auto_point?_temp heirarchy would result in 2 distinct sets of files that
+determine when fan speeds are supposed to go to max.
 
-So I don't see why one would need an awkward init function, and the other
-wouldn't..
+A better way to think of it is that the temp[1-3]_crit files provide a 
+method for the end-user to set absolute "holy-cow-my-system-is-glowing"
+temperatures at which fans MUST ramp up to full speed.  It's a fail-safe
+that will kick in to try and save the system's bacon in an emergency.  As
+it operates with or without the PWM automatic fan control, it can be employed
+whether or not the end-user wants to muck about with such.
 
-That said, maybe the problem is that we shouldn't even get far enough into 
-the fork() logic to ever get into a new MMU context if driver_init ends up 
-being called before we're ready. 
+I would agree that it is a bit confusing that there are essentially 2 
+temperature-motivated mechanisms for forcing fan speeds to full (automatic
+PWM fan control, and critical temperature monitoring), but I think that the
+utility of providing a critical temperature fail-safe is worth the 
+minor amount of confusion.
 
-		Linus
+> > Thanks to all for the feedback.
+> 
+> You're welcome. Sorry to ask questions about the proposed interface
+> again, I just want things to be as clean and logical as possible.
+
+No problem.  Sorry that it's taking so much revision to get the kinks worked
+out.  This will undoubtedly become less trouble as I get more familiar with
+i2c/lm_sensors/kernel issues.
+
+Justin Thiessen
+---------------
+jthiessen@penguincomputing.com
+

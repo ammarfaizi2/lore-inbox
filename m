@@ -1,109 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261499AbSJDF3S>; Fri, 4 Oct 2002 01:29:18 -0400
+	id <S261346AbSJDFfK>; Fri, 4 Oct 2002 01:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261501AbSJDF3S>; Fri, 4 Oct 2002 01:29:18 -0400
-Received: from fc.capaccess.org ([151.200.199.53]:35590 "EHLO fc.Capaccess.org")
-	by vger.kernel.org with ESMTP id <S261499AbSJDF3R>;
-	Fri, 4 Oct 2002 01:29:17 -0400
-Message-id: <fc.0010c7b2005dd2a80010c7b2005dd2a8.5dd2c5@Capaccess.org>
-Date: Fri, 04 Oct 2002 01:34:51 -0400
-Subject: an open letter to George Soros
-To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@Capaccess.org>
-MIME-Version: 1.0
+	id <S261464AbSJDFfK>; Fri, 4 Oct 2002 01:35:10 -0400
+Received: from pony1.arc.nasa.gov ([143.232.48.201]:30988 "EHLO
+	mail.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S261346AbSJDFfJ>; Fri, 4 Oct 2002 01:35:09 -0400
+Message-Id: <200210040540.WAA09498@mail.arc.nasa.gov>
 Content-Type: text/plain; charset=US-ASCII
+From: Chad Netzer <cnetzer@mail.arc.nasa.gov>
+Reply-To: cnetzer@mail.arc.nasa.gov
+Organization: San Jose State Foundation
+To: "immortal1015" <immortal1015@hotpop.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: How to replace the network cards (kernel newbies)
+Date: Thu, 3 Oct 2002 22:39:59 -0700
+X-Mailer: KMail [version 1.3.2]
+References: <20021004045437.ABCA51B8535@smtp-2.hotpop.com>
+In-Reply-To: <20021004045437.ABCA51B8535@smtp-2.hotpop.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Hohensee
-301-595-5804
-rickh@capaccess.org
-Oct. 2, 2002
+On Thursday 03 October 2002 21:56, immortal1015 wrote:
+>
+> Thanks. But how can I do it if I have move pcnet32.c to my own place.
 
-Mr. George Soros,
+Well, you can make a copy of the existing kernel tree, and simply 
+modify things in there, then "make modules_install".  Or you can make a 
+link from the kernel tree pcnet32.c, to your own.
 
-I believe your involvement in Transmeta is utterly in conflict with your
-ideals of openness in a way that I don't believe you are aware of. The
-reasons I believe this are highly technical, and somewhat subtle, and yet
-quite striking subjectively. Microsoft, as represented by Paul Allen in
-Transmeta, would surely spend a fortune to keep Linus Torvalds on a leash.
-For technical reasons, I believe this is why Transmeta was created, and
-the real potential of an open source software revolution has so far been
-thereby prevented. Linux's success is mostly inevitable as PC hardware
-became capable of running unix. Now it is being prevented from succeeding
-further. I believe similar motives are at work at Red Hat Software, which
-has many prominent members of the Linux clique on the dole. This would
-help explain RHAT's historically bizarre IPO circus, and helps to explain
-why RHAT doesn't really comprehend unix and thinks they are Microsoft.
-They are Microsoft, who don't comprehend unix.
+If you don't have space or permissions for that, you are pretty much 
+SOL, I think. :-)
 
-Linus Torvalds consistantly favors modifications to Linux that pursue a
-server orientation. This invariably leads to tremendous added complexity.
-This also does not directly threaten what Microsoft calls "the client",
-i.e. the end-user's PC, i.e. Windows. A servers-only orientation is also a
-tiny subset of the potential of a free unix. By far the greatest possible
-benefit of a free unix (which is what Linux is) to individuals and markets
-is in direct competition with Windows. One might legitimately argue
-otherwise, but direct competition with Windows has almost completely been
-avoided, which is very strange. This is what I attempted to do, and was
-completely ostracized.
+Ok, I kid you.  Put the driver somewhere, and type something like:
 
-Whether Torvalds' love of unix's traditional server role is 100% genuine
-or not, it is a terrible disservice, and is not what George Soros
-preaches. The open source unix world, including GNU, prevents real
-effective openness with bogus complexity. In most cases, the so-called
-open source movement is as hostile to real innovation as Microsoft is.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.19/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-DMODULE  -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include 
+-DKBUILD_BASENAME=pcnet32  -c -o pcnet32.o pcnet32.c
 
-Admittedly, I am exactly the disgruntled, bitter malcontent that would
-raise such accusations. By the same token, such are the people that see
-such things. I submit my technical works, and thier utter lack of
-proliferation, for the interested reader to guage the validity of my
-accusations, and whether my bitterness is sui generis or justified.
+Or whatever the actual command is that is output for the module when 
+you build the unmodified kernel.
 
-        I have devised a preliminary compensation scheme for authors of
-        open source software based on the songwriter royalties model.
+Then copy it to  /lib/modules/2.4.19/kernel/drivers/net/, or wherever, 
+and "insmod" away.
 
-        I am the first person ever to insert a Forth-like interpreter into
-        a Linux (or any unix) kernel. This is historic, and was met with a
-        few grunts in the Linux kernel mailing list. There have since been
-        one or two other in-kernel Forths.
+-- 
 
-        I did the first syscalls-only linking library in Linux, libsys.a,
-        which I suspect may have sparked the embedded-Linux efforts.
-
-        I have devised the simplest means by far for a unix user to
-        customize thier directory structure, a very basic convenience.
-
-        I have written two better systems languages than C; osimplay and
-        H3sm.
-
-        Many other works in Linux, Forth-like languages, and
-        documentation.
-
-At this point, what Linux might have been will not spring from Linus
-Torvalds. It will therefor probably not spring from unix at all. The
-parasites have overtaken Linux, just as they did with the Commodore Amiga;
-they bought it and killed it. Microsoft and Intel absolutely had to kill
-the Amiga due to it's tremendous superiority to the PC. They packed the
-board, who then scuttled Commodore. This destructive parasitic process
-does not have to continue indefinitely, however.
-
-As an ancillary matter, but also pertinent to your investment in
-Transmeta, note that the Crusoe chip's crucial low-power characteristics
-are a pitiful joke compared to stack machines. I tried meekly to convey
-this to Torvalds before Crusoe came out.
-
-
-flames > /device/bitbucket
-
-Rick Hohensee
-
-http://linux01.gwdg.de/~rhohen
-ftp://ftp.gwdg.de/pub/linux/install/clienux/descriptive
-ftp://ftp.gwdg.de/pub/linux/install/clienux/interim/ABOUT
-
-
-
-
+Chad Netzer
+cnetzer@mail.arc.nasa.gov

@@ -1,134 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267279AbSLRSrl>; Wed, 18 Dec 2002 13:47:41 -0500
+	id <S267338AbSLRS6r>; Wed, 18 Dec 2002 13:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267315AbSLRSrl>; Wed, 18 Dec 2002 13:47:41 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13073 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267279AbSLRSrk>;
-	Wed, 18 Dec 2002 13:47:40 -0500
-Date: Wed, 18 Dec 2002 10:53:01 -0800
-From: Greg KH <greg@kroah.com>
-To: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] [PATCH] add kobject to struct mapped_device
-Message-ID: <20021218185301.GB32190@kroah.com>
-References: <20021218184307.GA32190@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021218184307.GA32190@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S267339AbSLRS6r>; Wed, 18 Dec 2002 13:58:47 -0500
+Received: from twister.ispgateway.de ([62.67.200.3]:33029 "HELO
+	twister.ispgateway.de") by vger.kernel.org with SMTP
+	id <S267338AbSLRS6p>; Wed, 18 Dec 2002 13:58:45 -0500
+Message-ID: <3E00C738.1070506@mailsammler.de>
+Date: Wed, 18 Dec 2002 20:06:32 +0100
+From: Torben Frey <kernel@mailsammler.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Horrible drive performance under concurrent i/o jobs (dlh problem?)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 10:43:07AM -0800, Greg KH wrote:
-> 
-> Here's a simple patch against 2.5.52 that adds the kobject structure to
-> struct mapped_device.
+Hi list readers (and hopefully writers),
 
-Sorry, that patch didn't apply against the latest 2.5-bk tree.  Here's
-an updated version.
+after getting crazy with our main server in the company for over a week 
+now, this list is possibly my last help - I am no kernel programmer but 
+suscpect it to be a kernel problem. Reading through the list did not 
+help me (although I already thought so, see below).
 
-thanks,
+We are running a 3ware Escalade 7850 Raid controller with 7 IBM Deskstar 
+GXP 180 disks in Raid 5 mode, so it builds a 1.11TB disk.
+There's one partition on it, /dev/sda1, formatted with Reiserfs format 
+3.6. The Board is an MSI 6501 (K7D Master) with 1GB RAM but only one 
+processor.
 
-greg k-h
+We were running the Raid smoothly while there was not much I/O - but 
+when we tried to produce large amounts of data last week, read and write 
+performance went down to inacceptable low rates. The load of the machine 
+went high up to 8,9,10... and every disk access stopped processes from 
+responding for a few seconds (nedit, ls). An "rm" of many small files 
+made the machine not react to "reboot" anymore, I had to reset it.
+
+So copied everything away to a software raid and tried all the disk 
+tuning stuff (min-, max-readahead, bdflush, elvtune). Nothing helped. 
+Last Sunday I then found a hint about a bug introduced in kernel 
+2.4.19-pre6 which could be fixed using a "dlh", disk latency hack - or 
+going back to 2.4.18. Last is what I did ( from 2.4.20 )
+
+It seemed to help in a way that I could copy about 350GB back to the 
+RAID in about 3-4 hrs overnight. So I THOUGHT everything would be fine. 
+Since Tuesday morning my collegues are trying to produce large amounts 
+of data again - and every concurrent I/O operation blocks all the 
+others. We cannot work with that.
+
+When I am working all alone on the disk creating a 1 GB file by
+time dd if=/dev/zero of=testfile bs=1G count=1
+results in real times from 14 seconds when I am very lucky up to 4 
+minutes usually.
+Watching vmstat 1 shows me that "bo" drops quickly down from rates in 
+the 10 or 20 thousands to low rates of about 2 or 3 thousands when the 
+runs take so long.
+
+Can anyone of you please tell me how can I find out if this is a kernel 
+problem or a hardware 3ware-device problem? Is there a way to see the 
+difference? Or could it come from running an SMP kernel although I have 
+only one CPU in my board?
+
+I would be very happy about every answer, really!
+
+Torben
 
 
-===== drivers/block/genhd.c 1.61 vs edited =====
---- 1.61/drivers/block/genhd.c	Wed Dec  4 16:07:17 2002
-+++ edited/drivers/block/genhd.c	Wed Dec 18 10:53:26 2002
-@@ -475,3 +475,4 @@
- EXPORT_SYMBOL(bdev_read_only);
- EXPORT_SYMBOL(set_device_ro);
- EXPORT_SYMBOL(set_disk_ro);
-+EXPORT_SYMBOL(block_subsys);
-===== drivers/md/dm.c 1.14 vs edited =====
---- 1.14/drivers/md/dm.c	Mon Dec 16 01:42:31 2002
-+++ edited/drivers/md/dm.c	Wed Dec 18 10:54:10 2002
-@@ -40,7 +40,7 @@
- 
- struct mapped_device {
- 	struct rw_semaphore lock;
--	atomic_t holders;
-+	struct kobject kobj;
- 
- 	unsigned long flags;
- 
-@@ -65,9 +65,13 @@
- 	mempool_t *io_pool;
- };
- 
-+#define to_md(obj) container_of(obj, struct mapped_device, kobj)
-+
- #define MIN_IOS 256
- static kmem_cache_t *_io_cache;
- 
-+struct subsystem dm_subsys;
-+
- static __init int local_init(void)
- {
- 	int r;
-@@ -89,6 +93,7 @@
- 	if (!_major)
- 		_major = r;
- 
-+	subsystem_register(&dm_subsys);
- 	return 0;
- }
- 
-@@ -100,7 +105,8 @@
- 		DMERR("devfs_unregister_blkdev failed");
- 
- 	_major = 0;
--
-+	subsystem_unregister(&dm_subsys);
-+	
- 	DMINFO("cleaned up");
- }
- 
-@@ -603,7 +609,8 @@
- 	DMWARN("allocating minor %d.", minor);
- 	memset(md, 0, sizeof(*md));
- 	init_rwsem(&md->lock);
--	atomic_set(&md->holders, 1);
-+	md->kobj.subsys = &dm_subsys;
-+	kobject_init(&md->kobj);
- 
- 	md->queue.queuedata = md;
- 	blk_queue_make_request(&md->queue, dm_request);
-@@ -696,17 +703,30 @@
- 
- void dm_get(struct mapped_device *md)
- {
--	atomic_inc(&md->holders);
-+	kobject_get(&md->kobj);
- }
- 
- void dm_put(struct mapped_device *md)
- {
--	if (atomic_dec_and_test(&md->holders)) {
--		DMWARN("destroying md");
--		__unbind(md);
--		free_dev(md);
--	}
-+	kobject_put(&md->kobj);
- }
-+
-+static void dm_release(struct kobject *kobj)
-+{
-+	struct mapped_device *md = to_md(kobj);
-+
-+	DMWARN("destroying md");
-+	__unbind(md);
-+	free_dev(md);
-+}
-+
-+extern struct subsystem block_subsys;
-+
-+struct subsystem dm_subsys = {
-+	.kobj		= { .name = "dm", .parent = &block_subsys.kobj },
-+	.release	= dm_release,
-+};
-+
- 
- /*
-  * Requeue the deferred bios by calling generic_make_request.

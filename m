@@ -1,123 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264563AbTCZDC2>; Tue, 25 Mar 2003 22:02:28 -0500
+	id <S264562AbTCZDBb>; Tue, 25 Mar 2003 22:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264564AbTCZDC1>; Tue, 25 Mar 2003 22:02:27 -0500
-Received: from dp.samba.org ([66.70.73.150]:11490 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264563AbTCZDCY>;
-	Tue, 25 Mar 2003 22:02:24 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: Max Krasnyansky <maxk@qualcomm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] __try_module_get()
-Date: Wed, 26 Mar 2003 14:13:19 +1100
-Message-Id: <20030326031336.419962C04D@lists.samba.org>
+	id <S264563AbTCZDBb>; Tue, 25 Mar 2003 22:01:31 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:37365 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S264562AbTCZDBa>; Tue, 25 Mar 2003 22:01:30 -0500
+Message-ID: <3E811A77.3060604@nortelnetworks.com>
+Date: Tue, 25 Mar 2003 22:11:51 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Fionn Behrens <fionn@unix-ag.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>
+Subject: Re: System time warping around real time problem - please help
+References: <1048609931.1601.49.camel@rtfm>	 <Pine.LNX.4.53.0303251152080.29361@chaos> <1048627013.2348.39.camel@rtfm>	 <3E80D4CC.4000202@mvista.com>  <1048632934.1355.12.camel@rtfm> <1048637613.29944.17.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Alan Cox wrote:
 
-	This is the "I have a reference count already, and I know the
-admin has done rmmod --wait and so *really* wants to remove the
-module, but I don't care" interface 8)
+> If you are using amd76x_pm boot with "notsc", ditto for that matter
+> on dual athlons with APM or ACPI in some cases. In fact I wish people
+> would stop using the tsc for clock timing altogether. It simply doesn't
+> work on a lot of modern systems
 
-	There are several places where handling the try_module_get()
-failure is not worth it: fs/filesystems.c is the first.
+But its awfully nice for low-impact high-resolution timestamps.
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Maybe someday hardware manufacturers will give us a monotonic GHz+ clock that is 
+synced across all cpus and is cheap to read...
 
-Name: __try_module_get
-Author: Rusty Russell
-Status: Trivial
+Chris
 
-D: Introduces __try_module_get for places where we know we already hold
-D: a reference and ignoring the fact that the module is being "rmmod --wait"ed
-D: is simpler.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22116-2.5.66-bk1-module_dup.pre/fs/filesystems.c .22116-2.5.66-bk1-module_dup/fs/filesystems.c
---- .22116-2.5.66-bk1-module_dup.pre/fs/filesystems.c	2003-03-18 12:21:38.000000000 +1100
-+++ .22116-2.5.66-bk1-module_dup/fs/filesystems.c	2003-03-26 14:11:23.000000000 +1100
-@@ -32,17 +32,7 @@ static rwlock_t file_systems_lock = RW_L
- /* WARNING: This can be used only if we _already_ own a reference */
- void get_filesystem(struct file_system_type *fs)
- {
--	if (!try_module_get(fs->owner)) {
--#ifdef CONFIG_MODULE_UNLOAD
--		unsigned int cpu = get_cpu();
--		local_inc(&fs->owner->ref[cpu].count);
--		put_cpu();
--#else
--		/* Getting filesystem while it's starting up?  We're
--                   already supposed to have a reference. */
--		BUG();
--#endif
--	}
-+	__try_module_get(fs->owner);
- }
- 
- void put_filesystem(struct file_system_type *fs)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22116-2.5.66-bk1-module_dup.pre/include/linux/module.h .22116-2.5.66-bk1-module_dup/include/linux/module.h
---- .22116-2.5.66-bk1-module_dup.pre/include/linux/module.h	2003-03-25 12:17:31.000000000 +1100
-+++ .22116-2.5.66-bk1-module_dup/include/linux/module.h	2003-03-26 14:11:23.000000000 +1100
-@@ -272,6 +272,7 @@ int module_text_address(unsigned long ad
- 
- #ifdef CONFIG_MODULE_UNLOAD
- 
-+unsigned int module_refcount(struct module *mod);
- void __symbol_put(const char *symbol);
- #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
- void symbol_put_addr(void *addr);
-@@ -282,6 +283,17 @@ void symbol_put_addr(void *addr);
- #define local_dec(x) atomic_dec(x)
- #endif
- 
-+/* Sometimes we know we already have a refcount, and it's easier not
-+   to handle the error case (which only happens with rmmod --wait). */
-+static inline void __try_module_get(struct module *module)
-+{
-+	if (module) {
-+		BUG_ON(module_refcount(module) == 0);
-+		local_inc(&module->ref[get_cpu()].count);
-+		put_cpu();
-+	}
-+}
-+
- static inline int try_module_get(struct module *module)
- {
- 	int ret = 1;
-@@ -317,6 +329,9 @@ static inline int try_module_get(struct 
- static inline void module_put(struct module *module)
- {
- }
-+static inline void __try_module_get(struct module *module)
-+{
-+}
- #define symbol_put(x) do { } while(0)
- #define symbol_put_addr(p) do { } while(0)
- 
-@@ -371,6 +386,10 @@ static inline int module_text_address(un
- #define symbol_put(x) do { } while(0)
- #define symbol_put_addr(x) do { } while(0)
- 
-+static inline void __try_module_get(struct module *module)
-+{
-+}
-+
- static inline int try_module_get(struct module *module)
- {
- 	return 1;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22116-2.5.66-bk1-module_dup.pre/kernel/module.c .22116-2.5.66-bk1-module_dup/kernel/module.c
---- .22116-2.5.66-bk1-module_dup.pre/kernel/module.c	2003-03-18 05:01:52.000000000 +1100
-+++ .22116-2.5.66-bk1-module_dup/kernel/module.c	2003-03-26 14:11:23.000000000 +1100
-@@ -374,7 +374,7 @@ static inline void restart_refcounts(voi
- }
- #endif
- 
--static unsigned int module_refcount(struct module *mod)
-+unsigned int module_refcount(struct module *mod)
- {
- 	unsigned int i, total = 0;
- 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

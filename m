@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVBSOuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVBSPHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVBSOuw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 09:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVBSOuw
+	id S261721AbVBSPHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 10:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVBSPHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 09:50:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55681 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261569AbVBSOus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 09:50:48 -0500
-Date: Sat, 19 Feb 2005 14:50:47 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [RFC: 2.6 patch] drivers/pci/: possible cleanups
-Message-ID: <20050219145047.GB455@parcelfarce.linux.theplanet.co.uk>
-References: <20050218235419.GE4337@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Feb 2005 10:07:04 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:9094 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261721AbVBSPHA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 10:07:00 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Jody McIntyre <scjody@modernduck.com>
+Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
+Date: Sat, 19 Feb 2005 10:06:20 -0500
+User-Agent: KMail/1.7.92
+Cc: Dan Dennedy <dan@dennedy.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+References: <1108740772.4588.3.camel@kino.dennedy.org> <200502181042.47404.kernel-stuff@comcast.net> <20050219063632.GE9231@conscoop.ottawa.on.ca>
+In-Reply-To: <20050219063632.GE9231@conscoop.ottawa.on.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050218235419.GE4337@stusta.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200502191006.21076.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 19, 2005 at 12:54:19AM +0100, Adrian Bunk wrote:
-> - remove the following unused functions:
->   - pci.c: pci_find_ext_capability
+On Saturday 19 February 2005 01:36 am, Jody McIntyre wrote:
+> I disagree because the impact of this bug is small.  How often do you start
+> an ISO receive?  If you think it needs to be fixed urgently, please
+> explain why - maybe I'm just missing somethnig.
+>
 
-The pcie bridge driver ought to be using this.  I haven't submitted that
-cleanup patch yet.
+I have to agree that the impact is small even for the people using ISO recv - 
+I happen to use it quite frequently and it hasn't locked up on me yet. So I 
+certainly don't need it fixed atm. It's just the "dmesg annoyance" if you 
+will, to deal with :) !
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+> I'm not sure, but I looked through the code and it seems to allocate:
+>  - 16 buffers of 2x PAGE_SIZE (= 131072 on i386)
+>  - 16 buffers of PAGE_SIZE (= 65536 on i386)
+>  - various other smaller structures.
+
+OTOH, if it allocates so much of memory while irqs disabled and holding locks, 
+isn't there a  good chance for the allocator to sleep and things to go wrong?
+
+Parag 

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270746AbRIAOPz>; Sat, 1 Sep 2001 10:15:55 -0400
+	id <S270712AbRIAO0h>; Sat, 1 Sep 2001 10:26:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270721AbRIAOPp>; Sat, 1 Sep 2001 10:15:45 -0400
-Received: from scispor.dolphinics.no ([193.71.152.117]:60174 "EHLO
-	scispor.dolphinics.no") by vger.kernel.org with ESMTP
-	id <S270712AbRIAOPk> convert rfc822-to-8bit; Sat, 1 Sep 2001 10:15:40 -0400
-Message-ID: <200109011619480531.23AA844A@scispor.dolphinics.no>
-X-Mailer: Calypso Version 3.00.03.02 (1)
-Date: Sat, 01 Sep 2001 16:19:48 +0200
-From: "Simen Thoresen" <simentt@dolphinics.no>
-To: "alan" <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Status of the VIA KT133a and 2.4.x debacle?
+	id <S270721AbRIAO00>; Sat, 1 Sep 2001 10:26:26 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:29547 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S270712AbRIAO0S>;
+	Sat, 1 Sep 2001 10:26:18 -0400
+Message-ID: <20010901162646.A22303@win.tue.nl>
+Date: Sat, 1 Sep 2001 16:26:46 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Jens Gecius <jens@gecius.de>, linux-kernel@vger.kernel.org
+Subject: Re: ide problem on 2.2.17?
+In-Reply-To: <874rqnf5hy.fsf@maniac.gecius.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <874rqnf5hy.fsf@maniac.gecius.de>; from Jens Gecius on Sat, Sep 01, 2001 at 08:41:13AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, list, et all,
+On Sat, Sep 01, 2001 at 08:41:13AM -0400, Jens Gecius wrote:
 
-I've picked up a KT133a board (EpoX 8KTA/3) and a 1.2GHz Thunderbird processor (133MHz FSB), and have seen the same problems that have been reported previously with the KT133a. Random oops'es, both fatal and non fatal, when running the system on a 2.4 kernel with CONFIG_MK7.
+> Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=538976288 sector=16843008 size=4096 count=1
+> Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=1394618400 sector=-1727954688 size=4096 count=1
+> Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=1092645985 sector=151233288 size=4096 count=1
+> Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=824210032 sector=-1996254336 size=4096 count=1
+> 
+> What is going on?? I found something for older 2.2 kernels (broken ide
+> driver), but 2.2.17?
+> 
+> Does this cause problems accessing certain files (because my apache
+> doesn't find any htpasswd-files for limited access on certain pages)?
 
-The bord seems rock solid with 2.2.x kernels, and also with 2.4.x kernels with CONFIG_M686 set for basic i686 + MMX. I've also run the board with a 100MHz FSB, but that has not improved anything. Also turning off /some/ optimizations in bios have not helped.
+ 538976288: "    "
+1394618400: " 0 S"
+1092645985: "at A"
+ 824210032: "pr 1"
 
-Currently, I'm running with a CONFIG_MK7 2.4.9 kernel, but with the Athlon-specific MMX-optimizations in arch/i386/lib/mmx.c turned off, and using the generic mmx-functions available from non-K7 processers. This seems to be working, and I've not been able to provoke a fatal crash oops, nor seen signs of non-fatal oopses.
-
-I have not determined if it is static void fast_clear_page(void *page), or  static void fast_copy_page(void *to, void *from) which is to blame here, but I will continue investigating.
-
-Does this match the results other people have had? Is anything else known about this problem?
-
-Yours,
--Simen Thoresen
---
-Simen Thoresen, Beowulf-cleaner and random artist - close and personal.
-
-Er det ikke rart?
-The gnu RART-project on http://valinor.dolphinics.no:1080/~simentt/rart
-
-
+Your buffer heads were overwritten with garbage (perhaps
+some ls output) or point at data. Bad.
+I have seen this before but forget what caused it.
+Alan will remind us.

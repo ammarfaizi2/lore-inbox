@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbTETQms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 12:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTETQms
+	id S262577AbTETQmX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 12:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTETQmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 12:42:48 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:38669 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263163AbTETQmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 12:42:46 -0400
-Date: Tue, 20 May 2003 17:55:41 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Brett <generica@email.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: CONFIG_VIDEO_SELECT stole my will to live
-In-Reply-To: <20030520155138.GA29450@suse.de>
-Message-ID: <Pine.LNX.4.44.0305201752240.28600-100000@phoenix.infradead.org>
+	Tue, 20 May 2003 12:42:23 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:24459 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262577AbTETQmX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 12:42:23 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 20 May 2003 09:54:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] futex API cleanups, futex-api-cleanup-2.5.69-A2
+In-Reply-To: <20030520014403.GA14851@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0305200947460.3636@bigblue.dev.mcafeelabs.com>
+References: <20030520010913.3300F2C05E@lists.samba.org>
+ <Pine.LNX.4.55.0305191813240.6565@bigblue.dev.mcafeelabs.com>
+ <20030520014403.GA14851@mail.jlokier.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 May 2003, Jamie Lokier wrote:
 
-> On Wed, May 21, 2003 at 12:14:50AM +1000, Brett wrote:
-> 
->  > since 2.5.67-bk5. I have been unable to boot my laptop
->  > tonight, I finally traced it back to
->  > http://linux.bkbits.net:8080/linux-2.5/cset@1.1006
-> 
-> good work.
-> 
->  > the video card is a chips and tech 65545
->  > i'd just like to know where to go from here, so that I can return to 
->  > booting with CONFIG_VIDEO_SELECT set 
-> 
-> Possibly the card's VGA BIOS has 'issues' with that call.
+> Yes, they do and it should work (I haven't tried, though).
+>
+> There is a practical problem when waiting on a futex in multiple
+> threads using epoll: you need a separate fd per waiter, rather than an
+> fd per waited-on futex.  This is because some uses of futexes depend
+> on waiters being woken in the exact order that they were queued.
 
-This is most likely the case. I just tested out the configuration he has 
-and it worked for me. I'm running vga=5 right now. For teh majority it 
-works but as usual there are some broken BIOS that cause issues. 
+Not really Jamie. See a Futex event is not much different from a network
+one. When the event shows up, one thread will pick it up (epoll_wait) and
+will handle it. A futex event will very likely be a green light for some
+sort of resource usage that whatever thread can pick up and handle.
 
-> Wasn't the EDID stuff getting backed out anyways ?
 
-Only in the VESA driver. Some people did have luck with the BIOS EDID info 
-so I like to keep the BIOS call in there. 
+
+- Davide
 

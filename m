@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264335AbUFKTGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUFKTKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbUFKTGt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 15:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbUFKTGt
+	id S264305AbUFKTKM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 15:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbUFKTKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 15:06:49 -0400
-Received: from smtp.golden.net ([199.166.210.31]:48145 "EHLO smtp.golden.net")
-	by vger.kernel.org with ESMTP id S264308AbUFKTGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 15:06:46 -0400
-Date: Fri, 11 Jun 2004 15:06:39 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [4/12]
-Message-ID: <20040611190639.GC12953@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Russell King <rmk@arm.linux.org.uk>
-References: <200406111755.02325.bzolnier@elka.pw.edu.pl> <20040611181106.GB12953@linux-sh.org> <200406112047.58373.bzolnier@elka.pw.edu.pl>
+	Fri, 11 Jun 2004 15:10:12 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:39628 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264305AbUFKTKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 15:10:07 -0400
+To: <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: =?iso-8859-1?Q?Re:_[PATCH]_sparse:___user_annotations_for_ipc_compat_code?=
+From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
+Cc: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>,
+       =?iso-8859-1?Q?Andrew_Morton?= <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Message-Id: <26879984$108698065040ca022a55e329.53154070@config18.schlund.de>
+X-Binford: 6100 (more power)
+X-Originating-From: 26879984
+X-Mailer: Webmail
+X-Routing: DE
+Content-Type: text/plain; charset=US-ASCII
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/e2eDi0V/xtL+Mc8"
-Content-Disposition: inline
-In-Reply-To: <200406112047.58373.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Date: Fri, 11 Jun 2004 21:10:01 +0200
+X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.145
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---/e2eDi0V/xtL+Mc8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+viro@parcelfarce.linux.theplanet.co.uk schrieb am 11.06.2004, 20:31:20:
+> On Fri, Jun 11, 2004 at 05:27:30PM +0200, Arnd Bergmann wrote:
 
-On Fri, Jun 11, 2004 at 08:47:58PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > sh will be making use of this as well for multiple drivers. Obviously we
-> > can make this local to each driver though if that's going to be the
-> > preferred approach.
->=20
-> Currently it is used only by icside for storing DMA number
-> from struct expansion_card.  What is the usage pattern on sh?
->=20
-It's used for the DMA channel number, or NO_DMA for falling back on PIO.
+> >  	old_fs = get_fs();
+> >  	set_fs(KERNEL_DS);
+> > -	err = sys_msgsnd(first, p, second, third);
+> > +	err = sys_msgsnd(first, (struct msgbuf __user *)p, second, third);
+> >  	set_fs(old_fs);
+> 
+> Again, makes no sense whatsoever (we _still_ get a warning and clear fix
+> would be to get rid of set_fs() here and switch to compat_alloc_user_space()).
+> 
+> Same goes for the rest of patch.
+> 
+> Folks, warnings are not personal performance metrics, they are tools for
+> finding bogus code.  Sigh...
 
+Ok, makes sense. I thought it was ok after I saw the same thing
+done for kernel/compat.c in
 
---/e2eDi0V/xtL+Mc8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+http://linux.bkbits.net:8080/linux-2.5/gnupatch@40c10d10xahL03pX3RX14VzG8Qh1mw
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAygK/1K+teJFxZ9wRAo5/AJ9d4y1zuog97m4ciypCQ+KklQpHlwCeItLz
-Np+jqgKo6t6QveIxDfnxTkw=
-=5cl0
------END PGP SIGNATURE-----
-
---/e2eDi0V/xtL+Mc8--
+      Arnd <><

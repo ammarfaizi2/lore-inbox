@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129661AbQKIIjd>; Thu, 9 Nov 2000 03:39:33 -0500
+	id <S129213AbQKIInx>; Thu, 9 Nov 2000 03:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129667AbQKIIjX>; Thu, 9 Nov 2000 03:39:23 -0500
-Received: from cassis.axialys.net ([195.115.102.11]:14091 "EHLO
-	cassis.axialys.net") by vger.kernel.org with ESMTP
-	id <S129661AbQKIIjE>; Thu, 9 Nov 2000 03:39:04 -0500
-Date: Wed, 8 Nov 2000 21:21:02 +0100
-From: Simon Huggins <huggie-lk@earth.li>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: PCMCIA versioning...
-Message-ID: <20001108212102.B1032@paranoidfreak.freeserve.co.uk>
-Mail-Followup-To: Simon Huggins <huggie-lk@earth.li>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A06757F.3C63F1A8@linux.com> <20001106104927.A19573@valinux.com> <3A073C8D.B6511746@linux.com> <20001106154039.A19860@valinux.com>
+	id <S129371AbQKIIno>; Thu, 9 Nov 2000 03:43:44 -0500
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:33965 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S129213AbQKIIn1>; Thu, 9 Nov 2000 03:43:27 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Christoph Rohland <cr@sap.com>
+cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Message-ID: <80256992.002FE358.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Thu, 9 Nov 2000 07:43:09 +0000
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001106154039.A19860@valinux.com>; from dhinds@valinux.com on Mon, Nov 06, 2000 at 03:40:39PM -0800
-Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
-X-Attribution: huggie
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2000 at 03:40:39PM -0800, David Hinds wrote:
-> [..]  I would need to know what kernel versions and what PCMCIA driver
-> versions were involved. [..]
 
-Is there actually a way to work out what version of userspace utilities
-you are using?
 
-I read Changes and it tells me that I need pcmcia-cs 3.1.21 (for
-test10-final).  It also tells me I can find out the version using
-cardmgr -V.
-Yet whenever I build the pcmcia utils it grabs the version from
-the kernel tree (include/pcmcia/version.h) and not from the file under
-pcmcia-3.1.21 (in config.mk kernel is before local include dir).
+Let be clear about one thing: the GKHI make no statement about enabling
+proprietary extensions and that's a common misconception. GKHI is intended
+to make optional facilities easier to co-install and change. We designed it
+for DProbes, and when modularised will remain a GPL opensource offering.
 
-Hence the bizarre result:
-[huggie@langly /usr/src]$ pcmcia-cs-3.1.21/cardmgr/cardmgr -V
-cardmgr version 3.1.22
+The only motivation for providing GKHI is to make the kernel more
+acceptable to the enterprise customer, but allowing, for example, RAS
+capabilities to be brough in easily and dynmaically. This type of customer
+will not readily succome to on-the-fly kernel rebuilds to diagnose problems
+that occur only in complex production environments.
 
-(kernel's version.h is 3.1.22).
+If anything opens the door to proprietary extensions it's the loadable
+kernel modules capability or perhaps the loose wording of the GPL which
+doesn't catch loadable kernel modules, or whatever... Bottom line GKHI
+really has no bearing on this.
 
-Um, is this normal, good, right and proper?
-Does the version in Changes really mean "you should recompile
-{cardmgr,cardctl} with each kernel"?
 
-[ I'm using the kernel's pcmcia modules ]
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
 
--- 
-----------(  "Have you seen a man who's lost his luggage?"   )----------
-----------(                   -- Suitcase                    )----------
-Simon ----(                                                  )---- Nomis
-                             Htag.pl 0.0.17
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
+Christoph Rohland <cr@sap.com> on 09/11/2000 07:44:11
+
+Please respond to Christoph Rohland <cr@sap.com>
+
+To:   Michael Rothwell <rothwell@holly-springs.nc.us>
+cc:   Richard J Moore/UK/IBM@IBMGB, linux-kernel@vger.kernel.org
+Subject:  Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+
+
+
+
+Hi Michael,
+
+On Wed, 08 Nov 2000, Michael Rothwell wrote:
+> Sounds great; unfortunately, the core group has spoken out against a
+> modular kernel.
+>
+> Perhaps IBM should get together with SGI, HP and other interested
+> parties and start an Advanced Linux Kernel Project. Then they can
+> run off and make their scalable, modular, enterprise kernel and the
+> Linus Version can always merge back in features from it.
+
+*Are you crazy?* =:-0
+
+Proposing proprietary kernel extensions to establish an enterprise
+kernel? No thanks!
+
+Greetings
+          Christoph
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

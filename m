@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262578AbSI0TGC>; Fri, 27 Sep 2002 15:06:02 -0400
+	id <S262576AbSI0TBm>; Fri, 27 Sep 2002 15:01:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262581AbSI0TGC>; Fri, 27 Sep 2002 15:06:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54030 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262578AbSI0TGB>;
-	Fri, 27 Sep 2002 15:06:01 -0400
-Message-ID: <3D94AD35.4050505@pobox.com>
-Date: Fri, 27 Sep 2002 15:10:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262591AbSI0TBm>; Fri, 27 Sep 2002 15:01:42 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:27825 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262576AbSI0TBl>;
+	Fri, 27 Sep 2002 15:01:41 -0400
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.23
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF820EAC47.8CA1410E-ON85256C41.005D787F@pok.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 27 Sep 2002 14:06:53 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 09/27/2002 03:06:54 PM
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@sgi.com>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][5th RESENT] backport 2.5 inode allocation changes
-References: <20020927212707.B4733@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> It allows to break worst-offenders like NFS out of the big inode union
-> and make VM balancing better by wasting less ram for inodes.  It also
-> speedups filesystems that don't want to touch that union in struct
-> inode, like JFS, XFS or FreeVxFS (once switched over).  It is a straight
-> backport from Al's code in 2.5 and has proven stable in Red Hat's
-> recent beta releases (limbo, null).  Al has ACKed my patch submission.
-> 
-> Credits go to Daniel Phillips for the initial design.
-> 
-> NOTE: you want my b_inode removal patch applied before this one.
+Release 1.0.23 of JFS was made available today.
+
+Drop 61 on September 27, 2002 (jfs-2.4-1.0.23.tar.gz
+and jfsutils-1.0.23.tar.gz) includes fixes to the file
+system and utilities.
+
+Utilities changes
+
+- print fsck.jfs start timestamp correctly in fsck.jfs log
+- allow xchklog to run on a JFS file system with an external journal
+- initialize program name in logdump properly
+- code cleanup
 
 
-IMO this patch (and b_inode before it) look ok...
 
-but I have a feeling we will have a public disagreement over actually 
-shrinking the size of the inode struct...  [but this patch does not do 
-that, so IMO it's fine]
+File System changes
+
+- Detect and fix invalid directory index values
+   The directory index values are the unique cookies used to resume
+   a readdir at the proper place. These are stored with each entry
+   in a directory. fsck.jfs does not currently validate these entries,
+   nor even create them when populating the lost+found directory.
+   This fix causes readdir to detect the invalid cookies, and generate
+   new ones, if possible.
+- Fix problems with NFS
+   Don't complain when read_inode is called with a deleted inode. This
+   is normally done by revalidate.
+   readdir: Don't hold metadata page while calling filldir(). NFS's
+   filldir may call lookup() which could result in a hang.
+- Fix off-by-one error in dbNextAG
+   In certain situations, dbNextAG set db_agpref to db_numag, is
+   one higher than the last valid value. This will eventually result
+   in a trap.
+- Avoid parallel allocations within the same allocation group
+   When large files are writing in parallel, allocating the space for
+   these files within the same allocation group can cause severe
+   fragmentation of the files. By keeping track of open, growing files
+   within an allocation group, we can force other new allocations into
+   a different allocation group to avoid causing fragmentation.
+- Fix test in lmLogFileSystem
+- Remove assert(i < MAX_ACTIVE) when the external log can't be found.
+- Remove excessive typedefs
+
+For more details about JFS, please see the patch instructions or
+changelog.jfs files.
+
+
+Steve Best
+Linux Technology Center
+JFS for Linux http://oss.software.ibm.com/jfs
+
+
+
 

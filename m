@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315427AbSHXJE1>; Sat, 24 Aug 2002 05:04:27 -0400
+	id <S315430AbSHXJJ5>; Sat, 24 Aug 2002 05:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSHXJE1>; Sat, 24 Aug 2002 05:04:27 -0400
-Received: from AMarseille-201-1-2-125.abo.wanadoo.fr ([193.253.217.125]:6000
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S315427AbSHXJE0>; Sat, 24 Aug 2002 05:04:26 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-Date: Sat, 24 Aug 2002 02:19:19 +0200
-Message-Id: <20020824001919.9768@192.168.4.1>
-In-Reply-To: <3D66E944.9080507@mandrakesoft.com>
-References: <3D66E944.9080507@mandrakesoft.com>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S315437AbSHXJJ5>; Sat, 24 Aug 2002 05:09:57 -0400
+Received: from elixir.e.kth.se ([130.237.48.5]:64519 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S315430AbSHXJJ4>;
+	Sat, 24 Aug 2002 05:09:56 -0400
+To: barrie_spence@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 - Promise TX2 Ultra133 (pdc20269) sticks at UDMA33
+References: <C12D24916888D311BC790090275414BB0B724742@oberon.britain.agilent.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 24 Aug 2002 11:14:05 +0200
+In-Reply-To: barrie_spence@agilent.com's message of "Fri, 23 Aug 2002 15:20:11 +0200"
+Message-ID: <yw1xvg60liua.fsf@storstrut.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Well... x86 PCs with ordinary BIOSes did. Other firmwares,
->> embedded devices, whatever.... may not, or eventually the firmware
->> will have reset everything prior to booting the kernel (go figure
->> why, but that happens).
->> 
->> It's not difficult nor harmful to wait for that dawn busy bit to
->> go away, so why not do it ?
->
->
->Basically think about the consequences of trying to handle a completely 
->unknown state -- if you are going to attempt to handle this you would 
->need to check for data, not just the BSY bit.  And read the data into a 
->throwaway buffer, if there is data to be read, or write the data it's 
->expecting.
->
->So it's not just the busy bit :)
+barrie_spence@agilent.com writes:
 
-But are we dealing with completely unknown states ? That's not
-what I'm saying. We are dealing with:
+> I'm running 2.4.19 with a Promise TX2 Ultra133, but even though the
+> card BIOS reports UDMA mode 5/6 on the drives, they are reported as
+> UDMA33 by the kernel.
+> 
+> Trying hdparm -X69 after boot gives the message "Speed warnings UDMA
+> 3/4/5 is not functional."
 
- - Hotswap in (pcmcia, ...)
- - Firmware that don't wait after reset
- - Interfaces (like ide-pmac) that hard reset the disk
- - no POST code (power-on reset)
+I was waiting for this.  As I have pointed out several times before,
+there needs to be added a line
 
-A completely unknown state doesn't work today and I don't think
-we should really care about it. If an arch wants to deal with
-such a state (which is +/- the  case of ide-pmac when booting
-from MacOS), then that arch has to do the specifics of dealing
-with that (in ide-pmac case, tggling the hard reset line of
-the drive).
+    hwif->udma_four = 1;
 
-So I still think it would make sense to wait. Now, what I
-suggested to Andre on IRC is that we could eventually make
-that wait conditional on some HWIF flag set by the arch
-(or rather the HBA driver) if you really don't want to do it in
-the generic case.
+at the appropriate place in pdc202xx.c.  I don't know where it should
+be, so I can't write a patch.
 
-Ben.
-
+-- 
+Måns Rullgård
+mru@users.sf.net

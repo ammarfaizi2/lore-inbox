@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272392AbTGaF1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 01:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272397AbTGaF1S
+	id S272388AbTGaFZf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 01:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272395AbTGaFZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 01:27:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272392AbTGaF1P (ORCPT
+	Thu, 31 Jul 2003 01:25:35 -0400
+Received: from vitelus.com ([64.81.243.207]:38875 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S272396AbTGaFZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 01:27:15 -0400
-Date: Wed, 30 Jul 2003 22:28:10 -0700
-From: Dave Olien <dmo@osdl.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sparse function pointer arguments now accept void pointers
-Message-ID: <20030731052810.GA2853@osdl.org>
+	Thu, 31 Jul 2003 01:25:29 -0400
+Date: Wed, 30 Jul 2003 22:22:44 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: linux-kernel@vger.kernel.org
+Subject: IDE errors with HPT302
+Message-ID: <20030731052244.GB30855@vitelus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In a box, we have a HPT302 IDE card, sharing an IRQ with the 3c905C
+Ethernet card:
 
-This patch eliminates warnings of the form:
+HPT302: IDE controller at PCI slot 00:09.0
+PCI: Found IRQ 11 for device 00:09.0
+PCI: Sharing IRQ 11 with 00:0f.0
+HPT302: chipset revision 1
+HPT302: not 100% native mode: will probe irqs later
+HPT37X: using 33MHz PCI clock
+    ide2: BM-DMA at 0xb400-0xb407, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xb408-0xb40f, BIOS settings: hdg:pio, hdh:pio
 
-	incorrect type in argument 1 (different base types)
+There is also a HPT370 in the system and a PIIX4.
 
-from code of the form:
+Here are the errors, which make the card unusable:
 
-#define VPTR	((void *)1)
+Partition check:
+ hda: hda1 hda2 < hda5 >
+ hde:<4>hde: dma_timer_expiry: dma status == 0x61
+hde: error waiting for DMA
+hde: dma timeout retry: status=0x58 { DriveReady SeekComplete DataRequest }
 
-void f( int (g)(void))
-{
-}
+hde: status timeout: status=0xd0 { Busy }
 
-int
-main(void)
-{
-	f(VPTR);
-	f(0);
-}
+hdf: DMA disabled
+hde: drive not ready for command
+ide2: reset: success
+blk: queue c02d1ff8, I/O limit 4095Mb (mask 0xffffffff)
+ hde1
+ hdf: unknown partition table
+ hdg:<4>hdg: dma_timer_expiry: dma status == 0x01
+hdg: error waiting for DMA
+hdg: dma timeout retry: status=0x58 { DriveReady SeekComplete DataRequest }
 
---- sparse_original/evaluate.c	2003-07-29 14:13:09.000000000 -0700
-+++ sparse_patch/evaluate.c	2003-07-30 18:14:25.000000000 -0700
-@@ -647,7 +653,7 @@
- 		t = t->ctype.base_type;
- 		target_as |= t->ctype.as;
- 	}
--	if (t->type == SYM_PTR) {
-+	if (t->type == SYM_PTR || t->type == SYM_FN) {
- 		struct expression *right = *rp;
- 		struct symbol *s = source;
- 		int source_as;
+blk: queue c02d2464, I/O limit 4095Mb (mask 0xffffffff)
+ unknown partition table
+ hdh:<4>hdh: dma_timer_expiry: dma status == 0x21
+hdh: error waiting for DMA
+hdh: dma timeout retry: status=0x58 { DriveReady SeekComplete DataRequest }
+
+I'm assuming this is a driver issue since it happens with all 4 of the
+drives. This happens with 2.4.21 and 2.4.22-pre9. Anyone had similar
+experiences?

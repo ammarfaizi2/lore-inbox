@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315952AbSEGT1f>; Tue, 7 May 2002 15:27:35 -0400
+	id <S315955AbSEGTav>; Tue, 7 May 2002 15:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315953AbSEGT1e>; Tue, 7 May 2002 15:27:34 -0400
-Received: from pc132.utati.net ([216.143.22.132]:28063 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S315952AbSEGT1c>; Tue, 7 May 2002 15:27:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Lars Marowsky-Bree <lmb@suse.de>, Jeff Dike <jdike@karaya.com>
-Subject: Re: [uml-devel] Re: UML is now self-hosting!
-Date: Tue, 7 May 2002 09:29:04 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-In-Reply-To: <20020506181427.K918@marowsky-bree.de> <200205062055.PAA04067@ccure.karaya.com> <20020507182620.U2539@marowsky-bree.de>
+	id <S315956AbSEGTau>; Tue, 7 May 2002 15:30:50 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27141 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315955AbSEGTat>; Tue, 7 May 2002 15:30:49 -0400
+Subject: Re: Memory Barrier Definitions
+To: engebret@vnet.ibm.com (Dave Engebretsen)
+Date: Tue, 7 May 2002 20:49:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CD825E4.6950ED92@vnet.ibm.com> from "Dave Engebretsen" at May 07, 2002 02:07:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020507195147.4A3DD749@merlin.webofficenow.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175AyE-0008NR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 May 2002 12:26 pm, Lars Marowsky-Bree wrote:
+> A solution was pointed out by Rusty Russell that we should probabily be
+> using smp_*mb() for system memory ordering and reserve the *mb() calls
 
-> > This machine thinks it's a normal SMP box, so scheduling happens as
-> > normal
->
-> Ugh ugh ugh. Too many page faults; you need a scheduler capable of keeping
-> node affinity.
+For pure compiler level ordering we have barrier()
 
-O(1)?
+Alan
+ 
 
-Thought it did.  Might have to teach the load balancer to be a bit more 
-clever...
-
-Rob

@@ -1,156 +1,388 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVBXGSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVBXGXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVBXGSv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 01:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVBXGSp
+	id S261849AbVBXGXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 01:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVBXGVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 01:18:45 -0500
-Received: from smtp819.mail.sc5.yahoo.com ([66.163.170.5]:58286 "HELO
+	Thu, 24 Feb 2005 01:21:51 -0500
+Received: from smtp819.mail.sc5.yahoo.com ([66.163.170.5]:59054 "HELO
 	smtp819.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261835AbVBXGOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 01:14:47 -0500
+	id S261840AbVBXGOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 01:14:48 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/5] I8K - switch to seq_file
-Date: Thu, 24 Feb 2005 01:12:54 -0500
+Subject: [PATCH 4/5] I8K - switch to module_{init|exit}
+Date: Thu, 24 Feb 2005 01:14:02 -0500
 User-Agent: KMail/1.7.2
 Cc: Massimo Dal Zotto <dz@debian.org>
-References: <200502240110.16521.dtor_core@ameritech.net> <200502240111.20074.dtor_core@ameritech.net> <200502240112.02062.dtor_core@ameritech.net>
-In-Reply-To: <200502240112.02062.dtor_core@ameritech.net>
+References: <200502240110.16521.dtor_core@ameritech.net> <200502240112.02062.dtor_core@ameritech.net> <200502240112.56523.dtor_core@ameritech.net>
+In-Reply-To: <200502240112.56523.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502240112.56523.dtor_core@ameritech.net>
+Message-Id: <200502240114.04067.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
-I8K: Change proc code to use seq_file.
+I8K: use module_{init|exit} instead of old style #ifdef MODULE
+     code, some formatting changes.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- i8k.c |   64 ++++++++++++++++++++++------------------------------------------
- 1 files changed, 22 insertions(+), 42 deletions(-)
+ i8k.c  |  149 ++++++++++++++++++++---------------------------------------------
+ misc.c |    4 -
+ 2 files changed, 47 insertions(+), 106 deletions(-)
 
+Index: dtor/drivers/char/misc.c
+===================================================================
+--- dtor.orig/drivers/char/misc.c
++++ dtor/drivers/char/misc.c
+@@ -67,7 +67,6 @@ extern int rtc_DP8570A_init(void);
+ extern int rtc_MK48T08_init(void);
+ extern int pmu_device_init(void);
+ extern int tosh_init(void);
+-extern int i8k_init(void);
+ 
+ #ifdef CONFIG_PROC_FS
+ static void *misc_seq_start(struct seq_file *seq, loff_t *pos)
+@@ -317,9 +316,6 @@ static int __init misc_init(void)
+ #ifdef CONFIG_TOSHIBA
+ 	tosh_init();
+ #endif
+-#ifdef CONFIG_I8K
+-	i8k_init();
+-#endif
+ 	if (register_chrdev(MISC_MAJOR,"misc",&misc_fops)) {
+ 		printk("unable to get major %d for misc devices\n",
+ 		       MISC_MAJOR);
 Index: dtor/drivers/char/i8k.c
 ===================================================================
 --- dtor.orig/drivers/char/i8k.c
 +++ dtor/drivers/char/i8k.c
-@@ -20,13 +20,14 @@
- #include <linux/types.h>
- #include <linux/init.h>
- #include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
- #include <linux/dmi.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
- 
- #include <linux/i8k.h>
- 
--#define I8K_VERSION		"1.13 14/05/2002"
-+#define I8K_VERSION		"1.14 21/02/2005"
- 
- #define I8K_SMM_FN_STATUS	0x0025
- #define I8K_SMM_POWER_STATUS	0x0069
-@@ -74,13 +75,16 @@ static int power_status;
- module_param(power_status, bool, 0600);
- MODULE_PARM_DESC(power_status, "Report power status in /proc/i8k");
- 
--static ssize_t i8k_read(struct file *, char __user *, size_t, loff_t *);
-+static int i8k_open_fs(struct inode *inode, struct file *file);
- static int i8k_ioctl(struct inode *, struct file *, unsigned int,
- 		     unsigned long);
- 
- static struct file_operations i8k_fops = {
--	.read = i8k_read,
--	.ioctl = i8k_ioctl,
-+	.open		= i8k_open_fs,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= single_release,
-+	.ioctl		= i8k_ioctl,
+@@ -87,14 +87,14 @@ static struct file_operations i8k_fops =
+ 	.ioctl		= i8k_ioctl,
  };
  
- typedef struct {
-@@ -400,9 +404,9 @@ static int i8k_ioctl(struct inode *ip, s
+-typedef struct {
++struct smm_regs {
+ 	unsigned int eax;
+ 	unsigned int ebx __attribute__ ((packed));
+ 	unsigned int ecx __attribute__ ((packed));
+ 	unsigned int edx __attribute__ ((packed));
+ 	unsigned int esi __attribute__ ((packed));
+ 	unsigned int edi __attribute__ ((packed));
+-} SMMRegisters;
++};
+ 
+ static inline char *i8k_get_dmi_data(int field)
+ {
+@@ -104,7 +104,7 @@ static inline char *i8k_get_dmi_data(int
  /*
-  * Print the information for /proc/i8k.
+  * Call the System Management Mode BIOS. Code provided by Jonathan Buzzard.
   */
--static int i8k_get_info(char *buffer, char **start, off_t fpos, int length)
-+static int i8k_proc_show(struct seq_file *seq, void *offset)
+-static int i8k_smm(SMMRegisters * regs)
++static int i8k_smm(struct smm_regs *regs)
  {
--	int n, fn_key, cpu_temp, ac_power;
-+	int fn_key, cpu_temp, ac_power;
- 	int left_fan, right_fan, left_speed, right_speed;
+ 	int rc;
+ 	int eax = regs->eax;
+@@ -134,9 +134,8 @@ static int i8k_smm(SMMRegisters * regs)
+ 	    :    "a"(regs)
+ 	    :    "%ebx", "%ecx", "%edx", "%esi", "%edi", "memory");
  
- 	cpu_temp	= i8k_get_cpu_temp();			/* 11100 ??s */
-@@ -431,42 +435,18 @@ static int i8k_get_info(char *buffer, ch
- 	 * 9)  AC power
- 	 * 10) Fn Key status
- 	 */
--	n = sprintf(buffer, "%s %s %s %d %d %d %d %d %d %d\n",
--		    I8K_PROC_FMT,
--		    bios_version,
--		    dmi_get_system_info(DMI_PRODUCT_SERIAL) ? : "N/A",
--		    cpu_temp,
--		    left_fan, right_fan, left_speed, right_speed,
--		    ac_power, fn_key);
+-	if ((rc != 0) || ((regs->eax & 0xffff) == 0xffff) || (regs->eax == eax)) {
++	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
+ 		return -EINVAL;
+-	}
+ 
+ 	return 0;
+ }
+@@ -147,15 +146,9 @@ static int i8k_smm(SMMRegisters * regs)
+  */
+ static int i8k_get_bios_version(void)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
+-	int rc;
 -
--	return n;
-+	return seq_printf(seq, "%s %s %s %d %d %d %d %d %d %d\n",
-+			  I8K_PROC_FMT,
-+			  bios_version,
-+			  dmi_get_system_info(DMI_PRODUCT_SERIAL) ? : "N/A",
-+			  cpu_temp,
-+			  left_fan, right_fan, left_speed, right_speed,
-+			  ac_power, fn_key);
+-	regs.eax = I8K_SMM_BIOS_VERSION;
+-	if ((rc = i8k_smm(&regs)) < 0) {
+-		return rc;
+-	}
++	struct smm_regs regs = { .eax = I8K_SMM_BIOS_VERSION, };
+ 
+-	return regs.eax;
++	return i8k_smm(&regs) < 0 ? : regs.eax;
  }
  
--static ssize_t i8k_read(struct file *f, char __user * buffer, size_t len,
--			loff_t * fpos)
-+static int i8k_open_fs(struct inode *inode, struct file *file)
+ /*
+@@ -163,13 +156,11 @@ static int i8k_get_bios_version(void)
+  */
+ static int i8k_get_fn_status(void)
  {
--	int n;
--	char info[128];
--
--	n = i8k_get_info(info, NULL, 0, 128);
--	if (n <= 0) {
--		return n;
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
++	struct smm_regs regs = { .eax = I8K_SMM_FN_STATUS, };
+ 	int rc;
+ 
+-	regs.eax = I8K_SMM_FN_STATUS;
+-	if ((rc = i8k_smm(&regs)) < 0) {
++	if ((rc = i8k_smm(&regs)) < 0)
+ 		return rc;
 -	}
--
--	if (*fpos >= n) {
--		return 0;
+ 
+ 	switch ((regs.eax >> I8K_FN_SHIFT) & I8K_FN_MASK) {
+ 	case I8K_FN_UP:
+@@ -188,20 +179,13 @@ static int i8k_get_fn_status(void)
+  */
+ static int i8k_get_power_status(void)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
++	struct smm_regs regs = { .eax = I8K_SMM_POWER_STATUS, };
+ 	int rc;
+ 
+-	regs.eax = I8K_SMM_POWER_STATUS;
+-	if ((rc = i8k_smm(&regs)) < 0) {
++	if ((rc = i8k_smm(&regs)) < 0)
+ 		return rc;
 -	}
--
--	if ((*fpos + len) >= n) {
--		len = n - *fpos;
+ 
+-	switch (regs.eax & 0xff) {
+-	case I8K_POWER_AC:
+-		return I8K_AC;
+-	default:
+-		return I8K_BATTERY;
 -	}
--
--	if (copy_to_user(buffer, info, len) != 0) {
--		return -EFAULT;
--	}
--
--	*fpos += len;
--	return len;
-+	return single_open(file, i8k_proc_show, NULL);
++	return (regs.eax & 0xff) == I8K_POWER_AC ? I8K_AC : I8K_BATTERY;
  }
  
- static struct dmi_system_id __initdata i8k_dmi_table[] = {
-@@ -562,10 +542,10 @@ int __init i8k_init(void)
- 		return -ENODEV;
+ /*
+@@ -209,16 +193,10 @@ static int i8k_get_power_status(void)
+  */
+ static int i8k_get_fan_status(int fan)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
+-	int rc;
++	struct smm_regs regs = { .eax = I8K_SMM_GET_FAN, };
  
- 	/* Register the proc entry */
--	proc_i8k = create_proc_info_entry("i8k", 0, NULL, i8k_get_info);
--	if (!proc_i8k) {
-+	proc_i8k = create_proc_entry("i8k", 0, NULL);
-+	if (!proc_i8k)
- 		return -ENOENT;
+-	regs.eax = I8K_SMM_GET_FAN;
+ 	regs.ebx = fan & 0xff;
+-	if ((rc = i8k_smm(&regs)) < 0) {
+-		return rc;
+-	}
+-
+-	return (regs.eax & 0xff);
++	return i8k_smm(&regs) < 0 ? : regs.eax & 0xff;
+ }
+ 
+ /*
+@@ -226,16 +204,10 @@ static int i8k_get_fan_status(int fan)
+  */
+ static int i8k_get_fan_speed(int fan)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
+-	int rc;
++	struct smm_regs regs = { .eax = I8K_SMM_GET_SPEED, };
+ 
+-	regs.eax = I8K_SMM_GET_SPEED;
+ 	regs.ebx = fan & 0xff;
+-	if ((rc = i8k_smm(&regs)) < 0) {
+-		return rc;
+-	}
+-
+-	return (regs.eax & 0xffff) * I8K_FAN_MULT;
++	return i8k_smm(&regs) < 0 ? : (regs.eax & 0xffff) * I8K_FAN_MULT;
+ }
+ 
+ /*
+@@ -243,18 +215,12 @@ static int i8k_get_fan_speed(int fan)
+  */
+ static int i8k_set_fan(int fan, int speed)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
+-	int rc;
++	struct smm_regs regs = { .eax = I8K_SMM_SET_FAN, };
+ 
+ 	speed = (speed < 0) ? 0 : ((speed > I8K_FAN_MAX) ? I8K_FAN_MAX : speed);
+-
+-	regs.eax = I8K_SMM_SET_FAN;
+ 	regs.ebx = (fan & 0xff) | (speed << 8);
+-	if ((rc = i8k_smm(&regs)) < 0) {
+-		return rc;
+-	}
+ 
+-	return (i8k_get_fan_status(fan));
++	return i8k_smm(&regs) < 0 ? : i8k_get_fan_status(fan);
+ }
+ 
+ /*
+@@ -262,18 +228,17 @@ static int i8k_set_fan(int fan, int spee
+  */
+ static int i8k_get_cpu_temp(void)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
++	struct smm_regs regs = { .eax = I8K_SMM_GET_TEMP, };
+ 	int rc;
+ 	int temp;
+ 
+ #ifdef I8K_TEMPERATURE_BUG
+-	static int prev = 0;
++	static int prev;
+ #endif
+ 
+-	regs.eax = I8K_SMM_GET_TEMP;
+-	if ((rc = i8k_smm(&regs)) < 0) {
++	if ((rc = i8k_smm(&regs)) < 0)
+ 		return rc;
 -	}
 +
- 	proc_i8k->proc_fops = &i8k_fops;
- 	proc_i8k->owner = THIS_MODULE;
+ 	temp = regs.eax & 0xff;
  
+ #ifdef I8K_TEMPERATURE_BUG
+@@ -297,19 +262,13 @@ static int i8k_get_cpu_temp(void)
+ 
+ static int i8k_get_dell_signature(void)
+ {
+-	SMMRegisters regs = { 0, 0, 0, 0, 0, 0 };
++	struct smm_regs regs = { .eax = I8K_SMM_GET_DELL_SIG, };
+ 	int rc;
+ 
+-	regs.eax = I8K_SMM_GET_DELL_SIG;
+-	if ((rc = i8k_smm(&regs)) < 0) {
++	if ((rc = i8k_smm(&regs)) < 0)
+ 		return rc;
+-	}
+ 
+-	if ((regs.eax == 1145651527) && (regs.edx == 1145392204)) {
+-		return 0;
+-	} else {
+-		return -1;
+-	}
++	return regs.eax == 1145651527 && regs.edx == 1145392204 ? 0 : -1;
+ }
+ 
+ static int i8k_ioctl(struct inode *ip, struct file *fp, unsigned int cmd,
+@@ -346,29 +305,29 @@ static int i8k_ioctl(struct inode *ip, s
+ 		break;
+ 
+ 	case I8K_GET_SPEED:
+-		if (copy_from_user(&val, argp, sizeof(int))) {
++		if (copy_from_user(&val, argp, sizeof(int)))
+ 			return -EFAULT;
+-		}
++
+ 		val = i8k_get_fan_speed(val);
+ 		break;
+ 
+ 	case I8K_GET_FAN:
+-		if (copy_from_user(&val, argp, sizeof(int))) {
++		if (copy_from_user(&val, argp, sizeof(int)))
+ 			return -EFAULT;
+-		}
++
+ 		val = i8k_get_fan_status(val);
+ 		break;
+ 
+ 	case I8K_SET_FAN:
+-		if (restricted && !capable(CAP_SYS_ADMIN)) {
++		if (restricted && !capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		}
+-		if (copy_from_user(&val, argp, sizeof(int))) {
++
++		if (copy_from_user(&val, argp, sizeof(int)))
+ 			return -EFAULT;
+-		}
+-		if (copy_from_user(&speed, argp + 1, sizeof(int))) {
++
++		if (copy_from_user(&speed, argp + 1, sizeof(int)))
+ 			return -EFAULT;
+-		}
++
+ 		val = i8k_set_fan(val, speed);
+ 		break;
+ 
+@@ -376,25 +335,24 @@ static int i8k_ioctl(struct inode *ip, s
+ 		return -EINVAL;
+ 	}
+ 
+-	if (val < 0) {
++	if (val < 0)
+ 		return val;
+-	}
+ 
+ 	switch (cmd) {
+ 	case I8K_BIOS_VERSION:
+-		if (copy_to_user(argp, &val, 4)) {
++		if (copy_to_user(argp, &val, 4))
+ 			return -EFAULT;
+-		}
++
+ 		break;
+ 	case I8K_MACHINE_ID:
+-		if (copy_to_user(argp, buff, 16)) {
++		if (copy_to_user(argp, buff, 16))
+ 			return -EFAULT;
+-		}
++
+ 		break;
+ 	default:
+-		if (copy_to_user(argp, &val, sizeof(int))) {
++		if (copy_to_user(argp, &val, sizeof(int)))
+ 			return -EFAULT;
+-		}
++
+ 		break;
+ 	}
+ 
+@@ -415,11 +373,10 @@ static int i8k_proc_show(struct seq_file
+ 	left_speed	= i8k_get_fan_speed(I8K_FAN_LEFT);	/*   580 ??s */
+ 	right_speed	= i8k_get_fan_speed(I8K_FAN_RIGHT);	/*   580 ??s */
+ 	fn_key		= i8k_get_fn_status();			/*   750 ??s */
+-	if (power_status) {
++	if (power_status)
+ 		ac_power = i8k_get_power_status();		/* 14700 ??s */
+-	} else {
++	else
+ 		ac_power = -1;
+-	}
+ 
+ 	/*
+ 	 * Info:
+@@ -530,10 +487,7 @@ static int __init i8k_probe(void)
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+-static
+-#endif
+-int __init i8k_init(void)
++static int __init i8k_init(void)
+ {
+ 	struct proc_dir_entry *proc_i8k;
+ 
+@@ -556,19 +510,10 @@ int __init i8k_init(void)
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+-int init_module(void)
++static void __exit i8k_exit(void)
+ {
+-	return i8k_init();
+-}
+-
+-void cleanup_module(void)
+-{
+-	/* Remove the proc entry */
+ 	remove_proc_entry("i8k", NULL);
+-
+-	printk(KERN_INFO "i8k: module unloaded\n");
+ }
+-#endif
+ 
+-/* end of file */
++module_init(i8k_init);
++module_exit(i8k_exit);

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268482AbTANB3l>; Mon, 13 Jan 2003 20:29:41 -0500
+	id <S268467AbTANBYy>; Mon, 13 Jan 2003 20:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268485AbTANB3l>; Mon, 13 Jan 2003 20:29:41 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:45847
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S268482AbTANB3k>; Mon, 13 Jan 2003 20:29:40 -0500
-Message-ID: <3E236A0F.2080605@rackable.com>
-Date: Mon, 13 Jan 2003 17:38:23 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Soeren Sonnenburg <bugreports@nn7.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system freezes when using udma on promise pdc20268
-References: <1042492068.1199.11.camel@sun>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jan 2003 01:38:26.0501 (UTC) FILETIME=[A2168750:01C2BB6D]
+	id <S268472AbTANBYy>; Mon, 13 Jan 2003 20:24:54 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:13771 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S268467AbTANBYw>;
+	Mon, 13 Jan 2003 20:24:52 -0500
+Date: Mon, 13 Jan 2003 17:30:51 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Andries.Brouwer@cwi.nl
+Cc: greg@kroah.com, mdharm-usb@one-eyed-alien.net,
+       linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: sysfs
+Message-ID: <20030113173051.A18731@beaverton.ibm.com>
+References: <UTC200301140109.h0E196W01345.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200301140109.h0E196W01345.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 14, 2003 at 02:09:06AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg wrote:
+On Tue, Jan 14, 2003 at 02:09:06AM +0100, Andries.Brouwer@cwi.nl wrote:
+> > It looks like there is a missing scsi_set_device() call in scsiglue.c,
+> 
+> OK, added. Now rmmod usb-storage followed by insmod usb-storage
+> resulted in an oops, as usual, but after a fresh reboot:
+> Yes indeed, just like desired:
+> 
+> % ls -l /sysfs/block/sdb/device
+> ... -> ../../devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.1/2:0:0:0
+> 
+> Good.
+> Now that you removed this scsi device from /sysfs/devices, I suppose
+> you'll also want to remove
+> 
+> /sysfs/devices/1:0:6:0
+> 
+> which is an Iomega ZIP drive on the parallel port, driver imm.c,
+> device sda.
+> (I can also do it but have no time now. Friday.)
+> 
+> All the best - Andries
 
->Hi!
->
->I experience cold freezes of my new system reproducably (can still
->toggle numlock, but on alt+sysrq+t it freezes completely, watchdog_nmi=1
->does not help so no printout over serial console) when I enable any 
->udma mode >0 using the old or new pdc202xx driver.
->
->However the system seems to work stably (as far I can tell) when using
->the mdma0 or pio modes.
->
->The setup is asus a7v8x with sound/ide/firewire onboard. Two 180GB WDC
->WD1800JB-00DUA0 on the primary and secondary internal VIA controller and
->3 drives on two pdc20268, where the third hard disk is on the secondary
->controller (I explain later why!). All harddisk are jumpered to be
->master's.
->  
->
-  Are you stating this correctly.   You've got 2 drives on the PDC20268 
-on a single ide chain jumpered as masters?  You should have one jumpered 
-as a master and a as a slave.  A single ide chain can have only one master.
+I don't know and have not used the parport code, it needs to be ported to
+sysfs before we could simply call scsi_set_device() call in imm.c, or
+maybe have a /sysfs/scsi/pseudo added via scsi_add_host(shost, NULL) or a
+/sysfs/scsi/unported, similiar to was discussed on the linux-scsi thread
+"[PATCH] allow NULL dev argument to scsi_add_host":
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+http://marc.theaimsgroup.com/?t=104231385300005&r=1&w=2
 
-
-
+-- Patrick Mansfield

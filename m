@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbUBWUML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbUBWUML
+	id S262031AbUBWUOb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUBWUOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:12:11 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:2600 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262016AbUBWUMJ (ORCPT
+	Mon, 23 Feb 2004 15:14:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:8383 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262031AbUBWUNv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:12:09 -0500
-Date: Mon, 23 Feb 2004 12:12:05 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: hjlipp@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040223121205.2ef329fd.pj@sgi.com>
-In-Reply-To: <20040223142215.GB30321@mail.shareable.org>
-References: <20040216133418.GA4399@hobbes>
-	<20040222020911.2c8ea5c6.pj@sgi.com>
-	<20040222155410.GA3051@hobbes>
-	<20040222125312.11749dfd.pj@sgi.com>
-	<20040222225750.GA27402@mail.shareable.org>
-	<20040222214457.6f8d2224.pj@sgi.com>
-	<20040223142215.GB30321@mail.shareable.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 23 Feb 2004 15:13:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Juha Pahkala <juhis@trinity.is-a-geek.com>
+Subject: Re: matroxfb not working after trying to upgrade to 2.6.3
+Date: Mon, 23 Feb 2004 20:13:48 +0000 (UTC)
+Message-ID: <loom.20040223T210849-45@post.gmane.org>
+References: <6801343D94@vcnet.vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 213.243.128.98 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway that's irrelevant: the splitting change only affects shell _scripts_
+Petr Vandrovec <VANDROVE <at> vc.cvut.cz> writes:
 
-Well, I wouldn't say 'irrelevant'.  Some might claim that this question
-(what the major shell's do) is already known, but surely it does matter.
+> > CONFIG_FB_MATROX=m
+> 
+> Do not build it as a module. It is not going to work in usual configurations.
 
-The shells _do_ need to find the path to the script file in the argv[]
-passed to them, and the proposed change does alter the parsing of that
-argv[].
+Building FB_MATROX into the kernel fixed the problem, so thanks alot Petr for
+the quick help!!
 
-The splitting does not affect only the scripts.  It also affects the
-argv[] array presented to the shells, which may or may not deal with
-such as we would like.
+> What reports 'matroxset -f /dev/fb0 -m' and 'matroxset -f /dev/fb1 -m' ?
+> Does not second one report that /dev/fb1 is currently displayed on that
+> output?
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+The fb0 was mapped to crtc1 and fb1 to crtc2, and even matroxset -m 5 option
+wouldn't unmap them. But everything works now :)
+
+juhis
+
+

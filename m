@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262574AbTCISzb>; Sun, 9 Mar 2003 13:55:31 -0500
+	id <S262561AbTCITHG>; Sun, 9 Mar 2003 14:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262575AbTCISzb>; Sun, 9 Mar 2003 13:55:31 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262574AbTCISy3>;
-	Sun, 9 Mar 2003 13:54:29 -0500
-Date: Fri, 7 Mar 2003 00:37:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: sys32_ioctl -> compat_ioctl -- generic
-Message-ID: <20030306233721.GA8565@elf.ucw.cz>
-References: <20030303232122.GA24018@elf.ucw.cz> <20030305103619.52ccdfe2.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030305103619.52ccdfe2.sfr@canb.auug.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S262570AbTCITHG>; Sun, 9 Mar 2003 14:07:06 -0500
+Received: from h-64-105-35-31.SNVACAID.covad.net ([64.105.35.31]:40837 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262561AbTCITHF>; Sun, 9 Mar 2003 14:07:05 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 9 Mar 2003 11:17:29 -0800
+Message-Id: <200303091917.LAA02587@adam.yggdrasil.com>
+To: linux@brodo.de, rmk@arm.linux.org.uk
+Subject: 2.5.64-bk[2-4]: CONFIG_CPU_FREQ_24_API breaks kernel/cpufreq.c compile
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+	linux-2.5.64-bk2 added the following lines to
+cpufreq_add_dev in kernel/cpufreq.c:
 
-> > +asmlinkage long compat_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-> 
-> For consistancy, this should be called compat_sys_ioctl.
+#ifdef CONFIG_CPU_FREQ_24_API
+        cpu_min_freq[cpu] = cpufreq_driver->policy[cpu].cpuinfo.min_freq;
+        cpu_max_freq[cpu] = cpufreq_driver->policy[cpu].cpuinfo.max_freq;
+        cpu_cur_freq[cpu] = cpufreq_driver->cpu_cur_freq[cpu];
+#endif
 
-Done. (And moved whole stuff to fs/compat.c).
 
-> > +{
-> > +	struct file * filp;
-> 
-> > +	filp = fget(fd);
-> 
-> > +			/* find the name of the device. */
-> > +			if (path) {
-> > +				struct file *f = fget(fd); 
-> 
-> Is it really necessary to do another fget(fd) ?
+	However, cpu_{min,max,cur}_freq are static variables in
+drivers/cpufreq/userspace.c.  Making the variables global is not a
+sufficient fix, because drivers/cpufreq/userspace.c can be built as
+separate module.  So, I guess the variables should be moved to
+kernel/cpufreq.c or the code that I quoted above should somehow be
+moved.
 
-This is andi's code, but it seems unneeded, fixed.
-
-> Also, if you are adding this much code, you should add a copyright notice
-> to the top of the file ...
-
-I actually need to copy copyrights from ia32_ioctl, where I took
-this. Done.
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

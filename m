@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261796AbRESMKo>; Sat, 19 May 2001 08:10:44 -0400
+	id <S261793AbRESMTf>; Sat, 19 May 2001 08:19:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261793AbRESMKe>; Sat, 19 May 2001 08:10:34 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:51618 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261786AbRESMKO>; Sat, 19 May 2001 08:10:14 -0400
-Message-ID: <3B0661AA.A2D6933B@uow.edu.au>
-Date: Sat, 19 May 2001 22:06:02 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
+	id <S261797AbRESMTZ>; Sat, 19 May 2001 08:19:25 -0400
+Received: from cs140085.pp.htv.fi ([213.243.140.85]:63846 "EHLO
+	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S261793AbRESMTN>; Sat, 19 May 2001 08:19:13 -0400
+Message-ID: <3B066460.24E9EACB@pp.htv.fi>
+Date: Sat, 19 May 2001 15:17:36 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Andries.Brouwer@cwi.nl, bcrl@redhat.com, torvalds@transmeta.com,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion codein  
- userspace
-In-Reply-To: <3B065C78.C20BBCA@uow.edu.au> <Pine.GSO.4.21.0105190750380.5339-100000@weyl.math.psu.edu>
+To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA/PDC/Athlon - IDE error theory
+In-Reply-To: <E150VHJ-0006Ak-00@the-village.bc.nu> <3B066184.5A6FA728@gmx.at>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
->  It's way past ugly.
+Wilfried Weissmann wrote:
+> > > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> > > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> > CRC errors are cable errors so that bit is reasonable in itself
+> Could this be caused by the RAID configuration? The first sector of the
 
-I knew you'd like it.
+Yes, it's RAID5. But the error message is because of misdetected cable...
 
-It kind of makes sense, because it puts the two primary stream-of-bytes
-objects in Unix into the same namespace, with the same accessors.
-So if some random application is expecting a filename well heck, you
-just give it a path-to-executable with args.  It won't care, although
-it may have trouble lseek()ing on it.
+ - Jussi Laako
 
-It wasn't very serious at all.
-
--
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

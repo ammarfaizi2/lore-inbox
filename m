@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266065AbTLIQr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 11:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbTLIQr7
+	id S263771AbTLIRDI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 12:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266070AbTLIRDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 11:47:59 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:35034 "EHLO uni-kl.de")
-	by vger.kernel.org with ESMTP id S266065AbTLIQr6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 11:47:58 -0500
-Date: Tue, 9 Dec 2003 17:47:39 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: State of devfs in 2.6?
-Message-ID: <20031209164738.GA4159@zombie.inka.de>
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com> <1070953338.7668.6.camel@simulacron> <20031209083228.GC1698@kroah.com> <3FD59CED.6090408@portrix.net> <20031209162747.GB8675@kroah.com>
+	Tue, 9 Dec 2003 12:03:08 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:18616 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S263771AbTLIRDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 12:03:06 -0500
+Date: Tue, 9 Dec 2003 12:02:50 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Joe Thornber <thornber@sistina.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+Message-ID: <20031209170249.GB30286@ti19.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Joe Thornber <thornber@sistina.com>,
+	Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20031209134551.GG472@reti> <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031209162747.GB8675@kroah.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
-* Greg KH [Tue, Dec 09 2003, 08:27:47AM]:
+On Tue, Dec 09, 2003 at 12:10:06PM -0200, Marcelo Tosatti wrote:
+> As far as I know, we already have the similar functionality in 2.4 with
+> LVM. Device mapper provides the same functionality but in a much cleaner
+> way. Is that right?
 
-> Like Matthew stated, either use the udev rc startup script, or put udev
-> into your initramfs image to catch all of the early boot messages.
-> Doing the initramfs method is still very tough to do right now, but
-> people have reported success that way.  I still recommend just using the
-> init.d script for now.
+Yes.
+ 
+And migration of root-on-LVM users to 2.6 will be *greatly* helped if users
+can get LVM2/DM working on 2.4 (by upgrading lvm/initscripts/mkinitrd),
+and then move to 2.6.
 
-Wouln't it be less error-prone to introduce a kind of queing for the
-hotplug program so kernel puts all the registered devices in a list and
-the list is submitted in one pass when udev asks for it?
+And LVM1 snapshots in 2.4 have limited value, due to the performance impact.
 
-MfG,
-Eduard.
+    Bill Rugolsky

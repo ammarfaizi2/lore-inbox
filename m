@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbUA0JOd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 04:14:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUA0JOd
+	id S263015AbUA0J0E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 04:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUA0J0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 04:14:33 -0500
-Received: from ozlabs.org ([203.10.76.45]:38784 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262569AbUA0JOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 04:14:30 -0500
+	Tue, 27 Jan 2004 04:26:04 -0500
+Received: from gw2.cosmosbay.com ([195.115.130.129]:49867 "EHLO
+	gw2.cosmosbay.com") by vger.kernel.org with ESMTP id S263015AbUA0J0B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 04:26:01 -0500
+Message-ID: <40162E9A.1080005@cosmosbay.com>
+Date: Tue, 27 Jan 2004 10:25:46 +0100
+From: dada1 <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.1 x86_64 : STACK_TOP and text/data
+References: <OFCE30A640.024A04A1-ONC1256E28.003023EA-C1256E28.0030BF4E@de.ibm.com>
+In-Reply-To: <OFCE30A640.024A04A1-ONC1256E28.003023EA-C1256E28.0030BF4E@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-Date: Tue, 27 Jan 2004 19:56:26 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: davidm@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16405.41953.344071.456754@napali.hpl.hp.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger writes:
+Hi all
 
-> How about the attached one?  It will touch memory more when moving an
-> element down, but we're talking about exception tables here, and I
-> don't think module loading time would be affected in any noticable
-> fashion.
+Anybody knows why STACK_TOP is defined to 0xc0000000 in x86_64 ?
 
-Hmmm...  Stylistically I much prefer to pick up the new element,
-move the others up and just drop the new element in where it should
-go, rather than doing swap, swap, swap down the list.
+This means that stack allocated variables are all in the first 4GB 
+quadrant in memory.
+As the default virtual addresses of text/data of a programm are in this 
+same quadrant, some programming errors could be undetected.
+(Some programmers could still cast some pointers to 'unsigned int' for 
+example, and this could 'work')
 
-Also, I don't think there is enough code there to be worth the bother
-of trying to abstract the generic routine so you can plug in different
-compare and move-element routines.  The whole sort routine is only 16
-lines of code, after all.  Why not just have an ia64-specific version
-of sort_extable?  That's what I thought you would do.
+Tru64 has a different strategy :
+Program text starts at 0x120000000
+Program data starts at 0x140000000
+Stack is just under text, but still not in the first 4GB quadrant.
 
-Regards,
-Paul.
+This way, programmers errors are likely to be detected at dev time.
+
+Another point is that BSS zone (heap) cannot exceed 3GB in x86_64 mode, 
+since the brk hit the stack.
+libc malloc then fallback to use a lot of arenas... suboptimal in terms 
+of  vmas.
+
+Strangely, in ia32 emulation mode, the stack is placed at the 4GB limit !
+
+Thank you
+Eric Dumazet
+

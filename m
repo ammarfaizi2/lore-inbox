@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263629AbUJ2ViD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263518AbUJ2Vln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263629AbUJ2ViD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUJ2Vfk
+	id S263518AbUJ2Vln (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbUJ2Viq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:35:40 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:34285 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S263614AbUJ2V3s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:29:48 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: [OT] factory made but custom dual 8255 I/O card Q
-Date: Fri, 29 Oct 2004 17:29:41 -0400
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 17:38:46 -0400
+Received: from soundwarez.org ([217.160.171.123]:2212 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S263600AbUJ2V24 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:28:56 -0400
+Date: Fri, 29 Oct 2004 23:28:56 +0200
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew <cmkrnl@speakeasy.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
+Message-ID: <20041029212856.GA12582@vrfy.org>
+References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com> <417FCD78.6020807@speakeasy.net> <20041029201314.GA29171@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410291729.41266.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Fri, 29 Oct 2004 16:29:42 -0500
+In-Reply-To: <20041029201314.GA29171@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Fri, Oct 29, 2004 at 03:13:15PM -0500, Greg KH wrote:
+> On Wed, Oct 27, 2004 at 12:31:52PM -0400, Andrew wrote:
+> > 
+> > Greg KH wrote:
+> > >
+> > >
+> > >Why not just use the same buffer?  We should be able to do that.
+> > >
+> > >
+> > >I'd prefer we use the same buffer.  Care to respin your patch?
+> > >
+> > 
+> > Sure, I can only see two ways of achieving that however.
+> > 1) Change the API of kset_hotplug_ops.hotplug() to return the amount
+> >    of consumed buffer (and possibly an updated value for i (num_envp)
+> >    and then changing every real function that implements that interface
+> >    or
+> > 2) Spin through the envp[] starting at i to NUM_ENVP looking for a NULL
+> >    pointer dropping back 1 (last_used) then do a
+> >    scratch += strlen(envp[last_used]) + 1
+> 
+> Ick, ok, let's stick with 2 buffers.  How about the patch below?  It's a
+> bit smaller than yours.
+> 
+> But there might still be a problem.  With this change, the sequence
+> number is not sent out the kevent message.  Kay, do you think this is an
+> issue?  I don't think we can get netlink messages out of order, right?
 
-I'm about to embark on a linuxCNC project, and I have the motors, 
-controllers, and a futurlec PCI8255 card, with has dual 8255's on it 
-for a total of 72 I/O lines.
+Right, especially not the events with the same DEVPATH, like "remove"
+beating an "add". But I'm not sure if the number isn't useful. Whatever
+we may do with the hotplug over netlink in the future, we will only have
+/sbin/hotplug for the early boot and it may be nice to know, what events
+we have already handled...
 
-This card has a dipswitch settable addressing scheme that allows it to 
-be most anyplace from 0000:0000 to 00FF:FF00 in $100 steps for the 
-increment.
+> I'll hold off on applying this patch until we figure this out...
 
-When placed in the machine, the bios reports a resource clash, but 
-gives the option of continueing the boot.  Its got FC2 on it, clean 
-install with most updates.  I've tried moving the address but the 
-bios still squawks, but it does go ahead and boot to FC2.
+How about just reserving 20 bytes for the number (u64 will never be
+more than that), save the pointer to that field, and fill the number in
+later?
 
-Once booted, an lspci -vv doesn't output anything that looks like a 
-resource clash to me, and while the bios bitches, its supposed to 
-tell you what is clashing by putting a * in front of the two or more 
-items at odds with each other, but those screens aren't actually 
-indicating anything wrong.  It also doesn't show this board in the 
-bios displays.
-
-Can anyone comment on this?
-
-So my next Q then is, do we have, someplace I haven't tripped over it, 
-a relatively simple, preferably timer IRQ driven assembly program 
-that could be configured to drive such a board?  The linuxCNC soft 
-seems to favor a par port interface, but is supposed to be friendly 
-to other methods also, how friendly may be discussed in the user 
-manual, but it will be another hour + to get to that as its even 
-pages are now just trickling out of the printer, and odd to go. 159 
-pages total.
- 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Thanks,
+Kay

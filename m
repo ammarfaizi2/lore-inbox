@@ -1,66 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263966AbTI2Rk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTI2RiS
+	id S263803AbTI2RRU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263801AbTI2RGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:38:18 -0400
-Received: from coderock.org ([193.77.147.115]:15372 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S263930AbTI2Req (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:34:46 -0400
-From: Domen Puncer <domen@coderock.org>
-To: intermezzo-devel@lists.sourceforge.net
-Subject: replicator.c - bug in izo_rep_cache_clean()?
-Date: Mon, 29 Sep 2003 19:34:39 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Disposition: inline
+	Mon, 29 Sep 2003 13:06:37 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:43447 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263803AbTI2RE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:04:59 -0400
+To: torvalds@osdl.org
+From: davej@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200309291934.39891.domen@coderock.org>
+Subject: [PATCH] VIA Typo in i2c.
+Message-Id: <E1A41Rq-0000NA-00@hardwired>
+Date: Mon, 29 Sep 2003 18:04:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-Another repost after more than a month, since this bug is still in kernel tree.
-Now CC-ing lkml, folks at intermezzo ml don't care?
-
-I've been doing some janitor work and came across this:
-
-
-On Saturday 12 of July 2003 18:07, Matthew Wilcox wrote:
-> On Sat, Jul 12, 2003 at 05:22:55PM +0200, Domen Puncer wrote:
-> > ---
-> > fs/intermezzo/replicator.c:83: //izo_rep_cache_clean()
-> >                 tmp = bucket = &fset->fset_clients[i];
-> >
-> >                 tmp = tmp->next;
-> >                 while (tmp != bucket) {
-> >                         struct izo_offset_rec *offrec;
-> >                         tmp = tmp->next;
-> >                         list_del(tmp);
-> >                         offrec = list_entry(tmp, struct izo_offset_rec,
-> >                                             or_list);
-> >                         PRESTO_FREE(offrec, sizeof(struct
-> > izo_offset_rec)); }
-> >
-> > This code just doesn't look right.
-> > We delete tmp (tmp->next = LIST_POISON1)... next time we'll
-> >  list_del(LIST_POISON1)!!
-> > We also do not delete first entry in the list
-> > &fset->fset_clients[i]->next.
->
-> Yup, looks like a bug.  I bet they meant to list_del(&tmp->prev).
-
-I guess it could be written like this:
-	list_for_each_save(tmp, next, bucket) {
-		struct izo_offset_rec *offrec;
-		list_del(tmp);
-		...
-
-
-	Domen
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/i2c/busses/Kconfig linux-2.5/drivers/i2c/busses/Kconfig
+--- bk-linus/drivers/i2c/busses/Kconfig	2003-09-23 07:32:23.000000000 +0100
++++ linux-2.5/drivers/i2c/busses/Kconfig	2003-09-29 03:48:20.000000000 +0100
+@@ -285,7 +285,7 @@ config I2C_VELLEMAN
+ 	  will be called i2c-velleman.
+ 
+ config I2C_VIA
+-	tristate "VIA 82C58B"
++	tristate "VIA 82C586B"
+ 	depends on I2C_ALGOBIT && PCI && EXPERIMENTAL
+ 	help
+ 

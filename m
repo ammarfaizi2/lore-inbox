@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271507AbRIFRSs>; Thu, 6 Sep 2001 13:18:48 -0400
+	id <S271503AbRIFRP4>; Thu, 6 Sep 2001 13:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271502AbRIFRSh>; Thu, 6 Sep 2001 13:18:37 -0400
-Received: from nwcst336.netaddress.usa.net ([204.68.23.81]:6339 "HELO
-	nwcst336.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S271507AbRIFRS1> convert rfc822-to-8bit; Thu, 6 Sep 2001 13:18:27 -0400
-Message-ID: <20010906171847.8057.qmail@nwcst336.netaddress.usa.net>
-Date: 6 Sep 2001 11:18:46 MDT
-From: Andrey Ilinykh <ailinykh@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: msgrcv bug?
-X-Mailer: USANET web-mailer (34FM.0700.21.01)
-Mime-Version: 1.0
+	id <S271502AbRIFRPq>; Thu, 6 Sep 2001 13:15:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:37384 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271498AbRIFRPd>; Thu, 6 Sep 2001 13:15:33 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 19:22:53 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Kurt Garloff <garloff@suse.de>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0109061356280.31200-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109061356280.31200-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906171545Z16135-26183+15@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-sys_msgrcv contains such code as (ipc/msg.c): 
+On September 6, 2001 06:57 pm, Rik van Riel wrote:
+> On Thu, 6 Sep 2001, Daniel Phillips wrote:
+> 
+> > Err, not quite the whole story.  It is *never* right to leave the disk
+> > sitting idle while there are dirty, writable IO buffers.
+> 
+> Define "idle" ?
 
-771                 list_del(&msg->m_list);
-772                 msq->q_qnum--;
-773                 msq->q_rtime = CURRENT_TIME;
-774                 msq->q_lrpid = current->pid;
-775                 msq->q_cbytes -= msg->m_ts;
-776                 atomic_sub(msg->m_ts,&msg_bytes);
-777                 atomic_dec(&msg_hdrs);
-778                 ss_wakeup(&msq->q_senders,0);
-779                 msg_unlock(msqid);
-780 out_success:
-781                 msgsz = (msgsz > msg->m_ts) ? msg->m_ts : msgsz;
-782                 if (put_user (msg->m_type, &msgp->mtype) ||
-783                     store_msg(msgp->mtext, msg, msgsz)) {
-784                             msgsz = -EFAULT;
-785                 }
-786                 free_msg(msg);
-787                 return msgsz;
+Idle = not doing anything.  IO queue is empty.
 
-if put_user fails (user process passed wrond address) message will not be
-delivered, but it is already removed from list. So nobody will receive this
-message. Is this behavior correct?
-Thank you,
-  Andrey
-Please cc to my e-mail also.
+> Is idle the time it takes between two readahead requests
+> to be issued, delaying the second request because you
+> just moved the disk arm away ?
+
+Which two readahead requests?  It's idle.
+
+> Is idle when we haven't had a request for, say, 3 disk
+> seek time periods ?
+
+See above definition of idle.
+
+> Is idle when we won't be getting any request soon for the
+> area where the disk arm is hanging out ?  (and how do we
+> know the future?)
+
+--
+Daniel

@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289081AbSA1Bj5>; Sun, 27 Jan 2002 20:39:57 -0500
+	id <S289082AbSA1Bm1>; Sun, 27 Jan 2002 20:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289082AbSA1Bjr>; Sun, 27 Jan 2002 20:39:47 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:25242 "EHLO
+	id <S289085AbSA1BmT>; Sun, 27 Jan 2002 20:42:19 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:26778 "EHLO
 	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S289081AbSA1Bj3>; Sun, 27 Jan 2002 20:39:29 -0500
-Date: Mon, 28 Jan 2002 04:38:33 +0300
+	id <S289082AbSA1BmG>; Sun, 27 Jan 2002 20:42:06 -0500
+Date: Mon, 28 Jan 2002 04:41:21 +0300
 From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: "Paulo Andre'" <l16083@alunos.uevora.pt>
-Cc: linux-kernel@vger.kernel.org, "Jens Axboe" <axboe@suse.de>
+To: l16083@alunos.uevora.pt
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
 Subject: Re: Can't compile Symbios 53c416 SCSI support
-Message-Id: <20020128043833.659e7102.johnpol@2ka.mipt.ru>
+Message-Id: <20020128044121.033ce18e.johnpol@2ka.mipt.ru>
+In-Reply-To: <20020128043833.659e7102.johnpol@2ka.mipt.ru>
 In-Reply-To: <20020127201213.A7091@bleach>
-In-Reply-To: <20020127201213.A7091@bleach>
+	<20020128043833.659e7102.johnpol@2ka.mipt.ru>
 Reply-To: johnpol@2ka.mipt.ru
 Organization: MIPT
 X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__28_Jan_2002_04:41:21_+0300_0828b568"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jan 2002 20:12:13 +0000
-"Paulo Andre'" <l16083@alunos.uevora.pt> wrote:
+This is a multi-part message in MIME format.
+
+--Multipart_Mon__28_Jan_2002_04:41:21_+0300_0828b568
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
-> sym53c416.c: In function `sym53c416_intr_handle':
-> sym53c416.c:362: `io_request_lock' undeclared (first use in this 
-> function)
-> sym53c416.c:362: (Each undeclared identifier is reported only once
-> sym53c416.c:362: for each function it appears in.)
+> So i hope this patch will help a bit in this direction.
 
-> I'm a newbie though I see <linux/blk.h> is included. Still it says 
-> io_request_lock is undeclared... should be trivial but goes beyond my 
-> knowledge :)
-
-It seems that io_request_lock will be completely removed in 2.5 tree, so
-there is no io_request_lock in linux/blk.h. This global lock now exsist
-only in scsi layer, and it will be replaced by Scsi_Host->host_lock soon.
-So i hope this patch will help a bit in this direction.
-
-2 Paulo Andre: DON'T use this patch before Jens Axboe will agree with it,
-because i even haven't scsi here, so this patch was written only with
-common sence. I hope this will help you.
-
-> 
-> Thanks in advance
-> 
-> // Paulo Andre'
+Ooops, forgot to attach.
 
 	Evgeniy Polyakov ( s0mbre ).
+
+--Multipart_Mon__28_Jan_2002_04:41:21_+0300_0828b568
+Content-Type: application/octet-stream;
+ name="drivers_scsi_sym53c416.diff"
+Content-Disposition: attachment;
+ filename="drivers_scsi_sym53c416.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIC4vbGludXgub3JpZy9kcml2ZXJzL3Njc2kvc3ltNTNjNDE2LmMJTW9uIEphbiAyOCAwNDox
+NzoyNiAyMDAyCisrKyAuL2xpbnV4L2RyaXZlcnMvc2NzaS9zeW01M2M0MTYuYwlNb24gSmFuIDI4
+IDA0OjI2OjQ4IDIwMDIKQEAgLTMzNyw2ICszMzcsNyBAQAogCiBzdGF0aWMgdm9pZCBzeW01M2M0
+MTZfaW50cl9oYW5kbGUoaW50IGlycSwgdm9pZCAqZGV2X2lkLCBzdHJ1Y3QgcHRfcmVncyAqcmVn
+cykKIHsKKwlzdHJ1Y3QgU2NzaV9Ib3N0ICpkZXYgPSBkZXZfaWQ7CiAJaW50IGJhc2UgPSAwOwog
+CWludCBpOwogCXVuc2lnbmVkIGxvbmcgZmxhZ3MgPSAwOwpAQCAtMzU5LDExICszNjAsMTEgQEAK
+IAl9CiAJLyogTm93IHdlIGhhdmUgdGhlIGJhc2UgYWRkcmVzcyBhbmQgd2UgY2FuIHN0YXJ0IGhh
+bmRsaW5nIHRoZSBpbnRlcnJ1cHQgKi8KIAotCXNwaW5fbG9ja19pcnFzYXZlKCZpb19yZXF1ZXN0
+X2xvY2ssZmxhZ3MpOworCXNwaW5fbG9ja19pcnFzYXZlKCZkZXYtPmhvc3RfbG9jayxmbGFncyk7
+CiAJc3RhdHVzX3JlZyA9IGluYihiYXNlICsgU1RBVFVTX1JFRyk7CiAJcGlvX2ludF9yZWcgPSBp
+bmIoYmFzZSArIFBJT19JTlRfUkVHKTsKIAlpbnRfcmVnID0gaW5iKGJhc2UgKyBJTlRfUkVHKTsK
+LQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZpb19yZXF1ZXN0X2xvY2ssIGZsYWdzKTsKKwlzcGlu
+X3VubG9ja19pcnFyZXN0b3JlKCZkZXYtPmhvc3RfbG9jaywgZmxhZ3MpOwogCiAJLyogRmlyc3Qs
+IHdlIGhhbmRsZSBlcnJvciBjb25kaXRpb25zICovCiAJaWYoaW50X3JlZyAmIFNDSSkgICAgICAg
+ICAvKiBTQ1NJIFJlc2V0ICovCkBAIC0zNzEsOSArMzcyLDkgQEAKIAkJcHJpbnRrKEtFUk5fREVC
+VUcgInN5bTUzYzQxNjogUmVzZXQgcmVjZWl2ZWRcbiIpOwogCQljdXJyZW50X2NvbW1hbmQtPlND
+cC5waGFzZSA9IGlkbGU7CiAJCWN1cnJlbnRfY29tbWFuZC0+cmVzdWx0ID0gRElEX1JFU0VUIDw8
+IDE2OwotCQlzcGluX2xvY2tfaXJxc2F2ZSgmaW9fcmVxdWVzdF9sb2NrLCBmbGFncyk7CisJCXNw
+aW5fbG9ja19pcnFzYXZlKCZkZXYtPmhvc3RfbG9jaywgZmxhZ3MpOwogCQljdXJyZW50X2NvbW1h
+bmQtPnNjc2lfZG9uZShjdXJyZW50X2NvbW1hbmQpOwotCQlzcGluX3VubG9ja19pcnFyZXN0b3Jl
+KCZpb19yZXF1ZXN0X2xvY2ssIGZsYWdzKTsKKwkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmZGV2
+LT5ob3N0X2xvY2ssIGZsYWdzKTsKIAkJcmV0dXJuOwogCX0KIAlpZihpbnRfcmVnICYgSUxDTUQp
+ICAgICAgIC8qIElsbGVnYWwgQ29tbWFuZCAqLwpAQCAtMzgxLDkgKzM4Miw5IEBACiAJCXByaW50
+ayhLRVJOX1dBUk5JTkcgInN5bTUzYzQxNjogSWxsZWdhbCBDb21tYW5kOiAweCUwMnguXG4iLCBp
+bmIoYmFzZSArIENPTU1BTkRfUkVHKSk7CiAJCWN1cnJlbnRfY29tbWFuZC0+U0NwLnBoYXNlID0g
+aWRsZTsKIAkJY3VycmVudF9jb21tYW5kLT5yZXN1bHQgPSBESURfRVJST1IgPDwgMTY7Ci0JCXNw
+aW5fbG9ja19pcnFzYXZlKCZpb19yZXF1ZXN0X2xvY2ssIGZsYWdzKTsKKwkJc3Bpbl9sb2NrX2ly
+cXNhdmUoJmRldi0+aG9zdF9sb2NrLCBmbGFncyk7CiAJCWN1cnJlbnRfY29tbWFuZC0+c2NzaV9k
+b25lKGN1cnJlbnRfY29tbWFuZCk7Ci0JCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmlvX3JlcXVl
+c3RfbG9jaywgZmxhZ3MpOworCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZkZXYtPmhvc3RfbG9j
+aywgZmxhZ3MpOwogCQlyZXR1cm47CiAJfQogCWlmKHN0YXR1c19yZWcgJiBHRSkgICAgICAgICAv
+KiBHcm9zcyBFcnJvciAqLwpAQCAtMzkxLDkgKzM5Miw5IEBACiAJCXByaW50ayhLRVJOX1dBUk5J
+TkcgInN5bTUzYzQxNjogQ29udHJvbGxlciByZXBvcnRzIGdyb3NzIGVycm9yLlxuIik7CiAJCWN1
+cnJlbnRfY29tbWFuZC0+U0NwLnBoYXNlID0gaWRsZTsKIAkJY3VycmVudF9jb21tYW5kLT5yZXN1
+bHQgPSBESURfRVJST1IgPDwgMTY7Ci0JCXNwaW5fbG9ja19pcnFzYXZlKCZpb19yZXF1ZXN0X2xv
+Y2ssIGZsYWdzKTsKKwkJc3Bpbl9sb2NrX2lycXNhdmUoJmRldi0+aG9zdF9sb2NrLCBmbGFncyk7
+CiAJCWN1cnJlbnRfY29tbWFuZC0+c2NzaV9kb25lKGN1cnJlbnRfY29tbWFuZCk7Ci0JCXNwaW5f
+dW5sb2NrX2lycXJlc3RvcmUoJmlvX3JlcXVlc3RfbG9jaywgZmxhZ3MpOworCQlzcGluX3VubG9j
+a19pcnFyZXN0b3JlKCZkZXYtPmhvc3RfbG9jaywgZmxhZ3MpOwogCQlyZXR1cm47CiAJfQogCWlm
+KHN0YXR1c19yZWcgJiBQRSkgICAgICAgICAvKiBQYXJpdHkgRXJyb3IgKi8KQEAgLTQwMSw5ICs0
+MDIsOSBAQAogCQlwcmludGsoS0VSTl9XQVJOSU5HICJzeW01M2M0MTY6U0NTSSBwYXJpdHkgZXJy
+b3IuXG4iKTsKIAkJY3VycmVudF9jb21tYW5kLT5TQ3AucGhhc2UgPSBpZGxlOwogCQljdXJyZW50
+X2NvbW1hbmQtPnJlc3VsdCA9IERJRF9QQVJJVFkgPDwgMTY7Ci0JCXNwaW5fbG9ja19pcnFzYXZl
+KCZpb19yZXF1ZXN0X2xvY2ssIGZsYWdzKTsKKwkJc3Bpbl9sb2NrX2lycXNhdmUoJmRldi0+aG9z
+dF9sb2NrLCBmbGFncyk7CiAJCWN1cnJlbnRfY29tbWFuZC0+c2NzaV9kb25lKGN1cnJlbnRfY29t
+bWFuZCk7Ci0JCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmlvX3JlcXVlc3RfbG9jaywgZmxhZ3Mp
+OworCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZkZXYtPmhvc3RfbG9jaywgZmxhZ3MpOwogCQly
+ZXR1cm47CiAJfQogCWlmKHBpb19pbnRfcmVnICYgKENFIHwgT1VFKSkKQEAgLTQxMSw5ICs0MTIs
+OSBAQAogCQlwcmludGsoS0VSTl9XQVJOSU5HICJzeW01M2M0MTY6IFBJTyBpbnRlcnJ1cHQgZXJy
+b3IuXG4iKTsKIAkJY3VycmVudF9jb21tYW5kLT5TQ3AucGhhc2UgPSBpZGxlOwogCQljdXJyZW50
+X2NvbW1hbmQtPnJlc3VsdCA9IERJRF9FUlJPUiA8PCAxNjsKLQkJc3Bpbl9sb2NrX2lycXNhdmUo
+JmlvX3JlcXVlc3RfbG9jaywgZmxhZ3MpOworCQlzcGluX2xvY2tfaXJxc2F2ZSgmZGV2LT5ob3N0
+X2xvY2ssIGZsYWdzKTsKIAkJY3VycmVudF9jb21tYW5kLT5zY3NpX2RvbmUoY3VycmVudF9jb21t
+YW5kKTsKLQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmaW9fcmVxdWVzdF9sb2NrLCBmbGFncyk7
+CisJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmRldi0+aG9zdF9sb2NrLCBmbGFncyk7CiAJCXJl
+dHVybjsKIAl9CiAJaWYoaW50X3JlZyAmIERJUykgICAgICAgICAgIC8qIERpc2Nvbm5lY3QgKi8K
+QEAgLTQyMyw5ICs0MjQsOSBAQAogCQllbHNlCiAJCQljdXJyZW50X2NvbW1hbmQtPnJlc3VsdCA9
+IChjdXJyZW50X2NvbW1hbmQtPlNDcC5TdGF0dXMgJiAweEZGKSB8ICgoY3VycmVudF9jb21tYW5k
+LT5TQ3AuTWVzc2FnZSAmIDB4RkYpIDw8IDgpIHwgKERJRF9PSyA8PCAxNik7CiAJCWN1cnJlbnRf
+Y29tbWFuZC0+U0NwLnBoYXNlID0gaWRsZTsKLQkJc3Bpbl9sb2NrX2lycXNhdmUoJmlvX3JlcXVl
+c3RfbG9jaywgZmxhZ3MpOworCQlzcGluX2xvY2tfaXJxc2F2ZSgmZGV2LT5ob3N0X2xvY2ssIGZs
+YWdzKTsKIAkJY3VycmVudF9jb21tYW5kLT5zY3NpX2RvbmUoY3VycmVudF9jb21tYW5kKTsKLQkJ
+c3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmaW9fcmVxdWVzdF9sb2NrLCBmbGFncyk7CisJCXNwaW5f
+dW5sb2NrX2lycXJlc3RvcmUoJmRldi0+aG9zdF9sb2NrLCBmbGFncyk7CiAJCXJldHVybjsKIAl9
+CiAJLyogTm93IHdlIGhhbmRsZSBTQ1NJIHBoYXNlcyAgICAgICAgICovCkBAIC03MTksNyArNzIw
+LDcgQEAKIAkJCQljbGkoKTsKIAkJCQkvKiBGSVhNRTogUmVxdWVzdF9pcnEgd2l0aCBDTEkgaXMg
+bm90IHNhZmUgKi8KIAkJCQkvKiBSZXF1ZXN0IGZvciBzcGVjaWZpZWQgSVJRICovCi0JCQkJaWYo
+cmVxdWVzdF9pcnEoaG9zdHNbaV0uaXJxLCBzeW01M2M0MTZfaW50cl9oYW5kbGUsIDAsIElELCBO
+VUxMKSkKKwkJCQlpZihyZXF1ZXN0X2lycShob3N0c1tpXS5pcnEsIHN5bTUzYzQxNl9pbnRyX2hh
+bmRsZSwgMCwgSUQsIHNocG50KSkKIAkJCQl7CiAJCQkJCXJlc3RvcmVfZmxhZ3MoZmxhZ3MpOwog
+CQkJCQlwcmludGsoS0VSTl9FUlIgInN5bTUzYzQxNjogVW5hYmxlIHRvIGFzc2lnbiBJUlEgJWRc
+biIsIGhvc3RzW2ldLmlycSk7Cg==
+
+--Multipart_Mon__28_Jan_2002_04:41:21_+0300_0828b568--

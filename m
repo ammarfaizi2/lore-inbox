@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129385AbQKVXQc>; Wed, 22 Nov 2000 18:16:32 -0500
+        id <S129385AbQKVXWm>; Wed, 22 Nov 2000 18:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129485AbQKVXQW>; Wed, 22 Nov 2000 18:16:22 -0500
-Received: from catbert.rellim.com ([204.17.205.1]:3857 "EHLO
-        catbert.rellim.com") by vger.kernel.org with ESMTP
-        id <S129385AbQKVXQL>; Wed, 22 Nov 2000 18:16:11 -0500
-Date: Wed, 22 Nov 2000 14:46:06 -0800 (PST)
-From: "Gary E. Miller" <gem@rellim.com>
-To: Miles Lane <miles@speakeasy.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox's e-mail address is hosed?
-In-Reply-To: <3A1CF2C9.2030209@speakeasy.org>
-Message-ID: <Pine.LNX.4.30.0011221445130.28524-100000@catbert.rellim.com>
+        id <S130162AbQKVXWc>; Wed, 22 Nov 2000 18:22:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12152 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129485AbQKVXWY>; Wed, 22 Nov 2000 18:22:24 -0500
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+To: maillist@chello.nl (Igmar Palsenberg)
+Date: Wed, 22 Nov 2000 22:52:18 +0000 (GMT)
+Cc: schwab@suse.de (Andreas Schwab), middelink@polyware.nl (Pauline Middelink),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0011230042420.28000-100000@server.serve.me.nl> from "Igmar Palsenberg" at Nov 23, 2000 12:43:08 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yikV-0006ZQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yo Miles!
+> > |> > > #define __bad_udelay() panic("Udelay called with too large a constant")
+> > |> 
+> > |> Can't we change that to :
+> > |> #error "Udelay..."
+> > 
+> > No.
+> 
+> ?? I think I'm missing something here.
 
-Well I see 216.200.176.7 in ORBS:
-
-$ chk-rly 216.200.176.7
-rbl.maps.vix.com =>
-rss.maps.vix.com =>
-dul.maps.vix.com =>
-relays.orbs.org => 127.0.0.4
-relays.orbs.org => untestable - above.net has  multiple open relays and has blocked the ORBS tester.
-outputs.orbs.org =>
-
-RGDS
-GARY
----------------------------------------------------------------------------
-Gary E. Miller Rellim 20340 Empire Ave, Suite E-3, Bend, OR 97701
-	gem@rellim.com  Tel:+1(541)382-8588 Fax: +1(541)382-8676
-
-On Thu, 23 Nov 2000, Miles Lane wrote:
-
-> Okay, please explain why ORBS tells me it does *not*
-> identify my ISP's SMTP server as an open relay?
->
-> mail.megapathdsl.net = 216.200.176.7
+preprocessor stuff is done too early for this
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

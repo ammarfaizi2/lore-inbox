@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbQLIAfE>; Fri, 8 Dec 2000 19:35:04 -0500
+	id <S131557AbQLIAfy>; Fri, 8 Dec 2000 19:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131557AbQLIAeo>; Fri, 8 Dec 2000 19:34:44 -0500
-Received: from feral.com ([192.67.166.1]:46167 "EHLO feral.com")
-	by vger.kernel.org with ESMTP id <S131060AbQLIAef>;
-	Fri, 8 Dec 2000 19:34:35 -0500
-Date: Fri, 8 Dec 2000 16:03:58 -0800 (PST)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: baettig@scs.ch, linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock question (2.2)
-In-Reply-To: <E144XLU-0004eG-00@the-village.bc.nu>
-Message-ID: <Pine.BSF.4.21.0012081603110.72881-100000@beppo.feral.com>
+	id <S135190AbQLIAfo>; Fri, 8 Dec 2000 19:35:44 -0500
+Received: from web4302.mail.yahoo.com ([216.115.104.194]:28428 "HELO
+	web4302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131557AbQLIAfi>; Fri, 8 Dec 2000 19:35:38 -0500
+Message-ID: <20001209000506.26629.qmail@web4302.mail.yahoo.com>
+Date: Fri, 8 Dec 2000 16:05:06 -0800 (PST)
+From: T R Vishwanath <trvish@yahoo.com>
+Subject: Any cure for kupdate freezing ongoing  I/Os ? 
+To: linux-kernel@vger.kernel.org
+Cc: trvish@yahoo.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am running the 2.2.14 linux kernel, and doing
+buffered writes to disk. Whenever kupdate runs, I
+notice that the I/Os freeze up, sometimes taking 10-20
+seconds to complete. Are there any patches to the
+kernel to prevent thsi kind of behaviour ? I am using
+the standard bdflush parameters. Is this problem
+ameliorated in the 2.4 kernel ? 
 
+ Any help on this would be greatly appreciated. Since
+I am not a member of this list, could you please reply
 
-On Fri, 8 Dec 2000, Alan Cox wrote:
+to trvish@yahoo.com ?
 
-> > Yes, and I believe that this is what's broken about the SCSI midlayer. The the
-> > io_request_lock cannot be completely released in a SCSI HBA because the flags
-> 
-> You can drop it with spin_unlock_irq and that is fine. I do that with no
-> problems in the I2O scsi driver for example
+Thanks
+T R Vishwanath.
 
-I am (like, I think I *finally* got locking sorta right in my QLogic driver),
-but doesn't this still leave ints blocked for this CPU at least?
-
--matt
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274178AbRISUiP>; Wed, 19 Sep 2001 16:38:15 -0400
+	id <S274176AbRISUhp>; Wed, 19 Sep 2001 16:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274182AbRISUiG>; Wed, 19 Sep 2001 16:38:06 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59379
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S274178AbRISUhx>; Wed, 19 Sep 2001 16:37:53 -0400
-Date: Wed, 19 Sep 2001 13:38:11 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
-Message-ID: <20010919133811.B22773@mikef-linux.matchmail.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com> <15271.11056.810538.66237@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15271.11056.810538.66237@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.20i
+	id <S274178AbRISUhf>; Wed, 19 Sep 2001 16:37:35 -0400
+Received: from anime.net ([63.172.78.150]:20241 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S274176AbRISUhX>;
+	Wed, 19 Sep 2001 16:37:23 -0400
+Date: Wed, 19 Sep 2001 13:37:43 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Simen Thoresen <simen-tt@online.no>
+cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <200109192236080281.11BCB708@scispor.dolphinics.no>
+Message-ID: <Pine.LNX.4.30.0109191337280.27884-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 09:08:32PM +1000, Neil Brown wrote:
-> On Sunday September 16, mfedyk@matchmail.com wrote:
-> > Hi,
-> > 
-> > I'm trying to setup a 2.2 kernel that I can use for comparison to the latest
-> > 2.4 kernels I've been testing, but I came accross a little problem with the
-> > patches I've been trying to combine.
-> > 
-> > I've already applied:
-> > ide.2.2.19.05042001.patch
-> > linux-2.2.19.kdb.diff
-> > linux-2.2.19.ext3.diff
-> > 
-> > And now I'm trying to apply raid-2.2.19-A1, and I get one reject in
-> > include/linux/fs.h.
-> 
-> You should be aware that ext3 (and other journalling filesystems) do
-> not work reliably over RAID1 or RAID5 in 2.2.  Inparticular, you can
-> get problems when the array is rebuilding/resyncing.
-> 
-> But if you only plan to use ext3 with raid0 or linear, you should be
-> fine.
-> 
+On Wed, 19 Sep 2001, Simen Thoresen wrote:
+> On my non-buggy(*) KT133A board with the 55th register set to 09 I get these results;
 
-Can you point me to an archive that describes how to trigger this bug?
+AFAIK you want it 89 not 09
 
-Was it in linux-raid or ext3-users or ...?
+-Dan
 
-Mike
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

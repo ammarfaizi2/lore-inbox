@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131513AbQKZWAw>; Sun, 26 Nov 2000 17:00:52 -0500
+        id <S131595AbQKZWPz>; Sun, 26 Nov 2000 17:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132870AbQKZWAn>; Sun, 26 Nov 2000 17:00:43 -0500
-Received: from taku.hut.fi ([130.233.228.87]:10000 "EHLO taku.hut.fi")
-        by vger.kernel.org with ESMTP id <S131513AbQKZWAd>;
-        Sun, 26 Nov 2000 17:00:33 -0500
-Date: Sun, 26 Nov 2000 23:30:26 +0200 (EET)
-From: Tuomas Heino <iheino@cc.hut.fi>
-To: linux kernel <linux-kernel@vger.kernel.org>
-cc: linux net <linux-net@vger.kernel.org>, Tuomas Heino <iheino@cc.hut.fi>
-Subject: netfilter, nat & packet floods?
-Message-ID: <Pine.OSF.4.10.10011262257160.5186-100000@smaragdi.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S132870AbQKZWPp>; Sun, 26 Nov 2000 17:15:45 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:22032 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S131595AbQKZWP2>; Sun, 26 Nov 2000 17:15:28 -0500
+Date: Sun, 26 Nov 2000 15:42:16 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: PCMCIA 3.1.22 needs patch for kernels > 2.2.18-23
+Message-ID: <20001126154216.A1424@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone know how to properly filter packet floods using iptables w/ nat?
 
->From my point of view 2.4.x:ish connection tracking seems to be quite
-a bit more vulnerable to packet flooding than the 2.2.x:ish
-IP Masquerading used to be (when using default configuration that is).
 
-First we try to make both input & output flood-filtered:
-iptables -t nat -I PREROUTING -j floodprot
-iptables -t nat -I OUTPUT -j floodprot
+David Hinds/Linux,
 
-For example the following rule seems to match no packets:
-iptables -t nat -A floodprot -p tcp --tcp-flags ALL NONE -j DROP
+PCMCIA 3.1.22 requires that the defines in /include/pcmcia/k_compat.h
+for init_waitqueue_head(n) and set_current_state(n) be removed in order
+to build correctly against 2.2.18-23.  
 
-(According to the documentation --tcp-flags ALL NONE should match the
-so-called "Null scan", aka nmap -sN)
+Offending code attached.  This probably needs somethig better than the 
+LINUX_KERNEL_VERSION macro to avoid this problem in the future.
 
-The following rules seem to rate-limit ping & traceroute properly:
+:-)
 
-iptables -t nat -A floodprot -p icmp --icmp-type echo-request -m limit \
- --limit 4/s ! -f -j RETURN
-iptables -t nat -A floodprot -p icmp --icmp-type echo-request -j DROP
-iptables -t nat -A floodprot -p udp --dport 33400:33499 --sport \
- 50000:65535 -m limit --limit 4/s ! -f -j RETURN
-iptables -t nat -A floodprot -p udp --dport 33400:33499 --sport \
- 50000:65535 -j DROP
+Jeff
 
-But is there a better (=simpler) way to do that?
+in /include/pcmcia/k_compat.h
 
-Also if I happen to have a bunch of interfaces that are not supposed to
-get any routing and/or nat from this box, tracking connections on them
-seems to be waste of resources to me - there probably is no way to turn
-connection tracking off for some interface pairs?
+/*********
+#if (LINUX_VERSION_CODE < VERSION(2,2,18))
+#if (LINUX_VERSION_CODE < VERSION(2,0,16))
+#define init_waitqueue_head(p)  (*(p) = NULL)
+#else
+#define init_waitqueue_head(p)  init_waitqueue(p)
+#endif
+typedef struct wait_queue *wait_queue_head_t;
+#endif
+*******/
+
+and
+
+
+#if (LINUX_VERSION_CODE < VERSION(2,1,0))
+#define __set_current_state(n) \
+    do { current->state = TASK_INTERRUPTIBLE; } while (0)
+#elif (LINUX_VERSION_CODE < VERSION(2,2,18))
+//#define __set_current_state(n)  do { current->state = (n); } while (0)
+#endif
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261332AbSKGRnN>; Thu, 7 Nov 2002 12:43:13 -0500
+	id <S261353AbSKGR5M>; Thu, 7 Nov 2002 12:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261344AbSKGRnN>; Thu, 7 Nov 2002 12:43:13 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:37273 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S261332AbSKGRnM>;
-	Thu, 7 Nov 2002 12:43:12 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200211071749.UAA10171@sex.inr.ac.ru>
-Subject: Re: IPSEC FIRST LIGHT! (by non-kernel developer :-))
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 7 Nov 2002 20:49:37 +0300 (MSK)
-Cc: ahu@ds9a.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20021107.071808.43409100.davem@redhat.com> from "David S. Miller" at Nov 7, 2 07:18:08 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S261356AbSKGR5L>; Thu, 7 Nov 2002 12:57:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:22757 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261353AbSKGR5L>;
+	Thu, 7 Nov 2002 12:57:11 -0500
+Date: Thu, 7 Nov 2002 19:03:47 +0100
+From: Jens Axboe <axboe@suse.de>
+To: MdkDev <mdkdev@starman.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord success report
+Message-ID: <20021107180347.GI32005@suse.de>
+References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Nov 07 2002, MdkDev wrote:
+> 
+> Decided to replicate Adam Kropelins CD burning test (burn cd while
+> executing 'dd if=/dev/zero of=foo bs=1M'). Didn't have any problems - I
+> burned 323 MB ISO image while running the aforementioned dd command.
 
-> Alexey, any ideas?
+Cool, are you using an ide drive as the source of the iso?
 
-Yes, rules with prefixlen!=32 do not work, gem forgot htonl() on netmask.
+Thanks for the raport. I'd also like raports such as this one (which I
+really do appreciate) to contain an oppinion of how well cd recording
+works on your system now as compared to before. Anything from "didn't
+notice any difference" to "it's much faster, I noticed that because" and
+"bah it sucks right now, ..." would be fine :)
 
-Also, forwarding is still sick, as I told you before going to sleep,
-so expect a patch soon. Unfortunately, despite of all the precautions
-I sleeped all the day, so I am again at the point when cannot test
-anything but loopback. :-)
+> HDD - 2 IBM Deskstar IDE disks (using integrated RAID controller PDC 20276
+> as an ordinary ATA133 controller)CD burner - LiteOn LTR-16101B
 
-Alexey
+IDE, indeed :-)
 
+deadline scheduler works really well with ide drives, SCSI tends to
+still _suck_.
 
-===== net/key/af_key.c 1.6 vs edited =====
---- 1.6/net/key/af_key.c	Thu Nov  7 04:52:11 2002
-+++ edited/net/key/af_key.c	Thu Nov  7 20:44:51 2002
-@@ -488,7 +491,8 @@
- 	case AF_INET:
- 		xaddr->xfrm4_addr = 
- 			((struct sockaddr_in*)(addr + 1))->sin_addr.s_addr;
--		xaddr->xfrm4_mask = ~0 << (32 - addr->sadb_address_prefixlen);
-+		if (addr->sadb_address_prefixlen)
-+			xaddr->xfrm4_mask = htonl(~0 << (32 - addr->sadb_address_prefixlen));
- 		break;
- 	case AF_INET6:
- 		memcpy(xaddr->a6, 
+-- 
+Jens Axboe
+

@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274589AbRITST5>; Thu, 20 Sep 2001 14:19:57 -0400
+	id <S274595AbRITSWG>; Thu, 20 Sep 2001 14:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274593AbRITSTw>; Thu, 20 Sep 2001 14:19:52 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:56335 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S274589AbRITSTW>;
-	Thu, 20 Sep 2001 14:19:22 -0400
-Date: Thu, 20 Sep 2001 20:19:43 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Linux not detecting ide0
-To: vojtech@suse.cz,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        andre@linux-ide.org
-Message-id: <3BAA333F.64725B02@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S274594AbRITSVq>; Thu, 20 Sep 2001 14:21:46 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:48654 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274593AbRITSVm>;
+	Thu, 20 Sep 2001 14:21:42 -0400
+Message-ID: <XFMail.20010920112513.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010920010502.A7960@redhat.com>
+Date: Thu, 20 Sep 2001 11:25:13 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        "Christopher K. St. John" <cks@distributopia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I discovered some weird behavior in IDE interface handling.
-I some cases linux detects the ide1 channel , but not ide0.
-More precisely , it prints a line like :
 
-ide0: BM-DMA xxxxxx
+On 20-Sep-2001 Benjamin LaHaise wrote:
+> On Wed, Sep 19, 2001 at 11:43:57PM -0500, Christopher K. St. John wrote:
+>>  Sorry, bad editing, that should be:
+>> 
+>>  Assume a large but bursty current of low bandwidth
+>> high latency connections instead of a continuous steady
+>> flood of high bandwidth low latency connections.
+> 
+> Isn't asynchronous io a better model for that case?
 
-but that is it. Nothing else. No line of :
+The advantage /dev/epoll has compared to aio_* and RTsig is 
+1) multiple event delivery/system call
+2) less user<->kernel memory moves
 
-ide0:  at 0x0170 blah blah 
-
-no drives on the channel are recognized.
-No ide0 entry in /proc/devices 
-etc.
-
-ide1 and the devices on it are more or less OK. ( I didn't notice
-any problems, but it is hard to test if linux does not see the root
-fs on hda ! )
-
-I tested the redhat kernel-2.4.7-10 and vanilla linux 2.4.9.
-
-Hardware details :
-- MSI K7T Pro2A motherboard , BIOS v2.9 , VIA KT133 chipset, via 686b southbridge
-- hda is an IBM Deskstar 75GXP 45 GB hard drive ( DTLA-307045 ) ( 80-wire cable,
-    cable-select , connected to the end of the cable, thus master )
-- hdb : none
-- hdc : Acer 1208A CD-RW drive ( cable select (master))
-- hdd : Teac CD532E-B CD-ROM ( cable select (slave))    80-wire cable
-
-The way to trigger this is to set one of the IDE devices in BIOS to wrong geometry.
-Maybe it is a BIOS bug.
-
-I some cases I also got a weird line from linux :
-hd1: C/H/S=0/0/0 from BIOS ignored
-
-I thought that disk are enumerated by letter only, not numbers.
-( it is H-D-one , not H-D-ell, in case you have a funny font )
+The concept is very similar anyway coz you basically have to initiate the
+io-call and wait for an event.
+The difference is how events are collected.
 
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+- Davide
+

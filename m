@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281820AbRK1AUr>; Tue, 27 Nov 2001 19:20:47 -0500
+	id <S282998AbRK1AR3>; Tue, 27 Nov 2001 19:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281821AbRK1AUh>; Tue, 27 Nov 2001 19:20:37 -0500
-Received: from f35.law4.hotmail.com ([216.33.149.35]:36875 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S281820AbRK1AU2>;
-	Tue, 27 Nov 2001 19:20:28 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: jmerkey@vger.timpanogas.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kdb v1.9 patch fails in main.c 1 of 3 hunks no applied
-Date: Wed, 28 Nov 2001 00:20:22 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F35MjkatwD43oFLaqSO00007bfd@hotmail.com>
-X-OriginalArrivalTime: 28 Nov 2001 00:20:22.0411 (UTC) FILETIME=[77F61DB0:01C177A2]
+	id <S282989AbRK1ARS>; Tue, 27 Nov 2001 19:17:18 -0500
+Received: from ppp37.adsl88.pacific.net.au ([202.7.88.37]:387 "EHLO
+	mail.xplantechnology.com") by vger.kernel.org with ESMTP
+	id <S282997AbRK1ARB>; Tue, 27 Nov 2001 19:17:01 -0500
+Date: Wed, 28 Nov 2001 11:18:16 +1100 (EST)
+From: Luke <luked@xplantechnology.com>
+X-X-Sender: <luked@oven.xden.xplantechnology.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: threads & /proc
+Message-ID: <Pine.LNX.4.33.0111281047450.1245-100000@oven.xden.xplantechnology.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi-
-The Kdb-v1.9-2.4.15-pre5 is for the 2.4.15 kernel not the 2.5.1-pre2 kernel 
-for this point on anything that has a 2.4x is only based on  the 2.4x Linux 
-Kernel Series.
-Victor
+Here's some more data about the problem reported by Anton where "ps",
+"top", "killall", etc block and "kill" doesn't work.
 
------ORIGINAL TEXT------------
-kdb-v1.9-2.4.15-pre5 from oss.sgi.com is failing to apply to
-patch-2.5.1-pre2 in /usr/src/linux/main.c.  1 of 3 hunks failed
-message.
+I have encountered this behaviour with kernels 2.4.14 and 2.4.16 but not
+2.4.13 nor 2.4.7 (although 2.4.13 hung this box in a different way).
 
-Jeff
+This was observed on an SMP Pentium III, which does some multithreaded
+computation.
 
+I can't give precise instructions on how to replicate this bug, but
+perhaps it can be repeated simply by exercising kernel threading?
 
+Luke.
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

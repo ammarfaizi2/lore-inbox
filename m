@@ -1,590 +1,634 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSHFTbg>; Tue, 6 Aug 2002 15:31:36 -0400
+	id <S315440AbSHFTbH>; Tue, 6 Aug 2002 15:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSHFTbg>; Tue, 6 Aug 2002 15:31:36 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:21004 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S315415AbSHFT34>;
-	Tue, 6 Aug 2002 15:29:56 -0400
-Date: Tue, 6 Aug 2002 20:33:29 +0100 (IST)
+	id <S315439AbSHFTbE>; Tue, 6 Aug 2002 15:31:04 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:20492 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S315414AbSHFT3r>;
+	Tue, 6 Aug 2002 15:29:47 -0400
+Date: Tue, 6 Aug 2002 20:33:20 +0100 (IST)
 From: Mel <mel@csn.ul.ie>
 X-X-Sender: mel@skynet
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 4/5] slab commentry
-Message-ID: <Pine.LNX.4.44.0208062021010.14917-100000@skynet>
+Subject: [patch 3/5] vmalloc commentry
+Message-ID: <Pine.LNX.4.44.0208062018360.14917-100000@skynet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a commentry patch documenting a bit more how the slab allocator
-works. No code is changed. Please apply
+This is a commentry patch documenting more how vmalloc works.No code is
+changed. Please apply
 
 Mel Gorman
 MSc Student, University of Limerick
 http://www.csn.ul.ie/~mel
 
 
---- linux-2.4.19/mm/slab.c	Sat Aug  3 01:39:46 2002
-+++ linux-2.4.19-mel/mm/slab.c	Tue Aug  6 18:25:32 2002
-@@ -175,10 +175,14 @@
- 	unsigned int limit;
- } cpucache_t;
+--- linux-2.4.19/mm/vmalloc.c	Mon Feb 25 19:38:14 2002
++++ linux-2.4.19-mel/mm/vmalloc.c	Tue Aug  6 16:20:50 2002
+@@ -4,6 +4,19 @@
+  *  Copyright (C) 1993  Linus Torvalds
+  *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999
+  *  SMP-safe vmalloc/vfree/ioremap, Tigran Aivazian <tigran@veritas.com>, May 2000
++ *
++ *
++ * Allocation/Freeing of non-contiguous memory
++ *
++ * These are the functions for assigning a block of linear addresses for pages.
++ * To give a safety margin, the linear address starts at VMALLOC_START.
++ * This is at PAGE_OFFSET + VMALLOC_OFFSET which are all arch dependent
++ * values
++ *
++ * Each area allocated is tracked by a struct vm_struct. There is a
++ * PAGE_SIZE'd gap between each area, also to try and prevent accidental memory
++ * overruns
++ *
+  */
 
-+/* Returns a pointer to the first object in the CPU cache */
- #define cc_entry(cpucache) \
- 	((void **)(((cpucache_t*)(cpucache))+1))
-+
-+/* Returns the cpu cache struct for this processor */
- #define cc_data(cachep) \
- 	((cachep)->cpudata[smp_processor_id()])
-+
- /*
-  * kmem_cache_t
-  *
-@@ -198,7 +202,8 @@
- 	unsigned int		num;	/* # of objs per slab */
- 	spinlock_t		spinlock;
- #ifdef CONFIG_SMP
--	unsigned int		batchcount;
-+	/* Number of objects allocated to a CPU cache in one batch */
-+	unsigned int		batchcount;
- #endif
+ #include <linux/config.h>
+@@ -19,97 +32,208 @@
+ rwlock_t vmlist_lock = RW_LOCK_UNLOCKED;
+ struct vm_struct * vmlist;
 
- /* 2) slab additions /removals */
-@@ -302,6 +307,12 @@
-
- #endif
-
-+/*
-+ * QUERY: Would it make more sense to make this value related to MAX_GFP_ORDER
-+ *        like MAX_GFP_ORDER / 2 . Evaluates to the same thing but 5 is a magic
-+ *        number where as MAX_GFP_ORDER / 2 says "at least have two objects
-+ *        in a slab"
++/**
++ *
++ * free_area_pte - Free pages and pte's from a PMD within a given address range
++ * @pmd: The PMD to free all pte's in
++ * @address: The starting address to free from
++ * @size: The range of entries to free
++ *
++ * This function is responsible for freeing all the page frames and their PTE's
++ * within a given address range in a PMD.
++ *
 + */
- /* maximum size of an obj (in 2^order pages) */
- #define	MAX_OBJ_ORDER	5	/* 32 pages */
+ static inline void free_area_pte(pmd_t * pmd, unsigned long address, unsigned long size)
+ {
+ 	pte_t * pte;
+ 	unsigned long end;
 
-@@ -317,10 +328,10 @@
-  */
- #define	MAX_GFP_ORDER	5	/* 32 pages */
-
--
--/* Macros for storing/retrieving the cachep and or slab from the
-- * global 'mem_map'. These are used to find the slab an obj belongs to.
-- * With kfree(), these are used to find the cache which an obj belongs to.
-+/*
-+ * The slab_t and cache_t a page belongs to is stored on the
-+ * struct page->list . This macros will retrieve set and retrieve it.
-+ * With kfree(), these are used to find the cache which an obj belongs to
-  */
- #define	SET_PAGE_CACHE(pg,x)  ((pg)->list.next = (struct list_head *)(x))
- #define	GET_PAGE_CACHE(pg)    ((kmem_cache_t *)(pg)->list.next)
-@@ -397,6 +408,7 @@
- 		base = sizeof(slab_t);
- 		extra = sizeof(kmem_bufctl_t);
++	/* Will be none, if a vmalloc earlier failed */
+ 	if (pmd_none(*pmd))
+ 		return;
++
++	/*
++	 * A PMD can be bad if it's either read only or the accessed or dirty
++	 * bits are not cleared
++	 */
+ 	if (pmd_bad(*pmd)) {
+ 		pmd_ERROR(*pmd);
+ 		pmd_clear(pmd);
+ 		return;
  	}
-+	/* Keep trying to pack in objects until we run out of space */
- 	i = 0;
- 	while (i*size + L1_CACHE_ALIGN(base+i*extra) <= wastage)
- 		i++;
-@@ -522,6 +534,15 @@
- }
-
- #if DEBUG
-+/**
-+ *
-+ * kmem_poison_obj - Poison an object with a known pattern
-+ * @cachep: The cache the object belongs to
-+ * @addr: The address of the object to be poisoned
-+ *
-+ * This fills an object with POISON_BYTE bytes and marks the end with
-+ * POISON_END. It's used to catch overruns
-+ */
- static inline void kmem_poison_obj (kmem_cache_t *cachep, void *addr)
- {
- 	int size = cachep->objsize;
-@@ -533,6 +554,16 @@
- 	*(unsigned char *)(addr+size-1) = POISON_END;
- }
-
-+/**
-+ *
-+ * kmem_check_poison_obj - Check an objects poisoned pattern for overruns
-+ * @cachep: The cache the object belongs to
-+ * @addr: The address of the object been checked
-+ *
-+ * This will make sure an object hasn't been used prematurly or is
-+ * overlapping with another object by making sure the marker POISON_END
-+ * is at the right place
-+ */
- static inline int kmem_check_poison_obj (kmem_cache_t *cachep, void *addr)
- {
- 	int size = cachep->objsize;
-@@ -548,7 +579,8 @@
- }
- #endif
-
--/* Destroy all the objs in a slab, and release the mem back to the system.
-+/*
-+ * Destroy all the objs in a slab, and release the mem back to the system.
-  * Before calling the slab must have been unlinked from the cache.
-  * The cache-lock is not held/needed.
-  */
-@@ -740,8 +772,10 @@
++
+ 	pte = pte_offset(pmd, address);
++
++	/* Treat the address as an offset relative to the PMD */
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
++
+ 	if (end > PMD_SIZE)
+ 		end = PMD_SIZE;
+ 	do {
+ 		pte_t page;
++
++		/* Clear the PTE from the page tables and keep it here */
+ 		page = ptep_get_and_clear(pte);
++
++		/* Move onto the next PTE */
+ 		address += PAGE_SIZE;
+ 		pte++;
++
+ 		if (pte_none(page))
+ 			continue;
++
+ 		if (pte_present(page)) {
+ 			struct page *ptpage = pte_page(page);
++
++			/*
++			 * QUERY: Is ignoring the PageReserved not a bug?
++			 *        Here, we just skip over the page and move
++			 *        along. The vm_struct will be later freed
++			 *        and the page will be effectively forgotten
++			 *        about. What will free it?
++			 *
++			 *        Should it not be
++			 *
++			 *        if (PageReserved(ptpage)) BUG();
++			 *
++			 *        ?
++			 */
+ 			if (VALID_PAGE(ptpage) && (!PageReserved(ptpage)))
+ 				__free_page(ptpage);
+ 			continue;
  		}
-
- 		/*
--		 * Large num of objs is good, but v. large slabs are currently
--		 * bad for the gfp()s.
-+		 * The Buddy Allocator will suffer if it has to deal with
-+		 * too many allocators of a large order. So while large
-+		 * numbers of objects is good, large orders are not so
-+		 * slab_break_gfp_order forces a balance
- 		 */
- 		if (cachep->gfporder >= slab_break_gfp_order)
- 			break;
-@@ -802,7 +836,10 @@
- 	if (g_cpucache_up)
- 		enable_cpucache(cachep);
- #endif
--	/* Need the semaphore to access the chain. */
-+	/*
-+	 * Need the semaphore to access the chain. Cycle through the chain
-+	 * to make sure there isn't a cache of the same name available.
-+	 */
- 	down(&cache_chain_sem);
- 	{
- 		struct list_head *p;
-@@ -871,6 +908,17 @@
- 	cpucache_t *new[NR_CPUS];
- } ccupdate_struct_t;
-
-+/**
-+ *
-+ * do_ccupdate_local - Swap the cachep data in 'info' with the cache descriptor
-+ *
-+ * When this function is called, info is a local variable of type
-+ * ccupdate_struct_t . The job of this function is to take all the
-+ * information in it and swap it with the CPU data in the cachep
-+ * structure. As each CPU handles it's own data, a spinlock is
-+ * unnecessary. The information is swapped rather than copied so
-+ * that the caller can free the old memory
-+ */
- static void do_ccupdate_local(void *info)
- {
- 	ccupdate_struct_t *new = (ccupdate_struct_t *)info;
-@@ -882,18 +930,33 @@
-
- static void free_block (kmem_cache_t* cachep, void** objpp, int len);
-
-+/**
-+ *
-+ * drain_cpu_caches - Remove all free objects in a CPU cache
-+ *
-+ * kmem_cache_alloc_batch allocates a block of objects that are reserved
-+ * for the use of that CPU. This function is called during kmem_cache_shrink
-+ * so the objects need to be freed
-+ */
- static void drain_cpu_caches(kmem_cache_t *cachep)
- {
- 	ccupdate_struct_t new;
- 	int i;
-
-+	/* new is an array of cpucache_t */
- 	memset(&new.new,0,sizeof(new.new));
-
- 	new.cachep = cachep;
-
- 	down(&cache_chain_sem);
 +
-+	/*
-+	 * Temporarily disable the per CPU cache by swapping in null pointers
-+	 * from new
-+	 */
- 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
-
-+	/* For every cpu, free all the avail objects they have */
- 	for (i = 0; i < smp_num_cpus; i++) {
- 		cpucache_t* ccold = new.new[cpu_logical_map(i)];
- 		if (!ccold || (ccold->avail == 0))
-@@ -903,7 +966,10 @@
- 		local_irq_enable();
- 		ccold->avail = 0;
- 	}
-+
-+	/* Update the per CPU caches with the new empty caches */
- 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
-+
- 	up(&cache_chain_sem);
++		/* Page got swapped out when it accidently got put on a LRU */
+ 		printk(KERN_CRIT "Whee.. Swapped out page in kernel page table\n");
+ 	} while (address < end);
  }
 
-@@ -942,6 +1008,15 @@
++/**
++ *
++ * free_area_pmd - Free PMD's from a PGD within a given address range
++ * @dir: The PGD to free from
++ * @address: The starting address
++ * @size: The range of entries to free
++ *
++ * For each entry in this PMD, try and free up the PTE's associated with it
++ */
+ static inline void free_area_pmd(pgd_t * dir, unsigned long address, unsigned long size)
+ {
+ 	pmd_t * pmd;
+ 	unsigned long end;
+
++	/* Will be none, if a vmalloc earlier failed */
+ 	if (pgd_none(*dir))
+ 		return;
++
++	/*
++	 * pgd_bad is a null-op for most architectures. In others (e.g. alpha),
++	 * it will make sure the PGD is not marked as a valid, dirty or
++	 * accessed page
++	 */
+ 	if (pgd_bad(*dir)) {
+ 		pgd_ERROR(*dir);
+ 		pgd_clear(dir);
+ 		return;
+ 	}
++
++	/* Get the first PMD */
+ 	pmd = pmd_offset(dir, address);
++
++	/* Treat address as an offset within this PMD */
+ 	address &= ~PGDIR_MASK;
+ 	end = address + size;
++
++        /* Don't overflow on this PGD */
+ 	if (end > PGDIR_SIZE)
+ 		end = PGDIR_SIZE;
+ 	do {
+ 		free_area_pte(pmd, address, end - address);
++
++		/* Move to the next PMD making sure we are PMD aligned */
+ 		address = (address + PMD_SIZE) & PMD_MASK;
+ 		pmd++;
+ 	} while (address < end);
+ }
+
++/**
++ *
++ * vmfree_area_pages - Free all pages and ptes within an address range
++ * @address: The starting address
++ * @size: The range of pages to free
++ *
++ * This begins the steps through the page tables to free up all the page frames
++ * of the allocation. The caches are full so that the CPU doesn't accidently
++ * use the cache for a page that has been removed. The TLB is flushed as the
++ * page tables will be changed.
++ */
+ void vmfree_area_pages(unsigned long address, unsigned long size)
+ {
+ 	pgd_t * dir;
+ 	unsigned long end = address + size;
+
++	/* Get the first PGD */
+ 	dir = pgd_offset_k(address);
++
+ 	flush_cache_all();
+ 	do {
++		/*
++		 * Step into the PMD and begin trying to free the PTE's it
++		 * refers to
++		 */
+ 		free_area_pmd(dir, address, end - address);
++
++		/* Move to the next PGD making sure address is PGD aligned */
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (address && (address < end));
++
+ 	flush_tlb_all();
+ }
+
++/**
++ *
++ * alloc_area_pte - Allocate all the page frames necessary for the allocation
++ * @pte: the PTE we are currently at
++ * @address: Starts as the base address of the PTE
++ * @size: The total size of the allocation
++ *
++ */
+ static inline int alloc_area_pte (pte_t * pte, unsigned long address,
+ 			unsigned long size, int gfp_mask, pgprot_t prot)
+ {
+ 	unsigned long end;
+
++	/* Similar to alloc_area_pmd, see below */
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+ 	if (end > PMD_SIZE)
+ 		end = PMD_SIZE;
++
+ 	do {
+ 		struct page * page;
++
++		/* Release lock as sleeping with a spinlock is a bug */
+ 		spin_unlock(&init_mm.page_table_lock);
+ 		page = alloc_page(gfp_mask);
+ 		spin_lock(&init_mm.page_table_lock);
++
++		/*
++		 * QUERY: If this is true, it means someone took this
++		 *        PTE in the middle of our address space when the lock
++		 *        was released. How could this happen and if it did, is
++		 *        it not a serious bug? As in, wouldn't a second
++		 *        process have to be trying to allocate a vm_struct
++		 *        that overlaps the one we are working on?
++		 */
+ 		if (!pte_none(*pte))
+ 			printk(KERN_ERR "alloc_area_pte: page already exists\n");
++
+ 		if (!page)
+ 			return -ENOMEM;
++
++		/* Mark used and move to the next PTE */
+ 		set_pte(pte, mk_pte(page, prot));
+ 		address += PAGE_SIZE;
+ 		pte++;
+@@ -117,57 +241,106 @@
+ 	return 0;
+ }
+
++/**
++ *
++ * alloc_area_pmd - Allocate all the PTE's necessary for the allocation
++ * @pmd: the PMD we are currently at
++ * @address: Starts as the base address of the PMD
++ * @size: The total size of the allocation
++ */
+ static inline int alloc_area_pmd(pmd_t * pmd, unsigned long address, unsigned long size, int gfp_mask, pgprot_t prot)
+ {
+ 	unsigned long end;
+
++	/* Address becomes an offset within the PGD */
+ 	address &= ~PGDIR_MASK;
+ 	end = address + size;
++
++	/* Don't overflow on this PGD */
+ 	if (end > PGDIR_SIZE)
+ 		end = PGDIR_SIZE;
+ 	do {
++		/*
++		 * fixme: The return value will be ignored, was it
++		 *        originally intended to pass this up to the higher
++		 *        caller functions?
++		 */
+ 		pte_t * pte = pte_alloc(&init_mm, pmd, address);
+ 		if (!pte)
+ 			return -ENOMEM;
+ 		if (alloc_area_pte(pte, address, end - address, gfp_mask, prot))
+ 			return -ENOMEM;
++
++		/* Move to the next PMD entry making sure we are PMD aligned */
+ 		address = (address + PMD_SIZE) & PMD_MASK;
+ 		pmd++;
+ 	} while (address < end);
++
+ 	return 0;
+ }
+
++/**
++ *
++ * vmalloc_area_pages - Allocates all the PMD's necessary
++ * @address - The beginning of the linear address
++ * @size - A page aligned size of the allocation
++ * @gfp_mask - The flags for this allocation
++ * @prot - Probably going to be PAGE_KERNEL
++ *
++ * The cache is flushed at the end in case the page allocated accidently gets
++ * aliased by the cache. See Documentation/cachetlb.txt
++ */
+ inline int vmalloc_area_pages (unsigned long address, unsigned long size,
+                                int gfp_mask, pgprot_t prot)
+ {
+ 	pgd_t * dir;
++
+ 	unsigned long end = address + size;
+ 	int ret;
+
++	/* The first PGD needed for this allocation */
+ 	dir = pgd_offset_k(address);
+ 	spin_lock(&init_mm.page_table_lock);
+ 	do {
+ 		pmd_t *pmd;
+
++		/* Allocate a PMD for this PGD entry to point to */
+ 		pmd = pmd_alloc(&init_mm, dir, address);
++
++		/*
++		 * NOTE: Doesn't matter what vmalloc_area_pages actually
++		 *       returns as long as it's non-zero. Possible fixme
++		 */
+ 		ret = -ENOMEM;
+ 		if (!pmd)
+ 			break;
+
++		/* fixme: Dead code. ret was set a few lines ago */
+ 		ret = -ENOMEM;
++
+ 		if (alloc_area_pmd(pmd, address, end - address, gfp_mask, prot))
+ 			break;
+
++		/* Move to next PGD entry and make sure it is PGD aligned */
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+
+ 		ret = 0;
+ 	} while (address && (address < end));
+ 	spin_unlock(&init_mm.page_table_lock);
++
++	/* Flush cache if necessary. A no-op on many architectures */
+ 	flush_cache_all();
  	return ret;
  }
 
 +/**
 + *
-+ * __kmem_cache_shrink - Shrink a cache
-+ * @cachep: The cache to shrink
++ * get_vm_area - Get a vm_struct for the allocation
 + *
-+ * Shrinks a cache and returns if the cache is totally free or not. The
-+ * cache is shrunk by draining the per CPU cache and then deleting all
-+ * free slabs.
++ * This function is responsible for finding a linear address space large enough
++ * to accommodate the allocation
 + */
- static int __kmem_cache_shrink(kmem_cache_t *cachep)
+ struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
  {
- 	int ret;
-@@ -960,8 +1035,13 @@
-  * kmem_cache_shrink - Shrink a cache.
-  * @cachep: The cache to shrink.
-  *
-- * Releases as many slabs as possible for a cache.
-- * Returns number of pages released.
-+ * Shrinks a cache and returns the number of pages freed. The
-+ * cache is shrunk by draining the per CPU cache and then deleting all
-+ * free slabs.
-+ *
-+ * Note the difference between this and __kmem_cache_shrink. This function
-+ * returns the pages free and the other returns a boolean indicating if
-+ * there is partially filled or empty slabs remaining
-  */
- int kmem_cache_shrink(kmem_cache_t *cachep)
- {
-@@ -976,6 +1056,7 @@
- 	ret = __kmem_cache_shrink_locked(cachep);
- 	spin_unlock_irq(&cachep->spinlock);
-
-+	/* Number of slabs returned << gfporder gives number of pages freed */
- 	return ret << cachep->gfporder;
- }
-
-@@ -1055,6 +1136,19 @@
- 	return slabp;
- }
-
-+/**
-+ *
-+ * kmem_cache_init_objs - Initialise all objects in a slab
-+ * @cachep: The cache the objects belong to
-+ * @slabp: The slab the objects belong to
-+ * @ctor_flags: Flags to pass to the constructor function
-+ *
-+ * Called once by kmem_cache_grow. It creates all the objects for the slab
-+ * and calls the constructor if there is one available. If debugging is
-+ * available, either end of an object will be marked with RED_MAGIC1 to
-+ * catch overruns. Then the object will be poisoned with a known pattern
-+ *
-+ */
- static inline void kmem_cache_init_objs (kmem_cache_t * cachep,
- 			slab_t * slabp, unsigned long ctor_flags)
- {
-@@ -1084,6 +1178,13 @@
- 		if (cachep->flags & SLAB_POISON)
- 			/* need to poison the objs */
- 			kmem_poison_obj(cachep, objp);
+ 	unsigned long addr;
+@@ -176,48 +349,94 @@
+ 	area = (struct vm_struct *) kmalloc(sizeof(*area), GFP_KERNEL);
+ 	if (!area)
+ 		return NULL;
 +
-+		/*
-+		 * QUERY: Is it really necessary to check this now? They were
-+		 *        just written above so unless the objp
-+		 *        pointers were totally screwed, this isn't
-+		 *        going to be true.
-+		 */
- 		if (cachep->flags & SLAB_RED_ZONE) {
- 			if (*((unsigned long*)(objp)) != RED_MAGIC1)
- 				BUG();
-@@ -1117,6 +1218,11 @@
- 	 */
- 	if (flags & ~(SLAB_DMA|SLAB_LEVEL_MASK|SLAB_NO_GROW))
- 		BUG();
++	/* Pad out size so that there is a PAGE_SIZE gap between vm_structs */
+ 	size += PAGE_SIZE;
 +
-+	/* QUERY: Dead check? Wouldn't BUG() have above have prevented getting
-+	         Or is having SLAB_NO_GROW in here not a bug at all and
-+	 *        the previous check is bogus?
++	/*
++	 * Start at VMALLOC_START and move forward. If no allocation has been
++	 * made yet, the first one will be at VMALLOC_START.
++	 *
++	 * QUERY: Doesn't this presume vmlist will be initialised as NULL?
++	 *        There doesn't appear to be a vmlist = NULL anywhere during
++	 *        startup.
 +	 */
- 	if (flags & SLAB_NO_GROW)
- 		return 0;
-
-@@ -1169,7 +1275,7 @@
- 	if (!(slabp = kmem_cache_slabmgmt(cachep, objp, offset, local_flags)))
- 		goto opps1;
-
--	/* Nasty!!!!!! I hope this is OK. */
-+	/* For each page used for the slab, attach the cachep and slabp */
- 	i = 1 << cachep->gfporder;
- 	page = virt_to_page(objp);
- 	do {
-@@ -1228,6 +1334,14 @@
- }
- #endif
-
-+/**
-+ *
-+ * kmem_cache_alloc_head - Simple debugging checks before and object is
-+ * allocated
-+ *
-+ * Asserts that the wrong combination of SLAB_DMA and GFP_DMA is not in
-+ * use.
-+ */
- static inline void kmem_cache_alloc_head(kmem_cache_t *cachep, int flags)
- {
- 	if (flags & SLAB_DMA) {
-@@ -1239,6 +1353,7 @@
- 	}
- }
-
-+/* kmem_cache_alloc_one_tail - Allocate one object from the slab provided */
- static inline void * kmem_cache_alloc_one_tail (kmem_cache_t *cachep,
- 						slab_t *slabp)
- {
-@@ -1251,6 +1366,7 @@
- 	/* get obj pointer */
- 	slabp->inuse++;
- 	objp = slabp->s_mem + slabp->free*cachep->objsize;
+ 	addr = VMALLOC_START;
+ 	write_lock(&vmlist_lock);
 +
- 	slabp->free=slab_bufctl(slabp)[slabp->free];
-
- 	if (unlikely(slabp->free == BUFCTL_END)) {
-@@ -1302,6 +1418,13 @@
- })
-
- #ifdef CONFIG_SMP
-+/**
-+ *
-+ * kmem_cache_alloc_batch - Allocate multiple objects and store in cache
-+ *
-+ * This function will allocate a number of objects for a slab and keep a
-+ * reference to them in the local cpucache_t entry.
-+ */
- void* kmem_cache_alloc_batch(kmem_cache_t* cachep, cpucache_t* cc, int flags)
- {
- 	int batchcount = cachep->batchcount;
-@@ -1310,13 +1433,16 @@
- 	while (batchcount--) {
- 		struct list_head * slabs_partial, * entry;
- 		slab_t *slabp;
--		/* Get slab alloc is to come from. */
+ 	for (p = &vmlist; (tmp = *p) ; p = &tmp->next) {
 +
-+		/* Get slab alloc is to come from */
- 		slabs_partial = &(cachep)->slabs_partial;
- 		entry = slabs_partial->next;
- 		if (unlikely(entry == slabs_partial)) {
- 			struct list_head * slabs_free;
- 			slabs_free = &(cachep)->slabs_free;
- 			entry = slabs_free->next;
++		/* Don't overflow */
+ 		if ((size + addr) < addr)
+ 			goto out;
 +
-+			/* no partial or free slab. call kmem_cache_grow */
- 			if (unlikely(entry == slabs_free))
- 				break;
- 			list_del(entry);
-@@ -1324,6 +1450,8 @@
- 		}
-
- 		slabp = list_entry(entry, slab_t, list);
-+
-+		/* Increment the number of avail objects for this CPU cache */
- 		cc_entry(cc)[cc->avail++] =
- 				kmem_cache_alloc_one_tail(cachep, slabp);
- 	}
-@@ -1335,6 +1463,7 @@
- }
- #endif
-
-+/* __kmem_cache_alloc - Allocate an object from a slab */
- static inline void * __kmem_cache_alloc (kmem_cache_t *cachep, int flags)
- {
- 	unsigned long save_flags;
-@@ -1342,9 +1471,12 @@
-
- 	kmem_cache_alloc_head(cachep, flags);
- try_again:
-+
- 	local_irq_save(save_flags);
-+
- #ifdef CONFIG_SMP
- 	{
-+		/* Check to see can we allocate from the CPU cache */
- 		cpucache_t *cc = cc_data(cachep);
-
- 		if (cc) {
-@@ -1368,6 +1500,8 @@
- #endif
- 	local_irq_restore(save_flags);
- 	return objp;
-+
-+/* kmem_cache_alloc_one contains a goto to this label */
- alloc_new_slab:
- #ifdef CONFIG_SMP
- 	spin_unlock(&cachep->spinlock);
-@@ -1448,8 +1582,14 @@
- 		return;
- #endif
- 	{
-+		/* Set free to point to this object now that it has been
-+		 * freed.
-+		 *
-+		 * QUERY: This could introduce problems during the next
-+		 *        alloc_one. see kmem_cache_alloc_one_tail for
-+		 *        details.
-+		 */
- 		unsigned int objnr = (objp-slabp->s_mem)/cachep->objsize;
--
- 		slab_bufctl(slabp)[objnr] = slabp->free;
- 		slabp->free = objnr;
- 	}
-@@ -1478,6 +1618,13 @@
- 		kmem_cache_free_one(cachep, *objpp);
- }
-
-+/**
-+ *
-+ * free_block - Free a number of objects placed together
-+ *
-+ * Of primary interest to the per CPU cache which will have a number of
-+ * objects placed together
-+ */
- static void free_block (kmem_cache_t* cachep, void** objpp, int len)
- {
- 	spin_lock(&cachep->spinlock);
-@@ -1556,6 +1703,7 @@
- {
- 	cache_sizes_t *csizep = cache_sizes;
-
-+	/* QUERY: Use kmem_find_general_cachep? */
- 	for (; csizep->cs_size; csizep++) {
- 		if (size > csizep->cs_size)
- 			continue;
-@@ -1602,12 +1750,18 @@
- 	if (!objp)
- 		return;
- 	local_irq_save(flags);
-+
-+	/* CHECK\_PAGE makes sure this is a slab cache. */
- 	CHECK_PAGE(virt_to_page(objp));
-+
-+	/* The struct page list stores the pointer to the kmem_cache_t */
- 	c = GET_PAGE_CACHE(virt_to_page(objp));
-+
- 	__kmem_cache_free(c, (void*)objp);
- 	local_irq_restore(flags);
- }
-
-+/* kmem_find_general_cachep - Find a general cache large enough for size */
- kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
- {
- 	cache_sizes_t *csizep = cache_sizes;
-@@ -1626,14 +1780,25 @@
-
- #ifdef CONFIG_SMP
-
--/* called with cache_chain_sem acquired.  */
-+/**
-+ *
-+ * kmem_tune_cpucache - Create or resize the per CPU caches
-+ * @cachep: The cache been tuned
-+ * @limit: The total number of objects reserved for a CPU
-+ * @batchcount: How many objects to allocate in batch to the CPU cache
-+ *
-+ * This function is responsible for creating a cpucache_t for each CPU.
-+ * It sets an appropriate limit and avail based on batchcount
-+ */
- static int kmem_tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
- {
-+	/* Static struct large enough to store data on NR_CPU CPU's */
- 	ccupdate_struct_t new;
- 	int i;
-
- 	/*
--	 * These are admin-provided, so we are more graceful.
-+	 * These are admin-provided via the prox interface, so we are
-+	 * more graceful.
- 	 */
- 	if (limit < 0)
- 		return -EINVAL;
-@@ -1646,6 +1811,10 @@
-
- 	memset(&new.new,0,sizeof(new.new));
- 	if (limit) {
-+		/*
-+		 * Create smp_num_cpus number of cpucache_t and place them
-+		 * in the ccupdate_struct_t struct new
-+		 */
- 		for (i = 0; i< smp_num_cpus; i++) {
- 			cpucache_t* ccnew;
-
-@@ -1663,8 +1832,10 @@
- 	cachep->batchcount = batchcount;
- 	spin_unlock_irq(&cachep->spinlock);
-
-+	/* Swap the new information with what is in the cache descriptor */
- 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
-
-+	/* new now contains the old per cpu cache so it can be deleted here */
- 	for (i = 0; i < smp_num_cpus; i++) {
- 		cpucache_t* ccold = new.new[cpu_logical_map(i)];
- 		if (!ccold)
-@@ -1674,6 +1845,7 @@
- 		local_irq_enable();
- 		kfree(ccold);
- 	}
-+
- 	return 0;
- oom:
- 	for (i--; i >= 0; i--)
-@@ -1681,6 +1853,14 @@
- 	return -ENOMEM;
- }
-
-+/**
-+ *
-+ * enable_cpucache - Enable the per cpu object cache
-+ * @cachep: The cache to enable the cpucaches for
-+ *
-+ * Find a good size for limit based on the size of the objects and create
-+ * the CPU caches with kmem_tune_cpucache
-+ */
- static void enable_cpucache (kmem_cache_t *cachep)
- {
- 	int err;
-@@ -1764,6 +1944,7 @@
- 		}
- #ifdef CONFIG_SMP
- 		{
-+			/* Free the per CPU cache */
- 			cpucache_t *cc = cc_data(searchp);
- 			if (cc && cc->avail) {
- 				__free_block(searchp, cc_entry(cc), cc->avail);
-@@ -1774,6 +1955,8 @@
-
- 		full_free = 0;
- 		p = searchp->slabs_free.next;
-+
-+		/* Count the number of free slabs (full_free) */
- 		while (p != &searchp->slabs_free) {
- 			slabp = list_entry(p, slab_t, list);
- #if DEBUG
-@@ -1822,7 +2005,11 @@
- 	best_len = (best_len + 1)/2;
- 	for (scan = 0; scan < best_len; scan++) {
- 		struct list_head *p;
--
-+
-+		/*
-+		 * QUERY: useless check? The search above always skips over
-+		 *        caches that are growing.
-+		 */
- 		if (best_cachep->growing)
++		/* Break if the gap is large enough */
+ 		if (size + addr <= (unsigned long) tmp->addr)
  			break;
- 		p = best_cachep->slabs_free.prev;
-@@ -1844,6 +2031,8 @@
- 		spin_lock_irq(&best_cachep->spinlock);
- 	}
- 	spin_unlock_irq(&best_cachep->spinlock);
 +
-+	/* Return number of pages freed */
- 	ret = scan * (1 << best_cachep->gfporder);
++		/* Move addr to the end of the current vm_struct */
+ 		addr = tmp->size + (unsigned long) tmp->addr;
+ 		if (addr > VMALLOC_END-size)
+ 			goto out;
+ 	}
++
++	/* Insert the new area */
+ 	area->flags = flags;
+ 	area->addr = (void *)addr;
+ 	area->size = size;
+ 	area->next = *p;
+ 	*p = area;
++
+ 	write_unlock(&vmlist_lock);
+ 	return area;
+
  out:
- 	up(&cache_chain_sem);
++	/* Allocation failed, clean up */
+ 	write_unlock(&vmlist_lock);
+ 	kfree(area);
+ 	return NULL;
+ }
+
++/**
++ *
++ * vfree - Free an area of non-contiguous memory allocated by vmalloc
++ * @addr: The base address to free
++ *
++ * This function takes the base address. It must be page aligned and the one
++ * returned by vmalloc earlier. It cycles through the vm_structs and ultimately
++ * deallocate all the PMD's, PTE's and page frames previously allocated
++ **/
+ void vfree(void * addr)
+ {
+ 	struct vm_struct **p, *tmp;
+
+ 	if (!addr)
+ 		return;
++
++	/*
++	 * Check the address is page aligned. As all allocations had to be page
++	 * aligned, a non-page aligned vfree request has to be bogus
++	 */
+ 	if ((PAGE_SIZE-1) & (unsigned long) addr) {
+ 		printk(KERN_ERR "Trying to vfree() bad address (%p)\n", addr);
+ 		return;
+ 	}
++
++	/* Cycle through the vmlist looking for the right area */
+ 	write_lock(&vmlist_lock);
+ 	for (p = &vmlist ; (tmp = *p) ; p = &tmp->next) {
+ 		if (tmp->addr == addr) {
++			/*
++			 * Area found so remove it from the vmlist. Lock is not
++			 * released now just in case another process realloced
++			 * the same area and started trying to alloc PTE's at
++			 * the same time we are freeing them
++			 */
+ 			*p = tmp->next;
+ 			vmfree_area_pages(VMALLOC_VMADDR(tmp->addr), tmp->size);
+ 			write_unlock(&vmlist_lock);
++
++			/* Free the vm_struct back to the slab allocator */
+ 			kfree(tmp);
+ 			return;
+ 		}
+@@ -226,20 +445,43 @@
+ 	printk(KERN_ERR "Trying to vfree() nonexistent vm area (%p)\n", addr);
+ }
+
++/**
++ *
++ * __vmalloc - Allocate a set of pages in non-contiguous memory
++ * @size: size of allocation
++ * @gfp_mask: The flags for the allocation. currently GFP_KERNEL | __GFP_HIGHMEM
++ * @prot: PAGE_KERNEL to stop it been swapped out
++ *
++ * This does the real work of the allocation. Pages allocated will not be
++ * contiguous in physical memory, only in the linear address space. Do not
++ * call this function directly. Use vmalloc which will call with the correct
++ * flags and protection.
++ **/
+ void * __vmalloc (unsigned long size, int gfp_mask, pgprot_t prot)
+ {
+ 	void * addr;
+ 	struct vm_struct *area;
+
++	/* size has to be page aligned other bits of pages would be wasted */
+ 	size = PAGE_ALIGN(size);
++
++	/* Can't alloc 0 bytes or more than available physical pages */
+ 	if (!size || (size >> PAGE_SHIFT) > num_physpages) {
+ 		BUG();
+ 		return NULL;
+ 	}
++
++	/* Find a large enough linear block in memory */
+ 	area = get_vm_area(size, VM_ALLOC);
+ 	if (!area)
+ 		return NULL;
+ 	addr = area->addr;
++
++	/*
++	 * vmalloc_area_pages begins the work of allocating the PMD, PTE's
++	 * and finally the physical pages for the allocation. vfree() will
++	 * clean up failed allocations
++	 */
+ 	if (vmalloc_area_pages(VMALLOC_VMADDR(addr), size, gfp_mask, prot)) {
+ 		vfree(addr);
+ 		return NULL;
+@@ -247,21 +489,44 @@
+ 	return addr;
+ }
+
++/**
++ *
++ * vread - Read bytes from vmalloced memory like a char device
++ * @buf: Buffer to read into
++ * @addr: Starting address
++ * @count: Number of bytes to read
++ *
++ * This reads an area of vmalloced memory like a character device would. It
++ * does not have to read from a "valid" area. If the reader enters an area
++ * that is not in use, it will put 0's in the buf
++ **/
+ long vread(char *buf, char *addr, unsigned long count)
+ {
+ 	struct vm_struct *tmp;
+ 	char *vaddr, *buf_start = buf;
+ 	unsigned long n;
+
+-	/* Don't allow overflow */
++	/*
++	 * Don't allow overflow. If we would overflow, count equal to
++	 * -addr will read as much address space as possible
++	 */
+ 	if ((unsigned long) addr + count < count)
+ 		count = -(unsigned long) addr;
+
+ 	read_lock(&vmlist_lock);
++
++	/*
++	 * Cycle through the vmlist until we find the vm_struct closest to
++	 * or containing the address to read from
++	 */
+ 	for (tmp = vmlist; tmp; tmp = tmp->next) {
+ 		vaddr = (char *) tmp->addr;
++
++		/* Takes into account the PAGE_SIZE padding */
+ 		if (addr >= vaddr + tmp->size - PAGE_SIZE)
+ 			continue;
++
++		/* Zero fill if reading an invalid area */
+ 		while (addr < vaddr) {
+ 			if (count == 0)
+ 				goto finished;
+@@ -270,6 +535,8 @@
+ 			addr++;
+ 			count--;
+ 		}
++
++		/* Read to the end of the area or read count number of bytes */
+ 		n = vaddr + tmp->size - PAGE_SIZE - addr;
+ 		do {
+ 			if (count == 0)
+@@ -279,27 +546,61 @@
+ 			addr++;
+ 			count--;
+ 		} while (--n > 0);
++
+ 	}
++
++	/* QUERY: Lets say n bytes had been read and we had reached the
++	 *        end of the last vm_struct but count was still 100.
++	 *        These would not be zero filled possibly leaving in
++	 *        old data in a buffer. Is this a bug or is it
++	 *        considered that a person shouldn't be reading invalid
++	 *        areas anyway?
++	 *
++	 *        Solution would be to write in count number of 0's into the
++	 *        buffer ala
++	 *
++	 *        while (count--) *(buf++) = 0;
++	 *
++	 *        or something similar?
++	 */
++
+ finished:
+ 	read_unlock(&vmlist_lock);
+ 	return buf - buf_start;
+ }
+
++/**
++ *
++ * vwrite - Write bytes from a buffer into vmalloced memory like a char device
++ * @buf: Buffer to read from
++ * @addr: Starting address to write to
++ * @count: Number of bytes to write
++ *
++ * This writes to a vmalloced area like a character device would. This works
++ * in a similar fashion to vread. The principle difference is that data that
++ * would write to an invalid area is simply silently dropped
++ **/
+ long vwrite(char *buf, char *addr, unsigned long count)
+ {
+ 	struct vm_struct *tmp;
+ 	char *vaddr, *buf_start = buf;
+ 	unsigned long n;
+
+-	/* Don't allow overflow */
++	/* Don't allow overflow. If we would overflow, count equal to
++	 * -addr will read as much address space as possible
++	 */
+ 	if ((unsigned long) addr + count < count)
+ 		count = -(unsigned long) addr;
+
+ 	read_lock(&vmlist_lock);
++
++	/* Cycle through vmlist like vread does */
+ 	for (tmp = vmlist; tmp; tmp = tmp->next) {
+ 		vaddr = (char *) tmp->addr;
+ 		if (addr >= vaddr + tmp->size - PAGE_SIZE)
+ 			continue;
++
++		/* If area is invalid, just silently drop the bytes */
+ 		while (addr < vaddr) {
+ 			if (count == 0)
+ 				goto finished;
+@@ -307,6 +608,8 @@
+ 			addr++;
+ 			count--;
+ 		}
++
++		/* Valid area, write to end of area or count number of bytes */
+ 		n = vaddr + tmp->size - PAGE_SIZE - addr;
+ 		do {
+ 			if (count == 0)
 
 

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268304AbUHKW6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUHKXBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268304AbUHKW6F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUHKW6E
+	id S268299AbUHKXBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUHKW7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:58:04 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:60048 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S268317AbUHKW5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:57:37 -0400
-Date: Wed, 11 Aug 2004 15:57:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Subject: [PATCH] Remove CONFIG_SERIAL_8250_MANY_PORTS from Ebony / Ocotea
-Message-ID: <20040811225729.GG390@smtp.west.cox.net>
+	Wed, 11 Aug 2004 18:59:07 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:52712 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S268306AbUHKW4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:56:18 -0400
+Date: Thu, 12 Aug 2004 00:56:12 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: David Woodhouse <postmaster@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811225612.GB14073@louise.pinerecords.com>
+References: <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org> <20040811172222.GI10100@louise.pinerecords.com> <20040811184148.A30660@infradead.org> <20040811175109.GJ10100@louise.pinerecords.com> <1092264200.1438.4347.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+In-Reply-To: <1092264200.1438.4347.camel@imladris.demon.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_SERIAL_8250_MANY_PORTS should not be set for these boards, as
-they only have 2 serial ports.
+On Aug-11 2004, Wed, 23:43 +0100
+David Woodhouse <postmaster@infradead.org> wrote:
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> On Wed, 2004-08-11 at 19:51 +0200, Tomas Szepe wrote:
+> > 550-Verification failed for <szepe@pinerecords.com>
+> > 550-(result of earlier verification reused).
+> > 550 Sender verify failed
+> > 
+> > I for one don't call this a properly configured mail system.
+> 
+> Indeed it isn't. It doesn't accept mail to 'postmaster@pinerecords.com',
+> which is in violation of RFC2821. Hence we don't accept mail from it.
+> 
+> 2004-08-11 17:33:36 H=louise.pinerecords.com [213.168.176.16] sender
+> verify fail for <kala@pinerecords.com>: response to "RCPT
+> TO:<postmaster@pinerecords.com>" from louise.pinerecords.com
+> [213.168.176.16] was: 553 5.3.0 <postmaster@pinerecords.com>... No such
+> user
+> 
+> 2004-08-11 17:33:36 H=louise.pinerecords.com [213.168.176.16]
+> F=<kala@pinerecords.com> rejected RCPT <hch@infradead.org>: Sender
+> verify failed
 
---- 1.6/arch/ppc/configs/ocotea_defconfig	2004-08-09 16:41:37 -07:00
-+++ edited/arch/ppc/configs/ocotea_defconfig	2004-08-11 15:55:55 -07:00
-@@ -398,7 +398,7 @@
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=4
- CONFIG_SERIAL_8250_EXTENDED=y
--CONFIG_SERIAL_8250_MANY_PORTS=y
-+# CONFIG_SERIAL_8250_MANY_PORTS is not set
- CONFIG_SERIAL_8250_SHARE_IRQ=y
- # CONFIG_SERIAL_8250_DETECT_IRQ is not set
- # CONFIG_SERIAL_8250_MULTIPORT is not set
---- 1.8/arch/ppc/configs/ebony_defconfig	2004-08-09 16:41:36 -07:00
-+++ edited/arch/ppc/configs/ebony_defconfig	2004-08-11 15:55:58 -07:00
-@@ -384,7 +384,7 @@
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=4
- CONFIG_SERIAL_8250_EXTENDED=y
--CONFIG_SERIAL_8250_MANY_PORTS=y
-+# CONFIG_SERIAL_8250_MANY_PORTS is not set
- CONFIG_SERIAL_8250_SHARE_IRQ=y
- # CONFIG_SERIAL_8250_DETECT_IRQ is not set
- # CONFIG_SERIAL_8250_MULTIPORT is not set
+Ok, thanks for the warning.  Is there any reason why you should
+be trying to look up postmaster@ from the sender domain upon
+RCPT TO?
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Tomas Szepe <szepe@pinerecords.com>

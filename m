@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130085AbQJaDeI>; Mon, 30 Oct 2000 22:34:08 -0500
+	id <S130081AbQJaDlk>; Mon, 30 Oct 2000 22:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130091AbQJaDd6>; Mon, 30 Oct 2000 22:33:58 -0500
-Received: from harzserver1.harz.de ([193.159.181.124]:50449 "EHLO
-	harzserver1.harz.de") by vger.kernel.org with ESMTP
-	id <S130085AbQJaDdp>; Mon, 30 Oct 2000 22:33:45 -0500
-Date: Mon, 30 Oct 2000 21:48:20 +0100
-From: Gerhard Fuellgrabe <gerd@cacofonix.harz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Q: ip_masq module for battlecom?
-Message-ID: <20001030214820.A13204@cacofonix.fuenet.harz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
+	id <S130090AbQJaDlT>; Mon, 30 Oct 2000 22:41:19 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:2060 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S130081AbQJaDlQ>;
+	Mon, 30 Oct 2000 22:41:16 -0500
+Message-Id: <200010310241.e9V2ftx29950@sleipnir.valparaiso.cl>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] ipv4 skbuff locking scope 
+In-Reply-To: Message from "David S. Miller" <davem@redhat.com> 
+   of "Mon, 30 Oct 2000 14:24:46 -0800." <200010302224.OAA02266@pizda.ninka.net> 
+Date: Mon, 30 Oct 2000 23:41:55 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+"David S. Miller" <davem@redhat.com> said:
 
-in my LAN there are users working on battle.net (Starcraft,
-Diablo2 etc.). There is a Linux 2.2.14 box routing the LAN
-with private IP addresses to the internet (with IP masqerading).
+[...]
 
-A feature that does not work is the battlecom communication. 
-Is there an ip_masq module available for this (like e.g. 
-ipv4/ip_masq_cuseeme.o or ipv4/ip_masq_quake.o) or is anybody
-working on this?
+> Please send such fixes to me, and I'll set you straight with a
+> description as to why your change is unnecessary :-)
 
-Regards,
-Gerry
-
+Could you please Cc: them into the kernel? ;-)
 -- 
-Gerhard Füllgrabe             Phone: +49.5323.96788   Fax: 962044
-Arnikaweg 34                              Mobile: +49.170.3508588
-D-38678 Clausthal-Zellerfeld                 E-mail: gerd@harz.de
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

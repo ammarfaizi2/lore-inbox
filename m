@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBNJbd>; Wed, 14 Feb 2001 04:31:33 -0500
+	id <S129161AbRBNJwe>; Wed, 14 Feb 2001 04:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129106AbRBNJbX>; Wed, 14 Feb 2001 04:31:23 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:34060 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129051AbRBNJbP>;
-	Wed, 14 Feb 2001 04:31:15 -0500
-Date: Wed, 14 Feb 2001 11:31:07 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lkml subject line
-Message-ID: <20010214113107.W15688@mea-ext.zmailer.org>
-In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org> <7vh2Hebmw-B@khms.westfalen.de> <3A885DFF.824AC093@inet.com> <20010214031125.B30531@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010214031125.B30531@cadcamlab.org>; from peter@cadcamlab.org on Wed, Feb 14, 2001 at 03:11:25AM -0600
+	id <S129104AbRBNJwY>; Wed, 14 Feb 2001 04:52:24 -0500
+Received: from CPE-61-9-150-70.vic.bigpond.net.au ([61.9.150.70]:47621 "EHLO
+	halfway") by vger.kernel.org with ESMTP id <S129161AbRBNJwL>;
+	Wed, 14 Feb 2001 04:52:11 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: court@oz.agile.tv
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: On "Unreliable Locking Guide" bug ? 
+In-Reply-To: Your message of "Wed, 14 Feb 2001 10:00:39 +1000."
+             <3A89CAA7.5090400@oz.agile.tv> 
+Date: Wed, 14 Feb 2001 15:35:23 +1100
+Message-Id: <E14Stf2-0001th-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 03:11:25AM -0600, Peter Samuelson wrote:
-> [Eli Carter]
-> > Have you looked at the headers in an LK email?
-> > 
-> > Sender: linux-kernel-owner@vger.kernel.org
-> > X-Mailing-List:         linux-kernel@vger.kernel.org
-> > ^^^^^^^^^^^^^^ Should provide that List-Id you want.
+In message <3A89CAA7.5090400@oz.agile.tv> you write:
+> Hi Paul,
 > 
-> You missed the point.  Certainly there are ways to identify LK mail.
-> Kai is saying that since 'List-Id:' is an IETF proposed standard,
-> Majordomo ought to use it.
+> I am reviewing your "Unreliable Locking Guide" from linux 2.4 and just 
+> wonder about the
+> section on "Avoiding Locks: Read and Write".  The two lines of code
+> 
+> new->next = i-> next;
+> i->next = new;
 
-	There is no STANDARDS TRACK  RFC  saying anything about  List-Id:.
-	There are only some individual's submission for a draft about it.
-	It is also way overdue to expire (Expires September 23, 1999), and
-	it has not been updated, nor advanced towards RFC.
+Hi John,
 
-	There are issues where me and DaveM are as obstinate as Linus,
-	inserting lots of junky headers and munging others (e.g. Subject:)
-	is a big no-no.    You can hash the issue all you want, but you
-	can't convince me and DaveM.
+	Yes, there is of course a lock against other list
+manipulations.  I've attached a patch to make this clear..
 
-	That  X-Mailing-List:  is actually a LOOP detection measure.
-	http://vger.kernel.org/lkml/#s3-9
+Thanks!
+Rusty.
 
-	I do have some plans which will change things at VGER, but those
-	details are not ready for publishing yet.
-
-> Peter
-
-/Matti Aarnio
+--- linux-2.4.0-official/Documentation/DocBook/kernel-locking.tmpl.~1~	Sat Dec 30 09:07:19 2000
++++ linux-2.4.0-official/Documentation/DocBook/kernel-locking.tmpl	Wed Feb 14 15:33:36 2001
+@@ -720,7 +720,8 @@
+       halves without a lock.  Depending on their exact timing, they
+       would either see the new element in the list with a valid 
+       <structfield>next</structfield> pointer, or it would not be in the 
+-      list yet.
++      list yet.  A lock is still required against other CPUs inserting
++      or deleting from the list, of course.
+     </para>
+ 
+     <para>
+--
+Premature optmztion is rt of all evl. --DK

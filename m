@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263148AbUDLWsx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 18:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUDLWsx
+	id S263153AbUDLW5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 18:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbUDLW5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 18:48:53 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:9719 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S263148AbUDLWsw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 18:48:52 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Quickcam Cordless and 2.6?
-Date: Mon, 12 Apr 2004 18:48:49 -0400
-User-Agent: KMail/1.6
-References: <20040412223509.GK1686@rdlg.net>
-In-Reply-To: <20040412223509.GK1686@rdlg.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 12 Apr 2004 18:57:20 -0400
+Received: from linux-bt.org ([217.160.111.169]:3303 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S263153AbUDLW5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 18:57:18 -0400
+Subject: Re: 2.6.5-mm4 (hci_usb module unloading oops)
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Greg KH <greg@kroah.com>
+Cc: Martin Hermanowski <martin@mh57.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040412224236.GA24178@kroah.com>
+References: <20040410200551.31866667.akpm@osdl.org>
+	 <20040412101911.GA3823@mh57.de> <20040412220353.GC23692@kroah.com>
+	 <1081809404.8634.24.camel@pegasus>  <20040412224236.GA24178@kroah.com>
+Content-Type: text/plain
+Message-Id: <1081810620.8634.32.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 13 Apr 2004 00:57:00 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404121848.49681.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.62.48] at Mon, 12 Apr 2004 17:48:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 April 2004 18:35, Robert L. Harris wrote:
->Anyone know if this will work with Linux and 2.6.5?  Any idea what
-> driver?
->
->Logitech Quickcam Cordless
->http://www.logitech.com/index.cfm/products/details/US/EN,CRID=4,cont
->entid=6312,detail=2
->
->:wq!
+Hi Greg,
 
-Logitech's rather legendary lack of linux support, apparently 
-bordering on hatred, virtually guarantees there will never be a 
-driver for it, unless you can figure out who actually made it, and 
-con them out of a copy of the devices API.  I *almost* got the docs 
-for the Sunplus chipset a year ago, but they quit answering my emails 
-after they said they would check with the vendor (guess who) who 
-actually sold it.
+> > > > I get an oops when I try to unload the hci_usb module.
+> > > 
+> > > {sigh}  I'm hating that driver right now...
+> > > 
+> > > There are a number of pending bluetooth patches for that driver that fix
+> > > a number of different bugs, so I'm leary of trying to see if this is a
+> > > different one or not at this point in time.  Care to apply all of the
+> > > bluetooth patches and if this still happens, can you report it to the
+> > > linux-usb-devel and bluez-devel mailing lists?
+> > 
+> > about what pending Bluetooth patches are you talking? There is one from
+> > Alan in 2.6.5-mh3 that should fix this problem
+> 
+> That is the one I was referring to.
 
-I'd send the message with my wallet by taking it back for a 
-refund/exchange and getting something that is known to be supported, 
-both by the maker, and by linux.
+you mentioned many pending Bluetooth patches and I thought that I missed
+something ;)
 
-They do make good mice though...
+Regards
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Marcel
+
+

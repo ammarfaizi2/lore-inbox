@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261826AbTCGWLn>; Fri, 7 Mar 2003 17:11:43 -0500
+	id <S261817AbTCGWVt>; Fri, 7 Mar 2003 17:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261828AbTCGWLn>; Fri, 7 Mar 2003 17:11:43 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11788 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261826AbTCGWLl>;
-	Fri, 7 Mar 2003 17:11:41 -0500
-Date: Fri, 7 Mar 2003 14:12:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030307221217.GB21315@kroah.com>
-References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl> <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261822AbTCGWVt>; Fri, 7 Mar 2003 17:21:49 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:12971 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S261817AbTCGWVs>; Fri, 7 Mar 2003 17:21:48 -0500
+Message-ID: <20030307223202.9244.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030307123029.2bc91426.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: alan@lxorguk.ukuu.org.uk, ciarrocchi@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 08 Mar 2003 06:32:02 +0800
+Subject: Re: [RFC] one line fix in arch/i386/Kconfig
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 12:30:29PM -0800, Andrew Morton wrote:
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+
+> On Fri, 2003-03-07 at 22:03, Paolo Ciarrocchi wrote:
+> > If I say that my cpu is not a PentiumIV why
+> > he bothers me about "check for P4 thermal throttling interrupt." ?
+> > 
+> > This patch show that option only if you select that kind of CPU.
+> > 
+> > Is it correct ? Does it makes sense ?
 > 
-> 32-bit dev_t is an important (and very late!) thing to get into the 2.5
-> stream.  Can we put this ahead of cleanup stuff?
+> We want people to be able to build a kernel which will run on many systems
+> but still use CPU specific features. 
 
-Can we get people to agree that this will even go into 2.5, due to the
-lateness of it?  I didn't think it was going to happen.
+Ah... ok I see the point, I could compile a kernel with PIII optimizations
+and then run it on a PIV. 
 
-But if it is, a lot of character drivers need to be audited...
+But it is a complication in the configuration process.
+Do we agree on that ?
 
-thanks,
+How about a config entry:
+"Leave only the option related to the CPU I selected" ?
 
-greg k-h
+Ciao,
+           Paolo
+
+
+
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289447AbSAJOEe>; Thu, 10 Jan 2002 09:04:34 -0500
+	id <S289446AbSAJN6O>; Thu, 10 Jan 2002 08:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289448AbSAJOEY>; Thu, 10 Jan 2002 09:04:24 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:267 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S289447AbSAJOEI>;
-	Thu, 10 Jan 2002 09:04:08 -0500
-Date: Thu, 10 Jan 2002 15:04:05 +0100
-From: David Balazic <david.balazic@uni-mb.si>
+	id <S289449AbSAJN6E>; Thu, 10 Jan 2002 08:58:04 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2432 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289446AbSAJN5y>;
+	Thu, 10 Jan 2002 08:57:54 -0500
+Date: Thu, 10 Jan 2002 05:56:51 -0800 (PST)
+Message-Id: <20020110.055651.74749601.davem@redhat.com>
+To: david.balazic@uni-mb.si
+Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
 Subject: Re: Simple local DOS
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: matthias.andree@stud.uni-dortmund.de,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3C3D9F55.8C617D80@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si> <1010671055.26821.4.camel@bip>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
-> 
-> On Thu, 2002-01-10 at 14:46, David Balazic wrote:
-> > > chvt,
-> >
-> > how do I start chvt if I have a locked up console system ?
-> 
-> Ctrl-Alt-F1 ?
+   From: David Balazic <david.balazic@uni-mb.si>
+   Date: Thu, 10 Jan 2002 14:46:19 +0100
+   
+   > all this is off-topic on linux-kernel,
+   
+   non-root user locked up the console code. console code is part of kernel.
+   it is a kernel topic.
 
-Which part of "locked up console system" you don't understand ? :-)
+The real issue is that X has the console in an indeterminate state (it
+probably just saved the VGA state and is outputting probing
+information) but now it is blocked on terminal output due to the
+"less".
 
-( There is a smiley on that line. It was ment to be funny. No need
-to get mad at me and send me suspicios white powder over snail mail ! )
+There is nothing the kernel can do about what X is up to.  The suid
+wrapper for X can check if stdout/stderr is a pipe and refuse to run
+if it is.
 
-Maybe I did not describe the problem detailed enough. I thought everybody
-can check it for themselves :-)
+So really, it is in fact off topic for linux-kernel.  Please take this
+to the xfree86 lists, I'm sure they'll be more than happy to fix it.
 
-After running "X 2>&1 | less" you get a black screen and it does not respond to
-any keypresses any more.
-
-I will take this to the xfree people as David S. Miler suggested.
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Franks a lot,
+David S. Miller
+davem@redhat.com

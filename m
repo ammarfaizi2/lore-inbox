@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269177AbRHBWSC>; Thu, 2 Aug 2001 18:18:02 -0400
+	id <S269187AbRHBWUc>; Thu, 2 Aug 2001 18:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269187AbRHBWRw>; Thu, 2 Aug 2001 18:17:52 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:19613 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S269184AbRHBWRm>; Thu, 2 Aug 2001 18:17:42 -0400
-Date: Thu, 2 Aug 2001 15:17:09 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <Pine.LNX.4.33L.0108021900080.5582-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0108021508310.21298-100000@heat.gghcwest.com>
+	id <S269185AbRHBWUW>; Thu, 2 Aug 2001 18:20:22 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:28668 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269187AbRHBWUJ>; Thu, 2 Aug 2001 18:20:09 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108022218.f72MIm8v028137@webber.adilger.int>
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+In-Reply-To: <20010802204710.B18742@emma1.emma.line.org> "from Matthias Andree
+ at Aug 2, 2001 08:47:10 pm"
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Date: Thu, 2 Aug 2001 16:18:48 -0600 (MDT)
+CC: Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Rik van Riel wrote:
+Matthais Andree writes:
+> fsync()ing the dir is not the minimal work possible, if e. g. temporary
+> files are open that don't need their names synched. Fsync()ing the
+> directory syncs also these temporary file NAMES that other processes may
+> have open (but that they unlink rather than fsync()).
+> 
+> Assume:
+> 
+> open -> asynchronous, but filename synched on fsync()
+> rename/link/unlink(/symlink) -> synchronous
+> 
+> This way, you never need to fsync() the directory, so you never sync()
+> entries of temporary files. You never lose important files (because the
+> application uses fsync() and the OS synchs rename/link etc.).
 
-> If you have a proposal on what to do when both ram
-> and swap fill up and you need more memory, please
-> let me know.
->
-> Until then, we'll kill processes when we exhaust
-> both memory and swap ;)
+Do you read what you are writing?  How can a "synchronous" operation for
+rename/link/unlink/symlink NOT also write out "temporary" files in the
+same directory?  How does calling fsync() on the directory IF YOU REQUIRE
+SYNCHRONOUS DIRECTORY OPERATIONS differ from making the specific operations
+synchronous from within the kernel???
 
-I'm telling you that's not what happens.  When memory pressure gets really
-high, the kernel takes all the CPU time and the box is completely useless.
-Maybe the VM sorts itself out but after five minutes of barely responding,
-I usually just power cycle the damn thing.  As I said, this isn't a
-classic thrash because the swap disks only blip perhaps once every ten
-seconds!
+The only difference I can see is that making these specific operations
+ALWAYS be synchronous hurts the common case when they can be async (see
+Solaris UFS vs. Linux benchmark elsewhere in this thread), while requiring
+an fsync() on the directory == only synchronous operation when it is
+actually needed, and no "extra" performance hit.
 
-You don't have to go to extremes to observe this behavior.  Yesterday, I
-had one box where kswapd used 100% of one CPU for 70 minutes straight,
-while user process all ran on the other CPU.  All RAM and half swap was
-used, and I/O was heavy.  The machine had been up for 14 days.  I just
-don't understand why kswapd needs to run and run and run and run and run
-...
+The only slight point of contention is if you have very large directories
+which span several filesystem blocks, in which case it _would_ be possible
+to write out some blocks synchronously, while leaving other blocks dirty.
+In practise however, you will either only be modifying a small number of
+blocks (at the end of the directory) because an MTA usually only creates
+files and doesn't delete them, and the actual speed of syncing several
+blocks at one time is not noticably different than syncing only one.
 
-I'm very familiar with what should happen on a Unix box when user
-processes get huge.  On my FreeBSD and Solaris machines, everything goes
-to shit for a few minutes and then it comes back.  Linux used to work that
-way too, but I can't count on the comeback in 2.4.
-
--jwb
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

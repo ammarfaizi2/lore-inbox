@@ -1,121 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315385AbSEBTiE>; Thu, 2 May 2002 15:38:04 -0400
+	id <S315391AbSEBTkE>; Thu, 2 May 2002 15:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315386AbSEBTiD>; Thu, 2 May 2002 15:38:03 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:12816 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315385AbSEBTh7>; Thu, 2 May 2002 15:37:59 -0400
-Message-ID: <3CD186E2.9070209@evision-ventures.com>
-Date: Thu, 02 May 2002 20:35:14 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12: hpt34x.c:259: too few arguments to function `ide_dmaproc'
-In-Reply-To: <Pine.NEB.4.44.0205022054460.21679-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: multipart/mixed;
- boundary="------------030700050205060103020404"
+	id <S315392AbSEBTkD>; Thu, 2 May 2002 15:40:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:42455 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315391AbSEBTkC>;
+	Thu, 2 May 2002 15:40:02 -0400
+Date: Thu, 2 May 2002 12:38:47 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020502193847.GM32767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020502180632.I11414@dualathlon.random> <20020502204136.M11414@dualathlon.random> <20020502191903.GL32767@holomorphy.com> <E173MEW-00027y-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030700050205060103020404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, May 02, 2002 at 08:41:36PM +0200, Andrea Arcangeli wrote:
+>>> Dropping the loop when discontigmem is enabled is much more interesting
+>>> optimization of course.
 
-Uz.ytkownik Adrian Bunk napisa?:
-> Just FYI:
-> 
-> The ide_dmaproc changes in 2.5.12 broke the compilation of hpt34x.c (I
-> tried 2.5.12-dj1 but this shouldn't make a difference):
+On Thursday 02 May 2002 21:19, William Lee Irwin III wrote:
+>> Absolutely; I'd be very supportive of improvements for this case as well.
+>> Many of the systems with the need for discontiguous memory support will
+>> also benefit from parallelizations or other methods of avoiding references
+>> to remote nodes/zones or iterations over all nodes/zones.
 
+On Thu, May 02, 2002 at 09:27:00PM +0200, Daniel Phillips wrote:
+> Which loop in which function are we talking about?
 
-The following should do the trick.
+I believe it's just for_each_zone() and for_each_pgdat(), and their
+usage in general. I brewed them up to keep things clean (and by and
+large they produced largely equivalent code to what preceded it), but
+there's no harm in conditionally defining them. I think it's even
+beneficial, since things can use them without concerning themselves
+about "will this be inefficient for the common case of UP single-node
+x86?" and might also have the potential to remove some other #ifdefs.
 
---------------030700050205060103020404
-Content-Type: text/plain;
- name="hpt34x.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hpt34x.diff"
+In the more general case, avoiding an O(fragments) (or sometimes even
+O(mem)) iteration in favor of, say, O(lg(fragments)) or O(cpus)
+iteration when fragments is very large would be an excellent optimization.
 
-diff -ur linux-2.5.12/drivers/ide/hpt34x.c linux/drivers/ide/hpt34x.c
---- linux-2.5.12/drivers/ide/hpt34x.c	2002-05-01 02:08:47.000000000 +0200
-+++ linux/drivers/ide/hpt34x.c	2002-05-02 21:28:02.000000000 +0200
-@@ -249,14 +249,14 @@
- 						     ide_dma_off_quietly);
- }
- 
--static int config_drive_xfer_rate (ide_drive_t *drive)
-+static int config_drive_xfer_rate(struct ata_device *drive, struct request *rq)
- {
- 	struct hd_driveid *id = drive->id;
- 	ide_dma_action_t dma_func = ide_dma_on;
- 
- 	if (id && (id->capability & 1) && drive->channel->autodma) {
- 		/* Consult the list of known "bad" drives */
--		if (ide_dmaproc(ide_dma_bad_drive, drive)) {
-+		if (ide_dmaproc(ide_dma_bad_drive, drive, rq)) {
- 			dma_func = ide_dma_off;
- 			goto fast_ata_pio;
- 		}
-@@ -278,7 +278,7 @@
- 				if (dma_func != ide_dma_on)
- 					goto no_dma_set;
- 			}
--		} else if (ide_dmaproc(ide_dma_good_drive, drive)) {
-+		} else if (ide_dmaproc(ide_dma_good_drive, drive, rq)) {
- 			if (id->eide_dma_time > 150) {
- 				goto no_dma_set;
- 			}
-@@ -301,7 +301,7 @@
- 		dma_func = ide_dma_off;
- #endif /* CONFIG_HPT34X_AUTODMA */
- 
--	return drive->channel->dmaproc(dma_func, drive);
-+	return drive->channel->udma(dma_func, drive, rq);
- }
- 
- /*
-@@ -312,7 +312,7 @@
-  * by HighPoint|Triones Technologies, Inc.
-  */
- 
--int hpt34x_dmaproc (ide_dma_action_t func, ide_drive_t *drive)
-+int hpt34x_dmaproc (ide_dma_action_t func, struct ata_device *drive, struct request *rq)
- {
- 	struct ata_channel *hwif = drive->channel;
- 	unsigned long dma_base = hwif->dma_base;
-@@ -321,7 +321,7 @@
- 
- 	switch (func) {
- 		case ide_dma_check:
--			return config_drive_xfer_rate(drive);
-+			return config_drive_xfer_rate(drive, rq);
- 		case ide_dma_read:
- 			reading = 1 << 3;
- 		case ide_dma_write:
-@@ -347,7 +347,7 @@
- 		default:
- 			break;
- 	}
--	return ide_dmaproc(func, drive);	/* use standard DMA stuff */
-+	return ide_dmaproc(func, drive, rq);	/* use standard DMA stuff */
- }
- #endif /* CONFIG_BLK_DEV_IDEDMA */
- 
-@@ -423,7 +423,7 @@
- 		else
- 			hwif->autodma = 0;
- 
--		hwif->dmaproc = &hpt34x_dmaproc;
-+		hwif->udma = &hpt34x_dmaproc;
- 		hwif->highmem = 1;
- 	} else {
- 		hwif->drives[0].autotune = 1;
+Andrea, if the definitions of these helpers start getting large, I think
+it would help to move them to a separate header. akpm has already done so
+with page->flags manipulations in 2.5, and it seems like it wouldn't
+do any harm to do something similar in 2.4 either. Does that sound good?
 
---------------030700050205060103020404--
-
+Cheers,
+Bill

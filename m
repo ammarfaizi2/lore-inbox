@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267859AbTBYJKC>; Tue, 25 Feb 2003 04:10:02 -0500
+	id <S264956AbTBYJPL>; Tue, 25 Feb 2003 04:15:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267860AbTBYJKC>; Tue, 25 Feb 2003 04:10:02 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:52358 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267859AbTBYJKB>;
-	Tue, 25 Feb 2003 04:10:01 -0500
-Date: Tue, 25 Feb 2003 15:09:08 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Make diskstats per-cpu using kmalloc_percpu
-Message-ID: <20030225093908.GD28052@in.ibm.com>
-References: <20030225073654.GB28052@in.ibm.com> <200302250828.h1P8S5s04503@owlet.beaverton.ibm.com>
+	id <S264962AbTBYJPL>; Tue, 25 Feb 2003 04:15:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53005 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264956AbTBYJPK>; Tue, 25 Feb 2003 04:15:10 -0500
+Date: Tue, 25 Feb 2003 09:25:20 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: "'Randy.Dunlap'" <rddunlap@osdl.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
+       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
+Message-ID: <20030225092520.A9257@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikael Starvik <mikael.starvik@axis.com>,
+	"'Randy.Dunlap'" <rddunlap@osdl.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
+	"'torvalds@transmeta.com'" <torvalds@transmeta.com>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200302250828.h1P8S5s04503@owlet.beaverton.ibm.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se>; from mikael.starvik@axis.com on Tue, Feb 25, 2003 at 07:28:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 12:28:05AM -0800, Rick Lindsley wrote:
->     This version makes the disk stats on struct gendisk per-cpu.
->     I am working on making the per partition stats per-cpu too (struct
->     hd_struct).
+On Tue, Feb 25, 2003 at 07:28:46AM +0100, Mikael Starvik wrote:
+> >I don't know linker scripts very well.
+> >Can this be done for all architectures?
+> >I'd like to see a solution that is arch-independent.
 > 
-> In general I'm in favor of this.  It seems intuitive to me that counters
-> of this type should be per-cpu.  But the question is, do we actually
-> see any gains?  At the very least, are we sure we've not introduced any
-> degradation?  Has any of your testing so far been measuring performance or
-> just checking for correctness?
+> In embedded systems it is probably not desirable to keep 
+> System.map and config in zImage (takes too much valuable space).
 
-Tests on this patch have been for correctness.  However, we had done some
-measurements sometime back (actually loong time back) to verify if we actually
-saw any gains with similar statistics counters.  The results are at
-http://lse.sourceforge.net/counters/statctr.html
-Since, we already know that per-cpu counters are good from our experiments
-earlier, I did not bother doing it for this patch.
+Agreed - zImage is already around 1MB on many ARM machines, and since
+loading zImage over a serial port using xmodem takes long enough
+already, this is one silly feature I'll definitely keep out of the
+ARM tree.
 
- 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

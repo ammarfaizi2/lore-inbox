@@ -1,121 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276675AbRJUUAa>; Sun, 21 Oct 2001 16:00:30 -0400
+	id <S276702AbRJUUDk>; Sun, 21 Oct 2001 16:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276688AbRJUUAV>; Sun, 21 Oct 2001 16:00:21 -0400
-Received: from mail1.worldcom.ch ([212.74.176.11]:1475 "EHLO mail.worldcom.ch")
-	by vger.kernel.org with ESMTP id <S276675AbRJUUAP>;
-	Sun, 21 Oct 2001 16:00:15 -0400
-Date: Sun, 21 Oct 2001 22:00:36 +0200
-From: Charles Bueche <charles@bueche.ch>
-To: linux-kernel@vger.kernel.org
-Subject: USB mouse cause keyboard lock
-Message-Id: <20011021220036.3474e5ea.charles@bueche.ch>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: 8_J3tE`<lbCYC,MPISj7Mm4]AA:G}E}:j,h,oP]yIP|^su@(x<{$?9)OY$b@&Q\S1s8Hbn4UG:XCBf&PY{+NsTYPJv`M;{e|x"mKj:ZJ3dWa[7!^WvafCL]Su><)i/Y(>`V^O9:"{`7@K'Z@:Wz}{vG~;pqkUDFP0X$:3+.|f5eCjB_uYe&gFhK1$k(\54r#T5{f1j3b--*,8_,fnOMh4Crn%WV7Ir4<sN|"!h
-X-message-flag: Microsoft Outlook Fatal Error. Please reboot your system.
+	id <S276701AbRJUUDa>; Sun, 21 Oct 2001 16:03:30 -0400
+Received: from shake.vivendi.hu ([213.163.0.180]:19330 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S276688AbRJUUDT>; Sun, 21 Oct 2001 16:03:19 -0400
+Date: Sun, 21 Oct 2001 22:03:46 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: john slee <indigoid@higherplane.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+Message-ID: <20011021220346.D19390@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya> <20011021093728.A17786@vega.digitel2002.hu> <15vI4j-1Z1VtgC@fmrl02.sul.t-online.com> <20011022013747.I5511@higherplane.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20011022013747.I5511@higherplane.net>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: vega Linux 2.4.12 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 22, 2001 at 01:37:47AM +1000, john slee wrote:
+> On Sun, Oct 21, 2001 at 02:54:15PM +0200, Tim Jansen wrote:
+> > But what the kernel COULD do is include something like the Linux Progress 
+> > Patch (http://lpp.freelords.org/). It replaces the text output of the kernel 
+> > with graphics and a progress bar, so people are not frightened by cryptic 
+> > text output while booting.
+> 
+> this is something for distributions to do...  even if the world turned
+> inside out and it got included there'd be endless flamewars (and
+> patches) concerning what colour the progress bar should be by default.
+> 
+> i read an interesting essay about that sort of thing on a freebsd list
+> once - search on freebsd archives for "garden shed" or similar.
 
-I have an annoying problem with my PC : the keyboard locks up very often.
+Errrm ;-) It's very bad thing to hide boot messages even for novice users.
+They can't bugreport in this way ... I thing the best way would be the
+penguin logo at the top, and some pixel progress bar under Tux. The messages
+should remain IMHO. But this bar indicator confuses me. How do you calculate
+the remaining percentage? And of course this is kernel boot only. After init,
+you can start costum process to show an indicator bar to messure remaining
+tasks before hitting xdm/kdm/gdm/login/whatever.
 
-Hardware : Dell laptop, model Inspiron 5000e, BIOS 06, CPU 600 MHz, 256 Mb
-ram, 30 Gb IDE disk, 1600x1200 ATI graphic board, Logitech Wheelmouse
-optical USB, model M-BD58 (a true Logitech with color logo, no
-OEM-version).
+But IMHO *hiding* kernel messages is the worst thing you can do ...
+Probably a versatile parameterable boot logo + indicator setting tool
+should be implemented (and of course the right code to the kernel to render
+them on startup). It can include (let's say:)
 
-Software : Mandrake 8.0, with a good bunch of official updates and a
-self-compiled kernel from kernel.org mirror, without any patch, GPM *not*
-running, XFree86-4.0.3-7mdk
+position and size of text area inside the screen (kernel messages)
+background picture
+progress bar indicator attributes, position
 
-first, the situation without problem :
+and so on
 
-- mouse on PS2 port with USB-to-PS2 Logitech adapter
-- XF86Config-4 goes to /dev/psaux for the mouse
+Again: I'm AGAINST this stupid thing but if many user wants  ...
+However HIDING kernel messages would be bad move ....
 
-now the problematic configuration :
+Major distributions include default kernels patched for nice boot screens,
+so IMHO it isn't an issue for us. A user how can COMPILE kernel himself
+probably does not want gfx-only boot screens .... or at least he can patch
+kernel before compile it.
 
-- mouse connected directly to USB port
-- XF86Config-4 goes to /dev/input/mice
-- nothing else on USB bus
-
-in this config, after working for a while (from 3 min to 2 hours), the
-keyboard suddenly locks completely. It's not an application issue, as I
-can remotely login and kill X, the lock remain. The only way to get out is
-to suspend and resume. I do this using the keyboard key combination. I
-suppose therefore that the Fn-Suspend goes to BIOS, which trigger the
-suspend. Somewhere in the "upper" layer, my key presses are lost.
-
-In the same config, a lot of keypresses are lost. I evaluate the ratio
-loss/good at 1-2%. This key loss problem is not at all present in the
-non-USB config.
-
-I definitely would like to get my mouse working on USB, because it's the
-only mode where I can get the wheel to work using IMPS/2 protocol in
-XF86Config-4.
-
-The problem wasn't present on this laptop with 2.2.x. I think the problem
-appeared with 2.4, but I'm not very sure, as I haven't be able to test
-this for a long time (because APM wasn't working and each kbd lock needed
-a cold boot). Now that I can play with it without enduring 30Gb of mke2fs,
-I really would like your help to sort it out.
-
-I'm ready to test all sort of patches and report back to LK, as soon as
-you don't ask me to reformat my drive :-)
-
-I have collected some info below, let me know if you need more.
-
-Some more info :
-----------------------------------
-[root@big root]# uname -a
-Linux big.worldcom.ch 2.4.12 #1 Wed Oct 17 11:40:26 CEST 2001 i686 unknown
-----------------------------------
-[root@big root]# lsmod
-Module                  Size  Used by
-maestro                26912   1 
-tulip_cb               32720   2 
-cb_enabler              2480   2  [tulip_cb]
-ds                      6560   2  [cb_enabler]
-i82365                 22192   2 
-pcmcia_core            47520   0  [cb_enabler ds i82365]
-irtty                   7536   2  (autoclean)
-irda                  142800   1  (autoclean) [irtty]
-ip_tables              10688   0 
-mousedev                3936   0 
-usbmouse                1776   0  (unused)
-input                   3328   0  [mousedev usbmouse]
-usb-uhci               21152   0  (unused)
-usbcore                29568   0  [usbmouse usb-uhci]
-nls_iso8859-1           2880   2  (autoclean)
-nls_cp850               3616   2  (autoclean)
-vfat                    8976   2  (autoclean)
-fat                    30496   0  (autoclean) [vfat]
-----------------------------------
-[root@big root]# grep USB /usr/src/linux/.config | grep -v '^#'
-CONFIG_USB=m
-CONFIG_USB_UHCI=m
-CONFIG_USB_MOUSE=m
-----------------------------------
-[root@big root]# cat /proc/interrupts 
-          CPU0       
- 0:     601920          XT-PIC  timer
- 1:      13792          XT-PIC  keyboard
- 2:          0          XT-PIC  cascade
- 3:          5          XT-PIC  serial
- 5:      19100          XT-PIC  usb-uhci, ESS Maestro 2E
- 8:          5          XT-PIC  rtc
-11:      16867          XT-PIC  i82365, eth0
-12:     105190          XT-PIC  PS/2 Mouse
-14:      14214          XT-PIC  ide0
-15:         22          XT-PIC  ide1
-NMI:          0 
-ERR:        286
-
----
-Charles Bueche <charles@bueche.ch>
-snow, wave, wind and net -surfer
+- Gabor

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267881AbTBLWbQ>; Wed, 12 Feb 2003 17:31:16 -0500
+	id <S267908AbTBLWg5>; Wed, 12 Feb 2003 17:36:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267899AbTBLWbQ>; Wed, 12 Feb 2003 17:31:16 -0500
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:49414 "HELO
-	legolas.dynup.net") by vger.kernel.org with SMTP id <S267881AbTBLWbP>;
-	Wed, 12 Feb 2003 17:31:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-Message-Id: <200302122246.19225@gandalf>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>, andmike@us.ibm.com,
-       james.bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       fischer@norbit.de, Tommy.Thorn@irisa.fr
-Subject: Re: [PATCH] fix scsi/aha15*.c for 2.5.60
-Date: Wed, 12 Feb 2003 23:41:02 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <3E49DC38.52D278C4@verizon.net>
-In-Reply-To: <3E49DC38.52D278C4@verizon.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267899AbTBLWg5>; Wed, 12 Feb 2003 17:36:57 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:18636 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267914AbTBLWg4>; Wed, 12 Feb 2003 17:36:56 -0500
+Subject: [PATCH][2.5.60 Trivial] Sysfs not handling show errors
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: mochel@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Feb 2003 14:37:35 -0800
+Message-Id: <1045089456.1150.6.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 February 2003 06:31, Randy.Dunlap wrote:
-> Hi,
-> 
-> Here are patches to aha152x.c and aha1542.c so that they will build
-> in 2.5.60.
-> 
-> Please review and apply or comment...
+Attempting to cat a sysfs file that returns an error will result in an
+endless dump of garbage to the screen because the result of the specific
+show operation was being saved to a size_t (unsigned) and then later
+checked for a negative value.
 
-well it applies, compiles, but it gives a warning on depmod in make 
-modules_install:
+Here is a trivial patch to fix the error.
 
-<snip>
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.60; fi
-WARNING: /lib/modules/2.5.60/kernel/drivers/scsi/aha152x.ko needs unknown 
-symbol scsi_put_command
-WARNING: /lib/modules/2.5.60/kernel/drivers/scsi/aha152x.ko needs unknown 
-symbol scsi_get_command
+    --rustyl
 
-this is the relevant part of my .config:
-CONFIG_SCSI=m
-CONFIG_SCSI_AHA152X=m
+--- fs/sysfs/inode.c.orig	2003-02-12 14:38:04.000000000 -0800
++++ fs/sysfs/inode.c	2003-02-12 14:38:39.000000000 -0800
+@@ -210,7 +210,7 @@
+ 	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
+ 	struct sysfs_ops * ops = buffer->ops;
+ 	int ret = 0;
+-	size_t count;
++	ssize_t count;
+ 
+ 	if (!buffer->page)
+ 		buffer->page = (char *) __get_free_page(GFP_KERNEL);
 
-this gives these modules in /lib/modules/2.5.60/kernel/drivers/scsi/:
-aha152x.ko  scsi_mod.ko  sg.ko
 
-what am i missing??
 
-	Rudmer
-> 
-> Thanks,
-> ~Randy

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316235AbSH0PJA>; Tue, 27 Aug 2002 11:09:00 -0400
+	id <S316258AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSH0PJA>; Tue, 27 Aug 2002 11:09:00 -0400
-Received: from [195.185.133.146] ([195.185.133.146]:27427 "HELO
-	gateway.hottinger.de") by vger.kernel.org with SMTP
-	id <S316235AbSH0PI7>; Tue, 27 Aug 2002 11:08:59 -0400
-Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDF@HBMNTX0.da.hbm.com>
-From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
-To: linux-kernel@vger.kernel.org
-Subject: AW: Alright, I give up.  What does the "i" in "inode" stand for?
-Date: Tue, 27 Aug 2002 17:13:01 +0200
+	id <S316289AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:62461 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S316258AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
+Message-ID: <3D6B9902.4070704@snapgear.com>
+Date: Wed, 28 Aug 2002 01:21:38 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.31uc1 (MMU-less patches)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi All,
 
-> Von: Ryan Cumming [mailto:ryan@completely.kicks-ass.org]
-[...]
-> > (P.S. I'm not quite kidding: http://www.darpa.mil/iao/ ).
-> Now, the symbolism used in the IOA logo is poor at best. The 
-> omniscient eye 
-> was never supposed to represent the United States itself, but 
-> God [1]. Unless 
-> they're calling themselves God lately, they really broke the 
-> metaphor by 
-> having the eye looking over the Earth. 
-                              ^^^^^^^^^^
+A new 2.5.31 MMU-less patch, linux-2.5.31uc1.
+Just a minor update, couple of small fixes.
 
-Be aware that the center of the eye seems to watch over europe and keeps
-track over russia! Deeper sense? ;-)
+Get it at the usual place:
 
-Maybe: "The DARPA IAO will imagine, develop ... by achieving total
-information awareness useful for preemption, national security warning..."
+   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
 
-Siegfried. (Just one bothering german newbie. Sorry for that!)
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+

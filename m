@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUBRSq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 13:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUBRSq0
+	id S268070AbUBRUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUBRUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 13:46:26 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:29399
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S267821AbUBRSpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 13:45:06 -0500
-Message-ID: <4033AE69.9050400@tmr.com>
-Date: Wed, 18 Feb 2004 13:26:49 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: JG <jg@cms.ac>, linux-kernel@vger.kernel.org
-Subject: Re: could someone plz explain those ext3/hard disk errors
-References: <20040209095227.AF4261A9ACF@23.cms.ac> <200402091026.i19AQ15t000678@81-2-122-30.bradfords.org.uk> <4033691F.7070804@tmr.com> <200402181442.i1IEgwF2000170@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200402181442.i1IEgwF2000170@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 15:46:42 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:53177 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S268070AbUBRUqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:46:40 -0500
+Date: Wed, 18 Feb 2004 20:44:06 +0000
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Enable Intel AGP on x86-64
+Message-ID: <20040218204406.GB6242@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <200402182006.i1IK6bL7022634@hera.kernel.org> <20040218202325.GZ6242@redhat.com> <20040219021149.519d0754.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040219021149.519d0754.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> Quote from Bill Davidsen <davidsen@tmr.com>:
-> 
->>John Bradford wrote:
->>
->>>>now...hm, it all started when i upgraded from kernel 2.4.19 to 2.6.0
->>>>in late decemeber, the system worked very fine for a week or so
->>>>(having great response times!) but then all of a sudden the problems
->>>>started. 2 disks died. then my gigabit network card was only able to
->>>>transmit 200kb/s (but this was really a hardware problem, a new card
->>>>is working fine again, well...). a week later the next disks are
->>>>having problems and i have yet to RMA three disks. and now the next
->>>>two disks..., i'm getting insane ;) i can't see any EXT3 error anymore
->>>>*g* the next disks will be reiserfs only to see other error messages
->>>>;) well, but that doesn't solve the problem of 6 disks within 2
->>>>months...this is so unlikely.
->>>
->>>
->>>Please read the FAQ, fix your mail application - you are sending long
->>>lines, and don't break the CC list.
->>>
->>>As to your problem, look at the LBA sector addresses in the error
->>>message:
->>>
->>>280923064991615
->>>
->>>is your drive really over 100 EB?  No...
->>
->>I think we could assume that (a) he never told the kernel the disk was 
->>"over 100 EB" and (b) the kernel was trying to use that LBA anyway. 
->>Which could be due to either a kernel bug or memory corruption (or CPU 
->>problems, but unlikely).
-> 
-> 
-> What I was trying to point out is that the error message is clearly
-> the result of a problem elsewhere.  Unless the drive firmware is
-> buggy, or something very strange is going on inside the drive, (bad
-> internal RAM or something like that), then the kernel did send a
-> request for a sector which is well out of range.  What caused that
-> request we don't know - quite possibly corruption of some filesystem
-> structure on the disk caused that request, but it's important to be
-> clear that the error message is the expected response to a request for
-> such a high block number, and doesn't within itself indicate a problem
-> with the disk.
-> 
-> I.E. Even though there is every chance that the drive is faulty, the
-> posted error message doesn't indicate a drive failiure in itself, and
-> you should look elsewhere.
+On Thu, Feb 19, 2004 at 02:11:49AM +0100, Andi Kleen wrote:
 
-Yes, I think we are saying the same thing, and by now hopefully the O.P. 
-has gotten that. I suspect non-disk cause, just my guess.
+ > > Please don't do this. At least copy intel-agp.c to
+ > > something new and throw out all the dozens of chipsets
+ > > that will never appear on ia32e.
+ > > 
+ > > Splitting agpgart up to seperate drivers allowed us
+ > > to stop adding cruft upon cruft with each generation
+ > > of chipsets.  I don't want to have to spend half of
+ > > 2.7 decrufting agpgart again.
+ > 
+ > Huh? Did you actually read the patch?
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Yes, did you actually read my mail?
+
+ > It doesn't change the AGP driver at all, just enables it in Kconfig because
+ > Intel chipsets can be now used on the x86-64 kernel too.
+
+You *really* think you're going to see a 440BX GART on ia32e ?
+i810 ? i820 ? i830 ? etc. etc. I'd be *very* surprised if anything
+but the current generation of ia32 chipsets gets used on ia32e.
+It just doesn't make sense.
+
+Without even looking at the code I'll bet you can shrink it
+by at least 75%.
+
+		Dave
+

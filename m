@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSLHQ46>; Sun, 8 Dec 2002 11:56:58 -0500
+	id <S261375AbSLHRIR>; Sun, 8 Dec 2002 12:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSLHQ46>; Sun, 8 Dec 2002 11:56:58 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:2826 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S261356AbSLHQ45>;
-	Sun, 8 Dec 2002 11:56:57 -0500
-Date: Sun, 8 Dec 2002 18:01:35 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Roberto Nibali <ratz@drugphish.ch>, willy@w.ods.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: hidden interface (ARP) 2.4.20
-Message-ID: <20021208170135.GA354@alpha.home.local>
-References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil> <1039124530.18881.0.camel@rth.ninka.net> <20021205140349.A5998@ns1.theoesters.com> <3DEFD845.1000600@drugphish.ch> <20021205154822.A6762@ns1.theoesters.com> <3DF2848F.2010900@drugphish.ch> <20021208170336.5f4deaf1.skraw@ithnet.com>
+	id <S261376AbSLHRIR>; Sun, 8 Dec 2002 12:08:17 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:34056 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S261375AbSLHRIQ>; Sun, 8 Dec 2002 12:08:16 -0500
+X-WebMail-UserID: rtilley
+Date: Sun, 8 Dec 2002 12:15:57 -0500
+From: rtilley <rtilley@vt.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, GertJan Spoelman <kl@gjs.cc>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-EXP32-SerialNo: 00002964
+Subject: RE: *FIXED* lilo append mem problem in 2.4.20
+Message-ID: <3E002B92@zathras>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021208170336.5f4deaf1.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 08, 2002 at 05:03:36PM +0100, Stephan von Krawczynski wrote:
-> > Not with a HW LB, and with a SW LB (LVS-NAT) you can very well sustain 
-> > 20000 NAT'd load balanced connections with 5 minutes of stickyness 
-> > (persistency) with 1GB RAM and a PIII Tualatin with 512 kb L2 cache. I'm 
-> > not sure if you meant this when mentioning pain.
-> 
-> I guess he probably meant a _bit_ more. I may add some zeros to your 20000 to
-> give you a glimpse of a _standard_ load we are talking about. And you can
-> easily do this with the hardware you mentioned _not_ using NAT (of course ;-).
+>===== Original Message From Alan Cox <alan@lxorguk.ukuu.org.uk> =====
+>On Sun, 2002-12-08 at 11:02, GertJan Spoelman wrote:
+>>         append="mem=exactmap mem=640K@0 mem=319M@1M"
+>> to get the kernel to see all the memory.
+>> So probably you can get it working again with:
+>>         append="mem=exactmap mem=640K@0 mem=1023M@1M"
+>> Maybe you also could do directly: exactmap mem=1024M@0
+>> or 1G@0, but I haven't tried that yet.
+>> It seems the mem parameter now only can be used to limit the amount of 
+memory
+>> used by the kernel.
+>
+>Without exactmap yes (fixed in 2.4.19 I believe). Also on many compaqs
+>you can set the OS in the BIOS to "unixware" and get sane results
 
-You're right, we have been discussing this privately and agreed we were both
-talking about higher numbers ; Robert seems to have a good experience of very
-high traffic ;-)
+append="mem=exactmap mem=640K@0 mem=1023M@1M" solved the memory issue in RH's 
+latest kernel (2.4.18-18.7.xsmp) and in (2.4.20smp-ac1). However, ac1 only 
+uses ~900MB whereas RH uses all of the RAM, but I think that's because I 
+turned highmem of when building ac1.
 
-> I guess it would really be a great help if someone did tests like Cons'
-> "overall performance" ones for network performance explicitly. Like e.g.
-> performance for various packet-sizes of all available protocol types, possibly
-> including NAT connections. We have no comparable figures at hand right now, I
-> guess.
+This answers several questions that I had about RH's last two releases (7.3 & 
+8.0). Neither release would install on this server, each would end with a "Not 
+enough memory to install" right when beginning the installation. When I told 
+the installer to do "linux mem=1024M" the install would progress a bit further 
+before giving a kernel panic about being unable to mount the root filesystem.
 
-Why not ?
-I've often been doing this to check the reliability of the network layer of
-kernels that I distribute. I often use Tux for this, because it can easily
-sustain 10k hits/s during months. But Tux is not in mainstream kernel, we have
-to use other tools. Since I'm working on a task scheduler, I may soon have the
-base to rewrite my injecter and a fake server to do these tests on mainstream
-kernels. I think that several tools already exist for this. You can take a look
-at the C10K project to find links. I don't have the URL in mind, google is your
-friend.
+I'm tempted to go back and try the above mentioned append to see if that will 
+make one of the newer relesases install.
 
-Cheers,
-Willy
+Thanks to all for the help.
+
+Brad
+
 

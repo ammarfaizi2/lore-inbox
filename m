@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVCCJel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVCCJgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVCCJel (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 04:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVCCJcf
+	id S261854AbVCCJgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 04:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVCCJe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 04:32:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31373 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261836AbVCCJbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 04:31:49 -0500
-Message-ID: <4226D975.5010907@pobox.com>
-Date: Thu, 03 Mar 2005 04:31:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: greg@kroah.com, davem@davemloft.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-References: <42265A6F.8030609@pobox.com>	<20050302165830.0a74b85c.davem@davemloft.net>	<422674A4.9080209@pobox.com>	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com>	<20050302200214.3e4f0015.davem@davemloft.net>	<42268F93.6060504@pobox.com>	<4226969E.5020101@pobox.com>	<20050302205826.523b9144.davem@davemloft.net>	<4226C235.1070609@pobox.com>	<20050303080459.GA29235@kroah.com>	<4226CA7E.4090905@pobox.com> <20050303011755.56fddee0.akpm@osdl.org>
-In-Reply-To: <20050303011755.56fddee0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Mar 2005 04:34:59 -0500
+Received: from fire.osdl.org ([65.172.181.4]:51871 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261764AbVCCJcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 04:32:42 -0500
+Date: Thu, 3 Mar 2005 01:32:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: miklos@szeredi.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [request for inclusion] Filesystem in Userspace
+Message-Id: <20050303013203.245c8833.akpm@osdl.org>
+In-Reply-To: <16934.54647.354607.902748@alkaid.it.uu.se>
+References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu>
+	<20050302123123.3d528d05.akpm@osdl.org>
+	<16934.54647.354607.902748@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Andrew Morton writes:
+>  > Miklos Szeredi <miklos@szeredi.hu> wrote:
+>  > >
+>  > > Do you have any objections to merging FUSE in mainline kernel?
+>  > 
+>  > I was planning on sending FUSE into Linus in a week or two.  That and
+>  > cpusets are the notable features which are 2.6.12 candidates.
+>  > 
+>  > - crashdump seems permanently not-quite-ready
+>  > 
+>  > - perfctr works fine, but is rather deadlocked because it is
+>  >   similar-to-but-different-from ia64's perfmon, and might not be suitable
+>  >   for ppc64 (although things have gone quiet on the latter front).
 > 
->>We have all these problems precisely because _nobody_ is saying "I'm 
->> only going to accept bug fixes".  We _need_ some amount of release 
->> engineering.  Right now we basically have none.
+> perfctr has one API update pending, and then the API should be
+> in it final-ish form. David Gibson at IBM has done a ppc64 port,
+> which is about ready to be merged, and someone else has just
+> started working on a mips port.
 > 
-> 
-> Sorry Jeff, but that's crap.  Go look at the commits list.  Every single
-> patch which has gone into the tree for the past two weeks is a bugfix, I
-> think.
 
-It's an an exaggeration, but what do users that don't follow daily 
-kernel development see?
-
-"oh, somewhere between -rc1 and -rc5 they got serious about taking only 
-bugfixes.  Andrew Morton says it was the past few weeks... what -rc is 
-that?"
-
-	Jeff
-
+That sounds good.  Where do we stand now with ia64?  Do we just end up
+agreeing to differ?
 

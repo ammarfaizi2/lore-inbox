@@ -1,87 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVBJGau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVBJGvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVBJGau (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 01:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVBJGau
+	id S262029AbVBJGvb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 01:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVBJGvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 01:30:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:7299 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262028AbVBJGak (ORCPT
+	Thu, 10 Feb 2005 01:51:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37067 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262029AbVBJGvV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 01:30:40 -0500
-Date: Thu, 10 Feb 2005 12:00:54 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
-       Christoph Hellwig <hch@infradead.org>, karim@opersys.com
-Subject: Re: [PATCH] relayfs redux, part 4
-Message-ID: <20050210063054.GA4216@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <16906.52160.870346.806462@tut.ibm.com>
+	Thu, 10 Feb 2005 01:51:21 -0500
+Date: Thu, 10 Feb 2005 01:51:20 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: fix watchdog link order.
+Message-ID: <20050210065120.GA12275@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16906.52160.870346.806462@tut.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 08:49:36PM -0600, Tom Zanussi wrote:
-[..]
-> + */
-> +struct dentry *relayfs_create_file(const char *name, struct dentry *parent,
-> +				   int mode, struct rchan *chan)
-> +{
-> +	struct dentry *dentry;
-> +	int error;
-> +	
-> +	if (!mode)
-> +		mode = S_IRUSR;
-> +	mode = (mode & S_IALLUGO) | S_IFREG;
-> +
-> +	error = relayfs_create_entry(name, parent, mode, chan, &dentry);
+Comment says that softdog has to go last. Make it so.
 
-^^^^
-I think you missed GregKH's suggesstion to have relayfs_create_entry()
-return pointer to struct dentry, and reduce one parameter.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-> +unsigned relay_switch_subbuf(struct rchan_buf *buf, unsigned length)
-> +{
-> +	int cur_subbuf, prev_subbuf, subbufs_produced;
-> +	unsigned start = 0, padding = buf->chan->subbuf_size - buf->offset;
-> +	
-> +	if (unlikely(relay_buf_full(buf)))
-> +		return 0;
-> +
-> +	subbufs_produced = atomic_read(&buf->subbufs_produced);
-> +	cur_subbuf = prev_subbuf = subbufs_produced % buf->chan->n_subbufs;
-> +	buf->padding[cur_subbuf] = padding;
-> +
-> +	atomic_inc(&buf->subbufs_produced);
-> +
-> +	if (waitqueue_active(&buf->read_wait)) {
-> +		PREPARE_WORK(&buf->wake_readers, wakeup_readers, buf);
-> +		schedule_delayed_work(&buf->wake_readers, 1);
-> +	}
-> +
-> +	if (unlikely(relay_buf_full(buf))) {
-> +		return 0;
-> +		buf->chan->cb->buf_full(buf);
-
-		^^^^^^^^
-		Typo? statement after return !
-
-
-Thanks
-Maneesh
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+--- linux-2.6.10/drivers/char/watchdog/Makefile~	2005-02-10 01:48:32.000000000 -0500
++++ linux-2.6.10/drivers/char/watchdog/Makefile	2005-02-10 01:49:39.000000000 -0500
+@@ -2,11 +2,6 @@
+ # Makefile for the WatchDog device drivers.
+ #
+ 
+-# Only one watchdog can succeed. We probe the hardware watchdog
+-# drivers first, then the softdog driver.  This means if your hardware
+-# watchdog dies or is 'borrowed' for some reason the software watchdog
+-# still gives you some cover.
+-
+ obj-$(CONFIG_PCWATCHDOG) += pcwd.o
+ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+ obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
+@@ -24,7 +19,6 @@ obj-$(CONFIG_SH_WDT) += shwdt.o
+ obj-$(CONFIG_S3C2410_WATCHDOG) += s3c2410_wdt.o
+ obj-$(CONFIG_SA1100_WATCHDOG) += sa1100_wdt.o
+ obj-$(CONFIG_EUROTECH_WDT) += eurotechwdt.o
+-obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_W83877F_WDT) += w83877f_wdt.o
+ obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
+ obj-$(CONFIG_SC520_WDT) += sc520_wdt.o
+@@ -39,3 +33,11 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.
+ obj-$(CONFIG_IXP4XX_WATCHDOG) += ixp4xx_wdt.o
+ obj-$(CONFIG_IXP2000_WATCHDOG) += ixp2000_wdt.o
+ obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
++
++
++# Only one watchdog can succeed. We probe the hardware watchdog
++# drivers first, then the softdog driver.  This means if your hardware
++# watchdog dies or is 'borrowed' for some reason the software watchdog
++# still gives you some cover.
++obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
++

@@ -1,93 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbTH2OzM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTH2OxJ
+	id S261352AbTH2P2s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 11:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTH2P2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:53:09 -0400
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:24853 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261307AbTH2OwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:52:01 -0400
-Date: Fri, 29 Aug 2003 16:51:08 +0200
-Message-Id: <200308291451.h7TEp8Fl005908@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Dmasound invalid vs. illegal
+	Fri, 29 Aug 2003 11:28:47 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:47489 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S261352AbTH2P2p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 11:28:45 -0400
+Message-ID: <3F4F7129.1050506@wmich.edu>
+Date: Fri, 29 Aug 2003 11:28:41 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Tomas <bzzz@tmi.comex.ru>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu> <m3vfshrola.fsf@bzzz.home.net>
+In-Reply-To: <m3vfshrola.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmasound: Use `invalid' instead of `illegal' (from 2.5.x)
+Alex Tomas wrote:
+>>>>>>Ed Sweetman (ES) writes:
+> 
+> 
+>  ES> This patch seems to be against test2, just wondering if anyone before
+>  ES> me has used it on the latest test release.  If not then i'm gonna do
+>  ES> something stupid and be the first.
+> 
+> I would be happy to see anyone trying this patch ;)
+> 
+> following patch applies to -test4 o
 
---- linux-2.4.23-pre1/drivers/sound/dmasound/dmasound_core.c	Thu Mar 27 18:26:33 2003
-+++ linux-m68k-2.4.23-pre1/drivers/sound/dmasound/dmasound_core.c	Mon Jul 21 21:05:54 2003
-@@ -1660,13 +1660,13 @@
- #ifdef HAS_RECORD
-         case 5:
-                 if ((ints[5] < 0) || (ints[5] > MAX_CATCH_RADIUS))
--                        printk("dmasound_setup: illegal catch radius, using default = %d\n", catchRadius);
-+                        printk("dmasound_setup: invalid catch radius, using default = %d\n", catchRadius);
-                 else
-                         catchRadius = ints[5];
-                 /* fall through */
-         case 4:
-                 if (ints[4] < MIN_BUFFERS)
--                        printk("dmasound_setup: illegal number of read buffers, using default = %d\n",
-+                        printk("dmasound_setup: invalid number of read buffers, using default = %d\n",
-                                  numReadBufs);
-                 else
-                         numReadBufs = ints[4];
-@@ -1675,21 +1675,21 @@
- 		if ((size = ints[3]) < 256)  /* check for small buffer specs */
- 			size <<= 10 ;
-                 if (size < MIN_BUFSIZE || size > MAX_BUFSIZE)
--                        printk("dmasound_setup: illegal read buffer size, using default = %d\n", readBufSize);
-+                        printk("dmasound_setup: invalid read buffer size, using default = %d\n", readBufSize);
-                 else
-                         readBufSize = size;
-                 /* fall through */
- #else
- 	case 3:
- 		if ((ints[3] < 0) || (ints[3] > MAX_CATCH_RADIUS))
--			printk("dmasound_setup: illegal catch radius, using default = %d\n", catchRadius);
-+			printk("dmasound_setup: invalid catch radius, using default = %d\n", catchRadius);
- 		else
- 			catchRadius = ints[3];
- 		/* fall through */
- #endif
- 	case 2:
- 		if (ints[1] < MIN_BUFFERS)
--			printk("dmasound_setup: illegal number of buffers, using default = %d\n", numWriteBufs);
-+			printk("dmasound_setup: invalid number of buffers, using default = %d\n", numWriteBufs);
- 		else
- 			numWriteBufs = ints[1];
- 		/* fall through */
-@@ -1697,13 +1697,13 @@
- 		if ((size = ints[2]) < 256) /* check for small buffer specs */
- 			size <<= 10 ;
-                 if (size < MIN_BUFSIZE || size > MAX_BUFSIZE)
--                        printk("dmasound_setup: illegal write buffer size, using default = %d\n", writeBufSize);
-+                        printk("dmasound_setup: invalid write buffer size, using default = %d\n", writeBufSize);
-                 else
-                         writeBufSize = size;
- 	case 0:
- 		break;
- 	default:
--		printk("dmasound_setup: illegal number of arguments\n");
-+		printk("dmasound_setup: invalid number of arguments\n");
- 		return 0;
- 	}
- 	return 1;
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+If it's the same as test2 then i've already tried it.  I got no 
+performance gains as far as dbench is concerned.  Perhaps my block size 
+is not optimal on that partition for extents.  Either way it seemed to 
+make the kernel unstable and i've been trying to fix things since 
+mid-day yesterday.  Been getting very strange problems, no error 
+messages are reported or anything like that.
+
+
+
+

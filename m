@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbSK0Vcx>; Wed, 27 Nov 2002 16:32:53 -0500
+	id <S264854AbSK0VeC>; Wed, 27 Nov 2002 16:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbSK0Vcx>; Wed, 27 Nov 2002 16:32:53 -0500
-Received: from newmail.somanetworks.com ([216.126.67.42]:1456 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S264844AbSK0Vcw>; Wed, 27 Nov 2002 16:32:52 -0500
-Message-Id: <200211272140.gARLe5wF007020@localhost.localdomain>
-Date: Wed, 27 Nov 2002 16:40:05 -0500
-From: Georg Nikodym <georgn@somanetworks.com>
-To: Linux/ARM Kernel List <linux-arm-kernel@lists.arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab labels
-In-Reply-To: <200211272015.gARKFHwF006320@localhost.localdomain>
-References: <200211272015.gARKFHwF006320@localhost.localdomain>
-Organization: SOMA Networks
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.8+11GnEG0'YTB4"
+	id <S264857AbSK0VeB>; Wed, 27 Nov 2002 16:34:01 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:18560 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264854AbSK0VeA>; Wed, 27 Nov 2002 16:34:00 -0500
+Date: Wed, 27 Nov 2002 16:41:18 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: how to list pci devices from userpace?  anything better than /proc/bus/pci/devices?
+In-Reply-To: <3DE537FC.6090105@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1021127163510.4690A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.8+11GnEG0'YTB4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Wed, 27 Nov 2002, Chris Friesen wrote:
 
-On Wed, 27 Nov 2002 15:15:17 -0500
-Georg Nikodym <georgn@somanetworks.com> wrote:
+> 
+> I have a situation where the userspace app needs to be able to deal with 
+>   two different models of hardware, each of which uses a slightly 
+> different api.
+> 
+> Is there any way that I can query the pci vendor/device numbers without 
+> having to parse ascii files in /proc?
+> 
+> Thanks,
+> 
+> Chris
 
-> 1. Is the ARM __get_user() broken?
-> 2. Could I be doing something else broken that is confusing __get_user()?
-> 3. What was/is the intent of the test?  Or stated differently, why on earth
->    would cachep->name be a user address?
+Red Hat distributions after 7.0 provide `lspci`. You still have
+to parse ASCII. FYI, it's not hard to write a 'C' program
+that directly accessed the PCI bus from its ports at 0xCF8 (index)
+and 0xCFC (data). You need to do 32-bit port accesses and you
+can set iopl(3) from user-space.
 
-In answer to my own question, reading the 2.5 source was illuminating. 
-The intent of the test is obvious:
+If you want to 'roll-your-own', I can send you some code to
+use as a template.
 
-akpm     1.50         | 	/*
-akpm     1.50         | 	 * Check to see if `name' resides inside a module which has been
-akpm     1.50         | 	 * unloaded (someone forgot to destroy their cache)
-akpm     1.50         | 	 */
 
-Thanks to Mr. Morton for that comment.  Now I get to wrestle with questions 1 and 2.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
--g
 
---=.8+11GnEG0'YTB4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE95Tu1oJNnikTddkMRAqltAJ9JBhAGQgYEp2X5+l4K3iyV31evfACfbF93
-dul0LxG4AUsKNInIWsIvZEU=
-=7y9w
------END PGP SIGNATURE-----
-
---=.8+11GnEG0'YTB4--

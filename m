@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265378AbUBARTb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 12:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265385AbUBARTb
+	id S265374AbUBARPi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 12:15:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUBARPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 12:19:31 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:17829 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S265378AbUBARTa (ORCPT
+	Sun, 1 Feb 2004 12:15:38 -0500
+Received: from nevyn.them.org ([66.93.172.17]:16000 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S265374AbUBARPh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 12:19:30 -0500
-Date: Sun, 1 Feb 2004 19:19:28 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: James Morris <jmorris@redhat.com>
-Cc: Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Jim Faulkner <jfaulkne@ccs.neu.edu>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
-Message-ID: <20040201171928.GG1254@edu.joroinen.fi>
-References: <4006C665.3065DFA1@users.sourceforge.net> <Xine.LNX.4.44.0401151315520.16587-100000@thoron.boston.redhat.com>
+	Sun, 1 Feb 2004 12:15:37 -0500
+Date: Sun, 1 Feb 2004 12:15:26 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: neilb@cse.unsw.edu.au
+Subject: RAID arrays not reconstructing in 2.6
+Message-ID: <20040201171525.GA2092@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Xine.LNX.4.44.0401151315520.16587-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 01:16:21PM -0500, James Morris wrote:
-> On Thu, 15 Jan 2004, Jari Ruusu wrote:
-> 
-> > Jim,
-> > If you want your data secure, you need to re-encrypt your data anyway.
-> > Mainline loop crypto implementation has exploitable vulnerability that is
-> > equivalent to back door.
-> 
-> What exactly is this vulnerability?
-> 
+I saw this a couple of weeks ago in a 2.6.0-test kernel, and today in
+2.6.2-rc3.  When I have to hit the hard reset button on my desktop, whose
+root filesystem is RAID5 on /dev/md0, it comes back up cleanly - no
+reconstruction.
 
-http://www.tcs.hut.fi/~mjos/doc/herring061103.pdf
+Have we gotten a whole lot more enthusiastic about marking superblocks clean
+lately, or should I be worried?  Obviously this always used to trigger
+reconstruction, until recently.
 
-That PDF by Markku-Juhani O. Saarinen discusses about these vulnerabilities,
-and has one solution to them.
-
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

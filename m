@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbUKFMHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbUKFMtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbUKFMHf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 07:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUKFMHe
+	id S261377AbUKFMtG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 07:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUKFMtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 07:07:34 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:36874 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261373AbUKFMHW (ORCPT
+	Sat, 6 Nov 2004 07:49:06 -0500
+Received: from cantor.suse.de ([195.135.220.2]:40633 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261377AbUKFMtC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 07:07:22 -0500
-Date: Sat, 6 Nov 2004 13:07:16 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Adam Heath <doogie@debian.org>,
-       Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-Message-ID: <20041106120716.GA9144@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
+	Sat, 6 Nov 2004 07:49:02 -0500
+Date: Sat, 6 Nov 2004 13:48:38 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
+       Andreas Schwab <schwab@suse.de>,
+       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, ak@suse.de,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Externalize SLIT table
+Message-ID: <20041106124838.GA16434@wotan.suse.de>
+References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104040713.GC21211@wotan.suse.de> <20041104.135721.08317994.t-kochi@bq.jp.nec.com> <20041105160808.GA26719@sgi.com> <jevfcknty5.fsf@sykes.suse.de> <20041105164449.GC26719@sgi.com> <20041106115029.GB23305@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+In-Reply-To: <20041106115029.GB23305@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# > > There are probably people even using linux-1.2.
-# > 
-# > # uname -a
-# > Linux knuth 1.2.11 #27 Sun Jul 30 03:39:01 MET DST 1995 i486
-# > 
-# > (486 DX/2, 66MHz, 8 MB)
-# > 
-# > -rw-r--r--   1 root     root       281572 Jul 30  1995 zImage-1.2.11
-# > -rw-r--r--   1 root     root       277476 Apr  1  1995 zImage-1.2.2
-# 
-# Ok, you da man. What do you use it for? Or is it just lying around for 
-# nostalgic reasons?
+On Sat, Nov 06, 2004 at 11:50:29AM +0000, Christoph Hellwig wrote:
+> On Fri, Nov 05, 2004 at 10:44:49AM -0600, Jack Steiner wrote:
+> > > > +	for (i = 0; i < numnodes; i++)
+> > > > +		len += sprintf(buf + len, "%s%d", i ? " " : "", node_distance(nid, i));
+> > > 
+> > > Can this overflow the space allocated for buf?
+> > 
+> > 
+> > Good point. I think we are ok for now. AFAIK, the largest cpu count
+> > currently supported is 512. That gives a max string of 2k (max of 3 
+> > digits + space per cpu).
+> 
+> I always wondered why sysfs doesn't use the seq_file interface that makes
+> life easier in the rest of them kernel.
 
-One strength is the fact that it boots in a couple of seconds, while
-my current 2.6.9 with vendor boot scripts takes minutes.
-Another strength is the weight - exactly 2 kg.
-I write letters, papers, lecture notes and stuff.
-It feels faster than modern machines.
-Only need X, TeX, emacs and rsh, rcp.
+Most fields only output a single number, and seq_file would be 
+extreme overkill for that.
 
->> to remind us how large the kernel is getting? :)
-
-> Yeah, I know. Damn, it's scary.
-> The kernel does do more these days than it did in '95. But 6 times more?
-
-I recall the times where 4K was enough for a multiuser OS that provided
-each user its own virtual machine (and could run itself under itself).
-Small is beautiful. Six times? Today for me is
-
--rw-r--r--  1 aeb users 3161708 2004-11-06 01:19 /boot/bzImage-2.6.9test
-
-Probably I select more filesystems than you do.
-
-Andries
+-Andi

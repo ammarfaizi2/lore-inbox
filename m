@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288377AbSBVAGT>; Thu, 21 Feb 2002 19:06:19 -0500
+	id <S288800AbSBVAUU>; Thu, 21 Feb 2002 19:20:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288579AbSBVAGK>; Thu, 21 Feb 2002 19:06:10 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:56966 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S288473AbSBVAFv>;
-	Thu, 21 Feb 2002 19:05:51 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-rc2 doesn't compile on ia64 
-In-Reply-To: Your message of "Thu, 21 Feb 2002 18:57:12 CDT."
-             <Pine.LNX.4.44.0202211828370.25435-100000@marabou.research.att.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Feb 2002 11:05:39 +1100
-Message-ID: <15612.1014336339@kao2.melbourne.sgi.com>
+	id <S288845AbSBVAUK>; Thu, 21 Feb 2002 19:20:10 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:39435 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288800AbSBVAUF>;
+	Thu, 21 Feb 2002 19:20:05 -0500
+Date: Thu, 21 Feb 2002 21:19:47 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Antoni Bella <bella5@teleline.es>
+Cc: <linux-kernel@vger.kernel.org>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: diff =?iso-8859-15?q?=BF=3F=20=5B=20linux-2=2E4=2E18-rc3?= ]
+In-Reply-To: <20020221233320Z287874-889+4827@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33L.0202212118560.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002 18:57:12 -0500 (EST), 
-Pavel Roskin <proski@gnu.org> wrote:
->I'm trying to compile Linux for ia64 and it doesn't compile:
+On Fri, 22 Feb 2002, Antoni Bella wrote:
 
-It won't without the ia64 add on patch.
+>   Error in diff generated
 
->Indeed, clear_user_page() is defined with 3 arguments for ia-64
->(include/asm-ia64/pgalloc.h) and with 2 arguments for other platforms
->(include/asm-i386/page.h)
+It would help if you told us what you think is wrong with
+the diff.
 
-ia64 needs to change the definition of clear_user_page and related
-functions.  That change affects all architectures and has not been
-folded into the base kernel tree, you have to apply the ia64 add on
-patch to compile for ia64.
+It works fine for me, I have absolutely no idea what could
+be going wrong for you...
+
+> ## Automatically generated incremental diff
+> ## From:   linux-2.4.18-rc2
+> ## To:     linux-2.4.18-rc3
+> ## Robot:  $Id: make-incremental-diff,v 1.11 2002/02/20 02:59:33 hpa Exp $
+
+
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

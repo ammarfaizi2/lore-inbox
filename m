@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132722AbRDILc1>; Mon, 9 Apr 2001 07:32:27 -0400
+	id <S132725AbRDILl6>; Mon, 9 Apr 2001 07:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132725AbRDILcR>; Mon, 9 Apr 2001 07:32:17 -0400
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:40835 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S132722AbRDILb7>;
-	Mon, 9 Apr 2001 07:31:59 -0400
-Message-Id: <5.0.2.1.2.20010409115354.00a311a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 09 Apr 2001 12:32:02 +0100
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Q: process concurrency and sigaction()
+	id <S132727AbRDILls>; Mon, 9 Apr 2001 07:41:48 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:37125 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S132725AbRDILla>; Mon, 9 Apr 2001 07:41:30 -0400
+Date: Mon, 9 Apr 2001 15:05:43 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        James Simmons <jsimmons@linux-fbdev.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
+Message-ID: <20010409150543.A541@jurassic.park.msu.ru>
+In-Reply-To: <20010408221123.A22893@jurassic.park.msu.ru> <Pine.GSO.3.96.1010409115004.9470B-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010409115004.9470B-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Mon, Apr 09, 2001 at 12:02:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Apr 09, 2001 at 12:02:54PM +0200, Maciej W. Rozycki wrote:
+>  I think you need an mb here.  To force sychronization with other CPUs.
+> Unless you know you are UP or there is no possibility another CPU may
+> access the relevant device.
 
-I use sigaction() to install a handler for SIGALRM, which is triggered 
-periodically by a timer created using setitimer(ITIMER_REAL). The handler 
-modifies the same data that my program (that registered the signal handler) 
-modifies. So I need to lock one against the other. (The program has not 
-executed clone(), nor is it using any threading libraries.)
+Yes - in most cases you need synchronization at a higher level.
+For instance, you don't want other CPUs accessing the device while
+you are sending command sequences to it.
 
-My questions are:
-
-1. On SMP, is it guaranteed that only one (handler vs. normal program code) 
-executes at the same time? (Or is it possible, for example, that signal 
-handler runs on CPU1 while the normal program code is executing on CPU2?)
-
-2. Is it guaranteed that execution of the normal program code is only 
-resumed when the handler "return"s? (Or is it possible, for example, that 
-while the handler is running, a reschedule occurs in such a way as that 
-normal program code is executed before a subsequent reschedule continues 
-with the handler code?)
-
-I am asking so I know how simple/complex the locking between the two has to 
-be... - I suspect that it is guaranteed that only one executes at any one 
-time on the system and that the normal code can never be executing while a 
-signal handler is executing.
-
-If this is correct, the program (non-handler) code can assume for sure that 
-it will never encounter any of the locks held as the handler will have 
-finished and unlocked them before execution is returned.
-
-This would mean 1) I can grab locks in normal program code knowing that 
-they will succeed immediately and 2) the signal handler doesn't need to do 
-any locking at all. Just need to check if lock is held and if it is return 
-immediately as it is impossible that the lock is unlocked while we are in 
-the handler or that any code executes which would necessitate the lock to 
-be held. - This would mean I can use a simple spinlock and use spin_lock() 
-and spin_unlock() in the normal code and just a spin_is_locked() test in 
-the handler. Anyone can see anything wrong with this? (Apart from the usual 
-flames about using kernel headers as part of a program... Using kernel 
-headers/code has a big advantage IMO, in that it gives you efficient, while 
-at the same time multi arch code, but lets not get into this flame war now).
-
-Thanks in advance.
-
-Best regards,
-
-         Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Ivan.

@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbUCWBRq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 20:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCWBRq
+	id S261817AbUCWBXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 20:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUCWBXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 20:17:46 -0500
-Received: from painless.aaisp.net.uk ([217.169.20.17]:25529 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261803AbUCWBRo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 20:17:44 -0500
-Message-ID: <405F920C.9090809@rgadsdon2.giointernet.co.uk>
-Date: Tue, 23 Mar 2004 01:25:32 +0000
-From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.5-rc2 - panic when slocate.cron job accesses firewire disk
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Mar 2004 20:23:12 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:11564 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261817AbUCWBXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 20:23:10 -0500
+Date: Mon, 22 Mar 2004 17:21:34 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Message-Id: <20040322172134.180933b3.pj@sgi.com>
+In-Reply-To: <20040320093614.GZ2045@holomorphy.com>
+References: <1079651064.8149.158.camel@arrakis>
+	<20040318165957.592e49d3.pj@sgi.com>
+	<1079659184.8149.355.camel@arrakis>
+	<20040318175654.435b1639.pj@sgi.com>
+	<1079737351.17841.51.camel@arrakis>
+	<20040319165928.45107621.pj@sgi.com>
+	<20040320031843.GY2045@holomorphy.com>
+	<20040319220907.1e07d36f.pj@sgi.com>
+	<20040320093614.GZ2045@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following when the slocate.cron job accesses the first of 3 
-120GB firewire disks:
--------------------------------------------------------------
-EIP:   0060:[<f89e3a27>]   Tainted:  P
-EFLAGS: 00010047  (2.6.5-rc2)
-EIP is at hpsb_packet_sent +0x27/0x90 [ieee1394]
-eax : 00100100  ebx: f1b34000  ecx:  d37a4da0  edx: 00200200
-esi:  00000001  edi: d37a4da0  ebp:  f1b36060  esp: f7f4fefc
-ds:  007b  es: 007b ss: 0068
-Process swapper  (pid: 0, threadinfo=f7f4e000 task=f7e5f150)
-Stack: f1b361a4 f890a9e8 f1b34000 d37a4da0 00000001 dcc54b40 f1b361d0 
-00000282
-        f1b361a4 00000000 f7f4e000 c04c35c0 c0124a83 f1b361a4 00000001 
-c0493fa8
-        0000000a 00000046 c01247b7 c0493fa8 f7f4e000 f7f4e000 00000009 
-00000020
-Call Trace:
-[<f890a9e8>] dma_trm_tasklet+0xa8/0x1b0 [ohci1394]
-[<c0124a83>] tasklet_action+Bx73/0xe0
-[<c01247b7>] do_softirq+0xc7/0xd0
-[<c010b77b>] do_IRQ+0x13b/0x1a0
-[<c01998a8>] common_interrupt+0x18/0x20
-[<c0186970>] default_idle+0x0/0x40
-[<c016699c>] default_idle+0x2c/0x40
-[<c0106a2b>] cpu_idle+0x3b/0x50
-[<c0120a38>] printk+0xl78/0x1f0
+> There is one issue and one issue only: the
+> larger the "instruction set" grows, the more intrusive and complex-
+> looking the thing appears, the more of quagmire merging it becomes.
 
-Code: 89 50 04 89 02 c7 41 04 00 02 20 00 c7 01 00 01 10 00 c6 41
-<0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
--------------------------------------------------------------
-(copied/OCRed from screen photo)
+Providing the additional mask "instructions" shouldn't create any quagmire.
 
-When booting and mounting the disks, the console shows the following 
-'errors/warnings':
-ohci1394: fw-host0: Unexpected PCI resource length of 1000!
-........
-ieee1394: unsolicited response packet received - no tlabel match
+It's the using of them that is intrusive.
 
-Similar problem occurs with 2.6.4, but 2.6.3 and earlier are OK.
+Initially, some intrusive work, such as you (Bill) did was needed to get
+masks implanted.  But now it should be appropriate to simply provide the
+alternative calls that can make certain code sequences more efficient,
+and then if someone complains that their old code sequence is too slow
+or uses too much stack, we can recommend alternative code sequences that
+will work better for them.
 
-System is a 2-cpu PIII (Via) running Fedora 1 with 2.6.x kernel..
+Passing the buck, division of labour and all that ...
 
-..................................
-Robert Gadsdon
-..................................
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

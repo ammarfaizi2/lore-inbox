@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282895AbRK0KCz>; Tue, 27 Nov 2001 05:02:55 -0500
+	id <S282896AbRK0KIf>; Tue, 27 Nov 2001 05:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282893AbRK0KCp>; Tue, 27 Nov 2001 05:02:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61196 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282892AbRK0KC0>; Tue, 27 Nov 2001 05:02:26 -0500
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-To: mingo@elte.hu
-Date: Tue, 27 Nov 2001 10:10:34 +0000 (GMT)
-Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain> from "Ingo Molnar" at Nov 27, 2001 12:52:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282071AbRK0KI0>; Tue, 27 Nov 2001 05:08:26 -0500
+Received: from mail49-s.fg.online.no ([148.122.161.49]:42456 "EHLO
+	mail49.fg.online.no") by vger.kernel.org with ESMTP
+	id <S282896AbRK0KIO>; Tue, 27 Nov 2001 05:08:14 -0500
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Release Policy
+In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com>
+	<Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva>
+	<3C02E682.4CDC6858@zip.com.au>
+	<20011126.171301.50592818.davem@redhat.com>
+	<9tuqf2$eri$1@cesium.transmeta.com> <20011127133902.A21914@bee.lk>
+From: Harald Arnesen <gurre@start.no>
+Date: Tue, 27 Nov 2001 11:08:04 +0100
+In-Reply-To: <20011127133902.A21914@bee.lk> (Anuradha Ratnaweera's message
+ of "Tue, 27 Nov 2001 13:39:02 +0600")
+Message-ID: <873d30r0fv.fsf@basilikum.skogtun.com>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E168fCE-0000X7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> fundamental limitation of your approach, and *if* we want to export the
-> cpus_allowed affinity to user-space (which is up to discussion), then the
-> right way (TM) to do it is via a syscall.
+Anuradha Ratnaweera <anuradha@gnu.org> writes:
 
-HP and others have already implemented chunks of this stuff via syscall
-interfaces. There is a complete pset api.
+> How does Marcelo (or Linus or Alan, say) know that the patch
+> _really_ came from the subsystem aintainer himself?
 
-Alan
+They could reject patches that came without the maintainers GPG or PGP
+signature.
+-- 
+Hilsen Harald.

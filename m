@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTJYUOf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 16:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTJYUOf
+	id S262888AbTJYUFu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 16:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTJYUFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 16:14:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64718 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262790AbTJYUOd
+	Sat, 25 Oct 2003 16:05:50 -0400
+Received: from morbo.e-centre.net ([66.154.82.3]:28104 "EHLO
+	morbo.e-centre.net") by vger.kernel.org with ESMTP id S262888AbTJYUFm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 16:14:33 -0400
-Date: Sat, 25 Oct 2003 21:14:30 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test9
-Message-ID: <20031025201427.GT7665@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
+	Sat, 25 Oct 2003 16:05:42 -0400
+Date: Sat, 25 Oct 2003 16:05:25 -0400
+From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: Swsusp-2.0-2.6-alpha1
+Message-ID: <20031025200524.GA1170@iain-vaio-fx405>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1067069558.1975.54.camel@laptop-linux> <20031025192019.GA1033@iain-vaio-fx405>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031025192019.GA1033@iain-vaio-fx405>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Linux/2.6.0-test8 (i686)
+X-Uptime: 15:58:36 up 15 min,  3 users,  load average: 0.38, 0.19, 0.12
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 12:09:10PM -0700, Linus Torvalds wrote:
- 
-> If it corrupts data, is a security issue, or causes lockups or just basic
-> nonworkingness: and this happens on hardware that _normal_ people are
-> expected to have, then it's critical.  Otherwise, it's noise and should
-> wait.
+* iain d broadfoot (ibroadfo@cis.strath.ac.uk) wrote:
+> * Nigel Cunningham (ncunningham@clear.net.nz) wrote:
+> > Hi all.
+> > 
+> > I'm pleased to be able to announce the first test release of a port of
+> > the current 2.0 pre-release Software Suspend code to 2.6. 
+> 
+> hurrah!
+> 
+> The attached patch allowed the kernel to compile for me, haven't booted
+> into it as yet.
 
-Hmm...  Do you count the stuff like "driver foo dereferences after kfree()"
-as major when fix is to reorder two consequent lines in said driver?  I'm
-perfectly happy with sitting on that until 2.6.0 or later, but we might be
-better off with a separate tree that would contain *only* such stuff and
-would keep track of it for later merges.
+when trying to suspend (either by directly echoing > /proc/swsusp/activate,
+or with the script) It only gets as far as the first screen "killing
+processes/freeing space" (can't remember the exact message despite
+staring at it for a good 20 mins total today)
 
-Proposed rules:
-	a) all changes must be local and separate.  Anything that affects
-more than one place is either splittable, in which case it's more than
-one change, or doesn't belong there.
-	b) chunks stay separate until they go into the main tree.  IOW,
-they are fed one by one (when merges are OK) and they become separate
-changesets.
-	c) all chunks must be mergable into -STABLE.  IOW, the rules are
-the same as for 2.6.1 - as far as merging into that tree is concerned,
-we are not in -RC anymore.
+the 'r' and 'l' keys both change the message, toggling reboot and
+logging respectively, but no other keys have any effect.
 
-Hell, I could even start using BK for that...
+cheers,
+iain
+
+-- 
+"If sharing a thing in no way diminishes it, it is not rightly owned if it is
+not shared." -- St. Augustine

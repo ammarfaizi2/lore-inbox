@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVDDHml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVDDHsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVDDHml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 03:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVDDHml
+	id S261153AbVDDHsb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 03:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVDDHsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 03:42:41 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:41609 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261152AbVDDHmj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 03:42:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=BglCjFxq8pZLhQtvrT/yYFUQ4t1YG22840oQs4m9fIDFHEcoxuraz2xPsbe9Q1Qbku1GpzecdR9jH9MdlLcoxcLPXgy972q1uU/uxL+XDKEZR3P00Amo2+TqM+htSIZT0cyz7kZFR6v6aN2yy6XHwV4hRoski6/zMgpgyLEzro4=
-Message-ID: <59ab6ac105040400423fefd96a@mail.gmail.com>
-Date: Mon, 4 Apr 2005 09:42:39 +0200
-From: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
-	<jadebustos@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
-	  <jadebustos@gmail.com>
+	Mon, 4 Apr 2005 03:48:31 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:55687 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261153AbVDDHs2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 03:48:28 -0400
+X-ME-UUID: 20050404074827280.446831C002A5@mwinf0606.wanadoo.fr
+Date: Mon, 4 Apr 2005 09:48:23 +0200
+From: Christophe Lucas <clucas@rotomalug.org>
 To: linux-kernel@vger.kernel.org
-Subject: A problem with kswapd
+Message-ID: <20050404074823.GC28840@rhum.iomeda.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux / 2.6.9 (i686)
+X-Homepage: http://odie.mcom.fr/~clucas/
+X-Crypto: GnuPG/1.2.4 http://www.gnupg.org
+X-GPG-Key: http://odie.mcom.fr/~clucas/downloads/clucas-public-key.txt
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: 192.168.0.24
+X-SA-Exim-Mail-From: clucas@rotomalug.org
+Subject: ChangeLog-2.4.30
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on vodka.iomeda.fr)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Is this normal ;-) ChangeLog-2.4.30 is not found on www.kernel.org ?
+http://www.kernel.org/pub/linux/kernel/v2.4/ChangeLog-2.4.30
 
-I have a problem with kswapd and I didn't find anything in the
-archives of the list (I hope not having missed someone).
+Have a nice day,
+ 
+	~Christophe
 
-kswapd is using 100% of CPU in a suse sles8 with kernel 2.4.241. This
-machine has its FS under LVM and ResiserFS, except for /boot which is
-in ext2.
+PS: Please CC me :)
 
-Any idea? Thanks in advance.
--- 
-____________________________________
-Best wishes, José Angel de Bustos Pérez
-
-jadebustos@linuxmail.org
-jadebustos@gmail.com
-
-Jabber ID jadebustos@jabber.org
-ICQ ID 200368358

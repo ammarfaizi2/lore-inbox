@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287371AbSACQR6>; Thu, 3 Jan 2002 11:17:58 -0500
+	id <S287374AbSACQSS>; Thu, 3 Jan 2002 11:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287374AbSACQRs>; Thu, 3 Jan 2002 11:17:48 -0500
-Received: from [63.170.174.196] ([63.170.174.196]:37382 "EHLO
-	localhost.seg.inf.cu") by vger.kernel.org with ESMTP
-	id <S287371AbSACQRg>; Thu, 3 Jan 2002 11:17:36 -0500
-Message-Id: <200201031631.g03GVTm03210@tiger.seg.inf.cu>
-Content-Type: text/plain; charset=US-ASCII
-From: Israel Fernandez Cabrera <israel@seg.inf.cu>
-Organization: Segurmatica
-To: linux-kernel@vger.kernel.org
-Subject: IPC V and kernel modules
-Date: Thu, 3 Jan 2002 11:16:26 -0500
-X-Mailer: KMail [version 1.3.1]
+	id <S287379AbSACQSJ>; Thu, 3 Jan 2002 11:18:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41858 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S287374AbSACQSB>;
+	Thu, 3 Jan 2002 11:18:01 -0500
+Date: Thu, 3 Jan 2002 11:17:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Oleg Drokin <green@namesys.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] expanding truncate
+In-Reply-To: <20020103152520.A7030@namesys.com>
+Message-ID: <Pine.GSO.4.21.0201031111130.23312-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm new in the kernel programming word, so I'm having a lot of 
-difficults, the first one is this:
-I need to use IPC V messages in a kernel module to communicate this one with 
-a daemon, but I'm not sure that my module is sending the messages ok, because 
-when I use a 'ipcs -q' command I don't see any message waiting.
-I'll apreciate any help
-regards
-elfo
+
+
+On Thu, 3 Jan 2002, Oleg Drokin wrote:
+
+> Purpose of this patch is of course not to fill in the datablocks with zeroes.
+> The purpose (as applied to reiserfs) is to fill indirect data pointers (that is - pointers to real data blocks)
+> with zeroes (and to organize proper in-tree data structure for such pointers).
+> As of now such organization and zero-filling is done on a lazy manner at disk-flushing time.
+> Unfortunatelly this leads to races in the code.
+> I do not know why parts of this code can be needed by other filesystem and why Al Viro put it in generic VFS
+> code. (but he can comment on it, I think)
+
+I could, if I would remember doing that... ;-/
+
+	Seriously, it looks like a half-arsed and very old attempt to do common
+expanding truncate() for no-holes filesystems.  BTW, these days rlimit checks
+are done by vmtruncate().
+
+

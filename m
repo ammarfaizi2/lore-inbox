@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289026AbSBMWmN>; Wed, 13 Feb 2002 17:42:13 -0500
+	id <S289053AbSBMWnx>; Wed, 13 Feb 2002 17:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289047AbSBMWmE>; Wed, 13 Feb 2002 17:42:04 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1789
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S289026AbSBMWlx>; Wed, 13 Feb 2002 17:41:53 -0500
-Date: Wed, 13 Feb 2002 14:41:45 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sys_sync livelock fix
-Message-ID: <20020213224145.GC335@matchmail.com>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@zip.com.au>, viro@math.psu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16b14Z-0001oR-00@starship.berlin> <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.27i
+	id <S289047AbSBMWne>; Wed, 13 Feb 2002 17:43:34 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:7139 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S289053AbSBMWmy>; Wed, 13 Feb 2002 17:42:54 -0500
+Message-Id: <200202132154.OAA03288@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [PATCH] 2.5.4, add help texts to drivers/net/pcmcia/Config.help
+Date: Wed, 13 Feb 2002 15:41:10 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: elenstev@mesatop.com, David Hinds <dhinds@zen.stanford.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200202131712.KAA02867@tstac.esa.lanl.gov> <3C6AAC49.F099129E@mandrakesoft.com> <3C6AE72D.1010803@oracle.com>
+In-Reply-To: <3C6AE72D.1010803@oracle.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 05:24:38PM -0500, Bill Davidsen wrote:
-> On Wed, 13 Feb 2002, Daniel Phillips wrote:
-> > On this topic, it would make a lot of sense from the user's point of view to
-> > have a way of syncing a single volume, how would we express that?
-> 
-> I have an idea, I'll put it in another message, since only two of us are
-> likely to be reading at this point.
-> 
+On Wednesday 13 February 2002 03:22 pm, Alessandro Suardi wrote:
+> Jeff Garzik wrote:
+> > Thanks, patch pushed into the local queue here for 2.5.
+>
+> The Xircom one is wrong though - driver will be called xircom_cb.o,
+>   not xircom_tulip_cb.o (that's the name of the older driver).
+>
+> --alessandro
 
-Not true...
+Ok, here is a patch against what may be in the tree with changeset 1.316.
+Thanks for noticing.
+Steven
 
-There's at least me. ;)  I have this thread flagged as "interesting".
+--- linux-2.5.4/drivers/net/pcmcia/Config.help.orig     Wed Feb 13 15:35:33 2002
++++ linux-2.5.4/drivers/net/pcmcia/Config.help  Wed Feb 13 15:36:13 2002
+@@ -133,7 +133,7 @@
 
-Syncing a specific volume/fs is quite interesting also.  Maybe "sync
-[--only-current-fs] [--fs $dev]"
-
-Mike
+   This driver is also available as a module ( = code which can be
+   inserted in and removed from the running kernel whenever you want).
+-  The module will be called xircom_tulip_cb.o.  If you want to compile
++  The module will be called xircom_cb.o.  If you want to compile
+   it as a module, say M here and read
+   <file:Documentation/modules.txt>. If unsure, say N.

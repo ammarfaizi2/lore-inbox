@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbUKLVSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbUKLVa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbUKLVSI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 16:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbUKLVQS
+	id S262619AbUKLVa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUKLVa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 16:16:18 -0500
-Received: from gprs214-66.eurotel.cz ([160.218.214.66]:22913 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262618AbUKLVPo (ORCPT
+	Fri, 12 Nov 2004 16:30:27 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:42709 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262619AbUKLVaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 16:15:44 -0500
-Date: Fri, 12 Nov 2004 22:15:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] Fix sysdev time support
-Message-ID: <20041112211531.GC1252@elf.ucw.cz>
-References: <1100213485.6031.18.camel@desktop.cunninghams> <1100213867.6031.33.camel@desktop.cunninghams> <20041112080000.GC6307@atrey.karlin.mff.cuni.cz> <1100291593.4090.2.camel@desktop.cunninghams>
+	Fri, 12 Nov 2004 16:30:21 -0500
+Date: Fri, 12 Nov 2004 13:20:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Recent I2C "dead code removal" breaks pmac sound.
+Message-ID: <20041112212008.GA2256@kroah.com>
+References: <20041111180902.GA8697@iram.es> <20041111182228.GA23236@kroah.com> <20041112122215.GA19147@iram.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1100291593.4090.2.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041112122215.GA19147@iram.es>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Fix type of sleep_start, so as to eliminate clock skew due to math
-> > > errors.
+On Fri, Nov 12, 2004 at 01:22:15PM +0100, Gabriel Paubert wrote:
+> > Put the function back, and change the pmac.h file to delete the #define,
+> > and replace the snd_pmac_keywest_write function with a real call to
+> > i2c_smbus_write_block_data so things like this don't happen again.
 > > 
-> > Are you sure? I do not think long signed/unsigned problem can skew the
-> > clock by 1hour. I could see skewing clock by few years, but not by one
-> > hour...
+> > Care to write a patch to do this?
 > 
-> It seemed small to me, too. Perhaps I just didn't notice the shift in
-> the date. I'll look again, if you like.
+> It follows, along with an update of the include/linux/i2c.h to only
+> declare functions that actually exist, but grepping the whole sound
+> subtree shows that at least sound/oss/dmasound/tas_common.h defines 
+> a few inline functions that call i2c_smbus_write_{byte,block}_data.
+> 
+> It might be reasonable to split it into two ChangeSets, that's
+> your call.
+> 
+> Compiled, booted, tested and CC'ed to BenH just in case.
 
-Yes, I'd like to understand this problem.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Applied, thanks.
+
+greg k-h

@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbULNDPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbULNDVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbULNDPL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 22:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbULNDPL
+	id S261388AbULNDVM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 22:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbULNDVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 22:15:11 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:26640 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261386AbULNDPI
+	Mon, 13 Dec 2004 22:21:12 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:27408 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261388AbULNDVL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 22:15:08 -0500
-Date: Tue, 14 Dec 2004 12:16:46 +0900 (JST)
-Message-Id: <20041214.121646.42527619.yoshfuji@linux-ipv6.org>
-To: roland@topspin.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH][v3][20/21] Add InfiniBand Documentation files
+	Mon, 13 Dec 2004 22:21:11 -0500
+Date: Tue, 14 Dec 2004 12:22:50 +0900 (JST)
+Message-Id: <20041214.122250.95554368.yoshfuji@linux-ipv6.org>
+To: juhl-lkml@dif.dk, jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
+Subject: [OT] IBM Active Protection System (Re: [WISHLIST] IBM HD Shock
+ detection in Linux)
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <52u0qp37s1.fsf@topspin.com>
-References: <200412131010.qyAMW5NxoiM4CntC@topspin.com>
-	<20041214.114259.16194522.yoshfuji@linux-ipv6.org>
-	<52u0qp37s1.fsf@topspin.com>
+In-Reply-To: <Pine.LNX.4.61.0412122345440.3369@dragon.hygekrogen.localhost>
+References: <1102889485.15558.5.camel@ksyrium.local>
+	<Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr>
+	<Pine.LNX.4.61.0412122345440.3369@dragon.hygekrogen.localhost>
 Organization: USAGI Project
 X-URL: http://www.yoshifuji.org/%7Ehideaki/
 X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
@@ -34,13 +33,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <52u0qp37s1.fsf@topspin.com> (at Mon, 13 Dec 2004 18:58:38 -0800), Roland Dreier <roland@topspin.com> says:
+In article <Pine.LNX.4.61.0412122345440.3369@dragon.hygekrogen.localhost> (at Sun, 12 Dec 2004 23:48:13 +0100 (CET)), Jesper Juhl <juhl-lkml@dif.dk> says:
 
->     YOSHIFUJI> LICENSE.TXT is missing. Please add one.
-> 
-> I think it would be even better to rewrite the copyright header so it
-> doesn't refer to external files.  I will see if this is possible.
+> > But what will it do to prevent against the schock, now that it knows it is 
+> > tilted?
+> > 
+> Knowing only what I could read here: 
+> http://www.pc.ibm.com/us/thinkpad/xseries/index.html#aps it would seem 
+> that it stops the harddrive. How effective that is I don't know - I have 
+> no further knowledge or experience with this.
 
-Yes, I agree.
+FYI: You can find their descriptions and stories in Japanese at:
+  <http://www-6.ibm.com/jp/pc/design/haps.html>
+  <http://www-6.ibm.com/jp/pc/interview/haps/>.
 
 --yoshfuji

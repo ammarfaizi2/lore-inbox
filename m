@@ -1,87 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbTIWAgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 20:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTIWAgr
+	id S263077AbTIWAqO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 20:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTIWAqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 20:36:47 -0400
-Received: from home.kvack.org ([216.138.200.138]:28116 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262798AbTIWAgl (ORCPT
+	Mon, 22 Sep 2003 20:46:14 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:19396 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263077AbTIWAqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 20:36:41 -0400
-Date: Mon, 22 Sep 2003 20:36:29 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Peter Chubb <peter@chubb.wattle.id.au>, davem@redhat.com
-Cc: Andi Kleen <ak@suse.de>, Grant Grundler <iod00d@hp.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-ID: <20030922203629.B21836@kvack.org>
-References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au> <20030919043847.GA2996@cup.hp.com> <20030919044315.GC7666@wotan.suse.de> <16234.36238.848366.753588@wombat.chubb.wattle.id.au> <20030919055304.GE16928@wotan.suse.de> <20030919064922.B3783@kvack.org> <16239.38154.969505.748461@wombat.chubb.wattle.id.au>
+	Mon, 22 Sep 2003 20:46:00 -0400
+Subject: Re: 2.6.0-test5-mm3 as-iosched Oops running dbt2 workload
+From: Mary Edie Meredith <maryedie@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Dave Olien <dmo@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3F6BAC5F.503@cyberone.com.au>
+References: <20030919185621.GA18666@osdl.org> <3F6BAC5F.503@cyberone.com.au>
+Content-Type: text/plain
+Organization: Open Source Development Lab
+Message-Id: <1064276451.29360.421.camel@ibm-e.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16239.38154.969505.748461@wombat.chubb.wattle.id.au>; from peter@chubb.wattle.id.au on Tue, Sep 23, 2003 at 10:34:18AM +1000
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 22 Sep 2003 17:20:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denied.  Dave, please explain.
+I tried dbt2 cached run again on the same 8way project machine on
+2.6.0-test5-mm4 and got the following similar panic.  Maybe it will give
+more clues:
 
-		-ben
 
-On Tue, Sep 23, 2003 at 10:34:18AM +1000, Peter Chubb wrote:
+------------[ cut here ]------------
+kernel BUG at drivers/block/as-iosched.c:1091!
+invalid operand: 0000 [#1]
+SMP 
+CPU:    3
+EIP:    0060:[<c0228b38>]    Not tainted VLI
+EFLAGS: 00010046
+EIP is at as_move_to_dispatch+0x1b8/0x1d0
+eax: 00000000   ebx: 00000000   ecx: 00000000   edx: ffffff41
+esi: 00000000   edi: f7a228c0   ebp: f6e865e0   esp: e5923bbc
+ds: 007b   es: 007b   ss: 0068
+Process kernel (pid: 1640, threadinfo=e5922000 task=d16dc670)
+Stack: f27e4b40 00000003 00000000 0020c7f0 00000000 f7a228c0 00000000
+00000001 
+       f6e865e0 c0228c8b f7a228c0 f6e865e0 00000040 c0223a3f f7818800
+f7a228c0 
+       00000000 e5922000 f74566e0 c0228e78 f7a228c0 f7818800 f7818800
+c0220816 
+Call Trace:
+ [<c0228c8b>] as_dispatch_request+0x13b/0x2f0
+ [<c0223a3f>] generic_make_request+0x16f/0x1f0
+ [<c0228e78>] as_next_request+0x38/0x50
+ [<c0220816>] elv_next_request+0x16/0x110
+ [<c022234a>] generic_unplug_device+0x5a/0x70
+ [<c02224b6>] blk_run_queues+0x86/0xa0
+ [<c017dc66>] dio_await_one+0x86/0xb0
+ [<c017dd9b>] dio_await_completion+0x2b/0x60
+ [<c017eb93>] direct_io_worker+0x343/0x480
+ [<c017ee4f>] blockdev_direct_IO+0x17f/0x1c7
+ [<c0162b30>] blkdev_get_blocks+0x0/0xa0
+ [<c0162c3a>] blkdev_direct_IO+0x6a/0x80
+ [<c0162b30>] blkdev_get_blocks+0x0/0xa0
+ [<c013f6b1>] generic_file_direct_IO+0xe1/0x110
+ [<c013ed06>] __generic_file_aio_write_nolock+0x8f6/0xbd0
+ [<c0162b30>] blkdev_get_blocks+0x0/0xa0
+ [<c0142b2f>] wait_on_page_range+0x2f/0x40
+ [<c0142ad0>] page_waiter+0x0/0x30
+ [<c0142e28>] sync_page_range_nolock+0xc8/0xce
+ [<c013f09c>] generic_file_aio_write_nolock+0xbc/0xd0
+ [<c013f212>] generic_file_write_nolock+0xa2/0xc0
+ [<c013d632>] generic_file_read+0xb2/0xd0
+ [<c0121330>] autoremove_wake_function+0x0/0x50
+ [<c0121330>] autoremove_wake_function+0x0/0x50
+ [<c0136650>] nanosleep_wake_up+0x0/0x10
+ [<c0215067>] raw_file_write+0x37/0x40
+ [<c015ac8e>] vfs_write+0xbe/0x130
+ [<c015adb2>] sys_write+0x42/0x70
+ [<c030d2af>] syscall_call+0x7/0xb
+ [<c030007b>] rpc_release_task+0x1db/0x250
+
+Code: f6 e8 dd b7 ff ff 89 b7 c4 00 00 00 e9 ba fe ff ff 8d 45 1c 89 44
+24 04 8d 87 c4 00 00 00 89 04 24 e8 3d b9 ff ff e9 ab fe ff ff <0f> 0b
+43 04 3d ec 32 c0 e9 57 fe ff f
+f 8d 74 26 00 8d bc 27 00 
+
+
+
+On Fri, 2003-09-19 at 18:24, Nick Piggin wrote:
+> Sigh. Sorry, I'm an idiot...
 > 
-> OK, a patch for the driver in 2.6.0-test5 is appended.
+> If a request is merged with another, it sometimes has to be repositioned
+> on the rbtree - you just do a delete then an add. This is a quite
+> uncommon case though.
 > 
-> I suspect that there are other architectures that don't like unaligned
-> accesses...  feel free to add them to the #ifdef.
-> This is based on code I found in the revision history.  It seems to
-> work.
+> I changed the way adding works, so collisions must be handled by the
+> caller instead of being dumbly fixed by the add routine. Unfortunately
+> the uncommon callers weren't handling it properly. Try this please.
 > 
-> Without this patch, the console messages saying `unaligned access'
-> would come out fast enough and often enough to delay and or miss
-> interrupts, leading to an eventual machine hangup on I2000.
 > 
-> ===== drivers/net/ns83820.c 1.30 vs edited =====
-> --- 1.30/drivers/net/ns83820.c	Thu Sep 11 09:46:45 2003
-> +++ edited/drivers/net/ns83820.c	Mon Sep 22 12:49:18 2003
-> @@ -793,6 +793,25 @@
->  	}
+> 
+> Dave Olien wrote:
+> 
+> >Andrew,
+> >
+> >Attached is console output containing a stack trace from an Oops, followed
+> >by a Fatal exception, and LOTS of APIC errors.  The machine was hung,
+> >printing APIC error messages forever.
+> >
+> >This looks like another as-iosched problem.  So, I'm copying Nick Piggin
+> >on this email.  But the Fatal exception and APIC errors following
+> >that are a mystery to me.
+> >
+> >Mary encountered this running the sapdb dbt2 cached database workload on her
+> >project machine.  The project machine was running 2.6.0-test5-mm3.
+> >This same test passes on the stp machines.  But Mary's project machine
+> >has more processors, and more disks, and a different disk controller type.
+> >
+> >At this stage, the database has gotten past the database restore phase.
+> >That's where it was failing prior to last night's mm3 patch.  Now, the
+> >database itself has been running for about 30 minutes.  In the cached
+> >case, much of that first 30 minutes is spent loading the cache.
+> >
+> >This Oops seems to have occurred at about the time the database is
+> >transitioning to using its cache.  Most of the I/O after this point
+> >is to the log, doing LOTS of sequential writes, with the occasional
+> >random read/write.
+> >
+> >Since this machine has more processors, it's doing transactions
+> >more quickly than the same workload on STP machines.  So the log write
+> >traffic is probably a lot heavier.
+> >
+> >
+> >------------[ cut here ]------------
+> >kernel BUG at drivers/block/as-iosched.c:1230!
+> >invalid operand: 0000 [#1]
+> >SMP 
+> >CPU:    3
+> >EIP:    0060:[<c0228146>]    Not tainted VLI
+> >EFLAGS: 00010046
+> >EIP is at as_dispatch_request+0x236/0x2f0
+> >eax: 00000000   ebx: f7a451a0   ecx: 00000000   edx: 00000000
+> >esi: 00000000   edi: 00000001   ebp: 00000000   esp: f5f67ef8
+> >ds: 007b   es: 007b   ss: 0068
+> >Process kernel (pid: 2283, threadinfo=f5f66000 task=f62760a0)
+> >Stack: f7a451a0 f5900820 f7a28000 f7a02600 c0235c23 f7a451a0 00000000 f7836000 
+> >       f5f67fc4 c0228238 f7a451a0 f7a08420 f7836000 c021fbb6 f7836000 f77e0000 
+> >       f7a28000 f7a08420 f7a28000 c023a128 f7836000 f5f02de0 f77e0090 0000000a 
+> >Call Trace:
+> > [<c0235c23>] DAC960_BA_QueueCommand+0x43/0xb0
+> > [<c0228238>] as_next_request+0x38/0x50
+> > [<c021fbb6>] elv_next_request+0x16/0x110
+> > [<c023a128>] DAC960_ProcessRequest+0x38/0x190
+> > [<c023cd40>] DAC960_BA_InterruptHandler+0x90/0xb0
+> > [<c010e899>] handle_IRQ_event+0x49/0x80
+> > [<c010ec0f>] do_IRQ+0x9f/0x150
+> > [<c030cb0c>] common_interrupt+0x18/0x20
+> > [<c030007b>] rpcauth_free_credcache+0xbb/0x100
+> >
+> >Code: 43 50 00 00 00 00 8b 43 54 8b 6b 1c c7 43 5c 00 00 00 00 89 43 58 e9 95 fe ff ff c7 43 48 01 00 00 00 c7 43 4c 00 00 00 00 eb d4 <0f> 0b ce 04 fd da 32 c0 eb c7 8b 43 50 e9 61 ff ff ff 0f 0b b6 
+> > <0>Kernel panic: Fatal exception in interrupt
+> >In interrupt handler - not syncing
+> > <6>APIC error on CPU3: 00(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >  
+> >
+> 
+> ______________________________________________________________________
+> 
+>  linux-2.6-npiggin/drivers/block/as-iosched.c |   21 +++++++++++++++------
+>  1 files changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff -puN drivers/block/as-iosched.c~as-oops-fix drivers/block/as-iosched.c
+> --- linux-2.6/drivers/block/as-iosched.c~as-oops-fix	2003-09-20 11:13:26.000000000 +1000
+> +++ linux-2.6-npiggin/drivers/block/as-iosched.c	2003-09-20 11:22:55.000000000 +1000
+> @@ -1303,7 +1303,7 @@ static struct request *as_next_request(r
+>   * Add arq to a list behind alias
+>   */
+>  static inline void
+> -as_add_aliased_request(struct as_rq *arq, struct as_rq *alias)
+> +as_add_aliased_request(struct as_data *ad, struct as_rq *arq, struct as_rq *alias)
+>  {
+>  	/*
+>  	 * Another request with the same start sector on the rbtree.
+> @@ -1312,6 +1312,11 @@ as_add_aliased_request(struct as_rq *arq
+>  	 */
+>  	list_add_tail(&arq->request->queuelist,	&alias->request->queuelist);
+>  
+> +	/*
+> +	 * Don't want to have to handle merges.
+> +	 */
+> +	as_remove_merge_hints(ad->q, arq);
+> +
 >  }
 >  
-> +#if defined(__ia64__)
-> +static inline struct sk_buff *skb_realign_iphdr(struct sk_buff *skb, int len, struct ns83820 *dev)
-> +{
-> +	struct sk_buff *tmp = __dev_alloc_skb(len+2, GFP_ATOMIC);
-> +	if (!tmp)
-> +		return NULL;
-> +	tmp->dev = &dev->net_dev;
-> +	skb_reserve(tmp, 2);
-> +	memcpy(skb_put(tmp, len), skb->data, len);
-> +	kfree_skb(skb);
-> +	return tmp;
-> +}
-> +#else
-> +static inline  struct sk_buff *skb_realign_iphdr(struct sk_buff *skb, int len, struct ns83820 *dev)
-> +{
-> +	return skb;
-> +}
-> +#endif
-> +
->  static void FASTCALL(ns83820_rx_kick(struct ns83820 *dev));
->  static void ns83820_rx_kick(struct ns83820 *dev)
->  {
-> @@ -862,6 +881,7 @@
->  		if (likely(CMDSTS_OK & cmdsts)) {
->  			int len = cmdsts & 0xffff;
->  			skb_put(skb, len);
-> +			skb = skb_realign_iphdr(skb, len, dev);
->  			if (unlikely(!skb))
->  				goto netdev_mangle_me_harder_failed;
->  			if (cmdsts & CMDSTS_DEST_MULTI)
-
+>  /*
+> @@ -1353,7 +1358,7 @@ static void as_add_request(struct as_dat
+>  		as_update_arq(ad, arq); /* keep state machine up to date */
+>  
+>  	} else {
+> -		as_add_aliased_request(arq, alias);
+> +		as_add_aliased_request(ad, arq, alias);
+>  		/*
+>  		 * have we been anticipating this request?
+>  		 * or does it come from the same process as the one we are
+> @@ -1553,8 +1558,10 @@ static void as_merged_request(request_qu
+>  		 * currently don't bother. Ditto the next function.
+>  		 */
+>  		as_del_arq_rb(ad, arq);
+> -		if ((alias = as_add_arq_rb(ad, arq)) )
+> -			as_add_aliased_request(arq, alias);
+> +		if ((alias = as_add_arq_rb(ad, arq)) ) {
+> +			list_del_init(&arq->fifo);
+> +			as_add_aliased_request(ad, arq, alias);
+> +		}
+>  		/*
+>  		 * Note! At this stage of this and the next function, our next
+>  		 * request may not be optimal - eg the request may have "grown"
+> @@ -1586,8 +1593,10 @@ as_merged_requests(request_queue_t *q, s
+>  	if (rq_rb_key(req) != arq->rb_key) {
+>  		struct as_rq *alias;
+>  		as_del_arq_rb(ad, arq);
+> -		if ((alias = as_add_arq_rb(ad, arq)) )
+> -			as_add_aliased_request(arq, alias);
+> +		if ((alias = as_add_arq_rb(ad, arq)) ) {
+> +			list_del_init(&arq->fifo);
+> +			as_add_aliased_request(ad, arq, alias);
+> +		}
+>  	}
+>  
+>  	/*
+> 
+> _
 -- 
-"The software industry today survives only through an unstated agreement 
-not to stir things up too much.  We must hope this lawsuit [by SCO] isn't 
-the big stirring spoon." -- Ian Lance Taylor, Linux Journal, June 2003
+Mary Edie Meredith <maryedie@osdl.org>
+Open Source Development Lab
+

@@ -1,92 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264057AbUENLK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUENLPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264057AbUENLK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 07:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUENLK0
+	id S265250AbUENLPg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 07:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUENLPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 07:10:26 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:24301 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264057AbUENLKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 07:10:23 -0400
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2)
-References: <200405131308.40477.luto@myrealbox.com>
-	<20040513182010.L21045@build.pdx.osdl.net>
-	<200405131945.53723.luto@myrealbox.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Fri, 14 May 2004 13:10:13 +0200
-Message-ID: <87d657z2lm.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+	Fri, 14 May 2004 07:15:36 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:62012 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265250AbUENLPe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 07:15:34 -0400
+Date: Fri, 14 May 2004 04:14:33 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: raghav@in.ibm.com, akpm@osdl.org, maneesh@in.ibm.com, dipankar@in.ibm.com,
+       torvalds@osdl.org, manfred@colorfullife.com, davej@redhat.com,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-Id: <20040514041433.1b38b120.pj@sgi.com>
+In-Reply-To: <20040514110427.GG17326@suse.de>
+References: <20040508022304.17779635.akpm@osdl.org>
+	<20040508031159.782d6a46.akpm@osdl.org>
+	<Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
+	<20040508120148.1be96d66.akpm@osdl.org>
+	<Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
+	<20040508201259.GA6383@in.ibm.com>
+	<20041006125824.GE2004@in.ibm.com>
+	<20040511132205.4b55292a.akpm@osdl.org>
+	<20040514103322.GA6474@in.ibm.com>
+	<20040514035039.347871e8.pj@sgi.com>
+	<20040514110427.GG17326@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> writes:
+> so I guess you do.
 
-> +	/* Pretend we have VFS capabilities */
-> +	cap_set_full(bprm->cap_inheritable);
-> +	if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
-> +		cap_set_full(bprm->cap_permitted);
-> +	else
-> +		cap_clear(bprm->cap_permitted);
+Sorry - I'm being thick.
 
-I'd move this to security/commoncap.c:
+Is the new hashing good or bad?
 
-diff -urN a/fs/exec.c b/fs/exec.c
---- a/fs/exec.c	Fri May 14 10:07:28 2004
-+++ b/fs/exec.c	Fri May 14 12:07:18 2004
-@@ -912,13 +912,6 @@
- 		}
- 	}
- 
--	/* Pretend we have VFS capabilities */
--	cap_set_full(bprm->cap_inheritable);
--	if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
--		cap_set_full(bprm->cap_permitted);
--	else
--		cap_clear(bprm->cap_permitted);
--
- 	/* fill in binprm security blob */
- 	retval = security_bprm_set(bprm);
- 	if (retval)
-diff -urN a/security/commoncap.c b/security/commoncap.c
---- a/security/commoncap.c	Fri May 14 10:07:28 2004
-+++ b/security/commoncap.c	Fri May 14 12:08:30 2004
-@@ -107,8 +107,16 @@
- 
- int cap_bprm_set_security (struct linux_binprm *bprm)
- {
--	if (newcaps)
-+	if (newcaps) {
-+		/* Pretend we have VFS capabilities */
-+		cap_set_full(bprm->cap_inheritable);
-+		if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
-+			cap_set_full(bprm->cap_permitted);
-+		else
-+			cap_clear(bprm->cap_permitted);
-+
- 		return 0;
-+	}
- 
- 	/* Copied from fs/exec.c:prepare_binprm. */
- 
+(Usually, performance is thought of as something 'good', so when you say
+it is 'brought down', that sounds 'bad', but since it's ms/iteration,
+I'm guessing that you mean to say that the ms/iteration is lower, which
+would I guess improves performance, so I'm guessing that bringing
+performance down is 'good' in this case, which is not idiomatic to the
+particular version of English I happen to speak ...  So please favor
+this poor old brain of mine and state outright whether the new hash is
+good or bad.  Does the new hash makes performance better or worse?)
 
-> +	/* FIXME: Is this overly harsh on setgid? */
-> +	if ((bprm->secflags & (BINPRM_SEC_SETUID | BINPRM_SEC_SETGID)) &&
-> +	    new_pI != CAP_FULL_SET)
-> +			bprm->secflags |= BINPRM_SEC_NOELEVATE;
-> +
-> +	if (bprm->secflags & BINPRM_SEC_NOELEVATE) {
-> +		is_setuid = is_setgid = 0;
-> +		cap_clear(fP);
-> +	}
-
-This prevents sendmail from being setuid mail and
-cap_net_bind_service=ep.
-
-Regards, Olaf.
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

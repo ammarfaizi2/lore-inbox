@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVAMFJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVAMFV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVAMFJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 00:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVAMFJY
+	id S261151AbVAMFV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 00:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVAMFV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 00:09:24 -0500
-Received: from bdsl.66.12.153.218.gte.net ([66.12.153.218]:19359 "EHLO
-	scottstuff.net") by vger.kernel.org with ESMTP id S261157AbVAMFIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 00:08:24 -0500
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Transfer-Encoding: 7bit
-Message-Id: <2628963E-6521-11D9-B39A-0030656D1AB0@sigkill.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Scott Laird <scott@sigkill.org>
-Subject: TG3 driver dies with "irq 12: nobody cared" on 2.6.10 (x86)
-Date: Wed, 12 Jan 2005 21:08:23 -0800
-X-Mailer: Apple Mail (2.619)
+	Thu, 13 Jan 2005 00:21:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33492 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261151AbVAMFVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 00:21:21 -0500
+Date: Thu, 13 Jan 2005 00:19:33 -0500
+From: Dave Jones <davej@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       marcelo.tosatti@cyclades.com, greg@kroah.com, chrisw@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113051933.GC7520@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	marcelo.tosatti@cyclades.com, greg@kroah.com, chrisw@osdl.org,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <20050113044919.GH14443@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113044919.GH14443@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having a huge pile of problems with my home file server.  Since 
-upgrading from 2.6.2 to 2.6.10, the box now falls off the network at 
-the drop of a hat.  Here's one round of logs:
+On Wed, Jan 12, 2005 at 08:49:19PM -0800, William Lee Irwin III wrote:
 
-Jan 12 17:16:49 nfs kernel: irq 12: nobody cared!
-Jan 12 17:16:49 nfs kernel:  [<c012a2ea>] __report_bad_irq+0x2a/0x90
-Jan 12 17:16:49 nfs kernel:  [<c0129dd0>] handle_IRQ_event+0x30/0x70
-Jan 12 17:16:49 nfs kernel:  [<c012a3dc>] note_interrupt+0x6c/0xd0
-Jan 12 17:16:49 nfs kernel:  [<c0129eea>] __do_IRQ+0xda/0xf0
-Jan 12 17:16:49 nfs kernel:  [<c0103ff9>] do_IRQ+0x19/0x30
-Jan 12 17:16:49 nfs kernel:  [<c01026be>] common_interrupt+0x1a/0x20
-Jan 12 17:16:49 nfs kernel:  [<c0116130>] __do_softirq+0x30/0x90
-Jan 12 17:16:49 nfs kernel:  [<c01161b6>] do_softirq+0x26/0x30
-Jan 12 17:16:49 nfs kernel:  [<c0103ffe>] do_IRQ+0x1e/0x30
-Jan 12 17:16:49 nfs kernel:  [<c01026be>] common_interrupt+0x1a/0x20
-Jan 12 17:16:49 nfs kernel:  [<c012e299>] mempool_free+0x19/0x80
-Jan 12 17:16:49 nfs kernel:  [<c014b1b8>] bio_destructor+0x38/0x60
-Jan 12 17:16:49 nfs kernel:  [<c014b3b9>] bio_put+0x29/0x40
-Jan 12 17:16:49 nfs kernel:  [<c01667e0>] mpage_end_io_read+0x60/0x70
-Jan 12 17:16:49 nfs kernel:  [<c0337a9e>] handle_stripe+0x73e/0xc70
-Jan 12 17:16:49 nfs kernel:  [<c033d5ae>] md_update_sb+0xae/0xe0
-Jan 12 17:16:49 nfs kernel:  [<c03384c0>] raid5d+0x60/0xf0
-Jan 12 17:16:49 nfs kernel:  [<c033f913>] md_thread+0x123/0x170
-Jan 12 17:16:49 nfs kernel:  [<c0124060>] 
-autoremove_wake_function+0x0/0x60
-Jan 12 17:16:49 nfs kernel:  [<c010245e>] ret_from_fork+0x6/0x14
-Jan 12 17:16:49 nfs kernel:  [<c0124060>] 
-autoremove_wake_function+0x0/0x60
-Jan 12 17:16:49 nfs kernel:  [<c033f7f0>] md_thread+0x0/0x170
-Jan 12 17:16:49 nfs kernel:  [<c0100851>] kernel_thread_helper+0x5/0x14
-Jan 12 17:16:49 nfs kernel: handlers:
-Jan 12 17:16:49 nfs kernel: [<c0308830>] (usb_hcd_irq+0x0/0x70)
-Jan 12 17:16:49 nfs kernel: [<c02aae30>] (tg3_interrupt+0x0/0x130)
-Jan 12 17:16:49 nfs kernel: Disabling IRQ #12
+ > On Wed, Jan 12, 2005 at 10:35:42PM -0500, Dave Jones wrote:
+ > > The problem is it depends on who you are, and what you're doing with Linux
+ > > how much these things affect you.
+ > > A local DoS doesn't both me one squat personally, as I'm the only
+ > > user of computers I use each day. An admin of a shell server or
+ > > the like however would likely see this in a different light.
+ > > (though it can be argued a mallet to the kneecaps of the user
+ > >  responsible is more effective than any software update)
+ > 
+ > It deeply disturbs me to hear this kind of talk. If we're pretending to
+ > be a single-user operating system, why on earth did we use UNIX as a
+ > precedent in the first place?
 
-I moved cards around to get the TG3 onto its own IRQ, and that didn't 
-make any difference.  This box is an Athlon 700.  It's running a 
-single-processor non-preempt kernel with 8k stacks.  If anyone cares, 
-the full .config is at http://scottstuff.net/misc/config-2.6.10.txt
+You completely missed my point. What's classed as a threat to one
+user just isn't relevant to another.
 
-The last three reboots have only lasted for a minute or two before the 
-TG3 interrupt problem pops up.  Once this happens, nothing that I can 
-do seems to get the network working again--'ip link set eth0 down ; ip 
-link set eth0 up' doesn't help.  I'm not using modules, so I can't try 
-unloading and reloading.
+ > On Wed, Jan 12, 2005 at 10:35:42PM -0500, Dave Jones wrote:
+ > > An information leak from kernel space may be equally as mundane to some,
+ > > though terrifying to some admins. Would you want some process to be
+ > > leaking your root password, credit card #, etc to some other users process ?
+ > > priveledge escalation is clearly the number one threat. Whilst some
+ > > class 'remote root hole' higher risk than 'local root hole', far
+ > > too often, we've had instances where execution of shellcode by
+ > > overflowing some buffer in $crappyapp has led to a shell
+ > > turning a local root into a remote root.
+ > > For us thankfully, exec-shield has trapped quite a few remotely
+ > > exploitable holes, preventing the above.
+ > 
+ > If we give up and say we're never going to make multiuser use secure,
+ > where is our distinction from other inherently insecure single-user OS's?
+ 
+Nowhere did I make that claim.  If you parsed the comment about
+exec-shield incorrectly, I should point out that we also issued
+security updates to various applications even though (due to exec-shield)
+our users weren't vulnerable.  The comment was an indication that
+the extra barrier has bought us some time in preparing updates
+when 0-day exploits have been sprung on us unexpectedly on more
+than one occasion.
 
-The single weirdest part of this is the numbers from /proc/interrupts: 
-the last two hangs happened with *exactly* 200,000 TG3 interrupts.  The 
-time before that, it was exactly 400,000 interrupts.
-
-I have a second TG3 card that I can swap in, but it's sitting on my 
-desk at work, so I won't be able to try until tomorrow.
-
-Does anyone have any suggestions?
-
-
-Scott
+		Dave
 

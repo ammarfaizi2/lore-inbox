@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263083AbVBCPAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVBCPCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbVBCPAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 10:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVBCOzH
+	id S262728AbVBCPCx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 10:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbVBCPCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 09:55:07 -0500
-Received: from 34.67-18-129.reverse.theplanet.com ([67.18.129.34]:28119 "EHLO
-	krish.dnshostnetwork.net") by vger.kernel.org with ESMTP
-	id S263626AbVBCOv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 09:51:27 -0500
-Message-ID: <001501c509ff$d4be02e0$8d00150a@dreammac>
-From: "Pankaj Agarwal" <pankaj@toughguy.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Linux Net" <linux-net@vger.kernel.org>
-Subject: Query - Regarding strange behaviour.
-Date: Thu, 3 Feb 2005 20:15:39 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-PopBeforeSMTPSenders: pankaj@pnpexports.com
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - krish.dnshostnetwork.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - toughguy.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 3 Feb 2005 10:02:51 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:42501 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S263255AbVBCPAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 10:00:32 -0500
+Subject: Re: dm-crypt crypt_status reports key?
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Matt Mackall <mpm@selenic.com>, Christophe Saout <christophe@saout.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>, dm-crypt@saout.de,
+       Alasdair G Kergon <agk@redhat.com>
+In-Reply-To: <20050203144703.GC5680@pclin040.win.tue.nl>
+References: <20050202211916.GJ2493@waste.org>
+	 <1107394381.10497.16.camel@server.cs.pocnet.net>
+	 <20050203015236.GO2493@waste.org>
+	 <1107398069.11826.16.camel@server.cs.pocnet.net>
+	 <20050203040542.GQ2493@waste.org> <1107440300.15236.58.camel@ghanima>
+	 <20050203144703.GC5680@pclin040.win.tue.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-quwp6eWDFd0wemva7MFv"
+Date: Thu, 03 Feb 2005 16:00:23 +0100
+Message-Id: <1107442823.15236.60.camel@ghanima>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-In my system there's a strange behaviour.... its not allowing me to create 
-any file in /usr/bin even as root. Its chmod is set to 755. Its even not 
-allowing me to change the chmod value of /usr/bin. The strangest part which 
-i felt is ...its shows the owner and group as root when i issue command 
-"ls -ld /usr/bin" and not allowing root to create any file or directory 
-under /usr/bin and not even allowing to change the chmod value. The error is 
-access permission denied... I can change the chmod value of /usr and other 
-directories under /usr/...but not of bin....
+--=-quwp6eWDFd0wemva7MFv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I need your help/support. kindly let me know what all can i try to resolve 
-this problem.
+On Thu, 2005-02-03 at 15:47 +0100, Andries Brouwer wrote:
+> On Thu, Feb 03, 2005 at 03:18:20PM +0100, Fruhwirth Clemens wrote:
+>=20
+> > (Actually it's a Multi Time Pad.)
+>=20
+> And you call this "crypto"?
 
-Thanks and Regards,
+Is the quoted part all you have read?
 
-Pankaj Agarwal 
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
 
+--=-quwp6eWDFd0wemva7MFv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCAjyHW7sr9DEJLk4RAqvsAJ4zeNAstcsnyjOxSPOs+09GRf/G0QCeLncT
+d0QwDImfMDpl8CHcirHbees=
+=/6wJ
+-----END PGP SIGNATURE-----
+
+--=-quwp6eWDFd0wemva7MFv--

@@ -1,91 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbULHWcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbULHWdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbULHWcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 17:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbULHWcY
+	id S261390AbULHWdx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 17:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbULHWdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 17:32:24 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:34230 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261383AbULHWcS (ORCPT
+	Wed, 8 Dec 2004 17:33:53 -0500
+Received: from [82.147.40.124] ([82.147.40.124]:13442 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S261390AbULHWd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 17:32:18 -0500
-Date: Thu, 9 Dec 2004 09:31:56 +1100
-From: Greg Banks <gnb@sgi.com>
-To: John Levon <levon@movementarian.org>
-Cc: Akinobu Mita <amgta@yacht.ocn.ne.jp>, phil.el@wanadoo.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
-Message-ID: <20041208223156.GB4239@sgi.com>
-References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk>
+	Wed, 8 Dec 2004 17:33:29 -0500
+Subject: CD-burning with SCSI cd-recorder.
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 08 Dec 2004 23:33:24 +0100
+Message-Id: <1102545204.8001.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-In-Reply-To: <20041208160055.GA82465@compsoc.man.ac.uk>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I was under the impression that from kernel 2.6.10-rc1 or something, it
+should be possible to burn cd's as an unpriviledged user again if you
+have a 100% mmc-compatible cd-recorder.
 
-On Wed, Dec 08, 2004 at 04:00:55PM +0000, John Levon wrote:
-> On Wed, Dec 08, 2004 at 06:30:51PM +0900, Akinobu Mita wrote:
-> 
-> > When I forced the oprofile to use timer interrupt with specifying
-> > "timer=1" module parameter. "oprofile_operations->backtrace" did
-> > not initialized on i386.
-> > 
-> > Please apply this patch, or make oprofile initialize the backtrace
-> > operation in case of using timer interrupt in your preferable way.
-> 
-> I don't like this patch. The arches should just set the backtrace
-> always, then try to init the hardware. oprofile_init() should then force
-> the timer ops as needed.
-> 
-> Greg?
+This does not work here. Is it because my cd-recorder is SCSI? Or is it
+not 100% mmc compatible, even though cdrecord says it is?
 
-Agreed, that's a cleaner approach.  The attached patch (untested)
-implements that.  Akinobu-san, can you please test the patch?
+Here's the output:
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+stianj@chevrolet:/tmp$ cdrecord -dev=1,5,0 test.iso
+cdrecord: No write mode specified.
+cdrecord: Asuming -tao mode.
+cdrecord: Future versions of cdrecord may have different drive dependent
+defaults.
+cdrecord: Continuing in 5 seconds...
+Cdrecord-Clone 2.01a38 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg
+Schilling
+NOTE: this version of cdrecord is an inofficial (modified) release of
+cdrecord
+      and thus may have bugs that are not present in the original
+version.
+      Please send bug reports and support requests to
+<cdrtools@packages.debian.org>.
+      The original author should not be bothered with problems of this
+version.
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=oprofile-timer-backtrace-fix
+cdrecord: Warning: Running on Linux-2.6.10-rc3
+cdrecord: There are unsettled issues with Linux-2.5 and newer.
+cdrecord: If you have unexpected problems, please try Linux-2.4 or
+Solaris.
+scsidev: '1,5,0'
+scsibus: 1 target: 5 lun: 0
+Linux sg driver version: 3.5.31
+Using libscg version 'schily-0.8'.
+cdrecord: Cannot allocate memory. Cannot get SCSI I/O buffer.
+stianj@chevrolet:/tmp$
 
-Allow stack tracing to work when sampling on timer is forced
-using the timer=1 boot option.  Reported by Akinobu Mita.
+Is this expected? It's kinda not nice to start Gnome as root, to be able
+to use nautilus-cd-burner...
 
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
----
- oprof.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+Best regards,
+Stian
 
-
-Index: linux/drivers/oprofile/oprof.c
-===================================================================
---- linux.orig/drivers/oprofile/oprof.c	2004-12-04 19:43:37.%N +1100
-+++ linux/drivers/oprofile/oprof.c	2004-12-09 09:25:02.%N +1100
-@@ -155,13 +155,11 @@ static int __init oprofile_init(void)
- {
- 	int err = 0;
- 
--	/* this is our fallback case */
--	oprofile_timer_init(&oprofile_ops);
-+	oprofile_arch_init(&oprofile_ops);
- 
- 	if (timer) {
- 		printk(KERN_INFO "oprofile: using timer interrupt.\n");
--	} else {
--		oprofile_arch_init(&oprofile_ops);
-+		oprofile_timer_init(&oprofile_ops);
- 	}
- 
- 	err = oprofilefs_register();
-
---EeQfGwPcQSOJBaQU--

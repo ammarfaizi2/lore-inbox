@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267192AbSLKPga>; Wed, 11 Dec 2002 10:36:30 -0500
+	id <S267180AbSLKPtO>; Wed, 11 Dec 2002 10:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267193AbSLKPga>; Wed, 11 Dec 2002 10:36:30 -0500
-Received: from pc2-cmbg2-4-cust80.cmbg.cable.ntl.com ([80.2.247.80]:43000 "EHLO
-	flat") by vger.kernel.org with ESMTP id <S267192AbSLKPg2>;
-	Wed, 11 Dec 2002 10:36:28 -0500
-From: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH] use nice values in deadline IO scheduler
-Date: Wed, 11 Dec 2002 15:44:16 +0000
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S267191AbSLKPtO>; Wed, 11 Dec 2002 10:49:14 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:44683 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S267180AbSLKPtM>; Wed, 11 Dec 2002 10:49:12 -0500
+Date: Wed, 11 Dec 2002 16:56:50 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Subject: Re: Linux 2.4.21-pre1
+Message-ID: <20021211155650.GU8741@charite.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021211090829.GD8741@charite.de> <1039622867.17709.31.camel@irongate.swansea.linux.org.uk> <20021211153414.GQ8741@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200212111544.17336.cb-lkml@fish.zetnet.co.uk>
+In-Reply-To: <20021211153414.GQ8741@charite.de>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
 
-This untested patch uses the nice value of the current task to scale the 
-deadline for new read requests.
+> According to the 2.4.20 kernel (see
+> http://www.stahl.bau.tu-bs.de/~hildeb/kernel/2.4.20.jpg for a snapshot
+> of the boot process!) the drives are:  
+> 
+> hda: TOSHIBA MK4019GAX, ATA DISK drive
+> hdc: TOSHIBA DVD-ROM SD-R2102, ATAPI CD/DVD-ROM drive
+> 
+> And the controller:
+> ICH3M: chipset revision 2
 
-Does current contain a pointer to the task which caused the IO request at 
-this point? Is there any other reason why this might be a daft thing to do?
+More details (lspci -vv):
 
---- drivers/block/deadline-iosched.c~std	2002-12-11 14:33:48.000000000 +0000
-+++ drivers/block/deadline-iosched.c	2002-12-11 15:17:58.000000000 +0000
-@@ -17,6 +17,7 @@
- #include <linux/init.h>
- #include <linux/compiler.h>
- #include <linux/hash.h>
-+#include <linux/sched.h>
- 
- /*
-  * feel free to try other values :-). read_expire value is the timeout for
-@@ -81,6 +82,19 @@ static kmem_cache_t *drq_pool;
- #define RQ_DATA(rq)	((struct deadline_rq *) (rq)->elevator_private)
- 
- /*
-+ * scale_deadline
-+ */
-+static int scale_deadline(int default_deadline)
-+{
-+	int prio = current->static_prio - MAX_RT_PRIO;
-+	/* make priorities higher than nice -10 equal to nice -10 */
-+	if (prio < 10)
-+		prio = 10;
-+	/* scale the deadline according to priority */
-+	return default_deadline * prio/20;
-+}
-+
-+/*
-  * rq hash
-  */
- static inline void __deadline_del_rq_hash(struct deadline_rq *drq)
-@@ -440,7 +454,7 @@ deadline_add_request(request_queue_t *q,
- 		/*
- 		 * set expire time and add to fifo list
- 		 */
--		drq->expires = jiffies + dd->read_expire;
-+		drq->expires = jiffies + scale_deadline(dd->read_expire);
- 		list_add_tail(&drq->fifo, &dd->read_fifo);
- 	}
- }
+00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: Toshiba America Info Systems: Unknown device 0001
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at cff8 [size=8]
+        Region 1: I/O ports at cff4 [size=4]
+        Region 2: I/O ports at cfe8 [size=8]
+        Region 3: I/O ports at cfe4 [size=4]
+        Region 4: I/O ports at cfa0 [size=16]
+        Region 5: Memory at 10000000 (32-bit, non-prefetchable) [size=1K]
+
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+Why you can't find your system administrators:
+The Cray's Chiller decided to go on vacation, and (S)he got stuck to one of the vents on the Y-MP after switching to air-cooled mode. 
+--Jeff Wolfe wolfe@ems.psu.edu
 

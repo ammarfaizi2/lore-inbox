@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbREQUCK>; Thu, 17 May 2001 16:02:10 -0400
+	id <S262103AbREQUIK>; Thu, 17 May 2001 16:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261864AbREQUBv>; Thu, 17 May 2001 16:01:51 -0400
-Received: from viper.haque.net ([66.88.179.82]:31649 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S261861AbREQUBs>;
-	Thu, 17 May 2001 16:01:48 -0400
-Date: Thu, 17 May 2001 16:01:41 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Rich Baum <richbaum@acm.org>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 2.4.5pre3 warning fixes
-In-Reply-To: <7C4D2505D3F@coral.indstate.edu>
-Message-ID: <Pine.LNX.4.33.0105171557370.20195-100000@viper.haque.net>
+	id <S262106AbREQUIA>; Thu, 17 May 2001 16:08:00 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:4601 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S262103AbREQUHt>; Thu, 17 May 2001 16:07:49 -0400
+Message-ID: <9678C2B4D848D41187450090276D1FAE0635F02F@FMSMSX32>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'hch@caldera.de'" <hch@caldera.de>, thockin@sun.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.4 failure to compile
+Date: Thu, 17 May 2001 11:33:26 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 May 2001, Rich Baum wrote:
+Try setting CONFIG_AIC7XXX_BUILD_FIRMWARE=n as a workaround.
 
-> This patch fixes warnings in 2.4.5pre3 about extra tokens at the end of
-> #endif statements and labels at the end of compound statements when using gcc
-> 3.0 snapshots.
->
-> -	if (c->devices != NULL)
-> +	if (c->devices != NULL){
->  		c->devices->prev=d;
-> +	}
->  	c->devices=d;
->
+-----Original Message-----
+From: hch@caldera.de [mailto:hch@caldera.de]
+Sent: Thursday, May 17, 2001 2:04 PM
+To: thockin@sun.com
+Cc: Linux kernel; root@chaos.analogic.com
+Subject: Re: Linux-2.4.4 failure to compile
 
-It didn't really complain about this one did it? Braces are optional
-here or is that not part of ANSI C?
 
---
+In article <3B040C80.C2A7BC6@sun.com> you wrote:
+> "Richard B. Johnson" wrote:
+>> 
+>> Hello;
+>> 
+>> I downloaded linux-2.4.4. The basic kernel compiles but the aic7xxx
+>> SCSI module that I require on some machines, doesn't.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+> The aic7xxx assembler requiring libdb1 is a bungle.  Getting the headers
+> for that right on various distros is not easy.  Add to that it requires
+> YACC, when most people have bison (yes, a shell script is easy to make,
+but
+> not always an option). 
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+If make wants to use yacc but you don't have it, it's probably a mistake
+in the make(1) configuration - the Makefile uses implicit rules and
+distributions not having yacc should not call it in make's implicit rules.
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132527AbRDKINV>; Wed, 11 Apr 2001 04:13:21 -0400
+	id <S132526AbRDKIMb>; Wed, 11 Apr 2001 04:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132521AbRDKINN>; Wed, 11 Apr 2001 04:13:13 -0400
-Received: from eva.bm.ipex.cz ([212.71.138.2]:54056 "EHLO eva.bm.ipex.cz")
-	by vger.kernel.org with ESMTP id <S132527AbRDKIM6>;
-	Wed, 11 Apr 2001 04:12:58 -0400
-Date: Wed, 11 Apr 2001 10:15:13 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SiS 630
-Message-ID: <20010411101513.A1804@ipex.cz>
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B7D@mail0.myrio.com>
-Mime-Version: 1.0
+	id <S132521AbRDKIMV>; Wed, 11 Apr 2001 04:12:21 -0400
+Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:23080 "EHLO
+	die-macht") by vger.kernel.org with ESMTP id <S132526AbRDKIMK>;
+	Wed, 11 Apr 2001 04:12:10 -0400
+Message-ID: <3AD411D6.1A8774A8@die-macht.oph.rwth-aachen.de>
+Date: Wed, 11 Apr 2001 10:12:06 +0200
+From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
+Reply-To: stefan@oph.rwth-aachen.de
+Organization: OPH
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 8139too.c and 2.4.4-pre1 kernel burp
+In-Reply-To: <3AD118F4.3050507@xmission.com> <3AD11A13.6E52A515@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B7D@mail0.myrio.com>; from torrey.hoffman@myrio.com on Tue, Apr 10, 2001 at 10:09:45AM -0700
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I have this chipset in my new notebook (Gericom Webboy). Everything works
-fine, but only modem doesn't work because it's software modem. I tried to
-search net for drivers, tried to write to SiS (no aswer for two weeks ;(),
-etc. -> no success.
-  But, if you have this chipset in notebook you should have problems with
-LCD display with SiS chipset. I have tried XServer from SiS, XFree 3.3.x
-and XFree 4.x and no success. Every try I see blank noisy display ;(
-Everything work, but only display is not properly set. So, I tried
-kernel frame buffer support and it partly works - SiS kernel frame buffer
-support doesn't work too, kernel VESA frame buffer support works fine.
-Next thing is, that if you want for instance 1024x768 resolution in X,
-you must set up vesa frame buffer to 1024x768 resolution too ;(
-  So, if you have notebook with this chipset and want X support, you must
-set kernel VESA frame buffer support (not SiS support!) and set the same
-resolution for frame buffer and for X. When you see blank noisy display
-everything works fine, X started, applications too but they are invisible
-due to bad display setting.
+Hello!
 
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100
-  Ethernet (rev 80)
+Jeff Garzik wrote:
+> How often does this occur?  A lot, or just once or twice?
 
-  Network device support  --->
-    Ethernet (10 or 100Mbit)  --->
-      < > SiS 900/7016 PCI Fast Ethernet Adapter support
+For example, after getting ~3MB of package information form
+ftp.debian.org
+I find this in /var/log/syslog:
 
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+Apr 11 09:56:26 unknown kernel: eth0: Too much work at interrupt,
+IntrStatus=0x0001. 
+Apr 11 09:57:24 unknown kernel: eth0: Too much work at interrupt,
+IntrStatus=0x0001. 
+Apr 11 09:58:31 unknown last message repeated 7 times 
+Apr 11 09:59:35 unknown last message repeated 5 times 
+Apr 11 09:59:58 unknown kernel: eth0: Too much work at interrupt,
+IntrStatus=0x0001.
 
-  USB support  ---> (works fine)
+This is 2.4.4pre1. 
 
-00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]:
-  Unknown device 7018 (rev 01)
+[root@unknown:~ ] lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+(rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 40)
+00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+(rev 40)
+00:04.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio
+Controller (rev 50)
+00:0b.0 Multimedia video controller: Brooktree Corporation Bt878 (rev
+02)
+00:0b.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02)
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139
+(rev 10)
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265
+(rev 02)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP
+(rev 03)
 
-  Sound  --->
-    < > Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio Core
+[root@unknown:~ ] cat /proc/interrupts
+           CPU0
+  0:   17760753          XT-PIC  timer
+  1:      37659          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:    1991785          XT-PIC  eth0
+  4:       1623          XT-PIC  via82cxxx
+  8:          1          XT-PIC  rtc
+ 10:       2066          XT-PIC  bttv
+ 12:    1104400          XT-PIC  PS/2 Mouse
+ 14:     291752          XT-PIC  ide0
+ 15:          4          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
-00:03.0 CardBus bridge: O2 Micro, Inc.: Unknown device 6872 (rev 05)
+[root@unknown:~ ] cat /usr/src/linux/.config|grep 8139
+CONFIG_8139TOO=y
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
 
-  General setup  --->
-    PCMCIA/CardBus support  --->
-      < > PCMCIA/CardBus support                                                     
-      [ ]   CardBus support
-      [ ]   i82365 compatible bridge support
+[root@unknown:~ ] mii-tool -v
+eth0: negotiated 100baseTx-FD, link ok
+  product info: vendor 00:00:00, model 0 rev 0
+  basic mode:   autonegotiation enabled
+  basic status: autonegotiation complete, link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
 
-  R.obot.V
-
--- 
-   _
-  |-|  __      Robert Vojta <vojta@ipex.cz>          -= Oo.oO =-
-  |=| [Ll]     IPEX, s.r.o.
-  "^" ====`o
+Greetings,
+Stefan Becker

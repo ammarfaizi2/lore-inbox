@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261819AbTCGWJN>; Fri, 7 Mar 2003 17:09:13 -0500
+	id <S261818AbTCGWEm>; Fri, 7 Mar 2003 17:04:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261813AbTCGWJJ>; Fri, 7 Mar 2003 17:09:09 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:51215
+	id <S261819AbTCGWEm>; Fri, 7 Mar 2003 17:04:42 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:44047
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261815AbTCGWI3>; Fri, 7 Mar 2003 17:08:29 -0500
-Subject: [patch] no need for kernel_flag on UP
+	with ESMTP id <S261818AbTCGWEl>; Fri, 7 Mar 2003 17:04:41 -0500
+Subject: [patch] simple task_prio() fix
 From: Robert Love <rml@tech9.net>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1047075530.12130.8.camel@phantasy.awol.org>
+Message-Id: <1047075285.12130.4.camel@phantasy.awol.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 07 Mar 2003 17:18:50 -0500
+Date: 07 Mar 2003 17:14:45 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Linus, while we are on the subject of the scheduler...
 
-Attached patch is a minor cleanup (and memory reduction for gcc < 3). 
-We currently define and declare the BKL's kernel_flag spinlock on either
-SMP or PREEMPT, which means a UP+PREEMPT machine gets it.
+Trivial fix for task_prio() in the case MAX_RT_PRIO != MAX_USER_RT_PRIO
+where all priorities are skewed by (MAX_RT_PRIO - MAX_USER_RT_PRIO). 
+The fix makes sense, as the full priority range is unrelated to the
+maximum user value.  Only the real maximum RT value matters.
 
-We only need the actual lock on SMP.
+The object code is the same for the 99% of the people who do not touch
+the real-time priority defines.
 
-Patch is against current BK, please apply.
+Patch is against current BK - please, apply.
 
 	Robert Love
 
@@ -39,16 +42,16 @@ Patch is against current BK, please apply.
 
 diff -urN linux-2.5.64-bk/kernel/sched.c linux/kernel/sched.c
 --- linux-2.5.64-bk/kernel/sched.c	2003-03-07 17:01:34.727552472 -0500
-+++ linux/kernel/sched.c	2003-03-07 17:14:54.684940464 -0500
-@@ -2405,7 +2405,7 @@
++++ linux/kernel/sched.c	2003-03-07 17:07:56.244553072 -0500
+@@ -1629,7 +1629,7 @@
+  */
+ int task_prio(task_t *p)
+ {
+-	return p->prio - MAX_USER_RT_PRIO;
++	return p->prio - MAX_RT_PRIO;
+ }
  
- #endif
- 
--#if CONFIG_SMP || CONFIG_PREEMPT
-+#if CONFIG_SMP
- /*
-  * The 'big kernel lock'
-  *
+ /**
 
 
 

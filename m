@@ -1,56 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286303AbRLVAy2>; Fri, 21 Dec 2001 19:54:28 -0500
+	id <S286123AbRLVAwH>; Fri, 21 Dec 2001 19:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286428AbRLVAyV>; Fri, 21 Dec 2001 19:54:21 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:65293 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S286303AbRLVAyK>;
-	Fri, 21 Dec 2001 19:54:10 -0500
-Message-ID: <3C23D9B0.3010109@free.fr>
-Date: Sat, 22 Dec 2001 01:54:08 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011214
-X-Accept-Language: en-us
+	id <S286303AbRLVAv5>; Fri, 21 Dec 2001 19:51:57 -0500
+Received: from norma.kjist.ac.kr ([203.237.41.18]:23681 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S286123AbRLVAvs>; Fri, 21 Dec 2001 19:51:48 -0500
+Message-ID: <3C23D919.9080606@nospam.com>
+Date: Sat, 22 Dec 2001 09:51:37 +0900
+From: Hugh <hugh@nospam.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: ko, en-us
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.4.17-rc1, IDE : SIS735/SIS5513 unusable ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs error in 2.4.17-rc1 and rc2
+Content-Type: multipart/mixed;
+ boundary="------------090205020504050607080501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Short :
+This is a multi-part message in MIME format.
+--------------090205020504050607080501
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 
-SIS735 IDE subsystem unreliable -> system unusable.
+I am the one who started this this thread.
+I am very sorry.  I found that the machine I had the reiserfs error
+was running on the 2.4.17-pre6, not one of those rc1 or rc2.
 
-Long :
+Beside that, I still have a concern on the security level of the
+reiserfs in general.  On the linux-kernel list, I see more articles
+on the troubles of reiserfs than on the troubles of ext3.
 
-I recently purchased an ECS K7S5AL mb built around the SIS735 chipset. 
-The system built around this mb worked perfectly for one week before 
-failing to boot with root fs mount errors. Subsequent tries to reinstall 
-  the OS failed : either during the RedHat 7.2 install (fs error) or on 
-the first boot after install (root fs mount error).
+Is ext3 more stabilized by now or is ext3 less used in the linux
+community?
 
-I trust all other components of the system (except the RAM and PSU which 
-I purchased recently too) as they were heavily used in a previous one 
-without a glitch.
 
-I saw one other bugreport on lklm from one person with several SIS735 
-mbs all failing on IDE DMA transfers and hints in the following thread 
-that the init code for the SIS5513 is not complete for the SIS735 and 
-might lead to the kind of problem I encountered (stable operation for a 
-while followed by an unusable IDE subsystem).
+Again, my apology for the misinformation in the original article.
 
-I'm now on the way of heavy testing (Clean install on a drive in a 
-separate system, master of the drive, move in the not-so-cooperative mb 
-and several iterations of test-screwup-master_recopy-test-... ). I'll 
-test different BIOS revisions, ide kernel parameters while searching for 
-the SIS735 technical specs and then attempts at kernel hacking.
+Best regards,
 
-I noticed Andre by private mail and posted a bugreport on sis support 
-web site asking them to supply appropriate init code to him. Is there 
-something else I can do (specific sis e-mail contacts for technical 
-papers for example, preliminary patch to test) ?
+Hugh
 
-Lionel
+--------------090205020504050607080501
+Content-Type: message/rfc822;
+ name="Reiserfs error in 2.4.17-rc1 and rc2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Reiserfs error in 2.4.17-rc1 and rc2"
+
+X-Mozilla-Status2: 00000000
+Message-ID: <3C22A2B5.3010205@nospam.com>
+Date: Fri, 21 Dec 2001 11:47:17 +0900
+From: Hugh <hugh@nospam.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: ko, en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reiserfs error in 2.4.17-rc1 and rc2
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
+
+My linux partitions are all Reiserfs format right now.
+I moved from 2.4.17-pre1 to 2.4.17-rc2.  On such
+During the backup at night, I got a strange error saying
+in the line of
+
+".... journaling ... write/buffer ..."
+
+in a plain user's console.
+
+
+I immediately realized that it is reiserfs related.
+
+There are a lot of reiserfs users, especially in the SuSE
+camp.  If the kernel has a serious bug related to Reiserfs,
+that kernel should be marked as "Don't use".
+
+I went back to 2.4.17-pre1 and trying to do "reiserfsck"
+on all my partitions.
+BTW, "reiserfsck" on a 36GB SCSI driver takes almost forever.
+Is it normal?
+
+I am seriously concerned with the integrity of my data.
+Should I switch back to ext2 for my data partition?
+
+Thanks for the information in advance
+
+Best regards,
+
+G. Hugh Song
+
+
+
+--------------090205020504050607080501--
 

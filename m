@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270228AbRHRPul>; Sat, 18 Aug 2001 11:50:41 -0400
+	id <S270240AbRHRQXY>; Sat, 18 Aug 2001 12:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270229AbRHRPuW>; Sat, 18 Aug 2001 11:50:22 -0400
-Received: from pf107.gdansk.sdi.tpnet.pl ([213.77.129.107]:6670 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S270228AbRHRPuC>; Sat, 18 Aug 2001 11:50:02 -0400
-Subject: Compaq Notebook 100, PCMCIA trouble in 2.4.x
-To: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
-Date: Sat, 18 Aug 2001 17:49:20 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E15Y8Lg-0005jD-00@mm.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S270247AbRHRQXE>; Sat, 18 Aug 2001 12:23:04 -0400
+Received: from citd-ppp.paderlinx.de ([193.189.252.149]:62215 "EHLO
+	mail.citd.de") by vger.kernel.org with ESMTP id <S270240AbRHRQWx>;
+	Sat, 18 Aug 2001 12:22:53 -0400
+Date: Sat, 18 Aug 2001 18:23:00 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange Slowdown
+Message-ID: <20010818182300.A15860@citd.de>
+In-Reply-To: <Pine.LNX.4.20.0108181156140.5058-100000@citd.owl.de> <E15Y5ew-00014A-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E15Y5ew-00014A-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Aug 18, 2001 at 01:57:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> > After i switched "High Memory-Support" to "OFF"(4GB Before) the speed went
+> > to normal, but now less than half RAM is used.
+> > Any suggestions?
+> 
+> This sounds like the top of memory is running uncached due to wrong mtrr
+> settings from the BIOS. Can you post your /proc/mtrr 
 
-first I thought it was some APM BIOS bug, but strange things happen on
-my Compaq Notebook 100 under 2.4.x (not 2.2.19) even without APM.
+Because of other reasons i'm back to 2.2.19
 
-After the PCMCIA driver (yenta_socket) is loaded, the machine seems to
-suddenly power off (or sometimes just turn off the backlight and lock up
-hard with the HDD still spinning, then the power button has to be held
-for a few seconds to power off) on anything that might have something to
-do with the BIOS.  This includes rebooting, suspending, loading the APM
-driver, running "apm" or "apmd" if APM was compiled in, etc.
+/proc/mtrr from 2.2.19 show this
+-- /proc/mtrr --
+reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
+reg01: base=0x40000000 (1024MB), size= 512MB: write-back, count=1
+reg02: base=0x60000000 (1536MB), size= 256MB: write-back, count=1
+reg03: base=0x70000000 (1792MB), size= 128MB: write-back, count=1
+reg04: base=0x78000000 (1920MB), size=  64MB: write-back, count=1
+reg05: base=0x7c000000 (1984MB), size=  32MB: write-back, count=1
+-- end --
+(32MB "missing". Seems like Linux uses these "missing" MBs.)
 
-Same problems with several kernels from 2.4.0 to 2.4.9, statically
-compiled by me or completely modular packaged by Debian, always using
-the PCMCIA drivers that came with the 2.4.x kernel.
+For the 2.4.X-Kernel i had switched off the MTRR-Kernel-Option!
 
-No problems with kernel 2.2.19, pcmcia-cs 3.1.27, pcmcia-modules 3.1.25,
-i82365 driver (there was no yenta_socket driver in 2.2.x, and the i82365
-driver stopped detecting the "TI 1211 rev 00" under 2.4.x).
+Maybe i should try it another time with MTRR-Support switched on. 
+Or i should use "mem=2016M".
 
-PLANET ENW-3503 PCMCIA LAN+modem card works fine under both 2.2.x and
-2.4.x - but these power-offs under 2.4.x happen even if the card is not
-plugged in and its drivers (pcnet_cs, serial_cs) are not loaded.
 
-The yenta_socket driver does not have to be loaded at the time of the
-crash or power-off, just loading and unloading it once is enough to later
-cause "apm" or reboot to power off the machine, it's 100% reproducible.
-This suggests that yenta_socket initialization might overwrite some BIOS
-code in memory.  One more thing is that sometimes after such crash, the
-RTC is off by a few hours (but minutes are correct).
 
-I hope you find this bug report useful.  Thanks for any help.
+Bis denn
 
-	Marek
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

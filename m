@@ -1,48 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbSJLRmK>; Sat, 12 Oct 2002 13:42:10 -0400
+	id <S261307AbSJLRlr>; Sat, 12 Oct 2002 13:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbSJLRmJ>; Sat, 12 Oct 2002 13:42:09 -0400
-Received: from im2.mail.tds.net ([216.170.230.92]:38802 "EHLO im2.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S261309AbSJLRmH>;
-	Sat, 12 Oct 2002 13:42:07 -0400
-Date: Sat, 12 Oct 2002 13:47:51 -0400 (EDT)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@localhost.localdomain
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.42
-In-Reply-To: <20021012111140.GA22536@pegasys.ws>
-Message-ID: <Pine.LNX.4.44.0210121346550.6310-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261309AbSJLRlr>; Sat, 12 Oct 2002 13:41:47 -0400
+Received: from group2.mxgrp.airmail.net ([209.196.77.109]:49419 "EHLO
+	mx12.airmail.net") by vger.kernel.org with ESMTP id <S261307AbSJLRln>;
+	Sat, 12 Oct 2002 13:41:43 -0400
+Date: Sat, 12 Oct 2002 12:47:21 -0500
+From: Art Haas <ahaas@neosoft.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] C99 designated initializers for drivers/pcmcia
+Message-ID: <20021012174721.GP633@debian>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="zCKi3GIZzVBPywwA"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.42; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.42/kernel/fs/ext3/ext3.o
-depmod:         generic_file_aio_read
-depmod:         generic_file_aio_write
-depmod: *** Unresolved symbols in /lib/modules/2.5.42/kernel/fs/nfs/nfs.o
-depmod:         generic_file_aio_read
-depmod:         generic_file_aio_write
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.42/kernel/fs/nfsd/nfsd.o
-depmod:         auth_domain_find
-depmod:         cache_fresh
-depmod:         unix_domain_find
-depmod:         auth_domain_put
-depmod:         cache_flush
-depmod:         cache_unregister
-depmod:         add_hex
-depmod:         cache_check
-depmod:         svcauth_unix_purge
-depmod:         get_word
-depmod:         cache_clean
-depmod:         cache_register
-depmod:         auth_unix_lookup
-depmod:         auth_unix_add_addr
-depmod:         cache_init
-depmod:         auth_unix_forget_old
-depmod:         add_word
 
+--zCKi3GIZzVBPywwA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi.
+
+My mail to PCMCIA maintainer David Hinds bounces if sent to the
+address in the Maintainers file, and the address fished out of
+some of the code bounced too, so I'm sending this patch set to
+the list in hopes he (or the right maintainer) receives it.
+The patches convert drivers/pcmcia to use C99 named initializers,
+and all the patches are against 2.5.42. There are 25 patches in
+total, and the "cat"ing them together they're more that 20K, so
+I'm sending the patches as a compressed attachment. The patches
+were CC'd to Linus in the first mail that bounced.
+
+Patched files:
+ds.c
+hd64465_ss.c
+i82092.c
+pci_socket.c
+sa1100_adsbitsy.c
+sa1100_assabet.c
+sa1100_badge4.c
+sa1100_cerf.c
+sa1100_flexanet.c
+sa1100_freebird.c
+sa1100_generic.c
+sa1100_graphicsclient.c
+sa1100_graphicsmaster.c
+sa1100_h3600.c
+sa1100_jornada720.c
+sa1100_neponset.c
+sa1100_pangolin.c
+sa1100_pfs168.c
+sa1100_shannon.c
+sa1100_simpad.c
+sa1100_stork.c
+sa1100_system3.c
+sa1100_trizeps.c
+sa1100_xp860.c
+sa1100_yopy.c
+
+Art Haas
+
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+
+--zCKi3GIZzVBPywwA
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="pcmcia.diff.gz"
+Content-Transfer-Encoding: base64
+
+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
+FLi9vrV6BlOhy7dVbrSTpLb/AIH1+rm5YAAA
+
+--zCKi3GIZzVBPywwA--

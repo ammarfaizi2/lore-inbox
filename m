@@ -1,79 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291665AbSBAKQ6>; Fri, 1 Feb 2002 05:16:58 -0500
+	id <S291666AbSBAKNS>; Fri, 1 Feb 2002 05:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291668AbSBAKQv>; Fri, 1 Feb 2002 05:16:51 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:7667 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S291664AbSBAKQm>; Fri, 1 Feb 2002 05:16:42 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.42.0202011012590.804-100000@mob.wid> 
-In-Reply-To: <Pine.LNX.4.42.0202011012590.804-100000@mob.wid> 
-To: Felix Triebel <ernte23@gmx.de>, rgooch@atnf.csiro.au
-Cc: linux-isdn@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ISDN security ??? 
+	id <S291665AbSBAKNI>; Fri, 1 Feb 2002 05:13:08 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:35263 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S291666AbSBAKM5>; Fri, 1 Feb 2002 05:12:57 -0500
+Date: Fri, 1 Feb 2002 05:12:51 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Joe Thornber <thornber@fib011235813.fsnet.co.uk>
+Cc: Arjan van de Ven <arjanv@redhat.com>, lvm-devel@sistina.com,
+        Jim McDonald <Jim@mcdee.net>, Andreas Dilger <adilger@turbolabs.com>,
+        linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        evms-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020201051251.B10893@devserv.devel.redhat.com>
+In-Reply-To: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com> <20020131125211.A8934@fib011235813.fsnet.co.uk> <20020201045518.A10893@devserv.devel.redhat.com> <20020131130913.A8997@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 10:15:56 +0000
-Message-ID: <4278.1012558556@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020131130913.A8997@fib011235813.fsnet.co.uk>; from thornber@fib011235813.fsnet.co.uk on Thu, Jan 31, 2002 at 01:09:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 31, 2002 at 01:09:13PM +0000, Joe Thornber wrote:
+> 
+> Now our hero decides to PV move PV2 to PV4:
+> 
+> 1. Suspend our LV (254:3), this starts queueing all io, and flushes
+>    all pending io. 
 
-Can anyone clarify the last paragraph?
+But "flushes all pending io" is *far* from trivial. there's no current
+kernel functionality for this, so you'll have to do "weird shit" that will
+break easy and often.
 
---- index.html.orig	Fri Feb  1 09:51:46 2002
-+++ index.html	Fri Feb  1 10:11:43 2002
-@@ -1073,6 +1073,10 @@
- <A HREF="#s8-9">Why do I get unresolved symbols with __bad_ in the name?</A>
- </LI>
- 
-+<LI>
-+<A HREF="#s8-10">Why do I get warnings about md5sum checks failing in the ISDN code?</A>
-+</LI>
-+
- </OL>
- 
- <H4>
-@@ -5182,6 +5186,34 @@
- </LI>
- 
- </UL>
-+</LI>
-+
-+<LI>
-+<A NAME="s8-10"></A><B>Why do I get warnings about md5sum checks failing in the ISDN code?</B>
-+<UL>
-+
-+<LI>
-+<FONT COLOR="#0000FF">(DW)</FONT> These are harmless, and you can
-+probably ignore them.
-+<BR>
-+In many countries, any equipment which is connected to the public 
-+telephone networks must be tested and approved to ensure it behaves
-+correctly. This requirement also extends to the software used to 
-+implement the ISDN protocols with passive ISDN cards.
-+<BR>
-+The HiSax driver has passed these tests and been approved, but any
-+modifications to the source mean that the approval process must be
-+repeated. The md5sum checks are therefore present to indicate the 
-+current approval status of the HiSax driver. An md5sum failure does
-+not mean that your kernel download is corrupted; merely that someone
-+has changed the source code since the last time it was certified and
-+the md5sums of the approved files updated. 
-+<BR>
-+It's rumoured that the requirement for certification of ISDN software
-+is being relaxed in many countries, so this approval process is
-+unnecessary. You should check for yourself the status of such rules in
-+your country. Certainly, I've never heard of anyone actually getting 
-+prosecuted or otherwise reprimanded for using a modified Linux ISDN stack. 
- </LI>
- 
- </OL>
+Also "suspending" is rather dangerous because it can deadlock the machine
+(think about the VM needing to write back dirty data on this LV in order to
+ make memory available for your move)...
 
---
-dwmw2
+Greetings,
+  Arjan van de Ven
+
 
 

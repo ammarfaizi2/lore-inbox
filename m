@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293465AbSCSBpV>; Mon, 18 Mar 2002 20:45:21 -0500
+	id <S293515AbSCSCIZ>; Mon, 18 Mar 2002 21:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293467AbSCSBpD>; Mon, 18 Mar 2002 20:45:03 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:42726 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S293465AbSCSBov>; Mon, 18 Mar 2002 20:44:51 -0500
-Message-Id: <5.1.0.14.2.20020319013035.00b22910@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 19 Mar 2002 01:44:55 +0000
-To: Roman Zippel <zippel@linux-m68k.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Bitkeeper licence issues
-Cc: Larry McVoy <lm@bitmover.com>, Pavel Machek <pavel@ucw.cz>,
-        kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C9691C8.51A4A504@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S293514AbSCSCIP>; Mon, 18 Mar 2002 21:08:15 -0500
+Received: from pc132.utati.net ([216.143.22.132]:30606 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S293513AbSCSCIF>; Mon, 18 Mar 2002 21:08:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, joe.korty@ccur.com
+Subject: Re: [PATCH] 2.4.18 scheduler bugs
+Date: Mon, 18 Mar 2002 21:08:16 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16lzQW-0004j4-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020319022049.160864C4@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-At 01:18 19/03/02, Roman Zippel wrote:
->Larry McVoy wrote:
-> >  Go read this, this is you Pavel,
-> > and I'm sick of arguing with people like you.
+On Friday 15 March 2002 04:39 pm, Alan Cox wrote:
+> > - ksoftirqd() - change daemon nice(2) value from 19 to -19.
 > >
-> > http://www.linuxandmain.com/essay/sgordon.html
+> >     SoftIRQ servicing was less important than the most lowly of batch
+> >     tasks.  This patch makes it more important than all but the realtime
+> >     tasks.
 >
->That's someone, who doesn't understand what free software is about and
->desperately looking for someone to blame it on.
->What are you trying to tell us?
+> Bad idea - the right fix to this is to stop using ksoftirqd so readily
+> under load. If it bales after 20 iterations life is good. As shipped life
+> is bad.
+>
+> Once ksoftirq triggers its because we are seriously overloaded (or without
+> fixing its use slightly randomly). In that case we want other stuff to
+> do work before we potentially unleash the next flood.
 
-Did you actually read it? I did and I agree with him. Depending on your 
-market niche, being a commercial company releasing free software can be 
-complete business suicide, killing the single, most important revenue 
-stream for the company.
+Also, I'm not sure if this is still the case but in earlier versions of the 
+O(1) scheduler, nice(19) tasks tended to get their entire timeslice in one 
+big long uninterrupted gulp.  (By the time they got a slice, everything with 
+a higher priority has already run.)  This was great for long cpu-intensive 
+loads because it meant your cache stayed hot, so you wound up churning 
+through your CPU-bound load even faster than if you got little snippets of 
+time and had to keep reloading your cache.  (Great for interactive latency, 
+sucks for number crunching.)
 
-Linux is growing and as such is being more and more commercialised and with 
-this we will see more and more commercial, non-free, non-GPL software. I 
-don't see what the fuss is all about. I am into Linux because it is a good 
-OS and I would like to contribute to improving it and not just because it 
-is free software. Free software is only good in particular market niches or 
-when one does it as a hobby in unsuitable market niches. Everyone has to 
-eat and many people have a family to support. You can't do that unless you 
-earn money and far too few people manage to get paid for working on free 
-software exactly because it is not profitable (again depending on market 
-niche)...
+Higher priority tasks get first crack at the CPU,  but that doesn't mean they 
+get to keep it for long.  High priority is for latency reasons, not for 
+throughput reasons.  If your router spills over to ksoftirqd, you're already 
+beyond optimizing for latency.  If ksoftirqd is doing ping-pong scheduling 
+with cron, overall throughput is worse.
 
-Just my 2p.
-
-Best regards,
-
-Anton
-
-ps. No I am not trying to start a flame war but I felt the post was too 
-harsch to be left without reply.
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Rob

@@ -1,123 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbUKEWOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUKEWTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUKEWOO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 17:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUKEWOO
+	id S261228AbUKEWTl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 17:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbUKEWTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 17:14:14 -0500
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:8884 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261225AbUKEWNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 17:13:55 -0500
-Message-ID: <418BFB1B.3040306@kolivas.org>
-Date: Sat, 06 Nov 2004 09:13:47 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Fri, 5 Nov 2004 17:19:41 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:24705 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261228AbUKEWTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 17:19:31 -0500
+Date: Fri, 5 Nov 2004 16:19:05 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <20041105202038.GC30993@alpha.home.local>
+Message-ID: <Pine.LNX.4.58.0411051454430.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <20041105202038.GC30993@alpha.home.local>
 MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
-Subject: 2.6.9-ck3
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig941352069305138161615C08"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig941352069305138161615C08
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 5 Nov 2004, Willy Tarreau wrote:
 
-These are patches designed to improve system responsiveness with
-specific emphasis on the desktop, but configurable to any workload.
+> On Thu, Nov 04, 2004 at 05:39:08PM -0600, Adam Heath wrote:
+>
+> > Using an old version of gcc because it is faster at compiling is a
+> > non-argument.
+>
+> If you can send to all of us for free some hardware which is twice as fast
+> as what we have, which does not generate more heat and noise, then perhaps
+> most of us will accept to use a twice as slow compiler. But not for long,
+> since some may realize that they can produce quality code twice as fast on
+> their new system ;-)
+>
+> At least, with fast machines and fast compilers, people have no excuse not
+> testing the patches they send. A few years ago, broken & non-tested patches
+> were very common. This could become standard again if everyone jumped into
+> gcc 3.4 unconditionnaly.
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck3/patch-2.6.9-ck3.bz2
+My argument started when people starting complaining about new compilers being
+slow, and using that as the only reason to not use them.
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
+A single datapoint by itself can not be used in an argument here.
 
+You are adding additional requirements(using older hardware), as that makes
+the argument valid.
 
-Added:
-  +buildfix.diff
-This was accidentally removed from ck2 so it has been readded. Prevents 
-"internal compiler error" with certain versions of gcc.
+> > If they produce bad code, then that's a valid reason.
+> > If they produce larger code, that is a valid reason.
+>
+> You can also ask the gcc people when they will decide to write a new version
+> which is able to compile some code which compiles with the previous release.
+> I have some tools which don't compile anymore with gcc 3 and error messages
+> look more like insults than information, and I don't even know how to "fix"
+> (adapt ?) them. This too is a valid reason to stick to older compilers.
 
-  +s9.0_s9.1.diff
-An update to the staircase cpu scheduler for a long standing bug I 
-recently discovered whereby tasks could drop to low priority for long 
-periods and have sustained periods of high latency and low cpu usage.
+Not always.  Older gccs accepted bad code; you can't honestly expect newer
+ones to always accept this bad code.
 
-  +2.6.9-oom-kill-fix.patch
-A fix for the trigger happy out-of-memory killer that seemed to go mad 
-in 2.6.9
-
-  +2.6.9-aic7xxx-fix.patch
-  +2.6.9-net-DOS-fix.patch
-  +2.6.9-smbfs-leak-fix.patch
-  +2.6.9-cpia-deadlock-fix.patch
-  +2.6.9-usb-visor-fix.patch
-  +2.6.9-hpt366-fix.patch
-  +2.6.9-parport_pc-unload-fix.patch
-  +2.6.9-i8xx_tco-reboot-fix.patch
-  +2.6.9-ppp-fix.patch
-Miscellaneous fixes from the -ac patchset.
-
-
-Full Patchlist:
-
-2.6.9_to_staircase9.0.diff
-schedrange.diff
-schedbatch2.5.diff
-schediso2.8.diff
-mwII.diff
-mwII-oc.diff
-1g_lowmem1_i386.diff
-cfq2-20041019.patch
-block_fix.diff
-defaultcfq.diff
-269rc4-mingo_ll.diff
-back-sched-net-fix-scheduling-latencies-in-__release_sock.patch
-269rc4-mingo-bkl.diff
-ll-config1.diff
-cddvd-cmdfilter-drop.patch
-nvidia_compat.diff
-fix-bad-segment-coalescing-in-blk_recalc_rq_segments.patch
-vm-pages_scanned-active_list.patch
-buildfix.diff
-s9.0_s9.1.diff
-2.6.9-oom-kill-fix.patch
-2.6.9-aic7xxx-fix.patch
-2.6.9-net-DOS-fix.patch
-2.6.9-smbfs-leak-fix.patch
-2.6.9-cpia-deadlock-fix.patch
-2.6.9-usb-visor-fix.patch
-2.6.9-hpt366-fix.patch
-2.6.9-parport_pc-unload-fix.patch
-2.6.9-i8xx_tco-reboot-fix.patch
-2.6.9-ppp-fix.patch
-269ck3-version.diff
-
-
-Cheers,
-Con
-
-
---------------enig941352069305138161615C08
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBi/sbZUg7+tp6mRURAijXAJ9S/IBNyHqVgOOzQ94T+PIjhJCStwCgi/o1
-o54/MecrwYTOo3te/4Kb8xw=
-=IwWC
------END PGP SIGNATURE-----
-
---------------enig941352069305138161615C08--
+Note: I'm not saying that's the specific case here.

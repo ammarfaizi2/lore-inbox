@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278361AbRJMS4q>; Sat, 13 Oct 2001 14:56:46 -0400
+	id <S278362AbRJMS6G>; Sat, 13 Oct 2001 14:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278364AbRJMS4g>; Sat, 13 Oct 2001 14:56:36 -0400
-Received: from [212.21.93.146] ([212.21.93.146]:55427 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S278361AbRJMS4W>; Sat, 13 Oct 2001 14:56:22 -0400
-Date: Sat, 13 Oct 2001 20:54:45 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011013205445.A24854@kushida.jlokier.co.uk>
-In-Reply-To: <20011013165332.A20499@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Oct 13, 2001 at 10:13:17AM -0700
+	id <S278363AbRJMS54>; Sat, 13 Oct 2001 14:57:56 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10763 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278362AbRJMS5k>;
+	Sat, 13 Oct 2001 14:57:40 -0400
+Date: Sat, 13 Oct 2001 15:58:04 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Patrick McFarland <unknown@panax.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+In-Reply-To: <20011013145341.R249@localhost>
+Message-ID: <Pine.LNX.4.33L.0110131556501.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Sat, 13 Oct 2001, Jamie Lokier wrote:
-> > I can think of an efficiency-related use for MAP_COPY, and it has
-> > nothing to do with shared libraries:
-> >
-> >  - An editor using mmap() to read a file.
-> 
-> No, you're thinking the wrong way.
-...
-> People who think MAP_COPY is a good idea are people who cannot think about
-> the implications of it, and cannot think about the alternatives.
-:-)
-> In particular, you claim that you could use "mmap()" for "read()", and
-> speed up the application that way. Ok, fair enough.
-> 
-> Now, somebody who _isn't_ stupid (and that, of course, is me), immediately
-> goes "well, _duh_, why don't you speed up read() instead?".
+On Sat, 13 Oct 2001, Patrick McFarland wrote:
 
-Thanks Linus.  You are right, speeding up read() is the right thing to do.
+> Shouldnt the documentation be updated, seeing for the fact it was
+> written in the 2.2.10 days?
 
-In fact it was proposed here on this list years ago, and I think you
-argued against it (TLB flush costs).  The costs and kernel
-infrastructure have changed and maybe the idea could be revisited now.
+I've sent in the patch with updated (well, 2.4.2 time)
+documentation a number of times around 2.4.2 / 2.4.3.
 
-Sometimes one has to be an idiot and explore an application of MAP_COPY
-to get someone looking at sensible old ideas again :-)
+I'll update the docs for the -ac kernel and will give
+Alan the new documentation.
 
-have a nice day,
--- Jamie
+As for Linus his kernel, complain to Andrea about the
+complete lack of documentation.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

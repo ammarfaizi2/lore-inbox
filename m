@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129701AbRCGAE7>; Tue, 6 Mar 2001 19:04:59 -0500
+	id <S129725AbRCGAFJ>; Tue, 6 Mar 2001 19:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129727AbRCGAEt>; Tue, 6 Mar 2001 19:04:49 -0500
-Received: from host55.osagesoftware.com ([209.142.225.55]:49164 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S129701AbRCGAEf>; Tue, 6 Mar 2001 19:04:35 -0500
-Message-Id: <4.3.2.7.2.20010306185522.00c54dd0@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 06 Mar 2001 19:04:14 -0500
-To: linux-kernel@vger.kernel.org
-From: David Relson <relson@osagesoftware.com>
-Subject: 2.2.18 - do_try_to_free_pages failed
+	id <S129727AbRCGAFA>; Tue, 6 Mar 2001 19:05:00 -0500
+Received: from jalon.able.es ([212.97.163.2]:21705 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129725AbRCGAEu>;
+	Tue, 6 Mar 2001 19:04:50 -0500
+Date: Wed, 7 Mar 2001 01:04:23 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Phil Oester <kernel@theoesters.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error compiling aic7xxx driver on 2.4.2-ac13
+Message-ID: <20010307010423.A1132@werewolf.able.es>
+In-Reply-To: <000f01c0a697$3b1924f0$0200a8c0@theoesters.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <000f01c0a697$3b1924f0$0200a8c0@theoesters.com>; from kernel@theoesters.com on Wed, Mar 07, 2001 at 00:43:22 +0100
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my first report of a kernel crash, so if there is more information 
-wanted, please let me know and I'll do my best to supply it.
 
-I'm running Mandrake 7.2 with a 2.2.18 kernel and GNOME, PIII 500 mhz, 
-256MB ram, AIC789x SCSI on mobo, Fujitsu 18GB scsi HD, ATI video card.
+On 03.07 Phil Oester wrote:
+> one more try...
+> 
+> anyone else get the following:
+> 
+> make[5]: Entering directory
+> `/usr/src/linux-2.4.2-ac13/drivers/scsi/aic7xxx/aicasm'
+> lex  -t aicasm_scan.l > aicasm_scan.c
+> gcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
+> aicasm_symbol.c -o aicasm
+> aicasm_symbol.c:39: db/db_185.h: No such file or directory
+> make[5]: *** [aicasm] Error 1
+> make[5]: Leaving directory
+> `/usr/src/linux-2.4.2-ac13/drivers/scsi/aic7xxx/aicasm'
+> 
 
-This evening, xscreensaver crashed with a message saying (roughly):
+Which distro is yours ? In my Mandrake 8.0beta there is no /usr/include/db.
+Mdk offers the 3 db libs (db1, db2, db3), so I had to create a symlink
+/usr/include/db3 -> /usr/include/db.
 
-	"xscreensaver hypercube had(?) a SIGSEGV"
+Which is the standard path ? At least, Mdk and RH (Alan...) differ.
 
-I had to power down the machine and restart it.  From /var/log/messages the 
-last message before the reboot and the first message after the reboot are:
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-Mar  6 16:35:32 osage kernel: VM: do_try_to_free_pages failed for kswapd...
-Mar  6 17:13:04 osage syslogd 1.4-0: restart.
-
-2.2.18 has run for as long as 71 days on this machine (at which point I 
-restarted it to include the Sangoma WANROUTER driver, which was NOT running 
-at the time of the crash).
-
-I'll be glad to supply any additional info/files.  Just let me know what's 
-wanted.
-
-David
---------------------------------------------------------
-David Relson                   Osage Software Systems, Inc.
-relson@osagesoftware.com       Ann Arbor, MI 48103
-www.osagesoftware.com          tel:  734.821.8800
+Linux werewolf 2.4.2-ac13 #3 SMP Wed Mar 7 00:09:17 CET 2001 i686
 

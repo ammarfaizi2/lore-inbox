@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273893AbRIXMso>; Mon, 24 Sep 2001 08:48:44 -0400
+	id <S273894AbRIXMzh>; Mon, 24 Sep 2001 08:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273894AbRIXMse>; Mon, 24 Sep 2001 08:48:34 -0400
-Received: from t2.redhat.com ([199.183.24.243]:51707 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S273893AbRIXMsY>; Mon, 24 Sep 2001 08:48:24 -0400
-Message-ID: <3BAF2BAD.AB574191@redhat.com>
-Date: Mon, 24 Sep 2001 13:48:45 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
-X-Accept-Language: en
+	id <S273895AbRIXMz0>; Mon, 24 Sep 2001 08:55:26 -0400
+Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:16001 "EHLO
+	picard.csihq.com") by vger.kernel.org with ESMTP id <S273894AbRIXMzM>;
+	Mon, 24 Sep 2001 08:55:12 -0400
+Message-ID: <02aa01c144f8$14a461e0$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <andrewm@uow.edu.au>
+Subject: 2.4.10 and ext3
+Date: Mon, 24 Sep 2001 08:54:42 -0400
 MIME-Version: 1.0
-To: Kim Yong Il <nalabi@formail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q Logis ioports bug .....
-In-Reply-To: <200109241240.f8OCeor06508@mail.wowlinux.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kim Yong Il wrote:
-> 
-> 4000-40ff : Q Logic ISP2200
->   4000-40fe : aa
-> 
-> 4000-40fe: aa <----- bug?????
-> 
+Status report...
+Upgraded from 2.4.8 to 2.4.10 (with new 2.4.10 patch).
+This is on a dual PIII/1Ghz FibreChannel 2G RAM
 
-> 4000-40ff : Q Logic ISP2200
->   4000-40fe : aa
+Single-threaded Seq Read improves a LOT (doubles+)
+Multi-threaded Seq Read improved a bit
+Seq Write improves a LOT
+Rand Write decreases a bit
+All are using less CPU time.
 
-Supid qlogic driver bug; it allocates the name to register on the
-stack....
+Here's 2.4.8
+Linux yeti 2.4.8 #2 SMP Fri Aug 17 05:50:03 EDT 2001 i686 unknown
+Done 9/5/01
+root@yeti:/usr5# tiobench.pl --size 4000
+Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/secd . -T
+
+         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     4000   4096    1  39.83 30.8% 0.572 0.87% 21.83 55.8% 1.226 0.70%
+   .     4000   4096    2  21.30 21.2% 0.711 1.52% 9.695 70.0% 1.274 1.05%
+   .     4000   4096    4  18.86 19.6% 0.844 1.92% 9.568 70.1% 1.228 1.62%
+   .     4000   4096    8  17.38 18.7% 0.983 2.12% 5.995 98.7% 1.255 1.54%
+
+Here's 2.4.10
+tiobench.pl --size 4000
+Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/secd . -T
+
+         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     4000   4096    1  85.57 46.9% 0.689 0.83% 26.02 28.7% 0.993 0.57%
+   .     4000   4096    2  28.08 16.4% 0.805 1.36% 25.71 36.4% 1.062 0.57%
+   .     4000   4096    4  22.50 13.5% 0.927 1.76% 16.69 26.3% 1.097 0.72%
+   .     4000   4096    8  20.37 12.6% 1.062 2.00% 13.01 21.5% 1.114 0.85%
+
+
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+

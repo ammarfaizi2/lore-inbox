@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVB0RCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVB0REv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVB0RCe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVB0RCd
+	id S261439AbVB0REv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVB0REu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:02:33 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:55728 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261438AbVB0RCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:02:18 -0500
-Subject: Re: sched_yield behavior
-From: Lee Revell <rlrevell@joe-job.com>
-To: Giovanni Tusa <gtusa@inwind.it>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00e901c51cbb$45b3cac0$65071897@gtusa>
-References: <00e901c51cbb$45b3cac0$65071897@gtusa>
-Content-Type: text/plain
-Date: Sun, 27 Feb 2005 12:02:13 -0500
-Message-Id: <1109523733.30866.2.camel@krustophenia.net>
+	Sun, 27 Feb 2005 12:04:50 -0500
+Received: from gprs215-59.eurotel.cz ([160.218.215.59]:24276 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261439AbVB0REk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 12:04:40 -0500
+Date: Sun, 27 Feb 2005 18:04:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: madduck@madduck.net
+Subject: Re: swsusp logic error?
+Message-ID: <20050227170428.GI1441@elf.ucw.cz>
+References: <20050208203950.GA21623@cirrus.madduck.net> <20050226153905.GA8108@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050226153905.GA8108@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-27 at 11:58 +0100, Giovanni Tusa wrote:
-> Hi all,
-> I have a question about the sched_yield behavior of Linux O(1) scheduler,
-> for RT tasks.
-> By reading some documentation, I found that " ....real-time tasks are a
-> special case, because
-> when they want to explicitly yield the processor to other waiting processes,
-> they are merely
-> moved to the end of their priority list (and not inserted into the expired
-> array, like conventional
-> processes)."
-> I have to implement an RT task with the highest priority in the system (it
-> is also the only task within the
-> priority list for such priority level). Moreover, it has to be a SCHED_FIFO
-> task,  so that it can preempt
-> SCHED_RR ones, because of its strong real-time requirements. However,
-> sometimes it should relinquish the
-> CPU, to give to other tasks a chance to run.
-> Now, what happen if it gives up the CPU by means of the sched_yield() system
-> call?
-> If  I am not wrong, the scheduler will choose it again (it will be still the
-> higher priority task, and the only of its priority list).
-> I have to add an explicit sleep to effectively relinquish the CPU for some
-> time, or the scheduler can deal with such a
-> situation in another way?
+Hi!
 
-What exactly are you trying to do?  I don't understand how the task
-could have "strong real-time requirements" if it's CPU bound.  What is
-the exact nature of the real time constraint?
+> Sorry for the late reply, I've been strung up with work. I tried
+> your suggestion on another machine, with a vanilla 2.6.10 kernel and
+> a single swap device, twice the size of the physical RAM; I get
+> exactly the same result. The swap device cannot be found.
+> 
+> What to try next?
 
-Lee
-
+Ugh, too late, I already forgot what went wrong for you. Anyway try
+reading Documentation/power/swsusp.txt and/or going to 2.6.11-rc4. If
+that does not help, debug with printk :-).
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

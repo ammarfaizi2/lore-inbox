@@ -1,83 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264854AbSLGWwo>; Sat, 7 Dec 2002 17:52:44 -0500
+	id <S264863AbSLGW7T>; Sat, 7 Dec 2002 17:59:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264863AbSLGWwo>; Sat, 7 Dec 2002 17:52:44 -0500
-Received: from rivmkt61.wintek.com ([206.230.0.61]:5760 "EHLO comcast.net")
-	by vger.kernel.org with ESMTP id <S264854AbSLGWwn>;
-	Sat, 7 Dec 2002 17:52:43 -0500
-Date: Sat, 7 Dec 2002 18:00:38 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] Problem Booting 2.5.50 / ext3_reserve_inode_write
-In-Reply-To: <1039213174.29939.9.camel@andyp>
-Message-ID: <Pine.LNX.4.50L0.0212071757270.13809-100000@dust.ebiz-gw.wintek.com>
-References: <Pine.LNX.4.44.0211291336040.1182-100000@dust.ebiz-gw.wintek.com>
- <1039213174.29939.9.camel@andyp>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	id <S264872AbSLGW7T>; Sat, 7 Dec 2002 17:59:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10760 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264863AbSLGW7Q>;
+	Sat, 7 Dec 2002 17:59:16 -0500
+Message-ID: <3DF27EE7.4010508@pobox.com>
+Date: Sat, 07 Dec 2002 18:06:15 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       Andrew Morton <akpm@digeo.com>
+Subject: [RFC][PATCH] net drivers and cache alignment
+References: <3DF2781D.3030209@pobox.com> <20021207.144004.45605764.davem@redhat.com>
+In-Reply-To: <20021207.144004.45605764.davem@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------080805080000030003020904"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Dec 2002, Andy Pfiffer wrote:
+This is a multi-part message in MIME format.
+--------------080805080000030003020904
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Fri, 2002-11-29 at 06:11, Alex Goddard wrote:
-> > 2.5.45-49 worked fine.  Here's the output, I can provide .config and 
-> > anything else at request.
-> > 
-> > Oops: 0000
-> > CPU: 0
-> > EIP: 0060:[<c017c04d>]   Not Tainted
-> > EFLAGS: 00010202
-> > EIP: is at ext3_get_inode_loc+0x2d/0x1a0
-> > eax: e7237610  ebx: 00000000  ecx: 00000000  edx: 5a5a5a5a
-> > esi: 5a5a5a5a  edi: e721dec0  edp: e721de78  esp: e721de4c
-> > ds: 0068  es: 0068  ss: 0068
-> > Process mount (pid: 248, threadinfo=e721c000, task=e7708700)
-> > Stack: 
-> > 
-> >   e7f9c9a4 e7237590 e7c65c80 e7dcde00 e7f9c9a4 e7234594 e7249e84 00000296
-> >   00000000 e75c2584 e7249ec0 e7249eac c017cd4a e7234610 e7249ec0 c01823bd
-> >   e7f9c9a4 e7237594 e7249ea8 c015ace6 e7234610 e7249ec0 e75c2584 e7234610
-> > 
-> > Call Trace:
-> > 	[<c017cd4a>] ext3_reserve_inode_write+0x2a/0xe0
-> > 	[<c01823bd>] ext3_destroy_inode+0x1d/0x20
-> > 	[<c015ace6>] destory_inode+0x36/0x50
-> > 	[<c017ce28>] ext3_mark_inode_dirty+0x28/0x50
-> > 	[<c017fe12>] ext3_add_nondir+0x52/0x60
-> > 	[<c0151601>] vfs_create+0x61/0xb0
-> > 	[<c0151b63>] open_namei+0x363/0x3c0
-> > 	[<c0142fe1>] filp_open+0x41/0x70
-> > 	[<c0143413>] sys_open+0x53/0x90
-> > 	[<c010940b>] sys_call+0x7/0xb
-> > 
-> > Code: 8b 86 24 01 00 00 3b 50 50 72 0d 8b 9e 24 01 00 00 8b 43 2c
-> > 
-> > I can't tell if this affects performance or anything one way or another
-> > because my machine dies after the above oops, but I also get another trace
-> > earlier in the boot, during the initialization of my framebuffer console:
-> 
-> Alex,
-> 
-> Did you get any response on this OOPS?  I can't find any, and I'm
-> curious because it is happening on one of my systems during bootup as
-> well.
+David S. Miller wrote:
+> Can't the cacheline_aligned attribute be applied to individual
+> struct members?  I remember doing this for thread_struct on
+> sparc ages ago.
 
-No, I haven't.  I've successfully reproduced it several times though.  
-Sometime on Monday I'll have time to see if it's been fixed in the latest
-bk tree.
 
-[Snip]
+Looks like it from the 2.4 processor.h code.
+
+Attached is cut #2.  Thanks for all the near-instant feedback so far :) 
+  Andrew, does the attached still need padding on SMP?
+
+--------------080805080000030003020904
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/net/tg3.c 1.41 vs edited =====
+--- 1.41/drivers/net/tg3.c	Wed Nov 20 00:49:23 2002
++++ edited/drivers/net/tg3.c	Sat Dec  7 17:12:38 2002
+@@ -25,6 +25,7 @@
+ #include <linux/if_vlan.h>
+ #include <linux/ip.h>
+ #include <linux/tcp.h>
++#include <linux/cache.h>
  
-> Mounting local file systems...
-> /etc/init.d/boot.d/S05boot.localfs: line 179:    76 Segmentation fault
+ #include <asm/system.h>
+ #include <asm/io.h>
+===== drivers/net/tg3.h 1.19 vs edited =====
+--- 1.19/drivers/net/tg3.h	Mon Nov 11 05:27:52 2002
++++ edited/drivers/net/tg3.h	Sat Dec  7 18:01:08 2002
+@@ -1728,6 +1728,8 @@
+ };
+ 
+ struct tg3 {
++	/* begin "general, frequently-used members" cacheline section */
++
+ 	/* SMP locking strategy:
+ 	 *
+ 	 * lock: Held during all operations except TX packet
+@@ -1740,20 +1742,63 @@
+ 	 * be disabled to take 'lock' but only softirq disabling is
+ 	 * necessary for acquisition of 'tx_lock'.
+ 	 */
+-	spinlock_t			lock;
+-	spinlock_t			tx_lock;
++	spinlock_t			lock ____cacheline_aligned;
++	spinlock_t			indirect_lock;
+ 
+-	u32				tx_prod;
++	unsigned long			regs;
++	struct net_device		*dev;
++	struct pci_dev			*pdev;
++
++	struct tg3_hw_status		*hw_status;
++	dma_addr_t			status_mapping;
++
++	u32				msg_enable;
++
++	/* begin "tx thread" cacheline section */
++	u32				tx_prod ____cacheline_aligned;
+ 	u32				tx_cons;
+-	u32				rx_rcb_ptr;
++	u32				tx_pending;
++
++	spinlock_t			tx_lock;
++
++	/* TX descs are only used if TG3_FLAG_HOST_TXDS is set. */
++	struct tg3_tx_buffer_desc	*tx_ring;
++	struct tx_ring_info		*tx_buffers;
++	dma_addr_t			tx_desc_mapping;
++
++	/* begin "rx thread" cacheline section */
++	u32				rx_rcb_ptr ____cacheline_aligned;
+ 	u32				rx_std_ptr;
+ 	u32				rx_jumbo_ptr;
+ #if TG3_MINI_RING_WORKS
+ 	u32				rx_mini_ptr;
+ #endif
+-	spinlock_t			indirect_lock;
++	u32				rx_pending;
++#if TG3_MINI_RING_WORKS
++	u32				rx_mini_pending;
++#endif
++	u32				rx_jumbo_pending;
++#if TG3_VLAN_TAG_USED
++	struct vlan_group		*vlgrp;
++#endif
++
++	struct tg3_rx_buffer_desc	*rx_std;
++	struct ring_info		*rx_std_buffers;
++	dma_addr_t			rx_std_mapping;
++#if TG3_MINI_RING_WORKS
++	struct tg3_rx_buffer_desc	*rx_mini;
++	struct ring_info		*rx_mini_buffers;
++	dma_addr_t			rx_mini_mapping;
++#endif
++	struct tg3_rx_buffer_desc	*rx_jumbo;
++	struct ring_info		*rx_jumbo_buffers;
++	dma_addr_t			rx_jumbo_mapping;
+ 
+-	struct net_device_stats		net_stats;
++	struct tg3_rx_buffer_desc	*rx_rcb;
++	dma_addr_t			rx_rcb_mapping;
++
++	/* begin "everything else" cacheline(s) section */
++	struct net_device_stats		net_stats ____cacheline_aligned;
+ 	struct net_device_stats		net_stats_prev;
+ 	unsigned long			phy_crc_errors;
+ 
+@@ -1791,8 +1836,6 @@
+ #define TG3_FLAG_SPLIT_MODE		0x40000000
+ #define TG3_FLAG_INIT_COMPLETE		0x80000000
+ 
+-	u32				msg_enable;
+-
+ 	u32				split_mode_max_reqs;
+ #define SPLIT_MODE_5704_MAX_REQ		3
+ 
+@@ -1806,13 +1849,6 @@
+ 	struct tg3_link_config		link_config;
+ 	struct tg3_bufmgr_config	bufmgr_config;
+ 
+-	u32				rx_pending;
+-#if TG3_MINI_RING_WORKS
+-	u32				rx_mini_pending;
+-#endif
+-	u32				rx_jumbo_pending;
+-	u32				tx_pending;
+-
+ 	/* cache h/w values, often passed straight to h/w */
+ 	u32				rx_mode;
+ 	u32				tx_mode;
+@@ -1864,36 +1900,6 @@
+ 	 (X) == PHY_ID_BCM5411 || (X) == PHY_ID_BCM5701 || \
+ 	 (X) == PHY_ID_BCM5703 || (X) == PHY_ID_BCM5704 || \
+ 	 (X) == PHY_ID_BCM8002 || (X) == PHY_ID_SERDES)
+-
+-	unsigned long			regs;
+-	struct pci_dev			*pdev;
+-	struct net_device		*dev;
+-#if TG3_VLAN_TAG_USED
+-	struct vlan_group		*vlgrp;
+-#endif
+-
+-	struct tg3_rx_buffer_desc	*rx_std;
+-	struct ring_info		*rx_std_buffers;
+-	dma_addr_t			rx_std_mapping;
+-#if TG3_MINI_RING_WORKS
+-	struct tg3_rx_buffer_desc	*rx_mini;
+-	struct ring_info		*rx_mini_buffers;
+-	dma_addr_t			rx_mini_mapping;
+-#endif
+-	struct tg3_rx_buffer_desc	*rx_jumbo;
+-	struct ring_info		*rx_jumbo_buffers;
+-	dma_addr_t			rx_jumbo_mapping;
+-
+-	struct tg3_rx_buffer_desc	*rx_rcb;
+-	dma_addr_t			rx_rcb_mapping;
+-
+-	/* TX descs are only used if TG3_FLAG_HOST_TXDS is set. */
+-	struct tg3_tx_buffer_desc	*tx_ring;
+-	struct tx_ring_info		*tx_buffers;
+-	dma_addr_t			tx_desc_mapping;
+-
+-	struct tg3_hw_status		*hw_status;
+-	dma_addr_t			status_mapping;
+ 
+ 	struct tg3_hw_stats		*hw_stats;
+ 	dma_addr_t			stats_mapping;
 
-What is that script doing on that line?
+--------------080805080000030003020904--
 
--- 
-Alex Goddard
-agoddard@purdue.edu

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTE0Nyq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 09:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTE0Nyp
+	id S263591AbTE0OA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 10:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbTE0OA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 09:54:45 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:5640 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263590AbTE0Nyi (ORCPT
+	Tue, 27 May 2003 10:00:28 -0400
+Received: from smtp.inet.fi ([192.89.123.192]:5857 "EHLO smtp.inet.fi")
+	by vger.kernel.org with ESMTP id S263591AbTE0OA1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 09:54:38 -0400
-Date: Tue, 27 May 2003 16:07:41 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Werner.Beck@Lidl.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Antwort: Re: Oops in Kernel 2.4.21-rc1
-Message-Id: <20030527160741.00bb9723.skraw@ithnet.com>
-In-Reply-To: <OFC9BF3818.E07B98DB-ONC1256D33.004C27AB-C1256D33.004C6AE8@lidl.de>
-References: <OFC9BF3818.E07B98DB-ONC1256D33.004C27AB-C1256D33.004C6AE8@lidl.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 May 2003 10:00:27 -0400
+From: Kimmo Sundqvist <rabbit80@mbnet.fi>
+Organization: Unorganized
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.20-ck7] good compressed caching experience
+Date: Tue, 27 May 2003 17:13:48 +0300
+User-Agent: KMail/1.5.1
+References: <200305262150.04552.rabbit80@mbnet.fi> <200305270711.34608.kernel@kolivas.org>
+In-Reply-To: <200305270711.34608.kernel@kolivas.org>
+Cc: rcastro@ime.usp.br, Con Kolivas <kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305271713.49762.rabbit80@mbnet.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003 15:54:40 +0200
-Werner.Beck@Lidl.de wrote:
+On Tuesday 27 May 2003 00:11, Con Kolivas wrote:
+> On Tue, 27 May 2003 04:50, Kimmo Sundqvist wrote:
 
-> unfortunately that is not possible at the moment...
-> 
+> > Just a warning... both systems have only ReiserFS partitions.  Other FSes
+> > might still get hurt.
 
->> Exchange the USB/ISDN part with a pci card and re-try with kernel -rc4.
-> 
->> Tell us if that works.
-> 
->> Regards,
->> Stephan
+> This is definitely the case! If you try out compressed caching with ck7
+> please do not enable preempt if you are using ext2/3 or vfat.
 
-Well, what exactly do you expect to hear? There are about a million and one
-possibilities about your problem. Most of them are hardware-related. Hoping
-that you have already made sure that you have no defective RAM, controller,
-mainboard or the like (unlikely since you mention two hosts) I would eliminate
-additional risk factors like USB (always gives fun) and use the latest kernel.
+Is this a problem in ext2/3, pre-empt implementation, compressed caching or 
+kernel in general?
 
-Regards,
-Stephan
+I think I can still choose between compression methods, or can I?  Which one 
+of them, on average, is the least CPU-intensive, and which one gives the best 
+compression ratio?  I am also at loss how to interpret the percentages in 
+"cat /proc/comp_cache_stat".
+
+For M$ Windows there was once a program called MagnaRAM97 that had a similar 
+idea, but I don't understand how it could report 2 to 3-fold compression 
+ratios.  It always spontaneously rebooted the Pentium 133MHz after some 
+hours, so I uninstalled it.
+
+Just take your time, but will we see a pre-empt safe (or better yet SMP safe) 
+version coming out anytime soon?
+
+Compiling another 2.4.20-ck7 with 8kB pages and swap compression in the 
+background.  I have now "mem=896M" to avoid the highmem boundary, even if it 
+wasn't necessary.  Someone said somewhere that a 1GB system is faster without 
+highmem support, so I haven't compiled it in for a while.
+
+-Kimmo S.

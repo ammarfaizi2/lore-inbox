@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291252AbSBUJzR>; Thu, 21 Feb 2002 04:55:17 -0500
+	id <S291400AbSBUJ5h>; Thu, 21 Feb 2002 04:57:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291257AbSBUJzJ>; Thu, 21 Feb 2002 04:55:09 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:22676 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S291252AbSBUJyy>;
-	Thu, 21 Feb 2002 04:54:54 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 21 Feb 2002 10:54:44 +0100 (MET)
-Message-Id: <UTC200202210954.g1L9siM06287.aeb@apps.cwi.nl>
-To: bcrl@redhat.com, phillips@bonn-fries.net
-Subject: Re: [PATCH] size-in-bytes
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S291449AbSBUJ5a>; Thu, 21 Feb 2002 04:57:30 -0500
+Received: from mcns119.docsis245.scvmaxonline.com.sg ([202.156.245.119]:23824
+	"HELO server.hoeg.home") by vger.kernel.org with SMTP
+	id <S291400AbSBUJ5T>; Thu, 21 Feb 2002 04:57:19 -0500
+To: Jos Hulzink <josh@stack.nl>
+Subject: Re: misdetection of pentium2 - very strange
+Message-ID: <1014285431.3c74c477274c4@www.hoeg.home>
+Date: Thu, 21 Feb 2002 17:57:11 +0800 (SGT)
+From: peter@hoeg.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020221094949.A86349-100000@toad.stack.nl>
+In-Reply-To: <20020221094949.A86349-100000@toad.stack.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
+X-Originating-IP: 202.42.167.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Benjamin LaHaise <bcrl@redhat.com>
+Quoting Jos Hulzink <josh@stack.nl>:
 
-    Using the number of sectors in kernel is perhaps more efficient, but it 
-    is a microoptimization that won't show up on any benchmarks.
+> 
+> On Thu, 21 Feb 2002 peter@hoeg.com wrote:
+> 
+> > dmesg:
+> >
+> > Linux version 2.4.18-rc2 (peter@asilog-linux2) (gcc version 2.95.4
+> (Debian
+> > prerelease)) #3 Thu Feb 21 19:21:37 SGT 2002
+> > Initializing CPU#0
+> > Detected 133.225 MHz processor.
+> > Calibrating delay loop... 265.42 BogoMIPS
+> 
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 
+> It seems your CPU is actually running at 133 MHz. If I am right, the
+> bogomips value should be about 2x the clock frequency on this CPU and
+> kernel. Is the bogomips calculation influenced by the detected CPU speed
+> ?
+> Can't check now.
+> 
+> Can it be your system runs in a low-power mode, or that the linux
+> kernel triggers a low-power mode ?
 
-Yes. Since we have to go to 64-bit anyway it is not more
-space-efficient, but of course shifting over 3 positions
-is slightly faster than shifting over 12 positions.
-But as you say, timewise there is no measurable difference,
-while the code becomes much simpler.
+the compaq setup utility (bios setup program) reports a 333mhz with a bus speed 
+of 66, so if something makes it enter a low-power mode it should be linux. but 
+no apm/acpi support is compiled in/as modules.
 
-There is also the point that a block device need not have a size
-that is an integral number of sectors. That is most obvious with
-the loop device, but also occurs elsewhere.
-The partition making ioctls (and the loop mount options) allow one
-to give a starting offset in bytes.
-
-Thus, there are applications where it is really useful to have
-the precise size, rather than the approximate size in sectors.
-Also nbd uses the size in bytes, while amiga uses 256-byte sectors.
-
-Andries
-
+/peter

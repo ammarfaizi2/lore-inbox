@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262235AbREWGmE>; Wed, 23 May 2001 02:42:04 -0400
+	id <S262308AbREWGvy>; Wed, 23 May 2001 02:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbREWGly>; Wed, 23 May 2001 02:41:54 -0400
-Received: from [202.9.134.47] ([202.9.134.47]:14241 "HELO enigma")
-	by vger.kernel.org with SMTP id <S262235AbREWGlq>;
-	Wed, 23 May 2001 02:41:46 -0400
-Date: Wed, 23 May 2001 11:43:18 +0530
-From: Manas Garg <mls@chakpak.net>
-To: linux-kernel@vger.kernel.org
-Subject: O_TRUNC problem on a full filesystem
-Message-ID: <20010523114318.A8336@cygsoft.com>
-Mail-Followup-To: Manas Garg <mls@chakpak.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Cygnet Software Ltd.
-X-Editor: Vim
+	id <S262309AbREWGvo>; Wed, 23 May 2001 02:51:44 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:2317 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262308AbREWGve>; Wed, 23 May 2001 02:51:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Ricardo Galli" <gallir@uib.es>,
+        "David N. Lombard" <david.lombard@mscsoftware.com>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
+Date: Wed, 23 May 2001 00:19:31 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105221236050.5531-100000@imladris.rielhome.conectiva> <3B0AADE1.7DC18A5E@mscsoftware.com>
+In-Reply-To: <3B0AADE1.7DC18A5E@mscsoftware.com>
+MIME-Version: 1.0
+Message-Id: <0105230019310I.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not sure if it should be classified as a bug, that's why I am calling it a
-problem. Here is the description:
+On Tuesday 22 May 2001 20:20, David N. Lombard wrote:
+> Rik van Riel wrote:
+> > On Tue, 22 May 2001, Daniel Phillips wrote:
+> > > On Tuesday 22 May 2001 12:29, Daniel Phillips wrote:
+> > > >   http://nl.linux.org/~phillips/htree
+> > >
+> > > Oops, nl.linux.org was down for 'unscheduled maintainance' and
+> > > seems to have come back up with some some http issues.
+> > >
+> > > Rik?
+> >
+> > [/home]# chmod a+x *
+> >
+> > Things seem to work again now ;)
+>
+> Not so much:
+>
+> Forbidden
+>
+> You don't have permission to access /~phillips/htree/ on this server.
 
-If the filesystem is full, obviously, I can't write anything to that any
-longer. But if I open a file with O_TRUNC flag set, the file will be truncated.
-Any program that opens a file with O_TRUNC flag set, wishes to write something
-there later on. But because the filesystem is full, it can't write. It would
-definitely happen if the file is not huge (TESTED). But I am not sure what
-happens if the file _is_ huge (NOT TESTED).
+This too was fixed.  You could access the individual files in that
+directory, but not list the directory :-/  Last I heard, Rik had his head
+down cleaning up some other administrative things on the new box.
 
-I lost configuration files of a few programs this way. While exiting, they
-opened their conf files with O_TRUNC flag but couldn't write anything there.
+The relevant URL's are:
 
-The kernel in use is 2.4.4.
+   http://nl.linux.org/~phillips/htree/READ-ME
+   http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-7
+   ftp://ftp.math.psu.edu/pub/viro/ext2-dir-patch-S4.gz
 
-	--manas
+Right now, the directory index patch is a patch on top of Al's patch,
+sorry, we are in a state of transition. ;-)
+
+--
+Daniel
+  

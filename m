@@ -1,167 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273302AbRIYTpC>; Tue, 25 Sep 2001 15:45:02 -0400
+	id <S273305AbRIYTqc>; Tue, 25 Sep 2001 15:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273294AbRIYTos>; Tue, 25 Sep 2001 15:44:48 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:5892 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273302AbRIYTod>;
-	Tue, 25 Sep 2001 15:44:33 -0400
-Message-ID: <20010924175054.A2330@bug.ucw.cz>
-Date: Mon, 24 Sep 2001 17:50:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Grover <andrew.grover@intel.com>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Fix acpi sleeps on mvp3 and toshiba
+	id <S273309AbRIYTqQ>; Tue, 25 Sep 2001 15:46:16 -0400
+Received: from [172.16.44.254] ([172.16.44.254]:44050 "EHLO
+	int-mx1.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S273303AbRIYTpv>; Tue, 25 Sep 2001 15:45:51 -0400
+Date: Tue, 25 Sep 2001 14:46:11 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GFP_FAIL?
+Message-Id: <20010925144611.01590a08.reynolds@redhat.com>
+In-Reply-To: <20010924210951.A165@bug.ucw.cz>
+In-Reply-To: <20010924210951.A165@bug.ucw.cz>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.2cvs5 (GTK+ 1.2.9; )
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek <pavel@suse.cz> was pleased to say:
 
-This fixes machine-specific glitches. S1 and S5 now works on athlon
-and toshiba and S4 has at least chance to work... Please tell me what
-to modify so that you can apply [Looks like that can be quite
-problematic: are you going to port dmi stuff to NT, and *BSD? Also,
-how to wrap this nicely?]
-								Pavel
+> Hi!
+> 
+> I need to alloc as much memory as possible, *but not more*. I do not
+> want to OOM-kill anything. How do I do this? Tried GFP_KERNEL, will
+> oom-kill. GFP_USER will OOM-kill, too.
 
---- clean/include/asm-i386/system.h	Sun Sep 23 23:07:00 2001
-+++ linux/include/asm-i386/system.h	Mon Sep 24 16:39:54 2001
-@@ -340,4 +340,8 @@
- void disable_hlt(void);
- void enable_hlt(void);
- 
-+extern unsigned long dmi_broken;
-+#define BROKEN_ACPI_Sx		0x0001
-+#define BROKEN_INIT_AFTER_S1	0x0002
-+
- #endif
---- clean/arch/i386/kernel/dmi_scan.c	Sun Sep 23 23:04:49 2001
-+++ linux/arch/i386/kernel/dmi_scan.c	Mon Sep 24 17:01:00 2001
-@@ -10,6 +10,8 @@
- #include <linux/keyboard.h>
- #include <asm/keyboard.h>
- 
-+unsigned long dmi_broken;
-+
- struct dmi_header
- {
- 	u8	type;
-@@ -365,6 +367,38 @@
- }
- 
- /*
-+ * ASUS K7V-RM has broken ACPI table defining sleep modes
-+ */
-+
-+static __init int broken_acpi_Sx(struct dmi_blacklist *d)
-+{
-+	printk(KERN_WARNING "Detected ASUS mainboard with broken ACPI sleep table\n");
-+	dmi_broken |= BROKEN_ACPI_Sx;
-+	return 0;
-+}
-+
-+/*
-+ * Toshiba keyboard likes to repeat keys when they are not repeated.
-+ */
-+
-+static __init int broken_toshiba_keyboard(struct dmi_blacklist *d)
-+{
-+	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, contact pavel@ucw.cz\n");
-+	return 0;
-+}
-+
-+/*
-+ * Toshiba fails to preserve interrupts over S1
-+ */
-+
-+static __init int init_ints_after_s1(struct dmi_blacklist *d)
-+{
-+	printk(KERN_WARNING "Toshiba with broken S1 detected.\n");
-+	dmi_broken |= BROKEN_INIT_AFTER_S1;
-+	return 0;
-+}
-+
-+/*
-  * Some Bioses enable the PS/2 mouse (touchpad) at resume, even if it
-  * was disabled before the suspend. Linux gets terribly confused by that.
-  */
-@@ -543,7 +577,19 @@
- 			MATCH(DMI_PRODUCT_NAME, "Dell PowerEdge 8450"),
- 			NO_MATCH, NO_MATCH, NO_MATCH
- 			} },
--
-+	{ broken_acpi_Sx, "ASUS K7V-RM", {		/* Bad ACPI Sx table */
-+			MATCH(DMI_BIOS_VERSION,"ASUS K7V-RM ACPI BIOS Revision 1003A"),
-+			MATCH(DMI_BOARD_NAME, "<K7V-RM>"),
-+			NO_MATCH, NO_MATCH
-+			} },
-+	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
-+			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
-+			NO_MATCH, NO_MATCH, NO_MATCH
-+			} },
-+	{ init_ints_after_s1, "Toshiba Satellite 4030cdt", { /* Reinitialization of 8259 is needed after S1 resume */
-+			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
-+			NO_MATCH, NO_MATCH, NO_MATCH
-+			} },
- 	{ NULL, }
- };
- 	
---- clean/drivers/acpi/hardware/hwregs.c	Sun Sep 23 23:05:16 2001
-+++ linux/drivers/acpi/hardware/hwregs.c	Mon Sep 24 17:47:20 2001
-@@ -29,6 +29,7 @@
- #include "acpi.h"
- #include "achware.h"
- #include "acnamesp.h"
-+#include <asm/system.h>
- 
- #define _COMPONENT          ACPI_HARDWARE
- 	 MODULE_NAME         ("hwregs")
-@@ -162,6 +163,24 @@
- 	if ((sleep_state > ACPI_S_STATES_MAX) ||
- 		!slp_typ_a || !slp_typ_b) {
- 		return_ACPI_STATUS (AE_BAD_PARAMETER);
-+	}
-+
-+	if (dmi_broken & BROKEN_ACPI_Sx) {
-+		printk("Attempted to enter %d\n", sleep_state);
-+		switch (sleep_state) {
-+			/* 0,3,4,6,7,8,11,15 is nop */
-+			/* 5 is nop, too? No. 5 is some valid state, just not S1 nor S3 (strange). */
-+			/* 13 is lockup when used in S1 or S3 context */
-+			/* 14 is "keep monitor on and than all goes off when power is pressed in S1 context */
-+			/* 1,2,10,9,14 are known working */
-+			/* 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */
-+		case 1:	*slp_typ_a = *slp_typ_b =12; return_ACPI_STATUS (status);	/* Hey, seems okay! */
-+		case 3:	*slp_typ_a = *slp_typ_b =15; return_ACPI_STATUS (status);	/* Not known, yet */
-+		case 4:	*slp_typ_a = *slp_typ_b = 1; return_ACPI_STATUS (status);	/* Seems ok, but it times somehow long to wakeup. Is it possible this is S3? (same as 9) */
-+		case 5:	*slp_typ_a = *slp_typ_b =10; return_ACPI_STATUS (status);	/* Seems ok, (same as 2) */
-+		default: return_ACPI_STATUS (AE_BAD_PARAMETER)
-+		}
-+		
- 	}
- 
- 	/*
---- clean/drivers/acpi/ospm/system/sm_osl.c	Sun Sep 23 23:05:21 2001
-+++ linux/drivers/acpi/ospm/system/sm_osl.c	Mon Sep 24 16:41:14 2001
-@@ -719,6 +780,11 @@
- 	/* TODO: resume devices and restore their state */
- 
- 	enable();
-+
-+	if (dmi_broken & BROKEN_INIT_AFTER_S1) {
-+		printk("Broken toshiba laptop -> kicking interrupts\n");
-+		init_8259A(0);
-+	}
- 	return status;
- }
- 
-
-
+Try GFP_ATOMIC; GFP_KERNEL sets the __GFP_WAIT flag and you don't want that.
+But, if you're really asking how to know how large the current working set is,
+so that you don't grab more than your applications are going to need and
+eventually OOM, you'll need to set GFP_HAVE_CRYSTAL_BALL ;-)
 
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+
+Tommy Reynolds                               |
+Red Hat, Inc. (Embedded Development)         | "The quickest way to do anything
+307 Wynn Drive NW, Huntsville, AL 35805 USA  |  is right the first time."
+mailto:reynolds@redhat.com                   |       - The Lieutenant (Rick
+Phone:  +1.256.704.9286                      |         Jason), "Combat!",
+Mobile: +1.919.641.2923                      |         1962 TV series
+FAX:    +1.256.837.3839                      |

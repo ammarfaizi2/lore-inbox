@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSLICjq>; Sun, 8 Dec 2002 21:39:46 -0500
+	id <S261874AbSLICB2>; Sun, 8 Dec 2002 21:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262442AbSLICjq>; Sun, 8 Dec 2002 21:39:46 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:65273 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S262214AbSLICjp>; Sun, 8 Dec 2002 21:39:45 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S262067AbSLICB2>; Sun, 8 Dec 2002 21:01:28 -0500
+Received: from holomorphy.com ([66.224.33.161]:44694 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261874AbSLICB2>;
+	Sun, 8 Dec 2002 21:01:28 -0500
+Date: Sun, 8 Dec 2002 18:08:46 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: qlogic isp1020 broken in 2.5.50
+Message-ID: <20021209020846.GB9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <56340000.1039398073@titus> <20021209014757.GA9882@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15860.1070.521840.791396@wombat.chubb.wattle.id.au>
-Date: Mon, 9 Dec 2002 13:47:10 +1100
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Rusty Trivial Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "" <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>
-Subject: Re: [TRIVIAL] Re: setrlimit incorrectly allows hard limits to exceed
- soft limits
-In-Reply-To: <1054753245@toto.iv>
-X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <20021209014757.GA9882@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Rik" == Rik van Riel <riel@conectiva.com.br> writes:
+On Sun, Dec 08, 2002 at 05:41:13PM -0800, Martin J. Bligh wrote:
+>> Anyone working on this, or know how to backout whatever broke it?
+>> Seem to work fine in 47 (unless just the warning is new, and it's
+>> been broken all along).
 
-Rik> On Fri, 6 Dec 2002, Rusty Trivial Russell wrote:
->> > Just try "ulimit -H -m 10000" for memory limits that were not >
->> previously set.  You end up with (hard limit = 10000) < (soft limit
->> = > unlimited).
+On Sun, Dec 08, 2002 at 05:47:57PM -0800, William Lee Irwin III wrote:
+> Hmm? It's oopsing in isp1020_intr_handler() when I try to mount > 1
+> filesystem over here. Seems to have gotten rather consistent lately
+> (independent of kernel), but / is on the same thing and it does fine.
 
->> + if (new_rlim.rlim_cur > new_rlim.rlim_max) + return -EINVAL;
+This is sort-of related to userspace. The old multi-fsck error has been
+resurrected by an upgraded version of fsck(8).
 
-Rik> Wouldn't it be better to simply take the soft limit down to
-Rik> min(new_rlim.rlim_cur, new_rlim.rlim_max) ?
- 
-Single unix spec says to return EINVAL in this case.
 
-[EINVAL]
-An invalid resource was specified; or in a setrlimit() call, the new
-rlim_cur exceeds the new rlim_max.
-
- 
+Bill

@@ -1,82 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSGJFrF>; Wed, 10 Jul 2002 01:47:05 -0400
+	id <S315449AbSGJGZu>; Wed, 10 Jul 2002 02:25:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317481AbSGJFrE>; Wed, 10 Jul 2002 01:47:04 -0400
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:9939 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S317480AbSGJFrD>; Wed, 10 Jul 2002 01:47:03 -0400
-Date: Wed, 10 Jul 2002 07:49:16 +0200
-From: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with kernel BUG at dcache.c:345
-Message-ID: <20020710054916.GA1800@Ado.student.utwente.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317484AbSGJGZt>; Wed, 10 Jul 2002 02:25:49 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7117 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S315449AbSGJGZs>;
+	Wed, 10 Jul 2002 02:25:48 -0400
+Date: Thu, 11 Jul 2002 08:27:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Kevin O'Connor" <kevin@koconnor.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O(1) batch scheduler
+In-Reply-To: <20020709223021.A4567@arizona.localdomain>
+Message-ID: <Pine.LNX.4.44.0207110817160.2263-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
+On Tue, 9 Jul 2002, Kevin O'Connor wrote:
 
-My Linux machine just crashed during the morning cronjob with an Oops. Yes,
-I know my kernel is tainted because I have the NVidia driver loaded, but
-consider that maybe this driver is not the direct cause of the Oops but only
-exposing an obscure bug in the kernel?
+> I looked through your sched-2.5.25-A5 patch, and I'm confused by the
+> idle_count array. It calculates the idle average of the last 9 seconds -
+> but why not just use a weighted average. A weighted average is going to
+> be very close to the true average, and where it differs the weighted
+> average should be preferable.
 
-It also seems that enabling AGP using the kernel agpgart module makes this
-Oops more likely to happen. Also forcing the AGP rate to 1x instead of 2x
-does not seem to make any difference. With AGP disabled this machine reaches
-quite respectable uptimes despite using the NVidia driver...
+i agree, the hybrid weighted average you suggest is the right solution
+here, because the sampling in that case has a fixed frequency which is
+HZ-independent. I've applied your patch to my tree.
 
-Because the machine was hung with the screen blanked I could not use
-ksymoops, but this is the output of my syslog:
+the problem with a pure weighted average (ie. no ->idle_count, just a
+weighted average calculated in the scheduler tick) is that with HZ=1000
+and a 32-bit word length the sampling gets too inaccurate. For the average
+to be meaningful it needs to be at least 'a few seconds worth' - which is
+'a few thousands of events' - the rounding errors are pretty severe in
+that case.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c013c437
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[prune_dcache+167/328]    Tainted: P
-EFLAGS: 00010286
-eax: c3f21418   ebx: c3f21400   ecx: c3f2143c   edx: 00000000
-esi: c3f213e8   edi: c3f213f0   ebp: 00001e55   esp: c1437f60
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 4, stackpage=c1437000)
-Stack: 00000002 000001d0 00000020 00000006 c013c72b 00003c5f c0127471 00000006
-       000001d0 00000006 000001d0 c01ee568 00000000 c01ee568 c01274bc 00000020
-       c01ee568 00000001 c1436000 c0127553 c01ee4c0 00000000 c1436249 0008e000
-Call Trace: [shrink_dcache_memory+27/52] [shrink_caches+105/128]
-            [try_to_free_pages+52/84] [kswapd_balance_pgdat+67/140] 
-            [kswapd_balance+18/40] [kswapd+153/188] [kernel_thread+40/56]
+(a good example where a running average has fundamental accuracy problem
+is the ->sleep_avg sampling. The frequency of wakeups/sleep events can be
+almost arbitrarily high, destroying the accuracy of a weighted average.)
 
-Code: 89 4a 04 89 11 89 46 30 89 40 04 8b 46 4c 85 c0 74 17 8b 40
- kernel BUG at dcache.c:345!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[prune_dcache+108/328]    Tainted: P
-EFLAGS: 00010282
-eax: 0000001c   ebx: c3f21480   ecx: c01ed3c0   edx: 000042e4
-esi: c3f21468   edi: 00000020   ebp: 00003969   esp: ca101ebc
-ds: 0018   es: 0018   ss: 0018
-Process frcode (pid: 26959, stackpage=ca101000)
-Stack: c01ca0b4 00000159 0000001e 000001d2 00000020 00000006 c013c72b 00003969
-       c0127471 00000006 000001d2 00000006 000001d2 c01ee568 c01ee568 c01ee568
-       c01274bc 00000020 ca100000 00000000 000001d2 c0127e7f c01ee6e4 00000120
-Call Trace: [shrink_dcache_memory+27/52] [shrink_caches+105/128]
-            [try_to_free_pages+52/84] [balance_classzone+103/564]
-            [__alloc_pages+254/352] [generic_file_write+982/1736]
-            [_alloc_pages+22/24] [generic_file_write+1011/1736]
-            [sys_write+145/240] [system_call+51/64]
-
-Code: 0f 0b 83 c4 08 8d 46 10 8b 48 04 8b 53 f8 89 4a 04 89 11 89
-
-
-Thanks for looking at this report,
-
-
-Arjan
+	Ingo
 

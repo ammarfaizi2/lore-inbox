@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279798AbSAUKWW>; Mon, 21 Jan 2002 05:22:22 -0500
+	id <S281214AbSAUKgP>; Mon, 21 Jan 2002 05:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280588AbSAUKWM>; Mon, 21 Jan 2002 05:22:12 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:37385 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S279798AbSAUKWB>;
-	Mon, 21 Jan 2002 05:22:01 -0500
-Date: Mon, 21 Jan 2002 11:21:55 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG] Problem with TX/RX-network-card-counters
-Message-Id: <20020121112155.56f71375.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S281809AbSAUKgG>; Mon, 21 Jan 2002 05:36:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39186 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281214AbSAUKf5>;
+	Mon, 21 Jan 2002 05:35:57 -0500
+Date: Mon, 21 Jan 2002 11:35:49 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.3-pre1-aia1 (fwd)
+Message-ID: <20020121113549.U27835@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10201210149290.13727-200000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10201210149290.13727-200000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Mon, Jan 21 2002, Andre Hedrick wrote:
+> @@ -189,13 +189,14 @@
+>  	memset(&taskfile, 0, sizeof(task_struct_t));
+>  	memset(&hobfile, 0, sizeof(hob_struct_t));
+>  
+> -	sectors = rq->nr_sectors;
+>  	if (sectors == 256)
+>  		sectors = 0;
+> -	if (command == WIN_MULTWRITE_EXT || command == WIN_MULTWRITE) {
+> +	if (command == WIN_MULTWRITE) {
+>  		sectors = drive->mult_count;
+>  		if (sectors > rq->current_nr_sectors)
+>  			sectors = rq->current_nr_sectors;
+> +		if (sectors != drive->mult_count)
+> +			command = WIN_WRITE;
 
-today I ran into a problem with the TX/RX-counters of my tulip network cards. I
-run the box under 2.2.19 with tulip.c:v0.91g-ppc 7/16/99
-becker@cesdis.gsfc.nasa.gov, but this may be of common interest. Plain and
-simple my TX counter reached 2G and the network connection just broke down. I
-don't exactly know why, but this is obviously a bug. There are two solutions
-possible for this:
+I think this is too restrictive, something ala
 
-1) wrap around the counter and restart them at zero.
-2) enlarge the counter from (possibly) int or 32-bit to at least 64 bit.
+		if (sectors % drive->mult_count)
+			command = WIN_WRITE;
 
-I favor 2) very much, because wrap-around has a real m*d*s flair ;-)
+should suffice. However, we still need to cover the read... So something
+like this maybe:
 
-Is this network-card specific? Is this fixed in 2.4 or later?
+	if (sectors % drive->mult_count)
+		don't use multi write _or_ read, use WIN_{READ,WRITE}
 
-Regards,
-Stephan
+	/* usual setup */
 
+> -	sectors = rq->nr_sectors;
+> -	if (sectors == 256)
+> +	if (sectors == 65536)
+>  		sectors = 0;
+
+Yeah this was my silly, sorry.
+
+-- 
+Jens Axboe
 

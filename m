@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUKTJ5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbUKTKCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbUKTJ5p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 04:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUKTJ5p
+	id S261490AbUKTKCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 05:02:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbUKTKCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 04:57:45 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:530 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261482AbUKTJ5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 04:57:44 -0500
-Date: Sat, 20 Nov 2004 10:57:40 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: greg@kroah.com, sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
-Message-Id: <20041120105740.1a238842.khali@linux-fr.org>
-In-Reply-To: <20041118185612.GA20728@penguincomputing.com>
-References: <20041102221745.GB18020@penguincomputing.com>
-	<NN38qQl1.1099468908.1237810.khali@gcu.info>
-	<20041103164354.GB20465@penguincomputing.com>
-	<20041118185612.GA20728@penguincomputing.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 05:02:45 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:45453 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261490AbUKTKCo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 05:02:44 -0500
+Date: Sat, 20 Nov 2004 11:02:35 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jan Beulich <JBeulich@novell.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: inline (and variants) function modifier
+In-Reply-To: <s19df451.058@emea1-mh.id2.novell.com>
+Message-ID: <Pine.LNX.4.53.0411201102020.11800@yvahk01.tjqt.qr>
+References: <s19df451.058@emea1-mh.id2.novell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Justin,
+>May I ask how one is supposed to write a non-static function and let the
+>compiler decide whether it is worth inlining? Since all of 'inline',
+>'__inline', and '__inline__' get __attribute__((always_inline))
+>attached, I can't see how I would currently do this. Wouldn't it make
+>sense to leave at least one of the three with its original meaning?
 
-> Ok, let's try this (yet) again:
+The only way I see ATM is to:
+#undef inline
 
-I'm sorry to insist be we really want this as a patch against
-2.6.10-rc2. That's what Greg needs. As said earlier, the patch would
-include the new adm1026.c file (obviously) as well as the necessary
-changes to Kconfig and Makefile.
+Then inline and __attribute__((always_inline)) are "independent" again.
 
-Other than that I'm fine with the code itself.
 
-Thanks.
 
+Jan Engelhardt
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

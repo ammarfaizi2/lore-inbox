@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136137AbRECHJf>; Thu, 3 May 2001 03:09:35 -0400
+	id <S136144AbRECHTG>; Thu, 3 May 2001 03:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136138AbRECHJ1>; Thu, 3 May 2001 03:09:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:28556 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136137AbRECHJL>;
-	Thu, 3 May 2001 03:09:11 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S136146AbRECHS4>; Thu, 3 May 2001 03:18:56 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:62153 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S136138AbRECHSn>;
+	Thu, 3 May 2001 03:18:43 -0400
+Message-ID: <3AF10648.C5986A8E@mandrakesoft.com>
+Date: Thu, 03 May 2001 03:18:32 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15089.979.650927.634060@pizda.ninka.net>
-Date: Thu, 3 May 2001 00:08:03 -0700 (PDT)
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
-In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" wrote:
+> There is a school of thought which believes that:
+> 
+> struct xdev_regs {
+>         u32 reg1;
+>         u32 reg2;
+> };
+> 
+>         val = readl(&regs->reg2);
+> 
+> is cleaner than:
+> 
+> #define REG1 0x00
+> #define REG2 0x04
+> 
+>         val = readl(regs + REG2);
+> 
+> I'm personally ambivalent and believe that both cases should be allowed.
 
-Geert Uytterhoeven writes:
- > Since you're not allowed to use direct memory dereferencing on ioremapped
- > areas, wouldn't it be more logical to let ioremap() return an unsigned long
- > instead of a void *?
- > 
- > Of course we then have to change readb() and friends to take a long as well,
- > but at least we'd get compiler warnings when someone tries to do a direct
- > dereference.
+Agreed...  Tangent a bit, I wanted to plug using macros which IMHO make
+code even more readable:
 
-There is a school of thought which believes that:
+	val = RTL_R32(REG2);
+	RTL_W32(REG2, val);
 
-struct xdev_regs {
-	u32 reg1;
-	u32 reg2;
-};
+Since these are driver-private, if you are only dealing with one chip
+you could even shorten things to "R32" and "W32", if that doesn't offend
+any sensibilities :)
 
-	val = readl(&regs->reg2);
-
-is cleaner than:
-
-#define REG1 0x00
-#define REG2 0x04
-
-	val = readl(regs + REG2);
-
-I'm personally ambivalent and believe that both cases should be allowed.
-
-BTW, current {read,write}{b,w,l}() allow both pointer and unsigned
-long arguments.  If your implementation isn't casting the port address
-arg right now, perhaps you haven't tried to compile very many drivers
-which use these interfaces or you're just ignoreing the warnings :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

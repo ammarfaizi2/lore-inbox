@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275374AbTHGO74 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275343AbTHGO6I
+	id S270370AbTHGPDh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270256AbTHGPDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:58:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31159 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275360AbTHGO4v
+	Thu, 7 Aug 2003 11:03:04 -0400
+Received: from visp12-175.visp.co.nz ([210.54.175.12]:28934 "EHLO
+	mdew.dyndns.org") by vger.kernel.org with ESMTP id S275392AbTHGPB3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:56:51 -0400
-Message-ID: <3F3268A7.6090901@pobox.com>
-Date: Thu, 07 Aug 2003 10:56:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Proper block queue reference counting
-References: <200308070909.h7799QHg022029@hera.kernel.org> <3F3263FC.5030100@pobox.com> <20030807145027.GI2886@suse.de>
-In-Reply-To: <20030807145027.GI2886@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Aug 2003 11:01:29 -0400
+Subject: Re: reiserfs4
+From: mdew <mdew@mdew.dyndns.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Oleg Drokin <green@namesys.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030807132111.GB7094@louise.pinerecords.com>
+References: <200308070305.51868.vlad@lazarenko.net>
+	 <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu>
+	 <20030807072751.GA23912@namesys.com>
+	 <20030807132111.GB7094@louise.pinerecords.com>
+Content-Type: text/plain
+Message-Id: <1060268478.30293.14.camel@mdew>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 08 Aug 2003 03:01:19 +1200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> blk_cleanup_queue() still does that, as does blk_put_queue() (same deal,
-> each drop a reference, last reference frees the queue).
+On Fri, 2003-08-08 at 01:21, Tomas Szepe wrote:
+
+> > This is no longer true.
+> > There is sort of "universal" fs convertor for linux that can convert almost
+> > any fs to almost any other fs.
+> > The only requirement seems to be that both fs types should have read/write support in Linux.
+> > http://tzukanov.narod.ru/convertfs/
 > 
-> This first patch is just the frame work, the only thing that's
-> referenced counted right now is that the returned object has one
-> reference and when the driver cleans the queue it drops the reference
-> causing it to be freed. Next step is making sure others that hold a
-> reference to the queue also grab a reference to it, using
-> blk_get_queue(). That's stuff like bdev_get_queue(), for instance.
-
-Groovy, thanks for explaining.
-
-
->>2) the blk_init_queue really should change names, IMO.  The other 
->>subsystems in the kernel tend to use a "foo_alloc" or "alloc_foo" 
->>pattern when creating new objects.  blk_alloc_queue, or simply blk_alloc?
+> I'm afraid I cannot recommend using this tool.
 > 
-> 
-> blk_alloc_queue() would be fine. However, it's hard to screw the usage
-> up since it returns a queue, so... And people with out-of-tree drivers
-> that need to be converted need only look at the blk_init_queue()
-> changes, easy to grep for.
+> A test conversion from reiserfs to ext3 (inside a vmware machine)
+> screwed up the data real horrorshow: directory structure seems
+> ok but file contents are apparently shifted.
 
-OTOH, blk_init_queue is changing quite radically, and people converting 
-drivers will have to change that area of code _anyway_, so why not 
-change the name too?  :)  It might create more confusion than it solves, 
-to have the same function radically changing its behavior.  So I 
-respectfully disagree :)
+I'm looking at converting (sometime soon) a JFS system to XFS using
+convertfs, I'm hoping this "converting" process will come out bug-free. 
+Other than backing up all the data, and re-formating to XFS, would any
+one have suggestings?
 
-(this is a minor point, anyway.  I'm happy about the patch as a whole)
+convertfs /dev/hde1 jfs xfs
 
-	Jeff
-
+-- 
+mdew <mdew@mdew.dyndns.org>
 

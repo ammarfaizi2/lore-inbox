@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVANA2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVANA2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVANA2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVANAVi
+	id S261759AbVANA2O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVANAUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:21:38 -0500
-Received: from gprs214-120.eurotel.cz ([160.218.214.120]:11136 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261773AbVANATO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:19:14 -0500
-Date: Fri, 14 Jan 2005 01:11:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: george@mvista.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: VST patches ported to 2.6.11-rc1
-Message-ID: <20050114001118.GA1367@elf.ucw.cz>
-References: <20050113132641.GA4380@elf.ucw.cz>
+	Thu, 13 Jan 2005 19:20:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52200 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261778AbVANATV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:19:21 -0500
+Date: Fri, 14 Jan 2005 00:19:20 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] shared subtrees
+Message-ID: <20050114001920.GJ26051@parcelfarce.linux.theplanet.co.uk>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <41E704AA.9000305@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050113132641.GA4380@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <41E704AA.9000305@sun.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Jan 13, 2005 at 06:30:50PM -0500, Mike Waychison wrote:
+> > 1) each p-node corresponds to a group of 1 or more vfsmounts.
+> > 2) there is at most 1 p-node containing a given vfsmount.
+> > 3) each p-node owns a possibly empty set of p-nodes and vfsmounts
+> > 4) no p-node or vfsmount can be owned by more than one p-node
+> > 5) only vfsmounts that are not contained in any p-nodes might be owned.
+> > 6) no p-node can own (directly or via intermediates) itself (i.e. the
+> > graph of p-node ownership is a forest).
+> > 
+> > These guys define propagation:
+> > 	a) if vfsmounts A and B are contained in the same p-node, events
+> > propagate from A to B
+> > 	b) if vfsmount A is contained in p-node p, vfsmount B is contained
+> > in p-node q and p owns q, events propagate from A to B
+> > 	c) if vfsmount A is contained in p-node p and vfsmount B is owned
+> > by p, events propagate from A to B
+> 
+> How is (c) different from (a)? Is there a distinction between
+> 'containing' and 'owning' here?
 
-> I really hate sf download system... Here are those patches (only
-> common+i386) ported to 2.6.11-rc1.
+Yes.  See (3) and (1) above.  Consider the following:
+p = {A, B}
+p owns C
 
-Good news is it booted. But I could not measure any powersavings by
-turning it on. (I could measure difference between HZ=100 and
-HZ=1000).
+Then we have propagation between A and B _and_ from either to C.
 
-Hmm, it does not want to do anything. threshold used to be 1000, does
-it mean that it would not use vst unless there was one second of quiet
-state? I tried to lower it to 10 ("get me HZ=100 power consumption")
-but it does not seem to be used, anyway:
+> > 	* we can mark a subtree slave.  That removes all vfsmounts in
+> > the subtree from their p-nodes and makes them owned by said p-nodes.
+> > p-nodes that became empty will disappear and everything they used to
+> > own will be repossessed by their owners (if any).
+> 
+> Would this be better read as "That removes each vfsmount A in the
+> subtree from its respective p-node p and makes it contained by a new
+> p-node p' (containing only A), and p' becomes 'owned' by p." ?
 
-root@amd:/proc/sys/kernel/vst# cat successful_vst_exit
-0
-root@amd:/proc/sys/kernel/vst# cat external_intr_exit
-0
-root@amd:/proc/sys/kernel/vst#
+No.  "Belongs to a single-element p-node" != "doesn't belong to any
+p-node".  The former means "share on copy" (and might have slaves).
+The latter is noone's master.  Again, see the propagation rules and
+behaviour on clone/rbind.
 
-> +config HIGH_RES_RESOLUTION
-> +	int "High Resolution Timer resolution (nanoseconds)"
-> +	depends on HIGH_RES_TIMERS
-> +	default 1000
-> +	help
-> +	  This sets the resolution in nanoseconds of the CLOCK_REALTIME_HR and
-> +	  CLOCK_MONOTONIC_HR timers.  Too fine a resolution (small a number)
-> +	  will usually not be observable due to normal system latencies.  For an
-> +          800 MHz processor about 10,000 (10 microseconds) is recommended as a
-> +	  finest resolution.  If you don't need that sort of resolution,
-> +	  larger values may generate less overhead.
+> > 	* if V is contained in some p-node p, A is placed into the same
+> > p-node.  That may require merging one of the p-nodes we'd just created
+> > with p (that will be the counterpart of the p-node containing the mountpoint).
+> > 	* if V is owned by some p-node p, then A (or p-node containing A)
+> > becomes owned by p.
+> 
+> I don't follow this.  I still don't see the distinction between being
+> owned and being contained.  Also, for statements like 'A belongs to B',
+> which is it?
 
-Ugh, if minimum recomended value is 10K, why does it have 1K as a
-default?
+"V owned by p" == "V is a slave of (equivelent) members of p"
+"p contains V" == "V is one of the members of p, whatever happens to it
+will happen to all of them".
 
-> +          The system boots with VST enabled and it can be disabled by:
-> +	  "echo 0 > /proc/sys/kernel/vst/enable".
-
-It definitely booted with vst disabled here... echo 1 did the trick
-through.
-
->short_timer_fns         This is an array of 5 entries of the form
-> ...
->                        0xc110ea80 when the timer expires.
->Both of these arrays are kept as circular lists and read back such
->that
->the latest entry is presented to the reader first.  The entries are
->cleared when read.
-
-...it is bad idea to have them world-readable, then.
-								Pavel
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+"element belongs to set" means what it usually means ;-) (again, p-nodes
+are sets of vfsmounts).

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLGWqf>; Thu, 7 Dec 2000 17:46:35 -0500
+	id <S129319AbQLGWvH>; Thu, 7 Dec 2000 17:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129465AbQLGWq0>; Thu, 7 Dec 2000 17:46:26 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5295 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129289AbQLGWqR>;
-	Thu, 7 Dec 2000 17:46:17 -0500
-Date: Thu, 7 Dec 2000 17:15:48 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries Brouwer <aeb@veritas.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <20001207171616.B23858@veritas.com>
-Message-ID: <Pine.GSO.4.21.0012071138430.22281-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129465AbQLGWur>; Thu, 7 Dec 2000 17:50:47 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15635 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129319AbQLGWuh>; Thu, 7 Dec 2000 17:50:37 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ initrd - 
+ test12pre7
+Date: 7 Dec 2000 14:19:40 -0800
+Organization: Transmeta Corporation
+Message-ID: <90p2ds$2hs$1@penguin.transmeta.com>
+In-Reply-To: <3A2FF076.946076FC@haque.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3A2FF076.946076FC@haque.net>,
+Mohammad A. Haque <mhaque@haque.net> wrote:
+>
+>I'm getting a BUG at boot in buffer.c:827. Oops/ksymoops at teh end of
+>this message. I also noticed that the driver for my scsi card isn't
+>loading at boot if compiled as a module using initrd. This is what I get
+>during the boot process. 
 
+This is a new BUG-check, where "UnlockPage()" actually verifies that the
+page was locked before it unlocks it.
 
-On Thu, 7 Dec 2000, Andries Brouwer wrote:
+Trying to unlock a page that isn't locked is a nasty bug - if it happens
+it probably also means that with some bad luck that unlock could have
+unlocked the page that somebody _else_ had locked, and expected to stay
+locked until it was unlocked properly.
 
-> On Thu, Dec 07, 2000 at 10:24:31AM -0500, Alexander Viro wrote:
-> 
-> > Al, currently walking through the /usr/share/man/man2 and swearing silently...
-> 
-> Swearing? At the POSIX decisions or at the man page quality?
+(It may also be that the BUG() is due to exactly that - somebody else
+who didn't have the lock unlocked the page from under you, and the
+_proper_ unlocker will in that case be the one that oopses).
 
-Mostly at the out-of-sync/not-all-errors-documented kind of places and amount
-of fun involved in getting them in sync with the tree (and with each other,
-for that matter). Oh, well...
+Do you have something special that triggers this? Can you test if it
+only happens with initrd, for example?
 
-> In the latter case, additions and corrections are very welcome.
-> Make sure that you have 1.31 installed. 
-
-Grabbed it. BTW, if you still have 1.7, 1.10, 1.13 and 1.14...  I've managed
-to dig the rest out, but these seem to be gone (looks like a modified 1.10
-is out there, but...)
-
-I was thinking about putting the whole bunch under the CVS.  If you have
-the missing ones somewhere and could send an URL...
-
-BTW, could we finally lose mpx(2)? Very few programs used it under v7 and
-that experiment had been abandoned early in 80s, so it's not like we needed
-it for porting. phys(2) is already gone (not from unimplemented(2), though),
-so we have a precedent of removing such stuff.
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

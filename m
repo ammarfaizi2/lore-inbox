@@ -1,28 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293702AbSCABPs>; Thu, 28 Feb 2002 20:15:48 -0500
+	id <S293076AbSCAA0K>; Thu, 28 Feb 2002 19:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310159AbSCABMX>; Thu, 28 Feb 2002 20:12:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64016 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310293AbSCABKR>; Thu, 28 Feb 2002 20:10:17 -0500
-Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
-To: texas@ludd.luth.se (texas)
-Date: Fri, 1 Mar 2002 01:25:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSU.4.33.0202280355460.24329-100000@father.ludd.luth.se> from "texas" at Feb 28, 2002 04:07:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gbnM-0001x7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S293487AbSCAAYN>; Thu, 28 Feb 2002 19:24:13 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:19102 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S310284AbSCAAT1>; Thu, 28 Feb 2002 19:19:27 -0500
+Message-Id: <200203010019.g210J1V07447@eng4.beaverton.ibm.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion 
+In-Reply-To: Your message of "Tue, 26 Feb 2002 09:22:27 PST."
+             <20020226172227.GM4393@matchmail.com> 
+Date: Thu, 28 Feb 2002 16:19:00 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> are present as well as "init.c:148: bad pte 3fff3163" but none seem
+A lot of talk about "daemons" ... seems overkill to me.  Any reason not
+to let each user do this on their own?  I've got an rm/unrm program
+that just stores the "rescued" files in your home directory for a
+period of time based on the either the name or pathname.
 
-The bad pte one needs looking into. That may actually be  cured in the
-bt_ioremap diffs pending though.
+It is not fully "hardened" -- it is possible to conceive of filenames
+and filename/directory name pairs which will confuse it -- but it is
+certainly functional for 98% of cases, which has been good enough for
+my personal use.
 
-Alan
+Disadvantages:
+    * the mtime is purposefully changed when the file is deleted to make
+      it easy to tell when a file was "deleted", so you lose that information.
+    * Directory modes and owners are not maintained.
+    * File ownerships are maintained only to the extent that a hard
+      link allows you to. If you couldn't do a hard link (cross file
+      systems) then the "saved" file will be owned by you unless you
+      are root.
+    * There's no way to say "save until X amount is saved then really
+      delete" (whether "X amount" is %age of file system, a fixed amount,
+      or some other criteria).  The only criteria is age of deletion.
+    * (true) deletions are only attempted when a subsequent file is rm'ed.
+      So it's conceivable to delete 300Mb of data that is scheduled to
+      disappear in 30 seconds but not have it go away for three days,
+      because you left town for the weekend and neither you nor your
+      cron scripts ran "rm" again until Monday.
+
+If this sort of program is useful to folks, I'm more than happy to
+provide it. No doubt it could be enhanced to address some of the
+shortcomings above. I just got tired many years ago of accidentally
+typing "rm * .o" and only finding out my typo when I saw "rm: .o: file
+not found" and it has, for the most part, served with minor modifications
+for many years.
+
+Rick

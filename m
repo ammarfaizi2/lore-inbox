@@ -1,75 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbTIPLEj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTIPLEj
+	id S261841AbTIPLKB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTIPLKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:04:39 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8084 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S261205AbTIPLEh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:04:37 -0400
-Date: Tue, 16 Sep 2003 12:04:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Hu, Boris" <boris.hu@intel.com>, linux-kernel@vger.kernel.org,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] Split futex global spinlock futex_lock
-Message-ID: <20030916110419.GB26576@mail.jlokier.co.uk>
-References: <37FBBA5F3A361C41AB7CE44558C3448E01C0B8DE@pdsmsx403.ccr.corp.intel.com> <20030916010313.69E1F2C974@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030916010313.69E1F2C974@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Sep 2003 07:10:00 -0400
+Received: from [203.124.210.99] ([203.124.210.99]:57802 "EHLO
+	rocklines.oyeindia.com") by vger.kernel.org with ESMTP
+	id S261841AbTIPLJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 07:09:58 -0400
+From: "msrinath" <msrinath@bplitl.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel NMI error
+Date: Tue, 16 Sep 2003 16:43:55 +0530
+Message-ID: <004c01c37c43$9ecaf4e0$1d03000a@srinath>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+X-Information: Please contact the ISP for more information
+X-Kaspersky: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't agree with this change,
+Hello Everybody,
 
-Rusty Russell wrote:
-> This doesn't do what you expect, unfortunately.  You need:
-> 
-> struct futex_hash_bucket {
->        spinlock_t              lock;
->        struct list_head       chain;
-> } ____cacheline_aligned_in_smp;
-> 
-> static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS]
-> 	__cacheline_aligned_in_smp;
+Can anyone help me on this?
 
-> Also, Jamie was hinting at a sectored approach: optimal memory
-> footprint/speed balance might be one lock in one cache-line-worth of
-> list_head.
+Recently one of our servers running RedHat linux 7.2 with 2.4.7-10 SMP
+kernel generated the following log and the system rebooted. This system has
+2 CPUs.
 
-That was before I thought a bit more :)
+Sep 16 01:34:24 cbesc ftpd[30753]: FTP LOGIN FROM 16.128.157.7
+[16.128.157.7], scuser
+Sep 16 01:36:48 cbesc ftpd[30753]: FTP session closed
+Sep 16 01:54:30 cbesc kernel: Uhhuh. NMI received for unknown reason 35.
+Sep 16 01:54:30 cbesc kernel: Dazed and confused, but trying to continue
+Sep 16 01:54:30 cbesc kernel: Do you have a strange power saving mode
+enabled?
+Sep 16 01:54:30 cbesc kernel: eth0: card reports no resources.
+Sep 16 01:58:09 cbesc syslogd 1.4.1: restart.
+Sep 16 01:58:09 cbesc syslog: syslogd startup succeeded
 
-If you're increasing the size of futex_hash_bucket, you can put
-multiple lists in each one (as you observed).  That reduces the
-average list length, making hash operations faster when the table is
-quite full.
+This is the first time we have faced this problem. The ethernet card used is
+intel eepro 100. The details are shown below.
 
-There isn't any speed penalty for having a lock per list_head when you
-do that, because the cache line has to bounce anyway for the
-list_head, and locks are small.  (On HT, where cache lines are shared
-between sibling CPUs, a lock per list is a slight improvement).
+Sep 16 07:33:53 cbesc kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+Sep 16 07:33:53 cbesc kernel: eepro100.c: $Revision: 1.36 $ 2000/11/17
+Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+Sep 16 07:33:53 cbesc kernel: eth0: Intel Corporation 82557 [Ethernet Pro
+100], 00:A0:C9:A0:B7:71, IRQ 16.
+Sep 16 07:33:53 cbesc kernel:   Receiver lock-up bug exists -- enabling
+work-around.
+Sep 16 07:33:53 cbesc kernel:   Board assembly 668081-004, Physical
+connectors present: RJ45
+Sep 16 07:33:53 cbesc kernel:   Primary interface chip i82555 PHY #1.
+Sep 16 07:33:54 cbesc kernel:   General self-test: passed.
+Sep 16 07:33:54 cbesc kernel:   Serial sub-system self-test: passed.
+Sep 16 07:33:54 cbesc kernel:   Internal registers self-test: passed.
+Sep 16 07:33:54 cbesc kernel:   ROM checksum self-test: passed (0x3c15c8f1).
+Sep 16 07:33:54 cbesc kernel:   Receiver lock-up workaround activated.
 
-Therefore, if cache line transfer between CPUs is a bottleneck, it
-makes more sense to increase FUTEX_HASHBITS than to increase the
-alignment of each bucket.
 
-Increasing the alignment from 12 bytes to 16 bytes, to prevent buckets
-straddling 2 cache lines, makes sense though.  (Alternatively using a
-single-linked list would do the trick, and be kinder on UP).
+Please let me know why this happened and whether it indicates any hardware
+problem in the system.
 
-> Uli, can we ask you for benchmarks with this change, too?
+Thanks & Regards,
 
-Theoretically, I'd expect slightly better performance from increasing
-FUTEX_HASHBITS than from this change, if there is any improvement at all.
+- Srinath.
 
-Note that we're still bouncing mmap_sem on every futex operation, so
-if the 6% improvement from splitting locks is anything to go by,
-splitting mmap_sem should make a further measureable improvement,
-although it might slow down the rest of the kernel.
 
--- Jamie
+-- 
+This message has been scanned for viruses and
+dangerous content by Kaspersky on bpl Server, and is
+believed to be clean.
+bpl www.kaspersky.com
+.
+

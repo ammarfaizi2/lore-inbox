@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131425AbRAJTh7>; Wed, 10 Jan 2001 14:37:59 -0500
+	id <S132970AbRAJTkT>; Wed, 10 Jan 2001 14:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131958AbRAJTht>; Wed, 10 Jan 2001 14:37:49 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12293 "EHLO
+	id <S132937AbRAJTkJ>; Wed, 10 Jan 2001 14:40:09 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14341 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131425AbRAJThc>; Wed, 10 Jan 2001 14:37:32 -0500
+	id <S131958AbRAJTj7>; Wed, 10 Jan 2001 14:39:59 -0500
 Subject: Re: Subtle MM bug
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 10 Jan 2001 19:36:43 +0000 (GMT)
-Cc: ebiederm@xmission.com (Eric W. Biederman),
-        andrea@suse.de (Andrea Arcangeli),
-        dwmw2@infradead.org (David Woodhouse),
-        zlatko@iskon.hr (Zlatko Calusic), riel@conectiva.com.br (Rik van Riel),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 10, 2001 11:03:21 AM
+To: ak@suse.de (Andi Kleen)
+Date: Wed, 10 Jan 2001 19:40:49 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        trond.myklebust@fys.uio.no (Trond Myklebust),
+        phillips@innominate.de (Daniel Phillips),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20010110203307.A5106@gruyere.muc.suse.de> from "Andi Kleen" at Jan 10, 2001 08:33:07 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14GR38-0000nM-00@the-village.bc.nu>
+Message-Id: <E14GR76-0000nv-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I looked at it a year or two ago myself, and came to the conclusion that I
-> don't want to blow up our page table size by a factor of three or more, so
-> I'm not personally interested any more. Maybe somebody else comes up with
-> a better way to do it, or with a really compelling reason to.
+> Of course not by default, it would be a new clone flag (with default to on in
+> linuxthreads though, to not cause security holes in ported programs like today) 
 
-There is only one reason I know for reverse page tables. That is ARM2/ARM3 
-support - which is still not fully merged because of this issue
+I've seen exactly nil cases where there are any security holes in apps caused
+by that pthreads api non adherance. There are also far too many overheads
+imposed by implementing something in kernel space that is nearly useless,
+not needed for any application 99.9999% of users (possibly 100%) have and can
+be done just as well in the pthreads library glue - where it will only be
+a penalty to pthread using apps.
 
-The MMU on these systems is a CAM, and the mmu table is thus backwards to
-convention. (It also means you can notionally map two physical addresses to
-one virtual but thats undefined in the implementation ;))
+Making everyone suffer for a bad standard corner case is bad. Especially when
+the 'security hole' is pure FUD
 
 
 -

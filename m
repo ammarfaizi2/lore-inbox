@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277166AbRJHWDZ>; Mon, 8 Oct 2001 18:03:25 -0400
+	id <S277165AbRJHWDZ>; Mon, 8 Oct 2001 18:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277168AbRJHWDG>; Mon, 8 Oct 2001 18:03:06 -0400
-Received: from web14708.mail.yahoo.com ([216.136.224.125]:57357 "HELO
-	web14708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277165AbRJHWC6>; Mon, 8 Oct 2001 18:02:58 -0400
-Message-ID: <20011008220328.2217.qmail@web14708.mail.yahoo.com>
-Date: Mon, 8 Oct 2001 15:03:28 -0700 (PDT)
-From: Peter Moscatt <pmoscatt@yahoo.com>
-Subject: Can't exec /usr/sbin/sendmail  (After Kernel Install) ??
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S277166AbRJHWDG>; Mon, 8 Oct 2001 18:03:06 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:48905 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S277168AbRJHWCx>; Mon, 8 Oct 2001 18:02:53 -0400
+Date: Mon, 8 Oct 2001 15:03:09 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: war <war@starband.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.11-5 Compile Error AIC7XXX_OLD.C
+In-Reply-To: <3BC22084.22061F19@starband.net>
+Message-ID: <Pine.LNX.4.10.10110081502110.5395-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just recently compiled my first kernel (2.4.10)
-onto my Mandrake 8.0 system.
 
-All seems to be working fine, so I had a look at the
-'dmesg' file in /var/log just to see it any errors
-were appearing.
+> erred-stack-boundary=2 -march=i686    -c -o aic7xxx_old.o aic7xxx_old.c
+> aic7xxx_old.c:11966: parse error before string constant
+> aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
+> `MODULE_LICENSE'
+> aic7xxx_old.c:11966: warning: function declaration isn't a prototype
+> aic7xxx_old.c:11966: warning: data definition has no type or storage
+> class
 
-I have noticed that the following is occuring:
+MODULE_LICENSE is in 2.4.10. You need to use that driver against that
+kernel.
 
-Oct 8 19:46:53 qld anacron[818]: Job 'cron.daily'
-terminate (mailing output)
-Oct 8 19:46:53 qld anacron[1302]: Can't exec
-/usr/sbin/sendmail: No such file or directory
-Oct 8 19:46:53 qld anacron[818]: Tried to mail output
-to job 'cron.daily', but mailer process
-(/usr/sbin/sendmail) exited with status 1
-Oct 8 19:46:53 qld anacron[818]: Normal exit (1 jobs
-run)
-
-
-Is it just a matter or installing sendmail and all
-will be sweet again ?
-
-Pete
-
-__________________________________________________
-Do You Yahoo!?
-NEW from Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1

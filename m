@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVDBB5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVDBCHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVDBB5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 20:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVDBB5o
+	id S261652AbVDBCHm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 21:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVDBCHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 20:57:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:6379 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262970AbVDBBwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 20:52:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=AHvWyXm+CeNHQbX2cpNEZYeohhSIMvf9VCudg1fTZRQsEguhZqGvbIh8+AqT3bylcBmPbAlDMMxslz171GHEpnMjqlP/nHdMczC+Zo/w15rPm8goB2gMsu90gYX+ZA/743J0TIXjDJ6avbuMRgdUwKjYBnYshAg5lEOmw804jW8=
-Date: Fri, 1 Apr 2005 20:52:29 -0500
-To: Noah Silverman <noah@allresearch.com>
-Cc: Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org
-Subject: Re: Hangcheck problem
-Message-ID: <20050402015228.GA13364@zion.rivenstone.net>
-Mail-Followup-To: Noah Silverman <noah@allresearch.com>,
-	Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org
-References: <424B0FF7.4090601@allresearch.com> <Pine.LNX.4.62.0503301709530.1159@morpheus> <424B2859.1070704@allresearch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424B2859.1070704@allresearch.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: jfannin@gmail.com (Joseph Fannin)
+	Fri, 1 Apr 2005 21:07:42 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:11917 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261652AbVDBCFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 21:05:17 -0500
+Message-Id: <200504020205.j32256g05369@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Paul Jackson'" <pj@engr.sgi.com>
+Cc: <mingo@elte.hu>, <nickpiggin@yahoo.com.au>, <torvalds@osdl.org>,
+       <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Industry db benchmark result on recent 2.6 kernels
+Date: Fri, 1 Apr 2005 18:05:06 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU3JZddfPuIAJuBRoCbamUGzcTi4QAAQr0Q
+In-Reply-To: <20050401174435.4117c940.pj@engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 02:29:45PM -0800, Noah Silverman wrote:
-> On Wed, 30 Mar 2005, Noah Silverman wrote:
+Paul Jackson wrote on Friday, April 01, 2005 5:45 PM
+> Kenneth wrote:
+> > Paul, you definitely want to check this out on your large numa box.
+>
+> Interesting - thanks.  I can get a kernel patched and booted on a big
+> box easily enough.  I don't know how to run an "industry db benchmark",
+> and benchmarks aren't my forte.
 
-> > I'm been experiencing a weird problem....
-> >
-> > I get endlessly repeated hangcheck errors in my syslog with no
-> explanation:
-> >
-> > Mar 30 12:41:43 db kernel: Hangcheck: hangcheck value past margin!
+To run this "industry db benchmark", assuming you have a 32-way numa box,
+I recommend buying the following:
 
-> Burton Windle wrote:
-> > Kernel version?
-> > 
-> 
-> 2.6.7
+512 GB memory
+1500 73 GB 15k-rpm fiber channel disks
+50 hardware raid controllers, make sure you get the top of the line model
+   (the one has 1GB memory in the controller).
+25 fiber channel controllers
+4  gigabit ethernet controllers.
+12 rack frames
 
-    That's a really old kernel, and I'm sure anyone who could look
-into this will ask you to upgrade to something recent and reproduce it
-as the first step in tracking it down.
+Then you will be off to go.  Oh, get several 220 volt power outlets too,
+probably some refrigeration unit will go along with that.  Sorry, I
+haven't mention the mid-tier and the client machines yet.
 
-    Is this an older box?  I've seen the hangcheck warnings on a
-486 I was using as a firewall/router -- ultimately I applied a patch
-to set HZ to 100 and the problem went away.  I *think*, once that patch
-bitrotted, that I just turned off the hangcheck timer, but I can't
-remember for sure.
+;-)
 
-   If you turn off the hangcheck timer, does the problem go away
-(i.e. no more lockups)?
 
--- 
-Joseph Fannin
-jfannin@gmail.com

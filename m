@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269678AbUJADKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269672AbUJADRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269678AbUJADKH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 23:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269668AbUJADKG
+	id S269672AbUJADRq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 23:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269668AbUJADRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 23:10:06 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:42367 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269678AbUJADJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 23:09:28 -0400
-Message-ID: <415CCA61.5060209@yahoo.com.au>
-Date: Fri, 01 Oct 2004 13:09:21 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Thu, 30 Sep 2004 23:17:46 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:63213 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S269672AbUJADRn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 23:17:43 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9-rc3
+Date: Thu, 30 Sep 2004 23:17:42 -0400
+User-Agent: KMail/1.7
+Cc: Jeff Garzik <jgarzik@pobox.com>, Clemens Schwaighofer <cs@tequila.co.jp>,
+       "Markus T." <markus@trippelsdorf.net>
+References: <Pine.LNX.4.58.0409292036010.2976@ppc970.osdl.org> <200409301627.20548.gene.heskett@verizon.net> <415C80C1.8070406@pobox.com>
+In-Reply-To: <415C80C1.8070406@pobox.com>
 MIME-Version: 1.0
-To: jmerkey@galt.devicelogics.com
-CC: "Jeff V. Merkey" <jmerkey@drdos.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Robert Love <rml@novell.com>, Ankit Jain <ankitjain1580@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: processor affinity
-References: <20040928122517.9741.qmail@web52907.mail.yahoo.com> <41596F7F.1000905@drdos.com> <1096387088.4911.4.camel@betsy.boston.ximian.com> <41598B23.50702@drdos.com> <1096408318.13983.47.camel@localhost.localdomain> <415AE953.3070105@drdos.com> <415B71D0.3020100@yahoo.com.au> <20040930124708.GA2520@galt.devicelogics.com>
-In-Reply-To: <20040930124708.GA2520@galt.devicelogics.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409302317.42071.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.8.60] at Thu, 30 Sep 2004 22:17:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@galt.devicelogics.com wrote:
-> On Thu, Sep 30, 2004 at 12:39:12PM +1000, Nick Piggin wrote:
+On Thursday 30 September 2004 17:55, Jeff Garzik wrote:
+>Gene Heskett wrote:
+>> bz2 has resulted in corrupted unpacks here on more than one
+>> occasion, and it has done it without any outwardly visible error
+>> when the md5sum was good.  I've had it skip a whole subdir tree in
+>> a kernel unpack on at least 4 occasions, and a missing file
+>> someplace on several more occasions.  I don't have any such
+>> troubles when dl'ing and using the .gz version of things.
+>>
+>> There has been at least one occasion where the .bz2 dl had a bad
+>> md5sum, again without any visible error as it was downloading,
+>> nuke it and go back and get the same file again and it was good. 
+>> Again I've had no such troubles when using the .gz versions, so
+>> after a a while, I got into the habit of just gettng the .gz
+>> version and I've never had an instance of a bad md5sum that wasn't
+>> accompanied by site access problems.
+>
+>There's definitely something else going on.  I don't see how you can
+>blame bz2 for downloading problems.  If this were true we would see
+> a _lot_ more problem reports than just one in >5 years.
+>
+> Jeff
 
->>Of course, I don't really have any idea how to interpret patents...
+Just one in 5 years, the one being me?  Not really Jeff.  Someplace in 
+this lists archives is a squawk from me dating back maybe 2 years, 
+detailing that I had to go download such and such a kernel from 
+kernel.org repeatedly (I think it as 3 times, on a dialup circuit) 
+before the unpack gave me a certain subdir in the tree and the -mm 
+patch upchucked over missing src files it wanted to patch.  At that 
+time IIRC, someone suggested I use the .gz's and I've had no further 
+problems.  Whomever made the suggestion semi-indicated that what I 
+was seeing wasn't unknown to the responder.  Not in so many words 
+mind you, but the general tone of the message sure said it.
 
-    ^^^
-keeping that in mind
+I also got bummed a couple of times back in the very early days of bz2 
+because it beat the amiga's default .lha compression quite a bit.  
+But it didn't always work.  IIRC there was a flurry of bz2 
+development 2-3 years back, and maybe thats no longer true.  Me, I 
+don't fix what isn't broken, so I get the .gz's only.  On dsl it 
+doesn't hurt so much. :)
 
-> 
-> The implementation in NetWare and the Implementation in Linux are 
-> similiar but not identical, but they are close enough.  CPU bitmasks were 
-> used.  The best apporach would be for someone to locate prior art in the 
-> field and challenge the patent in the event any claims were ever brought
-> or avoid the same methods.
-
-It seems that the actual patent describes the implementation of the
-scheduler that achieves this. And in it, the method used is a locked
-global queue and unlocked local queues. But anyway.
-
-> I was able to achieve greater than 
-> 100% scaling per processor due to Intel's quirky cache behavior.
-
-And probably most cache behaviours. If you have a set of tasks with
-a working set larger than the cache of 1 processor but that can be
-divided to fit into the cache of 2, then you're laughing.
-
-More than 1 CPU can dramatically lower task switch (and mm switch)
-rates in ideal situations, too.
-
-> If 
-> you can get a small subset of code in the cache controllers for 
-> processes through hueristics (i.e. guessing) additive processor 
-> scaling can be increased dramatically due to taking advantage
-> of the L1 and L2 proceesor caches.  Linux is somewhat crude
-> from an SMP perspective even today, although it has an impressive
-> array of hardware support for SMP systems and architectures, but 
-> based on the small number of processes than run on average (< 100)
-> this technique would work on Linux.
-> 
-
-Well it has pretty strong  CPU affinity, and roughly distributes
-load evenly over CPUs. What more do you want? :)
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

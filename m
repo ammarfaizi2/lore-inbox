@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288787AbSBMThH>; Wed, 13 Feb 2002 14:37:07 -0500
+	id <S288814AbSBMT7Z>; Wed, 13 Feb 2002 14:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSBMTg5>; Wed, 13 Feb 2002 14:36:57 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:30981 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S288787AbSBMTgi>;
-	Wed, 13 Feb 2002 14:36:38 -0500
-Date: Wed, 13 Feb 2002 11:32:21 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-cc: <mingo@elte.hu>, <axboe@suse.de>
-Subject: scheduler changes ??
-Message-ID: <Pine.LNX.4.33L2.0202131130040.1530-100000@dragon.pdx.osdl.net>
+	id <S288821AbSBMT7P>; Wed, 13 Feb 2002 14:59:15 -0500
+Received: from fcaglp.fcaglp.unlp.edu.ar ([163.10.4.1]:55977 "EHLO
+	fcaglp.fcaglp.unlp.edu.ar") by vger.kernel.org with ESMTP
+	id <S288814AbSBMT7I>; Wed, 13 Feb 2002 14:59:08 -0500
+Message-ID: <3C6AC57A.89EDDEC6@fcaglp.fcaglp.unlp.edu.ar>
+Date: Wed, 13 Feb 2002 16:58:50 -0300
+From: "Eduardo A. Suarez" <esuarez@fcaglp.fcaglp.unlp.edu.ar>
+Organization: Observatorio Astronomico de La Plata
+X-Mailer: Mozilla 4.7 [en] (X11; I; SunOS 5.8 sun4m)
+X-Accept-Language: Spanish/Argentina, es-AR, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: O(1)-K3 compile error in sparc32
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-This is something that I noticed (and Jens noticed :) while I was
-working on adding some bounce IO stats to BIO.
+I am using gcc-2.95.2, binutils 2.11.2 on a Sparc10 SMP with 2.4.18-pre9-SMP.
+When I try to compile 2.4.18-pre9 + SMP + O(1)-K3 scheduler I get:
 
-Is this purely/mostly scheduler related?
-Are these improvements well-known, expected?
-I have't heard much, if anything, about them.
-They are terrific (in a good sense of the word).
-
-
-All workloads were run on a VA Linux 4400, 4-proc x86, with 4 GB RAM.
-All times are in minutes:seconds.
-
-The workloads are "fillmem" and "mmap002", both from Juan
-Quintela's memtest suite.
-
-
-"fillmem" workload (3 runs with each kernel):
-(6 instances of 'fillmem 700')
-
-> 2.4.16 vanilla:          3:02, 2:48, 3:08
-> 2.4.16 + block-highmem:  2:51, 2:54, 2:55
-
-> 2.5.2-pre11:             0:30, 0:30, 0:53
-
-
-And when I use "mmap002" (2 runs with each kernel/options):
-(5 instances of 'mmap002 500')
-
-2.4.16 + block-highmem + default idle loop:   3:49, 1:56
-2.4.16 + block-highmem + idle=poll:           1:59, 1:59
-
-2.5.2 + default idle loop:                    1:32, 1:37
-2.5.2 + idle=poll:                            1:31, 1:37
-
-
-Kernel profiles on these show that most time is being spent in
-default_idle() or poll_idle().
-
-Comments?
+make[2]: Entering directory `/usr/src/linux/kernel'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -m32
+-pipe -mno-fpu -fcall-used-g5 -fcall-used-g7 -DKBUILD_BASENAME=sched 
+-fno-omit-frame-pointer -c -o sched.o sched.c
+sched.c: In function `load_balance':
+sched.c:569: warning: implicit declaration of function `sched_find_first_bit'
+sched.c:571: warning: implicit declaration of function `find_next_bit'
+sched.c: In function `set_cpus_allowed':
+sched.c:984: warning: implicit declaration of function `__ffs'
+{standard input}: Assembler messages:
+{standard input}:3115: Error: Symbol flush_patch_switch already defined.
+{standard input}:3223: Error: Symbol patchme_store_new_current already defined.
+make[2]: *** [sched.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/kernel'
+make: *** [_dir_kernel] Error 2
 
 Thanks,
-  ~Randy
-
+	Eduardo.-

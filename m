@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130129AbRB1Lm5>; Wed, 28 Feb 2001 06:42:57 -0500
+	id <S130138AbRB1MAy>; Wed, 28 Feb 2001 07:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRB1Lmq>; Wed, 28 Feb 2001 06:42:46 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39173 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130129AbRB1Lmf>; Wed, 28 Feb 2001 06:42:35 -0500
-Subject: Re: 2.4.2-ac6 hangs on boot w/AMD Elan SC520 dev board
-To: bmoyle@mvista.com (Brian Moyle)
-Date: Wed, 28 Feb 2001 11:45:40 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, bmoyle@mvista.com
-In-Reply-To: <200102280312.TAA13404@bia.mvista.com> from "Brian Moyle" at Feb 27, 2001 07:12:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130139AbRB1MAn>; Wed, 28 Feb 2001 07:00:43 -0500
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:55213 "EHLO
+	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S130138AbRB1MAc>; Wed, 28 Feb 2001 07:00:32 -0500
+Message-ID: <3A9CE7F6.2000202@wanadoo.fr>
+Date: Wed, 28 Feb 2001 12:58:46 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Glenn McGrath <bug1@optushome.com.au>
+CC: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: devfs and /proc/ide/hda
+In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au> <3A9CD2F3.E26A2884@idb.hist.no> <3A9CD304.26C3A568@optushome.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Y539-0005XE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> memory map that hangs (added debugging to setup.S to determine E820 map):
->    hand-copied physical RAM map:
->     bios-e820: 000000000009f400 @ 0000000000000000 (usable)
->     bios-e820: 0000000000000c00 @ 000000000009f400 (reserved)
->     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
->     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
->     bios-e820: 0000000000100000 @ 00000000fff00000 (reserved)
->    (at this point, it appears to be in an infinite printk loop <?>)
+Glenn McGrath wrote:
+
+> Helge Hafting wrote:
 > 
-> I didn't spend much time looking into the printk loop, but it seems to 
-> end up there, even if CONFIG_DEBUG_BUGVERBOSE is not defined, as if the 
-> ".byte 0x0f,0x0b" is causing the loop to begin.
+>> Glenn McGrath wrote:
+>> 
+>>> Im running kernel 2.4.1, I have entries like /proc/ide/hda,
+>>> /proc/ide/ide0/hda etc irrespective of wether im using devfs or
+>>> traditional device names.
+>>> 
+>>> Is always using traditional device names for /proc/ide intentional, or
+>>> is it something nobody has gotten around to fixing yet?
+>> 
+>> Using devfs changes the names in /dev.  I don't think it
+>> is supposed to affect /proc in any way.  And there are programs out
+>> that use the existing /proc - changing it won't be popular.
+>> 
 > 
-> Any ideas/suggestions/comments?
+> 
+> Well leaving it the way it is doesnt make much sense either really, it
+> refers to devices that dont exist.
 
-Having been over the code the problem is indeed the bios reporting overlapping
-/duplicated ranges. That will cause a crash in mm/bootmem when we try and free
-the range twice.
+IMHO ide0 ide1... are naming plugs on the motherboard. They are not
+competing with special file names. It is a drawback of devfs to change
+the device name when you happen to use a hd as a removable media.
+hdd was disc0 and becomes disc1 when you plug in an hda...
 
-I suspect you need to add some code to take the E820 map and remove any
-overlaps from it, favouring ROM over RAM if the types disagree (for safety),
-and filter them before you register them with the bootmem in 
-arch/i386/kernel/setup.c
-
-
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

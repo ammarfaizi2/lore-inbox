@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUHBOgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUHBOhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265847AbUHBOgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHBOgp
+	id S265966AbUHBOhD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHBOhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:36:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39401 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266554AbUHBOeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:34:08 -0400
-Date: Mon, 2 Aug 2004 16:33:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andreas Metzler <lkml-2003-03@downhill.at.eu.org>
+	Mon, 2 Aug 2004 10:37:03 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:34815 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S265966AbUHBOeO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:34:14 -0400
+In-Reply-To: <20040802121712.GD15884@logos.cnet>
+References: <40926261-E3D3-11D8-B01E-00039398BB5E@ieee.org> <1091397374.6458
+	 .9.camel@patibmrh9> <20040802121712.GD15884@logos.cnet>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Message-Id: <06F0F452-E491-11D8-94F5-00039398BB5E@ieee.org>
+Content-Transfer-Encoding: 7bit
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problems
-Message-ID: <20040802143330.GY10496@suse.de>
-References: <20040730193651.GA25616@bliss> <cehqak$1pq$1@sea.gmane.org> <20040801155753.GA13702@suse.de> <200408020945.05297.tabris@tabris.net> <20040802135615.GX10496@suse.de> <celiub$3bn$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <celiub$3bn$1@sea.gmane.org>
+From: Pat LaVarre <p.lavarre@ieee.org>
+Subject: Re: 2.4.27rc2, DVD-RW support broke DVD-RAM writes
+Date: Mon, 2 Aug 2004 08:34:14 -0600
+To: Mathias Kretschmer <posting@blx4.net>
+X-Mailer: Apple Mail (2.618)
+X-OriginalArrivalTime: 02 Aug 2004 14:34:13.0217 (UTC) FILETIME=[C7E63D10:01
+	C4789D]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:36.14734 C:49 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02 2004, Andreas Metzler wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> [...] 
-> > just says that open-by-device name is unintentional, it doesn't give you
-> > warnings on the transport.
-> > 
-> > So in short (and repeating): don't use ATAPI (CDROM_SEND_PACKET), it
-> > sucks. Use SG_IO (which means using open-by-device, which works at least
-> > as well as the stupid faked ATAPI bus/id/lun crap and has the much
-> > better transport). Don't compare apples and oranges.
-> 
-> FWIW cdrecord's author prefers dev=ATA:x,y,z, which uses SG_IO *and* gets
-> rid of the open-by-device-warning.
+ > http://marc.theaimsgroup.com/?t=109043580300002
 
-(don't trim linux-kernel cc lists!)
+Mathias K:
 
-Well good for him, that's why he didn't drop that idiotic warning. I
-think the x,y,z naming for ATAPI devices is utter stupidity.
+Hi.  Have you tried only PATAPI DVD-RAM drives?  Only via ide-cd.o, 
+rather than via ide-scsi.o?
 
--- 
-Jens Axboe
+Me, as yet I have no PATAPI DVD-RAM, so instead I tried a USB DVD-RAM 
+drive, specifically the "HL-DT-ST" "DVDRAM" "A100" drive.
+
+Agreed, 2.4.27-rc4 fails to write.  But for me, 2.4.26 also fails to 
+write.
+
+For USB DVD-RAM in 2.4, I think the root evil is the dmesg complaint 
+"kernel: sr0: scsi-1 drive", which in turn arises from the host 
+substituting vendor-specific op x1A for MMC op x5A "MODE SENSE (10)".  
+I'm guessing PATAPI DVD-RAM breaks over some other issue, found in the 
+drivers/ide/ide-cd.c of ide-cd.o rather than in drivers/scsi/sr.c of 
+ide-scsi.o.
+
+Pat LaVarre
+http://linux-pel.blog-city.com/read/754579.htm
 

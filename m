@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSHFVN5>; Tue, 6 Aug 2002 17:13:57 -0400
+	id <S315971AbSHFVE0>; Tue, 6 Aug 2002 17:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSHFVN5>; Tue, 6 Aug 2002 17:13:57 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:1467
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S316223AbSHFVNy>; Tue, 6 Aug 2002 17:13:54 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200208062115.g76LFga14394@www.hockin.org>
-Subject: Re: ethtool documentation
-To: root@chaos.analogic.com
-Date: Tue, 6 Aug 2002 14:15:41 -0700 (PDT)
-Cc: cfriesen@nortelnetworks.com (Chris Friesen),
-       rddunlap@osdl.org (Randy.Dunlap), linux-kernel@vger.kernel.org,
-       abraham@2d3d.co.za
-In-Reply-To: <Pine.LNX.3.95.1020806155358.25303A-100000@chaos.analogic.com> from "Richard B. Johnson" at Aug 06, 2002 04:03:46 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S315919AbSHFVDX>; Tue, 6 Aug 2002 17:03:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1273 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S315709AbSHFVCM>; Tue, 6 Aug 2002 17:02:12 -0400
+Date: Tue, 6 Aug 2002 23:05:44 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <davem@nuts.ninka.net>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0208062302190.27501-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you ever sell a controller that contains an address that was
-> not allocated to the 'producer', somebody is going to get very
-> angry. This means, to me, that if you ever write a new MAC address
-> to that card/board, you had better throw it away when you are done.
 
-As a developer of integrated systems, it is imperative the we be able to
-re-program EEPROMs and MAC addresses.  Cobalt systems all have Cobalt as
-the MFR section of the MAC address.  Sun Systems all have Sun.  (insert pokes
-about whether Cobalt is Sun here...)
+The changes to drivers/net/tg3.c in -pre1 broke the compilation:
 
-> It's easier to make sure that the MAC address doesn't get changed.
-> You still "screw the comittee" locally, but you don't modify the
-> hardware.
+<--  snip  -->
 
-Other things get stored in the EEPROM - for example, Wake-on-Lan options.
-Just to name one.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=tg3  -c -o
+tg3.o tg3.c
+In file included from tg3.c:25:
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/if_vlan.h: In
+function `__vlan_hwaccel_rx':
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/if_vlan.h:186:
+warning: implicit declaration of function `netif_receive_skb'
+tg3.c: In function `tg3_poll':
+tg3.c:1936: structure has no member named `quota'
+tg3.c:1937: structure has no member named `quota'
+tg3.c:1942: structure has no member named `quota'
+tg3.c:1949: warning: implicit declaration of function `netif_rx_complete'
+tg3.c: In function `tg3_interrupt_main_work':
+tg3.c:1976: warning: implicit declaration of function
+`netif_rx_schedule_prep'
+tg3.c:1979: warning: implicit declaration of function
+`__netif_rx_schedule'
+tg3.c: In function `tg3_init_one':
+tg3.c:5991: structure has no member named `poll'
+tg3.c:5992: structure has no member named `weight'
+make[3]: *** [tg3.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/net'
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

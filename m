@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVCCApA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCCAtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVCCApA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVCCAlG
+	id S261268AbVCCAtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVCCApW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:41:06 -0500
-Received: from smtp04.auna.com ([62.81.186.14]:21721 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S261329AbVCCAjm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:39:42 -0500
-Date: Thu, 03 Mar 2005 00:39:41 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Something is broken with SATA RAID ?
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa 2.3.0
-Message-Id: <1109810381l.5754l.0l@werewolf.able.es>
+	Wed, 2 Mar 2005 19:45:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5822 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261372AbVCCAov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:44:51 -0500
+Message-ID: <42265DEA.1030004@pobox.com>
+Date: Wed, 02 Mar 2005 19:44:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+Linus Torvalds wrote:
+> 
+> On Wed, 2 Mar 2005, Jeff Garzik wrote:
+> 
+>>30?  Try 310 changesets, in my netdev-2.6 pending queue.
+> 
+> 
+> Note that I don't think a 2.6.<even> would have problems with things like 
+> driver updates.
 
-I posted this in other mail, but now I can confirm this.
+Nah, I agree with DaveJ -- there are definitely "dev" portions when it 
+comes to driver updates.
 
-I have a box with a SATA RAID-5, and with 2.6.11-rc3-mm2+libata-dev1
-works like a charm as a samba server, I dropped it 12Gb from an
-osx client, and people does backups from W2k boxes and everything was fine.
-With 2.6.11-rc4-mm1, it hangs shortly after the mac starts copying
-files. No oops, no messages... It even hanged on a local copy (wget),
-so I will discard samba as the buggy piece in the puzzle.
+Judging from recent posting from Bart, it looks like he has an evil plot 
+to merge the IDE driver with libata.  libata will also eventually 
+[perhaps with Bart's changes?] make the SCSI portion optional, as I have 
+long promised.  And it's getting other new and destabilizing features.
 
-I'm going to make a definitive test with rc5-mm1 vs rc5-mm1+libata-dev1.
-I already know that plain rc5-mm1 hangs. I have to wait the md reconstruction
-of the 1.2 TB to check rc5-mm1+libata (and no user putting things there...)
+There will be other changes in SCSI and block too, which want staging... 
+  Some of the stuff I've been putting off until "2.7" will be re-thought 
+into something that appears in the on-going 2.6 series.
 
-But, anyone has a clue about what is happening ? I have seen other
-reports of RAID related hangs... Any important change after rc3 ?
-Any important bugfix in libata-dev1 ? Something broken in -mm ?
+If you don't have driver stability, you don't have a useful kernel...
 
-More details, like sata card model and setup on demand...
+	Jeff
 
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam10 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
 
 

@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310514AbSCPSGN>; Sat, 16 Mar 2002 13:06:13 -0500
+	id <S310515AbSCPSHd>; Sat, 16 Mar 2002 13:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310515AbSCPSGE>; Sat, 16 Mar 2002 13:06:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21004 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310514AbSCPSFw>;
-	Sat, 16 Mar 2002 13:05:52 -0500
-Message-ID: <3C938966.3080302@mandrakesoft.com>
-Date: Sat, 16 Mar 2002 13:05:26 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S310516AbSCPSHX>; Sat, 16 Mar 2002 13:07:23 -0500
+Received: from web10506.mail.yahoo.com ([216.136.130.156]:13687 "HELO
+	web10506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S310515AbSCPSHH>; Sat, 16 Mar 2002 13:07:07 -0500
+Message-ID: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
+Date: Sat, 16 Mar 2002 10:07:05 -0800 (PST)
+From: S W <egberts@yahoo.com>
+Subject: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+In compiling the kernel, I've been experiencing the
+same gcc-2.96 (and gcc-3.0+) SEGFAULT again on Cyrix
+III GigaPro (733Mhz, Samuel II core chipset).
 
->>I think a fair question would be, is this scenario going to occur often? 
->> I don't know.  But I'll bet you -will- see it come up again in kernel 
->>development.  Why?  We are exercising the distributed nature of the 
->>BitKeeper system.  The system currently punishes Joe in Alaska and 
->>Mikhail in Russia if they independently apply the same GNU patch, and 
->>then later on wind up attempting to converge trees.
->>
->
->Indeed.  So speak in file systems, because a BK package is basically a file
->system, with multiple distributed instances, all of which may be out of
->sync.  The problems show up when the same patch is applied N times and 
->then comes together.  The inodes collide.  Right now, you think that's
->the problem, and want BK to fix it.  We can fix that.  But that's not 
->the real problem.  The real problem is N sets of diffs being applied
->and then merged.  The revision history ends up with the data inserted N
->times.
->
+But I recalled Linux 2.2 having a bug fix for broken
+L2 cache in Cyrix II.  So, it got me thinking again...
+(did Cyrix fix this L2 cache in certain subsequential
+core?)
 
-Another thought, that I'm betting you laugh at me for even suggesting :)
+Does anyone recall where exactly are the Cyrix II L2
+cache bug fix in the kernelso that I can experiement
+them toward the Cyrix III?
 
-Don't insert the data N times.  Give the user the option to say that one 
-or more changesets are actually the same one.  In filesystem speak, 
-unlink a file B which is a user-confirmed duplicate of file A, and 
-re-create file B as a symlink to file A.  Or just unlink file B without 
-the symlink, whichever metaphor suits you better.  :)
+Assuming no else sees VM bugs, I'll assume that this
+is Cyrix-specific.  I've seen various VM BUGs for each
+patch releases since 2.4.17 particularly when
+compiling.
 
-Yes it is "altering history"... but... OTOH the user has just told 
-BitKeeper, in no uncertain terms, that he is altering history only to 
-make it more correct.
+MOBO DETAILS:
+Soyo 7VEM motherboard (686A PL133, despite having an
+ALL VIA-chipsets (Cyrix III-733Mhz, VIA-VT82C596A
+multifunctional audio/AGPvideo/modem, Rhine Ethernet,
+Trident APG), no drivers are loaded into the kernel
+except for EXT2, Trident Video (no framebuffer
+support) and IDE (via82cxxx.c).  BARE KERNEL.  (BTW,
+it was a $250 Fry's special running a barebone
+multimedia Linux, so no snickering please.).
 
- From a user interface perspective, the user would pick one of N 
-changeset comments to be considered the "real" one.
+Passed memtest86.
 
-    Jeff
-
-
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - live college hoops coverage
+http://sports.yahoo.com/

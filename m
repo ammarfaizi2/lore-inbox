@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUJIEXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUJIEzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUJIEXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 00:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUJIEXm
+	id S266474AbUJIEzo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 00:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUJIEzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 00:23:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1424 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266473AbUJIEXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 00:23:38 -0400
-Message-ID: <416767BA.1020204@pobox.com>
-Date: Sat, 09 Oct 2004 00:23:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sat, 9 Oct 2004 00:55:44 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:55442 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S266474AbUJIEzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 00:55:42 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF0A647234@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.8-rc4 Oops: machine check, sig: 7 [#1]
+Date: Sat, 9 Oct 2004 00:55:38 -0400 
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Greg KH <greg@kroah.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>	<41673772.9010402@pobox.com> <52zn2wlh8h.fsf@topspin.com>
-In-Reply-To: <52zn2wlh8h.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->     Jeff> Read the member agreement :) It -explicitly- does -not-
->     Jeff> require waiving of patent claims related to any
->     Jeff> implementation of IB.
-> 
->     Jeff> That's different from ATA, SCSI, USB, the list goes on...
-> 
-> Fair enough, but read the Bluetooth SIG patent agreement [1].  As far
-> as I can tell, all it requires is that other SIG members receive a
-> patent license.  Do we need to do rm -rf net/bluetooth?  IEEE only
-> requires that patents be licensed under RAND terms (it does not even
-> require royalty free licensing) [2].  Time for rm -rf drivers/ieee1394?
+# uname -a
+Linux 192.168.0.5 2.6.8-rc4 #6 Wed Sep 29 13:33:22 EDT 2004 ppc unknown
 
-As my mother would ask, would you jump off a cliff just because your 
-friend did?
+# reboot
 
-If there is questionable code, that is _not_ a justification to add more.
-
-	Jeff
-
-
+The system is going down NOW !!
+Sending SIGKILL to all processes.
+Please stand by while rebooting the system.
+Restarting systemsteMachine check in kernel mode.
+Caused by (from SRR1=41000): Transfer error ack signal
+Oops: machine check, sig: 7 [#1]
+PREEMPT
+NIP: FF000104 LR: FF000104 SP: C1A25E00 REGS: c1a25d50 TRAP: 0200    Not
+tainted
+MSR: 00041000 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 00
+TASK = c1b9f890[1] 'init' THREAD: c1a24000Last syscall: 162
+GPR00: 00001032 C1A25E00 C1B9F890 001EF90C FF000104 00001002 000037D4
+F00000A0
+GPR08: 00000013 C0012E30 0000C000 00100088 0000000D 10063E5C 02000000
+00000000
+GPR16: 00000001 00000001 FFFFFFFF 007FFF00 01FFA834 00000000 00000003
+01BCE2A0
+GPR24: 00000000 10041550 7FFFFE68 10060000 00000000 00000000 FF000104
+00000000
+Call trace:

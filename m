@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSGAHvz>; Mon, 1 Jul 2002 03:51:55 -0400
+	id <S315449AbSGAH6A>; Mon, 1 Jul 2002 03:58:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSGAHvy>; Mon, 1 Jul 2002 03:51:54 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:56327 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S315440AbSGAHvx>; Mon, 1 Jul 2002 03:51:53 -0400
-Date: Mon, 1 Jul 2002 09:54:18 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
-Message-ID: <20020701075418.GA13908@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva> <E17O7yk-0007w5-00@the-village.bc.nu> <20020630035058.A884@localhost.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Content-Disposition: inline
-In-Reply-To: <20020630035058.A884@localhost.park.msu.ru>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S315451AbSGAH57>; Mon, 1 Jul 2002 03:57:59 -0400
+Received: from esperi.demon.co.uk ([194.222.138.8]:49933 "EHLO
+	esperi.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S315449AbSGAH55>; Mon, 1 Jul 2002 03:57:57 -0400
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 (and maybe earlier versions) can't see my IDE disks where 2.2 can
+References: <871yao7erp.fsf@amaterasu.srvr.nix>
+	<200207010657.g616voT17255@Port.imtp.ilyichevsk.odessa.ua>
+X-Emacs: more boundary conditions than the Middle East.
+From: Nix <nix@esperi.demon.co.uk>
+Date: 01 Jul 2002 08:43:03 +0100
+In-Reply-To: <200207010657.g616voT17255@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <87ofdrsxko.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Economic Science)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Jul 2002, Denis Vlasenko said:
+> On 30 June 2002 17:22, Nix wrote:
+>> I'm using a ten year old 486 as a firewall, with an aged transparent
+>> 2.5Mb Promise caching IDE controller managing a couple of fairly
+>> bog-standard IDE disks (one a 420Mb 1989-vintage Western Digital of some
+>> kind, the other a 1994-vintage 1Gb IBM disk). I can't find out the model
+>> numbers without taking the machine to pieces, because even with 2.2.20
+>> the (new) ide driver says
+[snip --- probe fails to pick up any drives in 2.4, 2.2 says `non-IDE disk'
+ but then works OK: if detection is forced with kernel parameters, 2.4 says
+`hda6: bad access: block=2, count=2'... old hd.c driver works, but...]
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> If 2.4 kernel does not work:
+> Andre Hedrick <andre@linux-ide.org> [09 apr 2002]
 
-Hi Ivan, Alan, Marcelo,
+[so copied: Andre, the earlier post is at
+ <http://www.uwsg.iu.edu/hypermail/linux/kernel/0206.3/0679.html>.]
 
-On Sun, Jun 30, 2002 at 03:50:58AM +0400, Ivan Kokshaysky wrote:
-> On Sat, Jun 29, 2002 at 03:28:50AM +0100, Alan Cox wrote:
-> > Please back it back in. The bug is the Alpha port. Alpha needs its own =
-OSF
-> > readv/writev entry point which masks the top bits.
->=20
-> Ouch. The new entry point just because of this?!
-> Marcelo, if you're going to back in that patch, please apply
-> the following on the top of it.
+> Include lspci data and .config
 
-This patch indeed makes acroread & netscape work again on my alpha. Nice
-spotting.
-Don't we know about the type of binary? (Like personality ...)
-So we could use something like
-   ssize_t len
- #ifdef __alpha__
-   if (current->personality =3D=3D DEC_OSF_OLD)
-     len =3D (int) iov[i].iov_len;
-   else
-     len =3D (ssize_t) iov[i].iov_len;
- #else
-   len =3D (ssize_t) iov[i].iov_len;
- #endif
+lspci? On a 486 that's considerably older than the PCI spec itself? It's
+ISA here, as far as the eye can see... as for ATA/ATAPI, forget it :)
 
-Not really beautiful, but working for all cases.
+One of the problems I'm having is that without PCI info, with a box
+that's old enough that I can't easily tell what the hard drive models
+actually *are*, it's hard to know where to start debugging :) I may have
+to pull it apart and see if the drives have identifying labels on them.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+I think that one of the problem spots may be that do_probe() spends most
+of its time trying to fire ATA commands at the drive: I don't expect the
+drives in *this* machine to make head or tail of that.
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Anyway, I'm going to start a cautious forward merge of the 2.2 ide-probe
+code into 2.4, and see when the behaviour changes. (Cautious and *slow*,
+because this box is a firewall that has to be running most of the
+time, so I'll have to sneak debugging in at odd hours. :( )
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9IAqqxmLh6hyYd04RAuEyAKDVqVZ3EacioGqsRum49M5tUStOQACgnLyH
-C29DWxfhT2/7N69j8ruvwlA=
-=Gw5B
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+-- 
+`What happened?'
+                 `Nick shipped buggy code!'
+                                             `Oh, no dinner for him...'

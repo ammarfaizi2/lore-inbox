@@ -1,44 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136579AbREAGhq>; Tue, 1 May 2001 02:37:46 -0400
+	id <S135176AbREAGqt>; Tue, 1 May 2001 02:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136580AbREAGhg>; Tue, 1 May 2001 02:37:36 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:39442 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S136579AbREAGh3>;
-	Tue, 1 May 2001 02:37:29 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105010637.f416b51151855@saturn.cs.uml.edu>
-Subject: Re: iso9660 endianness cleanup patch
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 1 May 2001 02:37:05 -0400 (EDT)
-Cc: hpa@transmeta.com (H. Peter Anvin), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Andries.Brouwer@cwi.nl (Andries Brouwer),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0104302312430.861-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 30, 2001 11:14:41 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S136580AbREAGqk>; Tue, 1 May 2001 02:46:40 -0400
+Received: from web14301.mail.yahoo.com ([216.136.173.77]:16645 "HELO
+	web14301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135176AbREAGqX>; Tue, 1 May 2001 02:46:23 -0400
+Message-ID: <20010501064618.68642.qmail@web14301.mail.yahoo.com>
+Date: Mon, 30 Apr 2001 23:46:18 -0700 (PDT)
+From: jdnfk kjhds <leeenoooks@yahoo.com>
+Subject: meept (was:Re: CML2 1.3.3 is available)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010430034134.76532.qmail@web14302.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Yes, way too much!
 
-> Btw, please use "static inline" instead of "extern inline", as gcc may
-> decide not to inline the latter at all, leading to confusing link-time
-> errors. (Gcc may also decide not to inline "static inline", but then gcc
-> will output the actual body of the function out-of-line if it gets used,
-> so you don't get the link-time failure).
+The logo has changed to a microsoft certified tux now.
+
+--- 
+> > If only VA Linux had a gonkulator! :-O
 > 
-> Right now only certain broken versions of gcc will actually show this
-> behaviour, I think, but it's at least in theory going to be an issue.
+> Someone is watching WAY too much Hogan's Heroes
+> 
+> > They've issued their third earnings warning. I
+> found
+> > the link on http://www.theGloriousMEEPT.com .  
+> 
+> That sure looks like an Atari logo to me.
+> 
 
-Since the best choice depends on compiler version:
+--- jdnfk kjhds <leeenoooks@yahoo.com> wrote:
+> If only VA Linux had a gonkulator! :-O
+> They've issued their third earnings warning. I found
+> the link on http://www.theGloriousMEEPT.com .  
+> 
+> 
+> --- "Eric S. Raymond" <esr@thyrsus.com> wrote:
+> > The latest version is always available at
+> > http://www.tuxedo.org/~esr/cml2/
+> > 
+> > Release 1.3.3: Sun Apr 29 23:00:33 EDT 2001
+> > 	* Resync with 2.4.4.
+> > 	* Help texts merged into symbols file; the
+> > `helpfile' declaration
+> > 	  is gone.  (Text is merged in from
+> > Documentation/Configure.help
+> > 	  at CML2 installation time.)
+> > 	* Tweaked the appearance of inactive help buttons
+> > by popular demand.
+> > 
+> > My clever plan worked.  Less than three hours
+> after
+> > I pronounced 1.3.1
+> > "stable", somebody turned in the first crash bug
+> in
+> > three weeks.  Fortunately
+> > it was pretty trivial to fix, a loose end from one
+> > of my speedups.  Fixed in
+> > yesterday's 1.3.2.
+> > 
+> > The big news in this version is that all the help
+> > texts have been merged into
+> > the CML2 rules files.  A typical symbol
+> declaration
+> > now looks like this:
+> > 
+> > GONK_5523		'Support for B5523 adaptive gonkulator'
+> > text
+> > Say Y here to compile in support for the Bollix
+> 5523
+> > adaptive gonkulator.
+> > .
+> > 
+> > Help texts are merged into the CML2 symbols file
+> at
+> > CML2 installation time.
+> > The `helpfile' declaration is gone.  Among other
+> > things, this means you no
+> > longer need to run CML2 inside a kernel source
+> tree;
+> > you can test the scripts 
+> > anywhere.
+> > -- 
+> > 		<a href="http://www.tuxedo.org/~esr/">Eric S.
+> > Raymond</a>
+> > 
+> > See, when the GOVERNMENT spends money, it creates
+> > jobs; whereas when the money
+> > is left in the hands of TAXPAYERS, God only knows
+> > what they do with it.  Bake
+> > it into pies, probably.  Anything to avoid
+> creating
+> > jobs.
+> > 	-- Dave Barry
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Auctions - buy the things you want at great
+> prices
+> http://auctions.yahoo.com/
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-#if(GCC_VERSION_FOO)
-#define __inline extern inline
-#else
-#define __inline static inline
-#endif
 
-(that, or _INLINE if you prefer)
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULHLg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbULHLg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbULHLg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 06:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbULHLg3
+	id S261189AbULHLg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 06:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbULHLg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 06:36:29 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:40648 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S261190AbULHLgX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 06:36:23 -0500
-Mime-Version: 1.0 (Apple Message framework v619)
+	Wed, 8 Dec 2004 06:36:59 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:34797 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261189AbULHLg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 06:36:56 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Date: Wed, 8 Dec 2004 20:37:33 +0900
+User-Agent: KMail/1.5.4
+Cc: phil.el@wanadoo.fr, John Levon <levon@movementarian.org>,
+       linux-kernel@vger.kernel.org
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <200412081834.38462.amgta@yacht.ocn.ne.jp> <20041208111316.GA24484@elte.hu>
+In-Reply-To: <20041208111316.GA24484@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <62697744-490D-11D9-90F0-000D932A43BC@karlsbakk.net>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: DMA problems with ICH5 in ATA mode
-Date: Wed, 8 Dec 2004 12:36:21 +0100
-X-Mailer: Apple Mail (2.619)
+Content-Disposition: inline
+Message-Id: <200412082037.33229.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Wednesday 08 December 2004 20:13, Ingo Molnar wrote:
+> * Akinobu Mita <amgta@yacht.ocn.ne.jp> wrote:
+> > -	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
+> > +	if (timer_hook) {
+> > +		struct pt_regs regs;
+> > +
+> > +		GET_CURRENT_REGS(regs);
+> > +		timer_hook(&regs);
+> > +	}
+>
+> ugh. nack.
+>
 
-I have a disk connected to one of the below controllers in ATA mode, 
-but I can't enable DMA on it. Intel ATA support is in kernel, but when 
-hdparm -d1 /dev/hdc I get the following (extracted from strace)
+This second patch is not intended for inclusion.
+It's my own tailor-made profiler. Actually it breaks all architectures
+except for i386 with CONFIG_PROFILING.
 
-write(4, " HDIO_SET_DMA failed: Operation "..., 46 HDIO_SET_DMA failed: 
-Operation not permitted
-
-lspci -vvvvvv gave this
-
-0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 
-Storage Controller (rev 02) (prog-if 8a [Master SecP PriP])
-         Subsystem: Micro-Star International Co., Ltd.: Unknown device 
-7650
-         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 0
-         Interrupt: pin A routed to IRQ 0
-         Region 0: I/O ports at <unassigned>
-         Region 1: I/O ports at <unassigned>
-         Region 2: I/O ports at <unassigned>
-         Region 3: I/O ports at <unassigned>
-         Region 4: I/O ports at fc00 [size=16]
+It just demonstrates why I want to apply the first patch.
+It fixes specifying "timer=1" as oprofile module parameter avoids to
+set oprofile_operations.backtrace.
 
 
-please cc: to me as I'm not on the list
-
-roy
 

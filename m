@@ -1,69 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285089AbRLQKcd>; Mon, 17 Dec 2001 05:32:33 -0500
+	id <S274752AbRLQKgX>; Mon, 17 Dec 2001 05:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285091AbRLQKcX>; Mon, 17 Dec 2001 05:32:23 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:20876 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S285089AbRLQKcK>; Mon, 17 Dec 2001 05:32:10 -0500
-Date: Mon, 17 Dec 2001 12:31:38 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ia64 unaligned accesses in ntfs driver
-Message-ID: <20011217123138.L21566@niksula.cs.hut.fi>
-In-Reply-To: <20011216191325.K12063@niksula.cs.hut.fi> <20011216124328.E21566@niksula.cs.hut.fi> <20011216191325.K12063@niksula.cs.hut.fi> <20011217090545.N12063@niksula.cs.hut.fi> <5.1.0.14.2.20011217093040.0319a310@pop.cus.cam.ac.uk>
+	id <S285091AbRLQKgO>; Mon, 17 Dec 2001 05:36:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:9732 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S274752AbRLQKf7>;
+	Mon, 17 Dec 2001 05:35:59 -0500
+Date: Mon, 17 Dec 2001 11:35:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1-dj1
+Message-ID: <20011217103553.GF4587@suse.de>
+In-Reply-To: <20011217015845.A10313@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20011217093040.0319a310@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Mon, Dec 17, 2001 at 09:47:08AM +0000
+In-Reply-To: <20011217015845.A10313@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 09:47:08AM +0000, you [Anton Altaparmakov] claimed:
-> At 07:05 17/12/01, Ville Herva wrote:
-> >I get unaligned accesses from these addresses:
-> >
-> >kernel unaligned access to 0xe00000006fb49719, ip=0xa000000000265050
-> >
-> >from ksymoops:
-> >Adhoc a000000000265050 <[ntfs]ntfs_decompress+d0/320>
-> >Adhoc a000000000262d80 <[ntfs]ntfs_decompress_run+2a0/3c0>
-> >Adhoc a000000000262ba0 <[ntfs]ntfs_decompress_run+c0/3c0>
-> >Adhoc a000000000262d60 <[ntfs]ntfs_decompress_run+280/3c0>
-> >
-> >Are these dangerous? I gather IA64 port has some kind of handler for these,
-> >since they don't oops.
-> 
-> They are at least one of the explanations why the driver would not work on 
-> non-intel arch... 
+On Mon, Dec 17 2001, Dave Jones wrote:
+> o   bio changes for ide floppy					(Me)
+>     | handle with care, compiles, but is unfinished.
 
-It does work (I _was_ surprised) on IA64. I can read the one ntfs partition
-quite well. 
+This is still badly broken -- I've attached my version I did for
+somebody friday.
 
-> I gather most other arch don't cope with unaligned accesses. I am
-> surprised those are the only ones you see actually...
-
-They are not the only ones, I haven't tracked all the entries in dmesg.
+--- /opt/kernel/linux-2.5.1/drivers/ide/ide-floppy.c	Mon Dec 17 03:57:34 2001
++++ linux/drivers/ide/ide-floppy.c	Mon Dec 17 05:31:39 2001
+@@ -336,23 +336,7 @@
+ #define	IDEFLOPPY_IOCTL_FORMAT_START		0x4602
+ #define IDEFLOPPY_IOCTL_FORMAT_GET_PROGRESS	0x4603
  
-> This particular function is not implemented correctly anyway - it will not 
-> work on BE arch for example (despite all the endian conversion functions, 
-> some of which are wrong AFAIK).
-
-I see.
+-/*
+- *	Special requests for our block device strategy routine.
+- */
+-#define	IDEFLOPPY_FIRST_RQ		90
+-
+-/*
+- * 	IDEFLOPPY_PC_RQ is used to queue a packet command in the request queue.
+- */
+-#define	IDEFLOPPY_PC_RQ			90
+-
+-#define IDEFLOPPY_LAST_RQ		90
+-
+-/*
+- *	A macro which can be used to check if a given request command
+- *	originated in the driver or in the buffer cache layer.
+- */
+-#define IDEFLOPPY_RQ_CMD(cmd) 		((cmd >= IDEFLOPPY_FIRST_RQ) && (cmd <= IDEFLOPPY_LAST_RQ))
++#define IDEFLOPPY_RQ			(REQ_SPECIAL)
  
-> The changes to make the driver clean are too complex and I am not going to 
-> bother considering the replacement ntfs driver (ntfs tng available from 
-> linux-ntfs cvs on sourceforge) is close to being ready for inclusion into 
-> 2.5.x (as soon as read support is completed I will submit it, probably 
-> sometime in January). If anyone wants to work on the old driver I am happy 
-> to take patches. (-;
+ /*
+  *	Error codes which are returned in rq->errors to the higher part
+@@ -696,7 +680,7 @@
+ 	/* Why does this happen? */
+ 	if (!rq)
+ 		return;
+-	if (!IDEFLOPPY_RQ_CMD (rq->cmd)) {
++	if (rq->flags & IDEFLOPPY_RQ) {
+ 		ide_end_request (uptodate, hwgroup);
+ 		return;
+ 	}
+@@ -776,7 +760,7 @@
+ {
+ 	ide_init_drive_cmd (rq);
+ 	rq->buffer = (char *) pc;
+-	rq->cmd = IDEFLOPPY_PC_RQ;
++	rq->flags = IDEFLOPPY_RQ;
+ 	(void) ide_do_drive_cmd (drive, rq, ide_preempt);
+ }
+ 
+@@ -1192,6 +1176,7 @@
+ {
+ 	int block = sector / floppy->bs_factor;
+ 	int blocks = rq->nr_sectors / floppy->bs_factor;
++	int cmd = rq_data_dir(rq);
+ 	
+ #if IDEFLOPPY_DEBUG_LOG
+ 	printk ("create_rw1%d_cmd: block == %d, blocks == %d\n",
+@@ -1200,18 +1185,18 @@
+ 
+ 	idefloppy_init_pc (pc);
+ 	if (test_bit (IDEFLOPPY_USE_READ12, &floppy->flags)) {
+-		pc->c[0] = rq->cmd == READ ? IDEFLOPPY_READ12_CMD : IDEFLOPPY_WRITE12_CMD;
++		pc->c[0] = cmd == READ ? IDEFLOPPY_READ12_CMD : IDEFLOPPY_WRITE12_CMD;
+ 		put_unaligned (htonl (blocks), (unsigned int *) &pc->c[6]);
+ 	} else {
+-		pc->c[0] = rq->cmd == READ ? IDEFLOPPY_READ10_CMD : IDEFLOPPY_WRITE10_CMD;
++		pc->c[0] = cmd == READ ? IDEFLOPPY_READ10_CMD : IDEFLOPPY_WRITE10_CMD;
+ 		put_unaligned (htons (blocks), (unsigned short *) &pc->c[7]);
+ 	}
+ 	put_unaligned (htonl (block), (unsigned int *) &pc->c[2]);
+ 	pc->callback = &idefloppy_rw_callback;
+ 	pc->rq = rq;
+ 	pc->b_data = rq->buffer;
+-	pc->b_count = rq->cmd == READ ? 0 : rq->bio->bi_size;
+-	if (rq->cmd == WRITE)
++	pc->b_count = cmd == READ ? 0 : rq->bio->bi_size;
++	if (rq->flags & REQ_RW)
+ 		set_bit (PC_WRITING, &pc->flags);
+ 	pc->buffer = NULL;
+ 	pc->request_transfer = pc->buffer_size = blocks * floppy->block_size;
+@@ -1227,8 +1212,8 @@
+ 	idefloppy_pc_t *pc;
+ 
+ #if IDEFLOPPY_DEBUG_LOG
+-	printk (KERN_INFO "rq_status: %d, rq_dev: %u, cmd: %d, errors: %d\n",rq->rq_status,(unsigned int) rq->rq_dev,rq->cmd,rq->errors);
+-	printk (KERN_INFO "sector: %ld, nr_sectors: %ld, current_nr_sectors: %ld\n",rq->sector,rq->nr_sectors,rq->current_nr_sectors);
++	printk (KERN_INFO "rq_status: %d, rq_dev: %u, flags: %lx, errors: %d\n",rq->rq_status,(unsigned int) rq->rq_dev,rq->flags,rq->errors);
++	printk (KERN_INFO "sector: %ld, nr_sectors: %ld, current_nr_sectors: %d\n",rq->sector,rq->nr_sectors,rq->current_nr_sectors);
+ #endif /* IDEFLOPPY_DEBUG_LOG */
+ 
+ 	if (rq->errors >= ERROR_MAX) {
+@@ -1240,24 +1225,20 @@
+ 		idefloppy_end_request (0, HWGROUP(drive));
+ 		return ide_stopped;
+ 	}
+-	switch (rq->cmd) {
+-		case READ:
+-		case WRITE:
+-			if (rq->sector % floppy->bs_factor || rq->nr_sectors % floppy->bs_factor) {
+-				printk ("%s: unsupported r/w request size\n", drive->name);
+-				idefloppy_end_request (0, HWGROUP(drive));
+-				return ide_stopped;
+-			}
+-			pc = idefloppy_next_pc_storage (drive);
+-			idefloppy_create_rw_cmd (floppy, pc, rq, block);
+-			break;
+-		case IDEFLOPPY_PC_RQ:
+-			pc = (idefloppy_pc_t *) rq->buffer;
+-			break;
+-		default:
+-			printk (KERN_ERR "ide-floppy: unsupported command %x in request queue\n", rq->cmd);
+-			idefloppy_end_request (0,HWGROUP (drive));
++	if (rq->flags & REQ_CMD) {
++		if (rq->sector % floppy->bs_factor || rq->nr_sectors % floppy->bs_factor) {
++			printk ("%s: unsupported r/w request size\n", drive->name);
++			idefloppy_end_request (0, HWGROUP(drive));
+ 			return ide_stopped;
++		}
++		pc = idefloppy_next_pc_storage (drive);
++		idefloppy_create_rw_cmd (floppy, pc, rq, block);
++	} else if (rq->flags & IDEFLOPPY_RQ) {
++		pc = (idefloppy_pc_t *) rq->buffer;
++	} else {
++		blk_dump_rq_flags(rq, "ide-floppy: unsupported command in queue");
++		idefloppy_end_request (0,HWGROUP (drive));
++		return ide_stopped;
+ 	}
+ 	pc->rq = rq;
+ 	return idefloppy_issue_pc (drive, pc);
+@@ -1273,7 +1254,7 @@
+ 
+ 	ide_init_drive_cmd (&rq);
+ 	rq.buffer = (char *) pc;
+-	rq.cmd = IDEFLOPPY_PC_RQ;
++	rq.flags = IDEFLOPPY_RQ;
+ 	return ide_do_drive_cmd (drive, &rq, ide_wait);
+ }
+ 
 
-Ok. I can give the new driver a shot on IA64 sometime, if I find the time.
+-- 
+Jens Axboe
 
-
-
--- v --
-
-v@iki.fi

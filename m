@@ -1,106 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbUCJMWk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 07:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUCJMWj
+	id S262587AbUCJMXN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 07:23:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUCJMXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 07:22:39 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:41982 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262580AbUCJMUl convert rfc822-to-8bit (ORCPT
+	Wed, 10 Mar 2004 07:23:12 -0500
+Received: from e133.rocler.qc.ca ([207.236.167.133]:2829 "HELO bvimailbox.com")
+	by vger.kernel.org with SMTP id S262587AbUCJMVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 07:20:41 -0500
-From: "Ingo at Pyrillion" <ingo@pyrillion.org>
-To: "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "'Norihiko Mukouyama'" <norihiko_m@jp.fujitsu.com>,
-       "'Stefan Smietanowski'" <stesmi@stesmi.com>,
-       "'Norberto Bensa'" <norberto+linux-kernel@bensa.ath.cx>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: AW: Kernel 2.6.3 patch for Intel Compiler 8.0
-Date: Wed, 10 Mar 2004 13:20:32 +0100
-Message-ID: <000301c4069a$15fd7980$374ca8c0@bunnybook2>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <7F740D512C7C1046AB53446D37200173FEB4C2@scsmsx402.sc.intel.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:c4c36d513a3e07b982252e2b8ea3678d
+	Wed, 10 Mar 2004 07:21:23 -0500
+From: "Info" <binfo8@bvimailbox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Communique / Press release
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Date: Wed, 10 Mar 2004 07:21:23 -0500
+Content-Transfer-Encoding: 8bit
+Message-Id: <S262587AbUCJMVX/20040310122146Z+6604@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jun,
+Publications Canadiennes / Canadian Publications
+1556 Grand Marnier
+Val David
+Qc
+J0T 2N0
+819-322-5756
+www.netpublications.net
 
-the patch I submitted is for icc 8.0, i.e. I386 platform only.
+English message included below
 
-Did I understand your last message right that you even do not
-need a kernel patch for icc, i.e. I386?
+ANNUAIRE DES SUBVENTIONS AU QUÉBEC 2004 / CANADIAN SUBSIDY DIRECTORY 2004
+Dépot légal-Bibliothèque Nationale du Québec
+ISBN 2-922870-06-5
 
-If so, then try to compile the 2.6.3 kernel using icc without
-applying my patch and see what happens if icc "tries" to compile
-hybrid code, i.e. mixed assembly and C statements....
-The current icc 8.0 (and also icc 7.0) makes FATAL mistakes
-compiling those mixings. Just check the object file that results
-from "dec_and_lock.c" in arch/i386/lib using a disassembler.
+COMMUNIQUÉ DE PRESSE
 
-Rgs, Ingo.
+Les Publications Canadiennes offrent au public une édition révisée de
+l'ANNUAIRE DES
+SUBVENTIONS AU QUÉBEC contenant plus de 1900 programmes d'aides et de
+subventions provenant des divers paliers gouvernementaux et organismes.
+Dans la nouvelle édition 2004 on trouve la description des programmes
+ainsi que
+les montants alloués.
 
------Ursprüngliche Nachricht-----
-Von: Nakajima, Jun [mailto:jun.nakajima@intel.com] 
-Gesendet: Mittwoch, 10. März 2004 03:53
-An: Norihiko Mukouyama; Stefan Smietanowski; Norberto Bensa
-Cc: Ingo at Pyrillion; linux-kernel@vger.kernel.org
-Betreff: RE: Kernel 2.6.3 patch for Intel Compiler 8.0
+L'ANNUAIRE DES SUBVENTIONS AU QUÉBEC est l'outil idéal soit pour démarrer
+son
+entreprise, améliorer une entreprise existante, mettre sur pied son plan
+d'affaires ou obtenir l'aide de conseillers experts dans le domaine des
+affaires:
+Démarrage d'entreprises, études, recherches, arts, agriculture, import
+export,
+main d'oeuvre, cinéma, prêts, promotion, bourses, théatre, transports,
+communications, mise sur pied et développement d'entreprises, construction
+et
+rénovation, aérospatial, concours, nouveaux talents, aide aux associations,
+organismes et fondations, informatique, musique, industrie du disque, plans
+d'affaires, études de marchés, infrastructures, aide aux travailleurs
+autonomes
+et plus encore !
+
+Informations.....................819-322-5756
+
+Visitez notre site web : http://www.netpublications.net
+
+****************************************************************
+
+Publications Canadiennes / Canadian Publications
+4865 Hwy 138, r.r. 1
+St-Andrews west
+Ontario, KOC 2A0
 
 
-In 2.6, we already have sufficient changes for Intel IPF Compiler to
-build the kernel, especially intrinscs changes, and you should not need
-a patch. To make it faster, we might want to use PGO (profile guided
-optimization) provided by the compiler; yes, it's available even for the
-kernel with a driver.
+PRESS RELEASE
 
-Thanks,
-Jun
+CANADIAN SUBSIDY DIRECTORY YEAR 2004 EDITION
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel- 
->owner@vger.kernel.org] On Behalf Of Norihiko Mukouyama
->Sent: Tuesday, March 09, 2004 6:08 PM
->To: Stefan Smietanowski; Norberto Bensa
->Cc: Ingo at Pyrillion; linux-kernel@vger.kernel.org
->Subject: RE: Kernel 2.6.3 patch for Intel Compiler 8.0
->
->Hi,Stefan!!
->
->>1/3 of the things are faster with icc. 2/3 of the things are faster 
->>with gcc. Performance numbers not given.
->
->Thank you very much.
->I understood that meaning.
->
->By the way,
->
->I would like to learn the result of making his patch run on Itanium2. 
->Because, the difference of the performance of the compiler being sure
-to
->influence most
->remarkably.
->
->Can  anyone try?
->
->Thanks.
->
->Norihiko
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Legal Deposit-National Library of Canada
+ISBN 2-922870-05-7
 
+The Canadian Subsidy Directory 2004 is now available, newly revised it is
+the most
+complete and affordable reference for anyone looking for financing.
+It is the perfect tool for new and existing businesses, individuals,
+foundations 
+and associations.
+
+This Publication contains  more than 2000 direct and indirect
+financial subsidies, grants and loans offered by government departments and
+agencies, foundations, associations and organisations.  In this new 2004
+edition
+all programs are well described.
+
+The Canadian Subsidy Directory is the most comprehensive tool to start up a
+business, improve existent activities, set up a business plan, or obtain
+assistance from experts in fields such as: Industry, transport, agriculture,
+communications, municipal infrastructure, education, import-export, labor,
+construction and renovation, the service sector, hi-tech industries,
+research
+and development, joint ventures, arts, cinema, theatre, music and recording
+industry, the self employed, contests, and new talents.
+Assistance from and for foundations and associations, guidance to prepare a
+business plan, market surveys, computers, and much more!
+
+The Canadian Subsidy Directory is sold $ 69.95, to obtain a copy please
+call 
+819-322-5756 or visit the web site at:  http://www.netpublications.net

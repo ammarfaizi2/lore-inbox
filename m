@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261927AbTC0KoW>; Thu, 27 Mar 2003 05:44:22 -0500
+	id <S261916AbTC0KuI>; Thu, 27 Mar 2003 05:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261929AbTC0KoW>; Thu, 27 Mar 2003 05:44:22 -0500
-Received: from mail.set-software.de ([193.218.212.121]:41108 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP
-	id <S261927AbTC0KoV> convert rfc822-to-8bit; Thu, 27 Mar 2003 05:44:21 -0500
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Thu, 27 Mar 2003 10:54:23 GMT
-Message-ID: <20030327.10542332@knigge.local.net>
-Subject: ptrace fix for 2.4.18
-To: lkml <linux-kernel@vger.kernel.org>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
+	id <S261922AbTC0KuI>; Thu, 27 Mar 2003 05:50:08 -0500
+Received: from [213.196.40.44] ([213.196.40.44]:46728 "EHLO blackstar.nl")
+	by vger.kernel.org with ESMTP id <S261916AbTC0KuI>;
+	Thu, 27 Mar 2003 05:50:08 -0500
+Date: Thu, 27 Mar 2003 11:45:18 +0100 (CET)
+From: Bas Vermeulen <bvermeul@blackstar.nl>
+To: Meelis Roos <mroos@linux.ee>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre6
+In-Reply-To: <E18yVqr-0004gQ-00@roos.tartu-labor>
+Message-ID: <Pine.LNX.4.33.0303271144400.27475-100000@devel.blackstar.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 27 Mar 2003, Meelis Roos wrote:
 
-is there anywhere a fix for the ptrace-bug for 2.4.18? I don't wanna 
-upgrade to 2.4.20 for some reasons...
+> MT> Here goes -pre6.
+> MT> 
+> MT> We are approaching -rc stage. I plan to release -pre7 shortly which should
+> MT> fixup the remaining IDE problems (thanks Alan!) and -rc1 later on.
+> 
+> HDLC started generating warnings in some -pre and they are still there:
+> 
+> /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:3: warning: `__ver_register_hdlc_device' redefined
+> /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:3: warning: this is the location of the previous definition
+> /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:5: warning: `__ver_unregister_hdlc_device' redefined
+> /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:5: warning: this is the location of the previous definition
 
+Try copying .config away, make mrproper, then the normal routine.
+That should fix things for you.
 
-thanks,
-  Michael
+Regards,
 
+Bas Vermeulen
 
+-- 
+"God, root, what is difference?" 
+	-- Pitr, User Friendly
 
+"God is more forgiving." 
+	-- Dave Aronson
 

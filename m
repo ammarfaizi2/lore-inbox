@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271601AbRHPRyk>; Thu, 16 Aug 2001 13:54:40 -0400
+	id <S271605AbRHPS02>; Thu, 16 Aug 2001 14:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271603AbRHPRyb>; Thu, 16 Aug 2001 13:54:31 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:32714 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S271601AbRHPRyU>; Thu, 16 Aug 2001 13:54:20 -0400
-Message-ID: <0b7201c1267c$5c30b260$103147ab@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: =?iso-8859-1?Q?Eduardo_Cort=E9s?= <the_beast@softhome.net>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10108161610150.19342-100000@coffee.psychology.mcmaster.ca> <20010816162913Z271588-760+2494@vger.kernel.org>
-Subject: Re: Re: limit cpu
-Date: Thu, 16 Aug 2001 10:53:30 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S271606AbRHPS0T>; Thu, 16 Aug 2001 14:26:19 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:20488 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271605AbRHPSZ7>; Thu, 16 Aug 2001 14:25:59 -0400
+Date: Thu, 16 Aug 2001 20:26:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mark Hemment <markhe@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Align VM locks
+Message-ID: <20010816202606.B8726@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0108161839180.3340-100000@alloc.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108161839180.3340-100000@alloc.wat.veritas.com>; from markhe@veritas.com on Thu, Aug 16, 2001 at 06:41:08PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 16, 2001 at 06:41:08PM +0100, Mark Hemment wrote:
+> Hi,
+> 
+>   The patch below ensures the pagecache_lock and pagemap_lru_lock aren't
+> sharing an L1 cacheline with anyone else - espically each other!
 
-Current Linux scheduler doesn't seem to be able to support this nicely.  You
-can set their priorities..but the values are not very intuitive.  And if you
-sleep, the result could become very inaccurate.
+This is the right one:
 
-A new scheduler (sth like weighted round robin) is a more natural solution.
-You just assign weights to processes and they will be scheduled accordingly.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8aa1/00_cachelinealigned-in-smp-1
 
------ Original Message -----
-From: "Eduardo Cortés" <the_beast@softhome.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 16, 2001 9:29 AM
-Subject: Re: Re: limit cpu
+Alan also merged it in -ac IIRC.
 
+BTW, for your other patch you sent a few hours ago you forgot to drop
+the KMAP entry that is wasting NR_CPUS*PAGE_SIZE of virtual address
+space:
 
-> On Thursday 16 August 2001 18:13, you wrote:
-> > > > > i want to know if linux can limit the max cpu usage (not cpu time)
-> > > > > per user,
-> > > >
-> > > > no.  doing so would inherently slow down the scheduler.
-> > >
-> > > but *BSD has this feature, what's the problem in linux?
-> >
-> > I said that, thinking that it would require another test along
-> > the scheduler's fast path.  but if we only test when a process
-> > has exhausted its quantum (or perhaps at counter-recalc),
-> > the overhead would be minor.
->
-> I think that it's a good feature for linux, but I don't know if is very
-> complex to develope in linux. If I can limit the max cpu usage (in %) for
-an
-> user/group, the box is more solid.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8aa1/00_create_bounces-sleeps-1
 
+Andrea

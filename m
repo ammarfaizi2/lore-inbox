@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262663AbTDUXNF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 19:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTDUXNF
+	id S262680AbTDUXYn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 19:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbTDUXYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 19:13:05 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:39691 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262663AbTDUXNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 19:13:04 -0400
-Date: Tue, 22 Apr 2003 01:24:49 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc1
-Message-ID: <20030421232449.GD554@alpha.home.local>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> <3EA47596.9060901@candelatech.com>
+	Mon, 21 Apr 2003 19:24:43 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:46345 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S262680AbTDUXYl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 19:24:41 -0400
+Subject: Re: grsecurity in 2.5?
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: Chris Wright <chris@wirex.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030421143849.A11883@figure1.int.wirex.com>
+References: <20030421212501.GA30266@kroah.com>
+	 <Pine.LNX.4.44.0304212335520.25621-100000@server.piarista-kkt.sulinet.hu>
+	 <20030421143849.A11883@figure1.int.wirex.com>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1050968186.3065.16.camel@flat41>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA47596.9060901@candelatech.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 22 Apr 2003 00:36:26 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 03:49:58PM -0700, Ben Greear wrote:
-> Marcelo Tosatti wrote:
-> >Here goes the first candidate for 2.4.21.
-> >
-> >Please test it extensively.
-> >
-> ><green@linuxhacker.ru>:
-> >  o [VLAN]: Fix memory leak in procfs handling
+On Mon, 2003-04-21 at 22:38, Chris Wright wrote:
+> * Zoltan NAGY (nagyz@piarista-kkt.sulinet.hu) wrote:
+> > On Mon, 21 Apr 2003, Greg KH wrote:
+> > 
+> > > What's the status of that patch being ported to the LSM interface (which
+> > > is already in 2.5)?
+> > 
+> > AFAIK there was a discussion about it, but i dont know what decision has 
+> > born.. 
 > 
-> I looked at the diff on kernel.org to peruse this change, and did not see 
-> any changes to any vlan files??
+> I don't think the grsecurity developers are motivated to port their work
+> to LSM.  Patches are welcome of course ;-)
+Maybe we should start to bring them piece by piece, fe. PaX first and
+others. 
+Question is not that will somebody do that, i am sure of that - grsec is
+needed in 2.4 - and it will be needed in 2.6. Question is, if it will be
+included in mainstream kernel release ?
 
-Oleg added a kfree(page) at net/8021q/vlanproc.c:256
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 labs
 
-Cheers,
-Willy

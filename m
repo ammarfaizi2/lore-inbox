@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbTHBQyp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 12:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269671AbTHBQyp
+	id S262290AbTHBQqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 12:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHBQqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 12:54:45 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:10515 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269639AbTHBQyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 12:54:45 -0400
-Date: Sat, 2 Aug 2003 17:54:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/6] dm: decimal device num sscanf
-Message-ID: <20030802175401.A31970@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Joe Thornber <thornber@sistina.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-	Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20030731104517.GD394@fib011235813.fsnet.co.uk> <20030731104953.GG394@fib011235813.fsnet.co.uk> <20030731160429.A14613@infradead.org> <20030731151326.GZ394@fib011235813.fsnet.co.uk> <20030731162000.A15112@infradead.org> <20030731152454.GA394@fib011235813.fsnet.co.uk> <20030731171443.A23456@infradead.org> <20030731162745.GE394@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
+	Sat, 2 Aug 2003 12:46:47 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:53745 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262290AbTHBQqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 12:46:46 -0400
+To: rob@landley.net
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: More fun with menuconfig...
+References: <200308020605.58423.rob@landley.net>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sat, 02 Aug 2003 18:46:28 +0200
+In-Reply-To: <200308020605.58423.rob@landley.net> (Rob Landley's message of
+ "Sat, 2 Aug 2003 06:05:58 -0400")
+Message-ID: <87ispgknx7.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030731162745.GE394@fib011235813.fsnet.co.uk>; from thornber@sistina.com on Thu, Jul 31, 2003 at 05:27:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 05:27:45PM +0100, Joe Thornber wrote:
-> > So why do you do it in kernel again?
-> 
-> Let's reverse the question, why are you deprecating passing a dev_t
-> into the kernel ?  (I'm not being awkward, just confused).
+Rob Landley <rob@landley.net> writes:
 
-Because we want to keep dev_t use down as much as possible.  It should
-just be a small cookie for looking up the correspoding object where
-it's required by posix.  Everywhere outside that scope we better deal
-with pathnames because they are much more meaningfull.  And with udev
-and dynamic dev_t around the corner the actual values become more and
-more meaningless.
+> So I have a .config with CONFIG_ADVANCED_PARTION not set, and 
+> CONFIG_MSDOS_PARTITION=y.  (I.E. the default from arch/i386/defconfig.)
+>
+> I fire up make menuconfig and expand the advanced partition menu (setting 
+> CONFIG_ADVANCED_PARTITION to y).  MSDOS partition support is NOT set in the 
+> newly opened menu, I.E. opening the menu has the side effect of deselecting 
+> CONFIG_MSDOS_PARTITION.
+>
+> If I do nothing else, and save with the menu open, it's off.  (Saved as "not 
+> set".)  If I fire it up again and close the menu, CONFIG_MSDOS_PARTITION 
+> becomes Y again.
+>
+> What magic am I failing to understand here?  (This sort of seems intentional, 
+> but it would make more sense for MSDOS partition support to default to on 
+> when you first open the menu...)
 
+Maybe it's this default definition in fs/partitions/Kconfig(101):
+
+config MSDOS_PARTITION
+        bool "PC BIOS (MSDOS partition tables) support" if PARTITION_ADVANCED
+        default y if !PARTITION_ADVANCED && !AMIGA && !ATARI && !MAC && !SGI_IP22 && !ARM && !SGI_IP27
+
+Regards, Olaf.

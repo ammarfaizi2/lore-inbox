@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319049AbSHFKb4>; Tue, 6 Aug 2002 06:31:56 -0400
+	id <S319050AbSHFKcS>; Tue, 6 Aug 2002 06:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319050AbSHFKb4>; Tue, 6 Aug 2002 06:31:56 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:44816 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S319049AbSHFKbz>;
-	Tue, 6 Aug 2002 06:31:55 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Marcin Dalecki <dalecki@evision.ag>
-Date: Tue, 6 Aug 2002 12:35:03 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] 2.5.30 IDE 113
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <13AC5F92253@vcnet.vc.cvut.cz>
+	id <S319051AbSHFKcS>; Tue, 6 Aug 2002 06:32:18 -0400
+Received: from sj-msg-core-4.cisco.com ([171.71.163.54]:43659 "EHLO
+	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
+	id <S319050AbSHFKcR>; Tue, 6 Aug 2002 06:32:17 -0400
+Message-Id: <5.1.0.14.2.20020806203012.025db940@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 06 Aug 2002 20:31:08 +1000
+To: Jens Axboe <axboe@suse.de>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: Linux v2.4.19-rc5
+Cc: Bill Davidsen <davidsen@tmr.com>, Steven Cole <elenstev@mesatop.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <20020806054258.GJ3975@suse.de>
+References: <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
+ <1028232945.3147.99.camel@spc9.esa.lanl.gov>
+ <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Aug 02 at 12:20, Marcin Dalecki wrote:
-> Uz.ytkownik Petr Vandrovec napisa?:
-> 
-> > Hi Marcin,
-> >   what synchronizes these accesses to make sure that you do not have
-> > two ide_raw_taskfile requests on the flight, both using same 
-> > drive->srequest? It looks to me like that nothing, so you can overwrite 
-> > request's contents while somebody else already uses this buffer.
-> 
-> I don't think so. The queue lock is synchronizing them.
-> And then we usually add them just to the front of the queue in question
-> and wait for finishment until the request is done.
+At 07:42 AM 6/08/2002 +0200, Jens Axboe wrote:
+> > Call me an optimist, but after all the reliability problems we had win the
+> > 2.5 series, I sort of hoped it would be better in performance, not
+> > increasingly worse. Am I misreading this? Can we fall back to the faster
+> > 2.4 code :-(
+>
+>try a work load that excercises the block i/o layer alone (O_DIRECT,
+>raw, whatnot) and then compare 2.4 and 2.5. ibm had some slides on this
+>from ols, unfortunately I don't know if they have then online.
 
-How queue lock can synchronize them if we do not hold queue lock
-for entire duration and setup of request, including drive->srequest 
-setup?
+the BIO in 2.5 kicks butt over the 2.4 BIO - both in terms of increased 
+throughput and decreased cpu utilization.
+see some testing i previously did: 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102635456620627&w=2
 
-> After all ide_raw_taskfile only gets used for REQ_SPECIAL request
-> types. This does *not* contain normal data request from block IO.
-> As of master slave issues - well we have the data pre allocated per
-> device not per channel! If q->request_fn would properly return the
-> error count instead of void, we could even get rid ot the
-> checking for rq->errors after finishment... But well that's
-> entierly different story.
 
-For example do_cmd_ioctl() invokes ide_raw_taskfile, without any locking.
-Two programs, both issuing HDIO_DRIVE_CMD at same time, will compete
-over one drive->srequest struct: you'll get same drive->srequest structure
-submitted twice to blk_insert_request (hm, Jens, will this trigger
-BUG, or will this just damage request list?).
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+cheers,
+
+lincoln.
+

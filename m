@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRAOX76>; Mon, 15 Jan 2001 18:59:58 -0500
+	id <S129763AbRAPAKB>; Mon, 15 Jan 2001 19:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbRAOX7t>; Mon, 15 Jan 2001 18:59:49 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38161 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129704AbRAOX7f>; Mon, 15 Jan 2001 18:59:35 -0500
-Date: Mon, 15 Jan 2001 20:09:14 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rainer Mager <rmager@vgkk.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Oops with 4GB memory setting in 2.4.0 stable
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGKENHCMAA.rmager@vgkk.com>
-Message-ID: <Pine.LNX.4.21.0101152003520.834-100000@freak.distro.conectiva>
+	id <S129927AbRAPAJv>; Mon, 15 Jan 2001 19:09:51 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:28143 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129763AbRAPAJp>; Mon, 15 Jan 2001 19:09:45 -0500
+Message-ID: <3A63911A.A034E31B@home.com>
+Date: Mon, 15 Jan 2001 19:08:58 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Taylor <et@rocketship.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tcp no-ack bug can-rpt, w/script incl (this bugs 4 u)
+In-Reply-To: <5.0.2.1.2.20010115152847.00a8a380@pop.we.mediaone.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have been trying to figure out
+> why linux tcp is failing to ack
+> properly in some situations.
 
+This is exactly the same problem I'm seeing with a Solaris box talking
+to my Linux box. It has a similar problem with Linux as well, but does
+not manifest as bad against a 2.2 kernel machine. Seems I was chasing
+down the wrong path with MSS and MTU strangeness, I tested this with
+ethereal as soon as I saw your post.
 
-On Tue, 16 Jan 2001, Rainer Mager wrote:
+No help from me, I'm afraid, but I can at least verify that you are not
+the only one seeing it.
 
-> I knew that, I was just testing you all.  ;-)
-
->>EIP; f889e044 <END_OF_CODE+385bfe34/????>   <=====
-Trace; f889d966 <END_OF_CODE+385bf756/????>
-Trace; c0140c10 <vfs_readdir+90/ec>
-Trace; c0140e7c <filldir+0/d8>
-Trace; c0140f9e <sys_getdents+4a/98>
-Trace; c0140e7c <filldir+0/d8>
-
-It seems the oops is happening in a module's function.
-
-You have to make ksymoops parse the oops output against a System.map which
-has all modules symbols. Load each module by hand with the insmod -m
-option ("insmod -m module.o") and _append_ the outputs to System.map.
-
-After that you can run ksymoops against this new System.map. 
-
+John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

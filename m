@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272266AbTG3VSg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 17:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272267AbTG3VSg
+	id S272261AbTG3VGO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 17:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272257AbTG3VEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 17:18:36 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7647 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272266AbTG3VSf (ORCPT
+	Wed, 30 Jul 2003 17:04:50 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:56782 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S272256AbTG3VEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 17:18:35 -0400
-Date: Wed, 30 Jul 2003 16:18:10 -0500
-From: linas@austin.ibm.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-ID: <20030730161810.B28284@forte.austin.ibm.com>
-References: <20030730111639.GI23835@dualathlon.random> <Pine.LNX.4.44.0307301342260.17411-100000@localhost.localdomain> <20030730123458.GM23835@dualathlon.random>
+	Wed, 30 Jul 2003 17:04:15 -0400
+Date: Wed, 30 Jul 2003 23:04:14 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Richard A Nelson <cowboy@vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
+Message-ID: <20030730210414.GA28308@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Richard A Nelson <cowboy@vnet.ibm.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030730123458.GM23835@dualathlon.random>; from andrea@suse.de on Wed, Jul 30, 2003 at 02:34:58PM +0200
+In-Reply-To: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 02:34:58PM +0200, Andrea Arcangeli wrote:
+On Wed, Jul 30, 2003 at 04:22:25PM -0400, Richard A Nelson wrote:
 > 
-> so if it was really the itimer, it had to be on ppc s390 or ia64, not on
-> x86.  I never reproduced this myself. I will ask more info on bugzilla,
-> because I thought it was x86 but maybe it wasn't. As said in the
-> previous email, only non x86 archs can run the timer irq on a cpu
-> different than the one where it was inserted.
+> I built ipsec-tools against the 2.6.0-test2-mm1 includes and am *so*
+> close to getting it to work...
 
-I think I started the thread, so let me backtrack.  I've got several
-ppc64 boxes running 2.4.21.    They hang, they don't crash.  Sometimes
-they're pingable, but that's all.  The little yellow button is wired 
-up to KDB, so I can break in and poke around and see what's happening.
+I recently tested all this again with 2.6.0-test2 and It Just Worked, so I
+can't confirm this.
 
-Here's what I find:
+> modprobe: FATAL: Module xfrm_type_2_50 not found.
+> ERROR: pfkey.c:209:pfkey_handler(): pfkey UPDATE failed:
+> 	 No buffer space available
+> ERROR: pfkey.c:209:pfkey_handler(): pfkey ADD failed: No buffer space available
+> 
+> all the ipsec and crypto stuff is modular, for the nonce, until I figure
+> what I need/want.
+> 
+> most of the module not found messages are fine, its xfrm_type_2_50 that
+> I'm worried about... What am I missing ?
 
-__run_timers() is stuck in a infinite loop, because there's a 
-timer on the base.  However, this timer has timer->list.net == NULL,
-and so it can never be removed.  (As a side effect, other CPU's get 
-stuck in various places, sitting in spinlocks, etc. which is why the
-machine goes unresponsive)  So the question becomes "how did this 
-pointer get trashed?"
+I run with a very minimal racoon.conf, almost exactly the one found on
+http://lartc.org/howto/lartc.ipsec.html
 
-I thought I saw an "obvious race" in the 2.4 code, and it looked
-identical to the 2.6 code, and thus the email went out.  Now, I'm
-not so sure; I'm confused.  
+I'd suggest posting the relevant bits of your .config
 
-However, given that its timer->list.net that is getting clobbered,
-then locking all occurrances of list_add and list_del should cure the
-problem.   I'm guessing that Andrea's patch to add a timer->lock 
-will protect all of the list_add's, list_del's that matter.  
+Good luck!
 
-Given that I don't yet understand how timer->list.net got clobbered,
-I can't yet say 'yes/no this fixes it'. 
-
---linas
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

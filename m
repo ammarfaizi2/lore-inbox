@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266112AbTLIUtj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 15:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266120AbTLIUti
+	id S266103AbTLIU7W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 15:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266107AbTLIU7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 15:49:38 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:37078 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S266112AbTLIUth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 15:49:37 -0500
-Date: Tue, 9 Dec 2003 21:49:27 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-Subject: Re: ACPI Bug: 2.6.0-test11, Incomplete pci bus scan
-Message-ID: <20031209204927.GA3051@werewolf.able.es>
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC88D4@hdsmsx402.hd.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC88D4@hdsmsx402.hd.intel.com> (from len.brown@intel.com on Tue, Dec 09, 2003 at 21:28:59 +0100)
-X-Mailer: Balsa 2.0.15
+	Tue, 9 Dec 2003 15:59:21 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20489 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266103AbTLIU7T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 15:59:19 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux GPL and binary module exception clause?
+Date: 9 Dec 2003 20:47:58 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br5cdu$ngd$1@gatekeeper.tmr.com>
+References: <200312091322.33506.andrew@walrond.org> <1070979148.16262.63.camel@oktoberfest>
+X-Trace: gatekeeper.tmr.com 1071002878 24077 192.168.12.62 (9 Dec 2003 20:47:58 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1070979148.16262.63.camel@oktoberfest>,
+Dale Whitchurch  <dalew@sealevel.com> wrote:
+| A question for this thread:
+| 
+| Is the GPL in effect for the kernel so that anybody can enhance the
+| current drivers and add support for any other device?  If two companies
+| develop competing products and those products (albeit a few slight
+| differences) perform the same operations using almost the same hardware,
+| do we want one company to use the others driver? 
 
-On 12.09, "Brown, Len" wrote:
-> Andrew,
-> This may be a duplicate of a dual P3 serverworks failure:
-> http://bugzilla.kernel.org/show_bug.cgi?id=1585
-> 
-> But as I've got no feedback on that bug, feel free to file a new one --
-> worst case we'll end up closing it as a dupe when we get to the bottom
-> of it.
-> 
+  If company A writes a driver which is not GPL it doesn't concern the
+Open Source community. Not even if it's open source but proprietary.
+Yes, dual license exists, I don't think that changes things here.
 
-Sorry, I know, but...
-I have my PhD exam in a couple days, so I have been busy.
-I will work on that again soon, I promise...
-Perhaps if I'm a 'doctor' I can make a better diagnose ;)
+  If company A writes a GPL driver company B may modify it as long as
+they release source.
+
+  If company B offered the modified driver for kernel inclusion,
+there's a high probability one of the penguins would tell them to fold
+the changes into the original module and make it dual-purpose (unless
+there were a LOT of changes).
+
+  Company B could decline and ship the GPL driver with their hardware,
+source and a binary loadable module included. Given the hassle factor I
+bet they wouldn't. Nvadia must be really tired of getting every problem
+related to a tainted kernel.
+
+| In another sense, does the kernel evolve to reflect this?  If the
+| overall driver acts the same minus a few hardware differences, does the
+| kernel source change by abstracting the similarities and allow both
+| companies to write the device specific code?  Does it instead say that
+| both cards must have independent source code?  Or do we only allow the
+| first driver into the source tree?
+
+  Once GPL'd the choices are clear, it could be separate or added
+functionality on a technical basis, no need for one policy to fit all.
+| 
+| There are no evil overtones in this email, nor any disgruntled developer
+| feelings.  I am just reading at this thread and asking myself, "Is the
+| overall goal for everyone to get along?"
+| 
+| Dale Whitchurch
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+| 
+
 
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.0-test11-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268470AbTCAA4Y>; Fri, 28 Feb 2003 19:56:24 -0500
+	id <S268473AbTCAA7z>; Fri, 28 Feb 2003 19:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268473AbTCAA4Y>; Fri, 28 Feb 2003 19:56:24 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:47756 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S268470AbTCAA4Y>; Fri, 28 Feb 2003 19:56:24 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 28 Feb 2003 17:14:55 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Chris Wedgwood <cw@f00f.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-In-Reply-To: <20030301005149.GA8366@f00f.org>
-Message-ID: <Pine.LNX.4.50.0302281713280.1892-100000@blue1.dev.mcafeelabs.com>
-References: <1046368220.14387.23.camel@sonja>
- <Pine.LNX.4.44.0302271012300.18965-100000@dlang.diginsite.com>
- <20030228204826.456ddb9c.diegocg@teleline.es> <20030301005149.GA8366@f00f.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268482AbTCAA7z>; Fri, 28 Feb 2003 19:59:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23192 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268473AbTCAA7y>;
+	Fri, 28 Feb 2003 19:59:54 -0500
+Date: Fri, 28 Feb 2003 16:52:58 -0800 (PST)
+Message-Id: <20030228.165258.114281488.davem@redhat.com>
+To: pavel@suse.cz
+Cc: bcollins@debian.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
+       ak@suse.de, arnd@bergmann-dalldorf.de
+Subject: Re: ioctl32 consolidation -- call for testing
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030228132330.GC8498@atrey.karlin.mff.cuni.cz>
+References: <20030227.123701.16257819.davem@redhat.com>
+	<20030227211256.GR21100@phunnypharm.org>
+	<20030228132330.GC8498@atrey.karlin.mff.cuni.cz>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003, Chris Wedgwood wrote:
+   From: Pavel Machek <pavel@suse.cz>
+   Date: Fri, 28 Feb 2003 14:23:31 +0100
 
-> On Fri, Feb 28, 2003 at 08:48:26PM +0100, Arador wrote:
->
-> > I suppose eveybody has seen this... (today on slashdot ;):
-> > http://apple.slashdot.org/article.pl?sid=03/02/27/2227257&mode=thread&tid=136
->
-> In a lab... who cares.
->
-> I would guess the P4s or whatever are at 5GHz+ in Intel's labs.
+   cmd probably could be u32 (since it is ioctl32 after all), but I doubt
+   it matters, as two following entries are pointers so it looks to me
+   like it is going to be lost by alignment, anyway.
+   
+These pointers can (and WERE!) 32-bit on sparc64, so we wouldn't
+have the alignment problem there.
 
-Last time I checked ( one year ago ), they were running a cooled ALU at 10GHz.
-
-
-
-- Davide
-
+All kernel text on sparc64 (even in modules) occur in the lower
+32-bits of the address apce.

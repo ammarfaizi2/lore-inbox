@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268226AbTBNGiB>; Fri, 14 Feb 2003 01:38:01 -0500
+	id <S268217AbTBNGcc>; Fri, 14 Feb 2003 01:32:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268229AbTBNGiB>; Fri, 14 Feb 2003 01:38:01 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:58268 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268226AbTBNGiA>; Fri, 14 Feb 2003 01:38:00 -0500
-Date: Thu, 13 Feb 2003 22:47:44 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: suparna@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>
-cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KEXEC][PATCH] Modified (smaller) x86 kexec hwfixes patch
-Message-ID: <51710000.1045205264@[10.10.2.4]>
-In-Reply-To: <20030214085915.A1466@in.ibm.com>
-References: <20030213161014.A14361@in.ibm.com>
- <m1heb8w737.fsf@frodo.biederman.org> <20030214085915.A1466@in.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268221AbTBNGcb>; Fri, 14 Feb 2003 01:32:31 -0500
+Received: from ns.cinet.co.jp ([61.197.228.218]:22030 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S268217AbTBNGcb>;
+	Fri, 14 Feb 2003 01:32:31 -0500
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A334@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "''Christoph Hellwig ' '" <hch@infradead.org>,
+       Osamu Tomita <tomita@cinet.co.jp>
+Cc: "''Linux Kernel Mailing List ' '" <linux-kernel@vger.kernel.org>,
+       "''Alan Cox ' '" <alan@lxorguk.ukuu.org.uk>,
+       "''Jeff Garzik ' '" <jgarzik@pobox.com>
+Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.60 (13/34) NIC
+Date: Fri, 14 Feb 2003 15:42:22 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running on my 4-way P3 test box (just SMP, not NUMA) kexec_test
-prints this:
+-----Original Message-----
+From: 'Christoph Hellwig '
+To: Osamu Tomita
+Cc: 'Linux Kernel Mailing List '; 'Alan Cox '; 'Jeff Garzik '
+Sent: 2003/02/14 14:43
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (13/34) NIC
 
-Synchronizing SCSI caches: 
-Shutting down devices
-Starting new kernel
-kexec_test 1.8 starting...
-eax: 0E1FB007 ebx: 0000011C ecx: 00000000 edx: 00000000
-esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-idt: 00000000 C0000000
-gdt: 0000006F 000000A0
-Switching descriptors.
-Descriptors changed.
-Legacy pic setup.
-In real mode.
+> On Fri, Feb 14, 2003 at 01:21:36PM +0900, Osamu Tomita wrote:
+>> #if deined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+>> Each places are better?
+> 
+> Yes.
+Thanks.
 
-Without that I just get:
+>> PC98 has no EL3 PNP card, but has other PNP cards.
+> 
+> Does isapnp probing for EL3 cards actually causes any problems on
+> PC98?  If not I'd say just leave the code in.
+Yes. I can't test on 2.5.60. But older kernel caused problem.
 
-Synchronizing SCSI caches: 
-Shutting down devices
-Starting new kernel
-
-Can someone interpret?
+--
+Osamu Tomita
 

@@ -1,86 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTLDKNd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 05:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTLDKNd
+	id S261298AbTLDKhz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 05:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTLDKhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 05:13:33 -0500
-Received: from smtp2.cwidc.net ([154.33.63.112]:47017 "EHLO smtp2.cwidc.net")
-	by vger.kernel.org with ESMTP id S261753AbTLDKNb (ORCPT
+	Thu, 4 Dec 2003 05:37:55 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:54748 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261298AbTLDKhy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 05:13:31 -0500
-Message-ID: <3FCF08C7.3020100@tequila.co.jp>
-Date: Thu, 04 Dec 2003 19:13:27 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: Tequila \ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us, en, ja
+	Thu, 4 Dec 2003 05:37:54 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: XFS for 2.4
-References: <20031202002347.GD621@frodo> <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet> <bqlbuj$j03$1@gatekeeper.tmr.com> <20031203204518.GA11325@alpha.home.local> <3FCE810F.3050100@tequila.co.jp> <20031204053318.GB16903@alpha.home.local>
-In-Reply-To: <20031204053318.GB16903@alpha.home.local>
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lhms-devel] RE: memory hotremove prototype, take 3
+Date: Thu, 4 Dec 2003 02:37:10 -0800
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125DD6A@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lhms-devel] RE: memory hotremove prototype, take 3
+Thread-Index: AcO6TKFvCUypGpm5QNK4ivm/+BFIjAABESmg
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Yasunori Goto" <ygoto@fsw.fujitsu.com>, <linux-kernel@vger.kernel.org>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       "IWAMOTO Toshihiro" <iwamoto@valinux.co.jp>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       "Linux Hotplug Memory Support" <lhms-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 04 Dec 2003 10:37:10.0820 (UTC) FILETIME=[92B92E40:01C3BA52]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> From: Pavel Machek [mailto:pavel@suse.cz]
 
-Willy Tarreau wrote:
-| On Thu, Dec 04, 2003 at 09:34:23AM +0900, Clemens Schwaighofer wrote:
 
-| Production workloads are typically different. Perhaps my 10 xterms produce
-| the same type of load as 10 persons grepping gigs of logs from memory ?
-| And perhaps my "ls -ltr" produce the same workload as... someone searching
-| a recent file with "ls -ltr"
+> > I still think we could use the CPU's virtualization mechanism--of course,
+> > and as you and Tony Luck mention, we'd had to track down and modify the
+> > parts that assume physical memory et al. That they use large pages
+> > or
+> 
+> ...which means basically auditing whole kernel, and rewriting half of
+> drivers. Good luck with _that_.
 
-well I don't know, I don't use this box full time, but quite a lot, I do
-a lot of compiling on it. Run Mozilla, etc on it, copy big files, etc,
-but I never had any serious "lock" problems, where everthing freezes for
-a second like I have from time to time in 2.4
+Bingo...just the perfect excuse I need to give to my manager to keep
+a low profile while tinkering around for a long time :)
 
-|>So I don't think the scheduler is bad, I think it is
-|>great. When I switched to 2.5 the first time on that box it was like
-|>"WOW", so little swapping and KDE is so smooth ... thats so wow ...
-|
-|
-| I too think it's great and smoother than 2.4. It obviously makes a
-difference
-| if you use X (and I don't use these KDE, etc...). But the smoothness was
-| also brought to 2.4 by patches such as rmap, preempt, variable-hz. All of
-| them have been merged into 2.6, so we cannot deny that they helped too.
+Okay, so I will play a wee bit more the devil's advocate as an 
+exercise of futility, if you don't mind. Just trying to compile a 
+(possibly incomplete) quick list of what would be needed, can you 
+guys help me? you know way more than I do:
 
-well on my working bux I run 2.4.22-ck3 and this has a lot of preempt
-workstation speedup stuff inside, but it still freezes from time to time
-if there is a peak in workload.
+1) the core kernel needs to be independent of physical memory position
+1.1) same with drivers/subsystems
+1.2) filesystems
+[it cannot be really incomplete because I have added all the code :/]
 
-|>But for your problem, it might get better for these kind of things in
-|>later versions :)
-|
-| -test10 was NOK. I'll try test11, and when I've time I'll try Nick's
-| scheduler too.
+Oh well, forget it, that's more than enough. Another project for the
+stack of interesting things to work on.
 
-well test11 is very smooth. I haven't tried Nick scheduler but I might
-give it a shot, just to see how the "xterm craziness" goes ... :)
+Thanks to all
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/zwjGjBz/yQjBxz8RAmJyAJ4jA3q9yqaYxIjI3PT1ueHHwjUeuACeOWdS
-Lp4cfDBErPBrd0df27xRygY=
-=ffb4
------END PGP SIGNATURE-----
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

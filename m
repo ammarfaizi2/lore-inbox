@@ -1,190 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315155AbSENDD2>; Mon, 13 May 2002 23:03:28 -0400
+	id <S315154AbSENC6x>; Mon, 13 May 2002 22:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315162AbSENDD1>; Mon, 13 May 2002 23:03:27 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:44029 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S315155AbSENDDZ>; Mon, 13 May 2002 23:03:25 -0400
-Date: Mon, 13 May 2002 23:07:54 -0400
-From: jay <jbeatty@optonline.net>
-Subject: promise 100 controller not found on 2.5.15 boot
-To: linux-kernel@vger.kernel.org
-Message-id: <3CE07F8A.7030106@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+	id <S315137AbSENC6w>; Mon, 13 May 2002 22:58:52 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:5615 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S315133AbSENC6v>; Mon, 13 May 2002 22:58:51 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15584.32089.872754.245023@wombat.chubb.wattle.id.au>
+Date: Tue, 14 May 2002 12:58:33 +1000
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>,
+        Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: <3CE071F7.347C78B5@zip.com.au>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Andrew" == Andrew Morton <akpm@zip.com.au> writes:
 
-I'm running 2.4.18, but, in a fit of not leaving well enough alone, I'm 
-trying 2.5.15.
+Andrew> Peter Chubb wrote:
+>> ...
+Christoph> - why is the get_block block argument a sector_t?  It
+Christoph> presents a logical filesystem block which usually is larger
+Christoph> than the sector, not to mention that for the usual
+Christoph> blocksize == PAGE_SIZE case a ulong is enough as that is
+Christoph> the same size the pagecache limit triggers.
+>> For filesystems that *can* handle logical filesystem blocks beyond
+>> the 2^32 limit (i.e., that use >32bit offsets in their on-disc
+>> format), the get_block() argument has to be > 32bits long.  At the
+>> moment that's only JFS and XFS, but reiserfs version 4 looks as if
+>> it might go that way.  We'll need this especially when the
+>> pagecache limit is gone.
 
-My box has a cdrom as hdc, and hde on a promise ultra 100 controller 
-(20267). /boot is  ext2 hde2 and / is ext3 on hde5.
-
-I configured 2.5.15 with the promise pdc202xx driver ( NOT as a module 
-and fixed the typo). But on boot the kernel doesn't find or load the 
-promise driver. Then it can't find root and panics.
-
-Here's ide config:
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_RZ1000=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=yI'm running 2.4.18, but, in a fit of not leaving 
-well enough alone, I'm trying 2.5.15.
-
-My box has a cdrom as hdc, and hde on a promise ultra 100 controller. 
-/boot is  ext2 hde2 and / is ext3 on hde5.
-
-I configured 2.5.15 with the promise driver ( NOT as a module and fixed 
-the typo). But on boot the kernel doesn't find or load the promise 
-driver. Then it can't find root and panics.
-
-Here's ide config:
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_RZ1000=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_BLK_DEV_IDE_TCQ is not set
-# CONFIG_BLK_DEV_IDE_TCQ_DEFAULT is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_AEC62XX_TUNING is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC_ADMA is not set
-CONFIG_BLK_DEV_PDC202XX=y
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_BLK_DEV_SL82C105 is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_DMA_NONPCI is not set
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-
-# CONFIG_BLK_DEV_IDE_TCQ is not set
-# CONFIG_BLK_DEV_IDE_TCQ_DEFAULT is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_AEC62XX_TUNING is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC_ADMA is not set
-CONFIG_BLK_DEV_PDC202XX=y
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_BLK_DEV_SL82C105 is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_DMA_NONPCI is not set
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
+Andrew> I think Christoph's point is that a pagecache index is not a
+Andrew> sector number.  We agree that we need to plan for taking it to
+Andrew> 64 bits, but it should be something different. Like
+Andrew> pageindex_t, or whatever.
 
 
+I'll let Christoph speak for himself, but my point is that
+get_block() is an interface exported from the filesystem.  It should
+be possible to specify any logical block number that the filesystem
+supports.   That the current VM system on 32-bit machines will never
+request a block beyond 2^32 is a (one-day-soon-to-be-removed) current
+limitation. 
+
+Peter C

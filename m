@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbTARCkn>; Fri, 17 Jan 2003 21:40:43 -0500
+	id <S261996AbTARCqK>; Fri, 17 Jan 2003 21:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbTARCkn>; Fri, 17 Jan 2003 21:40:43 -0500
-Received: from mail.cs.umn.edu ([128.101.35.202]:59613 "EHLO mail.cs.umn.edu")
-	by vger.kernel.org with ESMTP id <S261857AbTARCkm>;
-	Fri, 17 Jan 2003 21:40:42 -0500
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: alsa-devel@alsa-project.org, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant
- errno variable
-From: Raja R Harinath <harinath@cs.umn.edu>
-Date: Fri, 17 Jan 2003 20:49:36 -0600
-In-Reply-To: <20030117155717.A6250@baldur.yggdrasil.com> ("Adam J.
- Richter"'s message of "Fri, 17 Jan 2003 15:57:17 -0800")
-Message-ID: <d9n0lz18an.fsf@bose.cs.umn.edu>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.3.50
- (i686-pc-linux-gnu)
-References: <20030117155717.A6250@baldur.yggdrasil.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262040AbTARCqK>; Fri, 17 Jan 2003 21:46:10 -0500
+Received: from dp.samba.org ([66.70.73.150]:64219 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261996AbTARCqJ>;
+	Fri, 17 Jan 2003 21:46:09 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RESEND] linux-2.5.58_timer-tsc-cleanup_A0 
+In-reply-to: Your message of "15 Jan 2003 16:15:14 -0800."
+             <1042676113.1515.129.camel@w-jstultz2.beaverton.ibm.com> 
+Date: Sat, 18 Jan 2003 12:48:14 +1100
+Message-Id: <20030118025509.C295F2C0D0@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <1042676113.1515.129.camel@w-jstultz2.beaverton.ibm.com> you write:
+> Linus, All,
+> 	This patch cleans up the timer_tsc code, removing the unused use_tsc
+> variable and making fast_gettimeoffset_quotient static.
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
+But use_tsc is still used:
 
-> 	linux-2.5.59/sound/sound_firmware.c attempts to use the
-> user level system call interface from the kernel, which I understand
-> works on i386 and perhaps all architectures, but requires a variable
-> named "errno." 
+static int
+time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
+		       void *data)
+{
 
-Which is provided in-kernel (not for modules) by 'lib/errno.c'.
+....
 
-> (Actually, it mixed things like close() and sys_close(), but that's
-> beside the point.)
+#ifndef CONFIG_SMP
+		if (use_tsc) {
+			fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
+			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
+		}
+#endif
 
-Those are provided by <linux/unistd.h>, with __KERNEL_SYSCALLS__
-defined.
 
-> 	I could just declare a "static int errno;" in the file,
+And almost any patch to the x86 boot code is too convoluted to be
+"trivial" IMHO.
 
-That was originally there, but removed in 2.5.57 IIRC.
-<linux/unistd.h> has 'extern int errno;' -- so 'static int errno;'
-would be a bug.
-
-- Hari
--- 
-Raja R Harinath ------------------------------ harinath@cs.umn.edu
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

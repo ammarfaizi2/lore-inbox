@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287924AbSA3COO>; Tue, 29 Jan 2002 21:14:14 -0500
+	id <S287979AbSA3COp>; Tue, 29 Jan 2002 21:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287979AbSA3COF>; Tue, 29 Jan 2002 21:14:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30476 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287924AbSA3CNy>; Tue, 29 Jan 2002 21:13:54 -0500
-Date: Tue, 29 Jan 2002 18:12:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-In-Reply-To: <20020130130026.13803fda.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0201291801550.1747-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288028AbSA3COf>; Tue, 29 Jan 2002 21:14:35 -0500
+Received: from zero.tech9.net ([209.61.188.187]:11018 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287979AbSA3COW>;
+	Tue, 29 Jan 2002 21:14:22 -0500
+Subject: Re: [PATCH] 2.5: push BKL out of llseek
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C574BD1.E5343312@zip.com.au>
+In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
+	<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>
+	<1012351309.813.56.camel@phantasy>  <3C574BD1.E5343312@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 29 Jan 2002 21:20:10 -0500
+Message-Id: <1012357211.817.67.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-01-29 at 20:26, Andrew Morton wrote:
 
-On Wed, 30 Jan 2002, Rusty Russell wrote:
->
-> Boots and runs: more cleanups will follow once this is in...
+> Just a little word of caution here.  Remember the
+> apache-flock-synchronisation fiasco, where removal
+> of the BKL halved Apache throughput on 8-way x86.
+> 
+> This was because the BKL removal turned serialisation
+> on a quick codepath from a spinlock into a schedule().
 
-May I suggest a few more cleanups before I apply it, namely try to
-abstract out that "&__per_cpu_end-&__per_cpu_start" thing and make it more
-readable what is going on in setup_per_cpu_areas() which (quite frankly)
-is otherwise a prime candidate for the obfuscated C contest.
+I feared this too, but eventually I decided it was worth it and
+benchmarks backed that up.  If nothing else this is yet-another-excuse
+for locks that can spin-then-sleep.
 
-Also, wouldn't it be much nicer to just leave CPU#0 at the start of
-.data.percpu, and not have to have an offset for CPU0 at all? That would
-sure make the UP case cleaner.
+I posted dbench results, which show a positive gain even on 2-way for
+multiple client loads.
 
-		Linus
+	Robert Love
 

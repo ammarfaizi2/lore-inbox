@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262498AbREUVju>; Mon, 21 May 2001 17:39:50 -0400
+	id <S261683AbRESH7E>; Sat, 19 May 2001 03:59:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262499AbREUVjj>; Mon, 21 May 2001 17:39:39 -0400
-Received: from mail.digitalme.com ([193.97.97.75]:34442 "EHLO digitalme.com")
-	by vger.kernel.org with ESMTP id <S262498AbREUVjW>;
-	Mon, 21 May 2001 17:39:22 -0400
-Message-ID: <3B05DA6B.50205@bigfoot.com>
-Date: Fri, 18 May 2001 22:28:59 -0400
-From: "Trever L. Adams" <trever_Adams@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9+) Gecko/20010518
-X-Accept-Language: en
+	id <S261687AbRESH6z>; Sat, 19 May 2001 03:58:55 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62663 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261683AbRESH6m>; Sat, 19 May 2001 03:58:42 -0400
+Date: Sat, 19 May 2001 03:58:39 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@devserv.devel.redhat.com>
+To: Andrew Clausen <clausen@gnu.org>
+cc: <torvalds@transmeta.com>, <viro@math.psu.edu>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+ inuserspace
+In-Reply-To: <3B06194B.C487240C@gnu.org>
+Message-ID: <Pine.LNX.4.33.0105190350080.13165-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [OT]: Multicasting
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this is off topic.  I am not sure where else to go.  All of my 
-google searches lead me to very dead and very old information on 
-multicasting.  I am sure most of it is not useful, though some of the 
-basics are.
+On Sat, 19 May 2001, Andrew Clausen wrote:
 
-If people have a problem answering on list, please answer off.
+> (1) these issues are independent.  The partition parsing could
+> be done in user space, today, by blkpg, if I read the code correctly
+> ;-)  (there's an ioctl for [un]registering partitions)  Never
+> tried it though ;-)
 
-My questions:
+I tried to imply that through the use of the the word component.  Yes,
+they're independant, but the code is pretty meaningless without a
+demonstration of how it's used. ;-)
 
-What protocols and session management (besides IGMP) does the kernel 
-support (say, does it support source specific multicasting?)?
+> (2) what about bootstrapping?  how do you find the root device?
+> Do you do "root=/dev/hda/offset=63,limit=1235823"?  Bit nasty.
 
-Are the old how tos on multicast programming still the only things I 
-need to worry about?
+root= becomes a parameter to mount, and initrd becomes mandatory.  I'd be
+all for including all of the bits needed to build the initrd boot code in
+the tree, but it's completely in the air.
 
-If there are only X groups (in the few thousand if IRC), does the 
-protocl allow only forwarding Y port on X group to the end person, or do 
-they get the entire group?
+> (3) how does this work for LVM and RAID?
 
-Anyone know of good books for Linux/Unix multicast programming?
+It's not done yet, but similar techniques would be applied.  I envision
+that a raid device would support operations such as
+open("/dev/md0/slot=5,hot-add=/dev/sda")
 
-Trever Adams
+> (4) <propaganda>libparted already has a fair bit of partition
+> scanning code, etc.  Should be trivial to hack it up... That said,
+> it should be split up into .so modules... 200k is a bit heavy just
+> for mounting partitions (most of the bulk is file system stuff).
+> </propaganda>
 
-P.S. I am sure I have left out 1 million and 1 valuable questions that I 
-need/want answers to, please feel free to add in what you think might be 
-good for me to know.
+Good.  Less work to do.
+
+> (5) what happens to /etc/fstab?  User-space ([u]mount?) translates
+> /dev/hda1 into /dev/hda/offset=63,limit=1235823, and back?
+
+I'd just create a symlink to /dev/hda1 at mount time, although that really
+isn't what the user wants to see: the label or uuid is more useful.
+
+		-ben
 

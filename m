@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314657AbSEVVYj>; Wed, 22 May 2002 17:24:39 -0400
+	id <S314458AbSEVVp5>; Wed, 22 May 2002 17:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313189AbSEVVYi>; Wed, 22 May 2002 17:24:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61702 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314657AbSEVVYg>; Wed, 22 May 2002 17:24:36 -0400
-Date: Wed, 22 May 2002 14:23:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "M. Edward Borasky" <znmeb@aracnet.com>,
-        <linux-kernel@vger.kernel.org>, <andrea@suse.de>, <riel@surriel.com>,
-        <akpm@zip.com.au>
-Subject: Re: Have the 2.4 kernel memory management problems on large machines
- been fixed?
-In-Reply-To: <384590000.1022102334@flay>
-Message-ID: <Pine.LNX.4.33.0205221421180.1531-100000@penguin.transmeta.com>
+	id <S314558AbSEVVp4>; Wed, 22 May 2002 17:45:56 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48136 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314458AbSEVVpz>; Wed, 22 May 2002 17:45:55 -0400
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+To: Martin.Bligh@us.ibm.com (Martin J. Bligh)
+Date: Wed, 22 May 2002 23:05:17 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        wli@holomorphy.com (William Lee Irwin III),
+        znmeb@aracnet.com (M. Edward Borasky), linux-kernel@vger.kernel.org,
+        andrea@suse.de, riel@surriel.com, torvalds@transmeta.com,
+        akpm@zip.com.au
+In-Reply-To: <366680000.1022091897@flay> from "Martin J. Bligh" at May 22, 2002 11:24:57 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AeEP-0002wE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If my spies are correct, 7.3AS kernel is still based off the old 2.4.9 VM, with
+> no rmap at present ... correct? I presume 7.3 is 2.4.18 or so VM with rmap?
 
-On Wed, 22 May 2002, Martin J. Bligh wrote:
-> 
-> If we could get the apps (well, Oracle) to co-operate, we could just use
-> clone ;-) Having this transparent for shmem segments would be really nice.
+<Red Hat Marketing>There is no such product as 7.3AS</Red Hat Marketing> ;) 
 
-The thing is, we won't get Oracle to rewrite a lot for a completely
-threaded system. And clone does _not_ come with a way to share only parts
-of the VM, and never will - that's fundamentally against the way "struct 
-mm_struct" works. 
+The AS 2.1 kernel is 2.4.9 based for enterprise stability with the pre
+Linus being hit by cosmic rays VM fixed and tuned for enterprise workloads.
 
-Oracle is apparently already used to magic shmem-like things, so doing 
-that is probably acceptable to them.
+7.3 is the rmap VM
 
-		Linus
-
+Alan

@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263729AbUDQIHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 04:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUDQIHg
+	id S263714AbUDQIVE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 04:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUDQIVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 04:07:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36366 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263729AbUDQIH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 04:07:27 -0400
-Date: Sat, 17 Apr 2004 09:07:12 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040417090712.B11481@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>,
-	Maneesh Soni <maneesh@in.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040415220232.GC23039@kroah.com> <20040416152448.GF24997@parcelfarce.linux.theplanet.co.uk> <20040416223732.GC21701@kroah.com> <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk> <40807466.1020701@pobox.com>
+	Sat, 17 Apr 2004 04:21:04 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:29014 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S263714AbUDQIVB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 04:21:01 -0400
+Date: Sat, 17 Apr 2004 10:20:48 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <20040417082048.GA1269@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	Chris Wright <chrisw@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <4080060F.7030604@redhat.com> <20040416213851.GA1784@steel.home> <20040416152217.C22989@build.pdx.osdl.net> <20040416234303.GA1932@steel.home> <20040416165621.V21045@build.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40807466.1020701@pobox.com>; from jgarzik@pobox.com on Fri, Apr 16, 2004 at 08:03:50PM -0400
+In-Reply-To: <20040416165621.V21045@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
+X-SA-Exim-Mail-From: fork0@users.sourceforge.net
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
+	*      [80.140.227.8 listed in dnsbl.njabl.org]
+	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
+	*      [80.140.227.8 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
+	*      [80.140.227.8 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
+	*      [80.140.227.8 listed in dnsbl.njabl.org]
+X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
+X-SA-Exim-Scanned: Yes
+X-uvscan-result: clean (1BEl4E-0004hi-Nb)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 08:03:50PM -0400, Jeff Garzik wrote:
-> Ideally one would think that userland can deduce relationships by 
-> looking at the attribute information sysfs already provides -- and if 
-> not, it's just one more bit of info to export via sysfs.
+Chris Wright, Sat, Apr 17, 2004 01:56:21 +0200:
+> > > The kernel interface is simple and clean.  And in fact, requires no
+> > > slashes else you'll get -EACCES.  It's not POSIX, but the library
+> > > interface is.
+> > > 
+> > > We just discussed this yesterday:
+> > > 
+> > > http://marc.theaimsgroup.com/?t=108205593100003&r=1&w=2
+> > 
+> > now, what's is the check in the library for? BTW, it is returning the
+> > other error code (EINVAL instead of EACCES), just on top of all the
+> > confusion with slashes.
+> 
+> EINVAL in the library, sure.  EACCES is if you directly use the kernel
+> interface and pass it a name with any slashes in it.  The two interfaces
+> (library and kernel) aren't required to be identical.  Kernel is kept
+> simplest w/ no slashes, library provides POSIX compliance.
+> 
 
-They can?  So, does userspace need to know the PCI IDs associated
-with each driver so it can match the devices?  Without the symlinks
-in /sys/bus/foo/devices, how do we know which devices are PCI devices
-and which aren't?  etc...
+Ok. It's just that every provider of the _kernel_ interface to user
+space has now to take care of being posix-compliant. Write the code for
+checks, iow. That is not the case for "open", for instance.
+And besides, with the patch applied the kernel is also posix compliant,
+isn't it? Noone still answered why the check in library in this case.
+(The patch is not applied yet, btw)
 
-Sure you can say "well, this device seems to have a this that and the
-other attribute, which appears to match what we think a PCI device
-should have" but then you're assuming that group of attributes only
-appears for PCI devices.
-
-What about other bus types?  Do I really need to teach userspace about
-the relationships between all the various bus types we have on ARM and
-how to work out what these relationships are by guessing?
-
-Please.  The symlinks are necessary and they are the sole source of
-the relationship information.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbTDWQvE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTDWQvE
+	id S264121AbTDWQrf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTDWQre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:51:04 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:19331 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264138AbTDWQvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:51:01 -0400
-Date: Thu, 24 Apr 2003 03:03:36 +1000
-From: CaT <cat@zip.com.au>
-To: Stuffed Crust <pizza@shaftnet.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.5.68] [BUG #18] Add Synaptics touchpad tweaking to psmouse driver
-Message-ID: <20030423170336.GL1202@zip.com.au>
-References: <20030422024628.GA8906@shaftnet.org>
+	Wed, 23 Apr 2003 12:47:34 -0400
+Received: from e166066.upc-e.chello.nl ([213.93.166.66]:57773 "EHLO
+	hypnos.var.cx") by vger.kernel.org with ESMTP id S264121AbTDWQrb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 12:47:31 -0400
+Date: Wed, 23 Apr 2003 18:59:31 +0200
+From: Frank v Waveren <fvw@var.cx>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Robert Love <rml@tech9.net>, Julien Oster <frodo@dereference.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel ring buffer accessible by users
+Message-ID: <1051117076FZS.fvw@jareth.var.cx>
+References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org> <1051031876.707.804.camel@localhost> <20030423125602.B1425@almesberger.net> <20030423160556.GA30306@frodo.midearth.frodoid.org> <20030423134530.C3557@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030422024628.GA8906@shaftnet.org>
+In-Reply-To: <20030423134530.C3557@almesberger.net>
 User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 10:46:28PM -0400, Stuffed Crust wrote:
-> One of the side-effects of the new input layer is that the old usermode 
-> tools for manipulating the touchpad configuration don't work any more.
+On Wed, Apr 23, 2003 at 01:45:30PM -0300, Werner Almesberger wrote:
+> Yes, but you'll get quite a few objections to adding yet another
+> suid root program :-)
 
-Aye. :/
-
-> Most importantly, the ability to disable the tap-to-click "feature".
-> And this has been long-recognized, as bug #18.  :)
-
-Bah. I like this and use it often. :)
-
-> Feedback welcome!
-
-I haven't tested it mainly because it doesn't do anything useful for me
-yet (and, infact, reduces usability) but I'll be more then happy to test
-any future more general patches that you may come up with.
+Why not make it mode 440, and have a mount option for the proc
+filesystem that gives which gid certain sensitive files should have.
+The openwall security patch does this (with a few further restrictions
+to the permissions of certain /proc files) and I like it a lot.
 
 -- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+Frank v Waveren                                      Fingerprint: 21A7 C7F3
+fvw@[var.cx|stack.nl|chello.nl] ICQ#10074100            1FF3 47FF 545C CB53
+Public key: hkp://wwwkeys.pgp.net/fvw@var.cx            7BD9 09C0 3AC1 6DF2

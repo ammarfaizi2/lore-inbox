@@ -1,99 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129833AbRBYFL3>; Sun, 25 Feb 2001 00:11:29 -0500
+	id <S129828AbRBYFFT>; Sun, 25 Feb 2001 00:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129831AbRBYFLT>; Sun, 25 Feb 2001 00:11:19 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:48132
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129833AbRBYFLJ>; Sun, 25 Feb 2001 00:11:09 -0500
-Date: Sat, 24 Feb 2001 21:10:41 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Balazic <david.balazic@uni-mb.si>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: weird /proc/ide/hdx/settings
-In-Reply-To: <3A966D7D.550A631B@uni-mb.si>
-Message-ID: <Pine.LNX.4.10.10102242109550.24823-100000@master.linux-ide.org>
+	id <S129831AbRBYFFJ>; Sun, 25 Feb 2001 00:05:09 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:59345 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129828AbRBYFE5>; Sun, 25 Feb 2001 00:04:57 -0500
+Message-ID: <3A98926A.AB1C2243@uow.edu.au>
+Date: Sun, 25 Feb 2001 16:04:42 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Igor Mozetic <igor.mozetic@uni-mb.si>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x in 2.4.{0,1,2}
+In-Reply-To: <14996.58045.843929.411743@ravan.camtp.uni-mb.si>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Igor Mozetic wrote:
+> 
+> There is probably just some miscoordination between the kernel
+> mainteiners, but anyway. The 3c59x driver shipped with all
+> official 2.4.x kernels lacks the 'medialock' feature.
+> The result on 3c900 10M/combo cards can be unpleasant:
+> kernel log fills up quickly and only reboot helps.
+> However, Andrew's unofficial drivers at
+> http://www.uow.edu.au/~andrewm/linux/ work fine so this is
+> just a plea to include them into the official kernel.
 
-Zero is a counting number. 0->255 == 1->256.
-On Fri, 23 Feb 2001, David Balazic wrote:
+The latest 3c59x driver is in the zerocopy patch, as well
+as at the above site.
 
-> Running kernel 2.4.2 :
-> 
-> cat /proc/ide/hdc/settings
-> 
-> name                    value           min             max             mode
-> ----                    -----           ---             ---             ----
-> bios_cyl                89355           0               65535           rw
-> bios_head               16              0               255             rw
-> bios_sect               63              0               63              rw
-> breada_readahead        4               0               127             rw
-> bswap                   0               0               1               r
-> current_speed           69              0               69              rw
-> file_readahead          0               0               2097151         rw
-> ide_scsi                0               0               1               rw
-> init_speed              12              0               69              rw
-> io_32bit                1               0               3               rw
-> keepsettings            0               0               1               rw
-> lun                     0               0               7               rw
-> max_kb_per_request      128             1               127             rw
-> multcount               0               0               8               rw
-> nice1                   1               0               1               rw
-> nowerr                  0               0               1               rw
-> number                  2               0               3               rw
-> pio_mode                write-only      0               255             w
-> slow                    0               0               1               rw
-> unmaskirq               1               0               1               rw
-> using_dma      
-> --------------------%X---------------
-> 
-> max_kb_per_request  has value 128 , but max is 127 !?
-> 
-> max for multcount is 8 , but my drive supports 16 sectors. ( see hdparm output below )
-> If I set multcount to 8 sectors ( hdparm -m 8 /dev/hdc ) 
-> then /proc/ide/hdc/settings will show :
-> multcount               4               0               8               rw
-> 
-> The values are divided by 2. Why ?
-> 
-> 
-> hdparm -i /dev/hdc  :
-> 
-> /dev/hdc:
-> 
->  Model=IBM-DTLA-307045, FwRev=TX6OA60A, SerialNo=YMEYMML9342
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=90069840
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4 
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
-> 
-> IDE interface is VIA xxx686b ( ATA-100 )
-> IDE driver is VIA IDE v4.3
-> 
-> -- 
-> David Balazic
-> --------------
-> "Be excellent to each other." - Bill & Ted
-> - - - - - - - - - - - - - - - - - - - - - -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Until things converge I'd suggest that you run a zerocopy
+kernel rather than updating just the driver.  We need the
+testing.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+Alexey has done wonders recently, and for 3com cards
+a zerocopy kernel now performs at least as well as
+a stock kernel.

@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVAIPBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVAIPN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVAIPBl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 10:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVAIPBl
+	id S261477AbVAIPN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 10:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVAIPN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 10:01:41 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:16298 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261449AbVAIPBj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 10:01:39 -0500
-Date: Sun, 9 Jan 2005 16:02:08 +0100
-From: DervishD <lkml@dervishd.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Conflicts in kernel 2.6 headers and {glibc,Xorg}
-Message-ID: <20050109150208.GA543@DervishD>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
-References: <41E0F76D.7080805@feix.cz> <20050109110805.GA8688@irc.pl> <41E1170D.6090405@feix.cz> <20050109115554.GA9183@irc.pl> <20050109122557.GA221@DervishD> <1105273893.4173.12.camel@laptopd505.fenrus.org>
+	Sun, 9 Jan 2005 10:13:57 -0500
+Received: from news.suse.de ([195.135.220.2]:12423 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261477AbVAIPNy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 10:13:54 -0500
+Date: Sun, 9 Jan 2005 16:13:53 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH] raid6: altivec support
+Message-ID: <20050109151353.GA9508@suse.de>
+References: <200501082324.j08NOIva030415@hera.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1105273893.4173.12.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <200501082324.j08NOIva030415@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Arjan :)
+ On Sat, Jan 08, Linux Kernel Mailing List wrote:
 
- * Arjan van de Ven <arjan@infradead.org> dixit:
-> >     But the set of sanitized kernel headers, if you build your own
-> > software and you're not using a distro, is only available for 2.6.x
-> > kernels, not for 2.4.x kernels. 
-> The headers RH ships work for both...
+> ChangeSet 1.2347, 2005/01/08 14:02:27-08:00, hpa@zytor.com
+> 
+> 	[PATCH] raid6: altivec support
+> 	
+> 	This patch adds Altivec support for RAID-6, if appropriately configured on
+> 	the ppc or ppc64 architectures.  Note that it changes the compile flags for
+> 	ppc64 in order to handle -maltivec correctly; this change was vetted on the
+> 	ppc64 mailing list and OK'd by paulus.
 
-    Did not know...
+This fails to compile on ppc, enable_kernel_altivec() is an exported but
+undeclared function. cpu_features is also missing.
 
-> > What should be done for 2.4 kernels?
-> > I currently use a set of headers from the 2.4 kernel I used to build
-> > my libc, not the headers from the current kernel I'm running, but I
-> > would like to know anyway.
-> .... and you can use 2.6 headers to build a glibc that works excellent
-> for 2.4 kernels too. The kernel API/ABI *does not change on this level*
-> between kernel versions. Things may get added, but they do not change.
+drivers/md/raid6altivec1.c: In function `raid6_altivec1_gen_syndrome':
+drivers/md/raid6altivec1.c:99: warning: implicit declaration of function `enable_kernel_altivec'
+drivers/md/raid6altivec1.c: In function `raid6_have_altivec':
+drivers/md/raid6altivec1.c:111: error: request for member `cpu_features' in something not a structure or union
+drivers/md/raid6altivec2.c: In function `raid6_altivec2_gen_syndrome':
+drivers/md/raid6altivec2.c:110: warning: implicit declaration of function `enable_kernel_altivec'
 
-    That's perfect then :))) No problem about the headers then. When
-I recompile my glibc I'll pick the latest libc-kernel-headers
-available. Thanks a lot for the information, Arjan :))
+There are a few more exported symbols without declaration:
+__ashldi3
+__ashrdi3
+__lshrdi3
+enable_kernel_spe
+fec_register_ph
+fec_unregister_ph
+idma_pci9_read
+idma_pci9_read_le
+local_irq_disable_end
+local_irq_enable_end
+local_irq_restore_end
+local_save_flags_ptr_end
+ocp_bus_type
+ppc4xx_set_dma_addr
 
-    Raúl Núñez de Arenas Coronado
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+I'm not sure if the EXPORT_SYMBOL should be dropped for them, they have
+no users in the current kernel.
+
+--- ../linux-2.6.10-bk12/include/asm-ppc/system.h	2004-12-24 22:34:32.000000000 +0100
++++ ./include/asm-ppc/system.h	2005-01-09 15:53:32.338569809 +0100
+@@ -76,6 +76,7 @@ extern void giveup_fpu(struct task_struc
+ extern void enable_kernel_fp(void);
+ extern void giveup_altivec(struct task_struct *);
+ extern void load_up_altivec(struct task_struct *);
++extern void enable_kernel_altivec(void);
+ extern void giveup_spe(struct task_struct *);
+ extern void load_up_spe(struct task_struct *);
+ extern int fix_alignment(struct pt_regs *);

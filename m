@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289002AbSANUGO>; Mon, 14 Jan 2002 15:06:14 -0500
+	id <S289015AbSANUIm>; Mon, 14 Jan 2002 15:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288969AbSANUE6>; Mon, 14 Jan 2002 15:04:58 -0500
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:10150 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S288974AbSANUD1>; Mon, 14 Jan 2002 15:03:27 -0500
-Subject: Re: FC & MULTIPATH !? (any hope?)
-From: Brian Beattie <alchemy@us.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Mario Mikocevic <mozgy@hinet.hr>, Lars Marowsky-Bree <lmb@suse.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200201141524.g0EFOqj09542@localhost.localdomain>
-In-Reply-To: <200201141524.g0EFOqj09542@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 14 Jan 2002 11:53:07 -0800
-Message-Id: <1011037987.918.0.camel@w-beattie1>
+	id <S288974AbSANUH2>; Mon, 14 Jan 2002 15:07:28 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:15100 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289003AbSANUGW>;
+	Mon, 14 Jan 2002 15:06:22 -0500
+Date: Mon, 14 Jan 2002 13:06:12 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "dd" collapsed the loop device
+Message-ID: <20020114130612.Q26688@lynx.adilger.int>
+Mail-Followup-To: Michael Zhu <mylinuxk@yahoo.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020114111843.P26688@lynx.adilger.int> <20020114184010.66277.qmail@web14908.mail.yahoo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114184010.66277.qmail@web14908.mail.yahoo.com>; from mylinuxk@yahoo.ca on Mon, Jan 14, 2002 at 01:40:10PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 07:24, James Bottomley wrote:
-> > > is there any hope of working combination of MULTIPATH with FC !?
-> >
-> > Yes. QLogic's newest 2200 HBA can do that. I don't know whether that is a
-> > possible solution for your problem though.
-> 
-> To clarify: This solution is being pushed by IBM.  Unless you have a FASt 
-> array, you may not get help making it work from either IBM or Qlogic.  You 
-> also need the 5.x qlogic driver which you can download from the IBM website 
-> (or from SuSE 7.3).
-> 
-> > At the moment I am using raid option multipath but it's one way
-> > street, when one FC connection dies it successfully switches onto
-> > another FC connection but when that second dies aswell, mount point is
-> > in a limbo, no switching back to first FC connection.
-> 
-> I've tested the qlogic and it will switch to the secondary and back again on a 
-> FASt 200 HA.
-> 
-> Although it was designed to work with the LSI Symplicity-4 AVT technology 
-> (which is what IBM FASt's OEM), there's a high degree of probability that it 
-> will also work with any array that the MD multipath driver also works for, so 
-> good luck.
-> 
+On Jan 14, 2002  13:40 -0500, Michael Zhu wrote:
+> That means that I couldn't access /dev/fd0 directly
+> when I use it via loopback? Is there any way that I
+> can use to avoid this accident erase?
 
-I've been working with the multipath code.  Trying to add functionality
-to it.  While I have not yet looked at this particular issue, if there
-is interest I would be willing to see what can be done.  I do not think
-it would be a big deal to add the functionality to reactivate a dead
-path.  It should not be too hard to attempt to do so automatically.
+Now that you know it is bad, don't do that.
 
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

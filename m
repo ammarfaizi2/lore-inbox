@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbULHNh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbULHNi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbULHNh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 08:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbULHNhh
+	id S261204AbULHNi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 08:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULHNib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 08:37:37 -0500
-Received: from users.linvision.com ([62.58.92.114]:63974 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261212AbULHN3l (ORCPT
+	Wed, 8 Dec 2004 08:38:31 -0500
+Received: from users.linvision.com ([62.58.92.114]:2791 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261214AbULHN3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 08:29:41 -0500
-Date: Wed, 8 Dec 2004 14:29:38 +0100
+	Wed, 8 Dec 2004 08:29:55 -0500
+Date: Wed, 8 Dec 2004 14:29:51 +0100
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
        Rogier Wolff <R.E.Wolff@BitWizard.nl>, Eric Wood <eric@interplas.com>,
        bmckinlay@perle.com, tmckinlay@perle.com
-Subject: [PATCH] generic-serial
-Message-ID: <20041208132938.GB19937@bitwizard.nl>
+Subject: [PATCH] RIO
+Message-ID: <20041208132951.GC19937@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MW5yreqqjyrRcusr"
+Content-Type: multipart/mixed; boundary="E13BgyNx05feLLmH"
 Content-Disposition: inline
 User-Agent: Mutt/1.5.6+20040907i
 From: Patrick van de Lageweg <patrick@bitwizard.nl>
@@ -25,7 +25,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---MW5yreqqjyrRcusr
+--E13BgyNx05feLLmH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -33,353 +33,214 @@ Hi,
 
 This patch converts all save_flags/restore_flags to the new 
 spin_lick_irqsave/spin_unlock_irqrestore calls, as well as some
-other 2.6.X cleanups. This prepares the way for the "io8+",
-"sx" and "rio" drivers to become SMP safe. Patches for those
-drivers follow. 
+other 2.6.X cleanups. This allows the "rio" driver to become
+SMP safe.
+
 
 Signed-off-by: Patrick vd Lageweg <patrick@bitwizard.nl>
 Signed-off-by: Rogier Wolff <R.E.Wolff@BitWizard.nl>
 
-	Patrick
+        Patrick
 
---MW5yreqqjyrRcusr
+--E13BgyNx05feLLmH
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-08122004-2.6.10-rc3-generic-serial"
+Content-Disposition: attachment; filename="patch-08122004-2.6.10-rc3-rio"
 
-diff -u -r linux-2.6.10-rc3-clean/drivers/char/generic_serial.c linux-2.6.10-rc3-generix-serial/drivers/char/generic_serial.c
---- linux-2.6.10-rc3-clean/drivers/char/generic_serial.c	Fri Dec  3 15:13:32 2004
-+++ linux-2.6.10-rc3-generix-serial/drivers/char/generic_serial.c	Fri Dec  3 15:23:37 2004
-@@ -26,6 +26,7 @@
- #include <linux/mm.h>
- #include <linux/generic_serial.h>
+diff -u -r linux-2.6.10-rc3-clean/drivers/char/Kconfig linux-2.6.10-rc3-rio/drivers/char/Kconfig
+--- linux-2.6.10-rc3-clean/drivers/char/Kconfig	Fri Dec  3 15:13:32 2004
++++ linux-2.6.10-rc3-rio/drivers/char/Kconfig	Fri Dec  3 15:28:48 2004
+@@ -299,7 +299,7 @@
+ 
+ config RIO
+ 	tristate "Specialix RIO system support"
+-	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
++	depends on SERIAL_NONSTANDARD
+ 	help
+ 	  This is a driver for the Specialix RIO, a smart serial card which
+ 	  drives an outboard box that can support up to 128 ports.  Product
+diff -u -r linux-2.6.10-rc3-clean/drivers/char/rio/linux_compat.h linux-2.6.10-rc3-rio/drivers/char/rio/linux_compat.h
+--- linux-2.6.10-rc3-clean/drivers/char/rio/linux_compat.h	Fri Dec  3 15:11:52 2004
++++ linux-2.6.10-rc3-rio/drivers/char/rio/linux_compat.h	Fri Dec  3 15:28:48 2004
+@@ -19,8 +19,8 @@
  #include <linux/interrupt.h>
-+#include <linux/tty_flip.h>
- #include <linux/delay.h>
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
-@@ -45,8 +46,8 @@
  
- #define func_enter() gs_dprintk (GS_DEBUG_FLOW, "gs: enter %s\n", __FUNCTION__)
- #define func_exit()  gs_dprintk (GS_DEBUG_FLOW, "gs: exit  %s\n", __FUNCTION__)
--
--#ifdef NEW_WRITE_LOCKING
-+#define NEW_WRITE_LOCKING 1
-+#if NEW_WRITE_LOCKING
- #define DECL      /* Nothing */
- #define LOCKIT    down (& port->port_write_sem);
- #define RELEASEIT up (&port->port_write_sem);
-@@ -208,7 +209,7 @@
- 	if (!port || !port->xmit_buf || !tmp_buf)
- 		return -EIO;
  
--	save_flags(flags);
-+	local_save_flags(flags);
- 	while (1) {
- 		cli();
- 		c = count;
-@@ -227,14 +228,14 @@
+-#define disable(oldspl) save_flags (oldspl)
+-#define restore(oldspl) restore_flags (oldspl)
++#define disable(oldspl) local_irq_save(oldspl);
++#define restore(oldspl) local_irq_restore(oldspl) ;
  
- 		/* Can't copy more? break out! */
- 		if (c <= 0) {
--			restore_flags(flags);
-+			local_restore_flags(flags);
- 			break;
- 		}
- 		memcpy(port->xmit_buf + port->xmit_head, buf, c);
- 		port->xmit_head = ((port->xmit_head + c) &
- 		                   (SERIAL_XMIT_SIZE-1));
- 		port->xmit_cnt += c;
--		restore_flags(flags);
-+		local_restore_flags(flags);
- 		buf += c;
- 		count -= c;
- 		total += c;
-@@ -380,9 +381,9 @@
- 	if (!port) return;
+ #define sysbrk(x) kmalloc ((x),in_interrupt()? GFP_ATOMIC : GFP_KERNEL)
+ #define sysfree(p,size) kfree ((p))
+diff -u -r linux-2.6.10-rc3-clean/drivers/char/rio/rio_linux.c linux-2.6.10-rc3-rio/drivers/char/rio/rio_linux.c
+--- linux-2.6.10-rc3-clean/drivers/char/rio/rio_linux.c	Fri Dec  3 15:13:33 2004
++++ linux-2.6.10-rc3-rio/drivers/char/rio/rio_linux.c	Fri Dec  3 15:28:48 2004
+@@ -354,7 +354,7 @@
  
- 	/* XXX Would the write semaphore do? */
--	save_flags(flags); cli();
-+	spin_lock_irqsave (&port->driver_lock, flags);
- 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
--	restore_flags(flags);
-+	spin_unlock_irqrestore (&port->driver_lock, flags);
- 
- 	wake_up_interruptible(&tty->write_wait);
- 	tty_wakeup(tty);
-@@ -468,8 +469,7 @@
- 	if (!(port->flags & ASYNC_INITIALIZED))
- 		return;
- 
--	save_flags (flags);
--	cli ();
-+	spin_lock_irqsave(&port->driver_lock, flags);
- 
- 	if (port->xmit_buf) {
- 		free_page((unsigned long) port->xmit_buf);
-@@ -482,7 +482,7 @@
- 	port->rd->shutdown_port (port);
- 
- 	port->flags &= ~ASYNC_INITIALIZED;
--	restore_flags (flags);
-+	spin_unlock_irqrestore(&port->driver_lock, flags);
- 
- 	func_exit();
- }
-@@ -540,6 +540,7 @@
- 	int    do_clocal = 0;
- 	int    CD;
- 	struct tty_struct *tty;
-+	unsigned long flags;
- 
- 	func_enter ();
- 
-@@ -591,10 +592,11 @@
- 	add_wait_queue(&port->open_wait, &wait);
- 
- 	gs_dprintk (GS_DEBUG_BTR, "after add waitq.\n"); 
--	cli();
--	if (!tty_hung_up_p(filp))
-+	spin_lock_irqsave(&port->driver_lock, flags);
-+	if (!tty_hung_up_p(filp)) {
- 		port->count--;
--	sti();
-+	}
-+	spin_unlock_irqrestore(&port->driver_lock, flags);
- 	port->blocked_open++;
- 	while (1) {
- 		CD = port->rd->get_CD (port);
-@@ -623,8 +625,9 @@
- 		    port->blocked_open);
- 	set_current_state (TASK_RUNNING);
- 	remove_wait_queue(&port->open_wait, &wait);
--	if (!tty_hung_up_p(filp))
-+	if (!tty_hung_up_p(filp)) {
- 		port->count++;
-+	}
- 	port->blocked_open--;
- 	if (retval)
- 		return retval;
-@@ -654,27 +657,29 @@
- 		port->tty = tty;
- 	}
- 
--	save_flags(flags); cli();
-+	spin_lock_irqsave(&port->driver_lock, flags);
- 
- 	if (tty_hung_up_p(filp)) {
--		restore_flags(flags);
--		port->rd->hungup (port);
-+		spin_unlock_irqrestore(&port->driver_lock, flags);
-+		if (port->rd->hungup) 
-+			port->rd->hungup (port);
- 		func_exit ();
- 		return;
- 	}
- 
- 	if ((tty->count == 1) && (port->count != 1)) {
--		printk(KERN_ERR "gs: gs_close: bad port count;"
--		       " tty->count is 1, port count is %d\n", port->count);
-+		printk(KERN_ERR "gs: gs_close port %p: bad port count;"
-+		       " tty->count is 1, port count is %d\n", port, port->count);
- 		port->count = 1;
- 	}
- 	if (--port->count < 0) {
--		printk(KERN_ERR "gs: gs_close: bad port count: %d\n", port->count);
-+		printk(KERN_ERR "gs: gs_close port %p: bad port count: %d\n", port, port->count);
- 		port->count = 0;
- 	}
-+
- 	if (port->count) {
--		gs_dprintk(GS_DEBUG_CLOSE, "gs_close: count: %d\n", port->count);
--		restore_flags(flags);
-+		gs_dprintk(GS_DEBUG_CLOSE, "gs_close port %p: count: %d\n", port, port->count);
-+		spin_unlock_irqrestore(&port->driver_lock, flags);
- 		func_exit ();
- 		return;
- 	}
-@@ -696,16 +701,17 @@
- 	 */
- 
- 	port->rd->disable_rx_interrupts (port);
-+	spin_unlock_irqrestore(&port->driver_lock, flags);
- 
- 	/* close has no way of returning "EINTR", so discard return value */
- 	if (port->closing_wait != ASYNC_CLOSING_WAIT_NONE)
--		gs_wait_tx_flushed (port, port->closing_wait); 
-+		gs_wait_tx_flushed (port, port->closing_wait);
- 
- 	port->flags &= ~GS_ACTIVE;
- 
- 	if (tty->driver->flush_buffer)
- 		tty->driver->flush_buffer(tty);
--		
-+
- 	tty_ldisc_flush(tty);
- 	tty->closing = 0;
- 
-@@ -716,14 +722,15 @@
- 
- 	if (port->blocked_open) {
- 		if (port->close_delay) {
-+			spin_unlock_irqrestore(&port->driver_lock, flags);
- 			msleep_interruptible(jiffies_to_msecs(port->close_delay));
-+			spin_lock_irqsave(&port->driver_lock, flags);
- 		}
- 		wake_up_interruptible(&port->open_wait);
- 	}
- 	port->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING | ASYNC_INITIALIZED);
- 	wake_up_interruptible(&port->close_wait);
- 
--	restore_flags(flags);
- 	func_exit ();
- }
- 
-@@ -748,6 +755,12 @@
- 	port = tty->driver_data;
- 
- 	if (!port) return;
-+	if (!port->tty) {
-+		/* This seems to happen when this is called after gs_close. */
-+		gs_dprintk (GS_DEBUG_TERMIOS, "gs: Odd: port->tty is NULL\n");
-+		port->tty = tty;
-+	}
-+	
- 
- 	tiosp = tty->termios;
- 
-@@ -842,7 +855,7 @@
- 
- 	if (!(old_termios->c_cflag & CLOCAL) &&
- 	    (tty->termios->c_cflag & CLOCAL))
--		wake_up_interruptible(&info->open_wait);
-+		wake_up_interruptible(&port->gs.open_wait);
- #endif
- 
- 	func_exit();
-@@ -857,56 +870,56 @@
- 	unsigned long flags;
- 	unsigned long page;
- 
--	save_flags (flags);
--	if (!tmp_buf) {
--		page = get_zeroed_page(GFP_KERNEL);
-+	func_enter ();
- 
--		cli (); /* Don't expect this to make a difference. */ 
-+        if (!tmp_buf) {
-+		page = get_zeroed_page(GFP_KERNEL);
-+		spin_lock_irqsave (&port->driver_lock, flags); /* Don't expect this to make a difference. */ 
- 		if (tmp_buf)
- 			free_page(page);
- 		else
- 			tmp_buf = (unsigned char *) page;
--		restore_flags (flags);
--
-+		spin_unlock_irqrestore (&port->driver_lock, flags);
- 		if (!tmp_buf) {
-+			func_exit ();
- 			return -ENOMEM;
- 		}
- 	}
- 
--	if (port->flags & ASYNC_INITIALIZED)
-+	if (port->flags & ASYNC_INITIALIZED) {
-+		func_exit ();
- 		return 0;
--
-+	}
- 	if (!port->xmit_buf) {
- 		/* We may sleep in get_zeroed_page() */
- 		unsigned long tmp;
- 
- 		tmp = get_zeroed_page(GFP_KERNEL);
--
--		/* Spinlock? */
--		cli ();
-+		spin_lock_irqsave (&port->driver_lock, flags);
- 		if (port->xmit_buf) 
- 			free_page (tmp);
- 		else
- 			port->xmit_buf = (unsigned char *) tmp;
--		restore_flags (flags);
--
--		if (!port->xmit_buf)
-+		spin_unlock_irqrestore(&port->driver_lock, flags);
-+		if (!port->xmit_buf) {
-+			func_exit ();
- 			return -ENOMEM;
-+		}
- 	}
- 
--	cli();
--
-+	spin_lock_irqsave (&port->driver_lock, flags);
- 	if (port->tty) 
- 		clear_bit(TTY_IO_ERROR, &port->tty->flags);
--
-+	init_MUTEX(&port->port_write_sem);
- 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
--
-+	spin_unlock_irqrestore(&port->driver_lock, flags);
- 	gs_set_termios(port->tty, NULL);
--
-+	spin_lock_irqsave (&port->driver_lock, flags);
- 	port->flags |= ASYNC_INITIALIZED;
- 	port->flags &= ~GS_TX_INTEN;
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&port->driver_lock, flags);
-+	func_exit ();
- 	return 0;
- }
- 
-@@ -977,13 +990,15 @@
- 
- void gs_got_break(struct gs_port *port)
+ int rio_minor(struct tty_struct *tty)
  {
-+	func_enter ();
-+
-+	tty_insert_flip_char(port->tty, 0, TTY_BREAK);
-+	tty_schedule_flip(port->tty);
- 	if (port->flags & ASYNC_SAK) {
- 		do_SAK (port->tty);
- 	}
--	*(port->tty->flip.flag_buf_ptr) = TTY_BREAK;
--	port->tty->flip.flag_buf_ptr++;
--	port->tty->flip.char_buf_ptr++;
--	port->tty->flip.count++;
-+
-+	func_exit ();
+-	return tty->index + (tty->driver == rio_driver) ? 0 : 256;
++	return tty->index + ((tty->driver == rio_driver) ? 0 : 256);
  }
  
  
-diff -u -r linux-2.6.10-rc3-clean/include/linux/generic_serial.h linux-2.6.10-rc3-generix-serial/include/linux/generic_serial.h
---- linux-2.6.10-rc3-clean/include/linux/generic_serial.h	Fri Dec  3 15:14:23 2004
-+++ linux-2.6.10-rc3-generix-serial/include/linux/generic_serial.h	Fri Dec  3 15:23:37 2004
-@@ -34,7 +34,7 @@
-   int                     xmit_head;
-   int                     xmit_tail;
-   int                     xmit_cnt;
--  /*  struct semaphore        port_write_sem; */
-+  struct semaphore        port_write_sem;
-   int                     flags;
-   wait_queue_head_t       open_wait;
-   wait_queue_head_t       close_wait;
-@@ -49,6 +49,7 @@
-   int                     baud_base;
-   int                     baud;
-   int                     custom_divisor;
-+  spinlock_t              driver_lock;
- };
+@@ -405,6 +405,8 @@
+ static irqreturn_t rio_interrupt (int irq, void *ptr, struct pt_regs *regs)
+ {
+   struct Host *HostP;
++  int old_debug=rio_debug;
++  rio_debug=0;
+   func_enter ();
  
+   HostP = (struct Host*)ptr; /* &p->RIOHosts[(long)ptr]; */
+@@ -458,12 +460,14 @@
+     rio_reset_interrupt (HostP);
+   }
  
-@@ -70,6 +71,7 @@
- #define GS_DEBUG_STUFF   0x00000008
- #define GS_DEBUG_CLOSE   0x00000010
- #define GS_DEBUG_FLOW    0x00000020
-+#define GS_DEBUG_WRITE   0x00000040
+-  if ((HostP->Flags & RUN_STATE) != RC_RUNNING)
++  if ((HostP->Flags & RUN_STATE) != RC_RUNNING) {
++          rio_debug=old_debug;
+   	return IRQ_HANDLED;
+-
++  }
+   if (test_and_set_bit (RIO_BOARD_INTR_LOCK, &HostP->locks)) {
+     printk (KERN_ERR "Recursive interrupt! (host %d/irq%d)\n", 
+             (int) ptr, HostP->Ivec);
++    rio_debug=old_debug;
+     return IRQ_HANDLED;
+   }
  
+@@ -476,6 +480,7 @@
+   rio_dprintk (RIO_DEBUG_IFLOW, "rio: exit rio_interrupt (%d/%d)\n", 
+                irq, HostP->Ivec); 
+   func_exit ();
++rio_debug=old_debug;
+   return IRQ_HANDLED;
+ }
  
- void gs_put_char(struct tty_struct *tty, unsigned char ch);
+@@ -726,6 +731,9 @@
+       rc = gs_setserial(&PortP->gs, (struct serial_struct *) arg);
+     break;
+ #if 0
++    /* As far as we know this is impossible -- PVDL */
++
++
+   /*
+    * note: these IOCTLs no longer reach here.  Use
+    * tiocmset/tiocmget driver methods instead.  The
+@@ -980,6 +988,7 @@
+     port->gs.closing_wait = 30 * HZ;
+     port->gs.rd = &rio_real_driver;
+     port->portSem = SPIN_LOCK_UNLOCKED;
++    port->gs.driver_lock = SPIN_LOCK_UNLOCKED;
+     /*
+      * Initializing wait queue
+      */
+@@ -1048,7 +1057,7 @@
+ void fix_rio_pci (struct pci_dev *pdev)
+ {
+   unsigned int hwbase;
+-  unsigned long rebase;
++  char *rebase;
+   unsigned int t;
+ 
+ #define CNTRL_REG_OFFSET        0x50
+@@ -1056,7 +1065,7 @@
+ 
+   pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &hwbase);
+   hwbase &= PCI_BASE_ADDRESS_MEM_MASK;
+-  rebase =  (ulong) ioremap(hwbase, 0x80);
++  rebase =  ioremap(hwbase, 0x80);
+   t = readl (rebase + CNTRL_REG_OFFSET);
+   if (t != CNTRL_REG_GOODVALUE) {
+     printk (KERN_DEBUG "rio: performing cntrl reg fix: %08x -> %08x\n", 
+@@ -1137,7 +1146,7 @@
+       if (((1 << hp->Ivec) & rio_irqmask) == 0)
+               hp->Ivec = 0;
+       hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
+-      hp->CardP	= (struct DpRam *) hp->Caddr;
++      hp->CardP = (struct DpRam *) hp->Caddr;
+       hp->Type  = RIO_PCI;
+       hp->Copy  = rio_pcicopy; 
+       hp->Mode  = RIO_PCI_BOOT_FROM_RAM;
+@@ -1195,7 +1204,7 @@
+       	hp->Ivec = 0;
+       hp->Ivec |= 0x8000; /* Mark as non-sharable */
+       hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
+-      hp->CardP	= (struct DpRam *) hp->Caddr;
++      hp->CardP = (struct DpRam *) hp->Caddr;
+       hp->Type  = RIO_PCI;
+       hp->Copy  = rio_pcicopy;
+       hp->Mode  = RIO_PCI_BOOT_FROM_RAM;
+diff -u -r linux-2.6.10-rc3-clean/drivers/char/rio/riotty.c linux-2.6.10-rc3-rio/drivers/char/rio/riotty.c
+--- linux-2.6.10-rc3-clean/drivers/char/rio/riotty.c	Sat Aug 14 07:36:56 2004
++++ linux-2.6.10-rc3-rio/drivers/char/rio/riotty.c	Fri Dec  3 15:28:48 2004
+@@ -202,7 +202,10 @@
+ 	}
+ 
+ 	tty->driver_data = PortP;
+-
++	
++	if (PortP->gs.flags & ASYNC_CLOSING){
++		interruptible_sleep_on(&PortP->gs.close_wait);
++	}
+ 	PortP->gs.tty = tty;
+ 	PortP->gs.count++;
+ 
+@@ -408,6 +411,7 @@
+ bombout:
+ 		  /* 			RIOClearUp( PortP ); */
+ 			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
++			func_exit ();
+ 			return retval;
+ 		}
+ 		rio_dprintk (RIO_DEBUG_TTY, "PORT_ISOPEN found\n");
+@@ -458,15 +462,19 @@
+ 					*/
+ 					rio_dprintk (RIO_DEBUG_TTY, "open(%d) sleeping for carr broken by signal\n",
+ 					       SysPort);
+-					RIOPreemptiveCmd( p, PortP, FCLOSE );
++
++					// Do not close port on RTA if the port	has multiple opens.
++					if( PortP->gs.count <= 1 )
++						RIOPreemptiveCmd( p, PortP, FCLOSE );
++
+ 					/*
+ 					tp->tm.c_state &= ~WOPEN;
+ 					*/
+ 					PortP->State &= ~RIO_WOPEN;
+-					rio_spin_unlock_irqrestore(&PortP->portSem, flags);
+ 					func_exit ();
+ 					return -EINTR;
+ 				}
++				rio_spin_lock_irqsave(&PortP->portSem, flags);
+ 			}
+ 			PortP->State &= ~RIO_WOPEN;
+ 		}
+@@ -525,7 +533,7 @@
+ 	int	try = -1; /* Disable the timeouts by setting them to -1 */
+ 	int	repeat_this = -1; /* Congrats to those having 15 years of 
+ 				     uptime! (You get to break the driver.) */
+-	long end_time;
++	unsigned long end_time;
+ 	struct tty_struct * tty;
+ 	unsigned long flags;
+ 	int Modem;
+@@ -659,6 +667,7 @@
+ 
+ 	if (RIOShortCommand(p, PortP, CLOSE, 1, 0) == RIO_FAIL) {
+ 	  RIOPreemptiveCmd(p, PortP,FCLOSE);
++	  rio_spin_lock_irqsave(&PortP->portSem, flags);
+ 	  goto close_end;
+ 	}
+ 
+@@ -675,6 +684,7 @@
+ 
+ 		if ( p->RIOHalted ) {
+ 			RIOClearUp( PortP );
++			rio_spin_lock_irqsave(&PortP->portSem, flags);
+ 			goto close_end;
+ 		}
+ 		if (RIODelay(PortP, HUNDRED_MS) == RIO_FAIL) {
 
---MW5yreqqjyrRcusr--
+--E13BgyNx05feLLmH--

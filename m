@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbTIOVKh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbTIOVKh
+	id S261542AbTIOVTX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 17:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbTIOVTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:10:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59072 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261644AbTIOVKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:10:35 -0400
-Date: Mon, 15 Sep 2003 14:10:27 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: Monster file_lock_cache entry in /proc/slabinfo
-Message-ID: <20030915141027.G1363@osdlab.pdx.osdl.net>
-References: <m3k78923wy.fsf@lugabout.jhcloos.org> <20030915132514.0bee90bc.akpm@osdl.org> <20030915134202.A1378@osdlab.pdx.osdl.net> <20030915132514.0bee90bc.akpm@osdl.org> <m38yop22jt.fsf@lugabout.jhcloos.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m38yop22jt.fsf@lugabout.jhcloos.org>; from cloos@jhcloos.com on Mon, Sep 15, 2003 at 04:56:54PM -0400
+	Mon, 15 Sep 2003 17:19:23 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:13837 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S261542AbTIOVTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 17:19:22 -0400
+Date: Mon, 15 Sep 2003 18:19:25 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+cc: "David S. Miller" <davem@redhat.com>, <mroos@linux.ee>,
+       <linux-kernel@vger.kernel.org>, <benh@kernel.crashing.org>
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+In-Reply-To: <Pine.LNX.4.44.0309151623090.24675-100000@deadlock.et.tudelft.nl>
+Message-ID: <Pine.LNX.4.44.0309151818340.2914-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James H. Cloos Jr. (cloos@jhcloos.com) wrote:
-> Is file_lock_cache only a recent issue, then?  The slowdown has been
-> going on for at least the last 20 or so release tags.
 
-Comparing the patch lines to the repo history in bk, this looks like
-it's been around since 2.5.39 or so...I suspect this patch is all you
-need.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+On Mon, 15 Sep 2003, Daniël Mantione wrote:
+
+> Hello,
+> 
+> The patch below fixes the Atyfb problems on the Sparc.
+> 
+> Greetings,
+> 
+> Daniël Mantione
+
+Ben reported it breaks PPC, too...
+

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137123AbRAHNLk>; Mon, 8 Jan 2001 08:11:40 -0500
+	id <S137124AbRAHNMa>; Mon, 8 Jan 2001 08:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137124AbRAHNLa>; Mon, 8 Jan 2001 08:11:30 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:1036 "HELO
-	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S137123AbRAHNLT>; Mon, 8 Jan 2001 08:11:19 -0500
-Date: Mon, 8 Jan 2001 14:10:31 +0100
-From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010108141031.A2528@gidayu.max.uni-duisburg.de>
-In-Reply-To: <3A598474.3A69C684@uow.edu.au> <E14FauT-0004Nn-00@the-village.bc.nu> <3A59B83F.F39503E3@uow.edu.au>
+	id <S143598AbRAHNMU>; Mon, 8 Jan 2001 08:12:20 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:386 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S137124AbRAHNMN>; Mon, 8 Jan 2001 08:12:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.10.10101071938540.28661-100000@penguin.transmeta.com> 
+In-Reply-To: <Pine.LNX.4.10.10101071938540.28661-100000@penguin.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch (repost): cramfs memory corruption fix 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A59B83F.F39503E3@uow.edu.au>; from andrewm@uow.edu.au on Mon, Jan 08, 2001 at 11:53:19PM +1100
+Date: Mon, 08 Jan 2001 13:11:56 +0000
+Message-ID: <23514.978959516@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
 
-On Mon, Jan 08, 2001 at 11:53:19PM +1100, Andrew Morton wrote:
-> so perhaps I have not in fact reproduced the problem.  Hopefully
-> Christian can retest with a later pump and let me know.
+torvalds@transmeta.com said:
+>  Also, if you care about memory usage, you're likely to be much better
+> off using ramfs rather than something like "ext2 on ramdisk". You
+> won't get the double buffering. 
 
-I fear I can't...I have no 3com905C in reach anymore as I had it
-exchanged for a NetGear NIC. :(
+That'll be even more useful once we can completely configure out all 
+support for block devices too.
 
-- Chris
+--
+dwmw2
 
--- 
-Christian Loth
-Coder of 'Project Gidayu'
-Computer Science Student, University of Dortmund
-chris@gidayu.mud.de - http://gidayu.mud.de
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

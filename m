@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130438AbRCIG77>; Fri, 9 Mar 2001 01:59:59 -0500
+	id <S130443AbRCIH24>; Fri, 9 Mar 2001 02:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130441AbRCIG7t>; Fri, 9 Mar 2001 01:59:49 -0500
-Received: from letterman.noris.net ([62.128.1.26]:39685 "EHLO mail1.noris.net")
-	by vger.kernel.org with ESMTP id <S130438AbRCIG7g>;
-	Fri, 9 Mar 2001 01:59:36 -0500
-From: "Matthias Urlichs" <smurf@noris.de>
-Date: Fri, 9 Mar 2001 07:59:08 +0100
+	id <S130446AbRCIH2q>; Fri, 9 Mar 2001 02:28:46 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:13061 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130443AbRCIH2c>;
+	Fri, 9 Mar 2001 02:28:32 -0500
+Date: Thu, 8 Mar 2001 21:54:48 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010309075908.Z8922@noris.de>
-In-Reply-To: <1epyyz1.etswlv1kmicnqM%smurf@noris.de>
+Subject: Re: Linux 2.4.2ac12 (vt82c686 info)
+Message-ID: <20010308215448.A391@suse.cz>
+In-Reply-To: <20010307201437.A5030@suse.cz> <Pine.LNX.3.95.1010307131509.31180A-100000@scsoftware.sc-software.com> <20010308091706.B799@suse.cz> <20010308113542.B745@ogah.cgma1.ab.wave.home.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1epyyz1.etswlv1kmicnqM%smurf@noris.de>; from smurf@noris.de on Fri, Mar 09, 2001 at 07:34:35AM +0100
+In-Reply-To: <20010308113542.B745@ogah.cgma1.ab.wave.home.com>; from ogah@home.com on Thu, Mar 08, 2001 at 11:35:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 08, 2001 at 11:35:42AM -0700, Harold Oga wrote:
 
-Matthias Urlichs:
-> On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> > SCSI certainly lets us do both of these operations independently.  IDE
-> > has the sync/flush command afaik, but I'm not sure whether the IDE
-> > tagged command stuff has the equivalent of SCSI's ordered tag bits.
-> > Andre?
-> 
-> IDE has no concept of ordered tags...
-> 
-But most disks these days support IDE-SCSI, and SCSI does have ordered
-tags, so...
+> On Thu, Mar 08, 2001 at 09:17:06AM +0100, Vojtech Pavlik wrote:
+> >On Wed, Mar 07, 2001 at 01:23:49PM +0000, John Heil wrote:
+> >Make sure you use the latest 2.4.2-acxx drivers. Most other versions of
+> >my drivers have little bugs in the 686b support. Harmless but somewhat
+> >annoying.
+> Hi,
+>    Hmm, last I checked, Alan had only included v3.21 of your VIA ide
+> driver in the 2.4.2-acxx series, which still had some minor problems with
+> the 686B.  These didn't clear up until v4.3 of the driver.
 
-Has anybody done speed comparisons between "native" IDE and IDE-SCSI?
+3.21 has these fixes in it. It's series 3 because it doesn't include the
+PCI speed measurement feature.
 
 -- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
--- 
-Success is something I will dress for when I get there, and not until.
+Vojtech Pavlik
+SuSE Labs

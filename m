@@ -1,78 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264383AbTLBViZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 16:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTLBViZ
+	id S264388AbTLBVk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 16:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTLBVk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 16:38:25 -0500
-Received: from web41212.mail.yahoo.com ([66.218.93.45]:21598 "HELO
-	web41212.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264383AbTLBViX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 16:38:23 -0500
-Message-ID: <20031202213817.16948.qmail@web41212.mail.yahoo.com>
-Date: Tue, 2 Dec 2003 13:38:17 -0800 (PST)
-From: Jin Suh <jinssuh@yahoo.com>
-Subject: Re: [2.6.0-test11]: It doesn't boot with a bootcd
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3FCD01C2.2020107@myrealbox.com>
-MIME-Version: 1.0
+	Tue, 2 Dec 2003 16:40:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:429 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264388AbTLBVk0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 16:40:26 -0500
+Date: Tue, 2 Dec 2003 13:40:18 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Ville Herva <vherva@twilight.cs.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202134018.A12116@osdlab.pdx.osdl.net>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <20031202131311.GA10915@physik.tu-cottbus.de> <3FCC95BB.60205@wmich.edu> <20031202160136.GB10915@physik.tu-cottbus.de> <20031202160853.GB22608@gtf.org> <20031202201933.GE1524@niksula.cs.hut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031202201933.GE1524@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Tue, Dec 02, 2003 at 10:19:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With framebuffer option on, it went to out ot range on my monitor shortly after
-I see Loading Linux.... and about 10 lines of boot messages (couldn't read the
-messages).
-Without framebuffer option, my monitor goes to a messed-up color right after I
-see Loading Linux... and few other lines. 
-
-Thanks,
-Jin
-
---- Jonathan Fors <etnoy@myrealbox.com> wrote:
-> Jin Suh wrote:
+* Ville Herva (vherva@niksula.hut.fi) wrote:
+> On Tue, Dec 02, 2003 at 11:08:53AM -0500, you [Jeff Garzik] wrote:
+> > Bug fixes, security errata, and the like will always be OK for 2.4.  Just
+> > like Alan continues to release new 2.2.x releases, when major bugs are
+> > found.
 > 
-> >Hi,
-> >
-> >I've been trying to build a bootcd with 2.6.0-test11 but it doesn't boot
-> either
-> >with framebuffer or without framebuffer. I also tried 2.6.0-testX-mm[1,2]
-> but
-> >same problems. I could make it work on test6 with no framebuffer once. But
-> >test7 to test11 never worked. My bootcd works fine with 2.4.20. I upgraded
-> >bin-utils, linux-utils, other tools and  libraries to use 2.6.0 following
-> the
-> >Documentation/Changes file. My kernel config file is nothing special. It is
-> >based on 2.4.20 and added few things like XFS. I used to see Oops crashes
-> but I
-> >don't see those any more but it stops in middle of booting and hangs. If any
-> >bootcd builders are out there and have any experiences on 2.6.0-testx,
-> please
-> >let me know. Thanks in advance!
-> >
-> >Jin
-> >
-> >
-> >__________________________________
-> >Do you Yahoo!?
-> >Free Pop-Up Blocker - Get it now
-> >http://companion.yahoo.com/
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> >  
-> >
-> Jin, when does the hang during the boot occur?
-> 
-> Jonathan
-> 
+> Which btw invites the question: the recent brk() security fix was ported
+> from 2.5 to 2.4, right? Any idea whether it applies to 2.2 (and 2.0), too?
 
+2.2 and 2.0 look ok as they use do_mmap() which has proper checks.
 
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129472AbQJ0BP6>; Thu, 26 Oct 2000 21:15:58 -0400
+	id <S130028AbQJ0BWK>; Thu, 26 Oct 2000 21:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130085AbQJ0BPs>; Thu, 26 Oct 2000 21:15:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5204 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129472AbQJ0BPi>; Thu, 26 Oct 2000 21:15:38 -0400
-Subject: Re: missing mxcsr initialization
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 27 Oct 2000 02:15:41 +0100 (BST)
-Cc: dledford@redhat.com (Doug Ledford),
-        torvalds@transmeta.com (Linus Torvalds),
-        paubert@iram.es (Gabriel Paubert), mingo@redhat.com,
-        gareth@valinux.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20001026021731.B23895@athlon.random> from "Andrea Arcangeli" at Oct 26, 2000 02:17:31 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13oy7T-00043v-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129938AbQJ0BWB>; Thu, 26 Oct 2000 21:22:01 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:62479
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S130028AbQJ0BVj>;
+	Thu, 26 Oct 2000 21:21:39 -0400
+Date: Thu, 26 Oct 2000 18:21:37 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linus@goop.org
+Subject: Re: [PATCH] address-space identification for /proc
+Message-ID: <20001026182137.A31159@goop.org>
+Mail-Followup-To: Jeremy Fitzhardinge <jeremy@goop.org>,
+	Johannes Erdfelt <johannes@erdfelt.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, linus@goop.org
+In-Reply-To: <20001026154527.A30463@goop.org> <20001026155225.B30463@goop.org> <20001026190126.E28472@sventech.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001026190126.E28472@sventech.com>; from johannes@erdfelt.com on Thu, Oct 26, 2000 at 07:01:26PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > corrected for include the facts that the XMM feature bit is an Intel specific
-> > bit that other vendors may use for other things, so you need to test vendor ==
-> 			 ^^^
-> Note that they shouldn't do that! I would consider a very bad thing if they
-> goes out of sync on those bits.
 
-CPUID is vendor specific. Every bit in those fields is vendor specific. Every
-piece of documentation tells you to check the CPU vendor.  Every time we didnt 
-bother we got burned.
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I keep hearing people saying things like 'bad thing' 'assume standards'. Well
-all I can say is cite a vendor issued document which says 'dont bother checking
-the vendor'. 
+On Thu, Oct 26, 2000 at 07:01:26PM -0400, Johannes Erdfelt wrote:
+> and even more obvious:
+>=20
+> +	buffer +=3D sprintf(buffer, "ASID:\t%p\n", mm);
+>=20
+> Actually putting it into the buffer would be useful as well :)
 
-And when you can't find that document, put the checks in so we dont crash on
-an Athlon or when using MTRR on a Cyrix III etc
+That serves me right for hand-editing patches.
 
-Alan
+	J
+--
+Repeat to self: I am not Linus
 
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEARECAAYFAjn42KEACgkQf6p1nWJ6IgKCIgCdGiEZ8homEHJ7sEK8BAxAm5QV
+ggQAn17XszXbn8xoshWveq2H1yFEzU4T
+=esBN
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

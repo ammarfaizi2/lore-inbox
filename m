@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263633AbSITVs3>; Fri, 20 Sep 2002 17:48:29 -0400
+	id <S263712AbSITWC5>; Fri, 20 Sep 2002 18:02:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263712AbSITVs3>; Fri, 20 Sep 2002 17:48:29 -0400
-Received: from packet.digeo.com ([12.110.80.53]:27590 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263633AbSITVs2>;
-	Fri, 20 Sep 2002 17:48:28 -0400
-Message-ID: <3D8B98D4.67A76C1C@digeo.com>
-Date: Fri, 20 Sep 2002 14:53:24 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S263752AbSITWC5>; Fri, 20 Sep 2002 18:02:57 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:36747 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S263712AbSITWC4>; Fri, 20 Sep 2002 18:02:56 -0400
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DE9E@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI: Call for testers
+Date: Fri, 20 Sep 2002 15:07:51 -0700
 MIME-Version: 1.0
-To: Michael Sinz <msinz@wgate.com>
-CC: mks@sinz.org, marcelo@conectiva.com.br, Robert Love <rml@tech9.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
-References: <3D8B87C7.7040106@wgate.com> <3D8B8CAB.103C6CB8@digeo.com> <3D8B934A.1060900@wgate.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2002 21:53:28.0412 (UTC) FILETIME=[271859C0:01C260F0]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Sinz wrote:
-> 
-> ...
-> > Does it need to be this fancy?  Why not just have:
-> >
-> >         if (core_name_format is unset)
-> >                 use "core"
-> >         else
-> >                 use core_name_format/nodename-uid-pid-comm.core
-> >
-> > which saves all that string format processing, while giving
-> > people everything they could want?
-> 
-> Well, it depends on if you really need the complex form or not.
-> 
-> There are some people who use a format of:
-> 
->         %N.%P.core
-> 
-> which places the core file in the current directory but adds in the
-> name of the program.  (Something that is very nice when you have
-> a lot of programs that may core "together" when something bad happens)
+Hi all,
 
-They could use
+Since the last ACPI revision made it into the 2.4 kernel (10 months ago) we
+have been making steady improvement. Successive versions have been tested by
+subscribers to the acpi-devel mailing list, but to really be confident this
+patch is suitable for inclusion in the 2.4 stable branch, it needs testing
+from an even wider audience. We're hoping you can help. :)
 
-	echo . > /proc/sys/vm/core_path
+There are three pieces of data we're looking for, from as wide a spectrum of
+x86 machines as possible:
 
- 
-> The string processing is not that much work anyway (very small)
-> and, given the fact that I am about to write to disk a core dump,
-> it can not be a critical path/fast path issue either :-)
+1) Does it boot?
+(Does the system hang, oops, or otherwise fail in a non-graceful manner)
 
-True, but it's all more code and I don't believe that it adds
-much value.  It means that people need to run off and find
-the documentation, then choose a format.  Which will be different
-from other people's chosen formats.  Which will make development
-and testing and installation of downstream scripts harder, etc.
+2) Does it configure PCI interrupts properly?
+(/proc/interrupts may not be the same before and after, but devices should
+work like they did before the patch)
 
-You can give people *all* the options at no cost, and without
-irritating them, and with less code.  So why make it harder for
-everyone by adding this optionality?
+3) How do your results compare to the existing ACPI code in 2.4.x? Anything
+else interesting?
+(optional)
+
+If you're willing, please download the ACPI patch from here:
+http://sourceforge.net/project/showfiles.php?group_id=36832&release_id=11156
+2
+
+Please report your observations either to me, or preferably to
+acpi-devel@sourceforge.net.
+
+Thanks for your feedback!
+
+Regards -- Andy
+
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
+

@@ -1,111 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbRGWXz7>; Mon, 23 Jul 2001 19:55:59 -0400
+	id <S265377AbRGXAEI>; Mon, 23 Jul 2001 20:04:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265133AbRGWXzt>; Mon, 23 Jul 2001 19:55:49 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53521 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265101AbRGWXzh>; Mon, 23 Jul 2001 19:55:37 -0400
-From: Nathan Laredo <nlaredo@transmeta.com>
-Message-Id: <200107232355.QAA01785@nil.transmeta.com>
-Subject: patch for allowing msdos/vfat nfs exports
-To: linux-kernel@vger.kernel.org
-Date: Mon, 23 Jul 2001 16:55:17 -0700 (PDT)
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S265385AbRGXAD7>; Mon, 23 Jul 2001 20:03:59 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:8720 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265377AbRGXADu>; Mon, 23 Jul 2001 20:03:50 -0400
+Date: Tue, 24 Jul 2001 02:04:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Jeff Dike <jdike@karaya.com>,
+        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+Message-ID: <20010724020413.A29561@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com> <3B5C8C96.FE53F5BA@nortelnetworks.com> <20010723231136.E16919@athlon.random> <200107232150.f6NLosh13126@vindaloo.ras.ucalgary.ca> <20010724000933.I16919@athlon.random> <200107232347.f6NNl4u14416@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200107232347.f6NNl4u14416@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Mon, Jul 23, 2001 at 05:47:04PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Linus was nice enough to change the kernel this morning for me
-to allow msdos/vfat NFS exports.  Since this is totally new code
-and there is no guarantee it won't destroy everything on your
-fat filesystem he asked me to post the diff to the kernel mailing
-list so more people could look at it/test it out before it goes
-back into the standard kernel.
+On Mon, Jul 23, 2001 at 05:47:04PM -0600, Richard Gooch wrote:
+> I don't think it should be allowed to do that. That's a whipping
 
-The patch below is relative to Linus' current working tree
-(which should be the same 2.4.7 in theory).
+it is allowed to do that, period. This is not your choice or my choice.
+You may ask gcc folks not to do that and I think they just do.
 
-I've been using it for half a day now and so far it hasn't done
-anything bad, but please be careful if you decide to test it and
-backup your data and after testing, be sure to compare your data
-to your backup.
+> So grab a local snapshot of the variable, as Linus suggested. In fact,
+> the switch example is interesting, because one could argue the
+> opposite way, that declaring the switch variable as "volatile" means
+> that if GCC needs to internally re-"get" the variable, it should grab
+> it from memory, and thus definately fail. Without "volatile", GCC is
+> implicitely allowed to cache the variable (which is of course safe).
 
-Note: this patch will NOT work for older kernels.  dentry_to_fh and
-fh_to_dentry are provided (just as in reiserfs).
+If gcc caches there's no problem indeed, the problem is when it doesn't
+cache it which can happen, with volatile it will understand it must not
+make assumption for the variable to not change under it. Anyways as just
+said in another email in this thread I'm been told it wasn't just for
+'case'. I think tomorrow Honza will comment this since he's the gcc
+developer who asked those kernel bugs to be fixed for gcc.
 
-Please send me email directly with your experiences using this patch
-since I offered to collect them for Linus.
-
--- Nathan Laredo
-nlaredo@transmeta.com
-
-
-diff -r -u linux/fs/fat/inode.c linux-new/fs/fat/inode.c
---- linux/fs/fat/inode.c	Mon Jun 11 19:15:27 2001
-+++ linux-new/fs/fat/inode.c	Mon Jul 23 14:35:41 2001
-@@ -403,12 +403,60 @@
- 	inode->i_nlink = fat_subdirs(inode)+2;
- }
- 
-+static int fat_dentry_to_fh(struct dentry *dentry, __u32 *data, int *lenp, int need_parent)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	unsigned int i_pos = MSDOS_I(inode)->i_location;
-+
-+	*data = i_pos;
-+	*lenp = 1;
-+	return 1;
-+}
-+
-+static struct dentry *fat_fh_to_dentry(struct super_block *sb, __u32 *data, int len, int fhtype, int parent)
-+{
-+	struct list_head *lp;
-+	struct dentry *result;
-+	unsigned int i_pos = data[0];
-+	struct inode *inode;
-+
-+	inode = fat_iget(sb, i_pos);
-+
-+	if (!inode)
-+		return ERR_PTR(-ESTALE);
-+
-+	/* now to find a dentry.
-+	 * If possible, get a well-connected one
-+	 */
-+	spin_lock(&dcache_lock);
-+	for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
-+	        result = list_entry(lp,struct dentry, d_alias);
-+	        if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
-+	                 dget_locked(result);
-+	                 result->d_vfs_flags |= DCACHE_REFERENCED;
-+	                 spin_unlock(&dcache_lock);
-+	                 iput(inode);
-+	                 return result;
-+	         }
-+	}
-+	spin_unlock(&dcache_lock);
-+	result = d_alloc_root(inode);
-+	if (result == NULL) {
-+	         iput(inode);
-+	         return ERR_PTR(-ENOMEM);
-+	}
-+	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
-+	return result;
-+}
-+
- static struct super_operations fat_sops = { 
- 	write_inode:	fat_write_inode,
- 	delete_inode:	fat_delete_inode,
- 	put_super:	fat_put_super,
- 	statfs:		fat_statfs,
- 	clear_inode:	fat_clear_inode,
-+	fh_to_dentry:	fat_fh_to_dentry,
-+	dentry_to_fh:	fat_dentry_to_fh
- };
- 
- /*
-
+Andrea

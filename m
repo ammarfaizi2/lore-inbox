@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTF0CpW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 22:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTF0Co5
+	id S263496AbTF0CpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 22:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTF0Cor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 22:44:57 -0400
-Received: from pcp03710388pcs.westk01.tn.comcast.net ([68.34.200.110]:17026
-	"EHLO ori.thedillows.org") by vger.kernel.org with ESMTP
-	id S263496AbTF0CoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 22:44:23 -0400
-Subject: Re: 2.4.21: kernel BUG at ide-iops.c:1262!
-From: David Dillow <dave@thedillows.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056663251.3172.7.camel@dhcp22.swansea.linux.org.uk>
-References: <1056493150.2840.17.camel@ori.thedillows.org>
-	 <20030624204828.I30001@newbox.localdomain>
-	 <1056513292.3885.2.camel@ori.thedillows.org>
-	 <1056557323.1444.4.camel@dhcp22.swansea.linux.org.uk>
-	 <1056597452.2732.4.camel@ori.thedillows.org>
-	 <1056663251.3172.7.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056682712.2610.18.camel@ori.thedillows.org>
+	Thu, 26 Jun 2003 22:44:47 -0400
+Received: from dp.samba.org ([66.70.73.150]:33752 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263535AbTF0CnS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 22:43:18 -0400
+Date: Fri, 27 Jun 2003 12:55:36 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Pavel Roskin <proski@gnu.org>
+Cc: Manuel Estrada Sainz <ranty@debian.org>,
+       LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>,
+       orinoco-devel@lists.sourceforge.net, jt@hpl.hp.com
+Subject: Re: [Orinoco-devel] orinoco_usb Request For Comments
+Message-ID: <20030627025536.GG1521@zax>
+Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
+	Manuel Estrada Sainz <ranty@debian.org>,
+	LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>,
+	orinoco-devel@lists.sourceforge.net, jt@hpl.hp.com
+References: <20030626205811.GA25783@ranty.pantax.net> <Pine.LNX.4.56.0306261734230.3732@marabou.research.att.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Jun 2003 22:58:32 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0306261734230.3732@marabou.research.att.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-26 at 17:34, Alan Cox wrote:
-> On Iau, 2003-06-26 at 04:17, David Dillow wrote:
-> > Trace; c01de899 <idescsi_reset+29/80>
-> > Trace; c01d891d <scsi_reset+11d/370>
+On Thu, Jun 26, 2003 at 06:03:23PM -0400, Pavel Roskin wrote:
+> On Thu, 26 Jun 2003, Manuel Estrada Sainz wrote:
 > 
-> Interesting trace.
+> >  I now believe that it is stable enough for the kernel, and I would like
+> >  to get it integrated in the official kernel tree.
+> >
+> >  At first I tried convincing David to accept the changes in the standard
+> >  orinoco driver but he was (rightfully) skeptic. Then Jean Tourrilhes
+> >  opened my eyes, the changes touch carefully crafted locking semantics
+> >  and could give trouble (although it has been working well for quite a
+> >  while), and suggested adding it as an independent (alternative) driver.
 > 
-> Lets try a little sanity check first then. Replace that whole 
-> idescsi_reset handler with "return SCSI_RESET_SNOOZE"
+> I think it's a reasonable request.  It's a pity that the future work on
+> the Orinoco driver won't be integrated into your driver automatically.  In
+> particular, scanning, monitor mode and switching to the separate wireless
+> handlers may be useful for the USB driver as well.
 
-With that change, I've burned two disks back to back with no oopsen.
+Indeed.  I certainly hope that at some point we can share at least
+parts of the code between the drivers.  I just haven't seen a good way
+to do it yet.
 
-All I get in the logs are these (expected) messages:
-scsi : aborting command due to timeout : pid 522, scsi0, channel 0, id
-0, lun 0
-scsi : aborting command due to timeout : pid 522, scsi0, channel 0, id
-0, lun 0
-SCSI host 0 abort (pid 522) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-SCSI host 0 channel 0 reset (pid 522) timed out - trying harder
-SCSI bus is being reset for host 0 channel 0.
-scsi : aborting command due to timeout : pid 144056, scsi0, channel 0,
-id 0, lu
-scsi : aborting command due to timeout : pid 144056, scsi0, channel 0,
-id 0, lu
-SCSI host 0 abort (pid 144056) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-SCSI host 0 channel 0 reset (pid 144056) timed out - trying harder
-SCSI bus is being reset for host 0 channel 0.
+> But indeed, Orinoco USB is very different from other Orinoco cards.  There
+> is a firmware that stands between the driver and the PCMCIA card, and that
+> firmware is less transparent than, say, PLX bridges.
 
-Don't know if you broke anything else, but I can burn with magicdev
-running and it not lock up the system now.
+Quite true.  I suspect we will never be able to cleanly merge the core
+of the Rx and Tx paths.  With luck though, we'll be able to share code
+for implementing the wireless extensions, some other support routines,
+and maybe parts of initialization.
 
-I've got four pieces of this media left, so if you want me to test the
-next iteration of the patch, give me a yell.
-
-Thanks,
-Dave
-
-
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

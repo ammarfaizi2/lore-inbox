@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263978AbTE1IfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 04:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264615AbTE1IfQ
+	id S264615AbTE1Ihf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 04:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264616AbTE1Ihe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 04:35:16 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:13063 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263978AbTE1IfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 04:35:15 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Date: Wed, 28 May 2003 10:40:49 +0200
-User-Agent: KMail/1.5.2
-Cc: kernel@kolivas.org, manish@storadinc.com, andrea@suse.de,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <3ED2DE86.2070406@storadinc.com> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com>
-In-Reply-To: <20030528005156.1fda5710.akpm@digeo.com>
+	Wed, 28 May 2003 04:37:34 -0400
+Received: from gw.enyo.de ([212.9.189.178]:16145 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S264615AbTE1Ihd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 04:37:33 -0400
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.69] ext3 error: rec_len %% 4 != 0
+References: <8765nva43w.fsf@deneb.enyo.de>
+	<20030528012512.5d631827.akpm@digeo.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+ linux-kernel@vger.kernel.org
+Date: Wed, 28 May 2003 10:50:44 +0200
+In-Reply-To: <20030528012512.5d631827.akpm@digeo.com> (Andrew Morton's
+ message of "Wed, 28 May 2003 01:25:12 -0700")
+Message-ID: <87ptm38nff.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305281040.49134.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 May 2003 09:51, Andrew Morton wrote:
+Andrew Morton <akpm@digeo.com> writes:
 
-Hi Andrew,
+> Are you using htree?  Run
+>
+> 	dumpe2fs -h /dev/hda1 | grep features
+>
+> and if it says "dir_index" then try turning it off:
+>
+> 	tune2fs -O ^dir_index /dev/hda1
+>
+> and reboot.
 
-> Yes, but why?
-I don't know :(
+No dir_index here, sorry.
 
-> It'd be interesting if any of these changes make a difference.
-I'll check it this evening! Many thanks.
+> If it is not an htree problem (and htree seems pretty stable now)
+> then possibly the IO system has lost some data.  If possible, try
+> using a normal old disk (no RAID).
 
-ciao, Marc
+Sorry, that's not possible, the data does not fit onto a single
+disk. 8-(
 
+> Falling back to ext2 for a while would be interesting.
 
+Okay, will fallback to ext2 next time a reboot is required.  (I guess
+removing the has_journal feature using tune2fs is the easiest way to
+do this, after a clean unmount, of course.)

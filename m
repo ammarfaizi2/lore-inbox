@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263211AbTCSWGR>; Wed, 19 Mar 2003 17:06:17 -0500
+	id <S263190AbTCSWFV>; Wed, 19 Mar 2003 17:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263212AbTCSWGR>; Wed, 19 Mar 2003 17:06:17 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:27578 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S263211AbTCSWGP>; Wed, 19 Mar 2003 17:06:15 -0500
-Message-ID: <3E78EC63.9050308@tmsusa.com>
-Date: Wed, 19 Mar 2003 14:17:07 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: elenstev@mesatop.com
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.65-mm2
-References: <20030319012115.466970fd.akpm@digeo.com>	 <1048103489.1962.87.camel@spc9.esa.lanl.gov>	 <20030319121055.685b9b8c.akpm@digeo.com>	 <1048107434.1743.12.camel@spc1.esa.lanl.gov> <1048111359.1807.13.camel@spc1.esa.lanl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263195AbTCSWFV>; Wed, 19 Mar 2003 17:05:21 -0500
+Received: from sarge.hbedv.com ([217.11.63.11]:33682 "EHLO sarge.hbedv.com")
+	by vger.kernel.org with ESMTP id <S263190AbTCSWFM>;
+	Wed, 19 Mar 2003 17:05:12 -0500
+Date: Wed, 19 Mar 2003 23:16:08 +0100
+From: Wolfram Schlich <lists@schlich.org>
+To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and shared IRQs
+Message-ID: <20030319221608.ALLYOURBASEAREBELONGTOUS.A29767@bla.fasel.org>
+Mail-Followup-To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: Axis of Weasel(s)
+X-Accept-Language: de, en, fr
+X-GPG-Key: 0xCD4DF205 (http://wolfram.schlich.org/wschlich.asc, x-hkp://wwwkeys.de.pgp.net)
+X-GPG-Fingerprint: 39EC 98CA 4130 E59A 1041  AD06 D3A1 C51D CD4D F205
+X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled Mar 24 2002 15:02:51)
+X-Face: |P()Q^fx-{=,K-3g?5@Id4o|o{Xf_5v:z3WIhR3fOW-$,*=[#[Qq<,@P!OsXbR|i6n=]B<3mzGC++F@K#wvoLEnIZuTR6wPCMQfxq!';9w[TiP3Bhz"r&$7eGFq7us@Z5Qd$3W[3W3:U7biTNZgf"<]LqwS
+X-Operating-System: Linux prometheus 2.4.21-pre5-grsec-1.9.9c #2 SMP Tue Mar 18 02:03:09 CET 2003 i686 unknown
+X-Uptime: 10:55pm up 7 min, 1 user, load average: 1.80, 1.29, 0.62
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.9; AVE: 6.18.0.2; VDF: 6.18.0.15; host: mx.bla.fasel.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven P. Cole wrote:
+Hi,
 
->I repeated the tests with 2.5.65-mm2 elevator=deadline and the situation
->was similar to elevator=as.  Running dbench on ext3, the response to
->desktop switches and window wiggles was improved over running dbench on
->reiserfs, but typing in Evolution was subject to long delays with dbench
->clients greater than 16.
->
->I rebooted with 2.5.65-bk and ran dbench on ext3 again.  Everything was
->going smoothly, excellent interactivity, and then with dbench 28, the
->system froze.  No response to pings, no response to alt-sysrq-b (after
->alt-sysrq-s).  A hard reset was required.  Nothing interesting logged.
->Too bad.  Before it crashed, 2.5.65-bk was responding to typing in an
->Evolution new message window better than -mm2.
->
+I am experiencing system hardlocks under the following conditions:
+- Hardware:
+  - Tyan Thunder K7 w/ 2x Athlon MP 1.2GHz (5x PCI)
+  - 2x Onboard Adaptec 7899P SCSI adapter
+	IRQ 16, IRQ 17
+  - 2x Onboard 3Com 3C982 100Mb 32bit PCI NIC
+  	IRQ 18, IRC 19
+  - 1x National Semiconductor DP83820 1000Mb 64bit PCI NIC
+	IRQ 16
+  - 2x Promise Ultra 133TX2 PDC20269
+    IRQ 16, IRQ 17
+- Software:
+  - Linux 2.4.21-pre5:
+  	CONFIG_IDE=y
+	CONFIG_BLK_DEV_IDEDISK=y
+	CONFIG_BLK_DEV_IDEPCI=y
+	CONFIG_BLK_DEV_GENERIC=y
+	CONFIG_IDEPCI_SHARE_IRQ=y
+	CONFIG_BLK_DEV_IDEDMA_PCI=y
+	CONFIG_IDEDMA_PCI_AUTO=y
+	CONFIG_BLK_DEV_IDEDMA=y
+	CONFIG_BLK_DEV_ADMA=y
+	CONFIG_BLK_DEV_PDC202XX_NEW=y
+	CONFIG_IDEPCI_SHARE_IRQ=y
+	CONFIG_IDEDMA_IVB=y
+	CONFIG_BLK_DEV_PDC202XX=y
+	CONFIG_BLK_DEV_IDE_MODES=y
 
-Just out of curiosity, what is the result of:
+When one of the Promise controllers is sharing the same IRQ with one of
+the NICs (don't matter which, I tried all) and data is copied *to* the
+machine over the network, the system deadlocks. When data is copied
+*from* the system over the network, it works all ok. Unfortunately the
+system BIOS doesn't give me any possibility of setting the IRQ
+channels by hand, so all I can do is put the cards into other slots.
 
-cat /proc/sys/sched/max_timeslice?
-
-Does setting that to e.g. 50 make -mm2 smooth?
-
-Joe
-
+Ah, at boot time the kernel spits out this message:
+--8<--
+I/O APIC: AMD Errata #22 may be present. In the event of instability try
+        : booting with the "noapic" option.
+--8<--
+I've not yet tried that, but will do now.
+-- 
+Wolfram Schlich; Friedhofstr. 8, D-88069 Tettnang; +49-(0)178-SCHLICH

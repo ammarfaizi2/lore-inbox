@@ -1,60 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263318AbRFRVYU>; Mon, 18 Jun 2001 17:24:20 -0400
+	id <S263346AbRFRVpE>; Mon, 18 Jun 2001 17:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263341AbRFRVYK>; Mon, 18 Jun 2001 17:24:10 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S263318AbRFRVX6>; Mon, 18 Jun 2001 17:23:58 -0400
-Date: Mon, 18 Jun 2001 17:23:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kelledin Tane <runesong@earthlink.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why can't I flush /dev/ram0?
-In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>
-Message-ID: <Pine.LNX.3.95.1010618172045.4490A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263358AbRFRVoz>; Mon, 18 Jun 2001 17:44:55 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:45841 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S263346AbRFRVoh>; Mon, 18 Jun 2001 17:44:37 -0400
+Date: Mon, 18 Jun 2001 16:44:28 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+Subject: What happened to lookup_dentry?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <PD1Rx.A.X-F.-YnL7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Kelledin Tane wrote:
+I'm porting a driver from 2.2 to 2.4, and this driver calls lookup_dentry,
+which doesn't exist in 2.4.  I've read through the source code and searched the
+web and newsgroups, and I can't find any explanation as to why lookup_dentry no
+longer exists or how I'm supposed to change code that uses it.  Can anyone help
+me?
 
-> At this point, I'm trying to get an initrd working properly.  So far, it
-> works, the system boots, etc. etc., but whenever I try to do a "blockdev
-> --flushbufs /dev/ram0", I get "device or resource busy"
-> 
-> When I mount the filesystem to check it out, nothing appears to have
-> anything open on the filesystem.  So why am I not able to flush it
-> clean?
-> 
-> This is kernel 2.4.5 stock, btw.
-> 
-> Kelledin
-> 
 
-If you have a directory called /initrd, in your root file-system,
-you may find that the old initrd is still mounted:
-
-Script started on Mon Jun 18 17:22:20 2001
-# ls /initrd
-bin  dev  etc  lib  linuxrc  sbin
-# umount /initrd
-# ls /initrd
-# exit
-exit
-Script done on Mon Jun 18 17:22:44 2001
-
-Unmount it first.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 

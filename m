@@ -1,76 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129283AbRBFTTp>; Tue, 6 Feb 2001 14:19:45 -0500
+	id <S129066AbRBFTVe>; Tue, 6 Feb 2001 14:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRBFTTe>; Tue, 6 Feb 2001 14:19:34 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:60688 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129664AbRBFTTX>; Tue, 6 Feb 2001 14:19:23 -0500
-Date: Tue, 6 Feb 2001 14:19:15 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: J Brook <jbk@postmark.net>, <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: Matrox G450 problems with 2.4.0 and xfree
-In-Reply-To: <14BA879D6F34@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0102061413230.6540-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129138AbRBFTVZ>; Tue, 6 Feb 2001 14:21:25 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12036 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129066AbRBFTVP>; Tue, 6 Feb 2001 14:21:15 -0500
+Date: Tue, 6 Feb 2001 11:20:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102061338380.15204-100000@today.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.10.10102061059100.1474-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Petr Vandrovec wrote:
-
->> >>  I don't have Windows installed on my machine, but I find that if I
->> >> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
->                                                             ^^^^^^^^^^^^^
->> >> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
->     ^^^^^^^^^^^^^^^^^^^
->> >
->> >Yes, they use same secret code... At least I think...
->>
->> Are you refering to Windows or Red Hat Linux?  I can assure you
->> that Red Hat Linux's XFree package doesn't have any secret code
->> in it with 110% certainty.  Nor will it have in the future.
->
->He is using XF4.0.2 with Matrox large-blob driver, not with XFree one.
->I'm 111% sure that this module contains code which is not freely
->available to mortals.
-
-Well then it is NOT the one shipping with Red Hat Linux.
-
->XFree4.0.2 mga driver does not work with G450 at all. I'm not sure whether
->you (or RedHat) applied G450 patches flying around. But it is still first
->head only, no digital LCD...
-
-I have applied various g450 patches to 4.0.2 from both matrox and
-elsewhere, and nobody seems to get it to work correctly.  The
-Matrox patches were not completely clean, so I might just pull
-them if no public patches appear soon.  It is not our fault for
-broken drivers..
-
-If anyone has open source g450 patches against stock 4.0.2 that
-get the thing to work at all, _please_ send me unified diffs, and
-I will put them into my next build.  I've yet to have my g450 do
-anything but turn off my monitor, although a handful of people
-claim they get it working to various degrees...  I don't have
-g450 specs either so..
-
-No binary modules are in the Red Hat XFree86 RPMS though, nor
-will there be.  Only 100% open source.  If the open source
-drivers do not work, then the card will not function period, and
-will not be supported.
 
 
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-"Facts do not cease to exist because they are ignored."
-                                               - Aldous Huxley
+On Tue, 6 Feb 2001, Ben LaHaise wrote:
+> On Tue, 6 Feb 2001, Ingo Molnar wrote:
+> 
+> > If you are merging based on (device, offset) values, then that's lowlevel
+> > - and this is what we have been doing for years.
+> >
+> > If you are merging based on (inode, offset), then it has flaws like not
+> > being able to merge through a loopback or stacked filesystem.
+> 
+> I disagree.  Loopback filesystems typically have their data contiguously
+> on disk and won't split up incoming requests any further.
+
+Face it.
+
+You NEED to merge and sort late. You _cannot_ do a good job early. Early
+on, you don't have any concept of what the final IO pattern will be: you
+will only have that once you've seen which requests are still pending etc,
+something that the higher level layers CANNOT do.
+
+Do you really want the higher levels to know about per-controller request
+locking etc? I don't think so. 
+
+Trust me. You HAVE to do the final decisions late in the game. You
+absolutely _cannot_ get the best performance except for trivial and
+uninteresting cases (ie one process that wants to read gigabytes of data
+in one single stream) otherwise.
+
+(It should be pointed out, btw, that SGI etc were often interested exactly
+in the trivial and uninteresting cases. When you have the DoD asking you
+to stream satellite pictures over the net as fast as you can, money being
+no object, you get a rather twisted picture of what is important and what
+is not)
+
+And I will turn your own argument against you: if you do merging at a low
+level anyway, there's little point in trying to do it at a higher level. 
+
+Higher levels should do high-level sequencing. They can (and should) do
+some amount of sorting - the lower levels will still do their own sort as
+part of the merging anyway, and the lower level sorting may actually end
+up being _different_ from a high-level sort because the lower levels know
+about the topology of the device, but higher levels giving data with
+"patterns" to it only make it easier for the lower levels to do a good
+job. So high-level sorting is not _necessary_, but it's probably a good
+idea.
+
+High-level merging is almost certainly not even a good idea - higher
+levels should try to _batch_ the requests, but that's a different issue,
+and is again all about giving lower levels "patterns". It's can also about
+simple issues like cache locality - batching things tends to make for
+better icache (and possibly dcache) behaviour.
+
+So you should separate out the issue of batching and merging. An dyou
+absolutely should realize that you should NOT ignore Ingo's arguments
+about loopback etc just because they don't fit the model you WANT them to
+fit. The fact is that higher levels should NOT know about things like RAID
+striping etc, yet that has a HUGE impact on the issue of merging (you do
+_not_ want to merge requests to separate disks - you'll just have to split
+them up again).
+
+> Here are the points I'm trying to address:
+> 
+> 	- reduce the overhead in submitting block ios, especially for
+> 	  large ios. Look at the %CPU usages differences between 512 byte
+> 	  blocks and 4KB blocks, this can be better.
+
+This is often a filesystem layer issue. Design your filesystem well, and
+you get a lot of batching for free.
+
+You can also batch the requests - this is basically what "readahead" is.
+That helps a lot. But that is NOT the same thing as merging. Not at all.
+The "batched" read-ahead requests may actually be split up among many
+different disks - and they will each then get separately merged with
+_other_ requests to those disks. See?
+
+And trust me, THAT is how you get good performance. Not by merging early.
+By merging late, and letting the disk layers do their own thing.
+
+> 	- make asynchronous io possible in the block layer.  This is
+> 	  impossible with the current ll_rw_block scheme and io request
+> 	  plugging.
+
+I'm surprised you say that. It's not only possible, but we do it all the
+time. What do you think the swapout and writing is? How do you think that
+read-ahead is actually _implemented_? Right. Read-ahead is NOT done as a
+"merge" operation. It's done as several asynchronous IO operations that
+the low-level stuff can choose (or not) to merge.
+
+What do you think happens if you do a "submit_bh()"? It's a _purely_
+asynchronous operation. It turns synchronous when you wait for the bh, not
+before.
+
+Your argument is nonsense.
+
+> 	- provide a generic mechanism for reordering io requests for
+> 	  devices which will benefit from this.  Make it a library for
+> 	  drivers to call into.  IDE for example will probably make use of
+> 	  it, but some high end devices do this on the controller.  This
+> 	  is the important point: Make it OPTIONAL.
+
+Ehh. You've just described exatcly what we have.
+
+This is what the whole elevator thing _is_. It's a library of routines.
+You don't have to use them, and in fact many things DO NOT use them. The
+loopback driver, for example, doesn't bother with sorting or merging at
+all, because it knows that it's only supposed to pass the request on to
+somebody else - who will do a hell of a lot better job of it.
+
+Some high-end drivers have their own merging stuff, exactly because they
+don't need the overhead - you're better off just feeding the request to
+the controller as soon as you can, as the controller itself will do all
+the merging and sorting anyway.
+
+> You mentioned non-spindle base io devices in your last message.  Take
+> something like a big RAM disk.  Now compare kiobuf base io to buffer head
+> based io.  Tell me which one is going to perform better.
+
+Buffer heads? 
+
+Go and read the code.
+
+Sure, it has some historical baggage still, but the fact is that it works
+a hell of a lot better than kiobufs and it _does_ know about merging
+multiple requests and handling errors in the middle of one request etc.
+You can get the full advantage of streaming megabytes of data in one
+request, AND still get proper error handling if it turns out that one
+sector in the middle was bad.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

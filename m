@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265396AbUHSLUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUHSLXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265396AbUHSLUM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 07:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUHSLUL
+	id S265354AbUHSLXp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 07:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUHSLXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 07:20:11 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57478 "HELO
+	Thu, 19 Aug 2004 07:23:45 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4999 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265396AbUHSLSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 07:18:42 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+	id S265383AbUHSLWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 07:22:17 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
 From: Lee Revell <rlrevell@joe-job.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
+To: Florian Schmidt <mista.tapas@gmx.net>
 Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040817191819.GA19449@thunk.org>
-References: <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-	 <1092374851.3450.13.camel@mindpipe> <1092375673.3450.15.camel@mindpipe>
-	 <20040813103151.GH8135@elte.hu>
-	 <1092699974.13981.95.camel@krustophenia.net>
-	 <20040817074826.GA1238@elte.hu>  <20040817191819.GA19449@thunk.org>
+       Thomas Charbonnel <thomas@undata.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040819132837.2c5403f4@mango.fruits.de>
+References: <20040816033623.GA12157@elte.hu>
+	 <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040819073247.GA1798@elte.hu>  <20040819132837.2c5403f4@mango.fruits.de>
 Content-Type: text/plain
-Message-Id: <1092914397.830.3.camel@krustophenia.net>
+Message-Id: <1092914613.830.7.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 19 Aug 2004 07:19:58 -0400
+Date: Thu, 19 Aug 2004 07:23:33 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 15:18, Theodore Ts'o wrote:
-> On Tue, Aug 17, 2004 at 09:48:26AM +0200, Ingo Molnar wrote:
-> > > +	return nbytes;
-> > > +    
+On Thu, 2004-08-19 at 07:28, Florian Schmidt wrote:
+> On Thu, 19 Aug 2004 09:32:47 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
 > > 
-> > since this effectively disables the random driver i cannot add it to the
-> > patch.
+> > i've uploaded the -P4 patch:
+> > 
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P4
 > 
-> I doubt SHA_CODE_SIZE will make a sufficient difference to avoid the
-> latency problems.  What we would need to do is to change the code so
-> that the rekey operation in __check_and_rekey takes place in a
-> workqueue.  Say, something like this (warning, I haven't tested this
-> patch; if it breaks, you get to keep both pieces):
+> Hi, this patch doesn't really apply cleanly. Do i need to worry about
+> the "fuzz" and the offsets?
 > 
 
-Tested, works for me.  This should probably be pushed upstream, as well
-as added to -P5, correct?  Is there any disadvantage to doing it this
-way?
+Does not seem to hurt anything.  Ingo probably has some differences in
+his tree, the 'fuzz' just means that patch was smart enough to figure
+out that they don't matter.
 
-Lee  
+Lee
 

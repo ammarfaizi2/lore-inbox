@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282081AbRLSScY>; Wed, 19 Dec 2001 13:32:24 -0500
+	id <S282242AbRLSSjz>; Wed, 19 Dec 2001 13:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282062AbRLSScP>; Wed, 19 Dec 2001 13:32:15 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:28867 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S282081AbRLSScC>; Wed, 19 Dec 2001 13:32:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Eli <eli@pflash.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x WinBookXL mouse & keyboard freeze
-Date: Wed, 19 Dec 2001 12:33:07 -0600
-X-Mailer: KMail [version 1.3.1]
+	id <S282329AbRLSSjp>; Wed, 19 Dec 2001 13:39:45 -0500
+Received: from [139.85.108.65] ([139.85.108.65]:32905 "EHLO rpppc1.hns.com")
+	by vger.kernel.org with ESMTP id <S282242AbRLSSj3>;
+	Wed, 19 Dec 2001 13:39:29 -0500
+To: "M. R. Brown" <mrbrown@0xd6.org>
+Cc: Benoit Poulot-Cazajous <poulot@ifrance.com>, linux-kernel@vger.kernel.org
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org>
+	<lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org>
+From: nbecker@fred.net
+Date: 19 Dec 2001 13:39:20 -0500
+In-Reply-To: <20011219175616.GD19236@0xd6.org>
+Message-ID: <x88itb3njfr.fsf@rpppc1.hns.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16GlVY-0000sF-00@albatross.prod.itd.earthlink.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+>>>>> "M" == M R Brown <mrbrown@0xd6.org> writes:
 
-When running any 2.4.x kernel, if gpm is running, touching the mouse ends all 
-keyboard input.  Starting X without touching the mouse does the same thing.
-The mouse in this case is the built-in trackpad thing common in notebooks.
-2.2.x works just fine.
 
-I don't know quite where to start on this... I've tried changing gpm 
-configuration, but that doesn't seem to help.
-(I'm running RedHat 7.2.)
+    M> Curious, what happens when you compile using gcc 3.0.1 against
+    M> -march=athlon?
 
-Any ideas on where I should start looking?
+Is it safe to use gcc-3.0.2 to compile the kernel?
 
-TIA,
-
-Eli  (Please CC me.) 
----------------.
-Eli Carter      \
-eli(a)pflash.com `-------------------------------------------------------

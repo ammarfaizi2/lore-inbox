@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVACOiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVACOyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVACOiv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 09:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVACOiv
+	id S261462AbVACOyG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 09:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVACOyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 09:38:51 -0500
-Received: from albireo.enyo.de ([212.9.189.169]:61083 "EHLO albireo.enyo.de")
-	by vger.kernel.org with ESMTP id S261466AbVACOiu (ORCPT
+	Mon, 3 Jan 2005 09:54:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:58912 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261462AbVACOyD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 09:38:50 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disallow modular capabilities
-References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de>
-	<20050102203005.GA9491@lst.de> <m1is6fy2vm.fsf@muc.de>
-	<20050102223650.GA5818@localhost> <20050102233039.GB71343@muc.de>
-	<20050103002102.GA5987@localhost> <20050103003237.GA89490@muc.de>
-Date: Mon, 03 Jan 2005 15:38:41 +0100
-In-Reply-To: <20050103003237.GA89490@muc.de> (Andi Kleen's message of "3 Jan
-	2005 01:32:37 +0100, Mon, 3 Jan 2005 01:32:37 +0100")
-Message-ID: <87acrqwpam.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jan 2005 09:54:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=NZHeCSRMmEofG0jABwSv5miEI+Dl//0YYG1SAyihhpzqrmDLyWqaqkVY3ZmB7T/pWfaWY+80gPORA2VBbNJfQ7Ak/3n2czxFNUUoVRUO2tPIngC2cCWkZkkUZz+hMN3IGE/VvKgQtKM9t0gcnqtOhGgLKCREbHtCDs8cN5rhyGg=
+Message-ID: <5545708d050103065473670d7b@mail.gmail.com>
+Date: Mon, 3 Jan 2005 09:54:03 -0500
+From: Michael Gay <mike2post@gmail.com>
+Reply-To: Michael Gay <mike2post@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: System hang on startup.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen:
+Hello-
 
->> think the dogma of "no policy in the kernel" is a good one to follow
->> here:  it ignores the problem and creates new ones.
->
-> The kernel just assumes that root knows what he/she/it is doing.
+My system hangs on startup at the following prompt:
 
-Is there any documentation that says that you must load security
-modules immediately?  If there isn't, this assumption is a bit
-far-fetched.
+checking file systems
+/dev/sda: recovering journal
+
+I have tried letting it just sit there and "recover" for 2 hours at
+first and then for 24 hours with still no luck. Does anyone have any
+ideas? And/or does anyone know the severity of this problem?
+
+-Michael

@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262152AbSJZKcs>; Sat, 26 Oct 2002 06:32:48 -0400
+	id <S262194AbSJZKj7>; Sat, 26 Oct 2002 06:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSJZKYW>; Sat, 26 Oct 2002 06:24:22 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:23564 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262042AbSJZKX3>; Sat, 26 Oct 2002 06:23:29 -0400
-X-Envelope-From: pavel@bug.ucw.cz
-Date: Wed, 23 Oct 2002 11:05:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hu Gang <hugang@soulinfo.com>
-Cc: EricAltendorf@orst.edu, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bug: swsusp in 2.5.42: "Scheduling while atomic"
-Message-ID: <20021023090503.GA3416@elf.ucw.cz>
-References: <200210171636.13669.EricAltendorf@orst.edu> <20021018092521.3180fd42.hugang@soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021018092521.3180fd42.hugang@soulinfo.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S262198AbSJZKj7>; Sat, 26 Oct 2002 06:39:59 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:9487 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S262194AbSJZKjz>; Sat, 26 Oct 2002 06:39:55 -0400
+Message-ID: <Q2V7OBAeBnu9Ewt1@n-cantrell.demon.co.uk>
+Date: Sat, 26 Oct 2002 11:37:18 +0100
+To: linux-kernel@vger.kernel.org
+From: robert w hall <bobh@n-cantrell.demon.co.uk>
+Subject: Re: loadlin with 2.5.?? kernels
+References: <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
+ <m1bs5in1zh.fsf@frodo.biederman.org>
+ <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
+ <5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
+ <m18z0os1iz.fsf@frodo.biederman.org> <007501c27b37$144cf240$6400a8c0@mikeg>
+ <m1bs5in1zh.fsf@frodo.biederman.org>
+ <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
+ <5.1.0.14.2.20021026073915.00b55008@pop.gmx.net>
+ <m1vg3plfi7.fsf@frodo.biederman.org>
+In-Reply-To: <m1vg3plfi7.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <m1vg3plfi7.fsf@frodo.biederman.org>, Eric W. Biederman
+<ebiederm@xmission.com> writes
+>Mike Galbraith <efault@gmx.de> writes:
+>
+>> At 11:20 PM 10/25/2002 -0600, Eric W. Biederman wrote:
+>> >Mike Galbraith <efault@gmx.de> writes:
+>> >
+>> > > I went back and double-checked my loadlin version, and it turned out I was
+>> > > actually using 1.6a due to a fat finger.  Version 1.6c booted fine (only 
+>one
+>> 
+>> > > kernel tested) without Eric's help.  1.6a definitely needs Eric's help to
+>> > boot.
+>> >
+>> >Darn.  I guess the arguments for my patch may not be quite as good,
+>> >but I still think it may be worth while.
+>> 
+>> Well, cleanup is always a pretty fine argument.  Since there only seem to be 
+>two
+>> 
+>> of us loadlin users, you probably didn't loose much argument wise ;-) The 
+>other
+>> 
+>> loadlin user reported failure at .38, so maybe your patch is needed sometimes
+>> even with loadlin-1.6c.  (other loadlin user listening?)
+>
+>Robert thanks for your reply.
+(oops this thread is a bit messy now - sorry, I originally intended to
+post  off-list, [so as not to parade my ignorance in this august forum
+:-) ], and made a cockup of withdrawing a post to LK)
+>
+>I just looked at what the loadlin 1.6c code does, and it's heuristic
+>is just slightly more reliable.  It assumes %ds is %cs+8.... 
 
-> |[1.] One line summary of the problem: 
-> |
-> |Scheduling while atomic debug message during swsusp
-> |
-> |[2.] Full description of the problem/report:
-> |
-> |While swsusp'ing to disk, vast quantities of error messages are echoed to the
-> |console, along the lines of the following pulled from /var/log/messages:
-> 
-> This Problem is net lay resume recall problem. Try this patch, From
-> |my test it can works in net card device, but it can not work in
-> |sound card device.
+well that relationship has held for about 9 years, so it was a fairly
+safe bet when Hans was trying to fix 1.6a for win4lin :-)
 
-With this and CONFIG_PREEMPT on, do you see any "scheduling while
-atomic" messages? I do not think this can fix them completely...
+> That
+>happens to work but there is nothing in the kernel keeping that from
+>being broken.  So in practice it looks to be worthwhile to stabilize 
+>this interface.
 
-								Pavel
+agreed - 
+/ignorant query/
+but if you aim for too much generality are you not eventually going to
+need Hans Lermen to revisit his loadlin version of the startup code
+(which is based in part on old code from head.S & misc.c of course)?
+//
+>  So loadlin, and other bootloaders can work by design
+>and not by chance.
 
-> -------------------------
-> --- linus-2.5/kernel/suspend.c	Fri Oct 18 09:22:36 2002
-> +++ linus-2.5-suspend/kernel/suspend.c	Thu Oct 17 20:42:08 2002
-> @@ -627,7 +627,7 @@
->  /* Make disk drivers accept operations, again */
->  static void drivers_unsuspend(void)
->  {
-> -	device_resume(RESUME_RESTORE_STATE);
-> +	/* device_resume(RESUME_RESTORE_STATE); */
->  	device_resume(RESUME_ENABLE);
->  }
->  
-> @@ -655,7 +655,7 @@
->  static void drivers_resume(int flags)
->  {
->  	if (flags & RESUME_PHASE1) {
-> -		device_resume(RESUME_RESTORE_STATE);
-> +		/* device_resume(RESUME_RESTORE_STATE); */
->  		device_resume(RESUME_ENABLE);
->  	}
->    	if (flags & RESUME_PHASE2) {
-> 
-> 
-
-
-
+might also be worth checking out linlod (which still is only a beta I
+think) needs to run
+>
+>Eric
+Bob
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+robert w hall

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbRGCI1c>; Tue, 3 Jul 2001 04:27:32 -0400
+	id <S265593AbRGCI1M>; Tue, 3 Jul 2001 04:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265601AbRGCI1W>; Tue, 3 Jul 2001 04:27:22 -0400
-Received: from femail6.sdc1.sfba.home.com ([24.0.95.86]:40439 "EHLO
-	femail6.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S265594AbRGCI1T>; Tue, 3 Jul 2001 04:27:19 -0400
-Message-Id: <5.1.0.14.2.20010703082546.01c5eae0@mail.abac.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 03 Jul 2001 08:28:10 -0700
-To: Christopher Yeoh <cyeoh@samba.org>
-From: Android <android@abac.com>
-Subject: Re: [PATCH] more penguins
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15169.30616.190474.603946@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S265594AbRGCI1C>; Tue, 3 Jul 2001 04:27:02 -0400
+Received: from PO9.ANDREW.CMU.EDU ([128.2.10.109]:49033 "EHLO
+	po9.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S265593AbRGCI0y>; Tue, 3 Jul 2001 04:26:54 -0400
+Message-ID: <IvEM6Gxz0001IavmYU@andrew.cmu.edu>
+Date: Tue,  3 Jul 2001 04:25:54 -0400 (EDT)
+From: James R Bruce <bruce+@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: serial port O_SYNC functionality in 2.4.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Here's a patch against 2.4.5 so we can display a decent number of
->penguins at boot time (wraps the display of the boot penguins when
->they can't all fit on one line).
->
->Chris.
+As far as I can tell from observed operation and from perusing the
+code, O_SYNC doesn't seem to be supported by the serial driver in
+2.4.5.  Writes are forced as far as the serial.c's circular queue, but
+O_SYNC seems to be ignored from there on, so any application trying to
+do small synchronous writes to the serial port will end up backing it
+up PAGE_SIZE bytes rather than getting synchronous operation (which is
+incidentally what I was trying to do when I ran into this :).
 
-What is the point of displaying penguins in framebuffer mode if it is going
-to change the video mode set by the vga= command line parameter?
-I like to set my display to 50 lines. This won't stay when the penguin 
-comes up.
-In standard character mode, this isn't a problem. So, how do we fix this?
-Is there a command line parameter that prevents the penguin logo from 
-coming up?
+I'm unfamiliar with the serial driver so I'm not sure the right way to
+fix it is, but perhaps using a smaller value for WAKEUP_CHARS from
+drivers/char/serial.c when the port is opened with O_SYNC
+functionality might do the trick (i.e. 0 rather than 256).
 
-                           -- Ted
+Hopefully someone familiar with that part of the code please can tell
+me what should be done... or if a patch or configuration option can
+already get that functionality in another way.
 
+Thanks,
+  Jim Bruce
 

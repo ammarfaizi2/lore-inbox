@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292922AbSBVQJJ>; Fri, 22 Feb 2002 11:09:09 -0500
+	id <S292923AbSBVQL3>; Fri, 22 Feb 2002 11:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292923AbSBVQI7>; Fri, 22 Feb 2002 11:08:59 -0500
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:59015
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S292922AbSBVQIk>; Fri, 22 Feb 2002 11:08:40 -0500
-Date: Fri, 22 Feb 2002 11:08:01 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Jes Sorensen <jes@trained-monkey.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Troy Benjegerdes <hozer@drgw.net>, <wli@holomorphy.com>,
-        <torvalds@transmeta.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-In-Reply-To: <15478.25001.512565.628500@trained-monkey.org>
-Message-ID: <Pine.LNX.4.44.0202221107270.8753-100000@xanadu.home>
+	id <S292924AbSBVQLV>; Fri, 22 Feb 2002 11:11:21 -0500
+Received: from 216-42-72-168.ppp.netsville.net ([216.42.72.168]:61325 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S292923AbSBVQLH>; Fri, 22 Feb 2002 11:11:07 -0500
+Date: Fri, 22 Feb 2002 11:10:31 -0500
+From: Chris Mason <mason@suse.com>
+To: James Bottomley <James.Bottomley@steeleye.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <1004510000.1014394231@tiny>
+In-Reply-To: <200202221557.g1MFvp004149@localhost.localdomain>
+In-Reply-To: <200202221557.g1MFvp004149@localhost.localdomain>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002, Jes Sorensen wrote:
-
-> >>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
-> 
-> Jeff> Jes Sorensen wrote:
-> >> __mc68000__ is the correct define, I don't know who put in
-> >> CONFIG_M68K but it doesn't belong there.
-> 
-> Jeff> I disagree -- look at arch/*/config.in.
-> 
-> Jeff> Each arch needs to define a CONFIG_$ARCH.
-> 
-> Why? CONFIG_$ARCH only makes sense if you can enable two architectures
-> in the same build. What does CONFIG_M68K give you that __mc68000__
-> doesn't provide?
-
-Uniformity.
 
 
-Nicolas
+On Friday, February 22, 2002 10:57:51 AM -0500 James Bottomley <James.Bottomley@steeleye.com> wrote:
+
+[ very interesting stuff ]
+
+> Finally, I think the driver ordering problem can be solved easily as long as 
+> an observation I have about your barrier is true.  It seems to me that the 
+> barrier is only semi permeable, namely its purpose is to complete *after* a 
+> particular set of commands do.  
+
+This is my requirement for reiserfs, where I still want to wait on the 
+commit block to check for io errors.  sct might have other plans.
+
+> This means that it doesnt matter if later 
+> commands move through the barrier, it only matters that earlier commands 
+> cannot move past it?  If this is true, then we can fix the slot problem simply 
+> by having a slot dedicated to barrier tags, so the processing engine goes over 
+> it once per cycle.  However, if it finds the barrier slot full, it doesn't 
+> issue the command until the *next* cycle, thus ensuring that all commands sent 
+> down before the barrier (plus a few after) are accepted by the device queue 
+> before we send the barrier with its ordered tag.
+
+Interesting, certainly sounds good.
+
+-chris
 

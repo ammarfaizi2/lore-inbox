@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313014AbSEEPSY>; Sun, 5 May 2002 11:18:24 -0400
+	id <S313057AbSEEPYb>; Sun, 5 May 2002 11:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313026AbSEEPSX>; Sun, 5 May 2002 11:18:23 -0400
-Received: from ool-182c923d.dyn.optonline.net ([24.44.146.61]:63628 "EHLO
-	www.milanese.cc") by vger.kernel.org with ESMTP id <S313014AbSEEPSX>;
-	Sun, 5 May 2002 11:18:23 -0400
-Message-ID: <1020611972.3cd54d84bf75d@www.milanese.cc>
-Date: Sun,  5 May 2002 11:19:32 -0400
-From: "Peter J. Milanese" <peterm@milanese.cc>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMBfs / Unicode problem perhaps?
-In-Reply-To: <Pine.LNX.4.33.0205051239110.4444-100000@cola.enlightnet.local>
-MIME-Version: 1.0
+	id <S313041AbSEEPYb>; Sun, 5 May 2002 11:24:31 -0400
+Received: from [212.159.14.227] ([212.159.14.227]:54451 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S313026AbSEEPYa>; Sun, 5 May 2002 11:24:30 -0400
+Date: Sun, 5 May 2002 16:23:33 +0100
+From: "J.P. Morris" <jpm@it-he.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.x keyboard oddities
+Message-Id: <20020505162333.5f5415c4.jpm@it-he.org>
+In-Reply-To: <20020505124704.GC4990@louise.pinerecords.com>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greeting Urban-
+On Sun, 5 May 2002 14:47:04 +0200
+Tomas Szepe <szepe@pinerecords.com> wrote:
 
-Quoting Urban Widmark <urban@teststation.com>:
-
-> On Sat, 4 May 2002, Peter J. Milanese wrote:
+> > [J.P. Morris <jpm@it-he.org>]
+> >
+> > The system appears to have come up completely now, except for the
+> > keyboard which is totally frozen throughout the entire boot process.
 > 
-> > Every 1st letter of the directory contents.
-> > 
-> > I could not find anything about this in the archive, and was curious as
-> to
-> > anyone else having this problem, and any input I could get-
-> 
-> Look for some messages from 3 days ago. You need to upgrade your samba to
-> 2.2.3a.
+> 1) Try booting with 'acpi=off'. It's broken for a number of systems
+> (does precisely what you've described) and no official update is
+> available as of yet. Alternatively, you can try to apply the most
+> recent ACPI patch from [1].
 
-:\ - I am running 2.2.3a... I'll look at those messages and see if there is a
-corelation. Thanks for the tip-
-
-P
-
-> 
-> /Urban
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Thanks, turning off ACPI fixes it.
 
 
-
+-- 
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.org
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

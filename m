@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267145AbSLQU0E>; Tue, 17 Dec 2002 15:26:04 -0500
+	id <S267255AbSLQUeE>; Tue, 17 Dec 2002 15:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267146AbSLQU0E>; Tue, 17 Dec 2002 15:26:04 -0500
-Received: from crack.them.org ([65.125.64.184]:57557 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267145AbSLQU0C>;
-	Tue, 17 Dec 2002 15:26:02 -0500
-Date: Tue, 17 Dec 2002 15:35:05 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021217203505.GA9668@nevyn.them.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com> <3DFF83C5.6000007@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DFF83C5.6000007@redhat.com>
-User-Agent: Mutt/1.5.1i
+	id <S267257AbSLQUeE>; Tue, 17 Dec 2002 15:34:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63755 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267255AbSLQUeD>; Tue, 17 Dec 2002 15:34:03 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.5.49: Severe PIIX4/ATA filesystem corruption
+Date: 17 Dec 2002 12:41:39 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ato263$v3f$1@cesium.transmeta.com>
+References: <as0nq9$vnu$1@cesium.transmeta.com> <1038357146.2658.105.camel@irongate.swansea.linux.org.uk> <3DE40E29.4040408@zytor.com> <1038359021.3267.110.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 17, 2002 at 12:06:29PM -0800, Ulrich Drepper wrote:
-> Linus Torvalds wrote:
+Followup to:  <1038359021.3267.110.camel@irongate.swansea.linux.org.uk>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
 > 
-> > The thing is, gettimeofday() isn't _that_ special. It's just not worth a
-> > vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
+> I would be interested to know what happens if you boot a base 2.5.49
+> without raid6 adulteration and stress it on your hw there, just to be
+> sure.
 > 
-> This is why I'd say mkae no distinction at all.  Have the first
-> nr_syscalls * 8 bytes starting at 0xfffff000 as a jump table.  We can
-> transfer to a different slot for each syscall.  Each slot then could be
-> a PC-relative jump to the common sysenter code or to some special code
-> sequence which is also in the global page.
-> 
-> If we don't do this now and it seems desirable in future we wither have
-> to introduce a second ABI for the vsyscall stuff (ugly!) or you'll have
-> to do the demultiplexing yourself in the code starting at 0xfffff000.
 
-But what does this do to things like PTRACE_SYSCALL?  And do we care...
-I suppose not if we keep the syscall trace checks on every kernel entry
-path.
+Well, I finally got the system up and running again, after moving, and
+ran it without loading any of the md modules (thus nothing modified by
+the raid6 code.)  Leaving it running overnight at the shell prompt but
+cron jobs running -- including the one that backs up the SCSI drives
+onto the IDE drive -- left me with tons of ext3fs error messages in
+the morning on the IDE drive in question.
 
+This is unfortunately all the information I have right at the moment.
+
+	-hpa
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

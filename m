@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265322AbSJSUND>; Sat, 19 Oct 2002 16:13:03 -0400
+	id <S265545AbSJSUSK>; Sat, 19 Oct 2002 16:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265399AbSJSUND>; Sat, 19 Oct 2002 16:13:03 -0400
-Received: from cse.ogi.edu ([129.95.20.2]:64953 "EHLO church.cse.ogi.edu")
-	by vger.kernel.org with ESMTP id <S265322AbSJSUNC>;
-	Sat, 19 Oct 2002 16:13:02 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com>
-	<3DB0AD79.30401@netscape.com> <20021019065916.GB17553@mark.mielke.cc>
-	<3DB19AE6.6020703@kegel.com> <xu4u1jitg5v.fsf@brittany.cse.ogi.edu>
-From: "Charles 'Buck' Krasic" <krasic@acm.org>
-Date: 19 Oct 2002 13:18:54 -0700
-In-Reply-To: <xu4u1jitg5v.fsf@brittany.cse.ogi.edu>
-Message-ID: <xu4ptu6tc5t.fsf@brittany.cse.ogi.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
+	id <S265670AbSJSUSK>; Sat, 19 Oct 2002 16:18:10 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:46535 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265545AbSJSUSH>;
+	Sat, 19 Oct 2002 16:18:07 -0400
+Date: Sat, 19 Oct 2002 22:24:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jan Dittmer <jan@jandittmer.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
+Message-ID: <20021019222403.B3018@ucw.cz>
+References: <200210190241.49618.jan@jandittmer.de> <20021019091518.GG871@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021019091518.GG871@suse.de>; from axboe@suse.de on Sat, Oct 19, 2002 at 11:15:18AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 19, 2002 at 11:15:18AM +0200, Jens Axboe wrote:
 
-Whoops.  I just realized a flaw in my own argument.  
+> On Sat, Oct 19 2002, Jan Dittmer wrote:
+> > Box runs nevertheless. Disabled tcq at runtime.
+> > Do you need more information? Their seems to be no more fs corruption, as 
+> > reported earlier.
+> > hda: bad special flag: 0x03
+> > IDE init is ugly:Call Trace:
+> >  [<c02722cf>] ide_do_drive_cmd+0x8f/0x180
+> >  [<c026f4e8>] ide_diag_taskfile+0x88/0xa0
+> >  [<c026f516>] ide_raw_taskfile+0x16/0x20
+> >  [<c027dc46>] ide_tcq_configure+0xa6/0xe0
+> >  [<c027dcc6>] ide_enable_queued+0x46/0xb0
+> >  [<c027de28>] __ide_dma_queued_on+0x48/0x50
+> >  [<c026b675>] ide_init_queue+0x75/0x80
+> >  [<c026b936>] init_irq+0x2b6/0x380
+> >  [<c026be56>] hwif_init+0x106/0x220
+> >  [<c026b54c>] probe_hwif_init+0x1c/0x70
+> >  [<c027bded>] ide_setup_pci_device+0x3d/0x70
+> >  [<c026a583>] via_init_one+0x33/0x40
+> >  [<c010508f>] init+0x2f/0x180
+> >  [<c0105060>] init+0x0/0x180
+> >  [<c01054f5>] kernel_thread_helper+0x5/0x10
+> > 
+> > hda: tagged command queueing enabled, command queue depth 32
+> 
+> It's not an oops, and it's not causes by TCQ either. The above is simply
+> a reminder to fix the ide init sequence, because it's probe sequence
+> tries to use drive->disk before it has been set up. That is worked
+> around, but stack is dumped for good measure. So you can feel
+> comfortable using 2.5.44 regardless.
+> 
+> But I'm curious about TCQ on your system, since another VIA user
+> reported problems. Does it appear to work for you?
 
-With read, a short count might precede EOF.  Indeed, in that case,
-calling epoll_getevents would cause the connection to get stuck.
+It definitely works on my VIA just fine.
 
-Never mind my earlier message then. 
-
--- Buck
-
-"Charles 'Buck' Krasic" <krasic@acm.org> writes:
-
-> In summary, a short count is every bit as reliable as EAGAIN to know
-> that it is safe to wait on epoll_getevents.
-
-> -- Buck
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVCCDmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVCBXNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVCCDmB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:42:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCCB5m
+	id S261366AbVCBXNm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCBXLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:57:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4037 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261370AbVCCBge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:36:34 -0500
-Date: Wed, 2 Mar 2005 18:02:01 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [request for inclusion] Filesystem in Userspace
-Message-ID: <20050302210201.GC4100@logos.cnet>
-References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu> <20050302123123.3d528d05.akpm@osdl.org>
+	Wed, 2 Mar 2005 18:11:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62114 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261269AbVCBXE7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:04:59 -0500
+Date: Wed, 2 Mar 2005 18:04:55 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050302230455.GA10124@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050302123123.3d528d05.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
+ > 
+ > This is an idea that has been brewing for some time: Andrew has mentioned
+ > it a couple of times, I've talked to some people about it, and today Davem
+ > sent a suggestion along similar lines to me for 2.6.12.
+ > 
+ > Namely that we could adopt the even/odd numbering scheme that we used to 
+ > do on a minor number basis, and instead of dropping it entirely like we 
+ > did, we could have just moved it to the release number, as an indication 
+ > of what was the intent of the release.
 
-Hi, 
+Random ideas.  Why not use the already established 2.6.x.y method ? 
+This allows development to continue on 2.6.x+1, and if needed, you
+should be able to bk pull the 2.6.x.y[n] tree(s) into 2.6.x+1 no ?
 
-On Wed, Mar 02, 2005 at 12:31:23PM -0800, Andrew Morton wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
-> >
-> > Do you have any objections to merging FUSE in mainline kernel?
-> 
-> I was planning on sending FUSE into Linus in a week or two.  That and
-> cpusets are the notable features which are 2.6.12 candidates.
-> 
-> - crashdump seems permanently not-quite-ready
-> 
-> - perfctr works fine, but is rather deadlocked because it is
->   similar-to-but-different-from ia64's perfmon, and might not be suitable
->   for ppc64 (although things have gone quiet on the latter front).
+My concern about this 'stable kernel every other release' method is
+that if a particular development cycle drags on for some reason,
+and certain bugs never got fixed in the previous release,
+that's a long time users have to wait until they get things fixed.
 
-I once asked Mikael about using PMC's from kernel-space, he told me it wouldnt
-be too hard to make them usable via kernel-space through perfctr.
+It's somewhat akin to the problem with the infrequent out-of-tree merges
+that some subsystem maintainers have. If the latest push they do
+doesn't fix your bug, you typically have to wait until the next
+release until they do another push.
 
-Is perfmon's API useable to kernel users? 
+		Dave
 
-That sounds like a good point in favour of a given implementation, no?

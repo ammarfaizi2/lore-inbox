@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVBNWrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVBNW5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVBNWrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVBNWrM
+	id S261161AbVBNW5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 17:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVBNW5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:47:12 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:2713 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261465AbVBNWqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:46:42 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       tom.l.nguyen@intel.com
-Subject: Re: avoiding pci_disable_device()...
-X-Message-Flag: Warning: May contain useful information
-References: <4210021F.7060401@pobox.com> <20050214190619.GA9241@kroah.com>
-	<4211013E.6@pobox.com> <52hdke29sh.fsf@topspin.com>
-	<20050214200043.GA15868@havoc.gtf.org> <52d5v224z3.fsf@topspin.com>
-	<42112544.2030006@pobox.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 14 Feb 2005 14:46:38 -0800
-In-Reply-To: <42112544.2030006@pobox.com> (Jeff Garzik's message of "Mon, 14
- Feb 2005 17:25:08 -0500")
-Message-ID: <528y5q220h.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Mon, 14 Feb 2005 17:57:12 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:60585 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S261161AbVBNW5G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 17:57:06 -0500
+Date: Mon, 14 Feb 2005 14:57:04 -0800
+To: Gerold Jury <gjury@inode.at>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050214225704.GD16029@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, Gerold Jury <gjury@inode.at>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Jeff Sipek <jeffpc@optonline.net>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+References: <20050214020802.GA3047@bitmover.com> <20050214194428.GC8763@merlin.emma.line.org> <20050214200544.GC16029@bitmover.com> <200502142324.43269.gjury@inode.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Feb 2005 22:46:38.0607 (UTC) FILETIME=[0B49F9F0:01C512E7]
+Content-Disposition: inline
+In-Reply-To: <200502142324.43269.gjury@inode.at>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I'm happy to go along with that (it definitely simplifies my
-driver code).  Here's the patch.
+On Mon, Feb 14, 2005 at 11:24:43PM +0100, Gerold Jury wrote:
+> Hi Larry
+> Hi Everyone
+> 
+> Do you think it is possible to make a split licence that will distinguish 
+> between active changes and passive watching/tracking ?
 
+A lot of people have told us to create two products, the free product
+and the commercial product, and license the free product with standard
+licensing terms.  The expectation is that we would somehow make the free
+product less desirable so that people bought the commercial product.
 
-Remove the call to request_mem_region() in msix_capability_init() to
-grab the MSI-X vector table.  Drivers should be using
-pci_request_regions() so that they own all of the PCI BARs, and the
-MSI-X core should trust it's being called by a correct driver.
+That's an excellent suggestion if our only goal is to make money, that
+makes the free product sort of a teaser and the commercial product the
+real deal.  However, the goal really is to help the open source
+community, Linux in particular.  If we give away crippled software then
+all the people who say we are just a money grubbing corporation are
+more or less correct.  At that point we aren't giving away the good
+stuff and it was always the goal that you got the latest and greatest
+because that's what can do you the most good.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+However, it sure sounds like the noisy people would be a lot happier
+with a stripped down BK that didn't have as many of the restrictions.
+And a possible out for even the open source users is that they buy seats
+if they really need the more powerful features.  Or we could donate
+some on a case by case basis.
 
---- linux-orig/drivers/pci/msi.c	(revision 26881)
-+++ linux/drivers/pci/msi.c	(working copy)
-@@ -616,15 +616,10 @@ static int msix_capability_init(struct p
- 	bir = (u8)(table_offset & PCI_MSIX_FLAGS_BIRMASK);
- 	phys_addr = pci_resource_start (dev, bir);
- 	phys_addr += (u32)(table_offset & ~PCI_MSIX_FLAGS_BIRMASK);
--	if (!request_mem_region(phys_addr,
--		nr_entries * PCI_MSIX_ENTRY_SIZE,
--		"MSI-X vector table"))
--		return -ENOMEM;
- 	base = ioremap_nocache(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
--	if (base == NULL) {
--		release_mem_region(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
-+	if (base == NULL)
- 		return -ENOMEM;
--	}
-+
- 	/* MSI-X Table Initialization */
- 	for (i = 0; i < nvec; i++) {
- 		entry = alloc_msi_entry();
-@@ -859,8 +854,6 @@ static int msi_free_vector(struct pci_de
- 			phys_addr += (u32)(table_offset &
- 				~PCI_MSIX_FLAGS_BIRMASK);
- 			iounmap(base);
--			release_mem_region(phys_addr,
--				nr_entries * PCI_MSIX_ENTRY_SIZE);
- 		}
- 	}
- 
-@@ -1133,8 +1126,6 @@ void msi_remove_pci_irq_vectors(struct p
- 			phys_addr += (u32)(table_offset &
- 				~PCI_MSIX_FLAGS_BIRMASK);
- 			iounmap(base);
--			release_mem_region(phys_addr, PCI_MSIX_ENTRY_SIZE *
--				multi_msix_capable(control));
- 			printk(KERN_WARNING "PCI: %s: msi_remove_pci_irq_vectors() "
- 			       "called without free_irq() on all MSI-X vectors\n",
- 			       pci_name(dev));
+If the hackers who are using BK can reach agreement that it would be
+better if the BK they had didn't move forward unless they got commercial
+seats then we could start moving towards a license on the free product
+that was less restrictive.  What that would mean is that the BK you have
+is basically it, we'd not advance it other than keeping it up to date
+with the protocol and/or file formats of the commercial version.  If you
+think BK is good enough, fast enough, done enough that you don't want
+what we have coming down the pike we can go that route.
+
+I suspect that the heavy lifters really would like a faster BK with more
+features that help them get their job done but the rank and file could
+care less, they just want checkin/checkout.  
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

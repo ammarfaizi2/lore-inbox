@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266792AbTATThj>; Mon, 20 Jan 2003 14:37:39 -0500
+	id <S266772AbTATTgK>; Mon, 20 Jan 2003 14:36:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbTATThj>; Mon, 20 Jan 2003 14:37:39 -0500
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:34312 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S266792AbTATThh>; Mon, 20 Jan 2003 14:37:37 -0500
-X-Envelope-From: roubm9am@barbora.ms.mff.cuni.cz
-Message-ID: <190d01c2c0bc$9b6c35e0$551b71c3@krlis>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: <lkml@scienceworks.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20030120183442.GA3440@poseidon.wasserstadt.de>
-Subject: Re: Promise PDC20268 FastTrack 100 TX2 (PDC20268)
-Date: Mon, 20 Jan 2003 20:46:10 +0100
+	id <S266777AbTATTgK>; Mon, 20 Jan 2003 14:36:10 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:56300 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S266772AbTATTgI>; Mon, 20 Jan 2003 14:36:08 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: dana.lacoste@peregrine.com, linux-kernel@vger.kernel.org
+Date: Mon, 20 Jan 2003 11:31:53 -0800 (PST)
+Subject: Re: Is the BitKeeper network protocol documented?
+In-Reply-To: <20030120190037.AAA15691@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.4.44.0301201129510.6894-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-Mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make a single drive strip array - promise will see array defined and the
-reboot will pass correctly.
-Then you can use sw raid.
-    Milan Roubal
-    roubm9am@barbora.ms.mff.cuni.cz
+so are you saying it's illegal for an opensource project to use a
+commercial version control system, or that use of such a version control
+system by a GPL project forces the companty to GPL their version control
+system?
 
------ Original Message -----
-From: <lkml@scienceworks.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, January 20, 2003 7:34 PM
-Subject: Promise PDC20268 FastTrack 100 TX2 (PDC20268)
+since stallman has already said neither of these is the case I'm curious
+as to exactly what you are trying to say the requirements are.
+
+David Lang
 
 
-> Hello all,
+ On Mon, 20 Jan 2003, David Schwartz wrote:
+
+> Date: Mon, 20 Jan 2003 11:00:35 -0800
+> From: David Schwartz <davids@webmaster.com>
+> To: dana.lacoste@peregrine.com
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Is the BitKeeper network protocol documented?
 >
-> I have a Promise FastTrack 100 TX2 (PDC20268) IDE-controller
-> (BIOS v2.00.0.24) used in a linux MD-RAID.  Aside from various
-> other annoying Promise-problems, I am not able to perform a
-> remote boot because the brain-dead Promise-BIOS "complains" that
-> no array is defined, and requires one to press ESC to continue
-> booting.  I would very much appreciate any tips as to how I can
-> circumvent this "feature".
+> On 20 Jan 2003 09:28:35 -0500, Dana Lacoste wrote:
 >
-> Best regards,
+> >On Sun, 2003-01-19 at 20:05, David Schwartz wrote:
 >
-> Robert
+> >>    Don't blame me. The GPL just says the "preferred" form and
+> >>leaves
+> >>us
+> >>to wonder. As I understand it, however, you cannot ship binaries of
+> >>a
+> >>GPL'd project unless you can distribute the source code in the
+> >>"preferred form .. for making modifications to it".
 >
-> PS. Please CC me, as I am not in the list.
-
-
+> >The GPL specifically allows for multiple methods of accessing the
+> >'preferred form' including FTP, including the source in the
+> >distribution, etc.  BitKeeper is nothing more than another method
+> >to access that 'preferred source'.
+>
+> 	I think you're entirely dropping the context. If the development of
+> a project is centered around a version control system, then that
+> version control system contains metainformation that is useful when
+> you're making modifications.
+>
+> 	In this case, the raw source code, less the change history and check
+> in comments, would not actually be the preferred form of the source
+> code for the purpose of making modifications. This has nothing to do
+> with how you get the information but what information you get.
+>
+> >Please stop this.  You're looking kind of silly here.
+>
+> 	Only because you are misrepresenting my argument.
+>
+> 	Let me give you a hypothetical. There's a program and you have to
+> make some changes to it. Would you prefer to have the raw source code
+> or the source code with change history and commit comments? I'm not
+> talking about how you get either set of information, I'm talking
+> about what information you get.
+>
+> 	Checking code out of a repository is as much an act of obfuscation
+> as stripping comments.
+>
+> >PS: nobody said 'IANAL' yet.  meaning you're just a noisy peanut
+> >gallery
+>
+> 	Any lawyer who claimed he or she could predict how a court would
+> interpret this clause of the GPL is lying to you. That is why it is
+> essentially impossible to be sure you comply with this.
+>
+> 	DS
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

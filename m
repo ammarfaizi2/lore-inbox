@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264830AbTLKJWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 04:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbTLKJWh
+	id S264867AbTLKJYO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 04:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTLKJYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 04:22:37 -0500
-Received: from mail.dsa-ac.de ([62.112.80.99]:29197 "EHLO k2.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S264830AbTLKJWf (ORCPT
+	Thu, 11 Dec 2003 04:24:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:23786 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264867AbTLKJYL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 04:22:35 -0500
-Date: Thu, 11 Dec 2003 10:22:31 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [2.6.0-test11: PCMCIA] i82365: No such device...
-In-Reply-To: <20031211091707.A23722@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0312111021230.1130-100000@pcgl.dsa-ac.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Dec 2003 04:24:11 -0500
+Date: Thu, 11 Dec 2003 00:51:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Carlos Puchol <cpg@nospam.rocketmail.com.puchol.com.kroah.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test11 oops galore: visor sync, cd/dvd burning
+Message-ID: <20031211085123.GA5102@kroah.com>
+References: <20031210111151.GA6104@rome.puchol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031210111151.GA6104@rome.puchol.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003, Russell King wrote:
+On Wed, Dec 10, 2003 at 03:11:51AM -0800, Carlos Puchol wrote:
+> hi, i updated a fedora core 1 system with arjanv's kernel
+> and i keep on getting oopses.
+> 
+> [1.] One line summary of the problem:
+> 
+> multiple oops while transferring a file to a visor connected vis usb.
 
-> On Thu, Dec 11, 2003 at 09:37:38AM +0100, Guennadi Liakhovetski wrote:
-> > 00:13.0 CardBus bridge: Toshiba America Info Systems ToPIC95 (rev 07)
->           ^^^^^^^^^^^^^^
->
-> Cardbus is 32-bit, so you need to use yenta not i82365.
+Known bug, please apply the usb-serial patch sent to Linus today, and
+the kobject.c patch and sysfs patch a few days ago (these are still
+being finalized) in order to fix this problem.
 
-Ok, thanks, will try. I knew that in general, was just confused by the
-fact, that it worked under 2.4 and that it says "16bit CardBus" in BIOS...
+thanks,
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
-
+greg k-h

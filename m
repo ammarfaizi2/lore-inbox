@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUIYT02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUIYT2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbUIYT02 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 15:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269398AbUIYT02
+	id S269401AbUIYT2N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 15:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbUIYT2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 15:26:28 -0400
-Received: from dp.samba.org ([66.70.73.150]:14236 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S269390AbUIYT0Z (ORCPT
+	Sat, 25 Sep 2004 15:28:12 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:31361 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S269398AbUIYT1u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 15:26:25 -0400
-Date: Sat, 25 Sep 2004 12:25:44 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeremy Allison <jra@samba.org>,
-       YOSHIFUJI Hideaki / =?utf-8?B?5ZCJ6Jek6Iux5piO?= 
-	<yoshfuji@linux-ipv6.org>,
-       samuel.thibault@ens-lyon.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6] smbfs & "du" illness
-Message-ID: <20040925192544.GA580@jeremy1>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <20040917205422.GD2685@bouh.is-a-geek.org> <Pine.LNX.4.58.0409250929030.2317@ppc970.osdl.org> <20040925171104.GN580@jeremy1> <20040926.024131.06508879.yoshfuji@linux-ipv6.org> <20040925174406.GP580@jeremy1> <Pine.LNX.4.58.0409251054490.2317@ppc970.osdl.org> <20040925182907.GS580@jeremy1> <Pine.LNX.4.58.0409251218170.2317@ppc970.osdl.org>
+	Sat, 25 Sep 2004 15:27:50 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Sat, 25 Sep 2004 21:18:08 +0200
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: ESP corruption bug - what CPUs are affected?
+Message-ID: <20040925191808.GA5901@iram.es>
+References: <414C8924.1070701@aknet.ru> <20040918203529.GA4447@vana.vc.cvut.cz> <4151C949.1080807@aknet.ru> <20040922200228.GB11017@vana.vc.cvut.cz> <41530326.2050900@aknet.ru> <20040923180607.GA20678@vana.vc.cvut.cz> <4154853F.6070105@aknet.ru> <20040924214330.GD8151@vana.vc.cvut.cz> <20040925080426.GB12901@iram.es> <415563C7.8000701@aknet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409251218170.2317@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <415563C7.8000701@aknet.ru>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 12:20:20PM -0700, Linus Torvalds wrote:
+On Sat, Sep 25, 2004 at 04:25:43PM +0400, Stas Sergeev wrote:
+> Hello.
 > 
-> If the number doesn't make sense, then we shouldn't look at it. The 
-> _only_ thing that number makes sense for is st_blocks as far as the Linux 
-> client is concerned. 
+> Gabriel Paubert wrote:
+> >Maybe I miss something, but it seems that lret (or retl)
+> >is not affected by this bug.
+> Petr Vandrovec says (he forgot to CC that
+> to LKML I think):
+
+At least I did not see it.
+
+> ---
+> Looking at VMware's code it seems that RETF suffers from
+> this bug too...
+> ---
 > 
-> In other words, the Linux client is a hell of a lot better off just taking 
-> "(filesize + 511) >> 9", as far as I can tell. It's more accurate than the 
-> random number you have.
+> I tested that - he is right, and Intel docs
+> make no sense as to not mentioning this.
 
-At present this is true, but just because our implementation of the spec
-is broken (and yes it's complicated by the fact that we're the only
-ones implementing the server side of this at the moment) doesn't mean
-that the client should depend on this.
+I suspected that they behaved differently because the
+pseudocode in iret's description is quite different 
+(for iret, it even does not mention restoring ESP!).
+But if you expect Intel's doc, or that of any manufacturer
+for the matter, to tell the whole truth, you're naïve.
 
-After all, now I know about it I'll fix it for the next release
-and eventually modern clients and servers will be consistent on
-this issue. But if you want to have a fallback hack that does
-this at present then that's fine by me. It'd be nice if it was
-temporary though.
+Is ESP really properly restored for V86 bmode or is it that 
+it does not hit the case of a default 32 bit code segment with 
+a 16 bit stack?
 
-Jeremy.
+I'm absolutely amazed by the fact that this bug has been there
+since the beginning and only seems to hit users right now.
+
+I don't like adding an intermediate privilege level, but
+it looks hard to do through the vdso, and you always have to 
+push something on the final stack. A hardware task switch 
+might work, but it has problems with races on the segment
+descriptors. 
+
+Anyway, I've just read again Intel's doc about mixing 16 and 32 bit 
+code and I have found the understament of the day:
+
+"For most efficient and trouble-free operation of the processor, 32-bit
+                        ^^^^^^^^^^^^
+programs or tasks should have the D flag in the code-segment descriptor
+and the B flag in the stack-segment descriptor set, and 16-bit programs
+or tasks should have these flags clear. Program control transfers from
+16-bit segments to 32-bit segments (and vice versa) are handled most
+efficiently through call, interrupt, or trap gates."
+
+
+	Regards,
+	Gabriel

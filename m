@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267533AbRGMTlX>; Fri, 13 Jul 2001 15:41:23 -0400
+	id <S267535AbRGMTyr>; Fri, 13 Jul 2001 15:54:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbRGMTlN>; Fri, 13 Jul 2001 15:41:13 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:30873 "EHLO
-	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267533AbRGMTlC>; Fri, 13 Jul 2001 15:41:02 -0400
-Message-Id: <200107131939.f6DJdb921665@eng2.sequent.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
-        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        Larry McVoy <lm@bitmover.com>
-Reply-To: Gerrit Huizenga <gerrit@us.ibm.com>
-From: Gerrit Huizenga <gerrit@us.ibm.com>
-Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency 
-In-Reply-To: Your message of Fri, 13 Jul 2001 12:17:37 PDT.
-             <XFMail.20010713121737.davidel@xmailserver.org> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <21660.995053177.1@eng2.sequent.com>
-Date: Fri, 13 Jul 2001 12:39:37 PDT
+	id <S267536AbRGMTyh>; Fri, 13 Jul 2001 15:54:37 -0400
+Received: from weta.f00f.org ([203.167.249.89]:11395 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S267535AbRGMTyU>;
+	Fri, 13 Jul 2001 15:54:20 -0400
+Date: Sat, 14 Jul 2001 07:54:20 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Mike Kravetz <mkravetz@sequent.com>
+Cc: Larry McVoy <lm@bitmover.com>, Davide Libenzi <davidel@xmailserver.org>,
+        lse-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: CPU affinity & IPI latency
+Message-ID: <20010714075420.A5596@weta.f00f.org>
+In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com> <XFMail.20010712172255.davidel@xmailserver.org> <20010712173641.C11719@work.bitmover.com> <20010713100521.D1137@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010713100521.D1137@w-mikek2.des.beaverton.ibm.com>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 13 Jul 2001 12:17:37 PDT, Davide Libenzi wrote:
-> 
-> The problem, IMHO, is that we're trying to extend what is a correct
-> behaviour on the UP scheduler ( pickup the best task to run ) to SMP
-> machines.  Global scheduling decisions should be triggered in response
-> of load unbalancing and not at each schedule() run otherwise we're
-> going to introduce a common lock that will limit the overall
-> scalability.  My idea about the future of the scheduler is to have a
-> config options users can chose depending upon the machine use.
-> 
-> By trying to keep a unique scheduler for both UP and MP is like going
-> to give the same answer to different problems and the scaling factor
-> (of the scheduler itself) on SMP will never improve.  The code inside
-> kernel/sched.c should be reorganized ( it contains even not scheduler
-> code ) so that the various CONFIG_SCHED* will not introduce any messy
-> inside the code ( possibly by having the code in separate files
-> kernel/sched*.c ).
-> 
-> - Davide
+On Fri, Jul 13, 2001 at 10:05:21AM -0700, Mike Kravetz wrote:
 
-In a lot of cases, UP is just a simplified, degenerate case of SMP (which
-is itself often a degenerate case of NUMA).  Wouldn't it make a lot of
-sense to have a single scheduler which 1) was relively simple, 2) was as
-good as the current scheduler (or better) on UP, and 3) scaled well on SMP (and
-NUMA)?  I think the current lse scheduler meets all of those goals pretty
-well.
+    It is clear that the behavior of lat_ctx bypasses almost all of
+    the scheduler's attempts at CPU affinity.  The real question is,
+    "How often in running 'real workloads' are the schduler's attempts
+    at CPU affinity bypassed?".
 
-Config options means the user has to choose, I have too many important
-choices to make already when building a kernel.
+When encoding mp3s on a dual processor system, naturally I try to
+encode two at once.
 
-Others have proposed loadable scheduler modules, but the overhead doesn't
-seem to justify the separation.  Config options mean more testing, more
-stable APIs for low level scheduling (or more times when one or the other
-is broken).
+Most of the time this works as expected, one processed more or less
+sticks to each CPU.  However, I have noticed that if for some reason,
+a third process has to be scheduled (which is inevitable if you
+actually want to do anything), then these two processes seem to bounce
+back and forward for a few seconds, _even_ after this CPU spike has
+gone.
 
-gerrit
+Now, I'm not sure if I'm imagining this or not, as I said, I have two
+CPUs and two CPU-bound tasks, to instrument this as all, I really have
+to affect what I am looking at (rather like the uncertainty principal)
+so I assumed that perhaps my programs to read and process
+/proc/<n>/cpu was simply eating several cycles and each process was
+yielding more or less at random causing what I saw seeing.
+
+
+
+   --cw

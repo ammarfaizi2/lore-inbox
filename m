@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267540AbTBQVpf>; Mon, 17 Feb 2003 16:45:35 -0500
+	id <S267542AbTBQVs0>; Mon, 17 Feb 2003 16:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTBQVpf>; Mon, 17 Feb 2003 16:45:35 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:22532 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267540AbTBQVpe>;
-	Mon, 17 Feb 2003 16:45:34 -0500
-Date: Mon, 17 Feb 2003 22:55:32 +0100
+	id <S267552AbTBQVs0>; Mon, 17 Feb 2003 16:48:26 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:11269 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267542AbTBQVsZ>;
+	Mon, 17 Feb 2003 16:48:25 -0500
+Date: Mon, 17 Feb 2003 22:58:24 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix warning in kernel/dma.c
-Message-ID: <20030217215532.GA8984@mars.ravnborg.org>
+Subject: [PATCH] char/drivers/random.c - fix warning
+Message-ID: <20030217215824.GB8984@mars.ravnborg.org>
 Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,65 +21,31 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling without PROC_FS enabled a warning is issued about
-proc_dma_show defined but not used.
-Move both versions of proc_dma_show inside the #ifdef CONFIG_PROC_FS
+When compiling random.c without SYSCTL defined a warning is
+issued about free_entropy_store being defined but not used.
+Put ifdef's around the functions.
+I could have moved the whole function, but it logically belongs
+to this part of the file.
 
 	Sam
 
-
-===== kernel/dma.c 1.5 vs edited =====
---- 1.5/kernel/dma.c	Wed Aug 28 09:53:26 2002
-+++ edited/kernel/dma.c	Mon Feb 17 22:30:17 2003
-@@ -98,6 +98,22 @@
- 
- } /* free_dma */
- 
-+#else
-+
-+int request_dma(unsigned int dmanr, const char *device_id)
-+{
-+	return -EINVAL;
-+}
-+
-+void free_dma(unsigned int dmanr)
-+{
-+}
-+
+===== drivers/char/random.c 1.30 vs edited =====
+--- 1.30/drivers/char/random.c	Mon Dec 30 13:47:26 2002
++++ edited/drivers/char/random.c	Mon Feb 17 22:45:20 2003
+@@ -535,14 +535,14 @@
+ 	r->extract_count = 0;
+ 	memset(r->pool, 0, r->poolinfo.POOLBYTES);
+ }
+-
++#ifdef CONFIG_SYSCTL
+ static void free_entropy_store(struct entropy_store *r)
+ {
+ 	if (r->pool)
+ 		kfree(r->pool);
+ 	kfree(r);
+ }
+-
 +#endif
-+
-+#ifdef CONFIG_PROC_FS
-+
-+#ifdef MAX_DMA_CHANNELS
- static int proc_dma_show(struct seq_file *m, void *v)
- {
- 	int i;
-@@ -110,27 +126,14 @@
- 	}
- 	return 0;
- }
--
- #else
--
--int request_dma(unsigned int dmanr, const char *device_id)
--{
--	return -EINVAL;
--}
--
--void free_dma(unsigned int dmanr)
--{
--}
--
- static int proc_dma_show(struct seq_file *m, void *v)
- {
- 	seq_puts(m, "No DMA\n");
- 	return 0;
- }
-+#endif /* MAX_DMA_CHANNELS */
- 
--#endif
--
--#ifdef CONFIG_PROC_FS
- static int proc_dma_open(struct inode *inode, struct file *file)
- {
- 	char *buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ /*
+  * This function adds a byte into the entropy "pool".  It does not
+  * update the entropy estimate.  The caller should call

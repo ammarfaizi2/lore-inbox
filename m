@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUD2VtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264874AbUD2Vs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUD2VtF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbUD2VtF
+	id S264874AbUD2Vs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbUD2Vs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:49:05 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:25100 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264984AbUD2Vpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:48:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20102 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264986AbUD2Vpf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 29 Apr 2004 17:45:35 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Wakko Warner <wakko@animx.eu.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Date: Fri, 30 Apr 2004 00:45:22 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <409021D3.4060305@fastclick.com> <40904A84.2030307@yahoo.com.au> <20040428205059.A4563@animx.eu.org>
-In-Reply-To: <20040428205059.A4563@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Date: Thu, 29 Apr 2004 22:45:28 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Timothy Miller <miller@techsource.com>
+Cc: Paul Wagland <paul@wagland.net>, Rik van Riel <riel@redhat.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>,
+       Marc Boucher <marc@linuxant.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <20040429214528.GO17014@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404300045.22750.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <4091757B.3090209@techsource.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 April 2004 03:50, Wakko Warner wrote:
-> > I don't know. What if you have some huge application that only
-> > runs once per day for 10 minutes? Do you want it to be consuming
-> > 100MB of your memory for the other 23 hours and 50 minutes for
-> > no good reason?
->
-> I keep soffice open all the time.  The box in question has 512mb of ram.
-> This is one app, even though I use it infrequently, would prefer that it
-> never be swapped out.  Mainly when I want to use it, I *WANT* it now (ie
-> not waiting for it to come back from swap)
+On Thu, Apr 29, 2004 at 05:36:59PM -0400, Timothy Miller wrote:
+ 
+> While we're on all of this, are we going to change "tained" to some 
+> other less alarmist word?
 
-I'm afraid a part of the problem is that there are apps which are
-way too bloated. Fighting bloat is thankless and hard, so almost
-everybody simply throws RAM at the problem. Well. Having thrown
-lotsa RAM at the problem, it may feel 'better' until you realize you
-need not only RAM but *also* disk bandwidth to move bloat from disk
-to RAM and back.
-
-Come on, lets admit it. Proper fix to 'I want OpenOffice to be
-responsive' problem is to make it several times smaller.
-Everything else is more or less a workaround.
-
-It's a pity size optimizations are not too popular even
-on lkml.
-
-> This is just my oppinion.  I personally feel that cache should use
-> available memory, not already used memory (swapping apps out for more
-> cache).
---
-vda
-
+"screwed"

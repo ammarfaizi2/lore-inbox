@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUL3E5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbUL3E7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUL3E5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 23:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUL3E5L
+	id S261541AbUL3E7G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 23:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUL3E7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 23:57:11 -0500
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:26822 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S261537AbUL3E5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 23:57:08 -0500
-Date: Thu, 30 Dec 2004 06:57:06 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA support for Intel ICH7 - 2.6.10
-Message-ID: <20041230045706.GG22013@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <26CEE2C804D7BE47BC4686CDE863D0F502AE9FAD@orsmsx410>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F502AE9FAD@orsmsx410>
-User-Agent: Mutt/1.5.6i
+	Wed, 29 Dec 2004 23:59:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62132 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261541AbUL3E6z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 23:58:55 -0500
+Date: Wed, 29 Dec 2004 20:58:30 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
+ <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
+ <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
+  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
+  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
+ <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
+ <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 29, 2004 at 06:11:20PM -0800, Gaston, Jason D wrote:
-> Thanks Ulrich!
+
+
+On Wed, 29 Dec 2004, Linus Torvalds wrote:
 > 
-> I will edit and resubmit the patch with &&.
-> 
-> Jason
+> .. no, I see what's up. System call returns _are_ special for 
+> single-stepping. I'll think about it..
 
-also, patches have been wordwrapped: 
-patch: **** malformed patch at line 104: PCI_ANY_ID, 0, 0, 19},
+Ok, I think I know what's up.
 
-(J in vim 'fixed' them, but anyways, would be nice if they
-worked 'out-of-the-mailbox' :) ).
+It's literally the bogus fake signal that do_syscall_trace() sends. I 
+think the TIF_SINGLESTEP case in do_syscall_trace() should only do the 
+ptrace_notify() and return..
 
--- 
+		Linus

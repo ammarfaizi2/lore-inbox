@@ -1,93 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265364AbUAJTow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 14:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAJTov
+	id S265350AbUAJTi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 14:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbUAJTiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 14:44:51 -0500
-Received: from gprs214-70.eurotel.cz ([160.218.214.70]:6016 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265364AbUAJTnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 14:43:01 -0500
-Date: Sat, 10 Jan 2004 20:44:20 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Do not use synaptics extensions by default
-Message-ID: <20040110194420.GA1212@elf.ucw.cz>
-References: <20040110175930.GA1749@elf.ucw.cz> <20040110193039.GA22654@ucw.cz>
+	Sat, 10 Jan 2004 14:38:12 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:136 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265338AbUAJThp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 14:37:45 -0500
+Subject: Re: Q re /proc/bus/i2c
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: gene.heskett@verizon.net
+Cc: John Lash <jlash@speakeasy.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200401101415.46745.gene.heskett@verizon.net>
+References: <200401100117.42252.gene.heskett@verizon.net>
+	 <20040110095911.7b99d40c.jlash@speakeasy.net>
+	 <1073758800.9096.12.camel@nosferatu.lan>
+	 <200401101415.46745.gene.heskett@verizon.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yInL9AZEuz11DoLEjm+g"
+Message-Id: <1073763636.9096.18.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040110193039.GA22654@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 21:40:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > ..aka "make synaptics touchpad usable in 2.6.1" -- synaptics support
-> > is not really suitable to be enabled by default. You can not click by
-> > tapping the touchpad (well, unless you have very new X with right
-> > configuration, but than you can't go back to 2.4), and touchpad senses
-> > your finger even when it is not touching, doing spurious movements =>
-> > you can't hit anything on screen. Without synaptics extensions
-> > everything works just fine. You can reenable synaptics support using
-> > commandline.
-> > 
-> > Plus it documents psmouse_noext option.
-> > 
-> > Please apply,
-> 
-> No way. This also kills Logitech mouse detection and Genius and ...
-> ... and those cannot be enabled via kernel command line parameters.
+--=-yInL9AZEuz11DoLEjm+g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm setting it to PSMOUSE_IMEX, that's just below PSMOUSE_SYNAPTICS:
+On Sat, 2004-01-10 at 21:15, Gene Heskett wrote:
+> On Saturday 10 January 2004 13:20, Martin Schlemmer wrote:
+> >On Sat, 2004-01-10 at 17:59, John Lash wrote:
+> >> In a 2.6.x kernel, the sensors information is kept in sysfs. I
+> >> haven't actually tried installing lmsensors on my 2.6 system, but
+> >> if I look in: /sys/bus/i2c/devices/0-002d/
+> >> I can see files for all of the sensors on my system.
+> >>
+> >> Check below in your last mail where it is complaining about
+> >> "Algorithm: Unavailable from sysfs".
+> >
+> >Right, needs sysfs mounted.  You should (after creating /sys) add
+> >the following to /etc/fstab:
+> >
+> >--
+> >none	/sys	sysfs	defaults	0 0
+> >--
+>=20
+> >From my fstab, and its been there for several months now:
+> ---
+> none    /sys    sysfs   defaults        0 0
+> ---
+> Also, from my mtab:
+> Well, I was gonna quote that too, but apparently my entry in=20
+> rc.sysinit doesn't record it in mtab.  I've got a message in the log=20
+> to the effect that its already mounted or is otherwise busy.  I'd put=20
+> that line in rc.sysinit a few (2-3) weeks ago, thinking it needed to=20
+> be done earlier than the fstab driven mount.  I'll remove it from=20
+> rc.sysinit and reboot for effects.
+>=20
+> Done.
+>=20
+> I also moved the mount of /proc/bus/usb to fstab while I was at it,=20
+> and they are all recorded in mtab now:
+> ---
+> none /proc/bus/usb usbfs rw 0 0
+> none /sys sysfs rw 0 0
+> ---
+> But the response from sensors is still as I posted before, "Algorithm:=20
+> Unavailable from sysfs"
+>=20
+> tvtime still works, so thats promising.  Sounds like they (the Feed=20
+> Bag Information folks) got something/someone(s) trapped on a plane at=20
+> Dulles according to FOX News, who are of course makeing the usual=20
+> mountain out of whats probably a molehill.
+>=20
+> Next thing to check?
 
-#define PSMOUSE_PS2             1
-#define PSMOUSE_PS2PP           2
-#define PSMOUSE_PS2TPP          3
-#define PSMOUSE_GENPS           4
-#define PSMOUSE_IMPS            5
-#define PSMOUSE_IMEX            6
-#define PSMOUSE_SYNAPTICS       7
+What mobo (make, model, etc - sorry, missed that), and do you
+have appropriate modules loaded.  Also, maybe add a dmesg.
 
-That should turn off just synaptics, no? 
+--=20
+Martin Schlemmer
 
-Okay, so how to do this properly? Synaptics driver with "mouse
-emulation" is not usable (tap-to-click is critical), and I want to be
-able to boot 2.4...
+--=-yInL9AZEuz11DoLEjm+g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-								Pavel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> > --- tmp/linux/drivers/input/mouse/psmouse-base.c	2004-01-09 20:24:19.000000000 +0100
-> > +++ linux/drivers/input/mouse/psmouse-base.c	2004-01-10 16:16:06.000000000 +0100
-> > @@ -31,7 +31,7 @@
-> >  MODULE_PARM_DESC(psmouse_noext, "[DEPRECATED] Disable any protocol extensions. Useful for KVM switches.");
-> >  
-> >  static char *psmouse_proto;
-> > -static unsigned int psmouse_max_proto = -1U;
-> > +static unsigned int psmouse_max_proto = PSMOUSE_IMEX;
-> >  module_param(psmouse_proto, charp, 0);
-> >  MODULE_PARM_DESC(psmouse_proto, "Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.");
-> >  
-> > @@ -678,6 +678,8 @@
-> >  			psmouse_max_proto = PSMOUSE_IMPS;
-> >  		else if (!strcmp(psmouse_proto, "exps"))
-> >  			psmouse_max_proto = PSMOUSE_IMEX;
-> > +		else if (!strcmp(psmouse_proto, "synaptics"))
-> > +			psmouse_max_proto = PSMOUSE_SYNAPTICS;
-> >  		else
-> >  			printk(KERN_ERR "psmouse: unknown protocol type '%s'\n", psmouse_proto);
-> >  	}
-> > 
-> > -- 
-> > When do you have a heart between your knees?
-> > [Johanka's followup: and *two* hearts?]
-> 
+iD8DBQBAAFU0qburzKaJYLYRAsmTAJ9a0sZ30ScOL18QsISfkGVz70KdewCfZeyA
+N75W3UwZSZ2tSyW83Nv5qDk=
+=finb
+-----END PGP SIGNATURE-----
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--=-yInL9AZEuz11DoLEjm+g--
+

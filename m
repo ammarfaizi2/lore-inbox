@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263403AbTH0OnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 10:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTH0OnR
+	id S263401AbTH0O4v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 10:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTH0O4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 10:43:17 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:8321 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id S263403AbTH0OnP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 10:43:15 -0400
-Date: Wed, 27 Aug 2003 16:42:56 +0200 (CEST)
-From: devik <devik@cdi.cz>
-X-X-Sender: <devik@devix>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21 on SMP has extra slow context switch
-In-Reply-To: <Pine.LNX.4.33.0308271358200.529-100000@devix>
-Message-ID: <Pine.LNX.4.33.0308271634480.529-100000@devix>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Aug 2003 10:56:51 -0400
+Received: from kone17.procontrol.vip.fi ([212.149.71.178]:40160 "EHLO
+	danu.procontrol.fi") by vger.kernel.org with ESMTP id S263401AbTH0O4u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 10:56:50 -0400
+Date: Wed, 27 Aug 2003 17:56:30 +0300
+Subject: Re: Lockless file reading
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: Martin Konold <martin.konold@erfrakon.de>, linux-kernel@vger.kernel.org
+To: root@chaos.analogic.com
+From: Timo Sirainen <tss@iki.fi>
+In-Reply-To: <Pine.LNX.4.53.0308270925550.278@chaos>
+Message-Id: <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New informations. I tested more kernels.
-2.4.21 and 22 with 2 CPUs are slow as hell. When I reboot
-with maxcpus=1 then all is suddenly ok.
-Also floppy drive was not detected in 2 CPU config while
-with maxcpus=1 it is.
-I placed lmbench data and dmesg output to
-http://luxik.cdi.cz/~devik/tmp/slow-smp/ in case someone
-knows what to do.
-I can do some other tests if you want me to do them.
+On Wednesday, Aug 27, 2003, at 16:40 Europe/Helsinki, Richard B. 
+Johnson wrote:
 
-thanks,
-devik
+> So I don't see how you could ever have a sequence of 123 written,
+> with both '1' and '3' written, but not '2'. It is only the stuff
+> on the 'ends' that can be incomplete.
 
-On Wed, 27 Aug 2003, devik wrote:
+That's pretty much what I was assuming without knowing how the kernel 
+internally really works.
 
-> Hello,
->
-> I upgraded one SMP box (Soyo MB, 2x PII/350, 500MB) from
-> 2.4.8 (really) to 2.4.21 last week. Users start to complaint
-> that it is slow.
-> I run lmbench's context switch measurer and it's result is:
-> "size=0k ovr=5.41
-> 2 169.26
-> 3 111.28
-> 4 83.99
->
-> While on very similar UP system (the same CPU & kernel) it is:
-> "size=0k ovr=3.50
-> 2 1.80
-> 3 2.08
-> 4 2.89
->
-> Have someone even idea what is going on ? The systems seems to be
-> fairly stable but slooow.
-> I plan to reboot with single CPU at evening and/or upgrade to .22,
-> but the numbers above are weird.
->
-> thanks,
-> -------------------------------
->     Martin Devera aka devik
-> Linux kernel QoS/HTB maintainer
->   http://luxik.cdi.cz/~devik/
->
->
+> Anyway, if you want two (or more) processes to access the file,
+> you should mmap it. You can configure a mmap'ed file so that
+> updates appear to all readers. However, just like any shared-memory
+> access, you need some kind of synchronization, perhaps a semaphore,
+> so that you always read valid data. Usually one only needs
+> __valid__ data, not necessarily __current__ data.
+
+Right, that's why I don't really need read locking. The 
+double-writing/reading with memcmp() checking was supposed to check 
+that the data is valid.
+
+I'm already using shared mmaps, but I was thinking that supporting NFS 
+would be nice as well. That'd work pretty much the same as write()s.
+
+Maybe it would be possible to use some kind of error detection 
+checksums which would guarantee that the data either is valid or isn't, 
+regardless of the order in which it is written. I don't really know how 
+that could be done though.
 

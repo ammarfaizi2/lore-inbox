@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbTAJGnj>; Fri, 10 Jan 2003 01:43:39 -0500
+	id <S263291AbTAJGvk>; Fri, 10 Jan 2003 01:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTAJGni>; Fri, 10 Jan 2003 01:43:38 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:28829 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S263246AbTAJGnh>;
-	Fri, 10 Jan 2003 01:43:37 -0500
-Date: Fri, 10 Jan 2003 08:52:18 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "David D. Hagood" <wowbagger@sktc.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Asterisk] DTMF noise
-Message-ID: <20030110065218.GE27709@mea-ext.zmailer.org>
-References: <D6889804-2291-11D7-901B-000393950CC2@karlsbakk.net> <3E1BD88A.4080808@users.sf.net> <3E1C1CDE.8090600@sktc.net> <3E1C4872.7080508@gmx.net> <3E1D705E.1030203@sktc.net> <3E1D79CB.5010503@gmx.net> <3E1E06A3.8050607@sktc.net>
+	id <S263313AbTAJGvk>; Fri, 10 Jan 2003 01:51:40 -0500
+Received: from adsl-64-175-242-153.dsl.sntc01.pacbell.net ([64.175.242.153]:37202
+	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S263291AbTAJGvj>; Fri, 10 Jan 2003 01:51:39 -0500
+From: brian@worldcontrol.com
+Date: Thu, 9 Jan 2003 23:00:02 -0800
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 USB Yes, 2.4.20 USB No
+Message-ID: <20030110070002.GA2113@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E1E06A3.8050607@sktc.net>
+User-Agent: Mutt/1.4i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 05:32:51PM -0600, David D. Hagood wrote:
-> Well, I found out that while we have the DTMF test tape at work, it is 
-> exactly that - a cassette tape that is copyrighted. So, no easy/legal 
-> way to make it available for testing...
 
-What does such tape contain ?
- - DTMF tones buried in various degrees of distortions,
-   which should be decodable ?
- - DTMF tones buried in varying noises which should not be
-   decodable ?
- - Other multi-tone signals which should not decode ?
+Anyone know why USB support for my FXA32 disappeared between Linux kernel
+2.4.19 to 2.4.20?
 
-For the last, I know of cases where test was done by playing a radio 
-station on the decoder for 2-3 days, and seeing when does it trigger
-DTMFs (if ever).
+When I boot with 2.4.19 I get:
 
-For that matter, the Linux kernel ISDN audio DTMF detection is exactly
-of the last variant.
+Jan  9 22:35:25 top kernel: usb-uhci.c: $Revision: 1.275 $ time 12:19:03 Nov 23 2002
+Jan  9 22:35:25 top kernel: usb-uhci.c: High bandwidth mode enabled
+Jan  9 22:35:25 top kernel: PCI: Setting latency timer of device 00:07.2 to 64
+Jan  9 22:35:25 top kernel: usb-uhci.c: USB UHCI at I/O 0x1c00, IRQ 9
+Jan  9 22:35:25 top kernel: usb-uhci.c: Detected 2 ports
+Jan  9 22:35:25 top kernel: usb.c: new USB bus registered, assigned bus number 1
+Jan  9 22:35:25 top kernel: hub.c: USB hub found
+Jan  9 22:35:25 top kernel: hub.c: 2 ports detected
+Jan  9 22:35:25 top kernel: PCI: Setting latency timer of device 00:07.3 to 64
+Jan  9 22:35:25 top kernel: usb-uhci.c: USB UHCI at I/O 0x1c20, IRQ 9
+Jan  9 22:35:25 top kernel: usb-uhci.c: Detected 2 ports
+Jan  9 22:35:25 top kernel: usb.c: new USB bus registered, assigned bus number 2
+Jan  9 22:35:25 top kernel: hub.c: USB hub found
+Jan  9 22:35:25 top kernel: hub.c: 2 ports detected
+Jan  9 22:35:25 top kernel: usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+Jan  9 22:35:26 top kernel: hub.c: USB new device connect on bus1/1, assigned device number 2
+Jan  9 22:35:26 top kernel: dc2xx.c: USB Camera #0 connected, major/minor 180/80
+Jan  9 22:35:29 top /etc/hotplug/usb.agent: ... no modules for USB product 0/0/0
+Jan  9 22:35:29 top /etc/hotplug/usb.agent: ... no modules for USB product 0/0/0
+Jan  9 22:35:29 top /etc/hotplug/usb.agent: Setup dc2xx for USB product 40a/111/100  
+Jan  9 22:35:29 top /etc/hotplug/usb.agent: Setup usbcam for USB product 40a/111/100 
+Jan  9 22:35:29 top /etc/hotplug/usb.agent: Module setup usbcam for USB product 
 
-/Matti Aarnio
+
+When I boot with 2.4.20 I get:
+
+Jan  9 22:54:00 top kernel: usb-uhci.c: $Revision: 1.275 $ time 23:08:09 Dec 23 2002
+Jan  9 22:54:00 top kernel: usb-uhci.c: High bandwidth mode enabled
+Jan  9 22:54:00 top kernel: usb-uhci.c: USB UHCI at I/O 0x1c00, IRQ 9
+Jan  9 22:54:00 top kernel: usb-uhci.c: Detected 2 ports
+Jan  9 22:54:01 top kernel: usb.c: new USB bus registered, assigned bus number 1
+Jan  9 22:54:01 top kernel: hub.c: USB hub found
+Jan  9 22:54:01 top kernel: hub.c: 2 ports detected
+Jan  9 22:54:01 top kernel: usb-uhci.c: USB UHCI at I/O 0x1c20, IRQ 9
+Jan  9 22:54:01 top kernel: usb-uhci.c: Detected 2 ports
+Jan  9 22:54:01 top kernel: usb.c: new USB bus registered, assigned bus number 2
+Jan  9 22:54:01 top kernel: hub.c: USB hub found
+Jan  9 22:54:01 top kernel: hub.c: 2 ports detected
+Jan  9 22:54:01 top kernel: usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+Jan  9 22:54:04 top /etc/hotplug/usb.agent: ... no modules for USB product 0/0/0
+Jan  9 22:54:04 top /etc/hotplug/usb.agent: ... no modules for USB product 0/0/0
+
+It is completely repeatable.
+
+-- 
+Brian Litzinger

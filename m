@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317454AbSG1Xeg>; Sun, 28 Jul 2002 19:34:36 -0400
+	id <S317431AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317457AbSG1Xeg>; Sun, 28 Jul 2002 19:34:36 -0400
-Received: from mallaury.noc.nerim.net ([62.4.17.82]:16397 "HELO
-	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
-	id <S317454AbSG1Xef>; Sun, 28 Jul 2002 19:34:35 -0400
-Message-ID: <3D448052.4070805@inet6.fr>
-Date: Mon, 29 Jul 2002 01:37:54 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>, Lei-Chun Chang <lcchang@sis.com.tw>,
-       Andre Hedrick <andre@linuxdiskcert.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SiS 5513 ATA133 support patch for 2.4.19-rc3-ac3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317435AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
+Received: from h-64-105-136-34.SNVACAID.covad.net ([64.105.136.34]:55725 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317431AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 28 Jul 2002 16:42:20 -0700
+Message-Id: <200207282342.QAA03809@adam.yggdrasil.com>
+To: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Patch?: initial ramdisks did not work in 2.5.28-29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+	Initial ramdisks do not work in linux-2.5.2{8,9}, because
+fs/block_dev.c in these kernels has a new version of bd_open()
+that does not set bdev->bd_inode->i_size when bdev->bd_openers is
+non-zero.
 
-Marcelo, I was mistaken when I told you that the patch (adding ATA133
-support and bringing sis5513.c from v0.13 to v0.14) only brought
-performance enhancements.
+	I would appreciate information on whether this change in
+bd_open's behavior is intended.  If it is, then the following
+patch makes updates the ramdisk driver to work again.
 
-The matter is far more complicated.
-Background:
-- sis5513.c v0.13 looks only for a set of known northbridge PCI IDs 
-instead of using a more fine probing,
-- SiS started to produce separate northbridge/southbridge chips.
+	Also, I would appreciate knowing if anyone is acting as
+maintainer for drivers/block/rd.c, or if I should just send
+patches for rd.c directly to Linus if nobody complains on
+the linux-kernel mailing list.  I have some other minor patches for rd.c
+to reduce its use of minor device numbers, and a patch that someone
+whose name I don't remember posted long ago for dropping pages that
+contiain all zeroes.
 
- From earliest bugreports I believed updated southbridges came
-with new northbriges too (reports indicated "646" for 645DX and thus the 
-driver didn't recognised the chip and fallbacked to original SiS5513 
-mode -> no data corruption) and didn't bother.
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-Today I received a report for v0.13 with a *645* ID for a 645DX. This ID 
-is recognised as only ATA100-capable -> data corruption occured (problem 
-solved with v0.14).
-
-So I'm now sure we will have data corruption with v0.13 (we overclock 
-the IDE UDMA writes for problematic configurations).
-
-A workaround would be to remove support for problematic PCI IDs in v0.13.
-
-*But* I guess we have an unresolvable problem in v0.13 with latest 
-southbridges (962/963): the register layout changed completely. Unlike 
-previous chipsets, fallback to sis5513 mode could fail. I guess that the 
-master of the primary controller would be fine when the registers aren't 
-relocated (may be BIOS dependant or even worse, having booted another OS 
-dependant). But all other IDE devices could be screwed up and all of 
-them can be if the registers have been remapped.
-The only workaround for this is a v0.14 with enough time for tests.
-
-Before releasing 2.4.19 I think we should either :
-- completely remove the affected northbridges (645, 650, 745, 750) 
-support in v0.13, this is a simple patch. Then we wait for 2.4.20 to 
-include v0.14.
-- put v0.14 in.
-
- From past experiences we need 2 weeks of availability of code in
-the AC/pre kernels before the wave of meaningful bugreports ends.
-
-LB.
-
+--- linux-2.5.29/drivers/block/rd.c	2002-07-26 19:58:39.000000000 -0700
++++ linux/drivers/block/rd.c	2002-07-28 16:28:03.000000000 -0700
+@@ -379,6 +404,7 @@
+ 		rd_bdev[unit]->bd_openers++;
+ 		rd_bdev[unit]->bd_block_size = rd_blocksize;
+ 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
++		rd_bdev[unit]->bd_inode->i_size = rd_kbsize[unit] << 10;
+ 		rd_bdev[unit]->bd_queue = &blk_dev[MAJOR_NR].request_queue;
+ 	}
+ 

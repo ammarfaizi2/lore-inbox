@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316587AbSGVIsi>; Mon, 22 Jul 2002 04:48:38 -0400
+	id <S317309AbSGVNsz>; Mon, 22 Jul 2002 09:48:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSGVIsi>; Mon, 22 Jul 2002 04:48:38 -0400
-Received: from ns.suse.de ([213.95.15.193]:22284 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316587AbSGVIsh>;
-	Mon, 22 Jul 2002 04:48:37 -0400
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, Keith Owens <kaos@ocs.com.au>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-References: <Pine.LNX.4.44.0207221032510.8911-100000@serv>
-X-Yow: Boys, you have ALL been selected to LEAVE th' PLANET in 15 minutes!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Mon, 22 Jul 2002 10:51:43 +0200
-In-Reply-To: <Pine.LNX.4.44.0207221032510.8911-100000@serv> (Roman Zippel's
- message of "Mon, 22 Jul 2002 10:37:41 +0200 (CEST)")
-Message-ID: <jek7nof8m8.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
+	id <S317354AbSGVNs3>; Mon, 22 Jul 2002 09:48:29 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57567 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317309AbSGVNrA>;
+	Mon, 22 Jul 2002 09:47:00 -0400
+Date: Mon, 22 Jul 2002 15:49:03 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
+In-Reply-To: <20020722144626.D2838@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207221546320.9136-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> writes:
 
-|> Hi,
-|> 
-|> On Mon, 22 Jul 2002, Russell King wrote:
-|> 
-|> > Wouldn't it be better to fix the existing config tools to output "=n"
-|> > instead of "# CONFIG_foo is not set" ?  IIRC they do the translation
-|> > back and forth internally anyway, so it should be just a matter of
-|> > removing some code from the tools.
-|> 
-|> This would mean, tristate symbols had four states instead of three. The
-|> current shell based config systems simply don't see all symbols.
+On Mon, 22 Jul 2002, Russell King wrote:
 
-They do, see for example load_config_file in scripts/Menuconfig, or around
-line 556 in script/Configure.
+> > i'm not so sure about flags_t. 'unsigned long' worked pretty well so far,
+> > and i do not see the need for a more complex (or more opaque) irqflags
+> > type.
+> 
+> A feature request then.  Type checking.  Too many people try to stuff
+> the value into an int or signed long.
 
-|> Depending on the configuration a symbol could be unset or 'n'.
+the next portion of the quote deals with this:
 
-A symbol is unset if it does not occur in .config at all.  Having "#
-CONFIG_foo is not set" in .config is completely the same as
-"CONFIG_foo=n".
+> > It's not that we confuse flags with some other flag all that
+> > frequently that would necessiate some structure-based more abstract
+> > protection of these variables.
 
-Andreas.
+are you sure type-checking is really needed? Sure people can mess up the
+flags variable, but 64-bit archs could do a sizeof at compile-time.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+	Ingo
+

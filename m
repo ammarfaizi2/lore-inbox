@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262880AbRE0Xyv>; Sun, 27 May 2001 19:54:51 -0400
+	id <S262885AbRE0X7m>; Sun, 27 May 2001 19:59:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbRE0Xym>; Sun, 27 May 2001 19:54:42 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:24533 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262880AbRE0Xy2>;
-	Sun, 27 May 2001 19:54:28 -0400
-Message-ID: <3B1193A8.6DB90579@mandrakesoft.com>
-Date: Sun, 27 May 2001 19:54:17 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Henderson <rth@twiddle.net>
-Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Re: 2.4.5 does not link on Ruffian (alpha)
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <3B102822.625E01DF@mandrakesoft.com> <3B1032BE.72BD1336@mandrakesoft.com> <20010527163901.A18929@twiddle.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262886AbRE0X7d>; Sun, 27 May 2001 19:59:33 -0400
+Received: from jalon.able.es ([212.97.163.2]:54765 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262885AbRE0X7Y>;
+	Sun, 27 May 2001 19:59:24 -0400
+Date: Mon, 28 May 2001 01:59:16 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vm in 2.4.5
+Message-ID: <20010528015916.E8098@werewolf.able.es>
+In-Reply-To: <20010526102544.A1152@werewolf.able.es> <Pine.LNX.4.21.0105261049130.30264-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0105261049130.30264-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 26, 2001 at 15:54:16 +0200
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson wrote:
-> On Sat, May 26, 2001 at 06:48:30PM -0400, Jeff Garzik wrote:
-> > When built with CONFIG_ALPHA_NAUTILUS, my UP1000's IDE totally fails.
+
+On 05.26 Rik van Riel wrote:
+> On Sat, 26 May 2001, J . A . Magallon wrote:
 > 
-> Mine doesn't.
+> > It does not begin to use swap in a growing fashion, it just appears
+> > full in a moment.
 > 
-> > I am booting w/ aboot 0.7a from SRM, -without- the
-> > srm-as-bootloader kernel config option.
+> It gets _allocated_ in a moment, but things don't actually get
+> swapped out. This isn't a problem.
 > 
-> That is the error.
-
-Ok, thanks.
-
-FWIW the documentation seems to imply that the option is necessary only
-when directly booting from SRM, i.e.. no bootloader is involved at all. 
-It uses the example of MILO's presence or absence as indicating the need
-for this option.
-
-So... is it safe to always enable this option, with a little hacking
-perhaps?  :)   
-
-Regards,
-
-	Jeff
-
-
-
-
-
-> Using SRM as bootloader
-> CONFIG_ALPHA_SRM
->   There are two different types of booting firmware on Alphas: SRM,
->   which is command line driven, and ARC, which uses menus and arrow
->   keys. Details about the Linux/Alpha booting process are contained in
->   the Linux/Alpha FAQ, accessible on the WWW from
->   http://www.alphalinux.org .
+> The real problem is that we don't actively reclaim swap space
+> when it gets full. We just assign swap to parts of processes,
+> but we never reclaim it when we need swap space for something
+> else; at least, not until the process exit()s or exec()s.
 > 
->   The usual way to load Linux on an Alpha machine is to use MILO
->   (a bootloader that lets you pass command line parameters to the
->   kernel just like lilo does for the x86 architecture) which can be
->   loaded either from ARC or can be installed directly as a permanent
->   firmware replacement from floppy (which requires changing a certain
->   jumper on the motherboard). If you want to do either of these, say N
->   here. If MILO doesn't work on your system (true for Jensen
->   motherboards), you can bypass it altogether and boot Linux directly
->   from an SRM console; say Y here in order to do that. Note that you
->   won't be able to boot from an IDE disk using SRM. 
+> > And when all the gcc process ends, my mem ends up like:
 > 
->   If unsure, say N.
+> >              total       used       free     shared    buffers     cached
+> > Swap:       152576     152576          0
+> > 
+> > What process do belong the 150Mb of swap ???!!!!
+> > Shouldn't that pages have been freed when gcc ends ?
+> 
+> Linux reclaims swap cache (and swap space) when it encounters
+> them in its scan of memory. It doesn't take the trouble of
+> freeing the swap on exit() but the swap space will be freed
+> later.
+> 
+
+That seems to be partially true, if I start just the same comilation when
+the first finishes, it behaves like preivous, in the moment the new gcc
+needs swap the old swap gets freed, but not the in-core cache, so if I choose
+carefully the number of 'puts' lines to stress my system just to the
+border, I can't do two times the same 'gcc tst.c'.
 
 -- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.4-ac15 #1 SMP Wed May 23 21:55:23 CEST 2001 i686

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVBRQP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVBRQUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVBRQP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 11:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBRQP5
+	id S261397AbVBRQUm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 11:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBRQUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 11:15:57 -0500
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:50182 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S261285AbVBRQPx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 11:15:53 -0500
-X-ME-UUID: 20050218161551300.492DE2400194@mwinf1012.wanadoo.fr
-Message-ID: <42161455.7030204@innova-card.com>
-Date: Fri, 18 Feb 2005 17:14:13 +0100
-From: Franck Bui-Huu <franck.bui-huu@innova-card.com>
-Reply-To: franck.bui-huu@innova-card.com
-Organization: Innova Card
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-os@analogic.com, Paul Fulghum <paulkf@microgate.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [TTY] 2 points seems strange to me.
-References: <20050217175150.D8E015B874@frankbuss.de> <20050217181241.A22752@flint.arm.linux.org.uk> <4215B5AC.4050600@innova-card.com> <42160290.3070000@microgate.com> <421604DD.4080809@grupopie.com> <4216068E.90205@microgate.com> <Pine.LNX.4.61.0502181020480.23519@chaos.analogic.com> <42160973.5070808@grupopie.com>
-In-Reply-To: <42160973.5070808@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Feb 2005 11:20:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1683 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261285AbVBRQUh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 11:20:37 -0500
+Date: Fri, 18 Feb 2005 08:18:40 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: raybry@sgi.com, ak@suse.de, ak@muc.de, raybry@austin.rr.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+ II
+Message-Id: <20050218081840.7060d1d7.pj@sgi.com>
+In-Reply-To: <20050218130232.GB13953@wotan.suse.de>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+	<m1vf8yf2nu.fsf@muc.de>
+	<42114279.5070202@sgi.com>
+	<20050215121404.GB25815@muc.de>
+	<421241A2.8040407@sgi.com>
+	<20050215214831.GC7345@wotan.suse.de>
+	<4212C1A9.1050903@sgi.com>
+	<20050217235437.GA31591@wotan.suse.de>
+	<4215A992.80400@sgi.com>
+	<20050218130232.GB13953@wotan.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi - what does this line mean:
 
->>
->> Ahaa!  That's how the bug got introduced. It used to be an
->> array and then it got changed to a pointer! linux-2.4.26
->> also shows a local array.
->
->
-> Yes, just looked at the revision history in linux.bkbits.net and Linus 
-> just fixed this 67 hours ago... So we're too late :)
->
-ok, maybe next time :)
+  + node mask length. 
 
-          Franck
+I guess its the names of the parameters in a proposed
+migration system call.  Length of what, mask of what,
+what's the node mean, huh?
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

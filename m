@@ -1,38 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbTJTLck (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 07:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTJTLck
+	id S262538AbTJTLvY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 07:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTJTLvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 07:32:40 -0400
-Received: from pimout6-ext.prodigy.net ([207.115.63.78]:55537 "EHLO
-	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262540AbTJTLcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 07:32:39 -0400
-Subject: Module problems with NVIDIA and 2.6.0-test8?
-From: Chris Anderson <chris@simoniac.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1066649707.22658.4.camel@kuso>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 20 Oct 2003 07:35:08 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Oct 2003 07:51:24 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:57487 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262538AbTJTLvW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 07:51:22 -0400
+Date: Mon, 20 Oct 2003 08:54:04 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Shantanu Goel <sgoel01@yahoo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.23-pre7 vmscan.c typo
+In-Reply-To: <20031020053229.GC1906@velociraptor.random>
+Message-ID: <Pine.LNX.4.44.0310200835210.1346-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently built test8 and also the NVIDIA driver using the patches from
-minion.de. The compile had no errors and I can load the module without
-errors as well (aside from the "NVIDIA taints the kernel" message).
-However, even with the module loaded, X says it cannot initialize it and
-acts exactly as if the module was never there. Not much is left to work
-with in the logs so frankly I'm stumped. The system works fine with the
-"nv" driver and I had the driver working in test1. Has anyone else
-experienced a problem like this?
 
-Log: www.simoniac.com/~chris/XFree86.0.log
 
-Config: www.simoniac.com/~chris/XF86Config-4
+On Mon, 20 Oct 2003, Andrea Arcangeli wrote:
 
--Chris
+> On Sun, Oct 19, 2003 at 10:00:05PM -0700, Andrew Morton wrote:
+> > Shantanu Goel <sgoel01@yahoo.com> wrote:
+> > >
+> > > The following appears to be a typo in mm/vmscan.c
+> > > 
+> > 
+> > It sure is.  Scary.
+> 
+> indeed, great spotting.
+> 
+> > 
+> > --- a/mm/vmscan.c	2003-10-19 21:36:26.000000000 -0400
+> > +++ a/mm/vmscan.c	2003-10-19 21:37:17.000000000 -0400
+> > @@ -596,7 +596,7 @@
+> >  			continue;
+> >  		}
+> >  
+> > -		nr_pages--;
+> > +		ratio--;
+> >  
+> >  		del_page_from_active_list(page);
+> >  		add_page_to_inactive_list(page);
+> > 
+> > 
+> > 
+> > I note that `ratio' here is the number of pages which we try to deactivate
+> > rather than the number of pages which we scan.  Is this intentional?
+> 
+> yes, it's intentional, this ensures we refile a number of pages and that
+> we don't only roll the list, it won't loop forever since at the second
+> pass the referenced bit will be clear.
+> 
+> BTW, the above obviously correct patch was apparently due an half merge
+> error too, this is what my 2.4.22aa1 or alternatively 2.4.23pre6aa3
+> looks like in this area. 
+
+Fixed. Thanks Shantanu. 
+
+It must have been a merge error. :(
+
+> This gets right the highmem case too, so that we ensure to refile normal
+> zone if the user is GFP_KERNEL and we don't deactivate highmem unless
+> it's worthwhile, and it has the bh-related knwoledge, so over time it'd
+> be better to merge these bits too.
+
+Will take a look into this... 
+
 

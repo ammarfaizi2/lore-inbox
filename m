@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbRFKMUU>; Mon, 11 Jun 2001 08:20:20 -0400
+	id <S263958AbRFKMjg>; Mon, 11 Jun 2001 08:39:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbRFKMUA>; Mon, 11 Jun 2001 08:20:00 -0400
-Received: from ns.caldera.de ([212.34.180.1]:2025 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S261410AbRFKMT4>;
-	Mon, 11 Jun 2001 08:19:56 -0400
-Date: Mon, 11 Jun 2001 14:19:18 +0200
-Message-Id: <200106111219.f5BCJI430936@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: joerg@hydrops.han.de (Joerg Ahrens)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sys_modify_ldt extension (default_ldt)
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <m158sRu-0009RiC@hydrops.han.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S264435AbRFKMjQ>; Mon, 11 Jun 2001 08:39:16 -0400
+Received: from [164.164.82.20] ([164.164.82.20]:41202 "EHLO subexgroup.com")
+	by vger.kernel.org with ESMTP id <S263958AbRFKMjJ>;
+	Mon, 11 Jun 2001 08:39:09 -0400
+From: "Anil Kumar" <anilk@subexgroup.com>
+To: <kiran.thirumalai@in.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Validating dynamically allocated kernel memory
+Date: Mon, 11 Jun 2001 18:24:39 +0530
+Message-ID: <NEBBIIKAMMOCGCPMPBJOIEAKCFAA.anilk@subexgroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <CA256A68.00412D66.00@d73mta01.au.ibm.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
+X-Return-Path: anilk@subexgroup.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Joerg,
+try "sys_mprotect" with neccessary bit patterns set i.e, read/write/exec
+type of protection check.
 
-In article <m158sRu-0009RiC@hydrops.han.de> you wrote:
-> Hi,
->
-> I am trying to integrate binfmt_xout.c into kernel 2.4 as part of the 
-> linux-abi project (formerly known as iBCS). For old Xenix 286 binaries the 
-> lcall7 gate needs to part of the LDT.
->
-> In kernels 2.0 sys_modify_ldt(0,...) used to return the default_ldt (with 
-> lcall7 gate) if there were no segments set up. This behaviour changed in 
-> kernels 2.2 . As a result of a discussion with Linus, David Bruce wrote a 
-> patch for binfmt_xout.c tweaking with gdt and current->tss.ldt to get the
-> address of default_ldt. This patch does not work any more with kernels 2.4
-> as tss vanished from task_struct. 
->
-> I do see 4 ways to cope with this problem:
->
-> a) extend sys_modify_ldt with a function to retrieve the default_ldt. I did 
->    this for testing (see attached diff for arch/i386/kernel/ldt.c ).
+anil
 
-Looks sane to me.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
+kiran.thirumalai@in.ibm.com
+Sent: Monday, June 11, 2001 5:12 PM
+To: linux-kernel@vger.kernel.org
+Subject: Validating dynamically allocated kernel memory
 
-> b) do some work an Davids patch but this is kind of magic for me :-)
->    (see attached default_ldt patch)
->
-> c) loose the option to compile binfmt_xout (and the rest of linux-abi) as 
->    module and simply use the symbol default_ldt. I dint't try that.
 
-As the linux-abi maintainer I do not think that's a good idea..
+Hi,
+Is there some kernel api to validate memory allocated using kmalloc.
+Suppose, I allocate some memory using kmalloc and at a later point of
+execution
+I would like to validate if the memory allocated is not possibly freed by
+some other thread.
 
-> d) Forget about those old fashioned 286 binaries. This option will make some
->    linux users feel sad, as they run these progs for their daily business.
+Pls suggest a patch/pointers if any.
+I also noticed a commented 'CONFIG_DEBUG_MALLOC' config option  (2.4.3
+source),
+It doesn't seem to be functional.  Any pointers towards the history behind
+it would also be helpful.
 
-If possible at all I'll vote for having 286 support.
+Thanks in advance,
+Kiran
 
-I'll integrate the patch into the linux-abi tree if you also send me the
-other changes (mostly binfmt_xout.c changes I suppose).
+PS: My previous post went through minus subject due to oversight
+:-(...Apologising and resending ....
 
-	Christoph
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314321AbSEIUbo>; Thu, 9 May 2002 16:31:44 -0400
+	id <S314325AbSEIUeF>; Thu, 9 May 2002 16:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSEIUbo>; Thu, 9 May 2002 16:31:44 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:35858 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S314321AbSEIUbn>; Thu, 9 May 2002 16:31:43 -0400
-Date: Thu, 9 May 2002 22:31:35 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: William Stearns <wstearns@pobox.com>, Andi Kleen <ak@muc.de>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CML2 [was Re: PATCH & call for help: Marking ISA only drivers]
-Message-ID: <20020509203135.GE31055@louise.pinerecords.com>
-In-Reply-To: <20020509200818.GB31055@louise.pinerecords.com> <Pine.GSO.4.21.0205091618001.14806-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 17 days, 6:05)
+	id <S314327AbSEIUeE>; Thu, 9 May 2002 16:34:04 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40514 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314325AbSEIUeE>; Thu, 9 May 2002 16:34:04 -0400
+Date: Thu, 9 May 2002 16:33:59 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200205092033.g49KXxG06486@devserv.devel.redhat.com>
+To: "Tom 'spot' Callaway" <tcallawa@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix scsi.c kmod noise
+In-Reply-To: <mailman.1020966481.25371.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Alexander Viro <viro@math.psu.edu>, May-09 2002, Thu, 16:23 -0400]
-> 
-> > > I did quite a bit of this work for CML2 - bus dependencies can be
-> > > found in the CML2 sources.
-> > 
-> > Btw, what happened to CML2?
-> 
-> This is an ex-parrot
+> [...] This error crops up whenever scsi.c
+> is compiled in (which is fairly common in 2.4, Red Hat Linux does this
+> as well).
 
-If you're referring to what I think you are (uhhh), then maybe
-"he's just resting"?
+> "kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2"
 
-I mean, people certainly don't want to see a slug in its place.
+> --- linux/drivers/scsi/scsi.c.OLD	Wed May  1 16:33:14 2002
+> +++ linux/drivers/scsi/scsi.c	Wed May  1 16:34:46 2002
+> @@ -2389,10 +2389,18 @@
 
-:)
+> +/* This doesn't make much sense to do unless CONFIG_SCSI is a module itself.
+> + *
+> + * ~spot <tcallawa@redhat.com> 05012002
+> + */
+> +
+> +#ifdef MODULE
+>  #ifdef CONFIG_KMOD
+>  		if (scsi_hosts == NULL)
+>  			request_module("scsi_hostadapter");
+>  #endif
+> +#endif
+>  		return scsi_register_device_module((struct Scsi_Device_Template *) ptr);
 
+I do not see how you suppose this should work. What if scsi.c
+is compiled in, and sunesp.c is not? Besides, why are you running
+a kernel with CONFIG_KMOD if exec returns -ENOENT? I suspect
+something is broken in the Aurora land.
 
-T.
+-- Pete

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUFYTmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265360AbUFYTqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUFYTmb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 15:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265360AbUFYTmb
+	id S265360AbUFYTqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 15:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUFYTqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 15:42:31 -0400
-Received: from ms2.usu.edu ([129.123.104.12]:51678 "EHLO ms2.usu.edu")
-	by vger.kernel.org with ESMTP id S265354AbUFYTm3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 15:42:29 -0400
-X-WebMail-UserID: saiprathap
-Date: Fri, 25 Jun 2004 13:38:54 -0600
-From: saiprathap <saiprathap@cc.usu.edu>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00002751
-Subject: 
-Message-ID: <40DC7F7D@webster.usu.edu>
+	Fri, 25 Jun 2004 15:46:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33980 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265360AbUFYTqO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 15:46:14 -0400
+Date: Fri, 25 Jun 2004 20:46:11 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] A generic_file_sendpage()
+Message-ID: <20040625194611.GQ12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040608154438.GK18083@dualathlon.random> <20040608193621.GA12780@holomorphy.com> <1086783559.1194.24.camel@boxen> <20040625191924.GA8656@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.62
-X-USU-MailScanner-Information: Please contact the ISP for more information
-X-USU-MailScanner: Found to be clean
-X-MailScanner-From: saiprathap@cc.usu.edu
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040625191924.GA8656@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 25, 2004 at 09:19:24PM +0200, Jörn Engel wrote:
+> > +       old_fs = get_fs();
+> > +       set_fs(KERNEL_DS);
 
-I am a graduate research student majoring in the field of
-Computer Networking.As part of my research I have sorted out what FreeBSD has 
-done to overcome the TCP-RST vulnerability (by modifying the stack to accept 
-the RST packets only with the current + 1 sequence number and ignoring the 
-rest, even if their sequence numbers fall within the receiving window).
+Eeek...  Don't do that, please - set_fs() is not a good thing to add for
+no good reason.
+ 
+> Your patch is *much* smaller than mine.  Looks lean and mean.  But you
+> depend on the struct file* passed to generic_file_sendpage().
+> 
+> One of my goals for 2.7 is to get rid of all users of struct file* in
+> the various read-, write- and send-functions.  Currently, there are
+> four of them, you would introduce number five.
 
-Could you kindly share your views regarding what Linux has done to its stack 
-to overcome this vulnerability as it will be of great help to my research.
-
-Thanks,
-Sai Prathap
-
+And how, pray tell, are you going to do that on filesystems that keep
+part of context in file->private_data?

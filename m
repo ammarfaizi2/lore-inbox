@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbULOWMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbULOWQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbULOWMN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 17:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbULOWMM
+	id S262516AbULOWQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 17:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbULOWQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 17:12:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.191]:52473 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262513AbULOWME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 17:12:04 -0500
-To: =?iso-8859-1?Q? "Michael_S=2E_Tsirkin" ?= <mst@mellanox.co.il>
-Subject: =?iso-8859-1?Q?Re:_unregister_ioctl32_conversion_and_modules=2E_ioctl32_revisited=2E?=
-From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
-Cc: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>,
-       =?iso-8859-1?Q?Andi_Kleen?= <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, <pavel@suse.cz>, <discuss@x86-64.org>,
-       <gordon.jin@intel.com>
-Message-Id: <26879984$110314853541c0b5f7483052.49808635@config13.schlund.de>
-X-Binford: 6100 (more power)
-X-Originating-From: 26879984
-X-Mailer: Webmail
-X-Routing: DE
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Dec 2004 17:16:54 -0500
+Received: from ozlabs.org ([203.10.76.45]:40159 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262514AbULOWQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 17:16:51 -0500
+Date: Thu, 16 Dec 2004 01:47:30 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andi Kleen <ak@suse.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org, jrsantos@austin.ibm.com
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Date: Wed, 15 Dec 2004 23:10:02 +0100
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.140
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041215045855.GH27225@wotan.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> Given that Brent did lots of benchmarks which didn't show any slowdowns
+> I don't think this is really needed (at least as long as nobody
+> demonstrates a ireal slowdown from the patch). And having such special
+> cases is always ugly, better not have them when not needed.
 
-"Michael S. Tsirkin" <mst@mellanox.co.il> schrieb am 15.12.2004,
-19:21:09:
+Id like to see a benchmark that has a large footprint in the hash. A few
+connection netperf run isnt going to stress the hash is it?
 
-> But what if you really wanted to return -ENOIOCTLCMD?
+Also what page size were the runs done with? On x86-64 and ppc64 the 4kB page
+size may make a difference to Brents runs.
 
-It's not possible to return -ENOIOCTLCMD to user space, because it
-is a kernel internal value that was defined specifically the
-purpose of nesting ioctl handlers.
+specSFS (an NFS server benchmarmk) has been very sensitive to TLB issues
+for us, it uses all the memory as pagecache and you end up with 10
+million+ dentries. Something similar that pounds on the dcache would be
+interesting.
 
-> And, the idea was to get rid of the hash eventually?
-
-Oh, was it? I thought the idea was to get rid of 
-register_ioctl32_conversion(). The use of the hash table may be
-not as efficient as possible, but it is not actually broken.
-The advantage of a global lookup mechanism is that many drivers
-don't even need to know about it.
-
-Even if we decide to remove the hash at some later point (after the
-dynamic registration is gone), we definitely need a way to get back
-to the hashed functions from drivers in the meantime.
-
-       Arnd <><
+Anton

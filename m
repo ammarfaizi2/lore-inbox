@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVCXFdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVCXFf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263038AbVCXFdw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 00:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbVCXFdv
+	id S263045AbVCXFf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 00:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbVCXFf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 00:33:51 -0500
-Received: from fire.osdl.org ([65.172.181.4]:6375 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263037AbVCXFdo (ORCPT
+	Thu, 24 Mar 2005 00:35:27 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:19624 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263037AbVCXFfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 00:33:44 -0500
-Date: Wed, 23 Mar 2005 21:32:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: davidm@snapgear.com, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       jmorris@redhat.com, herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-Message-Id: <20050323213226.1b8010f8.akpm@osdl.org>
-In-Reply-To: <42424D52.7070508@pobox.com>
-References: <20050315133644.GA25903@beast>
-	<20050324042708.GA2806@beast>
-	<20050323203856.17d650ec.akpm@osdl.org>
-	<42424D52.7070508@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 24 Mar 2005 00:35:13 -0500
+Date: Thu, 24 Mar 2005 06:34:56 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050324053456.GA14494@elte.hu>
+References: <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050324052854.GA1298@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050324052854.GA1298@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> > It neither applies correctly nor compiles in current kernels.  2.6.11 is
->  > very old in kernel time.
-> 
->  Hrm.  This is getting pretty lame, if you can't take patches from the 
->  -latest- stable release.  It's pretty easy in BK:
-> 
->  	bk clone -ql -rv2.6.11 linux-2.6 rng-2.6.11
->  	cd rng-2.6.11
->  	{ apply patch }
->  	bk pull ../linux-2.6
-> 
->  Can you set up something like that?
 
-About thirty patches have gone into random.c since 2.6.11.  But the patch
-was easy enough to apply anyway.
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
 
-And then, it didn't compile.  I don't think bk will fix that.
+> Now, it is true that CPU#2 might record a quiescent state during this 
+> time, but this will have no effect because -all- CPUs must pass 
+> through a quiescent state before any callbacks will be invoked.  Since 
+> CPU#1 is refusing to record a quiescent state, grace periods will be 
+> blocked for the full extent of task 1's RCU read-side critical 
+> section.
 
+ok, great. So besides the barriers issue (and the long grace period time 
+issue), the current design is quite ok. And i think your original flip 
+pointers suggestion can be used to force synchronization.
+
+	Ingo

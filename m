@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286959AbSAXKaL>; Thu, 24 Jan 2002 05:30:11 -0500
+	id <S287139AbSAXKcu>; Thu, 24 Jan 2002 05:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286942AbSAXKaA>; Thu, 24 Jan 2002 05:30:00 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:44044 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S286959AbSAXK3q>; Thu, 24 Jan 2002 05:29:46 -0500
-Date: Thu, 24 Jan 2002 13:29:44 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Berjoza Roman <b_rom_s@4enet.by>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs+updatedb=oops
-Message-ID: <20020124132944.A20375@namesys.com>
-In-Reply-To: <20020123161944Z289790-13996+10616@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020123161944Z289790-13996+10616@vger.kernel.org>
-User-Agent: Mutt/1.3.22.1i
+	id <S286962AbSAXKck>; Thu, 24 Jan 2002 05:32:40 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:20609 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S286942AbSAXKcf> convert rfc822-to-8bit; Thu, 24 Jan 2002 05:32:35 -0500
+Date: Thu, 24 Jan 2002 11:32:30 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: timothy.covell@ashavan.org, Vojtech Pavlik <vojtech@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <200201232321.AAA02845@rzmail.uni-trier.de>
+Message-ID: <Pine.LNX.4.40.0201241125220.6687-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 24 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
 
-On Wed, Jan 23, 2002 at 06:23:12PM +0200, Berjoza Roman wrote:
-> Jan 23 12:56:40 ns1 kernel: EIP:    0010:[d_lookup+92/244]    Not tainted
-> Jan 23 12:56:40 ns1 kernel: Process kdeinit (pid: 3279, stackpage=c2fbf000)
-> Jan 23 12:56:40 ns1 kernel: Call Trace: [cached_lookup+16/84] 
-> [link_path_walk+1184/1752] [getname+93/156] [path_walk+26/28] 
-> [__user_walk+53/80]
-Hm. But there is no reiserfs code in the calltrace.
-What I can say is that in d_lookup() this code falls:
-                tmp = tmp->next;
-because tmp is NULL. (which means the our list is broken, right?)
-I do not know how things went into this state, though.
+> CPU		23-25°C	(with IDLE and BUS GRANT)
+> system (case)	20-23°C	(room temperature)
 
-Bye,
-    Oleg
+hmmm ... my system is at 33 case and 34-35 cpu temperature (°C) when it is
+idle ... this are not so bad temperatures ... it has temperature
+controlled fans which only reach their maximum spin at around 40-45 ... so
+the system is not so good coold when it is cooler but produce lesser noise
+...
+
+> At any time (full load) the case temperature shouldn't go over 40°C with all
+> stuff running (gfx, disks, lan, etc.). Recommendations from AMD and Intel.
+
+yes ... the case temp should not go over 40°C but the cpu  is fine if it
+is under 45-50°C under load.
+
+> > I've come to the conclusion that the lm_sensors stuff is crap,
+>
+> No, they have the frame work in place but need the usefull bits.
+> That's we are hunting for...
+
+the lm_sensors package is realy fine ... it was a realy usfull tool when i
+was tweaking on this patch ...
+
+> > but not totally because of the authors.  It looks like the manufacturers
+> > like VIA are not very helpful to the project.....
+>
+> Very true!
+
+i get my informations from pcr files for wpcredit ... a editor to
+manipulate the chipset and bios settign from within windows. this pcr
+files contains the adresses for some usefull registers and such things ...
+
+daniel
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

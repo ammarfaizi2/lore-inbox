@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280921AbRKOQH4>; Thu, 15 Nov 2001 11:07:56 -0500
+	id <S280755AbRKOQN0>; Thu, 15 Nov 2001 11:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280929AbRKOQHr>; Thu, 15 Nov 2001 11:07:47 -0500
-Received: from f86.law3.hotmail.com ([209.185.241.86]:55815 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S280921AbRKOQHd>;
-	Thu, 15 Nov 2001 11:07:33 -0500
-X-Originating-IP: [63.127.215.130]
-From: "Jim M." <msg124@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: guinness-list@redhat.com
-Subject: building module into the kernel question
-Date: Thu, 15 Nov 2001 16:07:27 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F861Tg7yDHFCsI5W0uP00007492@hotmail.com>
-X-OriginalArrivalTime: 15 Nov 2001 16:07:28.0035 (UTC) FILETIME=[9F4D7730:01C16DEF]
+	id <S280930AbRKOQNR>; Thu, 15 Nov 2001 11:13:17 -0500
+Received: from mustard.heime.net ([194.234.65.222]:29850 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S280755AbRKOQNL>; Thu, 15 Nov 2001 11:13:11 -0500
+Date: Thu, 15 Nov 2001 17:13:09 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux i/o tweaking
+Message-ID: <Pine.LNX.4.30.0111151535060.13411-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have came up with a driver for a piece of pci hardware.
-It is called mydevice.c. How do i incorporate or build that into
-the linux kernel so that it supports this piece of hardware?.
-Thanx,
-Jim
+Hi all
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+After three days at Compaq's lab in Oslo, testing their medium-level
+servers and storage systems with Linux, I've come to some sort of
+conclusions, although these may be wrong. I also have come over a few
+problems that I couln't find a good solution to.
+
+ * When running RAID from a Compaq Smart 5302/64 controller, software
+RAID-5 is (slightly - ~15%) faster (on JBOD - each disk is configured as
+a RAID-0 device with max - 256kB - stripe size) than the
+hardware/controller based RAID-5. Both CPUs (1266MHz/512kB cache) are
+maxed out by reading from software RAID-5 (???), giving me >= 107MB/s on
+two SCSI-3 buses with six disks on each bus.
+
+ * Even though I can get up to 25 MB/s from each disk, I can't get more
+than 107 MB/s on the whole bunch (12 drives). It doesn't help much to do
+RAID-0 either. Don't understand anything ...
+
+Thanks for all help.
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+
 

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbQKTUNu>; Mon, 20 Nov 2000 15:13:50 -0500
+	id <S129097AbQKTUWf>; Mon, 20 Nov 2000 15:22:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130660AbQKTUNk>; Mon, 20 Nov 2000 15:13:40 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:39690
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129831AbQKTUNG>; Mon, 20 Nov 2000 15:13:06 -0500
-Date: Mon, 20 Nov 2000 11:42:57 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <Pine.LNX.4.30.0011201412320.10503-100000@viper.haque.net>
-Message-ID: <Pine.LNX.4.10.10011201141050.24374-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129720AbQKTUWY>; Mon, 20 Nov 2000 15:22:24 -0500
+Received: from ppp17.ts1-1.NewportNews.visi.net ([209.8.196.17]:50932 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S129097AbQKTUWK>; Mon, 20 Nov 2000 15:22:10 -0500
+Date: Mon, 20 Nov 2000 14:44:59 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in large files ext2 in 2.4.0-test11 ?
+Message-ID: <20001120144459.A619@visi.net>
+In-Reply-To: <D69EF5976ED@vcnet.vc.cvut.cz> <20001120141641.Y619@visi.net> <20001120214216.S28963@mea-ext.zmailer.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001120214216.S28963@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Mon, Nov 20, 2000 at 09:42:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> 	Just for comparison, RedHat delivers glibc compiled with
+> 	2.3.nn/2.4.0 headers -> newer interfaces are supported.
+> 
 
-Can everyone lay off this guy, he made a mistake and the heat is not cool.
-This is no way for the general masses to get a taste of Linux, cool?
-Please jsut let it die or offline the chap.
+Let's not even get started on what RH did or did not do. If everyone did
+what RH did, then everyone else can just roll over and die, since there
+will be no difference between dists.
 
-Regards,
+On top of that, let's take this off the l-k list, since it has no bearing
+here.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+-- 
+ -----------=======-=-======-=========-----------=====------------=-=------
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

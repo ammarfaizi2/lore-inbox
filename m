@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUB1Sr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 13:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbUB1Sr6
+	id S261902AbUB1SwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 13:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUB1SwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 13:47:58 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:30619 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261900AbUB1Sr4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 13:47:56 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-Date: Sat, 28 Feb 2004 18:47:52 -0000
+	Sat, 28 Feb 2004 13:52:12 -0500
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:31100 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S261902AbUB1Svv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 13:51:51 -0500
+Message-ID: <4040E335.5090401@helsinki.fi>
+Date: Sat, 28 Feb 2004 20:51:33 +0200
+From: Kliment Yanev <Kliment.Yanev@helsinki.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: 2.6.3 - 8139too timeout debug info
-Message-ID: <4040E258.29625.299F47FC@localhost>
-In-reply-to: <87znb3t83c.fsf@devron.myhome.or.jp>
-References: <403F7EEF.4124.2432E62F@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Nokia c110 driver
+References: <40408852.8040608@helsinki.fi> <20040228104105.5a699d32.rddunlap@osdl.org>
+In-Reply-To: <20040228104105.5a699d32.rddunlap@osdl.org>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If I use the 8139too.c from 2.6.2, and build 2.6.3 with it, all works 
-> > fine (I am running this version right now).
-> 
-> Interesting.
-> 
-> Please try the attached patch for debugging. After this problem
-> happen, send the all output of dmesg, all .config, and "cat /proc/interrupts".
-> 
-> Thanks.
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+|
+| What is this driver for?  Where can I find it?
 
-Thanks for your help.  I have hell of a trouble doing this, as soon 
-as any network load happens, the box becomes unresponsive during 
-timeouts - but hopefully I have caught the info required.
+The nokia c110 is a prism2-based wireless lan card that does not
+work with the normal prism driver because it has a different controller
+and a big pile of extra unneeded and unsupported stuff like a smartcard
+reader...
 
-http://www.linicks.net/8139too_debug/
+Available here:
 
-Thanks,
+http://www.nokia.com/nokia/0,5184,2718,00.html
 
-Nick
+|
+| All those errors should go away if you build the module correctly.
+| Please read Documentation/kbuild/m*.txt or see LWN.net article
+| on building modules:
+|   http://lwn.net/Articles/21823/
 
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Thanks...I'll try that...however I just realized I don't even have a
+linux driver for the pci to pcmcia cradle that it's supposed to work
+with (i82365-compatible PCI card support was dropped from the kernel
+driver and pcmcia-cs driver won't build if there is pcmcia support in
+the kernel and the whole package won't compile without pcmcia support in
+the kernel...)
+Therefore, I won't be able to test this until I get a laptop in use in
+two weeks time...
 
+|
+| --
+| ~Randy
+
+Kliment
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFAQOM1rPQTyNB9u9YRAt3CAJ0fbmpZkjZzrqszDokBiHzLjKjSdwCgmRax
+Dwb+j0DcIDSYuWyRqdxdZ4Y=
+=NMOm
+-----END PGP SIGNATURE-----

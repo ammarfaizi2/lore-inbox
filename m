@@ -1,100 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286472AbRLTXin>; Thu, 20 Dec 2001 18:38:43 -0500
+	id <S286475AbRLTXnM>; Thu, 20 Dec 2001 18:43:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286471AbRLTXid>; Thu, 20 Dec 2001 18:38:33 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14261 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S286478AbRLTXiS>; Thu, 20 Dec 2001 18:38:18 -0500
-Date: Thu, 20 Dec 2001 16:38:12 -0700
-Message-Id: <200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: gregor@suhr.home.cs.tu-berlin.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe devfs
-In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
-In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
+	id <S286474AbRLTXnC>; Thu, 20 Dec 2001 18:43:02 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24920 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S286471AbRLTXmz>; Thu, 20 Dec 2001 18:42:55 -0500
+Date: Fri, 21 Dec 2001 00:42:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd 	kern el panic woes
+Message-ID: <20011221004251.K1477@athlon.random>
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> <200112201946.fBKJkNw01262@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200112201946.fBKJkNw01262@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Dec 20, 2001 at 11:46:23AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregor Suhr writes:
-> I tried to upgrade my system from 2.4.16 to 2.4.17-rc2 but I'am always 
-> got the following OOPS:
+On Thu, Dec 20, 2001 at 11:46:23AM -0800, Linus Torvalds wrote:
+> In article <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> you write:
+> >Yes, this does fix the problem.  Thank you very much!
+> >
+> >Hopefully something like this will make it into 2.4.18?
 > 
-> kernel BUG at slab.c:815!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c012960a>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010286
-> eax: 0000001a   ebx: dfe38698   ecx: 00000001   edx: 00002a56
-> esi: dfe38691   edi: c0324117   ebp: 00000000   esp: c181dee4
-> ds: 0018   es: 0018   ss: 0018
-> Process swapper (pid: 1, stackpage=c181d000)
-> Stack: c0316083 0000032f c181def4 dfe386b8 00000018 c180f368 c180f324 
-> c180f324
->        c030c113 c03a7ad4 c032410a 0000001c 00000020 00000000 00000000 
-> 00000000
->        c03a72f3 c0317020 00000002 00000000 00000000 dfe80e24 00003a00 
-> 00000009
-> Call Trace: [<c0118206>] [<c0118226>] [<c010522c>] [<c0105000>] [<c010525e>]
->    [<c0105000>] [<c0105726>] [<c0105250>]
-> Code: 0f 0b 5f 8b 13 5d 89 d3 8b 03 89 c2 0f 18 02 81 fb c8 dc 37
+> This does not seem quite right.
 > 
->  >>EIP; c012960a <kmem_cache_create+40a/470>   <=====
-> Trace; c0118206 <sys_wait4+3a6/3b0>
-> Trace; c0118226 <sys_waitpid+16/20>
-> Trace; c010522c <prepare_namespace+11c/140>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c010525e <init+e/140>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c0105726 <kernel_thread+26/30>
-> Trace; c0105250 <init+0/140>
-
-No mention of devfs in the traceback. It doesn't look like a devfs
-problem. 
-
-> Before the kernel gives up i get the following error messages while 
-> trying to find my LVM drives:
+> >Tachino Nobuhiro (tachino@open.nm.fujitsu.co.jp) wrote:
+> >> Hello,
+> >> 
+> >> Following patch may fix your problem. 
+> >> 
+> >> diff -r -u linux-2.4.17-rc2.org/drivers/block/rd.c 
+> >> linux-2.4.17-rc2/drivers/block/rd.c
+> >> --- linux-2.4.17-rc2.org/drivers/block/rd.c	Thu Dec 20 20:30:57 2001
+> >> +++ linux-2.4.17-rc2/drivers/block/rd.c	Thu Dec 20 20:46:53 2001
+> >> @@ -194,9 +194,11 @@
+> >>  static int ramdisk_readpage(struct file *file, struct page * page)
+> >>  {
+> >>  	if (!Page_Uptodate(page)) {
+> >> -		memset(kmap(page), 0, PAGE_CACHE_SIZE);
+> >> -		kunmap(page);
+> >> -		flush_dcache_page(page);
+> >> +		if (!page->buffers) {
+> >> +			memset(kmap(page), 0, PAGE_CACHE_SIZE);
+> >> +			kunmap(page);
+> >> +			flush_dcache_page(page);
+> >> +		}
+> >>  		SetPageUptodate(page);
+> >>  	}
+> >>  	UnlockPage(page);
+> >> 
+> >> 
+> >>   grow_dev_page() creates not Uptodate page which has valid 
+> >> buffers, so
+> >> it is wrong that ramdisk_readpage() clears whole page unconditionally.
 > 
-> Mounted devfs on /dev
-> modprobe: Can't open dependencies file 
-> /lib/modules/2.4.17-rc2/modules.dep (No such file or directory)
-
-You've got a problem with your modules configuration.
-
-> devfs: devfs_mk_dir(vg0): using old entry in dir: c1808724 ""
-> vgdevfs: devfs_register(group): could not append to parent, err: -17
-> scan -- reading devfs: devfs_register(root): could not append to parent, 
-> err: -17
-> all physical voldevfs: devfs_register(tmp): could not append to parent, 
-> err: -17
-> umes (this may tdevfs: devfs_register(var): could not append to parent, 
-> err: -17
-> ake a while...)devfs: devfs_register(squid): could not append to parent, 
-> err: -17
+> The problem is that having buffers doesn't necessarily always mean that
+> they are valid, nor that _all_ of them are valid.
 > 
-> vgscan -- founddevfs: devfs_register(usr): could not append to parent, 
-> err: -17
->  inactive volumedevfs: devfs_register(home): could not append to parent, 
-> err: -17
->  group "vg0"
-> vgdevfs: devfs_register(swap): could not append to parent, err: -17
-> scan -- "/etc/lvdevfs: devfs_register(redhat): could not append to 
-> parent, err: -17
-> mtab" and "/etc/devfs: devfs_register(mp3): could not append to parent, 
-> err: -17
-> lvmtab.d" succesdevfs: devfs_register(appdata): could not append to 
-> parent, err: -17
-> sfully created
-> devfs: devfs_register(oracle): could not append to parent, err: -17
+> Also, if the ramdisk "readpage" code is wrong, then so is the
+> "prepare_write" code.  They share the same logic, which basically says
+> that "if the page isn't up-to-date, then it is zero".  Which is always
+> true for normal read/write accesses, but as you found out it's not true
+> when parts of the page have been accessed by filesystems through the
+> buffers. 
 
-These devfs-related messages are due to configuration problems
-(i.e. boot scripts untarring a pile of crap into devfs), but they are
-unlikely to be the cause of your Oops.
+subtle, while writing and testing that code the buffercache was not
+sharing the physical address space yet, so it was stable, then it kept to
+work somehow till today because only metadata writes into holes would
+trigger it.
 
-				Regards,
+> 
+> So the code _should_ use a common helper, something like
+> 
+> 	static void ramdisk_updatepage(struct page * page)
+> 	{
+> 		if (!Page_Uptodate(page)) {
+> 			struct buffer_head *bh = page->buffers;
+> 			void * address = page_address(page);
+> 			if (bh) {
+> 				struct buffer_head *tmp = bh;
+> 				do {
+> 					if (!buffer_uptodate(tmp)) {
+> 						memset(address, 0, tmp->b_size);
+> 						 set_buffer_uptodate(tmp);
+> 					}
+> 					address += tmp->b_size;
+> 					tmp = tmp->b_this_page;
+> 				} while (tmp != bh);
+> 			} else
+> 				memset(address, 0, PAGE_SIZE);
+> 			flush_dcache_page(page);
+> 			SetPageUptodate(page);
+> 		}
+> 	}
+> 
+> and then ramdisk_readpage() would just be
+> 
+> 	kmap(page);
+> 	ramdisk_updatepage(page);
+> 	UnlockPage(page);
+> 	kunmap(page);
+> 	return 0;
+> 
+> while ramdisk_prepare_write() would be
+> 
+> 	ramdisk_updatepage(page);
+> 	SetPageDirty(page);
+> 	return 0;
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+agreed. rd_blkdev_pagecache_IO will as well do:
+
+			err = 0;
+
+			kmap(page);
+			ramdisk_updatepage(page);
+			kunmap(page);
+
+			unlock = 1;
+
+Andrea

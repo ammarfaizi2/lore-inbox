@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTATSts>; Mon, 20 Jan 2003 13:49:48 -0500
+	id <S266643AbTATSvQ>; Mon, 20 Jan 2003 13:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266637AbTATSts>; Mon, 20 Jan 2003 13:49:48 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:11462 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S266443AbTATSsy>; Mon, 20 Jan 2003 13:48:54 -0500
-Message-Id: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl>
-To: rms@gnu.org
-cc: "Steve Lee" <steve@tuxsoft.com>, linux-kernel@vger.kernel.org,
-       brand@eeyore.valparaiso.cl
-Subject: Re: [OFFTOPIC] RMS and reactions to him 
-In-Reply-To: Your message of "Fri, 17 Jan 2003 19:47:13 EST."
-             <E18Zh8j-0000vf-00@fencepost.gnu.org> 
-Date: Mon, 20 Jan 2003 14:38:21 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S266645AbTATSvP>; Mon, 20 Jan 2003 13:51:15 -0500
+Received: from [62.225.151.125] ([62.225.151.125]:15037 "HELO localhost")
+	by vger.kernel.org with SMTP id <S266643AbTATSvO>;
+	Mon, 20 Jan 2003 13:51:14 -0500
+Date: Mon, 20 Jan 2003 19:34:42 +0100
+From: lkml@scienceworks.com
+To: linux-kernel@vger.kernel.org
+Subject: Promise PDC20268 FastTrack 100 TX2 (PDC20268)
+Message-ID: <20030120183442.GA3440@poseidon.wasserstadt.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman <rms@gnu.org> said:
->       Favorable or not, "Linux" has become the symbol for a whole
->     system of free software.
-> 
-> The meaning attached to this symbol is one we disagree with (see
-> http://www.gnu.org/gnu/why-gnu-linux.html), so we will not accept
-> it as the symbol of our work.
+Hello all,
 
-But you don't attach strings about naming in GPL, so you are SOL respect
-FSF owned software. The owners of the other bits of the operating systems
-(wide sense, otherwise called "distributions") usually called "Linux"
-(independently GPLed, BSD stuff, X11, Knuth (TeX), in-house installation
-and configuration tools, ...) have no such naming restrinctions AFAIK, and
-have not complained either, even less in your direction.
+I have a Promise FastTrack 100 TX2 (PDC20268) IDE-controller
+(BIOS v2.00.0.24) used in a linux MD-RAID.  Aside from various
+other annoying Promise-problems, I am not able to perform a
+remote boot because the brain-dead Promise-BIOS "complains" that
+no array is defined, and requires one to press ESC to continue
+booting.  I would very much appreciate any tips as to how I can
+circumvent this "feature".
 
-What is discussed here is the operating system (narrow sense, i.e., kernel
-only) called Linux, on which you have no claim whatsoever.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Best regards,
+
+Robert
+
+PS. Please CC me, as I am not in the list.

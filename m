@@ -1,167 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277700AbRJICQF>; Mon, 8 Oct 2001 22:16:05 -0400
+	id <S277696AbRJICPp>; Mon, 8 Oct 2001 22:15:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277699AbRJICPq>; Mon, 8 Oct 2001 22:15:46 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:26831 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S277698AbRJICPf>;
-	Mon, 8 Oct 2001 22:15:35 -0400
-Date: Mon, 8 Oct 2001 19:16:04 -0700
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Wireless Extension update - part II
-Message-ID: <20011008191604.C6816@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S277699AbRJICPf>; Mon, 8 Oct 2001 22:15:35 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:65038 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S277696AbRJICPa>;
+	Mon, 8 Oct 2001 22:15:30 -0400
+Message-ID: <20011009041618.A6135@win.tue.nl>
+Date: Tue, 9 Oct 2001 04:16:18 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Radovan Garabik <garabik@melkor.dnp.fmph.uniba.sk>,
+        linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] dead keys in unicode console mode
+In-Reply-To: <20011008215313.A11879@melkor.dnp.fmph.uniba.sk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20011008215313.A11879@melkor.dnp.fmph.uniba.sk>; from Radovan Garabik on Mon, Oct 08, 2001 at 09:53:13PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Mon, Oct 08, 2001 at 09:53:13PM +0200, Radovan Garabik wrote:
+> FWIW, this little patch makes it possible to
+> use dead keys in unicode console mode.
+> It is against 2.4.10, but should apply cleanly in
+> broader range of kernel versions.
 
-	Followup to my previous patch. This update the various
-unmaintained wireless LAN drivers to the latest Wireless Extensions
-definitions.
-	Drivers updated :
-	o Old Wavelan ISA
-	o Old Wavelan Pcmcia
-	o Netwave
-	o Raylink
+>  struct kbdiacr {
+> -        unsigned char diacr, base, result;
+> +        unsigned char diacr, base;
+> +        unsigned short int result; /* holds UCS2 value */
+>  };
 
-	I would also appreciate if this patch could be included after
-the first one in the kernel.
+And now all existing binaries that use the KDGKBDIACR ioctl
+dump core? And all existing binaries that use the KDSKBDIACR
+ioctl do very strange things?
 
-	Thanks...
-
-	Jean
-
-diff -u -p linux/drivers/net/wavelan.w11.p.h linux/drivers/net/wavelan.p.h
---- linux/drivers/net/wavelan.w11.p.h	Tue Oct  9 00:32:52 2001
-+++ linux/drivers/net/wavelan.p.h	Tue Oct  9 00:39:02 2001
-@@ -447,13 +447,13 @@ static const char	*version	= "wavelan.c 
- 
- /* ------------------------ PRIVATE IOCTL ------------------------ */
- 
--#define SIOCSIPQTHR	SIOCDEVPRIVATE		/* Set quality threshold */
--#define SIOCGIPQTHR	SIOCDEVPRIVATE + 1	/* Get quality threshold */
--#define SIOCSIPLTHR	SIOCDEVPRIVATE + 2	/* Set level threshold */
--#define SIOCGIPLTHR	SIOCDEVPRIVATE + 3	/* Get level threshold */
-+#define SIOCSIPQTHR	SIOCIWFIRSTPRIV		/* Set quality threshold */
-+#define SIOCGIPQTHR	SIOCIWFIRSTPRIV + 1	/* Get quality threshold */
-+#define SIOCSIPLTHR	SIOCIWFIRSTPRIV + 2	/* Set level threshold */
-+#define SIOCGIPLTHR	SIOCIWFIRSTPRIV + 3	/* Get level threshold */
- 
--#define SIOCSIPHISTO	SIOCDEVPRIVATE + 6	/* Set histogram ranges */
--#define SIOCGIPHISTO	SIOCDEVPRIVATE + 7	/* Get histogram values */
-+#define SIOCSIPHISTO	SIOCIWFIRSTPRIV + 6	/* Set histogram ranges */
-+#define SIOCGIPHISTO	SIOCIWFIRSTPRIV + 7	/* Get histogram values */
- 
- /****************************** TYPES ******************************/
- 
-diff -u -p linux/drivers/net/wavelan.w11.c linux/drivers/net/wavelan.c
---- linux/drivers/net/wavelan.w11.c	Tue Oct  9 00:32:08 2001
-+++ linux/drivers/net/wavelan.c	Tue Oct  9 00:38:50 2001
-@@ -2059,6 +2059,10 @@ static int wavelan_ioctl(struct net_devi
- 			range.max_qual.qual = MMR_SGNL_QUAL;
- 			range.max_qual.level = MMR_SIGNAL_LVL;
- 			range.max_qual.noise = MMR_SILENCE_LVL;
-+			range.avg_qual.qual = MMR_SGNL_QUAL; /* Always max */
-+			/* Need to get better values for those two */
-+			range.avg_qual.level = 30;
-+			range.avg_qual.noise = 8;
- 
- 			range.num_bitrates = 1;
- 			range.bitrate[0] = 2000000;	/* 2 Mb/s */
-diff -u -p linux/drivers/net/pcmcia/wavelan_cs.w11.h linux/drivers/net/pcmcia/wavelan_cs.h
---- linux/drivers/net/pcmcia/wavelan_cs.w11.h	Tue Oct  9 00:36:29 2001
-+++ linux/drivers/net/pcmcia/wavelan_cs.h	Tue Oct  9 00:42:05 2001
-@@ -465,13 +465,20 @@ static const char *version = "wavelan_cs
- 
- /* ------------------------ PRIVATE IOCTL ------------------------ */
- 
--#define SIOCSIPQTHR	SIOCDEVPRIVATE		/* Set quality threshold */
--#define SIOCGIPQTHR	SIOCDEVPRIVATE + 1	/* Get quality threshold */
--#define SIOCSIPROAM     SIOCDEVPRIVATE + 2      /* Set roaming state */
--#define SIOCGIPROAM     SIOCDEVPRIVATE + 3      /* Get roaming state */
-+/* Wireless Extension Backward compatibility - Jean II
-+ * If the new wireless device private ioctl range is not defined,
-+ * default to standard device private ioctl range */
-+#ifndef SIOCIWFIRSTPRIV
-+#define SIOCIWFIRSTPRIV	SIOCDEVPRIVATE
-+#endif /* SIOCIWFIRSTPRIV */
- 
--#define SIOCSIPHISTO	SIOCDEVPRIVATE + 6	/* Set histogram ranges */
--#define SIOCGIPHISTO	SIOCDEVPRIVATE + 7	/* Get histogram values */
-+#define SIOCSIPQTHR	SIOCIWFIRSTPRIV		/* Set quality threshold */
-+#define SIOCGIPQTHR	SIOCIWFIRSTPRIV + 1	/* Get quality threshold */
-+#define SIOCSIPROAM     SIOCIWFIRSTPRIV + 2	/* Set roaming state */
-+#define SIOCGIPROAM     SIOCIWFIRSTPRIV + 3	/* Get roaming state */
-+
-+#define SIOCSIPHISTO	SIOCIWFIRSTPRIV + 6	/* Set histogram ranges */
-+#define SIOCGIPHISTO	SIOCIWFIRSTPRIV + 7	/* Get histogram values */
- 
- /*************************** WaveLAN Roaming  **************************/
- #ifdef WAVELAN_ROAMING		/* Conditional compile, see above in options */
-diff -u -p linux/drivers/net/pcmcia/wavelan_cs.w11.c linux/drivers/net/pcmcia/wavelan_cs.c
---- linux/drivers/net/pcmcia/wavelan_cs.w11.c	Tue Oct  9 00:36:23 2001
-+++ linux/drivers/net/pcmcia/wavelan_cs.c	Tue Oct  9 00:42:28 2001
-@@ -2269,6 +2269,12 @@ wavelan_ioctl(struct net_device *	dev,	/
- 	  range.max_qual.qual = MMR_SGNL_QUAL;
- 	  range.max_qual.level = MMR_SIGNAL_LVL;
- 	  range.max_qual.noise = MMR_SILENCE_LVL;
-+#if WIRELESS_EXT > 11
-+	  range.avg_qual.qual = MMR_SGNL_QUAL; /* Always max */
-+	  /* Need to get better values for those two */
-+	  range.avg_qual.level = 30;
-+	  range.avg_qual.noise = 8;
-+#endif /* WIRELESS_EXT > 11 */
- 
- #if WIRELESS_EXT > 7
- 	  range.num_bitrates = 1;
-diff -u -p linux/drivers/net/pcmcia/netwave_cs.w11.c linux/drivers/net/pcmcia/netwave_cs.c
---- linux/drivers/net/pcmcia/netwave_cs.w11.c	Tue Oct  9 00:37:26 2001
-+++ linux/drivers/net/pcmcia/netwave_cs.c	Tue Oct  9 00:44:11 2001
-@@ -269,8 +269,15 @@ static dev_link_t *dev_list;
-    because they generally can't be allocated dynamically.
- */
- 
--#define SIOCGIPSNAP	SIOCDEVPRIVATE		/* Site Survey Snapshot */
--/*#define SIOCGIPQTHR	SIOCDEVPRIVATE + 1*/
-+/* Wireless Extension Backward compatibility - Jean II
-+ * If the new wireless device private ioctl range is not defined,
-+ * default to standard device private ioctl range */
-+#ifndef SIOCIWFIRSTPRIV
-+#define SIOCIWFIRSTPRIV	SIOCDEVPRIVATE
-+#endif /* SIOCIWFIRSTPRIV */
-+
-+#define SIOCGIPSNAP	SIOCIWFIRSTPRIV		/* Site Survey Snapshot */
-+/*#define SIOCGIPQTHR	SIOCIWFIRSTPRIV + 1*/
- 
- #define MAX_ESA 10
- 
-diff -u -p linux/drivers/net/pcmcia/ray_cs.w11.c linux/drivers/net/pcmcia/ray_cs.c
---- linux/drivers/net/pcmcia/ray_cs.w11.c	Tue Oct  9 00:37:36 2001
-+++ linux/drivers/net/pcmcia/ray_cs.c	Tue Oct  9 00:45:52 2001
-@@ -1451,9 +1451,12 @@ static int ray_dev_ioctl(struct net_devi
- #endif	/* WIRELESS_SPY */
- 
-       /* ------------------ PRIVATE IOCTL ------------------ */
--#define SIOCSIPFRAMING	SIOCDEVPRIVATE		/* Set framing mode */
--#define SIOCGIPFRAMING	SIOCDEVPRIVATE + 1	/* Get framing mode */
--#define SIOCGIPCOUNTRY	SIOCDEVPRIVATE + 3	/* Get country code */
-+#ifndef SIOCIWFIRSTPRIV
-+#define SIOCIWFIRSTPRIV	SIOCDEVPRIVATE
-+#endif /* SIOCIWFIRSTPRIV */
-+#define SIOCSIPFRAMING	SIOCIWFIRSTPRIV		/* Set framing mode */
-+#define SIOCGIPFRAMING	SIOCIWFIRSTPRIV + 1	/* Get framing mode */
-+#define SIOCGIPCOUNTRY	SIOCIWFIRSTPRIV + 3	/* Get country code */
-     case SIOCSIPFRAMING:
-       if(!capable(CAP_NET_ADMIN))	/* For private IOCTLs, we need to check permissions */
- 	{
+If you want to do something like this, a new ioctl and a new
+structure are necessary. If you design something new, keep
+examples like Vietnamese in mind (with several accents on
+one symbol). We do support that now in the 8-bit world,
+but complete support of the 16-bit world still requires
+some work. (And in the meantime Unicode has already gone beyond.)

@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSJLTX4>; Sat, 12 Oct 2002 15:23:56 -0400
+	id <S261332AbSJLTWl>; Sat, 12 Oct 2002 15:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261336AbSJLTX4>; Sat, 12 Oct 2002 15:23:56 -0400
-Received: from 62-190-217-117.pdu.pipex.net ([62.190.217.117]:25357 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261333AbSJLTXz>; Sat, 12 Oct 2002 15:23:55 -0400
+	id <S261333AbSJLTWl>; Sat, 12 Oct 2002 15:22:41 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:24624 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261332AbSJLTWk>;
+	Sat, 12 Oct 2002 15:22:40 -0400
+From: <Hell.Surfers@cwctv.net>
+To: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Date: Sat, 12 Oct 2002 20:28:20 +0100
+Subject: :Re: Bug on Mdk 9.0
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034450900414"
+Message-ID: <030924826190ca2DTVMAIL9@smtp.cwctv.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--1034450900414
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+dont flame me bi@tch. :)
+
+Cheers, Dean.
+
+On Sat, 12 Oct 2002 20:30:01 +0100 (BST) jbradford@dial.pipex.com wrote:
+
+--1034450900414
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from darkstar.example.net ([62.190.217.117]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Sat, 12 Oct 2002 20:19:21 +0100
+Received: (from root@localhost)
+	by darkstar.example.net (8.12.4/8.12.4) id g9CJU1Co011425;
+	Sat, 12 Oct 2002 20:30:01 +0100
 From: jbradford@dial.pipex.com
-Message-Id: <200210121937.g9CJbla7011490@darkstar.example.net>
-Subject: Re: Linux v2.5.42
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sat, 12 Oct 2002 20:37:47 +0100 (BST)
-Cc: markpeloquin@hotmail.com, hch@infradead.org, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-In-Reply-To: <1034451245.15067.16.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Oct 12, 2002 08:34:05 PM
+Message-Id: <200210121930.g9CJU1Co011425@darkstar.example.net>
+Subject: Re: Bug on Mdk 9.0
+To: Hell.Surfers@cwctv.net
+Date: Sat, 12 Oct 2002 20:30:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0a7d72654180ca2DTVMAIL1@smtp.cwctv.net> from "Hell.Surfers@cwctv.net" at Oct 12, 2002 07:55:29 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: jbradford@dial.pipex.com
 
-> > Should EVMS be included, the team will make it our top priority to resolve 
-> > the disputed design issues. If the ruling should be that some of our design 
-> > decisions must change, so be it, we will comply. Certainly some changes can 
-> > not be done by the 20th or 31st, however I feel the team can handle most 
-> > changes before 2.6 ships.
-> 
-> Thats good to hear. Right now the debate appears to be - "users: please
-> add EVMS" "hackers: oh my god no" - so you got the feature set right it
-> seems
+> wood u stop tawkin 733t m8.
 
-Obvious point:
-
-* Linus can always thaw the tree after 31st just for one addition, if
-something _really_ needs to be added for 2.6
+Y d0n7 U 570p u5!n 5u(h @ 1337 3-M@!7 @pp71(@7!0n, wh!(h d035n'7 3v3n
+qu073 pr0p3r7y :-)
 
 John.
+--1034450900414--
+
+

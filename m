@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbTBTKxR>; Thu, 20 Feb 2003 05:53:17 -0500
+	id <S265139AbTBTKvn>; Thu, 20 Feb 2003 05:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265168AbTBTKxR>; Thu, 20 Feb 2003 05:53:17 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:27849 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
-	id <S265140AbTBTKxO>; Thu, 20 Feb 2003 05:53:14 -0500
-Message-ID: <008601c2d8cf$a60e4c60$760010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Andi Kleen" <ak@suse.de>, "Simon Kirby" <sim@netnation.com>,
-       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-       <davem@redhat.com>
-References: <20030219174757.GA5373@netnation.com.suse.lists.linux.kernel> <p73r8a3xub5.fsf@amdsimf.suse.de> <20030220092043.GA25527@netnation.com> <20030220093422.GA16369@wotan.suse.de> <006301c2d8c8$921c1d10$760010ac@edumazet> <20030220105435.GD10374@wotan.suse.de>
-Subject: Re: Longstanding networking / SMP issue? (duplextest)
-Date: Thu, 20 Feb 2003 12:03:06 +0100
+	id <S265140AbTBTKvn>; Thu, 20 Feb 2003 05:51:43 -0500
+Received: from 251.017.dsl.syd.iprimus.net.au ([210.50.55.251]:31111 "EHLO
+	file1.syd.nuix.com.au") by vger.kernel.org with ESMTP
+	id <S265139AbTBTKvl> convert rfc822-to-8bit; Thu, 20 Feb 2003 05:51:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Song Zhao <song.zhao@nuix.com.au>
+Reply-To: song.zhao@nuix.com.au
+Organization: Nuix
+To: thunder7@xs4all.nl
+Subject: Re: Supermicro X5DL8-GG (ServerWorks Grandchampion LE chipset) slow
+Date: Thu, 20 Feb 2003 22:01:15 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200302202034.28676.song.zhao@nuix.com.au> <20030220102115.GA5217@middle.of.nowhere>
+In-Reply-To: <20030220102115.GA5217@middle.of.nowhere>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302202201.15977.song.zhao@nuix.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> > Yes IP is best-effort. But this argument cant explain why IP on linux
-works
-> > better if we disable SMP on linux...
+On Thu, 20 Feb 2003 05:21 am, Jurriaan wrote:
+> From: Song Zhao <song.zhao@nuix.com.au>
+> Date: Thu, Feb 20, 2003 at 08:34:28PM -0500
 >
-> It has nothing to do with SMP. The lazy locking dropping packets can
-happen
-> on UP kernels too in extreme cases. Also with preempt.
+> > Hi,
+> >
+> > I've been doing some benchmarks with this board, it is terribly
+> > disppointing. Has anyone had similar experiences?
 >
+> How many people do you guess own such hardware? Not me :-(
+>
+> > The hardware spec is:
+> > Dual 2.8GHz Xeon, 3ware Escalade 7850 (7500-8) 12 port IDE RAID
+> > controller, RAID 10, 4x 1GB DDR SDRAM Registered ECC, 2x 80GB WD HDD, 10x
+> > 120GB WD HDD, ServerWorks Grand Champion LE.
+> >
+> > I am running RH7.3 with 2.4.20 kernel. The performance of this box is
+> > about half of an almost identical box (Supermicro X5DP8-G2 mobo, E7501
+> > chipset)
+>
+> what does
+>
+> cat /proc/mtrr
+>
+> say?
 
-Well, I too noticed that binding NIC IRQS one one CPU
+sorry I can't tell you right now, as I have just replaced the motherboard with 
+another Supermicro mobo, this time a E7500 chipset. As soon as I get it back 
+online, I'll let you know. 
 
-echo 1 > /proc/irq/18/smp_affinity
+>
+> > Also, this board can't even boot with 8x 1GB memory modules plugged in (8
+> > DIMM slots in total). This is a relative new board and I can't find
+> > anything relevant on the net.
+>
+> "can't boot" as in crashes halfway during linux or doesn't even start
+> lilo?
 
-helps a lot in normal cases.
+It doesn't even start Lilo, it hangs after it checks memory, 3ware card and 
+network card. 
 
-Some of us want SMP machine because application needs a lot of CPU, but we
-also need to not drop frames to save the limited network bandwith.
-
-Thanks
+>
+> HTH,
+> Jurriaan
 

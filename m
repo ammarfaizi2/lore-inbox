@@ -1,15 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265315AbSJRRjn>; Fri, 18 Oct 2002 13:39:43 -0400
+	id <S265318AbSJRRwi>; Fri, 18 Oct 2002 13:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265284AbSJRR1Q>; Fri, 18 Oct 2002 13:27:16 -0400
-Received: from netrealtor.ca ([216.209.85.42]:28936 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265282AbSJRQzP>;
-	Fri, 18 Oct 2002 12:55:15 -0400
-Date: Fri, 18 Oct 2002 13:00:24 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: John Myers <jgmyers@netscape.com>
-Cc: Dan Kegel <dank@kegel.com>, Davide Libenzi <davidel@xmailserver.org>,
+	id <S265321AbSJRRwh>; Fri, 18 Oct 2002 13:52:37 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:44938 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265318AbSJRR1I>; Fri, 18 Oct 2002 13:27:08 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 18 Oct 2002 10:41:28 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Dan Kegel <dank@kegel.com>
+cc: Mark Mielke <mark@mark.mielke.cc>, John Myers <jgmyers@netscape.com>,
        Benjamin LaHaise <bcrl@redhat.com>,
        Shailabh Nagar <nagar@watson.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
@@ -18,46 +20,46 @@ Cc: Dan Kegel <dank@kegel.com>, Davide Libenzi <davidel@xmailserver.org>,
        Linus Torvalds <torvalds@transmeta.com>,
        Stephen Tweedie <sct@redhat.com>
 Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-Message-ID: <20021018170024.GA13087@mark.mielke.cc>
-References: <Pine.LNX.4.44.0210151403370.1554-100000@blue1.dev.mcafeelabs.com> <3DAC9035.2010208@netscape.com> <3DADC5F8.60708@kegel.com> <3DAEF6DC.9000708@netscape.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAEF6DC.9000708@netscape.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3DB044C6.1080908@kegel.com>
+Message-ID: <Pine.LNX.4.44.0210181027440.1537-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>    while (read() == EAGAIN)
-> >>>        wait(POLLIN);
+On Fri, 18 Oct 2002, Dan Kegel wrote:
 
-I find myself still not understanding this thread. Lots of examples of
-code that should or should not be used, but I would always choose:
+> I was afraid someone would be confused by the examples.  Davide loves
+> coroutines (check out http://www.xmailserver.org/linux-patches/nio-improve.html )
+> and I think his examples are written in that style.  He really means
+> what you think he should be meaning :-)
+> which is something like
+>      while (1) {
+>          grab next bunch of events from epoll
+>          for each event
+>              while (do_io(event->fd) != EAGAIN);
+>      }
+> I'm pretty sure.
 
-   ... ensure file descriptor is blocking ...
-   for (;;) {
-       int nread = read(...);
-       ...
-   }
+Yes, I like coroutines :) even if sometimes you have to be carefull with
+the stack usage ( at least if you do not want to waste all your memory ).
+Since there're N coroutines/stacks for N connections even 4Kb does mean
+something when N is about 100000. The other solution is a state machine,
+cheaper about memory, a little bit more complex about coding. Coroutines
+though helps a graceful migration from a thread based application to a
+multiplexed one. If you take a thread application and you code your
+connect()/accept()/recv()/send() like the ones coded in the example http
+server linked inside the epoll page, you can easily migrate a threaded app
+by simply adding a distribution loop like :
 
-Over the above, or any derivative of the above.
+for (;;) {
+	get_events();
+	for_each_fd
+		call_coroutines_associated_with_ready_fd();
+}
 
-What would be the point of using an event notification mechanism for
-synchronous reads with no other multiplexed options?
 
-A 'proper' event loop is significantly more complicated. Since everybody
-here knows this... I'm still confused...
 
-mark
+- Davide
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

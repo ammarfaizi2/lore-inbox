@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUJOEZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUJOFFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUJOEZk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 00:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUJOEZk
+	id S266274AbUJOFFL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 01:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266252AbUJOFFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 00:25:40 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:51828 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266170AbUJOEZd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 00:25:33 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: William Wolf <wwolf@vt.edu>
-Subject: Re: 2.6.9-rc4-mm1
-Date: Thu, 14 Oct 2004 23:25:26 -0500
-User-Agent: KMail/1.6.2
-Cc: kernel list <linux-kernel@vger.kernel.org>
-References: <416EE7EB.4070209@vt.edu> <200410142305.29859.dtor_core@ameritech.net> <416F5CC8.7020605@vt.edu>
-In-Reply-To: <416F5CC8.7020605@vt.edu>
+	Fri, 15 Oct 2004 01:05:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10210 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266250AbUJOFFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 01:05:04 -0400
+Message-ID: <416F5A72.9080602@pobox.com>
+Date: Fri, 15 Oct 2004 01:04:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410142325.26719.dtor_core@ameritech.net>
+To: Mark Lord <lsml@rtr.ca>
+CC: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
+References: <4161A06D.8010601@rtr.ca> <4165B233.9080405@rtr.ca> <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca> <416EB1B6.5070603@pobox.com> <416EC90A.30607@rtr.ca>
+In-Reply-To: <416EC90A.30607@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 October 2004 12:14 am, William Wolf wrote:
-> It's compiling now, i'll let you know how it goes.  Do you have any idea 
-> about my other errors when using this kernel?
+Mark Lord wrote:
+>  >Put a prototype in linux/libata.h
 > 
+> Done.  Updated patch attached.
+> 
+> Signed-off-by: Mark Lord <mlord@pobox.com>
 
-No, I am sorry - I grok input system a bit but that's all for now.
 
--- 
-Dmitry
+applied, but, you forgot rule #6:
+http://linux.yyz.us/patch-format.html
+
+Specifically, include the full description in each patch resend.  Patch 
+merging is largely automated by scripts these days, and failing to 
+provide an adequate description means manual intervention is required.
+
+The full body of your email is pasted into the BitKeeper changeset 
+description.
+
+	Jeff
+
+

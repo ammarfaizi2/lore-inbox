@@ -1,78 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVA0XNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVA0XOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVA0XNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVA0XJw
+	id S261300AbVA0XOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 18:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVA0XNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:09:52 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:56806 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261274AbVA0XFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:05:34 -0500
-Subject: Re: [RFC: 2.6 patch] drivers/acpi/: possible cleanups
-From: Len Brown <len.brown@intel.com>
-To: Adrian Bunk <bunk@stusta.de>,
-       Alexey Y Starikovskiy <alexey.y.starikovskiy@intel.com>,
-       Robert Moore <robert.moore@intel.com>
-Cc: linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20050127110125.GE28047@stusta.de>
-References: <20050127110125.GE28047@stusta.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106867060.2400.2297.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 27 Jan 2005 18:04:20 -0500
+	Thu, 27 Jan 2005 18:13:39 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:62661 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261295AbVA0XMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 18:12:42 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>
+Subject: Re: 2.6.11-rc2 TCP ignores PMTU ICMP (Re: Linux 2.6.11-rc2)
+Date: Thu, 27 Jan 2005 15:11:57 -0800
+User-Agent: KMail/1.7.1
+Cc: David Ford <david+challenge-response@blue-labs.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       Art Haas <ahaas@airmail.net>
+References: <200501232251.42394.david-b@pacbell.net> <priv$1106815487.koan@shadow.banki.hu> <200501271128.48411.david-b@pacbell.net>
+In-Reply-To: <200501271128.48411.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501271511.58086.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-27 at 06:01, Adrian Bunk wrote:
-> Before I'm getting flamed to death:
-> This patch isn't meant for being immediately applied.
-> 
-> This patch makes all needlessly global code under drivers/acpi/
-> static.
-> Please review this patch.
+I just got an interesting "I see these problems too" report.  It
+may provide a useful clue.  According to "Art Haas" <ahaas@airmail.net>:
 
-Thanks for the patch Adrian.
+> I'm running the current BK kernel now, and I'm not seeing the problems
+> right now because, I found, I do not have some of the IP masquerading
+> modules installed on my machine. When these modules get installed then
+> the cvs/rsync problems appear. 
+ 
+I do have CONFIG_IP_NF_TARGET_MASQUERADE=y on the system where I'm
+seeing this, though it's not doing anything just now.  Haven't yet
+made time to see if disabling it improves things ... but if that's
+a factor, it could explain why more people aren't suffering with
+this problem.
 
-I agree that this is the right direction to go -- enforcing APIs with
-the use of static reduces the possibility of programming errors --
-particularly with many cooks in the kitchen.  Indeed, just on Monday we
-discussed a patch from Alexey Starikovskiy to do the same thing.
-
-The problem is one of logistics.
-As I've described before, the files with "R. Byron Moore" at the top are
-dual-licensed so Intel can distribute the core interpreter both as GPL
-to Linux and also to FreeBSD, HP-UX etc.
-
-Yes, GPL is GPL and that gives the Linux community the right to do
-whatever is needed to those files.  But patches accepted to the core
-interpreter under GPL can not be applied to the upstream interpreter --
-so they're effectively a fork that code.
-
-We've forked in other areas, the largest is your FUTURE_USAGE patch
-which I accepted.  But forks have a non-zero cost on me, and I have a
-big enough task trying to make Linux/ACPI the best implementation
-possible without getting sidetracked by avoidable logisital challenges. 
-So here is what I propose.
-
-I've already asked Bob Moore to migrate to the use of static in the
-interpreter.  There are some somewhat urgent functional issues he needs
-to focus on first, but static is on the list.  If we allow him to do it
-upstream (w/o looking at your patch), then we can avoid a fork in the
-core interpreter code.
-
-At the same time, the non "R. Byron Moore" files, such as those in
-drivers/acpi, but not in the lower sub-directories, are straight GPL and
-I'll be happy to accept patches to those files immediately.  Note that
-there are 4 straight GPL files in include/acpi as well -- so like the
-drivers/acpi/* files, we can modify them any time when cleanups are
-appropriate in the Linux release cycle.
-
-thanks,
--Len
-
-
+- Dave

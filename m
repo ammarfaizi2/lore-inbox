@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131018AbRCJP1d>; Sat, 10 Mar 2001 10:27:33 -0500
+	id <S131028AbRCJQQs>; Sat, 10 Mar 2001 11:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131019AbRCJP1Y>; Sat, 10 Mar 2001 10:27:24 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131018AbRCJP1O>;
-	Sat, 10 Mar 2001 10:27:14 -0500
-Message-ID: <20010309122618.A449@bug.ucw.cz>
-Date: Fri, 9 Mar 2001 12:26:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
-        Oswald Buddenhagen <ob6@inf.tu-dresden.de>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: static scheduling - SCHED_IDLE?
-In-Reply-To: <20010307202027.B27421@ugly.wh8.tu-dresden.de> <Pine.LNX.4.20.0103081427040.3785-100000@falcon.etf.bg.ac.yu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.20.0103081427040.3785-100000@falcon.etf.bg.ac.yu>; from Boris Dragovic on Thu, Mar 08, 2001 at 02:29:06PM +0100
+	id <S131032AbRCJQQi>; Sat, 10 Mar 2001 11:16:38 -0500
+Received: from SAUL.CIS.UPENN.EDU ([158.130.12.4]:34288 "EHLO
+	saul.cis.upenn.edu") by vger.kernel.org with ESMTP
+	id <S131028AbRCJQQY>; Sat, 10 Mar 2001 11:16:24 -0500
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Helge Hafting <helgehaf@idb.hist.no>,
+        Manoj Sontakke <manojs@sasken.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: quicksort for linked list
+In-Reply-To: <Pine.LNX.4.30.0103091240130.5548-100000@waste.org>
+From: Jerome Vouillon <vouillon@saul.cis.upenn.edu>
+Date: 10 Mar 2001 11:15:32 -0500
+In-Reply-To: Oliver Xymoron's message of Fri, 9 Mar 2001 12:52:45 -0600 (CST)
+Message-ID: <d3zr905siqj.fsf@saul.cis.upenn.edu>
+X-Mailer: Gnus v5.5/Emacs 20.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Oliver Xymoron <oxymoron@waste.org> writes:
 
-> > did "these" apply only to the tasks, that actually hold a lock?
-> > if not, then i don't like this idea, as it gives the processes
-> > time for the only reason, that it _might_ hold a lock. this basically 
-> > undermines the idea of static classes. in this case, we could actually
-> > just make the "nice" scale incredibly large and possibly nonlinear, 
-> > as mark suggested.
+> On Fri, 9 Mar 2001, Rogier Wolff wrote:
 > 
-> would it be possible to subqueue tasks that are holding a lock so that
-> they get some guaranteed amount of cpu and just leave other to be executed
-> when processor really idle?
+> > Quicksort however is an algorithm that is recursive. This means that
+> > it can use unbounded amounts of stack -> This is not for the kernel.
+> 
+> It is of course bounded by the input size, but yes, it can use O(n)
+> additional memory in the worst case. There's no particular reason this
+> memory has to be on the stack - it's just convenient.
 
-There was implementation which promoted SCHED_IDLE task to normal
-priority whenever it entered syscall. I liked it.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+You only need O(log n) additional memory if you sort the shortest
+sublist before the longest one (and turn the second recursive call
+into a loop).
+As log n is certainly less that 64, one can even consider that
+Quicksort only uses a bounded amount of memory.
+
+-- Jerome

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSGMP7v>; Sat, 13 Jul 2002 11:59:51 -0400
+	id <S315182AbSGMQB5>; Sat, 13 Jul 2002 12:01:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSGMP7u>; Sat, 13 Jul 2002 11:59:50 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35312 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315191AbSGMP7t>; Sat, 13 Jul 2002 11:59:49 -0400
-Subject: Re: Advice saught on math functions
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020713140024.GB163@elf.ucw.cz>
-References: <E17T15g-0007mP-00@speech.braille.uwo.ca>
-	<E17T1a9-00037I-00@the-village.bc.nu>  <20020713140024.GB163@elf.ucw.cz>
-Content-Type: text/plain
+	id <S315179AbSGMQB4>; Sat, 13 Jul 2002 12:01:56 -0400
+Received: from [200.255.24.29] ([200.255.24.29]:1804 "EHLO vnet.com.br")
+	by vger.kernel.org with ESMTP id <S315182AbSGMQBx>;
+	Sat, 13 Jul 2002 12:01:53 -0400
+Message-ID: <002d01c229bd$ca80ed80$4501020a@vnet.com.br>
+Reply-To: "Edmilson Junior" <edmilsonjr@emocion.com.br>
+From: "Edmilson Junior" <edmilsonjr@vnet.com.br>
+To: <linux-kernel@vger.kernel.org>
+Subject: System freeze on kernel 2.4.18 unsing /dev/psaux
+Date: Fri, 12 Jul 2002 13:04:11 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 Jul 2002 18:10:37 +0100
-Message-Id: <1026580237.13885.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-13 at 15:00, Pavel Machek wrote:
-> > You can't use FPU operations in the x86 kernel.
-> 
-> Actually, you can do kernel_fpu_begin(); any FPU you want;
-> kernel_fpu_end(); but it is rarely good idea to do that.
+    I'm using slackware 8.1(2.4.18) with a Athlon thunderbird 850 mhz, a
+Asus A7V133 (Via KT133A) and a ps/2 Microsoft IntelliMouse Optical and when
+I use the mouse, the mouse and the keyboard freezes.
+    I've got the problem first in the X11/KDE, but I've tried  to exec a
+"cat /dev/mouse" and "cat /dev/psaux" on the console and it freezes too.
+I've tried a genius netmouse and happened the same thing. The computer seems
+to be working but the keboard and mouse do not respond, is not a system
+freeze but only the keyb and mouse.
+    Before the install of Slackware 8.1 I was using the 8.0 (kernel 2.2.19
+and 2.4.5) and every thing is fine!
+Do you have any help to me ?
 
-Only
-	Providing the CPU has FPU facilities
-	Providing you do no blocking operation during the kernel_fpu_* range
+ps.: the keyboard is a Genius  KB-18M standard  mini-din (not usb).
 
-Non x86 has other rules that may be even more complex.
+Thanks in advice,
+              Edmilson Junior
+
+
+
+
+
+
 

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272145AbTHICOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 22:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272156AbTHICOQ
+	id S272152AbTHICUk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 22:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHICUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 22:14:16 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:8472 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272145AbTHICOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 22:14:16 -0400
-Date: Sat, 9 Aug 2003 03:13:22 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6test /proc/net/pnp oops.
-Message-ID: <20030809021317.GF16007@suse.de>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030809011901.GA16007@suse.de> <20030808184950.3b2bd6e2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030808184950.3b2bd6e2.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 8 Aug 2003 22:20:40 -0400
+Received: from mail.suse.de ([213.95.15.193]:64013 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272152AbTHICUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 22:20:39 -0400
+Date: Sat, 9 Aug 2003 04:20:38 +0200 (CEST)
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4: Restore current->files in flush_old_exec
+In-Reply-To: <20030809014830.GA11509@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.53.0308090418270.18879@Chaos.suse.de>
+References: <20030808105321.GA5096@gondor.apana.org.au>
+ <20030809010736.GA10487@gondor.apana.org.au> <20030809011116.GB10487@gondor.apana.org.au>
+ <20030809014830.GA11509@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 06:49:50PM -0700, Andrew Morton wrote:
+On Sat, 9 Aug 2003, Herbert Xu wrote:
 
- > >  Unable to handle kernel paging request at virtual address c06f977c
- > Could you please check your System.map and verify that ic_servaddr was at
- > 0xc06f977c?
+> On Sat, Aug 09, 2003 at 11:11:16AM +1000, herbert wrote:
+> >
+> > At this point, I believe the unshare_files stuff should be fine from
+> > a correctness point of view.  However, there is still a performance
+> > problem as every ELF exec call ends up dupliating the files structure
+> > as well as walking through all file locks.
+>
+> Here is the patch that ensures files is only duplicated when necessary.
 
--ENOSYSTEMMAP
-Though your patch does seem to make sense (to me at least).
-I'll give it a try.  I certainly haven't configured anything, so it
-seems to be showing random junk which resolves to various random
-bits of the internet. Groovy. Only seems to happen on one box though.
+This patch is correct but unnecessary: steal_locks already tests for this
+condition.
 
-		Dave
 
+Cheers,
+Andreas.

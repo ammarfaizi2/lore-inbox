@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263993AbTE3VDP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 17:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE3VDP
+	id S264035AbTE3VHA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 17:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTE3VHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 17:03:15 -0400
-Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:48777
-	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S263993AbTE3VDN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 17:03:13 -0400
-Subject: Re: SCO's claims seem empty - Open Source Initiative Paper by Eric
-	Raymond
-From: Piet Delaney <piet@www.piet.net>
-To: Martin List-Petersen <martin@list-petersen.dk>
-Cc: linux-kernel@vger.kernel.org, piet <piet@www.piet.net>
-In-Reply-To: <1054281854.3ed7107e8d264@roadrunner.hulpsystems.net>
-References: <1054281854.3ed7107e8d264@roadrunner.hulpsystems.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 May 2003 14:16:36 -0700
-Message-Id: <1054329396.7909.8.camel@www.piet.net>
+	Fri, 30 May 2003 17:07:00 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:38820 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264035AbTE3VG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 17:06:58 -0400
+Date: Fri, 30 May 2003 23:20:13 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+Message-ID: <20030530212013.GE3308@wohnheim.fh-wedel.de>
+References: <20030530204055.GB3308@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0305301344170.2421-100000@home.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0305301344170.2421-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-30 at 01:04, Martin List-Petersen wrote:
-
-Eric Raymond's paper on the SCO-vs.-IBM Complaint was interesting. 
-
-See: 
-http://opensource.org/sco-vs-ibm.html
-
-kernel developers may want to help Eric collect information. 
-
--piet 
-
-> It seems that the claims of SCO are empty. The register is running a story on,
-> that when Novell sold UnixWare it didn't include the copyrights and patents on
-> UNIX System V, so these are still owned by Novell.
+On Fri, 30 May 2003 13:48:12 -0700, Linus Torvalds wrote:
 > 
-> The article can be found here:
-> http://www.theregister.co.uk/content/4/30910.html
-> Novell press release is also quite interesting:
-> http://www.novell.com/news/press/archive/2003/05/pr03033.html
+> I personally consider K&R prototypes to be useless, and downright evil. 
+> Any project who still has them is either lazy or still living in the 80's, 
+> and in either case I don't see any reason not to clean up the kernel side.
 > 
-> Regards,
-> Martin List-Petersen
-> --
-> BOFH excuse #57:
+> Besides, I'm not aware of any reason to ever really sync with zlib on that
+> level (the kinds of syncs I do foresee would be security issues or similar
+> if some exploit is found, but that's unlikely to be a major sync).
 > 
-> Groundskeepers stole the root password
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> We've historically done other surgery to the zlib sources to make them a
+> bit more readable at times (the zlib allocator was just doing ridiculous
+> things, the kernel version was changed to allocate small structures
+> directly on the stack and embed others statically).
+
+How about an all or nothing approach?  If you really want to get rid
+of K&R, change indentation as well, rip out some of the rather
+tasteless macros (ZEXPORT, ZEXPORTVA, ZEXTERN, FAR, ...) and so on.
+The code is ugly, no doubt, but has the advantage of being close to
+the upstream variant.  I would hate to have the combined problems of
+ugly and forked code.
+
+You do have a point with the sync size.  The diff between 1.1.3 and
+1.1.4 is 90k, of which only some 5k are functional changes.  The rest
+extends the copyright times, adds/changes documentation, etc.
+
+Jörn
+
 -- 
-piet@www.piet.net
-
+A defeated army first battles and then seeks victory.
+-- Sun Tzu

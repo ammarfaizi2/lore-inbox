@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317092AbSFBAu1>; Sat, 1 Jun 2002 20:50:27 -0400
+	id <S317096AbSFBBQv>; Sat, 1 Jun 2002 21:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317093AbSFBAu0>; Sat, 1 Jun 2002 20:50:26 -0400
-Received: from holomorphy.com ([66.224.33.161]:31648 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317092AbSFBAu0>;
-	Sat, 1 Jun 2002 20:50:26 -0400
-Date: Sat, 1 Jun 2002 17:50:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4 hyperthreading
-Message-ID: <20020602005003.GE14918@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1022978449.2197.10.camel@tiger>
+	id <S317097AbSFBBQu>; Sat, 1 Jun 2002 21:16:50 -0400
+Received: from mailbox-9.st1.spray.net ([212.78.202.109]:33788 "EHLO
+	mailbox-9.st1.spray.net") by vger.kernel.org with ESMTP
+	id <S317096AbSFBBQt> convert rfc822-to-8bit; Sat, 1 Jun 2002 21:16:49 -0400
+Posted-Date: Sun, 2 Jun 2002 03:16:40 +0200 (DST)
+Message-Id: <200206020116.DAA22394@mailbox-9.st1.spray.net>
+From: "CERI" <ceri@firemail.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: FOR SALE USED PERI AND HUENNEBECK.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: text/plain; charset=US-ASCII
+Date: Sun, 2 Jun 2002 03:19:25 +0200
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 01, 2002 at 08:40:44PM -0400, Louis Garcia wrote:
-> How stable is hyperthreading under kernel-2.4.18? I compiled the kernel
-> for the Pentium4 and dmesg shows CPU0 and CPU1, but CPU1 is disabled.
-> How do I enable CPU1 and should I?? Do other libraries need to be updated
-> or is hyperthreading like having a two processor box?
+WE HAVE FOR SALE USED 800 FORKHEADS PERI 300 TRIPODS, HANDSET,  TOPEC FORMWORK.
 
-acpismp=force seems to work on 2.4 here.
+PLEASE CONTACT US IF YOU ARE INTERESTED.
 
+BEST REGARDS.
 
-Cheers,
-Bill
+S.BUTAUX
+TEL: 00 49 177 57 57 329
+FAX: 00 49 25 61 95 950 4001

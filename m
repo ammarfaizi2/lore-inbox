@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261277AbRESUaD>; Sat, 19 May 2001 16:30:03 -0400
+	id <S261301AbRESU2N>; Sat, 19 May 2001 16:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbRESU3x>; Sat, 19 May 2001 16:29:53 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:26283 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261277AbRESU3s>;
-	Sat, 19 May 2001 16:29:48 -0400
-Message-ID: <3B06D7B1.DD5C6DF9@mandrakesoft.com>
-Date: Sat, 19 May 2001 16:29:37 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Cavan <johnc@damncats.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Potential help for VIA problems and ASUS motherboards
-In-Reply-To: <3B06B453.6C921457@damncats.org>
+	id <S261291AbRESU2D>; Sat, 19 May 2001 16:28:03 -0400
+Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:35590 "EHLO
+	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
+	id <S261288AbRESU15>; Sat, 19 May 2001 16:27:57 -0400
+Date: Sat, 19 May 2001 22:27:37 +0200
+From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        John R Lenton <john@grulic.org.ar>
+Subject: VIA politics (was: VIA's Southbridge bug: Latest (pseudo-)patch)
+Message-ID: <20010519222737.A5510@pua.nirvana>
+In-Reply-To: <20010519110721.A1415@pua.nirvana> <E1519KE-0008Vg-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E1519KE-0008Vg-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 19, 2001 at 05:11:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cavan wrote:
+On Sat, May 19, 2001 at 05:11:30PM +0100, Alan Cox wrote:
+> > This are the latest suggestions for handling the VIA Southbridge bug as
+> > derived from the hardware site www.au-ja.de (Many thanks to doelf).
 > 
-> Hi,
+> I'd rather people left this except for the obvious fixed that were done for
+> non VIA northbridge combinations until 2.5. 2.4 is not an appropriate place
+> to play with possibly disk corrupting PCI hacks without documentation.
 > 
-> I've seen a lot of messages regarding problems with the VIA chipset...
-> I've experienced them myself.
-> 
-> Anyways, I just put in a new ASUS CUV4X-D motherboard, BIOS revision
-> 1004. Once installed, I ran into a raft of problems when IO-APIC was
-> enabled... and discovered that ASUS had a BIOS update (revision 1007)
-> available. Once the BIOS was updated and MPS 1.4 support was disabled,
-> everything has been working fine, including USB with IO-APIC enabled. I
-> also don't seem to be getting the timer problem anymore.
-> 
-> Anyways, if you have one of these boards, you may want to flash your
-> BIOS and see if the problems are fixed. YMMV, but it worked for me.
+> What is pathetic is that VIA have yet to place anything in the public domain
+> giving correct workarounds. People are picking at BIOSes praying to spot all
+> the changes (which may not be in the PCI registers even) because a vendor
+> hasn't got the decency to admit they screwed up and then to issue proper
+> fixes
 
-I'm curious if 2.4.5-pre3 works for you... when using MPS 1.4, or,
-without the BIOS update.
+these are my feelings, too. But I try to be an optimist - this is the reason
+for the extended Cc: list, maybe it might trigger some change of those
+politics. Note that Yiping Chen <YipingChen@via.com.tw> had contacted this
+list a few weeks ago to ask how to contribute drivers to Linux, indicating
+perhaps a first step towards VIA going public domain.
 
-Regards,
+Placing more documentation in the public domain would also help Linux
+construct the right pirq routing tables, which is also a showstopper for
+certain KT133A setups.
 
-	Jeff
+> If it had been a manufacturer in most respectable areas of business they'd
+> be recalling and reissuing components, and paying for the end resllers to
+> notify each customer
 
+Let's hope VIA will indeed change politics. Either the bug is not fixable and
+VIA should recall, or the bug/fix should be cleanly documented. Currently VIA
+is hoping to survive this fiasco by not drawing too much attention ("it was
+the SB"), but this may become a boomerang (I for my part will try to have the
+motherboard replaced after having been haunted for the last 6 weeks).
 
+At the very end there are us, the user, who would not want to wait for 2.5
+(speak 2.6 for the common user ...). Of course Linux is not to blame, but it
+is indeed a big user community hit by this.
+
+Regards, Axel.
 -- 
-Jeff Garzik      | "Do you have to make light of everything?!"
-Building 1024    | "I'm extremely serious about nailing your
-MandrakeSoft     |  step-daughter, but other than that, yes."
+Axel.Thimm@physik.fu-berlin.de

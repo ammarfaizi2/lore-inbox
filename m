@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262061AbSITJtU>; Fri, 20 Sep 2002 05:49:20 -0400
+	id <S262113AbSITJyj>; Fri, 20 Sep 2002 05:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262066AbSITJtU>; Fri, 20 Sep 2002 05:49:20 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39893 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262061AbSITJtS>; Fri, 20 Sep 2002 05:49:18 -0400
-Date: Fri, 20 Sep 2002 11:54:20 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ulrich Drepper <drepper@redhat.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <3D8A6EC1.1010809@redhat.com>
-Message-ID: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S262126AbSITJyj>; Fri, 20 Sep 2002 05:54:39 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:64778 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S262113AbSITJyi>;
+	Fri, 20 Sep 2002 05:54:38 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MediaGX/Geode performance fix, Was: Which processor/board for embedded NTP
+References: <1032354632.23252.14.camel@venus> <87r8frqech.fsf@zoo.weinigel.se>
+	<20020919060218.GD10773@pengutronix.de>
+	<873cs5vkfb.fsf_-_@zoo.weinigel.se>
+	<1032477107.29021.4.camel@irongate.swansea.linux.org.uk>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 20 Sep 2002 11:59:42 +0200
+In-Reply-To: <1032477107.29021.4.camel@irongate.swansea.linux.org.uk>
+Message-ID: <87fzw5t20h.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Ulrich Drepper wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->...
-> Unless major flaws in the design are found this code is intended to
-> become the standard POSIX thread library on Linux system and it will
-> be included in the GNU C library distribution.
->...
-> - - requires a kernel with the threading capabilities of Linux 2.5.36.
->...
+> On Thu, 2002-09-19 at 20:39, Christer Weinigel wrote:
+> > This mail contains a patch to fix a performance problem with many
+> > Cyrix MediaGX/NatSemi Geode platforms.  The register settings have
+> > been officially recommended by NatSemi themselves.  The patch is
+> > against linux-2.4.20-pre7.  Should this be merged into the mainsteam
+> > linux kernel?
+> 
+> This wont actually make an iota of difference in most cases. The CS5530
+> IDE driver will force this value to 0x14 anyway. It also sets MWI on te
+> X-bus which is needed too.
 
+Ok, it did make a 5% difference when I did some quick tests on TCP
+performance.  But I didn't have the CS5530 IDE driver loaded.
 
-My personal estimation is that Debian will support kernel 2.4 in it's
-stable distribution until 2006 or 2007 (this is based on the experience
-that Debian usually supports two stable kernel series and the time between
-stable releases of Debian is > 1 year). What is the proposed way for
-distributions to deal with this?
+> Probably the fixup should be done in the PCI quirks.
 
+Sounds it should be moved from the IDE driver to quirks at least, but
+that might be a 2.5 thing in that case.
 
-cu
-Adrian
+  /Christer
 
 -- 
+"Just how much can I get away with and still go to heaven?"
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

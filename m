@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265057AbUE0TQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265073AbUE0TQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265057AbUE0TQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 15:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbUE0TOy
+	id S265073AbUE0TQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 15:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUE0TOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 15:14:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30162 "EHLO
+	Thu, 27 May 2004 15:14:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28370 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265067AbUE0TOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265073AbUE0TOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 27 May 2004 15:14:41 -0400
-Date: Thu, 27 May 2004 20:57:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "A. op de Weegh" <aopdeweegh@rockopnh.nl>
+Date: Tue, 25 May 2004 15:53:07 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Granting some root permissions to certain users
-Message-ID: <20040527185713.GB509@openzaurus.ucw.cz>
-References: <jbm.20040525185001.f766d1ea@TOSHIBA>
+Subject: Re: 2.6.6-mm5
+Message-ID: <20040525135307.GK5215@openzaurus.ucw.cz>
+References: <20040522013636.61efef73.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <jbm.20040525185001.f766d1ea@TOSHIBA>
+In-Reply-To: <20040522013636.61efef73.akpm@osdl.org>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> At our school, we have a installed Fedora Core 1 on a machine which acts as a 
-> server. Our students may store reports and other products, that they have 
-> created for their lessons, on this machine. Also the teachers have an 
-> account.
->  
-> I would like the teachers to have list access on ALL directories. Just as the 
-> root user has. I wouldn't like the teachers to have all root permissions, but 
-> they should only be able to list ALL directories available. Viewing only, no 
-> writing.
->  
-> Any idea how I can achieve this?
+> - Implementation of request barriers for IDE and SCSI.  The idea here is
+>   that a filesystem can tag an IO request as a barrier and the disk will not
+>   reorder writes across the barrier.  It provides additional integrity
+>   guarantees for the journalling filesystems.  The feature is enabled for
+>   reiserfs and ext3.
 
-Create setuid ls with permissions rwxr-x--- root.teachers.
+*Additional* guarantees? Is there anything we can garant
+without request barriers?
 
-Teachers may be able to get root if they are real good hackers (and exploit
-some bug in ls), but
-they certainly not break anything by mistake.
-				Pavel
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

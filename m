@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131983AbRCYDio>; Sat, 24 Mar 2001 22:38:44 -0500
+	id <S131980AbRCYDiE>; Sat, 24 Mar 2001 22:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRCYDid>; Sat, 24 Mar 2001 22:38:33 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17418 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131983AbRCYDi2>; Sat, 24 Mar 2001 22:38:28 -0500
-Date: Sat, 24 Mar 2001 19:37:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kevin Buhr <buhr@stat.wisc.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <vba7l1ex3o2.fsf@mozart.stat.wisc.edu>
-Message-ID: <Pine.LNX.4.31.0103241932330.6710-100000@penguin.transmeta.com>
+	id <S131983AbRCYDhx>; Sat, 24 Mar 2001 22:37:53 -0500
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:14087 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S131980AbRCYDhl>; Sat, 24 Mar 2001 22:37:41 -0500
+Message-ID: <001701c0b4dc$de099a70$08080808@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Alessandro Suardi" <alessandro.suardi@oracle.com>
+Cc: <linux-kernel@vger.kernel.org>, "Jeff Garzik" <jgarzik@mandrakesoft.com>
+In-Reply-To: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com> <3ABBD639.12BE1035@oracle.com> <001e01c0b41d$1665de80$1601a8c0@zeusinc.com> <3ABD2C2A.7333D132@oracle.com>
+Subject: Re: [PATCH] Fix for serial.c to work with Xircom Cardbus Ethernet+Modem
+Date: Sat, 24 Mar 2001 22:37:06 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> It seems something changed in 2.4.3-pre7 (against which I applied your
+>>  patch) so that it doesn't make a difference. On startup I now get this,
+>>  which I am CC:ing as per printk to serial-pci-info@lists.sourceforge.net
+>>
+>> Mar 24 23:59:05 princess cardmgr[374]: initializing socket 1
+>> Mar 24 23:59:05 princess kernel:   got res[10c04000:10c07fff] for
+resource 6 of PCI device 115d:0103
+>> Mar 24 23:59:05 princess cardmgr[374]: socket 1: Xircom CBEM56G-100
+CardBus 10/100 Ethernet + 56K Modem
+>> Mar 24 23:59:05 princess kernel: PCI: Enabling device 05:00.1 (0000 ->
+0003)
+>> Mar 24 23:59:05 princess kernel: Redundant entry in serial pci_table.
+Please send the output of
+>> Mar 24 23:59:05 princess kernel: lspci -vv, this message
+(4445,259,4445,4481)
+>> Mar 24 23:59:05 princess kernel: and the manufacturer and name of serial
+board or modem board
+>> Mar 24 23:59:05 princess kernel: to
+serial-pci-info@lists.sourceforge.net.
+>> Mar 24 23:59:05 princess kernel: register_serial(): autoconfig failed
+>>
+>> The card is a Xircom RBEM56G-100, despite what the card advertises.
+>>
+>> (in case you wonder, cardmgr is from pcmcia_cs-3.1.25).
 
+> OK, I'll take a look at it.  I made the patch against -ac21 which I think
+> was only synced up to 2.4.3-pre6, I should have mentioned that.  Perhaps
+> someone added the proper Xircom stuff already or some other change made my
+> patch irrelavent.  BTW, are you building serial.c as a module, or built
+in?
+> I have mine as a module so it doesn't load until after the card is
+> initialized.  Just curious.
 
-On 24 Mar 2001, Kevin Buhr wrote:
->
-> A huge win for 2.96 and absolutely no benefit whatsoever for 3.0, even
-> though it obviously had a 10-fold effect on maps counts.  On the
-> positive side, there was no performance *hit* either.
+I tested 2.4.3-pre7 and it still fails without my patch.  With my patch I
+get the above message about 'Redundant entry in serial pci_table' but it
+still manages to setup my serial device as /dev/ttyS4 (the same patch
+applied to 2.4.2-ac21 sets the device to /dev/ttyS1).  However it only works
+if I load serial.c as a module AFTER the card is inserted, if serial.c is
+already loaded it doesn't register correctly with a messages similar to
+above.  Perhaps I need to check my hotplug setup.
 
-I don't think the system time in 3.0 has anything to do the the mmap size.
+Could your try serial.c as a module and see if it works for you like that?
+That way I'd know I'm on the right track and haven't just found some strange
+way to make it work on my system alone.
 
-The 40 seconds of system time you see is probably mostly something else.
-It's not as if gcc _only_ does mmap's.
-
-Do a kernel profile, and I bet that the mmap stuff is pretty low in the
-noise, and the 40 seconds are for things like clearing pages in
-do_anonymous_page() and for actually reading and writing to the file. Note
-how the sys numbers are now all pretty much the same across the board for
-different gcc versions - regardless of whether they use mmap  for the
-memory management or not.
-
-(Well, gcc-2.95 and 2.96 are the same. Gcc-3.0 is higher, but it was
-higher already before, and that's probably not the memory management per
-se. I suspect it's because of other things, like bigger memory footprint
-or similar. Or maybe the integrated preprocessor tends to do IO in smaller
-chunks or something).
-
-		Linus
+Later,
+Tom
 
 

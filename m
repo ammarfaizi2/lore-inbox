@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271898AbTHRO0k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 10:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHRO0k
+	id S271932AbTHRO3b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 10:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271922AbTHRO3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 10:26:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13184 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271883AbTHRO0i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 10:26:38 -0400
-Date: Mon, 18 Aug 2003 07:19:28 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Mon, 18 Aug 2003 10:29:31 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:57355 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S271904AbTHRO32
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 10:29:28 -0400
+Date: Mon, 18 Aug 2003 16:28:47 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030818071928.163a4957.davem@redhat.com>
-In-Reply-To: <20030818162310.4106c8c6.skraw@ithnet.com>
-References: <20030728213933.F81299@coredump.scriptkiddie.org>
-	<200308171516090038.0043F977@192.168.128.16>
-	<1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	<200308171555280781.0067FB36@192.168.128.16>
-	<1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-	<200308171759540391.00AA8CAB@192.168.128.16>
-	<1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
-	<200308171827130739.00C3905F@192.168.128.16>
-	<1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
-	<20030817224849.GB734@alpha.home.local>
-	<20030817223118.3cbc497c.davem@redhat.com>
-	<20030818133957.3d3d51d2.skraw@ithnet.com>
-	<20030818044419.0bc24d14.davem@redhat.com>
-	<20030818143401.1352d158.skraw@ithnet.com>
-	<20030818053007.7852ca77.davem@redhat.com>
-	<20030818145316.3a81f70c.skraw@ithnet.com>
-	<20030818055555.248f2a01.davem@redhat.com>
-	<20030818151755.47096672.skraw@ithnet.com>
-	<20030818061420.6255f3d9.davem@redhat.com>
-	<20030818162310.4106c8c6.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Message-ID: <20030818142847.GA19910@alpha.home.local>
+References: <200308171759540391.00AA8CAB@192.168.128.16> <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk> <200308171827130739.00C3905F@192.168.128.16> <1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk> <20030817224849.GB734@alpha.home.local> <20030817223118.3cbc497c.davem@redhat.com> <20030818133957.3d3d51d2.skraw@ithnet.com> <20030818044419.0bc24d14.davem@redhat.com> <20030818125158.GA18699@alpha.home.local> <20030818055329.44db9262.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030818055329.44db9262.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 16:23:10 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+[Cc: list stripped down to MLs only]
 
-> > Both 2.0 and 2.2 answer on all interfaces for ARP requests
-> > by default just like 2.4 does.
+> > > 2) what the default behavior should be
+> > 
+> > I think we should apply the exact same source selection as IP to ARP.
 > 
-> Try it. Proven wrong. See above.
+> This is what setting the "arp_filter" sysctl on a device does
+> if you've setup the preferred source on your routes correctly.
+> If we would use that IP address to speak to the destination in
+> the ARP, we respond, else we do not.
+> 
+> I've quoted the 'arp_filter' entry in Documentation/sysctl/ip-sysctl.txt
+> please give it a read.
 
-Ok then.
+I've read it, but it's not about the same problem. It solves some problems
+related to *INCOMING REQUESTS*, that some people are complaining about. My
+problem was with source address for *OUTGOING REQUESTS*, and the arp_filter
+sysctl has nothing to do with it since it. Arptables helps fixing this problem.
 
-It still doesn't change the essence of this conversation.  Changing
-things would break a lot of people's setups.
+I fully respect your desire not to break existing behaviour, because even if
+I'm fairly certain that *nobody* uses the current "feature" I'm facing, it's
+possible that a definitive fix would break the workarounds they have set up for
+this problem.
 
-See the other posting from someone about IPMP (IP multipathing).
+But if you agree to review it, I'm willing to write a simple patch which
+provides a sysctl to enable automatic valid source for *OUTGOING REQUESTS*.
+Basically, echoing 1 to /proc/sys/net/ipv4/ethXXX/arp_auto_src would select a
+valid source address for outgoing ARP requests. I can even do it both for 2.4
+and 2.6 (just need a bit more time). All other strange setups will have to be
+left to arptables.
+
+Now if you think that the behaviour I'm proposing is broken, please explain me
+why. I'm not closed, I just want to understand, and since the beginning, I've
+only heard about ARP replies but not requests.
+
+Cheers,
+Willy
+

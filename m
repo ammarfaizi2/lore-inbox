@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUFWW2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUFWWba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUFWW2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUFWW05
+	id S263107AbUFWWba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUFWWaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:26:57 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:17363 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263020AbUFWWZH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 18:25:07 -0400
-Message-Id: <200406232223.i5NMN8Y11517@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Keith Owens'" <kaos@sgi.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: More bug fix in mm/hugetlb.c - fix try_to_free_low() 
-Date: Wed, 23 Jun 2004 15:24:29 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRZb+u87RcCnqWBS9WQZpyGkLRPKQAAI8VA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-In-Reply-To: <10650.1088029049@ocs3.ocs.com.au>
+	Wed, 23 Jun 2004 18:30:17 -0400
+Received: from holomorphy.com ([207.189.100.168]:48005 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263184AbUFWW2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 18:28:37 -0400
+Date: Wed, 23 Jun 2004 15:28:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [oom]: [3/4] track wired pages on a per-zone basis
+Message-ID: <20040623222832.GF1552@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <0406231407.Wa3a0aIbWaLbXaJbIb1a1aLbKb2aKb2a3aYaJbYa3a1a4aJbKbWa4a0a4a4aWaHb342@holomorphy.com> <0406231407.1a2a3aHb2aIbHbLbHb5a0a5a0aWaJbJbLbIbXaJbLbIbWaKbXa0a4aMbJbHb4aXa342@holomorphy.com> <20040623151536.023404fc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040623151536.023404fc.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Keith Owens wrote on Wednesday, June 23, 2004 3:17 PM
->William Lee Irwin III <wli@holomorphy.com> wrote:
->>On Wed, Jun 23, 2004 at 12:33:00PM -0700, Chen, Kenneth W wrote:
->>> The argument "count" passed to try_to_free_low() is the config parameter
->>> for desired hugetlb page pool size.  But the implementation took that
->>> input argument as number of pages to free. It also decrement the config
->>> parameter as well.  All give random behavior depend on how many hugetlb
->>> pages are in normal/highmem zone.
->>> A two line fix in try_to_free_low() would be:
->>
->>Thanks for cleaning this up; there hasn't been much apparent interest
->>here lately so I've not gotten much in the way of bugreports to work.
->
->While we are discussing hugetlb, what is the official method of
->identifying a hugetlb page - at the page level, not through a vma?
->
->When taking a crash dump, hugetlb pages must be treated as user data,
->not as kernel pages.  LKCD must be able to identify hugetlb pages from
->the page struct, dumping cannot assume that any mm context is valid so
->vma scans are out.  The identification method must work whether the
->hugetlb pages are in use or not.  In 2.4 LKCD I added PG_hugetlb, but I
->would prefer a test that did not require yet another PG flag.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>  	struct per_cpu_pageset	pageset[NR_CPUS];
+>> +	unsigned long		nr_wired[NR_CPUS];
 
-There is one flag already in the page structure: PG_compound.
+On Wed, Jun 23, 2004 at 03:15:36PM -0700, Andrew Morton wrote:
+> These will share cachelines of course, so the percpuification won't be very
+> effective.  I wonder if there's some way in which the nr_wired accounting
+> can be batched up and then dumped into a single per-zone counter when we
+> have the zone->lru_lock.
 
-- Ken
+It's difficult to anticipate the number of zones required for a per-cpu
+data structure to be periodically resynched with the zones. The
+counters, both global and per-zone are purely for reporting purposes
+and have no impact on functionality in this series.
 
 
+On Wed, Jun 23, 2004 at 03:15:36PM -0700, Andrew Morton wrote:
+> How come there are all those PageWired() tests in the LRU manipulation
+> functions?
+
+Largely for the benefit of ramfs. As you pointed out, rd.c's blkdev
+pagecache requires similar treatment. The net effect of these is that
+wired pagecache pages don't appear on the LRU at all. This makes the
+assumption that all wired pagecache is memory-backed and never needs
+to be written to its backing store, which AFAICT is true in all cases.
+
+
+-- wli

@@ -1,78 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129757AbQL0TEk>; Wed, 27 Dec 2000 14:04:40 -0500
+	id <S129812AbQL0TJk>; Wed, 27 Dec 2000 14:09:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129812AbQL0TEb>; Wed, 27 Dec 2000 14:04:31 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:56047 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129757AbQL0TEU> convert rfc822-to-8bit; Wed, 27 Dec 2000 14:04:20 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] shmem_unuse race fix
-In-Reply-To: <Pine.LNX.4.21.0012271309510.11471-100000@freak.distro.conectiva>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <Pine.LNX.4.21.0012271309510.11471-100000@freak.distro.conectiva>
-Message-ID: <m3ae9haf4x.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+	id <S130514AbQL0TJb>; Wed, 27 Dec 2000 14:09:31 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39694 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129812AbQL0TJW>; Wed, 27 Dec 2000 14:09:22 -0500
+Subject: Re: innd mmap bug in 2.4.0-test12
+To: michael@wizard.ca (Michael Peddemors)
+Date: Wed, 27 Dec 2000 18:39:50 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), md@Linux.IT (Marco d'Itri),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+In-Reply-To: <00122615020906.32673@mistress> from "Michael Peddemors" at Dec 26, 2000 03:02:09 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: 27 Dec 2000 19:36:17 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14BLUO-0002cW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+> I can just imagine Xmas at the Torvalds residence, with their annual=20
+> tradition of having the kids scream... But dad, other kids have the lig=
+> hts=20
+> strung around the trees, not the computer....
 
-> I think that incrementing the swap entry count will not allow swap from
-> removing the swap entry (as the comment says)
-
-I think the culprit is somewhere else. The error occurs in nopage of a
-process, not in swapoff.
-
-Looking  at the following in try_to_unuse:
-
-	found_entry:
-		entry = SWP_ENTRY(type, i);
-
-		/* Get a page for the entry, using the existing swap
-                   cache page if there is one.  Otherwise, get a clean
-                   page and read the swap into it. */
-		page = read_swap_cache(entry);
-		if (!page) {
-			swap_free(entry);
-  			return -ENOMEM;
-		}
-		if (PageSwapCache(page))
-			delete_from_swap_cache(page);
-		read_lock(&tasklist_lock);
-		for_each_task(p)
-			unuse_process(p->mm, entry, page);
-		read_unlock(&tasklist_lock);
-		shmem_unuse(entry, page);
-
-and in unuse_pte:
-	if (pte_present(pte)) {
-		/* If this entry is swap-cached, then page must already
-                   hold the right address for any copies in physical
-                   memory */
-		if (pte_page(pte) != page)
-			return;
-		/* We will be removing the swap cache in a moment, so... */
-		ptep_mkdirty(dir);
-		return;
-	}
-
-
-I see at least a wrong comment. There is no swap cache any more... And
-another thought is: why can we remove the swap cache entry before
-finding the process? What prevent reallocation of the swap cache entry
-by a page fault?
-
-BTW you can reproduce the problem on a UP system quite easily by
-trashing and always disablingænabling two swap partitions round robin.
-
-Greetings
-                Christoph
+I don't think you get the full picture. I suspect what gets strung up on the
+trees at Christmas if Linus does too much hacking is ... Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

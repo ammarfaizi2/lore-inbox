@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317695AbSFLMVZ>; Wed, 12 Jun 2002 08:21:25 -0400
+	id <S317464AbSFLMaY>; Wed, 12 Jun 2002 08:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317693AbSFLMVY>; Wed, 12 Jun 2002 08:21:24 -0400
-Received: from ns3.maptuit.com ([204.138.244.3]:58890 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S317692AbSFLMVX>;
-	Wed, 12 Jun 2002 08:21:23 -0400
-Message-ID: <3D073C4D.3AAB1EED@torque.net>
-Date: Wed, 12 Jun 2002 08:19:25 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.21 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: fdisk on scsi disks in 2.5.21
-In-Reply-To: <UTC200206111251.g5BCpDN18038.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317693AbSFLMaX>; Wed, 12 Jun 2002 08:30:23 -0400
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:64201 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S317464AbSFLMaW>; Wed, 12 Jun 2002 08:30:22 -0400
+Message-Id: <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 12 Jun 2002 22:28:15 +1000
+To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "David S. Miller" <davem@redhat.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: RFC: per-socket statistics on received/dropped packets 
+Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <200206121211.g5CCBjZt030139@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> 
-> > One head, one cylinder and lots of sectors??
-> 
-> > Is my fdisk (from RH 7.2) too old?
-> 
-> No, it is too modified.
-> Get a vanilla fdisk from a recent util-linux,
-> and probably all will be fine.
- 
-Andries,
-Thanks. Confirming that the fdisk in util-linux-2.11r
-works fine.
+At 08:11 AM 12/06/2002 -0400, Horst von Brand wrote:
+>General dislike for adding features of _extremely_ limited (debugging!) use?
 
-Doug Gilbert
+i would imagine that every installation of Squid on linux is interested in 
+having _realistic transaction logs_ of exactly how much data was received 
+and transmitted on a TCP connection.
+
+i know of many many folk who use transaction logs from HTTP caches for 
+volume-based billing.
+right now, those bills are anywhere between 10% to 25% incorrect.
+
+you call that "extremely limited"?
+
+
+of course, i am doing exactly what Dave said to do -- maintaining my own 
+out-of-kernel patch -- but its a pain, i'm sure it will soon conflict with 
+stuff and is a damn shame - it isn't much code, but Dave seems pretty 
+steadfast that he isn't interested.
+
+damn shame that.  i think the information is on par with 
+getsockopt(..,TCP_INFO,..) in terms of usefulness yet TCP_INFO is there in 
+the kernel.
+
+
+cheers,
+
+lincoln.
+

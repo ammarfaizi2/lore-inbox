@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316724AbSEVUPx>; Wed, 22 May 2002 16:15:53 -0400
+	id <S313537AbSEVUXv>; Wed, 22 May 2002 16:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316726AbSEVUPw>; Wed, 22 May 2002 16:15:52 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:41221 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316724AbSEVUPv>;
-	Wed, 22 May 2002 16:15:51 -0400
-Date: Wed, 22 May 2002 13:15:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Andre Bonin <kernel@bonin.ca>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        Linux-usb-users@lists.sourceforge.net
-Subject: Re: What to do with all of the USB UHCI drivers in the kernel?
-Message-ID: <20020522201546.GB5168@kroah.com>
-In-Reply-To: <20020520223132.GC25541@kroah.com> <008b01c2012d$69db21c0$0601a8c0@CHERLYN> <20020522192101.GG4802@kroah.com> <3CEBF314.3090209@bonin.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 24 Apr 2002 18:36:30 -0700
+	id <S315235AbSEVUXu>; Wed, 22 May 2002 16:23:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:59140 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313537AbSEVUXt>;
+	Wed, 22 May 2002 16:23:49 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Have the 2.4 kernel memory management problems on large machines  been fixed?
+In-Reply-To: <E17AaR0-0002QM-00@the-village.bc.nu.suse.lists.linux.kernel> <Pine.LNX.4.33.0205221048570.23621-100000@penguin.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 May 2002 22:23:49 +0200
+Message-ID: <p73sn4kaq3u.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 03:35:48PM -0400, Andre Bonin wrote:
-> >This is probably because you have an OHCI hardware device, not a UHCI
-> >device.  What does 'lspci -v' say for your machine?
-> 
-> Sorry, i'me not too familiar with the USB architecture.  Anyway here is 
-> the relevant lspci entries (note: I did this under my working 2.4.18)
-> 
-> 02:08.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
->         Subsystem: Unknown device 807d:0035
->         Flags: bus master, medium devsel, latency 32, IRQ 19
->         Memory at cd000000 (32-bit, non-prefetchable) [size=4K]
->         Capabilities: [40] Power Management version 2
-> 
-> 02:08.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
->         Subsystem: Unknown device 807d:0035
->         Flags: bus master, medium devsel, latency 32, IRQ 16
->         Memory at cc800000 (32-bit, non-prefetchable) [size=4K]
->         Capabilities: [40] Power Management version 2
-> 
-> 02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
->         Subsystem: Unknown device 807d:1043
->         Flags: bus master, medium devsel, latency 32, IRQ 17
->         Memory at cc000000 (32-bit, non-prefetchable) [size=256]
->         Capabilities: [40] Power Management version 2
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-You only have EHCI and OHCI hardware.  No wonder the UHCI drivers do not
-work :)
+> 	bigpage = alloc_bigpage_from_magic_zone();
 
-> >And how does 2.5.17 work for you?
-> 
-> Not too good beacuse I don't have the option of enabling OHCI :)  Are we 
-> still keeping it?
+How should magic zone be handled? Do you propose to just size it with
+__setup() and not put anything smaller than 4MB pages into it ?
+Otherwise fragmentation will likely kill it quickly.
 
-Yes, use the ohci-hcd driver.  Also you can use the ehci-hcd driver if
-you have any USB 2.0 devices, as it looks like you have a USB 2.0
-controller.
+It would be still a bit ugly that the memory couldn't be used for anything
+else. I guess that would be ok for a pure Oracle hack, but even for a pure
+Oracle hack it would be awfully special purpose and hard to use
+(needed a reboot for tuning and lots of memory potentially usable) 
 
-thanks,
+[BTW if you wanted to make it a truly bad Oracle hack(tm) then you could even
+add a mode where there are no struct page in mem_map for magic zone; after
+all 32+GB machines start to get limited by the size of mem_map in low mem;
+drawback is that it would need some hacks to enable RAWIO again] 
 
-greg k-h
+One idea I had was to have a zone where you do not put any pte highmem
+pages or other not easily freeable highmem pages, but only pure user pages.
+Then assuming rmap was included it would be possible to do a simple 
+dumb defragment pass for this magic zone that frees a 4MB page by freeing
+or moving smaller pages.
+
+Corner case is mlock() - it would likely need a page move. raw io etc.
+could likely be handled by just blocking on the page (under the assumption
+that it should always have bounded livetime), with perhaps 
+some measures to avoid livelock.
+
+Do you think something like that would be worth it or do you prefer
+the really dumb version that just never tries to use the pages in 
+magic dumb zone for anything else?
+
+-Andi

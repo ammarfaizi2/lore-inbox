@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287720AbSBNAy2>; Wed, 13 Feb 2002 19:54:28 -0500
+	id <S289314AbSBNA62>; Wed, 13 Feb 2002 19:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSBNAyS>; Wed, 13 Feb 2002 19:54:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20755 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287720AbSBNAyB>;
-	Wed, 13 Feb 2002 19:54:01 -0500
-Message-ID: <3C6B0A70.D11DFC2A@zip.com.au>
-Date: Wed, 13 Feb 2002 16:53:04 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
-X-Accept-Language: en
+	id <S289288AbSBNA6S>; Wed, 13 Feb 2002 19:58:18 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:20110 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289282AbSBNA6F>;
+	Wed, 13 Feb 2002 19:58:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Thu, 14 Feb 2002 02:02:48 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com> <E16b9jW-0002QL-00@starship.berlin> <3C6B06E5.F6A7AD9F@zip.com.au>,
-		<3C6B06E5.F6A7AD9F@zip.com.au> <E16bA59-0002Qa-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16bAIS-0002Qs-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On February 13, 2002 10:51 pm, Bill Davidsen wrote:
+> On Wed, 13 Feb 2002, Richard B. Johnson wrote:
 > 
-> What's the theory behind writing the data both before and after the commit?
+> > The advantage, of course is that if you are executing the kernel,
+> > it can give you all the information necessary to recreate a
+> > new one from the sources because its .config is embeded into
+> > itself. Once you have the ".config" file, you just do `make oldconfig`
+> > and you are home free.
+> 
+> But it does no such thing! You not only need the config file, you need the
+> source.
 
-see fsync_dev().  It starts I/O against existing dirty data, then
-does various fs-level syncy things which can produce more dirty
-data - this is where ext3 runs its commit, via brilliant reverse
-engineering of its calling context :-(.  It then again starts I/O
-against new dirty data then waits on it again.  And then again.
+The source is readily available, the specific config used for your kernel may
+not be.
 
-There's quite a lot of overkill there.  But that's OK, as long
-as it terminates sometime.
+> This feature just isn't all that useful,
 
--
+Given your little logic slip above I'm not sure I should trust your conclusion.
+OK, I'm out of here, I'm not interested in discussing why any more, only how.
+
+-- 
+Daniel

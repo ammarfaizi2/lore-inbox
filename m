@@ -1,56 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270099AbRHGGrE>; Tue, 7 Aug 2001 02:47:04 -0400
+	id <S270110AbRHGGya>; Tue, 7 Aug 2001 02:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270107AbRHGGqy>; Tue, 7 Aug 2001 02:46:54 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:15493 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270099AbRHGGqo>; Tue, 7 Aug 2001 02:46:44 -0400
-Date: Tue, 7 Aug 2001 00:47:11 -0600
-Message-Id: <200108070647.f776lB831865@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108070237070.16817-100000@weyl.math.psu.edu>
-In-Reply-To: <200108070636.f776aWi31626@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0108070237070.16817-100000@weyl.math.psu.edu>
+	id <S270111AbRHGGyO>; Tue, 7 Aug 2001 02:54:14 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:7117 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270110AbRHGGyI>;
+	Tue, 7 Aug 2001 02:54:08 -0400
+Message-Id: <200108070654.f776sOl25211@www.2ka.mipt.ru>
+Date: Tue, 7 Aug 2001 10:57:03 +0400
+From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
+To: Crutcher Dunnavant <crutcher@datastacks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <20010807024101.B2399@mueller.datastacks.com>
+In-Reply-To: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain> <Pine.LNX.4.33.0108062239550.5316-100000@mackman.net> <200108070624.f776Ofl21096@www.2ka.mipt.ru>
+	<20010807024101.B2399@mueller.datastacks.com>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac7; i686)
+Organization: MIPT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Tue, 7 Aug 2001, Richard Gooch wrote:
-> 
-> > > Notice that here you have pointer to 'entry', so there is no problem
-> > > with passing it. ->read_inode() simply goes away. Besides, that way
-> > > you don't pollute icache hash chains - devfs inodes stay out of hash.
-> > 
-> > Um, what will happen to inode change events? What exactly is the
-> > purpose of these hash chains?
-> 
-> iget() uses them to find inode by superblock and inode number.
-> If you don't use iget()...
+Hello.
 
-OK.
+On Tue, 7 Aug 2001 02:41:01 -0400
+Crutcher Dunnavant <crutcher@datastacks.com> wrote:
 
-> I'm not sure what do you call an inode change event, though. Stuff
-> like chmod() and friends?
+CD> ++ 07/08/01 10:27 +0400 - John Polyakov:
+>> Hello.
+>> 
+>> On Mon, 6 Aug 2001 22:55:19 -0700 (PDT)
+>> Ryan Mack <rmack@mackman.net> wrote:
+>> 
+>> RM> Apparently some of you have missed the point.  Currently, the only way
+>> to
+>> RM> write any form of encryption application is to have it run setuid root
+>> so
+>> RM> it can lock pages in RAM.  Otherwise, files (or keys) that are
+>> encrypted
+>> RM> on disk may be left in an unencrypted state on swap, allowing for
+>> RM> potential recovery by anyone with hardware access.  Encrypted swap
+>> makes
+>> RM> locking pages unnecessary, which relieves many sysadmins from the
+>> anxiety
+>> RM> of having yet-another-setuid application installed on their server in
+>> RM> addition to freeing up additional pages to be swapped.
+>> 
+>> Hmmm, let us suppose, that i copy your crypted partition per bit to my
+>> disk.
+>> After it I will disassemble your decrypt programm and will find a key....
+>> 
+>> In any case, if anyone have crypted data, he MUST decrypt them.
+>> And for it he MUST have some key.
+>> If this is a software key, it MUST NOT be encrypted( it's obviously,
+>> becouse in other case, what will decrypt this key?) and anyone, who have
+>> PHYSICAL access to the machine, can get this key.
+>> Am I wrong?
 
-Yes, that's what I meant.
+CD> Yes, you are wrong. The encryption key for the swap space can be created
+CD> at boot time. We can wait for the hardware to give us enough entropy
+CD> into the random number gen, and make a key. Then we mount the swap
+CD> space, and all reads/writes go through that key. But the key is never
+CD> recorded. The swap data is gone, even to legitimate users of the system,
+CD> after a reboot.
 
-> They call ->setattr() (devfs_notify_change(), in your case) and that
-> has nothing to icache (you already have the inode). Or had I
-> completely misparsed you?
+And what program will access to timer or any other clock or any other hardware?
+What programm will generate this key?
+This program and key generation algorithm can not be encrypted.
+Yes?
+If this is true, we read this one and generate our key.
+Am wrong again?
 
-You parsed correctly. I know ->setattr() is called. I just wanted to
-make sure that the icache didn't have some subtle interaction I was
-missing. Such as ->write_inode() not being called.
+P.S. We don't look at the e-cards and other removable devices, isn't it?
 
-				Regards,
+CD> It is thus perfectly reasonable to wish to encrypt swap. In addition,
+CD> there are good reasons to move in the direction of a non-All-Powerful
+CD> root user. This is what the work in capabilities begins to approach.
+CD> So simply waving your hands and saying that root can see it, so what
+CD> does it matter, is not a long term solution to the problem.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+CD> Crutcher        <crutcher@datastacks.com>
+CD> GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+CD> R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+
+---
+WBR. //s0mbre

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbRBVNNp>; Thu, 22 Feb 2001 08:13:45 -0500
+	id <S129457AbRBVNUg>; Thu, 22 Feb 2001 08:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129397AbRBVNNg>; Thu, 22 Feb 2001 08:13:36 -0500
-Received: from nmh.informatik.uni-bremen.de ([134.102.224.3]:42476 "EHLO
-	nmh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
-	id <S129279AbRBVNNQ>; Thu, 22 Feb 2001 08:13:16 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        jes@linuxcare.com
-Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
-In-Reply-To: <94ae7g9o8t.fsf@religion.informatik.uni-bremen.de> <E14VZCs-00023R-00@the-village.bc.nu> <14996.14604.348038.42765@pizda.ninka.net>
-From: Markus Germeier <mager@tzi.de>
-Date: 22 Feb 2001 14:12:55 +0100
-In-Reply-To: "David S. Miller"'s message of "Wed, 21 Feb 2001 13:54:20 -0800 (PST)"
-Message-ID: <948zmy97zc.fsf@religion.informatik.uni-bremen.de>
-User-Agent: Gnus/5.0802 (Gnus v5.8.2) Emacs/20.6
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129460AbRBVNU1>; Thu, 22 Feb 2001 08:20:27 -0500
+Received: from mail.valinux.com ([198.186.202.175]:50440 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129457AbRBVNUO>;
+	Thu, 22 Feb 2001 08:20:14 -0500
+To: phillips@innominate.de
+CC: phillips@innominate.de, Linux-kernel@vger.kernel.org,
+        adilger@turbolinux.com, hch@ns.caldera.de,
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <01022208282404.25968@gimli> (message from Daniel Phillips on
+	Thu, 22 Feb 2001 08:24:08 +0100)
+Subject: Re: [Ext2-devel] [rfc] Near-constant time directory index for Ext2
+From: tytso@valinux.com
+Phone: (781) 391-3464
+In-Reply-To: <01022020011905.18944@gimli> <E14Vp9h-0001IB-00@beefcake.hdqt.valinux.com> <01022208282404.25968@gimli>
+Message-Id: <E14VvfG-00035D-00@beefcake.hdqt.valinux.com>
+Date: Thu, 22 Feb 2001 05:20:10 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+   From: Daniel Phillips <phillips@innominate.de>
+   Date: Thu, 22 Feb 2001 08:24:08 +0100
+   Content-Type: text/plain
 
-I did some further investigation and found the following:
+   > Is it worth it?  Well, it means you lose an index entry from each
+   > directory block, thus reducing your fanout at each node of the tree by a
+   > worse case of 0.7% in the worst case (1k blocksize) and 0.2% if you're
+   > using 4k blocksizes.
 
-It seems to me that this is a linux <-> solaris problem. I have no
-problems with AIX 4.1.4, IRIX 6.5 or WIN2K. However all solaris boxes
-I have access to (2.6, 7, 8, sparc and intel) give me a "connection
-closed" after 2h, which is (at least I blelieve so ;-) the TCP timer
-for keepalive.
+   I'll leave that up to somebody else - we now have two alternatives, the
+   100%, no-compromise INCOMPAT solution, and the slightly-bruised but
+   still largely intact forward compatible solution.  I'll maintain both
+   solutions for now code so it's just as easy to choose either in the end.
 
-Tell me if I can provide you with further data to nail down this bug.
+Well, the $64,000 question is exactly how much performance does it cost?
+My guess is that it will be barely measurable, but only benchmarks will
+answer that question.
 
-Jes: I thought about your information that ssh connections do not show
-this problem. I believe you are using ssh 2.3 or 2.4 from ssh.com,
-right? 2.3 introduced a rekeying-feature which exchanges new keys
-every 60 minutes, so the TCP keepalive is never triggered. (Due to a
-bug which is still present in 2.4, we can't use these versions at my
-site.)
-
-HTH.
-
-Regards,
-        Markus
-
--- 
-Markus Germeier
-mager@tzi.de
+							- Ted

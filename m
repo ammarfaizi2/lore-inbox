@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbTDOQQg (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTDOQQf 
+	id S261767AbTDOQPH (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTDOQPH 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 12:16:35 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:6791 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261727AbTDOQQe 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 12:16:34 -0400
-Date: Tue, 15 Apr 2003 12:28:24 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
+	Tue, 15 Apr 2003 12:15:07 -0400
+Received: from web41813.mail.yahoo.com ([66.218.93.147]:55693 "HELO
+	web41813.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261767AbTDOQPG (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 12:15:06 -0400
+Message-ID: <20030415162652.80297.qmail@web41813.mail.yahoo.com>
+Date: Tue, 15 Apr 2003 09:26:52 -0700 (PDT)
+From: Christian Staudenmayer <eggdropfan@yahoo.com>
+Subject: warnings when booting 2.5.67 or 2.4.21-pre7
 To: linux-kernel@vger.kernel.org
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [TRIVIAL PATCH] sync_dquots_dev in Linux 2.4.21-pre7-ac1
-Message-ID: <Pine.LNX.4.53.0304151217310.28540@marabou.research.att.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+hello,
 
-I'm get this error if I compile 2.4.21-pre7-ac1 without CONFIG_QUOTA
-defined:
 
-fs/fs.o: In function `do_quotactl':
-fs/fs.o(.text+0x1b362): undefined reference to `sync_dquots_dev'
-make: *** [vmlinux] Error 1
+1) i get the following warnings when booting up kernel versions 2.5.67 or 2.4.21-pre7,
+the bootup with 2.4.20 doesn't show these warnings.
 
-sync_dquots_dev() is only implemented if CONFIG_QUOTA is defined.
-However, quote.c uses it unconditionally.  include/linux/quotaops.h has
-some macros to disable some functions when CONFIG_QUOTA is undefined, so
-it's probably where the fix belongs.  This patch helps:
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x10 { SectorIdNotFound }, LBAsect=0, sector=0
+hda: 2116800 sectors (1084 MB) w/128KiB Cache, CHS=2100/16/63
+ hda: hda1 hda2
+hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hdb: task_no_data_intr: error=0x04 { DriveStatusError }
+hdb: 2358720 sectors (1208 MB) w/109KiB Cache, CHS=2340/16/63
+ hdb: hdb4
+hdc: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hdc: task_no_data_intr: error=0x04 { DriveStatusError }
+hdc: 4124736 sectors (2112 MB) w/128KiB Cache, CHS=4092/16/63
+ hdc: hdc1
+hdd: ATAPI 48X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.12
 
-==============================
---- linux.orig/include/linux/quotaops.h
-+++ linux/include/linux/quotaops.h
-@@ -193,6 +193,7 @@
- #define DQUOT_SYNC_SB(sb)			do { } while(0)
- #define DQUOT_OFF(sb)				do { } while(0)
- #define DQUOT_TRANSFER(inode, iattr)		(0)
-+#define sync_dquots_dev(dev, type)		do { } while(0)
- extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
- {
- 	lock_kernel();
-==============================
+i didn't test it extensively, but the behaviour of the system doesn't seem to be affected by
+this problem. i'd still be happy for any hints on what may be wrong.
 
--- 
-Regards,
-Pavel Roskin
+2) when booting 2.5.67 i get lots of warning messages, for example complaining about obsolete
+functions, or when i run "top" it tells me "Unknow HZ value! (83) Assume 100.
+i'll post some of the boot-up warnings here:
+
+PCI: Enabling device 00:0a.0 (0006 -> 0007)
+PCI: Unable to reserve mem region #2:1000@eb001000 for device 00:0a.0
+PCI: Unable to reserve mem region #2:1000@eb001000 for device 00:0a.0
+
+process `named' is using obsolete setsockopt SO_BSDCOMPAT
+(this is shown 5 times)
+
+note: the pci error dissappears when using the option acpi=off
+
+now to my question: is that just normal when running a beta kernel or shouldn't these
+be there? if so, how can i fix it?
+
+thanks in advance!
+
+greetings, chris
+
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
+http://platinum.yahoo.com

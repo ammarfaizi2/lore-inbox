@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTKKMXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 07:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTKKMXM
+	id S263015AbTKKMkA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 07:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTKKMj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 07:23:12 -0500
-Received: from apegate.roma1.infn.it ([141.108.7.31]:40461 "EHLO apona.ape")
-	by vger.kernel.org with ESMTP id S263475AbTKKMXL (ORCPT
+	Tue, 11 Nov 2003 07:39:59 -0500
+Received: from colino.net ([62.212.100.143]:27378 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S263015AbTKKMj6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 07:23:11 -0500
-Date: Tue, 11 Nov 2003 13:23:09 +0100 (CET)
-From: "davide.rossetti" <rossetti@roma1.infn.it>
-Reply-To: davide.rossetti@roma1.infn.it
-To: Andreas Schwab <schwab@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-In-Reply-To: <je65hrrtt1.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.44.0311111319290.810-100000@ronin.ape>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Nov 2003 07:39:58 -0500
+Date: Tue, 11 Nov 2003 13:39:01 +0100
+From: Colin Leroy <colin@colino.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: Greg KH <greg@kroah.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6 : cdc_acm problem
+Message-Id: <20031111133901.6878b0be.colin@colino.net>
+In-Reply-To: <3FAF82D2.2050004@pacbell.net>
+References: <3FAE77B7.8040901@pacbell.net>
+	<20031109225027.GA2425@kroah.com>
+	<3FAF82D2.2050004@pacbell.net>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2003, Andreas Schwab wrote:
+On 10 Nov 2003 at 04h21, David Brownell wrote:
 
-> "davide.rossetti" <rossetti@roma1.infn.it> writes:
-> 
-> > Maybe I was misunderstood... I'm asking why the libc/iso/ansi/posix 
-> > engineer did not add the spec a user-mode API to do copy file to file ???
-> 
-> Because there was no prior art.
+Hi,
 
-:) but late revisions of specs are really recent!!! 
+>>> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106764585001038&w=2
 
-folks are talking about implementing all sort of stuff (web servers,
-parallel filesystems, ...)  (partly) in kernel mode and no one cares of
-(maybe accelerated) fs copies ???
+> Colin, does it fix your problem?  Can you eke more than
+> twenty minutes from your laptop battery now?  :)
+
+That works great :-)
+Many thanks for the pointer. I think it'd be nice if this was in 2.6.0 :)
 
 -- 
-______/ Rossetti Davide   INFN - Roma I - APE group \______________
- pho +390649914507/412   web: http://apegate.roma1.infn.it/~rossetti
- fax +390649914423     email: davide.rossetti@roma1.infn.it        
-
+Colin
+http://www.colino.net/

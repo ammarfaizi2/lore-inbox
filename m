@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269747AbTHSKPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 06:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269900AbTHSKPa
+	id S270014AbTHSKW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 06:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTHSKW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 06:15:30 -0400
-Received: from trained-monkey.org ([209.217.122.11]:59913 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S269747AbTHSKP3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 06:15:29 -0400
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfzuen2.fsf@defiant.pm.waw.pl> <m3y8xqroqo.fsf@trained-monkey.org>
-	<m3vfsuj7tj.fsf@defiant.pm.waw.pl>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 19 Aug 2003 06:15:30 -0400
-In-Reply-To: <m3vfsuj7tj.fsf@defiant.pm.waw.pl>
-Message-ID: <m3he4erm0t.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 06:22:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41673 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270014AbTHSKWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 06:22:25 -0400
+Date: Tue, 19 Aug 2003 03:23:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Flameeyes <daps_mls@libero.it>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.0-test3-mm3
+Message-Id: <20030819032350.55339908.akpm@osdl.org>
+In-Reply-To: <1061287775.5995.7.camel@defiant.flameeyes>
+References: <20030819013834.1fa487dc.akpm@osdl.org>
+	<1061287775.5995.7.camel@defiant.flameeyes>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Krzysztof" == Krzysztof Halasa <khc@pm.waw.pl> writes:
+Flameeyes <daps_mls@libero.it> wrote:
+>
+> On Tue, 2003-08-19 at 10:38, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm3/
+> 
+> there's a problem with make xconfig:
+> 
+> defiant:/usr/src/linux-2.6.0-test3-mm3# make xconfig
+>   CC      scripts/empty.o
+>   MKELF   scripts/elfconfig.h
+>   HOSTCC  scripts/file2alias.o
+>   HOSTCC  scripts/modpost.o
+>   HOSTLD  scripts/modpost
+> make[1]: *** No rule to make target `scripts/kconfig/qconf.c', needed by
+> `scripts/kconfig/qconf'.  Stop.
+> make: *** [xconfig] Error 2
 
-Krzysztof> Jes Sorensen <jes@wildopensource.com> writes:
->> Bzzzt, *wrong*! Take a look at
->> drivers/scsi/aic7xxx/aic7xxx_osm_pci.c, if you look at the code you
->> will notice that the hardware does support different masks for
->> consistent vs dynamic allocations (32 bit for consistent vs 39 or
->> 64 bit for dynamic).
+umm, Sam?
 
-Krzysztof> The hardware, maybe.
+> 
+> also, the ACPI entries seems vanished in the .config, and the menu is
+> not accessible.
+> With the old 2.6.0-test3-mm2 no problem at all.
 
-The hardware, yes.
+You'll need to enable CONFIG_X86_LOCAL_APIC to work around this.
 
-Krzysztof> Will it be ok if I fix the consistent allocs to use
-Krzysztof> consistent_dma_mask (some drivers will need a fix on i386
-Krzysztof> etc.)?
-
-That would be ideal I'd say.
-
-Jes

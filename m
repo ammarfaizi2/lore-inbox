@@ -1,49 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbTECM7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 08:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTECM7h
+	id S263307AbTECM7o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 08:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbTECM7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 08:59:37 -0400
-Received: from 12-250-182-80.client.attbi.com ([12.250.182.80]:55303 "EHLO
-	sonny.eddelbuettel.com") by vger.kernel.org with ESMTP
-	id S263305AbTECM7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 08:59:36 -0400
-Date: Sat, 3 May 2003 08:11:54 -0500
-From: Dirk Eddelbuettel <edd@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dirk Eddelbuettel <edd@debian.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan 2466 SMP locks hard with 2.4.20 + heavy disk i/o yet runs 2.2.* without problems
-Message-ID: <20030503131154.GA10650@sonny.eddelbuettel.com>
-References: <20030501135228.GA19643@sonny.eddelbuettel.com> <1051797371.21446.12.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 3 May 2003 08:59:44 -0400
+Received: from smtp.terra.es ([213.4.129.129]:31943 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S263307AbTECM7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 08:59:41 -0400
+Date: Sat, 3 May 2003 15:20:18 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5: ext3 warning messages
+Message-Id: <20030503152018.0d3541bd.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051797371.21446.12.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 02:56:12PM +0100, Alan Cox wrote:
-> On Iau, 2003-05-01 at 14:52, Dirk Eddelbuettel wrote:
-> > Performance under 2.4.20 with ext3 + win4lin patch
-> >   - "Stable" until disk-heavy operation causes freeze, typically within 
-> >     two to three days
-> >   - Heavy disk use (full backup writing, diff against big tarball, bonnie++) 
-> >     freeze the machine hard, no ping, no sign of live
-> >   + memtest86 shows no problem with the ram
-> 
-> If you don't have a PS/2 mouse plugged into the box add one. If that
-> doens't help duplicate the crash without win4lin.
+After running the last nigh 2.5.67, i switched to 2.5.68-mm2 this morning;
+I got the following messages:
 
-Turns out that 2.4.21-rc1 is rock solid. Behaved very well without win4lin,
-and is looking good with4lin (survived double bonnie++ tests). 
+May  3 13:11:19 estel kernel: Freeing unused kernel memory: 168k freed
+May  3 13:11:19 estel kernel: Adding 530104k swap on /dev/hda6.  Priority:-1 extents:1
+May  3 13:11:19 estel kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,5), internal journal
+May  3 13:11:19 estel kernel: EXT3-fs warning (device ide0(3,5)): ext3_unlink: Deleting nonexistent file (228996), 0
+May  3 13:11:21 estel kernel: lp0: using parport0 (polling).
+May  3 13:11:21 estel kernel: lp0: console ready
+May  3 13:11:23 estel kernel: EXT3-fs warning (device ide0(3,5)): ext3_unlink: Deleting nonexistent file (229076), 0
+May  3 13:11:33 estel kernel: Kernel logging (proc) stopped.
+May  3 13:11:33 estel kernel: Kernel log daemon terminating.
 
-I also unchecked CONIG_ISA, CONFIG_PM, CONFIG_BLK_DEV_PIIX which may have
-contributed to the lockups under 2.4.20.
+I rebooted and run fsck: 
+(copied at hand, so text format shouldn't be correct)
 
-Thanks,  Dirk
+fsck 1.33 (21 Apr-2003)
+Pass 1: Checking inodes, blocks and sizes
+Deleted inode 228996 has zero dtime Fix<y>? (i always said yes)
+Inodes that were part of a corrupted orphan linked list found
+Inode 229076 was part of the orphaned inode list
+Pass 2 (no messages)
+Pass 3: Checking directory connectivity
+Unconnected directory inode 133 4075 (/tmp/???)
+Connect to /lost+found <y>?
+Pass 4: checking reference counts
+Inode 97537 ref count is 2, should be 3. Fix<y>?
+Inode 1334075 ref count is 3, should be 2. Fix<y>?
+Pass 5: Checking group summary information
+Free blocks count wrong for group #82 (26444, counted=26443)
+Fix<y>?
+Free blocks count wrong (895230, counted=895229)
+Fix<y>?
+Free inodes count wrong for group #82 (13151, counted=13149)
+Fix<y>?
+Directories count wrong for group #82 (56, counted=57)
+Fix<y>?
+Free inodes count wrong (1590791, counted=1590789)
+Fix<y>?
 
--- 
-Don't drink and derive. Alcohol and algebra don't mix.
+File system was modified, reboot etc.
+376187 inodes used (19%)
+15360 non-contiguous inodes (4,1%)
+# of inodes with ind/dind/tind blocks 14308/457/0
+3038672 blocks used (77%)
+0 bad blocks
+0 large files
+334986 regular diles
+ 26589 directories
+  2002 character devices files
+  4463 block device files
+     5 fifos
+  3157 links
+  8113 symbolic links (8113 fast symbolic links)
+    20 sockets
+------
+379335 files
+
+
+the filesystem is mounted without special options, no htree
+
+in lost+found i've a #1334075 directory wich contains
+srwxrwxrwx    1 diego    diego           0 2003-05-02 18:08 socket
+
+>From the logs, it doesn't seem i switched off the system properly :-/
+
+The filesystem now runs well without any warning.
+
+
+Diego Calleja

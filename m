@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276349AbRI1W2o>; Fri, 28 Sep 2001 18:28:44 -0400
+	id <S276351AbRI1WbE>; Fri, 28 Sep 2001 18:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276324AbRI1W2f>; Fri, 28 Sep 2001 18:28:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62987 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276353AbRI1W2Y>; Fri, 28 Sep 2001 18:28:24 -0400
-Subject: Re: kernel changes
-To: mark@somanetworks.com (Mark Frazer)
-Date: Fri, 28 Sep 2001 23:33:39 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010928180452.A6093@somanetworks.com> from "Mark Frazer" at Sep 28, 2001 06:04:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276350AbRI1Wao>; Fri, 28 Sep 2001 18:30:44 -0400
+Received: from host-029.nbc.netcom.ca ([216.123.146.29]:784 "EHLO
+	mars.infowave.com") by vger.kernel.org with ESMTP
+	id <S276324AbRI1Waj>; Fri, 28 Sep 2001 18:30:39 -0400
+Message-ID: <6B90F0170040D41192B100508BD68CA1015A81B6@earth.infowave.com>
+From: Alex Cruise <acruise@infowave.com>
+To: "'Randy.Dunlap'" <rddunlap@osdlab.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: apm suspend broken in 2.4.10
+Date: Fri, 28 Sep 2001 15:30:13 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15n6CR-00008r-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The answer is to treat all linus/ac/aa/... kernels as development
-> kernels.  Don't treat anything as stable until it's been through
-> a real QA cycle.  I've heard Suse, RedHat and the like don't do a
-> bad job at this.
+From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
+ 
+> > Here's the complete list of modules which might typically 
+> > be loaded at boot:
+> > [ ad nausaeum ]
 
-We try. If you want to QA your own kernel the cerberus test suite is
-publically available - and indeed the VA guys are to thank for its origins.
+> Unload some of these (that you don't really need to run)
+> and try "apm -s".
+> If that fails, unload some more of them and try again...
+> That would at least narrow down the search for us.
 
-Alan
+I already tried that... Maybe my message didn't get through :)  
+
+>AC> Just for fun, I tried removing all of my loaded 2.4.10 modules one by
+one,
+>AC> and attempting 'apm --suspend' in between, and still had the same
+problem
+>AC> when I got down to the bare minimum (ext3 and jbd)
+
+Anyway, it looks like something keyboard- or A20-related is vetoing my
+suspend request.  Did you get my "the plot thickens" message?  It's not
+appearing in the lkml archives, maybe it got lost last night.
+
+-0xe1a

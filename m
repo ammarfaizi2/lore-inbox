@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131708AbQKAWlY>; Wed, 1 Nov 2000 17:41:24 -0500
+	id <S131737AbQKAWvb>; Wed, 1 Nov 2000 17:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131751AbQKAWlO>; Wed, 1 Nov 2000 17:41:14 -0500
-Received: from jalon.able.es ([212.97.163.2]:38318 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131708AbQKAWlG>;
-	Wed, 1 Nov 2000 17:41:06 -0500
-Date: Wed, 1 Nov 2000 23:40:58 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Where did kgcc go in 2.4.0-test10 ?
-Message-ID: <20001101234058.B1598@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.pre2
+	id <S131751AbQKAWvV>; Wed, 1 Nov 2000 17:51:21 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:11215 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S131723AbQKAWvJ>; Wed, 1 Nov 2000 17:51:09 -0500
+To: mlist-linux-kernel@nntp-server.caltech.edu
+Path: wnoise
+From: wnoise@ugcs.caltech.edu (Aaron Denney)
+Newsgroups: mlist.linux.kernel
+Subject: Re: working userspace nfs v3 for linux?
+Date: 1 Nov 2000 22:22:33 GMT
+Organization: California Institute of Technology, Pasadena
+Message-ID: <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu>
+In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us>
+Reply-To: wnoise@ugcs.caltech.edu
+NNTP-Posting-Host: barter.ugcs.caltech.edu
+User-Agent: slrn/0.9.6.2 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have noticed that in latest patch for 2.4.0, the global Makefile
-no more tries to find a kgcc, and falls back to gcc.
-I suppose because 2.7.2.3 is no more good for kernel, but still you
-can use 2.91, 2.95.2 or 2.96(??). Is that a patch that leaked in
-the way to test10, or is for another reason ?.
+On Wed, 01 Nov 2000 Michael Rothwell <rothwell@holly-springs.nc.us> wrote:
+> Andi Kleen wrote:
+> > On Wed, Nov 01, 2000 at 02:59:05PM -0500, Michael Rothwell wrote:
+> > > Is there a working userspace nfs v3 server for linux?
+> > 
+> > Yes, just install user mode linux and use its v3 knfsd server.
+> 
+> Does anyone have any suggestions that aren't jokes, don't require a 2.4
+> kernel and will work?
 
-TIA
+Well, given that this is linux-*kernel* mailing list, the answer
+seems appropriate.
+
+You didn't say you couldn't use 2.4.  And anyway, UML runs under the 
+latest 2.2 kernels.
+
+Was it a joke?  Well, maybe.  Networking isn't UML's strong point.
+
+I am not aware of any userspace NFSv3 server.  Your best bet would
+probably to take the v2 server and mutate it.  Why do you want this beast?
 
 -- 
-Juan Antonio Magallon Lacarta                          mailto:jamagallon@able.es
-
+Aaron Denney
+-><-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

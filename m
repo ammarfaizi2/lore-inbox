@@ -1,58 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265348AbSJXIS2>; Thu, 24 Oct 2002 04:18:28 -0400
+	id <S265352AbSJXIZS>; Thu, 24 Oct 2002 04:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265349AbSJXIS1>; Thu, 24 Oct 2002 04:18:27 -0400
-Received: from 12-234-207-200.client.attbi.com ([12.234.207.200]:46720 "EHLO
-	chrisl-um.vmware.com") by vger.kernel.org with ESMTP
-	id <S265348AbSJXISY>; Thu, 24 Oct 2002 04:18:24 -0400
-Date: Thu, 24 Oct 2002 01:25:05 -0700
-From: chrisl@vmware.com
-To: Andrew Morton <akpm@digeo.com>, andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: writepage return value check in vmscan.c
-Message-ID: <20021024082505.GB1471@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265351AbSJXIZR>; Thu, 24 Oct 2002 04:25:17 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:46037 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265349AbSJXIZQ>;
+	Thu, 24 Oct 2002 04:25:16 -0400
+Message-ID: <007501c27b37$144cf240$6400a8c0@mikeg>
+From: "Mike Galbraith" <EFAULT@gmx.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Thomas Molina" <tmolina@cox.net>, <linux-kernel@vger.kernel.org>
+References: <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net><5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net> <m18z0os1iz.fsf@frodo.biederman.org>
+Subject: Re: loadlin with 2.5.?? kernels
+Date: Thu, 24 Oct 2002 10:26:40 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+(sorry, I have to use this pos at work)
+----- Original Message -----
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: "Mike Galbraith" <efault@gmx.de>
+Cc: "Thomas Molina" <tmolina@cox.net>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, October 24, 2002 10:07 AM
+Subject: Re: loadlin with 2.5.?? kernels
 
-It might be a silly question.
 
-Is it a bug in vmscan.c that it do not check the return
-value of writepage when shrinking the cache?
+> Mike Galbraith <efault@gmx.de> writes:
+>
+> > At 01:58 PM 10/20/2002 -0500, Thomas Molina wrote:
+> > >On Sun, 20 Oct 2002, Mike Galbraith wrote:
+> > >
+> > > > At 08:17 AM 10/20/2002 -0500, Thomas Molina wrote:
+> > > > >On Sun, 20 Oct 2002, Mike Galbraith wrote:
+> > > > >
+> > > > > > Greetings,
+> > > > > >
+> > > > > > I hadn't had time to build/test kernels since 2.5.8-pre3.  I
+now find
+> > > that
+> > > > > > loadlin doesn't work on my box any more.  Is this a known
+problem?  If
+> > > so,
+> > > > > > when did it quit working?  (loadlin obsolete?  other?)
+> > > > >
+> > > > >I'm carrying an open problem report from Rene Blokland on this
+issue.
+> > > > >What version of the kernel did you try?
+> > > >
+> > > > Only 2.5.42.virgin, 2.5.42-mm, 2.5.43-mm and 2.5.44.virgin.
+Binary search
+> > > > pending.
+> > >
+> > >The report stated the problem was noted with 2.5.4x.  One of the
+> > >developers might want to speak up as to whether finding the exact
+point of
+> > >breakage is useful.
+> >
+> > 2.5.32 is the breakage point here.  I hope someone _else_ can
+salvage loadlin :)
+> >
+> >
+> > (lions and tigers and bears - oh my GDT!)
+>
+> Cool, thanks, for the confirmation.  Other people are seeing breaking
+a little
+> later.  Just to clarify.  .30 or .31 is the last version that worked
+and .32
+> does not?
 
-Some background of the problem:
+Yes.  .31 exploded on me after boot, but did not do the violent reboot
+during boot.
 
-I was tracing some heavy swapping problem relate to high memory usage
-when running many virtual machines in VMware GSX server some time ago.
-If the total ram size of different virtual machine add up to some level,
-bigger than 2G on a 4Gmachine.Kernel will keep swapping and no response.
+> If it is really the gdt I have some old patches that roughly do the
+> right thing, and I just need to dust them off.
 
-VMware open a tmp ram file for each virtual machine and mmap on that file
-to share memory between different process.
+You dust them off, and I'll be more than happy to test them.  I keep
+entirely too many kernels resident to want to use lilo.
 
-I soon find out the hidden size limit on shmfs even though the ram file
-is open on a ext2/ext3 file system. If I change the ram file open on
-/dev/shm then the problem seems to go away. I guess that is because /tmp
-directory is full but bigger /tmp did not help. that is another issue
-though.
+(kexec/bootimg wonderfulness solves my problem too.  boot into a stable
+kernel, instant reboot into any one I want.  gimme gimme gimme:)
 
-I try to find out what happen if user memory map a sparse file then
-kernel try to write it back to disk and hit a no disk space error.
-To my surprise, it seems to me that both 2.4 and 2.5 kernel do not
-check the return value of "writepage". If there is an error like ENOSPC
-it will just drop it on the ground? Do I miss something obvious?
+    -Mike
 
-BTW, I am amazed that there is so many way user can abuse the mmap system
-call. e.g. open a file, ftruncate to a bigger size, unlink that file while
-keep the file descriptor, mmap to some memory using that descriptor,
-close that descriptor, you can still use that mmaped memory.
-
-Cheers,
-
-Chris

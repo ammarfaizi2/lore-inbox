@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263575AbTKFO3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 09:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTKFO3c
+	id S263625AbTKFOgN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 09:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTKFOgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 09:29:32 -0500
-Received: from pop.gmx.net ([213.165.64.20]:28801 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263575AbTKFO3a (ORCPT
+	Thu, 6 Nov 2003 09:36:13 -0500
+Received: from pop.gmx.de ([213.165.64.20]:53961 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263625AbTKFOgL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 09:29:30 -0500
+	Thu, 6 Nov 2003 09:36:11 -0500
 X-Authenticated: #4512188
-Message-ID: <3FAA5B3A.4090800@gmx.de>
-Date: Thu, 06 Nov 2003 15:31:22 +0100
+Message-ID: <3FAA5CCB.5030902@gmx.de>
+Date: Thu, 06 Nov 2003 15:38:03 +0100
 From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
 X-Accept-Language: de-de, de, en-us, en
@@ -28,23 +28,11 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Nov 06 2003, Prakash K. Cheemplavam wrote:
-> 
->>#
->># SCSI device support
->>#
->>CONFIG_SCSI=y
-> 
-> 
-> Need I say more?
+Ok, I found the bugger: It *IS* the sheduler. I tried elevator=deadline 
+and all stuttering went away. Before I was using as. mm1 used default 
+sheduler (as I think) and ther eno probs. So the (updated?) as sheduler 
+in mm2 has a problem...
 
-But then it is a bug: In menuconfig nothing is activated or please tell 
-me how through the menu it is possible to set this to "no". The beauty 
-is: I tested mm1 again, and yes, NO problems. I even threw out the 
-forcedeth driver of mm2 just to have identical config and it doesn't 
-make a change (still mouse stuttering). Further more mm1's .config had a 
-CONFIG_SCSI=y as well, but no probs, so somewhere is a bug...
-
+Prakash
 
 

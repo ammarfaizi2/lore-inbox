@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUKJJVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbUKJJ1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUKJJVi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUKJJVi
+	id S261525AbUKJJ1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUKJJ1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:21:38 -0500
-Received: from outgoing1.jumpy.it ([213.215.144.9]:44295 "EHLO mail.jumpy.it")
-	by vger.kernel.org with ESMTP id S261300AbUKJJVV (ORCPT
+	Wed, 10 Nov 2004 04:27:49 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:9139 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261525AbUKJJ1r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:21:21 -0500
-Date: Wed, 10 Nov 2004 01:20:50 -0800
-Message-ID: <40FC7417000AF12F@mail16.jumpyint.it>
-From: "Minerals & Energy" <moloinb@jumpy.it>
-Subject: for sure
+	Wed, 10 Nov 2004 04:27:47 -0500
+Date: Wed, 10 Nov 2004 10:27:39 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: davids@webmaster.com, cfriesen@nortelnetworks.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+In-Reply-To: <1100041582.16689.0.camel@localhost.localdomain>
+Message-ID: <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
+References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
+ <1100041582.16689.0.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day,
+On Tue, 9 Nov 2004, Alan Cox wrote:
+> On Maw, 2004-11-09 at 20:23, David Schwartz wrote:
+> > 	Yes, they do. The whole point of the "additional restrictions" clause is to
+> > *prohibit* other contracts or obligations that act to restrict your ability
+> > to exercise the rights under the GPL.
+> 
+> Correct. But you can exercise your rights under the GPL in this case. 
 
-We are using the only secured and confidential medium available to seek for
-foreign assistance/partnership in a business transaction, which is fulfillment
-of a lifetime.
+Let's slightly modify the parameters...
 
-I am, Dr Norbert Moloi, member; Tenders Committee, Department of Minerals
-and Energy, Republic of South Africa. I am making this contact with you based
-on the committee's need for an individual/company who is willing to assist
-us with a solution to a money transfer.
+What if someone would offer you binaries (under the GPL) if you sign a contract
+that you will have to pay 100000 EUR (or 100000000 EUR, or ...) if you exercise
+your rights under the GPL?
 
-This amount Seventeen million, One hundred thousand United States Dollars
- (US$17.1M) represents the balance of the total contract value executed on
-behalf of Department of Minerals and Energy by a foreign contracting firm,
-which we the officials over-invoiced deliberately, of which the actual sum
-has been paid. Should you be willing to assist us in the transaction, your
-share of the sum will be 27% of the US$17.1M 67% for us and 6% for taxation
-and miscellaneous expenses.
+According to your reasoning, this is allowed, since you can still exercise your
+rights under the GPL. But in practice this would mean that someone found out
+how to take GPL software, and not give back...
 
-Please be confidential about this transaction, because the processes for
-successful completion of this transaction will be detailed to you as we still
-work in the Department of Minerals and Energy and we would not like any form
-of exposure.
- 
-Do not be indecisive to respond or call me for further information, my private
-Tel: +871762 919 750 and Fax: +871 762 919 751, Also reply me with your confidential
-phone and fax numbers to enable me contact you for further clarifications.
-Your call will be treated as confidential.
+Gr{oetje,eeting}s,
 
-I await your instantaneous response.
+						Geert
 
-Yours faithfully,
-Norbert Moloi, (PhD). 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-
-________________________________________
-Crea la tshirt con il tuo nick! http://www.mediasetshop.it/JumpyChat/
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

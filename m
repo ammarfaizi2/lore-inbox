@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270852AbTG0Pht (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 11:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270853AbTG0Phs
+	id S270847AbTG0Pqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 11:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272833AbTG0Pqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 11:37:48 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30852
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270852AbTG0Phs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 11:37:48 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E19gnTj-00005f-00@calista.inka.de>
-References: <E19gnTj-00005f-00@calista.inka.de>
-Content-Type: text/plain
+	Sun, 27 Jul 2003 11:46:31 -0400
+Received: from oak.sktc.net ([64.71.97.14]:25785 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S272686AbTG0Pp5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 11:45:57 -0400
+Message-ID: <3F23F6EB.7070502@sktc.net>
+Date: Sun, 27 Jul 2003 10:59:39 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: time for some drivers to be removed?
+References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain> <20030727153118.GP22218@fs.tum.de>
+In-Reply-To: <20030727153118.GP22218@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059320952.13191.12.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jul 2003 16:49:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-07-27 at 16:30, Bernd Eckenfels wrote:
-> why is jffs2 so slow, if the cpu overhead can be totally neglected when
-> writing to such slow media? I would asume a FS whic his optimized for not
-> wearing out flash cards would reduce the IOs to the absolute minimum and
-> therefore be fast be definition?
+This is a pet peeve of mine on Free Software projects in general - The 
+Program That Wouldn't Compile.
 
-Flash cards are -slow-. Also jffs2 is mostly synchronous so it writes
-the long bit by bit. The flash wear is on erase not write. You could
-certainly teach jffs2 a bit more about batching writes. The other issue
-with jffs2 is startup because it is a log you have to read the entire
-log to know what state you are in
+It would seem to me that in the context of the kernel, what is needed is 
+a BROKEN flag.
 
+An item with a BROKEN flag would NOT be built in an ALLYES or ALLMODULE 
+configuration - it would require the user to explicitly enable the item 
+in the configuration, and the user would be notified that the module in 
+question was not compiling/linking the last time the configuration data 
+was updated by the kernel team.
+
+That way, a busted item would not be built by default, and the item's 
+users would be motivated to correct it (and thus remove the stigma of 
+the BROKEN flag).
+
+If an item stays BROKEN for too long, bu-bye! Obviously no-one cares 
+enough to fix it.
+
+But that's just my opinion.
 

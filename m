@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262670AbSJTOYA>; Sun, 20 Oct 2002 10:24:00 -0400
+	id <S262692AbSJTOZU>; Sun, 20 Oct 2002 10:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262708AbSJTOX6>; Sun, 20 Oct 2002 10:23:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37364 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262670AbSJTOX5>; Sun, 20 Oct 2002 10:23:57 -0400
-Date: Sun, 20 Oct 2002 16:29:56 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Dag Brattli <dag@brattli.net>
-cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
-Subject: [2.5 patch] remove obsolete IrDA list from MAINTAINERS
-Message-ID: <Pine.NEB.4.44.0210201625200.28761-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S262708AbSJTOZU>; Sun, 20 Oct 2002 10:25:20 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:60137 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262692AbSJTOZS>; Sun, 20 Oct 2002 10:25:18 -0400
+Date: Sun, 20 Oct 2002 12:31:07 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Con Kolivas <conman@kolivas.net>
+cc: Jim Houston <jim.houston@attbi.com>, <linux-kernel@vger.kernel.org>,
+       <mingo@elte.hu>, <andrea@suse.de>, <jim.houston@ccur.com>,
+       <akpm@digeo.com>
+Subject: Re: [PATCH] Re: Pathological case identified from contest
+In-Reply-To: <200210201733.44683.conman@kolivas.net>
+Message-ID: <Pine.LNX.4.44L.0210201230070.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Oct 2002, Con Kolivas wrote:
 
+> The rest of the results were otherwise similar. It seems your patch
+> served to disadvantage kernel compilation in preference for more of the
+> background load.
 
-Mail to the list that is in MAINTAINERS bounces and the new mailinglist
-doesn't accept mail from non-subscribers. Since you can find this new
-mailinglist at the IrDA web page it's IMHO the best to simply remove the
-mailing list entry from MAINTAINERS:
+Probably a priority inheritance thing between parent and child
+processes, this should be easily fixable to be fairer (if it
+isn't already fairest with Jim's patch).
 
-
---- linux-2.5.44-full/MAINTAINERS.old	2002-10-20 16:23:23.000000000 +0200
-+++ linux-2.5.44-full/MAINTAINERS	2002-10-20 16:23:34.000000000 +0200
-@@ -854,7 +854,6 @@
- IRDA SUBSYSTEM
- P:	Dag Brattli
- M:	Dag Brattli <dag@brattli.net>
--L:	linux-irda@pasta.cs.uit.no
- W:	http://irda.sourceforge.net/
- S:	Maintained
-
-
-cu
-Adrian
-
+Rik
 -- 
-
-               "Is there not promise of rain?" Ling Tan asked suddenly out
-                of the darkness. There had been need of rain for many days.
-               "Only a promise," Lao Er said.
-                                               Pearl S. Buck - Dragon Seed
-
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

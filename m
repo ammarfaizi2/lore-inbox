@@ -1,68 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276720AbRJKTPH>; Thu, 11 Oct 2001 15:15:07 -0400
+	id <S276673AbRJKTN5>; Thu, 11 Oct 2001 15:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276716AbRJKTO5>; Thu, 11 Oct 2001 15:14:57 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:12295 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S276702AbRJKTOz>; Thu, 11 Oct 2001 15:14:55 -0400
-Message-Id: <200110111915.f9BJFLY97700@aslan.scsiguy.com>
-To: Alexander Feigl <Alexander.Feigl@gmx.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: aic7xxx SCSI system hangs 
-In-Reply-To: Your message of "11 Oct 2001 14:58:13 +0200."
-             <1002805093.3593.9.camel@PowerBox.MysticWorld.de> 
-Date: Thu, 11 Oct 2001 13:15:21 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S276709AbRJKTNr>; Thu, 11 Oct 2001 15:13:47 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:2564 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276673AbRJKTNa>; Thu, 11 Oct 2001 15:13:30 -0400
+Date: Thu, 11 Oct 2001 15:14:01 -0400
+Message-Id: <200110111914.f9BJE1e18052@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <1002667385.1673.129.camel@phantasy>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi
->
->Sorry for my incomplete console output yesterday.
+In article <1002667385.1673.129.camel@phantasy> rml@tech9.net wrote:
 
-Not a problem.
+>Completely Agreed.  I am thinking of getting a dual AMD system for doing
+>more kernel work (tackle AMD and SMP).  My main machine is a P3 now.
 
-Here's the interesting part...
+The issue right now may be RAM cost. I just bought 512MB PC133 for
+$140/GB, while "registered PC2100" memory is about $900 from the same
+source. I think that's what the Tiger wants, isn't it?
 
->scsi0:0:2:0: Attempting to queue an ABORT message
->scsi0: Dumping Card State in Command phase, at SEQADDR 0xbf
-
-The sequencer believes that the last, REQ qualified, phase was
-the command phase.
-
->ACCUM = 0x80, SINDEX = 0xa0, DINDEX = 0xe4, ARG_2 = 0x0
->HCNT = 0xa
-
-We're setup to send a 10byte cdb(command) to the target.  No bytes of
-the cdb have yet been transfered.
-
->SCSISEQ = 0x12, SBLKCTL = 0xa
-> DFCNTRL = 0x24, DFSTATUS = 0x80
-
-The data fifo is all set to send data...
-
->LASTPHASE = 0x80, SCSISIGI = 0x44, SXFRCTL0 = 0x80
-			      ^^^^
-But what's this?  The target has us in data-in phase.
-
->SSTAT0 = 0x0, SSTAT1 = 0x3
-
-But this phase, according to the hardware, was never qualified by
-a REQ, so we never see this change and fall out of the loop that is
-trying to process the command phase.
-
-To sum up, from time to time, the controller sees the first REQ for
-the data-in phase that follows the command phase, prior to seeing the
-phase lines change to data-in.  This is either caused by the plextor
-not allowing the proper bus-settle time for the phase change to be
-seen prior to asserting REQ *OR* your cabling is poor (too long,
-marginal/bent pin, incorrect termination, etc.) giving a similar
-result.
-
-As for why you cannot talk to the device after a while, the device
-has been set offline.  The controller was unable to talk to it
-successfully, so the SCSI layer decided to ignore it.
-
---
-Justin
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

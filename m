@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbQKHWGc>; Wed, 8 Nov 2000 17:06:32 -0500
+	id <S129505AbQKHWMY>; Wed, 8 Nov 2000 17:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130067AbQKHWGW>; Wed, 8 Nov 2000 17:06:22 -0500
-Received: from denise.shiny.it ([194.20.232.1]:62222 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S129854AbQKHWGM>;
-	Wed, 8 Nov 2000 17:06:12 -0500
-Message-ID: <3A0A2141.E3EC14FF@denise.shiny.it>
-Date: Wed, 08 Nov 2000 23:00:01 -0500
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.18pre19 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129611AbQKHWMN>; Wed, 8 Nov 2000 17:12:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44809 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129505AbQKHWMG>; Wed, 8 Nov 2000 17:12:06 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Ethernet stops working in NFS
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: malloc(1/0) ??
+Date: 8 Nov 2000 14:11:34 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8ucj2m$oiq$1@cesium.transmeta.com>
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
+By author:    Igmar Palsenberg <maillist@chello.nl>
+In newsgroup: linux.dev.kernel
+>
+> 
+> > 	The program does not work. A program works if it does what it's supposed to
+> > do. If you want to argue that this program is supposed to print "ffffff"
+> > then explain to me why the 'malloc' contains a zero in parenthesis.
+> > 
+> > 	The program can't possibly work because it invokes undefined behavior. It
+> > is impossible to determine what a program that invokes undefined behavior is
+> > 'supposed to do'.
+> 
+> May I remind you guys that a malloc(0) is equal to a free(). There is no
+> way that any mem get's malloced. 
+> 
 
-I have a Mac and a PC with a 3com 595 ethernet card. The Mac is the
-nfs server. When I transfer from the PC to the Mac it's all right.
-When I transfer a large file (50-100MB) from the Mac to the PC often
-the connection breaks completely. I can't ping the other machine
-anymore. Looking at ifconfig I see that the PC receives the pings
-but it does not answer. I have to bring the PC's eth0 down and up
-to get it working again. Large ping floods don't trigger the
-problem.
-And is it normal that I transfer at only ~5MB/s over a 100Mbps
-ethernet ?
+Where the heck did you get idea?
 
-The PC runs 2.2.17 and the Mac 2.2.18pre19.
-
-Bye.
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

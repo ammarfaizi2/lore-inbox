@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261969AbRFGQss>; Thu, 7 Jun 2001 12:48:48 -0400
+	id <S261942AbRFGQos>; Thu, 7 Jun 2001 12:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262009AbRFGQsi>; Thu, 7 Jun 2001 12:48:38 -0400
-Received: from atlrel2.hp.com ([156.153.255.202]:40191 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S261969AbRFGQsd>;
-	Thu, 7 Jun 2001 12:48:33 -0400
-Message-ID: <3B1FB07D.C6C03EF0@fc.hp.com>
-Date: Thu, 07 Jun 2001 10:49:01 -0600
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: markh@compro.net
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: pset patch??
-In-Reply-To: <3B1F7130.94357A3C@compro.net>
+	id <S261968AbRFGQoi>; Thu, 7 Jun 2001 12:44:38 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:27339 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S261942AbRFGQoY>; Thu, 7 Jun 2001 12:44:24 -0400
+Date: Thu, 7 Jun 2001 09:44:18 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+Message-ID: <20010607094418.A23719@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B1F51DB.54BE78CA@iph.to> <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Thu, Jun 07, 2001 at 03:20:03PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try
-<http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html>.
-It may do what you want.
+On Thu, Jun 07, 2001 at 03:20:03PM +0300, L. K. wrote:
+> On Thu, 7 Jun 2001, Philips wrote:
+> 
+> > 	Kelvins good idea in general - it is always positive ;-)
+> > 
+> > 	0.01*K fits in 16 bits and gives reasonable range.
+> > 
+> > 	but may be something like K<<6 could be a option? (to allow use of shifts
+> > instead of muls/divs). It would be much more easier to extract int part.
+> > 
+> > 	just my 2 eurocents.
+> 
+> Why not make it in Celsius ? Is more easy to read it this way.
 
---
-Khalid
+It's easier for you as a user to read, but slightly harder to deal with inside the code.  
+It's really a user-space issue, inside the kernel should be as standardized as possible, and
+Kelvins make the most sense there.
 
-Mark Hounschell wrote:
-> 
->  Sorry if this is off topic. I've searched the archives and found
-> references to
-> what I'm looking for but the URL's take me nowhere. The references I'm
-> referring to
-> are for pset patches that will enable me to lock down a processor in an
-> smp env.
-> Lock down meaning I need to be able to lock out all system interrupts
-> and tasks from
-> a defined cpu and lock in a particular task/tasks and set of external
-> interrupts to
-> that same cpu. Yes it's for a real time app but not sure if rtlinux is
-> what I am
-> in need of.
-> 
-> I see references to this site http://isunix.it.ilstu.edu/~thockin/pset/.
-> >From reading the archives it looks like what I'm looking for but there
-> is nothing there.
-> 
-> Is what I need to do possible and if I need this patch do to it could
-> someone tell
-> me where I might find it? Sorry if this is OT but I'm at a dead end road
-> and didn't
-> know where else to ask??  Thanks in advance.
-> 
-> Mark Hounschell
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+-Dave

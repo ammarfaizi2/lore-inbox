@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVACTue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVACTyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVACTue (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 14:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVACTud
+	id S261740AbVACTyG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 14:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVACTyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 14:50:33 -0500
-Received: from holomorphy.com ([207.189.100.168]:54429 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261620AbVACTuV (ORCPT
+	Mon, 3 Jan 2005 14:54:06 -0500
+Received: from gprs215-62.eurotel.cz ([160.218.215.62]:25319 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261648AbVACTxx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 14:50:21 -0500
-Date: Mon, 3 Jan 2005 11:50:16 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jbarnes@engr.sgi.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [bootfix] pass used_node_mask by reference in 2.6.10-mm1
-Message-ID: <20050103195016.GP29332@holomorphy.com>
-References: <20050103191319.GO29332@holomorphy.com>
+	Mon, 3 Jan 2005 14:53:53 -0500
+Date: Mon, 3 Jan 2005 20:47:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Francisco Martins <fmartins@di.fc.ul.pt>, linux-kernel@vger.kernel.org
+Subject: Re: Suspend/resume to disk problem
+Message-ID: <20050103194753.GA25250@elf.ucw.cz>
+References: <1104715228.8402.34.camel@pad.di.fc.ul.pt> <20050103172459.GA4194@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050103191319.GO29332@holomorphy.com>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20050103172459.GA4194@ip68-4-98-123.oc.oc.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 11:13:19AM -0800, William Lee Irwin III wrote:
-> Without passing this parameter by reference, the changes to used_node_mask
-> are meaningless and do not affect the caller's copy.
-> This leads to boot-time failure. This proposed fix passes it by reference.
+Hi!
 
-This proposed fix is an actual fix according to my own testing.
+> > I'm using Debian GNU/linux 3.1 with kernel 2.6.10 on my IBM Thinkpad
+> > R40, and I'm experiencing a strange problem with suspend to disk.
+> > 
+> > If I configure the kernel options 
+> > #
+> > # Power management options (ACPI, APM)
+> > #
+> > CONFIG_PM=y
+> > # CONFIG_PM_DEBUG is not set
+> > CONFIG_SOFTWARE_SUSPEND=y
+> > CONFIG_PM_STD_PARTITION="/dev/hda5",
+> 
+> AFAIK the typical way people do it (or at least what I'm doing, which
+> isn't hitting this bug) is to set CONFIG_PM_STD_PARTITION to "" then to
+> add (in your case) "resume=/dev/hda5" to the kernel boot command line.
+> 
+> This won't really fix your bug, but it should let you use swsusp in the
+> meantime.
 
-Without the patch applied, my quad em64t does not boot, and livelocks
-prior to console_init().
+Perhaps its time for CONFIG_PM_STD_PARTITION to go away?
 
-With the patch applied, my quad em64 boots and runs normally.
-
-
--- wli
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVBRUNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVBRUPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVBRUNt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 15:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVBRUJx
+	id S261487AbVBRUPK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 15:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVBRUPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 15:09:53 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:34965 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261499AbVBRUJB (ORCPT
+	Fri, 18 Feb 2005 15:15:10 -0500
+Received: from gprs215-250.eurotel.cz ([160.218.215.250]:23266 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261482AbVBRUO7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 15:09:01 -0500
-Subject: Re: 2.6.10-ac12 + kernbench == oom-killer: (OSDL)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Cliff White <cliffw@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1D2BPv-0006T3-Q6@es175>
-References: <20050208145707.1ebbd468@es175>
-	 <20050209013617.GC2686@pclin040.win.tue.nl>  <E1D2BPv-0006T3-Q6@es175>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1108757251.17213.38.camel@localhost.localdomain>
+	Fri, 18 Feb 2005 15:14:59 -0500
+Date: Fri, 18 Feb 2005 21:14:30 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dmitry.torokhov@gmail.com
+Subject: Re: 2.6: drivers/input/power.c is never built
+Message-ID: <20050218201429.GA1403@elf.ucw.cz>
+References: <20050213004729.GA3256@stusta.de> <20050218160153.GC12434@elf.ucw.cz> <20050218170036.GA1672@ucw.cz> <200502181805.13129.oliver@neukum.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 18 Feb 2005 20:07:33 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502181805.13129.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-02-18 at 16:55, Cliff White wrote:
-> Okay, with just vm.overcommit=2, things are still bad:
-> http://khack.osdl.org/stp/300854/logs/TestRunFailed.console.log.txt
+Hi!
+
+> > > Yes, there are. They can probably stay... Or we can get "battery low"
+> > > key.
+> >  
+> > We even have an event class for that, EV_PWR in the input subsystem.
 > 
-> Suggestion for vm.overcommit_ratio ?
-> Or should i repeat with later -ac ?
+> Over that route we'd arrive at a situation where power management
+> without the input layer is impossible. Think about embedded stuff I wonder
+> whether this is viable.
 
-Thats showing up problems in the core code still. The OOM in this case
-is because the kernel is deciding it is out of memory when it's merely
-constipated with dirty pages for disk write by the look of it.
+I'd say it is: you need some support to get it into userspace. And I'd
+certianly prefer input infrastructure over ACPI infrastructure...
 
-Alan
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

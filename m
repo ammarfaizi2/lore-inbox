@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135915AbRD0L2I>; Fri, 27 Apr 2001 07:28:08 -0400
+	id <S132724AbRD0LhU>; Fri, 27 Apr 2001 07:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135939AbRD0L17>; Fri, 27 Apr 2001 07:27:59 -0400
-Received: from kullstam.ne.mediaone.net ([66.30.138.210]:63647 "HELO
-	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
-	id <S135915AbRD0L1o>; Fri, 27 Apr 2001 07:27:44 -0400
-From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+	id <S135982AbRD0LhL>; Fri, 27 Apr 2001 07:37:11 -0400
+Received: from web11105.mail.yahoo.com ([216.136.131.152]:38151 "HELO
+	web11105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135942AbRD0Lg6>; Fri, 27 Apr 2001 07:36:58 -0400
+Message-ID: <20010427113657.73542.qmail@web11105.mail.yahoo.com>
+Date: Fri, 27 Apr 2001 04:36:57 -0700 (PDT)
+From: Evan Montgomery-Recht <evanrecht@yahoo.com>
+Reply-To: montge@mianetworks.net
+Subject: Cardbus conflicts...
 To: linux-kernel@vger.kernel.org
-Subject: Re: About rebuild 2.4.x kernel to support SMP.
-In-Reply-To: <Pine.LNX.3.96.1010426120128.28828A-100000@kanga.kvack.org>
-Organization: none
-Date: 27 Apr 2001 07:27:31 -0400
-In-Reply-To: <Pine.LNX.3.96.1010426120128.28828A-100000@kanga.kvack.org>
-Message-ID: <m2u23ashuk.fsf@euler.axel.nom>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<kernel@kvack.org> writes:
+About 2 years ago, I bought a IBM 600E laptop with one
+of the IBM branded Xircom CardBUS cards.  It took me
+about a month (with the help of a lot of people with
+simular machines) to figure out why the card would be
+recognized, and even connect to the network, but could
+never get a IP address from DHCP.  It turned out that
+the sound card which is a one of the CS based chips. 
+The fix that I found was that if I added the following
+line to the /etc/pcmcia/config.opts The card would be
+detected, and recognized, and get a IP address.
 
-> On Thu, 26 Apr 2001, Yiping Chen wrote:
-> 
-> > So, I have two question now, 
-> > 1. how to determine whether your kernel support SMP?
-> >     Somebody taugh me that you can type  "uname -r", but it seems not
-> > correct.
-> 
-> No, it's correct: the Red Hat RPM is build from the kernel.spec file which
-> adds the smp string to the version.
+exclude ports 0x2f8-0x2ff
 
-"uname -a" will show SMP status.
+The unfortunate side effect is that I cannot seem to
+get the sound card to work, even with OSS-commercial
+which I had a old license for that expires soon from
+when I bought a copy way back in I think 96' (what a
+scary thought).
 
-euler(jk)$ uname -a
-Linux euler.axel.nom 2.4.4-pre5 #1 SMP Thu Apr 19 19:20:40 EDT 2001 i686 unknown
+I realize that this this is a older machine, but this
+is not unique, I've found over the years that every
+machine I've owned has had a custom "profile" to get
+all addin-cards to work.  So I leave with two
+questions.
 
-this is on a redhat system, but i think it will work on any linux
-system.
+1. Does someone have a better fix for this problem
+then I've been able to find?
 
-> > 2. I remember in 2.2.x, when I rebuild the kernel which support SMP, the
-> > compile
-> >     argument will include -D__SMP__ , but this time, when I rebuild kernel
-> > 2.4.2-2 , it didn't  appear.
-> >     Why? 
-> 
-> Because you've made an assumption that holds no value.  2.4 kernels rely
-> on CONFIG_SMP instead of __SMP__.
+2. It seems like there is a need to have like a
+"vendor-profile" support that allows for these special
+types of conflicts.  I havn't been able to find much
+on this.  Is anyone aware of such a thing.
 
-it's probably easiest to download the latest kernel (2.4.3 at the time
-of this writing) from ftp.XX.kernel.org (XX being your country code).
-then configure using "make xconfig" or "make menuconfig".  choose SMP
-in one of the first menus.  there's a kernel-howto which explains this
-stuff.  btw there is no problem running your own kernels on a redhat
-system bypassing rpm.
+thanks,
 
-in a source tree in which you've compiled SMP and want UP or
-vice-versa, i think to do a "make distclean" in between switching.
+evan
 
--- 
-J o h a n  K u l l s t a m
-[kullstam@ne.mediaone.net]
-Don't Fear the Penguin!
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

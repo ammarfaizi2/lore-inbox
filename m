@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVA1EnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVA1FKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVA1EnU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 23:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVA1EnU
+	id S261458AbVA1FKp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 00:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVA1FKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 23:43:20 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:35781 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261450AbVA1EnP (ORCPT
+	Fri, 28 Jan 2005 00:10:45 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:487 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261455AbVA1FKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 23:43:15 -0500
-Date: Fri, 28 Jan 2005 05:43:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: George Anzinger <george@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
-       Doug Niehaus <niehaus@ittc.ku.edu>,
-       Benedikt Spranger <bene@linutronix.de>
-Subject: Re: High resolution timers and BH processing on -RT
-Message-ID: <20050128044301.GD29751@elte.hu>
-References: <1106871192.21196.152.camel@tglx.tec.linutronix.de>
+	Fri, 28 Jan 2005 00:10:34 -0500
+Date: Fri, 28 Jan 2005 16:06:14 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: Advice sought on how to lock multiple pages in ->prepare_write and ->writepage
+Message-ID: <20050128050614.GC1799@frodo>
+References: <1106822924.30098.27.camel@imp.csi.cam.ac.uk> <20050127165822.291dbd2d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106871192.21196.152.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050127165822.291dbd2d.akpm@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Anton,
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+On Thu, Jan 27, 2005 at 04:58:22PM -0800, Andrew Morton wrote:
+> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> >
+> > What would you propose can I do to perform the required zeroing in a
+> > deadlock safe manner whilst also ensuring that it cannot happen that a
+> > concurrent ->readpage() will cause me to miss a page and thus end up
+> > with non-initialized/random data on disk for that page?
+> 
+> The only thing I can think of is to lock all the pages.  There's no other
+> place in the kernel above you which locks multiple pagecache pages, but we
+> can certainly adopt the convention that multiple-page-locking must proceed
+> in ascending file offset order.
+> 
+> ...
+> 
+> Not very pretty though.
+> 
 
-> Some numbers to make this more transparent.
-> 
-> Machine: PIII Celeron 333MHz
-> RT - T0: 1ms cyclic
-> RT - T1: 2ms cyclic
-> ....
-> 
-> Load average is ~4.0 for all tests. The numbers are maximum deviation
-> from the timeline in microseconds. Test time was ~60 minutes for each
-> szenario.
-> 
-> Running all timers in high resolution mode (ksoftirqd) results in:
-> [T0  Prio:  60]  2123
-> [T1  Prio:  59]  2556
-> [T2  Prio:  58]  2882
-> [T3  Prio:  57]  2993
-> [T4  Prio:  56]  2888
-> 
-> Running all timers in high resolution mode (seperated timer softirqd
-> PRIO=70) results in:
-> [T0  Prio:  60]  423
-> [T1  Prio:  59]  372
-> [T2  Prio:  58]  756
-> [T3  Prio:  57]  802
-> [T4  Prio:  56]  1208
+Just putting up my hand to say "yeah, us too" - we could also make
+use of that functionality, so we can grok existing XFS filesystems
+that have blocksizes larger than the page size.
 
-is this due to algorithmic/PIT-programming overhead, or due to the noise
-introduced by other, non-hard-RT timers? I'd guess the later from the
-looks of it, but did your test introduce such noise (via networking and
-application workloads?).
+Were you looking at using an i_blkbits value larger than pageshift,
+Anton?  There's many places where generic code does 1 << i_blkbits
+that'll need careful auditing, I think.  A lock-in-page-index-order
+approach seems the simplest way to prevent page deadlocks as Andrew
+suggested, and always starting to lock pages at the lowest block-
+aligned file offset (rather than taking a page lock, dropping it,
+locking earlier pages, reaquiring the later one, etc) - that can't
+really be done inside the filesystems though..
 
-	Ingo
+So it's probably something that should be handled in generic page
+cache code such that the locking is done in common places for all
+filesystems using large i_blkbits values, and such that locking is
+done before the filesystem-specific read/writepage(s) routines are
+called, so that they don't have to be changed to do page locking
+any differently.
+
+cheers.
+
+-- 
+Nathan

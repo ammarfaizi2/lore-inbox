@@ -1,97 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSKYFeU>; Mon, 25 Nov 2002 00:34:20 -0500
+	id <S262430AbSKYFpt>; Mon, 25 Nov 2002 00:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSKYFeU>; Mon, 25 Nov 2002 00:34:20 -0500
-Received: from postoffice.millenniumit.com ([203.115.28.196]:34232 "EHLO
-	postoffice.millenniumit.com") by vger.kernel.org with ESMTP
-	id <S262425AbSKYFeT>; Mon, 25 Nov 2002 00:34:19 -0500
-Message-ID: <3DE1B86C.30505@millenniumit.com>
-Date: Mon, 25 Nov 2002 11:43:08 +0600
-From: "Dhammika Pathirana" <dhammikap@millenniumit.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] acorn_request_region fix 2.5.48
-Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
+	id <S262446AbSKYFpt>; Mon, 25 Nov 2002 00:45:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:18855 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262430AbSKYFps>;
+	Mon, 25 Nov 2002 00:45:48 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: Module Refcount & Stuff mini-FAQ 
+In-reply-to: Your message of "Sun, 24 Nov 2002 23:07:58 -0300."
+             <20021124230758.A1549@almesberger.net> 
+Date: Mon, 25 Nov 2002 13:27:02 +1100
+Message-Id: <20021125055303.484492C055@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_IS_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <20021124230758.A1549@almesberger.net> you write:
+> Rusty Russell wrote:
+> > Q: But the modules' init routine calls my register() routine which
+> >    wants to call back into one of the function pointers immediately,
+> >    and so try_module_get() fails! (because the module is not finished
+> >    initializing yet)
+> > A: You're being called from the module, so someone already has a
+> >    reference (unless there's a bug), so you don't need a
+> >    try_module_get().
+> 
+> Hmm, I wouldn't call this the answer. How about:
+>  - Q: why does it fail ?
+>  - A: because you're initializing
+>  - solution: but since you're calling from a module, and the call
+>    goes back to the same module, you don't have to worry
+> 
+> This raises the question: why is this a special case ? The
+> registration function shouldn't have to know all these details.
+> (That's the whole point of try_module_get, isn't it ?)
 
-Hi,
+Yes, this is a fairly rare case: I'm debating it now.  For example,
+scsi calls back into the module which just registered, as does the
+block layer (to probe for partitions).
 
-Following patch is to fix acorn request region failure. Pls apply.
+> > Well, if we continue to start modules unisolated, I need to rewrite
+> > the FAQ anyway...
+> 
+> Does "unisolated" mean that try_module_get would work ? If yes,
+> you've already solved the problem ;-)
 
-dhammika
+At the cost of exposing the module to initialization races.
 
------------------
-
-diff -urN ./linux-2.5.48/drivers/acorn/net/ether1.c 
-./linux/drivers/acorn/net/ether1.c
---- ./linux-2.5.48/drivers/acorn/net/ether1.c   Mon Nov 18 10:29:47 2002
-+++ ./linux/drivers/acorn/net/ether1.c  Mon Nov 25 11:19:52 2002
-@@ -1035,13 +1035,20 @@
-         /*
-          * these will not fail - the nature of the bus ensures this
-          */
--       request_region(dev->base_addr, 16, dev->name);
--       request_region(dev->base_addr + 0x800, 4096, dev->name);
-+       if(!request_region(dev->base_addr, 16, dev->name)){
-+               ret = -EBUSY;
-+               goto release1;
-+       }
-+
-+       if(!request_region(dev->base_addr + 0x800, 4096, dev->name)){
-+               ret = -EBUSY;
-+               goto release2;
-+       }
-
-         priv = (struct ether1_priv *)dev->priv;
-         if ((priv->bus_type = ether1_reset(dev)) == 0) {
-                 ret = -ENODEV;
--               goto release;
-+               goto release3;
-         }
-
-         printk(KERN_INFO "%s: ether1 in slot %d, ",
-@@ -1054,7 +1061,7 @@
-
-         if (ether1_init_2(dev)) {
-                 ret = -ENODEV;
--               goto release;
-+               goto release3;
-         }
-
-         dev->open               = ether1_open;
-@@ -1069,9 +1076,11 @@
-         ecard_set_drvdata(ec, dev);
-         return 0;
-
--release:
-+release3:
-         release_region(dev->base_addr, 16);
-+release2:
-         release_region(dev->base_addr + 0x800, 4096);
-+release1:
-         unregister_netdev(dev);
-
------------------
-
---=_IS_MIME_Boundary
-Content-Type: text/plain;charset=us-ascii;
-	name="Disclaimer_Message.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Disclaimer_Message.txt"
-
------------------------------------------ (on postoffice)
-
-The information contained in this email is confidential and is meant to be read only by the person to whom it is addressed.Please visit http://www.millenniumit.com/legal/email.htm to read the entire confidentiality clause.
-
----------------------------------------------------------
-
---=_IS_MIME_Boundary--
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

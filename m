@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUIDRRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUIDRUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUIDRRS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 13:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUIDRRR
+	id S264639AbUIDRUP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 13:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUIDRUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 13:17:17 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:5317 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264639AbUIDRRE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 13:17:04 -0400
-Date: Sat, 4 Sep 2004 19:16:47 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] copyfile: sendfile
-Message-ID: <20040904171647.GB9765@wohnheim.fh-wedel.de>
-References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904165938.GD8579@wohnheim.fh-wedel.de> <20040904181143.A16644@infradead.org>
+	Sat, 4 Sep 2004 13:20:15 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:32217 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264639AbUIDRUL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 13:20:11 -0400
+Subject: Re: [2.6.9-rc1 PPC32] drivers/ide/ppc/pmac.c compile error
+From: Benoit Dejean <benoit.dejean@placenet.org>
+Reply-To: TazForEver@dlfp.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094216856.18057.3.camel@athlon>
+References: <1094216856.18057.3.camel@athlon>
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 04 Sep 2004 19:20:09 +0200
+Message-Id: <1094318409.10820.5.camel@athlon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Mailer: Evolution 1.5.93 
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040904181143.A16644@infradead.org>
-User-Agent: Mutt/1.3.28i
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 September 2004 18:11:43 +0100, Christoph Hellwig wrote:
-> On Sat, Sep 04, 2004 at 06:59:38PM +0200, J�rn Engel wrote:
-> > Creates vfs_sendfile(), which can be called from other places within
-> > the kernel.  Such other places include copyfile() and cowlinks.
-> > 
-> > In principle, this just removes code from do_sendfile() to
-> > vfs_sendfile().  On top of that, it adds a check to out_inode,
-> > identical to the one on in_inode.  True, the check for out_inode was
-> > never needed, maybe that tells you something about the check to
-> > in_inode as well. ;)
+Le vendredi 03 septembre 2004 à 15:07 +0200, Benoit Dejean a écrit :
+> hello, i get the following error when compiling 2.6.9-rc1
 > 
-> Both checks aren't nessecary. 
+>   CC      .ide/ppc/pmac.o
+> drivers/ide/ppc/pmac.c: Dans la fonction « pmac_ide_dma_read »:
+> drivers/ide/ppc/pmac.c:1952: error: `ide_dma_intr' undeclared (first use
+> in this function)
 
-Ok, will remove them before resending.
+looks like CONFIG_BLK_DEV_IDEDMA_PCI is not defined ....
 
-> > +++ linux-2.6.9-rc1-mm3/include/linux/syscalls.h	2004-09-04 18:17:15.000000000 +0200
-> > @@ -285,6 +285,8 @@
-> >  asmlinkage long sys_unlink(const char __user *pathname);
-> >  asmlinkage long sys_rename(const char __user *oldname,
-> >  				const char __user *newname);
-> > +asmlinkage long sys_copyfile(const char __user *from, const char __user *to,
-> > +				umode_t mode);
-> 
-> oesn't seem to belong into this patch.
-
-True, should have been in 3/3.  Thanks.
-
-J�rn
 
 -- 
-Anything that can go wrong, will.
--- Finagle's Law
+Benoît Dejean
+JID: TazForEver@jabber.org
+gDesklets http://gdesklets.gnomedesktop.org
+LibGTop http://directory.fsf.org/libgtop.html
+http://www.paulla.asso.fr
+

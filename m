@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263571AbRFAP3G>; Fri, 1 Jun 2001 11:29:06 -0400
+	id <S263575AbRFAPcG>; Fri, 1 Jun 2001 11:32:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263573AbRFAP24>; Fri, 1 Jun 2001 11:28:56 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:927 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S263571AbRFAP2w>;
-	Fri, 1 Jun 2001 11:28:52 -0400
-Message-ID: <3B17B4B0.9A805766@mandrakesoft.com>
-Date: Fri, 01 Jun 2001 11:28:48 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Lehmann <pcg@goof.com>
-Cc: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        John R Lenton <john@grulic.org.ar>
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-In-Reply-To: <20010519110721.A1415@pua.nirvana> <20010601171848.F467@cerebro.laendle>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263582AbRFAPb4>; Fri, 1 Jun 2001 11:31:56 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:51470 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S263575AbRFAPbo>; Fri, 1 Jun 2001 11:31:44 -0400
+Date: Fri, 1 Jun 2001 09:30:25 -0600
+Message-Id: <200106011530.f51FUP610493@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: [PATCH] devfs v178 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Lehmann wrote:
-> one thing I found out using triel and error is that setting "PCI Delay
-> Transaction" to enabled causes data corruption on WRITE to my ide drives
-> connected to an Promise Ultra 100 PCI controlelr (I didn't get any
-> corruption on the devices connected to the via ide interface, presumably
-> because my bios already had the right fix).
-> 
-> So, while the every pci master grant setting apperently fixes the internal
-> via ide interface corruption the PCI Delay Transaction option also must be
-> buggy (or my promise controller is) and causes data corruption at least
-> with an additional promise ultra 100.
+  Hi, all. Version 178 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-I do not mean to point fingers, but don't assume Via is at fault here. 
-Once you get into the area of flushing data (or not flushing, which is
-what delayed txn would imply), it is entirely possible that the driver
-simply does not support what occurs when the PCI Delay Txn option is
-set.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+
+This is against 2.4.5. Highlights of this release:
+
+- Fixed handling of inverted options in <devfs_setup>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

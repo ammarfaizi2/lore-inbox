@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288243AbSACSRU>; Thu, 3 Jan 2002 13:17:20 -0500
+	id <S288274AbSACSVk>; Thu, 3 Jan 2002 13:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288260AbSACSQ7>; Thu, 3 Jan 2002 13:16:59 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43020 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S288243AbSACSQr>; Thu, 3 Jan 2002 13:16:47 -0500
-Message-Id: <200201031816.g03IGhhh023149@pincoya.inf.utfsm.cl>
+	id <S288275AbSACSVa>; Thu, 3 Jan 2002 13:21:30 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:44430 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S288274AbSACSVQ>;
+	Thu, 3 Jan 2002 13:21:16 -0500
+Date: Thu, 3 Jan 2002 10:22:37 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
 To: Alex <mail_ker@xarch.tu-graz.ac.at>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Dave Jones <davej@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from Alex <mail_ker@xarch.tu-graz.ac.at> 
-   of "Thu, 03 Jan 2002 19:06:38 BST." <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at> 
-Date: Thu, 03 Jan 2002 15:16:43 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+In-Reply-To: <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at>
+Message-ID: <Pine.LNX.4.33.0201031017190.837-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex <mail_ker@xarch.tu-graz.ac.at> said:
-
-[...]
 
 > Let's face the bare fact : Linux life could be *way* more comfortable...
 > This stupid Win2k or even *brrr* XP ^H^H^H detects all the hardware
-> fine when installing. Even ISA. So should Linux. 
+> fine when installing. Even ISA. So should Linux.
 
-Yep. Like Linux getting the 3rd IDE on my ISA SB16 as a matter of course,
-which WinNT claims doesn't exist. Like having to get a huge "driver" onto
-WinNT for using a parallel Zip drive, which just works out of the box with
-Linux. Or my notebook's (Win98se) network card driver, which hangs the
-machine on boot if no network connection.
+I don't believe that Win2k does it (it's not from the PnP family, is it?).
+But, I don't doubt that XP does it on contemporary hardware. It requires
+ACPI support in the BIOS. And, ACPI enumerates all of the legacy devices
+in the system.
 
-Don't get me started on "easy installation" and "autodetects everything"
-with Windows.
+So, we're still relying on the firmware to tell us what's there. One of
+the points of this thread, and many others, is that you can't rely on it.
+Every BIOS is buggy.
 
-Oh, wait. You are a troll, right?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Personally, I like the idea of dumping the firmware tables (DMI, ACPI,
+etc) during early init, then letting a userspace program telling the
+kernel what is there based on what the firmware says. If we know a
+particular table in a particular BIOS is bad, we can ignore it or work
+around it.
+
+The auto-config tool can use either what the kernel knows (as exported to
+userland), or it can use some parsing tool to parse the tables (with the
+same intelligence to know which tables are borked).
+
+And, don't forget that most Windows OSes punt on some hardware. That's why
+there's the nice "Add New Hardware" wizard...
+
+	-pat
+

@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKMQRy>; Mon, 13 Nov 2000 11:17:54 -0500
+	id <S129211AbQKMQ0r>; Mon, 13 Nov 2000 11:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129750AbQKMQRp>; Mon, 13 Nov 2000 11:17:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:57094 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129069AbQKMQRc>;
-	Mon, 13 Nov 2000 11:17:32 -0500
-Message-ID: <3A101417.EA466EF6@mandrakesoft.com>
-Date: Mon, 13 Nov 2000 11:17:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129060AbQKMQ01>; Mon, 13 Nov 2000 11:26:27 -0500
+Received: from ns.caldera.de ([212.34.180.1]:34821 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129044AbQKMQ0V>;
+	Mon, 13 Nov 2000 11:26:21 -0500
 MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Steven_Snyder@3com.com, linux-kernel@vger.kernel.org
-Subject: Re: State of Posix compliance in v2.2/v2.4 kernel?
-In-Reply-To: <88256996.00577D9E.00@hqoutbound.ops.3com.com> <3A101009.5F05DA18@mandrakesoft.com> <20001113111319.E1514@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14864.5656.706778.275865@ns.caldera.de>
+Date: Mon, 13 Nov 2000 17:26:00 +0100 (CET)
+To: Gregory Maxwell <greg@linuxpower.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Modprobe local root exploit
+In-Reply-To: <20001113093727.C1918@xi.linuxpower.cx>
+In-Reply-To: <20001113093727.C1918@xi.linuxpower.cx>
+X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
+From: Torsten Duwe <duwe@caldera.de>
+Reply-to: Torsten.Duwe@caldera.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-> Well, it does not do its best. There are several areas where kernel should
-> help, things like POSIX semaphores would be much faster with kernel support,
-> likewise threads if some things Ulrich stated here a couple of months
-> ago were done in the kernel,
+>>>>> "Gregory" == Gregory Maxwell <greg@linuxpower.cx> writes:
 
-Would it be reasonable to have these needs documented in a central
-location, with patches attached where possible?
+    Gregory> After seeing the modprobe local root exploit today, I asked
+    Gregory> myself why kmod executes modprobe with full root and doesn't
+    Gregory> drop some capabilities first.
 
-Making people other than Linus aware of the technical issues can only
-benefit the cause of POSIX compliancy, IMHO...
+    Gregory> Why? It wouldn't close the hole, but it would narrow it down.
 
+This might also be a good idea; but my suggestion is to not allow arbitrary
+strings as module names in the first place. As far as I can see, all valid
+strings for KMOD requests consist of alphanumeric chars plus dash and
+underscore. Anybody with autoloaded modules that don't fit this pattern even
+after /etc/modules.conf translation please object !
 
-> POSIX message queue passing is not doable in
-> userland without kernel help either (I have a message queue filesystem
-> kernel patch for this, but it is a 2.5 thing).
+Here's the patch...
 
-If its small and standalone and doesn't touch existing infrastructure...
+	Torsten
 
-Regards,
+--- linux/kernel/kmod.c.orig	Tue Sep 26 01:18:55 2000
++++ linux/kernel/kmod.c	Mon Nov 13 16:57:02 2000
+@@ -168,6 +168,22 @@
+ 	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
+ #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+ 	static int kmod_loop_msg;
++	const char * p;
++
++	/* For security reasons ensure the requested name consists
++	 * only of allowed characters. Especially whitespace and
++	 * shell metacharacters might confuse modprobe.
++	 */
++	for (p = module_name; *p; p++)
++	{
++	  if ((*p & 0xdf) >= 'a' && (*p & 0xdf) <= 'z')
++	    continue;
++	  if (*p >= '0' && *p <= '9')
++	    continue;
++	  if (*p == '_' || *p == '-')
++	    continue;
++	  return -EINVAL;
++	}
+ 
+ 	/* Don't allow request_module() before the root fs is mounted!  */
+ 	if ( ! current->fs->root ) {
 
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263435AbRFNRh1>; Thu, 14 Jun 2001 13:37:27 -0400
+	id <S263432AbRFNRjR>; Thu, 14 Jun 2001 13:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263434AbRFNRhV>; Thu, 14 Jun 2001 13:37:21 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:18189 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S263414AbRFNRhK>; Thu, 14 Jun 2001 13:37:10 -0400
-Date: Thu, 14 Jun 2001 19:35:01 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SMP spin-locks
-Message-ID: <20010614193501.F23383@garloff.etpnet.phys.tue.nl>
-In-Reply-To: <Pine.LNX.3.95.1010614132506.10137B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tvOENZuN7d6HfOWU"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010614132506.10137B-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Jun 14, 2001 at 01:26:05PM -0400
-X-Operating-System: Linux 2.2.19 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S263434AbRFNRjH>; Thu, 14 Jun 2001 13:39:07 -0400
+Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:53242 "EHLO
+	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S263432AbRFNRjB>; Thu, 14 Jun 2001 13:39:01 -0400
+Message-ID: <3B28F68C.BA9D83DA@uu.net>
+Date: Thu, 14 Jun 2001 13:38:20 -0400
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
+Subject: APM, ACPI, and Wake on LAN - the bane of my existance
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an athlon system with a iwill kk266 motherboard (via kt133A).  I
+have a linksys 10/100 PCI ethernet card with wake on lan capabilities. 
+Anyway, when I shut the PC down it turns off, but refuses to stay off. 
+Within a minute or two, it turns itself on again.  If i run over and
+turn it off by hitting the power putton, it turns off, but then comes
+back on again at a later somewaht arbitrary time (1 minute to several
+hours later).  I originally got the WOL card so I could remotely boot my
+PC, but at this point it has turned out to be more trouble than it's
+worth.  I tried to disable WOL inthe BIOS, but that didn't change
+anything.  So I removed the three pin cross connect that connects the
+card to the WOL header on the motherboard.  That fixed it for a few
+days, but now it's doing it again, even without the cable installed. 
+the only fix is to unplug the ethernet cable when I turn it off.  
 
---tvOENZuN7d6HfOWU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I suspect the problem has something to do with WOL vs. resume on LAN. 
+the system should only turn on when it recieves a magic packet, but it
+seems that any packet may cause it to boot (or resume, but since it is
+in the "off" state, boot).  I've only been using APM, but perhaps acpi
+is required for this to work properly.  As far as why it does this when
+the 3 pin WOL connector was not used, I'm not sure, maybe something to
+do with PCI 2.2.
 
-On Thu, Jun 14, 2001 at 01:26:05PM -0400, Richard B. Johnson wrote:
-> Question 2: What is the purpose of the code sequence, "repz nop"=20
+Any thoughts?  This is driving me nuts.
 
-Puts iP4 into low power mode.
+Alex
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
-
---tvOENZuN7d6HfOWU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7KPXExmLh6hyYd04RArNiAKCs2Dwb52ZBDS/GyJULSIuJrkMYdQCdEypT
-dUkJqh0cZVz0HZA+30Rzf4k=
-=cJDs
------END PGP SIGNATURE-----
-
---tvOENZuN7d6HfOWU--
-
+Please CC: me in your reply.

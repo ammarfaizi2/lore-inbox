@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267302AbUHDHGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267295AbUHDHQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267302AbUHDHGb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 03:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267320AbUHDHGb
+	id S267295AbUHDHQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 03:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHDHQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 03:06:31 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:1408 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S267302AbUHDHFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 03:05:54 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 4 Aug 2004 17:05:46 +1000
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 03:16:54 -0400
+Received: from styx.suse.cz ([82.119.242.94]:8320 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S267295AbUHDHQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 03:16:52 -0400
+Date: Wed, 4 Aug 2004 09:18:42 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Marko Macek <Marko.Macek@gmx.net>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Eric Wong <eric@yhbt.net>
+Subject: Re: KVM & mouse wheel
+Message-ID: <20040804071842.GA705@ucw.cz>
+References: <410FAE9B.5010909@gmx.net> <Pine.LNX.4.60.0408032257250.2821@dragon.hygekrogen.localhost> <4110660D.5050003@gmx.net> <200408040025.20118.dtor_core@ameritech.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16656.35530.819884.579436@cse.unsw.edu.au>
-Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
-       Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
-In-Reply-To: message from Miquel van Smoorenburg on Wednesday August 4
-References: <410F481C.9090408@bio.ifi.lmu.de>
-	<64bf.410f9d6f.62af@altium.nl>
-	<ceouv0$7s8$2@news.cistron.nl>
-	<41108380.6080809@bio.ifi.lmu.de>
-	<20040804064716.GA31600@traveler.cistron.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <200408040025.20118.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 4, miquels@cistron.nl wrote:
-> 
-> On 2004.08.04 08:34, Frank Steiner wrote:
-> > Miquel van Smoorenburg wrote:
-> > 
-> > > If having /dev mounted read-only means you cannot open devices
-> > > like /dev/console read/write then that is a bug in the NFS client
-> > > in the kernel.
-> > 
-> > Which matches the fact the it works with server running 2.6 and
-> > client running 2.4.
-> > 
-> > > 
-> > > On all other filesystems (ext2, ext3, xfs etc) there's no problem
-> > > opening devices r/w on a read-only filesystem.
-> > 
-> > Should I report that as bug to someone special?
-> 
-> Assuming you have a way to reproduce this, to the NFS client
-> maintainer - see the file MAINTAINERS in the kernel source.
-> 
-> But I just tried to reproduce this on 2.6.7-rc2 (it's what my
-> workstation happens to be running) and I can't. I can mount an
-> nfs-exported /dev from both 2.4 and 2.6 servers read-only and
-> I can open devices on that read-only mount just fine.
+On Wed, Aug 04, 2004 at 12:25:19AM -0500, Dmitry Torokhov wrote:
 
-Yes, it was a bug in the NFS server in 2.6 that was fixed fairly
-recently.
+> On Tuesday 03 August 2004 11:29 pm, Marko Macek wrote:
+> > Jesper Juhl wrote:
+> > 
+> > > <>I also had problems with my KVM switch and mouse when I initially 
+> > > moved to
+> > > 2.6, but adding this kernel boot parameter fixed it, meybe it will help
+> > > you as well : psmouse.proto=imps
+> > 
+> > This doesn't help. Only the patch I sent helps me. The problem is that the
+> > even with psmouse.proto=imps or exps, the driver still probes for 
+> > synaptics which I
+> > consider a bug.
+> > 
+> 
+> No it is not - Synaptics with a track-point on a passthrough port will have
+> track-point disabled if it is not reset after probing for imps/exps.
+ 
+Hmm, does the imps/exps probe succeed in this case?
 
-NeilBrown
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267263AbSLRPFo>; Wed, 18 Dec 2002 10:05:44 -0500
+	id <S267264AbSLRPPI>; Wed, 18 Dec 2002 10:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267264AbSLRPFo>; Wed, 18 Dec 2002 10:05:44 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:59330 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267263AbSLRPFn>; Wed, 18 Dec 2002 10:05:43 -0500
-Date: Wed, 18 Dec 2002 07:13:26 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua, Zwane Mwaikambo <zwane@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lk maintainers
-Message-ID: <684430000.1040224405@titus>
-In-Reply-To: <200212180835.gBI8ZDs22220@Port.imtp.ilyichevsk.odessa.ua>
-References: <200212170628.gBH6Scs15943@Port.imtp.ilyichevsk.odessa.ua>
- <200212180600.gBI60js21347@Port.imtp.ilyichevsk.odessa.ua>
- <Pine.LNX.4.50.0212180227100.8420-100000@montezuma.mastecende.com>
- <200212180835.gBI8ZDs22220@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267268AbSLRPPI>; Wed, 18 Dec 2002 10:15:08 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30695
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267264AbSLRPPI>; Wed, 18 Dec 2002 10:15:08 -0500
+Subject: Re: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (21/21)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: YOSHIFUJI Hideaki / =?UTF-8?Q?=E5=90=89=E8=97=A4=E8=8B=B1?=
+	 =?UTF-8?Q?=E6=98=8E?= <yoshfuji@linux-ipv6.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E0088D8.31788F10@cinet.co.jp>
+References: <3DFC50E9.656B96D0@cinet.co.jp> <3DFC818F.80E3DC00@cinet.co.jp>
+	<20021215.225942.24871004.yoshfuji@linux-ipv6.org> 
+	<3DFDE4FE.755F6651@cinet.co.jp>
+	<1040139409.20199.8.camel@irongate.swansea.linux.org.uk> 
+	<3DFF4FF8.FA43A1A1@cinet.co.jp>
+	<1040145474.20018.27.camel@irongate.swansea.linux.org.uk> 
+	<3E0088D8.31788F10@cinet.co.jp>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Dec 2002 16:03:15 +0000
+Message-Id: <1040227395.24530.11.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If it's supposed to be current information and to be used by bug
->> reporters, then by all means, chop away ;)
->
-> It is suppsed to be accurate. That is why there are timestamps.
-> OTOH I should mark some entries <no longer true>, also with timestamp.
-
-Is there any value in keeping information that's no longer true?
-I would have thought the credits file was a better place for historical
-stuff ...
-
-M.
+Perfect
 

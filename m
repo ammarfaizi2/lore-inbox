@@ -1,538 +1,207 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274659AbRITVqt>; Thu, 20 Sep 2001 17:46:49 -0400
+	id <S274666AbRITVx3>; Thu, 20 Sep 2001 17:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274669AbRITVqm>; Thu, 20 Sep 2001 17:46:42 -0400
-Received: from colorfullife.com ([216.156.138.34]:36613 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S274659AbRITVqc>;
-	Thu, 20 Sep 2001 17:46:32 -0400
-Message-ID: <3BAA6304.6C59B253@colorfullife.com>
-Date: Thu, 20 Sep 2001 23:43:32 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac9 i686)
-X-Accept-Language: en, de
+	id <S274667AbRITVxK>; Thu, 20 Sep 2001 17:53:10 -0400
+Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:20454 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S274666AbRITVxB>; Thu, 20 Sep 2001 17:53:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Robert Love <rml@tech9.net>, Roger Larsson <roger.larsson@norran.net>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Date: Thu, 20 Sep 2001 23:53:20 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <200109201742.f8KHgJH04518@maild.telia.com> <1001021365.6048.187.camel@phantasy>
+In-Reply-To: <1001021365.6048.187.camel@phantasy>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: Deadlock on the mm->mmap_sem
-In-Reply-To: <3BA9CB84.16616163@stud.uni-saarland.de> <20010920202436.N729@athlon.random>
-Content-Type: multipart/mixed;
- boundary="------------5B05FB60876848964109699E"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010920215309Z274666-760+14624@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5B05FB60876848964109699E
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Andrea Arcangeli wrote:
-> > elf_core_dump should call down_write to prevent concurrent expand_stack
-> 
-> expand_stack doesn't need the write sem, see the locking comments in the
-> 00_silent-stack-overflow patch in -aa.
+Am Donnerstag, 20. September 2001 23:29 schrieb Robert Love:
+> On Thu, 2001-09-20 at 13:37, Roger Larsson wrote:
+> > > Worst 20 latency times of 4261 measured in this period.
+> > >   usec      cause     mask   start line/file      address   end
+> > > line/file 4617   reacqBKL        0  1375/sched.c         c0114d94 
+> > > 1381/sched.c
+> >
+> > This is fantastic! It REALLY is!
+> > When we started with the low latency work we aimed at 10 ms.
+> > (in all situations, not only when running dbench... but still)
 >
-You misunderstood me, it's the other way around:
-elf_core_dump walks the vma list twice and assumes that the segment
-sizes don't change --> elf_core_dump needs a write lock to ensure that.
-
-> > calls, and acquire the pagetable_lock around some lines (right now it
-> > walks the page tables without locking). I'll check the other coredump
-> 
-> Also expand_stack needs the page_table_lock, that's ok.
+> Yes it really is, especially noting that that 4.6ms lock is the
+> _longest_ held lock on the system.
 >
-Dito: elf_core_dump walks the page tables without locking.
+> I am seeing 90% of the reported locks under 15ms, and this means that
+> almost all the locks on the system are even less.
+>
+> However, I am also seeing some stray 20-50ms and even 60-70ms latencies
+> and those bother me.  I am looking into another solution, perhaps
+> conditional scheduling for now.
+>
+> > Lets see - no swap used? - not swapped out
 
-> > I'll write a patch that moves the locking into the coredump handlers,
-> > then we can compare that with Andrea's proposal.
-> 
-> Ok.
-> 
-Attached is a beta version:
+swap is enabled but not used by artsd (only 8 MB for X and some kdeinit stuff)
 
-* remove {down,up}_read from fs/exec.c::do_coredump
-* add down_read into each arch/*/process.c::dump_thread. Most of them
-are probably save without the locking, but it's better for the
-consistency. Most of them access mm->brk and perform some calculations.
-* explicit memset(,0,) around all structures that are dumped in
-fs/binfmt_elf.c: depending on the structure alignment, we could
-otherwise leak kernel stack.
-* Do not walk the vma list twice, copy it into a temporary kernel
-buffer. down_write around it to prevent concurrent expand_stack.
-* spin_lock(&current->mm->page_table_lock) around the code that walks
-the page tables.
-* all other binfmt's have trivial coredump implementation that only call
-dump_thread, or no coredump at all.
+  810 nuetzel   -1 -20  6820    0 6820  4380 S <   0.0  1.0   0:31 artsd
+ 2724 nuetzel    8   0  6820    0 6820  4380 S     0.0  1.0   0:00 artsd
 
-I'll do more extensive testing tomorrow.
+SunWave1>cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  658395136 437657600 220737536        0  6656000 287236096
+Swap: 1052794880  8990720 1043804160
+MemTotal:       642964 kB
+MemFree:        215564 kB
+MemShared:           0 kB
+Buffers:          6500 kB
+Cached:         278396 kB
+SwapCached:       2108 kB
+Active:         265108 kB
+Inactive:        21896 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       642964 kB
+LowFree:        215564 kB
+SwapTotal:     1028120 kB
+SwapFree:      1019340 kB
 
---
-	Manfred
---------------5B05FB60876848964109699E
-Content-Type: text/plain; charset=us-ascii;
- name="patch-coredump"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-coredump"
+> > But with priority altered - it is unlikely that it would not be scheduled
+> > in for such a long time.
+> >
+> > Might it be that the disk is busy to handle dbench requests. 16 threads
+> > -> 16 read and several (async) write requests at different disk locations
+> > in queue - make it 20. Seek time 10 ms => queue length 200 ms...
+> > probable??? Do you have more than one disk? Try to run dbench on one and
+> > the player from the other.
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 4
-//  SUBLEVEL = 10
-//  EXTRAVERSION =-pre12
-diff -ur 2.4/fs/binfmt_elf.c build-2.4/fs/binfmt_elf.c
---- 2.4/fs/binfmt_elf.c	Wed Sep 19 22:39:35 2001
-+++ build-2.4/fs/binfmt_elf.c	Thu Sep 20 22:48:52 2001
-@@ -31,6 +31,7 @@
- #include <linux/init.h>
- #include <linux/highuid.h>
- #include <linux/smp_lock.h>
-+#include <linux/vmalloc.h>
- 
- #include <asm/uaccess.h>
- #include <asm/param.h>
-@@ -895,22 +896,22 @@
-  *
-  * I think we should skip something. But I am not sure how. H.J.
-  */
--static inline int maydump(struct vm_area_struct *vma)
-+static inline int maydump(unsigned long flags)
- {
- 	/*
- 	 * If we may not read the contents, don't allow us to dump
- 	 * them either. "dump_write()" can't handle it anyway.
- 	 */
--	if (!(vma->vm_flags & VM_READ))
-+	if (!(flags & VM_READ))
- 		return 0;
- 
- 	/* Do not dump I/O mapped devices! -DaveM */
--	if (vma->vm_flags & VM_IO)
-+	if (flags & VM_IO)
- 		return 0;
- #if 1
--	if (vma->vm_flags & (VM_WRITE|VM_GROWSUP|VM_GROWSDOWN))
-+	if (flags & (VM_WRITE|VM_GROWSUP|VM_GROWSDOWN))
- 		return 1;
--	if (vma->vm_flags & (VM_READ|VM_EXEC|VM_EXECUTABLE|VM_SHARED))
-+	if (flags & (VM_READ|VM_EXEC|VM_EXECUTABLE|VM_SHARED))
- 		return 0;
- #endif
- 	return 1;
-@@ -967,6 +968,7 @@
- {
- 	struct elf_note en;
- 
-+	memset(&en,0,sizeof(en));
- 	en.n_namesz = strlen(men->name);
- 	en.n_descsz = men->datasz;
- 	en.n_type = men->type;
-@@ -989,6 +991,46 @@
- #define DUMP_SEEK(off)	\
- 	if (!dump_seek(file, (off))) \
- 		goto end_coredump;
-+
-+struct elf_dumpinfo {
-+	unsigned long start;
-+	size_t len;
-+	unsigned long flags;
-+};
-+
-+static struct elf_dumpinfo * alloc_dumpinfo(int segs)
-+{
-+	int len = sizeof(struct elf_dumpinfo)*segs;
-+	if (len < PAGE_SIZE)
-+		return kmalloc(len, GFP_KERNEL);
-+	return vmalloc(len);
-+}
-+
-+void free_dumpinfo(struct elf_dumpinfo * ptr, int segs)
-+{
-+	int len = sizeof(struct elf_dumpinfo)*segs;
-+	if (len < PAGE_SIZE)
-+		return kfree(ptr);
-+	return vfree(ptr);
-+}
-+
-+static struct elf_dumpinfo *get_dumpinfo(void)
-+{
-+	int i;
-+	struct vm_area_struct *vma;
-+	struct elf_dumpinfo *di = alloc_dumpinfo(current->mm->map_count);
-+	if (!di)
-+		return NULL;
-+
-+	vma = current->mm->mmap;
-+	for(i = 0, vma = current->mm->mmap; vma != NULL; i++,vma = vma->vm_next) {
-+		di[i].start = vma->vm_start;
-+		di[i].len =  vma->vm_end - vma->vm_start;
-+		di[i].flags = vma->vm_flags;
-+	}
-+	if (i != current->mm->map_count) BUG();
-+	return di;
-+}
- /*
-  * Actual dumper
-  *
-@@ -1003,7 +1045,6 @@
- 	int segs;
- 	size_t size = 0;
- 	int i;
--	struct vm_area_struct *vma;
- 	struct elfhdr elf;
- 	off_t offset = 0, dataoff;
- 	unsigned long limit = current->rlim[RLIMIT_CORE].rlim_cur;
-@@ -1012,19 +1053,26 @@
- 	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
- 	elf_fpregset_t fpu;		/* NT_PRFPREG */
- 	struct elf_prpsinfo psinfo;	/* NT_PRPSINFO */
-+	struct elf_dumpinfo *di;
- 
-+	/* stop all vm operations, including expand_stack */
-+	down_write(&current->mm->mmap_sem);
- 	segs = current->mm->map_count;
-+	di = get_dumpinfo();
-+	up_write(&current->mm->mmap_sem);
-+	if (!di)
-+		return 0;
- 
- #ifdef DEBUG
- 	printk("elf_core_dump: %d segs %lu limit\n", segs, limit);
- #endif
- 
- 	/* Set up header */
-+	memset(&elf, 0, sizeof(elf));
- 	memcpy(elf.e_ident, ELFMAG, SELFMAG);
- 	elf.e_ident[EI_CLASS] = ELF_CLASS;
- 	elf.e_ident[EI_DATA] = ELF_DATA;
- 	elf.e_ident[EI_VERSION] = EV_CURRENT;
--	memset(elf.e_ident+EI_PAD, 0, EI_NIDENT-EI_PAD);
- 
- 	elf.e_type = ET_CORE;
- 	elf.e_machine = ELF_ARCH;
-@@ -1156,42 +1204,34 @@
- 		for(i = 0; i < numnote; i++)
- 			sz += notesize(&notes[i]);
- 
-+		memset(&phdr, 0, sizeof(phdr));
- 		phdr.p_type = PT_NOTE;
- 		phdr.p_offset = offset;
--		phdr.p_vaddr = 0;
--		phdr.p_paddr = 0;
- 		phdr.p_filesz = sz;
--		phdr.p_memsz = 0;
--		phdr.p_flags = 0;
--		phdr.p_align = 0;
- 
- 		offset += phdr.p_filesz;
- 		DUMP_WRITE(&phdr, sizeof(phdr));
--	}
- 
--	/* Page-align dumped data */
--	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
-+		/* Page-align dumped data */
-+		dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
- 
--	/* Write program headers for segments dump */
--	for(vma = current->mm->mmap; vma != NULL; vma = vma->vm_next) {
--		struct elf_phdr phdr;
--		size_t sz;
-+		/* Write program headers for segments dump */
-+		for(i = 0;i < segs; i++) {
- 
--		sz = vma->vm_end - vma->vm_start;
-+			phdr.p_type = PT_LOAD;
-+			phdr.p_offset = offset;
-+			phdr.p_vaddr = di[i].start;
-+			phdr.p_paddr = 0;
-+			phdr.p_filesz = maydump(di[i].flags) ? di[i].len : 0;
-+			phdr.p_memsz = di[i].len;
-+			offset += phdr.p_filesz;
-+			phdr.p_flags = di[i].flags & VM_READ ? PF_R : 0;
-+			if (di[i].flags & VM_WRITE) phdr.p_flags |= PF_W;
-+			if (di[i].flags & VM_EXEC) phdr.p_flags |= PF_X;
-+			phdr.p_align = ELF_EXEC_PAGESIZE;
- 
--		phdr.p_type = PT_LOAD;
--		phdr.p_offset = offset;
--		phdr.p_vaddr = vma->vm_start;
--		phdr.p_paddr = 0;
--		phdr.p_filesz = maydump(vma) ? sz : 0;
--		phdr.p_memsz = sz;
--		offset += phdr.p_filesz;
--		phdr.p_flags = vma->vm_flags & VM_READ ? PF_R : 0;
--		if (vma->vm_flags & VM_WRITE) phdr.p_flags |= PF_W;
--		if (vma->vm_flags & VM_EXEC) phdr.p_flags |= PF_X;
--		phdr.p_align = ELF_EXEC_PAGESIZE;
--
--		DUMP_WRITE(&phdr, sizeof(phdr));
-+			DUMP_WRITE(&phdr, sizeof(phdr));
-+		}
- 	}
- 
- 	for(i = 0; i < numnote; i++)
-@@ -1202,29 +1242,29 @@
- 
- 	DUMP_SEEK(dataoff);
- 
--	for(vma = current->mm->mmap; vma != NULL; vma = vma->vm_next) {
-+	for(i = 0;i < segs; i++) {
- 		unsigned long addr;
- 
--		if (!maydump(vma))
-+		if (!maydump(di[i].flags))
- 			continue;
- #ifdef DEBUG
- 		printk("elf_core_dump: writing %08lx %lx\n", addr, len);
- #endif
--		for (addr = vma->vm_start;
--		     addr < vma->vm_end;
--		     addr += PAGE_SIZE) {
-+		for (addr = di[i].start; addr < di[i].start+di[i].len; addr += PAGE_SIZE) {
- 			pgd_t *pgd;
- 			pmd_t *pmd;
--			pte_t *pte;
--
--			pgd = pgd_offset(vma->vm_mm, addr);
-+			pte_t pte;
-+			
-+			spin_lock(&current->mm->page_table_lock);
-+			pgd = pgd_offset(current->mm, addr);
- 			if (pgd_none(*pgd))
- 				goto nextpage_coredump;
- 			pmd = pmd_offset(pgd, addr);
- 			if (pmd_none(*pmd))
- 				goto nextpage_coredump;
--			pte = pte_offset(pmd, addr);
--			if (pte_none(*pte)) {
-+			pte = *pte_offset(pmd, addr);
-+			spin_unlock(&current->mm->page_table_lock);
-+			if (pte_none(pte)) {
- nextpage_coredump:
- 				DUMP_SEEK (file->f_pos + PAGE_SIZE);
- 			} else {
-@@ -1241,6 +1281,7 @@
- 
-  end_coredump:
- 	set_fs(fs);
-+	free_dumpinfo(di, segs);
- 	return has_dumped;
- }
- #endif		/* USE_ELF_CORE_DUMP */
-diff -ur 2.4/fs/exec.c build-2.4/fs/exec.c
---- 2.4/fs/exec.c	Wed Sep 19 22:39:35 2001
-+++ build-2.4/fs/exec.c	Thu Sep 20 19:41:24 2001
-@@ -969,9 +969,7 @@
- 	if (do_truncate(file->f_dentry, 0) != 0)
- 		goto close_fail;
- 
--	down_read(&current->mm->mmap_sem);
- 	retval = binfmt->core_dump(signr, regs, file);
--	up_read(&current->mm->mmap_sem);
- 
- close_fail:
- 	filp_close(file, NULL);
-diff -ur 2.4/arch/alpha/kernel/process.c build-2.4/arch/alpha/kernel/process.c
---- 2.4/arch/alpha/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/alpha/kernel/process.c	Thu Sep 20 21:26:54 2001
-@@ -344,6 +344,7 @@
- 	struct switch_stack * sw = ((struct switch_stack *) pt) - 1;
- 
- 	dump->magic = CMAGIC;
-+	down_read(&current->mm->mmap_sem);
- 	dump->start_code  = current->mm->start_code;
- 	dump->start_data  = current->mm->start_data;
- 	dump->start_stack = rdusp() & ~(PAGE_SIZE - 1);
-@@ -353,6 +354,7 @@
- 			 >> PAGE_SHIFT);
- 	dump->u_ssize = (current->mm->start_stack - dump->start_stack
- 			 + PAGE_SIZE-1) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 
- 	/*
- 	 * We store the registers in an order/format that is
-diff -ur 2.4/arch/arm/kernel/process.c build-2.4/arch/arm/kernel/process.c
---- 2.4/arch/arm/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/arm/kernel/process.c	Thu Sep 20 21:27:45 2001
-@@ -339,11 +339,13 @@
- 	struct task_struct *tsk = current;
- 
- 	dump->magic = CMAGIC;
-+	down_read(&tsk->mm->mmap_sem);
- 	dump->start_code = tsk->mm->start_code;
- 	dump->start_stack = regs->ARM_sp & ~(PAGE_SIZE - 1);
- 
- 	dump->u_tsize = (tsk->mm->end_code - tsk->mm->start_code) >> PAGE_SHIFT;
- 	dump->u_dsize = (tsk->mm->brk - tsk->mm->start_data + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	up_read(&tsk->mm->mmap_sem);
- 	dump->u_ssize = 0;
- 
- 	dump->u_debugreg[0] = tsk->thread.debug.bp[0].address;
-diff -ur 2.4/arch/cris/kernel/process.c build-2.4/arch/cris/kernel/process.c
---- 2.4/arch/cris/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/cris/kernel/process.c	Thu Sep 20 21:28:38 2001
-@@ -227,8 +227,10 @@
- 	dump->magic = CMAGIC;
- 	dump->start_code = 0;
- 	dump->start_stack = regs->esp & ~(PAGE_SIZE - 1);
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = ((unsigned long) current->mm->end_code) >> PAGE_SHIFT;
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1))) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_ssize = 0;
- 	for (i = 0; i < 8; i++)
-diff -ur 2.4/arch/i386/kernel/process.c build-2.4/arch/i386/kernel/process.c
---- 2.4/arch/i386/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/i386/kernel/process.c	Thu Sep 20 19:47:58 2001
-@@ -611,8 +611,10 @@
- 	dump->magic = CMAGIC;
- 	dump->start_code = 0;
- 	dump->start_stack = regs->esp & ~(PAGE_SIZE - 1);
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = ((unsigned long) current->mm->end_code) >> PAGE_SHIFT;
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1))) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_ssize = 0;
- 	for (i = 0; i < 8; i++)
-diff -ur 2.4/arch/m68k/kernel/process.c build-2.4/arch/m68k/kernel/process.c
---- 2.4/arch/m68k/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/m68k/kernel/process.c	Thu Sep 20 21:29:11 2001
-@@ -291,9 +291,11 @@
- 	dump->magic = CMAGIC;
- 	dump->start_code = 0;
- 	dump->start_stack = rdusp() & ~(PAGE_SIZE - 1);
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = ((unsigned long) current->mm->end_code) >> PAGE_SHIFT;
- 	dump->u_dsize = ((unsigned long) (current->mm->brk +
- 					  (PAGE_SIZE-1))) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_ssize = 0;
- 
-diff -ur 2.4/arch/mips/kernel/process.c build-2.4/arch/mips/kernel/process.c
---- 2.4/arch/mips/kernel/process.c	Wed Sep 19 22:39:31 2001
-+++ build-2.4/arch/mips/kernel/process.c	Thu Sep 20 21:29:34 2001
-@@ -140,6 +140,7 @@
- void dump_thread(struct pt_regs *regs, struct user *dump)
- {
- 	dump->magic = CMAGIC;
-+	down_read(&current->mm->mmap_sem);
- 	dump->start_code  = current->mm->start_code;
- 	dump->start_data  = current->mm->start_data;
- 	dump->start_stack = regs->regs[29] & ~(PAGE_SIZE - 1);
-@@ -147,6 +148,7 @@
- 	dump->u_dsize = (current->mm->brk + (PAGE_SIZE - 1) - dump->start_data) >> PAGE_SHIFT;
- 	dump->u_ssize =
- 		(current->mm->start_stack - dump->start_stack + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	memcpy(&dump->regs[0], regs, sizeof(struct pt_regs));
- 	memcpy(&dump->regs[EF_SIZE/4], &current->thread.fpu, sizeof(current->thread.fpu));
- }
-diff -ur 2.4/arch/mips64/kernel/process.c build-2.4/arch/mips64/kernel/process.c
---- 2.4/arch/mips64/kernel/process.c	Fri Feb 23 15:24:13 2001
-+++ build-2.4/arch/mips64/kernel/process.c	Thu Sep 20 21:29:51 2001
-@@ -133,6 +133,7 @@
- void dump_thread(struct pt_regs *regs, struct user *dump)
- {
- 	dump->magic = CMAGIC;
-+	down_read(&current->mm->mmap_sem);
- 	dump->start_code  = current->mm->start_code;
- 	dump->start_data  = current->mm->start_data;
- 	dump->start_stack = regs->regs[29] & ~(PAGE_SIZE - 1);
-@@ -142,6 +143,7 @@
- 	                >> PAGE_SHIFT;
- 	dump->u_ssize = (current->mm->start_stack - dump->start_stack +
- 	                 PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	memcpy(&dump->regs[0], regs, sizeof(struct pt_regs));
- 	memcpy(&dump->regs[EF_SIZE/4], &current->thread.fpu,
- 	       sizeof(current->thread.fpu));
-diff -ur 2.4/arch/s390/kernel/process.c build-2.4/arch/s390/kernel/process.c
---- 2.4/arch/s390/kernel/process.c	Fri Aug 17 18:24:46 2001
-+++ build-2.4/arch/s390/kernel/process.c	Thu Sep 20 21:30:14 2001
-@@ -415,10 +415,12 @@
- 	dump->magic = CMAGIC;
- 	dump->start_code = 0;
- 	dump->start_stack = regs->gprs[15] & ~(PAGE_SIZE - 1);
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = ((unsigned long) current->mm->end_code) >> PAGE_SHIFT;
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1))) >> PAGE_SHIFT;
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_ssize = 0;
-+	up_read(&current->mm->mmap_sem);
- 	if (dump->start_stack < TASK_SIZE)
- 		dump->u_ssize = ((unsigned long) (TASK_SIZE - dump->start_stack)) >> PAGE_SHIFT;
- 	memcpy(&dump->regs.gprs[0],regs,sizeof(s390_regs));
-diff -ur 2.4/arch/s390x/kernel/process.c build-2.4/arch/s390x/kernel/process.c
---- 2.4/arch/s390x/kernel/process.c	Fri Aug 17 18:24:46 2001
-+++ build-2.4/arch/s390x/kernel/process.c	Thu Sep 20 21:30:29 2001
-@@ -409,10 +409,12 @@
- 	dump->magic = CMAGIC;
- 	dump->start_code = 0;
- 	dump->start_stack = regs->gprs[15] & ~(PAGE_SIZE - 1);
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = ((unsigned long) current->mm->end_code) >> PAGE_SHIFT;
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1))) >> PAGE_SHIFT;
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_ssize = 0;
-+	up_read(&current->mm->mmap_sem);
- 	if (dump->start_stack < TASK_SIZE)
- 		dump->u_ssize = ((unsigned long) (TASK_SIZE - dump->start_stack)) >> PAGE_SHIFT;
- 	memcpy(&dump->regs.gprs[0],regs,sizeof(s390_regs));
-diff -ur 2.4/arch/sh/kernel/process.c build-2.4/arch/sh/kernel/process.c
---- 2.4/arch/sh/kernel/process.c	Wed Sep 19 22:39:32 2001
-+++ build-2.4/arch/sh/kernel/process.c	Thu Sep 20 21:30:47 2001
-@@ -236,6 +236,7 @@
- void dump_thread(struct pt_regs * regs, struct user * dump)
- {
- 	dump->magic = CMAGIC;
-+	down_read(&current->mm->mmap_sem);
- 	dump->start_code = current->mm->start_code;
- 	dump->start_data  = current->mm->start_data;
- 	dump->start_stack = regs->regs[15] & ~(PAGE_SIZE - 1);
-@@ -243,6 +244,7 @@
- 	dump->u_dsize = (current->mm->brk + (PAGE_SIZE-1) - dump->start_data) >> PAGE_SHIFT;
- 	dump->u_ssize = (current->mm->start_stack - dump->start_stack +
- 			 PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	up_read(&current->mm->mmap_sem);
- 	/* Debug registers will come here. */
- 
- 	dump->regs = *regs;
-diff -ur 2.4/arch/sparc/kernel/process.c build-2.4/arch/sparc/kernel/process.c
---- 2.4/arch/sparc/kernel/process.c	Fri Feb 23 15:24:18 2001
-+++ build-2.4/arch/sparc/kernel/process.c	Thu Sep 20 21:31:28 2001
-@@ -581,9 +581,11 @@
- 	/* fuck me plenty */
- 	memcpy(&dump->regs.regs[0], &regs->u_regs[1], (sizeof(unsigned long) * 15));
- 	dump->uexec = current->thread.core_exec;
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = (((unsigned long) current->mm->end_code) -
- 		((unsigned long) current->mm->start_code)) & ~(PAGE_SIZE - 1);
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1)));
-+	up_read(&current->mm->mmap_sem);
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_dsize &= ~(PAGE_SIZE - 1);
- 	first_stack_page = (regs->u_regs[UREG_FP] & ~(PAGE_SIZE - 1));
-diff -ur 2.4/arch/sparc64/kernel/process.c build-2.4/arch/sparc64/kernel/process.c
---- 2.4/arch/sparc64/kernel/process.c	Sat Jul  7 13:05:52 2001
-+++ build-2.4/arch/sparc64/kernel/process.c	Thu Sep 20 21:35:32 2001
-@@ -699,9 +699,11 @@
- 	dump->regs.y = regs->y;
- 	/* fuck me plenty */
- 	memcpy(&dump->regs.regs[0], &regs->u_regs[1], (sizeof(unsigned long) * 15));
-+	down_read(&current->mm->mmap_sem);
- 	dump->u_tsize = (((unsigned long) current->mm->end_code) -
- 		((unsigned long) current->mm->start_code)) & ~(PAGE_SIZE - 1);
- 	dump->u_dsize = ((unsigned long) (current->mm->brk + (PAGE_SIZE-1)));
-+	up_read(&current->mm->mmap_sem);
- 	dump->u_dsize -= dump->u_tsize;
- 	dump->u_dsize &= ~(PAGE_SIZE - 1);
- 	first_stack_page = (regs->u_regs[UREG_FP] & ~(PAGE_SIZE - 1));
+OK, I moved my video and sound files to one of my "older" IBM DDRS-9GB UW 
+disks (read max ~12.8 MB/s).
 
---------------5B05FB60876848964109699E--
+Did NOT help. With and without renice -20.
+Same hiccup (0.5~3 sec) during the first few seconds of dbench. The hiccup 
+ONLY occur at the beginning of every dbench run.
 
+-Dieter
 
+PS At the bottom you can find the latency and time for this copy job.
+
+Throughput 23.7919 MB/sec (NB=29.7399 MB/sec  237.919 MBit/sec)
+7.470u 29.740s 1:29.79 41.4%    0+0k 0+0io 511pf+0w
+load: 1300
+
+SunWave1>cat /proc/latencytimes
+Worst 20 latency times of 5890 measured in this period.
+  usec      cause     mask   start line/file      address   end line/file
+ 13990  spin_lock        9  2043/tcp_ipv6.c      e9072837   119/softirq.c
+ 11596  spin_lock        1  2111/tcp_ipv4.c      c0207287   119/softirq.c
+  4616   reacqBKL        1  1375/sched.c         c0114d94  1381/sched.c
+  4478   reacqBKL        1  1375/sched.c         c0114d94   697/sched.c
+  2187        BKL        1  1302/inode.c         c016f359   697/sched.c
+  2172   reacqBKL        1  1375/sched.c         c0114d94   929/namei.c
+  1991        BKL        0  1302/inode.c         c016f359  1381/sched.c
+  1966        BKL        1  1302/inode.c         c016f359   842/inode.c
+  1934        BKL        0  1437/namei.c         c014c42f  1380/sched.c
+  1891        BKL        0    30/inode.c         c016ce51   697/sched.c
+  1879  spin_lock        0   547/sched.c         c0112fe4  1381/sched.c
+  1865  spin_lock        0  1376/sched.c         c0114db3  1380/sched.c
+  1833  spin_lock        1  1376/sched.c         c0114db3   697/sched.c
+  1828        BKL        0    30/inode.c         c016ce51  1380/sched.c
+  1812        BKL        0  1302/inode.c         c016f359  1380/sched.c
+  1792        BKL        0  1437/namei.c         c014c42f  1381/sched.c
+  1782  spin_lock        1   547/sched.c         c0112fe4   697/sched.c
+  1776        BKL        0  1437/namei.c         c014c42f   929/namei.c
+  1772        BKL        1  1437/namei.c         c014c42f   697/sched.c
+  1767        BKL        0   129/attr.c          c01576bd  1380/sched.c
+
+SunWave1>cat /proc/latencytimes
+Worst 20 latency times of 2260 measured in this period.
+  usec      cause     mask   start line/file      address   end line/file
+   583        BKL        6   712/tty_io.c        c018cfcb   714/tty_io.c
+   284        BKL        0    83/file.c          c0171024  1381/sched.c
+   245        BKL        0  2763/buffer.c        c01410aa  1381/sched.c
+   209        BKL        0  2763/buffer.c        c01410aa   697/sched.c
+   204       eth1        0   585/irq.c           c010886f   647/irq.c
+   193   reacqBKL        0  1375/sched.c         c0114d94  1381/sched.c
+   142   reacqBKL        1  1375/sched.c         c0114d94   697/sched.c
+   111   reacqBKL        0  1375/sched.c         c0114d94    98/file.c
+   109        BKL        0   452/exit.c          c011af61  1380/sched.c
+   109        BKL        0   927/namei.c         c014b2bf   929/namei.c
+    95        BKL        0   533/inode.c         c016d9cd   842/inode.c
+    91        BKL        0  1870/namei.c         c014d420  1873/namei.c
+    85    unknown        3    76/softirq.c       c011c634   119/softirq.c
+    76        BKL        0    30/inode.c         c016ce51    52/inode.c
+    64        BKL        1    26/readdir.c       c014ed07    28/readdir.c
+    62  spin_lock        0  1715/dev.c           c01dc513  1728/dev.c
+    54  spin_lock        2   468/netfilter.c     c01e4363   119/softirq.c
+    49  spin_lock        0   991/dev.c           c01db583   998/dev.c
+    47  spin_lock        0   547/sched.c         c0112fe4  1381/sched.c
+    45        BKL        0  1302/inode.c         c016f359  1306/inode.c
+
+renice -20 artsd
+Throughput 27.6322 MB/sec (NB=34.5402 MB/sec  276.322 MBit/sec)
+7.180u 30.180s 1:17.44 48.2%    0+0k 0+0io 511pf+0w
+load: 1222
+
+Worst 20 latency times of 6170 measured in this period.
+  usec      cause     mask   start line/file      address   end line/file
+  4883  spin_lock        1   547/sched.c         c0112fe4   697/sched.c
+  3590        BKL        0  2763/buffer.c        c01410aa  1381/sched.c
+  3192   reacqBKL        1  1375/sched.c         c0114d94   697/sched.c
+  2647        BKL        0  1302/inode.c         c016f359   697/sched.c
+  2286        BKL        0  1302/inode.c         c016f359  1381/sched.c
+  2011        BKL        1  1437/namei.c         c014c42f   697/sched.c
+  1795        BKL        1   452/exit.c          c011af61   697/sched.c
+  1790        BKL        1  1302/inode.c         c016f359  1380/sched.c
+  1725   reacqBKL        0  1375/sched.c         c0114d94  1381/sched.c
+  1700  spin_lock        0   547/sched.c         c0112fe4  1381/sched.c
+  1685        BKL        1  1437/namei.c         c014c42f  1380/sched.c
+  1673        BKL        0  1437/namei.c         c014c42f  1381/sched.c
+  1662        BKL        0    30/inode.c         c016ce51  1381/sched.c
+  1575  spin_lock        0  1376/sched.c         c0114db3  1380/sched.c
+  1565        BKL        0   533/inode.c         c016d9cd  1381/sched.c
+  1452        BKL        0    30/inode.c         c016ce51   697/sched.c
+  1452        BKL        0   533/inode.c         c016d9cd  1380/sched.c
+  1445        BKL        0   927/namei.c         c014b2bf  1380/sched.c
+  1423        BKL        0   129/attr.c          c01576bd  1381/sched.c
+  1413        BKL        1   927/namei.c         c014b2bf   697/sched.c
+
+SunWave1#du -s /usr/data/sounds/
+263404  /usr/data/sounds
+
+SunWave1#time cp -a /usr/data/sounds/ /database/db1/data/
+0.080u 5.800s 1:03.06 9.3%      0+0k 0+0io 127pf+0w
+
+SunWave1#du -s /database/db1/data/sounds/
+263404  /database/db1/data/sounds
+
+Worst 20 latency times of 3398 measured in this period.
+  usec      cause     mask   start line/file      address   end line/file
+ 10155  spin_lock        1   291/buffer.c        c014151c   285/buffer.c
+  9028        BKL        8   152/devices.c       c013c282   154/devices.c
+  7007   keyboard        9    76/softirq.c       c011c634   119/softirq.c
+  5999  spin_lock        8    86/softirq.c       c011c66c   112/softirq.c
+  4201  spin_lock        1   257/vmscan.c        c01331e6   286/vmscan.c
+  4009  spin_lock        0   978/pc_keyb.c       c01a0787   983/pc_keyb.c
+  3000  spin_lock        1   375/memory.c        c0127abf   389/memory.c
+  1715  spin_lock        0   468/vmscan.c        c0133c35   431/vmscan.c
+  1387  spin_lock        0   678/inode.c         c01566d7   704/inode.c
+  1234   reacqBKL        1  1375/sched.c         c0114d94  1381/sched.c
+  1071        BKL        1  1302/inode.c         c016f359  1380/sched.c
+  1049  spin_lock        1   305/dcache.c        c0153acd    86/dcache.c
+  1049  spin_lock        1   468/vmscan.c        c0133c35   344/vmscan.c
+   968  spin_lock        1   547/sched.c         c0112fe4   697/sched.c
+   950   reacqBKL        0  1375/sched.c         c0114d94   697/sched.c
+   858       eth1        0   585/irq.c           c010886f   647/irq.c
+   803        BKL        4   927/namei.c         c014b2bf   929/namei.c
+   736        BKL        0   452/exit.c          c011af61   697/sched.c
+   696        BKL        4  1870/namei.c         c014d420  1873/namei.c
+   694        BKL        0  2763/buffer.c        c01410aa  1381/sched.c
+
+c0141400 T kupdate
+c014151c ..... <<<<<
+c0141610 T set_buffer_async_io

@@ -1,128 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270730AbTHOStu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 14:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTHOSt0
+	id S270734AbTHOS4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 14:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTHOSz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 14:49:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:19886 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S270730AbTHOSrV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 14:47:21 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: module-init-tools - input devices id support 
-In-reply-to: Your message of "Sat, 09 Aug 2003 01:07:51 +0400."
-             <200308090107.51989.arvidjaar@mail.ru> 
-Date: Fri, 15 Aug 2003 22:08:27 +1000
-Message-Id: <20030815184720.8747A2CE55@lists.samba.org>
+	Fri, 15 Aug 2003 14:55:29 -0400
+Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:47580
+	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S270734AbTHOSyy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 14:54:54 -0400
+Message-ID: <31489.216.12.38.216.1060973624.squirrel@www.ghz.cc>
+In-Reply-To: <1060969733.10731.1604.camel@cog.beaverton.ibm.com>
+References: <20030813014735.GA225@timothyparkinson.com>
+    <1060793667.10731.1437.camel@cog.beaverton.ibm.com>
+    <20030814171703.GA10889@mail.jlokier.co.uk>
+    <1060882084.10732.1588.camel@cog.beaverton.ibm.com>
+    <3F3C272E.7060702@ghz.cc>
+    <1060969733.10731.1604.camel@cog.beaverton.ibm.com>
+Date: Fri, 15 Aug 2003 14:53:44 -0400 (EDT)
+Subject: Re: PIT,
+      TSC and power management [was: Re: 2.6.0-test3 "loosingticks"]
+From: "Charles Lepple" <clepple@ghz.cc>
+To: "john stultz" <johnstul@us.ibm.com>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200308090107.51989.arvidjaar@mail.ru> you write:
-> On Friday 08 August 2003 21:20, Rusty Russell wrote:
-> > I'm confused.  This is the first time I've looked at the input code,
-> > so please bear with me.
-> >
-> > So, you hotplug in a device that has a suspend key, and you want the
-> > power.ko module to match it?  Hmm, cool.
-> >
-> 
-> I have never thought about this particular example, but yes, input agent will
-> do it even without me knowing it :)) and not only hotplug - you coldplug and 
-> boot and have all handlers ready.
+john stultz said:
+> On Thu, 2003-08-14 at 17:19, Charles Lepple wrote:
+>> I also see the time offset problem (Athlon MP 2000+ x2, Tyan S2460 m/b,
+>> 2.6.0-test{1,2,3}) but it is most noticeable when I have amd76x_pm
+>> installed (it's not in 2.6.x yet, but a late 2.5.x patch was posted to
+>> LKML a little while back).
+>>
+>> amd76x_pm is roughly equivalent to ACPI C2 idling, but since my BIOS
+>> doesn't export any C-state functionality to the kernel ACPI code, I am
+>> stuck with letting amd76x_pm frob the chipset registers. A quick look at
+>> AMD's datasheets does not indicate that a return from C2 should cause
+>> much delay at all-- if I understand the timing requirements correctly,
+>> it would have to sit for more than 1 ms to miss more than one interrupt.
+>> That said, I don't see any missing interrupts indicated in
+>> /proc/interrupts, nor do any such messages appear in the kernel logs.
+>
+> In this case you're throttling the cpu frequency. This affects the
+> frequency the TSC updates, which makes it very hard to use the TSC as a
+> timesource (the cpu_freq notifier tries to compensate by changing the
+> tsc multiplier but my systems don't have cpu_freq drivers, so I've not
+> seen it work).
 
-This is the only example I can think of: what else would you use the
-inputmap file for?
+I'm not familiar with the cpu_freq code, or how true ACPI throttling is
+implemented, but it sounds like the amd76x_pm driver is doing something a
+little different than throttling. I tried the regular ACPI code on an IBM
+desktop, and its throttling support appears to offer several distinct
+throttling percentages, which would seem to be much easier to compensate
+for. The amd76x_pm idle routine simply sets a bit in one of the bridge
+chips, but I think that it turns the clocks back on at some indeterminate
+time in the future (probably triggered by an interrupt) which would be
+hard to measure if clocks are stopped.
 
-> > How about a mneumonic for each type?  Like so for
-> > drivers/input/power.c:
-> >
-> > 	/* B: bus, V: Vendor, P: Product, R: Version.
-> > 	 * E: evbit, K: keybit, A: absbit, M: mscbit, L: ledbit,
-> > 	 * S: sndbit, F: ffbit. */
-> > 	/*
-> 
-> I hope you do not seriously suggest something like
-> 
-> Knone-suspend-a-b-.... for all appr. 100 keys defined?
+>> Brings up another question: does the "try HZ=100" suggestion still apply
+>> for these faster machines? I would think that if HZ=1000 is too fast,
+>> then at least an occasional lost interrupt would be logged.
+>
+> If you're losing interrupts and the lost-tick detection code is not
+> compensating, shifting back to HZ=100 just tries to minimize the
+> problem.
 
-Not in the proc file, no: that would be silly.  But there's no reason
-not to convert it to do the modprobe: sure, it'll be very long, but
-that's OK, at least it's clear.  It has the advantage that if anyone
-else ever wants to use it, it's nice and simple to understand.
+OK. Well, I'm optimistic, so I'll try that and see if that pulls the error
+down to a point where ntpd can manage to control the clock.
 
-> that is the main difference with PCI (and possible most others). They deal 
-> with single-value scalar fields. Input deals with bitfields where each bit 
-> counts.
+>> When using the TSC for time-of-day, I generally have to set tick to
+>> 10200 or somewhere thereabouts. ntpd usually gives up after a few hours,
+>> though, so I presume that this value for tick is only good for a certain
+>> combination of processor load and planetary alignment.
+>>
+>> I booted with clock=pit to test that, and now I need tick=9963
+>> (according to adjtimex's configuration routine). However, that makes the
+>> clock jump all over the place, with ntpd making step adjustments +/- 2
+>> seconds every 5 minutes.
+>>
+>> > Approximately at what rate does it skew?
+>>
+>> Well, it's not constant, and I don't trust the tick values given above,
+>> since they don't seem to hold true for long.
+>
+> Do these problems still show when you're not using the amd76x_pm?
 
-Yes.
+I'll have to try again next week-- I think the last time that I tried to
+remove amd76x_pm, I didn't reset the ntp adjustments (drift, plus the
+adjtimex variables) so it was fighting the old power-management values.
 
-> > > This syntax fails even for some PCI entries already
-> > > (while using pcimap allows for more elaborate matching)
-> >
-> > Not in practice, at least so I was assured by Greg.  Do you know of a
-> > counter example?
-> 
-> no. I base my supposition on file2alias code:
-> 
->         if ((baseclass_mask != 0 && baseclass_mask != 0xFF)
->             || (subclass_mask != 0 && subclass_mask != 0xFF)
->             || (interface_mask != 0 && interface_mask != 0xFF)) {
->                 fprintf(stderr,
->                         "*** Warning: Can't handle masks in %s:%04X\n",
->                         filename, id->class_mask);
->                 return 0;
->         }
-> 
-> if it has special case I assume this special case is possible.
+>> > Does ntpdate -b <server></server> set it properly?
+>>
+>> I'm confused. Are there cases where a step time adjustment would fail?
+>> Is there a possibility that the kernel is rejecting ntpd's step
+>> adjustments? (I presume that these use the same as 'ntpdate -b';
+>> specifically, the time is not slewed.)
+>
+> Well, depending on how ntp is compiled, it could use stime, rather then
+> settimeofday. This causes ntp to set the time on average .5 seconds off
+> the desired time. Since .5 is outside the .128 sec slew boundary, ntp
+> will do another step adjustment which has the same poor accuracy. This
+> results in ntp just hopping back and forth around the desired time.
 
-Yes, in practice noone does this because it doesn't really make sense:
-when someone wants to match on finer granularity, we'll worry about it.
+I'll have to check with strace (I'm using ntpd from Debian sid).
 
-> > I really prefer generating aliases to hold this meta-information where
-> > possible, because it's so simple for anyone to use them.
-> >
-> > > Can you name some current users of module.alias?
-> >
-> > Well, noone uses it directly: it's an internal detail of modprobe.
-> > But it's designed for the hotplug stuff.  I'll eventually get around
-> > to converting them if Greg doesn't first, because sooner or later
-> > those map files are going to break.
-> >
-> 
-> why should it break? And sorry, but I do not find modules.alias any more 
-> simple than current tables.
+thanks,
 
-Because the aliases are added at kernel build time, which means that
-all the knowledge about the data structures is inside the kernel
-source tree, so they can change.  And because the aliases are text
-wildcards, they're easy to extend cleanly, without requiring any tools
-to change.  The PCI structure changed in a 2.4.0 test kernel, and
-broke the outside tools.  Greg KH still flinches when you ask about it
-8)
-
-> please understand - I am not against this syntax. I just fail to see how this
-> particular task can be implemented using this syntax.
-
-That's OK, we're having a refreshingly civilized discussion.  If we
-can't find a way of doing this using the alias syntax, then we'll keep
-the map for input.  But it'd be a shame for you to be the odd one out 8(
-
-> And input agent is really needed for 2.6 it immensly simplifies configuration
-> task.
-
-What is input agent?  I have only glanced at the kernel code: could
-you explain to me how you would use the inputmap file?
-
-> thank you for taking your time
-
-No, thank *you*.  It's always hard to come up with a new design when
-there are so many people doing different things in the kernel.  But
-that's what makes it fun...
-
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Charles Lepple <clepple@ghz.cc>
+http://www.ghz.cc/charles/

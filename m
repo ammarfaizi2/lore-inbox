@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTJFV1L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 17:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTJFV1K
+	id S262275AbTJFV3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 17:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbTJFV3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 17:27:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52377 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262070AbTJFV1H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 17:27:07 -0400
-Message-ID: <3F81DE1D.6070304@pobox.com>
-Date: Mon, 06 Oct 2003 17:26:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Daniel B." <dsb@smart.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Why
- not  re-do failed op?
-References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com>	            <3F81CE9A.851806B8@smart.net> <200310062045.h96KjxJP008005@turing-police.cc.vt.edu> <3F81D995.D9C13F33@smart.net>
-In-Reply-To: <3F81D995.D9C13F33@smart.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Oct 2003 17:29:46 -0400
+Received: from dspnet.fr.eu.org ([62.73.5.179]:1289 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S262275AbTJFV3p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 17:29:45 -0400
+Date: Mon, 6 Oct 2003 23:29:42 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+Message-ID: <20031006212942.GA61774@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <Dnwo.1ew.15@gated-at.bofh.it> <DnPL.3XB.11@gated-at.bofh.it> <DsvX.3yN.1@gated-at.bofh.it> <E1A6a6A-0000qT-00@neptune.local> <20031006183857.GA3508@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006183857.GA3508@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel B. wrote:
-> If the kernel starts a write command for block 993, wouldn't it wait
-> for a DMA interrupt signalling that the drive has received and accepted
-> the command before the kernel starts the write command for block 10934?
+On Mon, Oct 06, 2003 at 11:38:57AM -0700, Larry McVoy wrote:
+> That has no bearing on the legalities.  A version of the kernel can't
+> force the GPL on a driver that works with that version of the kernel
+> because you can pull that driver out and drop in another.  A great example
+> is the eepro driver, there is Becker's version and the Intel version.
+> Any judge who wasn't fooled by Microsoft priced lawyers would clearly
+> see the boundary and make a ruling that the GPL can't cross over it.
 
-With command queueing, no, it would not wait.
+So you're saying the LGPL and the GPL mean the same thing for
+libraries?  That, for instance, you can handle Qt as if it was LGPL?
 
-
-> If it timed out waiting for that interrupt, can't it re-issue the
-> write for block 993 before proceeding?
-
-Assuming a large amount of sanity in your OS driver... certainly.
-
-	Jeff
-
-
-
+  OG.

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264692AbSJOUUt>; Tue, 15 Oct 2002 16:20:49 -0400
+	id <S264703AbSJOU2Z>; Tue, 15 Oct 2002 16:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264700AbSJOUUs>; Tue, 15 Oct 2002 16:20:48 -0400
-Received: from packet.digeo.com ([12.110.80.53]:48100 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264692AbSJOUUr>;
-	Tue, 15 Oct 2002 16:20:47 -0400
-Message-ID: <3DAC79FA.5D7A8651@digeo.com>
-Date: Tue, 15 Oct 2002 13:26:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: mkanand@us.ibm.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, bhartner@us.ibm.com
-Subject: Re: context switches increased in 2.5.40 kernel
-References: <3DAC7023.68FEB8A7@us.ibm.com> <20021015.131458.29964525.davem@redhat.com>
+	id <S264706AbSJOU2Z>; Tue, 15 Oct 2002 16:28:25 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18185 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264703AbSJOU2Y>;
+	Tue, 15 Oct 2002 16:28:24 -0400
+Date: Tue, 15 Oct 2002 13:34:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
+Message-ID: <20021015203423.GI15864@kroah.com>
+References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Oct 2002 20:26:34.0883 (UTC) FILETIME=[27EAB530:01C27489]
+Content-Disposition: inline
+In-Reply-To: <3DAC6C7B.1080205@mvista.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+On Tue, Oct 15, 2002 at 12:28:59PM -0700, Steven Dake wrote:
 > 
->    From: Mala Anand <mkanand@us.ibm.com>
->    Date: Tue, 15 Oct 2002 14:44:35 -0500
 > 
->    Does this have anything to do with tcp_wakeup patch?
+> Safte polling in the kernel isn't inherently bad and could be tied into 
+> the hotplug mechanism.
 > 
-> Please do not mention patches by name, this tells
-> me nothing.  What "tcp_wakeup patch" are you talking
-> about?
+> Making SAFTE hotswap available via SG would also work but system 
+> performance would be bad at small poll intervals (like 100 msec).
 
-That would be the patch which uses prepare_to_wait/finish_wait
-in networking.  It sped up specweb by 2%, btw.
+Is there a real nead to get hotplug notification any faster than that?
 
-But that is not present in 2.5.40, and has not been in -mm
-since 2.5.40-mm1.  I assume it wasn't present in Mala's testing.
+And yes, it should all be done in userspace, whenever possible :)
+
+thanks,
+
+greg k-h

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVAAJfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAAJvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVAAJfi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 04:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAAJfi
+	id S261225AbVAAJvx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 04:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAAJvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 04:35:38 -0500
-Received: from mail.baltimoredevelopment.com ([141.157.34.4]:57688 "EHLO
-	balt-exfe1-srv.baltimore.city") by vger.kernel.org with ESMTP
-	id S262205AbVAAJff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 04:35:35 -0500
-thread-index: AcTv5T6u1I9NtnA7S3eKM//9A8/kag==
-Thread-Topic: Symantec Mail Security detected an executable file in a message sent from your address.                                        (SYM:10164861213633919006)
-From: <Nav.Remailer@baltimorecity.gov>
-To: <linux-kernel@vger.kernel.org>
-Subject: Symantec Mail Security detected an executable file in a message sent from your address.                                        (SYM:10164861213633919006)
-Date: Sat, 1 Jan 2005 04:35:35 -0500
-Message-ID: <fc7d01c4efe5$3eaed150$16269ca9@baltimore.city>
+	Sat, 1 Jan 2005 04:51:53 -0500
+Received: from fyrebird.net ([217.70.144.192]:55715 "HELO fyrebird.net")
+	by vger.kernel.org with SMTP id S261225AbVAAJvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 04:51:52 -0500
+X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
+X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.81.54):. Processed in 1.608019 secs)
+Message-ID: <41D66FE5.4040703@fyrebird.net>
+Date: Sat, 01 Jan 2005 10:39:49 +0100
+From: Lethalman <lethalman@fyrebird.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.181
-X-OriginalArrivalTime: 01 Jan 2005 09:35:35.0345 (UTC) FILETIME=[3ECDF210:01C4EFE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject of the message: something for you
-Recipient of the message: Solid Waste
-Attachment on the message: message.htm.com
+(sorry for my poor English)
+It's a nice idea and i think it shouldn't increase
+the kernel size too much  ;)
+Talking about security, if a possible attacker could know about the
+bootloader type, he does nothing so this patch is not dangerous.
+Good luck!
 
-The City's system does not allow potentially executable files to be sent to its end users  in an active format. Please compress them with zip or rename them to something else.
-
-If you have received this message and feel that you did not initiate it, please disregard as many viruses now spoof/fake addresses and that is likely the case if you're on an antivirus protected machine.
-
+OT: a reply-to linux-kernel would be nice :/
+(happy new year)

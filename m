@@ -1,78 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269786AbRHSAwK>; Sat, 18 Aug 2001 20:52:10 -0400
+	id <S269829AbRHSBWy>; Sat, 18 Aug 2001 21:22:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269801AbRHSAvv>; Sat, 18 Aug 2001 20:51:51 -0400
-Received: from [209.38.98.99] ([209.38.98.99]:45785 "EHLO srvr201.castmark.com")
-	by vger.kernel.org with ESMTP id <S269786AbRHSAvn>;
-	Sat, 18 Aug 2001 20:51:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Fred Jackson <fred@arkansaswebs.com>
-To: mag@fbab.net, "Tony Hoyle" <tmh@nothing-on.tv>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.xx won't recompile.
-Date: Sat, 18 Aug 2001 19:49:58 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01081812570001.09229@bits.linuxball> <01081817401000.01028@bits.linuxball> <010d01c12839$29751370$020a0a0a@totalmef>
-In-Reply-To: <010d01c12839$29751370$020a0a0a@totalmef>
-Cc: =?iso-8859-1?q?Andr=E9=20Dahlqvist?= <andre.dahlqvist@telia.com>
+	id <S269811AbRHSBWp>; Sat, 18 Aug 2001 21:22:45 -0400
+Received: from jupter.networx.com.br ([200.187.100.102]:48772 "EHLO
+	jupter.networx.com.br") by vger.kernel.org with ESMTP
+	id <S269824AbRHSBW3>; Sat, 18 Aug 2001 21:22:29 -0400
+Message-Id: <200108190120.f7J1KNn10926@jupter.networx.com.br>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Thiago Vinhas de Moraes <tvlists@networx.com.br>
+To: seawolf-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: VMWare Modules Error on Kernel 2.4.8
+Date: Sat, 18 Aug 2001 22:15:02 -0300
+X-Mailer: KMail [version 1.3]
+Organization: NetWorx - A SuaCompanhia.com
 MIME-Version: 1.0
-Message-Id: <01081819495801.01028@bits.linuxball>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm using:
+Hi!
 
-gcc-2.96-81  (redhat 7.1)
+I'm trying to compile VMWare Express 2.0.4 (latest build) modules so I can 
+run Windows on my redhat 7.1 box, but I got the following errors:
 
-no egcs installed ??
+make: Entrando no diretório `/tmp/vmware-config4/vmmon-only'
+make[1]: Entrando no diretório `/tmp/vmware-config4/vmmon-only'
+make[2]: Entrando no diretório `/tmp/vmware-config4/vmmon-only/driver-2.4.8'
+In file included from .././linux/driver.c:22:
+/lib/modules/2.4.8/build/include/linux/malloc.h:3:2: warning: #warning The 
+Use of linux/malloc.h is deprecated, use linux/
+slab.h
+In file included from .././linux/hostif.c:25:
+/lib/modules/2.4.8/build/include/linux/malloc.h:3:2: warning: #warning The 
+Use of linux/malloc.h is deprecated, use linux/
+slab.h
+make[2]: Saindo do diretório `/tmp/vmware-config4/vmmon-only/driver-2.4.8'
+make[2]: Entrando no diretório `/tmp/vmware-config4/vmmon-only/driver-2.4.8'
+In file included from .././linux/driver.c:22:
+/lib/modules/2.4.8/build/include/linux/malloc.h:3:2: warning: #warning The 
+Use of linux/malloc.h is deprecated, use linux/
+slab.h
+In file included from /lib/modules/2.4.8/build/include/linux/highmem.h:5,
+                 from /lib/modules/2.4.8/build/include/linux/pagemap.h:16,
+                 from /lib/modules/2.4.8/build/include/linux/locks.h:8,
+                 from 
+/lib/modules/2.4.8/build/include/linux/devfs_fs_kernel.h:6,
+                 from /lib/modules/2.4.8/build/include/linux/miscdevice.h:4,
+                 from ../linux/driver.h:10,
+                 from .././linux/driver.c:58:
+/lib/modules/2.4.8/build/include/asm/pgalloc.h: In function `get_pgd_slow':
+/lib/modules/2.4.8/build/include/asm/pgalloc.h:62: `PAGE_OFFSET' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/asm/pgalloc.h:62: (Each undeclared 
+identifier is reported only once
+/lib/modules/2.4.8/build/include/asm/pgalloc.h:62: for each function it 
+appears in.)
+/lib/modules/2.4.8/build/include/asm/pgalloc.h: In function `pte_alloc_one':
+/lib/modules/2.4.8/build/include/asm/pgalloc.h:109: `PAGE_SIZE' undeclared 
+(first use in this function)
+In file included from /lib/modules/2.4.8/build/include/linux/pagemap.h:16,
+                 from /lib/modules/2.4.8/build/include/linux/locks.h:8,
+                 from 
+/lib/modules/2.4.8/build/include/linux/devfs_fs_kernel.h:6,
+                 from /lib/modules/2.4.8/build/include/linux/miscdevice.h:4,
+                 from ../linux/driver.h:10,
+                 from .././linux/driver.c:58:
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function 
+`clear_user_highpage':
+/lib/modules/2.4.8/build/include/linux/highmem.h:48: `PAGE_SIZE' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function 
+`clear_highpage':
+/lib/modules/2.4.8/build/include/linux/highmem.h:54: `PAGE_SIZE' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function 
+`memclear_highpage':
+/lib/modules/2.4.8/build/include/linux/highmem.h:62: `PAGE_SIZE' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function 
+`memclear_highpage_flush':
+/lib/modules/2.4.8/build/include/linux/highmem.h:76: `PAGE_SIZE' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function 
+`copy_user_highpage':
+/lib/modules/2.4.8/build/include/linux/highmem.h:90: `PAGE_SIZE' undeclared 
+(first use in this function)
+/lib/modules/2.4.8/build/include/linux/highmem.h: In function `copy_highpage':
+/lib/modules/2.4.8/build/include/linux/highmem.h:101: `PAGE_SIZE' undeclared 
+(first use in this function)
+.././linux/driver.c: In function `LinuxDriver_Ioctl':
+.././linux/driver.c:928: structure has no member named `dumpable'
+make[2]: ** [driver.o] Erro 1
+make[2]: Saindo do diretório `/tmp/vmware-config4/vmmon-only/driver-2.4.8'
+make[1]: ** [driver] Erro 2
+make[1]: Saindo do diretório `/tmp/vmware-config4/vmmon-only'
+make: ** [auto-build] Erro 2
+make: Saindo do diretório `/tmp/vmware-config4/vmmon-only'
+Unable to build the vmmon module.
+ 
+For more information on how to troubleshoot module-related problems, please 
+have
+a look at "http://www.vmware.com/download/modules/modules.html".
+ 
+Execution aborted.
 
-I kinda figured that redhat would install the tools for a kernel 
-compile. and what is  compat-egcs-6.2-1.1.2.14 that is shipped with 
-redhat?
 
-thanks 
+I'm sure it's not a GCC problem. Does anyone have a patch to fix this, or any 
+tip? I tried to run the binary module, but it prints out a lot of unresolved 
+symbols.
 
-Fred
+Any help will be apreciated.
 
+Regards,
+Thiago
 
-
-_________________________________ 
-On Saturday 18 August 2001 05:57 pm, Magnus Naeslund\(f\) wrote:
-> From: "Fred Jackson" <fred@arkansaswebs.com>
-> > OK, tried it, twice, still doesn't wan't to compile the second 
-time.
-> > Followed your instructions, twice. Then I deleted the directory, 
-> > untarred again, reconfigured the kernel from scratch, made it the 
-> > first pass. then it would not recompile after I ran 'make 
-xconfig', 
-> > saved, and tried to recompile with 'make install'. then I ran 
-'make 
-> > mrproper', 'make xconfig', 'make dep', make install ----- broke 
-again 
-> > with the following perplexing errors.
-> > 
-> > all I can tell for sure is that the compiler doewn't seem to have 
-a 
-> > definition for FASTCALL.
-> > 
-> > thank you for your input.
-> > 
-> > Fred
-> > 
-> 
-> What version gcc is that?
-> I think gcc 2.95.[23] or the superpatched 2.96.x is nice.
-> Maybe youre using egcs ?
-> I think that compiler is "old" from a 2.4.x (x>=6) point of view?
-> 
-> Magnus
-> 
-> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
->  Programmer/Networker [|] Magnus Naeslund
->  PGP Key: http://www.genline.nu/mag_pgp.txt
-> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-> 
-> 

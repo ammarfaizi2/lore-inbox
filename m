@@ -1,76 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265420AbTFMPvb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 11:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTFMPva
+	id S265426AbTFMPxG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 11:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265425AbTFMPwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 11:51:30 -0400
-Received: from scrye.com ([216.17.180.1]:31400 "HELO scrye.com")
-	by vger.kernel.org with SMTP id S265420AbTFMPv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 11:51:28 -0400
+	Fri, 13 Jun 2003 11:52:13 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:58865 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S265422AbTFMPvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 11:51:37 -0400
+Message-ID: <3EE9F5C7.8070304@mvista.com>
+Date: Fri, 13 Jun 2003 09:03:19 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Oliver Neukum <oliver@neukum.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+References: <3EE8D038.7090600@mvista.com> <200306130027.09288.oliver@neukum.org>
+In-Reply-To: <200306130027.09288.oliver@neukum.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kevin Fenzi <kevin@scrye.com>
-To: Zsolt Babak <zod@sch.bme.hu>
-Cc: inux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc8-laptop1 released
-In-Reply-To: <20030613114324.GA24705@gandalf.sch.bme.hu>
-References: <20030612223940.7fcc00a1.hanno@gmx.de>
-	<20030612211707.2266BF7FE0@voldemort.scrye.com>
-	<20030613114324.GA24705@gandalf.sch.bme.hu>
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Message-Id: <S265421AbTFMPva/20030613155130Z+2583@vger.kernel.org>
-Date: Fri, 13 Jun 2003 11:51:30 -0400
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
->>>>> "Zsolt" == Zsolt Babak <zod@sch.bme.hu> writes:
 
-Zsolt> Hi!  This has nothing to do with the laptop patch, these
-Zsolt> defines are really missing from include/linux/pci_ids.h.
+Oliver Neukum wrote:
 
-ah... so I see. 
+>>If it works for you or doesn't or you like the idea or don't, I've love
+>>to hear about it
+>>    
+>>
+>
+>+	default:
+>+		result = -EINVAL;
+>+		break;
+>+	}
+>+	return (result);
+>
+>Must return ENOTTY.
+>
+>+static int sdeq_open (struct inode *inode, struct file *file)
+>+{
+>+	MOD_INC_USE_COUNT;
+>+
+>+	return 0;
+>+}
+>+
+>+static int sdeq_release (struct inode *inode, struct file *file)
+>+{
+>+	MOD_DEC_USE_COUNT;
+>+
+>+	return (0);
+>+}
+>
+>Wrong. release does not map to close()
+>
+>  
+>
+hmm not sure where I got that from i'll fix thanks.
 
-Zsolt> In -rc5 I just removed the line from the .c file that
-Zsolt> referenced the missing ID, and it works very well...
+>Aside from that, what exactly are you trying to do?
+>You are not solving the fundamental device node reuse race,
+>yet you are making necessary a further demon.
+>  
+>
+For device enumeration, I see a daemon as necessary.  The main goal of 
+this work is to solve the out-of-order execution of sbin/hotplug and 
+improve performance of the system during device enumeration with 
+significant (200 disks, 4 partitions each) amounts of devices.  Boot 
+time with this scheme appears, in my rudimentary tests, to be faster on 
+the order of 1-2 seconds for bootup for the case of just 12 disks.  I 
+would imagine 200 disks (which I don't have a good way to test, as I 
+don't have 200 disks:) would provide better speed gains during bootup.  
+This compares greg's original udev to this patched udev binary.
 
-Zsolt> Maybe this is a bug ;)
+>You are not addressing queue limits. The current hotplug
+>scheme does so, admittedly crudely by failing to spawn
+>a task, but considering the small numbers of events in
+>question here, for the time being we can live with that.
+>
+>You can just as well add load control and error detection
+>to the current scheme. You fail to do so in your scheme.
+>You cannot queue events forever in unlimited numbers.
+>  
+>
+I agree there should be some way of limiting events.  I'll add this set 
+of code.
 
-Yeah, looks like, or something that wasn't entirely merged. 
-Commenting those out gets me further, but then it fails in: 
+>As for ordering, this is a real problem, but not fundamental.
+>You can make user space locking work. IMHO it will not be
+>pretty if done with shell scripts, but it can work.
+>There _is_ a basic problem with the kernel 'overtaking'
+>user space in its view of the device tree, but you cannot solve
+>that _at_ _all_ in user space.
+>
+>In short, if you feel that the hotplug scheme is inadequate
+>for your needs, then write industry strength devfs2.
+>  
+>
+devfs is not appropriate as it does not allow for complex policy with 
+external attributes that the kernel is unaware of.  For an example, lets 
+take the situation where a policy must access a cluster-wide manager to 
+determine some information before it can make a policy decision.  For 
+that to occur, there must be sockets, and hopefully libc, which puts the 
+entire thing in user space.  Who would want to write policies in the 
+kernel?  uck.
 
-ld -m elf_i386 -r -o cpqphp.o cpqphp_core.o cpqphp_ctrl.o cpqphp_proc.o cpqphp_pci.o
-gcc -D__KERNEL__ -I/usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=pentium4 -DMODULE -DMODVERSIONS -include /usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=acpiphp_core  -c -o acpiphp_core.o acpiphp_core.c
-gcc -D__KERNEL__ -I/usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=pentium4 -DMODULE -DMODVERSIONS -include /usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=acpiphp_glue  -c -o acpiphp_glue.o acpiphp_glue.c
-acpiphp_glue.c: In function `find_host_bridge':
-acpiphp_glue.c:815: warning: passing arg 2 of `acpi_get_object_info_R4d2dc830' from incompatible pointer type
-acpiphp_glue.c:821: subscripted value is neither array nor pointer
-acpiphp_glue.c:826: incompatible type for argument 1 of `strcmp'
-make[3]: *** [acpiphp_glue.o] Error 1
-make[3]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/drivers/hotplug'
-make[2]: *** [_modsubdir_hotplug] Error 2
-make[2]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1/drivers'
-make[1]: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.21rc8laptop1'
-error: Bad exit status from /var/tmp/rpm-tmp.58636 (%build)
-
-Something related to the i830 stuff someone else reported problems
-with? 
-
-Zsolt>     Zod.
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE+6fX43imCezTjY0ERAnJlAJ9mcRMTcbkzn/ZehaGJFzh7wp4o3wCfaIJX
-BwSw91MAR7gzaNaqyGlvSEA=
-=uMbl
------END PGP SIGNATURE-----
+>	Regards
+>		Oliver
+>
+>
+>  
+>
+Thanks
+-steve
 

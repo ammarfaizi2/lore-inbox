@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265059AbSKJSpl>; Sun, 10 Nov 2002 13:45:41 -0500
+	id <S265063AbSKJSxe>; Sun, 10 Nov 2002 13:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265061AbSKJSpl>; Sun, 10 Nov 2002 13:45:41 -0500
-Received: from packet.digeo.com ([12.110.80.53]:60866 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265059AbSKJSpk>;
-	Sun, 10 Nov 2002 13:45:40 -0500
-Message-ID: <3DCEAAE3.C6EE63EF@digeo.com>
-Date: Sun, 10 Nov 2002 10:52:19 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S265064AbSKJSxe>; Sun, 10 Nov 2002 13:53:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51462 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265063AbSKJSxd>; Sun, 10 Nov 2002 13:53:33 -0500
+Date: Sun, 10 Nov 2002 10:59:55 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: vojtech@ucw.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Voyager subarchitecture for 2.5.46
+In-Reply-To: <20021110163012.GB1564@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0211101050170.9581-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Chris Mason <mason@suse.com>
-Subject: Re: 2.5.46-mm2 - oops
-References: <3DCDD9AC.C3FB30D9@digeo.com> <200211101309.21447.tomlins@cam.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2002 18:52:19.0692 (UTC) FILETIME=[4BE68AC0:01C288EA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> 
-> On November 9, 2002 10:59 pm, Andrew Morton wrote:
-> 
-> > Of note in -mm2 is a patch from Chris Mason which teaches reiserfs to
-> > use the mpage code for reads - it should show a nice reduction in CPU
-> > load under reiserfs reads.
-> 
-> Booting into mm2 I get:
-> 
-> ...
-> Unable to handle kernel NULL pointer dereference at virtual address 00000004
-> 
-> ...
-> EIP is at mpage_readpages+0x47/0x140
 
-whoops.  The ->readpages API was changed...
+On Sun, 10 Nov 2002, Pavel Machek wrote:
+> 
+> Unfortunately, this means "bye bye vsyscalls for gettimeofday".
 
---- 25/fs/reiserfs/inode.c~reiserfs-readpages-fix	Sun Nov 10 10:44:28 2002
-+++ 25-akpm/fs/reiserfs/inode.c	Sun Nov 10 10:44:39 2002
-@@ -2081,7 +2081,7 @@ static int reiserfs_readpage (struct fil
- }
- 
- static int
--reiserfs_readpages(struct address_space *mapping,
-+reiserfs_readpages(struct file *file, struct address_space *mapping,
-                struct list_head *pages, unsigned nr_pages)
- {
-     return mpage_readpages(mapping, pages, nr_pages, reiserfs_get_block);
+Not necessarily. All of the fastpatch and the checking can be done by the
+vsyscall, and if the vsyscall notices that there is a backwards jump in
+time it just gives up and does a real system call. The vsyscall does need
+to figure out the CPU it's running on somehow, but that should be solvable
+- indexing through the thread ID or something.
 
-_
+That said, I suspect that the real issue with vsyscalls is that they don't
+really make much sense. The only system call we've ever found that matters
+at all is gettimeofday(), and the vsyscall implementation there looks like
+a "cool idea, but doesn't really matter (and complicates things a lot)".
+
+The system call overhead tends to scale up very well with CPU speed (the
+one esception being the P4 which just has some internal problems with "int
+0x80" and slowed down compared to a PIII).
+
+So I would just suggest not spending a lot of effort on it, considering
+the problems it already has. 
+
+		Linus
+

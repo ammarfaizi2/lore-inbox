@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314787AbSFELJT>; Wed, 5 Jun 2002 07:09:19 -0400
+	id <S315167AbSFELN2>; Wed, 5 Jun 2002 07:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315170AbSFELJS>; Wed, 5 Jun 2002 07:09:18 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:35470 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S314787AbSFELJR>;
-	Wed, 5 Jun 2002 07:09:17 -0400
-Date: Wed, 5 Jun 2002 13:09:13 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.20 don't compil...
-Message-ID: <20020605110912.GA21939@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+	id <S315335AbSFELN1>; Wed, 5 Jun 2002 07:13:27 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:7187 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S315167AbSFELN1>; Wed, 5 Jun 2002 07:13:27 -0400
+Message-ID: <3CFDF2CE.3070307@loewe-komp.de>
+Date: Wed, 05 Jun 2002 13:15:26 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: J Sloan <joe@tmsusa.com>, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship> <3CFD8C07.6030607@tmsusa.com> <E17FS6T-0001UR-00@starship>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Daniel Phillips wrote:
+> On Wednesday 05 June 2002 05:56, J Sloan wrote:
+> 
+>>Daniel Phillips wrote:
+>>
+>>
+>>>If I recall correctly, XFS makes an attempt to provide such realtime 
+>>>guarantees, or at least the Solaris version does. 
+>>>
+>>>
+>>When did Solaris ever support xfs?
+>>
+>>
+>>>However, the operating 
+>>>system must be able to provide true realtime guarantees in order for the 
+>>>filesystem to provide them, and I doubt that the combination of XFS and 
+>>>Solaris can do that.
+>>>
+>>>
+>>no, but the combination of xfs and irix has
+>>
+>                                      ^^^^			
+> Heh, I can only protest that Oxymoron also missed that thinko..
+> 
+> 
+>>made a lot of folks happy -  and xfs/linux is coming along nicely as
+>>well...
+>>
+> 
+> Improving the average latency of systems is a worthy goal, and there's
+> no denying that 'sorta realtime' has its place, however it's no substitute
+> for the real thing.  A soft realtime system screws up only on occasion,
+> but - bugs excepted - a hard realtime system *never* does.
+> 
 
-I got:
+Yes, in theory. You define hard realtime system in a clean room.
+Even QNX4 couldn't provide hard realtime when creating new processes.
+You had to start them beforehand - so you needed good system design.
+The OS is just a small part of that.
 
-make[2]: Entering directory `/usr/src/linux-2.5/drivers/scsi'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
--DKBUILD_BASENAME=sym53c416  -c -o sym53c416.o sym53c416.c
-sym53c416.c: In function `sym53c416_intr_handle':
-sym53c416.c:452: structure has no member named `address'
-sym53c416.c:478: structure has no member named `address'
-make[2]: *** [sym53c416.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [_mod_drivers] Error 2
+Even vxworks had problems with priority inversion ... and so on.
 
-I have already reported that problem, and sent a patch to this list...
 
-What should I do?
 
-Thanks you very much,
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+
+

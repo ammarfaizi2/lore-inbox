@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbUKEI6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbUKEJkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbUKEI6R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 03:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbUKEI6Q
+	id S262631AbUKEJkr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 04:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUKEJkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 03:58:16 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:51635 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262629AbUKEI6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 03:58:12 -0500
-Date: Fri, 5 Nov 2004 09:58:04 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] kfifo_alloc buffer
-Message-ID: <20041105085804.GY3618@admingilde.org>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20041104170632.GX3618@admingilde.org> <20041104191530.GA3996@deep-space-9.dsnet>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XLTQE3HqOi3RIrZG"
-Content-Disposition: inline
-In-Reply-To: <20041104191530.GA3996@deep-space-9.dsnet>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+	Fri, 5 Nov 2004 04:40:47 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:42403 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262631AbUKEJki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 04:40:38 -0500
+Date: Fri, 5 Nov 2004 10:40:35 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+X-X-Sender: gandalf@tux.rsn.bth.se
+To: foo@porto.bmb.uga.edu
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Bad UDP checksums with 2.6.9
+In-Reply-To: <20041104062834.GE12763@porto.bmb.uga.edu>
+Message-ID: <Pine.LNX.4.58.0411051038090.23710@tux.rsn.bth.se>
+References: <20041104054838.GC12763@porto.bmb.uga.edu>
+ <20041104062834.GE12763@porto.bmb.uga.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Nov 2004 foo@porto.bmb.uga.edu wrote:
 
---XLTQE3HqOi3RIrZG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, Nov 04, 2004 at 12:48:38AM -0500, foo wrote:
+> > 'm seeing the same problem as in:
+> > Message-Id: 20041020191203.GA14356@merlin.emma.line.org
+> > or http://www.ussg.iu.edu/hypermail/linux/kernel/0410.2/1310.html
+> >
+> > I just upgraded a machine from 2.6.5 to 2.6.9, and when the amanda
+> > backup server contacts it, it sometimes replies with a UDP packet with a
+> > bad checksum.  I'm using e1000 here, so it seems to not be related to
+> > the ethernet driver.  I have a binary tcpdump if anyone's interested.
+>
+> I don't know why I didn't think of this at first, but I have another
+> identical machine that I upgraded at the same time that doesn't have the
+> problem.
+>
+> Here's a diff between their .configs - albarino is the one having
+> trouble.  Maybe CONFIG_PACKET_MMAP?  If someone can point me at a likely
+> config option to change I'll boot a new kernel for the next backup run
+> Friday night.
 
-hoi :)
+> -CONFIG_IP_NF_AMANDA=y
 
-by the way, shouldn't kernel/kfifo.c be moved over to lib/ ?
+Disable that and it should work again, there's a bug in that conntrack
+helper that was introduced when some performance-fixes for non-linear
+packets went in. Davem has a patch for it in his tree, should find it's
+way into mainline soonish.
 
---=20
-Martin Waitz
+Look at a netfilter-devel archive for the discussion if you are
+interested.
 
---XLTQE3HqOi3RIrZG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBi0Cbj/Eaxd/oD7IRAij9AJ9xsUZ58MJbY3dAQBYzspLOnyxQBACfbMR4
-zOd2QtrnqJ0RfIY4GVbZE5Y=
-=eBpE
------END PGP SIGNATURE-----
-
---XLTQE3HqOi3RIrZG--
+/Martin

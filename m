@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266310AbTBGSjX>; Fri, 7 Feb 2003 13:39:23 -0500
+	id <S266297AbTBGShP>; Fri, 7 Feb 2003 13:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266318AbTBGSjX>; Fri, 7 Feb 2003 13:39:23 -0500
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:4565 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S266310AbTBGSjW> convert rfc822-to-8bit; Fri, 7 Feb 2003 13:39:22 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: SA <bullet.train@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: interrupt latency k2.4 / i386?
-Date: Fri, 7 Feb 2003 18:47:36 +0000
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302071847.36646.bullet.train@ntlworld.com>
+	id <S266298AbTBGShP>; Fri, 7 Feb 2003 13:37:15 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:53990 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266297AbTBGShN>; Fri, 7 Feb 2003 13:37:13 -0500
+Message-Id: <200302071846.h17Ikmjk003544@eeyore.valparaiso.cl>
+To: b_adlakha@softhome.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance 
+In-Reply-To: Your message of "Fri, 07 Feb 2003 03:31:50 MST."
+             <courier.3E438B16.00000E1F@softhome.net> 
+Date: Fri, 07 Feb 2003 19:46:48 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+b_adlakha@softhome.net said:
+> Neil Booth writes: 
+> > b_adlakha@softhome.net wrote:- 
+> >> Maybe thats why its a 0.9* version, and the auther has stated on his site 
+> >> that not all C98 features are implimented...but then even GCC doesn't 
+> >> impliment them...
 
-Dear list,
+> > No, I said C89.  He's got a *long* way to go for that.  Forget C99. 
 
-What latency should I expect for hardware interrupts under k2.4 / i386 ? 
+> > However, he does claim C89 compliance, which is quite disingenuous. 
 
-ie how long should it take between the hardware signalling the interrupt and 
-the interrupt handler being called?
+> >> I checked tcc out, and its damn fast, much much much much faster than
+> >> gcc. gcc is bloated and its slow even on my pentium 4 machine, let
+> >> alone my 1.2 celeron. It takes 20 minutes to compile a new kernel on
+> >> that, now if you're gonna test kernels/patches, you can wait 20
+> >> minutes for every compile!
 
+Come on, quit whining already. When I started out fooling around with egcs
+and the kernel, it took 45 to 60 minutes to build a kernel for me. And the
+kernel was a lot smaller, and the compiler much faster.
 
-I am wrting a driver which pace IO with interrupts, generating one interrupt 
-for after every transfer is done.  Looking at the hardware schematics the 
-interrupts should occur virtually instantly after each transfer but the 
-driver is waiting ~1ms/ interrupt.  
+> > I agree.  I'm trying to fix it. 
+> > 
+> > GCC is larger for a reason: it does things properly.  It's easy to be
+> > fast if you're willing to be wrong, and not emit warnings or errors, and
+> > not implement half the standard.  And not optimize. 
 
-I can use polling instead with busy waits but this seems a bit wasteful.
+> >> Even icc is much better than gcc, but its very perticular about code (and 
+> >> its not gcc compatible as the intel site says)
+> >> And its non-free also... 
 
+Pour manpower and people who _know_ that _one_ CPU you are targeting in and
+out into the project, it sure will get further along...
 
-My interrupt is shared with my graphics card using the non-GPL nvidia driver - 
-could this be responsible for the delay (any experience with this)?
+> > Only better in terms of compile speed.
+> 
+> Cool (you're trying to fix it), maybe you can modify tcc so it is optimized 
+> for compiling linux (optimized for compiling speed and runtime speed for 
+> linux).
 
-cat /proc/interrupts
-.....
- 10:       3028          XT-PIC  eth0, VIA 82C686A
- 11:    1117037          XT-PIC  nvidia, PI stage <-- my driver
- 12:      14776          XT-PIC  usb-uhci, usb-uhci
-.....
+Sorry, can pick just one. Either you compile very fast (because you don't
+analyze the code you are compiling very much, i.e., generate lousy code) or
+generate excelent code (that requires complex analysis, large data
+structures to build and use, and takes time).
 
-Thanks SA
+>         I think it'll be easier and quicker to just make it compile linux 
+> properly first, then do the testing/fixing for other things, as they are so 
+> many compilers for other things anyway...And maybe it can be called "Linux C 
+> Compiler"? lol. 
+
+"Easier and quicker" as in 5 or 6 years of hard work. Sure enough, come
+back when you're done.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUKWRkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbUKWRpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbUKWRkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 12:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKWRix
+	id S261380AbUKWRpT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 12:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbUKWRou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:38:53 -0500
-Received: from cantor.suse.de ([195.135.220.2]:4573 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261357AbUKWQqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:46:14 -0500
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+	Tue, 23 Nov 2004 12:44:50 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:18698 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S261384AbUKWRQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 12:16:36 -0500
+Subject: "deadlock" between smc91x driver and link_watch
+From: Ian Campbell <icampbell@arcom.com>
+To: Nicolas Pitre <nico@cam.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: var args in kernel?
-References: <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
-	<Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
-	<20041122113328.GQ10340@devserv.devel.redhat.com>
-	<41A25D53.9050909@tmr.com> <je8y8t8n5t.fsf@sykes.suse.de>
-	<Pine.LNX.4.53.0411231504560.28979@yvahk01.tjqt.qr>
-	<jehdngwqlt.fsf@sykes.suse.de>
-	<Pine.LNX.4.53.0411231716480.5749@yvahk01.tjqt.qr>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If elected, Zippy pledges to each and every American
- a 55-year-old houseboy...
-Date: Tue, 23 Nov 2004 17:45:37 +0100
-In-Reply-To: <Pine.LNX.4.53.0411231716480.5749@yvahk01.tjqt.qr> (Jan
- Engelhardt's message of "Tue, 23 Nov 2004 17:17:45 +0100 (MET)")
-Message-ID: <jesm70v7im.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Tue, 23 Nov 2004 17:16:34 +0000
+Message-Id: <1101230194.14370.12.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Nov 2004 17:18:08.0640 (UTC) FILETIME=[66F27000:01C4D180]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+Hi,
 
->>>>It's not a struct, it's an array (of one element of struct type).  You
->>>>can't assign arrays.
->>>
->>> int callme(const char *fmt, struct { ... } argp[1]) {
->>        struct { ... } dest[1];
->>> 	dest = *argp;
->>> }
->>>
->>> Maybe that way?
->>
->>Maybe you should just try.
->
-> I did not say that 'dest' was an array too
+I'm seeing a deadlock in linkwatch_event() when bringing down an
+Ethernet interface using the smc91x driver (drivers/net/smc91x.c).
 
-But we are talking about va_list, which _is_ an array on some
-architectures, and which this thread is all about.
+What I am seeing is that smc_close() is calling netif_carrier_off which
+has the call chain:
+	netif_carrier_off
+	-> linkwatch_fire_event
+	   -> schedule_work or schedule_delayed_work
+The function that is scheduled is linkwatch_event().
 
-Andreas.
+smc_close() then goes on to call flush_scheduled_work() in order to
+ensure that it's own pending workqueue stuff (smc_phy_configure()) is
+completed before powering down the PHY.
+
+What I am seeing is that linkwatch_event() is deadlocking trying take
+rtnl_sem via rtnl_shlock(). The lock appears to already be held by a
+call to rtnl_lock() from devinet_ioctl().
+
+Any ideas? Perhaps smc_phy_configure calls could just check that the
+interface is up before continuing, then there would be no need to flush
+the queue to get rid of it.
+
+Ian.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+

@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBHRuz>; Thu, 8 Feb 2001 12:50:55 -0500
+	id <S129837AbRBHRxF>; Thu, 8 Feb 2001 12:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129512AbRBHRup>; Thu, 8 Feb 2001 12:50:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23815 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129092AbRBHRuk>;
-	Thu, 8 Feb 2001 12:50:40 -0500
-Message-ID: <3A82DB42.46EA0696@mandrakesoft.com>
-Date: Thu, 08 Feb 2001 12:45:38 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
-X-Accept-Language: en
+	id <S129843AbRBHRwz>; Thu, 8 Feb 2001 12:52:55 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:30483 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129837AbRBHRws>; Thu, 8 Feb 2001 12:52:48 -0500
+Date: Thu, 8 Feb 2001 09:52:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: select() returning busy for regular files [was Re: [Kiobuf-io-devel]
+ RFC: Kernel mechanism: Compound event wait]
+In-Reply-To: <20010208001735.C189@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.10.10102080947470.6741-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Francois romieu <romieu@ensta.fr>
-CC: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Remaining net/ pci_enable_device cleanups.
-In-Reply-To: <Pine.LNX.4.31.0102072310240.29253-100000@athlon.local> <3A821701.C7ED5ED2@mandrakesoft.com> <20010208091819.A30551@nic.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois romieu wrote:
+
+
+On Thu, 8 Feb 2001, Pavel Machek wrote:
+> > 
+> > There are currently no other alternatives in user space. You'd have to
+> > create whole new interfaces for aio_read/write, and ways for the kernel to
+> > inform user space that "now you can re-try submitting your IO".
 > 
-> The Wed, Feb 07, 2001 at 10:48:17PM -0500, Jeff Garzik wrote :
-> [...]
-> > > diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/epic100.c linux-dj/drivers/net/epic100.c
-> > > --- linux/drivers/net/epic100.c Wed Feb  7 21:55:56 2001
-> > > +++ linux-dj/drivers/net/epic100.c      Wed Feb  7 22:15:22 2001
-> >
-> > applied
-> 
-> @@ -341,7 +341,7 @@
->         static int printed_version;
->         long ioaddr;
->         int chip_idx = (int) ent->driver_data;
-> -       const int irq = pdev->irq;
-> +       int irq;
->         struct net_device *dev;
->         struct epic_private *ep;
->         int i, option = 0, duplex = 0;
-> @@ -354,10 +354,11 @@
->                 printk (KERN_INFO "%s" KERN_INFO "%s" KERN_INFO "%s",
->                         version, version2, version3);
-> 
-> -       i = pci_enable_device(pdev);
-> -       if (i)
-> +       if (pci_enable_device(pdev))
->                 return i;
-> 
-> return i ? Looks bogus to me.
+> Why is current select() interface not good enough?
 
-Definitely bogus and I forgot to mention that I fixed this up :)
+Ehh..
 
-	Jeff
+One major reason is rather simple: disk request wait times tend to be on
+the order of sub-millisecond (remember: if we run out of requests, that
+means that we have 256 of them already queued, which means that it's very
+likely that several of them will be freed up in the very near future due
+to completion).
 
+The fact is, that if you start doing write/select loops, you're going to
+waste a _large_ portion of your CPU speed on it.  Especially considering
+that the select() call would have to go all the way down to the ll_rw_blk
+layer to figure out whether there are more requests etc.
 
+So there is (a) historical reasons that say that regular files can never
+wait and EAGAIN is not an acceptable return value and (b) practical
+reasons for why such an interface would be a bad one.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+There are better ways to do it. Either using threads, or just having a
+better aio-like interface.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

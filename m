@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUBJVxK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 16:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUBJVwu
+	id S261567AbUBJVuC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 16:50:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUBJVuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 16:52:50 -0500
-Received: from thunk.org ([140.239.227.29]:64458 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261731AbUBJVwq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 16:52:46 -0500
-Date: Tue, 10 Feb 2004 16:52:25 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-Message-ID: <20040210215225.GA1666@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Bill Davidsen <davidsen@tmr.com>, "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-References: <1ne1M-1Oc-1@gated-at.bofh.it> <4029364F.9030905@tmr.com>
+	Tue, 10 Feb 2004 16:50:02 -0500
+Received: from shiva.warpcore.org ([216.81.249.60]:30697 "EHLO
+	shiva.warpcore.org") by vger.kernel.org with ESMTP id S261567AbUBJVt7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 16:49:59 -0500
+Subject: Re: Kernel GPL Violations and How to Research
+From: Gidon <gidon@warpcore.org>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040210192007.GA6987@one-eyed-alien.net>
+References: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com>
+	 <20040210192007.GA6987@one-eyed-alien.net>
+Content-Type: text/plain
+Message-Id: <1076449796.6373.3.camel@CPE-65-26-89-23.kc.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4029364F.9030905@tmr.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 10 Feb 2004 15:49:56 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 02:51:43PM -0500, Bill Davidsen wrote:
-> Sorry, last reply "just went" for some reason... ijn any case I hope the 
-> number and tone of replies has shown that a number of people DO care, 
-> and that "you can just program around it with your effort instead of 
-> mine" isn't going to be popular.
-> 
-> In other words, this sounds more like 2.7 material where people expect 
-> things to change than something which should just suddenly break in 2.6. 
-> Violation of Plauger's Law of Least Astonishment and all that.
+On Tue, 2004-02-10 at 13:20, Matthew Dharm wrote:
+> As a final level of analysis, you can always look at the compiled binary
+> code -- if you think they are using a _reasonably_ compatible compiler, you
+> might actually be able to find long sections of identical or near-identical
+> assembly (modulo loop unrolling, etc. which you should be able to identify
+> by hand.)
 
-I think the discussion has always been that this would be a 2.7 item.  
+Your advice is appreciated. I will do some further research using
+objdump. I believe they use gcc.
 
-However, it might be useful to make 2.6 start issueing printk's *now*
-when a program uses a BSD pty, so that application programs have
-plenty of notice that they will be going away.
+One thing I am unsure of is how to approach them and ensure at the same
+time that the problem is taken care of. Another words, if I show them
+what's wrong, they may simply obfuscate it (although at this time I hope
+not) and then I have no way to easily prove anything anymore...
 
-						- Ted
+-- 
+I am subscribed to this mailing list. It is not necessary to CC me.
+Thank you. -Gidon
+

@@ -1,166 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266172AbUF3HE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUF3HKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266172AbUF3HE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 03:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUF3HE6
+	id S266175AbUF3HKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 03:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUF3HKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 03:04:58 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:27560 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S266172AbUF3HEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 03:04:43 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: <bvaughan@mindspring.com>, <linux-kernel@vger.kernel.org>
-Date: Wed, 30 Jun 2004 17:04:33 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16610.26113.391281.310588@cse.unsw.edu.au>
-Subject: Re: PROBLEM: Oops, nfsd, networking 
-In-Reply-To: message from Neil Brown on Tuesday June 29
-References: <S264922AbUF1MSP/20040628121815Z+10@vger.kernel.org>
-	<16608.45673.307911.340194@cse.unsw.edu.au>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Wed, 30 Jun 2004 03:10:46 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:46341 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266175AbUF3HKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 03:10:45 -0400
+Date: Wed, 30 Jun 2004 09:10:35 +0200
+To: Arjan van de Ven <arjanv@redhat.com>, EdHamrick@aol.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.7-mm2, mmaps rework, buggy apps, setarch
+Message-ID: <20040630071035.GC28214@gamma.logic.tuwien.ac.at>
+References: <20040625105312.GD20954@devserv.devel.redhat.com> <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <20040625013508.70e6d689.akpm@osdl.org> <20040625103326.GA21814@gamma.logic.tuwien.ac.at> <20040625104449.GC20954@devserv.devel.redhat.com> <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <20040625013508.70e6d689.akpm@osdl.org> <20040625103326.GA21814@gamma.logic.tuwien.ac.at> <20040625104317.GB20954@devserv.devel.redhat.com> <20040625204702.GA22859@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040625204702.GA22859@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday June 29, neilb@cse.unsw.edu.au wrote:
-> On Monday June 28, bvaughan@mindspring.com wrote:
-> > NFSD crash at large MTU and odd wsize/rsize.
-> >  
-> 
-....
-> 
-> Would you be able to change that code to:
-> 	while (len > args->vec[v].iov_len) {
-> 		len -= args->vec[v].iov_len;
-> 		v++;
-> 		if (rqstp->rq_argpages[v] == NULL) {
-> 			printk("NULL page at %d, c=%d al=%d l=%d pl=%d\n",
-> 				v, args->count, args->len, len,	rqstp->rq_arg.len);
-> 		        BUG();
-> 		}
-> 		args->vec[v].iov_base = page_address(rqstp->rq_argpages[v]);
-> 		args->vec[v].iov_len = PAGE_SIZE;
-> 	}
-> 
-> (i.e. add the if() { printk..} bit).
-> and tell me what gets printed out?
+Hi All!
 
-To which Bill Vaughan replied:
+Just wanted to say that with 2.6.7-mm4 the problem is gone. I don't know
+which changes have been made to mm3/mm4 but now vuescan works again
+without any problem.
 
-  Jun 29 12:20:09 localhost kernel: NULL page at 11, c=0 al=-802973147 l=-803029103 pl=15084
+Thanks a lot for your patience!
 
+Best wishes
 
-Ok, that makes it easy, thanks.  'len' should be unsigned, and when we
-do
-	if (len > NFSSVC_MAXBLKSIZE)
-		len = NFSSVC_MAXBLKSIZE;
-a very large, and hence negative, 'len' doesn't get corrected :-(
+Norbert
 
-So the following patch should fix the BUG, but it doesn't explain why
-'len' is such a large number.  The request must be getting corrupted
-somewhere between the NFS client and the NFS server, possibly
-somewhere in the network stack of one or the other.
-
-Is there any chance of capturing a network trace (tcpdump -s 1000)
-when this problem occurs so we can see if there are any bad packets
-coming from the client, or if the packet is getting corrupted in the
-server?
-
-Thanks,
-NeilBrown
-
-
-### Diffstat output
- ./fs/nfsd/nfs3xdr.c |   16 +++++++++++-----
- ./fs/nfsd/nfsxdr.c  |    4 ++--
- 2 files changed, 13 insertions(+), 7 deletions(-)
-
-diff ./fs/nfsd/nfs3xdr.c~current~ ./fs/nfsd/nfs3xdr.c
---- ./fs/nfsd/nfs3xdr.c~current~	2004-06-30 11:01:59.000000000 +1000
-+++ ./fs/nfsd/nfs3xdr.c	2004-06-30 11:14:01.000000000 +1000
-@@ -74,7 +74,7 @@ decode_fh(u32 *p, struct svc_fh *fhp)
- static inline u32 *
- encode_fh(u32 *p, struct svc_fh *fhp)
- {
--	int size = fhp->fh_handle.fh_size;
-+	unsigned int size = fhp->fh_handle.fh_size;
- 	*p++ = htonl(size);
- 	if (size) p[XDR_QUADLEN(size)-1]=0;
- 	memcpy(p, &fhp->fh_handle.fh_base, size);
-@@ -328,7 +328,7 @@ int
- nfs3svc_decode_readargs(struct svc_rqst *rqstp, u32 *p,
- 					struct nfsd3_readargs *args)
- {
--	int len;
-+	unsigned int len;
- 	int v,pn;
- 
- 	if (!(p = decode_fh(p, &args->fh))
-@@ -358,7 +358,7 @@ int
- nfs3svc_decode_writeargs(struct svc_rqst *rqstp, u32 *p,
- 					struct nfsd3_writeargs *args)
- {
--	int len, v;
-+	unsigned int len, v;
- 
- 	if (!(p = decode_fh(p, &args->fh))
- 	 || !(p = xdr_decode_hyper(p, &args->offset)))
-@@ -368,6 +368,12 @@ nfs3svc_decode_writeargs(struct svc_rqst
- 	args->stable = ntohl(*p++);
- 	len = args->len = ntohl(*p++);
- 
-+	if (rqstp->rq_arg.len <
-+	    len + ( (char*)p -
-+		    (char*)rqstp->rq_arg.head[0].iov_base)) {
-+		return 0;
-+	}
-+
- 	args->vec[0].iov_base = (void*)p;
- 	args->vec[0].iov_len = rqstp->rq_arg.head[0].iov_len -
- 		(((void*)p) - rqstp->rq_arg.head[0].iov_base);
-@@ -427,7 +433,7 @@ int
- nfs3svc_decode_symlinkargs(struct svc_rqst *rqstp, u32 *p,
- 					struct nfsd3_symlinkargs *args)
- {
--	int len;
-+	unsigned int len;
- 	int avail;
- 	char *old, *new;
- 	struct iovec *vec;
-@@ -444,7 +450,7 @@ nfs3svc_decode_symlinkargs(struct svc_rq
- 	 */
- 	svc_take_page(rqstp);
- 	len = ntohl(*p++);
--	if (len <= 0 || len > NFS3_MAXPATHLEN || len >= PAGE_SIZE)
-+	if (len == 0 || len > NFS3_MAXPATHLEN || len >= PAGE_SIZE)
- 		return 0;
- 	args->tname = new = page_address(rqstp->rq_respages[rqstp->rq_resused-1]);
- 	args->tlen = len;
-
-diff ./fs/nfsd/nfsxdr.c~current~ ./fs/nfsd/nfsxdr.c
---- ./fs/nfsd/nfsxdr.c~current~	2004-06-30 11:14:16.000000000 +1000
-+++ ./fs/nfsd/nfsxdr.c	2004-06-30 11:14:30.000000000 +1000
-@@ -234,7 +234,7 @@ int
- nfssvc_decode_readargs(struct svc_rqst *rqstp, u32 *p,
- 					struct nfsd_readargs *args)
- {
--	int len;
-+	unsigned int len;
- 	int v,pn;
- 	if (!(p = decode_fh(p, &args->fh)))
- 		return 0;
-@@ -266,7 +266,7 @@ int
- nfssvc_decode_writeargs(struct svc_rqst *rqstp, u32 *p,
- 					struct nfsd_writeargs *args)
- {
--	int len;
-+	unsigned int len;
- 	int v;
- 	if (!(p = decode_fh(p, &args->fh)))
- 		return 0;
-
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+PUDSEY (n.)
+The curious-shaped flat wads of dough left on a kitchen table after
+someone has been cutting scones out of it.
+			--- Douglas Adams, The Meaning of Liff

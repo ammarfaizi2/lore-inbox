@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131339AbQKUVnu>; Tue, 21 Nov 2000 16:43:50 -0500
+	id <S130387AbQKUVuw>; Tue, 21 Nov 2000 16:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131459AbQKUVnj>; Tue, 21 Nov 2000 16:43:39 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:40196 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S131339AbQKUVn2>; Tue, 21 Nov 2000 16:43:28 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Tue, 21 Nov 2000 14:13:25 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.0-test11-ac1 compile error fix
+	id <S131060AbQKUVul>; Tue, 21 Nov 2000 16:50:41 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:63412 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S130387AbQKUVua>; Tue, 21 Nov 2000 16:50:30 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: David Riley <oscar@the-rileys.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 21 Nov 2000 14:04:34 -0800 (PST)
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+In-Reply-To: <3A1AE442.E8C83873@the-rileys.net>
+Message-ID: <Pine.LNX.4.21.0011211400380.2031-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Message-Id: <00112114132500.00902@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to fix a compile error which I previously reported on
-the 2.4.0test11-ac1 thread.
+David, usually when it turns out that Linux finds hardware problems the
+underlying cause is that linux makes more effective use of the component,
+and as such something that was marginal under windows fails under linux as
+the correct timing is used.
 
-I tried to compile 2.4.0-test11-ac1, and here is where the compile bombed 
-out:
+David Lang
 
-/usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o 
-sched.o sched.c
-irq.c:182: conflicting types for `global_irq_lock'
-/usr/src/linux/include/asm/hardirq.h:45: previous declaration of 
-`global_irq_lock'
-make[1]: *** [irq.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.0-test11-ac1/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
+ On Tue, 21 Nov 2000, David Riley wrote:
 
-Evidently, global_irq_lock was changed to a long in several places in
-the 2.4.0-test11-ac1 patch, but was left as an int in 
-linux/include/asm/hardirq.h.
-
-I'm running 2.4.0-test11-ac1 with this patch now.
-
-diff -u linux/include/asm/hardirq.h.orig linux/include/asm/hardirq.h
---- linux/include/asm/hardirq.h.orig    Tue Nov 21 13:38:07 2000
-+++ linux/include/asm/hardirq.h Tue Nov 21 13:40:13 2000
-@@ -42,7 +42,7 @@
- #include <asm/smp.h>
-
- extern unsigned char global_irq_holder;
--extern unsigned volatile int global_irq_lock;
-+extern unsigned volatile long global_irq_lock; /* long for set_bit -RR */
-
- static inline int irqs_running (void)
- {
-
+> Date: Tue, 21 Nov 2000 16:08:26 -0500
+> From: David Riley <oscar@the-rileys.net>
+> To: unlisted-recipients:  ;
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Defective Red Hat Distribution poorly represents Linux
+> 
+> Horst von Brand wrote:
+> > 
+> > So what? My former machine ran fine with Win95/WinNT. Linux wouldn't even
+> > end booting the kernel. Reason: P/100 was running at 120Mhz. Fixed that, no
+> > trouble for years. Not the only case of WinXX running (apparently?) fine
+> > on broken/misconfigured hardware I've seen, mind you.
+> 
+> This is something I've noticed as well...
+> 
+> Windoze is not the only OS to handle bad hardware better than Linux.  On
+> my Mac, I had a bad DIMM that worked fine on the MacOS side, but kept
+> causing random bus-type errors in Linux.  Same as when I accidentally
+> (long story) overclocked the bus on the CPU.  I think that more
+> tolerance for faulty hardware (more than just poorly programmed BIOS or
+> chipsets with known bugs) is something that might be worth looking into.
+>  I'm sure it would solve problems like this (which I clearly identify as
+> a hardware problem, because the same thing happened with the bad DIMM,
+> the overclocked bus, and two different overclocked processors (AMD 5x86
+> and AMD K6-2 500) and went away when I remedied the offending problem). 
+> Additionally, overclockers (I myself am a reformed one) might appreciate
+> more tolerance for such things.
+> 
+> My two cents/pence/centavos/local tiny currency denomination,
+> 	David
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,127 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbTL3DFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 22:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbTL3DFw
+	id S264361AbTL3Dd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 22:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTL3Dd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 22:05:52 -0500
-Received: from smtp2.dei.uc.pt ([193.137.203.229]:64976 "EHLO smtp2.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S264308AbTL3DFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 22:05:49 -0500
-Date: Tue, 30 Dec 2003 03:05:18 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm2
-In-Reply-To: <200312291832.35367.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.58.0312300247570.25540@student.dei.uc.pt>
-References: <20031229013223.75c531ed.akpm@osdl.org> <20031229163955.GA20207@lsc.hu>
- <Pine.LNX.4.58.0312292008430.16514@student.dei.uc.pt>
- <200312291832.35367.dtor_core@ameritech.net>
+	Mon, 29 Dec 2003 22:33:26 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:18308 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264361AbTL3DdV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 22:33:21 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: waipid() block in multi-thread program
+Date: Tue, 30 Dec 2003 11:33:18 +0800
+Message-ID: <A12F5F3545A0654B97BFD863950C1E1802F8FB59@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: waipid() block in multi-thread program
+Thread-Index: AcPOhamaLHlTB33ESpyDtTE6fUMAbg==
+From: "Li, Adam" <adam.li@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Li, Adam" <adam.li@intel.com>
+X-OriginalArrivalTime: 30 Dec 2003 03:33:18.0773 (UTC) FILETIME=[AAC84650:01C3CE85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Dear all,
 
-On Mon, 29 Dec 2003, Dmitry Torokhov wrote:
+I wrote a small test case using waitpid() in multi-thread program, and find it will cause program block sometime.
+The program will create a (child) thread. The thread tries to exec a executable (simple busy-loop in my case).
+After a while the main thread will kill the executable. 
+Then both the main thread and the child thread call waitpid() to wait for the executable.
 
-> On Monday 29 December 2003 03:10 pm, Marcos D. Marado Torres wrote:
-> > Well, as for me, I still can't get the "mouse tap" working with my Asus
-> > M3700N laptop.
->
-> Does this laptop have Synaptics hardware?
+Test platform:
+----------------------
+cpu: 2-Way Pentium III 933MHz, memory: 512MB
+kernel: 2.6.0-SMP
+glibc: libc_12_04_03 with NPTL enabled
 
-Yes.
+Test case:
+-----------------------
+waitpid_test.c , busy_loop.c (please see bellow)
+Since the block will not happen all the time, I have a small script to run it in a loop:
+And I think the block can be reproduced more easily on a SMP system. 
 
-> And are you using native Synaptics
-> XFree driver or running with  psmouse_proto={bare|imps|exps}?
+(script to run the test in a loop)
+#!/bin/sh
+for((i=0; i< 10000; i++))
+do
+echo $i
+./waitpid_test ./busy_loop
+done
 
-With 2.6.0 plain or 2.6.0-mjb*
+In one of the run:
+.........
+10
+busy_loop started
+main: kill child_proc
+child thread: return from waitpid()
+main: waitpid(): No child processes
+11
+busy_loop started
+main: kill child_proc
+main: return from waitpid()
+(block here)
 
-$ cat .config |grep MOUSE
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_PS2_SYNAPTICS is not set
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_BUSMOUSE is not set
-# CONFIG_USB_MOUSE is not set
-$
+Some trace down:
+-------------------------
+1) I ran this test using Linuxthread (libc_120403), and find there is _no_ block. 
+I think that is because the kernel support for thread is not used.
 
-If I select SYNAPTICS then my mouse taps are over, so I don't use synaptics at all...
+2) Strace -f show that (part):
+...................
+[pid  4818] clone(child_stack=0, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_IDLETASK|CLONE_PTRACE|CLONE_VFORK|CLONE_PARENT|CLONE_THREAD|CLONE_NEWNS|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED|CLONE_UNTRACED|CLONE_CHILD_SETTID|0xbe0000d4, 0, 0, 0x40987bf8) = 4819
+[pid  4818] waitpid(4819,  <unfinished ...>
+[pid  4819] execve("./busy_loop", ["./busy_loop"], [/* 26 vars */]) = 0
+.........
+[pid  4819] write(2, "busy_loop started\n", 18busy_loop started
+) = 18
+[pid  4817] <... nanosleep resumed> {1, 0}) = 0
+[pid  4817] write(2, "main: kill child_proc\n", 22main: kill child_proc
+) = 22
+[pid  4817] kill(4819, SIGKILL)         = 0
+[pid  4817] waitpid(4819,  <unfinished ...>
+[pid  4819] +++ killed by SIGKILL +++
+PANIC: handle_group_exit: 4819 leader 4817
+[pid  4817] <... waitpid resumed> NULL, 0) = -1 ECHILD (No child processes)
+[pid  4817] --- SIGCHLD (Child exited) @ 0 (0) ---
+[pid  4817] write(2, "main: waitpid(): No child proces"..., 36main: waitpid(): No child processes
+) = 36
+[pid  4817] futex(0x40987bf8, FUTEX_WAIT, 4818, NULL <unfinished ...> 
 
-In -mm sources (and as I can see in -bk1 it will be in the main branch too) the
-patch to remove synaptics configuration option was added, so I have no way (as far
-as I can see) to just say that I don't want to use Synaptics, so I can't solve
-this problem... .config goes:
+We can see that the child thread(pid 4818) blocks at waitpid(4819..),  while main thread (pid 4817) got SIGCHLD and
+return from waitpid().
+(The behavior of using strace will be different, since (pid 4817) returns from waitpid() with ECHILD. And what is that 'PANIC'?)
 
-$ cat .config |grep MOUSE
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_BUSMOUSE is not set
-# CONFIG_USB_MOUSE is not set
-$
+3) I think the cause may be the handling of SIGCHLD. The child thread will has no chance to got SIGCHLD while it keeps waiting for it.
+And there might be some race condition there, which makes child thread cannot return from waitpid() with ECHILD. 
 
-Of course that being my mouse a Synaptics (at least according to ASUS),
-Synaptics should give me the mouse taps, but seeing it does not, I would like
-at least to have the option not to compile it...
+-------------------
+I am not sure this block should be regarded as a bug or my mis-use. (I know I should not call waitpid() two times, but I would expect an ECHILD
+if a waitpid() fails because the child process has been waited). Hoping for your comments :). 
 
-Further, the idea I got from this patch:
+waitpid_test.c
+-----------------------------
+/**
+ * Test case to reproduce a waitpid block.
+ */
+#include <stdlib.h>
+#include <stdio.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-dtor_core@ameritech.net|ChangeSet|20031219053552|02923.txt
+static volatile pid_t child_proc = 0;
 
-was that the option made no sense since people with no (or bad) synaptics
-support wouldn't "suffer" from this (in my case I should still have those mouse
-taps...)
+void * th_fn(void *arg)
+{
+        char *exec_file = arg;
+        int rc;
 
-Well, there's a chance that there's something I am doing wrong or somewhere my
-logic fails, so feedback on this is wanted...
+        if ((child_proc = fork()) == 0) {
+                execl(exec_file, exec_file, NULL);
+                perror("execl()");
+        }
+        rc = waitpid(child_proc, NULL, 0);
+        if (rc == -1)
+                perror("child thread: waitpid()");
+        else
+                fprintf(stderr, "child thread: return from waitpid()\n");
+        return (void *)0;
+}
 
-> Native absolute
-> mode -> relative PS/2 protocol translation that is done by mousedev does not
-> do taps. At all.
->
-> Dmitry
->
+int main(int argc, char *argv[])
+{
+        pthread_t child_th;
+        int rc;
+        if (argc < 2) {
+                fprintf(stderr, "waitpid_test exec_file\n");
+                return -1;
+        }
 
-Thanks,
-Mind Booster Noori
+        pthread_create(&child_th, NULL, th_fn, argv[1]);
+        while (!child_proc) {
+                sleep(1);
+                //sched_yield();
+        }
+        fprintf(stderr, "main: kill child_proc\n");
+        kill(child_proc, SIGKILL);
+        rc = waitpid(child_proc, NULL, 0);
+        if (rc == -1)
+                perror("main: waitpid()");
+        else
+                fprintf(stderr, "main: return from waitpid()\n");
+        pthread_join(child_th, NULL);
+        return 0;
+}
 
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
+busy_loop.c
+-----------------
+#include <stdio.h>
+int main()
+{
+        fprintf(stderr, "busy_loop started\n");
+        while(1);
+        fprintf(stderr, "busy_loop out\n");
+        return 0;
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+Regards,
 
-iD8DBQE/8OtxmNlq8m+oD34RAnlwAKCUl6a7dGV8ptMEv14wF/8uy54bVwCfW7DN
-IMhIbajRQ0oH3lxlHnejwlw=
-=5fvZ
------END PGP SIGNATURE-----
-
+====================================================================
+Information above represents only my personal view, not corporate.  
+adam.li@intel.com

@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267896AbTAHV6W>; Wed, 8 Jan 2003 16:58:22 -0500
+	id <S267928AbTAHWFh>; Wed, 8 Jan 2003 17:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267925AbTAHV6T>; Wed, 8 Jan 2003 16:58:19 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:54146 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267896AbTAHV6S>; Wed, 8 Jan 2003 16:58:18 -0500
-Message-Id: <200301082206.h08M6pRA014912@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Undelete files on ext3 ?? 
-In-Reply-To: Your message of "Wed, 08 Jan 2003 13:51:18 PST."
-             <Pine.LNX.4.33L2.0301081351010.6873-100000@dragon.pdx.osdl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.33L2.0301081351010.6873-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1411371710P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Jan 2003 17:06:51 -0500
+	id <S267932AbTAHWFh>; Wed, 8 Jan 2003 17:05:37 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:36811 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267928AbTAHWFg>; Wed, 8 Jan 2003 17:05:36 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/slab.c, kernel <2.4.20>
+Date: Wed, 8 Jan 2003 23:12:32 +0100
+User-Agent: KMail/1.4.3
+Cc: markhe@nextd.demon.co.uk, Shangc <shangcs@yahoo.com>
+References: <20030108220316.83003.qmail@web10005.mail.yahoo.com>
+In-Reply-To: <20030108220316.83003.qmail@web10005.mail.yahoo.com>
+Organization: WOLK - Working Overloaded Linux Kernel
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_WO1FUJ41H4WHHM5P7KTC"
+Message-Id: <200301082312.32961.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1411371710P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 08 Jan 2003 13:51:18 PST, "Randy.Dunlap" said:
-> On Wed, 8 Jan 2003, John Bradford wrote:
-> 
-> | > > What I was thinking of was a virtual device that allocated a new
-> | > > sector whenever an old one was overwritten - kind of like a journaled
-> | > > filesystem, but without the filesystem, (I.E. just the journal) :-).
-> | >
-> | > $ DIR FOO.TXT;*
-> | > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
-> | >
-> | > VMS-style file versioning, anybody? ;)
-> |
-> | Brilliant!
-> 
-> re-read the archives from 6-8 months ago.
+--------------Boundary-00=_WO1FUJ41H4WHHM5P7KTC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101914252421742&w=2
+On Wednesday 08 January 2003 23:03, Shangc wrote:
 
---==_Exmh_1411371710P
-Content-Type: application/pgp-signature
+Hi Shangc,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> --- slab.c=092003-02-08 04:26:50.000000000 -0500
+> +++ slab.c=092003-02-08 04:26:14.000000000 -0500
+> @@ -397,7 +397,7 @@
+>  =09=09base =3D sizeof(slab_t);
+>  =09=09extra =3D sizeof(kmem_bufctl_t);
+>  =09}
+> -=09i =3D 0;
+> +=09i =3D (wastage - base) / (size + extra);
+>  =09while (i*size + L1_CACHE_ALIGN(base+i*extra) <=3D> wastage)
+>  =09=09i++;
+>  =09if (i > 0)
+if you use this you may also want this.
 
-iD8DBQE+HKD7cC3lWbTT17ARAmeTAJ97c+fI5osixaGYlHX4BytA5WdZ0wCg85E/
-EmzqPO8qTMZO1h17vZPULlQ=
-=Dnxx
------END PGP SIGNATURE-----
+ciao, Marc
+--------------Boundary-00=_WO1FUJ41H4WHHM5P7KTC
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="slab-other.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="slab-other.patch"
 
---==_Exmh_1411371710P--
+diff -Naurp a/mm/slab.c b/mm/slab.c
+--- a/mm/slab.c	Wed Jul 17 12:25:04 2002
++++ b/mm/slab.c	Wed Jul 17 12:25:04 2002
+@@ -399,10 +399,10 @@
+ 		base = sizeof(slab_t);
+ 		extra = sizeof(kmem_bufctl_t);
+ 	}
+-	i = 0;
++       i = (wastage - base)/(size + extra);
+ 	while (i*size + L1_CACHE_ALIGN(base+i*extra) <= wastage)
+ 		i++;
+-	if (i > 0)
++       while (i*size + L1_CACHE_ALIGN(base+i*extra) > wastage)
+ 		i--;
+ 
+ 	if (i > SLAB_LIMIT)
+
+--------------Boundary-00=_WO1FUJ41H4WHHM5P7KTC--
+
+

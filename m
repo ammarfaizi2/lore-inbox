@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262908AbSJGHcy>; Mon, 7 Oct 2002 03:32:54 -0400
+	id <S262912AbSJGHnY>; Mon, 7 Oct 2002 03:43:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262909AbSJGHcx>; Mon, 7 Oct 2002 03:32:53 -0400
-Received: from packet.digeo.com ([12.110.80.53]:2465 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262908AbSJGHcv>;
-	Mon, 7 Oct 2002 03:32:51 -0400
-Message-ID: <3DA139EC.8A34A593@digeo.com>
-Date: Mon, 07 Oct 2002 00:38:20 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
-X-Accept-Language: en
+	id <S262913AbSJGHnY>; Mon, 7 Oct 2002 03:43:24 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:6908 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S262912AbSJGHnW>;
+	Mon, 7 Oct 2002 03:43:22 -0400
+Message-Id: <200210070731.g977VAp17211@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org, Thomas Lang?s <tlan@stud.ntnu.no>
+Subject: Re: Unable to kill processes in D-state
+Date: Mon, 7 Oct 2002 10:24:43 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: nfs@lists.sourceforge.net
+References: <1033841462.1247.3716.camel@phantasy> <20021006164228.GB17170@vagabond> <20021006170932.GA23134@stud.ntnu.no>
+In-Reply-To: <20021006170932.GA23134@stud.ntnu.no>
 MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
-References: <1033960902.3da0fdc6839aa@kolivas.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Oct 2002 07:38:21.0231 (UTC) FILETIME=[82A793F0:01C26DD4]
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> 
-> 
-> Here are the latest results including 2.5.40-mm2 with contest v0.50
-> (http://contest.kolivas.net)
-> 
-> ...
-> 
-> mem_load:
-> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.19 [3]              100.0   72      33      3       1.49
-> 2.5.38 [3]              107.3   70      34      3       1.60
-> 2.5.39 [2]              103.1   72      31      3       1.53
-> 2.5.40 [2]              102.5   72      31      3       1.53
-> 2.5.40-mm1 [2]          107.7   68      29      2       1.60
-> 2.5.40-mm2 [2]          165.1   44      38      2       2.46
-> 
+On 6 October 2002 15:09, Thomas Lang?s wrote:
+> Jan Hudec:
+> > If the shares were successfuly reloaded, then the processes should
+> > wake up. If they don't, it's a bug in NFS.
+>
+> They never wake up, and it happens every time.
+>
+> > Try to reproduce it (ie. reboot some machine, let it start
+> > everything and then restart the autofsd and see if processes lock
+> > up) and then talk to NFS maintainers about that.
+>
+> As I said above, it happens every time we encounter this, ie. it's a
+> bug that easy to reproduce (since I added nfs@lists.sourceforge.net
+> to the CC-list, I'm going to write some of what's already said in
+> this thread).
+>
+> Problem:
+> Processes entering D-state is unkillable. We have a problem with this
+> everytime we restart autofs (which automounts quite a few NFS-shares
+> on campus), ie. on our samba-boxes smbd hangs forever after this
+> (in D-state). Samba still works, it's just that all the D-state
+> processes is unkillable and will remain that way untill we reboot the
+> computer. Every D-state process increases the load on the machine,
+> and one of our 2-CPU intel-boxes currently remains at 430 (which
+> extremly high for such a box).
+>
+> Solution:
+> ? :)
 
--mm2 has the "don't swap so much" knob.  By default it is set at 50%.
-The VM _wants_ to reclaim lots of memory from mem_load so that
-gcc has some cache to chew on.  But you the operator have said
-"I know better and I don't want you to do that".
-
-Because it is prevented from building enough cache, gcc is issuing
-a ton of reads, which are hampering the swapstorm which is happening
-at the other end of the disk.  It's a lose-lose.
-
-There's not much that can be done about that really (apart from
-some heavy-handed load control) - if you want to optimise for
-throughput above all else,
-
-	echo 100 > /proc/sys/vm/swappiness
-
-(I suspect our swap performance right now is fairly poor, in terms
-of block allocation, readaround, etc.  Nobody has looked at that in
-some time afaik.  But tuning in there is unlikely to make a huge
-difference).
+Please provide info about:
+* automounter startup options
+* automounter configuration file(s)
+* client/server kernel version and .config
+* ksymoopsed SysRq-T dump of a couple of hung processes
+  (no, not all processes! please select 2-5 hung processes _only_
+  before feeding dump to ksymoops :-)
+--
+vda

@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263107AbTCYR3l>; Tue, 25 Mar 2003 12:29:41 -0500
+	id <S263215AbTCYRkX>; Tue, 25 Mar 2003 12:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263111AbTCYR2k>; Tue, 25 Mar 2003 12:28:40 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64123 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263118AbTCYR2b>; Tue, 25 Mar 2003 12:28:31 -0500
-Date: Tue, 25 Mar 2003 17:39:40 GMT
-Message-Id: <200303251739.h2PHde7s006907@sisko.scot.redhat.com>
-From: Stephen Tweedie <sct@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, ext2-devel@lists.sourceforge.net
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 5/8] 2.4: Add less-severe assert-failure form for ext3.
+	id <S263213AbTCYRkW>; Tue, 25 Mar 2003 12:40:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:49301 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263143AbTCYRjt>;
+	Tue, 25 Mar 2003 12:39:49 -0500
+Subject: Re: Testing: What do you want?
+From: Craig Thomas <craiger@osdl.org>
+To: Rob Radez <rob@osinvestor.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030325000450.GA2834@osinvestor.com>
+References: <3E7F1A2D.4050306@coyotegulch.com>
+	 <20030324153933.GH30613@lug-owl.de> <3E7F40D0.6010202@coyotegulch.com>
+	 <20030325000450.GA2834@osinvestor.com>
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1048614657.6662.15.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 09:50:57 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a new form of assert failure in ext3 which allows us to flag events
-which are *usually* bugs, but which can be legally triggered in the
-presence of IO failures.  Don't panic the kernel on such errors unless
-we've defined #JBD_PARANOID_IOFAIL, which will normally be set only for
-testing purposes.
+On Mon, 2003-03-24 at 16:04, Rob Radez wrote:
+> 
+> I just wanted to let y'all know that I've been trying to keep an
+> up-to-date status page for sparc32 at http://osinvestor.com/sparc/ with
+> basic information on 2.4 and 2.5 compiling and booting (or not as may
+> be.)
+> 
+> And yes, 2.5.65 builds and boots UP on sparc32, for me at least.  SMP is
+> badly broken.
+> 
+> Regards,
+> Rob Radez
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---- linux-2.4-ext3push/include/linux/jbd.h.=K0004=.orig	2003-03-25 10:59:15.000000000 +0000
-+++ linux-2.4-ext3push/include/linux/jbd.h	2003-03-25 10:59:15.000000000 +0000
-@@ -40,6 +40,15 @@
-  */
- #undef JBD_PARANOID_WRITES
- 
-+/*
-+ * Define JBD_PARANIOD_IOFAIL to cause a kernel BUG() if ext3 finds
-+ * certain classes of error which can occur due to failed IOs.  Under
-+ * normal use we want ext3 to continue after such errors, because
-+ * hardware _can_ fail, but for debugging purposes when running tests on
-+ * known-good hardware we may want to trap these errors.
-+ */
-+#undef JBD_PARANOID_IOFAIL
-+
- #ifdef CONFIG_JBD_DEBUG
- /*
-  * Define JBD_EXPENSIVE_CHECKING to enable more expensive internal
-@@ -263,6 +272,23 @@ void buffer_assertion_failure(struct buf
- #define J_ASSERT(assert)	do { } while (0)
- #endif		/* JBD_ASSERTIONS */
- 
-+#if defined(JBD_PARANOID_IOFAIL)
-+#define J_EXPECT(expr, why...)		J_ASSERT(expr)
-+#define J_EXPECT_BH(bh, expr, why...)	J_ASSERT_BH(bh, expr)
-+#define J_EXPECT_JH(jh, expr, why...)	J_ASSERT_JH(jh, expr)
-+#else
-+#define __journal_expect(expr, why...)					     \
-+	do {								     \
-+		if (!(expr)) {						     \
-+			printk(KERN_ERR "EXT3-fs unexpected failure: %s;\n", # expr); \
-+			printk(KERN_ERR ## why);			     \
-+		}							     \
-+	} while (0)
-+#define J_EXPECT(expr, why...)		__journal_expect(expr, ## why)
-+#define J_EXPECT_BH(bh, expr, why...)	__journal_expect(expr, ## why)
-+#define J_EXPECT_JH(jh, expr, why...)	__journal_expect(expr, ## why)
-+#endif
-+
- enum jbd_state_bits {
- 	BH_JWrite
- 	  = BH_PrivateStart,	/* 1 if being written to log (@@@ DEBUGGING) */
+This is great!  At OSDL, we are working on a Linux Stability project for
+the 2.5 kernel.  The goal is to provide a web page of test result
+content so the linux community can track the progress of the kernel
+as it gets more stable with subsequent releases.  This page is
+relatively new and I would like to make it a location to get all kinds
+of information.  The sparc32 status page would be a great addition to
+the stabilization web page, if its all right with you to add it.  It
+would be a very good idea to collect all of the testing results
+performed on the broad spectrum of architectures into one place to
+view.
+
+The OSDL Linux Stability results web page is located at:
+http://www.osdl.org/projects/26lnxstblztn/results/  
+I would be interested in discussing how the "testers" in the linux
+community can share their results with everybody. 
+
+-- 
+Craig Thomas <craiger@osdl.org>
+OSDL
+

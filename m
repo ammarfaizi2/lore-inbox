@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263240AbUDAWaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbUDAWaJ
+	id S263040AbUDAWb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUDAWb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:30:09 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29834
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263240AbUDAW36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:29:58 -0500
-Date: Fri, 2 Apr 2004 00:29:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-ID: <20040401222957.GZ18585@dualathlon.random>
-References: <20040401135920.GF18585@dualathlon.random> <Pine.LNX.4.44.0404011443250.5589-100000@chimarrao.boston.redhat.com>
+	Thu, 1 Apr 2004 17:31:57 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:50644 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263040AbUDAWbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 17:31:37 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Job 317 <job317@mailvault.com>
+Date: Fri, 2 Apr 2004 08:31:30 +1000
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Upgrade from 2.4.25 to 2.6.4 kernel
+Message-ID: <20040401223130.GC19251@cse.unsw.EDU.AU>
+References: <20040401205344.546715FB7B@mail.metropipe.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404011443250.5589-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20040401205344.546715FB7B@mail.metropipe.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 02:44:50PM -0500, Rik van Riel wrote:
-> On Thu, 1 Apr 2004, Andrea Arcangeli wrote:
-> 
-> > This is a lot simpler than the mlock rlimit and this is people really
-> > need (not the rlimit). The rlimit thing can still be applied on top of
-> > this. This should be more efficient too (besides its simplicity).
-> 
-> What use is this patch ?
-> 
-> One of the main reasons for the mlock rlimit is so that
-> security conscious people can let normal users' gpg
-> mlock a few pages.
-> 
-> This patch isn't usable for that at all, since switching
-> the sysctl on would just open up the system to an easy
-> deadlock by any user.  Definately not something any
-> security conscious admin would want to enable ...
+Hi Job
 
-there's no way the rlimit patch can cover shmget(SHM_HUGETLB) and
-shmctl(SHM_LOCK). That's the use of this patch.
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.6.txt
 
-Plus it obsoletes the need of setting rlimit for apps like databases.
+Should help
 
-the rlimit patch remains useful for the multiuser system you're talking
-about (assuming you also limit the number of tasks per-user
-accordingly).
+Darren
+
+
+On Thu, 01 Apr 2004, Job 317 wrote:
+
+> Hello list.
+> 
+> Can someone please point me to a HOWTO on installing a 2.6.x kernel on a
+> system that heretofore runs a 2.4.x kernel? 
+> 
+> NOT a howto on building the kernel. I'm o.k. there. But I understand
+> that it is not the same upgrading to a 2.6.x kernel as it is just
+> upgrading to the next 2.4.x kernel. Is this correct? Aren't there
+> startup scripts and things that rely on the 2.4.x structure that change
+> slightly for a 2.6.x kernel?
+> 
+> !!!!Also... is it possible to still to boot back to a 2.4.x kernel in
+> this case? Lets say I keep my 2.4.25 kernel that I built on my RedHat 9
+> box. Can I also boot to and from my 2.6.x kernel?
+> 
+> Thanks.
+> 
+> JOB
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

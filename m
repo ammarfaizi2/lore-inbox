@@ -1,318 +1,610 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277338AbRJJRr5>; Wed, 10 Oct 2001 13:47:57 -0400
+	id <S277341AbRJJRtr>; Wed, 10 Oct 2001 13:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277339AbRJJRrj>; Wed, 10 Oct 2001 13:47:39 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:6295 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S277338AbRJJRr1>; Wed, 10 Oct 2001 13:47:27 -0400
-Date: Wed, 10 Oct 2001 19:47:48 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: Alexander Feigl <Alexander.Feigl@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: aic7xxx SCSI system hangs
-Message-ID: <20011010194748.A7664@oisec.net>
-Mail-Followup-To: Alexander Feigl <Alexander.Feigl@gmx.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110101403.f9AE3DY6006854@PowerBox.MysticWorld.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110101403.f9AE3DY6006854@PowerBox.MysticWorld.de>
-User-Agent: Mutt/1.3.22i
+	id <S277345AbRJJRte>; Wed, 10 Oct 2001 13:49:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:56804 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S277341AbRJJRtV>; Wed, 10 Oct 2001 13:49:21 -0400
+Date: Wed, 10 Oct 2001 19:49:45 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: linux-kernel@vger.kernel.org
+Subject: "attempt to access beyond end of device" in 2.4.10ac10
+Message-ID: <Pine.NEB.4.40.0110101944350.29038-200000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1920110659-1875519592-1002735939=:29038"
+Content-ID: <Pine.NEB.4.40.0110101945440.29038@mimas.fachschaften.tu-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 04:03:12PM +0200, Alexander Feigl wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Full description : After doing cdrecord -toc with an audio CD (CDDA) on my 
-> Plextor drive (PX 32TS), the [scsi_eh_0] proccess remains in uninterruptible 
-> state. All proccesses which will use the SCSI subsystem (e.g. cdrecord, 
-> mkisofs) will be in uninterruptible state too - which renders the SCSI system 
-> unusable until the next reboot. The SCSI system crashes only with my CD-ROM 
-> here. My Plextor PXW1210S does not hang. Reading the TOC with cdda2wav works 
-> here. Somebody told me  something similar happens with Plextor PX40 and 
-> cdda2wav. Others reported hangs and didn't tell me anything about  their SCSI 
-> system. (I'm coding a cd recording UI frontend and received some bug 
-> reports). The problems remain if I don't use my software but call the 
-> commands from the shell. I think it is a kernel problem. Userspace bugs  
-> (cdrecord,mkisofs?) should not hang the SCSI subsystem anyway.
+--1920110659-1875519592-1002735939=:29038
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.NEB.4.40.0110101945441.29038@mimas.fachschaften.tu-muenchen.de>
 
-This problem also seems to appear on 2.4.10-ac10 using the old AIC7xxx driver cdrecord spits out a bunch of errors, and after that the SCSI bus is just plain dead. The audio-cd itself can be played correctly on the PX-32TS using the front buttons.
+Hi,
 
-> Kernel version : Linux version 2.4.11-pre5-xfs (root@PowerBox.MysticWorld.de) 
-> (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release / Mandrake Linux 
-> 8.1)) #1 Mon Okt 8 13:38:15 CEST 2001
+I had a crash with 2.4.10-ac10 (the computer was totally frozen - I had to
+push the reset button). I found the following in syslog:
 
-Kernel version : Linux version 2.4.10-ac10 (root@neve) (gcc version 2.95.4 20011006 (Debian prerelease)) #6 Tue Oct 9 11:59:30 CEST 2001
 
-> I also tried stable and non-XFS kernels and the problem remains
-> 
-> Shell command : cdrecord -toc dev=x,y,z (with a CDDA in the drive)
-> 
-> My environment : AMD Athlon 900 Mhz
->                  512 MB RAM
->                  2 IDE hard drives
->                  Plextor PX-32TS (the one which makes problems)  
->                  Plextor PX-W1210S
->                  Adaptec 2940U2W SCSI controller (both CD drives attached)
->                  nVidia Geforce 2 GFX (using XFree86 drivers)
->                  ALSA sound system (0.5.10) with a SB Live!
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=722478592, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=1080559622, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=1761607682, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=2147482977, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=724575744, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=6817798, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=1761607682, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=2147482849, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=724837888, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=141035526, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=1761607682, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=2147482833, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=725100032, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=275253254, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=1761607682, limit=1959898
+Oct 10 19:04:08 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:08 r063144 kernel: 03:06: rw=0, want=2147482817, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=234144900, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1750331486, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=52479108, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=213448901, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=150994945, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=33457120, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=45614454, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1342177281, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=506390616, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1149435905, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1682279417, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1750544640, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1149492018, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=139823905, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=152617604, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1166794838, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=253246437, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=1683327745, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=218382988, limit=1959898
+Oct 10 19:04:12 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:12 r063144 kernel: 03:06: rw=0, want=109828149, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=1750544640, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=1149492018, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=139823905, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=1750544640, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=1149492018, limit=1959898
+Oct 10 19:04:14 r063144 kernel: attempt to access beyond end of device
+Oct 10 19:04:14 r063144 kernel: 03:06: rw=0, want=139823905, limit=1959898
 
-Enviroment here : Intel Celeron 266 (Overclocked to 400)
-		  512 MB RAM
-		  Adaptec 7890 (Onboard P2B-S)
 
---> /proc/scsi/scsi
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: QUANTUM  Model: FIREBALL ST6.4S  Rev: 0F0C
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: QUANTUM  Model: VIKING II 9.1WLS Rev: 4110
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: YAMAHA   Model: CRW8424S         Rev: 1.0g
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: IOMEGA   Model: ZIP 100          Rev: J.03
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 05 Lun: 00
-  Vendor: YAMAHA   Model: CRW2100S         Rev: 1.0H
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: PLEXTOR  Model: CD-ROM PX-32TS   Rev: 1.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-			
+My .config is attached.
 
---> The error messages (kernel)
- Oct 10 19:38:48 neve kernel: scsi : aborting command due to timeout : pid 655363, scsi0, channel 0, id 1, lun 0 Write (10) 00 00 00 cd 1f 00 00 18 00  
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Aborting scb 5, flags 0x4, SEQADDR 0xa3, LASTPHASE 0x80 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) SG_CACHEPTR 0x6, SG_COUNT 1, SCSISIGI 0x44 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) SSTAT0 0x0, SSTAT1 0x3, SSTAT2 0x50 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) SCB disconnected.  Queueing Abort SCB. 
- Oct 10 19:38:48 neve kernel: SCSI host 0 abort (pid 655363) timed out - resetting 
- Oct 10 19:38:48 neve kernel: SCSI bus is being reset for host 0 channel 0. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Reset called, scb 5, flags 0x1094 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Have already attempted to reach device with queued 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) message, will escalate to bus reset. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Reset channel called, will initiate reset. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Resetting currently active channel. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Channel reset 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Reset device, active_scb 14 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Current scb_tag 16, SEQADDR 0xa3, LASTPHASE 0x80 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) SG_CACHEPTR 0x6, SG_COUNT 1, SCSISIGI 0x0 
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) SSTAT0 0x0, SSTAT1 0x1, SSTAT2 0x40 
- Oct 10 19:38:48 neve kernel: (scsi0:0:0:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:2:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:3:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:4:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:5:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:6:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:8:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:9:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:10:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:11:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:12:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:13:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:14:-1) Cleaning up status information and delayed_scbs. 
- Oct 10 19:38:48 neve kernel: (scsi0:0:15:-1) Cleaning up status information and delayed_scbs.
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Cleaning QINFIFO.
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Cleaning waiting_scbs.
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Cleaning waiting for selection list.
- Oct 10 19:38:48 neve kernel: (scsi0:0:-1:-1) Cleaning disconnected scbs list.
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Aborting scb 5
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Aborting scb 8
- Oct 10 19:38:48 neve kernel: (scsi0:0:0:0) Aborting scb 12
- Oct 10 19:38:48 neve kernel: (scsi0:0:0:0) Aborting scb 15
- Oct 10 19:38:48 neve kernel: (scsi0:0:6:0) Aborting scb 16
- Oct 10 19:38:48 neve kernel: (scsi0:-1:-1:-1) 5 commands found and queued for completion.
- Oct 10 19:38:48 neve kernel: (scsi0:0:0:0) Sending SDTR 12/127 message.
- Oct 10 19:38:48 neve kernel: (scsi0:0:0:0) Synchronous at 20.0 Mbyte/sec, offset 15.
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Sending WDTR message.
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Using Wide(16bit) transfers
- Oct 10 19:38:48 neve kernel: (scsi0:0:6:0) Sending SDTR 12/127 message.
- Oct 10 19:38:48 neve kernel: (scsi0:0:6:0) Synchronous at 20.0 Mbyte/sec, offset 15.
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Sending SDTR 10/127 message.
- Oct 10 19:38:48 neve kernel: (scsi0:0:1:0) Synchronous at 80.0 Mbyte/sec, offset 31.
 
---> The errormessage (kernel) 2nd Attempt
-Oct 10 19:39:39 neve kernel: scsi : aborting command due to timeout : pid 655571, scsi0, channel 0, id
- 0, lun 0 Write (10) 00 00 1a 60 b2 00 00 18 00  
- Oct 10 19:39:39 neve kernel: (scsi0:0:0:0) Aborting scb 11, flags 0x4, SEQADDR 0xa4, LASTPHASE 0x80 
- Oct 10 19:39:39 neve kernel: (scsi0:0:0:0) SG_CACHEPTR 0x6, SG_COUNT 1, SCSISIGI 0x44 
- Oct 10 19:39:39 neve kernel: (scsi0:0:0:0) SSTAT0 0x0, SSTAT1 0x3, SSTAT2 0x50 
- Oct 10 19:39:39 neve kernel: (scsi0:0:0:0) SCB found in QINFIFO and aborted. 
- Oct 10 19:39:39 neve kernel: (scsi0:0:0:0) Aborting scb 11 
- Oct 10 19:39:39 neve kernel: (scsi0:-1:-1:-1) 1 commands found and queued for completion. 
- Oct 10 19:39:49 neve kernel: scsi : aborting command due to timeout : pid 655570, scsi0, channel 0, id
-  6, lun 0 VENDOR SPECIFIC(0xe5) 00 00 00 00 01 00 00 0e 00  
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) Aborting scb 4, flags 0x4, SEQADDR 0xa4, LASTPHASE 0x80 
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) SG_CACHEPTR 0x6, SG_COUNT 1, SCSISIGI 0x44 
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) SSTAT0 0x0, SSTAT1 0x3, SSTAT2 0x50 
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) SCB is currently active.  Waiting on completion. 
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) SCSISIGI 0x44, SEQADDR 0xa4, SSTAT0 0x0, SSTAT1 0x3 
-  Oct 10 19:39:49 neve kernel: (scsi0:0:6:0) SG_CACHEPTR 0x6, SSTAT2 0x50, STCNT 0x8 
-  Oct 10 19:39:54 neve kernel: SCSI host 0 abort (pid 655570) timed out - resetting 
-  Oct 10 19:39:54 neve kernel: SCSI bus is being reset for host 0 channel 0. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:0) Reset called, scb 4, flags 0x84 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:0) Bus device reset stupid when other action has failed. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Reset channel called, will initiate reset. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Resetting currently active channel. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Channel reset 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Reset device, active_scb 4 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Current scb_tag 4, SEQADDR 0xa4, LASTPHASE 0x80 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) SG_CACHEPTR 0x6, SG_COUNT 1, SCSISIGI 0x0 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) SSTAT0 0x0, SSTAT1 0x1, SSTAT2 0x40 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:0:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:1:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:2:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:3:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:4:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:5:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:8:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:9:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:10:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:11:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:12:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:13:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:14:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:15:-1) Cleaning up status information and delayed_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Cleaning QINFIFO. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Cleaning waiting_scbs. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Cleaning waiting for selection list. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:-1:-1) Cleaning disconnected scbs list. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:0) Aborting scb 4 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:0:0) Aborting scb 11 
-  Oct 10 19:39:54 neve kernel: (scsi0:-1:-1:-1) 2 commands found and queued for completion. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:0:0) Sending SDTR 12/127 message. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:0:0) Synchronous at 20.0 Mbyte/sec, offset 15. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:0) Sending SDTR 12/127 message. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:6:0) Synchronous at 20.0 Mbyte/sec, offset 15. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:1:0) Sending WDTR message. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:1:0) Using Wide(16bit) transfers 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:1:0) Sending SDTR 10/127 message. 
-  Oct 10 19:39:54 neve kernel: (scsi0:0:1:0) Synchronous at 80.0 Mbyte/sec, offset 31. 
-  
-
---> The errormessages (cdrecord)
-scsidev: '0,6,0'
-scsibus: 0 target: 6 lun: 0
-Linux sg driver version: 3.1.20
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 02 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 03 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 04 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 05 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 06 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 07 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 08 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 09 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 0A 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 0B 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 0C 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 0D 00 0C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 02 00 00 00 00 0A 00 00 00 00 04 01 00 00
-Sense Key: 0x2 Not Ready, Segment 0
-Sense Code: 0x04 Qual 0x01 (logical unit is in process of becoming ready) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 40s
-cdrecord: Cannot read TOC
-cdrecord: Input/output error. read toc: scsi sendcmd: no error
-CDB:  43 00 00 00 00 00 0E 00 0C 00
-status: 0x2 (CHECK CONDITION)
+cu
+Adrian
 
 -- 
-Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
-cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+
+--1920110659-1875519592-1002735939=:29038
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=".config"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.NEB.4.40.0110101945390.29038@mimas.fachschaften.tu-muenchen.de>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=".config"
+
+Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
+J3QgZWRpdA0KIw0KQ09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCiMgQ09O
+RklHX1NCVVMgaXMgbm90IHNldA0KQ09ORklHX1VJRDE2PXkNCg0KIw0KIyBD
+b2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMNCiMNCkNPTkZJR19FWFBFUklN
+RU5UQUw9eQ0KDQojDQojIExvYWRhYmxlIG1vZHVsZSBzdXBwb3J0DQojDQoj
+IENPTkZJR19NT0RVTEVTIGlzIG5vdCBzZXQNCg0KIw0KIyBQcm9jZXNzb3Ig
+dHlwZSBhbmQgZmVhdHVyZXMNCiMNCiMgQ09ORklHX00zODYgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTTQ4NiBpcyBub3Qgc2V0DQojIENPTkZJR19NNTg2IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX001ODZUU0MgaXMgbm90IHNldA0KIyBDT05G
+SUdfTTU4Nk1NWCBpcyBub3Qgc2V0DQojIENPTkZJR19NNjg2IGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX01QRU5USVVNSUlJIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X01QRU5USVVNNCBpcyBub3Qgc2V0DQpDT05GSUdfTUs2PXkNCiMgQ09ORklH
+X01LNyBpcyBub3Qgc2V0DQojIENPTkZJR19NQ1JVU09FIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX01XSU5DSElQQzYgaXMgbm90IHNldA0KIyBDT05GSUdfTVdJ
+TkNISVAyIGlzIG5vdCBzZXQNCiMgQ09ORklHX01XSU5DSElQM0QgaXMgbm90
+IHNldA0KIyBDT05GSUdfTUNZUklYSUlJIGlzIG5vdCBzZXQNCkNPTkZJR19Y
+ODZfV1BfV09SS1NfT0s9eQ0KQ09ORklHX1g4Nl9JTlZMUEc9eQ0KQ09ORklH
+X1g4Nl9DTVBYQ0hHPXkNCkNPTkZJR19YODZfWEFERD15DQpDT05GSUdfWDg2
+X0JTV0FQPXkNCkNPTkZJR19YODZfUE9QQURfT0s9eQ0KIyBDT05GSUdfUldT
+RU1fR0VORVJJQ19TUElOTE9DSyBpcyBub3Qgc2V0DQpDT05GSUdfUldTRU1f
+WENIR0FERF9BTEdPUklUSE09eQ0KQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElG
+VD01DQpDT05GSUdfWDg2X0FMSUdOTUVOVF8xNj15DQpDT05GSUdfWDg2X1RT
+Qz15DQpDT05GSUdfWDg2X1VTRV9QUFJPX0NIRUNLU1VNPXkNCiMgQ09ORklH
+X1RPU0hJQkEgaXMgbm90IHNldA0KIyBDT05GSUdfTUlDUk9DT0RFIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1g4Nl9NU1IgaXMgbm90IHNldA0KIyBDT05GSUdf
+WDg2X0NQVUlEIGlzIG5vdCBzZXQNCkNPTkZJR19OT0hJR0hNRU09eQ0KIyBD
+T05GSUdfSElHSE1FTTRHIGlzIG5vdCBzZXQNCiMgQ09ORklHX0hJR0hNRU02
+NEcgaXMgbm90IHNldA0KIyBDT05GSUdfTUFUSF9FTVVMQVRJT04gaXMgbm90
+IHNldA0KIyBDT05GSUdfTVRSUiBpcyBub3Qgc2V0DQojIENPTkZJR19TTVAg
+aXMgbm90IHNldA0KIyBDT05GSUdfWDg2X1VQX0FQSUMgaXMgbm90IHNldA0K
+IyBDT05GSUdfWDg2X1VQX0lPQVBJQyBpcyBub3Qgc2V0DQoNCiMNCiMgR2Vu
+ZXJhbCBzZXR1cA0KIw0KQ09ORklHX05FVD15DQpDT05GSUdfUENJPXkNCiMg
+Q09ORklHX1BDSV9HT0JJT1MgaXMgbm90IHNldA0KIyBDT05GSUdfUENJX0dP
+RElSRUNUIGlzIG5vdCBzZXQNCkNPTkZJR19QQ0lfR09BTlk9eQ0KQ09ORklH
+X1BDSV9CSU9TPXkNCkNPTkZJR19QQ0lfRElSRUNUPXkNCkNPTkZJR19QQ0lf
+TkFNRVM9eQ0KIyBDT05GSUdfRUlTQSBpcyBub3Qgc2V0DQojIENPTkZJR19N
+Q0EgaXMgbm90IHNldA0KIyBDT05GSUdfSE9UUExVRyBpcyBub3Qgc2V0DQoj
+IENPTkZJR19QQ01DSUEgaXMgbm90IHNldA0KQ09ORklHX1NZU1ZJUEM9eQ0K
+IyBDT05GSUdfQlNEX1BST0NFU1NfQUNDVCBpcyBub3Qgc2V0DQpDT05GSUdf
+U1lTQ1RMPXkNCkNPTkZJR19LQ09SRV9FTEY9eQ0KIyBDT05GSUdfS0NPUkVf
+QU9VVCBpcyBub3Qgc2V0DQojIENPTkZJR19CSU5GTVRfQU9VVCBpcyBub3Qg
+c2V0DQpDT05GSUdfQklORk1UX0VMRj15DQpDT05GSUdfQklORk1UX01JU0M9
+eQ0KQ09ORklHX1BNPXkNCiMgQ09ORklHX0FDUEkgaXMgbm90IHNldA0KQ09O
+RklHX0FQTT15DQojIENPTkZJR19BUE1fSUdOT1JFX1VTRVJfU1VTUEVORCBp
+cyBub3Qgc2V0DQpDT05GSUdfQVBNX0RPX0VOQUJMRT15DQojIENPTkZJR19B
+UE1fQ1BVX0lETEUgaXMgbm90IHNldA0KIyBDT05GSUdfQVBNX0RJU1BMQVlf
+QkxBTksgaXMgbm90IHNldA0KIyBDT05GSUdfQVBNX1JUQ19JU19HTVQgaXMg
+bm90IHNldA0KIyBDT05GSUdfQVBNX0FMTE9XX0lOVFMgaXMgbm90IHNldA0K
+Q09ORklHX0FQTV9SRUFMX01PREVfUE9XRVJfT0ZGPXkNCg0KIw0KIyBNZW1v
+cnkgVGVjaG5vbG9neSBEZXZpY2VzIChNVEQpDQojDQojIENPTkZJR19NVEQg
+aXMgbm90IHNldA0KDQojDQojIFBhcmFsbGVsIHBvcnQgc3VwcG9ydA0KIw0K
+Q09ORklHX1BBUlBPUlQ9eQ0KQ09ORklHX1BBUlBPUlRfUEM9eQ0KQ09ORklH
+X1BBUlBPUlRfUENfQ01MMT15DQojIENPTkZJR19QQVJQT1JUX1NFUklBTCBp
+cyBub3Qgc2V0DQpDT05GSUdfUEFSUE9SVF9QQ19GSUZPPXkNCiMgQ09ORklH
+X1BBUlBPUlRfUENfU1VQRVJJTyBpcyBub3Qgc2V0DQojIENPTkZJR19QQVJQ
+T1JUX0FNSUdBIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BBUlBPUlRfTUZDMyBp
+cyBub3Qgc2V0DQojIENPTkZJR19QQVJQT1JUX0FUQVJJIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1BBUlBPUlRfR1NDIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BB
+UlBPUlRfU1VOQlBQIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BBUlBPUlRfT1RI
+RVIgaXMgbm90IHNldA0KIyBDT05GSUdfUEFSUE9SVF8xMjg0IGlzIG5vdCBz
+ZXQNCg0KIw0KIyBQbHVnIGFuZCBQbGF5IGNvbmZpZ3VyYXRpb24NCiMNCkNP
+TkZJR19QTlA9eQ0KQ09ORklHX0lTQVBOUD15DQpDT05GSUdfUE5QQklPUz15
+DQoNCiMNCiMgQmxvY2sgZGV2aWNlcw0KIw0KQ09ORklHX0JMS19ERVZfRkQ9
+eQ0KIyBDT05GSUdfQkxLX0RFVl9YRCBpcyBub3Qgc2V0DQojIENPTkZJR19Q
+QVJJREUgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0NQUV9EQSBpcyBub3Qg
+c2V0DQojIENPTkZJR19CTEtfQ1BRX0NJU1NfREEgaXMgbm90IHNldA0KIyBD
+T05GSUdfQkxLX0RFVl9EQUM5NjAgaXMgbm90IHNldA0KQ09ORklHX0JMS19E
+RVZfTE9PUD15DQojIENPTkZJR19CTEtfREVWX05CRCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19CTEtfREVWX1JBTSBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtf
+REVWX0lOSVRSRCBpcyBub3Qgc2V0DQoNCiMNCiMgTXVsdGktZGV2aWNlIHN1
+cHBvcnQgKFJBSUQgYW5kIExWTSkNCiMNCiMgQ09ORklHX01EIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0JMS19ERVZfTUQgaXMgbm90IHNldA0KIyBDT05GSUdf
+TURfTElORUFSIGlzIG5vdCBzZXQNCiMgQ09ORklHX01EX1JBSUQwIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX01EX1JBSUQxIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X01EX1JBSUQ1IGlzIG5vdCBzZXQNCiMgQ09ORklHX01EX01VTFRJUEFUSCBp
+cyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0xWTSBpcyBub3Qgc2V0DQoN
+CiMNCiMgTmV0d29ya2luZyBvcHRpb25zDQojDQpDT05GSUdfUEFDS0VUPXkN
+CkNPTkZJR19QQUNLRVRfTU1BUD15DQpDT05GSUdfTkVUTElOSz15DQpDT05G
+SUdfUlRORVRMSU5LPXkNCkNPTkZJR19ORVRMSU5LX0RFVj15DQpDT05GSUdf
+TkVURklMVEVSPXkNCkNPTkZJR19ORVRGSUxURVJfREVCVUc9eQ0KIyBDT05G
+SUdfRklMVEVSIGlzIG5vdCBzZXQNCkNPTkZJR19VTklYPXkNCkNPTkZJR19J
+TkVUPXkNCiMgQ09ORklHX0lQX01VTFRJQ0FTVCBpcyBub3Qgc2V0DQojIENP
+TkZJR19JUF9BRFZBTkNFRF9ST1VURVIgaXMgbm90IHNldA0KIyBDT05GSUdf
+SVBfUE5QIGlzIG5vdCBzZXQNCiMgQ09ORklHX05FVF9JUElQIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX05FVF9JUEdSRSBpcyBub3Qgc2V0DQojIENPTkZJR19B
+UlBEIGlzIG5vdCBzZXQNCkNPTkZJR19JTkVUX0VDTj15DQpDT05GSUdfU1lO
+X0NPT0tJRVM9eQ0KDQojDQojICAgSVA6IE5ldGZpbHRlciBDb25maWd1cmF0
+aW9uDQojDQpDT05GSUdfSVBfTkZfQ09OTlRSQUNLPXkNCkNPTkZJR19JUF9O
+Rl9GVFA9eQ0KQ09ORklHX0lQX05GX1FVRVVFPXkNCkNPTkZJR19JUF9ORl9J
+UFRBQkxFUz15DQpDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQ9eQ0KQ09ORklH
+X0lQX05GX01BVENIX01BQz15DQpDT05GSUdfSVBfTkZfTUFUQ0hfTUFSSz15
+DQpDT05GSUdfSVBfTkZfTUFUQ0hfTVVMVElQT1JUPXkNCkNPTkZJR19JUF9O
+Rl9NQVRDSF9UT1M9eQ0KQ09ORklHX0lQX05GX01BVENIX1RDUE1TUz15DQpD
+T05GSUdfSVBfTkZfTUFUQ0hfU1RBVEU9eQ0KQ09ORklHX0lQX05GX01BVENI
+X1VOQ0xFQU49eQ0KQ09ORklHX0lQX05GX01BVENIX09XTkVSPXkNCkNPTkZJ
+R19JUF9ORl9GSUxURVI9eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRUpFQ1Q9
+eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9NSVJST1I9eQ0KQ09ORklHX0lQX05G
+X05BVD15DQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15DQpDT05GSUdfSVBf
+TkZfVEFSR0VUX01BU1FVRVJBREU9eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9S
+RURJUkVDVD15DQpDT05GSUdfSVBfTkZfTkFUX0ZUUD15DQpDT05GSUdfSVBf
+TkZfTUFOR0xFPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfVE9TPXkNCkNPTkZJ
+R19JUF9ORl9UQVJHRVRfTUFSSz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX0xP
+Rz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX1RDUE1TUz15DQojIENPTkZJR19J
+UFY2IGlzIG5vdCBzZXQNCiMgQ09ORklHX0tIVFRQRCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19BVE0gaXMgbm90IHNldA0KDQojDQojICANCiMNCiMgQ09ORklH
+X0lQWCBpcyBub3Qgc2V0DQojIENPTkZJR19BVEFMSyBpcyBub3Qgc2V0DQoj
+IENPTkZJR19ERUNORVQgaXMgbm90IHNldA0KIyBDT05GSUdfQlJJREdFIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1gyNSBpcyBub3Qgc2V0DQojIENPTkZJR19M
+QVBCIGlzIG5vdCBzZXQNCiMgQ09ORklHX0xMQyBpcyBub3Qgc2V0DQojIENP
+TkZJR19ORVRfRElWRVJUIGlzIG5vdCBzZXQNCiMgQ09ORklHX0VDT05FVCBp
+cyBub3Qgc2V0DQojIENPTkZJR19XQU5fUk9VVEVSIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX05FVF9GQVNUUk9VVEUgaXMgbm90IHNldA0KIyBDT05GSUdfTkVU
+X0hXX0ZMT1dDT05UUk9MIGlzIG5vdCBzZXQNCg0KIw0KIyBRb1MgYW5kL29y
+IGZhaXIgcXVldWVpbmcNCiMNCiMgQ09ORklHX05FVF9TQ0hFRCBpcyBub3Qg
+c2V0DQoNCiMNCiMgVGVsZXBob255IFN1cHBvcnQNCiMNCiMgQ09ORklHX1BI
+T05FIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BIT05FX0lYSiBpcyBub3Qgc2V0
+DQojIENPTkZJR19QSE9ORV9JWEpfUENNQ0lBIGlzIG5vdCBzZXQNCg0KIw0K
+IyBBVEEvSURFL01GTS9STEwgc3VwcG9ydA0KIw0KQ09ORklHX0lERT15DQoN
+CiMNCiMgSURFLCBBVEEgYW5kIEFUQVBJIEJsb2NrIGRldmljZXMNCiMNCkNP
+TkZJR19CTEtfREVWX0lERT15DQoNCiMNCiMgUGxlYXNlIHNlZSBEb2N1bWVu
+dGF0aW9uL2lkZS50eHQgZm9yIGhlbHAvaW5mbyBvbiBJREUgZHJpdmVzDQoj
+DQojIENPTkZJR19CTEtfREVWX0hEX0lERSBpcyBub3Qgc2V0DQojIENPTkZJ
+R19CTEtfREVWX0hEIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVWX0lERURJ
+U0s9eQ0KIyBDT05GSUdfSURFRElTS19NVUxUSV9NT0RFIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0JMS19ERVZfSURFRElTS19WRU5ET1IgaXMgbm90IHNldA0K
+IyBDT05GSUdfQkxLX0RFVl9JREVESVNLX0ZVSklUU1UgaXMgbm90IHNldA0K
+IyBDT05GSUdfQkxLX0RFVl9JREVESVNLX0lCTSBpcyBub3Qgc2V0DQojIENP
+TkZJR19CTEtfREVWX0lERURJU0tfTUFYVE9SIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfSURFRElTS19RVUFOVFVNIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfSURFRElTS19TRUFHQVRFIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfSURFRElTS19XRCBpcyBub3Qgc2V0DQojIENPTkZJR19C
+TEtfREVWX0NPTU1FUklBTCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVW
+X1RJVk8gaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9JREVDUyBpcyBu
+b3Qgc2V0DQpDT05GSUdfQkxLX0RFVl9JREVDRD15DQojIENPTkZJR19CTEtf
+REVWX0lERVRBUEUgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9JREVG
+TE9QUFkgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9JREVTQ1NJIGlz
+IG5vdCBzZXQNCg0KIw0KIyBJREUgY2hpcHNldCBzdXBwb3J0L2J1Z2ZpeGVz
+DQojDQojIENPTkZJR19CTEtfREVWX0NNRDY0MCBpcyBub3Qgc2V0DQojIENP
+TkZJR19CTEtfREVWX0NNRDY0MF9FTkhBTkNFRCBpcyBub3Qgc2V0DQojIENP
+TkZJR19CTEtfREVWX0lTQVBOUCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtf
+REVWX1JaMTAwMCBpcyBub3Qgc2V0DQpDT05GSUdfQkxLX0RFVl9JREVQQ0k9
+eQ0KIyBDT05GSUdfSURFUENJX1NIQVJFX0lSUSBpcyBub3Qgc2V0DQpDT05G
+SUdfQkxLX0RFVl9JREVETUFfUENJPXkNCkNPTkZJR19CTEtfREVWX0FETUE9
+eQ0KIyBDT05GSUdfQkxLX0RFVl9PRkZCT0FSRCBpcyBub3Qgc2V0DQpDT05G
+SUdfSURFRE1BX1BDSV9BVVRPPXkNCkNPTkZJR19CTEtfREVWX0lERURNQT15
+DQojIENPTkZJR19JREVETUFfUENJX1dJUCBpcyBub3Qgc2V0DQojIENPTkZJ
+R19JREVETUFfTkVXX0RSSVZFX0xJU1RJTkdTIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfQUVDNjJYWCBpcyBub3Qgc2V0DQojIENPTkZJR19BRUM2
+MlhYX1RVTklORyBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0FMSTE1
+WDMgaXMgbm90IHNldA0KIyBDT05GSUdfV0RDX0FMSTE1WDMgaXMgbm90IHNl
+dA0KIyBDT05GSUdfQkxLX0RFVl9BTUQ3NFhYIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0FNRDc0WFhfT1ZFUlJJREUgaXMgbm90IHNldA0KIyBDT05GSUdfQkxL
+X0RFVl9DTUQ2NFggaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9DWTgy
+QzY5MyBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0NTNTUzMCBpcyBu
+b3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0hQVDM0WCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19IUFQzNFhfQVVUT0RNQSBpcyBub3Qgc2V0DQojIENPTkZJR19C
+TEtfREVWX0hQVDM2NiBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1BJ
+SVggaXMgbm90IHNldA0KIyBDT05GSUdfUElJWF9UVU5JTkcgaXMgbm90IHNl
+dA0KIyBDT05GSUdfQkxLX0RFVl9OUzg3NDE1IGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfT1BUSTYyMSBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtf
+REVWX1BEQzIwMlhYIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BEQzIwMlhYX0JV
+UlNUIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BEQzIwMlhYX0ZPUkNFIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX0JMS19ERVZfU1ZXS1MgaXMgbm90IHNldA0KIyBD
+T05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JM
+S19ERVZfU0xDOTBFNjYgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9U
+Uk0yOTAgaXMgbm90IHNldA0KQ09ORklHX0JMS19ERVZfVklBODJDWFhYPXkN
+CiMgQ09ORklHX0lERV9DSElQU0VUUyBpcyBub3Qgc2V0DQpDT05GSUdfSURF
+RE1BX0FVVE89eQ0KIyBDT05GSUdfSURFRE1BX0lWQiBpcyBub3Qgc2V0DQoj
+IENPTkZJR19ETUFfTk9OUENJIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVW
+X0lERV9NT0RFUz15DQojIENPTkZJR19CTEtfREVWX0FUQVJBSUQgaXMgbm90
+IHNldA0KIyBDT05GSUdfQkxLX0RFVl9BVEFSQUlEX1BEQyBpcyBub3Qgc2V0
+DQojIENPTkZJR19CTEtfREVWX0FUQVJBSURfSFBUIGlzIG5vdCBzZXQNCg0K
+Iw0KIyBTQ1NJIHN1cHBvcnQNCiMNCiMgQ09ORklHX1NDU0kgaXMgbm90IHNl
+dA0KDQojDQojIEZ1c2lvbiBNUFQgZGV2aWNlIHN1cHBvcnQNCiMNCiMgQ09O
+RklHX0ZVU0lPTiBpcyBub3Qgc2V0DQojIENPTkZJR19GVVNJT05fQk9PVCBp
+cyBub3Qgc2V0DQojIENPTkZJR19GVVNJT05fSVNFTlNFIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0ZVU0lPTl9DVEwgaXMgbm90IHNldA0KIyBDT05GSUdfRlVT
+SU9OX0xBTiBpcyBub3Qgc2V0DQoNCiMNCiMgSUVFRSAxMzk0IChGaXJlV2ly
+ZSkgc3VwcG9ydCAoRVhQRVJJTUVOVEFMKQ0KIw0KIyBDT05GSUdfSUVFRTEz
+OTQgaXMgbm90IHNldA0KDQojDQojIEkyTyBkZXZpY2Ugc3VwcG9ydA0KIw0K
+IyBDT05GSUdfSTJPIGlzIG5vdCBzZXQNCiMgQ09ORklHX0kyT19QQ0kgaXMg
+bm90IHNldA0KIyBDT05GSUdfSTJPX0JMT0NLIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0kyT19MQU4gaXMgbm90IHNldA0KIyBDT05GSUdfSTJPX1NDU0kgaXMg
+bm90IHNldA0KIyBDT05GSUdfSTJPX1BST0MgaXMgbm90IHNldA0KDQojDQoj
+IE5ldHdvcmsgZGV2aWNlIHN1cHBvcnQNCiMNCkNPTkZJR19ORVRERVZJQ0VT
+PXkNCg0KIw0KIyBBUkNuZXQgZGV2aWNlcw0KIw0KIyBDT05GSUdfQVJDTkVU
+IGlzIG5vdCBzZXQNCkNPTkZJR19EVU1NWT15DQojIENPTkZJR19CT05ESU5H
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0VRVUFMSVpFUiBpcyBub3Qgc2V0DQoj
+IENPTkZJR19UVU4gaXMgbm90IHNldA0KIyBDT05GSUdfRVRIRVJUQVAgaXMg
+bm90IHNldA0KIyBDT05GSUdfTkVUX1NCMTAwMCBpcyBub3Qgc2V0DQoNCiMN
+CiMgRXRoZXJuZXQgKDEwIG9yIDEwME1iaXQpDQojDQpDT05GSUdfTkVUX0VU
+SEVSTkVUPXkNCiMgQ09ORklHX1NVTkxBTkNFIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0hBUFBZTUVBTCBpcyBub3Qgc2V0DQojIENPTkZJR19TVU5CTUFDIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1NVTlFFIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1NVTkxBTkNFIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NVTkdFTSBpcyBub3Qg
+c2V0DQojIENPTkZJR19ORVRfVkVORE9SXzNDT00gaXMgbm90IHNldA0KIyBD
+T05GSUdfTEFOQ0UgaXMgbm90IHNldA0KIyBDT05GSUdfTkVUX1ZFTkRPUl9T
+TUMgaXMgbm90IHNldA0KIyBDT05GSUdfTkVUX1ZFTkRPUl9SQUNBTCBpcyBu
+b3Qgc2V0DQojIENPTkZJR19BVDE3MDAgaXMgbm90IHNldA0KIyBDT05GSUdf
+REVQQ0EgaXMgbm90IHNldA0KIyBDT05GSUdfSFAxMDAgaXMgbm90IHNldA0K
+Q09ORklHX05FVF9JU0E9eQ0KIyBDT05GSUdfRTIxMDAgaXMgbm90IHNldA0K
+IyBDT05GSUdfRVdSSzMgaXMgbm90IHNldA0KIyBDT05GSUdfRUVYUFJFU1Mg
+aXMgbm90IHNldA0KIyBDT05GSUdfRUVYUFJFU1NfUFJPIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0hQTEFOX1BMVVMgaXMgbm90IHNldA0KIyBDT05GSUdfSFBM
+QU4gaXMgbm90IHNldA0KIyBDT05GSUdfTFA0ODZFIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX0VUSDE2SSBpcyBub3Qgc2V0DQojIENPTkZJR19ORTIwMDAgaXMg
+bm90IHNldA0KQ09ORklHX05FVF9QQ0k9eQ0KIyBDT05GSUdfUENORVQzMiBp
+cyBub3Qgc2V0DQojIENPTkZJR19BREFQVEVDX1NUQVJGSVJFIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0FDMzIwMCBpcyBub3Qgc2V0DQojIENPTkZJR19BUFJJ
+Q09UIGlzIG5vdCBzZXQNCiMgQ09ORklHX0NTODl4MCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19UVUxJUCBpcyBub3Qgc2V0DQojIENPTkZJR19ERTRYNSBpcyBu
+b3Qgc2V0DQojIENPTkZJR19ER1JTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RN
+OTEwMiBpcyBub3Qgc2V0DQojIENPTkZJR19FRVBSTzEwMCBpcyBub3Qgc2V0
+DQojIENPTkZJR19MTkUzOTAgaXMgbm90IHNldA0KIyBDT05GSUdfRkVBTE5Y
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX05BVFNFTUkgaXMgbm90IHNldA0KQ09O
+RklHX05FMktfUENJPXkNCiMgQ09ORklHX05FMzIxMCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19FUzMyMTAgaXMgbm90IHNldA0KIyBDT05GSUdfODEzOVRPTyBp
+cyBub3Qgc2V0DQojIENPTkZJR184MTM5VE9PX1BJTyBpcyBub3Qgc2V0DQoj
+IENPTkZJR184MTM5VE9PX1RVTkVfVFdJU1RFUiBpcyBub3Qgc2V0DQojIENP
+TkZJR184MTM5VE9PXzgxMjkgaXMgbm90IHNldA0KIyBDT05GSUdfU0lTOTAw
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0VQSUMxMDAgaXMgbm90IHNldA0KIyBD
+T05GSUdfU1VOREFOQ0UgaXMgbm90IHNldA0KIyBDT05GSUdfVExBTiBpcyBu
+b3Qgc2V0DQojIENPTkZJR19WSUFfUkhJTkUgaXMgbm90IHNldA0KIyBDT05G
+SUdfV0lOQk9ORF84NDAgaXMgbm90IHNldA0KIyBDT05GSUdfTEFOX1NBQTk3
+MzAgaXMgbm90IHNldA0KIyBDT05GSUdfTkVUX1BPQ0tFVCBpcyBub3Qgc2V0
+DQoNCiMNCiMgRXRoZXJuZXQgKDEwMDAgTWJpdCkNCiMNCiMgQ09ORklHX0FD
+RU5JQyBpcyBub3Qgc2V0DQojIENPTkZJR19ETDJLIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX01ZUklfU0JVUyBpcyBub3Qgc2V0DQojIENPTkZJR19OUzgzODIw
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0hBTUFDSEkgaXMgbm90IHNldA0KIyBD
+T05GSUdfWUVMTE9XRklOIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NLOThMSU4g
+aXMgbm90IHNldA0KIyBDT05GSUdfRkRESSBpcyBub3Qgc2V0DQojIENPTkZJ
+R19ISVBQSSBpcyBub3Qgc2V0DQojIENPTkZJR19QTElQIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1BQUCBpcyBub3Qgc2V0DQojIENPTkZJR19TTElQIGlzIG5v
+dCBzZXQNCg0KIw0KIyBXaXJlbGVzcyBMQU4gKG5vbi1oYW1yYWRpbykNCiMN
+CiMgQ09ORklHX05FVF9SQURJTyBpcyBub3Qgc2V0DQoNCiMNCiMgVG9rZW4g
+UmluZyBkZXZpY2VzDQojDQojIENPTkZJR19UUiBpcyBub3Qgc2V0DQojIENP
+TkZJR19ORVRfRkMgaXMgbm90IHNldA0KIyBDT05GSUdfUkNQQ0kgaXMgbm90
+IHNldA0KIyBDT05GSUdfU0hBUEVSIGlzIG5vdCBzZXQNCg0KIw0KIyBXYW4g
+aW50ZXJmYWNlcw0KIw0KIyBDT05GSUdfV0FOIGlzIG5vdCBzZXQNCg0KIw0K
+IyBBbWF0ZXVyIFJhZGlvIHN1cHBvcnQNCiMNCiMgQ09ORklHX0hBTVJBRElP
+IGlzIG5vdCBzZXQNCg0KIw0KIyBJckRBIChpbmZyYXJlZCkgc3VwcG9ydA0K
+Iw0KIyBDT05GSUdfSVJEQSBpcyBub3Qgc2V0DQoNCiMNCiMgSVNETiBzdWJz
+eXN0ZW0NCiMNCiMgQ09ORklHX0lTRE4gaXMgbm90IHNldA0KDQojDQojIE9s
+ZCBDRC1ST00gZHJpdmVycyAobm90IFNDU0ksIG5vdCBJREUpDQojDQojIENP
+TkZJR19DRF9OT19JREVTQ1NJIGlzIG5vdCBzZXQNCg0KIw0KIyBJbnB1dCBj
+b3JlIHN1cHBvcnQNCiMNCiMgQ09ORklHX0lOUFVUIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX0lOUFVUX0tFWUJERVYgaXMgbm90IHNldA0KIyBDT05GSUdfSU5Q
+VVRfTU9VU0VERVYgaXMgbm90IHNldA0KIyBDT05GSUdfSU5QVVRfSk9ZREVW
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0lOUFVUX0VWREVWIGlzIG5vdCBzZXQN
+Cg0KIw0KIyBDaGFyYWN0ZXIgZGV2aWNlcw0KIw0KQ09ORklHX1ZUPXkNCkNP
+TkZJR19WVF9DT05TT0xFPXkNCkNPTkZJR19TRVJJQUw9eQ0KIyBDT05GSUdf
+U0VSSUFMX0NPTlNPTEUgaXMgbm90IHNldA0KIyBDT05GSUdfU0VSSUFMX0VY
+VEVOREVEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NFUklBTF9OT05TVEFOREFS
+RCBpcyBub3Qgc2V0DQpDT05GSUdfVU5JWDk4X1BUWVM9eQ0KQ09ORklHX1VO
+SVg5OF9QVFlfQ09VTlQ9MjU2DQpDT05GSUdfUFJJTlRFUj15DQojIENPTkZJ
+R19MUF9DT05TT0xFIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BQREVWIGlzIG5v
+dCBzZXQNCg0KIw0KIyBJMkMgc3VwcG9ydA0KIw0KIyBDT05GSUdfSTJDIGlz
+IG5vdCBzZXQNCg0KIw0KIyBNaWNlDQojDQojIENPTkZJR19CVVNNT1VTRSBp
+cyBub3Qgc2V0DQojIENPTkZJR19NT1VTRSBpcyBub3Qgc2V0DQoNCiMNCiMg
+Sm95c3RpY2tzDQojDQojIENPTkZJR19JTlBVVF9HQU1FUE9SVCBpcyBub3Qg
+c2V0DQoNCiMNCiMgSW5wdXQgY29yZSBzdXBwb3J0IGlzIG5lZWRlZCBmb3Ig
+Z2FtZXBvcnRzDQojDQoNCiMNCiMgSW5wdXQgY29yZSBzdXBwb3J0IGlzIG5l
+ZWRlZCBmb3Igam95c3RpY2tzDQojDQojIENPTkZJR19RSUMwMl9UQVBFIGlz
+IG5vdCBzZXQNCg0KIw0KIyBXYXRjaGRvZyBDYXJkcw0KIw0KIyBDT05GSUdf
+V0FUQ0hET0cgaXMgbm90IHNldA0KIyBDT05GSUdfSU5URUxfUk5HIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX05WUkFNIGlzIG5vdCBzZXQNCkNPTkZJR19SVEM9
+eQ0KIyBDT05GSUdfRFRMSyBpcyBub3Qgc2V0DQojIENPTkZJR19SMzk2NCBp
+cyBub3Qgc2V0DQojIENPTkZJR19BUFBMSUNPTSBpcyBub3Qgc2V0DQojIENP
+TkZJR19TT05ZUEkgaXMgbm90IHNldA0KDQojDQojIEZ0YXBlLCB0aGUgZmxv
+cHB5IHRhcGUgZGV2aWNlIGRyaXZlcg0KIw0KIyBDT05GSUdfRlRBUEUgaXMg
+bm90IHNldA0KIyBDT05GSUdfQUdQIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RS
+TSBpcyBub3Qgc2V0DQojIENPTkZJR19NV0FWRSBpcyBub3Qgc2V0DQoNCiMN
+CiMgTXVsdGltZWRpYSBkZXZpY2VzDQojDQojIENPTkZJR19WSURFT19ERVYg
+aXMgbm90IHNldA0KDQojDQojIEZpbGUgc3lzdGVtcw0KIw0KIyBDT05GSUdf
+UVVPVEEgaXMgbm90IHNldA0KIyBDT05GSUdfQVVUT0ZTX0ZTIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0FVVE9GUzRfRlMgaXMgbm90IHNldA0KIyBDT05GSUdf
+UkVJU0VSRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfUkVJU0VSRlNfQ0hF
+Q0sgaXMgbm90IHNldA0KIyBDT05GSUdfUkVJU0VSRlNfUFJPQ19JTkZPIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX0FERlNfRlMgaXMgbm90IHNldA0KIyBDT05G
+SUdfQURGU19GU19SVyBpcyBub3Qgc2V0DQojIENPTkZJR19BRkZTX0ZTIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX0hGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19CRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfQ01TX0ZTIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0VYVDNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfSkJE
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0pCRF9ERUJVRyBpcyBub3Qgc2V0DQpD
+T05GSUdfRkFUX0ZTPXkNCiMgQ09ORklHX01TRE9TX0ZTIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1VNU0RPU19GUyBpcyBub3Qgc2V0DQpDT05GSUdfVkZBVF9G
+Uz15DQojIENPTkZJR19FRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfSkZG
+U19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19KRkZTMl9GUyBpcyBub3Qgc2V0
+DQojIENPTkZJR19DUkFNRlMgaXMgbm90IHNldA0KQ09ORklHX1RNUEZTPXkN
+CkNPTkZJR19SQU1GUz15DQpDT05GSUdfSVNPOTY2MF9GUz15DQpDT05GSUdf
+Sk9MSUVUPXkNCkNPTkZJR19aSVNPRlM9eQ0KIyBDT05GSUdfTUlOSVhfRlMg
+aXMgbm90IHNldA0KIyBDT05GSUdfRlJFRVZYRlNfRlMgaXMgbm90IHNldA0K
+IyBDT05GSUdfTlRGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19OVEZTX1JX
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0hQRlNfRlMgaXMgbm90IHNldA0KQ09O
+RklHX1BST0NfRlM9eQ0KQ09ORklHX0RFVkZTX0ZTPXkNCkNPTkZJR19ERVZG
+U19NT1VOVD15DQojIENPTkZJR19ERVZGU19ERUJVRyBpcyBub3Qgc2V0DQpD
+T05GSUdfREVWUFRTX0ZTPXkNCiMgQ09ORklHX1FOWDRGU19GUyBpcyBub3Qg
+c2V0DQojIENPTkZJR19RTlg0RlNfUlcgaXMgbm90IHNldA0KIyBDT05GSUdf
+Uk9NRlNfRlMgaXMgbm90IHNldA0KQ09ORklHX0VYVDJfRlM9eQ0KIyBDT05G
+SUdfU1lTVl9GUyBpcyBub3Qgc2V0DQojIENPTkZJR19VREZfRlMgaXMgbm90
+IHNldA0KIyBDT05GSUdfVURGX1JXIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VG
+U19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19VRlNfRlNfV1JJVEUgaXMgbm90
+IHNldA0KDQojDQojIE5ldHdvcmsgRmlsZSBTeXN0ZW1zDQojDQojIENPTkZJ
+R19DT0RBX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lOVEVSTUVaWk9fRlMg
+aXMgbm90IHNldA0KQ09ORklHX05GU19GUz15DQpDT05GSUdfTkZTX1YzPXkN
+CiMgQ09ORklHX1JPT1RfTkZTIGlzIG5vdCBzZXQNCkNPTkZJR19ORlNEPXkN
+CkNPTkZJR19ORlNEX1YzPXkNCkNPTkZJR19TVU5SUEM9eQ0KQ09ORklHX0xP
+Q0tEPXkNCkNPTkZJR19MT0NLRF9WND15DQpDT05GSUdfU01CX0ZTPXkNCiMg
+Q09ORklHX1NNQl9OTFNfREVGQVVMVCBpcyBub3Qgc2V0DQojIENPTkZJR19O
+Q1BfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfTkNQRlNfUEFDS0VUX1NJR05J
+TkcgaXMgbm90IHNldA0KIyBDT05GSUdfTkNQRlNfSU9DVExfTE9DS0lORyBp
+cyBub3Qgc2V0DQojIENPTkZJR19OQ1BGU19TVFJPTkcgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkNQRlNfTkZTX05TIGlzIG5vdCBzZXQNCiMgQ09ORklHX05D
+UEZTX09TMl9OUyBpcyBub3Qgc2V0DQojIENPTkZJR19OQ1BGU19TTUFMTERP
+UyBpcyBub3Qgc2V0DQojIENPTkZJR19OQ1BGU19OTFMgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkNQRlNfRVhUUkFTIGlzIG5vdCBzZXQNCkNPTkZJR19aSVNP
+RlNfRlM9eQ0KQ09ORklHX1pMSUJfRlNfSU5GTEFURT15DQoNCiMNCiMgUGFy
+dGl0aW9uIFR5cGVzDQojDQojIENPTkZJR19QQVJUSVRJT05fQURWQU5DRUQg
+aXMgbm90IHNldA0KQ09ORklHX01TRE9TX1BBUlRJVElPTj15DQpDT05GSUdf
+U01CX05MUz15DQpDT05GSUdfTkxTPXkNCg0KIw0KIyBOYXRpdmUgTGFuZ3Vh
+Z2UgU3VwcG9ydA0KIw0KQ09ORklHX05MU19ERUZBVUxUPSJpc284ODU5LTEi
+DQpDT05GSUdfTkxTX0NPREVQQUdFXzQzNz15DQojIENPTkZJR19OTFNfQ09E
+RVBBR0VfNzM3IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV83
+NzUgaXMgbm90IHNldA0KQ09ORklHX05MU19DT0RFUEFHRV84NTA9eQ0KIyBD
+T05GSUdfTkxTX0NPREVQQUdFXzg1MiBpcyBub3Qgc2V0DQojIENPTkZJR19O
+TFNfQ09ERVBBR0VfODU1IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RF
+UEFHRV84NTcgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2
+MCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODYxIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjIgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19OTFNfQ09ERVBBR0VfODY0IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19D
+T0RFUEFHRV84NjUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdF
+Xzg2NiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODY5IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV85MzYgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzk1MCBpcyBub3Qgc2V0DQojIENP
+TkZJR19OTFNfQ09ERVBBR0VfOTMyIGlzIG5vdCBzZXQNCiMgQ09ORklHX05M
+U19DT0RFUEFHRV85NDkgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzg3NCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV84IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV8xMjUxIGlzIG5vdCBz
+ZXQNCkNPTkZJR19OTFNfSVNPODg1OV8xPXkNCiMgQ09ORklHX05MU19JU084
+ODU5XzIgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4NTlfMyBpcyBu
+b3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV80IGlzIG5vdCBzZXQNCiMg
+Q09ORklHX05MU19JU084ODU5XzUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxT
+X0lTTzg4NTlfNiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV83
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5XzkgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkxTX0lTTzg4NTlfMTMgaXMgbm90IHNldA0KIyBDT05G
+SUdfTkxTX0lTTzg4NTlfMTQgaXMgbm90IHNldA0KQ09ORklHX05MU19JU084
+ODU5XzE1PXkNCiMgQ09ORklHX05MU19LT0k4X1IgaXMgbm90IHNldA0KIyBD
+T05GSUdfTkxTX0tPSThfVSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfVVRG
+OCBpcyBub3Qgc2V0DQoNCiMNCiMgQ29uc29sZSBkcml2ZXJzDQojDQpDT05G
+SUdfVkdBX0NPTlNPTEU9eQ0KQ09ORklHX1ZJREVPX1NFTEVDVD15DQojIENP
+TkZJR19NREFfQ09OU09MRSBpcyBub3Qgc2V0DQoNCiMNCiMgRnJhbWUtYnVm
+ZmVyIHN1cHBvcnQNCiMNCiMgQ09ORklHX0ZCIGlzIG5vdCBzZXQNCg0KIw0K
+IyBTb3VuZA0KIw0KQ09ORklHX1NPVU5EPXkNCiMgQ09ORklHX1NPVU5EX0JU
+ODc4IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0NNUENJIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1NPVU5EX0VNVTEwSzEgaXMgbm90IHNldA0KIyBDT05G
+SUdfTUlESV9FTVUxMEsxIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0ZV
+U0lPTiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9DUzQyODEgaXMgbm90
+IHNldA0KIyBDT05GSUdfU09VTkRfRVMxMzcwIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX1NPVU5EX0VTMTM3MSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9F
+U1NTT0xPMSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9NQUVTVFJPIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01BRVNUUk8zIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1NPVU5EX0lDSCBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VO
+RF9STUU5NlhYIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX1NPTklDVklC
+RVMgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfVFJJREVOVCBpcyBub3Qg
+c2V0DQojIENPTkZJR19TT1VORF9NU05EQ0xBUyBpcyBub3Qgc2V0DQojIENP
+TkZJR19TT1VORF9NU05EUElOIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5E
+X1ZJQTgyQ1hYWCBpcyBub3Qgc2V0DQojIENPTkZJR19NSURJX1ZJQTgyQ1hY
+WCBpcyBub3Qgc2V0DQpDT05GSUdfU09VTkRfT1NTPXkNCkNPTkZJR19TT1VO
+RF9UUkFDRUlOSVQ9eQ0KQ09ORklHX1NPVU5EX0RNQVA9eQ0KQ09ORklHX1NP
+VU5EX0FEMTgxNj15DQojIENPTkZJR19TT1VORF9TR0FMQVhZIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1NPVU5EX0FETElCIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1NPVU5EX0FDSV9NSVhFUiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9D
+UzQyMzIgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfU1NDQVBFIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NPVU5EX0dVUyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19TT1VORF9WTUlESSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9UUklY
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01TUyBpcyBub3Qgc2V0DQoj
+IENPTkZJR19TT1VORF9NUFU0MDEgaXMgbm90IHNldA0KIyBDT05GSUdfU09V
+TkRfTk0yNTYgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfTUFEMTYgaXMg
+bm90IHNldA0KIyBDT05GSUdfU09VTkRfUEFTIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX1BBU19KT1lTVElDSyBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9Q
+U1MgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfU0IgaXMgbm90IHNldA0K
+IyBDT05GSUdfU09VTkRfQVdFMzJfU1lOVEggaXMgbm90IHNldA0KIyBDT05G
+SUdfU09VTkRfTUFVSSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9ZTTM4
+MTIgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfT1BMM1NBMSBpcyBub3Qg
+c2V0DQojIENPTkZJR19TT1VORF9PUEwzU0EyIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX1NPVU5EX1lNRlBDSSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9Z
+TUZQQ0lfTEVHQUNZIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX1VBUlQ2
+ODUwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0FFRFNQMTYgaXMgbm90
+IHNldA0KIyBDT05GSUdfU09VTkRfVFZNSVhFUiBpcyBub3Qgc2V0DQoNCiMN
+CiMgVVNCIHN1cHBvcnQNCiMNCkNPTkZJR19VU0I9eQ0KQ09ORklHX1VTQl9E
+RUJVRz15DQoNCiMNCiMgTWlzY2VsbGFuZW91cyBVU0Igb3B0aW9ucw0KIw0K
+Q09ORklHX1VTQl9ERVZJQ0VGUz15DQojIENPTkZJR19VU0JfQkFORFdJRFRI
+IGlzIG5vdCBzZXQNCkNPTkZJR19VU0JfTE9OR19USU1FT1VUPXkNCkNPTkZJ
+R19VU0JfTEFSR0VfQ09ORklHPXkNCg0KIw0KIyBVU0IgQ29udHJvbGxlcnMN
+CiMNCkNPTkZJR19VU0JfVUhDSV9BTFQ9eQ0KIyBDT05GSUdfVVNCX09IQ0kg
+aXMgbm90IHNldA0KDQojDQojIFVTQiBEZXZpY2UgQ2xhc3MgZHJpdmVycw0K
+Iw0KIyBDT05GSUdfVVNCX0FVRElPIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VT
+Ql9CTFVFVE9PVEggaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NUT1JBR0Ug
+aXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NUT1JBR0VfREVCVUcgaXMgbm90
+IHNldA0KIyBDT05GSUdfVVNCX1NUT1JBR0VfREFUQUZBQiBpcyBub3Qgc2V0
+DQojIENPTkZJR19VU0JfU1RPUkFHRV9GUkVFQ09NIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX1VTQl9TVE9SQUdFX0lTRDIwMCBpcyBub3Qgc2V0DQojIENPTkZJ
+R19VU0JfU1RPUkFHRV9KVU1QU0hPVCBpcyBub3Qgc2V0DQojIENPTkZJR19V
+U0JfU1RPUkFHRV9EUENNIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9TVE9S
+QUdFX0hQODIwMGUgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NUT1JBR0Vf
+U0REUjA5IGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9BQ00gaXMgbm90IHNl
+dA0KIyBDT05GSUdfVVNCX1BSSU5URVIgaXMgbm90IHNldA0KDQojDQojIFVT
+QiBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlcyAoSElEKQ0KIw0KDQojDQojICAg
+SW5wdXQgY29yZSBzdXBwb3J0IGlzIG5lZWRlZCBmb3IgVVNCIEhJRA0KIw0K
+DQojDQojIFVTQiBJbWFnaW5nIGRldmljZXMNCiMNCiMgQ09ORklHX1VTQl9E
+QzJYWCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfTURDODAwIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1VTQl9TQ0FOTkVSIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1VTQl9NSUNST1RFSyBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfSFBVU0JT
+Q1NJIGlzIG5vdCBzZXQNCg0KIw0KIyBVU0IgTXVsdGltZWRpYSBkZXZpY2Vz
+DQojDQoNCiMNCiMgICBWaWRlbzRMaW51eCBzdXBwb3J0IGlzIG5lZWRlZCBm
+b3IgVVNCIE11bHRpbWVkaWEgZGV2aWNlIHN1cHBvcnQNCiMNCiMgQ09ORklH
+X1VTQl9EQUJVU0IgaXMgbm90IHNldA0KDQojDQojIFVTQiBOZXR3b3JrIGFk
+YXB0b3JzDQojDQojIENPTkZJR19VU0JfUExVU0IgaXMgbm90IHNldA0KIyBD
+T05GSUdfVVNCX1BFR0FTVVMgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX0tB
+V0VUSCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfQ0FUQyBpcyBub3Qgc2V0
+DQojIENPTkZJR19VU0JfQ0RDRVRIRVIgaXMgbm90IHNldA0KIyBDT05GSUdf
+VVNCX1VTQk5FVCBpcyBub3Qgc2V0DQoNCiMNCiMgVVNCIHBvcnQgZHJpdmVy
+cw0KIw0KIyBDT05GSUdfVVNCX1VTUzcyMCBpcyBub3Qgc2V0DQoNCiMNCiMg
+VVNCIFNlcmlhbCBDb252ZXJ0ZXIgc3VwcG9ydA0KIw0KIyBDT05GSUdfVVNC
+X1NFUklBTCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VSSUFMX0dFTkVS
+SUMgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NFUklBTF9CRUxLSU4gaXMg
+bm90IHNldA0KIyBDT05GSUdfVVNCX1NFUklBTF9XSElURUhFQVQgaXMgbm90
+IHNldA0KIyBDT05GSUdfVVNCX1NFUklBTF9ESUdJX0FDQ0VMRVBPUlQgaXMg
+bm90IHNldA0KIyBDT05GSUdfVVNCX1NFUklBTF9FTVBFRyBpcyBub3Qgc2V0
+DQojIENPTkZJR19VU0JfU0VSSUFMX0ZURElfU0lPIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX1VTQl9TRVJJQUxfVklTT1IgaXMgbm90IHNldA0KIyBDT05GSUdf
+VVNCX1NFUklBTF9FREdFUE9SVCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0Jf
+U0VSSUFMX0tFWVNQQU5fUERBIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9T
+RVJJQUxfS0VZU1BBTiBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VSSUFM
+X0tFWVNQQU5fVVNBMjggaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NFUklB
+TF9LRVlTUEFOX1VTQTI4WCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VS
+SUFMX0tFWVNQQU5fVVNBMTkgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1NF
+UklBTF9LRVlTUEFOX1VTQTE4WCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0Jf
+U0VSSUFMX0tFWVNQQU5fVVNBMTlXIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VT
+Ql9TRVJJQUxfS0VZU1BBTl9VU0E0OVcgaXMgbm90IHNldA0KIyBDT05GSUdf
+VVNCX1NFUklBTF9NQ1RfVTIzMiBpcyBub3Qgc2V0DQojIENPTkZJR19VU0Jf
+U0VSSUFMX1BMMjMwMyBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VSSUFM
+X0NZQkVSSkFDSyBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VSSUFMX1hJ
+UkNPTSBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfU0VSSUFMX09NTklORVQg
+aXMgbm90IHNldA0KDQojDQojIE1pc2NlbGxhbmVvdXMgVVNCIGRyaXZlcnMN
+CiMNCiMgQ09ORklHX1VTQl9SSU81MDAgaXMgbm90IHNldA0KIyBDT05GSUdf
+VVNCX0lENzUgaXMgbm90IHNldA0KDQojDQojIEJsdWV0b290aCBzdXBwb3J0
+DQojDQojIENPTkZJR19CTFVFWiBpcyBub3Qgc2V0DQoNCiMNCiMgS2VybmVs
+IGhhY2tpbmcNCiMNCkNPTkZJR19ERUJVR19LRVJORUw9eQ0KIyBDT05GSUdf
+REVCVUdfSElHSE1FTSBpcyBub3Qgc2V0DQojIENPTkZJR19ERUJVR19TTEFC
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0RFQlVHX0lPVklSVCBpcyBub3Qgc2V0
+DQpDT05GSUdfTUFHSUNfU1lTUlE9eQ0KIyBDT05GSUdfREVCVUdfU1BJTkxP
+Q0sgaXMgbm90IHNldA0KQ09ORklHX0RFQlVHX0JVR1ZFUkJPU0U9eQ0K
+--1920110659-1875519592-1002735939=:29038--

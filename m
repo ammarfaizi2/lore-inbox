@@ -1,42 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbTJFPJb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 11:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTJFPJa
+	id S262232AbTJFPHu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 11:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTJFPHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 11:09:30 -0400
-Received: from chaos.sr.unh.edu ([132.177.249.105]:7811 "EHLO chaos.sr.unh.edu")
-	by vger.kernel.org with ESMTP id S262260AbTJFPJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 11:09:27 -0400
-Date: Mon, 6 Oct 2003 11:09:33 -0400 (EDT)
-From: Kai Germaschewski <kai.germaschewski@unh.edu>
-X-X-Sender: kai@chaos.sr.unh.edu
-To: Jan Schubert <Jan.Schubert@GMX.li>
-cc: linux-kernel@vger.kernel.org, <kernelnewbies@vger.kernel.org>
-Subject: Re: Q: Maintainer for drivers/isdn/hisax in kernel-2.6
-In-Reply-To: <3F8090E7.9040501@GMX.li>
-Message-ID: <Pine.LNX.4.44.0310061107140.16435-100000@chaos.sr.unh.edu>
+	Mon, 6 Oct 2003 11:07:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55938 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262232AbTJFPHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 11:07:47 -0400
+Date: Mon, 6 Oct 2003 11:09:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, Dave Jones <davej@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FDC motor left on
+In-Reply-To: <200310061425.h96EPhkP000548@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0310061059220.9165@chaos>
+References: <Pine.LNX.4.53.0310031322430.499@chaos> <20031003235801.GA5183@redhat.com>
+ <Pine.LNX.4.53.0310060834180.8593@chaos> <16257.26407.439415.325123@gargle.gargle.HOWL>
+ <Pine.LNX.4.53.0310060932340.8753@chaos> <200310061425.h96EPhkP000548@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Oct 2003, Jan Schubert wrote:
+On Mon, 6 Oct 2003, John Bradford wrote:
 
-> Who is the Maintainer for the (old) ISDN-Hisax-Part for the kernel-2.6 
-> (located in drivers/isdn/hisax)? I've digged into the code and got some 
-> problems. IMHO there exist some old/outdated code which will never be 
-> used in the current state (there are some Kernel-Config-Values which are 
-> not defined or which will never be used). I tried to write an module to 
-> get an Teles ISDN-PCMCIA Card running and run into some problems which 
-> prevents me from further testing now.
+> > If you can end up with another floppy drive motor on under
+> > any condition when the kernel is given control, then you
+> > can simply reset both (or all) floppy motor control bits.
+>
+> This is not a problem to deal with in the kernel - what if there is
+> hardware other than a floppy controller at that address?
+>
 
-Well, Karsten Keil and me are listed for that, and I think Karsten is 
-actually actively working on fixing problems there. I've been far away 
-from any ISDN equipment for the past 1 1/2 years now, which combined with 
-a certain lack of time unfortunately reduced my ability to contribute, but 
-I'm still there to take questions and review patches.
+In the ix86 architecture (and it is in arch-specific code), there
+cannot be anything at this address except a floppy or nothing.
+In both cases, you are covered.
 
---Kai
+I any embedded systems developer decides to put something besides
+a FDC at that address, it is up to them to fix the problems they
+create, not linux.
+
+> The bootloader needs to ensure that the hardware is at least in a
+> sensible state when the kernel is entered.  Infact, unless the system
+> is being booted from floppy, why is the BIOS accessing the floppy at
+> all?
+>
+
+The BIOS accesses the floppy (if one exists) because of the
+boot order having been selected. Many who have computers,
+that are not accessible to others, have the BIOS set up so
+that the first thing to check for a boot-loader is the floppy,
+then the CD-ROM, then the hard disk. This lets them do their
+normal work without having to muck with the BIOS.
+
+It is not an error to configure a machine this way. It
+is an option. It is an error, however, to leave a floppy
+disk-drive motor ON forever.
+
+> Re-configure the BIOS not to try to boot from the floppy, or to seek
+> the drive to see whether it is capable of 40 or 80 tracks.
+>
+
+The BIOS can be (correctly) set to any of many possible boot-
+options.
+
+> If that is not possible, (on a laptop with an obscure BIOS for
+> example), add a delay to the bootloader.  Assumng interupts are still
+> enabled, the BIOS will switch the floppy off after a few seconds.
+>
+
+An arbitrary delay is a very bad hack. If you need something OFF,
+you turn it OFF. One should never work-around a primative like
+ON or OFF. The digital-output registers at the FDC's specified
+address is where this is done.
+
+> John.
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

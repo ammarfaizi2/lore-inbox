@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbUATBv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 20:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbUATBr1
+	id S265310AbUATBnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 20:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUATBmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 20:47:27 -0500
-Received: from mail.kroah.org ([65.200.24.183]:17620 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265320AbUATBn1 (ORCPT
+	Mon, 19 Jan 2004 20:42:45 -0500
+Received: from colin2.muc.de ([193.149.48.15]:62736 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265191AbUATBjL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 20:43:27 -0500
-Date: Mon, 19 Jan 2004 17:30:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Mares <mj@ucw.cz>
-Cc: Kieran Morrissey <linux@mgpenguin.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.1: Update PCI Name database, fix gen-devlist.c for long device names.
-Message-ID: <20040120013042.GG6309@kroah.com>
-References: <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net> <20040117103859.GA2185@ucw.cz>
+	Mon, 19 Jan 2004 20:39:11 -0500
+Date: 20 Jan 2004 02:39:45 +0100
+Date: Tue, 20 Jan 2004 02:39:45 +0100
+From: Andi Kleen <ak@colin2.muc.de>
+To: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Modernize i386 string.h
+Message-ID: <20040120013945.GA76524@colin2.muc.de>
+References: <20040118200919.GA26573@averell> <20040120004954.GA3545@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040117103859.GA2185@ucw.cz>
+In-Reply-To: <20040120004954.GA3545@twiddle.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 11:39:00AM +0100, Martin Mares wrote:
-> Hello!
+On Mon, Jan 19, 2004 at 04:49:54PM -0800, Richard Henderson wrote:
+> On Sun, Jan 18, 2004 at 09:09:19PM +0100, Andi Kleen wrote:
+> > +#define __HAVE_ARCH_MEMCPY 1
+> > +extern void *__memcpy(void *to, const void *from, size_t len); 
+> > +#define memcpy(dst,src,len) \
+> > +	({ size_t __len = (len);				\
+> > +	   void *__ret;						\
+> > +	   if (__builtin_constant_p(len) && __len >= 128)	\
+> > +		 __ret = __memcpy((dst),(src),__len);		\
+> > +	   else							\
+> > +		 __ret = __builtin_memcpy((dst),(src),__len);	\
+> > +	   __ret; }) 
 > 
-> > * Updates pci.ids with a snapshot from http://pciids.sourceforge.net/ as at 
-> > 14 Jan 04.
-> > * Fixes gen-devlist.c to truncate long device names rather than reject the 
-> > whole database
-> >   (previously the latest databases had some devices that were too long and 
-> > caused a kernel with the latest db to fail to compile)
-> 
-> I think it would be better to increase the name length limit, the long entries
-> really have useful information at the end :)
+> Why not just __builtin_memcpy?  Or indeed, why bother defining
+> anything at all, since the compiler will infer __builtin_memcpy
+> from the external symbol memcpy.
 
-That's probably a good idea.  Kieran, care to make up a patch to do
-this?
+I was considering that when I moved the code over from x86-64.
 
-thanks,
+On x86-64 (in gcc 3.1 timeframe) I did it originally this way 
+because memcpy didn't have this "use external for big copies" logic.
+I wasn't sure if gcc 3.3 handles it now correctly. If you can
+confirm that it does I will happily remove it.
 
-greg k-h
+-Andi

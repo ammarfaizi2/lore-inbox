@@ -1,77 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129336AbRBJA0E>; Fri, 9 Feb 2001 19:26:04 -0500
+	id <S129068AbRBJAZY>; Fri, 9 Feb 2001 19:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129924AbRBJAZz>; Fri, 9 Feb 2001 19:25:55 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:48381 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129336AbRBJAZs>; Fri, 9 Feb 2001 19:25:48 -0500
-Date: Fri, 9 Feb 2001 16:25:32 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Alex Deucher <adeucher@UU.NET>
-cc: rainer@konqui.de, linux-kernel@vger.kernel.org
-Subject: Re: seti@home and es1371
-In-Reply-To: <3A7863E4.C7323E96@uu.net>
-Message-ID: <Pine.LNX.4.21.0102091624110.26669-100000@sol.compendium-tech.com>
+	id <S129336AbRBJAZO>; Fri, 9 Feb 2001 19:25:14 -0500
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:3849 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S129068AbRBJAYz>; Fri, 9 Feb 2001 19:24:55 -0500
+Message-ID: <3A8489DE.D8C2B80A@damncats.org>
+Date: Fri, 09 Feb 2001 19:22:54 -0500
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Mucho timeouts on USB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might also want to run setiathome with the -nice option...for
-instance i *always* run it with -nice 19 so that it lays in the background
-consuming otherwise idle cycles. anything wanting cpu time will then take
-it from seti.
+Hi,
 
+Just got a D-Link USB radio (R100) and I'm seeing lots of timeouts with
+it. I've seen this through the last few 2.4.1+ and -ac+ kernels.
 
-On Wed, 31 Jan 2001, Alex Deucher wrote:
+Current config:
 
-> Rainer,
-> 
-> 	I'm not too familiar with the ct5880 sound chip that comes built onto
-> motherboards.  I do know that alot of the AC'97 compliant built in sound
-> chips tend to let the host cpu do most of the processing involved in
-> playing the sound.  That being said, even if you have a dedicated sound
-> processor, mp3 decoding is very processor intensive.  It just so happens
-> that seti is also very processor intensive.  Both of these processes are
-> vying for time on the cpu.  Since both of these processes are so
-> processor intensive and the cpu can only do one thing at a time, the
-> performance of one or the other process will suffer from time to time.
-> 
-> Alex
-> 
-> 
-> ----------------------------------------
-> 
-> Hi, 
-> 
-> I hope you can help me. I have a problem with my on board soundcard and 
-> seti. I have a Gigabyte GA-7ZX Creative 5880 sound chip. I use the
-> kernel 
-> driver es1371 and it works goot. But when I run seti@home I got some
-> noise 
-> in my sound when I play mp3 and other sound. But it is not every time
-> 10s 
-> play good than for 2 s bad and than 10s good 2s bad and so on. When I
-> kill 
-> seti@home every thing is ok. So what can I do? 
-> 
-> I have a Athlon 800 Mhz and 128 MB RAM 
-> 
-> cu 
-> Rainer
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Dual P3-500 w/ 512mb of RAM
+Tyan Tiger 133 mobo with VIA chipset, onboard USB
+Kernel 2.4.1-ac9 compiled with egcs-1.1.2
 
--- 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+The only thing funky is that three devices are sharing an interrupt:
 
+           CPU0       CPU1       
+  0:     216690     219652    IO-APIC-edge  timer
+  1:       3564       3816    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  3:          7         20    IO-APIC-edge  serial
+  5:       1017       1135   IO-APIC-level  EMU10K1
+  8:          0          1    IO-APIC-edge  rtc
+ 11:      22978      22756   IO-APIC-level  aic7xxx, eth0, usb-uhci
+ 12:      64220      63272    IO-APIC-edge  PS/2 Mouse
+ 14:      12132      12810    IO-APIC-edge  ide0
+ 15:          3         10    IO-APIC-edge  ide1
+NMI:     436327     436327 
+LOC:     436151     436128 
+ERR:          0
+
+The ethernet card is a 3Com 3c905, the SCSI card is Adaptec 7892B (19160
+card). No problems with either as far as I can tell, but one of these
+modules may not be playing nice with interrupt sharing.
+
+The messages:
+
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.251 $ time 17:33:47 Feb  9 2001
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=2 (error=-110)
+usb.c: USB device 3 (vend/prod 0x4b4/0x1002) is not claimed by any
+active driver.
+usb_control/bulk_msg: timeout
+usb.c: error getting string descriptor 0 (error=-110)
+usb_control/bulk_msg: timeout
+usb.c: error getting string descriptor 0 (error=-110)
+usb_control/bulk_msg: timeout
+usb.c: error getting string descriptor 0 (error=-110)
+usb_control/bulk_msg: timeout
+usb.c: error getting string descriptor 0 (error=-110)
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

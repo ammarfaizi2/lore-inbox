@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSGALSr>; Mon, 1 Jul 2002 07:18:47 -0400
+	id <S315456AbSGALZI>; Mon, 1 Jul 2002 07:25:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSGALSq>; Mon, 1 Jul 2002 07:18:46 -0400
-Received: from unthought.net ([212.97.129.24]:26590 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S315451AbSGALSp>;
-	Mon, 1 Jul 2002 07:18:45 -0400
-Date: Mon, 1 Jul 2002 13:21:11 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: michael@insulin-pumpers.org,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: Can't boot from /dev/md0 (RAID-1)
-Message-ID: <20020701112111.GB18580@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	michael@insulin-pumpers.org,
-	Kernel mailing list <linux-kernel@vger.kernel.org>,
-	linux-raid@vger.kernel.org
-References: <200206302046.g5UKkgpS006815@ns2.is.bizsystems.com> <200207011207.07552.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S315468AbSGALZH>; Mon, 1 Jul 2002 07:25:07 -0400
+Received: from mta04bw.bigpond.com ([139.134.6.87]:46057 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S315456AbSGALZG>; Mon, 1 Jul 2002 07:25:06 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Ralph Corderoy <ralph@inputplus.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
+Date: Mon, 1 Jul 2002 21:24:20 +1000
+User-Agent: KMail/1.4.5
+References: <200207011102.g61B22305958@blake.inputplus.co.uk>
+In-Reply-To: <200207011102.g61B22305958@blake.inputplus.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200207011207.07552.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200207012124.20330.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 01, 2002 at 12:07:07PM +0200, Roy Sigurd Karlsbakk wrote:
-...
-> 
-> I've read the fscking manual - all I can find - for both grub and lilo, and 
-> I've tried all possible configurations I can think of.
-> 
-> point is - I beleive there's a BIOS/linux misunderstanding somewhere
+On Mon, 1 Jul 2002 21:02, Ralph Corderoy wrote:
+> Hi,
+>
+> Does anyone here have a USB Happy Hacking Keyboard Lite Mk 2 keyboard?
+>
+> On connecting to my 2.4.18 Linux system I find that it works great,
+> except that certain triples of keys produce four characters instead of
+> three when typed in rapid succession.  This happens under XFree86 and
+> also at a tty.  For example, typing `swa' rapidly produces `swaw'.
+What is the event interface (dev/input/eventX) showing for this type of input?
 
-Did you try the   raid-extra-boot  option for LILO ?  I really don't
-know if this is the problem you are seeing, but it's worth a shot I
-think.
+> Further investigation revealed that only certain combination of keys
+> exhibit the problem.  More examples are
+>
+>     keys produces
+>     rty    rtty
+>     yui    yuui
+>     tyu    tyuy
+>     swa    swaw
+>     jhg    jhgh
+>
+> But other won't show the problem, e.g. `zxc', `asd', and `qwe'.
+>
+> My theory is that usbkbd.o doesn't cope with ErrorRollover which is
+> being generated, unlike hid.o which didn't used to but does now.
+Err, how do you reconcile that with only seeing it on some keys?
+
+BTW: usbkbd isn't meant for real work. You should use full HID.
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

@@ -1,81 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265265AbUFVU2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265484AbUFVUch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265265AbUFVU2A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUFVUZ0
+	id S265484AbUFVUch (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUFVU2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:25:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:31914 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265265AbUFVUWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:22:42 -0400
-Subject: [PATCH] radeonfb: Fix panel detection on some laptops
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1087935369.1855.8.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 15:16:09 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 16:28:30 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:65017 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265902AbUFVU01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:26:27 -0400
+Date: Tue, 22 Jun 2004 16:17:25 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: <kernel@mikebell.org>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: SATA 3112 errors on 2.6.7
+In-Reply-To: <20040620023833.GN497@tinyvaio.nome.ca>
+Message-ID: <Pine.GSO.4.33.0406221614050.25702-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, 20 Jun 2004 kernel@mikebell.org wrote:
+>To confirm, I also see the problem despite adding the drives to
+>the blacklist on 2.6.7.
 
-The code in radeonfb looking for the BIOS image currently uses the
-BIOS ROM if any, and falls back to the RAM image if not found. This
-is unfortunatly not correct for a bunch of laptops where the real
-panel data are only present in the RAM image.
+Yeah.  I uncovered a small oops in there.  libsata-scsi.c resets max_sectors
+if LBA48 is enabled.  Mr. Garzik has been sent a patch (maybe not "the"
+patch.)  I'm still digging into this one as I don't like losing 50% of
+my drives speed.  SI eats more than enough on it's own.
 
-This works around this problem by preferring the RAM image on mobility
-chipsets. This is definitely not the best workaround, we need some arch
-support for linking the RAM image to the PCI ID (preferrably by having
-the arch snapshot it during boot, isolating us completely from the details
-of where this image is in memory). I'll see how we can get such
-an improvement later.
-
-Please apply,
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-===== drivers/video/aty/radeon_base.c 1.20 vs edited =====
---- 1.20/drivers/video/aty/radeon_base.c	2004-06-18 11:36:48 -05:00
-+++ edited/drivers/video/aty/radeon_base.c	2004-06-22 15:11:16 -05:00
-@@ -2268,9 +2268,17 @@
- 
- 	/*
- 	 * Map the BIOS ROM if any and retreive PLL parameters from
--	 * either BIOS or Open Firmware
-+	 * the BIOS. We skip that on mobility chips as the real panel
-+	 * values we need aren't in the ROM but in the BIOS image in
-+	 * memory. This is definitely not the best meacnism though,
-+	 * we really need the arch code to tell us which is the "primary"
-+	 * video adapter to use the memory image (or better, the arch
-+	 * should provide us a copy of the BIOS image to shield us from
-+	 * archs who would store that elsewhere and/or could initialize
-+	 * more than one adapter during boot).
- 	 */
--	radeon_map_ROM(rinfo, pdev);
-+	if (!rinfo->is_mobility)
-+		radeon_map_ROM(rinfo, pdev);
- 
- 	/*
- 	 * On x86, the primary display on laptop may have it's BIOS
-@@ -2282,6 +2290,12 @@
- 	if (rinfo->bios_seg == NULL)
- 		radeon_find_mem_vbios(rinfo);
- #endif /* __i386__ */
-+
-+	/* If both above failed, try the BIOS ROM again for mobility
-+	 * chips
-+	 */
-+	if (rinfo->bios_seg == NULL && rinfo->is_mobility)
-+		radeon_map_ROM(rinfo, pdev);
- 
- 	/* Get informations about the board's PLL */
- 	radeon_get_pllinfo(rinfo);
+--Ricky
 
 

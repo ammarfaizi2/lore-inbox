@@ -1,110 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbTGOJDK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 05:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbTGOJDK
+	id S265764AbTGOJCs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 05:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbTGOJCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 05:03:10 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:33085 "EHLO
-	corp.tivoli.com") by vger.kernel.org with ESMTP id S265841AbTGOJDC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 05:03:02 -0400
-Message-ID: <3F13C6BA.80102@tiscalinet.it>
-Date: Tue, 15 Jul 2003 11:17:46 +0200
-From: Koala GNU <koala.gnu@tiscalinet.it>
-Reply-To: koala.gnu@tiscalinet.it
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Riley Williams <Riley@Williams.Name>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux boot code
-References: <BKEGKPICNAKILKJKMHCACEAKEOAA.Riley@Williams.Name>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 05:02:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9941 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265764AbTGOJCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 05:02:46 -0400
+Date: Tue, 15 Jul 2003 11:17:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030715091730.GI833@suse.de>
+References: <20030714224528.GU16313@dualathlon.random> <1058229360.13317.364.camel@tiny.suse.com> <20030714175238.3eaddd9a.akpm@osdl.org> <20030715020706.GC16313@dualathlon.random> <20030715054551.GD833@suse.de> <20030715060101.GB30537@dualathlon.random> <20030715060857.GG833@suse.de> <20030715070314.GD30537@dualathlon.random> <20030715082850.GH833@suse.de> <1058260347.4012.11.camel@tiny.suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058260347.4012.11.camel@tiny.suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Riley,
+On Tue, Jul 15 2003, Chris Mason wrote:
+> On Tue, 2003-07-15 at 04:28, Jens Axboe wrote:
+> 
+> > Definitely, because prepare to be a bit disappointed. Here are scores
+> > that include 2.4.21 as well:
+> 
+> > io_load:
+> > Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
+> > 2.4.21                 3        543     49.7    100.4   19.0    4.08
+> > 2.4.22-pre5            3        637     42.5    120.2   18.5    4.75
+> > 2.4.22-pre5-axboe      3        540     50.0    103.0   18.1    4.06
+> 
+> Huh, this is completely different than io_load on my box (2P scsi, ext3,
+> data=writeback)
+> 
+> io_load:
+> Kernel      [runs]      Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.21           3      520     52.5    27.8    15.2    3.80
+> 2.4.22-pre5      3      394     69.0    21.5    15.4    2.90
+> 2.4.22-sync      3      321     84.7    16.2    15.8    2.36
+> 
+> Where 2.4.22-sync was the variant I posted yesterday.  I don't really
+> see how 2.4.21 can get numbers as good as 2.4.22-pre5 on the io_load
+> test, the read starvation with a big streaming io is horrible.
+> 
+> The data=writeback is changing the workload significantly, I used it
+> because I didn't want the data=ordered code to flush all dirty buffers
+> every 5 seconds.  I would expect ext3 data=ordered to be pretty
+> starvation prone in 2.4.21 as well though.
 
-thanks for your reply.
+Well maybe it's due to data=writeback? I'm using completely stock
+options for ext3. You didn't mention tcq depth of your scsi drive, in my
+experience it's worthless to test io scheduler behaviour using more than
+a few tags.
 
-I noticed the native boot code for floppy is not supported any more. In 
-fact in the current code display a message and reboot the machine after 
-the press of a key.
+> BTW, the contest run times vary pretty wildy.  My 3 compiles with
+> io_load running on 2.4.21 were 603s, 443s and 515s.  This doesn't make
+> the average of the 3 numbers invalid, but we need a more stable metric.
 
-But I am interested on how the old native boot code worked.
+Mine are pretty consistent [1], I'd suspect that it isn't contest but your
+drive tcq skewing things. But it would be nice to test with other things
+as well, I just used contest because it was at hand.
 
-Do you know if there is a particular reason why the boot sector is moved 
-to 0x9000:0 (excuse me if I repeat the question, but I need help on this)?
+[1] when the current run completes, I can post them all.
 
-I hope someone else can point me a site where is reported the format of 
-the floppy parameter table at address 0x0:0x78.
-
-Thanks in advance and excuse me for this other post.
-
-Riley Williams wrote:
-
->Hi.
->
-> > I am looking at the boot code in bootsect.S and I have some doubt.
-> > I tried to search the answers to my questions on
-> > marc.theaimsgroup.com and on Google but I haven't found them.
->
->I know nothing about the former site, so can't comment thereon.
->
-> > Probably these are newbie question but I'll appreciate if someone
-> > of you help me.
->
->I'll do what I can.
->
-> > 1) In the bootsect code the first thing that is done is to copy
-> >    the boot sector to 0x90000 and move the program count to
-> >    0x9000, go. Why it is necessary move the code there? Is it not
-> >    possible continue the process from 0x7C00?
->
->Following moving the boot code there, the next step is to load the
->kernel image, either from 0x10000 (64k) or from 1M upwards, this
->being dependent on various factors. However, the boot sector holds
->several flags whose values are important AFTER the kernel image has
->been loaded, so is moved out the way first.
->
-> > 2) Another step is to move the parameters table from 0x78:0 to
-> >    0x9000:0x4000-12. What are the info contained in this table?
-> >    Can you send me a link to a site that specify these info?
-> >    Without these info I am not able to understand these three
-> >    line of code
-> >
-> >        movb    $36, 0x4(%di)           # patch sector count
-> >        movw    %di, %fs:(%bx)
-> >        movw    %es, %fs:2(%bx)
->
->That area of memory contains parameters configured by the BIOS of
->the machine in question. I would suspect it's the parameters for
->the floppy drives, and the code that follows is presumably that
->used to determine how many sectors per track the floppy in /dev/fd0
->actually has.
->
-> > Thanks in advance for your help
->
->No problem.
->
->Best wishes from Riley.
->---
-> * Nothing as pretty as a smile, nothing as ugly as a frown.
->
->---
->Outgoing mail is certified Virus Free.
->Checked by AVG anti-virus system (http://www.grisoft.com).
->Version: 6.0.500 / Virus Database: 298 - Release Date: 10-Jul-2003
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+-- 
+Jens Axboe
 

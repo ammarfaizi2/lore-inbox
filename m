@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276775AbRJBXGR>; Tue, 2 Oct 2001 19:06:17 -0400
+	id <S276779AbRJBXOA>; Tue, 2 Oct 2001 19:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276774AbRJBXGI>; Tue, 2 Oct 2001 19:06:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35722 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S276772AbRJBXF4>;
-	Tue, 2 Oct 2001 19:05:56 -0400
-Date: Tue, 02 Oct 2001 16:06:19 -0700 (PDT)
-Message-Id: <20011002.160619.66178247.davem@redhat.com>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cacheline align rt_cache_stat struct
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011002185816.A8643@in.ibm.com>
-In-Reply-To: <20011002185816.A8643@in.ibm.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S276778AbRJBXNz>; Tue, 2 Oct 2001 19:13:55 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:45065 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S276777AbRJBXNh>; Tue, 2 Oct 2001 19:13:37 -0400
+Date: Tue, 2 Oct 2001 16:13:43 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ricky Beam <jfbeam@bluetopia.net>, Andrew Morton <akpm@zip.com.au>,
+        Lorenzo Allegrucci <lenstra@tiscalinet.it>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: Huge console switching lags
+In-Reply-To: <E15oYUA-0006HG-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10110021609320.32552-100000@transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thanks, I've added your change to my tree.
+> On x86 they'll probably make no difference at all, unless the old code
+> is really really crap. Your bottleneck is the PCI bus. All you can do is
+> avoid reads.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+True. We have discussed the idea of placing the fonts into video memory
+instead of system memory if the graphics card has room. At first I didn't
+like the idea since handling scrolling would become more difficult. It can
+be done tho with enough "tricks". I think it should be up to the driver
+write where he/she can place the font image. This case drawimage becomes
+copyarea except you grabbing off screen data. I have some thinking about
+how to handle that.  
+

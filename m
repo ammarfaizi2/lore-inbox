@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316015AbSEJPJz>; Fri, 10 May 2002 11:09:55 -0400
+	id <S316016AbSEJPLT>; Fri, 10 May 2002 11:11:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316016AbSEJPJy>; Fri, 10 May 2002 11:09:54 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:49926 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316015AbSEJPJx>; Fri, 10 May 2002 11:09:53 -0400
-Date: Fri, 10 May 2002 16:09:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to redirect serial console to telnet session?
-Message-ID: <20020510160945.B7165@flint.arm.linux.org.uk>
-In-Reply-To: <3CDBC5A5.A1844CC0@nortelnetworks.com>
-Mime-Version: 1.0
+	id <S316017AbSEJPLS>; Fri, 10 May 2002 11:11:18 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:58538 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S316016AbSEJPLR>; Fri, 10 May 2002 11:11:17 -0400
+Date: Fri, 10 May 2002 08:11:01 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, Patricia Gaughen <gone@us.ibm.com>
+cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] discontigmem support for ia32 NUMA box against 2.4.19pre8
+Message-ID: <364669737.1021018260@[10.10.2.3]>
+In-Reply-To: <20020510092436.A7038@infradead.org>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 09:05:41AM -0400, Chris Friesen wrote:
-> Accordingly, I grabbed what looked like the important bits of xconsole, but it
-> appears that this only gets me stuff written to /dev/console from userspace. 
-> How do I go about getting the output of kernel-level printk()s as well?
+> This looks much better.  The only question that came up to me now that
+> the CONFIG_ stuff is cleaned up a lot: What is the difference between
+> CONFIG_X86_NUMAQ and CONFIG_MULTIQUAD?
 
-Check the LKML archives for something called 'netconsole' (or use google).
-It got mentioned here about 6 months to a year ago.
+The former is for NUMAQ specific stuff, the latter was intended to
+switch on clustered apic mode support, which could be used by other
+machines too. Due a lack of differentiation in the past, we probably
+use CONFIG_MULTIQUAD (or rather its child, clustered_apic_mode) 
+in a few places where we should be using CONFIG_X86_NUMAQ. My
+laziness - sorry ;-)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+M.
 

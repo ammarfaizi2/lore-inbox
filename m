@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbUBOPah (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBOPad
+	id S265117AbUBOPf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUBOPf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:30:33 -0500
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:16790 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265059AbUBOP2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:28:36 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Emmeran Seehuber <rototor@rototor.de>
-Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
-Date: Sun, 15 Feb 2004 10:28:24 -0500
-User-Agent: KMail/1.6
+	Sun, 15 Feb 2004 10:35:28 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:11648 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265117AbUBOPfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:35:23 -0500
+Date: Sun, 15 Feb 2004 16:35:57 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: sting sting <zstingx@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200402112344.23378.rototor@rototor.de> <200402141205.52316.dtor_core@ameritech.net> <200402151425.15478.rototor@rototor.de>
-In-Reply-To: <200402151425.15478.rototor@rototor.de>
-MIME-Version: 1.0
+Subject: Re: re: keyboard and mouse driver module and...
+Message-ID: <20040215153557.GA326@ucw.cz>
+References: <Sea2-F45ritY7qJSGBJ0001683e@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402151028.25284.dtor_core@ameritech.net>
+In-Reply-To: <Sea2-F45ritY7qJSGBJ0001683e@hotmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 February 2004 09:25 am, Emmeran Seehuber wrote:
-> On Saturday 14 February 2004 17:05, Dmitry Torokhov wrote:
-> [...]
-> > Could you please #define DEBUG in drivers/input/serio/i8042.c and post your
-> > dmesg? Also, what kind of PC is that (manufacturer/model)?
-> I've attached the output of dmesg with the i8042.nomux option and without. The 
-> laptop is a Xeron Sonic Power Plus (Similar to this one: 
-> http://www.xeron.com/index.php4?id=1255 -- sorry, there seems to be no 
-> english translation of this page). Xeron puts together laptops in exact the 
-> configuration you like. Only the motherboards are the same. But I don`t know 
-> the motherboard vendor/type.  
-> 
+On Sun, Feb 15, 2004 at 02:30:30PM +0200, sting sting wrote:
+> Hello;
+> Thnxs.
+> If I understand right, then in 2.6 , after starting X windows when typing 
+> lsmod,
+> we should see both keyboard.o and mousedev.o .
+> I just want to make sure that I understand you correctly.
 
-I see that the kernel correctly identifies both devices so I suspect there
-could be a problem with your setup. Could you also post your XF86Config
-and tell me the the options you are passing to GPM, please?
+No. keyboard is always built in, never a module. And regarding mousedev,
+yes, you need that one. But X won't load it for you most likely.
+
+And its .ko, not .o.
 
 -- 
-Dmitry
+Vojtech Pavlik
+SuSE Labs, SuSE CR

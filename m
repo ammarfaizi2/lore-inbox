@@ -1,108 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135520AbRAGBzO>; Sat, 6 Jan 2001 20:55:14 -0500
+	id <S133112AbRAGCFG>; Sat, 6 Jan 2001 21:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbRAGBzE>; Sat, 6 Jan 2001 20:55:04 -0500
-Received: from c-972d.020-11-6b73642.cust.bredbandsbolaget.se ([213.112.13.12]:12805
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S135520AbRAGByy>; Sat, 6 Jan 2001 20:54:54 -0500
-Message-ID: <3A57D935.52C7F2C9@xpress.se>
-Date: Sun, 07 Jan 2001 02:49:25 +0000
-From: Johan Groth <jgroth@xpress.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-storm i686)
-X-Accept-Language: en
+	id <S133117AbRAGCE5>; Sat, 6 Jan 2001 21:04:57 -0500
+Received: from losser.st-lab.cs.uu.nl ([131.211.83.40]:42251 "EHLO
+	losser.st-lab.cs.uu.nl") by vger.kernel.org with ESMTP
+	id <S133112AbRAGCEo> convert rfc822-to-8bit; Sat, 6 Jan 2001 21:04:44 -0500
+Date: Sun, 7 Jan 2001 03:07:02 +0100 (CET)
+From: Eelco Dolstra <eelco@losser.st-lab.cs.uu.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ivan Baldo <lubaldo@adinet.com.uy>, flf@operamail.com, ben@imben.com,
+        linux-kernel@vger.kernel.org, Linux Uruguay <linux-uy@linux.org.uy>,
+        SET <salvador@inti.gov.ar>
+Subject: Re: How to make VFAT work right in 2.4.0-prereleaseu
+In-Reply-To: <E14EzPU-0001SG-00@the-village.bc.nu>
+Message-ID: <Pine.BSF.4.21.0101070300030.12461-100000@losser.st-lab.cs.uu.nl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel compile trouble
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-I wonder if anyone can help me with compilation of kernel 2.4.0. I've
-run make mrproper; make menuconfig; make dep and then I try to build the
-kernel with make bzImage but that fails utterly. I get the following
-message:
 
-tiger:/usr/src/linux# make bzImage
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -c -o
-init/main.o init/main.c
-In file included from /usr/src/linux/include/linux/irq.h:57,
-                 from /usr/src/linux/include/asm/hardirq.h:6,
-                 from /usr/src/linux/include/linux/interrupt.h:45,
-                 from /usr/src/linux/include/asm/string.h:296,
-                 from /usr/src/linux/include/linux/string.h:21,
-                 from /usr/src/linux/include/linux/fs.h:23,
-                 from /usr/src/linux/include/linux/capability.h:17,
-                 from /usr/src/linux/include/linux/binfmts.h:5,
-                 from /usr/src/linux/include/linux/sched.h:9,
-                 from /usr/src/linux/include/linux/mm.h:4,
-                 from /usr/src/linux/include/linux/slab.h:14,
-                 from /usr/src/linux/include/linux/malloc.h:4,
-                 from /usr/src/linux/include/linux/proc_fs.h:5,
-                 from init/main.c:15:
-/usr/src/linux/include/asm/hw_irq.h: In function `x86_do_profile':
-/usr/src/linux/include/asm/hw_irq.h:198: `current' undeclared (first use
-in this function)
-/usr/src/linux/include/asm/hw_irq.h:198: (Each undeclared identifier is
-reported only once
-/usr/src/linux/include/asm/hw_irq.h:198: for each function it appears
-in.)
-In file included from /usr/src/linux/include/asm/string.h:296,
-                 from /usr/src/linux/include/linux/string.h:21,
-                 from /usr/src/linux/include/linux/fs.h:23,
-                 from /usr/src/linux/include/linux/capability.h:17,
-                 from /usr/src/linux/include/linux/binfmts.h:5,
-                 from /usr/src/linux/include/linux/sched.h:9,
-                 from /usr/src/linux/include/linux/mm.h:4,
-                 from /usr/src/linux/include/linux/slab.h:14,
-                 from /usr/src/linux/include/linux/malloc.h:4,
-                 from /usr/src/linux/include/linux/proc_fs.h:5,
-                 from init/main.c:15:
-/usr/src/linux/include/linux/interrupt.h: In function `raise_softirq':
-/usr/src/linux/include/linux/interrupt.h:89: `current' undeclared (first
-use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function
-`tasklet_schedule':
-/usr/src/linux/include/linux/interrupt.h:160: `current' undeclared
-(first use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function
-`tasklet_hi_schedule':
-/usr/src/linux/include/linux/interrupt.h:174: `current' undeclared
-(first use in this function)
-In file included from /usr/src/linux/include/linux/string.h:21,
-                 from /usr/src/linux/include/linux/fs.h:23,
-                 from /usr/src/linux/include/linux/capability.h:17,
-                 from /usr/src/linux/include/linux/binfmts.h:5,
-                 from /usr/src/linux/include/linux/sched.h:9,
-                 from /usr/src/linux/include/linux/mm.h:4,
-                 from /usr/src/linux/include/linux/slab.h:14,
-                 from /usr/src/linux/include/linux/malloc.h:4,
-                 from /usr/src/linux/include/linux/proc_fs.h:5,
-                 from init/main.c:15:
-/usr/src/linux/include/asm/string.h: In function `__constant_memcpy3d':
-/usr/src/linux/include/asm/string.h:305: `current' undeclared (first use
-in this function)
-/usr/src/linux/include/asm/string.h: In function `__memcpy3d':
-/usr/src/linux/include/asm/string.h:312: `current' undeclared (first use
-in this function)
-make: *** [init/main.o] Error 1
+On Sat, 6 Jan 2001, Alan Cox wrote:
 
-I using Storm Linux 2000 Deluxe (based on Debian 2.2r2) if that has
-anything to with it. I could compile the kernel under Red Hat but not
-now.
+> > 	- edit file fs/fat/inode.c, look in the function named
+> > "fat_notify_change" (at about line 901), where it says:"
+> > 	/* FAT cannot truncate to a longer file */
+> > 	if (attr->ia_valid & ATTR_SIZE) {
+> > 		if (attr->ia_size > inode->i_size)
+> > 			return -EPERM;
+> > 	}
+> > 	", just delete all of it (or comment it out). This change wich has been
+> > made in the -prerelease versión, makes Netscape Messenger not to work
+> 
+> If you do that you will corrupt your FAT fs.
 
-TIA,
-Johan
+But only on SMP, right?  The only other FAT change I see in -ac (apart
+from my patch) is the spinlock around fat_cache.
 
--- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   "Better to ask questions and seem stupid
-    than not to ask questions and remain stupid" -Unknown
-           Johan Groth <jgroth@xpress.se> Kupolen Data
+Regards,
+
+Eelco.
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265433AbUGGUmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265429AbUGGUps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265433AbUGGUmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 16:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUGGUmE
+	id S265429AbUGGUps (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 16:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265446AbUGGUps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 16:42:04 -0400
-Received: from [212.34.189.10] ([212.34.189.10]:59835 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265433AbUGGUk0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 16:40:26 -0400
-Date: Wed, 7 Jul 2004 22:40:03 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: benh@kernel.crashing.org
+	Wed, 7 Jul 2004 16:45:48 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:4802 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265429AbUGGUpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 16:45:47 -0400
+Subject: Re: /proc/acpi/battery/BAT1/state shows wrong battery state
+	(correct after some 'cat's)
+From: Len Brown <len.brown@intel.com>
+To: w15mail@yahoo.de
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] modular anslcd
-Message-ID: <20040707204003.GB19145@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, benh@kernel.crashing.org,
-	linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FF6FF@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FF6FF@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089233144.15675.483.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 07 Jul 2004 16:45:44 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Both windows and Linux start off with the
+wrong battery status, but after some queries
+they get it right.  This suggests a hardware-dependent
+model-specific quirk.
 
---- 1.7/drivers/macintosh/Kconfig	2004-05-19 18:02:46 +02:00
-+++ edited/drivers/macintosh/Kconfig	2004-07-07 23:49:37 +02:00
-@@ -191,7 +184,7 @@
- 	  G5 machines. 
- 
- config ANSLCD
--	bool "Support for ANS LCD display"
-+	tristate "Support for ANS LCD display"
- 	depends on ADB_CUDA && PPC_PMAC
- 
- endmenu
---- 1.3/drivers/macintosh/ans-lcd.c	2003-01-06 04:08:28 +01:00
-+++ edited/drivers/macintosh/ans-lcd.c	2004-07-08 00:05:05 +02:00
-@@ -136,7 +136,7 @@
- 				"*    Welcome to    *"  /* Line #2 */
- 				"********************"; /* Line #4 */
- 
--int __init
-+static int __init
- anslcd_init(void)
- {
- 	int a;
-@@ -173,5 +173,12 @@
- 	return 0;
- }
- 
--__initcall(anslcd_init);
-+static void __exit
-+anslcd_exit(void)
-+{
-+	misc_deregister(&anslcd_dev);
-+	iounmap(anslcd_ptr);
-+}
- 
-+module_init(anslcd_init);
-+module_exit(anslcd_exit);
+-Len
+
+

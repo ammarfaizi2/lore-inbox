@@ -1,48 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271006AbRHTCXd>; Sun, 19 Aug 2001 22:23:33 -0400
+	id <S271001AbRHTCVC>; Sun, 19 Aug 2001 22:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271007AbRHTCXX>; Sun, 19 Aug 2001 22:23:23 -0400
-Received: from ool-18b899e0.dyn.optonline.net ([24.184.153.224]:31224 "EHLO
-	bouncybouncy") by vger.kernel.org with ESMTP id <S271006AbRHTCXI>;
-	Sun, 19 Aug 2001 22:23:08 -0400
-Date: Sun, 19 Aug 2001 22:23:20 -0400
-From: Justin A <justin@bouncybouncy.net>
-To: tristan <fattymikefx@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: installing Linux over a network
-Message-ID: <20010819222320.A9409@bouncybouncy.net>
-In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
-User-Agent: Mutt/1.3.20i
+	id <S271005AbRHTCUx>; Sun, 19 Aug 2001 22:20:53 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:43790 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S271001AbRHTCUl>;
+	Sun, 19 Aug 2001 22:20:41 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Ralf Baechle <ralf@uni-koblenz.de>
+Cc: Justin Guyett <justin@soze.net>, Jim Roland <jroland@roland.net>,
+        linux-kernel@vger.kernel.org
+Date: Sun, 19 Aug 2001 18:03:15 -0700 (PDT)
+Subject: Re: Aliases
+In-Reply-To: <20010818143232.A11687@bacchus.dhis.org>
+Message-ID: <Pine.LNX.4.33.0108191757130.798-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The base debian install takes only 12 floppies or so.
-If you have a network card that works in linux you can install the base system
-over the network, then you only need 4 floppies or so.
+where can I get the iproute package mentioned below. I just double checked
+slackware 8.0 and it isn't included.
 
-http://www.debian.org
+David Lang
 
--Justin
+On Sat, 18 Aug 2001, Ralf Baechle wrote:
 
-On Sun, Aug 19, 2001 at 09:21:37PM -0400, tristan wrote:
-> I havent been able to find a way of installing
-> Linux slackware or red hat with out using 90 or more
-> floppies, and i have no cd rom on my 386. Is there
-> a way to install Linux over a network on such an old machine.
-> It currently has windows 3.1 and DOS running. And 
-> has one 60 mb hard drive and one 120 mb hard drive.
-> I have found a small easy to install minix 386 that goes over
-> DOS so I may just use that to start off, in order to install
-> a very old linux kernel .01 or .02
-> 
-> Tristan
+> Date: Sat, 18 Aug 2001 14:32:32 +0200
+> From: Ralf Baechle <ralf@uni-koblenz.de>
+> To: Justin Guyett <justin@soze.net>
+> Cc: Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
+> Subject: Re: Aliases
+>
+> On Sat, Aug 18, 2001 at 03:30:59AM -0700, Justin Guyett wrote:
+>
+> > > Having recently gone from 2.2 to 2.4 what's the device convention now?  I
+> > > thought it was eth0 (example) and eth0:0 .. eth0:255, but knew kernel 2.4
+> > > would take it further.
+> >
+> > presuming this isn't an ifconfig limit instead of a kernel limit, trying
+> > "ifconfig eth0:x" works for x < 10000, anything > 10000 and x becomes
+> > x%10000.
+>
+> For various reasons interfaces aliases are deprecated.  The recommended
+> way of doing things these days is just adding more addresses to an
+> interface with the ip(8) program from the iproute package.  It works like:
+>
+>   ip addr add 192.168.2.0/24 broadcast 192.168.2.255 scope host dev eth0
+>
+> > However, 2.4 also has multiple addresses of the same type per device;
+> > unfortunately it's fairly slow.  Adding or deleting addresses seems to
+> > take ~5 seconds per 255 addresses on my machine, and listing addresses
+> > takes about 1 second / 300 addresses on the same machine.
+>
+> It seems you've tried to add individual addresses, one by one.  That's not
+> necessary, you can add the addresses of a whole subnet to the kernel.  If
+> you have a large network that's dramatically faster and easier to
+> administrate.
+>
+> > Also, listing addresses for another interface isn't any faster, which is
+> > unfortunate; ip shouldn't need to check addresses of all interfaces just
+> > to get the ones for the requested interface.
+> >
+> > At least listing time seems to increase linearly with the number of
+> > addresses.  IIRC someone posted a patch a few weeks ago to speed this up
+> > (no longer sits for a long time before listing addresses).
+> >
+> > time ip addr show dev eth1 | wc -l
+> >   37766
+> > ip addr show dev eth1  113.17s user 1.82s system 99% cpu 1:55.38 total
+>
+> That's crude abuse unless your IPs are actually non-contiguous in address
+> space - which they're almost certainly not.
+>
+> > Also, ifconfig, which has no idea about any but the first address in an
+> > address class, also does nothing for the same amount of time before
+> > listing interfaces.
+>
+> ifconfig is deprecated as it permits you only access to a small part of
+> power of the current Linux networking; ip is the recommended replacement.
+>
+> > Anyway, it seems ip and the 2.4 scheme with multiple addresses per
+> > interface can handle many more addresses than ifconfig and the device
+> > alias scheme.
+>
+> Try ``ip addr add 10.0.0.0/8 broadcast 10.255.255.255 scope host dev eth0''
+> with interface aliases :-)
+>
+>   Ralf
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+>

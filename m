@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274714AbRIUAEZ>; Thu, 20 Sep 2001 20:04:25 -0400
+	id <S274718AbRIUAHp>; Thu, 20 Sep 2001 20:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274716AbRIUAEQ>; Thu, 20 Sep 2001 20:04:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54287 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274714AbRIUAEG>; Thu, 20 Sep 2001 20:04:06 -0400
-Subject: Re: Problem: PnP BIOS driver reports outdated information
-To: jdthoodREMOVETHIS@yahoo.co.uk (Thomas Hood)
-Date: Fri, 21 Sep 2001 01:09:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BAA7AFC.49CEFB5D@yahoo.co.uk> from "Thomas Hood" at Sep 20, 2001 07:25:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S274717AbRIUAHf>; Thu, 20 Sep 2001 20:07:35 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20753 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274715AbRIUAH0>;
+	Thu, 20 Sep 2001 20:07:26 -0400
+Date: Thu, 20 Sep 2001 21:07:39 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: [PATCH][RFC] spin_trylock_bh
+Message-ID: <20010920210739.C1450@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+	paulus@samba.org
+In-Reply-To: <20010915172659.A1916@conectiva.com.br> <20010920.165953.102611286.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kDsP-0006er-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010920.165953.102611286.davem@redhat.com>; from davem@redhat.com on Thu, Sep 20, 2001 at 04:59:53PM -0700
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> think speed is a big issue here.  Are there other reasons
-> for maintaining a device list in the driver?
+Em Thu, Sep 20, 2001 at 04:59:53PM -0700, David S. Miller escreveu:
+>    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+>    Date: Sat, 15 Sep 2001 17:26:59 -0300
+> 
+>    	Please see if this is acceptable, I noticed this while working on
+>    the locks for NetBEUI 8) Patch is against 2.4.9, but it should apply to
+>    latest prepatch. It was being used in the ppp code for quite some time.
+>    
+> This patch looks fine to me...
 
-If you query the current device status on a Vaio and some other boxes
-using the 32bit API your computer dies horribly shortly afterwards.
+It is already in 2.4.9-ac12, hope it'll be merged with Linus soon.
 
-So yes - we should be handling setpnp in the kernel, but no we can't query
-the bios for the data
-
-Alan
+- Arnaldo

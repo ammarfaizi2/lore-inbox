@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUKZXG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263275AbUKZXLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbUKZXG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbUKZTtC
+	id S263275AbUKZXLs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbUKZTsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:49:02 -0500
+	Fri, 26 Nov 2004 14:48:43 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262394AbUKZT3P (ORCPT
+	by vger.kernel.org with ESMTP id S262507AbUKZT25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:29:15 -0500
-Date: Thu, 25 Nov 2004 18:45:53 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, hch@infradead.org, matthew@wil.cx, dwmw2@infradead.org,
-       aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041125184553.GB2849@parcelfarce.linux.theplanet.co.uk>
-References: <19865.1101395592@redhat.com>
+	Fri, 26 Nov 2004 14:28:57 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, brking@us.ibm.com,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16806.21992.295157.530799@cargo.ozlabs.ibm.com>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	 <1100917635.9398.12.camel@localhost.localdomain>
+	 <1100934567.3669.12.camel@gaston>
+	 <1100954543.11822.8.camel@localhost.localdomain>
+	 <16806.21992.295157.530799@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101417118.18177.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <19865.1101395592@redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 25 Nov 2004 21:11:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 25, 2004 at 03:13:12PM +0000, David Howells wrote:
->  (2) Take each file from the shadowed directory. If it has any userspace
->      relevant stuff, then:
-> 
->      (b) Make kernel file #include the user file. So:
-> 
-> 		[include/asm-i386/unistd.h]
-> 		...
-> 		#include <user-i386/unistd.h>
-> 		...
+On Iau, 2004-11-25 at 22:00, Paul Mackerras wrote:
+> read the patch?  All that we are doing is testing one bit in the
+> struct pci_dev to see whether to do the actual access or not.  Or do
+> you want one bit to tell us whether to go and look at another bit to
+> see whether to do the access? :)
 
-We may also want a user-asm symlink pointing to user-$ARCH.
-If <linux/foo.h> wants a definition from <user-$ARCH/foo.h> then it has
-to include <asm/foo.h> which includes <user-$ARCH/foo.h>.  If asm/foo.h
-is empty other than the include, then it'd be nice to delete it and have
-<linux/foo.h> include <user-asm/foo.h> directly.
+Rereading the newer patch and following the pci_lock move properly this
+time it looks fine now.
 
->      (c) Where a user header file requires something from another header file
-> 	 (such as a type), that file should include a suitable user header file
-> 	 directly:
-> 
-> 		[include/user-i386/termio.h]
-> 		...
-> 		#include <user/types.h>
-> 		...
-
-It's occasionally been on my mind that the transition from linux -> asm
-should be one way and that asm files should not include linux files.
-I'm not sure this is necessarily a worthy goal, but it seems worth
-mentioning.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289162AbSAGKPI>; Mon, 7 Jan 2002 05:15:08 -0500
+	id <S289164AbSAGKPQ>; Mon, 7 Jan 2002 05:15:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289166AbSAGKO4>; Mon, 7 Jan 2002 05:14:56 -0500
-Received: from weta.f00f.org ([203.167.249.89]:48581 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S289162AbSAGKOq>;
-	Mon, 7 Jan 2002 05:14:46 -0500
-Date: Mon, 7 Jan 2002 23:17:47 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "APIC error on CPUx" - what does this mean?
-Message-ID: <20020107101747.GA27284@weta.f00f.org>
-In-Reply-To: <20020103195551.BEHH23959.femail47.sdc1.sfba.home.com@there> <E16MGVH-0001Jl-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S289167AbSAGKPI>; Mon, 7 Jan 2002 05:15:08 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:57863 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289164AbSAGKO4>; Mon, 7 Jan 2002 05:14:56 -0500
+Message-ID: <3C3973D9.CF689345@zip.com.au>
+Date: Mon, 07 Jan 2002 02:09:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
+CC: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
+In-Reply-To: <Pine.LNX.4.33.0201070933590.4076-100000@lola.stud.fh-heilbronn.de> <Pine.LNX.4.33.0201071047410.17279-100000@bellatrix.tat.physik.uni-tuebingen.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16MGVH-0001Jl-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 10:38:27PM +0000, Alan Cox wrote:
+Richard Guenther wrote:
+> 
+> On Mon, 7 Jan 2002, Oliver Paukstadt wrote:
+> 
+> > Heavy traffic on ext3 seems to cause short system freezes.
+> 
+> I see dropped frames while watching TV (bttv chip, xawtv in overlay mode,
+> XFree 4.1.0)
+> since I use ext3 (2.4.16&17). Always during disk activity (IDE, umask irq
+> and dma enabled). From what I know the bttv driver does it seems to loose
+> interrupts!? This doesnt happen with ext2.
 
-    The occasional APIC error is fine (its logging a hardware event -
-    probably something that caused enough noise to lose a message and
-    retry it). The APIC bus is designed to stand these occasional
-    errors
+ext3 never blocks interrupts.  It _may_ cause increased interrupt
+latency than ext2 by the very large linear writes which it does.  These
+may cause other parts of the kernel to block interrupts for longer.
 
-I'm curious... is there any way to determine what is causing these?
-On a UP athlon I have:
+However, more likely that it's a scheduling latency problem.  Sigh.
+I spent *ages* on the ext3 buffer writeout code and it's still not
+ideal.  Can you test with this patch applied?
 
-cw:tty5@charon(cw)$ uname -r ; uptime && grep ERR /proc/interrupts
-2.4.17-rc2
- 02:09:50 up 4 days,  5:18, 10 users,  load average: 0.00, 0.00, 0.00
-ERR:       5216
+http://www.zipworld.com.au/~akpm/linux/2.4/2.4.18-pre1/mini-ll.patch
 
-which equates several per minute at times... no funny hardware, not
-running X11, and I don't remembering seeing these a while ago on this
-same mainboard (but I never really looked either, so that might not be
-true).
+It should go into 2.4.17 OK.
 
-On a similar Athlon box, which has been up 32 days, I have nearly 45000
-events, whilst on a UP P3 which has been up for 124 days I see none,
-another UP PII which has been up for 196 days see's none, an SMP P3
-which has been up 150 days sees none too...  is this an Athlon or VIA
-chipset quirk perhaps?
+> ...
+> By any chance, is some global lock held during any IO intensive part of
+> ext3?
 
+Yes, a couple.  But on uniprocessor it's more a matter of the kernel
+failing to context switch promptly.
 
-
-  --cw
-
+-

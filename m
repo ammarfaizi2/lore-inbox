@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbREVHUH>; Tue, 22 May 2001 03:20:07 -0400
+	id <S262505AbREVHut>; Tue, 22 May 2001 03:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262356AbREVHTr>; Tue, 22 May 2001 03:19:47 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:13896 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S261427AbREVHTh>;
-	Tue, 22 May 2001 03:19:37 -0400
-Date: Tue, 22 May 2001 09:20:46 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
-Message-ID: <20010522092046.C761@ipex.cz>
-In-Reply-To: <20010521090946.D769@ipex.cz> <3B0963AF.FDCB8AA2@gmx.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
-Content-Disposition: inline
-In-Reply-To: <3B0963AF.FDCB8AA2@gmx.at>
-User-Agent: Mutt/1.3.18i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+	id <S262515AbREVHuj>; Tue, 22 May 2001 03:50:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262505AbREVHuf>; Tue, 22 May 2001 03:50:35 -0400
+Subject: Re: Dead symbols in CMl1
+To: esr@thyrsus.com
+Date: Tue, 22 May 2001 08:47:53 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010521210010.A20837@thyrsus.com> from "Eric S. Raymond" at May 21, 2001 09:00:10 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1526tV-0001WH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> CONFIG_BAGETBSM          (Baget Backplane Shared Memory support)
+>   Set in arch/mips64/config.in, not used anywhere.
 
---V88s5gaDVPzZ0KCq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Not all mips stuff is merged
 
-> Hi,
->=20
-> I had the same problem with 2.4.3-pre6 (also with the 3c905C). Alle
-> problems were gone with 2.4.4, so I stopped bothering. Hope this
-> helps...
+> CONFIG_ACPI_INTERPRETER  (ACPI interpreter)
+>   Set in arch/ia64/config.in, not used anywhere.
 
-Hi,
-  as I wrote in previous emails, I tried kernel 2.2.16, 2.2.19 and 2.4.x
-series (means 2.4.1, 2.4.3, 2.4.4) and still this error. So, I must forced
-my card to operate in full-duplex mode and errors gone.
+Not all IA64 stuff is merged - although this might be dead. 
 
-Best,
-  .R.V.
+> CONFIG_BINFMT_JAVA (Kernel support for JAVA binaries)
+>   Set in arch/parisc/config.in and arch/cris/config.in, not used anywhere.
 
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
+Dead (died in 2.0 or so(
 
---V88s5gaDVPzZ0KCq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> CONFIG_SCSI_DECSII       (DEC SII SCSI Driver)
+>   Set in drivers/scsi/Config.in, not used anywhere.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Not all mips stuff is merged
 
-iEYEARECAAYFAjsKE04ACgkQInNB3KDLeVNfcACdHN7zTTn5dyJXbduTSWRm9ROD
-vw0AnA5EAcKSs/+CRBianyPnzYruCMGs
-=kc0O
------END PGP SIGNATURE-----
+> CONFIG_PROFILE           (Enable traffic profiling)
+> CONFIG_PROFILE_SHIFT     (Profile shift count)
+>   Set in arch/cris/config.in, not used anywhere.
 
---V88s5gaDVPzZ0KCq--
+Dead

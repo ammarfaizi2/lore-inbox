@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264579AbUGIUtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUGIUwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264579AbUGIUtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 16:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUGIUtD
+	id S264629AbUGIUwP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 16:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUGIUwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 16:49:03 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47260 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264579AbUGIUsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 16:48:52 -0400
-To: Fawad Lateef <fawad_lateef@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need help in creating 8GB RAMDISK
-References: <20040704092523.58214.qmail@web20806.mail.yahoo.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Jul 2004 14:46:14 -0600
-In-Reply-To: <20040704092523.58214.qmail@web20806.mail.yahoo.com>
-Message-ID: <m1brioc3jd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jul 2004 16:52:15 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:41678 "EHLO tsmtp18.mail.isp")
+	by vger.kernel.org with ESMTP id S264629AbUGIUwM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 16:52:12 -0400
+Date: Fri, 9 Jul 2004 22:44:00 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Stefan Reinauer <stepan@openbios.org>
+Cc: hch@infradead.org, pavel@suse.cz, erik@rigtorp.com,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-Id: <20040709224400.4f44303a.diegocg@teleline.es>
+In-Reply-To: <20040709144859.GA18243@openbios.org>
+References: <20040708110549.GB9919@linux.nu>
+	<20040708133934.GA10997@infradead.org>
+	<20040708204840.GB607@openzaurus.ucw.cz>
+	<20040708210403.GA18049@infradead.org>
+	<20040709144859.GA18243@openbios.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fawad Lateef <fawad_lateef@yahoo.com> writes:
+El Fri, 9 Jul 2004 16:48:59 +0200 Stefan Reinauer <stepan@openbios.org> escribió:
 
-> Hello
-> 
-> I am creating a RAMDISK of 7GB (from 1GB to 8GB). I
-> reserved the RAM by changing the code in
-> arch/i386/mm/init.c .......... 
-> 
-> But I am not able to access the RAM from 1GB to 8GB in
-> a kernel module ........ after crossing the 4GB RAM,
-> the system goes into standby state. But if I insert
-> the same module 2 times means one for 1GB to 4GB and
-> other for 4GB to 8GB. and mount them seprately both
-> works fine ............ 
-> 
-> Can any one tell me the reason behind this ??? I think
-> that in a single module we can't access more than 4GB
-> RAM ...... If this is the reason then what to do ??? I
-> need 7GB RAMDISK as a single drive ....
+> Whether one wants retro text messages or a graphical bootup mechanism is
+> sure a philosophical thing. IMHO starting X that early is not an option.
 
-What do you need this for?
-
-Mostly it looks like you just need to use kmap, but...
-As other have pointed out ramfs is usually the better solution,
-and you don't need to code anything.
-
-Or are you trying to use an 7GB initrd.  An interesting idea
-but that would take a little bootloader hacking to make work.
-
-Eric
+Is really neccesary to use a X server? Why not just modify the init scripts to
+use fbi to show a image? Is not that the kernel takes a lot of time to boot and
+run init - even windows XP shows an ascii bar while it loads their kernel,
+that period of time doesn't takes too much time and it doesn't annoy anyone.
+You could switch off the printk output too, so the users doesn't see any
+kernel message at all while init runs and the scripts puts the image in the
+framebuffer console.

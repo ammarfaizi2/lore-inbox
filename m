@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLEXjZ>; Tue, 5 Dec 2000 18:39:25 -0500
+	id <S129210AbQLEXmF>; Tue, 5 Dec 2000 18:42:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLEXjP>; Tue, 5 Dec 2000 18:39:15 -0500
-Received: from cr630205-a.crdva1.bc.wave.home.com ([24.113.89.232]:6139 "EHLO
-	ryan") by vger.kernel.org with ESMTP id <S129183AbQLEXjD>;
-	Tue, 5 Dec 2000 18:39:03 -0500
-Message-ID: <3A2D7505.2BB48C48@javien.com>
-Date: Tue, 05 Dec 2000 15:06:45 -0800
-From: ryan <ryan@javien.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129874AbQLEXl4>; Tue, 5 Dec 2000 18:41:56 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:1417 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S129210AbQLEXlt>;
+	Tue, 5 Dec 2000 18:41:49 -0500
+From: mkloppstech@freenet.de
+Message-Id: <200012052311.AAA06477@john.epistle>
+Subject: test12-pre5 does not compile
 To: linux-kernel@vger.kernel.org
-Subject: Change of /proc/cpuinfo format
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 6 Dec 2000 00:11:23 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I compile dummy.c into the kernel; make bzImage stops with:
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -malign-functions=4     -c -o dummy.o dummy.c
+dummy.c: In function `dummy_init_module':
+dummy.c:103: invalid type argument of `->'
+make[3]: *** [dummy.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers/net'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers/net'
+make[1]: *** [_subdir_net] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers'
+make: *** [_dir_drivers] Error 2
 
-There was a minor change to the format of /proc/cpuinfo which hoses
-several programs.  Most notably is vmware. 
-
-The details are the field formerly known as 'flags' is now known as
-'features' which breaks any programs attempting to parse /proc/cpuinfo
-and making decisions about what feature set the cpu supports.  
-
-I'm not quite sure why the name change is necessary, and even if one
-wants to keep the name change there is a discontunity of cpuinfo formats
-and programs which intend to run on kernels 2.2 and 2.4 needs to know
-this...
-
-Here is a small patch to save your typing fingers:
---- setup.c.old	Tue Dec  5 15:01:21 2000
-+++ setup.c	Tue Dec  5 14:53:52 2000
-@@ -2131,7 +2131,7 @@
- 			        "fpu_exception\t: %s\n"
- 			        "cpuid level\t: %d\n"
- 			        "wp\t\t: %s\n"
--			        "features\t:",
-+			        "flags\t:",
- 			     c->fdiv_bug ? "yes" : "no",
- 			     c->hlt_works_ok ? "no" : "yes",
- 			     c->f00f_bug ? "yes" : "no",
-
-
-in linux/arch/i386/kernel
-
--ryan
-
---
-Ryan Rawson 
-Software Designer
-ryan@javien.com
+Mirko Kloppstech
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

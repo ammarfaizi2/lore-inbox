@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288705AbSADR7p>; Fri, 4 Jan 2002 12:59:45 -0500
+	id <S288707AbSADSBG>; Fri, 4 Jan 2002 13:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288704AbSADR7f>; Fri, 4 Jan 2002 12:59:35 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:65418 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288702AbSADR70>;
-	Fri, 4 Jan 2002 12:59:26 -0500
-Date: Fri, 4 Jan 2002 20:56:52 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrey Nekrasov <andy@spylog.ru>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
-In-Reply-To: <20020104173851.GA3027@spylog.ru>
-Message-ID: <Pine.LNX.4.33.0201042056150.11338-100000@localhost.localdomain>
+	id <S288702AbSADSA4>; Fri, 4 Jan 2002 13:00:56 -0500
+Received: from ns.suse.de ([213.95.15.193]:21523 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288704AbSADSAl>;
+	Fri, 4 Jan 2002 13:00:41 -0500
+Date: Fri, 4 Jan 2002 19:00:38 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
+In-Reply-To: <3C35EAAF.17636C6E@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0201041858400.20620-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0201041858402.20620@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jan 2002, Jeff Garzik wrote:
 
-On Fri, 4 Jan 2002, Andrey Nekrasov wrote:
+> As we are now in 2.5.x series I figured it might be a good time to push
+> this out...  The patch removes __KERNEL__ ifdefs from [only] io.h as a
+> nudge to userspace that they should not be including kernel headers.
 
-> ipconfig.c: In function `ip_auto_config':
-> ipconfig.c:1148: `UNNAMED_MAJOR' undeclared (first use in this function)
-> ipconfig.c:1148: (Each undeclared identifier is reported only once
-> ipconfig.c:1148: for each function it appears in.)
+Why not..
 
-> ps. vanilla kernel compile ok.
+#ifndef __KERNEL__
+#error This file should not be included by userspace.
+#endif
 
-hm, the patch does not change ipconfig.c.
+?
 
-	Ingo
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

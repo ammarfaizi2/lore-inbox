@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbUKDQSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbUKDQSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbUKDQSF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKDQSF
+	id S262280AbUKDQSm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKDQSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:18:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:10134 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262278AbUKDQR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:17:59 -0500
-Date: Thu, 4 Nov 2004 17:17:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Message-ID: <20041104161756.GA2002@elte.hu>
-References: <OFBDA242F0.2AF7EADB-ON86256F42.00585112-86256F42.0058514C@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 11:18:42 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:58263 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S262280AbUKDQSh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:18:37 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org, kernel@crazytrain.com
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Thu, 4 Nov 2004 11:18:36 -0500
+User-Agent: KMail/1.7
+Cc: DervishD <lkml@dervishd.net>,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411031147.14179.gene.heskett@verizon.net> <1099533471.3448.6.camel@crazytrain>
+In-Reply-To: <1099533471.3448.6.camel@crazytrain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <OFBDA242F0.2AF7EADB-ON86256F42.00585112-86256F42.0058514C@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+Message-Id: <200411041118.36204.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.42.194] at Thu, 4 Nov 2004 10:18:36 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 04 November 2004 11:01, kernel wrote:
+>On Wed, 2004-11-03 at 11:47, Gene Heskett wrote:
+>> Finding them is usually an exersize in stretching the
+>> top window out till its about 20 screens high as its always going
+>> to be at the bottom of the list.
+>
+>use 'htop' instead, more flexible in showing and parsing.
+>
+And where is htop, it apparently isn't part of an FC2 install.
+>
+>-fd
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-
-> >does the ping phenomenon go away if you chrt both the networking IRQ
-> >thread and both ksoftirqd's to above the RT task's priority?
-> 
-> For the most part, yes. I reran the test with -V0.7.7 and had
-> continuous ping responses until the system locked up with yet another
-> deadlock. This did NOT fix the display / mouse movement lockups. All
-> IRQ and ksoftirqd tasks were RT 99 priority for this test. latencytest
-> ran at RT 30 priority.
-
-another method would be to set all smp_affinity values in /proc/irq/*/
-to 1 (i.e. let CPU#0 handle all IRQs), and start latencytest on CPU#1,
-via 'taskset'. In theory this should ensure that no hardirq workload
-runs on CPU#1 and thus ksoftirqd would not be active there either. (with
-the exception of kernel timers started on that CPU, by latencytest.)
-
-	Ingo
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUDSLxg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 07:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUDSLxg
+	id S264361AbUDSMBf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 08:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUDSMBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 07:53:36 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:52097 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263802AbUDSLxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 07:53:34 -0400
-Message-ID: <4083BDBB.2050904@yahoo.com.au>
-Date: Mon, 19 Apr 2004 21:53:31 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pedro Larroy <piotr@larroy.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: CFQ iosched praise: good perfomance and better latency
-References: <20040419005651.GA7860@larroy.com> <40835F4E.5000308@yahoo.com.au> <20040418225752.56d10695.akpm@osdl.org> <40836DE8.5080303@yahoo.com.au> <20040419113243.GA18042@larroy.com>
-In-Reply-To: <20040419113243.GA18042@larroy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Apr 2004 08:01:35 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:35530 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S264361AbUDSMBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 08:01:34 -0400
+Date: Mon, 19 Apr 2004 14:01:32 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Sensors (W83627HF) in Tyan S2882
+Message-ID: <20040419120132.GP23938@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pedro Larroy wrote:
-> On Mon, Apr 19, 2004 at 04:12:56PM +1000, Nick Piggin wrote:
+	Hello, world!\n
 
->>Well I think Pedro actually means *seconds*, not ms. The URL
->>shows AS peaks at nearly 10 seconds latency, and CFQ over 2s.
-> 
-> 
-> Yes, I meant seconds, my mistake. I will be testing elevator=noop this
-> evening.
-> 
+	I have two systems with Tyan S2882 boards (K8S Pro). The sensors chip
+is Winbond w83627hf according to the mainboard documentation.  The w83627hf
+driver can read values from the sensors, but apparently not all values.
+The board has six fan connectors (two labeled CPU1 fan and CPU2 fan,
+and four chassis fans). BIOS displays the fan status correctly for all fans,
+so all fans are connected to the sensors chip. However, there are only three
+fans listed in /sys/devices/platform/i2c-1/1-0290.
 
-That would be interesting.
+	Is it possible to read status of other three fans from Linux?
 
-> 
->>It really seems like a raid problem though, because latency
->>measured at the individual devices is under 250ms for AS.
-> 
-> 
-> Probably. But I was surprised to find that bonnie gave similar results
-> with CFQ and with AS when benchmarking the swraid5.
+	Thanks,
 
-I haven't used bonnie, but I think it is single threaded, isn't
-it? If that is the case, then the IO scheduler will make little
-or no difference, so your result is not surprising.
+-Yenya
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+ Any compiler or language that likes to hide things like memory allocations
+ behind your back just isn't a good choice for a kernel.   --Linus Torvalds

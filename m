@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129865AbRB0W4f>; Tue, 27 Feb 2001 17:56:35 -0500
+	id <S129881AbRB0W7z>; Tue, 27 Feb 2001 17:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbRB0W40>; Tue, 27 Feb 2001 17:56:26 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:16910 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129865AbRB0W4N>;
-	Tue, 27 Feb 2001 17:56:13 -0500
-Envelope-To: linux-kernel@vger.redhat.com
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102272043.UAA01056@raistlin.arm.linux.org.uk>
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-To: kuznet@ms2.inr.ac.ru
-Date: Tue, 27 Feb 2001 20:43:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200102272035.XAA21341@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Feb 27, 2001 11:35:12 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129878AbRB0W7g>; Tue, 27 Feb 2001 17:59:36 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:10651 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129875AbRB0W7a>;
+	Tue, 27 Feb 2001 17:59:30 -0500
+Date: Tue, 27 Feb 2001 17:59:03 -0500
+Message-Id: <200102272259.RAA13893@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: Jeremy Jackson <jerj@coplanar.net>
+CC: Ivan Passos <lists@cyclades.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linux Serial List <linux-serial@vger.kernel.org>
+In-Reply-To: Jeremy Jackson's message of Mon, 26 Feb 2001 22:19:20 -0500,
+	<3A9B1CB8.B989A10@coplanar.net>
+Subject: Re: CLOCAL and TIOCMIWAIT
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru writes:
-> Moreover, even not _one_ wakeup is missing. At least two, because
-> wakeups in read and write are separate and you have stuck in both directions.
-> 8)8)
+   Date: 	Mon, 26 Feb 2001 22:19:20 -0500
+   From: Jeremy Jackson <jerj@coplanar.net>
 
-I'll see if I can strace it from the start until it hangs tomorrow.
+   I had written a simple program 10-20 lines C to count pulses at rate
+   of 1 per second give or take.  It turned out that the driver disabled
+   the UART's generation of interrupts completely for certain signals.
+   I don't remember which exactly, but I think it was DCD; I was using
+   CLOCAL so the hangups wouldn't close the descriptor.  The problems
+   was that by disabling the interrupt at the source, the ioctl's to
+   read the bits stopped working!  not what I wanted.
 
-> Well, if it was one I would start to dig ground inside tcp instantly.
-> But as soon as two of them are missing, I have to suspect wake_up itself.
-> At least, we had such bugs there until 2.4.0.
+This was a bug which was fixed for 2.2 in the 8250/16550 serial driver;
+CLOCAL should change the behaviour open/close/hangup processing, as per
+POSIX, but it shouldn't change the behaviour of TIOCMIWAIT or TIOCMGET.
 
-I was running at one point a 2.4.0-test kernel, but I didn't see these
-effects back then (but then I wasn't monitoring the system as closely as
-I am at the moment).
+   > My question is: what's the correct interpretation of CLOCAL?? If the
+   > serial driver's interpretation is the correct one, I'll be more than happy
+   > to change the Cyclades' driver to comply with that, I just want to make
+   > sure that this is the expected behavior before I patch the driver.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+CLOCAL's behaviour is defined under POSIX, although the behaviour of
+TIOCMIWAIT and TIOMGET aren't.  So one could make the argument that 
+(to use Al Gore's words) there "no controlling legal authority" saying
+that an implementation where TIOCMIWAIT depending on CLOCAL being clear
+is illegal or violates some standard.  However, it seems downright silly.
 
+So I would argue that it would be better to make things consistent by
+making CLOCAL only affect those things which are specifically specified
+by POSIX.1, and not make it affect the behaviour of TIOCMIWAIT and
+TIOCMGET, et. al.
+
+							- Ted

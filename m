@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263119AbTJPT20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTJPT20
+	id S263110AbTJPTqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTJPTqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:28:26 -0400
-Received: from ogi.bezeqint.net ([192.115.106.14]:13497 "EHLO ogi.bezeqint.net")
-	by vger.kernel.org with ESMTP id S263119AbTJPT2Z (ORCPT
+	Thu, 16 Oct 2003 15:46:48 -0400
+Received: from holomorphy.com ([66.224.33.161]:16517 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263110AbTJPTqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:28:25 -0400
-Message-ID: <3F8EF17A.2040502@users.sf.net>
-Date: Thu, 16 Oct 2003 21:28:58 +0200
-From: Eli Billauer <eli_billauer@users.sf.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: David Mosberger-Tang <David.Mosberger@acm.org>
-Subject: Re: [RFC] frandom - fast random generator module
-References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it> <ugzng1axel.fsf@panda.mostang.com>
-In-Reply-To: <ugzng1axel.fsf@panda.mostang.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Oct 2003 15:46:47 -0400
+Date: Thu, 16 Oct 2003 12:49:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: jbarnes@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: I/O errors in -test7-mm1 tree on ia64
+Message-ID: <20031016194934.GB711@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	jbarnes@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20031016185505.GA1255@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031016185505.GA1255@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow me to supply a couple facts about frandom:
+On Thu, Oct 16, 2003 at 11:55:05AM -0700, Jesse Barnes wrote:
+> I don't see this when using Linus' BK tree as of a few minutes ago, and
+> the only changes I've made are adding the kgdb.h for ia64 and adding in
+> the Altix console driver.  Any ideas?  I'll try reverting some patches
+> and looking around a bit more.
 
-* It's not a "crappy" RNG. Its RC4 origins and the fact, that it has 
-passed tests indicate the opposite. A fast RNG doesn't necessarily mean 
-a bad one. I doubt if any test will tell the difference between frandom 
-and any other good RNG. You're most welcome to try.
+Well, the first thing to try is backing out invalidate_inodes-speedup.patch
 
-* Frandom is written completely in C. On an i686, gcc compiles the 
-critical part to 26 assembly instructions per byte, and I doubt if any 
-hand assembly would help significantly. The algorithms is clean and 
-simple, and the compiler performs well with it.
 
-   Eli
-
+-- wli

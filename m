@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSAQBf4>; Wed, 16 Jan 2002 20:35:56 -0500
+	id <S288010AbSAQBdG>; Wed, 16 Jan 2002 20:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288057AbSAQBfq>; Wed, 16 Jan 2002 20:35:46 -0500
-Received: from mercury.mv.net ([199.125.85.40]:45817 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S288051AbSAQBfd>;
-	Wed, 16 Jan 2002 20:35:33 -0500
-Message-Id: <200201170135.UAA02298@mercury.mv.net>
-Content-Type: text/plain; charset=US-ASCII
-From: jeff millar <jeff@wa1hco.mv.com>
-Organization: me? organized?
-To: esr@thyrsus.com
-Subject: Fwd: cml2-2.1.4 lockup confirmation
-Date: Wed, 16 Jan 2002 20:35:40 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S288051AbSAQBcr>; Wed, 16 Jan 2002 20:32:47 -0500
+Received: from mail2.efi.com ([192.68.228.85]:26118 "HELO fcexgw02.efi.com")
+	by vger.kernel.org with SMTP id <S288010AbSAQBce>;
+	Wed, 16 Jan 2002 20:32:34 -0500
+Message-ID: <3C462ACD.5F61BFDC@efi.com>
+Date: Wed, 16 Jan 2002 17:37:17 -0800
+From: Kallol Biswas <kallol@efi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+CC: linux-kernel@vger.kernel.org
+Subject: C source lines for assembly listing
+In-Reply-To: <Pine.LNX.4.40L0.0201170137380.32025-100000@karma.oltrelinux.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get similar hangs.  Here's from make menuconfig, down to
-"Architecture-independent feature selections" and try to turn modules to N.
+Hi,
+     Does gcc have an option to list the C source line information for
+assembly instructions?
 
-As soon as I hit N...it hang for 60 sec and then bombs with...
+Kallol
 
-Traceback (most recent call last):
-  File "cml2/cmlconfigure.py", line 3283, in ?
-    main(options, arguments)
-  File "cml2/cmlconfigure.Architecture-independent feature selectionspy",
-line 3193, in main
-    curses.wrapper(curses_style_menu, config, banner)
-  File "/tmp/32444-i386/install/usr/lib/python2.1/curses/wrapper.py", line
-44, in wrapper
-  File "cml2/cmlconfigure.py", line 1133, in __init__
-    self.interact(config)
-  File "cml2/cmlconfigure.py", line 1757, in interact
-    recompute = self.symbol_menu_command(cmd, sel_symbol)
-  File "cml2/cmlconfigure.py", line 1464, in symbol_menu_command
-    self.set_symbol(operand, cml.n)
-  File "cml2/cmlconfigure.py", line 1255, in set_symbol
-    effects + [lang["BADREQUIRE"]] + map(lambda x: x.message, violations),
-beep=1)
-  File "cml2/cmlconfigure.py", line 1255, in <lambda>
-    effects + [lang["BADREQUIRE"]] + map(lambda x: x.message, violations),
-beep=1)
-AttributeError: message
-make: *** [menuconfig] Error 1
-
-When I tried it from make oldconfig.  It didn't hang it just took a long time
-to configure hundreds of modules to Y...just what I didn't want, but we've
-talked about that.
-
--------------------------------------------------------

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268112AbRG0VMV>; Fri, 27 Jul 2001 17:12:21 -0400
+	id <S268973AbRG0VPB>; Fri, 27 Jul 2001 17:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268087AbRG0VML>; Fri, 27 Jul 2001 17:12:11 -0400
-Received: from maila.telia.com ([194.22.194.231]:4348 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S268112AbRG0VL6>;
-	Fri, 27 Jul 2001 17:11:58 -0400
-Message-Id: <200107272112.f6RLC3d28206@maila.telia.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8-pre1 and dbench -20% throughput
-Date: Fri, 27 Jul 2001 23:08:04 +0200
-X-Mailer: KMail [version 1.2.3]
+	id <S268975AbRG0VOv>; Fri, 27 Jul 2001 17:14:51 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:36368 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268973AbRG0VOg>; Fri, 27 Jul 2001 17:14:36 -0400
+Message-ID: <3B61D980.F623AC5A@namesys.com>
+Date: Sat, 28 Jul 2001 01:13:36 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: "A. Lehmann" <"pcg( Marc)"@goof.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <no.id> <E15Q9Bw-0005q5-00@the-village.bc.nu> <20010727224649.B6357@fuji.laendle>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all,
+"pcg( Marc)"@goof(A.).(Lehmann )com wrote:
 
-I have done some throughput testing again.
-Streaming write, copy, read, diff are almost identical to earlier 2.4 kernels.
-(Note: 2.4.0 was clearly better when reading from two files - i.e. diff - 
-15.4 MB/s v. around 11 MB/s with later kenels - can be a result of disk 
-layout too...)
+> > No. The only thing I can think of that might slow it is that we build with
+> > the reiserfs paranoia/sanity checks on.
+> 
+> That's a pretty dumb thing. Maybe one should have asked the develoers
+> before doing this (they never do). Redhat somehow manages pretty well to
+> show reiserfs in a bad light ;)
 
-But "dbench 32" (on my 256 MB box) results has are the most interesting:
+Let us be a bit more precise here.  If you click on the help button when deciding whether to select
+that option it tells you not to do it.  What can you say about a distro that doesn't read the help
+buttons for the kernel options when configuring the kernel?  Shovelware?
 
-2.4.0 gave 33 MB/s
-2.4.8-pre1 gives 26.1 MB/s (-21%)
-
-Do we now throw away pages that would be reused?
-
-[I have also verified that mmap002 still works as expected]
-
-/RogerL
+Hans

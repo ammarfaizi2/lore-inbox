@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbTGRNjX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 09:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271744AbTGRNjW
+	id S271744AbTGRNjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 09:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271757AbTGRNjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 09:39:22 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:8355 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265922AbTGRNjT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 09:39:19 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 18 Jul 2003 06:46:53 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] O6int for interactivity
-In-Reply-To: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
-Message-ID: <Pine.LNX.4.55.0307180630450.5077@bigblue.dev.mcafeelabs.com>
-References: <200307170030.25934.kernel@kolivas.org> <200307170030.25934.kernel@kolivas.org>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+	Fri, 18 Jul 2003 09:39:51 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:47239 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S271744AbTGRNjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 09:39:49 -0400
+Message-ID: <3F17FF5B.2040409@genebrew.com>
+Date: Fri, 18 Jul 2003 10:08:27 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Dave Jones <davej@codemonkey.org.uk>,
+       "Andrew S. Johnson" <andy@asjohnson.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: DRM, radeon, and X 4.3
+References: <200307170539.25702.andy@asjohnson.com>	 <20030717172625.GA16502@suse.de> <1058532934.19558.31.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1058532934.19558.31.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003, Mike Galbraith wrote:
+Alan Cox wrote:
+> On Iau, 2003-07-17 at 18:26, Dave Jones wrote:
+> 
+>> > Linux agpgart interface v0.100 (c) Dave Jones
+>> > [drm] Initialized radeon 1.9.0 20020828 on minor 0
+>> > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+>> > [drm:radeon_unlock] *ERROR* Process 1929 using kernel context 0
+>> > 
+>> > There is something X doesn't like.  How do I fix this?
+>>
+>>Looks like there isn't an agp chipset module also loaded
+>>(via-agp.o, intel-agp.o etc...)
+> 
+> 
+> Still shouldnt do that - also the radeon doesn't require AGP
 
-> At 03:12 PM 7/16/2003 -0700, Davide Libenzi wrote:
->
-> >http://www.xmailserver.org/linux-patches/irman2.c
-> >
-> >and run it with different -n (number of tasks) and -b (CPU burn ms time).
-> >At the same time try to build a kernel for example. Then you will realize
-> >that interactivity is not the bigger problem that the scheduler has right
-> >now.
->
-> I added an irman2 load to contest.  Con's changes 06+06.1 stomped it flat
-> [1].  irman2 is modified to run for 30s at a time, but with default parameters.
+FWIW, I can reproduce the "problem" here. Perhaps a less cryptic error 
+message could be printked.
 
-In my case I cannot even estimate the time. It takes 8:33 ususally to do a
-bzImage, and after 15 minutes I ctrl-c with only two lines printed in the
-console. If you consider the ratio between the total number of lines that
-a kernel build spits out, this couls have taken hours. Also, you might
-want also to try a low number of processes with a short burn, like the new
-patch seems to do to better hit mm players. Something like:
-
-irman2 -n 10 -b 40
-
-Guys, I'm saying this not because I do not appreciate the time Con is
-spending on it. I just hate to see time spent in the wrong priorities.
-Whatever super privileged sleep->burn pattern you code, it can be
-exploited w/out a global throttle for the CPU time assigned to interactive
-and non interactive tasks. This is Unix guys and it is used in multi-user
-environments, we cannot ship with a flaw like this.
-
-
-
-- Davide
+Thanks,
+Rahul
 

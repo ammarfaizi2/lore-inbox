@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273802AbRIXGBv>; Mon, 24 Sep 2001 02:01:51 -0400
+	id <S273811AbRIXGHb>; Mon, 24 Sep 2001 02:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273807AbRIXGBn>; Mon, 24 Sep 2001 02:01:43 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:46341 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S273802AbRIXGB1>; Mon, 24 Sep 2001 02:01:27 -0400
-Message-ID: <3BAECC4F.EF25393@zip.com.au>
-Date: Sun, 23 Sep 2001 23:01:51 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
+	id <S273809AbRIXGHV>; Mon, 24 Sep 2001 02:07:21 -0400
+Received: from web10408.mail.yahoo.com ([216.136.130.110]:12036 "HELO
+	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273808AbRIXGHI>; Mon, 24 Sep 2001 02:07:08 -0400
+Message-ID: <20010924060733.24200.qmail@web10408.mail.yahoo.com>
+Date: Mon, 24 Sep 2001 16:07:33 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Preempt kernel and mc issue?
+To: Robert Love <rml@ufl.edu>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1001297131.8416.9.camel@phantasy>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: ext3-2.4-0.9.10
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An ext3 patch against linux 2.4.10 is at
 
-	http://www.uow.edu.au/~andrewm/linux/ext3/
+> It has not been merged into the 2.4.10-pre15 patch. 
+> Please report back
+> if it fixes your issue.
 
-This patch is *lightly tested* - ie, it boots and does stuff.
-The changes to ext3 are small, but the kernel which it patches
-has recently changed a lot.  If you're cautious, please wait
-a couple of days.
+It seems to be fixed ; I have never got it so far :-);
 
-The patch retains the buffer-tracing code.  This will soon be
-broken out into a separate patch to make ext3 suitable for
-submission for the mainstream kernel.
 
-Changelog:
+Thanks
 
-- Fix an oops which could occur at unmount time due to non-empty
-  orphan list.  This could be triggered by an earlier error during a
-  truncate.
+ 
+> -- 
+> Robert M. Love
+> rml at ufl.edu
+> rml at tech9.net
+>  
 
-- Merge Ted's directory scan speedup heuristic.
+=====
+S.KIEU
 
-- Remove the abort_write() address_space_operation by ensuring that
-  all prepare_write() callers always call commit_write().
-
-- A number of changes to suit the new 2.4.10 VM and buffer-layer design.
-
--
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

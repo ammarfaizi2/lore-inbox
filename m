@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317434AbSGIUoH>; Tue, 9 Jul 2002 16:44:07 -0400
+	id <S317408AbSGIUxV>; Tue, 9 Jul 2002 16:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSGIUoG>; Tue, 9 Jul 2002 16:44:06 -0400
-Received: from B5102.pppool.de ([213.7.81.2]:23044 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S317434AbSGIUoG>; Tue, 9 Jul 2002 16:44:06 -0400
-Subject: Re: IBM Desktar disk problem?
-From: Daniel Egger <degger@fhm.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1020709091938.27294A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1020709091938.27294A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 09 Jul 2002 22:35:37 +0200
-Message-Id: <1026246937.931.17.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S317409AbSGIUxU>; Tue, 9 Jul 2002 16:53:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:4789 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317408AbSGIUxT>;
+	Tue, 9 Jul 2002 16:53:19 -0400
+Message-Id: <200207092055.g69Ktt418608@eng4.beaverton.ibm.com>
+To: Greg KH <greg@kroah.com>
+cc: Dave Hansen <haveblue@us.ibm.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal 
+In-reply-to: Your message of "Tue, 09 Jul 2002 13:17:03 PDT."
+             <20020709201703.GC27999@kroah.com> 
+Date: Tue, 09 Jul 2002 13:55:55 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Die, 2002-07-09 um 15.23 schrieb Bill Davidsen:
+I wrote:
 
-> Not so. More people would mess up the firmware upgrade and destroy drives
-> which were working (for them) without error than would be helped. Two old
-> adages apply here, "first, do no harm," and "if it ain't broken don't fix
-> it." I never upgrade firmware unless I have a problem or need a new
-> capability, new firmware can have new bugs.
+    > Unless a developer is relying on the release-on-sleep mechanism or the
+    > nested-locks-without-deadlock mechanism, there's no reason an instance
+    > of the BKL can't be replaced with another spinlock.
+    
+Greg replied:
 
-Granted, but since the older firmware *is* known to have some radical
-bugs, the chance that the new one with just this bug fixed is more buggy
-than the old one is close to zero. And since this upgrade is said to be 
-a possible candidate to prevent most of the failures (which I doubt,
-really), this would be the sensible way to go. However I do not see 
-how an error corrupting the drive on a S.M.A.R.T. offline test could
-possibly affect a drive in a system that doesn't even have S.M.A.R.T.
-software installed.
+    Um, not true.  You can call schedule with the BKL held, not true for a
+    spinlock.
 
-So I stand by my claim that the latest IBM drives are piss-poor in
-quality and the way IBM acts is irresponsible and unacceptable.
+Well, this is what I meant by the release-on-sleep.  When you go to
+sleep, the BKL is actually released in the scheduler.
 
-Depending on how they replace my broken (non-OEM) drives in the next
-days (or weeks) I'll be deciding whether to go to court or not. In the
-meantime I'll replace all remaining IBM drives by other brands and sell
-the chunk on Ebay....
+Anything which is relying on this behavior needs to be redesigned.  It
+is holding, at best, an advisory lock.  The lock, after all, is only in
+effect until you go to sleep.  No other lock behaves this way.  Is
+there any code in the kernel which MUST have this feature? The code
+should be written so that the code itself releases any locks it holds
+before putting itself to sleep.  "magic" which happens simply because
+you down'ed a semaphore is just more obfuscated code to the uninitiated
+and more trouble to even the informed.
 
--- 
-Servus,
-       Daniel
+    And see the oft repeated messages on lkml about the
+    spinlock/semaphore hell that some oses have turned into when they
+    try to do this.  Let's learn from history this time around please.
 
+Fire burns, but we seem to have gotten a handle on it.
+
+Proper locking is hard, but that's not a reason to ignore it.  Be
+careful, yes.  Avoid, no.
+
+Rick

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbTAELv5>; Sun, 5 Jan 2003 06:51:57 -0500
+	id <S264683AbTAEMRn>; Sun, 5 Jan 2003 07:17:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264665AbTAELv5>; Sun, 5 Jan 2003 06:51:57 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:7187 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S264659AbTAELv4>; Sun, 5 Jan 2003 06:51:56 -0500
-Date: Sun, 5 Jan 2003 13:00:29 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jochen Friedrich <jochen@scram.de>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Andreas Dilger <adilger@turbolabs.com>, sam@ravnborg.org
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Documentation/BK-usage/bksend problems?
-Message-ID: <20030105120029.GC5686@merlin.emma.line.org>
-Mail-Followup-To: Jochen Friedrich <jochen@scram.de>,
-	Andreas Dilger <adilger@turbolabs.com>, sam@ravnborg.org,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030105015444.GE29511@merlin.emma.line.org> <Pine.LNX.4.44.0301050839340.19683-100000@gfrw1044.bocc.de> <20030105075842.GA1256@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030105075842.GA1256@mars.ravnborg.org>
-User-Agent: Mutt/1.5.1i
+	id <S264686AbTAEMRn>; Sun, 5 Jan 2003 07:17:43 -0500
+Received: from h-64-105-35-112.SNVACAID.covad.net ([64.105.35.112]:4997 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264683AbTAEMRm>; Sun, 5 Jan 2003 07:17:42 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 5 Jan 2003 04:26:00 -0800
+Message-Id: <200301051226.EAA09117@adam.yggdrasil.com>
+To: paul@clubi.ie
+Subject: Re: Honest does not pay here ...
+Cc: andre@linux-ide.org, andrew@indranet.co.nz, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg schrieb am Sonntag, den 05. Januar 2003:
+Paul Jakma wrote:
+>It would make things clear, would help people like Andre and
+>corporations like NVidia to continue to bring drivers to linux. Not a
+>single person who matters (ie actual kernel contributors) has so far
+>expressed any opinion (eg in the rash of GPL threads currently
+>ongoing) that would indicate they are not happy with the current
+>status quo as detailed in the above post by Linus.
 
-> I will submit this with bk sendbug now.
+	Alan Cox (lots of stuff), Andre Hedrik (IDE), Rik van Riel
+(VM) and William Lee Irwin (NUMA) are substantial contributors.  I'm
+not a principal author or maintainer of any kernel component, but I've
+submitted a number of patches over the years that are part of the
+kernel.
 
-Thank you. It looks as though the bkbugs stuff expected the list of
-interested parties in a different syntax; when I added my findings, it
-complained about the real names in that list, such as "user Jochen not
-found" or something like that. Looks like it's not RFC-822 "To:" header
-syntax but just a set of mail addresses.
+	Speaking only for myself, Linus's gnu.misc.discuss posting was
+not the understanding under which I contributed.  I don't know of
+Linus ever claiming that others are required to also grant the
+permission that Linus granted in his gnu.misc.discuss posting as a
+condition of their code being integrated into the stock kernels.
 
--- 
-Matthias Andree
+	  If you look toward the bottom of the second web page that I
+mentioned in my previous message
+( http://www.gcom.com/home/support/whitepapers/linux-gnu-license.html ),
+you'll see a statement from Alan Cox of June 7, 2001 making a similar
+point.  Here is a URL for the lkml message that that page quoted:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99193676018831&w=2
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

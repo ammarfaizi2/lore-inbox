@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284619AbSADTvC>; Fri, 4 Jan 2002 14:51:02 -0500
+	id <S288742AbSADTxC>; Fri, 4 Jan 2002 14:53:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288735AbSADTuw>; Fri, 4 Jan 2002 14:50:52 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:37309 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284619AbSADTup>; Fri, 4 Jan 2002 14:50:45 -0500
-Date: 04 Jan 2002 17:39:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8GDPkqCXw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.33.0201031540390.7309-100000@Appserv.suse.de>
+	id <S288740AbSADTwV>; Fri, 4 Jan 2002 14:52:21 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:28149 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S288735AbSADTvw>; Fri, 4 Jan 2002 14:51:52 -0500
+Date: Fri, 4 Jan 2002 20:50:51 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+In-Reply-To: <20020104140538.A19746@thyrsus.com>
+Message-ID: <Pine.GSO.3.96.1020104203829.829I-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <8GBXFw6mw-B@khms.westfalen.de> <Pine.LNX.4.33.0201031540390.7309-100000@Appserv.suse.de>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de (Dave Jones)  wrote on 03.01.02 in <Pine.LNX.4.33.0201031540390.7309-100000@Appserv.suse.de>:
+On Fri, 4 Jan 2002, Eric S. Raymond wrote:
 
-> On 3 Jan 2002, Kai Henningsen wrote:
->
-> > Now, if we cannot reliably autodetect hardware, we should always make it
-> > possible to override this manually, and maybe also inform the user that
-> > we're not certain. But that's no excuse not to try to autodetect when the
-> > user has *not* overridden us.
->
-> Autodetecting non-pnp ISA hardware safely is something of a black art.
-> Numerous drivers just hang if you load them and the card isn't present,
-> or there's another card which answers on the same port/address.
+> My logic would then be: if the box has PCI, and DMI shows no ISA slots,
+> and the motherboard is not on the exception list, then suppress ISA 
+> questions.
 
-Well yes, that's why I asked for the override and the warning.
+ What about CONFIG_BLK_DEV_FD, CONFIG_SERIAL and CONFIG_PARPORT_PC?  ISA
+devices of this kind are still often present in systems even if no ISA
+slots exist.  Actually CONFIG_BLK_DEV_FD is purely ISA and it uses ISA DMA
+(so it requires kernel/dma.c, which is ISA-only).
 
-MfG Kai
+ An example of such a system stands next to me now -- no ISA slots but all
+of the above devices. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

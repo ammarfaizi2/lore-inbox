@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSJ3VOJ>; Wed, 30 Oct 2002 16:14:09 -0500
+	id <S264918AbSJ3VFa>; Wed, 30 Oct 2002 16:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264922AbSJ3VOJ>; Wed, 30 Oct 2002 16:14:09 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34063 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264919AbSJ3VOI>; Wed, 30 Oct 2002 16:14:08 -0500
-Date: Wed, 30 Oct 2002 16:20:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bernhard Kaindl <bk@suse.de>
-cc: linux-kernel@vger.kernel.org,
-       Ulrich Weigand <weigand@informatik.uni-erlangen.de>,
-       Neale Ferguson <Neale.Ferguson@SoftwareAG-USA.com>
-Subject: Re: [PATCH] IPC SMP race: msgrcv may not return before msgsnd is done
-In-Reply-To: <Pine.LNX.4.33.0210301800150.2930-100000@wotan.suse.de>
-Message-ID: <Pine.LNX.3.96.1021030161328.14229B-100000@gatekeeper.tmr.com>
+	id <S264919AbSJ3VF3>; Wed, 30 Oct 2002 16:05:29 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58525 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S264918AbSJ3VF3>; Wed, 30 Oct 2002 16:05:29 -0500
+Date: Wed, 30 Oct 2002 18:35:19 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mitch Adair <mitch@theneteffect.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-rc1 and i810_audio
+In-Reply-To: <1035931140.1255.27.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0210301834590.10782-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Oct 2002, Bernhard Kaindl wrote:
 
-> this is targeted to System V message queue Experts and people who
-> use System V message queues quite extensively in SMP environments.
-> 
-> It contains descriptions of a SMP race in sys_msgrcv, a fix for
-> it and some questions about the code in question(maybe there is
-> a better fix, but I think the proposed one is ok)
-> 
-> I've already a short feedback from Andi Kleen, he told me that
-> the Description and patch seem to be correct as far as he can see.
 
-I'll try it, I have a program which gets a lockup rather than an oops, but
-it may be related.
- 
-> Neale Ferguson from Software AG debugged a SMP race in the message
-> queue implementation of the 2.4 Kernel.
-> 
-> The race was triggered in a time frame of 20 minutes to 14 hours after
-> starting a complex application stress test which uses message queues
-> quite extensively.
+On 29 Oct 2002, Alan Cox wrote:
 
-One of the test loads in the responsiveness test creates a ring of Ncpu+1
-process which pass tokens in a ring using message queues, passing Ncpu
-tokens at a time. I guess that might resemble "quite extensively" ;-) I
-also note the tokens/sec going through a single process, that would show
-any performance impact of the patch.
+> On Tue, 2002-10-29 at 17:33, Mitch Adair wrote:
+> > I notice that rc1 doesn't have Juergen Sawinski's updates (0.23/0.24)
+> > to i810_audio that allow ICH4 (i845) based chipsets to work.  They've
+> > been in AC for a while (since pre5 I think) - just wondering if that is a
+> > merge problem or if there is something else the matter (they seem to
+> > work great on the i845E I've got.)
+>
+> They could go in, they seem to work fine. Marcelo ?
 
-However, if this prevents the occasional lockup it will probably go in my
-working kernel, unfortunately this is "occasional" so I won't know right
-away.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+I'll take a look at those updates in -ac.
 

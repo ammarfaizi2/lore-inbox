@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVALFWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVALF35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbVALFWY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 00:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVALFVe
+	id S263091AbVALF35 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 00:29:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVALF34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 00:21:34 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:63945 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261245AbVALFQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 00:16:48 -0500
-Subject: Re: [PATCH]change 'struct device' -> platform_data to firmware_data
-From: Li Shaohua <shaohua.li@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: Deepak Saxena <dsaxena@plexity.net>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, rmk@arm.linux.org.uk
-In-Reply-To: <20050112050617.GB976@kroah.com>
-References: <1105498626.26324.14.camel@sli10-desk.sh.intel.com>
-	 <20050112035446.GA11251@plexity.net>  <20050112050617.GB976@kroah.com>
-Content-Type: text/plain
-Message-Id: <1105506942.3081.6.camel@sli10-desk.sh.intel.com>
+	Wed, 12 Jan 2005 00:29:56 -0500
+Received: from ozlabs.org ([203.10.76.45]:1937 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263091AbVALF3q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 00:29:46 -0500
+Date: Wed, 12 Jan 2005 16:26:30 +1100
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: orinoco-devel@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [3/8] orinoco: Use mdelay()/ssleep() instead of more complex delays
+Message-ID: <20050112052630.GD30426@localhost.localdomain>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	orinoco-devel@lists.sourceforge.net, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20050112052352.GA30426@localhost.localdomain> <20050112052434.GB30426@localhost.localdomain> <20050112052543.GC30426@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 12 Jan 2005 13:15:42 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112052543.GC30426@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-12 at 13:06, Greg KH wrote:
-> 
-> > If we are doing things incorrectly, I am not argueing that our usage
-> > has to the way it sits. We could create a new generic serial_device and 
-> > flash_device structures and subsystems for these, but that requires 
-> > rewriting drivers and board ports; however, we need enough time
-> > to work with appropriate subsystem maintainers to do so. My suggestion
-> > is to add a new firmware_data field for use by ACPI ATM while we
-> > clean things up in ARM world if so required.  Since ACPI is non-existent 
-> > on ARM systems, another option is that we keep using the renamed data
-> > structure as we have been doing. /me votes for this option
-> 
-> I like the "just add a firmware_data" field option too.  It doesn't
-> break any existing code, and the term "firmware" tells driver authors to
-> back away from it and not touch it (and we need to add the proper
-> documentation saying this.)
-If nobody insists on the intent of platform_data, I'll be glad to add a
-new field. It makes things more easy.
+Use mdelay() or ssleep() instead of various silly more complicated
+ways of delaying in the orinoco driver.
 
-Thanks,
-Shaohua
+Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
 
+Index: working-2.6/drivers/net/wireless/orinoco_pci.c
+===================================================================
+--- working-2.6.orig/drivers/net/wireless/orinoco_pci.c	2005-01-12 15:13:18.819073992 +1100
++++ working-2.6/drivers/net/wireless/orinoco_pci.c	2005-01-12 15:15:33.137654464 +1100
+@@ -151,19 +151,11 @@
+ 
+ 	/* Assert the reset until the card notice */
+ 	hermes_write_regn(hw, PCI_COR, HERMES_PCI_COR_MASK);
+-	timeout = jiffies + (HERMES_PCI_COR_ONT * HZ / 1000);
+-	while(time_before(jiffies, timeout)) {
+-		mdelay(1);
+-	}
+-	//mdelay(HERMES_PCI_COR_ONT);
++	mdelay(HERMES_PCI_COR_ONT);
+ 
+ 	/* Give time for the card to recover from this hard effort */
+ 	hermes_write_regn(hw, PCI_COR, 0x0000);
+-	timeout = jiffies + (HERMES_PCI_COR_OFFT * HZ / 1000);
+-	while(time_before(jiffies, timeout)) {
+-		mdelay(1);
+-	}
+-	//mdelay(HERMES_PCI_COR_OFFT);
++	mdelay(HERMES_PCI_COR_OFFT);
+ 
+ 	/* The card is ready when it's no longer busy */
+ 	timeout = jiffies + (HERMES_PCI_COR_BUSYT * HZ / 1000);
+Index: working-2.6/drivers/net/wireless/orinoco_plx.c
+===================================================================
+--- working-2.6.orig/drivers/net/wireless/orinoco_plx.c	2005-01-12 15:13:18.821073688 +1100
++++ working-2.6/drivers/net/wireless/orinoco_plx.c	2005-01-12 15:15:33.138654312 +1100
+@@ -356,8 +356,7 @@
+ static void __exit orinoco_plx_exit(void)
+ {
+ 	pci_unregister_driver(&orinoco_plx_driver);
+-	current->state = TASK_UNINTERRUPTIBLE;
+-	schedule_timeout(HZ);
++	ssleep(1);
+ }
+ 
+ module_init(orinoco_plx_init);
+Index: working-2.6/drivers/net/wireless/orinoco_tmd.c
+===================================================================
+--- working-2.6.orig/drivers/net/wireless/orinoco_tmd.c	2005-01-12 15:13:18.820073840 +1100
++++ working-2.6/drivers/net/wireless/orinoco_tmd.c	2005-01-12 15:16:05.897674184 +1100
+@@ -225,8 +225,7 @@
+ static void __exit orinoco_tmd_exit(void)
+ {
+ 	pci_unregister_driver(&orinoco_tmd_driver);
+-	current->state = TASK_UNINTERRUPTIBLE;
+-	schedule_timeout(HZ);
++	ssleep(1);
+ }
+ 
+ module_init(orinoco_tmd_init);
+
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

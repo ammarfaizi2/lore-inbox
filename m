@@ -1,341 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264706AbUEMTvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265133AbUEMTvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264706AbUEMTvw (ORCPT <rfc822;willy@w.ods.org>);
+	id S265133AbUEMTvw (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 13 May 2004 15:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUEMTjM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbUEMTt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:39:12 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:54011 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S264519AbUEMTZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:25:31 -0400
-From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: aic79xx trouble
-Date: Thu, 13 May 2004 21:25:21 +0200
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_ou8oAEFz+D+g+Z5";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
+	Thu, 13 May 2004 15:49:28 -0400
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:34934 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S264646AbUEMTpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:45:52 -0400
+Date: Thu, 13 May 2004 15:45:11 -0400
+From: Mathieu Chouquet-Stringer <mchouque@online.fr>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
+ 3:{EoxBR
+Subject: Oops on alpha with 2.6.6 while loading aic7xxx driver
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Mail-followup-to: Mathieu Chouquet-Stringer <mchouque@online.fr>,
+ linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Message-id: <20040513194511.GA18200@localhost>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[with the kernel version in the subject it's probably better]
 
---Boundary-02=_ou8oAEFz+D+g+Z5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+	Hi,
 
-Hello,
+I just freshly compiled 2.6.6 using gcc 3.4.0 (built as a cross-compiler on
+i386) and the kernel oopses when it loads the module for the Adaptec scsi
+card. As a side note, it works when the driver is built-in.
 
-we are just in the process of setting up a new server, which will serve the=
-=20
-data of an IDE/SCSI raid system (transtec 5008). Some partions of this raid=
-=20
-device are also mirrored via drbd to a failover system. During a full resyn=
-c=20
-of all (3) failover partitions *from* the failover server, the main-server=
-=20
-first logs many scsi errors and later the access to the raid-partitions=20
-completely locks up.
+Here's the decoded oops:
+=============>8=============>8=============>8=============>8=============>8
+ksymoops 2.4.9 on alpha 2.6.6-rc3.  Options used
+     -v vmlinux (specified)
+     -k kallsyms (specified)
+     -l modules (specified)
+     -o /lib/modules/2.6.6 (specified)
+     -m /boot/System-map-2.6.6 (specified)
+     -x
 
-Below is some relevant dmesg output, I already enabled the verbose option f=
-or=20
-the aic79xx driver. Should I also enable debugging, if so, which mode?
-
-Any help is highly appreciated.
-
-
-Thanks in advance,
-	Bernd
-
-
-SCSI subsystem driver Revision: 1.00
-ahd_pci:2:6:1: Reading VPD from SEEPROM...ahd_pci:2:6:1: VPD parsing=20
-successful
-ahd_pci:2:6:1: Reading SEEPROM...done.
-ahd_pci:2:6:1: STPWLEVEL is on
-ahd_pci:2:6:1: Manual Primary Termination
-ahd_pci:2:6:1: Manual Secondary Termination
-ahd_pci:2:6:1: Primary High byte termination Enabled
-ahd_pci:2:6:1: Primary Low byte termination Enabled
-ahd_pci:2:6:1: Secondary High byte termination Disabled
-ahd_pci:2:6:1: Secondary Low byte termination Disabled
-ahd_pci:2:6:1: Downloading Sequencer Program... 656 instructions downloaded
-ahd_pci:2:6:1: Features 0x1c101, Bugs 0x700002, Flags 0x43f0
-ahd_pci:2:6:0: Reading VPD from SEEPROM...ahd_pci:2:6:0: VPD parsing=20
-successful
-ahd_pci:2:6:0: Reading SEEPROM...done.
-ahd_pci:2:6:0: STPWLEVEL is on
-ahd_pci:2:6:0: Manual Primary Termination
-ahd_pci:2:6:0: Manual Secondary Termination
-ahd_pci:2:6:0: Primary High byte termination Enabled
-ahd_pci:2:6:0: Primary Low byte termination Enabled
-ahd_pci:2:6:0: Secondary High byte termination Disabled
-ahd_pci:2:6:0: Secondary Low byte termination Disabled
-ahd_pci:2:6:0: Downloading Sequencer Program... 656 instructions downloaded
-ahd_pci:2:6:0: Features 0x1c101, Bugs 0x700002, Flags 0x43f1
-scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.10
-        <Adaptec AIC7902 Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel A, SCSI Id=3D7, PCI-X 67-100Mhz, 512=
- SCBs
-
-scsi1 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.10
-        <Adaptec AIC7902 Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel B, SCSI Id=3D7, PCI-X 67-100Mhz, 512=
- SCBs
-
-blk: queue f7961e18, I/O limit 4095Mb (mask 0xffffffff)
-scsi0:A:0:0: DV failed to configure device.  Please file a bug report again=
-st=20
-this driver.
-(scsi0:A:0:0): Sending PPR bus_width 1, period 9, offset 7f, ppr_options 2
-(scsi0:A:0:0): Received PPR width 1, period 9, offset 1f,options 2
-	Filtered to width 1, period 9, offset 1f, options 2
-(scsi0:A:0): 6.600MB/s transfers (16bit)
-scsi0: target 0 using 16bit transfers
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, 16bit)
-scsi0: target 0 synchronous with period =3D 0x9, offset =3D 0x1f(DT)
-  Vendor: transtec  Model:                   Rev: 0001
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue f7961c18, I/O limit 4095Mb (mask 0xffffffff)
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, 16bit)
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 4101521408 512-byte hdwr sectors (2099979 MB)
- sda: sda1 sda2 sda3 < sda5 sda6 sda7 sda8 >
+Warning (read_ksyms): no kernel symbols in ksyms, is kallsyms a valid ksyms file?
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+1024K Bcache detected; load hit latency 30 cycles, load miss latency 121 cycles
+Unable to handle kernel paging request at virtual address 47f10409b53e0008
+modprobe(289): Oops 0
+pc = [<fffffffc000beb74>]  ra = [<fffffffc000beb68>]  ps = 0000    Not tainted
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 0000000000000001  t0 = 0000000000000010  t1 = 47f10409b53e0008
+t2 = fffffc00011e0c00  t3 = 000000000000001e  t4 = 0000000000000020
+t5 = 0000000000000000  t6 = fffffc00014616b0  t7 = fffffc003f7d4000
+s0 = fffffc00011e0c00  s1 = fffffc003f545bc8  s2 = 0000000000000001
+s3 = fffffffc000e0288  s4 = fffffc000077fb10  s5 = fffffc000073e688
+s6 = fffffc003f7d7ab8
+a0 = 00000000000003e8  a1 = fffffc003f7d7ab8  a2 = 000000000000000c
+a3 = fffffc003f7d7a10  a4 = fffffc003f7d7a08  a5 = 0000000000000000
+t8 = 0000000000000000  t9 = 00000000ffffffff  t10= 0000000000100100
+t11= 0000000000200200  pv = fffffc000031e0e0  at = fffffc0000006d00
+gp = fffffc000033ebd8  sp = fffffc003f7d7a48
+Trace:fffffc00004abc78 fffffc00004da75c fffffc00004da974 fffffc00004dad84 fffffc00004db374 fffffc00004ab640 fffffc0000341868 fffffc0000312104 fffffc00003bc034 fffffc0000393944 fffffc000035aa6c 
+Code: 47ff041f  345e0092  d35ffa0a  47e0040b  e4000030  a45d6c58 <a0220000> e4200006 
 
 
+>>PC;  fffffffc000beb74 <END_OF_CODE+4380858791060/????>   <=====
 
-drbd: initialised. Version: 0.6.12 (api:64/proto:62)
-drbd0: Connection established. size=3D24410736 KB / blksize=3D4096 B
-drbd1: Connection established. size=3D19535008 KB / blksize=3D4096 B
-drbd1: Synchronisation started blks=3D15
-drbd2: Connection established. size=3D195760026 KB / blksize=3D4096 B
-drbd2: Synchronisation started blks=3D15
-scsi0:0:0:0: Attempting to abort cmd f78fce00: 0x28 0x0 0x5 0xd1 0x2a 0x89 =
-0x0=20
-0x0 0x78 0x0
-scsi0: At time of recovery, card was not paused
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-scsi0: Dumping Card State at program address 0x25 Mode 0x11
-Card was paused
-HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)=20
-SEQINTSTAT[0x0] SAVED_MODE[0x11] DFFSTAT[0x33]:(CURRFIFO_NONE|FIFO0FREE|
-=46IFO1FREE)=20
-SCSISIGI[0x0]:(P_DATAOUT) SCSIPHASE[0x0] SCSIBUS[0x0]=20
-LASTPHASE[0x1]:(P_DATAOUT|P_BUSFREE) SCSISEQ0[0x0]=20
-SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI) SEQCTL0[0x0] SEQINTCTL[0x0]=20
-SEQ_FLAGS[0xc0]:(NO_CDB_SENT|NOT_IDENTIFIED) SEQ_FLAGS2[0x0]=20
-SSTAT0[0x0] SSTAT1[0x8]:(BUSFREE) SSTAT2[0x0] SSTAT3[0x0]=20
-PERRDIAG[0x0] SIMODE1[0xa4]:(ENSCSIPERR|ENSCSIRST|ENSELTIMO)=20
-LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x0] LQOSTAT0[0x0]=20
-LQOSTAT1[0x0] LQOSTAT2[0x0]=20
+Trace; fffffc00004abc78 <pci_device_probe+536/576>
+Trace; fffffc00004da75c <bus_match+92/192>
+Trace; fffffc00004da974 <driver_attach+148/272>
+Trace; fffffc00004dad84 <bus_add_driver+180/320>
+Trace; fffffc00004db374 <driver_register+52/80>
+Trace; fffffc00004ab640 <pci_register_driver+112/240>
+Trace; fffffc0000341868 <sys_init_module+472/6944>
+Trace; fffffc0000312104 <entSys+164/192>
+Trace; fffffc00003bc034 <ext3_dirty_inode+164/224>
+Trace; fffffc0000393944 <__mark_inode_dirty+324/512>
+Trace; fffffc000035aa6c <__vma_link_rb+60/80>
 
-SCB Count =3D 32 CMDS_PENDING =3D 2 LASTSCB 0xffff CURRSCB 0x8 NEXTSCB 0x0
-qinstart =3D 53192 qinfifonext =3D 53192
-QINFIFO:
-WAITING_TID_QUEUES:
-Pending list:
-  5 FIFO_USE[0x0] SCB_CONTROL[0x64]:(DISCONNECTED|TAG_ENB|DISCENB)=20
-SCB_SCSIID[0x7]=20
- 11 FIFO_USE[0x0] SCB_CONTROL[0x64]:(DISCONNECTED|TAG_ENB|DISCENB)=20
-SCB_SCSIID[0x7]=20
-Total 2
-Kernel Free SCB list: 8 25 23 24 6 13 18 26 20 30 22 9 19 29 17 12 14 28 21=
- 3=20
-15 27 0 10 2 31 1 16 7 4=20
-Sequencer Complete DMA-inprog list:=20
-Sequencer Complete list:=20
-Sequencer DMA-Up and Complete list:=20
-
-scsi0: FIFO0 Free, LONGJMP =3D=3D 0x80ff, SCB 0x0
-SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|
-ENSAVEPTRS)=20
-SEQINTSRC[0x0] DFCNTRL[0x0] DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL)=20
-SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]=20
-SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR =3D 0x00, SHCNT =3D 0x0=
-=20
-HADDR =3D 0x00, HCNT =3D 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)=20
-scsi0: FIFO1 Free, LONGJMP =3D=3D 0x81d7, SCB 0x8
-SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|
-ENSAVEPTRS)=20
-SEQINTSRC[0x0] DFCNTRL[0x4]:(DIRECTION) DFSTATUS[0x89]:(FIFOEMP|HDONE|
-PRELOAD_AVAIL)=20
-SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]=20
-SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR =3D 0x00, SHCNT =3D 0x0=
-=20
-HADDR =3D 0x00, HCNT =3D 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)=20
-LQIN: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0=
-x0=20
-0x0 0x0=20
-scsi0: LQISTATE =3D 0x0, LQOSTATE =3D 0x0, OPTIONMODE =3D 0x52
-scsi0: OS_SPACE_CNT =3D 0x20 MAXCMDCNT =3D 0x0
-
-SIMODE0[0xc]:(ENOVERRUN|ENIOERR)=20
-CCSCBCTL[0x0]=20
-scsi0: REG0 =3D=3D 0x10, SINDEX =3D 0x1e0, DINDEX =3D 0xe1
-scsi0: SCBPTR =3D=3D 0x8, SCB_NEXT =3D=3D 0xff00, SCB_NEXT2 =3D=3D 0xff97
-CDB 2a 0 1 80 1 7a
-STACK: 0x13 0x0 0x0 0x0 0x0 0x0 0x0 0x0
-<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
-DevQ(0:0:0): 0 waiting
-(scsi0:A:0:0): Device is disconnected, re-queuing SCB
-Recovery code sleeping
-(scsi0:A:0:0): Abort Tag Message Sent
-(scsi0:A:0:0): SCB 11 - Abort Completed.
-Recovery SCB completes
-found =3D=3D 0x1
-Recovery code awake
-scsi0:0:0:0: Attempting to abort cmd f78fd000: 0x28 0x0 0x3 0x7c 0x71 0x99 =
-0x0=20
-0x0 0x78 0x0
-scsi0:0:0:0: Command not found
-scsi0:A:0: no active SCB for reconnecting target - issuing BUS DEVICE RESET
-SAVED_SCSIID =3D=3D 0x7, SAVED_LUN =3D=3D 0x0, REG0 =3D=3D 0xff00 ACCUM =3D=
- 0x0
-SEQ_FLAGS =3D=3D 0xc0, SCBPTR =3D=3D 0xb, BTT =3D=3D 0xff00, SINDEX =3D=3D =
-0x104
-SELID =3D=3D 0x0, SCB_SCSIID =3D=3D 0x7, SCB_LUN =3D=3D 0x0, SCB_CONTROL =
-=3D=3D 0x68
-SCSIBUS[0] =3D=3D 0xb, SCSISIGI =3D=3D 0xe6
-SXFRCTL0 =3D=3D 0x88
-SEQCTL0 =3D=3D 0x0
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-scsi0: Dumping Card State at program address 0x14a Mode 0x33
-Card was paused
-HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)=20
-SEQINTSTAT[0x0] SAVED_MODE[0x11] DFFSTAT[0x33]:(CURRFIFO_NONE|FIFO0FREE|
-=46IFO1FREE)=20
-SCSISIGI[0xe6]:(P_MESGIN|REQI|BSYI) SCSIPHASE[0x8]:(MSG_IN_PHASE)=20
-SCSIBUS[0xb] LASTPHASE[0xe0]:(P_MESGIN) SCSISEQ0[0x0]=20
-SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI) SEQCTL0[0x0] SEQINTCTL[0x0]=20
-SEQ_FLAGS[0xc0]:(NO_CDB_SENT|NOT_IDENTIFIED) SEQ_FLAGS2[0x0]=20
-SSTAT0[0x2]:(SPIORDY) SSTAT1[0x9]:(REQINIT|BUSFREE)=20
-SSTAT2[0x0] SSTAT3[0x0] PERRDIAG[0x0] SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|
-ENSCSIRST|ENSELTIMO)=20
-LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x0] LQOSTAT0[0x0]=20
-LQOSTAT1[0x0] LQOSTAT2[0x0]=20
-
-SCB Count =3D 32 CMDS_PENDING =3D 0 LASTSCB 0xffff CURRSCB 0xb NEXTSCB 0x0
-qinstart =3D 53195 qinfifonext =3D 53195
-QINFIFO:
-WAITING_TID_QUEUES:
-Pending list:
-Total 0
-Kernel Free SCB list: 11 5 8 25 23 24 6 13 18 26 20 30 22 9 19 29 17 12 14 =
-28=20
-21 3 15 27 0 10 2 31 1 16 7 4=20
-Sequencer Complete DMA-inprog list:=20
-Sequencer Complete list:=20
-Sequencer DMA-Up and Complete list:=20
-
-scsi0: FIFO0 Free, LONGJMP =3D=3D 0x80ff, SCB 0x0
-SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|
-ENSAVEPTRS)=20
-SEQINTSRC[0x0] DFCNTRL[0x0] DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL)=20
-SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]=20
-SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR =3D 0x00, SHCNT =3D 0x0=
-=20
-HADDR =3D 0x00, HCNT =3D 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)=20
-scsi0: FIFO1 Free, LONGJMP =3D=3D 0x81d7, SCB 0xb
-SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|
-ENSAVEPTRS)=20
-SEQINTSRC[0x0] DFCNTRL[0x0] DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL)=20
-SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]=20
-SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR =3D 0x00, SHCNT =3D 0x0=
-=20
-HADDR =3D 0x00, HCNT =3D 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)=20
-LQIN: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0=
-x0=20
-0x0 0x0=20
-scsi0: LQISTATE =3D 0x0, LQOSTATE =3D 0x0, OPTIONMODE =3D 0x52
-scsi0: OS_SPACE_CNT =3D 0x20 MAXCMDCNT =3D 0x0
-
-SIMODE0[0xc]:(ENOVERRUN|ENIOERR)=20
-CCSCBCTL[0x0]=20
-scsi0: REG0 =3D=3D 0xff00, SINDEX =3D 0x104, DINDEX =3D 0xa9
-scsi0: SCBPTR =3D=3D 0xb, SCB_NEXT =3D=3D 0xff00, SCB_NEXT2 =3D=3D 0xff97
-CDB 28 0 5 80 a9 53
-STACK: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
-<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
-DevQ(0:0:0): 0 waiting
-scsi0:A:0:0: Target did not send an IDENTIFY message. LASTPHASE =3D 0x60.
-(scsi0:A:0): 80.000MB/s transfers (80.000MHz DT)
-scsi0: target 0 using 8bit transfers
-(scsi0:A:0): 3.300MB/s transfers
-scsi0: target 0 using asynchronous transfers
-scsi0: target 1 using 8bit transfers
-scsi0: target 1 using asynchronous transfers
-scsi0: target 2 using 8bit transfers
-scsi0: target 2 using asynchronous transfers
-scsi0: target 3 using 8bit transfers
-scsi0: target 3 using asynchronous transfers
-scsi0: target 4 using 8bit transfers
-scsi0: target 4 using asynchronous transfers
-scsi0: target 5 using 8bit transfers
-scsi0: target 5 using asynchronous transfers
-scsi0: target 6 using 8bit transfers
-scsi0: target 6 using asynchronous transfers
-scsi0: target 8 using 8bit transfers
-scsi0: target 8 using asynchronous transfers
-scsi0: target 9 using 8bit transfers
-scsi0: target 9 using asynchronous transfers
-scsi0: target 10 using 8bit transfers
-scsi0: target 10 using asynchronous transfers
-scsi0: target 11 using 8bit transfers
-scsi0: target 11 using asynchronous transfers
-scsi0: target 12 using 8bit transfers
-scsi0: target 12 using asynchronous transfers
-scsi0: target 13 using 8bit transfers
-scsi0: target 13 using asynchronous transfers
-scsi0: target 14 using 8bit transfers
-scsi0: target 14 using asynchronous transfers
-scsi0: target 15 using 8bit transfers
-scsi0: target 15 using asynchronous transfers
-scsi0: Issued Channel A Bus Reset. 0 SCBs aborted
-scsi0: target 0 using 8bit transfers
-scsi0: target 0 using asynchronous transfers
-scsi0: SCSI bus reset delivered. 0 SCBs aborted.
-scsi0:A:0:0: DV failed to configure device.  Please file a bug report again=
-st=20
-this driver.
-(scsi0:A:0:0): Sending PPR bus_width 1, period 9, offset 7f, ppr_options 2
-(scsi0:A:0:0): Received PPR width 1, period 9, offset 1f,options 2
-	Filtered to width 1, period 9, offset 1f, options 2
-(scsi0:A:0): 6.600MB/s transfers (16bit)
-scsi0: target 0 using 16bit transfers
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, 16bit)
-scsi0: target 0 synchronous with period =3D 0x9, offset =3D 0x1f(DT)
+Code;  fffffffc000beb5c <END_OF_CODE+4380858791036/????>
+0000000000000000 <_PC>:
+Code;  fffffffc000beb5c <END_OF_CODE+4380858791036/????>
+   0:   1f 04 ff 47       nop  
+Code;  fffffffc000beb60 <END_OF_CODE+4380858791040/????>
+   4:   92 00 5e 34       stw  t1,146(sp)
+Code;  fffffffc000beb64 <END_OF_CODE+4380858791044/????>
+   8:   0a fa 5f d3       bsr  ra,ffffffffffffe834 <_PC+0xffffffffffffe834>
+Code;  fffffffc000beb68 <END_OF_CODE+4380858791048/????>
+   c:   0b 04 e0 47       mov  v0,s2
+Code;  fffffffc000beb6c <END_OF_CODE+4380858791052/????>
+  10:   30 00 00 e4       beq  v0,d4 <_PC+0xd4>
+Code;  fffffffc000beb70 <END_OF_CODE+4380858791056/????>
+  14:   58 6c 5d a4       ldq  t1,27736(gp)
+Code;  fffffffc000beb74 <END_OF_CODE+4380858791060/????>   <=====
+  18:   00 00 22 a0       ldl  t0,0(t1)   <=====
+Code;  fffffffc000beb78 <END_OF_CODE+4380858791064/????>
+  1c:   06 00 20 e4       beq  t0,38 <_PC+0x38>
 
 
+1 warning issued.  Results may not be reliable.
+=============>8=============>8=============>8=============>8=============>8
 
+Using objdump, kallsyms, I've been able to pinpoint the problem. The
+closest function to fffffffc000beb74 is ahc_pci_config:
+fffffffc000be5c0 t ahc_pci_config       [aic7xxx]
+fffffffc000c02e0 t ahc_pci_intr [aic7xxx]
 
-=2D-=20
-Bernd Schubert
-Physikalisch Chemisches Institut / Theoretische Chemie
-Universit=E4t Heidelberg
-INF 229
-69120 Heidelberg
-e-mail: bernd.schubert@pci.uni-heidelberg.de
+At the address fffffffc000beb74, we're in check_extport (called by
+ahc_pci_config).
 
---Boundary-02=_ou8oAEFz+D+g+Z5
-Content-Type: application/pgp-signature
-Content-Description: signature
+Here's the output of objdump (see how it matches the output of ksymoops):
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+/usr/src/kernel/linux-2.5/drivers/scsi/aic7xxx/aic7xxx_pci.c:1359
+    22bc:       1f 04 ff 47     nop     
+    22c0:       92 00 5e 34     stw     t1,146(sp)
+/usr/src/kernel/linux-2.5/drivers/scsi/aic7xxx/aic7xxx_pci.c:1361
+    22c4:       00 00 40 d3     bsr     ra,22c8 <ahc_pci_config+0x5a8>
+    22c8:       0b 04 e0 47     mov     v0,s2
+/usr/src/kernel/linux-2.5/drivers/scsi/aic7xxx/aic7xxx_pci.c:1362
+    22cc:       30 00 00 e4     beq     v0,2390 <ahc_pci_config+0x670>
+/usr/src/kernel/linux-2.5/drivers/scsi/aic7xxx/aic7xxx_pci.c:1364
+    22d0:       00 00 5d a4     ldq     t1,0(gp)
+    22d4:       00 00 22 a0     ldl     t0,0(t1)
+    22d8:       06 00 20 e4     beq     t0,22f4 <ahc_pci_config+0x5d4>
 
-iD8DBQBAo8unLR5WR6DFumYRAqFjAJ972xaATu9RYU9QCksSx9W/UwGu2ACeOQaA
-aMdIteZrk0OSznbCqQzUFT8=
-=M8H9
------END PGP SIGNATURE-----
+fffffffc000beb74 is really 22d4. The interesting thing is the portion of C
+code involved: 
+1364:                if (bootverbose)
+1365:                        printf("%s: Reading SEEPROM...", ahc_name(ahc));
 
---Boundary-02=_ou8oAEFz+D+g+Z5--
+So it looks like it chokes on bootverbose, any idea why?
+-- 
+Mathieu Chouquet-Stringer                 E-Mail: mchouque@online.fr
+       Never attribute to malice that which can be adequately
+                    explained by stupidity.
+                     -- Hanlon's Razor --

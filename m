@@ -1,96 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271391AbTGWX7L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 19:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTGWX7L
+	id S271281AbTGXAEr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 20:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTGXAEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 19:59:11 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:61320 "EHLO server")
-	by vger.kernel.org with ESMTP id S271391AbTGWX7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 19:59:07 -0400
-Message-ID: <020401c35178$832c4db0$3400a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva> <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva>
-Subject: Re: 2.4.22-pre5 deadlock
-Date: Wed, 23 Jul 2003 17:14:12 -0700
+	Wed, 23 Jul 2003 20:04:47 -0400
+Received: from snickers.hotpop.com ([204.57.55.49]:27084 "EHLO
+	snickers.hotpop.com") by vger.kernel.org with ESMTP id S271281AbTGXAEq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 20:04:46 -0400
+Message-ID: <3F1F2502.2060306@hotpop.com>
+Date: Thu, 24 Jul 2003 05:44:58 +0530
+From: dacin <dacin@hotpop.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA driver GPL'd
+References: <Pine.LNX.4.10.10307231638000.14556-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-To: "Jim Gifford" <maillist@jg555.com>
-Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
-<linux-kernel@vger.kernel.org>
-Sent: Tuesday, July 22, 2003 10:00 AM
-Subject: Re: 2.4.22-pre5 deadlock
+Andre Hedrick wrote:
+
+>Don't "FEEL" cause I do not give a damn about what people "FEEL".
+>Don't "SHARE", cause it is usually followed by "FEELINGS".
+>
+>I do have an interest in what people "think", and can use for logical
+>discussion.
+>
+>The moment anyone goes to "because I feel" or "just because I", they can
+>no longer think.
+>
+ And this is a thought in itself, umm would like to know, is there 
+anything that can be expressed
+ consciousely/un-consciousley without being a thought first. Guess my 
+thought telling me that I am
+ guessing that I am thinking about my thoughts driven by this thread for 
+now :-)
+
+>If you want to "SHARE" something, how about a "doughnut", but keep your
+>feelings to yourself and express thoughts.  Thoughts on how to protect and
+>defend the ideas of the OSC are good.  Your compasion subjected "on" me
+>refusing to yield to your "feel good" crap, don't need it.  Return to
+>Sender.
+>
+>  
+>
+ Hmm share or *satisfication* of the animal ego inside a breed known as 
+human, who also act clumsy most
+ of the times.
 
 
->
->
-> On Tue, 22 Jul 2003, Jim Gifford wrote:
->
-> > ----- Original Message -----
-> > From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-> > To: "Jim Gifford" <maillist@jg555.com>
-> > Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
-> > <linux-kernel@vger.kernel.org>
-> > Sent: Tuesday, July 22, 2003 4:53 AM
-> > Subject: Re: 2.4.22-pre5 deadlock
-> >
-> >
-> > >
-> > >
-> > > On Mon, 21 Jul 2003, Jim Gifford wrote:
-> > >
-> > > > > Lets wait and see what happens without the iptables and dazuko
-> > modules.
-> > > > >
-> > > > Marcelo,
-> > > >     -pre7 seems to be working ok. Do you want me to enable the
-dazuko
-> > thing
-> > > > again to see if it's the cause, or do you want me to wait a little
-> > longer to
-> > > > see what happens.
-> > >
-> > > Jim,
-> > >
-> > > I prefer if you leave -pre7 running for a while to confirm its stable.
-> > >
-> > >
-> > >
-> > top - 08:29:37 up 2 days, 13:41,  2 users,  load average: 2.33, 2.12,
-2.03
-> > Tasks: 109 total,   3 running, 106 sleeping,   0 stopped,   0 zombie
-> >  Cpu0 :   0.3% user,   3.9% system,  95.8% nice,   0.0% idle
-> >  Cpu1 :   1.3% user,   0.6% system,  98.1% nice,   0.0% idle
-> > Mem:   1033672k total,   639904k used,   393768k free,   160764k buffers
-> > Swap:   265060k total,        0k used,   265060k free,   187444k cached
-> >
-> > Do you want me to do something intensive. I have a compile that I can do
-> > that takes over 8 hours.
->
-> Jim,
->
-> I guess most of us is already convinced that the lockups were caused by
-> the non-stock code.
->
-> How long it usually took to lockup before?
->
-I have the dazuko thing running with it's application. Still up after 19
-hours. So something in -pre7 seems to have fixed the problem. Last time we
-tested pre6 with the dazuko thing it deadlocked, I still haven't enabled the
-rest of the iptables options yet. I will keep it running a till tomorrow and
-see what happens.
+dacodecz
+====================================================================================
+watching the unseen.
+
+
 

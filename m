@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288300AbSACUfq>; Thu, 3 Jan 2002 15:35:46 -0500
+	id <S288309AbSACUn1>; Thu, 3 Jan 2002 15:43:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288304AbSACUfh>; Thu, 3 Jan 2002 15:35:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7875 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288300AbSACUfX>;
-	Thu, 3 Jan 2002 15:35:23 -0500
-Date: Thu, 3 Jan 2002 15:35:19 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dave Jones <davej@suse.de>
-cc: Pavel Machek <pavel@suse.cz>, Daniel Phillips <phillips@bonn-fries.net>,
-        Andrew Morton <akpm@zip.com.au>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, Keith Owens <kaos@ocs.com.au>,
-        Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system
-In-Reply-To: <Pine.LNX.4.33.0201032128090.12592-100000@Appserv.suse.de>
-Message-ID: <Pine.GSO.4.21.0201031532100.23693-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288307AbSACUnS>; Thu, 3 Jan 2002 15:43:18 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:18871 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S288305AbSACUnO> convert rfc822-to-8bit; Thu, 3 Jan 2002 15:43:14 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <malekith@pld.org.pl>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (995) - Registered Version
+Date: Thu, 3 Jan 2002 12:43:00 -0800
+In-Reply-To: <20020103132252.GB21184@ep09.kernel.pl>
+Subject: Re: strange TCP stack behiviour with write()es in pieces
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020103204302.AAA10050@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Thu, 3 Jan 2002 14:22:52 +0100, Michal Moskal wrote:
 
-On Thu, 3 Jan 2002, Dave Jones wrote:
+>>    If you can design an algorithm that makes that only two times slower, 
+>>then
+>> the world will be excited and interested and perhaps that algorithm will
+>>replace TCP. But until that time, we're stuck with what we have.
 
-> On Thu, 3 Jan 2002, Pavel Machek wrote:
-> 
-> > Being able to cp -a then build without full rebuild is good. Also make dep
-> > takes  *long* and and bad things happen when you think it was not needed ;-).
-> 
-> And being able to NFS share 1 kernel tree, and be able to do parallel
-> builds on multiple boxes without having to wait until 1 is finished.
+>With negle disabled it works 17/15 times slower, which is much less then
+>two. Similary with UNIX domain sockets.
 
-	Sigh...  As soon as we get to prototype change in
-getattr()/setattr()/permission() - we get CoW fs.  I.e. equivalent of
-*BSD unionfs.  I hope to get around to that stuff around 2.5.4 or so.
+	However, with Nagle disabled, there is no bound to how poor network 
+efficiency can be. If you do a single byte write every tenth of a second, you 
+will send out a packet for each single byte.
+
+	You can only disable Nagle if you can assume that the application is smart 
+enough to do the coalescing. After all, someone has to. Since we're talking 
+about an app that can't coalesce, you cannot disable Nagle. (Unless you 
+consider it acceptable to send one byte of data in each packet.)
+
+	Again, an application *must* *not* disable Nagle unless it (the app) takes 
+responsibility for ensuring that data is sent in large enough chunks to 
+ensure network efficiency. So you can disable nagle if you want to, but not 
+until *AFTER* you make sure your application coalesces writes.
+
+	DS
+
 

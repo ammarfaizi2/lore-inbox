@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316187AbSFJC2l>; Sun, 9 Jun 2002 22:28:41 -0400
+	id <S316223AbSFJCso>; Sun, 9 Jun 2002 22:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSFJC2k>; Sun, 9 Jun 2002 22:28:40 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:11899 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316187AbSFJC2j>; Sun, 9 Jun 2002 22:28:39 -0400
-Subject: [PATCH-2.5.21] Fix/add exports for vmalloc, vmalloc_32, vmalloc_dma
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 10 Jun 2002 03:28:39 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316232AbSFJCso>; Sun, 9 Jun 2002 22:48:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316223AbSFJCsn>;
+	Sun, 9 Jun 2002 22:48:43 -0400
+Date: Mon, 10 Jun 2002 03:48:43 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvald@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Saurabh Desai <sdesai@austin.ibm.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/locks.c: Fix posix locking for threaded tasks
+Message-ID: <20020610034843.W27186@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17HEv9-0005ou-00@storm.christs.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cantab.net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Please apply below patchlet which adds exports for vmalloc, vmalloc_32,
-and vmalloc_dma to kernel/ksyms.c.
+Saurabh Desai believes that locks created by threads should not conflict
+with each other.  I'm inclined to agree; I don't know why the test for
+->fl_pid was added, but the comment suggests that whoever added it wasn't
+sure either.
 
-These are needed as the above functions used to be static inline inside
-include/linux/vmalloc.h but have now been taken out of line and now
-all modular code using them is broken.
+Frankly, I have no clue about the intended semantics for threads, and
+SUS v3 does not offer any enlightenment.  But it seems reasonable that
+processes which share a files_struct should share locks.  After all,
+if one process closes the fd, they'll remove locks belonging to the
+other process.
 
-I noticed because NTFS uses vmalloc to allocate decompression engine
-buffers.
+Here's a patch generated against 2.4; it also applies to 2.5.
+Please apply.
 
-Best regards,
+===== fs/locks.c 1.9 vs edited =====
+--- 1.9/fs/locks.c	Mon Jun  3 18:49:43 2002
++++ edited/fs/locks.c	Fri Jun  7 21:24:12 2002
+@@ -380,15 +380,12 @@
+ }
+ 
+ /*
+- * Check whether two locks have the same owner
+- * N.B. Do we need the test on PID as well as owner?
+- * (Clone tasks should be considered as one "owner".)
++ * Locks are deemed to have the same owner if the tasks share files_struct.
+  */
+ static inline int
+ locks_same_owner(struct file_lock *fl1, struct file_lock *fl2)
+ {
+-	return (fl1->fl_owner == fl2->fl_owner) &&
+-	       (fl1->fl_pid   == fl2->fl_pid);
++	return (fl1->fl_owner == fl2->fl_owner);
+ }
+ 
+ /* Remove waiter from blocker's block list.
 
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
----vmalloc-export.diff---
---- tng/kernel/ksyms.c.old	Mon Jun 10 03:19:58 2002
-+++ tng/kernel/ksyms.c	Mon Jun 10 03:21:18 2002
-@@ -108,6 +108,9 @@ EXPORT_SYMBOL(kmalloc);
- EXPORT_SYMBOL(kfree);
- EXPORT_SYMBOL(vfree);
- EXPORT_SYMBOL(__vmalloc);
-+EXPORT_SYMBOL(vmalloc);
-+EXPORT_SYMBOL(vmalloc_dma);
-+EXPORT_SYMBOL(vmalloc_32);
- EXPORT_SYMBOL(vmalloc_to_page);
- EXPORT_SYMBOL(mem_map);
- EXPORT_SYMBOL(remap_page_range);
+Revolutions do not require corporate support.

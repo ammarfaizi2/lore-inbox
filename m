@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268157AbRGWJDl>; Mon, 23 Jul 2001 05:03:41 -0400
+	id <S268160AbRGWJKn>; Mon, 23 Jul 2001 05:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268159AbRGWJDc>; Mon, 23 Jul 2001 05:03:32 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:44739 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S268157AbRGWJD0>; Mon, 23 Jul 2001 05:03:26 -0400
-Date: Mon, 23 Jul 2001 11:05:04 +0200 (CEST)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Problem: Large file I/O waits (almost) forever
-Message-ID: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
+	id <S268161AbRGWJKd>; Mon, 23 Jul 2001 05:10:33 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:9063 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S268160AbRGWJKZ>;
+	Mon, 23 Jul 2001 05:10:25 -0400
+Date: Mon, 23 Jul 2001 10:12:19 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Ian Chilton <ian@ichilton.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: Journaling FS Comparison
+In-Reply-To: <20010722162150.A23381@woody.ichilton.co.uk>
+Message-ID: <Pine.LNX.4.21.0107231004080.612-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Sun, 22 Jul 2001, Ian Chilton wrote:
+> With there been 4 of them (ext3, reiserfs, XFS and JFS),
+> it's not an easy choice for anyone.
 
-Hi,
+at the time when I did the comparison using SPEC SFS to benchmark, the
+choice was not hard at all -- absolute and obvious winner was reiserfs.
+That is, amongst the freely available ones. (this was not too long ago, a
+mere 2 months or so).
 
-I just came across the following phenomenon and would like to inquire
-whether it's a feature or a bug, and what to do about it:
+However, if you are willing to pay for your filesystem, our vxfs beats all
+of the above at _very_ (very) high loads (loads unreachable by any other
+filesystem so far ;) in both performance and stability. (well, it beats
+them in most situations at low loads as well but that is not interesting)
 
-I have run our "copy-compare" test during the weekend to test I/O
-stability on a IA64 server running 2.4.5. The test works by generating
-a collection of binary files with specified lengths, copying them between
-different directories, and checking the result a) by checking the
-predefined binary patterns and b) by comparing source and destination with cmp.
-
-In order to avoid testing only the buffer cache (system has 8GB memory), I
-used exponentially growing file sizes fro 1kb up to 2GB. The
-copy/test/compare cycle for each file size was run 1024 times, tests
-for different file sizes were run simultaneously.
-
-As expected, tests for smaller files run faster than tests for larger
-ones. However, I observed that the very big files (1 GB and 2GB) hardly
-proceeded at all while the others were running. When I came back
-after the weekend, all tests except these two had completed (1024 times
-each), the 1GB test had completed ~500 times, and the 2GB test had not
-even completed once. After I killed the 1GB job, 2GB started to run again
-(i.e. it wasn't dead, just sleeping deeply). Apparently the block requests
-scheduled for I/O by the processes operating on the large file had to
-"yield" to other processes over and over again before being submitted.
-
-I think this is a dangerous behaviour, because the test situation is
-similar to a real-world scenario where applications (e.g. a data
-base) are doing a lot of small-file I/O while a background process is
-trying to do a large backup. If the system behaved similar then, it would
-mean that the backup would take (almost) forever unless database activity
-would cease.
-
-Any comments/suggestions?
+It should be available to our beta-customers via www.veritas.com
+somewhere...
 
 Regards,
-Martin
-
-PS: I am not subscribed to LK, but I'm reading the archives regularly.
-
--- 
-Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
-FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
-
-
+Tigran
 

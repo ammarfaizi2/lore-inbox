@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUBUMu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 07:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUBUMuc
+	id S261553AbUBUMuw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 07:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUBUMsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 07:50:32 -0500
-Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:7418 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261553AbUBUMse
+	Sat, 21 Feb 2004 07:48:54 -0500
+Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:7162 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261552AbUBUMse
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 21 Feb 2004 07:48:34 -0500
-Date: Sat, 21 Feb 2004 21:47:56 +0900
-Message-ID: <m2eksobnur.wl%ysato@users.sourceforge.jp>
+Date: Sat, 21 Feb 2004 21:48:26 +0900
+Message-ID: <m2brnsbntx.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 Kconfig / defconfig update
+Subject: [PATCH] H8/300 include cleanup
 User-Agent: Wanderlust/2.11.20 (Wonderwall) SEMI/1.14.5 (Awara-Onsen)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,510 +23,81 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-delete obsolute CONFIG
+- duplicate define marge.
+- unused define delete.
+- reduced code size.
 
-diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/Kconfig linux-2.6.3-h8300/arch/h8300/Kconfig
---- linux-2.6.3/arch/h8300/Kconfig	2004-01-09 15:59:55.000000000 +0900
-+++ linux-2.6.3-h8300/arch/h8300/Kconfig	2004-02-21 19:32:58.000000000 +0900
-@@ -154,29 +154,6 @@
+diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/aki3068net/machine-depend.h linux-2.6.3-h8300/include/asm-h8300/aki3068net/machine-depend.h
+--- linux-2.6.3/include/asm-h8300/aki3068net/machine-depend.h	2004-01-09 15:59:56.000000000 +0900
++++ linux-2.6.3-h8300/include/asm-h8300/aki3068net/machine-depend.h	2004-02-20 02:44:28.000000000 +0900
+@@ -2,7 +2,6 @@
  
- endchoice
+ /* TIMER rate define */
+ #ifdef H8300_TIMER_DEFINE
+-#include <linux/config.h>
+ #define H8300_TIMER_COUNT_DATA 20000*10/8192
+ #define H8300_TIMER_FREQ 20000*1000/8192
+ #endif
+@@ -12,13 +11,8 @@
  
--config DEFAULT_CMDLINE
--	bool "Use buildin commandline"
--	default n
--	help
--	  buildin kernel commandline enabled.
+ #define NE2000_ADDR		0x200000
+ #define NE2000_IRQ              5
+-#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
+ #define	NE2000_BYTE		volatile unsigned short
+ 
+-#define IER                     0xfee015
+-#define ISR			0xfee016
+-#define IRQ_MASK		(1 << NE2000_IRQ)
 -
--config KERNEL_COMMAND
--	string "Buildin commmand string"
--	depends on DEFAULT_CMDLINE
--	help
--	  buildin kernel commandline strings.
--
--config BLKDEV_RESERVE
--	bool "BLKDEV Reserved Memory"
--	default n
--	help
--	  Reserved BLKDEV area.
--
--config CONFIG_BLKDEV_RESERVE_ADDRESS
--	hex 'start address'
--	depends on BLKDEV_RESERVE
--	help
--	  BLKDEV start address.
- endmenu
+ #define WCRL                    0xfee023
+ #define MAR0A                   0xffff20
+ #define ETCR0A                  0xffff24
+diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/h8300_ne.h linux-2.6.3-h8300/include/asm-h8300/h8300_ne.h
+--- linux-2.6.3/include/asm-h8300/h8300_ne.h	2004-01-09 15:59:19.000000000 +0900
++++ linux-2.6.3-h8300/include/asm-h8300/h8300_ne.h	2004-02-20 02:43:02.000000000 +0900
+@@ -13,6 +13,7 @@
  
- menu "Executable file formats"
-@@ -193,26 +170,19 @@
+ #define H8300_NE_DEFINE
+ #include <asm/machine-depend.h>
++#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
+ #undef  H8300_NE_DEFINE
  
- source "drivers/ide/Kconfig"
+ /****************************************************************************/
+diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/h8max/machine-depend.h linux-2.6.3-h8300/include/asm-h8300/h8max/machine-depend.h
+--- linux-2.6.3/include/asm-h8300/h8max/machine-depend.h	2004-01-09 15:59:47.000000000 +0900
++++ linux-2.6.3-h8300/include/asm-h8300/h8max/machine-depend.h	2004-02-20 02:44:41.000000000 +0900
+@@ -14,9 +14,6 @@
+ #define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
+ #define	NE2000_BYTE		volatile unsigned short
  
--source "net/Kconfig"
--
--source "drivers/isdn/Kconfig"
-+source "arch/h8300/Kconfig.ide"
+-#define IER                     0xfee015
+-#define ISR			0xfee016
+-#define IRQ_MASK		(1 << NE2000_IRQ)
+ /* sorry quick hack */
+ #if defined(outb)
+ # undef outb
+diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/system.h linux-2.6.3-h8300/include/asm-h8300/system.h
+--- linux-2.6.3/include/asm-h8300/system.h	2004-01-09 15:59:27.000000000 +0900
++++ linux-2.6.3-h8300/include/asm-h8300/system.h	2004-02-20 01:50:32.000000000 +0900
+@@ -57,14 +57,14 @@
+ #define __cli() asm volatile ("orc  #0x80,ccr")
  
--source "drivers/telephony/Kconfig"
-+source "net/Kconfig"
+ #define __save_flags(x) \
+-       asm volatile ("stc ccr,r0l\n\tmov.l er0,%0":"=r" (x) : : "er0")
++       asm volatile ("stc ccr,%w0":"=r" (x))
  
- #
--# input before char - char/joystick depends on it. As does USB.
-+# input - input/joystick depends on it. As does USB.
- #
- source "drivers/input/Kconfig"
+ #define __restore_flags(x) \
+-       asm volatile ("mov.l %0,er0\n\tldc r0l,ccr": :"r" (x) : "er0")
++       asm volatile ("ldc %w0,ccr": :"r" (x))
  
--#
--# Character device configuration
--#
--
- menu "Character devices"
- 
- config VT
- 	bool "Virtual terminal"
--	requires INPUT=y
- 	---help---
- 	  If you say Y here, you will get support for terminal devices with
- 	  display and keyboard devices. These are called "virtual" because you
-@@ -266,8 +236,37 @@
- 	depends on VT && !S390 && !UM
- 	default y
- 
-+config SERIAL
-+	tristate "Serial (8250, 16450, 16550 or compatible) support"
-+	---help---
-+	  This selects whether you want to include the driver for the standard
-+	  serial ports.  The standard answer is Y.  People who might say N
-+	  here are those that are setting up dedicated Ethernet WWW/FTP
-+	  servers, or users that have one of the various bus mice instead of a
-+	  serial mouse and don't intend to use their machine's standard serial
-+	  port for anything.  (Note that the Cyclades and Stallion multi
-+	  serial port drivers do not need this driver built in for them to
-+	  work.)
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called serial.
-+	  [WARNING: Do not compile this driver as a module if you are using
-+	  non-standard serial ports, since the configuration information will
-+	  be lost when the driver is unloaded.  This limitation may be lifted
-+	  in the future.]
-+
-+	  BTW1: If you have a mouseman serial mouse which is not recognized by
-+	  the X window system, try running gpm first.
-+
-+	  BTW2: If you intend to use a software modem (also called Winmodem)
-+	  under Linux, forget it.  These modems are crippled and require
-+	  proprietary drivers which are only available under Windows.
-+
-+	  Most people will say Y or M here, so that they can use serial mice,
-+	  modems and similar devices connecting to the standard serial ports.
-+
- config SH_SCI
--	tristate "Serial (SCI) support"
-+	tristate "Serial (SCI, SCIF) support"
- 	help
- 	  Selecting this option will allow the Linux kernel to transfer data
- 	  over SCI (Serial Communication Interface) and/or SCIF (Serial
-@@ -301,6 +300,8 @@
- 
- 	  If unsure, say N.
- 
-+comment "Unix98 PTY support"
-+
- config UNIX98_PTYS
- 	bool "Unix98 PTY support"
- 	---help---
-@@ -343,15 +344,17 @@
- 	  When not in use, each additional set of 256 PTYs occupy
- 	  approximately 8 KB of kernel memory on 32-bit architectures.
- 
--endmenu
-+source "drivers/char/pcmcia/Kconfig"
- 
--source "drivers/media/Kconfig"
--source "sound/Kconfig"
-+source "drivers/serial/Kconfig"
- 
--source "fs/Kconfig"
-+source "drivers/i2c/Kconfig"
- 
- source "drivers/usb/Kconfig"
-+ 
-+endmenu
- 
-+source "fs/Kconfig"
- 
- menu "Kernel hacking"
- 
-@@ -400,6 +403,29 @@
- 	  serial console output using GDB protocol.
- 	  Require eCos/RedBoot
- 
-+config DEFAULT_CMDLINE
-+	bool "Use buildin commandline"
-+	default n
-+	help
-+	  buildin kernel commandline enabled.
-+
-+config KERNEL_COMMAND
-+	string "Buildin commmand string"
-+	depends on DEFAULT_CMDLINE
-+	help
-+	  buildin kernel commandline strings.
-+
-+config BLKDEV_RESERVE
-+	bool "BLKDEV Reserved Memory"
-+	default n
-+	help
-+	  Reserved BLKDEV area.
-+
-+config CONFIG_BLKDEV_RESERVE_ADDRESS
-+	hex 'start address'
-+	depends on BLKDEV_RESERVE
-+	help
-+	  BLKDEV start address.
- endmenu
- 
- source "security/Kconfig"
-diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/Kconfig.ide linux-2.6.3-h8300/arch/h8300/Kconfig.ide
---- linux-2.6.3/arch/h8300/Kconfig.ide	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.3-h8300/arch/h8300/Kconfig.ide	2004-02-21 19:32:58.000000000 +0900
-@@ -0,0 +1,23 @@
-+# uClinux H8/300 Target Board Selection Menu (IDE)
-+
-+menu "IDE Extra configuration"
-+
-+config H8300_IDE_BASE
-+	hex "IDE regitser base address"
-+	depends on IDE
-+	help
-+	  IDE registers base address
-+
-+config H8300_IDE_ALT
-+	hex "IDE regitser alternate address"
-+	depends on IDE
-+	help
-+	  IDE alternate registers address
-+
-+config H8300_IDE_IRQNO
-+	int "IDE IRQ no"
-+	depends on IDE
-+	help
-+	  IDE I/F using IRQ no
-+
-+endmenu
-diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/defconfig linux-2.6.3-h8300/arch/h8300/defconfig
---- linux-2.6.3/arch/h8300/defconfig	2004-01-09 15:59:10.000000000 +0900
-+++ linux-2.6.3-h8300/arch/h8300/defconfig	2004-02-21 19:39:47.000000000 +0900
-@@ -1,6 +1,7 @@
- #
- # Automatically generated make config: don't edit
- #
-+CONFIG_H8300=y
- # CONFIG_MMU is not set
- # CONFIG_SWAP is not set
- # CONFIG_FPU is not set
-@@ -13,6 +14,9 @@
- # Code maturity level options
- #
- CONFIG_EXPERIMENTAL=y
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_STANDALONE=y
-+CONFIG_BROKEN_ON_SMP=y
- 
- #
- # General setup
-@@ -21,9 +25,15 @@
- # CONFIG_BSD_PROCESS_ACCT is not set
- # CONFIG_SYSCTL is not set
- CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_IKCONFIG is not set
- CONFIG_EMBEDDED=y
-+CONFIG_KALLSYMS=y
- CONFIG_FUTEX=y
- CONFIG_EPOLL=y
-+CONFIG_IOSCHED_NOOP=y
-+CONFIG_IOSCHED_AS=y
-+CONFIG_IOSCHED_DEADLINE=y
-+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
- 
- #
- # Loadable module support
-@@ -37,25 +47,30 @@
- # CONFIG_H8300H_AKI3068NET is not set
- # CONFIG_H8300H_H8MAX is not set
- CONFIG_H8300H_SIM=y
-+# CONFIG_H8S_EDOSK2674 is not set
-+# CONFIG_H8S_SIM is not set
- # CONFIG_H83002 is not set
- CONFIG_H83007=y
- # CONFIG_H83048 is not set
- # CONFIG_H83068 is not set
-+# CONFIG_H8S2678 is not set
- CONFIG_CPU_H8300H=y
- CONFIG_CPU_CLOCK=16000
- # CONFIG_RAMKERNEL is not set
- CONFIG_ROMKERNEL=y
--# CONFIG_DEFAULT_CMDLINE is not set
- 
- #
- # Executable file formats
- #
--CONFIG_KCORE_AOUT=y
- CONFIG_BINFMT_FLAT=y
- # CONFIG_BINFMT_ZFLAT is not set
- # CONFIG_BINFMT_MISC is not set
- 
- #
-+# Generic Driver Options
-+#
-+
-+#
- # Memory Technology Devices (MTD)
- #
- CONFIG_MTD=y
-@@ -72,6 +87,7 @@
- CONFIG_MTD_BLOCK=y
- # CONFIG_FTL is not set
- # CONFIG_NFTL is not set
-+# CONFIG_INFTL is not set
- 
- #
- # RAM/ROM/Flash chip drivers
-@@ -86,6 +102,7 @@
- #
- # Mapping drivers for chip access
- #
-+# CONFIG_MTD_COMPLEX_MAPPINGS is not set
- CONFIG_MTD_UCLINUX=y
- 
- #
-@@ -98,9 +115,9 @@
- #
- # Disk-On-Chip Device Drivers
- #
--# CONFIG_MTD_DOC1000 is not set
- # CONFIG_MTD_DOC2000 is not set
- # CONFIG_MTD_DOC2001 is not set
-+# CONFIG_MTD_DOC2001PLUS is not set
- 
- #
- # NAND Flash Device Drivers
-@@ -113,18 +130,100 @@
- # CONFIG_BLK_DEV_FD is not set
- # CONFIG_BLK_DEV_XD is not set
- # CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_NBD is not set
- # CONFIG_BLK_DEV_RAM is not set
- # CONFIG_BLK_DEV_INITRD is not set
- 
- #
--# ATA/IDE/MFM/RLL support
-+# ATA/ATAPI/MFM/RLL support
- #
- # CONFIG_IDE is not set
- 
- #
-+# IDE Extra configuration
-+#
-+
-+#
- # Networking support
- #
--# CONFIG_NET is not set
-+CONFIG_NET=y
-+
-+#
-+# Networking options
-+#
-+# CONFIG_PACKET is not set
-+# CONFIG_NETLINK_DEV is not set
-+# CONFIG_UNIX is not set
-+# CONFIG_NET_KEY is not set
-+# CONFIG_INET is not set
-+# CONFIG_INET_AH is not set
-+# CONFIG_INET_ESP is not set
-+# CONFIG_INET_IPCOMP is not set
-+# CONFIG_DECNET is not set
-+# CONFIG_BRIDGE is not set
-+# CONFIG_NETFILTER is not set
-+# CONFIG_ATM is not set
-+# CONFIG_VLAN_8021Q is not set
-+# CONFIG_LLC2 is not set
-+# CONFIG_IPX is not set
-+# CONFIG_ATALK is not set
-+# CONFIG_X25 is not set
-+# CONFIG_LAPB is not set
-+# CONFIG_NET_DIVERT is not set
-+# CONFIG_WAN_ROUTER is not set
-+# CONFIG_NET_FASTROUTE is not set
-+# CONFIG_NET_HW_FLOWCONTROL is not set
-+
-+#
-+# QoS and/or fair queueing
-+#
-+# CONFIG_NET_SCHED is not set
-+
-+#
-+# Network testing
-+#
-+# CONFIG_NET_PKTGEN is not set
-+CONFIG_NETDEVICES=y
-+
-+#
-+# ARCnet devices
-+#
-+# CONFIG_ARCNET is not set
-+# CONFIG_DUMMY is not set
-+# CONFIG_BONDING is not set
-+# CONFIG_EQUALIZER is not set
-+# CONFIG_TUN is not set
-+
-+#
-+# Ethernet (10 or 100Mbit)
-+#
-+# CONFIG_NET_ETHERNET is not set
-+
-+#
-+# Ethernet (1000 Mbit)
-+#
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
-+# CONFIG_PPP is not set
-+# CONFIG_SLIP is not set
-+
-+#
-+# Wireless LAN (non-hamradio)
-+#
-+# CONFIG_NET_RADIO is not set
-+
-+#
-+# Token Ring devices
-+#
-+# CONFIG_TR is not set
-+# CONFIG_SHAPER is not set
-+
-+#
-+# Wan interfaces
-+#
-+# CONFIG_WAN is not set
- 
- #
- # Amateur Radio support
-@@ -132,13 +231,14 @@
- # CONFIG_HAMRADIO is not set
- 
- #
--# ISDN subsystem
-+# IrDA (infrared) support
- #
-+# CONFIG_IRDA is not set
- 
- #
--# Telephony Support
-+# Bluetooth support
- #
--# CONFIG_PHONE is not set
-+# CONFIG_BT is not set
- 
- #
- # Input device support
-@@ -155,6 +255,7 @@
- # CONFIG_GAMEPORT is not set
- CONFIG_SOUND_GAMEPORT=y
- # CONFIG_SERIO is not set
-+# CONFIG_SERIO_I8042 is not set
- 
- #
- # Input Device Drivers
-@@ -163,14 +264,38 @@
- #
- # Character devices
- #
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL is not set
- CONFIG_SH_SCI=y
- CONFIG_SERIAL_CONSOLE=y
-+
-+#
-+# Unix98 PTY support
-+#
- # CONFIG_UNIX98_PTYS is not set
- 
- #
--# Multimedia devices
-+# Serial drivers
- #
--# CONFIG_VIDEO_DEV is not set
-+# CONFIG_SERIAL_8250 is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+
-+#
-+# I2C support
-+#
-+# CONFIG_I2C is not set
-+
-+#
-+# USB support
-+#
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
- 
- #
- # File systems
-@@ -203,8 +328,10 @@
- # Pseudo filesystems
- #
- CONFIG_PROC_FS=y
-+CONFIG_PROC_KCORE=y
- # CONFIG_DEVFS_FS is not set
- # CONFIG_TMPFS is not set
-+# CONFIG_HUGETLB_PAGE is not set
- CONFIG_RAMFS=y
- 
- #
-@@ -226,14 +353,20 @@
- # CONFIG_UFS_FS is not set
- 
- #
-+# Network File Systems
-+#
-+# CONFIG_EXPORTFS is not set
-+
-+#
- # Partition Types
- #
- # CONFIG_PARTITION_ADVANCED is not set
- CONFIG_MSDOS_PARTITION=y
- 
- #
--# USB support
-+# Native Language Support
- #
-+# CONFIG_NLS is not set
- 
- #
- # Kernel hacking
-@@ -243,7 +376,9 @@
- # CONFIG_HIGHPROFILE is not set
- CONFIG_NO_KERNEL_MSG=y
- CONFIG_GDB_MAGICPRINT=y
--CONFIG_SYSCALL_PRINT=y
-+# CONFIG_SYSCALL_PRINT is not set
-+# CONFIG_DEFAULT_CMDLINE is not set
-+# CONFIG_BLKDEV_RESERVE is not set
- 
- #
- # Security options
+ #define	irqs_disabled()			\
+ ({					\
+-	unsigned long flags;		\
++	unsigned char flags;		\
+ 	__save_flags(flags);	        \
+ 	((flags & 0x80) == 0x80);	\
+ })
 
---
+-- 
 Yoshinori Sato
-<ysato@users.sourceforge.jp>
+<ysato@usrs.sourceforge.jp>

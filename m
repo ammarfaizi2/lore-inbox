@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSH2VeO>; Thu, 29 Aug 2002 17:34:14 -0400
+	id <S319351AbSH2ViL>; Thu, 29 Aug 2002 17:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319281AbSH2VeO>; Thu, 29 Aug 2002 17:34:14 -0400
-Received: from holomorphy.com ([66.224.33.161]:30085 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316768AbSH2VeN>;
-	Thu, 29 Aug 2002 17:34:13 -0400
-Date: Thu, 29 Aug 2002 14:38:30 -0700
+	id <S319352AbSH2ViL>; Thu, 29 Aug 2002 17:38:11 -0400
+Received: from holomorphy.com ([66.224.33.161]:32389 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319351AbSH2ViK>;
+	Thu, 29 Aug 2002 17:38:10 -0400
+Date: Thu, 29 Aug 2002 14:42:30 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] low-latency zap_page_range()
-Message-ID: <20020829213830.GG888@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] compile-time configurable NR_CPUS
+Message-ID: <20020829214230.GH888@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <3D6E844C.4E756D10@zip.com.au> <1030653602.939.2677.camel@phantasy> <3D6E8B25.425263D5@zip.com.au>
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+References: <1030635200.939.2561.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <3D6E8B25.425263D5@zip.com.au>
+In-Reply-To: <1030635200.939.2561.camel@phantasy>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
->> unless we
->> wanted to unconditionally drop the locks and let preempt just do the
->> right thing and also reduce SMP lock contention in the SMP case.
+On Thu, Aug 29, 2002 at 11:33:20AM -0400, Robert Love wrote:
+> diff -urN linux-2.5.32/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.32/arch/i386/config.in	Tue Aug 27 15:26:39 2002
++++ linux/arch/i386/config.in	Wed Aug 28 19:15:32 2002
+@@ -166,6 +166,7 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+ fi
+ 
 
-On Thu, Aug 29, 2002 at 01:59:17PM -0700, Andrew Morton wrote:
-> That's an interesting point.  page_table_lock is one of those locks
-> which is occasionally held for ages, and frequently held for a short
-> time.
-> I suspect that yes, voluntarily popping the lock during the long holdtimes
-> will allow other CPUs to get on with stuff, and will provide efficiency
-> increases.  (It's a pretty lame way of doing that though).
-> But I don't recall seeing nasty page_table_lock spintimes on
-> anyone's lockmeter reports, so...
-
-You will. There are just bigger fish to fry at the moment.
+Could you make CONFIG_NR_CPUS only for non-NUMA-Q systems and hardwire
+it to 32 for NUMA-Q, as the bugs in io_apic.c don't have fixes yet and
+NUMA-Q's have enough IO-APIC's to trigger the bugs.
 
 
-Cheers,
+Thanks,
 Bill

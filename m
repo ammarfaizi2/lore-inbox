@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265799AbSKAWXw>; Fri, 1 Nov 2002 17:23:52 -0500
+	id <S265792AbSKAWTi>; Fri, 1 Nov 2002 17:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265801AbSKAWXv>; Fri, 1 Nov 2002 17:23:51 -0500
-Received: from dp.samba.org ([66.70.73.150]:28813 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265799AbSKAWXB>;
-	Fri, 1 Nov 2002 17:23:01 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: What's left over. 
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	id <S265795AbSKAWTi>; Fri, 1 Nov 2002 17:19:38 -0500
+Received: from almesberger.net ([63.105.73.239]:37128 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265792AbSKAWTg>; Fri, 1 Nov 2002 17:19:36 -0500
+Date: Fri, 1 Nov 2002 19:25:45 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-In-reply-to: Your message of "01 Nov 2002 13:30:18 -0000."
-             <1036157418.12693.19.camel@irongate.swansea.linux.org.uk> 
-Date: Sat, 02 Nov 2002 09:28:48 +1100
-Message-Id: <20021101222930.964392C5B0@lists.samba.org>
+Subject: Re: What's left over.
+Message-ID: <20021101192545.F2599@almesberger.net>
+References: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com> <Pine.LNX.4.44.0211011218560.26353-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211011218560.26353-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Fri, Nov 01, 2002 at 12:21:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1036157418.12693.19.camel@irongate.swansea.linux.org.uk> you write:
-> On Thu, 2002-10-31 at 21:02, Jeff Garzik wrote:
-> > hosed/screaming, and various mid-layers are dying.  For LKCD to be of 
-> > any use, it needs to _skip_ the block layer and talk directly to 
-> > low-level drivers.
-> 
-> Rusty wrote a polled IDE driver that should handle some subset of that
+[ Cc: trimmed ]
 
-Yes, patch has bitrotted but updating should be trivial.  There's
-enough there that you get the idea though: frankly, it's noninvasive
-enough for entry during the 2.6.x series, so it's been down on my
-list:
+David Lang wrote:
+> One question I have is how much of the driver problem you refer to is
+> becouse of optimizations that the various drivers have, could you fall
+> back to the simplest, works-with-everything,
+> all-timeouts-longer-then-the-slowest-disk slug of a driver that could be
+> used to do this dump?
 
-	http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Misc/oopser.patch.gz
+Welcome to the wonderful world of code duplication. And don't forget
+the "simplified" TCP/IP stack for network dumps. Uh, USB-attached
+storage, anyone ? :-)
 
-I'd love someone to take this for a spin and tweak it up...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Special-case dump drivers make perfect sense in isolated cases (e.g.
+narrowly specified boxes) or as a band-aid solution.
+
+But for a general solution, it seems more appropriate to me to solve
+the problem of moving the kernel data from the damaged system to an
+intact system only once, e.g. using the MCORE approach, than over
+and over again for all possible types of hardware and attachment
+methods.
+
+The only inherent weakness I see in MCORE is the need to reliably
+reset a device, either to the point where it is operational (if
+used in the process of dumping), or at least to the point where it
+doesn't get in the way (if not used for the dump, e.g. video, HID,
+etc.).
+
+But this should still be significantly easier than introducing
+"dumb" versions for all drivers. Besides, having a way for cleanly
+shutting down or resetting devices is desirable in other contexts,
+too (e.g. kexec).
+
+- Werner (disclaimer: not affiliated with Mission Critical Linux,
+	 any vendor, or any other form of gainful employment)
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,186 +1,112 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314123AbSEFGfR>; Mon, 6 May 2002 02:35:17 -0400
+	id <S314126AbSEFGfc>; Mon, 6 May 2002 02:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314126AbSEFGfQ>; Mon, 6 May 2002 02:35:16 -0400
-Received: from surf.viawest.net ([216.87.64.26]:52186 "EHLO surf.viawest.net")
-	by vger.kernel.org with ESMTP id <S314123AbSEFGfP>;
-	Mon, 6 May 2002 02:35:15 -0400
-Date: Sun, 5 May 2002 23:35:09 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.14 - sound again.
-Message-ID: <20020506063509.GA28966@wizard.com>
-Mime-Version: 1.0
+	id <S314138AbSEFGfb>; Mon, 6 May 2002 02:35:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43026 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314126AbSEFGfa>;
+	Mon, 6 May 2002 02:35:30 -0400
+Message-ID: <3CD624BA.3D094500@zip.com.au>
+Date: Sun, 05 May 2002 23:37:46 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Lane <miles@megapathdsl.net>
+CC: LKML <linux-kernel@vger.kernel.org>, Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: 2.5.14 -- fs/fs.o: In function `end_buffer_read_file_async': 
+ undefinedreference to `clear_buffer_async'
+In-Reply-To: <3CD61A42.7050502@megapathdsl.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux/2.5.13 (i686)
-X-uptime: 11:10pm  up 1 day, 20:46,  2 users,  load average: 1.01, 1.00, 0.58
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miles Lane wrote:
+> 
+> fs/fs.o: In function `end_buffer_read_file_async':
+> fs/fs.o(.text+0x705a4): undefined reference to `clear_buffer_async'
 
-        Looks like ALSA went bung again in 2.5.14. sound/core/misc.c still 
-fails to compile when running make modules. Jaroslav's patch takes care of 
-this, though another pops up:
+oops.  I broke it again.  This is probably a subconcious reaction
+to the "NT" thing.   Apologies.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
--DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
--DKBUILD_BASENAME=opl3_drums  -c -o opl3_drums.o opl3_drums.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
--DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
--DKBUILD_BASENAME=opl3_oss  -c -o opl3_oss.o opl3_oss.c
-opl3_oss.c:25: parse error before `*'
-opl3_oss.c:25: warning: function declaration isn't a prototype
-opl3_oss.c:26: parse error before `*'
-opl3_oss.c:26: warning: function declaration isn't a prototype
-opl3_oss.c:27: parse error before `*'
-opl3_oss.c:27: warning: function declaration isn't a prototype
-opl3_oss.c:28: parse error before `*'
-opl3_oss.c:28: warning: function declaration isn't a prototype
-opl3_oss.c:29: parse error before `*'
-opl3_oss.c:29: warning: function declaration isn't a prototype
-opl3_oss.c:49: parse error before `oss_callback'
-opl3_oss.c:49: warning: type defaults to `int' in declaration of `oss_callback'
-opl3_oss.c:50: unknown field `owner' specified in initializer
-opl3_oss.c:50: warning: initialization makes integer from pointer without a 
-cast
-opl3_oss.c:51: unknown field `open' specified in initializer
-opl3_oss.c:51: warning: excess elements in scalar initializer
-opl3_oss.c:51: warning: (near initialization for `oss_callback')
-opl3_oss.c:52: unknown field `close' specified in initializer
-opl3_oss.c:52: warning: excess elements in scalar initializer
-opl3_oss.c:52: warning: (near initialization for `oss_callback')
-opl3_oss.c:53: unknown field `ioctl' specified in initializer
-opl3_oss.c:53: warning: excess elements in scalar initializer
-opl3_oss.c:53: warning: (near initialization for `oss_callback')
-opl3_oss.c:54: unknown field `load_patch' specified in initializer
-opl3_oss.c:54: warning: excess elements in scalar initializer
-opl3_oss.c:54: warning: (near initialization for `oss_callback')
-opl3_oss.c:55: unknown field `reset' specified in initializer
-opl3_oss.c:55: warning: excess elements in scalar initializer
-opl3_oss.c:55: warning: (near initialization for `oss_callback')
-opl3_oss.c:56: warning: data definition has no type or storage class
-opl3_oss.c: In function `snd_opl3_oss_event_input':
-opl3_oss.c:64: structure has no member named `oss_chset'
-opl3_oss.c: In function `snd_opl3_oss_free_port':
-opl3_oss.c:74: structure has no member named `oss_chset'
-opl3_oss.c: In function `snd_opl3_oss_create_port':
-opl3_oss.c:85: structure has no member named `oss_chset'
-opl3_oss.c:86: structure has no member named `oss_chset'
-opl3_oss.c:88: structure has no member named `oss_chset'
-opl3_oss.c:99: structure has no member named `oss_chset'
-opl3_oss.c:100: structure has no member named `oss_chset'
-opl3_oss.c:106: structure has no member named `oss_chset'
-opl3_oss.c:107: structure has no member named `oss_chset'
-opl3_oss.c:108: structure has no member named `oss_chset'
-opl3_oss.c: In function `snd_opl3_init_seq_oss':
-opl3_oss.c:118: `snd_seq_oss_reg_t' undeclared (first use in this function)
-opl3_oss.c:118: (Each undeclared identifier is reported only once
-opl3_oss.c:118: for each function it appears in.)
-opl3_oss.c:118: `arg' undeclared (first use in this function)
-opl3_oss.c:118: warning: statement with no effect
-opl3_oss.c:119: parse error before `*'
-opl3_oss.c:121: `SNDRV_SEQ_DEV_ID_OSS' undeclared (first use in this function)
-opl3_oss.c:122: `dev' undeclared (first use in this function)
-opl3_oss.c:125: structure has no member named `oss_seq_dev'
-opl3_oss.c:129: `SYNTH_TYPE_FM' undeclared (first use in this function)
-opl3_oss.c:131: `FM_TYPE_ADLIB' undeclared (first use in this function)
-opl3_oss.c:134: `FM_TYPE_OPL3' undeclared (first use in this function)
-opl3_oss.c: In function `snd_opl3_free_seq_oss':
-opl3_oss.c:149: structure has no member named `oss_seq_dev'
-opl3_oss.c:150: structure has no member named `oss_seq_dev'
-opl3_oss.c:151: structure has no member named `oss_seq_dev'
-opl3_oss.c: At top level:
-opl3_oss.c:158: parse error before `*'
-opl3_oss.c:159: warning: function declaration isn't a prototype
-opl3_oss.c: In function `snd_opl3_open_seq_oss':
-opl3_oss.c:160: `closure' undeclared (first use in this function)
-opl3_oss.c:163: `arg' undeclared (first use in this function)
-opl3_oss.c:170: structure has no member named `oss_chset'
-opl3_oss.c:171: structure has no member named `oss_chset'
-opl3_oss.c: At top level:
-opl3_oss.c:181: parse error before `*'
-opl3_oss.c:182: warning: function declaration isn't a prototype
-opl3_oss.c: In function `snd_opl3_close_seq_oss':
-opl3_oss.c:185: `arg' undeclared (first use in this function)
-opl3_oss.c: At top level:
-opl3_oss.c:210: parse error before `*'
-opl3_oss.c:212: warning: function declaration isn't a prototype
-opl3_oss.c: In function `snd_opl3_load_patch_seq_oss':
-opl3_oss.c:216: `arg' undeclared (first use in this function)
-opl3_oss.c:219: `format' undeclared (first use in this function)
-opl3_oss.c:219: `FM_PATCH' undeclared (first use in this function)
-opl3_oss.c:219: `OPL3_PATCH' undeclared (first use in this function)
-opl3_oss.c:220: storage size of `sbi' isn't known
-opl3_oss.c:232: `count' undeclared (first use in this function)
-opl3_oss.c:236: `buf' undeclared (first use in this function)
-opl3_oss.c:220: warning: unused variable `sbi'
-opl3_oss.c: At top level:
-opl3_oss.c:323: parse error before `*'
-opl3_oss.c:325: warning: function declaration isn't a prototype
-opl3_oss.c: In function `snd_opl3_ioctl_seq_oss':
-opl3_oss.c:328: `arg' undeclared (first use in this function)
-opl3_oss.c:330: `cmd' undeclared (first use in this function)
-opl3_oss.c:331: `SNDCTL_FM_LOAD_INSTR' undeclared (first use in this function)
-opl3_oss.c:335: `SNDCTL_SYNTH_MEMAVL' undeclared (first use in this function)
-opl3_oss.c:338: `SNDCTL_FM_4OP_ENABLE' undeclared (first use in this function)
-opl3_oss.c:332: warning: unreachable code at beginning of switch statement
-opl3_oss.c: At top level:
-opl3_oss.c:349: parse error before `*'
-opl3_oss.c:350: warning: function declaration isn't a prototype
-opl3_oss.c: In function `snd_opl3_reset_seq_oss':
-opl3_oss.c:353: `arg' undeclared (first use in this function)
-make[3]: *** [opl3_oss.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.10/sound/drivers/opl3'
-make[2]: *** [_modsubdir_opl3] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.10/sound/drivers'
-make[1]: *** [_modsubdir_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.10/sound'
-make: *** [_mod_sound] Error 2
+--- 2.5.14/fs/ntfs/aops.c~ntfs	Sun May  5 23:33:05 2002
++++ 2.5.14-akpm/fs/ntfs/aops.c	Sun May  5 23:34:34 2002
+@@ -76,13 +76,13 @@ static void end_buffer_read_file_async(s
+ 		SetPageError(page);
+ 
+ 	spin_lock_irqsave(&page_uptodate_lock, flags);
+-	clear_buffer_async(bh);
++	clear_buffer_async_read(bh);
+ 	unlock_buffer(bh);
+ 
+ 	tmp = bh->b_this_page;
+ 	while (tmp != bh) {
+ 		if (buffer_locked(tmp)) {
+-			if (buffer_async(tmp))
++			if (buffer_async_read(tmp))
+ 				goto still_busy;
+ 		} else if (!buffer_uptodate(tmp))
+ 			SetPageError(page);
+@@ -218,7 +218,7 @@ handle_zblock:
+ 			struct buffer_head *tbh = arr[i];
+ 			lock_buffer(tbh);
+ 			tbh->b_end_io = end_buffer_read_file_async;
+-			set_buffer_async(tbh);
++			set_buffer_async_read(tbh);
+ 		}
+ 		/* Finally, start i/o on the buffers. */
+ 		for (i = 0; i < nr; i++)
+@@ -378,13 +378,13 @@ static void end_buffer_read_mftbmp_async
+ 		SetPageError(page);
+ 
+ 	spin_lock_irqsave(&page_uptodate_lock, flags);
+-	clear_buffer_async(bh);
++	clear_buffer_async_read(bh);
+ 	unlock_buffer(bh);
+ 
+ 	tmp = bh->b_this_page;
+ 	while (tmp != bh) {
+ 		if (buffer_locked(tmp)) {
+-			if (buffer_async(tmp))
++			if (buffer_async_read(tmp))
+ 				goto still_busy;
+ 		} else if (!buffer_uptodate(tmp))
+ 			SetPageError(page);
+@@ -501,7 +501,7 @@ handle_zblock:
+ 			struct buffer_head *tbh = arr[i];
+ 			lock_buffer(tbh);
+ 			tbh->b_end_io = end_buffer_read_mftbmp_async;
+-			set_buffer_async(tbh);
++			set_buffer_async_read(tbh);
+ 		}
+ 		/* Finally, start i/o on the buffers. */
+ 		for (i = 0; i < nr; i++)
+@@ -574,13 +574,13 @@ static void end_buffer_read_mst_async(st
+ 		SetPageError(page);
+ 
+ 	spin_lock_irqsave(&page_uptodate_lock, flags);
+-	clear_buffer_async(bh);
++	clear_buffer_async_read(bh);
+ 	unlock_buffer(bh);
+ 
+ 	tmp = bh->b_this_page;
+ 	while (tmp != bh) {
+ 		if (buffer_locked(tmp)) {
+-			if (buffer_async(tmp))
++			if (buffer_async_read(tmp))
+ 				goto still_busy;
+ 		} else if (!buffer_uptodate(tmp))
+ 			SetPageError(page);
+@@ -758,7 +758,7 @@ handle_zblock:
+ 			struct buffer_head *tbh = arr[i];
+ 			lock_buffer(tbh);
+ 			tbh->b_end_io = end_buffer_read_mst_async;
+-			set_buffer_async(tbh);
++			set_buffer_async_read(tbh);
+ 		}
+ 		/* Finally, start i/o on the buffers. */
+ 		for (i = 0; i < nr; i++)
 
-        Revelant parts of .config below.
 
-CONFIG_SOUND=m
-
-#
-# Open Sound System
-#
-
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_VMIDI=m
-CONFIG_SOUND_SB=m
-CONFIG_SOUND_YM3812=m
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=m
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_MEMORY=y
-CONFIG_SND_DEBUG_DETECT=y
-CONFIG_SND_MPU401=m
-CONFIG_SND_ENS1371=m
-CONFIG_SND_FM801=m
-
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+-

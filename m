@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266143AbRF2R7R>; Fri, 29 Jun 2001 13:59:17 -0400
+	id <S266140AbRF2SAq>; Fri, 29 Jun 2001 14:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbRF2R7H>; Fri, 29 Jun 2001 13:59:07 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:8708 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266140AbRF2R6t>;
-	Fri, 29 Jun 2001 13:58:49 -0400
-Message-ID: <20010629000255.B525@bug.ucw.cz>
-Date: Fri, 29 Jun 2001 00:02:55 +0200
+	id <S266146AbRF2SAg>; Fri, 29 Jun 2001 14:00:36 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:9988 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266135AbRF2R7Z>;
+	Fri, 29 Jun 2001 13:59:25 -0400
+Message-ID: <20010629005419.H525@bug.ucw.cz>
+Date: Fri, 29 Jun 2001 00:54:19 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, lm@bitmover.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-In-Reply-To: <200106211300.IAA40817@tomcat.admin.navo.hpc.mil>
+To: Matthias Urlichs <smurf@noris.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        D.A.Fedorov@inp.nsk.su
+Cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <E15D4VG-0001Lw-00@the-village.bc.nu> <p05100305b757ae11c10d@[10.2.6.42]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <200106211300.IAA40817@tomcat.admin.navo.hpc.mil>; from Jesse Pollard on Thu, Jun 21, 2001 at 08:00:25AM -0500
+In-Reply-To: <p05100305b757ae11c10d@[10.2.6.42]>; from Matthias Urlichs on Thu, Jun 21, 2001 at 04:03:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I'm unimpressed with what Microsoft calls an operating system and
-> > I'm equally unimpressed with what Unix calls an application layer.
-> > For the last 10 years, Unix has gotten the OS right and the apps wrong
-> > and Microsoft has gotten the apps right and the OS wrong.  Seems like
-> > there is potential for a win-win.
+> >No. The IRQ might be shared, and you get a slight problem if you just disabled
+> >an IRQ needed to make progress for user space to handle the IRQ
 > 
-> I'm equally unimpressed by their applications - how many macro viruses
-> exist? How do they propagate? How many times do they change file formats?
-> How many patches are (re)issued to "fix" the same problem?
+> Two choices:
 > 
-> The biggest improvement would be that users could remain with a version
-> that works for them and NOT be forced to pay more money for the same
-> functionality (watch out for the XP license virus... also known as
-> a logic bomb).
+> - Disallow shared interrupts for usermode drivers.
 
-What is XP license virus?
+That's hard... If you your notebook comes with soundcard and ltmodem
+sharing the irq, and ltmodem only has userspace driver, you are
+screwed.
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

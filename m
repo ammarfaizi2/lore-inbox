@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQLFS77>; Wed, 6 Dec 2000 13:59:59 -0500
+	id <S129231AbQLFTKA>; Wed, 6 Dec 2000 14:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129956AbQLFS7t>; Wed, 6 Dec 2000 13:59:49 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:38154 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129387AbQLFS7s>;
-	Wed, 6 Dec 2000 13:59:48 -0500
-Date: Wed, 6 Dec 2000 18:26:21 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Peng Dai <dai@mclinux.com>
-Cc: linux-kernel@vger.kernel.org,
-        Larry Woodman <woodman@missioncriticallinux.com>,
-        David Winchell <winchell@mclinux.com>
-Subject: Re: Fixing random corruption in raw IO on 2.2.x kernel with bigmem enabled
-Message-ID: <20001206182621.A2101@redhat.com>
-In-Reply-To: <3A2E7756.979988E8@mclinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A2E7756.979988E8@mclinux.com>; from dai@mclinux.com on Wed, Dec 06, 2000 at 12:28:54PM -0500
+	id <S129387AbQLFTJu>; Wed, 6 Dec 2000 14:09:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18951 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129231AbQLFTJh>; Wed, 6 Dec 2000 14:09:37 -0500
+Date: Wed, 6 Dec 2000 10:38:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre6
+In-Reply-To: <20001206190850.A847@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.10.10012061033160.1715-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Dec 06, 2000 at 12:28:54PM -0500, Peng Dai wrote:
+
+On Wed, 6 Dec 2000, Erik Mouw wrote:
 > 
-> This patch fixes a subtle corruption when doing raw IO on the 2.2.x
-> kernel
-> with bigmem enabled. The problem was first reported by Markus Döhr while
+> So at first the PCI code can't allocate an IRQ for devices 00:00.1
+> (audio), 00:07.2 (USB), and 00:09.0 (winmodem), but after the audio and
+> USB modules get inserted, IRQ 5 and 11 get allocated.
 
-That patch is already part of the full bugfixed raw IO patchset I
-posted out a few days ago.  Look for kiobuf-2.2.18pre24-B.tar.gz in
+No, the irq stuff is a two-stage process: at first it only _reads_ the irq
+config stuff for every device - whether they have a driver or not - and at
+this stage it will not ever actually allocate and set up a new route. It
+will just see if a route has already been set up by the BIOS.
 
-	ftp.uk.linux.org:/pub/linux/sct/fs/raw-io
-or	ftp.*.kernel.org:/pub/linux/kernel/people/sct/raw-io
+Then, when a driver actually does a pci_enable_device(), it will do the
+second stage of PCI irq routing, which is to actually set up a route if
+none originally existed. So this is why you first se "failed" messages
+(the generic "test if there is a route" code) and then later when loading
+the module you see "allocated irq XX" messages.
 
-Cheers,
- Stephen
+So your dmesg output looks fine, and everything is ok at that level. The
+fact that something still doesn't work for you indicates that we still
+have problems, of course.
+
+Can you tell me what device it is that doesn't work for you? 
+
+		Linus
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

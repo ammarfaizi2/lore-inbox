@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAKAaV>; Wed, 10 Jan 2001 19:30:21 -0500
+	id <S129584AbRAKAiF>; Wed, 10 Jan 2001 19:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130765AbRAKAaL>; Wed, 10 Jan 2001 19:30:11 -0500
-Received: from innerfire.net ([208.181.73.33]:29715 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S129873AbRAKA36>;
-	Wed, 10 Jan 2001 19:29:58 -0500
-Date: Wed, 10 Jan 2001 16:33:15 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] linux-kernel v2.0.39
-In-Reply-To: <3A5CEFB7.18262D97@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.10.10101101631320.4112-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130194AbRAKAhz>; Wed, 10 Jan 2001 19:37:55 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:49528 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129873AbRAKAhn>;
+	Wed, 10 Jan 2001 19:37:43 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: jeremyhu@uclink4.berkeley.edu (Jeremy Huddleston),
+        linux-kernel@vger.kernel.org
+Subject: Re: Problem with module versioning in 2.4.0 
+In-Reply-To: Your message of "Thu, 11 Jan 2001 00:17:41 -0000."
+             <E14GVR1-0001J9-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 11 Jan 2001 11:37:14 +1100
+Message-ID: <7595.979173434@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCC 2.95 will NOT compile a 2.0 series kernel...
+On Thu, 11 Jan 2001 00:17:41 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>jeremyhu wrote
+>> See below for my origional problem.  It seems the problem lies in the
+>> module versioning option.
+>
+>Not quite
 
-	Gerhard
+Probably is.
 
-> # gcc --version
-> 2.95.2
-> 
-> # uname -a
-> Linux eyal 2.4.0-ac3 #1 Sun Jan 7 12:15:50 EST 2001 i686 unknown
-> 
-> # ls -l /lib/libc-*.so
-> -rwxr-xr-x    1 root     root      1057576 Oct 14 05:45
-> /lib/libc-2.1.95.so
-> 
-> --
-> Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+>> When the system boots, I am spammed with the following line:
+>> insmod: /lib/modules/2.4.0/kernel/net/unix/unix.o: insmod net-pf-1
+>> failed
+>
+>What happens is this
+>
+>kernel needs unix sockets
+>kernel invokes modprobe
+>modprobe opens a unix socket
+>	kernel needs unix sockets
+>	kernel invokes modprobe
+>		.....
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+kmod.c has code to catch that recursive case and abort it.  The problem
+is not the loop per se, it is caused by that insmod unix.o failing on
+every attempt.  That is almost certainly caused by bad symbol versions.
+See http://www.tux.org/lkml/#s8-8.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

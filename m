@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSILRkl>; Thu, 12 Sep 2002 13:40:41 -0400
+	id <S316674AbSILRuI>; Thu, 12 Sep 2002 13:50:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSILRkl>; Thu, 12 Sep 2002 13:40:41 -0400
-Received: from pD9E23F87.dip.t-dialin.net ([217.226.63.135]:17381 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316615AbSILRkk>; Thu, 12 Sep 2002 13:40:40 -0400
-Date: Thu, 12 Sep 2002 11:45:47 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Bernd Petrovitsch <bernd@gams.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS? 
-In-Reply-To: <200209121709.g8CH9gY27201@frodo.gams.co.at>
-Message-ID: <Pine.LNX.4.44.0209121145250.10048-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S316675AbSILRuI>; Thu, 12 Sep 2002 13:50:08 -0400
+Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:16094 "HELO
+	the-grudge.myip.org") by vger.kernel.org with SMTP
+	id <S316674AbSILRuH>; Thu, 12 Sep 2002 13:50:07 -0400
+Message-ID: <1031853298.3d80d4f24e066@webmail>
+Date: Thu, 12 Sep 2002 13:54:58 -0400
+From: Joe Kellner <jdk@kingsmeadefarm.com>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+References: <Pine.LNX.4.44.0209121144210.10048-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0209121144210.10048-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 192.168.1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Quoting Thunder from the hill <thunder@lightweight.ods.org>:
 
-On Thu, 12 Sep 2002, Bernd Petrovitsch wrote:
-> >But Linux doesn't crash...  :-)
+> Hi,
 > 
-> Just pull the power cable out of your PC and see what happens.
 
-The UPS starts beeping.
+> 
+> I don't see where reiserfs isn't journaling.
+> 
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
 
+That was speaking of EXT2, not ReiserFS. Sorry for the confusion.
+
+
+
+-------------------------------------------------
+sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

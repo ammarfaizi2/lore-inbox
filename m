@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287623AbSAEJXJ>; Sat, 5 Jan 2002 04:23:09 -0500
+	id <S287625AbSAEJZI>; Sat, 5 Jan 2002 04:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287630AbSAEJW7>; Sat, 5 Jan 2002 04:22:59 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:51933 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S287623AbSAEJWm>; Sat, 5 Jan 2002 04:22:42 -0500
-Date: Sat, 5 Jan 2002 01:22:40 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: kraxel@goldbach.in-berlin.de, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Patch: linux-2.5.2-pre8/drivers/media/video/tvmixer.c kdev_t compilation fix
-Message-ID: <20020105012240.A21698@baldur.yggdrasil.com>
+	id <S287629AbSAEJY6>; Sat, 5 Jan 2002 04:24:58 -0500
+Received: from ns2.auctionwatch.com ([64.14.24.2]:18705 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S287625AbSAEJYp>; Sat, 5 Jan 2002 04:24:45 -0500
+Date: Sat, 5 Jan 2002 01:24:42 -0800
+From: Petro <petro@auctionwatch.com>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020105092442.GC26154@auctionwatch.com>
+In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com> <3C360D6E.9020207@athlon.maya.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <3C360D6E.9020207@athlon.maya.org>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"We" (Auctionwatch.com) are experiencing problems that appear to be
+related to VM, I realize that this question was not directed at me:
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, Jan 04, 2002 at 09:15:42PM +0100, Andreas Hartmann wrote:
+> Stephan von Krawczynski wrote:
+> Question is: which nature is your application / load of the system? You 
+> wrote something about database server. How much rows alltogether? What's 
 
-	linux-2.5.2-pre8/drivers/media/video/tvmixer.c used
-MINOR where it should have used minor.  Here is the fix
-(untested aside from seeing that it compiles).
+    Mysql running a dual 650 PIII, 2 gig ram. Rows? Dunno, but several
+    million tables (about 85 gig of tables averaging 45-50k IIRC). 
 
-	This is the only compilation fix for the drivers/media
-subtree.  That is why I am submitting it by itself.
+> the size of the table(s)? How many concurrent accesses do you have? Do
+
+    We will have 2-400+ tables open at once. 
+
+> you do "easy" searches where all of the conditions are located in the 
+> index? How big is your index? How big is the throughput of your 
+> database? Do you have your tables on raw partitions (without caching; as 
+> you can do it with UDB)?
+
+    I don't know much about the specific design, other than I've been
+    told it's non-optimal. 
+
+> How big are the partitions you are mounting at once? In my case, all the 
+> partitions together have about 70GB (all reiserfs).
+
+    One 250G logical volume, a couple smaller ones (3 gig, 30 gig). 
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tv.diff"
-
---- linux-2.5.2-pre8/drivers/media/video/tvmixer.c	Wed Oct 17 14:19:20 2001
-+++ linux/drivers/media/video/tvmixer.c	Sat Jan  5 01:17:51 2002
-@@ -177,7 +177,7 @@
- 
- static int tvmixer_open(struct inode *inode, struct file *file)
- {
--        int i, minor = MINOR(inode->i_rdev);
-+        int i, minor = minor(inode->i_rdev);
-         struct TVMIXER *mix = NULL;
- 	struct i2c_client *client = NULL;
- 
-
---pWyiEgJYm5f9v55/--
+Share and Enjoy. 

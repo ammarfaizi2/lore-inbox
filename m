@@ -1,96 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbUKLPkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbUKLPmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbUKLPkd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 10:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUKLPkd
+	id S262557AbUKLPmi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 10:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbUKLPmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 10:40:33 -0500
-Received: from gprs212-224.eurotel.cz ([160.218.212.224]:384 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262553AbUKLPkW (ORCPT
+	Fri, 12 Nov 2004 10:42:38 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:9892 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S262557AbUKLPmH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 10:40:22 -0500
-Date: Fri, 12 Nov 2004 16:35:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-pm@lists.osdl.org, Patrick Mochel <mochel@digitalimplant.org>,
-       Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Adapt drivers to type-safe pci
-Message-ID: <20041112153530.GA1091@elf.ucw.cz>
-References: <20041101202640.GA24855@elf.ucw.cz> <200411011700.46493.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411011700.46493.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 12 Nov 2004 10:42:07 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-13.tower-45.messagelabs.com!1100274119!7367457!1
+X-StarScan-Version: 5.4.2; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PROMISE Ultra133 TX2 (PDC20269)
+Date: Fri, 12 Nov 2004 10:41:58 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC4077@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROMISE Ultra133 TX2 (PDC20269)
+Thread-Index: AcTIzXMeRGk+54IFSRaNpBQF5DVkiwAAAcgg
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Enrico Bartky" <DOSProfi@web.de>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Maybe someone can step in if I am wrong, but I believe the drive cannot
+use that mode.
 
-> > This adapts few drivers to type-safe pci powermanagment. I introduced
-> > device_to_pci_state helper that will be usefull to few drivers... Does
-> > it look okay? 
-> 
-> I'd rather have something like the attached patch.
-> Fixed policy mappings are generically broken; what
-> about devices that don't support PCI_D2?
+There could also be multi-mode/issues.
 
-Point taken, this function is probably too big to be in header. 
+Try hdparm -c3 -d1 -u1 -X68 /dev/hde
 
-> This should I guess use the new "pci_power_t", but
-> I'm not that current yet.  
+If that does not work, I am not sure if the drive will support that
+mode.
 
-I'd still like this function to return suitable state (and do nothing
-else), to make converting drivers easier.
+For reference, I have a 61.4GB (MAXTOR) on a promise card, and it uses
+the following mode in use:
 
-For now suspend() only gets 0 or 3; I'd rather not change code for
-now. Do we really enter PCI_D1 on standby? I believe PCI transitions
-are fast enough to enter PCI_D3hot even for standby / suspend-to-ram.
+Capabilities:
+        LBA, IORDY(can be disabled)
+        bytes avail on r/w long: 57     Queue depth: 1
+        Standby timer values: spec'd by Standard, no device specific
+minimum
+        R/W multiple sector transfer: Max = 16  Current = 0
+        Advanced power management level: unknown setting (0x0000)
+        Recommended acoustic management value: 192, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
 
-								Pavel
+And a 40GB:
 
-> +void
-> +pci_choose_state(struct pci_dev *pdev, suspend_state_t sleepstate)
-> +{
-> +	int pm, state;
-> +	u16 pmc;
-> +
-> +	/* nothing to do for legacy PCI devices */
-> +	pm = pci_find_capability(pdev, PCI_CAP_ID_PM);
-> +	if (!pm)
-> +		return;
-> +
-> +	/* map to a PCI PM state this device supports
-> +	 * FIXME ACPI may know what states to use; we should probably
-> +	 * prefer that policy to this one.
-> +	 */
-> +	state = 3;
-> +	switch (sleepstate) {
-> +	case PM_SUSPEND_ON:
-> +		state = 0;
-> +		break;
-> +	case PM_SUSPEND_STANDBY:
-> +	case PM_SUSPEND_MEM:
-> +		pci_read_config_word(pdev, pm + PCI_PM_PMC, &pmc);
-> +		if (sleepstate == PM_SUSPEND_STANDBY
-> +				&& (pmc & PCI_PM_CAP_D1) != 0)
-> +			state = 1;
-> +		else if ((pmc & PCI_PM_CAP_D2) != 0)
-> +			state = 2;
-> +		break;
-> +	}
-> +
-> +	/* maybe go to a deeper power state */
-> +	if (pdev->current_state < state)
-> +		pci_set_power_state(pdev, state);
-> +}
-> +EXPORT_SYMBOL(pci_choose_state);
->  
->  /**
->   * pci_save_state - save the PCI configuration space of a device before suspending
+Capabilities:
+        LBA, IORDY(can be disabled)
+        bytes avail on r/w long: 40     Queue depth: 32
+        Standby timer values: spec'd by Standard, no device specific
+minimum
+        R/W multiple sector transfer: Max = 16  Current = 16
+        Advanced power management level: unknown setting (0x0000)
+        Recommended acoustic management value: 128, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=240ns  IORDY flow control=120ns
+
+My guess is either:
+
+1) The drive does not support it.
+2) There is a multi-mode issue with DMA/the disk.
+   See the following kernel option:
+
+Device Drivers  --->
+ATA/ATAPI/MFM/RLL support  --->
+<*>     Include IDE/ATA-2 DISK support
+[*]       Use multi-mode by default    
+
+The help states:
+
+Use multi-mode by default 
+If you get this error, try to say Y here:                               
+hda: set_multmode: status=0x51 { DriveReady SeekComplete Error }        
+hda: set_multmode: error=0x04 { DriveStatusError }
+
+  If in doubt, say N.
+
+ 
 
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I normally say Y here.
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Enrico Bartky
+Sent: Friday, November 12, 2004 10:35 AM
+To: linux-kernel@vger.kernel.org
+Subject: RE: PROMISE Ultra133 TX2 (PDC20269)
+
+The dmesg after hdparm command is
+
+--snip--
+
+hde: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
+DataRequest }ide: failed opcode was 100
+hde: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+ide: failed opcode was: unknown
+hde: CHECK for good STATUS
+
+--snap--
+
+What does that mean?
+________________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt neu bei WEB.DE FreeMail: http://freemail.web.de/?mc=021193
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

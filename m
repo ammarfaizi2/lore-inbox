@@ -1,111 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUKWNFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUKWNKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUKWNFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 08:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKWNDq
+	id S261222AbUKWNKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 08:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbUKWNKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 08:03:46 -0500
-Received: from lucidpixels.com ([66.45.37.187]:45211 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261251AbUKWNCw (ORCPT
+	Tue, 23 Nov 2004 08:10:37 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:54404 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261247AbUKWNJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 08:02:52 -0500
-Date: Tue, 23 Nov 2004 08:02:50 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.9 Question w/4port Ethernet Card & MII Transceivers
-Message-ID: <Pine.LNX.4.61.0411230759070.3740@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 23 Nov 2004 08:09:57 -0500
+Date: Tue, 23 Nov 2004 15:11:45 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041123141145.GA16300@elte.hu>
+References: <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu> <20041123135840.GA14674@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123135840.GA14674@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Question regarding the warnings, it appears to find a MII transceiver but 
-then it warns saying it does not?
 
-What does this mean?
+another test on the same system, this time completely idle:
 
-Is it a problem?
+ ************* SUMMARY RESULT ****************
+ Timeout Count . . . . . . . . :(    0)
+ XRUN Count  . . . . . . . . . :     0
+ Delay Count (>spare time) . . :     0
+ Delay Count (>1000 usecs) . . :     0
+ Delay Maximum . . . . . . . . :     0   usecs
+ Cycle Maximum . . . . . . . . :   724   usecs
+ Average DSP Load. . . . . . . :    32.1 %
+ Average CPU System Load . . . :    30.8 %
+ Average CPU User Load . . . . :     1.6 %
+ Average CPU Nice Load . . . . :     0.0 %
+ Average CPU I/O Wait Load . . :     0.0 %
+ Average CPU IRQ Load  . . . . :     0.0 %
+ Average CPU Soft-IRQ Load . . :     0.0 %
+ Average Interrupt Rate  . . . :  1669.0 /sec
+ Average Context-Switch Rate . : 16975.4 /sec
+ *********************************************
 
-If it is not using a HW tranceiver, does this cause a loss in performance?
-
-Description:
-
-eth0 = built-in 3com
-eth[1-4] = adaptec 4 port nic
-
-Output from lspci:
-
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] 
-(rev 24)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
-1X/2X (rev 5c)
-02:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 
-[FasterNet] (rev 22)
-02:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 
-[FasterNet] (rev 22)
-02:06.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 
-[FasterNet] (rev 22)
-02:07.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 
-[FasterNet] (rev 22)
-
-Checking /proc/interrupts:
-# cat /proc/interrupts
-            CPU0
-   0:    1082113          XT-PIC  timer
-   1:          8          XT-PIC  i8042
-   2:          0          XT-PIC  cascade
-   5:          0          XT-PIC  Crystal audio controller
-   8:          1          XT-PIC  rtc
-   9:          0          XT-PIC  acpi
-  11:       3624          XT-PIC  uhci_hcd, eth0, eth1, eth2, eth3, eth4
-  12:         66          XT-PIC  i8042
-  14:       2794          XT-PIC  ide0
-  15:         18          XT-PIC  ide1
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-
-
-Kernel 2.6.9 dmesg:
-
-Linux Tulip driver version 1.1.13-NAPI (May 11, 2002)
-ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) 
-block.
-tulip0: ***WARNING***: No MII transceiver found!
-eth1: Digital DS21140 Tulip rev 34 at 0xd4858c00, 00:00:D1:20:35:50, IRQ 
-11.
-ACPI: PCI interrupt 0000:02:05.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip1:  Controller 1 of multiport board.
-tulip1:  EEPROM default media type Autosense.
-tulip1:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) 
-block.
-tulip1: ***WARNING***: No MII transceiver found!
-eth2: Digital DS21140 Tulip rev 34 at 0xd485a800, EEPROM not present, 
-00:00:D1:20:35:51, IRQ 11.
-ACPI: PCI interrupt 0000:02:06.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip2:  Controller 2 of multiport board.
-tulip2:  EEPROM default media type Autosense.
-tulip2:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) 
-block.
-tulip2: ***WARNING***: No MII transceiver found!
-eth3: Digital DS21140 Tulip rev 34 at 0xd485c400, EEPROM not present, 
-00:00:D1:20:35:52, IRQ 11.
-ACPI: PCI interrupt 0000:02:07.0[A] -> GSI 10 (level, low) -> IRQ 10
-tulip3:  Controller 3 of multiport board.
-tulip3:  EEPROM default media type Autosense.
-tulip3:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) 
-block.
-tulip3: ***WARNING***: No MII transceiver found!
-eth4: Digital DS21140 Tulip rev 34 at 0xd485e000, EEPROM not present, 
-00:00:D1:20:35:53, IRQ 11.
-eth0: no IPv6 routers present
-eth1: no IPv6 routers present
-eth4: Setting full-duplex based on MII#1 link partner capability of 45e1.
-eth2: no IPv6 routers present
-eth4: no IPv6 routers present
-eth3: no IPv6 routers present
-
+	Ingo

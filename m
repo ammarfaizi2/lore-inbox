@@ -1,107 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUDRKbi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 06:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbUDRKbi
+	id S264155AbUDRKqu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 06:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbUDRKqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 06:31:38 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:50193 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263429AbUDRKbf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 06:31:35 -0400
-Date: Sun, 18 Apr 2004 20:31:09 +1000
-To: Rolf Kutz <kutz@netcologne.de>, 244207@bugs.debian.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: Bug#244207: kernel-source-2.6.5: mwave gives warning on suspend
-Message-ID: <20040418103109.GA13756@gondor.apana.org.au>
-References: <20040417104311.9C13A1D802@jamaika.kutz.dyndns.org> <20040417113918.GA4846@gondor.apana.org.au> <20040417124850.C14786@flint.arm.linux.org.uk> <20040417122322.GA15052@gondor.apana.org.au> <20040417122954.GA7533@gondor.apana.org.au>
+	Sun, 18 Apr 2004 06:46:50 -0400
+Received: from f16.mail.ru ([194.67.57.46]:59919 "EHLO f16.mail.ru")
+	by vger.kernel.org with ESMTP id S264155AbUDRKqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 06:46:44 -0400
+From: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	<adobriyan@mail.ru>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] scripts/kernel-doc and comma separated members.
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <20040417122954.GA7533@gondor.apana.org.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.81.172]
+Date: Sun, 18 Apr 2004 14:46:42 +0400
+Reply-To: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	  <adobriyan@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1BF9ow-000FFX-00.adobriyan-mail-ru@f16.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch teaches scripts/kernel-doc to print descriptions
+of comma separated variables correctly instead of ignoring
+them.
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Tested on 'make pdfdocs' and 'scripts/kernel-doc -text test.c'.
 
-On Sat, Apr 17, 2004 at 10:29:54PM +1000, herbert wrote:
-> 
-> Please scrap that one, it just makes the module unloadable.
+Alexey
 
-This patch resolves the problem of the module getting unloaded before
-the device is released by waiting in the module_exit function.
+Please, CC me when replying.
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: drivers/char/mwave/mwavedd.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/char/mwave/mwavedd.c,v
-retrieving revision 1.1.1.7
-diff -u -r1.1.1.7 mwavedd.c
---- a/drivers/char/mwave/mwavedd.c	28 Sep 2003 04:44:12 -0000	1.1.1.7
-+++ b/drivers/char/mwave/mwavedd.c	18 Apr 2004 10:26:41 -0000
-@@ -57,6 +57,7 @@
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-+#include <linux/completion.h>
- #include "smapi.h"
- #include "mwavedd.h"
- #include "3780i.h"
-@@ -470,7 +471,17 @@
-  * sysfs support <paulsch@us.ibm.com>
-  */
+--- a/scripts/kernel-doc	2004-04-15 05:34:37.000000000 +0400
++++ b/scripts/kernel-doc	2004-04-18 14:26:55.000000000 +0400
+@@ -26,6 +26,8 @@
+ # Still to do:
+ # 	- add perldoc documentation
+ # 	- Look more closely at some of the scarier bits :)
++# 	- Clean up mess that #ifdefs and comments inside structs
++# 	  definitions leave.
  
--struct device mwave_device;
-+static DECLARE_COMPLETION(mwave_device_released);
+ # 26/05/2001 - 	Support for separate source and object trees.
+ #		Return error code.
+@@ -36,6 +38,8 @@
+ #              Small fixes (like spaces vs. \s in regex)
+ # -- Tim Jansen <tim@tjansen.de>
+ 
++# 18/04/2004 - Comma separated members inside structs definitions are ok now.
++# -- Alexey Dobriyan <adobriyan@mail.ru>
+ 
+ #
+ # This will read a 'c' file and scan for embedded comments in the
+@@ -105,10 +109,7 @@
+ # enums and typedefs. Instead of the function name you must write the name 
+ # of the declaration;  the struct/union/enum/typedef must always precede 
+ # the name. Nesting of declarations is not supported. 
+-# Use the argument mechanism to document members or constants. In 
+-# structs and unions you must declare one member per declaration 
+-# (comma-separated members are not allowed -  the parser does not support 
+-# this).
++# Use the argument mechanism to document members or constants.
+ # e.g.
+ # /**
+ #  * struct my_struct - short description
+@@ -1316,51 +1317,62 @@
+ 	    $param = $1;
+ 	    $type = $arg;
+ 	    $type =~ s/([^\(]+\(\*)$param/$1/;
++	    push_parameter($type, $param, $file);
+ 	} else {
+ 	    # evil magic to get fixed array parameters to work
++	    # 'char cb[48]' => 'char* cb'
+ 	    $arg =~ s/(.+\s+)(.+)\[.*/$1* $2/;
+-	    my @args = split('\s', $arg);
+-	
+-	    $param = pop @args;
+-	    if ($param =~ m/^(\*+)(.*)/) {
+-	        $param = $2;
+-		push @args, $1;
+-	    } 
+-	    elsif ($param =~ m/(.*?)\s*:\s*(\d+)/) {
+-	        $param = $1;
+-	        push @args, ":$2";
 +
-+static void mwave_device_release(struct device *dev)
-+{
-+	complete(&mwave_device_released);
-+}
++	    my @args = split(',\s*', $arg);
 +
-+static struct device mwave_device = {
-+	.bus_id = "mwave",
-+	.release = mwave_device_release,
-+};
- 
- /* Prevent code redundancy, create a macro for mwave_show_* functions. */
- #define mwave_show_function(attr_name, format_string, field)		\
-@@ -518,7 +529,9 @@
- 	pDrvData->nr_registered_attrs = 0;
- 
- 	if (pDrvData->device_registered) {
-+		INIT_COMPLETION(mwave_device_released);
- 		device_unregister(&mwave_device);
-+		wait_for_completion(&mwave_device_released);
- 		pDrvData->device_registered = FALSE;
++	    my @first_arg = split('\s', shift @args);
++	    unshift(@args, pop @first_arg);
++	    $type = join " ", @first_arg;
++
++	    foreach $param (@args) {
++		if ($param =~ m/^(\*+)(.*)/) {
++		   # pointer
++		   push_parameter("$type$1", $2, $file);
++		} elsif ($param =~ m/(.*?)\s*:\s*(\d+)/) {
++		   # bitfield
++		   push_parameter("$type:$2", $1, $file);
++		} else {
++		   push_parameter($type, $param, $file);
++		}
+ 	    }
+-	    $type = join " ", @args;
  	}
++    }
++}
  
-@@ -639,9 +652,6 @@
- 	/* uart is registered */
+-	if ($type eq "" && $param eq "...")
+-	{
+-	    $type="...";
+-	    $param="...";
+-	    $parameterdescs{"..."} = "variable arguments";
+-	}
+-	elsif ($type eq "" && ($param eq "" or $param eq "void"))
+-	{
+-	    $type="";
+-	    $param="void";
+-	    $parameterdescs{void} = "no arguments";
+-	}
+-	if (defined $type && $type && !defined $parameterdescs{$param}) {
+-	    $parameterdescs{$param} = $undescribed;
++sub push_parameter($$$) {
++    my $type = shift;
++    my $param = shift;
++    my $file = shift;
++
++    if ($type eq "" && $param eq "...")	{
++	$type="...";
++	$param="...";
++	$parameterdescs{"..."} = "variable arguments";
++    } elsif ($type eq "" && ($param eq "" or $param eq "void"))	{
++	$type="";
++	$param="void";
++	$parameterdescs{void} = "no arguments";
++    }
++    if (defined $type && $type && !defined $parameterdescs{$param}) {
++	$parameterdescs{$param} = $undescribed;
  
- 	/* sysfs */
--	memset(&mwave_device, 0, sizeof (struct device));
--	snprintf(mwave_device.bus_id, BUS_ID_SIZE, "mwave");
+-	    if (($type eq 'function') || ($type eq 'enum')) {
+-	        print STDERR "Warning(${file}:$.): Function parameter ".
++	if (($type eq 'function') || ($type eq 'enum')) {
++	    print STDERR "Warning(${file}:$.): Function parameter ".
+ 		    "or member '$param' not " .
+ 		    "described in '$declaration_name'\n";
+-	    }
+-	    print STDERR "Warning(${file}:$.):".
++	}
++	print STDERR "Warning(${file}:$.):".
+ 	                 " No description found for parameter '$param'\n";
+-	    ++$warnings;
+-        }
 -
- 	if (device_register(&mwave_device))
- 		goto cleanup_error;
- 	pDrvData->device_registered = TRUE;
+-	push @parameterlist, $param;
+-	$parametertypes{$param} = $type;
++	++$warnings;
+     }
++
++    push @parameterlist, $param;
++    $parametertypes{$param} = $type;
+ }
+ 
+ ##
 
---2fHTh5uZTiUOsy+g--
+

@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVC3DXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVC3Der@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVC3DXi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 22:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVC3DWi
+	id S261732AbVC3Der (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 22:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVC3Der
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 22:22:38 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:57794 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261719AbVC3DA3 (ORCPT
+	Tue, 29 Mar 2005 22:34:47 -0500
+Received: from vega.ipal.net ([209.102.192.64]:49080 "EHLO vega.ipal.net")
+	by vger.kernel.org with ESMTP id S261732AbVC3Deo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 22:00:29 -0500
-Message-Id: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl>
-To: "Jean Delvare" <khali@linux-fr.org>
-cc: akpm@osdl.org, "Adrian Bunk" <bunk@stusta.de>,
-       "LKML" <linux-kernel@vger.kernel.org>
-Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use) 
-In-Reply-To: Message from "Jean Delvare" <khali@linux-fr.org> 
-   of "Tue, 29 Mar 2005 12:46:22 +0200." <xyDqcv4K.1112093182.7253990.khali@localhost> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 29 Mar 2005 21:25:13 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 29 Mar 2005 22:34:44 -0500
+Date: Tue, 29 Mar 2005 21:34:43 -0600
+From: Phil Howard <phil-linux-kernel@ipal.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] embarassing typo
+Message-ID: <20050330033443.GA2964@vega.ipal.net>
+References: <1112128584.25954.6.camel@tux.lan> <yw1xd5ti17z6.fsf@ford.inprovide.com> <4249CFA1.7050907@tls.msk.ru> <yw1xu0mtzy1g.fsf@ford.inprovide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xu0mtzy1g.fsf@ford.inprovide.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jean Delvare" <khali@linux-fr.org> said:
+On Wed, Mar 30, 2005 at 04:07:39AM +0200, M?ns Rullg?rd wrote:
 
-[Sttributions missing, sorry]
+| Michael Tokarev <mjt@tls.msk.ru> writes:
+| 
+| > M?ns Rullg?rd wrote:
+| >> "Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
+| >>
+| >>>--- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
+| >>>+++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
+| >>>@@ -419,7 +419,7 @@
+| >>> 	dri_data[2] = 0x00;
+| >>> 	dri_data[3] = 0x04;
+| >>> 	dri_data[4] = ptr->dri >> 8;
+| >>>-	dri_data[5] = ptr->dri * 0xff;
+| >>>+	dri_data[5] = ptr->dri & 0xff;
+| >> Hey, that's a nice obfuscation of a simple negation.
+| >
+| > It's not a negation.  This statement always assigns zero to
+| > dri_data[5] if dri_data is char[].
+| 
+| Sure about that?
+| 
+| __u16 i;
+| char c;
+| i = 1; c = i * 255; /* c = 255 = -1 */
+| i = 2; c = i * 255; /* c = 510 & 0xff = 254 = -2 */
+| ...
+| 
+| Looks like negation to me.
 
-> > >  Think about it. If the pointer could be NULL, then it's unlikely that
-> > >  the bug would have gone unnoticed so far (unless the code is very
-> > >  recent). Coverity found 3 such bugs in one i2c driver [1], and the
-> > >  correct solution was to NOT check for NULL because it just couldn't
-> > >  happen.
+Sure it's negation because 255 _is_ 256 - 1.  Basic finite math.
 
-> > No, there is a third case: the pointer can be NULL, but the compiler
-> > happened to move the dereference down to after the check.
+( x * 256 )                 mod 256 == 0
+( ( x * 256 ) - ( x * 1 ) ) mod 256 == - ( x * 1 )
+( x * ( 256 - 1 ) )         mod 256 == - ( x * 1 )
+( x * 255 )                 mod 256 == - ( x * 1 )
+( x * 255 )                 mod 256 == - x
 
-> Wow. Great point. I completely missed that possibility. In fact I didn't
-> know that the compiler could possibly alter the order of the
-> instructions. For one thing, I thought it was simply not allowed to. For
-> another, I didn't know that it had been made so aware that it could
-> actually figure out how to do this kind of things. What a mess. Let's
-> just hope that the gcc folks know their business :)
+Now what I am interested in is if gcc optimized it to a faster negation
+or subtraction instruction.
 
-The compiler is most definitely /not/ allowed to change the results the
-code gives.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+-----------------------------------------------------------------------------
+| Phil Howard KA9WGN       | http://linuxhomepage.com/      http://ham.org/ |
+| (first name) at ipal.net | http://phil.ipal.org/   http://ka9wgn.ham.org/ |
+-----------------------------------------------------------------------------

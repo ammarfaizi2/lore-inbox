@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbTI3FSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 01:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbTI3FSQ
+	id S263128AbTI3FSg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 01:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTI3FSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 01:18:16 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:19360 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263126AbTI3FSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 01:18:12 -0400
-Subject: Re: [PATCH] ACPI pci irq routing fix
-From: Len Brown <len.brown@intel.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Chris Wright <chrisw@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-In-Reply-To: <3F752619.5000406@cyberone.com.au>
-References: <20030926182128.C24360@osdlab.pdx.osdl.net>
-	 <3F752619.5000406@cyberone.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064899042.2532.101.camel@dhcppc4>
+	Tue, 30 Sep 2003 01:18:36 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:33934 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S263128AbTI3FSe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 01:18:34 -0400
+Date: Mon, 29 Sep 2003 22:18:32 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Danny ter Haar <dth@ncc1701.cistron.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test[56] pcnet32 problems
+Message-ID: <20030930051832.GA4331@ip68-4-255-84.oc.oc.cox.net>
+References: <blasc7$jfi$1@news.cistron.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 30 Sep 2003 01:17:22 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <blasc7$jfi$1@news.cistron.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-09-27 at 01:54, Nick Piggin wrote:
-> Chris Wright wrote:
-> 
-> >If irq.active is set from _CRS, make sure to use it
-...
-> and fixes bug #1186.
-> >
-> >Patch originally from Andrew de Quincey.
-> >
-> 
-> This fixes my bug #1257.
-> 
+On Tue, Sep 30, 2003 at 03:13:11AM +0000, Danny ter Haar wrote:
+> Sometimes (even during low traffic) eth0 simply locks up:
+> In dmesg i see:
+> kernel: eth0: Bus master arbitration failure, status 88f3.
 
-This fix has been integrated with others in the ACPI patch,
-and is available now in these bitkeeper trees:
+Hmmm... I'm not seeing this at all.
 
-http://linux-acpi.bkbits.net/linux-acpi-test-2.4.22
-http://linux-acpi.bkbits.net/linux-acpi-test-2.4.23
-http://linux-acpi.bkbits.net/linux-acpi-test-2.6.0
+If going back to an older kernel gets rid of this problem, perhaps it
+could be an IRQ routing problem or something like that. That's just a
+guess, however. (If it doesn't, I would suspect hardware failure, perhaps
+your motherboard; motherboard failures are the only time I've seen this
+message happen with pcnet32 cards.)
 
-It is also available as a plain patch "acpi_pci_link_allocate" here:
+> rmmod pcnet32 results in kernel-panic.
 
-ftp.kernel.org:/pub/linux/kernel/people/lenb/acpi/patches/test/*
+I never tried that because my primary pcnet32-using machine runs
+monolithic kernels...
 
-thanks,
--Len
-
-
+-Barry K. Nathan <barryn@pobox.com>

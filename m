@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbTLGRQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 12:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264457AbTLGRQe
+	id S264457AbTLGRYs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 12:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTLGRYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 12:16:34 -0500
-Received: from smtp12.eresmas.com ([62.81.235.112]:20187 "EHLO
-	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S264456AbTLGRQd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 12:16:33 -0500
-Message-ID: <3FD3603A.6020907@wanadoo.es>
-Date: Sun, 07 Dec 2003 18:15:38 +0100
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Additional clauses to GPL in network drivers
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Sun, 7 Dec 2003 12:24:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:64233 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264457AbTLGRYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 12:24:47 -0500
+Date: Mon, 8 Dec 2003 04:22:28 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-HT-2.6.0-test11-A5
+Message-ID: <20031207172227.GC19412@krispykreme>
+References: <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth> <392900000.1070737269@[10.10.2.4]> <Pine.LNX.4.58.0312061601400.1758@montezuma.fsmlabs.com> <Pine.LNX.4.58.0312071433300.28463@earth> <20031207163914.GB19412@krispykreme>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20031207163914.GB19412@krispykreme>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
+ 
+> - I tried the HT scheduler with NUMA enabled. Same machine, 4 core 8
+> threads, each NUMA node has 2 cores, 4 threads. Its easy to end up in a sub
+> optimal state:
 
-> "This file is not a complete program and may only be used when the
-> entire operating system is licensed under the GPL".
+I just managed to get it into the same state with NUMA disabled:
 
-to be more exact, it would have to say:
+ Cpu0 :   0.3% user,   0.0% system,   0.0% nice,  99.7% idle,   0.0% IO-wait
+ Cpu1 : 100.0% user,   0.0% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
+ Cpu2 :   0.0% user,   0.0% system,   0.0% nice, 100.0% idle,   0.0% IO-wait
+ Cpu3 : 100.0% user,   0.0% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
 
-This file is not a complete program and may only be used when the
-entire *derived work* is licensed under the GPL *version XX*
+ Cpu4 : 100.0% user,   0.0% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
+ Cpu5 : 100.0% user,   0.0% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
+ Cpu6 :   0.0% user,   0.0% system,   0.0% nice, 100.0% idle,   0.0% IO-wait
+ Cpu7 :   0.0% user,   0.0% system,   0.0% nice, 100.0% idle,   0.0% IO-wait
 
-Or if you want be pedantic:
-
----cut---
-   NOTE! This copyright does *not* cover user programs that use kernel
- services by normal system calls - this is merely considered normal use
- of the kernel, and does *not* fall under the heading of "derived work".
- Also note that the GPL below is copyrighted by the Free Software
- Foundation, but the instance of code that it refers to (the Linux
- kernel) is copyrighted by me and others who actually wrote it.
-
- Also note that the only valid version of the GPL as far as the kernel
- is concerned is _this_ particular version of the license (ie v2, not
- v2.2 or v3.x or whatever), unless explicitly otherwise stated.
---end---
-where '_this_' is linux/COPYING
-
-BTW, there is in Kernel Janitor TODO list [1] an item to
-place a GPL head on all source files.
-
-Maybe, now that Torvalds is boring and waiting for akpm.
-He could do this job ;-)
-
-[1] http://alumno.inacap.cl/kj-wiki/bin/view/KJ/ToDo
-
+Anton

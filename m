@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263394AbREXH0o>; Thu, 24 May 2001 03:26:44 -0400
+	id <S263396AbREXH3O>; Thu, 24 May 2001 03:29:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263393AbREXH0Y>; Thu, 24 May 2001 03:26:24 -0400
-Received: from nwcst289.netaddress.usa.net ([204.68.23.34]:43414 "HELO
-	nwcst289.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S263392AbREXH0R> convert rfc822-to-8bit; Thu, 24 May 2001 03:26:17 -0400
-Message-ID: <20010524072611.29053.qmail@nwcst289.netaddress.usa.net>
-Date: 24 May 2001 01:26:11 MDT
-From: Rufuss Angor <rufusz@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: set_fs(get_ds()) needed in socket operations?
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
+	id <S263395AbREXH3E>; Thu, 24 May 2001 03:29:04 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:63471 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S263396AbREXH2r>; Thu, 24 May 2001 03:28:47 -0400
+Message-Id: <200105240728.f4O7SkH23099@smtp2.Stanford.EDU>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+From: Praveen Srinivasan <praveens@stanford.edu>
+Organization: Stanford University
+To: torvalds@transmeta.com
+Subject: [PATCH] ftl.c - Null ptr fixes 2.4.4
+Date: Thu, 24 May 2001 00:29:52 -0700
+X-Mailer: KMail [version 1.2.2]
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, dwmw2@redhat.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-I came across this while developing a networked file system:
+Using the Stanford checker, we searched for null-pointer bugs in the linux
+kernel code. This patch fixes an unchecked pointer in an MTD driver (ftl.c).
 
+Praveen Srinivasan and Frederick Akalin
 
-
-
-
-If I do the socket ops using standard kernel functions they block forever. The
-solution I found in some old module was to load the FS segment with the value
-of DS and then restore it.
-
-
-
-
-
-Can someone please explain why this is needed? And isn't it architecture
-dependent?
-
-
-
-
-
-Thanx for your patience with a newbie...
-
-
-
-
-
-Ruf
-
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1
+--- ../linux/./drivers/mtd/ftl.c	Fri Feb  9 11:30:23 2001
++++ ./drivers/mtd/ftl.c	Mon May  7 22:01:29 2001
+@@ -375,6 +375,11 @@
+     /* Set up virtual page map */
+     blocks = le32_to_cpu(header.FormattedSize) >> header.BlockSize;
+     part->VirtualBlockMap = vmalloc(blocks * sizeof(u_int32_t));
++
++    if(part->VirtualBlockMap==NULL) {
++      return -1;
++    }
++
+     memset(part->VirtualBlockMap, 0xff, blocks * sizeof(u_int32_t));
+     part->BlocksPerUnit = (1 << header.EraseUnitSize) >> header.BlockSize;

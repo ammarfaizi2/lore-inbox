@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272878AbTG3NHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 09:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272880AbTG3NHU
+	id S272877AbTG3NGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 09:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272878AbTG3NGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 09:07:20 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S272878AbTG3NHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 09:07:19 -0400
-Date: Wed, 30 Jul 2003 09:07:18 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Erik Andersen <andersen@codepoet.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-In-Reply-To: <20030730061454.GA19808@codepoet.org>
-Message-ID: <Pine.LNX.4.53.0307300855540.193@chaos>
-References: <20030730061454.GA19808@codepoet.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 09:06:07 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:59143 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S272877AbTG3NGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 09:06:06 -0400
+Date: Wed, 30 Jul 2003 07:06:05 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>, ak@suse.de,
+       alan@lxorguk.ukuu.org.uk, James.Bottomley@SteelEye.com, axboe@suse.de,
+       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030730130605.GA13333@dsl2.external.hp.com>
+References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723114006.GA28688@dsl2.external.hp.com> <20030728131513.5d4b1bd3.ak@suse.de> <20030730044256.GA1974@dsl2.external.hp.com> <20030729215118.13a5ac18.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729215118.13a5ac18.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, Erik Andersen wrote:
+On Tue, Jul 29, 2003 at 09:51:18PM -0700, David S. Miller wrote:
+> Make an ext2 filesystem with 16K blocks :-)
 
->
-> Here ya go...  This rips out the screen blanking code by the
-> roots since the kind and gentle approach didn't seem to be what
-> you were looking for.  :-)
+heh - right. I thought you were going to tell me I needed to
+install DIMMs that support 4k pages :^)
 
-Come on...
-
-That's not necessary! I'm looking for either making it default
-to "no blanking" so startup scripts need to enable this feature,
-or an ioctl to turn it off.
-
-The 'kindest and gentlist' approach was to simply set the timer
-variable "blankinterval" (line 165 in console.c) to 0 instead of
-10*60*HZ. This doesn't work. The screen still blanks in 10 minutes.
-
-The next approach was to make an ioctl function. I was supplied with
-1/2 what was necessary and, if I add the rest (a trivial call), it
-will work, however that extra code may probably be rejected as
-'bloat'.
-
-What I'm working on now, when I can get the time, is trying to
-find out how come initialization to zero doesn't work and making
-it work. Once this is done, there should not be any technical
-reasons why it can't be included in the standard kernel.
-
-The current enabling of the blanker by default is clearly policy
-and it has been well established that policy decisions should be
-outside the kernel.
-
-[SNIPPED (neat) patch...]
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+grant

@@ -1,428 +1,321 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264780AbTFVQv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 12:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTFVQv7
+	id S264762AbTFVRQx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 13:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbTFVRQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 12:51:59 -0400
-Received: from pop.gmx.net ([213.165.64.20]:39878 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264780AbTFVQvt convert rfc822-to-8bit
+	Sun, 22 Jun 2003 13:16:53 -0400
+Received: from esperi.demon.co.uk ([194.222.138.8]:40198 "EHLO
+	esperi.demon.co.uk") by vger.kernel.org with ESMTP id S264762AbTFVRQq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 12:51:49 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: linux-kernel@vger.kernel.org, Hans-Georg Thien <1682-600@onlinehome.de>,
-       Disconnect <kernel@gotontheinter.net>
-Subject: Re: [PATCH] Disable Trackpad while typing
-Date: Sun, 22 Jun 2003 19:05:09 +0200
-User-Agent: KMail/1.4.3
-References: <200306201818.40805.torsten.foertsch@gmx.net>
-In-Reply-To: <200306201818.40805.torsten.foertsch@gmx.net>
+	Sun, 22 Jun 2003 13:16:46 -0400
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+Subject: 2.4.21 reiserfs oops
+From: Nix <nix@esperi.demon.co.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Sun, 22 Jun 2003 15:00:20 +0100
+Message-ID: <87he6iyzyj.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306221905.15686.torsten.foertsch@gmx.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+An nnrpd just oopsed and took the news filesystem (the only reiserfs fs
+on this box) down with it (everything touching it D-states).
 
-Here is now an improved version of the patch. It's against 2.4.21.
+Oops:
 
-The following has changed from the original patch by Hans-Georg Thien 
-<1682-600@onlinehome.de>:
+ksymoops 2.4.6 on i586 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /boot/System.map (specified)
 
-- - mouse events are dropped in 12 byte chunks to better fit the PS/2 mouse 
-protocol. That avoids spurious mouse events when the mouse is moving while 
-the delay timer is being reached.
+Jun 22 13:52:42 loki kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000001 
+Jun 22 13:52:42 loki kernel: c0092df4 
+Jun 22 13:52:42 loki kernel: c0092df4 
+Jun 22 13:52:42 loki kernel: *pde = 00000000 
+Jun 22 13:52:43 loki kernel: Oops: 0000 
+Jun 22 13:52:43 loki kernel: Oops: 0000 
+Jun 22 13:52:43 loki kernel: CPU:    0 
+Jun 22 13:52:43 loki kernel: CPU:    0 
+Jun 22 13:52:43 loki kernel: EIP:    0010:[<c0092df4>]    Not tainted 
+Using defaults from ksymoops -t elf32-i386 -a i386
+Jun 22 13:52:43 loki kernel: EIP:    0010:[<c0092df4>]    Not tainted 
+Jun 22 13:52:43 loki kernel: EFLAGS: 00010246 
+Jun 22 13:52:43 loki kernel: EFLAGS: 00010246 
+Jun 22 13:52:43 loki kernel: eax: 00000001   ebx: 00000064   ecx: 00000000   edx: 00000001 
+Jun 22 13:52:43 loki kernel: eax: 00000001   ebx: 00000064   ecx: 00000000   edx: 00000001 
+Jun 22 13:52:43 loki kernel: esi: c1527b28   edi: c7381ea0   ebp: ffffffff   esp: c1527ae4 
+Jun 22 13:52:43 loki kernel: esi: c1527b28   edi: c7381ea0   ebp: ffffffff   esp: c1527ae4 
+Jun 22 13:52:43 loki kernel: ds: 0018   es: 0018   ss: 0018 
+Jun 22 13:52:43 loki kernel: ds: 0018   es: 0018   ss: 0018 
+Jun 22 13:52:43 loki kernel: Process nnrpd (pid: 1993, stackpage=c1527000) 
+Jun 22 13:52:43 loki kernel: Process nnrpd (pid: 1993, stackpage=c1527000) 
+Jun 22 13:52:43 loki kernel: Stack: c01a1c02 c1527b28 00000064 c1527c7c 00000000 c7381ea0 c019044b c1527b28  
+Jun 22 13:52:43 loki kernel: Stack: c01a1c02 c1527b28 00000064 c1527c7c 00000000 c7381ea0 c019044b c1527b28  
+Jun 22 13:52:43 loki kernel:        00000000 00000000 00000001 ffffffff c1527c7c 00000064 00000000 c1527c38  
+Jun 22 13:52:43 loki kernel:        00000000 00000000 00000001 ffffffff c1527c7c 00000064 00000000 c1527c38  
+Jun 22 13:52:43 loki kernel:        00000000 c1527c7c c7381ea0 c23af7a0 00000008 c01907a0 c1527c7c 00000064  
+Jun 22 13:52:43 loki kernel:        00000000 c1527c7c c7381ea0 c23af7a0 00000008 c01907a0 c1527c7c 00000064  
+Jun 22 13:52:43 loki kernel: Call Trace:    [<c01a1c02>] [<c019044b>] [<c01907a0>] [<c019bdec>] [<c019c59d>] 
+Jun 22 13:52:43 loki kernel: Call Trace:    [<c01a1c02>] [<c019044b>] [<c01907a0>] [<c019bdec>] [<c019c59d>] 
+Jun 22 13:52:43 loki kernel:   [<c019c799>] [<c0193150>] [<c01a6bdf>] [<c01a6f7b>] [<c01a72f9>] [<c01a67db>] 
+Jun 22 13:52:43 loki kernel:   [<c019c799>] [<c0193150>] [<c01a6bdf>] [<c01a6f7b>] [<c01a72f9>] [<c01a67db>] 
+Jun 22 13:52:43 loki kernel:   [<c01954ee>] [<c01954a0>] [<c0140d93>] [<c013e996>] [<c012f104>] [<c012e135>] 
+Jun 22 13:52:43 loki kernel:   [<c01954ee>] [<c01954a0>] [<c0140d93>] [<c013e996>] [<c012f104>] [<c012e135>] 
+Jun 22 13:52:43 loki kernel:   [<c0114ec8>] [<c0115467>] [<c011561f>] [<c0106c23>] 
+Jun 22 13:52:44 loki kernel:   [<c0114ec8>] [<c0115467>] [<c011561f>] [<c0106c23>] 
+Jun 22 13:52:44 loki kernel: Code: 0b 08 00 00 19 00 00 00 53 b0 2f 00 00 00 00 00 00 00 00 00  
 
-- - to disable the feature after pressing or releasing some particular keys 
-(CTRL, SHIFT, ...) now keycodes instead of scancodes are used. "showkey -k" 
-shows the correct values. The bit 0x100 is used to distinguish press and 
-release events. 0 means press, 1 release. So,
 
-	escape 97
-	escape 29
+>>EIP; c0092df4 Before first symbol   <=====
+>>EIP; c0092df4 Before first symbol   <=====
 
-mean disable "Disable Trackpad while typing" after pressing right and left 
-CTRL (useful for xterm users). While
+>>esi; c1527b28 <_end+11e54e4/8512a1c>
+>>edi; c7381ea0 <_end+703f85c/8512a1c>
+>>esp; c1527ae4 <_end+11e54a0/8512a1c>
+>>esi; c1527b28 <_end+11e54e4/8512a1c>
+>>edi; c7381ea0 <_end+703f85c/8512a1c>
+>>esp; c1527ae4 <_end+11e54a0/8512a1c>
 
-	escape 353		# 97+256
-	escape 258		# 29+256
+Trace; c01a1c02 <leaf_delete_items+3e/158>
+Trace; c019044b <balance_leaf_when_delete+6b/37c>
+Trace; c01907a0 <balance_leaf+44/2698>
+Trace; c019bdec <dc_check_balance_internal+2c8/568>
+Trace; c019c59d <clear_all_dirty_bits+11/18>
+Trace; c01a1c02 <leaf_delete_items+3e/158>
+Trace; c019044b <balance_leaf_when_delete+6b/37c>
+Trace; c01907a0 <balance_leaf+44/2698>
+Trace; c019bdec <dc_check_balance_internal+2c8/568>
+Trace; c019c59d <clear_all_dirty_bits+11/18>
+Trace; c019c799 <wait_tb_buffers_until_unlocked+1f5/2a4>
+Trace; c0193150 <do_balance+84/fc>
+Trace; c01a6bdf <reiserfs_cut_from_item+97/45c>
+Trace; c01a6f7b <reiserfs_cut_from_item+433/45c>
+Trace; c01a72f9 <reiserfs_do_truncate+2fd/430>
+Trace; c01a67db <reiserfs_delete_object+23/50>
+Trace; c019c799 <wait_tb_buffers_until_unlocked+1f5/2a4>
+Trace; c0193150 <do_balance+84/fc>
+Trace; c01a6bdf <reiserfs_cut_from_item+97/45c>
+Trace; c01a6f7b <reiserfs_cut_from_item+433/45c>
+Trace; c01a72f9 <reiserfs_do_truncate+2fd/430>
+Trace; c01a67db <reiserfs_delete_object+23/50>
+Trace; c01954ee <reiserfs_delete_inode+4e/98>
+Trace; c01954a0 <reiserfs_delete_inode+0/98>
+Trace; c0140d93 <iput+113/208>
+Trace; c013e996 <dput+e6/144>
+Trace; c012f104 <fput+bc/e0>
+Trace; c012e135 <filp_close+59/64>
+Trace; c01954ee <reiserfs_delete_inode+4e/98>
+Trace; c01954a0 <reiserfs_delete_inode+0/98>
+Trace; c0140d93 <iput+113/208>
+Trace; c013e996 <dput+e6/144>
+Trace; c012f104 <fput+bc/e0>
+Trace; c012e135 <filp_close+59/64>
+Trace; c0114ec8 <put_files_struct+54/bc>
+Trace; c0115467 <do_exit+af/240>
+Trace; c011561f <sys_exit+f/10>
+Trace; c0106c23 <system_call+33/40>
+Trace; c0114ec8 <put_files_struct+54/bc>
+Trace; c0115467 <do_exit+af/240>
+Trace; c011561f <sys_exit+f/10>
+Trace; c0106c23 <system_call+33/40>
 
-mean disable "Disable Trackpad while typing" after releasing right and left 
-CTRL.
+Code;  c0092df4 Before first symbol
+00000000 <_EIP>:
+Code;  c0092df4 Before first symbol   <=====
+   0:   0b 08                     or     (%eax),%ecx   <=====
+Code;  c0092df6 Before first symbol
+   2:   00 00                     add    %al,(%eax)
+Code;  c0092df8 Before first symbol
+   4:   19 00                     sbb    %eax,(%eax)
+Code;  c0092dfa Before first symbol
+   6:   00 00                     add    %al,(%eax)
+Code;  c0092dfc Before first symbol
+   8:   53                        push   %ebx
+Code;  c0092dfd Before first symbol
+   9:   b0 2f                     mov    $0x2f,%al
 
-- - escaped keys are reported in /proc/tty/ps2-trackpad as decimal as "showkey 
-- -k" also display them as decimal. On input sscanf( "%i" ) is expected.
+Jun 22 13:52:44 loki kernel: Code: 0b 08 00 00 19 00 00 00 53 b0 2f 00 00 00 00 00 00 00 00 00  
 
-- - Documentation has been moved from Documentation/Configure.help to a separate 
-file Documentation/ps2-trackpad.txt.
 
-History:
-http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=DISABLE_TRACKPAD_WHILE_TYPING&q=b
+Code;  c0092df4 Before first symbol
+00000000 <_EIP>:
+Code;  c0092df4 Before first symbol
+   0:   0b 08                     or     (%eax),%ecx
+Code;  c0092df6 Before first symbol
+   2:   00 00                     add    %al,(%eax)
+Code;  c0092df8 Before first symbol
+   4:   19 00                     sbb    %eax,(%eax)
+Code;  c0092dfa Before first symbol
+   6:   00 00                     add    %al,(%eax)
+Code;  c0092dfc Before first symbol
+   8:   53                        push   %ebx
+Code;  c0092dfd Before first symbol
+   9:   b0 2f                     mov    $0x2f,%al
 
-Torsten
 
-diff -Naur -X dontdiff linux-2.4.21-orig/Documentation/Configure.help 
-linux-2.4.21/Documentation/Configure.help
-- --- linux-2.4.21-orig/Documentation/Configure.help	2003-06-22 
-15:45:55.000000000 +0000
-+++ linux-2.4.21/Documentation/Configure.help	2003-06-22 14:10:39.000000000 
-+0000
-@@ -17964,6 +17964,21 @@
-   <ftp://gnu.systemy.it/pub/gpm/>) solves this problem, or you can get
-   the "mconv2" utility from <ftp://ibiblio.org/pub/Linux/system/mouse/>.
- 
-+Disable trackpad while typing
-+CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+  For people with a notebook that have a build in trackpad.
-+
-+  It prevents unintended mouse moves and mouse taps while typing on
-+  the notebook keyboard.
-+
-+  The majority of notebooks on the market have a PS/2 trackpad. 
-+  So you will probably say "Y" if you have a notebook with a trackpad.
-+
-+  Also note that you can control the behaviour of the trackpad via the 
-+  /proc/tty/ps2-trackpad file.
-+
-+  See Documentation/ps2-trackpad.txt for detailed information.
-+
- C&T 82C710 mouse port support (as on TI Travelmate)
- CONFIG_82C710_MOUSE
-   This is a certain kind of PS/2 mouse used on the TI Travelmate. If
-diff -Naur -X dontdiff linux-2.4.21-orig/Documentation/ps2-trackpad.txt 
-linux-2.4.21/Documentation/ps2-trackpad.txt
-- --- linux-2.4.21-orig/Documentation/ps2-trackpad.txt	1970-01-01 
-00:00:00.000000000 +0000
-+++ linux-2.4.21/Documentation/ps2-trackpad.txt	2003-06-22 15:13:45.000000000 
-+0000
-@@ -0,0 +1,50 @@
-+For people with a notebook that have a build in trackpad.
-+
-+The "Disable trackpad while typing" feature prevents unintended mouse
-+moves and mouse taps while typing on the notebook keyboard.
-+
-+The majority of notebooks on the market have a PS/2 trackpad. 
-+So you will probably say "Y" if you have a notebook with a trackpad.
-+
-+Also note that you can control the behaviour of the trackpad via the 
-+/proc/tty/ps2-trackpad file, e.g.
-+
-+Set the delay time to 2 Secs (default is 10 ==> 1 Sec)
-+
-+	echo "delay 20" > /proc/tty/ps2-trackpad
-+
-+
-+Completely disable the trackpad (default 0). Useful if you plug in an
-+external mouse.
-+
-+	echo "disable 1" > /proc/tty/ps2-trackpad
-+
-+To completely disable this feature use
-+
-+	echo "delay 0" > /proc/tty/ps2-trackpad
-+
-+
-+Escape the keyboard keycode for the key. After these keycodes mouse
-+events are passed without a delay. (defaults are the keycodes for
-+CTRL, SHIFT, ALT and MS-Windows (both left and right) and Menu
-+(Windows Taskbar) keys). 
-+
-+This is useful for some applications ( like xterm ) which are using
-+keydown-click events.
-+
-+You can use showkey -k to find out the keycodes of your own keys. 
-+Apply "escape ???" twice to unescape a keycode.
-+
-+Example: define an escape for HOME-KeyPress 
-+
-+	echo "escape 102" > /proc/tty/ps2-trackpad
-+
-+If you want to escape KeyRelease events add 0x100 (256) to the actual
-+keycode value.
-+
-+	echo "escape 358" > /proc/tty/ps2-trackpad
-+
-+enables mouse events immediately after releasing HOME key.
-+
-+I can't imagine a situation where mouse events are needed immediately
-+after key release events but it's implemented for completeness.
-diff -Naur -X dontdiff linux-2.4.21-orig/drivers/char/Config.in 
-linux-2.4.21/drivers/char/Config.in
-- --- linux-2.4.21-orig/drivers/char/Config.in	2003-06-22 15:45:58.000000000 
-+0000
-+++ linux-2.4.21/drivers/char/Config.in	2003-06-22 08:50:04.000000000 +0000
-@@ -179,6 +179,13 @@
- tristate 'Mouse Support (not serial and bus mice)' CONFIG_MOUSE
- if [ "$CONFIG_MOUSE" != "n" ]; then
-    bool '  PS/2 mouse (aka "auxiliary device") support' CONFIG_PSMOUSE
-+
-+   if [ "$CONFIG_PSMOUSE" = "y" ]
-+   then
-+     bool '    Disable Trackpad while typing on Notebooks' 
-CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+   fi
-+
-+
-    tristate '  C&T 82C710 mouse port support (as on TI Travelmate)' 
-CONFIG_82C710_MOUSE
-    tristate '  PC110 digitizer pad support' CONFIG_PC110_PAD
-    tristate '  MK712 touch screen support' CONFIG_MK712_MOUSE
-diff -Naur -X dontdiff linux-2.4.21-orig/drivers/char/pc_keyb.c 
-linux-2.4.21/drivers/char/pc_keyb.c
-- --- linux-2.4.21-orig/drivers/char/pc_keyb.c	2002-11-28 23:53:12.000000000 
-+0000
-+++ linux-2.4.21/drivers/char/pc_keyb.c	2003-06-22 15:39:21.000000000 +0000
-@@ -13,6 +13,14 @@
-  * Code fixes to handle mouse ACKs properly.
-  * C. Scott Ananian <cananian@alumni.princeton.edu> 1999-01-29.
-  *
-+ * Implemented the "disable trackpad while typing" feature. This prevents
-+ * unintended mouse moves and mouse taps while typing on the keyboard on
-+ * notebooks with a PS/2 trackpad.
-+ * Hans-Georg Thien <1682-600@onlinehome.de> 2003-04-30.
-+ *
-+ * Improvements to the "disable trackpad while typing" feature.
-+ * Torsten Förtsch <torsten.foertsch@gmx.net> 2003-06-20.
-+ *
-  */
- 
- #include <linux/config.h>
-@@ -35,7 +43,7 @@
- #include <linux/smp_lock.h>
- #include <linux/kd.h>
- #include <linux/pm.h>
-- -
-+#include <linux/proc_fs.h>
- #include <asm/keyboard.h>
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
-@@ -102,6 +110,133 @@
- #define MAX_RETRIES	60		/* some aux operations take long time*/
- #endif /* CONFIG_PSMOUSE */
- 
-+#ifdef CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+
-+static int trackpad_skipped_events = 0;
-+static int last_kbd_event = 0;     /* timestamp of last kbd event */
-+static int last_kbd_scancode = 0; 
-+static int last_kbd_scancode_state = 0; 
-+static int trackpad_disable = 0;
-+static int trackpad_delay = HZ;    /* default delay is 1Sec */
-+
-+static unsigned char trackpad_escape[0x200/8]; /* 2*256-Bit vector of 
-keyboard scancodes to ignore */
-+
-+
-+static int trackpad_write_proc(struct file *file,
-+                               const char *buf,
-+                               unsigned long len,
-+                               void *data)
-+{
-+
-+/*
-+ * handle write requests to /proc/tty/ps2-trackpad
-+ */
-+        char lbuf[32];
-+        int tmp;
-+        int success = 0;
-+ 
-+        if (len > sizeof(lbuf)-1) return -EINVAL;
-+
-+        if (copy_from_user(lbuf, buf, len)) return -EFAULT;
-+
-+        lbuf[len] = '\0';
-+
-+        if (sscanf(lbuf, "delay %d", &tmp)) {
-+                trackpad_delay = (tmp * HZ) / 10; /* convert 1/10Sec to 
-jiffies */
-+                success=1; 
-+        }
-+
-+        if (sscanf(lbuf, "disable %d", &tmp)) {
-+                trackpad_disable = tmp ? 1 : 0;
-+                success=1; 
-+        }
-+
-+        if (sscanf(lbuf, "escape %i", &tmp)) {
-+                if ((tmp < 0) || (tmp >=0x200)) return -EINVAL;
-+                change_bit(tmp, trackpad_escape);
-+                success=1; 
-+        }
-+
-+        if (!success) return -EINVAL;
-+
-+        return len;
-+}
-+
-+static int trackpad_read_proc(char *buf, char **start, off_t ofs,
-+                              int count, int *eof, void *data)
-+{  
-+
-+/* 
-+ * handle read requests to /proc/tty/ps2-trackpad 
-+ */
-+
-+        int len  = 0;
-+        int i;
-+
-+        len += sprintf(buf+len, "delay %d\n", 
-+                                (trackpad_delay * 10) / HZ); /* convert 
-jiffies to 1/10Sec */
-+        len += sprintf(buf+len, "disable %d\n", trackpad_disable);
-+
-+        for (i = 0; i < sizeof(trackpad_escape) * 8; i++) {
-+                if (test_bit(i, trackpad_escape)) {
-+                        len += sprintf(buf+len, "escape %d\n", i);
-+                }
-+        }
-+
-+        *eof = 1;
-+        buf[len+1] = '\0';
-+        return len;
-+}
-+
-+static int trackpad_config_setup(void)
-+{  
-+
-+/* 
-+ * create read-write entries in /proc/tty/ps2-trackpad and setup some 
-+ * defaults for the trackpad handling
-+ */
-+
-+        struct proc_dir_entry *trackpad_proc_entry;
-+
-+        trackpad_proc_entry=create_proc_entry("tty/ps2-trackpad", 0, NULL);
-+
-+        if (trackpad_proc_entry == NULL) return -1;
-+
-+        trackpad_proc_entry->mode |=  S_IWUGO;
-+        trackpad_proc_entry->read_proc = trackpad_read_proc;
-+        trackpad_proc_entry->write_proc = trackpad_write_proc;
-+
-+        
-+        /* set keyboard scancodes to ignore */
-+        memset(trackpad_escape, 0, sizeof(trackpad_escape));
-+        set_bit(0x1d, trackpad_escape);  /* CTRL-L keydown */
-+        set_bit(0x2a, trackpad_escape);  /* SHIFT-L keydown */
-+        set_bit(0x38, trackpad_escape);  /* ALT-L keydown */
-+
-+        set_bit(0x61, trackpad_escape);  /* CTRL-R keydown */
-+        set_bit(0x36, trackpad_escape);  /* SHIFT-R keydown */
-+        set_bit(0x64, trackpad_escape);  /* ALT-R keydown */
-+
-+        set_bit(0x7d, trackpad_escape);  /* MS left WINDOWS keydown */
-+        set_bit(0x7e, trackpad_escape);  /* MS right WINDOWS keydown */
-+        set_bit(0x7f, trackpad_escape);  /* MS right MENU keydown */
-+#if 0
-+        set_bit(0x01, trackpad_escape);  /* ESC keydown */
-+        set_bit(0x66, trackpad_escape);  /* HOME keydown */
-+        set_bit(0x67, trackpad_escape);  /* CURSORUP keydown */
-+        set_bit(0x68, trackpad_escape);  /* PAGEUP keydown */
-+        set_bit(0x69, trackpad_escape);  /* CURSOR-L keydown */
-+        set_bit(0x6a, trackpad_escape);  /* CURSOR-R keydown */
-+        set_bit(0x6b, trackpad_escape);  /* END keydown */
-+        set_bit(0x6c, trackpad_escape);  /* CURSORDOWN keydown */
-+        set_bit(0x6d, trackpad_escape);  /* PAGEDOWN keydown */
-+#endif
-+
-+        return 0;
-+}
-+
-+#endif /* CONFIG_DISABLE_TRACKPAD_WHILE_TYPING */
-+
- /*
-  * Wait for keyboard controller input buffer to drain.
-  *
-@@ -449,6 +584,24 @@
- 		return;
- 	}
- 
-+#ifdef CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+        if (trackpad_disable) return;
-+
-+        if (!test_bit(last_kbd_scancode, trackpad_escape)) {
-+	  /* do nothing if time since last kbd event is less then trackpad_delay */
-+	  if (abs(jiffies - last_kbd_event) < trackpad_delay) {
-+	    trackpad_skipped_events++;
-+	    return;
-+	  }
-+        }
-+	
-+	if (trackpad_skipped_events%12) {
-+	  trackpad_skipped_events++;
-+	  return;
-+	}
-+	trackpad_skipped_events=0;
-+#endif
-+
- 	prev_code = scancode;
- 	add_mouse_randomness(scancode);
- 	if (aux_count) {
-@@ -469,6 +622,45 @@
- 
- static inline void handle_keyboard_event(unsigned char scancode)
- {
-+
-+#ifdef CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+  /* this more or less resembles the pckbd_translate() algorithm */
-+  if( scancode==0xe0 && last_kbd_scancode_state==0 ) { /* escape 1b */
-+    last_kbd_scancode_state = 0x100;
-+  } else if( scancode==0xe1 && last_kbd_scancode_state==0 ) { /* escape 2b */
-+    last_kbd_scancode_state = 0x200;
-+  } else if(last_kbd_scancode_state==0x100) {
-+    /* E0 table lookup */
-+    if( last_kbd_scancode = e0_keys[scancode&0x7f] ) {
-+      if( scancode & 0x80 ) last_kbd_scancode|=0x100;
-+      last_kbd_event = jiffies;
-+    }
-+    last_kbd_scancode_state=0;
-+  } else if(last_kbd_scancode_state==0x200) {
-+    if( (scancode&0x7f)==0x1d ) {
-+      last_kbd_scancode_state++;
-+    } else {
-+      last_kbd_scancode_state=0; /* unknown e1 sequence */
-+    }
-+  } else if(last_kbd_scancode_state==0x201) {
-+    if( (scancode&0x7f)==0x45 ) { /* PAUSE key */
-+      last_kbd_scancode = E1_PAUSE;
-+      if( scancode & 0x80 ) last_kbd_scancode|=0x100;
-+      last_kbd_event = jiffies;
-+    }
-+    last_kbd_scancode_state=0;
-+  } else {
-+    last_kbd_scancode = (scancode&0x7f);
-+    if( last_kbd_scancode >= SC_LIM )
-+      last_kbd_scancode=high_keys[last_kbd_scancode - SC_LIM];
-+    if( last_kbd_scancode ) {
-+      if( scancode & 0x80 ) last_kbd_scancode|=0x100;
-+      last_kbd_event = jiffies;
-+    }
-+    last_kbd_scancode_state=0;
-+  }
-+#endif
-+
- #ifdef CONFIG_VT
- 	kbd_exists = 1;
- 	if (do_acknowledge(scancode))
-@@ -1219,6 +1411,10 @@
- 	kbd_write_command(KBD_CCMD_MOUSE_DISABLE); /* Disable aux device. */
- 	kbd_write_cmd(AUX_INTS_OFF); /* Disable controller ints. */
- 
-+#ifdef CONFIG_DISABLE_TRACKPAD_WHILE_TYPING
-+        trackpad_config_setup();
-+#endif
-+
- 	return 0;
- }
- 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Modules:
 
-iD8DBQE+9eHLwicyCTir8T4RAg+PAJ47B2aQZEbBz50mo5++GQlQCKs5BACgnjmI
-BIy+erf5vvQkEVRF5G89eB8=
-=OSyM
------END PGP SIGNATURE-----
+Module                  Size  Used by    Not tainted
+opl3                   11040   0 (unused)
+sb                      7348   0
+sb_lib                 32334   0 [sb]
+uart401                 6020   0 [sb_lib]
+sound                  51692   0 [opl3 sb_lib uart401]
+nls_iso8859-1           2844   1 (autoclean)
+nls_cp437               4348   1 (autoclean)
+
+
+.config:
+
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_M586MMX=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=10
+CONFIG_BLK_DEV_SR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_PLIP=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_RTC=y
+CONFIG_QUOTA=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_MINIX_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_INTERMEZZO_FS=m
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_SOUND=y
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_AWE32_SYNTH=m
+CONFIG_SOUND_YM3812=m
+CONFIG_USB=y
+CONFIG_USB_UHCI_ALT=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+
+-- 
+`It is an unfortunate coincidence that the date locarchive.h was
+ written (in hex) matches Ritchie's birthday (in octal).'
+               -- Roland McGrath on the libc-alpha list

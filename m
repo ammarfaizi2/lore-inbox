@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293696AbSCFRKE>; Wed, 6 Mar 2002 12:10:04 -0500
+	id <S293699AbSCFRHC>; Wed, 6 Mar 2002 12:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293681AbSCFRJy>; Wed, 6 Mar 2002 12:09:54 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:45532 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293696AbSCFRJY>;
-	Wed, 6 Mar 2002 12:09:24 -0500
-Date: Wed, 6 Mar 2002 09:09:22 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.19-pre2]
-Message-ID: <20020306090922.A2159@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020305163840.B1525@bougret.hpl.hp.com> <3C85A1BA.512E0324@mandrakesoft.com>
+	id <S293696AbSCFRG4>; Wed, 6 Mar 2002 12:06:56 -0500
+Received: from mnh-1-27.mv.com ([207.22.10.59]:10759 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S293699AbSCFRGU>;
+	Wed, 6 Mar 2002 12:06:20 -0500
+Message-Id: <200203061708.MAA02691@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Wed, 06 Mar 2002 10:03:57 CST."
+             <200203061603.KAA21855@tomcat.admin.navo.hpc.mil> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C85A1BA.512E0324@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Mar 05, 2002 at 11:57:30PM -0500
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Date: Wed, 06 Mar 2002 12:08:09 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 11:57:30PM -0500, Jeff Garzik wrote:
-> We don't need the silly spinlock wrappers in 2.4 either.....
+pollard@tomcat.admin.navo.hpc.mil said:
+> Currently the only way to ensure that the memory IS available is to
+> modify every page at startup. Yes it will swap the modified pages.
 
-	I don't have the patch to un-wrap the spinlock. I think you
-have that in your archives. Just send that to Marcelo on top of my
-patch.
-	As usual, I don't really care about cosmetics ;-)
+Currently, yes.
 
-	Jean
+But with Alan says his address space accounting will prevent mmaps from
+succeeding if populating them would OOM the system, which gives you want
+you want and which sounds like the right thing.  The 8 64M UMLs will run
+without needing to touch all their pages at bootup and without fear of being
+killed later.  If the 9th UML would be in danger of random death, then it
+will never get off the ground.
+
+Note that this doesn't help when the UMLs are under a smaller limit than 
+RAM + .5 * swap or whatever as happens when they are mmapping from tmpfs.
+That's the situation that I'm concerned about.
+
+				Jeff
+

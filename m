@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292233AbSCDIV3>; Mon, 4 Mar 2002 03:21:29 -0500
+	id <S292237AbSCDI3F>; Mon, 4 Mar 2002 03:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292237AbSCDIVV>; Mon, 4 Mar 2002 03:21:21 -0500
-Received: from ccs.covici.com ([209.249.181.196]:4253 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S292233AbSCDIVM>;
-	Mon, 4 Mar 2002 03:21:12 -0500
-To: "Adam J. Richter" <adam@yggdrasil.com>
+	id <S292248AbSCDI2z>; Mon, 4 Mar 2002 03:28:55 -0500
+Received: from ns.suse.de ([213.95.15.193]:54790 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292238AbSCDI2k>;
+	Mon, 4 Mar 2002 03:28:40 -0500
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch??: linux-2.5.6-pre1/drivers/scsi/advansys.c DMA-mapping
- fixes
-In-Reply-To: <200202281528.HAA06493@baldur.yggdrasil.com>
-From: John Covici <covici@ccs.covici.com>
-Date: Mon, 04 Mar 2002 03:20:10 -0500
-In-Reply-To: <200202281528.HAA06493@baldur.yggdrasil.com> ("Adam J.
- Richter"'s message of "Thu, 28 Feb 2002 07:28:47 -0800")
-Message-ID: <m3vgcc3ft1.fsf@ccs.covici.com>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1.90
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
+In-Reply-To: <20020304001223.A29448@vger.timpanogas.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Mar 2002 09:28:21 +0100
+In-Reply-To: "Jeff V. Merkey"'s message of "4 Mar 2002 08:00:12 +0100"
+Message-ID: <p731yf03ffe.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following error when trying to install the advansys scsi
-driver as a module:
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
+
+> /usr/src/linux/net/core/skbuff.c
+> 
+> //int sysctl_hot_list_len = 128;
+> int sysctl_hot_list_len = 1024;  // bump this value up
+> 
+
+The plan was to actually to get rid of the skb hot list. It was just 
+a stop gap solution to get CPU local smp allocation before Linux had
+cpu local slab caches. The slab cache has been fixed and runs 
+cpu local now too, so there should be no need for it anymore as 
+the slab cache does essentially the same thing as the private hot list
+cache (maintaining linked lists of objects and unlinking them quickly
+on allocation and linking them again on free, all in O(1)) 
 
 
-depmod:         virt_to_bus_not_defined_use_pci_map
+> alloc_skb_frame with fixed 1514 + fragment list allocations, 
+> sysctl_hot_list_len = 1024.  
 
-Any assistance would be appreciated.
+Something is bogus with your profile data. Increasing sysctl_hot_list_len
+never changes the frequency with which kmalloc/kfree are called. All
+it does is to produce less calls to kmem_cache_alloc() for the skb head,
+but the skb data portion is always allocated using kmalloc().  Your 
+new profile doesn't show kmalloc so you changed something else.
 
-on Thu, 28 Feb 2002 07:28:47 -0800 "Adam J. Richter" <adam@yggdrasil.com> wrote:
 
-> 	The following is my attempt to at porting
-> linux-2.5.6-pre1/drivers/scsi/advansys.c to the new DMA mapping
-> scheme described in linux-2.5.6-pre1/Documentation/DMA-mapping.txt.
->
-> 	Since I do not have an advansys card and I'm a bit green
-> at doing these conversions, I would appreciate it someone who knows
-> the advansys driver could take a look at this stuff and either
-> tell me if I have missed something or take it from here.
+-andi

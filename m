@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265482AbTFWVNP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 17:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTFWVNP
+	id S265486AbTFWVNS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 17:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTFWVNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 17:13:15 -0400
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:57864 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S265482AbTFWVNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 17:13:12 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <16E52145F803EF44BE0CAB504CEF34E70115A5E9@ausx2kmpc106.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: bunk@fs.tum.de
-cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: RE: [2.5 patch] postfix a constant in efi.h with ULL
-Date: Mon, 23 Jun 2003 16:27:07 -0500
+	Mon, 23 Jun 2003 17:13:18 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:41990 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S265486AbTFWVNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 17:13:14 -0400
+From: Lesley van Zijl <zyl@xs4all.nl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: usb memory pen broken since 2.5.72?
+Date: Mon, 23 Jun 2003 23:26:02 +0000
+User-Agent: KMail/1.5.2
+References: <200306231803.42338.zyl@xs4all.nl> <20030623182354.GA10089@kroah.com>
+In-Reply-To: <20030623182354.GA10089@kroah.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 12E9AF327629090-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306232326.02007.zyl@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch below postfixes a constant in efi.h with ULL, on 32 bit archs
-> this constant is too big for an int.
-> -#define GPT_HEADER_SIGNATURE 0x5452415020494645L
-> +#define GPT_HEADER_SIGNATURE 0x5452415020494645ULL
+well bk1 was released a few minutes/hours ago, and there aren't any changes 
+for usb in there, so I'll wait for bk2 and fill in the bug report right away.
 
-Sounds good.  Please submit for 2.4.x also.
+Ow another question what might be a bug or a poorly configured system,
+My mp3 player is a usb memory pen too, when i write to it, it can handle 
+300/400 kbps, my other memory pen (a real one, so non-mp3) can only handle 
+100kbps. is this a bug? or because of the vfat fs ?
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+On Monday 23 June 2003 18:23, Greg KH wrote:
+> On Mon, Jun 23, 2003 at 06:03:42PM +0000, Lesley van Zijl wrote:
+> > My USB memory pen stopped working since 2.5.72, the last time it
+> > worked for me was 2.5.70.
+> >
+> > dmesg output on plugin for 2.5.72/73:
+>
+> Hopefully this is fixed in 2.5.73-bk1 (whenever it shows up.)  Can you
+> test that?  If not, can you create a bug in bugzilla.kernel.org for
+> this?
+>
+> thanks,
+>
+> greg k-h
 

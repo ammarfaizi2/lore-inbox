@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVCZRwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVCZSEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVCZRwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 12:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVCZRwa
+	id S261200AbVCZSEb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 13:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVCZSEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 12:52:30 -0500
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:38665 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261197AbVCZRw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 12:52:26 -0500
-Date: Sat, 26 Mar 2005 17:52:20 +0000 (GMT)
-From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
-To: greg@kroah.com
-cc: linux-kernel@vger.kernel.org
-Subject: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+	Sat, 26 Mar 2005 13:04:30 -0500
+Received: from mail.dif.dk ([193.138.115.101]:9894 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261200AbVCZSE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 13:04:28 -0500
+Date: Sat, 26 Mar 2005 19:06:27 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] cifs: inode.c cleanup - function definitions
+ (whitespace changes only)
+In-Reply-To: <200503261944.47012.adobriyan@mail.ru>
+Message-ID: <Pine.LNX.4.62.0503261903490.2488@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503261456390.2488@dragon.hyggekrogen.localhost>
+ <200503261944.47012.adobriyan@mail.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 26 Mar 2005, Alexey Dobriyan wrote:
 
-I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
-I have found that I can't use SYSFS on Linux-2.6.10.
+> Looks like code in fs/cifs/ align parameters after bracket.
+> 
 
-Why ?. 
+When I started doing these cleanups I asked Steve if the form I'd chosen 
+was OK with him - several styles were in use in different files (and even 
+within files, so I picked one style to make consistent), and he indicated 
+that the style I'd picked was OK by him. Once I get through all the files 
+it'll be consistent throughout. 
 
-I am not modifing the Kernel/SYSFS code so I should be able, to use all
-the SYSFS/internal kernel function calls without hinderence.
-
-In order to be able to use SYSFS to debug the driver during development
-the way I would like to be able to do, I will have to temporally change
-the module licence line to "GPL". When the development is finnished I will
-then need to remove all the code that accesses the SYSFS stuf in the
-Kernel and change the module back to a "Proprietry" licence in order to
-comply with other requirements. This will then hinder any debugging if
-future issues arise.
-
-I believe that this sort of idiocy is what helps Microsoft hold on to its
-manopoly and as shuch hinders hardware/software development in all areas
-and should be chanaged in a way that promotes diversified software
-development.
-
-Regards
-	Mark Fortescue.
-
-
-
+-- 
+Jesper
 
 

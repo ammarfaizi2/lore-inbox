@@ -1,44 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275398AbRJYQbY>; Thu, 25 Oct 2001 12:31:24 -0400
+	id <S275126AbRJYQcy>; Thu, 25 Oct 2001 12:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275126AbRJYQbE>; Thu, 25 Oct 2001 12:31:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2824 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274255AbRJYQbB>; Thu, 25 Oct 2001 12:31:01 -0400
-Date: Thu, 25 Oct 2001 09:31:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <dnvgh351i1.fsf@magla.zg.iskon.hr>
-Message-ID: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com>
+	id <S275270AbRJYQco>; Thu, 25 Oct 2001 12:32:44 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6417 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275126AbRJYQck>; Thu, 25 Oct 2001 12:32:40 -0400
+Subject: Re: dvd and filesystem errors under 2.4.13
+To: imaginos@imaginos.net (Jim Hull)
+Date: Thu, 25 Oct 2001 17:35:12 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110250907210.425-100000@rosebud> from "Jim Hull" at Oct 25, 2001 09:08:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wnTN-0005MC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Are you saying this is possibly a hardware issue ?
 
-
-On 25 Oct 2001, Zlatko Calusic wrote:
->
-> Yes, I definitely have DMA turned ON. All parameters are OK. :)
-
-I suspect it may just be that "queue_nr_requests"/"batch_count" is
-different in -ac: what happens if you tweak them to the same values?
-
-(See drivers/block/ll_rw_block.c)
-
-I think -ac made the queues a bit deeper the regular kernel does 128
-requests and a batch-count of 16, I _think_ -ac does something like "2
-requests per megabyte" and batch_count=32, so if you have 512MB you should
-try with
-
-	queue_nr_requests = 1024
-	batch_count = 32
-
-Does that help?
-
-		Linus
-
+Could be a cabling or RAM issue,could also be a driver bug of some
+kind

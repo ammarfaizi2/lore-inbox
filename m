@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270229AbRHHAE2>; Tue, 7 Aug 2001 20:04:28 -0400
+	id <S270234AbRHHAGt>; Tue, 7 Aug 2001 20:06:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270230AbRHHAES>; Tue, 7 Aug 2001 20:04:18 -0400
-Received: from mail301.mail.bellsouth.net ([205.152.58.161]:58826 "EHLO
-	imf01bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S270229AbRHHAEF>; Tue, 7 Aug 2001 20:04:05 -0400
-Message-ID: <3B708202.105D696B@Bellsouth.net>
-Date: Tue, 07 Aug 2001 20:04:18 -0400
-From: Josh Wyatt <jdwyatt@Bellsouth.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Riley Williams <rhw@MemAlpha.CX>
-CC: Mark Atwood <mra@pobox.com>, Andrzej Krzysztofowicz <ankry@pg.gda.pl>,
-        Michael McConnell <soruk@eridani.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270238AbRHHAGj>; Tue, 7 Aug 2001 20:06:39 -0400
+Received: from [24.76.184.93] ([24.76.184.93]:32133 "HELO md5.ca")
+	by vger.kernel.org with SMTP id <S270234AbRHHAG2>;
+	Tue, 7 Aug 2001 20:06:28 -0400
+Date: Tue, 7 Aug 2001 17:06:10 -0700
+From: Pavel Zaitsev <pavel@md5.ca>
+To: discuss@vlug.org
+Cc: vanlug@gweep.ca, linux-kernel@vger.kernel.org
+Subject: niggling reiserFS problems
+Message-ID: <20010807170610.A20544@md5.ca>
+Reply-To: pavel@md5.ca
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+X-Arbitrary-Number-Of-The-Day: 42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not have a provision like the following:
-1. For a given driver, assign ethX in [ascending|descending] (pick one)
-order based on MAC addr.  At least this is a predictable order; it
-should never change for a given driver.
 
-2. If it's modular, you could make it even more flexible with options:
-alias eth0 eepro100
-alias eth1 ne2k-pci
-alias eth2 eepro100
-options eepro100 "bind_mac_order=eth0,eth2
-bind_mac_list=00D0B760C299,00D0B760C3DC"
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-3. if it's modular and insmod'ed with no options, default to a combo of
-the current behavior and #1, above.
+Um... I am kinda distraught, my reiserFS seems to bug out? ... well,
+to make long story short, I ran vim, gtklib bugged out. Used 'rpm -V libgtk=
++1.2-1.2.10-1mdk'
+oops, md5 checksum doesn't matchup. Read some mail for 10 min. ran the
+thing above again, checksum matches up. Do they call it vejadu?
+Anyone with saw this ... please raise hands, hm, mail me.
+thanks,
+	Pavel.
 
-Of course, you'd have to rely on the module maintainers to follow the
-convention.
 
-Also, I can see a potential dependency manifested in a scenario like
-this:
-1. add eth0, eth1, eth2 as above
-2. un-hot-plug eth0.  now hotplug another interface, not used by the
-previous driver
-3. eepro100 driver is still bound to eth0
-4. should the new device get eth3?  or eth0?  
-5. Is this a textbook problem outside of PCMCIA?
+--=20
+Take out your recursive cannons and shoot!
+110461387
+http://gpg.md5.ca
+http://perlpimp.com
 
-Dumb? Klutzy? thoughts?
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Thanks,
-Josh
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7cIJyEhbFhd1U3E0RAv0eAKCyasUrXNKqTrantTi7SRsyJ6j/SQCfacRm
+cj1ES8C30UTy9qzueFdT8p0=
+=z+JR
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--

@@ -1,70 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUJOU1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUJOU3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268317AbUJOU1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 16:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJOU1M
+	id S268325AbUJOU3s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 16:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUJOU3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 16:27:12 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:54682 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S268317AbUJOU1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 16:27:08 -0400
-Date: Fri, 15 Oct 2004 13:27:02 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Alistair John Strachan <alistair@devzero.co.uk>
-cc: a.ledvinka@promon.cz, linux-kernel@vger.kernel.org
-Subject: Re: promise (105a:3319) unattended boot
-In-Reply-To: <200410152112.18691.alistair@devzero.co.uk>
-Message-ID: <Pine.LNX.4.61.0410151317090.21618@twin.uoregon.edu>
-References: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
- <200410152112.18691.alistair@devzero.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 15 Oct 2004 16:29:47 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:62123 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268325AbUJOU3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 16:29:41 -0400
+Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
+	correct?
+From: mingming cao <cmm@us.ibm.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1097858401.1968.148.camel@sisko.scot.redhat.com>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	 <1097856114.4591.28.camel@localhost.localdomain>
+	 <1097858401.1968.148.camel@sisko.scot.redhat.com>
+Content-Type: multipart/mixed; boundary="=-NgBs00v6XxkC2vop25md"
+Organization: IBM LTC
+Message-Id: <1097872144.4591.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 Oct 2004 13:29:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, Alistair John Strachan wrote:
 
-> On Friday 15 Oct 2004 15:41, you wrote:
->> Hello.
->>
->> Got here http://pciids.sourceforge.net/iii/?i=105a3319
->> As http://linux.yyz.us/sata/faq-sata-raid.html#tx4 calls it
->> soft/accelerator raid version
->> Going to use latest kernel from /pub/linux/kernel/v2.4/
->>
->> But bios even with keyboard unplugged requires me to press one of 2 keys
->> to either define array OR continue booting in case no array is defined.
->>
->> What would you recommend me to do?
->> - stay with ft3xx module from promise  and 10 level RAID array and not use
->> sata_promise?
->> - define some array in bios and completely ignore that fact and use
->> sata_promise, bypass bios and define custom linux soft raid arrays?
->
-> If you define an array, AFAIK the controller doesn't do anything physically to
-> the discs. It's just the settings it tells the promise driver (thus software
-> RAID). If you define ANY array, the drives should still be detected by Linux
-> individually and you can use linux/md to RAID them.
+--=-NgBs00v6XxkC2vop25md
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-for sanity purposes we generally define spanned volumes each composed of 
-one disk. this still bites you ocasionaly because the controller will 
-pause when one or more disks are missing which otherwise may or may not be 
-catostrophic ie if you have a software raid-5 raid 1 or 10 stripe it'll 
-probably do fine with one disk missing, but the promise will freak again.
+On Fri, 2004-10-15 at 09:40, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Fri, 2004-10-15 at 17:01, mingming cao wrote:
+> 
+> > > Have I misunderstood something?
+> > > 
+> > You are correct, again:) We should do a search_reserve_window() from the
+> > root.
+> > 
+> > I will post a fix for these two soon.
+> 
+> Thanks.  I'll be away for a few days so I probably won't be able to look
+> at the fix until Wednesday next week.
+> 
 
-> This is how I'm doing it on my older PATA promise card.
->
->> - anything else (no bios flashing and no hw hacking)?
+How about this? Haven't test it, will do it shortly.:)
 
-non-raid sata or pata promise cards are darn cheap...
 
->
->
+Thanks,
+Mingming
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+--=-NgBs00v6XxkC2vop25md
+Content-Disposition: attachment; filename=ext3_reservation_window_fix_fix.patch
+Content-Type: text/plain; name=ext3_reservation_window_fix_fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+---
+
+ linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c |   21 +++++++++------------
+ 1 files changed, 9 insertions(+), 12 deletions(-)
+
+diff -puN fs/ext3/balloc.c~ext3_reservation_window_fix_fix fs/ext3/balloc.c
+--- linux-2.6.9-rc1-mm5/fs/ext3/balloc.c~ext3_reservation_window_fix_fix	2004-10-15 18:23:42.824158856 -0700
++++ linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c	2004-10-15 20:16:06.037034680 -0700
+@@ -184,9 +184,10 @@ goal_in_my_reservation(struct reserve_wi
+  * if the goal is not in any window.
+  * Returns NULL if there are no windows or if all windows start after the goal.
+  */
+-static struct reserve_window_node *search_reserve_window(struct rb_node *n,
++static struct reserve_window_node *search_reserve_window(struct rb_root *root,
+ 							 unsigned long goal)
+ {
++	struct rb_node *n = root->rb_node;
+ 	struct reserve_window_node *rsv;
+ 
+ 	if (!n)
+@@ -822,10 +823,10 @@ static int alloc_new_reservation(struct 
+ 		start_block = goal + group_first_block;
+ 
+ 	size = atomic_read(&my_rsv->rsv_goal_size);
+-	/* if we have a old reservation, start the search from the old rsv */
+ 	if (!rsv_is_empty(&my_rsv->rsv_window)) {
+ 		/*
+ 		 * if the old reservation is cross group boundary
++		 * and if the goal is inside the old reservation window,
+ 		 * we will come here when we just failed to allocate from
+ 		 * the first part of the window. We still have another part
+ 		 * that belongs to the next group. In this case, there is no
+@@ -838,10 +839,10 @@ static int alloc_new_reservation(struct 
+ 		 */
+ 
+ 		if ((my_rsv->rsv_start <= group_end_block) &&
+-				(my_rsv->rsv_end > group_end_block))
++				(my_rsv->rsv_end > group_end_block) &&
++				(start_block <= my_rsv->rsv_start))
+ 			return -1;
+ 
+-		search_head = search_reserve_window(&my_rsv->rsv_node, start_block);
+ 		if ((atomic_read(&my_rsv->rsv_alloc_hit) >
+ 		     (my_rsv->rsv_end - my_rsv->rsv_start + 1) / 2)) {
+ 			/*
+@@ -855,14 +856,10 @@ static int alloc_new_reservation(struct 
+ 			atomic_set(&my_rsv->rsv_goal_size, size);
+ 		}
+ 	}
+-	else {
+-		/*
+-		 * we don't have a reservation,
+-		 * we set our goal(start_block) and
+-		 * the list head for the search
+-		 */
+-		search_head = search_reserve_window(fs_rsv_root->rb_node, start_block);
+-	}
++	/*
++	 * shift the search start to the window near the goal block
++	 */
++	search_head = search_reserve_window(fs_rsv_root, start_block);
+ 
+ 	/*
+ 	 * find_next_reservable_window() simply finds a reservable window
+
+_
+
+--=-NgBs00v6XxkC2vop25md--
 

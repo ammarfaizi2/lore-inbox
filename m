@@ -1,50 +1,289 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUKSSfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbUKSSj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUKSSfN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 13:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUKSSdQ
+	id S261543AbUKSSj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 13:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUKSSjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 13:33:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:31467 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261531AbUKSScb (ORCPT
+	Fri, 19 Nov 2004 13:39:44 -0500
+Received: from mx.leogic.com ([62.245.182.8]:4758 "EHLO mx.leogic.com")
+	by vger.kernel.org with ESMTP id S261535AbUKSSjA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 13:32:31 -0500
-Date: Fri, 19 Nov 2004 10:30:48 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove unused drivers/pci/hotplug/pciehp_sysfs.c
-Message-ID: <20041119183048.GD20751@kroah.com>
-References: <20041113030203.GU2249@stusta.de> <20041115195148.GA12820@kroah.com> <20041115230105.GA4946@stusta.de>
+	Fri, 19 Nov 2004 13:39:00 -0500
+Subject: x86_64 mce / 2.6.10-rc2-bk4 / msi9245
+From: Andreas Jellinghaus <aj@leogic.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Leogic GmbH
+Message-Id: <1100889529.10367.44.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041115230105.GA4946@stusta.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 19 Nov 2004 19:38:49 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 12:01:05AM +0100, Adrian Bunk wrote:
-> On Mon, Nov 15, 2004 at 11:51:48AM -0800, Greg KH wrote:
-> > On Sat, Nov 13, 2004 at 04:02:03AM +0100, Adrian Bunk wrote:
-> > > The patch below does some cleanups in the PCI code:
-> > > - make OSC_UUID in drivers/pci/pci-acpi.c static
-> > > - remove the completely unused drivers/pci/hotplug/pciehp_sysfs.c
-> > > - remove other unused code
-> > > 
-> > > Please review which of these changes are correct and which conflict with 
-> > > pending changes.
-> > > 
-> > 
-> > >  drivers/pci/hotplug/Makefile       |    1 
-> > >  drivers/pci/hotplug/pciehp.h       |    3 
-> > >  drivers/pci/hotplug/pciehp_sysfs.c |  143 -------------
-> > 
-> > Yeah, this can be deleted.  Care to make a patch for just this?
-> 
-> It's below.
+Hi,
 
-Applied, thanks.
+written down using paper:
+CPU 0 Machine Check Exception 7 : Bank 3  B40000000...00000000083B
+RIP10: <FFFFFFFF802EFB74> {pci_conf1_read +0xb4/0xf0}
+TSC 161D56 ADDR FDFC000CFE
+Kernel panic - not syncing: uncorrected machine check.
 
-greg k-h
+Any idea what this could be? It's an msi9245 server,
+dual opteron, amd 8111 chipset, config below.
+
+I have three machines all with machine check exceptions,
+but didn't check if the other two are exactly the same
+as this one.
+
+thanks for your help.
+
+Regards, Andreas
+
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_MK8=y
+CONFIG_X86_L1_CACHE_BYTES=64
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_SCHED_SMT=y
+CONFIG_K8_NUMA=y
+CONFIG_DISCONTIGMEM=y
+CONFIG_NUMA=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_NR_CPUS=8
+CONFIG_GART_IOMMU=y
+CONFIG_SWIOTLB=y
+CONFIG_X86_MCE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_MSI=y
+CONFIG_BINFMT_ELF=y
+CONFIG_IA32_EMULATION=y
+CONFIG_COMPAT=y
+CONFIG_SYSVIPC_COMPAT=y
+CONFIG_UID16=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_LBD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_MD_MULTIPATH=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_FUSION=y
+CONFIG_FUSION_MAX_SGE=40
+CONFIG_FUSION_CTL=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+CONFIG_IP_PNP_BOOTP=y
+CONFIG_IP_PNP_RARP=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_TUNNEL=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_E100_NAPI=y
+CONFIG_E1000=y
+CONFIG_TIGON3=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_PCIPS2=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_WATCHDOG=y
+CONFIG_HW_RANDOM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ALGOPCF=y
+CONFIG_I2C_ALGOPCA=y
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_LM83=y
+CONFIG_SENSORS_LM90=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_DNOTIFY=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVPTS_FS_XATTR=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_ROOT_NFS=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_WP512=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_SERPENT=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_CAST5=y
+CONFIG_CRYPTO_CAST6=y
+CONFIG_CRYPTO_TEA=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_KHAZAD=y
+CONFIG_CRYPTO_ANUBIS=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=y
+CONFIG_CRYPTO_CRC32C=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+
+
+-- 
+---------------------[ Ciphire Signature ]----------------------
+From: aj@leogic.com signed email body (4781 characters)
+Date: on 19 November 2004 at 18:42:24 GMT
+To:   linux-kernel@vger.kernel.org
+----------------------------------------------------------------
+: The message above has been secured using Ciphire Mail.
+: Verify this signature and download your free encryption
+: software at www.ciphire.com. The three garbled lines
+: below are the sender's verifiable encoded signature.
+----------------------------------------------------------------
+00fAAAAAEAAACQPp5BrRIAAOkCAAIAAgACACCHa/Io+whKrYChK0EUB9X46F2w8h
+m7Kxm4TyBtri6xOwEAOMNO8W7mk5e0ZWRMlG/EpbulR7vQrChvtBjHa2MIgd/tW8
+gc88YUM+BQmM11Wd2DxzvO9QsE/1SEVSXZzS4Uow==
+------------------[ End Ciphire Signed Message ]----------------
 

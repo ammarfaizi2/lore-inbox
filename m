@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314043AbSEMPYT>; Mon, 13 May 2002 11:24:19 -0400
+	id <S314058AbSEMP0d>; Mon, 13 May 2002 11:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314058AbSEMPYS>; Mon, 13 May 2002 11:24:18 -0400
-Received: from bgp401130bgs.jersyc01.nj.comcast.net ([68.36.96.125]:27406 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S314043AbSEMPYR>;
-	Mon, 13 May 2002 11:24:17 -0400
-Date: Mon, 13 May 2002 11:24:10 -0400
-Message-Id: <200205131524.g4DFOAc30622@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Stig Brautaset <stigbrau@start.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xircom nic itch (drops ip)
-In-Reply-To: <20020512214217.GA19727@brautaset.org>
-User-Agent: tin/1.5.11-20020130 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
+	id <S314061AbSEMP0c>; Mon, 13 May 2002 11:26:32 -0400
+Received: from mail0.epfl.ch ([128.178.50.57]:25363 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S314058AbSEMP0b>;
+	Mon, 13 May 2002 11:26:31 -0400
+Message-ID: <3CDFDB26.5070509@epfl.ch>
+Date: Mon, 13 May 2002 17:26:30 +0200
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, ja
+MIME-Version: 1.0
+To: graeme fisher <graeme@2d3d.co.za>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Agpgart for 845G
+In-Reply-To: <fa.cfjurcv.v30q20@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002 22:42:18 +0100, Stig Brautaset <stigbrau@start.no> wrote:
+Hello
 
-> My pcmcia network card drops its ip from time to time. This happens
-> frequently enough for it to be rather annoying, but not frequently to be
-> really annoying. It seems to happen when there is no traffic through
-> the link (based on the fact that I cannot ever remember it happening
-> while I was on irc ;).
+> 
+> Patch for Intel 845G agpgart support
+> 
 
-Are you using dhcp on that interface? If so, what happens to the dhcp 
-client daemon when the interface 'loses' the ip? Is it logging anything?
-Is it dying?
+diff'd against which version of the kernel ?
 
-If you're not using dhcp, I'm a little stumped..
 
-> The card is a Xircom Cardbus 10/100 NIC (CBEM56G-100), and it use the
-> kernel's xircom_cb module. I used to use the module in the pcmcia_cs
-> package before, but I can't remember whether it was any better then (I
-> don't think it was though).
+> +    { PCI_DEVICE_ID_INTEL_845_G_0,
+> +		 PCI_VENDOR_ID_INTEL,
+> +		 INTEL_I845_G,
+> +		 "Intel",
+> +		 "i845G",
+> +		 intel_830mp_setup },
 
-You could try to use the xircom_tulip_cb module instead, and see if it
-solves the problem. I don't think it will, but who knows.
+Are you sure that 830mp and 845g have exactly the same addresses to 
+write/read to ? BTW, I can't find any datasheet for 845g on Intel's 
+website ... do you have any at hand ?
 
-Despite what Configure.help says, xircom_tulip_cb is actually better
-than xircom_cb. The latter should only be used if xircom_tulip_cb
-has problems -- I haven't heard of any recently, but I do want to hear
-about them if they still exist.
 
-Ion
 
+> +			if (i810_dev == NULL) {
+> +                                /* 
+> +                                 * We probably have a I830MP chipset
+> +                                 * with an external graphics
+> +                                 * card. It will be initialized later 
+> +                                 */
+> +				agp_bridge.type = INTEL_I845_G;
+> +				break;
+> +			}
+
+Are you sure about the comment :-)) ?
+
+
+
+a+
+
+Nicolas.
+PS: CC any answer to me, I am not on the list...
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Nicolas Aspert      Signal Processing Institute (ITS)
+Swiss Federal Institute of Technology (EPFL)
+
+

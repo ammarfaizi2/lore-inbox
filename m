@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbTF3V1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 17:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbTF3V1L
+	id S265905AbTF3Vgt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 17:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbTF3Vgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 17:27:11 -0400
-Received: from debian4.unizh.ch ([130.60.73.144]:11650 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265903AbTF3VZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 17:25:38 -0400
-Date: Mon, 30 Jun 2003 23:39:57 +0200
-From: martin f krafft <madduck@madduck.net>
-To: Greg KH <greg@kroah.com>
+	Mon, 30 Jun 2003 17:36:49 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:38636 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265905AbTF3Vgs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 17:36:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
+Date: Tue, 1 Jul 2003 07:54:35 +1000
+User-Agent: KMail/1.5.2
 Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: restarting a kernel thread
-Message-ID: <20030630213957.GB3974@piper.madduck.net>
-References: <20030630194807.GD25566@piper.madduck.net> <20030630203941.GA26216@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+References: <200307010029.19423.kernel@kolivas.org> <1057008095.598.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1057008095.598.1.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030630203941.GA26216@kroah.com>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.4.20-grsec+freeswan+preempt-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307010754.35804.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Jul 2003 07:21, Felipe Alfaro Solana wrote:
+> On Mon, 2003-06-30 at 16:29, Con Kolivas wrote:
+> > Buried deep in another mail thread was the latest implementation of my
+> > O1int patch so I've brought it to the surface to make it clear this one
+> > is significantly different from past iterations.
+> >
+> > Summary:
+> > Decreases audio skipping with loads.
+> > Smooths out X performance with load.
+> >
+> > I've also made it available here:
+> > http://kernel.kolivas.org/2.5
+> >
+> > along with a patch called granularity that is a modified version of
+> > Ingo's timeslice_granularity patch. It is no longer necessary and may
+> > slightly decrease throughput in non-desktop settings but put on top of my
+> > O1int patch makes X even smoother.
+>
+> Damn! XMMS audio skips are back... To reproduce them, I start up my KDE
+> session, launch Konqueror, launch XMMS and make it play sound. Then, I
+> drag the Konqueror window like crazy over my desktop and XMMS skips,
+> altough not too much.
+>
+> The previous version of this patch is the one that worked best for me.
 
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A little bit more of this.. a little bit less of that... Use 100 or 1000Hz for 
+this one? And did you notice any change in X?
 
-also sprach Greg KH <greg@kroah.com> [2003.06.30.2239 +0200]:
-> Any reason for not sticking with userspace programs using
-> libusb/usbfs? Much easier to write than kernel drivers, and you
-> get portibility across a wider range of OSs
+Con
 
-One question: will this have performance issues? We are dealing with
-high-resolution motors and sensors, and want to go real-time anyhow
-somewhen.
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid PGP subkeys? use subkeys.pgp.net as keyserver!
-=20
-<woot> "what do you mean it's not packaged in debian?"
-
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/AK4tIgvIgzMMSnURAo+eAKCdOApPOf3IokE25PDtt2jA2N3ogwCfYRgc
-j/bW4dArcGbnmptbDBvzLwk=
-=YCwu
------END PGP SIGNATURE-----
-
---oLBj+sq0vYjzfsbl--

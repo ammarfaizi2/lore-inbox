@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCSVdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVCSVmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVCSVdY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 16:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVCSVdY
+	id S261855AbVCSVmt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 16:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVCSVmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 16:33:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24489 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261848AbVCSVdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 16:33:08 -0500
-Date: Sat, 19 Mar 2005 22:32:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: swsusp: Remove arch-specific references from generic code
-Message-ID: <20050319213252.GB1835@elf.ucw.cz>
-References: <20050316001207.GI21292@elf.ucw.cz> <200503191159.32569.rjw@sisk.pl> <20050319132815.4f51a7e5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Mar 2005 16:42:49 -0500
+Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:64873 "HELO
+	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261855AbVCSVms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 16:42:48 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend-to-disk woes
+Date: Sat, 19 Mar 2005 13:44:03 -0800
+User-Agent: KMail/1.7
+Cc: erik.andren@gmail.com, linux-kernel@vger.kernel.org
+References: <423B01A3.8090501@gmail.com> <200503191220.35207.rmiller@duskglow.com> <20050319212922.GA1835@elf.ucw.cz>
+In-Reply-To: <20050319212922.GA1835@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050319132815.4f51a7e5.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503191344.03379.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Saturday 19 March 2005 13:29, Pavel Machek wrote:
+> On So 19-03-05 12:20:35, Russell Miller wrote:
+> > On Saturday 19 March 2005 05:26, Pavel Machek wrote:
+> > > Checking that would be hard, but you might want to provide patch to
+> > > check last-mounted dates of filesystems and panic if they changed.
+> > > 				Pavel
+> >
+> > Then how would you fix it?  There'd also have to be a way to reset it,
+>
+> boot with "noresume", then mkswap.
+> 									Pavel
+Ah, makes sense.
 
+I've never used the resume functionality, so my ignorance on that subject is 
+understandable... :-)
 
-> swsusp-suspend_pd_pages-fix.patch
+--Russell
 
-Could you drop this one? It is "fixing" unused macro, we don't want it
-going anywhere.
-
-> suspend-to-ram-update-videotxt-with-more-systems.patch
-> 
-> I've been ducking all the "swsusp_restore crap" patches.  Pavel, could you
-> please aggregate, test and resend everything when the dust has settled?
-
-Ok.
-
-
-									Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+Russell Miller - rmiller@duskglow.com - Agoura, CA

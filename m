@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTGKOlS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 10:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTGKOlS
+	id S262584AbTGKOkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 10:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTGKOkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 10:41:18 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:901 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262714AbTGKOlO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 10:41:14 -0400
-Date: Fri, 11 Jul 2003 16:55:39 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-In-Reply-To: <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.SOL.4.30.0307111646470.9740-100000@mion.elka.pw.edu.pl>
+	Fri, 11 Jul 2003 10:40:11 -0400
+Received: from [195.29.214.252] ([195.29.214.252]:64779 "EHLO
+	srvczg-femail.vecernji.net") by vger.kernel.org with ESMTP
+	id S262584AbTGKOkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 10:40:08 -0400
+To: Linux kernel <linux-kernel@vger.kernel.org>,
+       "'Alan Stern'" <stern@rowland.harvard.edu>, hzhong@cisco.com,
+       zdravko.spoljar@vecernji.net
+Date: Fri, 11 Jul 2003 16:56:38 +0200
+X-Priority: 3 (Normal)
+From: Admin_Administrator%FRONT_END@vecernji.net
+Subject: Re: Style question: Should one check for NULL pointers? ScanMail has
+ blocked your mail due to a mail policy.
+Message-ID: <OF92BE2438.9E12F582-ONC1256D60.00521711@vecernji.net>
+X-MIMETrack: Serialize by Router on srvczg-femail1/FE/Vecernji list(Release 6.0|September
+ 26, 2002) at 11.07.2003 16:56:42
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 11 Jul 2003, Alan Cox wrote:
 
-> On Gwe, 2003-07-11 at 15:02, Dave Jones wrote:
-> > - (Possibly linked to above bug) VIA APIC routing is currently broken.
-> >   boot with 'noapic'.
->
-> Does 2.5 not have the INTD routing fix yet ?
 
-In 2.5.75.
 
-> > - The hptraid/promise RAID drivers are currently non functional, and
-> >   will probably be converted to use device-mapper.
+linux-kernel-owner+zdravko.spoljar=40vecernji.net@vger.kernel.org
+Reason the mail was blocked:
 
-Please put software RAID here to avoid confusion.
 
-> > IDE.
-> > ~~~~
-> > - Known problems with the current IDE code.
-> >   o  Serverworks OSB4 may panic on bad blocks or other non fatal errors
-> FIXED
-> >   o  PCMCIA IDE hangs on eject
-> Should be fixed in 2.5, fixed(ish) in 2.4
-> >   o  ide_scsi is completely broken in 2.5.x. Known problem. If you need it
-> >      either use 2.4 or fix it 8)
-> > - IDE disk geometry translators like OnTrack, EZ Partition, Disk Manager
-> >   are no longer supported. The only way forward is to remove the translator
-> >   from the drive, and start over.
->
-> Or to use device mapper to remap the disk.
-
-"hdx=remap" and "hdx=remap63" boot options can be used.
-Or can I remove them?
-
---
-Bartlomiej
+Scanned by ScanMail for Lotus Notes 2.6
+with scanengine 6.510-1002
+and patternfile lpt$vpn.585
 

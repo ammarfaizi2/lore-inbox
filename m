@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268733AbTBYUmJ>; Tue, 25 Feb 2003 15:42:09 -0500
+	id <S268321AbTBYUvO>; Tue, 25 Feb 2003 15:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268734AbTBYUmJ>; Tue, 25 Feb 2003 15:42:09 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:61062 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S268733AbTBYUmH>;
-	Tue, 25 Feb 2003 15:42:07 -0500
-Date: Tue, 25 Feb 2003 21:52:33 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225205233.GW29467@dualathlon.random>
-References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random> <20030225174359.GA10411@holomorphy.com> <20030225175928.GP29467@dualathlon.random> <20030225185008.GF10396@holomorphy.com> <20030225191817.GT29467@dualathlon.random> <20030225201023.GG10396@holomorphy.com> <20030225202335.GU29467@dualathlon.random> <20030225204616.GH10396@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030225204616.GH10396@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S268359AbTBYUvN>; Tue, 25 Feb 2003 15:51:13 -0500
+Received: from home.alltec.com ([66.46.63.194]:45041 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268321AbTBYUvM>; Tue, 25 Feb 2003 15:51:12 -0500
+Message-ID: <3E5BD9A2.6090705@alltec.com>
+Date: Tue, 25 Feb 2003 16:01:22 -0500
+From: Mike Sullivan <mike.sullivan@alltec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduling with Hyperthreading
+References: <Pine.LNX.4.44.0302250852190.26386-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 12:46:16PM -0800, William Lee Irwin III wrote:
-> On Tue, Feb 25, 2003 at 12:10:23PM -0800, William Lee Irwin III wrote:
-> >> I'd just bite the bullet and do the anonymous rework. Building
-> >> pte_chains lazily raises the issue of needing to allocate in order to
-> 
-> On Tue, Feb 25, 2003 at 09:23:35PM +0100, Andrea Arcangeli wrote:
-> > note that there is no need of allocate to free.
-> 
-> I've no longer got any idea what you're talking about, then.
+  Mark
 
-Were we able to release memory w/o rmap: yes.
+I would to a quick snap with top, and when I saw 99.9% I assumed the the 
+process had
+been there during the time top was starting up.
 
-Can we do it again: yes.
+Looking at /proc/(pid)/cpu, shows that with two jobs running they are 
+sticking to cpu 0 and 1
+which are siblings
 
-Can we use a bit of the released memory to release further memory more
-efficiently with rmap: yes.
 
-I'm not saying it's easy to implement that, but the problem that we'll
-need memory to release memory doesn't exit, since it also never existed
-before rmap was introduced into the kernel. Sure, the early stage of the
-swapping would be more cpu-intensive, but that is the feature.
+                                                                        
+                                                                        
+Regards
+                                                                        
+                                                                        Mike
 
-Andrea
+Mark Hahn wrote:
+
+>>that if I run two compute intensive jobs on a Dual Xeon, the processes 
+>>run on separate
+>>physical cpus and can spend a significant amount of time with both on a 
+>>single
+>>cpu.
+>>    
+>>
+>
+>how did you determine this?  running another program, such as top,
+>will naturally disturb the scheduler and corrupt any observations.
+>the only means I can think of is to look in /proc/<pid>/cpu near
+>very infrequently (ideally, just before the processes exit.)
+>or is this what you've done?
+>  
+>
+
+-- 
+----------------------------------------------------------------------
+Mike Sullivan                           Director Performance Computing
+@lliance Technologies,                  Voice: (416) 385-3255, 
+18 Wynford Dr, Suite 407                Fax:   (416) 385-1774
+Toronto, ON, Canada, M3C-3S2            Toll Free:1-877-216-3199
+http://www.alltec.com
+
+
+

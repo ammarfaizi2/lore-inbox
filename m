@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282819AbRLGJb3>; Fri, 7 Dec 2001 04:31:29 -0500
+	id <S285445AbRLGJdt>; Fri, 7 Dec 2001 04:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285445AbRLGJbU>; Fri, 7 Dec 2001 04:31:20 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:12810 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282819AbRLGJbE>; Fri, 7 Dec 2001 04:31:04 -0500
-Subject: Re: kernel: ldt allocation failed
-From: James Davies <james_m_davies@yahoo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kiril Vidimce <vkire@pixar.com>, Dan Maas <dmaas@dcine.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
-In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 19:26:28 +1000
-Message-Id: <1007717194.1342.1.camel@Lord>
+	id <S285448AbRLGJdj>; Fri, 7 Dec 2001 04:33:39 -0500
+Received: from bb94-125.singnet.com.sg ([165.21.94.125]:53657 "HELO
+	accellion.com") by vger.kernel.org with SMTP id <S285445AbRLGJde>;
+	Fri, 7 Dec 2001 04:33:34 -0500
+Date: Fri, 7 Dec 2001 17:33:26 +0800
+From: Mathieu Legrand <mathieu@accellion.com>
+To: linux-kernel@vger.kernel.org
+Subject: Compaq Proliant DL360 + 2.4.1?-* eepro100 and e100 pause when inactive
+Message-ID: <20011207093326.GA22128@accellion.com>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The nVidia kernel drivers are open source. You can get them from
-ftp://ftp.nvidia.com/pub/drivers/english/XFree86_40/1.0-2313/NVIDIA_kernel-1.0-2313.tar.gz
 
-the 0.9 serious of drivers were buggy and crashed a lot, earning them a
-bad rep. But the 1.0 series are faster and more stable than their
-windows counterparts- I havn't had one crash, even with a faulty card
-that kills windows constantly. 
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hello:
 
-On Fri, 2001-12-07 at 19:15, Alan Cox wrote:
-> > I don't see how one can magically tell that this is an NVIDIA problem. 
-> 
-> We don't know. But since we don't have their source and they have our
-> source only they can tell you.
-> 
-> > in the kernel and I imagine that even if the NVIDIA drivers are 
-> > triggering the problem, there are other modules/apps that can bring 
-> > about the same behavior.
-> 
-> Possibly, but you'll have to ask Nvidia to debug it for you. If you can
-> reproduce a bug by 
-> 	-	removing the nvidia modules so they wont be loaded
-> 	-	hard booting the machine
-> 	-	triggering the bug without loading the nvidia drivers
-> 
-> then please report it. If not, its between you and nvidia.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+We have here a Compaq Proliant DL360 server equiped with ethernet
+controllers Intel 82557 Ethernet Pro 100 (rev 08).  It came
+pre-installed with a old Redhat Linux and since I took it over, I
+upgraded to a recent Debian GNU/Linux.
 
+Debian installation sets a 2.2.19 kernel (compaq array enabled).  I
+compiled a 2.4.14 (the latest at the time) plain Linux kernel.  Since
+then, the ethernet controller seems to pause whenever it is not used.
+Recovery time ranges from 10 to 15 sec :/.
 
+I tried many > 2.4.14 kernels with both eepro100 and e100 drivers,
+none solved the problem.  The kernel running this server is now
+2.4.17-pre5 with cpqarray_2.4.20D_for_2.4.15-pre3 patch and e100 module.
+The pause still occurs.
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Others Compaq Proliant DL360 we own run Redhat Linux with a plain 2.4.4
+(Linus' 2.4.4) using eepro100 driver, and the pause does not occur.  The
+pause did not occur either with the 2.2.19 Debian install kernel.
 
+How can I avoid this pause?  Does a specific kernel compilation option
+can help?
+
+I noticed eepro100 driver was upgraded soon after 2.4.4, is this
+related?  Keeping the ethernet controller active at all time (pinging
+continously the server) does help.  Delay before pause seems not to be
+constant, I can abandon the ssh session to the server for hours without
+having a pause when I return and it also happens to trigger a pause only
+after a few minutes of inactivity.
+
+Mathieu.
+--=20
+Mathieu Legrand <mathieu @ {accellion.com -work | globules.net -perso}>
+GPG: 0x349EBC9961C501D1   fp: D6D2D2D74E6320D99B54 38F3349EBC9961C501D1
+ - Yoda of Borg are we: Futile is resistance.  Assimilate you, we will.
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8EIzmNJ68mWHFAdERAq/PAKC3m9xKRCqyLRa6AURskthRFX+rEACgxSG3
+UCxDE9uufc973VbX1NmuPUI=
+=+zpb
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--

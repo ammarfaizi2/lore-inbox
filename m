@@ -1,88 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTFISrK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 14:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTFISrK
+	id S264380AbTFIStO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 14:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTFIStO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 14:47:10 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:138 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264272AbTFISrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 14:47:07 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 9 Jun 2003 11:58:43 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Timothy Miller <miller@techsource.com>
-cc: =?X-UNKNOWN?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Coding standards.  (Was: Re: [PATCH] [2.5] Non-blocking write
- can block)
-In-Reply-To: <3EE4D80A.2050402@techsource.com>
-Message-ID: <Pine.LNX.4.55.0306091142420.3614@bigblue.dev.mcafeelabs.com>
-References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk>
- <20030604065336.A7755@infradead.org> <3EDE0E85.7090601@techsource.com>
- <20030607001202.GB14475@kroah.com> <3EE4B4C3.80902@techsource.com>
- <20030609163959.GA13811@wohnheim.fh-wedel.de>
- <Pine.LNX.4.55.0306091001270.3614@bigblue.dev.mcafeelabs.com>
- <3EE4D80A.2050402@techsource.com>
+	Mon, 9 Jun 2003 14:49:14 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:52434 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264380AbTFIStL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 14:49:11 -0400
+Date: Mon, 09 Jun 2003 11:51:30 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.70-mm6
+Message-ID: <51250000.1055184690@flay>
+In-Reply-To: <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
+References: <20030607151440.6982d8c6.akpm@digeo.com><Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv> <46580000.1055180345@flay> <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jun 2003, Timothy Miller wrote:
+>> If you don't nice the hell out of X, does it work OK?
+> No.
+> 
+> The way I reproduce the sound skips:
+> run xmms, run evolution, compose a mail with gpg.
+> on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
+> on mm5 xmms plays without stops. (with X -10)
 
-> > There's no such a thing as "horrible coding style", since coding style is
-> > strictly personal. Whoever try to convince you that one style is better
-> > than another one is simply plain wrong. Every reason they will give you to
-> > justify one style can be wiped with other opposite reasons. The only
-> > horrible coding style is to not respect coding standards when you work
-> > inside a project. This is a form of respect for other people working
-> > inside the project itself, give the project code a more professional
-> > look and lower the fatigue of reading the project code. Jumping from 24
-> > different coding styles does not usually help this. I do not believe
-> > professional developers can be scared by a coding style, if this is the
-> > coding style adopted by the project where they have to work in.
->
-> Oh, yes, there is most certainly "horrible coding style".  When I was in
-> college, I met one CS student after another who really just did not
-> belong in CS, and you should have seen the code they wrote.
+Does this (from Ingo?) do anything useful to it?
 
-
-> On Mon, 9 June 2003 11:07:32 -0700, Davide Libenzi wrote:
-> >
-> > You know why the code you reported is *wrong* (besides from how
-> > techincally do things) ? Mixing lower and upper case, using long variable
-> > and function names, etc... are simply a matter of personal taste and you
-> > cannot say that such code is "absolutely" wrong. The code is damn wrong
-> > because it violates about 25 sections of the project's defined CodingStyle
-> > document, that's why it is wrong.
->
-> Call it as you may.  Whether some style violates more sections of the
-> CodingStyle than exist in written form or it hurts the taste of 99% of
-> all developers ever having to tough it, my short form for that is "bad
-> style".
->
-> Point remains, there is a lot of "bad style" and inconsistency in the
-> kernel.  But fixing all of it and keeping it fixed would result in a
-> lot of work and maybe a couple of device drivers less.  For what gain?
-
-If you try to define a bad/horrible "whatever" in an *absolute* way you
-need either the *absolutely* unanimous consent or you need to prove it
-using a logical combination of already proven absolute concepts. Since you
-missing both of these requirements you cannot say that something is
-bad/wrong in an absolute way. You can say though that something is
-wrong/bad when dropped inside a given context, and a coding standard might
-work as an example. If you try to approach a developer by saying that he
-has to use ABC coding standard because it is better that his XYZ coding
-standard you're just wrong and you'll have hard time to have him to
-understand why he has to use the suggested standard when coding inside the
-project JKL. The coding standard gives you the *rule* to define something
-wrong when seen inside a given context, since your personal judgement does
-not really matter here.
-
-
-
-- Davide
+diff -urpN -X /home/fletch/.diff.exclude 400-reiserfs_dio/kernel/sched.c 420-sched_interactive/kernel/sched.c
+--- 400-reiserfs_dio/kernel/sched.c	Fri May 30 19:26:34 2003
++++ 420-sched_interactive/kernel/sched.c	Fri May 30 19:28:06 2003
+@@ -89,6 +89,8 @@ int node_threshold = 125;
+ #define STARVATION_LIMIT	(starvation_limit)
+ #define NODE_THRESHOLD		(node_threshold)
+ 
++#define TIMESLICE_GRANULARITY (HZ/20 ?: 1)
++
+ /*
+  * If a task is 'interactive' then we reinsert it in the active
+  * array after it has expired its current timeslice. (it will not
+@@ -1365,6 +1367,27 @@ void scheduler_tick(int user_ticks, int 
+ 			enqueue_task(p, rq->expired);
+ 		} else
+ 			enqueue_task(p, rq->active);
++	} else {
++		/*
++		 * Prevent a too long timeslice allowing a task to monopolize
++		 * the CPU. We do this by splitting up the timeslice into
++		 * smaller pieces.
++		 *
++		 * Note: this does not mean the task's timeslices expire or
++		 * get lost in any way, they just might be preempted by
++		 * another task of equal priority. (one with higher
++		 * priority would have preempted this task already.) We
++		 * requeue this task to the end of the list on this priority
++		 * level, which is in essence a round-robin of tasks with
++		 * equal priority.
++		 */
++		if (!(p->time_slice % TIMESLICE_GRANULARITY) &&
++			       		(p->array == rq->active)) {
++			dequeue_task(p, rq->active);
++			set_tsk_need_resched(p);
++			p->prio = effective_prio(p);
++			enqueue_task(p, rq->active);
++		}
+ 	}
+ out_unlock:
+ 	spin_unlock(&rq->lock);
 

@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268460AbTCCIwS>; Mon, 3 Mar 2003 03:52:18 -0500
+	id <S268449AbTCCIu0>; Mon, 3 Mar 2003 03:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268463AbTCCIwS>; Mon, 3 Mar 2003 03:52:18 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46283 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268460AbTCCIwR>; Mon, 3 Mar 2003 03:52:17 -0500
-Date: Mon, 3 Mar 2003 04:03:40 -0500 (EST)
-From: "Mike A. Harris" <mharris@redhat.com>
-X-X-Sender: mharris@devel.capslock.lan
-To: Alan Cox <alan@redhat.com>
-cc: Kimball Brown <kimball@serverworks.com>, <davej@codemonkey.org.uk>,
-       <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Tighten up serverworks workaround.
-In-Reply-To: <200302261803.h1QI3BT24020@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0303030357580.1032-100000@devel.capslock.lan>
-Organization: Red Hat Inc.
-X-Unexpected-Header: The Spanish Inquisition
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268452AbTCCIu0>; Mon, 3 Mar 2003 03:50:26 -0500
+Received: from srv1.mail.cv.net ([167.206.112.40]:47262 "EHLO srv1.mail.cv.net")
+	by vger.kernel.org with ESMTP id <S268449AbTCCIuZ>;
+	Mon, 3 Mar 2003 03:50:25 -0500
+Date: Mon, 03 Mar 2003 04:00:54 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+Subject: [PATCH] mkdep patch in 2.4.21-pre4-ac7 breaks pci/drivers
+In-reply-to: <200303020213.h222DM7O003304@eeyore.valparaiso.cl>
+X-X-Sender: proski@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>
+Message-id: <Pine.LNX.4.51.0303030347020.26129@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <200303020213.h222DM7O003304@eeyore.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, Alan Cox wrote:
+Hello!
 
->> How can e help?  Please give me a configuration and how the bug manifests
->> inself.
->
->OSB4 chipset system, some memory areas marked write combining with the
->processor memory type range registers. A long time ago Dell (I
->think) reported corruption from this and submitted changes to block the
->use of write combining on OSB4. The question has arisen as to whether
->thats a known thing, and if so which release of the chipset fixed it so that
->people can only apply such a restriction to problem cases not all OSB4.
+This patch works for me and doesn't require any changes in mkdep.  I
+believe it's the right thing to do.  The rule for names.o already exists
+in the Makefile.  The only problem with it is that it's misplaced - it
+should precede the generated dependencies.
 
-I've got 2 OSB4 machines here, one a Tyan HEsl 2567 board. MTRRs 
-have been disabled on this board for a couple years now with 
-every kernel release, which I'm told is due to the MTRR problem 
-described in this thread.
+GNU make just concatenates the lists of dependencies and tries to create
+the dependencies in the order is which they appear in the makefile.  If
+devlist.h without path is first, then make will create it because there is
+a rule for that.  Thn make will see that devlist.h with path is already
+up-to-date.
 
-00:00.1 PCI bridge: ServerWorks CNB20LE (rev 01)
+On the other hand, if devlist.h with path is first, then make won't know
+how to create it and will abort rather than go to the next target.
 
-Kimball, we chatted before about AGP on this board and a few
-other issues, but I don't know if we discussed the MTRR issue.  
-Could you confirm this problem?  If the problem is anything
-workaroundable, it would be nice to have MTRRs working on this
-box sometime as video is quite slow.  I'm willing to test any 
-potential workarounds if something creeps up.
+This patch has been tested and works for me.  How to test:
 
-TIA
+make oldconfig
+make clean
+make depend
+make bzImage
+make depend
+make clean
+make bzImage
 
+It works fine now.  Patch:
 
+==============================
+--- linux.orig/drivers/pci/Makefile
++++ linux/drivers/pci/Makefile
+@@ -35,10 +35,10 @@
+ obj-y += syscall.o
+ endif
+
+-include $(TOPDIR)/Rules.make
+-
+ names.o: names.c devlist.h classlist.h
+
++include $(TOPDIR)/Rules.make
++
+ devlist.h classlist.h: pci.ids gen-devlist
+ 	./gen-devlist <pci.ids
+
+==============================
+
+The patch fixes the problem in Alan's 2.4 series, but it can be safely
+applied to the Marcelo's 2.4 branch as well.
 
 -- 
-Mike A. Harris     ftp://people.redhat.com/mharris
-OS Systems Engineer - XFree86 maintainer - Red Hat
-
+Regards,
+Pavel Roskin

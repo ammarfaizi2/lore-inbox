@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTGKQtN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTGKQtN
+	id S264235AbTGKQwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTGKQwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:49:13 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:59624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264374AbTGKQtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:49:09 -0400
-Date: Fri, 11 Jul 2003 10:03:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.75 Support dentry revalidation under open(".")
-In-Reply-To: <16142.54383.804882.881178@charged.uio.no>
-Message-ID: <Pine.LNX.4.44.0307110955180.3452-100000@home.osdl.org>
+	Fri, 11 Jul 2003 12:52:02 -0400
+Received: from [195.29.214.252] ([195.29.214.252]:20233 "EHLO
+	srvczg-femail.vecernji.net") by vger.kernel.org with ESMTP
+	id S264235AbTGKQvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:51:21 -0400
+To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       torvalds@transmeta.com, Bas Mevissen <bas@basmevissen.nl>,
+       zdravko.spoljar@vecernji.net
+Date: Fri, 11 Jul 2003 19:07:53 +0200
+X-Priority: 3 (Normal)
+From: Admin_Administrator%FRONT_END@vecernji.net
+Subject: Re: REQ: BCM4400 network driver for 2.4.22 ScanMail has blocked your mail
+ due to a mail policy.
+Message-ID: <OF6B507489.C0F8FBA6-ONC1256D60.005E1B20@vecernji.net>
+X-MIMETrack: Serialize by Router on srvczg-femail1/FE/Vecernji list(Release 6.0|September
+ 26, 2002) at 11.07.2003 19:07:55
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 11 Jul 2003, Trond Myklebust wrote:
->
->   The following patch provides a way to do such revalidation for NFS
-> without impacting other filesystems.
 
-I'm not sure. It may not impact other filesystems, but it impacts the
-internal consistency of the dentry tree, and can cause some really nasty
-aliasing issues.
 
-If d_invalidate() returns a failure, that means that the dentry is still
-hashed (because it was busy), and returning NULL and leaving the dentry
-there sounds very wrong, since it can never be fixed with a new lookup.
 
-				Linus
+linux-kernel-owner+zdravko.spoljar=40vecernji.net@vger.kernel.org
+Reason the mail was blocked:
+
+
+Scanned by ScanMail for Lotus Notes 2.6
+with scanengine 6.510-1002
+and patternfile lpt$vpn.585
 

@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129766AbQK0UF1>; Mon, 27 Nov 2000 15:05:27 -0500
+        id <S129601AbQK0UXd>; Mon, 27 Nov 2000 15:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129932AbQK0UFR>; Mon, 27 Nov 2000 15:05:17 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:9600 "EHLO
-        chaos.analogic.com") by vger.kernel.org with ESMTP
-        id <S129766AbQK0UFC>; Mon, 27 Nov 2000 15:05:02 -0500
-Date: Mon, 27 Nov 2000 14:34:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Michael Meissner <meissner@spectacle-pond.org>,
-        "David S. Miller" <davem@redhat.com>, Werner.Almesberger@epfl.ch,
-        adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-In-Reply-To: <20001127200618.A19980@athlon.random>
-Message-ID: <Pine.LNX.3.95.1001127142845.2961A-100000@chaos.analogic.com>
+        id <S129631AbQK0UXX>; Mon, 27 Nov 2000 15:23:23 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:27397 "EHLO saturn.cs.uml.edu")
+        by vger.kernel.org with ESMTP id <S129601AbQK0UXH>;
+        Mon, 27 Nov 2000 15:23:07 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011271952.eARJqqw514056@saturn.cs.uml.edu>
+Subject: Re: KERNEL BUG: console not working in linux
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Mon, 27 Nov 2000 14:52:52 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8vubeq$r5r$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 27, 2000 11:08:10 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Andrea Arcangeli wrote:
+H. Peter Anvin writes:
+> [Albert Cahalan]
+>> [Alan Cox]
 
-> On Mon, Nov 27, 2000 at 12:36:55PM -0500, Michael Meissner wrote:
-> > wrong to depend on two variables winding up in at adjacent offsets.
+>>>> 1) Why did they disable my videocard ?
+>>>
+>>> Because your machine is not properly PC compatible
+>>
+>> The same can be said of systems that don't support the
+>> standard keyboard controller for A20 control.
+>
+> Yes, it can.  Unfortunately, some "legacy-free" PCs apparently
+> are starting to take the tack that the KBC is legacy.  Therefore,
+> the use of port 92h is mandatory on those systems.
+
+Not just embedded systems?
+
+> Port 92h dates back to at the very least the IBM PS/2.
 > 
-> I'd like if it will be written explicitly in the specs that it's forbidden to
-> rely on that. I grepped the specs and I didn't find anything. So I wasn't sure
-> if I missed the information in the specs or not. I never investigated on it
-> because I always considered it bad coding regardless the fact it's guaranteed
-> to generate the right asm with the _current_ tools.
-> 
-> Andrea
-> -
+> Either way, the video card of the original poster is broken in more
+> ways than that.  Ports 0x00-0xFF are reserved for the motherboard
+> chipset and have been since the original IBM PC.
 
-The following shell-script shows that gcc-2.8.1 produces code with
-data allocations adjacent. However, they are reversed!
-
-
-cat - <<EOF >x.c
-int a, b;
-EOF
-gcc -c -o x.o x.c
-cat - <<EOF >y.c
-extern int a;
-extern int b;
-int main() {
-printf("a=%p\n", &a);
-printf("b=%p\n", &b);
-return 0;
-}
-EOF
-gcc -o y y.c x.o
-./y
-
-a=0x804a42c
-b=0x804a428
-
-The output shows variable 'a' as being in the higher address.
-So, it's not good to assume anything about so-called adjacent
-variables.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+His video card is the motherboard. He has built-in video.
+So the port is being used by his motherboard chipset.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,113 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316786AbSFDVPU>; Tue, 4 Jun 2002 17:15:20 -0400
+	id <S316804AbSFDVRa>; Tue, 4 Jun 2002 17:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316796AbSFDVPT>; Tue, 4 Jun 2002 17:15:19 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63983 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316786AbSFDVPM>; Tue, 4 Jun 2002 17:15:12 -0400
-Subject: [PATCH] remove suser()
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 14:15:10 -0700
-Message-Id: <1023225311.3904.142.camel@sinai>
+	id <S316820AbSFDVR3>; Tue, 4 Jun 2002 17:17:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33409 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316804AbSFDVR2>;
+	Tue, 4 Jun 2002 17:17:28 -0400
+Date: Tue, 04 Jun 2002 14:14:12 -0700 (PDT)
+Message-Id: <20020604.141412.112289324.davem@redhat.com>
+To: mochel@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0206041403010.654-100000@geena.pdx.osdl.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+   From: Patrick Mochel <mochel@osdl.org>
+   Date: Tue, 4 Jun 2002 14:10:27 -0700 (PDT)
+   
+   > You people are blowing this shit WAY out of proportion.  Just fix the
+   > bug now and reinplement the initcall hierarchy in a seperate changeset
+   > so people can actually get work done in the 2.5.x tree while you do
+   > that ok?
+   
+   Fine. Use Ivan's; it's appended below, and will be in BK soon. 
+   
+   -subsys_initcall(sys_bus_init);
+   +core_initcall(sys_bus_init);
 
-Attached patch replaces the lone remaining suser() call with capable()
-and then removes suser() itself in a triumphant celebration of the glory
-of capable().  Or something. ;-)
-
-Small cleanup of capable() and some comments, too.
-
-Patch is against 2.5.20, please apply.
-
-	Robert Love
-
-diff -urN linux-2.5.20/drivers/net/wan/pc300_drv.c linux/drivers/net/wan/pc300_drv.c
---- linux-2.5.20/drivers/net/wan/pc300_drv.c	Sun Jun  2 18:44:53 2002
-+++ linux/drivers/net/wan/pc300_drv.c	Tue Jun  4 13:56:54 2002
-@@ -2564,7 +2564,7 @@
- 				return -EINVAL;
- 			return 0;
- 		case SIOCSPC300CONF:
--			if (!suser())
-+			if (!capable(CAP_NET_ADMIN))
- 				return -EPERM;
- 			if (!arg || 
- 				copy_from_user(&conf_aux.conf, arg, sizeof(pc300chconf_t)))
-diff -urN linux-2.5.20/include/linux/compatmac.h linux/include/linux/compatmac.h
---- linux-2.5.20/include/linux/compatmac.h	Sun Jun  2 18:44:41 2002
-+++ linux/include/linux/compatmac.h	Tue Jun  4 13:57:33 2002
-@@ -102,8 +102,6 @@
- 
- #define my_iounmap(x, b)             (((long)x<0x100000)?0:vfree ((void*)x))
- 
--#define capable(x)                   suser()
--
- #define tty_flip_buffer_push(tty)    queue_task(&tty->flip.tqueue, &tq_timer)
- #define signal_pending(current)      (current->signal & ~current->blocked)
- #define schedule_timeout(to)         do {current->timeout = jiffies + (to);schedule ();} while (0)
-diff -urN linux-2.5.20/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.5.20/include/linux/sched.h	Sun Jun  2 18:44:41 2002
-+++ linux/include/linux/sched.h	Tue Jun  4 14:03:35 2002
-@@ -588,24 +588,10 @@
-  * This has now become a routine instead of a macro, it sets a flag if
-  * it returns true (to do BSD-style accounting where the process is flagged
-  * if it uses root privs). The implication of this is that you should do
-- * normal permissions checks first, and check suser() last.
-+ * normal permissions checks first, and check fsuser() last.
-  *
-- * [Dec 1997 -- Chris Evans]
-- * For correctness, the above considerations need to be extended to
-- * fsuser(). This is done, along with moving fsuser() checks to be
-- * last.
-- *
-- * These will be removed, but in the mean time, when the SECURE_NOROOT 
-- * flag is set, uids don't grant privilege.
-+ * suser() is gone, fsuser() should go soon too...
-  */
--static inline int suser(void)
--{
--	if (!issecure(SECURE_NOROOT) && current->euid == 0) { 
--		current->flags |= PF_SUPERPRIV;
--		return 1;
--	}
--	return 0;
--}
- 
- static inline int fsuser(void)
- {
-@@ -617,19 +603,12 @@
- }
- 
- /*
-- * capable() checks for a particular capability.  
-- * New privilege checks should use this interface, rather than suser() or
-- * fsuser(). See include/linux/capability.h for defined capabilities.
-+ * capable() checks for a particular capability.
-+ * See include/linux/capability.h for defined capabilities.
-  */
--
- static inline int capable(int cap)
- {
--#if 1 /* ok now */
--	if (cap_raised(current->cap_effective, cap))
--#else
--	if (cap_is_fs_cap(cap) ? current->fsuid == 0 : current->euid == 0)
--#endif
--	{
-+	if (cap_raised(current->cap_effective, cap)) {
- 		current->flags |= PF_SUPERPRIV;
- 		return 1;
- 	}
-
-
-
+Does sys_bus_init require the generic bus layer to be initialized
+first?

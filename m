@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291426AbSBHFw1>; Fri, 8 Feb 2002 00:52:27 -0500
+	id <S291429AbSBHGGj>; Fri, 8 Feb 2002 01:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291429AbSBHFwS>; Fri, 8 Feb 2002 00:52:18 -0500
-Received: from angband.namesys.com ([212.16.7.85]:23685 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S291426AbSBHFv5>; Fri, 8 Feb 2002 00:51:57 -0500
-Date: Fri, 8 Feb 2002 08:51:56 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Alex Riesen <fork0@users.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files resiserfs
-Message-ID: <20020208085155.A7034@namesys.com>
-In-Reply-To: <20020207082348.A26413@riesen-pc.gr05.synopsys.com> <20020207104420.A6824@namesys.com> <20020207230235.A173@steel>
+	id <S291430AbSBHGGa>; Fri, 8 Feb 2002 01:06:30 -0500
+Received: from bitmover.com ([192.132.92.2]:24550 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291429AbSBHGGU>;
+	Fri, 8 Feb 2002 01:06:20 -0500
+Date: Thu, 7 Feb 2002 22:06:19 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Troy Benjegerdes <hozer@drgw.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020207220619.A18469@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Troy Benjegerdes <hozer@drgw.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com> <20020207092640.P27932@work.bitmover.com> <20020207232858.M17426@altus.drgw.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020207230235.A173@steel>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020207232858.M17426@altus.drgw.net>; from hozer@drgw.net on Thu, Feb 07, 2002 at 11:28:58PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Ideally, this should ask what changesets you want to send, and what 
+> public tree to look at to see *what* makes sense to send.
 
-On Thu, Feb 07, 2002 at 11:02:35PM +0100, Alex Riesen wrote:
+In BK 2.1.4 we added a 
 
-> The reiserfsck showed up some nasty looking errors:
->  shrink_id_map: objectid map shrinked: used 4096, 5 blocks
->  grow_id_map: objectid map expanded: used 5120, 5 blocks
->  grow_id_map: objectid map expanded: used 10240, 10 blocks
->  bad_leaf: block 211482 has wrong order of items
->  ...more of that...
->  free block count 1326452 mismatches with a correct one 1326458.
->  on-disk bitmap does not match to the correct one. 1 bytes differ
+	bk send -u<url> email
 
-Have you mkreiserfs'ed your partition before testing the patch I've sent you?
-Or have you at least made a reiserfsck before a test run to ensure,
-these corruptions are not from the previous kernels (particularly
-bad_leaf: block 211482 has wrong order of items record worries me)
-
-> "reiserfsck --rebuild-tree" cured them without visible damages for now.
-> There were some messages about deleted blocks, expanded objectid map,
-> shrinked map and one "dir 1 2 has wrong sd_size 120, has to be 152".
-> I can send you logs, if needed.
-Sure, please do.
-
-> Does the 2.5.4-pre2 contains this patch ?
-Yes.
-
-Thank you.
-
-Bye,
-    Oleg
+which does the sync with the URL and sends only what you have that the
+URL doesn't have.  But you have to be running 2.1.4 on both ends.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

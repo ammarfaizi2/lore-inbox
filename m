@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbUK0AuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbUK0Axm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbUK0AuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbUKZX4D
+	id S262421AbUK0Axm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbUK0Aum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:56:03 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:9413 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263111AbUKZTox (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:44:53 -0500
-To: linux-kernel@vger.kernel.org
-Cc: d507a@cs.aau.dk
-Subject: Re: Isolating two network processes on same machine
-References: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
-	<Pine.LNX.4.61.0411241113090.19813@chaos.analogic.com>
-From: Ole Laursen <olau@cs.aau.dk>
-Date: 25 Nov 2004 11:44:45 +0100
-In-Reply-To: <Pine.LNX.4.61.0411241113090.19813@chaos.analogic.com>
-Message-ID: <tv8k6saw6le.fsf@homer.cs.aau.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 26 Nov 2004 19:50:42 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:20887 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S262402AbUKZX4I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 18:56:08 -0500
+Date: Sat, 27 Nov 2004 00:56:00 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, hch@infradead.org, matthew@wil.cx, dwmw2@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <19865.1101395592@redhat.com>
+Message-ID: <Pine.LNX.4.60.0411270049520.29718@alpha.polcom.net>
+References: <19865.1101395592@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> writes:
+On Thu, 25 Nov 2004, David Howells wrote:
 
-> I was going to say, set the netmask small enough so that both
-> machines are on different networks and set default routes to
-> your gateway....
+>     (b) Make kernel file #include the user file.
 
-Yeah, but that part of it is actually working as long as our processes
-are running on different machines. The problem is that on the same
-machine e.g. with this configuration
+Does kernel really need to include user headers? When it is definition of 
+some const then it should be defined in one file (to be sure it has only 
+one definition). But user headers may have some compatibility hacks that 
+kernel do not need (and even maybe does not want) to have.
 
-> >  ifconfig eth0:0 10.0.0.2 netmask 255.255.255.0 broadcast 10.0.0.255
-> >  ifconfig eth0:1 10.0.1.2 netmask 255.255.255.0 broadcast 10.0.1.255
-
-then the kernel somehow shortcircuits the routing table and doesn't
-forward the packets to the default gateway, even though the two
-addresses are on different subnets. It probably somehow knows that it
-possesses both IPs itself, and then skip any further routing.
-
-So basically, our problem is that the kernel is being too clever. If
-we could just dumb it down or trick it somehow...
+How you will handle that?
 
 
-Thanks for your input,
+Thanks,
 
--- 
-Ole Laursen
-http://www.cs.aau.dk/~olau/
+Grzegorz Kulewski
+

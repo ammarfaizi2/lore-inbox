@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316059AbSE3BbA>; Wed, 29 May 2002 21:31:00 -0400
+	id <S316080AbSE3BdW>; Wed, 29 May 2002 21:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316067AbSE3Ba7>; Wed, 29 May 2002 21:30:59 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:22882 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316059AbSE3Ba6>; Wed, 29 May 2002 21:30:58 -0400
-Cc: a_new_hope@gmx.de
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 30 May 2002 03:33:16 +0200
-From: Andreas Roedl <flood@flood-net.de>
-In-Reply-To: <9711.1022720483@www54.gmx.net>
-Message-Id: <200205300333.16821.flood@flood-net.de>
-MIME-Version: 1.0
-Organization: Flood-Net
-Subject: Re: Off-Topic: We need your Help! Please help Cargolifter!
-To: linux-kernel@vger.kernel.org
-X-AntiVirus: OK! AvMailGate Version 6.13.0.6
-	 at exciter has not found any known virus in this email.
-X-Mailer: KMail [version 1.4]
+	id <S316089AbSE3BdU>; Wed, 29 May 2002 21:33:20 -0400
+Received: from holomorphy.com ([66.224.33.161]:35732 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316080AbSE3BdE>;
+	Wed, 29 May 2002 21:33:04 -0400
+Date: Wed, 29 May 2002 18:32:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre9aa1
+Message-ID: <20020530013200.GB14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020530010125.GA1383@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, May 30, 2002 at 03:01:25AM +0200, Andrea Arcangeli wrote:
+> NOTE: this release is highly experimental, while it worked solid so far
+> it's not well tested yet, so please don't use in production
+> environments! (yet :)
+> The o1 scheduler integration will take a few weeks to settle and to
+> compile on all archs. I would suggest the big-iron folks to give this
+> kernel a spin, in particular for o1, shm-rmid fix, p4/pmd fix,
+> inode-leak fix. The only rejected feature is been the node-affine
+> allocations of per-cpu data structures in the numa-sched (matters only
+> for numa, but o1 is more sensible optimization for numa anyways).
+> Currently only x86 and alpha compiles and runs as expected. x86-64,
+> ia64, ppc, s390*, sparc64 doesn't compile yet. uml worst of all compiles
+> but it doesn't run correctly :), however it runs pretty well too, simply
+> it hangs sometime and you've to press a key in the terminal and then it
+> resumes as if nothing has happened.
 
-Am Donnerstag, 30. Mai 2002 03:01 schrieb a_new_hope@gmx.de:
-> Hello,
+I noticed what looked like missed wakeups in tty code in early 2.4.x
+ports of the O(1) scheduler, though I saw a somewhat different failure
+mode, that is, the terminal echo would remain one character behind
+forever (and if it happened again, more than one). I never got a real
+answer to this, unfortunately, as it appeared to go away after a certain
+revision of the scheduler. The failure mode you describe is slightly
+different, but perhaps related.
 
-> We, a group of Cargolifter enthusiast
-> want to collect money to help that
-> company to survive so that it can continue
-> to build those large airships that will
-> help many people all over the world
-> in times of disasters (like earthquakes, famines etc.)
-> or in transportating goods, needed for building
-> infrastructures all over the world.
-
-This is definitively the wrong place for a mail like this. Do you really think 
-that somebody would spend money for people like you (investment banker...)? 
-It's over - you should realise that!
+And thanks for looking into shm, I understand that area is a bit
+painful to work around, but fixes are certainly needed there.
 
 
-Andi
-
--- 
-Web:   http://www.flood-net.de/
-Mail:  flood@flood-net.de
-Phone: +49-(0)-30-680577-44
-
-Windows sucks, Linux rules :-)              http://srom.zgp.org/
-Watch more TV! http://www.cadsoft.de/people/kls/vdr/software.htm
-Who needs DivX?                          telnet blinkenlights.nl
-
+Cheers,
+Bill

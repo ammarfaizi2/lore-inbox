@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288923AbSBIMnc>; Sat, 9 Feb 2002 07:43:32 -0500
+	id <S288936AbSBINW5>; Sat, 9 Feb 2002 08:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288925AbSBIMnW>; Sat, 9 Feb 2002 07:43:22 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:55058 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S288923AbSBIMnQ>; Sat, 9 Feb 2002 07:43:16 -0500
-Date: Sat, 9 Feb 2002 13:43:07 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.18pre6+ll: autofs+smbfs: processes in D state
-In-Reply-To: <200202091219.g19CJEt23147@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33.0202091322520.5384-100000@cola.teststation.com>
+	id <S288946AbSBINWp>; Sat, 9 Feb 2002 08:22:45 -0500
+Received: from [62.47.19.142] ([62.47.19.142]:9349 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S288936AbSBINWf>;
+	Sat, 9 Feb 2002 08:22:35 -0500
+Message-ID: <3C651CC1.DAFDB2B6@webit.com>
+Date: Sat, 09 Feb 2002 13:57:37 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with both CONFIG_FB_SIS_300 and CONFIG_FB_SIS_315
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Feb 2002, Denis Vlasenko wrote:
 
-> Note that NT box was rebooted, not shut down. I brought it back on and even 
-> restarted download of unlucky mp3 (via NT downloader). Since NT box was 
-> available on the network I thought smbfs will reestablish SMB connection, as 
-> NFS do in similar scenario (server reboot).
+Hi,
 
-It does, but that reconnect is limited by the same server lock as the
-others. Also, SMB has state so you do loose certain things on a server
-reboot (eg open files).
+you're right. Both options don't (yet) work together.
 
-> Hmmm, maybe... I tried to kill -KILL automounter, forgot to do that to 
-> smbmount.
+I have a new version of sisfb around the corner (partly new code from
+SiS themselves). The code is currently in a testing phase and will be
+committed as soon as it is stable.
 
-That does not help. Killing smbmount does not affect smbfs until the
-connection is lost, and it doesn't improve anything. Just a normal umount.
+The goal is to have the same code basis for the sisfb as well as the X
+driver. This is under development - and it will solve the issue you
+described as well.
 
-/Urban
+For the status of the current development, see
+http://www.webit.com/tw/linuxsis630.shtml
 
+Thomas
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com                  *** http://www.webit.com/tw

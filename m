@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRJYNGx>; Thu, 25 Oct 2001 09:06:53 -0400
+	id <S273648AbRJYNGX>; Thu, 25 Oct 2001 09:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273333AbRJYNGo>; Thu, 25 Oct 2001 09:06:44 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:18699 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S273305AbRJYNGk>;
-	Thu, 25 Oct 2001 09:06:40 -0400
-Date: Thu, 25 Oct 2001 15:06:51 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Marton Kadar <marton.kadar@freemail.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: concurrent VM subsystems
-In-Reply-To: <freemail.20010925100655.37794@fm3.freemail.hu>
-Message-ID: <Pine.LNX.4.33.0110251458020.6694-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273565AbRJYNGQ>; Thu, 25 Oct 2001 09:06:16 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:15629 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S273305AbRJYNGH>;
+	Thu, 25 Oct 2001 09:06:07 -0400
+Date: Thu, 25 Oct 2001 14:09:55 +0100
+From: Dale Amon <amon@vnl.com>
+To: Gert-Jan Rodenburg <hertog@home.nl>,
+        Jonathan Morton <chromi@cyberspace.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defaulting new questions in scripts/Configure?
+Message-ID: <20011025140955.A4942@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Gert-Jan Rodenburg <hertog@home.nl>,
+	Jonathan Morton <chromi@cyberspace.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011025032741.K24348@vnl.com> <20011025105921.GNXL27467.mail2.home.nl@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011025105921.GNXL27467.mail2.home.nl@there>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This proposal came out two or three times.
-Alan said "too ugly for words".
+On Thu, Oct 25, 2001 at 12:59:22PM +0200, Gert-Jan Rodenburg wrote:
+> On Thursday 25 October 2001 04:27, Dale Amon wrote:
+> > I've just skimmed through the code in Configure to
+> > see if there is a way to make it shut up and just
+> > default everything new to NO so I can use it inside
+> > a noninteractive script.
+> >
+> > Did I miss it or is it something that isn't there
+> > to be found?
+> >
+> > I think I'd not be the only one to find it useful
+> > to make it be seen and not heard during a
+> > make oldconfig :-)
+> 
+> 
+> no "" | make oldconfig
+> 
+> Not sure if it works, but in the Linux From Scratch manual they do the 
+> oposite ->  yes "" | make config
+> 
 
-But the point is that when you are managing a complex project like the
-Linux Kernel, you have to make choices, the VM is one of the think
-that the tree manteiner has to make a choice about.
+Jonathan Morton suggested the yes is the answer
+as well. I tested both out and diffed against one
+done manually. no seems to just die, yes does just
+the right thing.
 
-Two VM for the same kernel is nonsense, also as a configuration option.
+Thanks much to all who replied.
 
-In fact, here is the difference beetwen a coordinate and managed project,
-and the "lets' put all inside" approach.
-
-
-That said.
-Those two VM are good, but for different use, and different HW.
-It is a choice also which main use the kernel should address as a target.
-
-I already exposed my opinion, and both Andrea and Rik know it very well.
-The VM for servers needs to be predictable, for desktops needs to be as
-fast as possible, also if it is a little less predictable and stable (who
-cares if you reboot you desktop once every two days?).
-
-Linus and Alan do chice for their tree what they want to get as a target,
-and which VM approach they want to develop.
-
-To have competition this way is also good, because there can also be
-cooperation and compenetration.
-
-Two VM as optional choice for one kernel is a bad approach, and is not
-metodologically correct. (as a paradox, so let's have two VFS, two network
-layers...)
-
-Luigi
-
-
-
-On Thu, 25 Oct 2001, Marton Kadar wrote:
-
-> Just an idea from an absolute layman who keeps
-> an eye on Kernel Traffic:
->
-> Isn't it possible to include both VM approaches in the
-> kernel sources? It would be nice to be able to choose
-> at compile time through a configuration option.
-> Perhaps Andrea Arcangeli's version could be marked
-> experimental.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+------------------------------------------------------
+Use Linux: A computer        Dale Amon, CEO/MD
+is a terrible thing          Village Networking Ltd
+to waste.                    Belfast, Northern Ireland
+------------------------------------------------------

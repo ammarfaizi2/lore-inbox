@@ -1,1028 +1,1064 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265727AbTIFBea (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 21:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265803AbTIFBea
+	id S265276AbTIFBsg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 21:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265266AbTIFBsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 21:34:30 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:6132 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S265727AbTIFBdU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 21:33:20 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] 2.4.23-pre3 ACPI fixes series (1/3)
-Date: Fri, 5 Sep 2003 21:33:14 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FD1F@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.4.23-pre3 ACPI fixes series (1/3)
-Thread-Index: AcN0DU1a+aaJavSrQVe+NWhBqIR9IwACT87Q
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew de Quincey" <adq_dvb@lidskialf.net>,
-       "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <torvalds@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>, "linux-acpi" <linux-acpi@intel.com>
-X-OriginalArrivalTime: 06 Sep 2003 01:33:15.0482 (UTC) FILETIME=[D7C80BA0:01C37416]
+	Fri, 5 Sep 2003 21:48:36 -0400
+Received: from DSL022.LABridge.com ([206.117.136.22]:12560 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S265717AbTIFBrL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 21:47:11 -0400
+Subject: [PATCH] 2.6.0-test4 SEQ_START_TOKEN net/* (2/6)
+From: Joe Perches <joe@perches.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Content-Type: text/plain
+Message-Id: <1062812834.16845.165.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 05 Sep 2003 18:47:14 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-I thought it would be a good idea to let this one cook for a bit while
-proceeding with a batch of fixes that we've already tested somewhat.
+diff -urN linux-2.6.0-test4/net/8021q/vlanproc.c SEQ_START_TOKEN/net/8021q/vlanproc.c
+-- linux-2.6.0-test4/net/8021q/vlanproc.c	2003-08-22 16:53:55.000000000 -0700
++++ SEQ_START_TOKEN/net/8021q/vlanproc.c	2003-09-04 20:26:49.000000000 -0700
+@@ -46,10 +46,6 @@
+ static void vlan_seq_stop(struct seq_file *seq, void *);
+ static int vlandev_seq_show(struct seq_file *seq, void *v);
+ 
+-/* Miscellaneous */
+-#define SEQ_START_TOKEN		((void *) 1)
+-
+-
+ /*
+  *	Global Data
+  */
+diff -urN linux-2.6.0-test4/net/appletalk/aarp.c SEQ_START_TOKEN/net/appletalk/aarp.c
+-- linux-2.6.0-test4/net/appletalk/aarp.c	2003-09-02 12:52:45.000000000 -0700
++++ SEQ_START_TOKEN/net/appletalk/aarp.c	2003-09-04 20:27:42.000000000 -0700
+@@ -941,7 +941,7 @@
+ 	iter->table     = resolved;
+ 	iter->bucket    = 0;
+ 
+-	return *pos ? iter_next(iter, pos) : ((void *)1);
++	return *pos ? iter_next(iter, pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *aarp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -952,7 +952,7 @@
+ 	++*pos;
+ 
+ 	/* first line after header */
+-	if (v == ((void *)1)) 
++	if (v == SEQ_START_TOKEN) 
+ 		entry = iter_next(iter, NULL);
+ 		
+ 	/* next entry in current bucket */
+@@ -987,7 +987,7 @@
+ 	struct aarp_entry *entry = v;
+ 	unsigned long now = jiffies;
+ 
+-	if (v == ((void *)1))
++	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, 
+ 			 "Address  Interface   Hardware Address"
+ 			 "   Expires LastSend  Retry Status\n");
+diff -urN linux-2.6.0-test4/net/appletalk/atalk_proc.c SEQ_START_TOKEN/net/appletalk/atalk_proc.c
+-- linux-2.6.0-test4/net/appletalk/atalk_proc.c	2003-09-02 12:52:45.000000000 -0700
++++ SEQ_START_TOKEN/net/appletalk/atalk_proc.c	2003-09-04 20:27:44.000000000 -0700
+@@ -33,7 +33,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&atalk_interfaces_lock);
+-	return l ? atalk_get_interface_idx(--l) : (void *)1;
++	return l ? atalk_get_interface_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *atalk_seq_interface_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -41,7 +41,7 @@
+ 	struct atalk_iface *i;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		i = NULL;
+ 		if (atalk_interfaces)
+ 			i = atalk_interfaces;
+@@ -62,7 +62,7 @@
+ {
+ 	struct atalk_iface *iface;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Interface        Address   Networks  "
+ 			      "Status\n");
+ 		goto out;
+@@ -92,7 +92,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&atalk_routes_lock);
+-	return l ? atalk_get_route_idx(--l) : (void *)1;
++	return l ? atalk_get_route_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *atalk_seq_route_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -100,7 +100,7 @@
+ 	struct atalk_route *r;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		r = NULL;
+ 		if (atalk_routes)
+ 			r = atalk_routes;
+@@ -121,7 +121,7 @@
+ {
+ 	struct atalk_route *rt;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Target        Router  Flags Dev\n");
+ 		goto out;
+ 	}
+@@ -160,7 +160,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&atalk_sockets_lock);
+-	return l ? atalk_get_socket_idx(--l) : (void *)1;
++	return l ? atalk_get_socket_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *atalk_seq_socket_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -168,7 +168,7 @@
+ 	struct sock *i;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		i = sk_head(&atalk_sockets);
+ 		goto out;
+ 	}
+@@ -187,7 +187,7 @@
+ 	struct sock *s;
+ 	struct atalk_sock *at;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, "Type Local_addr  Remote_addr Tx_queue "
+ 				"Rx_queue St UID\n");
+ 		goto out;
+diff -urN linux-2.6.0-test4/net/core/dev.c SEQ_START_TOKEN/net/core/dev.c
+-- linux-2.6.0-test4/net/core/dev.c	2003-09-02 12:52:45.000000000 -0700
++++ SEQ_START_TOKEN/net/core/dev.c	2003-09-04 20:06:43.000000000 -0700
+@@ -1844,13 +1844,13 @@
+ void *dev_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&dev_base_lock);
+-	return *pos ? dev_get_idx(*pos - 1) : (void *)1;
++	return *pos ? dev_get_idx(*pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ void *dev_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	++*pos;
+-	return v == (void *)1 ? dev_base : ((struct net_device *)v)->next;
++	return v == SEQ_START_TOKEN ? dev_base : ((struct net_device *)v)->next;
+ }
+ 
+ void dev_seq_stop(struct seq_file *seq, void *v)
+@@ -1890,7 +1890,7 @@
+  */
+ static int dev_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, "Inter-|   Receive                            "
+ 			      "                    |  Transmit\n"
+ 			      " face |bytes    packets errs drop fifo frame "
+diff -urN linux-2.6.0-test4/net/core/wireless.c SEQ_START_TOKEN/net/core/wireless.c
+-- linux-2.6.0-test4/net/core/wireless.c	2003-08-22 16:58:39.000000000 -0700
++++ SEQ_START_TOKEN/net/core/wireless.c	2003-09-04 19:55:08.000000000 -0700
+@@ -458,7 +458,7 @@
+  */
+ static int wireless_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "Inter-| sta-|   Quality        |   Discarded "
+ 				"packets               | Missed | WE\n"
+ 				" face | tus | link level noise |  nwid  "
+diff -urN linux-2.6.0-test4/net/decnet/af_decnet.c SEQ_START_TOKEN/net/decnet/af_decnet.c
+-- linux-2.6.0-test4/net/decnet/af_decnet.c	2003-08-22 16:56:22.000000000 -0700
++++ SEQ_START_TOKEN/net/decnet/af_decnet.c	2003-09-04 20:27:37.000000000 -0700
+@@ -2146,14 +2146,14 @@
+ 
+ static void *dn_socket_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	return *pos ? dn_socket_get_idx(seq, *pos - 1) : (void*)1;
++	return *pos ? dn_socket_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *dn_socket_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	void *rc;
+ 
+-	if (v == (void*)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		rc = dn_socket_get_idx(seq, 0);
+ 		goto out;
+ 	}
+@@ -2169,7 +2169,7 @@
+ 
+ static void dn_socket_seq_stop(struct seq_file *seq, void *v)
+ {
+-	if (v && v != (void*)1)
++	if (v && v != SEQ_START_TOKEN)
+ 		read_unlock_bh(&dn_hash_lock);
+ }
+ 
+@@ -2269,7 +2269,7 @@
+ 
+ static int dn_socket_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void*)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Local                                              Remote\n");
+ 	} else {
+ 		dn_socket_format_entry(seq, v);
+diff -urN linux-2.6.0-test4/net/decnet/dn_dev.c SEQ_START_TOKEN/net/decnet/dn_dev.c
+-- linux-2.6.0-test4/net/decnet/dn_dev.c	2003-08-22 16:54:17.000000000 -0700
++++ SEQ_START_TOKEN/net/decnet/dn_dev.c	2003-09-04 20:27:39.000000000 -0700
+@@ -1366,7 +1366,7 @@
+ 			read_unlock(&dev_base_lock);
+ 		return dev;
+ 	}
+-	return (void*)1;
++	return SEQ_START_TOKEN;
+ }
+ 
+ static void *dn_dev_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -1374,7 +1374,7 @@
+ 	struct net_device *dev = v;
+ 	loff_t one = 1;
+ 
+-	if (v == (void*)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		dev = dn_dev_seq_start(seq, &one);
+ 	} else {
+ 		dev = dn_dev_get_next(seq, dev);
+@@ -1387,7 +1387,7 @@
+ 
+ static void dn_dev_seq_stop(struct seq_file *seq, void *v)
+ {
+-	if (v && v != (void*)1)
++	if (v && v != SEQ_START_TOKEN)
+ 		read_unlock(&dev_base_lock);
+ }
+ 
+@@ -1407,7 +1407,7 @@
+ 
+ static int dn_dev_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void*)1)
++	if (v == SEQ_START_TOKEN)
+         	seq_puts(seq, "Name     Flags T1   Timer1 T3   Timer3 BlkSize Pri State DevType    Router Peer\n");
+ 	else {
+ 		struct net_device *dev = v;
+diff -urN linux-2.6.0-test4/net/decnet/dn_neigh.c SEQ_START_TOKEN/net/decnet/dn_neigh.c
+-- linux-2.6.0-test4/net/decnet/dn_neigh.c	2003-08-22 16:57:50.000000000 -0700
++++ SEQ_START_TOKEN/net/decnet/dn_neigh.c	2003-09-04 20:27:34.000000000 -0700
+@@ -604,7 +604,7 @@
+ 
+ static void *dn_neigh_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	return *pos ? dn_neigh_get_idx(seq, *pos - 1) : (void*)1;
++	return *pos ? dn_neigh_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *dn_neigh_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -612,7 +612,7 @@
+ 	void *rc;
+ 
 
-> -----Original Message-----
-> From: Andrew de Quincey [mailto:adq_dvb@lidskialf.net] 
-> Sent: Friday, September 05, 2003 8:15 PM
-> To: Jeff Garzik
-> Cc: torvalds@osdl.org; lkml; 
-> acpi-devel@lists.sourceforge.net; linux-acpi
-> Subject: [PATCH] 2.4.23-pre3 ACPI fixes series (1/3)
-> 
-> 
-> This patch allows ACPI to drop back to PIC mode if ACPI mode 
-> setup fails.
-> 
-> 
-> --- linux-2.4.23-pre3.orig/arch/i386/kernel/mpparse.c	
-> 2003-09-05 18:55:07.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/i386/kernel/mpparse.c	
-> 2003-09-05 23:33:53.460290272 +0100
-> @@ -1263,10 +1263,11 @@
->  
->  #ifdef CONFIG_ACPI_PCI
->  
-> -void __init mp_parse_prt (void)
-> +int __init mp_parse_prt (void)
->  {
->  	struct list_head	*node = NULL;
->  	struct acpi_prt_entry	*entry = NULL;
-> + 	struct acpi_prt_list	*prt_list = NULL;
->  	int			ioapic = -1;
->  	int			ioapic_pin = 0;
->  	int			irq = 0;
-> @@ -1274,16 +1275,31 @@
->  	int			edge_level = 0;
->  	int			active_high_low = 0;
->  
-> + 	/* Get the current PRT */
-> + 	prt_list = acpi_pci_get_prt_list();
-> +   
-> + 	if (!prt_list->count) {
-> + 		acpi_pci_destroy_prt_list(prt_list);
-> + 		printk(KERN_WARNING "ACPI tables contain no 
-> IO-APIC PCI IRQ "
-> + 			"routing entries\n");
-> + 		return_VALUE(-ENODEV);
-> + 	}
-> +   
->  	/*
->  	 * Parsing through the PCI Interrupt Routing Table 
-> (PRT) and program
->  	 * routing for all entries.
->  	 */
-> -	list_for_each(node, &acpi_prt.entries) {
-> +	list_for_each(node, &prt_list->entries) {
->  		entry = list_entry(node, struct acpi_prt_entry, node);
->  
->  		/* Need to get irq for dynamic entry */
->  		if (entry->link.handle) {
->  			irq = 
-> acpi_pci_link_get_irq(entry->link.handle, entry->link.index, 
-> &edge_level, &active_high_low);
-> +			if (irq < 0) {
-> +				acpi_pci_destroy_prt_list(prt_list);
-> +				return -ENODEV;
-> +			}
-> +		   
->  			if (!irq)
->  				continue;
->  		}
-> @@ -1334,8 +1350,11 @@
->  			mp_ioapic_routing[ioapic].apic_id, ioapic_pin, 
->  			entry->irq);
->  	}
-> -	
-> -	return;
-> +   
-> + 	/* if we get here, the PRT was fine. commit it */
-> + 	acpi_pci_commit_prt_list(prt_list);
-> +
-> +	return 0;
->  }
->  
->  #endif /*CONFIG_ACPI_PCI*/
-> --- linux-2.4.23-pre3.orig/arch/i386/kernel/pic.c	
-> 1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/i386/kernel/pic.c	
-> 2003-09-05 23:33:53.461290120 +0100
-> @@ -0,0 +1,102 @@
-> +/* 
-> --------------------------------------------------------------
-> --------- *
-> + *   
-> + *   Copyright 2003 Andrew de Quincey - All Rights Reserved
-> + *
-> + *   This program is free software; you can redistribute it 
-> and/or modify
-> + *   it under the terms of the GNU General Public License as 
-> published by
-> + *   the Free Software Foundation, Inc., 675 Mass Ave, 
-> Cambridge MA 02139,
-> + *   USA; either version 2 of the License, or (at your 
-> option) any later
-> + *   version; incorporated herein by reference.
-> + *
-> + * 
-> --------------------------------------------------------------
-> --------- */
-> +
-> +#include <linux/mm.h>
-> +#include <linux/irq.h>
-> +#include <linux/init.h>
-> +#include <linux/acpi.h>
-> +#include <linux/delay.h>
-> +#include <linux/config.h>
-> +#include <linux/bootmem.h>
-> +#include <linux/smp_lock.h>
-> +#include <linux/kernel_stat.h>
-> +
-> +#include <asm/acpi.h>
-> +
-> +#ifdef CONFIG_ACPI_PCI
-> +
-> +extern void eisa_set_level_irq(unsigned int irq);
-> +
-> +int __init pic_parse_prt (void)
-> +{
-> +	struct list_head	*node = NULL;
-> +	struct acpi_prt_entry	*entry = NULL;
-> +	struct acpi_prt_list	*prt_list = NULL;
-> +	int			edge_level = 0;
-> +	int			active_high_low = 0;
-> +	int			irq = 0;
-> +	int			programmed[16];
-> +
-> +	/* Get the current PRT */
-> +	prt_list = acpi_pci_get_prt_list();
-> +   
-> +	if (!prt_list->count) {
-> +		acpi_pci_destroy_prt_list(prt_list);
-> +		printk(KERN_WARNING "ACPI tables contain no PIC 
-> PCI IRQ "
-> +			"routing entries\n");
-> +		return_VALUE(-ENODEV);
-> +	}
-> +
-> +	/* mark all IRQs as unprogrammed */
-> +	memset(programmed, 0, sizeof(programmed));
-> +   
-> +	/*
-> +	 * Parsing through the PCI Interrupt Routing Table 
-> (PRT) and program
-> +	 * IRQs if necessary.
-> +	 */
-> +	list_for_each(node, &prt_list->entries) {
-> +		entry = list_entry(node, struct acpi_prt_entry, node);
-> +
-> +		/* Need to get irq for dynamic entry */
-> +		if (entry->link.handle) {
-> +			irq = 
-> acpi_pci_link_get_irq(entry->link.handle, entry->link.index, 
-> &edge_level, &active_high_low);
-> +			if (irq < 0) {
-> +				acpi_pci_destroy_prt_list(prt_list);
-> +				return -ENODEV;
-> +			}
-> + 			if (!irq) 
-> +				continue;
-> +		}
-> +	   
-> +		/* sanity check + update entry */
-> +		if ((irq < 0) || (irq > 15)) {
-> +			printk(KERN_ERR "Invalid IRQ (%i) 
-> passed to PIC programming code\n", irq);
-> +			entry->irq = 0;
-> +			continue;
-> +		}
-> +		entry->irq = irq;
-> +
-> +		/* check if it has already been dealt with */
-> +		if (programmed[irq]) {
-> +			printk(KERN_DEBUG "PIC: IRQ (%i) 
-> already programmed\n", irq);
-> +			continue;
-> +		}
-> +		programmed[irq] = 1;
-> +
-> +		/* program it */
-> +		if (edge_level) {
-> +			eisa_set_level_irq(irq);
-> +		}
-> +	   
-> +		printk(KERN_DEBUG "%02x:%02x:%02x[%c] -> IRQ %d 
-> Mode %d Trigger %d\n",
-> +			entry->id.segment, entry->id.bus, 
-> +			entry->id.device, ('A' + entry->pin), 
-> +			entry->irq, edge_level, active_high_low);
-> +	}
-> +	
-> +	/* if we get here, the PRT was fine. commit it */
-> +	acpi_pci_commit_prt_list(prt_list);
-> +   
-> +	return 0;
-> +}
-> +
-> +#endif /*CONFIG_ACPI_PCI*/
-> --- linux-2.4.23-pre3.orig/arch/i386/kernel/Makefile	
-> 2003-08-25 12:44:39.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/i386/kernel/Makefile	
-> 2003-09-05 23:33:53.461290120 +0100
-> @@ -36,7 +36,7 @@
->  obj-$(CONFIG_X86_CPUID)		+= cpuid.o
->  obj-$(CONFIG_MICROCODE)		+= microcode.o
->  obj-$(CONFIG_APM)		+= apm.o
-> -obj-$(CONFIG_ACPI_BOOT)		+= acpi.o
-> +obj-$(CONFIG_ACPI_BOOT)		+= acpi.o pic.o
->  obj-$(CONFIG_ACPI_SLEEP)	+= acpi_wakeup.o
->  obj-$(CONFIG_ACPI_HT_ONLY)	+= acpitable.o
->  obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
-> --- linux-2.4.23-pre3.orig/include/asm-i386/mpspec.h	
-> 2003-08-25 12:44:43.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/asm-i386/mpspec.h	
-> 2003-09-05 23:33:53.461290120 +0100
-> @@ -228,7 +228,7 @@
->  extern void mp_override_legacy_irq (u8 bus_irq, u8 polarity, 
-> u8 trigger, u32 global_irq);
->  extern void mp_config_acpi_legacy_irqs (void);
->  extern void mp_config_ioapic_for_sci(int irq);
-> -extern void mp_parse_prt (void);
-> +extern int mp_parse_prt (void);
->  #else /*!CONFIG_X86_IO_APIC*/
->  static inline void mp_config_ioapic_for_sci(int irq) { }
->  #endif /*!CONFIG_X86_IO_APIC*/
-> --- linux-2.4.23-pre3.orig/include/asm-i386/acpi.h	
-> 2003-08-25 12:44:43.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/asm-i386/acpi.h	
-> 2003-09-05 23:33:53.462289968 +0100
-> @@ -180,6 +180,9 @@
->  /* early initialization routine */
->  extern void acpi_reserve_bootmem(void);
->  
-> +/* ACPI-based PIC initialisation */
-> +extern int pic_parse_prt (void);
-> +
->  #endif /*CONFIG_ACPI_SLEEP*/
->  
->  
-> --- linux-2.4.23-pre3.orig/arch/x86_64/kernel/mpparse.c	
-> 2003-09-05 18:55:07.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/x86_64/kernel/mpparse.c	
-> 2003-09-05 23:33:53.463289816 +0100
-> @@ -934,6 +934,7 @@
->  {
->  	struct list_head	*node = NULL;
->  	struct acpi_prt_entry	*entry = NULL;
-> +	struct acpi_prt_list    *prt_list = NULL;   
->  	int			vector = 0;
->  	int			ioapic = -1;
->  	int			ioapic_pin = 0;
-> @@ -942,16 +943,29 @@
->  	int			edge_level = 0;
->  	int			active_high_low = 0;
->  
-> +	/* Get the current PRT */
-> +	prt_list = acpi_pci_get_prt_list();
-> +	if (!prt_list->count) {
-> +		acpi_pci_destroy_prt_list(prt_list);
-> +		printk(KERN_WARNING "ACPI tables contain no 
-> IO-APIC PCI IRQ "
-> +			"routing entries\n");
-> +		return_VALUE(-ENODEV);
-> +	}
-> +   
->  	/*
->  	 * Parsing through the PCI Interrupt Routing Table 
-> (PRT) and program
->  	 * routing for all static (IOAPIC-direct) entries.
->  	 */
-> -	list_for_each(node, &acpi_prt.entries) {
-> +	list_for_each(node, &prt_list->entries) 
->  		entry = list_entry(node, struct acpi_prt_entry, node);
->  
->  		/* Need to get irq for dynamic entry */
->  		if (entry->link.handle) {
->  			irq = 
-> acpi_pci_link_get_irq(entry->link.handle, entry->link.index, 
-> &edge_level, &active_high_low);
-> +			if (irq < 0) {
-> +				acpi_pci_destroy_prt_list(prt_list);
-> +				return -ENODEV;
-> +			}
->  			if (!irq)
->  				continue;
->  		} else {
-> @@ -998,8 +1012,11 @@
->  			mp_ioapic_routing[ioapic].apic_id, 
-> ioapic_pin, vector, 
->  			entry->irq);
->  	}
-> -	
-> -	return;
-> +   
-> + 	/* if we get here, the PRT was fine. commit it */
-> + 	acpi_pci_commit_prt_list(prt_list);
-> +   
-> +	return 0;
->  }
->  
->  #endif /*CONFIG_ACPI_PCI*/
-> --- linux-2.4.23-pre3.orig/arch/x86_64/kernel/pic.c	
-> 1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/x86_64/kernel/pic.c	
-> 2003-09-05 23:33:53.463289816 +0100
-> @@ -0,0 +1,102 @@
-> +/* 
-> --------------------------------------------------------------
-> --------- *
-> + *   
-> + *   Copyright 2003 Andrew de Quincey - All Rights Reserved
-> + *
-> + *   This program is free software; you can redistribute it 
-> and/or modify
-> + *   it under the terms of the GNU General Public License as 
-> published by
-> + *   the Free Software Foundation, Inc., 675 Mass Ave, 
-> Cambridge MA 02139,
-> + *   USA; either version 2 of the License, or (at your 
-> option) any later
-> + *   version; incorporated herein by reference.
-> + *
-> + * 
-> --------------------------------------------------------------
-> --------- */
-> +
-> +#include <linux/mm.h>
-> +#include <linux/irq.h>
-> +#include <linux/init.h>
-> +#include <linux/acpi.h>
-> +#include <linux/delay.h>
-> +#include <linux/config.h>
-> +#include <linux/bootmem.h>
-> +#include <linux/smp_lock.h>
-> +#include <linux/kernel_stat.h>
-> +
-> +#include <asm/acpi.h>
-> +
-> +#ifdef CONFIG_ACPI_PCI
-> +
-> +extern void eisa_set_level_irq(unsigned int irq);
-> +
-> +int __init pic_parse_prt (void)
-> +{
-> +	struct list_head	*node = NULL;
-> +	struct acpi_prt_entry	*entry = NULL;
-> +	struct acpi_prt_list	*prt_list = NULL;
-> +	int			edge_level = 0;
-> +	int			active_high_low = 0;
-> +	int			irq = 0;
-> +	int			programmed[16];
-> +
-> +	/* Get the current PRT */
-> +	prt_list = acpi_pci_get_prt_list();
-> +   
-> +	if (!prt_list->count) {
-> +		acpi_pci_destroy_prt_list(prt_list);
-> +		printk(KERN_WARNING "ACPI tables contain no PIC 
-> PCI IRQ "
-> +			"routing entries\n");
-> +		return_VALUE(-ENODEV);
-> +	}
-> +
-> +	/* mark all IRQs as unprogrammed */
-> +	memset(programmed, 0, sizeof(programmed));
-> +   
-> +	/*
-> +	 * Parsing through the PCI Interrupt Routing Table 
-> (PRT) and program
-> +	 * IRQs if necessary.
-> +	 */
-> +	list_for_each(node, &prt_list->entries) {
-> +		entry = list_entry(node, struct acpi_prt_entry, node);
-> +
-> +		/* Need to get irq for dynamic entry */
-> +		if (entry->link.handle) {
-> +			irq = 
-> acpi_pci_link_get_irq(entry->link.handle, entry->link.index, 
-> &edge_level, &active_high_low);
-> +			if (irq < 0) {
-> +				acpi_pci_destroy_prt_list(prt_list);
-> +				return -ENODEV;
-> +			}
-> + 			if (!irq) 
-> +				continue;
-> +		}
-> +	   
-> +		/* sanity check + update entry */
-> +		if ((irq < 0) || (irq > 15)) {
-> +			printk(KERN_ERR "Invalid IRQ (%i) 
-> passed to PIC programming code\n", irq);
-> +			entry->irq = 0;
-> +			continue;
-> +		}
-> +		entry->irq = irq;
-> +
-> +		/* check if it has already been dealt with */
-> +		if (programmed[irq]) {
-> +			printk(KERN_DEBUG "PIC: IRQ (%i) 
-> already programmed\n", irq);
-> +			continue;
-> +		}
-> +		programmed[irq] = 1;
-> +
-> +		/* program it */
-> +		if (edge_level) {
-> +			eisa_set_level_irq(irq);
-> +		}
-> +	   
-> +		printk(KERN_DEBUG "%02x:%02x:%02x[%c] -> IRQ %d 
-> Mode %d Trigger %d\n",
-> +			entry->id.segment, entry->id.bus, 
-> +			entry->id.device, ('A' + entry->pin), 
-> +			entry->irq, edge_level, active_high_low);
-> +	}
-> +	
-> +	/* if we get here, the PRT was fine. commit it */
-> +	acpi_pci_commit_prt_list(prt_list);
-> +   
-> +	return 0;
-> +}
-> +
-> +#endif /*CONFIG_ACPI_PCI*/
-> --- linux-2.4.23-pre3.orig/arch/x86_64/kernel/Makefile	
-> 2003-08-25 12:44:40.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/arch/x86_64/kernel/Makefile	
-> 2003-09-05 23:33:53.464289664 +0100
-> @@ -37,7 +37,7 @@
->  obj-$(CONFIG_GART_IOMMU) += pci-gart.o aperture.o
->  obj-$(CONFIG_DUMMY_IOMMU) += pci-nommu.o
->  obj-$(CONFIG_MCE) += bluesmoke.o
-> -obj-$(CONFIG_ACPI)		+= acpi.o
-> +obj-$(CONFIG_ACPI)		+= acpi.o pic.o
->  obj-$(CONFIG_ACPI_SLEEP)	+= acpi_wakeup.o suspend.o
->   
->  
-> --- linux-2.4.23-pre3.orig/include/asm-x86_64/acpi.h	
-> 2003-08-25 12:44:44.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/asm-x86_64/acpi.h	
-> 2003-09-05 23:33:53.464289664 +0100
-> @@ -142,6 +142,9 @@
->  
->  extern void mp_config_ioapic_for_sci(int irq);
->  
-> +/* ACPI-based PIC initialisation */
-> +extern int pic_parse_prt (void);
-> +
->  #endif /*__KERNEL__*/
->  
->  #endif /*_ASM_ACPI_H*/
-> --- linux-2.4.23-pre3.orig/include/asm-ia64/acpi.h	
-> 2003-06-13 15:51:38.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/asm-ia64/acpi.h	
-> 2003-09-05 23:33:53.464289664 +0100
-> @@ -109,6 +109,9 @@
->  #define MAX_PXM_DOMAINS		(256)
->  #endif /* CONFIG_DISCONTIGMEM */
->  
-> +/* ia64 machines don't have PIC controllers */
-> +static inline int pic_parse_prt(void) { return -1; }
-> +
->  #endif /*__KERNEL__*/
->  
->  #endif /*_ASM_ACPI_H*/
-> --- linux-2.4.23-pre3.orig/drivers/acpi/pci_irq.c	
-> 2003-08-25 12:44:41.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/drivers/acpi/pci_irq.c	
-> 2003-09-05 23:33:53.465289512 +0100
-> @@ -50,7 +50,22 @@
->  
->  #define PREFIX			"PCI: "
->  
-> -struct acpi_prt_list		acpi_prt;
-> +struct acpi_prt_list*		acpi_prt = NULL;
-> +
-> +struct acpi_prt_ref {
-> +	struct list_head	node;
-> +	struct acpi_device	*device;
-> +	acpi_handle		handle;
-> +	int segment;
-> +	int bus;
-> +};
-> +
-> +struct acpi_prt_ref_list {
-> +	int			count;
-> +	struct list_head	entries;
-> +};				
-> +
-> +struct acpi_prt_ref_list acpi_prt_ref_list;
->  
->  #ifdef CONFIG_X86
->  extern void eisa_set_level_irq(unsigned int irq);
-> @@ -73,13 +88,19 @@
->  
->  	ACPI_FUNCTION_TRACE("acpi_pci_irq_find_prt_entry");
->  
-> +	/* ensure we're not called before the routing table has 
-> been determined */
-> +	if (acpi_prt == NULL) {
-> +		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Called before 
-> acpi_prt determined"));
-> +		return_PTR(NULL);
-> + 	}
-> +   
->  	/*
->  	 * Parse through all PRT entries looking for a match on 
-> the specified
->  	 * PCI device's segment, bus, device, and pin (don't 
-> care about func).
->  	 *
->  	 * TBD: Acquire/release lock
->  	 */
-> -	list_for_each(node, &acpi_prt.entries) {
-> +	list_for_each(node, &acpi_prt->entries) {
->  		entry = list_entry(node, struct acpi_prt_entry, node);
->  		if ((segment == entry->id.segment) 
->  			&& (bus == entry->id.bus) 
-> @@ -95,6 +116,7 @@
->  
->  static int
->  acpi_pci_irq_add_entry (
-> +	struct acpi_prt_list*		prt_list,
->  	acpi_handle			handle,
->  	int				segment,
->  	int				bus,
-> @@ -151,12 +173,115 @@
->  		('A' + entry->pin), prt->source, entry->link.index));
->  
->  	/* TBD: Acquire/release lock */
-> -	list_add_tail(&entry->node, &acpi_prt.entries);
-> -	acpi_prt.count++;
-> +	list_add_tail(&entry->node, &prt_list->entries);
-> +	prt_list->count++;
->  
->  	return_VALUE(0);
->  }
->  
-> +struct acpi_prt_list*
-> +acpi_pci_get_prt_list (void)
-> +{
-> +	acpi_status			status = AE_OK;
-> +	struct acpi_buffer		buffer = {0, NULL};
-> +	struct acpi_pci_routing_table	*prt = NULL;
-> +	struct acpi_pci_routing_table	*entry = NULL;
-> +	struct acpi_prt_list		*prt_list = NULL;
-> +	struct acpi_prt_ref		*prt_ref_entry = NULL;
-> +	struct list_head		*node = NULL;
-> +   
-> +	ACPI_FUNCTION_TRACE("acpi_pci_irq_get_prt_list");
-> +   
-> +	/* Create a brand new acpi_prt_list */
-> +	prt_list = kmalloc(sizeof(struct acpi_prt_list), GFP_KERNEL);
-> +	if (!prt_list)
-> +		return_PTR(NULL);
-> +	memset(prt_list, 0, sizeof(struct acpi_prt_list));
-> +   
-> +	prt_list->count = 0;
-> +	INIT_LIST_HEAD(&prt_list->entries);
-> +   
-> +	/* iterate over all entries in acpi_prt_ref_list, 
-> extracting the current _PRT entries */
-> +	list_for_each(node, &acpi_prt_ref_list.entries) {
-> +		prt_ref_entry = list_entry(node, struct 
-> acpi_prt_ref, node);
-> +   
-> +		/* 
-> +		 * Evaluate this _PRT and add its entries to 
-> our local list (prt_list).
-> +		 */
-> +
-> +		buffer.length = 0;
-> +		buffer.pointer = NULL;
-> +		status = 
-> acpi_get_irq_routing_table(prt_ref_entry->handle, &buffer);
-> +		if (status != AE_BUFFER_OVERFLOW) {
-> +			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error 
-> evaluating _PRT [%s]\n",
-> +				acpi_format_exception(status)));
-> +			kfree(prt_list);
-> +			return_PTR(NULL);
-> +		}
-> +
-> +		prt = kmalloc(buffer.length, GFP_KERNEL);
-> +		if (!prt) {
-> +			kfree(prt_list);
-> +			return_VALUE(NULL);
-> +		}
-> +		memset(prt, 0, buffer.length);
-> +		buffer.pointer = prt;
-> +
-> +		status = 
-> acpi_get_irq_routing_table(prt_ref_entry->handle, &buffer);
-> +		if (ACPI_FAILURE(status)) {
-> +			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error 
-> evaluating _PRT [%s]\n",
-> +				acpi_format_exception(status)));
-> +			kfree(buffer.pointer);
-> +			kfree(prt_list);
-> +			return_PTR(NULL);
-> +		}
-> +
-> +		entry = prt;
-> +
-> +		while (entry && (entry->length > 0)) {
-> +			acpi_pci_irq_add_entry(prt_list, 
-> prt_ref_entry->handle, prt_ref_entry->segment, 
-> +				prt_ref_entry->bus, entry);
-> +			entry = (struct acpi_pci_routing_table *)
-> +				((unsigned long) entry + entry->length);
-> +		}
-> +
-> +		kfree(prt);
-> +	}
-> +
-> +	return_PTR(prt_list);
-> +}
-> +
-> +int 
-> +acpi_pci_destroy_prt_list (struct acpi_prt_list* prt_list) {
-> +	struct list_head	*node = NULL;
-> +	struct list_head	*tmp = NULL;
-> +	struct acpi_prt_entry	*entry = NULL;
-> +   
-> +	ACPI_FUNCTION_TRACE("acpi_pci_irq_destroy_prt_list");
-> +
-> +	list_for_each_safe(node, tmp, &prt_list->entries) {
-> +		entry = list_entry(node, struct acpi_prt_entry, node);
-> +		list_del(node);
-> +		kfree(entry);
-> +	}
-> +	kfree(prt_list);
-> +   
-> +	return_VALUE(0);
-> +}	  
-> +  
-> +int
-> +acpi_pci_commit_prt_list (struct acpi_prt_list* prt_list) {
-> +
-> +	ACPI_FUNCTION_TRACE("acpi_pci_irq_commit_prt_list");
-> +   
-> +	if (acpi_prt != NULL) {
-> +		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Attempt to 
-> commit acpi_prt twice\n"));
-> +		return_VALUE(-ENODEV);
-> +	}
-> +
-> +	acpi_prt = prt_list;
-> +	return_VALUE(0);
-> +}
->  
->  int
->  acpi_pci_irq_add_prt (
-> @@ -164,21 +289,20 @@
->  	int			segment,
->  	int			bus)
->  {
-> -	acpi_status			status = AE_OK;
-> -	char				
-> pathname[ACPI_PATHNAME_MAX] = {0};
-> -	struct acpi_buffer		buffer = {0, NULL};
-> -	struct acpi_pci_routing_table	*prt = NULL;
-> -	struct acpi_pci_routing_table	*entry = NULL;
-> -	static int			first_time = 1;
-> +	static int		first_time = 1;
-> +	struct acpi_prt_ref	*entry = NULL;
-> +	struct acpi_buffer	buffer = {0, NULL};
-> +	char			pathname[ACPI_PATHNAME_MAX] = {0};
->  
->  	ACPI_FUNCTION_TRACE("acpi_pci_irq_add_prt");
->  
->  	if (first_time) {
-> -		acpi_prt.count = 0;
-> -		INIT_LIST_HEAD(&acpi_prt.entries);
-> +		acpi_prt_ref_list.count = 0;
-> +		INIT_LIST_HEAD(&acpi_prt_ref_list.entries);
->  		first_time = 0;
->  	}
->  
-> +   
->  	/* 
->  	 * NOTE: We're given a 'handle' to the _PRT object's 
-> parent device
->  	 *       (either a PCI root bridge or PCI-PCI bridge).
-> @@ -191,42 +315,19 @@
->  	printk(KERN_DEBUG "ACPI: PCI Interrupt Routing Table 
-> [%s._PRT]\n",
->  		pathname);
->  
-> -	/* 
-> -	 * Evaluate this _PRT and add its entries to our global 
-> list (acpi_prt).
-> -	 */
-> -
-> -	buffer.length = 0;
-> -	buffer.pointer = NULL;
-> -	status = acpi_get_irq_routing_table(handle, &buffer);
-> -	if (status != AE_BUFFER_OVERFLOW) {
-> -		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error 
-> evaluating _PRT [%s]\n",
-> -			acpi_format_exception(status)));
-> -		return_VALUE(-ENODEV);
-> -	}
-> -
-> -	prt = kmalloc(buffer.length, GFP_KERNEL);
-> -	if (!prt)
-> +   
-> +   
-> +	entry = kmalloc(sizeof(struct acpi_prt_ref), GFP_KERNEL);
-> +	if (!entry)
->  		return_VALUE(-ENOMEM);
-> -	memset(prt, 0, buffer.length);
-> -	buffer.pointer = prt;
-> -
-> -	status = acpi_get_irq_routing_table(handle, &buffer);
-> -	if (ACPI_FAILURE(status)) {
-> -		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error 
-> evaluating _PRT [%s]\n",
-> -			acpi_format_exception(status)));
-> -		kfree(buffer.pointer);
-> -		return_VALUE(-ENODEV);
-> -	}
-> +	memset(entry, 0, sizeof(struct acpi_prt_ref));
-> +   
-> +	entry->handle = handle;
-> +	entry->segment = segment;
-> +	entry->bus = bus;
->  
-> -	entry = prt;
-> -
-> -	while (entry && (entry->length > 0)) {
-> -		acpi_pci_irq_add_entry(handle, segment, bus, entry);
-> -		entry = (struct acpi_pci_routing_table *)
-> -			((unsigned long) entry + entry->length);
-> -	}
-> -
-> -	kfree(prt);
-> +	list_add_tail(&entry->node, &acpi_prt_ref_list.entries);
-> +	acpi_prt_ref_list.count++;
->  
->  	return_VALUE(0);
->  }
-> @@ -387,6 +488,15 @@
->  }
->  
->  
-> +static void __init acpi_irq_pic_mode(void)
-> +{
-> +	acpi_irq_model = ACPI_IRQ_MODEL_PIC;
-> +	acpi_bus_init_irq();
-> +   
-> +        /* recalculate penalties */
-> + 	acpi_pci_link_calc_penalties();
-> +}
-> +
->  int __init
->  acpi_pci_irq_init (void)
->  {
-> @@ -394,26 +504,25 @@
->  
->  	ACPI_FUNCTION_TRACE("acpi_pci_irq_init");
->  
-> -	if (!acpi_prt.count) {
-> -		printk(KERN_WARNING PREFIX "ACPI tables contain 
-> no PCI IRQ "
-> -			"routing entries\n");
-> -		return_VALUE(-ENODEV);
-> -	}
-> -
-> -	/* Make sure all link devices have a valid IRQ. */
-> -	if (acpi_pci_link_check()) {
-> -		return_VALUE(-ENODEV);
-> -	}
-> + 	/* Calculate IRQ penalties for each link device */
-> + 	acpi_pci_link_calc_penalties();
->  
->  #ifdef CONFIG_X86_IO_APIC
->  	/* Program IOAPICs using data from PRT entries. */
->  	if (acpi_irq_model == ACPI_IRQ_MODEL_IOAPIC)
-> -		mp_parse_prt();
-> + 		if (mp_parse_prt()) 
-> + 			acpi_irq_pic_mode();
->  #endif
->  #ifdef CONFIG_IOSAPIC
->  	if (acpi_irq_model == ACPI_IRQ_MODEL_IOSAPIC)
-> -		iosapic_parse_prt();
-> + 		if (iosapic_parse_prt())
-> +       			return_VALUE(-ENODEV);
->  #endif
-> +   
-> + 	/* This one is last, as a catchall */
-> + 	if (acpi_irq_model == ACPI_IRQ_MODEL_PIC)
-> + 		if (pic_parse_prt()) 
-> + 			return_VALUE(-ENODEV);
->  
->  	pci_for_each_dev(dev)
->  		acpi_pci_irq_enable(dev);
-> --- linux-2.4.23-pre3.orig/drivers/acpi/pci_link.c	
-> 2003-09-05 23:55:06.788714928 +0100
-> +++ linux-2.4.23-pre3.picmode/drivers/acpi/pci_link.c	
-> 2003-09-05 23:54:45.522947816 +0100
-> @@ -312,13 +312,13 @@
->  			return_VALUE(-EINVAL);
->  		}
->  	}
-> -
-> +   
->  	memset(&resource, 0, sizeof(resource));
->  
->  	/* NOTE: PCI interrupts are always level / active_low / 
-> shared. But not all
->  	   interrupts > 15 are PCI interrupts. Rely on the ACPI 
-> IRQ definition for 
->  	   parameters */
-> -	if (irq <= 15) {
-> +	if (irq <= 15) {	
->  		resource.res.id = ACPI_RSTYPE_IRQ;
->  		resource.res.length = sizeof(struct acpi_resource);
->  		resource.res.data.irq.edge_level = link->irq.edge_level;
-> @@ -363,7 +363,7 @@
->  	if (result) {
->  		return_VALUE(result);
->  	}
-> -   
-> +
->  	if (link->irq.active != irq) {
->  		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, 
->  			"Attempt to enable at IRQ %d resulted 
-> in IRQ %d\n", 
-> @@ -399,23 +399,26 @@
->   * as 'best bets' for PCI use.
->   */
->  
-> -static int acpi_irq_penalty[ACPI_MAX_IRQS] = {
-> +static int acpi_irq_default_penalty[ACPI_MAX_IRQS] = {
->  	1000000,  1000000,  1000000,    10000, 
->  	  10000,        0,    10000,    10000,
->  	  10000,        0,        0,        0, 
->  	  10000,   100000,   100000,   100000,
->  };
->  
-> +static int acpi_irq_penalty[ACPI_MAX_IRQS] = { 0 };
->  
->  int
-> -acpi_pci_link_check (void)
-> +acpi_pci_link_calc_penalties (void)
->  {
->  	struct list_head	*node = NULL;
->  	struct acpi_pci_link    *link = NULL;
->  	int			i = 0;
->  
-> -	ACPI_FUNCTION_TRACE("acpi_pci_link_check");
-> +	ACPI_FUNCTION_TRACE("acpi_pci_calc_penalties");
->  
-> +	memcpy(&acpi_irq_penalty, &acpi_irq_default_penalty, 
-> sizeof(acpi_irq_default_penalty));
-> +   
->  	/*
->  	 * Update penalties to facilitate IRQ balancing.
->  	 */
-> @@ -426,7 +429,8 @@
->  			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, 
-> "Invalid link context\n"));
->  			continue;
->  		}
-> -
-> +		link->irq.setonboot = 0;
-> +	   
->  		if (link->irq.active)
->  			acpi_irq_penalty[link->irq.active] += 100;
->  		else if (link->irq.possible_count) {
-> @@ -456,18 +460,18 @@
->  		irq = link->irq.possible[0];
->  	}
->  
-> -		/* 
-> -		 * Select the best IRQ.  This is done in 
-> reverse to promote 
-> -		 * the use of IRQs 9, 10, 11, and >15.
-> -		 */
-> -		for (i=(link->irq.possible_count-1); i>0; i--) {
-> -			if (acpi_irq_penalty[irq] > 
-> acpi_irq_penalty[link->irq.possible[i]])
-> -				irq = link->irq.possible[i];
-> -		}
-> +	/* 
-> +	 * Select the best IRQ.  This is done in reverse to promote 
-> +	 * the use of IRQs 9, 10, 11, and >15.
-> +	 */
-> +	for (i=(link->irq.possible_count-1); i>0; i--) {
-> +		if (acpi_irq_penalty[irq] > 
-> acpi_irq_penalty[link->irq.possible[i]])
-> +			irq = link->irq.possible[i];
-> +	}
->  
->  	/* Attempt to enable the link device at this IRQ. */
->  	if (acpi_pci_link_set(link, irq)) {
-> -		printk(PREFIX "Unable to set IRQ for %s [%s] 
-> (likely buggy ACPI BIOS). Aborting ACPI-based IRQ routing. 
-> Try pci=noacpi or acpi=off\n",
-> +		printk(PREFIX "Unable to set IRQ for %s [%s] 
-> (likely buggy ACPI BIOS, please report to acpi-devel!)\n",
->  			acpi_device_name(link->device),
->  			acpi_device_bid(link->device));
->  		return_VALUE(-ENODEV);
-> --- linux-2.4.23-pre3.orig/drivers/acpi/bus.c	2003-08-25 
-> 12:44:41.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/drivers/acpi/bus.c	
-> 2003-09-05 23:33:53.467289208 +0100
-> @@ -1802,7 +1802,7 @@
->                               Initialization/Cleanup
->     
-> --------------------------------------------------------------
-> ------------ */
->  
-> -static int __init
-> +int
->  acpi_bus_init_irq (void)
->  {
->  	acpi_status		status = AE_OK;
-> --- linux-2.4.23-pre3.orig/include/acpi/acpi_drivers.h	
-> 2003-08-25 12:44:43.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/acpi/acpi_drivers.h	
-> 2003-09-05 23:33:53.468289056 +0100
-> @@ -26,6 +26,9 @@
->  #ifndef __ACPI_DRIVERS_H__
->  #define __ACPI_DRIVERS_H__
->  
-> +/* forward definitions */
-> +struct acpi_prt_list;
-> +
->  #include <linux/acpi.h>
->  #include "acpi_bus.h"
->  
-> @@ -173,7 +176,7 @@
->  #define ACPI_PCI_LINK_FILE_INFO		"info"
->  #define ACPI_PCI_LINK_FILE_STATUS	"state"
->  
-> -int acpi_pci_link_check (void);
-> +int acpi_pci_link_calc_penalties (void);
->  int acpi_pci_link_get_irq (acpi_handle handle, int index, 
-> int* edge_level, int* active_high_low);
->  int acpi_pci_link_init (void);
->  void acpi_pci_link_exit (void);
-> @@ -181,6 +184,9 @@
->  /* ACPI PCI Interrupt Routing (pci_irq.c) */
->  
->  int acpi_pci_irq_add_prt (acpi_handle handle, int segment, int bus);
-> +int acpi_pci_commit_prt_list (struct acpi_prt_list* prt_list);
-> +int acpi_pci_destroy_prt_list (struct acpi_prt_list* prt_list);
-> +struct acpi_prt_list* acpi_pci_get_prt_list (void);
->  
->  /* ACPI PCI Device Binding (pci_bind.c) */
->  
-> --- linux-2.4.23-pre3.orig/include/linux/acpi.h	
-> 2003-08-25 12:44:44.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/linux/acpi.h	
-> 2003-09-05 23:33:53.469288904 +0100
-> @@ -401,7 +401,7 @@
->  	struct list_head	entries;
->  };
->  
-> -extern struct acpi_prt_list	acpi_prt;
-> +extern struct acpi_prt_list*	acpi_prt;
->  
->  struct pci_dev;
->  
-> --- linux-2.4.23-pre3.orig/include/acpi/acpi_bus.h	
-> 2003-08-25 12:44:43.000000000 +0100
-> +++ linux-2.4.23-pre3.picmode/include/acpi/acpi_bus.h	
-> 2003-09-05 23:33:53.469288904 +0100
-> @@ -309,6 +309,7 @@
->  int acpi_init (void);
->  void acpi_exit (void);
->  
-> +int acpi_bus_init_irq (void);
->  
->  #endif /*CONFIG_ACPI_BUS*/
->  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-	if (v == (void*)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		rc = dn_neigh_get_idx(seq, 0);
+ 		goto out;
+ 	}
+@@ -628,7 +628,7 @@
+ 
+ static void dn_neigh_seq_stop(struct seq_file *seq, void *v)
+ {
+-	if (v && v != (void*)1)
++	if (v && v != SEQ_START_TOKEN)
+ 		read_unlock_bh(&dn_neigh_table.lock);
+ }
+ 
+@@ -653,7 +653,7 @@
+ 
+ static int dn_neigh_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void*)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Addr    Flags State Use Blksize Dev\n");
+ 	} else {
+ 		dn_neigh_format_entry(seq, v);
+diff -urN linux-2.6.0-test4/net/ipv4/arp.c SEQ_START_TOKEN/net/ipv4/arp.c
+-- linux-2.6.0-test4/net/ipv4/arp.c	2003-08-22 16:58:59.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/arp.c	2003-09-04 20:06:32.000000000 -0700
+@@ -1275,7 +1275,7 @@
+ 
+ static void *arp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	return *pos ? arp_get_idx(seq, *pos - 1) : (void *)1;
++	return *pos ? arp_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *arp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -1283,7 +1283,7 @@
+ 	void *rc;
+ 	struct arp_iter_state* state;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		rc = arp_get_idx(seq, 0);
+ 		goto out;
+ 	}
+@@ -1306,7 +1306,7 @@
+ {
+ 	struct arp_iter_state* state = seq->private;
+ 
+-	if (!state->is_pneigh && v != (void *)1)
++	if (!state->is_pneigh && v != SEQ_START_TOKEN)
+ 		read_unlock_bh(&arp_tbl.lock);
+ }
+ 
+@@ -1359,7 +1359,7 @@
+ 
+ static int arp_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, "IP address       HW type     Flags       "
+ 			      "HW address            Mask     Device\n");
+ 	else {
+diff -urN linux-2.6.0-test4/net/ipv4/fib_hash.c SEQ_START_TOKEN/net/ipv4/fib_hash.c
+-- linux-2.6.0-test4/net/ipv4/fib_hash.c	2003-08-22 16:55:42.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/fib_hash.c	2003-09-04 20:06:39.000000000 -0700
+@@ -979,14 +979,14 @@
+ 
+ 	read_lock(&fib_hash_lock);
+ 	if (ip_fib_main_table)
+-		v = *pos ? fib_get_next(seq) : (void *)1;
++		v = *pos ? fib_get_next(seq) : SEQ_START_TOKEN;
+ 	return v;
+ }
+ 
+ static void *fib_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	++*pos;
+-	return v == (void *)1 ? fib_get_first(seq) : fib_get_next(seq);
++	return v == SEQ_START_TOKEN ? fib_get_first(seq) : fib_get_next(seq);
+ }
+ 
+ static void fib_seq_stop(struct seq_file *seq, void *v)
+@@ -1025,7 +1025,7 @@
+ 	struct fib_node *f;
+ 	struct fib_info *fi;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, "%-127s\n", "Iface\tDestination\tGateway "
+ 			   "\tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU"
+ 			   "\tWindow\tIRTT");
+diff -urN linux-2.6.0-test4/net/ipv4/igmp.c SEQ_START_TOKEN/net/ipv4/igmp.c
+-- linux-2.6.0-test4/net/ipv4/igmp.c	2003-09-02 12:52:45.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/igmp.c	2003-09-04 20:08:40.000000000 -0700
+@@ -2162,13 +2162,13 @@
+ static void *igmp_mc_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&dev_base_lock);
+-	return *pos ? igmp_mc_get_idx(seq, *pos) : (void *)1;
++	return *pos ? igmp_mc_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *igmp_mc_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct ip_mc_list *im;
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		im = igmp_mc_get_first(seq);
+ 	else
+ 		im = igmp_mc_get_next(seq, v);
+@@ -2190,7 +2190,7 @@
+ 
+ static int igmp_mc_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, 
+ 			   "Idx\tDevice    : Count Querier\tGroup    Users Timer\tReporter\n");
+ 	else {
+@@ -2337,13 +2337,13 @@
+ static void *igmp_mcf_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&dev_base_lock);
+-	return *pos ? igmp_mcf_get_idx(seq, *pos) : (void *)1;
++	return *pos ? igmp_mcf_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *igmp_mcf_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct ip_sf_list *psf;
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		psf = igmp_mcf_get_first(seq);
+ 	else
+ 		psf = igmp_mcf_get_next(seq, v);
+@@ -2372,7 +2372,7 @@
+ 	struct ip_sf_list *psf = (struct ip_sf_list *)v;
+ 	struct igmp_mcf_iter_state *state = igmp_mcf_seq_private(seq);
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, 
+ 			   "%3s %6s "
+ 			   "%10s %10s %6s %6s\n", "Idx",
+diff -urN linux-2.6.0-test4/net/ipv4/raw.c SEQ_START_TOKEN/net/ipv4/raw.c
+-- linux-2.6.0-test4/net/ipv4/raw.c	2003-08-22 16:56:34.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/raw.c	2003-09-04 20:06:37.000000000 -0700
+@@ -736,14 +736,14 @@
+ static void *raw_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&raw_v4_lock);
+-	return *pos ? raw_get_idx(seq, *pos) : (void *)1;
++	return *pos ? raw_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *raw_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct sock *sk;
+ 
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		sk = raw_get_first(seq);
+ 	else
+ 		sk = raw_get_next(seq, v);
+@@ -778,7 +778,7 @@
+ {
+ 	char tmpbuf[129];
+ 
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "%-127s\n",
+ 			       "  sl  local_address rem_address   st tx_queue "
+ 			       "rx_queue tr tm->when retrnsmt   uid  timeout "
+diff -urN linux-2.6.0-test4/net/ipv4/route.c SEQ_START_TOKEN/net/ipv4/route.c
+-- linux-2.6.0-test4/net/ipv4/route.c	2003-09-02 12:52:46.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/route.c	2003-09-04 20:29:01.000000000 -0700
+@@ -259,14 +259,14 @@
+ 
+ static void *rt_cache_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	return *pos ? rt_cache_get_idx(seq, *pos) : (void *)1;
++	return *pos ? rt_cache_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *rt_cache_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct rtable *r = NULL;
+ 
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		r = rt_cache_get_first(seq);
+ 	else
+ 		r = rt_cache_get_next(seq, v);
+@@ -276,13 +276,13 @@
+ 
+ static void rt_cache_seq_stop(struct seq_file *seq, void *v)
+ {
+-	if (v && v != (void *)1)
++	if (v && v != SEQ_START_TOKEN)
+ 		rcu_read_unlock();
+ }
+ 
+ static int rt_cache_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "%-127s\n",
+ 			   "Iface\tDestination\tGateway \tFlags\t\tRefCnt\tUse\t"
+ 			   "Metric\tSource\t\tMTU\tWindow\tIRTT\tTOS\tHHRef\t"
+diff -urN linux-2.6.0-test4/net/ipv4/tcp_ipv4.c SEQ_START_TOKEN/net/ipv4/tcp_ipv4.c
+-- linux-2.6.0-test4/net/ipv4/tcp_ipv4.c	2003-08-22 16:53:54.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/tcp_ipv4.c	2003-09-04 20:52:09.000000000 -0700
+@@ -2351,7 +2351,7 @@
+ 
+ static void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	return *pos ? tcp_get_idx(seq, *pos - 1) : (void *)1;
++	return *pos ? tcp_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -2359,7 +2359,7 @@
+ 	void *rc = NULL;
+ 	struct tcp_iter_state* st;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		rc = tcp_get_idx(seq, 0);
+ 		goto out;
+ 	}
+@@ -2397,7 +2397,7 @@
+ 			read_unlock_bh(&tp->syn_wait_lock);
+ 		}
+ 	case TCP_SEQ_STATE_LISTENING:
+-		if (v != (void *)1)
++		if (v != SEQ_START_TOKEN)
+ 			tcp_listen_unlock();
+ 		break;
+ 	case TCP_SEQ_STATE_TIME_WAIT:
+@@ -2559,7 +2559,7 @@
+ 	struct tcp_iter_state* st;
+ 	char tmpbuf[TMPSZ + 1];
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, "%-*s\n", TMPSZ - 1,
+ 			   "  sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+diff -urN linux-2.6.0-test4/net/ipv4/udp.c SEQ_START_TOKEN/net/ipv4/udp.c
+-- linux-2.6.0-test4/net/ipv4/udp.c	2003-08-22 16:52:55.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv4/udp.c	2003-09-04 19:58:50.000000000 -0700
+@@ -1380,7 +1380,7 @@
+ static void *udp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&udp_hash_lock);
+-	return *pos ? udp_get_bucket(seq, pos) : (void *)1;
++	return *pos ? udp_get_bucket(seq, pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *udp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -1389,7 +1389,7 @@
+ 	struct hlist_node *node;
+ 	struct udp_iter_state *state;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		sk = udp_get_bucket(seq, pos);
+ 		goto out;
+ 	}
+@@ -1496,7 +1496,7 @@
+ 
+ static int udp4_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "%-127s\n",
+ 			   "  sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+diff -urN linux-2.6.0-test4/net/ipv6/addrconf.c SEQ_START_TOKEN/net/ipv6/addrconf.c
+-- linux-2.6.0-test4/net/ipv6/addrconf.c	2003-08-22 17:00:35.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/addrconf.c	2003-09-04 20:17:07.000000000 -0700
+@@ -2171,7 +2171,7 @@
+ static void *if6_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock_bh(&addrconf_hash_lock);
+-	return *pos ? if6_get_bucket(seq, pos) : (void *)1;
++	return *pos ? if6_get_bucket(seq, pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *if6_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -2179,7 +2179,7 @@
+ 	struct inet6_ifaddr *ifa;
+ 	struct if6_iter_state *state;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		ifa = if6_get_bucket(seq, pos);
+ 		goto out;
+ 	}
+@@ -2215,7 +2215,7 @@
+ 
+ static int if6_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		return 0;
+ 	else
+ 		if6_iface_seq_show(seq, v);
+diff -urN linux-2.6.0-test4/net/ipv6/ip6_flowlabel.c SEQ_START_TOKEN/net/ipv6/ip6_flowlabel.c
+-- linux-2.6.0-test4/net/ipv6/ip6_flowlabel.c	2003-08-22 16:53:09.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/ip6_flowlabel.c	2003-09-04 20:15:36.000000000 -0700
+@@ -599,14 +599,14 @@
+ static void *ip6fl_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock_bh(&ip6_fl_lock);
+-	return *pos ? ip6fl_get_idx(seq, *pos) : (void *)1;
++	return *pos ? ip6fl_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ip6fl_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct ip6_flowlabel *fl;
+ 
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		fl = ip6fl_get_first(seq);
+ 	else
+ 		fl = ip6fl_get_next(seq, v);
+@@ -640,7 +640,7 @@
+ 
+ static int ip6fl_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "Label S Owner  Users  Linger Expires  "
+ 				"Dst                              Opt\n");
+ 	else
+diff -urN linux-2.6.0-test4/net/ipv6/mcast.c SEQ_START_TOKEN/net/ipv6/mcast.c
+-- linux-2.6.0-test4/net/ipv6/mcast.c	2003-09-02 12:52:46.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/mcast.c	2003-09-04 20:29:18.000000000 -0700
+@@ -2278,13 +2278,13 @@
+ static void *igmp6_mcf_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&dev_base_lock);
+-	return *pos ? igmp6_mcf_get_idx(seq, *pos) : (void *)1;
++	return *pos ? igmp6_mcf_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *igmp6_mcf_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct ip6_sf_list *psf;
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		psf = igmp6_mcf_get_first(seq);
+ 	else
+ 		psf = igmp6_mcf_get_next(seq, v);
+@@ -2313,7 +2313,7 @@
+ 	struct ip6_sf_list *psf = (struct ip6_sf_list *)v;
+ 	struct igmp6_mcf_iter_state *state = igmp6_mcf_seq_private(seq);
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, 
+ 			   "%3s %6s "
+ 			   "%32s %32s %6s %6s\n", "Idx",
+diff -urN linux-2.6.0-test4/net/ipv6/raw.c SEQ_START_TOKEN/net/ipv6/raw.c
+-- linux-2.6.0-test4/net/ipv6/raw.c	2003-08-22 16:54:29.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/raw.c	2003-09-04 20:15:32.000000000 -0700
+@@ -961,14 +961,14 @@
+ static void *raw6_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	read_lock(&raw_v6_lock);
+-	return *pos ? raw6_get_idx(seq, *pos) : (void *)1;
++	return *pos ? raw6_get_idx(seq, *pos) : SEQ_START_TOKEN;
+ }
+ 
+ static void *raw6_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct sock *sk;
+ 
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		sk = raw6_get_first(seq);
+ 	else
+ 		sk = raw6_get_next(seq, v);
+@@ -1010,7 +1010,7 @@
+ 
+ static int raw6_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq,
+ 			   "  sl  "
+ 			   "local_address                         "
+diff -urN linux-2.6.0-test4/net/ipv6/tcp_ipv6.c SEQ_START_TOKEN/net/ipv6/tcp_ipv6.c
+-- linux-2.6.0-test4/net/ipv6/tcp_ipv6.c	2003-08-22 16:56:34.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/tcp_ipv6.c	2003-09-04 20:17:17.000000000 -0700
+@@ -2027,7 +2027,7 @@
+ {
+ 	struct tcp_iter_state *st;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq,
+ 			   "  sl  "
+ 			   "local_address                         "
+diff -urN linux-2.6.0-test4/net/ipv6/udp.c SEQ_START_TOKEN/net/ipv6/udp.c
+-- linux-2.6.0-test4/net/ipv6/udp.c	2003-08-22 16:58:49.000000000 -0700
++++ SEQ_START_TOKEN/net/ipv6/udp.c	2003-09-04 20:17:13.000000000 -0700
+@@ -1113,7 +1113,7 @@
+ 
+ static int udp6_seq_show(struct seq_file *seq, void *v)
+ {
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq,
+ 			   "  sl  "
+ 			   "local_address                         "
+diff -urN linux-2.6.0-test4/net/ipx/ipx_proc.c SEQ_START_TOKEN/net/ipx/ipx_proc.c
+-- linux-2.6.0-test4/net/ipx/ipx_proc.c	2003-08-22 16:50:53.000000000 -0700
++++ SEQ_START_TOKEN/net/ipx/ipx_proc.c	2003-09-04 20:13:59.000000000 -0700
+@@ -39,7 +39,7 @@
+ 	loff_t l = *pos;
+ 
+ 	spin_lock_bh(&ipx_interfaces_lock);
+-	return l ? ipx_get_interface_idx(--l) : (void *)1;
++	return l ? ipx_get_interface_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ipx_seq_interface_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -47,7 +47,7 @@
+ 	struct ipx_interface *i;
+ 
+ 	++*pos;
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		i = ipx_interfaces_head();
+ 	else
+ 		i = ipx_interfaces_next(v);
+@@ -63,7 +63,7 @@
+ {
+ 	struct ipx_interface *i;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Network    Node_Address   Primary  Device     "
+ 			      "Frame_Type");
+ #ifdef IPX_REFCNT_DEBUG
+@@ -123,7 +123,7 @@
+ {
+ 	loff_t l = *pos;
+ 	read_lock_bh(&ipx_routes_lock);
+-	return l ? ipx_get_route_idx(--l) : (void *)1;
++	return l ? ipx_get_route_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ipx_seq_route_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -131,7 +131,7 @@
+ 	struct ipx_route *r;
+ 
+ 	++*pos;
+-	if (v == (void *)1)
++	if (v == SEQ_START_TOKEN)
+ 		r = ipx_routes_head();
+ 	else
+ 		r = ipx_routes_next(v);
+@@ -147,7 +147,7 @@
+ {
+ 	struct ipx_route *rt;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Network    Router_Net   Router_Node\n");
+ 		goto out;
+ 	}
+@@ -195,7 +195,7 @@
+ 	loff_t l = *pos;
+ 
+ 	spin_lock_bh(&ipx_interfaces_lock);
+-	return l ? ipx_get_socket_idx(--l) : (void *)1;
++	return l ? ipx_get_socket_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ipx_seq_socket_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -205,7 +205,7 @@
+ 	struct ipx_opt *ipxs;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		sk = NULL;
+ 		i = ipx_interfaces_head();
+ 		if (!i)
+@@ -245,7 +245,7 @@
+ 	struct sock *s;
+ 	struct ipx_opt *ipxs;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ #ifdef CONFIG_IPX_INTERN
+ 		seq_puts(seq, "Local_Address               "
+ 			      "Remote_Address              Tx_Queue  "
+diff -urN linux-2.6.0-test4/net/llc/llc_proc.c SEQ_START_TOKEN/net/llc/llc_proc.c
+-- linux-2.6.0-test4/net/llc/llc_proc.c	2003-09-02 12:52:46.000000000 -0700
++++ SEQ_START_TOKEN/net/llc/llc_proc.c	2003-09-04 20:11:06.000000000 -0700
+@@ -67,7 +67,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&llc_main_station.sap_list.lock);
+-	return l ? llc_get_sk_idx(--l) : (void *)1;
++	return l ? llc_get_sk_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *llc_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -77,7 +77,7 @@
+ 	struct llc_sap *sap;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		sk = llc_get_sk_idx(0);
+ 		goto out;
+ 	}
+@@ -123,7 +123,7 @@
+ 	struct sock* sk;
+ 	struct llc_opt *llc;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "SKt Mc local_mac_sap        remote_mac_sap   "
+ 			      "    tx_queue rx_queue st uid link\n");
+ 		goto out;
+@@ -172,7 +172,7 @@
+ 	struct sock* sk;
+ 	struct llc_opt *llc;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Connection list:\n"
+ 			      "dsap state      retr txw rxw pf ff sf df rs cs "
+ 			      "tack tpfc trs tbs blog busr\n");
+diff -urN linux-2.6.0-test4/net/rxrpc/proc.c SEQ_START_TOKEN/net/rxrpc/proc.c
+-- linux-2.6.0-test4/net/rxrpc/proc.c	2003-08-22 16:57:07.000000000 -0700
++++ SEQ_START_TOKEN/net/rxrpc/proc.c	2003-09-04 20:30:33.000000000 -0700
+@@ -226,7 +226,7 @@
+ 
+ 	/* allow for the header line */
+ 	if (!pos)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	pos--;
+ 
+ 	/* find the n'th element in the list */
+@@ -248,7 +248,7 @@
+ 	(*pos)++;
+ 
+ 	_p = v;
+-	_p = v==(void*)1 ? rxrpc_proc_transports.next : _p->next;
++	_p = v==SEQ_START_TOKEN ? rxrpc_proc_transports.next : _p->next;
+ 
+ 	return _p!=&rxrpc_proc_transports ? _p : NULL;
+ } /* end rxrpc_proc_transports_next() */
+@@ -272,7 +272,7 @@
+ 	struct rxrpc_transport *trans = list_entry(v,struct rxrpc_transport,proc_link);
+ 
+ 	/* display header on line 1 */
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m, "LOCAL USE\n");
+ 		return 0;
+ 	}
+@@ -319,7 +319,7 @@
+ 
+ 	/* allow for the header line */
+ 	if (!pos)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	pos--;
+ 
+ 	/* find the n'th element in the list */
+@@ -341,7 +341,7 @@
+ 	(*pos)++;
+ 
+ 	_p = v;
+-	_p = v==(void*)1 ? rxrpc_peers.next : _p->next;
++	_p = v==SEQ_START_TOKEN ? rxrpc_peers.next : _p->next;
+ 
+ 	return _p!=&rxrpc_peers ? _p : NULL;
+ } /* end rxrpc_proc_peers_next() */
+@@ -366,7 +366,7 @@
+ 	signed long timeout;
+ 
+ 	/* display header on line 1 */
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m,"LOCAL REMOTE   USAGE CONNS  TIMEOUT   MTU RTT(uS)\n");
+ 		return 0;
+ 	}
+@@ -422,7 +422,7 @@
+ 
+ 	/* allow for the header line */
+ 	if (!pos)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	pos--;
+ 
+ 	/* find the n'th element in the list */
+@@ -444,7 +444,7 @@
+ 	(*pos)++;
+ 
+ 	_p = v;
+-	_p = v==(void*)1 ? rxrpc_conns.next : _p->next;
++	_p = v==SEQ_START_TOKEN ? rxrpc_conns.next : _p->next;
+ 
+ 	return _p!=&rxrpc_conns ? _p : NULL;
+ } /* end rxrpc_proc_conns_next() */
+@@ -469,7 +469,7 @@
+ 	signed long timeout;
+ 
+ 	/* display header on line 1 */
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m,
+ 			 "LOCAL REMOTE   RPORT SRVC CONN     END SERIALNO CALLNO     MTU  TIMEOUT"
+ 			 "\n");
+@@ -530,7 +530,7 @@
+ 
+ 	/* allow for the header line */
+ 	if (!pos)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	pos--;
+ 
+ 	/* find the n'th element in the list */
+@@ -552,7 +552,7 @@
+ 	(*pos)++;
+ 
+ 	_p = v;
+-	_p = v==(void*)1 ? rxrpc_calls.next : _p->next;
++	_p = v==SEQ_START_TOKEN ? rxrpc_calls.next : _p->next;
+ 
+ 	return _p!=&rxrpc_calls ? _p : NULL;
+ } /* end rxrpc_proc_calls_next() */
+@@ -576,7 +576,7 @@
+ 	struct rxrpc_call *call = list_entry(v,struct rxrpc_call,call_link);
+ 
+ 	/* display header on line 1 */
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m,
+ 			 "LOCAL REMOT SRVC CONN     CALL     DIR USE "
+ 			 " L STATE   OPCODE ABORT    ERRNO\n"
+diff -urN linux-2.6.0-test4/net/sunrpc/cache.c SEQ_START_TOKEN/net/sunrpc/cache.c
+-- linux-2.6.0-test4/net/sunrpc/cache.c	2003-08-22 16:56:58.000000000 -0700
++++ SEQ_START_TOKEN/net/sunrpc/cache.c	2003-09-04 20:11:09.000000000 -0700
+@@ -1035,7 +1035,7 @@
+ 
+ 	read_lock(&cd->hash_lock);
+ 	if (!n--)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	hash = n >> 32;
+ 	entry = n & ((1LL<<32) - 1);
+ 
+@@ -1060,7 +1060,7 @@
+ 	int hash = (*pos >> 32);
+ 	struct cache_detail *cd = ((struct handle*)m->private)->cd;
+ 
+-	if (p == (void *)1)
++	if (p == SEQ_START_TOKEN)
+ 		hash = 0;
+ 	else if (ch->next == NULL) {
+ 		hash++;
+@@ -1092,7 +1092,7 @@
+ 	struct cache_head *cp = p;
+ 	struct cache_detail *cd = ((struct handle*)m->private)->cd;
+ 
+-	if (p == (void *)1)
++	if (p == SEQ_START_TOKEN)
+ 		return cd->cache_show(m, cd, NULL);
+ 
+ 	ifdebug(CACHE)
+diff -urN linux-2.6.0-test4/net/wanrouter/wanproc.c SEQ_START_TOKEN/net/wanrouter/wanproc.c
+-- linux-2.6.0-test4/net/wanrouter/wanproc.c	2003-08-22 16:55:39.000000000 -0700
++++ SEQ_START_TOKEN/net/wanrouter/wanproc.c	2003-09-04 20:29:56.000000000 -0700
+@@ -86,7 +86,7 @@
+ 
+ 	lock_kernel();
+ 	if (!l--)
+-		return (void *)1;
++		return SEQ_START_TOKEN;
+ 	for (wandev = wanrouter_router_devlist; l-- && wandev;
+ 	     wandev = wandev->next)
+ 		;
+@@ -97,7 +97,7 @@
+ {
+ 	struct wan_device *wandev = v;
+ 	(*pos)++;
+-	return (v == (void *)1) ? wanrouter_router_devlist : wandev->next;
++	return (v == SEQ_START_TOKEN) ? wanrouter_router_devlist : wandev->next;
+ }
+ 
+ static void r_stop(struct seq_file *m, void *v)
+@@ -108,7 +108,7 @@
+ static int config_show(struct seq_file *m, void *v)
+ {
+ 	struct wan_device *p = v;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m, "Device name    | port |IRQ|DMA|  mem.addr  |"
+ 			    "mem.size|option1|option2|option3|option4\n");
+ 		return 0;
+@@ -124,7 +124,7 @@
+ static int status_show(struct seq_file *m, void *v)
+ {
+ 	struct wan_device *p = v;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(m, "Device name    |protocol|station|interface|"
+ 			    "clocking|baud rate| MTU |ndev|link state\n");
+ 		return 0;
+diff -urN linux-2.6.0-test4/net/x25/x25_proc.c SEQ_START_TOKEN/net/x25/x25_proc.c
+-- linux-2.6.0-test4/net/x25/x25_proc.c	2003-08-22 16:52:54.000000000 -0700
++++ SEQ_START_TOKEN/net/x25/x25_proc.c	2003-09-04 20:29:43.000000000 -0700
+@@ -44,7 +44,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&x25_route_list_lock);
+-	return l ? x25_get_route_idx(--l) : (void *)1;
++	return l ? x25_get_route_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *x25_seq_route_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -52,7 +52,7 @@
+ 	struct x25_route *rt;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		rt = NULL;
+ 		if (!list_empty(&x25_route_list))
+ 			rt = list_entry(x25_route_list.next,
+@@ -77,7 +77,7 @@
+ {
+ 	struct x25_route *rt;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq, "Address          Digits  Device\n");
+ 		goto out;
+ 	}
+@@ -108,7 +108,7 @@
+ 	loff_t l = *pos;
+ 
+ 	read_lock_bh(&x25_list_lock);
+-	return l ? x25_get_socket_idx(--l) : (void *)1;
++	return l ? x25_get_socket_idx(--l) : SEQ_START_TOKEN;
+ }
+ 
+ static void *x25_seq_socket_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -116,7 +116,7 @@
+ 	struct sock *s;
+ 
+ 	++*pos;
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		s = sk_head(&x25_list);
+ 		goto out;
+ 	}
+@@ -137,7 +137,7 @@
+ 	struct net_device *dev;
+ 	const char *devname;
+ 
+-	if (v == (void *)1) {
++	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, "dest_addr  src_addr   dev   lci st vs vr "
+ 				"va   t  t2 t21 t22 t23 Snd-Q Rcv-Q inode\n");
+ 		goto out;
+
+

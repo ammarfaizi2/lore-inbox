@@ -1,105 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264034AbTJ1SWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTJ1SWT
+	id S261723AbTJ1SOH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 13:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTJ1SOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:22:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35233 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264034AbTJ1SWP (ORCPT
+	Tue, 28 Oct 2003 13:14:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48027 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261723AbTJ1SMg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:22:15 -0500
-Date: Tue, 28 Oct 2003 10:21:20 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: john stultz <johnstul@us.ibm.com>, Joe Korty <joe.korty@ccur.com>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: gettimeofday resolution seriously degraded in test9
-Message-Id: <20031028102120.01987aa4.shemminger@osdl.org>
-In-Reply-To: <20031028115558.GA20482@iram.es>
-References: <20031027234447.GA7417@rudolph.ccur.com>
-	<1067300966.1118.378.camel@cog.beaverton.ibm.com>
-	<20031027171738.1f962565.shemminger@osdl.org>
-	<20031028115558.GA20482@iram.es>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 13:12:36 -0500
+Date: Tue, 28 Oct 2003 10:20:08 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+In-Reply-To: <1067329994.861.3.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.44.0310281019280.1023-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Oct 2003 12:55:58 +0100
-Gabriel Paubert <paubert@iram.es> wrote:
 
-> On Mon, Oct 27, 2003 at 05:17:38PM -0800, Stephen Hemminger wrote:
-> > Arghh... the patch was being way more agressive than necessary.  
-> > tickadj which limits NTP is always 1 (for HZ=1000) so NTP will change
-> > at most 1 us per clock tick.  This meant we only had to stop time
-> > for the last us of the interval.
+> Many userspace applications are not prepared for suspension, like
+> Evolution. When suspending the machine for a long time, all IMAP
+> sessions are broken as their counterpart TCP sockets timeout. While
+> resuming, Evolution is unable to handle this condition and simply
+> informs the network connection has been dropped.
 > 
-> Hmm, I still don't like it. What does it do to timestamping in
-> interrupts in the kernel, especially when there is a burst of
-> interrupts?
-> 
-> If I read it correctly, the time will be frozen between the time
-> the timer interrupt should have arrived and the time it is processed.
-> So the last micosecond of the interval could extend well into the next
-> interval, or do I miss something (I also suspect that it could
-> make PPSKit behave strangely for this reason)?
+> What about sending the SIGPWR signal to all userspace processes before
+> suspending so applications like Evolution can be improved to handle this
+> signal, drop their IMAP connections and then, when resuming, reestablish
+> them?
 
-The original problem all this is solving is that when NTP is slowing the clock
-there existed real cases where time appeared to go backwards. Assuming NTP was
-slowing the clock, then it would update the xtime by 999us at the next timer interrupt.
-If a program read time three times:
+SIGPWR already has meaning, and I do not want to overload it. Besides a
+signal does not seem like the best solution - a new signal will require
+each application to be recompiled, and may cause some unexpected behavior
+as some otherwise stable applications break. I.e. it's too intrusive of a
+requirement. Plus AFAIK, signals are delivered asynchronously, so there is
+no way to know if the applications finished doing the necessary work..
+                                                                                
+I posted the patch below to the linux-acpi list a few weeks ago. It causes
+/sbin/hotplug to be called on both suspend and resume. It's a lightweight,
+non-intrusive notification mechanism that allows only the applications
+that care about the events be notified of the transition.
+                                                                                
+It waits for the call to return, which guarantees that the applications
+will have enough time to complete what ever it is they need to do (close
+IMAP connections, shut down the 3d accelerator, etc).
+                                                                                
+AFAIK, /sbin/hotplug now also generates a D-BUS message, which the desktop
+applications will receive, allowing them to transparently hook into the
+sequence.
 
-A:	    xtime = t0
-B: A+1000   xtime = t0 + 1000
-C: B+1	    xtime = t0 + 999
 
-To behave correctly C > B > A; but we were returning C < B
+	Pat
 
-The code does have bug if we are losing clock interrupts.  The test for
-lost interrupts needs to be after the interval clamp.
-
-This should work better. Patch against 2.6.0-test9
-
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Tue Oct 28 10:08:52 2003
-+++ b/arch/i386/kernel/time.c	Tue Oct 28 10:08:52 2003
-@@ -94,6 +94,7 @@
- {
- 	unsigned long seq;
- 	unsigned long usec, sec;
-+	unsigned long max_ntp_tick = tick_usec - tickadj;
+===== kernel/power/main.c 1.16 vs edited =====
+--- 1.16/kernel/power/main.c	Mon Sep  8 15:13:46 2003
++++ edited/kernel/power/main.c	Tue Sep 30 15:35:47 2003
+@@ -16,6 +16,7 @@
+ #include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
++#include <linux/kmod.h>
+ #include <linux/pm.h>
  
- 	do {
- 		unsigned long lost;
-@@ -102,16 +103,20 @@
  
- 		usec = cur_timer->get_offset();
- 		lost = jiffies - wall_jiffies;
--		if (lost)
--			usec += lost * (1000000 / HZ);
+@@ -117,6 +118,59 @@
  
- 		/*
- 		 * If time_adjust is negative then NTP is slowing the clock
- 		 * so make sure not to go into next possible interval.
- 		 * Better to lose some accuracy than have time go backwards..
- 		 */
--		if (unlikely(time_adjust < 0) && usec > tickadj)
--			usec = tickadj;
-+		if (unlikely(time_adjust < 0)) {
-+			usec = min(usec, max_ntp_tick);
+ 
+ 
++#ifdef CONFIG_HOTPLUG
 +
-+			if (lost)
-+				usec += lost * max_ntp_tick;
-+		} 
-+		else if (unlikely(lost))
-+			usec += lost * tick_usec;
++
++/**
++ *	user_suspend - notify userspace of suspend.
++ *
++ *	Notify userspace that we're going to sleep, and wait for it to finish
++ *	shutting down whatever it needs before we proceed.
++ *
++ */
++	
++static int tell_userspace(char * state, int suspend)
++{
++	char * argv[3];
++	char * envp[5];
++	char env_action[16];
++	char env_state[16];
++	int error;
++
++	if (!hotplug_path[0])
++		return 0;
++
++	argv[0] = hotplug_path;
++	argv[1] = "power";
++	argv[2] = NULL;
++
++	snprintf(env_state,16,"STATE=%s",state);
++	snprintf(env_action,16,"ACTION=%s",suspend ? "suspend" : "resume");
++
++	envp[0] = "HOME=/";
++	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
++	envp[2] = env_action;
++	envp[3] = env_state;
++	envp[4] = NULL;
++
++	pr_debug("PM: Calling userspace: %s %s\n",env_action,env_state);
++
++	error = call_usermodehelper(argv[0],argv,envp,1);
++
++	return error;
++}
++
++
++#else /* CONFIG_HOTPLUG */
++
++
++static int tell_userspace(char * state, int suspend)
++{
++	return 0;
++}
++
++#endif 
++
  
- 		sec = xtime.tv_sec;
- 		usec += (xtime.tv_nsec / 1000);
+ char * pm_states[] = {
+ 	[PM_SUSPEND_STANDBY]	= "standby",
+@@ -150,9 +204,12 @@
+ 		goto Unlock;
+ 	}
+ 
++	if ((error = tell_userspace(pm_states[state],1)))
++		goto Unlock;
++
+ 	if (state == PM_SUSPEND_DISK) {
+ 		error = pm_suspend_disk();
+-		goto Unlock;
++		goto Resume;
+ 	}
+ 
+ 	pr_debug("PM: Preparing system for suspend\n");
+@@ -164,6 +221,8 @@
+ 
+ 	pr_debug("PM: Finishing up.\n");
+ 	suspend_finish(state);
++ Resume:
++	tell_userspace(pm_states[state],0);
+  Unlock:
+ 	up(&pm_sem);
+ 	return error;
+

@@ -1,83 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267528AbTALVRX>; Sun, 12 Jan 2003 16:17:23 -0500
+	id <S267532AbTALVUu>; Sun, 12 Jan 2003 16:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267532AbTALVRX>; Sun, 12 Jan 2003 16:17:23 -0500
-Received: from xyzzy.bubble.org ([132.238.254.34]:35085 "EHLO xyzzy.bubble.org")
-	by vger.kernel.org with ESMTP id <S267528AbTALVRV>;
-	Sun, 12 Jan 2003 16:17:21 -0500
-Message-ID: <3E21DD72.7080903@xyzzy.bubble.org>
-Date: Sun, 12 Jan 2003 16:26:10 -0500
-From: Jeffrey Ross <jeff@xyzzy.bubble.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACPI errors (2.4.21-pre3-ac4)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267535AbTALVUu>; Sun, 12 Jan 2003 16:20:50 -0500
+Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:13749 "EHLO
+	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267532AbTALVUs>; Sun, 12 Jan 2003 16:20:48 -0500
+Date: Sun, 12 Jan 2003 16:27:30 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*?
+In-reply-to: <20030112211530.GP27709@mea-ext.zmailer.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+ <20030112211530.GP27709@mea-ext.zmailer.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This existed with the earlier kernels as well, on boot up I get the 
-following when I enable ACPI:
+On Sun, 2003-01-12 at 16:15, Matti Aarnio wrote:
+> On Sun, Jan 12, 2003 at 02:34:54PM -0500, Rob Wilkens wrote:
+> > Linus,
+> > 
+> > I'm REALLY opposed to the use of the word "goto" in any code where it's
+> > not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
+> > to comment
+> 
+> Bob,
+> 
+> At first, read   Documentation/CodingStyle   of the kernel.
+> Then have a look into:
+> 
+>     fs/open.c  file    do_sys_truncate()  function.
+> 
+> Explain how you can do that cleanly, understandably, and without
+> code duplication, or ugly kludges  without using those goto ?
+> (And sticking to coding-style.)
 
-early in the dmesg output:
+I've only compiled (and haven't tested this code), but it should be much
+faster than the original code.  Why?  Because we're eliminating an extra
+"jump" in several places in the code every time open would be called. 
+Yes, it's more code, so the kernel is a little bigger, but it should be
+faster at the same time, and memory should be less of an issue nowadays.
 
-found SMP MP-table at 000ff780
-hm, page 000ff000 reserved twice.
-hm, page 00100000 reserved twice.
-hm, page 000fd000 reserved twice.
-hm, page 000fe000 reserved twice.
-On node 0 totalpages: 63296
-zone(0): 4096 pages.
-zone(1): 59200 pages.
-zone(2): 0 pages.
-Intel MultiProcessor Specification v1.4
-     Virtual Wire compatibility mode.
-OEM ID:  Product ID: BrkdleG-ICH4 APIC at: 0xFEE00000
-Processor #0 Pentium 4(tm) XEON(tm) APIC version 20
-I/O APIC #1 Version 32 at 0xFEC00000.
-Enabling APIC mode: Flat.       Using 1 I/O APICs
-Processors: 1
-Kernel command line: ro root=/dev/hda3 console=tty0 console=ttyS0
-Initializing CPU#0
+Here's the patch if you want to apply it (i have only compile tested it,
+I haven't booted with it).. This patch applied to the 2.5.56 kernel.
 
-and then a little further down:
+--- open.c.orig	2003-01-12 16:17:01.000000000 -0500
++++ open.c	2003-01-12 16:22:32.000000000 -0500
+@@ -100,44 +100,58 @@
+ 
+ 	error = -EINVAL;
+ 	if (length < 0)	/* sorry, but loff_t says... */
+-		goto out;
++		return error;
+ 
+ 	error = user_path_walk(path, &nd);
+ 	if (error)
+-		goto out;
++		return error;
+ 	inode = nd.dentry->d_inode;
+ 
+ 	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
+ 	error = -EISDIR;
+-	if (S_ISDIR(inode->i_mode))
+-		goto dput_and_out;
++	if (S_ISDIR(inode->i_mode)){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = -EINVAL;
+-	if (!S_ISREG(inode->i_mode))
+-		goto dput_and_out;
++	if (!S_ISREG(inode->i_mode)){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = permission(inode,MAY_WRITE);
+-	if (error)
+-		goto dput_and_out;
++	if (error){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = -EROFS;
+-	if (IS_RDONLY(inode))
+-		goto dput_and_out;
++	if (IS_RDONLY(inode)){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto dput_and_out;
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode)){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	/*
+ 	 * Make sure that there are no leases.
+ 	 */
+ 	error = break_lease(inode, FMODE_WRITE);
+-	if (error)
+-		goto dput_and_out;
++	if (error){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = get_write_access(inode);
+-	if (error)
+-		goto dput_and_out;
++	if (error){
++		path_release(&nd);
++		return error;
++	}
+ 
+ 	error = locks_verify_truncate(inode, NULL, length);
+ 	if (!error) {
+@@ -146,9 +160,7 @@
+ 	}
+ 	put_write_access(inode);
+ 
+-dput_and_out:
+ 	path_release(&nd);
+-out:
+ 	return error;
+ }
 
-ACPI-0202: *** Warning: Invalid table signature ASF! found
-ACPI-0095: *** Error: Acpi_load_tables: Error getting required tables 
-(DSDT/FADT/FACS): AE_BAD_SIGNATURE
-ACPI-0116: *** Error: Acpi_load_tables: Could not load tables: 
-AE_BAD_SIGNATURE
-ACPI: System description table load failed
-
-Processor is a P-4 2Ghz
-
-/proc/cpuinfo:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.00GHz
-stepping        : 4
-cpu MHz         : 1999.823
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3984.58
-
-
-The motherboard is an Intel model D845GBV
-
-Jeff
 

@@ -1,118 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKIVPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUKIVVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbUKIVPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbUKIVPY
+	id S261693AbUKIVVq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKIVVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:15:24 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:51213 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S261685AbUKIVNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:13:33 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Dmitry Torokhov'" <dtor_core@ameritech.net>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <davids@webmaster.com>,
-       "=?iso-8859-1?Q?'Rapha=EBl_Rigo_LKML'?=" <lkml@twilight-hall.net>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Tue, 9 Nov 2004 16:13:31 -0500
-Organization: Connect Tech Inc.
-Message-ID: <000001c4c6a0$f71bfc90$294b82ce@stuartm>
+	Tue, 9 Nov 2004 16:21:46 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:40067 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261693AbUKIVVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 16:21:42 -0500
+Message-ID: <419134E0.60906@g-house.de>
+Date: Tue, 09 Nov 2004 22:21:36 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       Pekka Enberg <penberg@gmail.com>, Matt_Domsch@dell.com
+Subject: Re: [PATCH] kobject: fix double kobject_put() in error path of kobject_add()
+References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <20041109190420.GA2498@kroah.com> <20041109190809.GA2628@kroah.com>
+In-Reply-To: <20041109190809.GA2628@kroah.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-In-Reply-To: <1099993648.15462.8.camel@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Alan Cox
-> On Maw, 2004-11-09 at 02:32, Dmitry Torokhov wrote:
-> > "The $20 USD subscription fee includes unlimited priority support,
-> > full access to the Sveasoft forums, and unlimited access to new
-> > firmware versions and upgrades."
-> > 
-> > So it looks like "if you exersize your right for the 
-> software in quesion
-> > I terminate the contract we have entered into" as opposed 
-> to "I will not
-> > extend your contract beyond initial term".
-> > 
-> > Isn't that an additional restriction? My rights for updates 
-> are revoked
-> > if I distribute GPLed code.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Greg KH schrieb:
 > 
-> Those aren't GPL granted rights. The updates/support contract is a
-> private contractual matter between Sveasoft and its members. 
-> They don't
-> stop you redistributing the GPL code you received.
+> Christian, I don't know if this patch explicitly fixes your problem, but
+> it fixes problems other people have been having with the driver core
+> lately.  I'd appreciate it if you could test it out and let me know if
+> it solves your problem, with CONFIG_EDD enabled, or if it doesn't help
+> at all.
+> 
 
-Two things:
+yes, i'll do so and test the patch. is this in current -BK yet? because
+applying your patch [1] to 2.6.10-rc1 gives:
 
-First. As a lurker I've seen the previous sveasoft discussion, but
-didn't delve into it. I've followed this thread more closely. I've
-seen the arguments, and *as they stand* it seems to me that sveasoft
-must be in violation. However, someone pointed out this:
-http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3033
-If the compliance guy thinks they're ok, then likely there's something
-I'm missing. What could that be?
+Hunk #1 FAILED at 181.
+1 out of 1 hunk FAILED -- saving rejects to file lib/kobject.c.rej
 
-A quick look around their forums popped up this:
-http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3868
-which says in short they will only revoke subscriptions if they find
-you redistributing the *non-GPL* portions of the pre-release software.
-Presumably they've licenced their pre-release non-GPL bits under a "We
-will revoke your licence if you redistribute this bit" licence. Which
-is fair. The author of a work is free to licence it however they see
-fit, irregardless if they've previously licenced earlier versions
-under the GPL.
+i've done a few other things before, let me just post the results before i
+go on with your suggestions:
 
-So it seems they are in compliance after all. Just that the thread is
-a little misleading about what's going on, and that confused me for a
-bit.
+i've compiled a recent (BK) 2.6.10-rc1 again with CONFIG_EDD=m|y|n
 
-Second. Let's assume for a minute that they are revoking subscriptions
-if you redistribute the GPL bits, which is your right. Alan and others
-appear to be saying above that this is okay. I disagree.
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_edd-modular.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_edd.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_no-edd.txt
 
-The GPL protects your right to redistribute from "further
-restriction". It does not specify in what manner this restriction may
-take place; specifically it does not say that the "further
-restriction" must be something described in the GPL. In my reading,
-the further restriction could take any form whatsoever.
+the results:
 
-Ah, something just clicked. I think Alan is reading the "rights
-herein" part, and then saying above that the right to support, updates
-etc is not a GPL-granted right, and thus is not subject to the
-protection of that clause. Fair enough, they are not. However, **that
-is not the right being restricted** in this now-hypothetical scenario.
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd-modular.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_no-edd.txt
 
-In the hypothetical, sveasoft would be penalising you for exercising
-your right to redistribute the GPL code. The fact that this
-penalisation is taking the form of revoking some other right between
-you and they is irrelevant. They could just as easily have penalised
-you by beating you with a stick.
+the interesting thing (for me) was, that when CONFIG_EDD=m was set, my
+sound card was working properly and i could do "modprobe edd" and "rmmod
+edd" as i like:
 
-How can a penalisation not be a "further restriction" on your right to
-redistribute?
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/typescript-2.6.10-rc1_edd-modular.txt
 
-My reading of the GPL tells me that "further restriction" means
-**any** restriction whatsoever, whensoever, howsoever. If there is a
-sentence of the form
+again: i double checked and compiled on 2 different hosts, each having
+it's own -BK tree.
 
-if (exercise(GPL-protected-right))
-  penalise(method);
+thanks,
+Christian.
 
-that is a further restriction. What "method" is, how it operates, when
-it comes into force is irrelevant.
+[1] http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/edd-fix.patch
+- --
+BOFH excuse #22:
 
-That's my understanding. Am I correct? Or not?
+monitor resolution too high
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-..Stu
-
+iD8DBQFBkTTg+A7rjkF8z0wRAvFPAKCCM05vqhg4u2NH2wklRRbxdVSpcwCff9a3
+/KodSmgp9J4Nf2LDcTiBOCo=
+=B/3X
+-----END PGP SIGNATURE-----

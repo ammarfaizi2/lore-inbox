@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263887AbTEOGKl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 02:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTEOGKk
+	id S263869AbTEOGYk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 02:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTEOGYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 02:10:40 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:16770
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263887AbTEOGK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 02:10:26 -0400
-Date: Thu, 15 May 2003 02:13:45 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andrew Morton <akpm@digeo.com>
-cc: Patrick Mochel <mochel@osdl.org>, "" <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
-In-Reply-To: <20030514231414.42398dda.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.50.0305150207070.19782-100000@montezuma.mastecende.com>
-References: <20030514193300.58645206.akpm@digeo.com>
- <Pine.LNX.4.44.0305141935440.9816-100000@cherise> <20030514231414.42398dda.akpm@digeo.com>
+	Thu, 15 May 2003 02:24:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263869AbTEOGYj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 02:24:39 -0400
+Message-ID: <3EC3359D.5050207@pobox.com>
+Date: Thu, 15 May 2003 02:37:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davej@codemonkey.org.uk
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] iphase fix.
+References: <200305150417.h4F4HTRA025809@hera.kernel.org>
+In-Reply-To: <200305150417.h4F4HTRA025809@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, Andrew Morton wrote:
-
-> I'd say that as long as the shutdown routines are executed in reverse
-> order of startup, then the core driver stuff has fulfilled its
-> obligations.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1127, 2003/05/14 20:44:02-07:00, davej@codemonkey.org.uk
 > 
-> In this case we need to understand why the lockup is happening - what
-> code is requiring 8259 services after the thing has been turned off?
-> Could be that the bug lies there.
+> 	[PATCH] iphase fix.
+> 	
+> 	This went into 2.4 nearly a year back with the wonderfully
+> 	descriptive  "Fix from maintainer" comment.
 
-The registration is somewhat unfair here, it depends on device_initcall 
-and we initialise the 8259 in init_IRQ.
+> diff -Nru a/drivers/net/fc/iph5526.c b/drivers/net/fc/iph5526.c
+> --- a/drivers/net/fc/iph5526.c	Wed May 14 21:17:37 2003
+> +++ b/drivers/net/fc/iph5526.c	Wed May 14 21:17:37 2003
+> @@ -2984,8 +2984,7 @@
+>  	 */
+>  	if ((type == ETH_P_ARP) || (status == 0))
+>  		dev_kfree_skb(skb);
+> -	else
+> -		netif_wake_queue(dev);
+> +	netif_wake_queue(dev);
+>  	LEAVE("iph5526_send_packet");
 
-	Zwane
--- 
-function.linuxpower.ca
+
+This appears to revert a fix.
+
+You only want to wake the queue if you have room to queue another skb.
+
+	Jeff
+
+

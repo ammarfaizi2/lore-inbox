@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131071AbRA2Smo>; Mon, 29 Jan 2001 13:42:44 -0500
+	id <S129399AbRA2SuF>; Mon, 29 Jan 2001 13:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131091AbRA2Sme>; Mon, 29 Jan 2001 13:42:34 -0500
-Received: from [212.6.145.2] ([212.6.145.2]:61961 "HELO heaven.astaro.de")
-	by vger.kernel.org with SMTP id <S129710AbRA2SmR>;
-	Mon, 29 Jan 2001 13:42:17 -0500
-Message-ID: <3A75B96A.611B39C3@astaro.de>
-Date: Mon, 29 Jan 2001 19:41:46 +0100
-From: Dennis Koslowski <dennis.koslowski@astaro.de>
-Organization: astaro AG
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: de, ru, en
+	id <S129532AbRA2St4>; Mon, 29 Jan 2001 13:49:56 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:7714 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129399AbRA2Stp> convert rfc822-to-8bit; Mon, 29 Jan 2001 13:49:45 -0500
+Message-ID: <4FAC40499714D31186C60060943F47A902C0C4F0@mtv-mven006e--n.engr.sgi.com>
+From: Yi Li <yili@sgi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Yi Li <yili@sgi.com>
+Subject: XFS file system Pre-Release
+Date: Mon, 29 Jan 2001 10:49:38 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [ANNOUNCE] New netfilter portscan detection module
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Jan 2001 18:32:54.0839 (UTC) FILETIME=[E5169470:01C08A21]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've just posted a new portscan detection module to netfilter mailing
-list. This module is used inside of linux 2.4 netfilter architecture and
-will attempt to detect TCP and UDP port scans and log them to
-the syslog.
+SGI has made available the pre-release version 0.9 of its high-end XFS file
+system ported to Linux®. Code and detailed information are at
+http://oss.sgi.com/projects/xfs/prerelease.html.
 
-For download, please see the netfilter mailing list or our product
-download site at http://download.astaro.com/patches/
+Thanks to the extensive interest and contributions from the community, the
+XFS file system for Linux has made significant progress since its Beta
+release in September 2000. Although there are still some features to be
+finalized, the pre-release code is currently stable in a majority of normal
+environments. We welcome and encourage interested users to try out the code
+aggressively in your test environments, so that we can work through the
+final stage of the development and bug fixes to meet your production needs. 
 
-Astaro also started a PSD discussion BB at http://www.astaro.org .
-Please visit it, your feedback is welcome :)
---
-Dennis Koslowski <dennis.koslowski@astaro.de> | Product Devel.
-Astaro AG | http://www.astaro.de  | +49-721-490069-0 | Fax -55
+SGI XFS Pre-release 0.9 is available in the following three fashions:
+· As a patch against linux-2.4.0. 
+· As a set of RPMs.
+· As a complete system installer which works with Red Hat 7.0 media to run
+XFS on the root partition.
+
+We will be demonstrating XFS as the root file system for high availability
+and clustering solutions in SGI systems at LinuxWorld New York from January
+31 to February 2. Free XFS CDs will also be available at LinuxWorld.
+
+For more information on the open source project of XFS for Linux, please see
+http://oss.sgi.com/projects/xfs/index.html.
+
+Thanks very much - please email me at yili@sgi.com if you have any
+questions.
+
+Yi 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

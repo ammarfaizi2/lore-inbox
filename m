@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270724AbRHST1H>; Sun, 19 Aug 2001 15:27:07 -0400
+	id <S270712AbRHSTYh>; Sun, 19 Aug 2001 15:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270721AbRHST06>; Sun, 19 Aug 2001 15:26:58 -0400
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:61648 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S270717AbRHST0u>;
-	Sun, 19 Aug 2001 15:26:50 -0400
-Message-Id: <5.1.0.14.2.20010819202622.00ae28d0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 19 Aug 2001 20:26:54 +0100
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0
-Cc: Chris Oxenreider <oxenreid@state.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010819142008.C2580@conectiva.com.br>
-In-Reply-To: <Pine.SV4.4.10.10108191150090.1226-100000@dorthy>
- <Pine.SV4.4.10.10108191150090.1226-100000@dorthy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S270717AbRHSTY1>; Sun, 19 Aug 2001 15:24:27 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:44295 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S270712AbRHSTYN>; Sun, 19 Aug 2001 15:24:13 -0400
+To: Peter Fales <psfales@lucent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UMSDOS problems in 2.4.9?
+In-Reply-To: <20010818212401.A1814@lucent.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: 20 Aug 2001 04:24:08 +0900
+In-Reply-To: <20010818212401.A1814@lucent.com>
+Message-ID: <874rr3rgyv.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:20 19/08/2001, Arnaldo Carvalho de Melo wrote:
->Em Sun, Aug 19, 2001 at 12:13:52PM -0500, Chris Oxenreider escreveu:
-> >
-> > Help.
-> > On a freshly installed system using a version of Mandrake 8.0 from the
-> > free 'iso' images on the linux-mandrake sight this is what happens:
->
->add
->
->#include <linux/kernel.h>
+Hi,
 
-Yes, add above line to fs/ntfs/unistr.c and all is fine.
+Peter Fales <psfales@lucent.com> writes:
 
-Anton
+> My UMSDOS file system stopped working when I switch from 2.4.8 to 
+> 2.4.9.  I can mount the partition as "msdos" or even "vfat" but if
+> I use "umsdos" there are no files visible.  Has anyone else seen this?
 
+Probably I think it related to change of filldir_t.
+This problem fixed with the following patch?
+--
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
->IIRC this will do the trick, getting the min definition from kernel.h
->
->- Arnaldo
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+diff -urN linux-2.4.9/fs/umsdos/dir.c umsdos_off_t-2.4.9/fs/umsdos/dir.c
+--- linux-2.4.9/fs/umsdos/dir.c	Sat Feb 10 04:29:44 2001
++++ umsdos_off_t-2.4.9/fs/umsdos/dir.c	Sun Aug 19 16:13:25 2001
+@@ -67,7 +67,7 @@
+ static int umsdos_dir_once (	void *buf,
+ 				const char *name,
+ 				int len,
+-				off_t offset,
++				loff_t offset,
+ 				ino_t ino,
+ 				unsigned type)
+ {
+diff -urN linux-2.4.9/fs/umsdos/ioctl.c umsdos_off_t-2.4.9/fs/umsdos/ioctl.c
+--- linux-2.4.9/fs/umsdos/ioctl.c	Thu Apr 19 03:49:13 2001
++++ umsdos_off_t-2.4.9/fs/umsdos/ioctl.c	Sun Aug 19 16:16:36 2001
+@@ -28,7 +28,7 @@
+ 				     void *buf,
+ 				     const char *name,
+ 				     int name_len,
+-				     off_t offset,
++				     loff_t offset,
+ 				     ino_t ino,
+ 				     unsigned type)
+ {
+diff -urN linux-2.4.9/fs/umsdos/rdir.c umsdos_off_t-2.4.9/fs/umsdos/rdir.c
+--- linux-2.4.9/fs/umsdos/rdir.c	Sat Feb 10 04:29:44 2001
++++ umsdos_off_t-2.4.9/fs/umsdos/rdir.c	Sun Aug 19 16:16:34 2001
+@@ -32,7 +32,7 @@
+ static int rdir_filldir (	void *buf,
+ 				const char *name,
+ 				int name_len,
+-				off_t offset,
++				loff_t offset,
+ 				ino_t ino,
+ 				unsigned int d_type)
+ {
 

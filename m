@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269529AbTCDUdH>; Tue, 4 Mar 2003 15:33:07 -0500
+	id <S269530AbTCDUhA>; Tue, 4 Mar 2003 15:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269530AbTCDUdH>; Tue, 4 Mar 2003 15:33:07 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:33540 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S269529AbTCDUdG>;
-	Tue, 4 Mar 2003 15:33:06 -0500
-Date: Tue, 4 Mar 2003 21:43:28 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Bill Davidsen <davidsen@tmr.com>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.63] aha152x, module issues
-Message-ID: <20030304204328.GA7271@mars.ravnborg.org>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303031710370.22041-100000@oddball.prodigy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303031710370.22041-100000@oddball.prodigy.com>
-User-Agent: Mutt/1.4i
+	id <S269531AbTCDUhA>; Tue, 4 Mar 2003 15:37:00 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48657 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S269530AbTCDUg7> convert rfc822-to-8bit; Tue, 4 Mar 2003 15:36:59 -0500
+Date: Tue, 4 Mar 2003 15:43:35 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 DVD DMA problem
+In-Reply-To: <Pine.LNX.4.50L.0303011032280.17500-100000@piorun.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.3.96.1030304154132.14509A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 05:11:10PM -0500, Bill Davidsen wrote:
-> scripts/Makefile.modinst:16: *** Uh-oh, you have stale module entries. You messed with SUBDIRS, do not complain if something goes wrong.
+On Sat, 1 Mar 2003, [ISO-8859-2] Pawe³ Go³aszewski wrote:
 
-This happens if you have encountered a compile error in a module.
-In this case you did not succeed the compilation of fs/binfmt_aout,
-and therefore no .o file can be located.
-kbuild assumes this is because you have messed with SUBDIRS, which is wrong.
+> On Fri, 28 Feb 2003, Micah Anderson wrote:
+> > In 2.2.20 enabling DMA on a DVD drive with hdparm stopped the lurching
+> > of DVD movies, when doing the same in a 2.4.20 environment (with all the
+> > DMA options compiled into the kernel, see below), the lurching stays.
+> > Thanks for any ideas...
+> 
+> Try this:  http://www.ans.pl/ide/testing/
+> It's backport of IDE subsystem from 2.4 - works really nice.
 
-Kai - the following patch fixes this for me.
+Did I miss something? Micah said DMA fixed the problem in 2.2 but not in
+2.4, why would he want a backport of the code which has the problem to the
+kernel which works?
 
-	Sam
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-===== scripts/Makefile.build 1.31 vs edited =====
---- 1.31/scripts/Makefile.build	Wed Feb 19 23:42:13 2003
-+++ edited/scripts/Makefile.build	Tue Mar  4 21:40:47 2003
-@@ -163,12 +163,12 @@
- # Single-part modules are special since we need to mark them in $(MODVERDIR)
- 
- $(single-used-m): %.o: %.c FORCE
--	$(touch-module)
- ifdef CONFIG_MODVERSIONS
- 	$(call if_changed_rule,vcc_o_c)
- else
- 	$(call if_changed_dep,cc_o_c)
- endif
-+	$(touch-module)
- 
- quiet_cmd_cc_lst_c = MKLST   $@
-       cmd_cc_lst_c = $(CC) $(c_flags) -g -c -o $*.o $< && \
-@@ -262,8 +262,8 @@
- 	$(call if_changed,link_multi-y)
- 
- $(multi-used-m) : %.o: $(multi-objs-m) FORCE
--	$(touch-module)
- 	$(call if_changed,link_multi-m)
-+	$(touch-module)
- 
- targets += $(multi-used-y) $(multi-used-m)
- 

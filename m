@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264451AbUAEMoD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 07:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbUAEMoD
+	id S264323AbUAEMlv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 07:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUAEMlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 07:44:03 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:2803 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264451AbUAEMnx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 07:43:53 -0500
-Date: Tue, 06 Jan 2004 01:39:28 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: udev and devfs - The final word
-In-reply-to: <200401051201.58356.roro.l@dewire.com>
-To: Robin Rosenberg <roro.l@dewire.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1073306368.4181.103.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-iLyug6VwGGuTbDfkpXQM";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <20040103040013.A3100@pclin040.win.tue.nl>
- <m31xqedelx.fsf@lugabout.jhcloos.org> <1073288725.2385.70.camel@laptop-linux>
- <200401051201.58356.roro.l@dewire.com>
+	Mon, 5 Jan 2004 07:41:51 -0500
+Received: from router.k.plenum.de ([194.77.86.125]:27535 "EHLO
+	metallica.ki.plenum.de") by vger.kernel.org with ESMTP
+	id S264323AbUAEMlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 07:41:49 -0500
+Date: Mon, 5 Jan 2004 13:43:21 +0100
+From: Kresimir Sparavec <kreso@k.plenum.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: neel vanan <neelvanan@yahoo.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic.. in 3.0 Enterprise Linux
+Message-ID: <20040105134321.A8565@metallica.ki.plenum.de>
+References: <20040105115610.49148.qmail@web9505.mail.yahoo.com> <1073305477.4429.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1073305477.4429.0.camel@laptop.fenrus.com>; from arjanv@redhat.com on Mon, Jan 05, 2004 at 01:24:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-iLyug6VwGGuTbDfkpXQM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jan 05, 2004 at 01:24:38PM +0100, Arjan van de Ven wrote:
+> On Mon, 2004-01-05 at 12:56, neel vanan wrote:
+> > Hi all,
+> > 
+> > The kernel I have working is version 2.4.21-4.EL and I
+> > can still boot up to that. I compiled a 2.6.0 version
+> > and installed it in exactly the same way that the old
+> > version is, just appending 2.6.0 to the end of the
+> > file. so when I reboot I get a boot screen that shows:
+> > 
+> > Red Hat Enterprise Linux AS (2.4.21-4.ELsmp)
+> > Red Hat Enterprise Linux As-up (2.4.21-4.EL)
+> > Red Hat linux (2.6.0)
+> 
+> RHEL3 isn't quite 2.6 ready btw; you need to update quite a few packages
+> to get it working right.
 
-Hi.
+could you please summarize which ones? i upgraded modutils and modified
+rc.sysinit for usb support. the rest works unmodified (except NVIDIA
+proprietary kernel driver which does not have 2.6.x support yet, but XFree86
+driver works fine for me) as far as i can tell. i got exactly 0 (zero)
+kernel panics up to now. compared with 2.4.0 few years ago, 2.6.0 works
+like charm
 
-The suspend to disk implementations all assume that devices are not
-[dis]appearing under us while we're suspended. If you do go adding and
-removing devices while the power is off, you can expect the same
-problems you'd get if you removed them without suspending the machine.
-It would be roughly equivalent to hot[un]plugging devices.
-
-To return to the original point though, userspace may see a sudden big
-jump in the time clock if it's looking, but it won't suddenly find major
-& minor numbers are different.
-
-Regards,
-
-Nigel
-
-On Tue, 2004-01-06 at 00:01, Robin Rosenberg wrote:
-> > Yes. You end up running the original kernel.
->=20
-> But not necessarily the same devices.
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-iLyug6VwGGuTbDfkpXQM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/+VsAVfpQGcyBBWkRAicBAKCGrYIbFJrbvjNz921lTLmlx1HujACfYqaW
-isOFmwMJ7cKPSKQgacLHnFo=
-=TBG8
------END PGP SIGNATURE-----
-
---=-iLyug6VwGGuTbDfkpXQM--
-
+> 
+> Also if you use mount-by-label you do need to create an initrd (with a
+> 2.6 capable mkinitrd)...
+> 

@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263620AbTCUNr0>; Fri, 21 Mar 2003 08:47:26 -0500
+	id <S263617AbTCUNpa>; Fri, 21 Mar 2003 08:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263621AbTCUNr0>; Fri, 21 Mar 2003 08:47:26 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:42180 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S263620AbTCUNrY>;
-	Fri, 21 Mar 2003 08:47:24 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Osamu Tomita <tomita@cinet.co.jp>
-Date: Fri, 21 Mar 2003 14:57:51 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: vt.c in 2.5.65-ac1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <1010F960E4@vcnet.vc.cvut.cz>
+	id <S263619AbTCUNpa>; Fri, 21 Mar 2003 08:45:30 -0500
+Received: from angband.namesys.com ([212.16.7.85]:62604 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S263617AbTCUNp3>; Fri, 21 Mar 2003 08:45:29 -0500
+Date: Fri, 21 Mar 2003 16:56:28 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd oops in 2.4.20 SMP+NFS
+Message-ID: <20030321165628.K17440@namesys.com>
+References: <1048170204.5161.11.camel@calculon> <20030321112834.A17330@namesys.com> <1048240247.9345.19.camel@fortknox> <20030321130402.C17440@namesys.com> <1048243299.9338.23.camel@fortknox> <20030321135841.D17440@namesys.com> <1048245614.9338.41.camel@fortknox>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048245614.9338.41.camel@fortknox>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Mar 03 at 10:46, Osamu Tomita wrote:
+Hello!
 
-> I have a aquestion about patch in patch-2.5.65-ac1 for vt.c.
-> Here is a extracted patch from patch-2.5.65-ac1.
-> I think it's no need for 2.5.65.
+On Fri, Mar 21, 2003 at 12:20:14PM +0100, Soeren Sonnenburg wrote:
 
-There should be none of these two resize_screen calls. If you'll
-resize non-foreground VT, they'll trigger fbcon_resize with 
-con != visible_con, resizing your display even if they should not.
 
-Only the "if (IS_VISIBLE) err = resize_screen(...);" resize should
-be there (AFAIK), if con_resize follows other con_* APIs: call it
-only if con is visible, like it is done with putcs and others.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
+> I just checked the logs... It seems that the oops occurs 24 seconds
+> after the backup script was started (which is run hourly). 
+> This script first mounts the nfs share, then looks for modified files
+> and tar's them over, then umounts the share.
+> So it is probably the umount of that nfs partion.
 
-> --- linux-2.5.65/drivers/char/vt.c  2003-03-18 16:46:47.000000000 +0000
-> +++ linux-2.5.65-ac1/drivers/char/vt.c  2003-03-18 16:58:38.000000000 +0000
-> @@ -732,6 +732,12 @@
->     if (new_cols == video_num_columns && new_rows == video_num_lines)
->         return 0;
->  
-> +   err = resize_screen(currcons, new_cols, new_rows);
-> +   if (err) {
-> +       kfree(newscreen);
-> +       return err;
-> +   }
-> +
->     newscreen = (unsigned short *) kmalloc(new_screen_size, GFP_USER);
->     if (!newscreen)
->         return -ENOMEM;
-> @@ -746,12 +752,6 @@
->     video_size_row = new_row_size;
->     screenbuf_size = new_screen_size;
->  
-> -   err = resize_screen(currcons, new_cols, new_rows);
-> -   if (err) {
-> -       kfree(newscreen);
-> -       return err;
-> -   }
-> -
->     rlth = min(old_row_size, new_row_size);
->     rrem = new_row_size - rlth;
->     old_origin = origin;
+Well, then I think NFS people may be interested in that oops.
+Resend it to them please and state that this is most likely from NFS.
 
+Thank you.
+
+Bye,
+    Oleg

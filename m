@@ -1,914 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUENO3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUENObZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUENO3G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 10:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUENO3G
+	id S261252AbUENObZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 10:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUENO30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 10:29:06 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:2794 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261232AbUENOMm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 10:12:42 -0400
-Date: Fri, 14 May 2004 16:12:34 +0200 (MEST)
-Message-Id: <200405141412.i4EECYsk018425@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][5/7] perfctr-2.7.2 for 2.6.6-mm2: virtualised counters
-Cc: linux-kernel@vger.kernel.org
+	Fri, 14 May 2004 10:29:26 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:37018 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261252AbUENOQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 10:16:02 -0400
+Message-ID: <40A4D49C.3030300@myrealbox.com>
+Date: Fri, 14 May 2004 07:15:56 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+CC: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2)
+References: <200405131308.40477.luto@myrealbox.com>	<20040513182010.L21045@build.pdx.osdl.net>	<200405131945.53723.luto@myrealbox.com> <87d657z2lm.fsf@goat.bogus.local>
+In-Reply-To: <87d657z2lm.fsf@goat.bogus.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-perfctr-2.7.2 for 2.6.6-mm2, part 5/7:
+Olaf Dietsche wrote:
 
-- driver for virtualised (per-process) performance counters
+> Andy Lutomirski <luto@myrealbox.com> writes:
+> 
+> 
+>>+	/* Pretend we have VFS capabilities */
+>>+	cap_set_full(bprm->cap_inheritable);
+>>+	if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
+>>+		cap_set_full(bprm->cap_permitted);
+>>+	else
+>>+		cap_clear(bprm->cap_permitted);
+> 
+> 
+> I'd move this to security/commoncap.c:
 
- virtual.c |  858 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- virtual.h |   20 +
- 2 files changed, 878 insertions(+)
+[snip]
 
-diff -ruN linux-2.6.6-mm2/drivers/perfctr/virtual.c linux-2.6.6-mm2.perfctr-2.7.2.virtual/drivers/perfctr/virtual.c
---- linux-2.6.6-mm2/drivers/perfctr/virtual.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.6-mm2.perfctr-2.7.2.virtual/drivers/perfctr/virtual.c	2004-05-14 14:44:51.189393324 +0200
-@@ -0,0 +1,858 @@
-+/* $Id: virtual.c,v 1.91 2004/05/13 23:32:49 mikpe Exp $
-+ * Virtual per-process performance counters.
-+ *
-+ * Copyright (C) 1999-2004  Mikael Pettersson
-+ */
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/compiler.h>	/* for unlikely() in 2.4.18 and older */
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/ptrace.h>
-+#include <linux/fs.h>
-+#include <linux/file.h>
-+#include <linux/perfctr.h>
-+
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+#include "cpumask.h"
-+#include "virtual.h"
-+#include "marshal.h"
-+
-+/****************************************************************
-+ *								*
-+ * Data types and macros.					*
-+ *								*
-+ ****************************************************************/
-+
-+struct vperfctr {
-+/* User-visible fields: (must be first for mmap()) */
-+	struct perfctr_cpu_state cpu_state;
-+/* Kernel-private fields: */
-+	int si_signo;
-+	atomic_t count;
-+	spinlock_t owner_lock;
-+	struct task_struct *owner;
-+	/* sampling_timer and bad_cpus_allowed are frequently
-+	   accessed, so they get to share a cache line */
-+	unsigned int sampling_timer ____cacheline_aligned;
-+#if PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED
-+	atomic_t bad_cpus_allowed;
-+#endif
-+#if PERFCTR_INTERRUPT_SUPPORT
-+	unsigned int iresume_cstatus;
-+#endif
-+};
-+#define IS_RUNNING(perfctr)	perfctr_cstatus_enabled((perfctr)->cpu_state.cstatus)
-+
-+#if PERFCTR_INTERRUPT_SUPPORT
-+
-+static void vperfctr_ihandler(unsigned long pc);
-+
-+static inline void vperfctr_set_ihandler(void)
-+{
-+	perfctr_cpu_set_ihandler(vperfctr_ihandler);
-+}
-+
-+static inline void vperfctr_clear_iresume_cstatus(struct vperfctr *perfctr)
-+{
-+	perfctr->iresume_cstatus = 0;
-+}
-+
-+#else
-+static inline void vperfctr_set_ihandler(void) { }
-+static inline void vperfctr_clear_iresume_cstatus(struct vperfctr *perfctr) { }
-+#endif
-+
-+#if PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED
-+
-+static inline void vperfctr_init_bad_cpus_allowed(struct vperfctr *perfctr)
-+{
-+	atomic_set(&perfctr->bad_cpus_allowed, 0);
-+}
-+
-+/* Concurrent set_cpus_allowed() is possible. The only lock it
-+   can take is the task lock, so we have to take it as well.
-+   task_lock/unlock also disables/enables preemption. */
-+
-+static inline void vperfctr_task_lock(struct task_struct *p)
-+{
-+	task_lock(p);
-+}
-+
-+static inline void vperfctr_task_unlock(struct task_struct *p)
-+{
-+	task_unlock(p);
-+}
-+
-+#else	/* !PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED */
-+
-+static inline void vperfctr_init_bad_cpus_allowed(struct vperfctr *perfctr) { }
-+
-+/* Concurrent set_cpus_allowed() is impossible or irrelevant.
-+   Disabling and enabling preemption suffices for an atomic region. */
-+
-+static inline void vperfctr_task_lock(struct task_struct *p)
-+{
-+	preempt_disable();
-+}
-+
-+static inline void vperfctr_task_unlock(struct task_struct *p)
-+{
-+	preempt_enable();
-+}
-+
-+#endif	/* !PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED */
-+
-+/****************************************************************
-+ *								*
-+ * Resource management.						*
-+ *								*
-+ ****************************************************************/
-+
-+/* XXX: perhaps relax this to number of _live_ perfctrs */
-+static spinlock_t nrctrs_lock = SPIN_LOCK_UNLOCKED;
-+static int nrctrs;
-+static const char this_service[] = __FILE__;
-+
-+static int inc_nrctrs(void)
-+{
-+	const char *other;
-+
-+	other = NULL;
-+	spin_lock(&nrctrs_lock);
-+	if( ++nrctrs == 1 ) {
-+		other = perfctr_cpu_reserve(this_service);
-+		if( other )
-+			nrctrs = 0;
-+	}
-+	spin_unlock(&nrctrs_lock);
-+	if( other ) {
-+		printk(KERN_ERR __FILE__
-+		       ": cannot operate, perfctr hardware taken by '%s'\n",
-+		       other);
-+		return -EBUSY;
-+	}
-+	vperfctr_set_ihandler();
-+	return 0;
-+}
-+
-+static void dec_nrctrs(void)
-+{
-+	spin_lock(&nrctrs_lock);
-+	if( --nrctrs == 0 )
-+		perfctr_cpu_release(this_service);
-+	spin_unlock(&nrctrs_lock);
-+}
-+
-+static struct vperfctr *vperfctr_alloc(void)
-+{
-+	unsigned long page;
-+
-+	if( inc_nrctrs() != 0 )
-+		return ERR_PTR(-EBUSY);
-+	page = get_zeroed_page(GFP_KERNEL);
-+	if( !page ) {
-+		dec_nrctrs();
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	SetPageReserved(virt_to_page(page));
-+	return (struct vperfctr*) page;
-+}
-+
-+static void vperfctr_free(struct vperfctr *perfctr)
-+{
-+	ClearPageReserved(virt_to_page(perfctr));
-+	free_page((unsigned long)perfctr);
-+	dec_nrctrs();
-+}
-+
-+static struct vperfctr *get_empty_vperfctr(void)
-+{
-+	struct vperfctr *perfctr = vperfctr_alloc();
-+	if( !IS_ERR(perfctr) ) {
-+		atomic_set(&perfctr->count, 1);
-+		vperfctr_init_bad_cpus_allowed(perfctr);
-+		spin_lock_init(&perfctr->owner_lock);
-+	}
-+	return perfctr;
-+}
-+
-+static void put_vperfctr(struct vperfctr *perfctr)
-+{
-+	if( atomic_dec_and_test(&perfctr->count) )
-+		vperfctr_free(perfctr);
-+}
-+
-+/****************************************************************
-+ *								*
-+ * Basic counter operations.					*
-+ * These must all be called by the owner process only.		*
-+ * These must all be called with preemption disabled.		*
-+ *								*
-+ ****************************************************************/
-+
-+/* PRE: IS_RUNNING(perfctr)
-+ * Suspend the counters.
-+ * XXX: When called from switch_to(), perfctr belongs to 'prev'
-+ * but current is 'next'.
-+ */
-+static inline void vperfctr_suspend(struct vperfctr *perfctr)
-+{
-+	perfctr_cpu_suspend(&perfctr->cpu_state);
-+}
-+
-+static inline void vperfctr_reset_sampling_timer(struct vperfctr *perfctr)
-+{
-+	/* XXX: base the value on perfctr_info.cpu_khz instead! */
-+	perfctr->sampling_timer = HZ/2;
-+}
-+
-+/* PRE: perfctr == current->thread.perfctr && IS_RUNNING(perfctr)
-+ * Restart the counters.
-+ */
-+static inline void vperfctr_resume(struct vperfctr *perfctr)
-+{
-+	perfctr_cpu_resume(&perfctr->cpu_state);
-+	vperfctr_reset_sampling_timer(perfctr);
-+}
-+
-+/* Sample the counters but do not suspend them. */
-+static void vperfctr_sample(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) ) {
-+		perfctr_cpu_sample(&perfctr->cpu_state);
-+		vperfctr_reset_sampling_timer(perfctr);
-+	}
-+}
-+
-+#if PERFCTR_INTERRUPT_SUPPORT
-+/* vperfctr interrupt handler (XXX: add buffering support) */
-+/* PREEMPT note: called in IRQ context with preemption disabled. */
-+static void vperfctr_ihandler(unsigned long pc)
-+{
-+	struct task_struct *tsk = current;
-+	struct vperfctr *perfctr;
-+	unsigned int pmc_mask;
-+	siginfo_t si;
-+
-+	perfctr = tsk->thread.perfctr;
-+	if( !perfctr ) {
-+		printk(KERN_ERR "%s: BUG! pid %d has no vperfctr\n",
-+		       __FUNCTION__, tsk->pid);
-+		return;
-+	}
-+	if( !perfctr_cstatus_has_ictrs(perfctr->cpu_state.cstatus) ) {
-+		printk(KERN_ERR "%s: BUG! vperfctr has cstatus %#x (pid %d, comm %s)\n",
-+		       __FUNCTION__, perfctr->cpu_state.cstatus, tsk->pid, tsk->comm);
-+		return;
-+	}
-+	vperfctr_suspend(perfctr);
-+	pmc_mask = perfctr_cpu_identify_overflow(&perfctr->cpu_state);
-+	if( !pmc_mask ) {
-+		printk(KERN_ERR "%s: BUG! pid %d has unidentifiable overflow source\n",
-+		       __FUNCTION__, tsk->pid);
-+		return;
-+	}
-+	/* suspend a-mode and i-mode PMCs, leaving only TSC on */
-+	/* XXX: some people also want to suspend the TSC */
-+	perfctr->iresume_cstatus = perfctr->cpu_state.cstatus;
-+	if( perfctr_cstatus_has_tsc(perfctr->iresume_cstatus) ) {
-+		perfctr->cpu_state.cstatus = perfctr_mk_cstatus(1, 0, 0);
-+		vperfctr_resume(perfctr);
-+	} else
-+		perfctr->cpu_state.cstatus = 0;
-+	si.si_signo = perfctr->si_signo;
-+	si.si_errno = 0;
-+	si.si_code = SI_PMC_OVF;
-+	si.si_pmc_ovf_mask = pmc_mask;
-+	if( !send_sig_info(si.si_signo, &si, tsk) )
-+		send_sig(si.si_signo, tsk, 1);
-+}
-+#endif
-+
-+/****************************************************************
-+ *								*
-+ * Process management operations.				*
-+ * These must all, with the exception of vperfctr_unlink()	*
-+ * and __vperfctr_set_cpus_allowed(), be called by the owner	*
-+ * process only.						*
-+ *								*
-+ ****************************************************************/
-+
-+/* Called from exit_thread() or sys_vperfctr_unlink().
-+ * If the counters are running, stop them and sample their final values.
-+ * Detach the vperfctr object from its owner task.
-+ * PREEMPT note: exit_thread() does not run with preemption disabled.
-+ */
-+static void vperfctr_unlink(struct task_struct *owner, struct vperfctr *perfctr)
-+{
-+	/* this synchronises with sys_vperfctr() */
-+	spin_lock(&perfctr->owner_lock);
-+	perfctr->owner = NULL;
-+	spin_unlock(&perfctr->owner_lock);
-+
-+	/* perfctr suspend+detach must be atomic wrt process suspend */
-+	/* this also synchronises with perfctr_set_cpus_allowed() */
-+	vperfctr_task_lock(owner);
-+	if( IS_RUNNING(perfctr) && owner == current )
-+		vperfctr_suspend(perfctr);
-+	owner->thread.perfctr = NULL;
-+	vperfctr_task_unlock(owner);
-+
-+	perfctr->cpu_state.cstatus = 0;
-+	vperfctr_clear_iresume_cstatus(perfctr);
-+	put_vperfctr(perfctr);
-+}
-+
-+void __vperfctr_exit(struct vperfctr *perfctr)
-+{
-+	vperfctr_unlink(current, perfctr);
-+}
-+
-+/* schedule() --> switch_to() --> .. --> __vperfctr_suspend().
-+ * If the counters are running, suspend them.
-+ * PREEMPT note: switch_to() runs with preemption disabled.
-+ */
-+void __vperfctr_suspend(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) )
-+		vperfctr_suspend(perfctr);
-+}
-+
-+/* schedule() --> switch_to() --> .. --> __vperfctr_resume().
-+ * PRE: perfctr == current->thread.perfctr
-+ * If the counters are runnable, resume them.
-+ * PREEMPT note: switch_to() runs with preemption disabled.
-+ */
-+void __vperfctr_resume(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) ) {
-+#if PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED
-+		if( unlikely(atomic_read(&perfctr->bad_cpus_allowed)) &&
-+		    perfctr_cstatus_nrctrs(perfctr->cpu_state.cstatus) ) {
-+			perfctr->cpu_state.cstatus = 0;
-+			vperfctr_clear_iresume_cstatus(perfctr);
-+			BUG_ON(current->state != TASK_RUNNING);
-+			send_sig(SIGILL, current, 1);
-+			return;
-+		}
-+#endif
-+		vperfctr_resume(perfctr);
-+	}
-+}
-+
-+/* Called from update_one_process() [triggered by timer interrupt].
-+ * PRE: perfctr == current->thread.perfctr.
-+ * Sample the counters but do not suspend them.
-+ * Needed to avoid precision loss due to multiple counter
-+ * wraparounds between resume/suspend for CPU-bound processes.
-+ * PREEMPT note: called in IRQ context with preemption disabled.
-+ */
-+void __vperfctr_sample(struct vperfctr *perfctr)
-+{
-+	if( --perfctr->sampling_timer == 0 )
-+		vperfctr_sample(perfctr);
-+}
-+
-+#if PERFCTR_CPUS_FORBIDDEN_MASK_NEEDED
-+/* Called from set_cpus_allowed().
-+ * PRE: current holds task_lock(owner)
-+ * PRE: owner->thread.perfctr == perfctr
-+ */
-+void __vperfctr_set_cpus_allowed(struct task_struct *owner,
-+				 struct vperfctr *perfctr,
-+				 cpumask_t new_mask)
-+{
-+	cpumask_t tmp;
-+
-+	cpus_and(tmp, new_mask, perfctr_cpus_forbidden_mask);
-+	if( !cpus_empty(tmp) ) {
-+		atomic_set(&perfctr->bad_cpus_allowed, 1);
-+		printk(KERN_WARNING "perfctr: process %d (comm %s) issued unsafe"
-+		       " set_cpus_allowed() on process %d (comm %s)\n",
-+		       current->pid, current->comm, owner->pid, owner->comm);
-+	} else
-+		atomic_set(&perfctr->bad_cpus_allowed, 0);
-+}
-+#endif
-+
-+/****************************************************************
-+ *								*
-+ * Virtual perfctr "system calls".				*
-+ * These can be called by the owner process (tsk == current),	*
-+ * a monitor process which has the owner under ptrace ATTACH	*
-+ * control (tsk && tsk != current), or anyone with a handle to	*
-+ * an unlinked perfctr (!tsk).					*
-+ *								*
-+ ****************************************************************/
-+
-+static int sys_vperfctr_control(struct vperfctr *perfctr,
-+				struct perfctr_struct_buf *argp,
-+				struct task_struct *tsk)
-+{
-+	struct vperfctr_control control;
-+	int err;
-+	unsigned int next_cstatus;
-+	unsigned int nrctrs, i;
-+
-+	if( !tsk )
-+		return -ESRCH;	/* attempt to update unlinked perfctr */
-+
-+	err = perfctr_copy_from_user(&control, argp, &vperfctr_control_sdesc);
-+	if( err )
-+		return err;
-+
-+	if( control.cpu_control.nractrs || control.cpu_control.nrictrs ) {
-+		cpumask_t tmp, old_mask, new_mask;
-+
-+		tmp = perfctr_cpus_forbidden_mask;
-+		cpus_complement(tmp);
-+		old_mask = tsk->cpus_allowed;
-+		cpus_and(new_mask, old_mask, tmp);
-+
-+		if( cpus_empty(new_mask) )
-+			return -EINVAL;
-+		if( !cpus_equal(new_mask, old_mask) )
-+			set_cpus_allowed(tsk, new_mask);
-+	}
-+
-+	/* PREEMPT note: preemption is disabled over the entire
-+	   region since we're updating an active perfctr. */
-+	preempt_disable();
-+	if( IS_RUNNING(perfctr) ) {
-+		if( tsk == current )
-+			vperfctr_suspend(perfctr);
-+		perfctr->cpu_state.cstatus = 0;
-+		vperfctr_clear_iresume_cstatus(perfctr);
-+	}
-+	perfctr->cpu_state.control = control.cpu_control;
-+	/* remote access note: perfctr_cpu_update_control() is ok */
-+	err = perfctr_cpu_update_control(&perfctr->cpu_state, 0);
-+	if( err < 0 )
-+		goto out;
-+	next_cstatus = perfctr->cpu_state.cstatus;
-+	if( !perfctr_cstatus_enabled(next_cstatus) )
-+		goto out;
-+
-+	/* XXX: validate si_signo? */
-+	perfctr->si_signo = control.si_signo;
-+
-+	if( !perfctr_cstatus_has_tsc(next_cstatus) )
-+		perfctr->cpu_state.tsc_sum = 0;
-+
-+	nrctrs = perfctr_cstatus_nrctrs(next_cstatus);
-+	for(i = 0; i < nrctrs; ++i)
-+		if( !(control.preserve & (1<<i)) )
-+			perfctr->cpu_state.pmc[i].sum = 0;
-+
-+	if( tsk == current )
-+		vperfctr_resume(perfctr);
-+
-+ out:
-+	preempt_enable();
-+	return err;
-+}
-+
-+static int sys_vperfctr_iresume(struct vperfctr *perfctr, const struct task_struct *tsk)
-+{
-+#if PERFCTR_INTERRUPT_SUPPORT
-+	unsigned int iresume_cstatus;
-+
-+	if( !tsk )
-+		return -ESRCH;	/* attempt to update unlinked perfctr */
-+
-+	iresume_cstatus = perfctr->iresume_cstatus;
-+	if( !perfctr_cstatus_has_ictrs(iresume_cstatus) )
-+		return -EPERM;
-+
-+	/* PREEMPT note: preemption is disabled over the entire
-+	   region because we're updating an active perfctr. */
-+	preempt_disable();
-+
-+	if( IS_RUNNING(perfctr) && tsk == current )
-+		vperfctr_suspend(perfctr);
-+
-+	perfctr->cpu_state.cstatus = iresume_cstatus;
-+	perfctr->iresume_cstatus = 0;
-+
-+	/* remote access note: perfctr_cpu_ireload() is ok */
-+	perfctr_cpu_ireload(&perfctr->cpu_state);
-+
-+	if( tsk == current )
-+		vperfctr_resume(perfctr);
-+
-+	preempt_enable();
-+
-+	return 0;
-+#else
-+	return -ENOSYS;
-+#endif
-+}
-+
-+static int sys_vperfctr_unlink(struct vperfctr *perfctr, struct task_struct *tsk)
-+{
-+	if( tsk )
-+		vperfctr_unlink(tsk, perfctr);
-+	return 0;
-+}
-+
-+static int sys_vperfctr_read_sum(struct vperfctr *perfctr,
-+				 struct perfctr_struct_buf *argp,
-+				 const struct task_struct *tsk)
-+{
-+	struct perfctr_sum_ctrs sum;
-+
-+	if( tsk == current ) {
-+		preempt_disable();
-+		vperfctr_sample(perfctr);
-+	}
-+	//sum = perfctr->cpu_state.sum;
-+	{
-+		int j;
-+		sum.tsc = perfctr->cpu_state.tsc_sum;
-+		for(j = 0; j < ARRAY_SIZE(sum.pmc); ++j)
-+			sum.pmc[j] = perfctr->cpu_state.pmc[j].sum;
-+	}
-+	if( tsk == current )
-+		preempt_enable();
-+	return perfctr_copy_to_user(argp, &sum, &perfctr_sum_ctrs_sdesc);
-+}
-+
-+static int sys_vperfctr_read_control(struct vperfctr *perfctr,
-+				     struct perfctr_struct_buf *argp,
-+				     const struct task_struct *tsk)
-+{
-+	struct vperfctr_control control;
-+
-+	/* PREEMPT note: While we're reading our own control, another
-+	   process may ptrace ATTACH to us and update our control.
-+	   Disable preemption to ensure we get a consistent copy.
-+	   Not needed for other cases since the perfctr is either
-+	   unlinked or its owner is ptrace ATTACH suspended by us. */
-+	if( tsk == current )
-+		preempt_disable();
-+	control.si_signo = perfctr->si_signo;
-+	control.cpu_control = perfctr->cpu_state.control;
-+	if( tsk == current )
-+		preempt_enable();
-+	control.preserve = 0;
-+	return perfctr_copy_to_user(argp, &control, &vperfctr_control_sdesc);
-+}
-+
-+/****************************************************************
-+ *								*
-+ * Virtual perfctr file operations.				*
-+ *								*
-+ ****************************************************************/
-+
-+static int vperfctr_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct vperfctr *perfctr;
-+
-+	/* Only allow read-only mapping of first page. */
-+	if( (vma->vm_end - vma->vm_start) != PAGE_SIZE ||
-+	    vma->vm_pgoff != 0 ||
-+	    (pgprot_val(vma->vm_page_prot) & _PAGE_RW) ||
-+	    (vma->vm_flags & (VM_WRITE | VM_MAYWRITE)) )
-+		return -EPERM;
-+	perfctr = filp->private_data;
-+	if( !perfctr )
-+		return -EPERM;
-+	return remap_page_range(vma, vma->vm_start, virt_to_phys(perfctr),
-+				PAGE_SIZE, vma->vm_page_prot);
-+}
-+
-+static int vperfctr_release(struct inode *inode, struct file *filp)
-+{
-+	struct vperfctr *perfctr = filp->private_data;
-+	filp->private_data = NULL;
-+	if( perfctr )
-+		put_vperfctr(perfctr);
-+	return 0;
-+}
-+
-+static struct file_operations vperfctr_file_ops = {
-+	.mmap = vperfctr_mmap,
-+	.release = vperfctr_release,
-+};
-+
-+/****************************************************************
-+ *								*
-+ * File system for virtual perfctrs. Based on pipefs.		*
-+ *								*
-+ ****************************************************************/
-+
-+#define VPERFCTRFS_MAGIC (('V'<<24)|('P'<<16)|('M'<<8)|('C'))
-+
-+/* The code to set up a `struct file_system_type' for a pseudo fs
-+   is unfortunately not the same in 2.4 and 2.6. */
-+#include <linux/mount.h> /* needed for 2.6, included by fs.h in 2.4 */
-+
-+static struct super_block *
-+vperfctrfs_get_sb(struct file_system_type *fs_type,
-+		  int flags, const char *dev_name, void *data)
-+{
-+	return get_sb_pseudo(fs_type, "vperfctr:", NULL, VPERFCTRFS_MAGIC);
-+}
-+
-+static struct file_system_type vperfctrfs_type = {
-+	.name		= "vperfctrfs",
-+	.get_sb		= vperfctrfs_get_sb,
-+	.kill_sb	= kill_anon_super,
-+};
-+
-+/* XXX: check if s/vperfctr_mnt/vperfctrfs_type.kern_mnt/ would work */
-+static struct vfsmount *vperfctr_mnt;
-+
-+static int __init vperfctrfs_init(void)
-+{
-+	int err = register_filesystem(&vperfctrfs_type);
-+	if( !err ) {
-+		vperfctr_mnt = kern_mount(&vperfctrfs_type);
-+		if( !IS_ERR(vperfctr_mnt) )
-+			return 0;
-+		err = PTR_ERR(vperfctr_mnt);
-+		unregister_filesystem(&vperfctrfs_type);
-+	}
-+	return err;
-+}
-+
-+static void __exit vperfctrfs_exit(void)
-+{
-+	unregister_filesystem(&vperfctrfs_type);
-+	mntput(vperfctr_mnt);
-+}
-+
-+static struct inode *vperfctr_get_inode(void)
-+{
-+	struct inode *inode;
-+
-+	inode = new_inode(vperfctr_mnt->mnt_sb);
-+	if( !inode )
-+		return NULL;
-+	inode->i_fop = &vperfctr_file_ops;
-+	inode->i_state = I_DIRTY;
-+	inode->i_mode = S_IFCHR | S_IRUSR | S_IWUSR;
-+	inode->i_uid = current->fsuid;
-+	inode->i_gid = current->fsgid;
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	inode->i_blksize = 0;
-+	return inode;
-+}
-+
-+static int vperfctrfs_delete_dentry(struct dentry *dentry)
-+{
-+	return 1;
-+}
-+
-+static struct dentry_operations vperfctrfs_dentry_operations = {
-+	.d_delete	= vperfctrfs_delete_dentry,
-+};
-+
-+static struct dentry *vperfctr_d_alloc_root(struct inode *inode)
-+{
-+	struct qstr this;
-+	char name[32];
-+	struct dentry *dentry;
-+
-+	sprintf(name, "[%lu]", inode->i_ino);
-+	this.name = name;
-+	this.len = strlen(name);
-+	this.hash = inode->i_ino; /* will go */
-+	dentry = d_alloc(vperfctr_mnt->mnt_sb->s_root, &this);
-+	if( dentry ) {
-+		dentry->d_op = &vperfctrfs_dentry_operations;
-+		d_add(dentry, inode);
-+	}
-+	return dentry;
-+}
-+
-+static struct file *vperfctr_get_filp(void)
-+{
-+	struct file *filp;
-+	struct inode *inode;
-+	struct dentry *dentry;
-+
-+	filp = get_empty_filp();
-+	if( !filp )
-+		goto out;
-+	inode = vperfctr_get_inode();
-+	if( !inode )
-+		goto out_filp;
-+	dentry = vperfctr_d_alloc_root(inode);
-+	if( !dentry )
-+		goto out_inode;
-+
-+	filp->f_vfsmnt = mntget(vperfctr_mnt);
-+	filp->f_dentry = dentry;
-+	filp->f_mapping = dentry->d_inode->i_mapping;
-+
-+	filp->f_pos = 0;
-+	filp->f_flags = 0;
-+	filp->f_op = &vperfctr_file_ops; /* fops_get() if MODULE */
-+	filp->f_mode = FMODE_READ;
-+	filp->f_version = 0;
-+
-+	return filp;
-+
-+ out_inode:
-+	iput(inode);
-+ out_filp:
-+	put_filp(filp);	/* doesn't run ->release() like fput() does */
-+ out:
-+	return NULL;
-+}
-+
-+/* tid is the actual task/thread id (née pid, stored as ->pid),
-+   pid/tgid is that 2.6 thread group id crap (stored as ->tgid) */
-+int vperfctr_attach(int tid, int creat)
-+{
-+	struct file *filp;
-+	struct task_struct *tsk;
-+	struct vperfctr *perfctr;
-+	int err;
-+	int fd;
-+
-+	filp = vperfctr_get_filp();
-+	if( !filp )
-+		return -ENOMEM;
-+	err = fd = get_unused_fd();
-+	if( err < 0 )
-+		goto err_filp;
-+	perfctr = NULL;
-+	if( creat ) {
-+		perfctr = get_empty_vperfctr(); /* may sleep */
-+		if( IS_ERR(perfctr) ) {
-+			err = PTR_ERR(perfctr);
-+			goto err_fd;
-+		}
-+	}
-+	tsk = current;
-+	if( tid != 0 && tid != tsk->pid ) { /* remote? */
-+		read_lock(&tasklist_lock);
-+		tsk = find_task_by_pid(tid);
-+		if( tsk )
-+			get_task_struct(tsk);
-+		read_unlock(&tasklist_lock);
-+		err = -ESRCH;
-+		if( !tsk )
-+			goto err_perfctr;
-+		err = ptrace_check_attach(tsk, 0);
-+		if( err < 0 )
-+			goto err_tsk;
-+	}
-+	if( creat ) {
-+		/* check+install must be atomic to prevent remote-control races */
-+		vperfctr_task_lock(tsk);
-+		if( !tsk->thread.perfctr ) {
-+			perfctr->owner = tsk;
-+			tsk->thread.perfctr = perfctr;
-+			err = 0;
-+		} else
-+			err = -EEXIST;
-+		vperfctr_task_unlock(tsk);
-+		if( err )
-+			goto err_tsk;
-+	} else {
-+		perfctr = tsk->thread.perfctr;
-+		/* PERFCTR_ABI and PERFCTR_INFO don't need the perfctr.
-+		   Hence no non-NULL check here. */
-+	}
-+	filp->private_data = perfctr;
-+	if( perfctr )
-+		atomic_inc(&perfctr->count);
-+	if( tsk != current )
-+		put_task_struct(tsk);
-+	fd_install(fd, filp);
-+	return fd;
-+ err_tsk:
-+	if( tsk != current )
-+		put_task_struct(tsk);
-+ err_perfctr:
-+	if( perfctr )	/* can only occur if creat != 0 */
-+		put_vperfctr(perfctr);
-+ err_fd:
-+	put_unused_fd(fd);
-+ err_filp:
-+	fput(filp);
-+	return err;
-+}
-+
-+int sys_vperfctr(unsigned int cmd, int fd, unsigned long arg)
-+{
-+	struct vperfctr *perfctr;
-+	struct task_struct *tsk;
-+	struct file *filp;
-+	int ret;
-+
-+	ret = -EBADF;
-+	filp = fget(fd);
-+	if( !filp )
-+		return ret;
-+	if( filp->f_op != &vperfctr_file_ops )
-+		goto out_filp;
-+	perfctr = filp->private_data;
-+	ret = -EINVAL;
-+	if( !perfctr )
-+		goto out_filp;
-+	tsk = current;
-+	if( perfctr != current->thread.perfctr ) {
-+		/* this synchronises with vperfctr_unlink() and itself */
-+		spin_lock(&perfctr->owner_lock);
-+		tsk = perfctr->owner;
-+		if( tsk )
-+			get_task_struct(tsk);
-+		spin_unlock(&perfctr->owner_lock);
-+		if( tsk ) {
-+			ret = ptrace_check_attach(tsk, 0);
-+			if( ret < 0 )
-+				goto out_tsk;
-+		}
-+	}
-+	switch( cmd ) {
-+	case VPERFCTR_CONTROL:
-+		ret = sys_vperfctr_control(perfctr, (struct perfctr_struct_buf*)arg, tsk);
-+		break;
-+	case VPERFCTR_UNLINK:
-+		ret = sys_vperfctr_unlink(perfctr, tsk);
-+		break;
-+	case VPERFCTR_READ_SUM:
-+		ret = sys_vperfctr_read_sum(perfctr, (struct perfctr_struct_buf*)arg, tsk);
-+		break;
-+	case VPERFCTR_IRESUME:
-+		ret = sys_vperfctr_iresume(perfctr, tsk);
-+		break;
-+	case VPERFCTR_READ_CONTROL:
-+		ret = sys_vperfctr_read_control(perfctr, (struct perfctr_struct_buf*)arg, tsk);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+	}
-+ out_tsk:
-+	if( tsk && tsk != current )
-+		put_task_struct(tsk);
-+ out_filp:
-+	fput(filp);
-+	return ret;
-+}
-+
-+/****************************************************************
-+ *								*
-+ * module_init/exit						*
-+ *								*
-+ ****************************************************************/
-+
-+int __init vperfctr_init(void)
-+{
-+	int err = vperfctrfs_init();
-+	if( err )
-+		return err;
-+	return 0;
-+}
-+
-+void __exit vperfctr_exit(void)
-+{
-+	vperfctrfs_exit();
-+}
-diff -ruN linux-2.6.6-mm2/drivers/perfctr/virtual.h linux-2.6.6-mm2.perfctr-2.7.2.virtual/drivers/perfctr/virtual.h
---- linux-2.6.6-mm2/drivers/perfctr/virtual.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.6-mm2.perfctr-2.7.2.virtual/drivers/perfctr/virtual.h	2004-05-14 14:44:51.199393482 +0200
-@@ -0,0 +1,20 @@
-+/* $Id: virtual.h,v 1.12 2004/05/13 23:32:49 mikpe Exp $
-+ * Virtual per-process performance counters.
-+ *
-+ * Copyright (C) 1999-2004  Mikael Pettersson
-+ */
-+
-+#ifdef CONFIG_PERFCTR_VIRTUAL
-+extern int sys_vperfctr(unsigned int cmd, int fd, unsigned long arg);
-+extern int vperfctr_attach(int, int);
-+extern int vperfctr_init(void);
-+extern void vperfctr_exit(void);
-+#else
-+static inline int sys_vperfctr(unsigned int cmd, int fd, unsigned long arg)
-+{
-+	return -EINVAL;
-+}
-+static inline int vperfctr_attach(int tid, int creat) { return -EINVAL; }
-+static inline int vperfctr_init(void) { return 0; }
-+static inline void vperfctr_exit(void) { }
-+#endif
+I put it in fs/exec.c because I had to add it to binprm anyway
+(having commoncap use ->security would break SELinux), and, as
+long as it's a permanent member of the structure, it made sense
+for it to always be filled in.
+
+>>+	/* FIXME: Is this overly harsh on setgid? */
+>>+	if ((bprm->secflags & (BINPRM_SEC_SETUID | BINPRM_SEC_SETGID)) &&
+>>+	    new_pI != CAP_FULL_SET)
+>>+			bprm->secflags |= BINPRM_SEC_NOELEVATE;
+>>+
+>>+	if (bprm->secflags & BINPRM_SEC_NOELEVATE) {
+>>+		is_setuid = is_setgid = 0;
+>>+		cap_clear(fP);
+>>+	}
+> 
+> 
+> This prevents sendmail from being setuid mail and
+> cap_net_bind_service=ep.
+
+AAAAH!  That's right -- in my implementation <some cap>=ep on a file
+makes no sense.  It's got to be inheritable to be permitted.
+
+On the other hand, that rule could be safely by checking the old pI
+as opposed to the new one.  The idea is to prevent a process without
+full pI from execing (and thus confusing) old setuid apps.
+
+
+BTW, in your capabilities implementation, why do you do:
+
+# chcap cap_net_bind_service=ei /usr/sbin/named
+# inhcaps cap_net_bind_service=i bind:bind /usr/sbin/named
+
+It seems to me that this wants to be:
+
+# inhcaps cap_net_bind_service=eip bind:bind /usr/sbin/named
+(not having looked at your user tool)
+or
+# cap -c cap_net_bind_service=eip -u bind -g bind /usr/sbin/named
+(using my tool)
+
+With my patch, that just works (no fs caps necessary).  Why should the
+admin have to tag a program so it is allowed to inherit caps?  (If
+named used libexec, then its libexec helpers would have to be similarly
+tagged, and, if it used bash, then bash would need the inheritable tag.)
+
+If the answer's because that's how Linux cap evolution works, then
+I'd say that Linux cap evolution is broken.
+
+In any case, I'll probably redo my patch to restore the IRIX version of pI.
+
+--Andy
+
+
+
+> 
+> Regards, Olaf.
+

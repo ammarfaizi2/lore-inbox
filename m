@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129856AbQKKFsT>; Sat, 11 Nov 2000 00:48:19 -0500
+	id <S129918AbQKKGVM>; Sat, 11 Nov 2000 01:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129829AbQKKFsJ>; Sat, 11 Nov 2000 00:48:09 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:50953 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129785AbQKKFrx>; Sat, 11 Nov 2000 00:47:53 -0500
-Date: Fri, 10 Nov 2000 23:47:50 -0600
-To: Robert Lynch <rmlynch@best.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-Message-ID: <20001110234750.B28057@wire.cadcamlab.org>
-In-Reply-To: <3A0C86B3.62DA04A2@best.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A0C86B3.62DA04A2@best.com>; from rmlynch@best.com on Fri, Nov 10, 2000 at 03:37:23PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129916AbQKKGVB>; Sat, 11 Nov 2000 01:21:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23306 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129918AbQKKGUv>; Sat, 11 Nov 2000 01:20:51 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping 
+ process,2.4.0-test10
+Date: 10 Nov 2000 22:20:38 -0800
+Organization: Transmeta Corporation
+Message-ID: <8uiofm$1tr$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10011091005390.1909-100000@penguin.transmeta.com> <3A0C6BD6.A8F73950@dm.ultramaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3A0C6BD6.A8F73950@dm.ultramaster.com>,
+David Mansfield  <lkml@dm.ultramaster.com> wrote:
+>Linus Torvalds wrote:
+>...
+>> 
+>> And it has everything to do with the fact that the way Linux semaphores
+>> are implemented, a non-blocking process has a HUGE advantage over a
+>> blocking one. Linux kernel semaphores are extreme unfair in that way.
+>>
+>...
+>> The original running process comes back faulting again, finds the
+>> semaphore still unlocked (the "ps" process is awake but has not gotten to
+>> run yet), gets the semaphore, and falls asleep on the IO for the next
+>> page.
+>> 
+>> The "ps" process actually gets to run now, but it's a bit late. The
+>> semaphore is locked again.
+>> 
+>> Repeat until luck breaks the bad circle.
+>> 
+>
+>But doesn't __down have a fast path coded in assembly?  In other words,
+>it only hits your patched code if there is already contention, which
+>there isn't in this case, and therefore the bug...?
 
-[Robert Lynch]
-> I've been regularly building kernels in the testXX series, and
-> they have been coming out ~ 600K; test10-final and test11-pre1:
-> 
-> -rw-r--r--    1 root     root       610503 Oct 31 18:39 vmlinuz-t10
-> -rw-r--r--    1 root     root       610568 Nov  7 20:26 vmlinuz-t11p01
-> 
-> test11-pre2 comes out ~ 900K:
-> 
-> -rw-r--r--    1 root     root       926345 Nov 10 10:16 vmlinuz-t11p02
+The __down() case should be hit if there's a waiter, even if that waiter
+has not yet been able to pick up the lock (the waiter _will_ have
+decremented the count to negative in order to trigger the proper logic
+at release time).
 
-Track it down yourself:
+But as I mentioned, the pseudo-patch was certainly untested, so
+somebody should probably walk through the cases to check that I didn't
+miss something.
 
-1) The sizes of your two 'vmlinux' files: do they differ wildly as well?
-
-2a) If no, check the make logs between the vmlinux link line and bzImage
-    creation.  Compare the two and note any significant differences.
-
-2b) If yes, write a perl script to compute symbol sizes from each
-    System.map file.  (Symbol size == address of next symbol minus
-    address of this symbol.)  Sort numerically, then compare old vs new
-    for symbols that have grown a lot, or large new symbols.
-
-Peter
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

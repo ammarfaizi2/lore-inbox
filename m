@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUJKPlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269117AbUJKPl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269105AbUJKPlL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJKPiV
+	id S269117AbUJKPl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJKPlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:38:21 -0400
-Received: from soundwarez.org ([217.160.171.123]:23185 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S269105AbUJKPhZ (ORCPT
+	Mon, 11 Oct 2004 11:41:52 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:65477 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269117AbUJKPjI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:37:25 -0400
-Date: Mon, 11 Oct 2004 17:37:19 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
-Message-ID: <20041011153719.GA4118@vrfy.org>
-References: <20041011120701.GA824@outpost.ds9a.nl>
+	Mon, 11 Oct 2004 11:39:08 -0400
+Subject: [PATCH] 2.6.9-rc4-mm1 compile fix for AMD64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Content-Type: multipart/mixed; boundary="=-josL23SyTp+/0gV/6FUX"
+Organization: 
+Message-Id: <1097508594.12861.326.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041011120701.GA824@outpost.ds9a.nl>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Oct 2004 08:29:54 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 02:07:01PM +0200, bert hubert wrote:
-> Ok,
-> 
-> This is about stupid users (including me) unplugging USB devices whilst
-> still mounted, and expecting sane semantics.
-> 
-> This has generally not been the 'Unix' or even 'Linux' way, but people
-> expect it to work. I also see no clear automated and robust solution from
-> userspace. "Don't do that then" is a pretty weak answer, especially since we
-> want to work on the desktop.
-> 
-> The expected behaviour is that on forceably unplugging an USB memory stick,
-> the created SCSI device should vanish, along with the mounts based on it.
 
-That is clearly bejond the scope of the kernel or hotplug. This policy
-belongs to some other device management software. We are currently working on
-HAL as one example, to make that happen.
+--=-josL23SyTp+/0gV/6FUX
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> When the user plugs in the device again, people expect to see it get the
-> first available name, and be available for remount, possible automated.
-...
-> Sometimes however, sda appears to be still 'occupied', and higher names are
-> used.
-> 
-> Now - the perhaps intended behaviour where the user can replug the USB
-> device when it was disconnected by accident also does not work. When we do
-> this, things get really out of whack, /dev/sda1 has now become invalid.
+Hi Andrew,
 
-Forget about the kernel device names, these are "cookies" to access the
-device and have no other meaning. Never rely on that longer as your
-device session lasts! You may use a udev rule to create a stable name for
-your device based on some unique device property and that will work.
-Btw: With HAL we even don't care about the /dev-name, all volumes are
-recognized by uuid or fslabel.
+I get following error while compiling 2.6.9-rc4-mm1 on my AMD64 machine.
+Here is the patch to fix it.
 
-> Unmounting and unplugging and replugging saves us.
-> 
-> Greg, others, I hope you agree this needs work. I hope we have the
-> infrastructure to umount based on USB disconnect events, or, alternatively,
-> will support 'replugging' which at least does part of what people expect.
+  CC      arch/x86_64/mm/numa.o
+arch/x86_64/mm/numa.c: In function `numa_setup':
+arch/x86_64/mm/numa.c:332: error: `numa_fake' undeclared (first use in
+this function)
+arch/x86_64/mm/numa.c:332: error: (Each undeclared identifier is
+reported only once
+arch/x86_64/mm/numa.c:332: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/mm/numa.o] Error 1
+make: *** [arch/x86_64/mm] Error 2
+make: *** Waiting for unfinished jobs....
+make: *** wait: No child processes.  Stop.
 
-Yes, we need to make the unplug of mounted devices more safe, especially
-with sync mount, but don't expect the kernel or hotplug to do anything
-like that. It's up to some policy software higher in the stack.
 
 Thanks,
-Kay
+Badari
+
+
+
+--=-josL23SyTp+/0gV/6FUX
+Content-Disposition: attachment; filename=numa_fake_fix.patch
+Content-Type: text/plain; name=numa_fake_fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux.org/arch/x86_64/mm/numa.c	2004-10-11 08:41:39.718812776 -0700
++++ linux/arch/x86_64/mm/numa.c	2004-10-11 08:41:58.485959736 -0700
+@@ -328,11 +328,13 @@ __init int numa_setup(char *opt) 
+ { 
+ 	if (!strcmp(opt,"off"))
+ 		numa_off = 1;
++#ifdef CONFIG_NUMA_EMU
+ 	if(!strncmp(opt, "fake=", 5)) {
+ 		numa_fake = simple_strtoul(opt+5,NULL,0); ;
+ 		if (numa_fake >= MAX_NUMNODES)
+ 			numa_fake = MAX_NUMNODES;
+ 	}
++#endif
+ 	return 1;
+ } 
+ 
+
+--=-josL23SyTp+/0gV/6FUX--
+

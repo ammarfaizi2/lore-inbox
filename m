@@ -1,34 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbULDV6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbULDWAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbULDV6q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 16:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbULDV6p
+	id S261176AbULDWAS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 17:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbULDWAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 16:58:45 -0500
-Received: from mail17.bluewin.ch ([195.186.18.64]:44009 "EHLO
-	mail17.bluewin.ch") by vger.kernel.org with ESMTP id S261173AbULDV6p
+	Sat, 4 Dec 2004 17:00:18 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:46988 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261176AbULDWAD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 16:58:45 -0500
-Date: Sat, 4 Dec 2004 22:58:44 +0100
-From: Roger Luethi <rl@hellgate.ch>
+	Sat, 4 Dec 2004 17:00:03 -0500
+Subject: Re: [PATCH] aic7xxx large integer
+From: Robert Love <rml@novell.com>
 To: Miguel Angel Flores <maf@sombragris.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel development environment
-Message-ID: <20041204215844.GB26402@k3.hellgate.ch>
-References: <41B1F97A.80803@sombragris.com>
+In-Reply-To: <41B222BE.9020205@sombragris.com>
+References: <41B222BE.9020205@sombragris.com>
+Content-Type: text/plain
+Date: Sat, 04 Dec 2004 17:01:17 -0500
+Message-Id: <1102197677.6052.77.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41B1F97A.80803@sombragris.com>
-X-Operating-System: Linux 2.6.10-rc2-bk11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Dec 2004 18:52:58 +0100, Miguel Angel Flores wrote:
-> write and debug code? ¿It's enough with vi and gcc?
+On Sat, 2004-12-04 at 21:49 +0100, Miguel Angel Flores wrote:
 
-cscope is useful.
+> -	mask_39bit = 0x7FFFFFFFFFULL;
+> +	mask_39bit = 0x7FFFFFFF;
+
+I cannot believe that this is the correct solution and, if it is, the
+name of the variable ought to be changed.
+
+More likely, I suspect that the mask wants to be 39-bits, what with its
+name and all.
+
+The problem is that DMA addresses come in both 32-bit (generic) and
+64-bit (high) forms.  mask_39bit is a dma_addr_t so it is 64-bit if
+CONFIG_HIGHMEM64G and 32-bit otherwise.  Possibly, the right solution is
+to make mask_39bit dma64_addr_t.  Or, if the mapping needs to be
+consistent, assign a different value depending on the value of
+CONFIG_HIGHMEM64G.
+
+See Documentation/DMA-*.txt for more information.
+
+	Robert Love
+
+

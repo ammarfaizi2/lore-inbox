@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVCRUzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVCRU42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVCRUzh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 15:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVCRUzg
+	id S261338AbVCRU42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 15:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCRU42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 15:55:36 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:36499 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261202AbVCRUza (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 15:55:30 -0500
-Message-ID: <423B15DD.9020803@suse.de>
-Date: Fri, 18 Mar 2005 18:54:37 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Erik_Andr=E9n?= <erik.andren@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend-to-disk woes
-References: <423B01A3.8090501@gmail.com>
-In-Reply-To: <423B01A3.8090501@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 18 Mar 2005 15:56:28 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:58317
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261338AbVCRU40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 15:56:26 -0500
+Date: Fri, 18 Mar 2005 12:56:17 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org,
+       wli@holomorphy.com, riel@redhat.com, kurt@garloff.de,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH 0/4] io_remap_pfn_range: intro.
+Message-Id: <20050318125617.5e57c3f8.davem@davemloft.net>
+In-Reply-To: <20050318112545.6f5f7635.rddunlap@osdl.org>
+References: <20050318112545.6f5f7635.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andrén wrote:
+On Fri, 18 Mar 2005 11:25:45 -0800
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-> My question is: Why isn't there a check before resuming a 
-> suspend-to-disk image if the system has booted another kernel since the 
-> suspend to prevent this kind of hassle?
+> The sparc32 & sparc64 code needs live testing.
 
-Just provide a patch which does this. Hint: this is highly nontrivial.
-If you boot a kernel, that does not know swsusp (and if it knew, it
-would have invalidated the suspend image in the swap), or which does not
-have the necessary information (because of a missing resume= parameter),
-this kernel cannot do much.
+These patches look great Randy.  I think they should go in.
 
-Stefan
-
+If sparc explodes, I'll clean up the mess.  Any problem which
+crops up should not be difficult to solve.

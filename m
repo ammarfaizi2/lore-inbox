@@ -1,147 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbSKCWDl>; Sun, 3 Nov 2002 17:03:41 -0500
+	id <S263977AbSKCW0P>; Sun, 3 Nov 2002 17:26:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263785AbSKCWDl>; Sun, 3 Nov 2002 17:03:41 -0500
-Received: from holomorphy.com ([66.224.33.161]:61072 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263760AbSKCWDb>;
-	Sun, 3 Nov 2002 17:03:31 -0500
-Date: Sun, 3 Nov 2002 14:08:16 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: hch@lst.de, bcrl@redhat.com
-Subject: interrupt checks for spinlocks
-Message-ID: <20021103220816.GY16347@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, hch@lst.de, bcrl@redhat.com
+	id <S263979AbSKCW0P>; Sun, 3 Nov 2002 17:26:15 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:27896 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S263977AbSKCW0N>;
+	Sun, 3 Nov 2002 17:26:13 -0500
+Date: Sun, 3 Nov 2002 23:32:45 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Sane defaults for the input layer configuration
+Message-ID: <20021103223245.GD20338@pasky.ji.cz>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+	linux-kernel@vger.kernel.org
+References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz> <20021103193734.GC2516@pasky.ji.cz> <20021103211308.B8636@ucw.cz> <20021103222054.GC20338@pasky.ji.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20021103222054.GC20338@pasky.ji.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently thought about interrupt disablement and locking again, or
-at least such as has gone about in various places, and I got scared.
+  Hello,
 
-Hence, a wee addition to CONFIG_DEBUG_SPINLOCK:
+  this patch (against 2.5.45) introduces sane defaults for the input layer
+configuration. The most common options default to yes now, so that with simply
+accepting defaults provided by make oldconfig, the 2.4 configuration can be
+converted to 2.5 configuration while preserving the basic keyboard, mouse and
+serial port support. This should prevent most users confusion when configuring
+their first 2.5 kernel. Please apply.
 
-(1) check that spinlocks are not taken in interrupt context without
-	interrupts disabled
-(2) taint spinlocks taken in interrupt context
-(3) check for tainted spinlocks taken without interrupts disabled
-(4) check for spinlocking calls unconditionally disabling (and
-	hence later re-enabling) interrupts with interrupts disabled
+ drivers/input/Kconfig          |    2 ++
+ drivers/input/keyboard/Kconfig |    2 ++
+ drivers/input/mouse/Kconfig    |    2 ++
+ drivers/input/serio/Kconfig    |    3 +++
+ 4 files changed, 9 insertions(+)
 
-The only action taken is printk() and dump_stack(). No arch code has
-been futzed with to provide irq tainting yet. Looks like a good way
-to shake out lurking bugs to me (somewhat like may_sleep() etc.).
+  Kind regards,
+				Petr Baudis
 
-vs. 2.5.x-bk as of 2PM PST 3 Nov
-
-Bill
-
-
-
-diff -urN linux-virgin/include/linux/spinlock.h linux-wli/include/linux/spinlock.h
---- linux-virgin/include/linux/spinlock.h	Sun Aug 25 10:25:45 2002
-+++ linux-wli/include/linux/spinlock.h	Sun Nov  3 13:58:47 2002
-@@ -38,6 +38,48 @@
- #include <asm/spinlock.h>
+diff -ru linux/drivers/input/Kconfig linux+pasky/drivers/input/Kconfig
+--- linux/drivers/input/Kconfig	Fri Nov  1 22:21:33 2002
++++ linux+pasky/drivers/input/Kconfig	Sun Nov  3 23:21:35 2002
+@@ -28,6 +28,7 @@
  
- /*
-+ * if a lock is ever taken in interrupt context, it must always be
-+ * taken with interrupts disabled. If a locking call is made that
-+ * unconditionally disables and then re-enables interrupts, it must
-+ * be made with interrupts enabled.
-+ */
-+#ifndef irq_tainted_lock
-+#define irq_tainted_lock(lock)	0 
-+#endif
-+
-+#ifndef irq_taint_lock
-+#define irq_taint_lock(lock)	do { } while (0)
-+#define
-+
-+#ifndef CONFIG_DEBUG_SPINLOCK
-+#define check_spinlock_irq(lock)		do { } while (0)
-+#define check_spinlock_irqs_disabled(lock)	do { } while (0)
-+#else
-+#define check_spinlock_irq(lock)					\
-+	do {								\
-+		if (irqs_disabled()) {					\
-+			printk("spinlock taken unconditionally "	\
-+				"re-enabling interrupts\n");		\
-+			dump_stack();					\
-+		}							\
-+	} while (0)
-+#define check_spinlock_irqs_disabled(lock)				\
-+	do {								\
-+		if (in_interrupt() && !irqs_disabled()) {		\
-+			printk("spinlock taken in interrupt context "	\
-+				"without disabling interrupts\n");	\
-+			dump_stack();					\
-+		} else if (in_interrupt())				\
-+			irq_taint_lock(lock);				\
-+		else if (irq_tainted_lock(lock)) {			\
-+			printk("spinlock taken in process context "	\
-+				"without disabling interrupts\n");	\
-+			dump_stack();					\
-+		}							\
-+	} while (0)
-+#endif
-+
-+/*
-  * !CONFIG_SMP and spin_lock_init not previously defined
-  * (e.g. by including include/asm/spinlock.h)
-  */
-@@ -87,6 +129,7 @@
-  */
- #define spin_lock(lock)	\
- do { \
-+	check_spinlock_irqs_disabled(lock); \
- 	preempt_disable(); \
- 	_raw_spin_lock(lock); \
- } while(0)
-@@ -102,6 +145,7 @@
+ config INPUT_MOUSEDEV
+ 	tristate "Mouse interface"
++	default y
+ 	depends on INPUT
+ 	---help---
+ 	  Say Y here if you want your mouse to be accessible as char devices
+@@ -45,6 +46,7 @@
  
- #define read_lock(lock)	\
- do { \
-+	check_spinlock_irqs_disabled(lock); \
- 	preempt_disable(); \
- 	_raw_read_lock(lock); \
- } while(0)
-@@ -114,6 +158,7 @@
+ config INPUT_MOUSEDEV_PSAUX
+ 	bool "Provide legacy /dev/psaux device"
++	default y
+ 	depends on INPUT_MOUSEDEV
  
- #define write_lock(lock) \
- do { \
-+	check_spinlock_irqs_disabled(lock); \
- 	preempt_disable(); \
- 	_raw_write_lock(lock); \
- } while(0)
-@@ -136,6 +181,7 @@
+ config INPUT_MOUSEDEV_SCREEN_X
+diff -ru linux/drivers/input/keyboard/Kconfig linux+pasky/drivers/input/keyboard/Kconfig
+--- linux/drivers/input/keyboard/Kconfig	Fri Nov  1 22:21:34 2002
++++ linux+pasky/drivers/input/keyboard/Kconfig	Sun Nov  3 23:24:40 2002
+@@ -3,6 +3,7 @@
+ #
+ config INPUT_KEYBOARD
+ 	bool "Keyboards"
++	default y
+ 	depends on INPUT
+ 	help
+ 	  Say Y here, and a list of supported keyboards will be displayed.
+@@ -12,6 +13,7 @@
  
- #define spin_lock_irq(lock) \
- do { \
-+	check_spinlock_irq(lock); \
- 	local_irq_disable(); \
- 	preempt_disable(); \
- 	_raw_spin_lock(lock); \
-@@ -157,6 +203,7 @@
+ config KEYBOARD_ATKBD
+ 	tristate "AT keyboard support"
++	default y
+ 	depends on INPUT && INPUT_KEYBOARD && SERIO
+ 	---help---
+ 	  Say Y here if you want to use the standard AT keyboard. Usually
+diff -ru linux/drivers/input/mouse/Kconfig linux+pasky/drivers/input/mouse/Kconfig
+--- linux/drivers/input/mouse/Kconfig	Fri Nov  1 22:21:34 2002
++++ linux+pasky/drivers/input/mouse/Kconfig	Sun Nov  3 23:22:27 2002
+@@ -3,6 +3,7 @@
+ #
+ config INPUT_MOUSE
+ 	bool "Mice"
++	default y
+ 	depends on INPUT
+ 	help
+ 	  Say Y here, and a list of supported mice will be displayed.
+@@ -12,6 +13,7 @@
  
- #define read_lock_irq(lock) \
- do { \
-+	check_spinlock_irq(lock); \
- 	local_irq_disable(); \
- 	preempt_disable(); \
- 	_raw_read_lock(lock); \
-@@ -178,6 +225,7 @@
+ config MOUSE_PS2
+ 	tristate "PS/2 mouse"
++	default y
+ 	depends on INPUT && INPUT_MOUSE && SERIO
+ 	---help---
+ 	  Say Y here if you have a PS/2 mouse connected to your system. This
+diff -ru linux/drivers/input/serio/Kconfig linux+pasky/drivers/input/serio/Kconfig
+--- linux/drivers/input/serio/Kconfig	Fri Nov  1 22:21:34 2002
++++ linux+pasky/drivers/input/serio/Kconfig	Sun Nov  3 23:22:58 2002
+@@ -3,6 +3,7 @@
+ #
+ config SERIO
+ 	tristate "Serial i/o support"
++	default y
+ 	---help---
+ 	  Say Yes here if you have any input device that uses serial I/O to
+ 	  communicate with the system. This includes the 
+@@ -19,6 +20,7 @@
  
- #define write_lock_irq(lock) \
- do { \
-+	check_spinlock_irq(lock); \
- 	local_irq_disable(); \
- 	preempt_disable(); \
- 	_raw_write_lock(lock); \
+ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller"
++	default y
+ 	depends on SERIO
+ 	---help---
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+@@ -34,6 +36,7 @@
+ 
+ config SERIO_SERPORT
+ 	tristate "Serial port line discipline"
++	default y
+ 	depends on SERIO
+ 	---help---
+ 	  Say Y here if you plan to use an input device (mouse, joystick,

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131798AbRCOTdX>; Thu, 15 Mar 2001 14:33:23 -0500
+	id <S131801AbRCOTgn>; Thu, 15 Mar 2001 14:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131799AbRCOTdQ>; Thu, 15 Mar 2001 14:33:16 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:23309 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131798AbRCOTcs>; Thu, 15 Mar 2001 14:32:48 -0500
-Date: Thu, 15 Mar 2001 23:44:52 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: William T Wilson <fluffy@snurgle.org>
-Cc: Torrey Hoffman <torrey.hoffman@myrio.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: Is swap == 2 * RAM a permanent thing?
-In-Reply-To: <Pine.LNX.4.21.0103151421380.22425-100000@benatar.snurgle.org>
-Message-ID: <Pine.LNX.4.33.0103152344260.1320-100000@duckman.distro.conectiva>
+	id <S131805AbRCOTgf>; Thu, 15 Mar 2001 14:36:35 -0500
+Received: from [142.176.139.106] ([142.176.139.106]:32772 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S131801AbRCOTgT>;
+	Thu, 15 Mar 2001 14:36:19 -0500
+Date: Thu, 15 Mar 2001 15:35:01 -0400 (AST)
+From: Ted Gervais <ve1drg@ve1drg.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.2
+Message-ID: <Pine.LNX.4.21.0103151527420.2382-100000@ve1drg.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Mar 2001, William T Wilson wrote:
+A simple question for you guru's..
 
-> it seems to me that in 2.2.x it looks like this:
->
-> total usage == swap + RAM
-> under 2.4.x it looks like:
-> total usage == swap
+I just installed kernel 2.4.2 on a slackware system and have a problem 
+with loading a module. It is the 8139too.o module previously the
+rtl8139.o.   It seems that this new driver is not being loaded with
+this new kernel. Obviously something has changed but I can't seem to see 
+where that is.  I noticed though that the directories in /lib/modules for
+this kernel is different than 2.2.18.  
 
-  total usage == maximum(swap, ram)
+Anyways - to get things to work, I have put added this statement to the
+top of my /etc/rc.d/rc.inet1 file:
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+insmod /usr/src/linux/drivers/net/8139too.o.
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+That seems to get things working but why should I do that.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+By the way - I do have  'alias eth0 8139too.o'  in my /etc/modules.conf
+file.
+
+Any thoughts on where I might be going wrong. And I do have
+'CONFIG_KMOD=y' in my kernel configuration..
+
+---
+Earth is a beta site. 
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
+
 

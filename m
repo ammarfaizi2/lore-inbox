@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276248AbRJDQBv>; Thu, 4 Oct 2001 12:01:51 -0400
+	id <S276623AbRJDQFB>; Thu, 4 Oct 2001 12:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276623AbRJDQBn>; Thu, 4 Oct 2001 12:01:43 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57730 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S276248AbRJDQBg>; Thu, 4 Oct 2001 12:01:36 -0400
-Date: Thu, 4 Oct 2001 10:02:00 -0600
-Message-Id: <200110041602.f94G20k06280@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com>
-In-Reply-To: <m1n137zbyo.fsf@frodo.biederman.org>
-	<Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com>
+	id <S276666AbRJDQEv>; Thu, 4 Oct 2001 12:04:51 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:28677 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S276623AbRJDQEe>; Thu, 4 Oct 2001 12:04:34 -0400
+Message-Id: <200110041604.f94G4Y6w007354@pincoya.inf.utfsm.cl>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Past CREDITS files 
+In-Reply-To: Your message of "Thu, 04 Oct 2001 07:59:22 GMT."
+             <9ph4sq$gd0$1@forge.intermeta.de> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Thu, 04 Oct 2001 12:04:34 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+"Henning P. Schmiedehausen" <mailgate@hometree.net> said:
+> Robert Love <rml@tech9.net> writes:
 > 
-> On 4 Oct 2001, Eric W. Biederman wrote:
-> >
-> > First what user space really wants is the MAP_COPY.  Which is
-> > MAP_PRIVATE with the guarantee that they don't see anyone else's changes.
+> >Anyhow, the two-fold stable/devel system has been in effect since at
+> >least 1.0, when we had 1.1->1.2 (then 1.3->2.0, 2.1->2.2, etc.) 
+> >Hopefully we can continue this tradition and have 2.5 start sometime!
 > 
-> Which is a completely idiotic idea, and which is only just another
-> example of how absolutely and stunningly _stupid_ Hurd is.
+> Personally, I'd consider 2.4 -> 2.9 -> 3.0 
 
-Indeed. If you're updated a shared library, why not *create a new
-file* and then rename it?!? That lets running programmes work fine,
-and new programmes will get the new library. Also, the following
-construct makes a lot of sense:
-	ld -shared -o libfred.so *.o || mv libfred.so /usr/local/lib
-
-Why? Because if ld(1) fails for some reason, and ends up writing a
-short file, *you don't want to install the bloody thing*!!! Any new
-user would be stuffed (no way around that, even with MAP_COPY).
-I don't want to install/upgrade to a half-working library. What's the
-point in that?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+What are the earthshattering changes you foresee that would suggest going
+for 3.0?
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

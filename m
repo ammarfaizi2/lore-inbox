@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLBP2P>; Sat, 2 Dec 2000 10:28:15 -0500
+	id <S129436AbQLBQE0>; Sat, 2 Dec 2000 11:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLBP2F>; Sat, 2 Dec 2000 10:28:05 -0500
-Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:4612 "EHLO
-	kre8tive.org") by vger.kernel.org with ESMTP id <S129260AbQLBP1t>;
-	Sat, 2 Dec 2000 10:27:49 -0500
-Date: Sat, 2 Dec 2000 08:08:37 -0600
-From: mike@kre8tive.org
-To: Kernel ML <linux-kernel@vger.kernel.org>
-Subject: libc load error
-Message-ID: <20001202080837.A1097@lingas.basement.bogus>
-Reply-To: mike@kre8tive.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129450AbQLBQEQ>; Sat, 2 Dec 2000 11:04:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:58008 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129436AbQLBQEJ>;
+	Sat, 2 Dec 2000 11:04:09 -0500
+Date: Sat, 2 Dec 2000 10:33:36 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <3A29008E.F05E5C95@uow.edu.au>
+Message-ID: <Pine.GSO.4.21.0012021015310.28923-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
 
-Anyone know what causes an error like this:
 
-init: error while loading shared libraries: init: 
-symbol __ctype_h, version GLIBC_2.0 not defined in 
-file libc.so.6 with link time reference
+On Sun, 3 Dec 2000, Andrew Morton wrote:
 
-Booted a 2.2.18pre16 box and it failed to come back
-up throwing that message after the unused kernel space
-was freed.
+> It appears that this problem is not fixed.
 
-Any information is appreciated.
+Sure, it isn't. Place where the shit hits the fan: fs/buffer.c::unmap_buffer().
+Add the call of remove_inode_queue(bh) there and see if it helps. I.e.
 
--- 
-___________
-Thanks,
-Mike Elmore
-mike@kre8tive.org
+ed fs/buffer.c <<EOF
+/unmap_buffer/
+/}/i
+		remove_inode_queue(bh);
+.
+wq
+EOF
 
-"The more you complain, the longer God makes 
-you live."
-			-unknown
+Linus, could you apply that? We are leaving the unmapped buffers on the
+inode queue. I.e. every truncate_inode_pages() leaves a lot of junk around.
+Now, guess what happens when we destroy the last link to inode that nobody
+keeps open...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

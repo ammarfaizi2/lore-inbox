@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274248AbRJEWYM>; Fri, 5 Oct 2001 18:24:12 -0400
+	id <S274194AbRJEWXD>; Fri, 5 Oct 2001 18:23:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274249AbRJEWYD>; Fri, 5 Oct 2001 18:24:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17419 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274248AbRJEWXn>; Fri, 5 Oct 2001 18:23:43 -0400
-Subject: Re: Context switch times
-To: george@mvista.com (george anzinger)
-Date: Fri, 5 Oct 2001 23:29:09 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BBDF290.E3988F49@mvista.com> from "george anzinger" at Oct 05, 2001 10:49:04 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274248AbRJEWWw>; Fri, 5 Oct 2001 18:22:52 -0400
+Received: from astcc-132.astound.net ([24.219.123.215]:23556 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S274194AbRJEWWn>; Fri, 5 Oct 2001 18:22:43 -0400
+Date: Fri, 5 Oct 2001 15:23:16 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Sean Swallow <sean@swallow.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20268 UDMA troubles
+In-Reply-To: <Pine.LNX.4.33.0110051254070.15665-100000@lsd.nurk.org>
+Message-ID: <Pine.LNX.4.10.10110051522120.4222-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pdSv-0007qX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let me see if I have this right.  Task priority goes to max on any (?)
-> sleep regardless of how long.  And to min if it doesn't sleep for some
-> period of time.  Where does the time slice counter come into this, if at
-> all?  
+On Fri, 5 Oct 2001, Sean Swallow wrote:
+
+> Andre,
 > 
-> For what its worth I am currently updating the MontaVista scheduler so,
-> I am open to ideas.
+> Thank you for the reply.
+> 
+> I was wondering if both controllers (PDC20268 and PDC20267) should show up
+> when I cat /proc/ide/pdc202xx ?
+> 
+> I'm not disabling the BURST_BIT, I think the driver is, but only on the
+> second card. Thus, I can't get udma5 on all 4 chains.
+> 
+> This is from dmesg:
+> 
+> PDC20267: IDE controller on PCI bus 00 dev 40
+> PDC20267: chipset revision 2
+> PDC20267: not 100% native mode: will probe irqs later
+> PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+>     ide2: BM-DMA at 0x1080-0x1087, BIOS settings: hde:DMA, hdf:pio
+>     ide3: BM-DMA at 0x1088-0x108f, BIOS settings: hdg:DMA, hdh:pio
+> PDC20268: IDE controller on PCI bus 00 dev 50
+> PDC20268: chipset revision 2
+> PDC20268: not 100% native mode: will probe irqs later
+> PDC20268: (U)DMA Burst Bit DISABLED Primary MASTER Mode Secondary MASTER
+> Mode.
+>     ide4: BM-DMA at 0x10d0-0x10d7, BIOS settings: hdi:pio, hdj:pio
+>     ide5: BM-DMA at 0x10d8-0x10df, BIOS settings: hdk:pio, hdl:pio
+> 
+> Let me know if you need more information.
+> 
+> cheers,
+> 
+> -- 
+> Sean J. Swallow
+> pgp (6.5.2) keyfile @ https://nurk.org/keyfile.txt
+> 
+> 
+> On Thu, 4 Oct 2001 andre@linux-ide.org wrote:
+> 
+> >
+> > There is nothing wrong with the procfs.
+> > The HOST performs a sense mode on the contents of the taskfile registers
+> > when loading a setfeature to change the transfer rate.  Mode 5 is the
+> > same
+> > timings as Mode 4; however, the internal base clocks are different.
+> >
+> > Also why are we disabling the BUSRT BIT?
+> >
+> >
+> 
 
-The time slice counter is the limit on the amount of time you can execute,
-the priority determines who runs first.
+The procfs api does not parse several cards at this time.
 
-So if you used your cpu quota you will get run reluctantly. If you slept
-you will get run early and as you use time slice count you will drop
-priority bands, but without pre-emption until you cross a band and there
-is another task with higher priority.
+Cheers,
 
-This damps down task thrashing a bit, and for the cpu hogs it gets the
-desired behaviour - which is that the all run their full quantum in the
-background one after another instead of thrashing back and forth
+Andre Hedrick
+CTO ASL, Inc.
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Tel: (510) 857-0055 x103
+38875 Cherry Street                           Fax: (510) 857-0010
+Newark, CA 94560                              Web: www.aslab.com
+

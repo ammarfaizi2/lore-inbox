@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbTEQHSX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 03:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTEQHSX
+	id S261292AbTEQHyV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 03:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTEQHyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 03:18:23 -0400
-Received: from gw.enyo.de ([212.9.189.178]:23558 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261275AbTEQHSW (ORCPT
+	Sat, 17 May 2003 03:54:21 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:33980 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261292AbTEQHyU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 03:18:22 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: Simon Kirby <sim@netnation.org>, linux-kernel@vger.kernel.org
-Subject: Re: Route cache performance under stress
-References: <8765pshpd4.fsf@deneb.enyo.de>
-	<20030516222436.GA6620@netnation.com>
-	<1053138910.7308.3.camel@rth.ninka.net>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, Simon Kirby
- <sim@netnation.org>,  linux-kernel@vger.kernel.org
-Date: Sat, 17 May 2003 09:31:04 +0200
-In-Reply-To: <1053138910.7308.3.camel@rth.ninka.net> (David S. Miller's
- message of "16 May 2003 19:35:10 -0700")
-Message-ID: <87d6iit4g7.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 May 2003 03:54:20 -0400
+Date: Sat, 17 May 2003 10:05:30 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix, v4
+Message-ID: <20030517080529.GJ6985@marowsky-bree.de>
+References: <20030516161717.1e629364.akpm@digeo.com> <20030516161753.08470617.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030516161753.08470617.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+On 2003-05-16T16:17:53,
+   Andrew Morton <akpm@digeo.com> said:
 
-> On Fri, 2003-05-16 at 15:24, Simon Kirby wrote:
->> I have been seeing this problem for over a year, and have had the same
->> problems you have with DoS attacks saturating the CPUs on our routers.
->
-> Have a look at current kernels and see if they solve your problem.
-> They undoubtedly should, and I consider this issue resolved.
+> drivers/block/
+> --------------
 
-The hash collision problem appears to be resolved, but not the more
-general performance issues.  Or are there any kernels without a
-routing cache?
+Last time I looked at the multipath code (2.5.50 or so) it also looked
+pretty broken; I plan to port forward the changes we did on 2.4 before
+KS.
+
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

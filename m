@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVAHFV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVAHFXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVAHFV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 00:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVAHFV2
+	id S261791AbVAHFXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 00:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVAHFXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 00:21:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47847 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261786AbVAHFVL (ORCPT
+	Sat, 8 Jan 2005 00:23:14 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:60287 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261790AbVAHFW6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:21:11 -0500
-Date: Fri, 7 Jan 2005 21:07:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] add support for sysdev class attributes
-Message-ID: <20050108050729.GA7587@kroah.com>
-References: <1105136891.13391.20.camel@pants.austin.ibm.com>
+	Sat, 8 Jan 2005 00:22:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aiYqrPIpynsM/7LYFmobXk8wou1b+HGFRhyeG5wnVtsvNrWjCkJHvON0rPfWngc2dOkj0ItA99Jj3I2XOGA1IaBvkGLOvCuSnQ7EcuJNHW/az8J+LavEfBg6OVNcarsI00RGlJ2t6zhJh44Ax/3N/B/j+CeC/9KT7X8CU4q/QYk=
+Message-ID: <9e47339105010721225c0cfb32@mail.gmail.com>
+Date: Sat, 8 Jan 2005 00:22:53 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org,
+       DRI Devel <dri-devel@lists.sourceforge.net>
+Subject: Re: chasing the four level page table
+In-Reply-To: <20050106214159.GG16373@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105136891.13391.20.camel@pants.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339105010609175dabc381@mail.gmail.com> <m1vfaav340.fsf@muc.de>
+	 <9e47339105010610362fd7fffe@mail.gmail.com>
+	 <20050106193826.GC47320@muc.de>
+	 <9e4733910501061205354c9508@mail.gmail.com>
+	 <20050106214159.GG16373@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
-> @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
->  	INIT_LIST_HEAD(&cls->drivers);
->  	cls->kset.subsys = &system_subsys;
->  	kset_set_kset_s(cls, system_subsys);
-> +
-> +	/* I'm not going to claim to understand this; see
-> +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
-> +	 */
-> +	cls->kset.kobj.ktype = &sysdev_class_ktype;
-> +
+On Thu, 6 Jan 2005 16:41:59 -0500, Dave Jones <davej@redhat.com> wrote:
+> No other device driver is also doing such lowlevel stuff with
+> page tables directly afaics. drivers/char/drm seem to be the only drivers
+> using [pgd|pmd|pte]_offset() routines.
 
-I think you need to understand this, and then submit a patch without
-such a comment :)
+On 6 Jan 2005 20:38:27 +0100, Andi Kleen <ak@muc.de> wrote:
+> Perhaps we should add a get_user_phys() or somesuch for this.
 
-And probably without such code, as I don't think you need to do that.
+I think this is a case where the memory manager is missing a function
+that DRM needs. If there was a get_user_phys() function DRM wouldn't
+need to walk the page tables.
 
-thanks,
-
-greg k-h
+-- 
+Jon Smirl
+jonsmirl@gmail.com

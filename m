@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUFPSbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUFPSl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUFPSbG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUFPSbF
+	id S264419AbUFPSl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbUFPSl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:31:05 -0400
-Received: from dwdmx2.dwd.de ([141.38.3.197]:6661 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S264411AbUFPSa4 (ORCPT
+	Wed, 16 Jun 2004 14:41:57 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:56268 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264419AbUFPSls (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:30:56 -0400
-Date: Wed, 16 Jun 2004 18:30:51 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: Corey Minyard <minyard@acm.org>
-cc: Alex Williamson <alex.williamson@hp.com>,
-       Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IPMI hangup in 2.6.6-rc3
-In-Reply-To: <40D05779.9080203@acm.org>
-Message-Id: <Pine.LNX.4.58.0406161822280.13439@praktifix.dwd.de>
-References: <Pine.LNX.4.58.R0405040649310.15047@praktifix.dwd.de> 
- <20040525165335.GA28905@titan.lahn.de>  <40C0E2BF.3040705@acm.org>
- <1086887543.4182.46.camel@tdi> <Pine.LNX.4.58.0406161225210.17908@praktifix.dwd.de>
- <40D056E2.4010605@acm.org> <40D05779.9080203@acm.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Jun 2004 14:41:48 -0400
+Date: Wed, 16 Jun 2004 14:41:45 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] accelerated radeonfb produces artifacts on scrolling in 2.6.7
+Message-ID: <20040616184145.GA12673@havoc.gtf.org>
+References: <20040616182415.GA8286@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040616182415.GA8286@middle.of.nowhere>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004, Corey Minyard wrote:
+On Wed, Jun 16, 2004 at 08:24:15PM +0200, Jurriaan wrote:
+> The radeonfb driver in 2.6.7 produces some interesting artifacts on
+> scrolling, both scrolling horizontally and vertically.
 
-> I missed a part of the patch, here is a new one with the include file changes.
-> 
-> -Corey
-> 
-> Corey Minyard wrote:
-> 
-> > Unfortuantely, that fix has some problems, but it was on the right track.  I
-> > have a new patch attached; can you try it out?  Also, the kernel interface
-> > has not changed.  It should be exactly the same as before.
-> > 
-> > -Corey
-> 
-Yes, with this patch it no longer hangs. But ipmitool still crashes
+The corruption you are talking about is, I believe, caused by a couple of things:
 
-    root@apollo:~# ipmitool -I open sdr list
-    Segmentation fault
+(1) we're not issuing enough fifo_wait()'s around our accel engine
+    and pan register writes.
+(2) there's some disconnect between writing to fb memory, panning, and
+    copyarea()/fillrect() calls
 
-I will try to contact the author of ipmitool.
+I sent a hack of a fix for this to Ben a week ago, adding a call to radeonfb_sync()
+at the end of radeonfb_copyarea() and radeonfb_fillrect().  This seems to fix the
+problem for me, but you *shouldn't* have to do this.  
 
-Holger
+I haven't tracked it any further than this.  My next guess would be auditing register 
+writes and making sure there are enough fifo_wait()'s...
+
+-dte

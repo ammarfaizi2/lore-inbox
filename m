@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285466AbRLGLlF>; Fri, 7 Dec 2001 06:41:05 -0500
+	id <S285465AbRLGMAC>; Fri, 7 Dec 2001 07:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285467AbRLGLkw>; Fri, 7 Dec 2001 06:40:52 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:36804 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S285466AbRLGLkm>; Fri, 7 Dec 2001 06:40:42 -0500
-Date: Fri, 7 Dec 2001 12:40:37 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Falk Stern <f.stern@mobile.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre6 compilation errors
-In-Reply-To: <1007722632.1870.0.camel@station45>
-Message-ID: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S285468AbRLGL7w>; Fri, 7 Dec 2001 06:59:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33545 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285465AbRLGL7m>; Fri, 7 Dec 2001 06:59:42 -0500
+Subject: Re: Linux/Pro  -- clusters
+To: dalecki@evision.ag
+Date: Fri, 7 Dec 2001 12:08:35 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <3C10A057.BD8E1252@evision-ventures.com> from "Martin Dalecki" at Dec 07, 2001 11:56:23 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16CJnv-0005c0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Dec 2001, Falk Stern wrote:
+> > major/minors for old stuff still end up leaking into user space and
+> > mattering there. I'm not sure the best option for that
+> 
+> Thta's no problem. But they should be used as hash values no the
+> syscall implementation level and nowhere else.
 
-> Hi.
+We have apps that "know" about specific major/minors that need changing and
+will take time - also some of them are closed source so unfixable.
 
-Hi Falk,
-
-> Just tried to compile a vanilla 2.5.1-pre6 and got following errors:
-> (while doing "make dep clean bzImage modules modules_install" )
->...
-> drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
-> in discarded section .text.exit'
-> drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
-> discarded section .text.exit'
-> make: *** [vmlinux] Error 1
->...
-> # ld -V
-> GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
->...
-
-this is a known bug in the kernel that shows up with the latest binutils
-packages in Debian unstable. As a workaround you can downgrade your
-binutils to the 2.11.92.0.10-4 package in Debian testing (you can
-download it from [1] if don't have it any more).
-
-cu
-Adrian
-
-[1] ftp://ftp.de.debian.org/debian/pool/main/b/binutils/
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+For new stuff that bit isnt an issue, although ioctl overlaps mean we have
+some other problems to worry about there

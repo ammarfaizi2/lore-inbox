@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSFKPQ1>; Tue, 11 Jun 2002 11:16:27 -0400
+	id <S317121AbSFKPR3>; Tue, 11 Jun 2002 11:17:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317121AbSFKPQ1>; Tue, 11 Jun 2002 11:16:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43102 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S317066AbSFKPQZ>; Tue, 11 Jun 2002 11:16:25 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <Pine.LNX.4.44.0206100810380.30336-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Jun 2002 09:06:40 -0600
-Message-ID: <m1r8jdvoqn.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S317123AbSFKPR2>; Tue, 11 Jun 2002 11:17:28 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:35576 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317121AbSFKPRU>; Tue, 11 Jun 2002 11:17:20 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020611114344.B3081@flint.arm.linux.org.uk> 
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+        Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Double quote patches part one: drivers 1/2 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 11 Jun 2002 16:16:56 +0100
+Message-ID: <5812.1023808616@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
 
-> On Mon, 10 Jun 2002, Helge Hafting wrote:
-> >
-> > Not much, but
-> > ls /dev/net
-> > eth0 eth1 eth2 ippp0
-> > would be a convenient way to see what net devices exists.
-> > This already works for other devices, when using devfs.
-> 
-> You might as well do
-> 
-> 	cat /proc/net/dev
-> 
-> instead.
-> 
-> Which works with existing kernels, going back to whatever..
+rmk@arm.linux.org.uk said:
+> and then read kernel/fork.s ?  Yes, some people who care about getting
+> the best out of the kernel do convert C to assembly and then read the
+> result.  If there's something really yucky in there, then you go back
+> and fix it in the C source.
 
-Gap, puke.  
+s/C/compiler/
 
-Sorry I have built kernels where space was tight and I only built in
-/proc so I could read /proc/net/dev.  And since with /proc everything
-is all in one basket it is very hard to turn off unneeded features.
+Or were you _really_ advocating the kind of development methodology which
+gave us all those gotos to out-of-line code which gcc helpfully moved back
+in-line for us when it got a little smarter because someone else observed 
+the same problem and fixed it _properly_?
 
-/proc might be nice to user space but as it is implemented it is
-nasty to work with.
+Tweaking your code and sacrificing chickens until you happen to get the
+output you want is no substitute for fixing the compiler. And it's a waste 
+of good chickens.
 
-So a netdevfs or some solution that factors better would really
-be nice.
+--
+dwmw2
 
-Eric
+

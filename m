@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUKSHBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbUKSHCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbUKSHBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 02:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUKSHBV
+	id S261277AbUKSHCA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 02:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbUKSHB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 02:01:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9704 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261265AbUKSHBP (ORCPT
+	Fri, 19 Nov 2004 02:01:26 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:52703 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261277AbUKSHBR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 02:01:15 -0500
-Date: Thu, 18 Nov 2004 23:01:09 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Ross Kendall Axe <ross.axe@blueyonder.co.uk>, netdev@oss.sgi.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when using SELinux and SOCK_SEQPACKET
-Message-ID: <20041118230109.V2357@build.pdx.osdl.net>
-References: <1100821144.6005.40.camel@localhost.localdomain> <Xine.LNX.4.44.0411182207080.7831-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Xine.LNX.4.44.0411182207080.7831-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Thu, Nov 18, 2004 at 10:12:13PM -0500
+	Fri, 19 Nov 2004 02:01:17 -0500
+Date: Fri, 19 Nov 2004 08:01:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bryan Henderson <hbryan@us.ibm.com>
+cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz, torvalds@osdl.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+In-Reply-To: <OFA311AC16.4350B724-ON88256F50.0065969A-88256F50.00677F64@us.ibm.com>
+Message-ID: <Pine.LNX.4.53.0411190800470.16171@yvahk01.tjqt.qr>
+References: <OFA311AC16.4350B724-ON88256F50.0065969A-88256F50.00677F64@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@redhat.com) wrote:
-> On Thu, 18 Nov 2004, Alan Cox wrote:
-> 
-> > As to the other stuff I think the only change needed is to check the
-> > queued asynchronous error and report that before going on to the
-> > connected test
-> 
-> How about this?
+>>but I
+>>think usually you have lot's of virtual memory (4Gbyte per process),
+>>so killing off processes to get more of it makes no sense.
+>
+>I think it's fair to say you have 4G of virtual address space per process,
+>but try to store 4G of information per process in it, and you will
+>probably find you can't.  What's essentially scarce is swap space. Killing
+>off processes frees up swap space.
 
-The other patch is already committed, so relative diff would be needed.
+3G in the default case, because there's 1G for kernel space.
 
-> (Also now ignores any supplied address per 
-> http://www.opengroup.org/onlinepubs/009695399/functions/sendto.html)
 
-Nitpick, but I missed where it said ignore the address.  And it seems
-counter intuitive to provide address, only to have it ignored and
-delivered elsewhere.
 
-thanks,
--chris
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

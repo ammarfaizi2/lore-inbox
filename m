@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268811AbTGJC64 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 22:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268829AbTGJC6z
+	id S268827AbTGJC7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 22:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268829AbTGJC7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 22:58:55 -0400
-Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:34178
-	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S268811AbTGJC6l
+	Wed, 9 Jul 2003 22:59:32 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:34434
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S268827AbTGJC6o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 22:58:41 -0400
+	Wed, 9 Jul 2003 22:58:44 -0400
 Subject: Re: 2.5.73-mm3 vs. linux-2.5.74-mm1
 From: Piet Delaney <piet@www.piet.net>
 To: Andrew Morton <akpm@digeo.com>
@@ -21,7 +21,7 @@ Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
 Date: 09 Jul 2003 20:13:08 -0700
-Message-Id: <1057806788.2351.58.camel@www.piet.net>
+Message-Id: <1057806790.5717.59.camel@www.piet.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

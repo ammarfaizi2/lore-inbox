@@ -1,135 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288238AbSAHSoz>; Tue, 8 Jan 2002 13:44:55 -0500
+	id <S288231AbSAHSpP>; Tue, 8 Jan 2002 13:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288234AbSAHSop>; Tue, 8 Jan 2002 13:44:45 -0500
-Received: from intra.cyclades.com ([209.81.55.6]:22532 "HELO
-	intra.cyclades.com") by vger.kernel.org with SMTP
-	id <S288230AbSAHSoe>; Tue, 8 Jan 2002 13:44:34 -0500
-Message-ID: <3C3B3EDC.C59D48C8@cyclades.com>
-Date: Tue, 08 Jan 2002 10:47:56 -0800
-From: Ivan Passos <ivan@cyclades.com>
-Organization: Cyclades Corporation
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-In-Reply-To: <3C38BC19.72ECE86@zip.com.au>,
-			<3C34024A.EDA31D24@zip.com.au>
-			<3C33E0D3.B6E932D6@zip.com.au>
-			<3C33BCF3.20BE9E92@cyclades.com>
-			<200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
-			<200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca>
-			<3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca> <3C3A7DA7.381D033D@zip.com.au>
+	id <S288227AbSAHSpG>; Tue, 8 Jan 2002 13:45:06 -0500
+Received: from holomorphy.com ([216.36.33.161]:33240 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288231AbSAHSo4>;
+	Tue, 8 Jan 2002 13:44:56 -0500
+Date: Tue, 8 Jan 2002 10:44:26 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roland Dreier <roland@topspincom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hashed waitqueues
+Message-ID: <20020108104426.U10326@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Roland Dreier <roland@topspincom.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020104094049.A10326@holomorphy.com> <E16MeqE-0001Ea-00@starship.berlin> <20020104173923.B10391@holomorphy.com> <E16Mgoj-0001Ew-00@starship.berlin> <20020104210611.C10391@holomorphy.com> <20020108102037.J10391@holomorphy.com> <20020108102723.K10391@holomorphy.com> <523d1gu1ni.fsf@love-boat.topspincom.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <523d1gu1ni.fsf@love-boat.topspincom.com>; from roland@topspincom.com on Tue, Jan 08, 2002 at 10:40:33AM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William> On Tue, Jan 08, 2002 at 10:20:37AM -0800, William Lee Irwin III wrote:
+>> The (theoretically) best 64-bit prime with 5 high bits I found is:
+William> 	[numbers]
+>> and the (theoretically) best 64-bit prime with 4 high bits I found is:
+William> 	[numbers]
+William> Sorry, I forgot to credit my helpers in the last post:
+William> The sieving technique to find these things was devised by
+William> Christophe Rhodes <csr21@cam.ac.uk> and fare@tunes.org
 
-Andrew Morton wrote:
-> 
-> Richard, can we please get this wrapped up?
-> 
-> My preferred approach is to change the driver naming scheme
-> so that we don't have to put printf control-strings everywhere.
-> We can remove a number of ifdefs that way.
-> 
-> So for serial.c:
-> 
-> --- linux-2.4.18-pre2/drivers/char/tty_io.c     Mon Jan  7 16:48:02 2002
-> +++ linux-akpm/drivers/char/tty_io.c    Mon Jan  7 20:56:38 2002
-> @@ -193,10 +193,13 @@ _tty_make_name(struct tty_struct *tty, c
-> 
->         if (!tty) /* Hmm.  NULL pointer.  That's fun. */
->                 strcpy(buf, "NULL tty");
-> -       else
-> -               sprintf(buf, name,
-> -                       idx + tty->driver.name_base);
-> -
-> +       else {
-> +#ifdef CONFIG_DEVFS_FS
-> +               sprintf(buf, "%s/%d", name, idx + tty->driver.name_base);
-> +#else
-> +               sprintf(buf, "%s%d", name, idx + tty->driver.name_base);
-> +#endif
-> +       }
->         return buf;
->  }
-> 
-> --- linux-2.4.18-pre2/drivers/char/serial.c     Mon Jan  7 16:48:02 2002
-> +++ linux-akpm/drivers/char/serial.c    Mon Jan  7 20:58:09 2002
-> @@ -5387,7 +5387,7 @@ static int __init rs_init(void)
->         serial_driver.driver_name = "serial";
->  #endif
->  #if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
-> -       serial_driver.name = "tts/%d";
-> +       serial_driver.name = "tts";
->  #else
->         serial_driver.name = "ttyS";
->  #endif
+On Tue, Jan 08, 2002 at 10:40:33AM -0800, Roland Dreier wrote:
+> Just out of curiousity, why do you need a "sieving technique" to find
+> these primes?  There are only 63 choose 4 (which is 595665) 64 bit
+> numbers with only 5 bits set, of which probably no more than 15000 are
+> prime, so it seems you could just test all of them.  What am I missing?
 
-This doesn't cover all the drivers, because the definition for devfs 
-is that the standard serial "translates" 'ttyS' to 'tts/', and other 
-serial drivers "translate" 'ttyN' (where 'N' can be several 
-different letters -- e.g. 'C' for Cyclades, 'R' for Comtrol, 'X' for 
-Specialix, 'D' for Digi, etc.) to 'tts/N' (so that standard serial 
-and other serial devices can share the same devfs directory).
-
-So, I believe the best way to solve this would be:
-
-drivers/char/tty_io.c:
-@@ -193,10 +193,13 @@ _tty_make_name(struct tty_struct *tty, c
-
-        if (!tty) /* Hmm.  NULL pointer.  That's fun. */
-                strcpy(buf, "NULL tty");
-        else
--               sprintf(buf, name,
--                       idx + tty->driver.name_base);
-+               sprintf(buf, "%s%d", name, idx + tty->driver.name_base);
- 
-        return buf;
- }
-
-drivers/char/serial.c:
-@@ -5387,7 +5387,7 @@ static int __init rs_init(void)
-        serial_driver.driver_name = "serial";
- #endif
- #if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
--       serial_driver.name = "tts/%d";
-+       serial_driver.name = "tts/";
- #else
-        serial_driver.name = "ttyS";
- #endif
+The sieving technique they devised uses that. In fact, they search only
+2*choose(59,2), as bits 63, 0, and one of either 60 or 61 must be set,
+since it must be odd to be prime and bits 63 -> 60 are determined by
+(up to the choice of either 60 or 61) by 4/7 <= p/2^64 <= 2/3.
 
 
-And then, for instance, for the Cyclades driver, we'd use:
-
-#ifdef CONFIG_DEVFS_FS
-	cy_serial_driver.name = "tts/C";
-#else
-	cy_serial_driver.name = "ttyC";
-#endif
-
-, and let's not forget the callout devices (which follow a similar 
-rule):
-
-#ifdef CONFIG_DEVFS_FS
-	cy_callout_driver.name = "cua/C";
-#else
-	cy_callout_driver.name = "cub";
-#endif
-
-This would apply for other drivers as well, just replacing the 'C' 
-by the proper letter.
-
-So, what do you think?!?!?
-
-Later,
--- 
-Ivan Passos							 -o)
-Integration Manager, Cyclades	- http://www.cyclades.com	 /\\
-Project Leader, NetLinOS	- http://www.netlinos.org	_\_V
---------------------------------------------------------------------
+Cheers,
+Bill

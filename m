@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUJHX1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUJHX2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUJHX1G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUJHX1G
+	id S266193AbUJHX2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUJHX2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:27:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15053 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266170AbUJHX1A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:27:00 -0400
-Date: Fri, 8 Oct 2004 19:26:32 -0400
-From: Dave Jones <davej@redhat.com>
+	Fri, 8 Oct 2004 19:28:49 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:10547 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266193AbUJHX1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:27:16 -0400
 To: Greg KH <greg@kroah.com>
-Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041008202247.GA9653@kroah.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 08 Oct 2004 16:27:14 -0700
+In-Reply-To: <20041008202247.GA9653@kroah.com> (Greg KH's message of "Fri, 8
+ Oct 2004 13:22:47 -0700")
+Message-ID: <528yagn63x.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
 Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-Message-ID: <20041008232632.GL25892@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	"Eric W. Biederman" <ebiederman@lnxi.com>,
-	openib-general@openib.org, linux-kernel@vger.kernel.org
-References: <20041008202247.GA9653@kroah.com> <m3d5zs966r.fsf@maxwell.lnxi.com> <20041008231307.GA32530@kroah.com>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008231307.GA32530@kroah.com>
-User-Agent: Mutt/1.4.1i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 08 Oct 2004 23:27:15.0214 (UTC) FILETIME=[5854F2E0:01C4AD8E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 04:13:07PM -0700, Greg KH wrote:
+The increase in cost for the spec is rather unfortunate but I think
+it's orthogonal to any IP issues.  Since the Linux kernel contains a
+lot of code written to specs available only under NDA (and even
+reverse-engineered code where specs are completely unavailable), I
+don't think the expense should be an issue.
 
- > > Even the PCI-SIG requires you to pay for the spec.
- > 
- > I know that, almost all groups do.  Although $9500 does seem a bit steep
- > for spec prices :)
+As for IP, as far as I know, there has been no change to any of the
+bylaws or other members agreements.  If there is some specific
+provision that concerns you, please bring it to our attention -- the
+IBTA in general and the IBTA steering committee in general have been
+very supportive of the OpenIB effort.  In fact, most of the IBTA
+steering commitee companies (Agilent, HP, IBM, InfiniCon, Intel,
+Mellanox, Sun, Topspin, and Voltaire) have been active participants in
+OpenIB development.  I would hope we can resolve any issues relating
+to open source and the Linux kernel.
 
-Especially as (wrt PCISIG at least) the mindshare books contain almost
-exactly the same information for around $50.  In fact, I find those
-books are much better presented than the actual specs.
+However, I would suspect that we'll find the USB, Firewire, Bluetooth,
+etc., etc. standards bodies all have very similar IP language in their
+bylaws and licenses.
 
-		Dave
+Thanks,
+  Roland
 

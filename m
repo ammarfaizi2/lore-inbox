@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSIWWpy>; Mon, 23 Sep 2002 18:45:54 -0400
+	id <S261466AbSIWWxz>; Mon, 23 Sep 2002 18:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSIWWpy>; Mon, 23 Sep 2002 18:45:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41988 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261433AbSIWWpx>;
-	Mon, 23 Sep 2002 18:45:53 -0400
-Message-ID: <3D8F9AB9.1040505@mandrakesoft.com>
-Date: Mon, 23 Sep 2002 18:50:33 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
-Subject: Re: Quick aic7xxx bug hunt...
-References: <20020923180017.GA16270@sexmachine.doom> <2539730816.1032808544@aslan.btc.adaptec.com> <3D8F874B.3070301@mandrakesoft.com> <2640410816.1032818062@aslan.btc.adaptec.com> <3D8F934F.7000606@mandrakesoft.com> <2678680816.1032821098@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261467AbSIWWxy>; Mon, 23 Sep 2002 18:53:54 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:50950 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261466AbSIWWxy>;
+	Mon, 23 Sep 2002 18:53:54 -0400
+Date: Mon, 23 Sep 2002 18:56:35 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
+       ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020923185635.C26887@mark.mielke.cc>
+References: <20020923083004.B14944@work.bitmover.com> <Pine.LNX.4.44.0209231433560.16864-100000@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209231433560.16864-100000@twinlark.arctic.org>; from dean-list-linux-kernel@arctic.org on Mon, Sep 23, 2002 at 02:41:33PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
->>Great, I stand corrected.  Looks like 2.5 code is ancient then?
-> 
-> 
-> Yes.  I didn't do the original port and am now just finishing up my
-> port to 2.5.X.
-> 
-> 
->>comments on the 2.4 code:
->>* the 1000us delay in ahc_reset needs to be turned into a sleep, instead
->>all paths to that function [AFAICS] can sleep.  likewise for the huge
->>delay in ahc_acquire_seeprom.
-> 
-> 
-> For all of these delays, I'd be more than happy to make them all into
-> sleeps if I can tell, from inside ahc_delay() if I'm in a context where
-> it is safe to sleep.  On the other platforms that this core code runs on
-> I'm usually not in a context where it is safe to sleep, so I don't want
-> to switch to using a different driver primitive.
+On Mon, Sep 23, 2002 at 02:41:33PM -0700, dean gaudet wrote:
+> so while this is I/O, it's certainly less efficient to have thousands of
+> tasks blocked in read(2) versus having thousands of entries in <pick your
+> favourite poll/select/etc. mechanism>.
 
-For Linux it's unconditionally safe, and other platforms is sounds like 
-it's unconditionally not.  So, s/ahc_delay/ahc_sleep/ for the places I 
-pointed out, and just make ahc_delay==ahc_sleep on non-Linux platforms 
-(or any similarly-functioning solution)
+In terms of kernel memory, perhaps. In terms of 'efficiency', I
+wouldn't be so sure. Java uses a wack of user space storage to
+represent threads regardless of whether they are green or native.  The
+only difference is - is Java calling poll()/select()/ioctl()
+routinely? Or are the tasks sitting in an efficient kernel task queue?
 
-It's pretty much impossible to detect if you are inside certain 
-spinlocks, in a generic fashion.
+Which has a better chance of being more efficient, in terms of dispatching,
+(especially considering that most of the time, most java threads are idle),
+and which has a better chance of being more efficient in terms of the
+overhead of querying whether a task is ready to run? I lean towards the OS
+on both counts.
 
+mark
 
->>* PCI posting?  (aic7xxx_core.c, line 1322, the last statement in the
->>function...)
->>
->>                 ahc_outb(ahc, CLRINT, CLRSCSIINT);
-> 
-> 
-> I don't care when the write occurs only that it will occur eventually.
-> The buffer will get flushed eventually so there is no need to call
-> ahc_flush_device_writes().
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-ok, thanks for clarifying.
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-	Jeff
-
-
+                           http://mark.mielke.cc/
 

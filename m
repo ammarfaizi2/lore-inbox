@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132457AbRANTPk>; Sun, 14 Jan 2001 14:15:40 -0500
+	id <S130801AbRANTTa>; Sun, 14 Jan 2001 14:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132365AbRANTPa>; Sun, 14 Jan 2001 14:15:30 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:48397 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130801AbRANTPR>;
-	Sun, 14 Jan 2001 14:15:17 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101141915.WAA25163@ms2.inr.ac.ru>
-Subject: Re: ENOMEM on socket writes
-To: paulus@linuxcare.COM.AU
-Date: Sun, 14 Jan 2001 22:15:05 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <14942.23127.188103.787383@diego.linuxcare.com.au> from "Paul Mackerras" at Jan 12, 1 04:45:05 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131066AbRANTTV>; Sun, 14 Jan 2001 14:19:21 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:64936 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S130801AbRANTTM>;
+	Sun, 14 Jan 2001 14:19:12 -0500
+Date: Sun, 14 Jan 2001 14:18:29 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.30.0101142006420.3610-100000@e2>
+Message-ID: <Pine.GSO.4.30.0101141411060.12354-100000@shell.cyberus.ca>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> memory".  Rsync is writing on a socket which is set non-blocking and
-> the write is apparently returning ENOMEM.
-
-This must not happen with stock 2.4.0. TCP never returns ENOMEM.
-Please, investigate.
-
-But application should be ready to get this error yet.
 
 
-> >From the point of view of the application, ENOMEM is a little hard to
-> deal with constructively. 
+On Sun, 14 Jan 2001, Ingo Molnar wrote:
 
-The only constructive way to handle this is to fail instantly
-and to release all the allocated resources as soon as possible,
-avoiding operations requiring allocating new resources.
+>
+> in this case there could still be valid performance differences, as
+> copying from user-space is cheaper than copying from the pagecache. To
+> rule out SMP interactions, you could try a UP-IOAPIC kernel on that box.
+>
 
+Let me complete this with the ZC patches first. then i'll do that.
+There are a few retarnsmits; maybe receiver IRQ affinity might help some.
 
->				 Select will say that the socket is
-> writable, so there doesn't seem to be a good way of waiting until the
-> write has a chance of succeeding.
+> (I'm also curious what kind of numbers you'll get with the zerocopy
+> patch.)
 
-It never will if you do not abort something.
+Working on it.
 
-It is in theory. In practice, write() on TCP returns EAGAIN on
-transient errors and application will spin, which is normal.
+> no, in the case of a single thread this should have minimum impact. But
+> i'd suggest to increase the /proc/sys/net/tcp*mem* values (to 1MB or
+> more).
 
-Alexey
+The upper thresholds to 1000000 ?
+I should have mentioned that i set /proc/sys/net/core/*mem*
+to currently 262144.
+
+cheers,
+jamal
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTINDJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 23:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTINDJI
+	id S262283AbTINDXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 23:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTINDXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 23:09:08 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21003
+	Sat, 13 Sep 2003 23:23:11 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21259
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262280AbTINDJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 23:09:05 -0400
-Date: Sat, 13 Sep 2003 19:51:20 -0700 (PDT)
+	id S262283AbTINDXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 23:23:07 -0400
+Date: Sat, 13 Sep 2003 20:05:29 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Timothy Miller <miller@techsource.com>,
-       David Schwartz <davids@webmaster.com>,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
+To: linux-kernel@vger.kernel.org
+cc: Erik Andersen <andersen@codepoet.org>, Richard Stallman <rms@gnu.org>
+Subject: GPL == DMCA [Re: People, not GPL  [was: Re: Driver Model]]
 In-Reply-To: <20030914015719.GA16947@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10309131942320.16744-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10309131954150.16744-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Erik:
-
-One more thing you forgot!
-
-Before you run around ranting about DMCA and CPRM and making suttle legal
-threats.  Everyone here knows who put it on the line to gain control of
-technology to prevent Content Protection Recordable Media from covering
-the storage industry wide.  That is correct it was me.  I was the one and
-only person ever to stand up and have a position to help everyone here to
-take control of technology.  While all of my hard work was destroyed by
-the brain-dead of the EFF by causing it to go underground.
-
-So lets be real clear about your wild swings of DMCA, because the irony
-will be back to haunt.  Threaten to strike me down with DMCA, what a child
-you have become.
-
-So this is where it goes ... Mighty Linux kills usage for business with
-lawsuits like the MPAA and RIAA.
-
-GPL == DMCA, this is the brush you swing paint well dude.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
 
 On Sat, 13 Sep 2003, Erik Andersen wrote:
 
@@ -74,14 +46,29 @@ On Sat, 13 Sep 2003, Erik Andersen wrote:
 > an effective technological measure.  Remember Dmitry Sklyarov,
 > 
 >  -Erik
-> 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+Erik:
+
+Dmitry Sklyarov was put in jail for DMCA.
+
+Erik Anderson joins The Village People to sing "D M C A".
+
+So "The Great 'Erik Anderson'" now threatens former opensource developer
+with baiting tactics of GPL == DMCA.  This is beautiful.
+
+Richard, I know you will enjoy this one.  People are thinking of
+enforcing GPL via DMCA.  Basically killing the idea that people have the
+freedom of choice when it comes to software.  Maybe Eben Moglen would like
+to comment on this twisted idea of Mr. Erik Anderson.
+
+I really don't care but this is to funny to pass up such a threat in a
+public forum.
+
+Cheer,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+PS mental note, it takes two idiots to have a flame war, when am I going
+quit being the second idiot, sigh.
 

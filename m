@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136698AbRAHLqC>; Mon, 8 Jan 2001 06:46:02 -0500
+	id <S135765AbRAHLsc>; Mon, 8 Jan 2001 06:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136914AbRAHLpx>; Mon, 8 Jan 2001 06:45:53 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21523 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136698AbRAHLpm>; Mon, 8 Jan 2001 06:45:42 -0500
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 8 Jan 2001 11:46:53 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0101080244560.2221-100000@weyl.math.psu.edu> from "Alexander Viro" at Jan 08, 2001 02:50:26 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136448AbRAHLsW>; Mon, 8 Jan 2001 06:48:22 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:35754 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S135765AbRAHLsG>; Mon, 8 Jan 2001 06:48:06 -0500
+Date: Mon, 8 Jan 2001 12:47:26 +0100 (CET)
+From: Nils Philippsen <nils@fht-esslingen.de>
+Reply-To: <nils@fht-esslingen.de>
+To: Narancs 1 <narancs1@externet.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: postgres/shm problem
+In-Reply-To: <Pine.LNX.4.02.10101081222211.17427-100000@prins.externet.hu>
+Message-ID: <Pine.LNX.4.30.0101081243530.8952-100000@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FalM-0004MY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, it doesn't work that way. Maximal size depends on the type of object,
-> for one thing. Moreover, it's not always a multiple of page size, so you
+On Mon, 8 Jan 2001, Narancs 1 wrote:
 
-Its a multiple of page size for all fs's we have but I did it in terms of
-bytes anyway
+> On Mon, 8 Jan 2001, Nils Philippsen wrote:
+>
+>
+> > /proc/sys/kernel/shmall to "0" (that is the maximum number of SHM
+> > segments).
+> yes, powertweak made it wrong. what is the good value for it?
 
-> still need foo_get_block() to be aware of the problem (it should return
-> -EFBIG). Besides, we need to take care of the situations when some of
-> get_block() calls fail in prepare_write() - that can happen due to other
-> problems. I've fixed all that stuff for ext2 (check the patches posted on
-> l-k after 12-pre6). We need to propagate it into other filesystems, but
+according to /usr/src/linux/include/linux/shm.h:
 
-I put it into generic_file_write. That covers most fs's it seems. The jffs 
-guys are going to switch to generic_file_write soon and the other fs's 
-that dont are wacko ones I dont care about ;)
+#define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages)
+*/
+
+On my machine here, it is 2097152. It should be the same on any Intel IA32
+compatible machine. To be safe, remove the value from /etc/sysctl.conf and
+reboot the machine ;-).
+
+Nils
+-- 
+ Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
+   The use of COBOL cripples the mind; its teaching should, therefore, be
+   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

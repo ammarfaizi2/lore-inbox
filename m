@@ -1,37 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262476AbTCMRJx>; Thu, 13 Mar 2003 12:09:53 -0500
+	id <S262485AbTCMRMG>; Thu, 13 Mar 2003 12:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262478AbTCMRJx>; Thu, 13 Mar 2003 12:09:53 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32718
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262476AbTCMRJw>; Thu, 13 Mar 2003 12:09:52 -0500
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: James Stevenson <james@stev.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <20030313171426.GK836@suse.de>
-References: <20030227221017.4291c1f6.skraw@ithnet.com>
-	 <014b01c2e978$701050e0$0cfea8c0@ezdsp.com> <20030313163707.GH836@suse.de>
-	 <016c01c2e980$b2d4ee60$0cfea8c0@ezdsp.com> <20030313164617.GI836@suse.de>
-	 <017e01c2e983$865e9bd0$0cfea8c0@ezdsp.com>  <20030313171426.GK836@suse.de>
+	id <S262488AbTCMRMF>; Thu, 13 Mar 2003 12:12:05 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:37393
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S262485AbTCMRMB>; Thu, 13 Mar 2003 12:12:01 -0500
+Subject: 2.5.64-mm6: kernel BUG at kernel/timer.c:155!
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1047580119.25949.44.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1047576167.1318.4.camel@ixodes.goop.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 13 Mar 2003 18:28:40 +0000
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 13 Mar 2003 09:22:47 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 17:14, Jens Axboe wrote:
-> Ok, please reproduce in 2.4.21-pre5, its end_request handling is a lot
-> different. If you just want a one-liner, I'd suggest trying something
-> ala this on 2.4.20 and see if it makes any difference:
+I was reading back a freshly burned CD from my shiny new Plexwriter
+48/24/48A.  I'm using ide-scsi, so this is an iso9660 filesystem mounted
+from /dev/scd0.  After reading for a while, apparently successfully, it
+started failing with the messages below:
 
-The do_reset code is also racey in some cases on 2.4.21 < pre5-ac2
+spurious 8259A interrupt: IRQ7.
+hdc: lost interrupt
+ide-scsi: CoD != 0 in idescsi_pc_intr
+ide-scsi: abort called for 9677
+ide-scsi: abort called for 9674
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: status timeout: status=0x80 { Busy }
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: status timeout: status=0x80 { Busy }
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: status timeout: status=0x80 { Busy }
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0x80 { Busy }
+hdc: status timeout: status=0x80 { Busy }
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+ide-scsi: abort called for 9674
+ide-scsi: abort called for 9675
+ide-scsi: abort called for 9676
+ide-scsi: reset called for 9677
+------------[ cut here ]------------
+kernel BUG at kernel/timer.c:155!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c011fc41>]    Tainted: PF
+EFLAGS: 00010002
+EIP is at add_timer+0xdb/0xe8
+eax: 00000001   ebx: c1b3b5e4   ecx: c0322820   edx: c03d33fc
+esi: 00000096   edi: c020b506   ebp: f7d8feac   esp: f7d8fea4
+ds: 007b   es: 007b   ss: 0068
+Process scsi_eh_0 (pid: 9, threadinfo=f7d8e000 task=c1b7cd00)
+Stack: 00000001 c1b3b5c0 f7d8fed0 c020b44c c1b3b5e4 00000000 00000082 00000000
+       00000000 c03d33fc c03d33fc f7d8ff00 c020baf4 c03d33fc c020b506 00000032
+       00000000 c1b3b5c0 c03d3350 00000096 00000000 c03d33fc c03d340c f7d8ff18
+Call Trace:
+ [<c020b44c>] ide_set_handler+0x48/0x74
+ [<c020baf4>] do_reset1+0x214/0x232
+ [<c020b506>] atapi_reset_pollfunc+0x0/0x11a
+ [<c020bb40>] ide_do_reset+0x2e/0x62
+ [<c02267b4>] idescsi_reset+0xc0/0xf6
+ [<c0220a36>] scsi_try_bus_device_reset+0x46/0x66
+ [<c0220abb>] scsi_eh_bus_device_reset+0x65/0x108
+ [<c0221224>] scsi_eh_ready_devs+0x28/0x74
+ [<c022137f>] scsi_unjam_host+0xa1/0xa4
+ [<c022142f>] scsi_error_handler+0xad/0xdc
+ [<c0221382>] scsi_error_handler+0x0/0xdc
+ [<c0107209>] kernel_thread_helper+0x5/0xc
+
+Code: 0f 0b 9b 00 62 11 2e c0 e9 41 ff ff ff 55 31 c0 89 e5 83 ec
+
+
 

@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267086AbRGKEEr>; Wed, 11 Jul 2001 00:04:47 -0400
+	id <S267195AbRGKESI>; Wed, 11 Jul 2001 00:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbRGKEEh>; Wed, 11 Jul 2001 00:04:37 -0400
-Received: from www.wen-online.de ([212.223.88.39]:54799 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267086AbRGKEEX>;
-	Wed, 11 Jul 2001 00:04:23 -0400
-Date: Wed, 11 Jul 2001 06:03:08 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.21.0107102201360.2021-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0107110548410.583-100000@mikeg.weiden.de>
+	id <S267196AbRGKER7>; Wed, 11 Jul 2001 00:17:59 -0400
+Received: from ns1.crl.go.jp ([133.243.3.1]:4825 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S267195AbRGKERr>;
+	Wed, 11 Jul 2001 00:17:47 -0400
+Date: Wed, 11 Jul 2001 13:17:45 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: irq problem with OHCI USB
+Message-ID: <Pine.LNX.4.30.0107111256280.2424-100000@holly.crl.go.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jul 2001, Marcelo Tosatti wrote:
+Alpha DP264 (UP), kernel 2.4.6 (gcc 3.0).
 
-> On Mon, 9 Jul 2001, Mike Galbraith wrote:
->
-> > On 9 Jul 2001, Christoph Rohland wrote:
-> >
+1. usbcore didn't work as a module, complaining
+that it needed hotplug_path (hotplug _is_ enabled).
 
-[snip]
+2. relinked usbcore static, everything else still
+a module, but now during boot:
 
-> > > > So, did I fix it or just bust it in a convenient manner ;-)
-> > >
-> > > ... now you drop random pages. This of course helps reducing memory
-> > > pressure ;-)
-> >
-> > (shoot.  I figured that was too easy to be right)
-> >
-> > > But still this may be a hint. You are not running out of swap, aren't
-> > > you?
-> >
-> > I'm running oom whether I have swap enabled or not.  The inactive
-> > dirty list starts growing forever, until it's full of (aparantly)
-> > dirty pages and I'm utterly oom.
->
-> We can make sure if this (inactive full of dirty pages) is really the case
-> with the tracing code.
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+...
+usb-ohci.c: USB OHCI at membase 0xfffffd000a090000, IRQ 234
+usb-ohci.c: usb-00:05.3, Contaq Microsystems 82c693 (#4)
+usb.c: new USB bus registered, assigned bus number 1
+usb-ohci.c: request interrupt 234 failed
+usb.c: USB bus 1 deregistered
 
-The problem turned out to be KDE.  It opens/unlinks two files in /tmp
-per terminal, and lseeks/writes terminal output to them continually.
-With tmpfs/ramfs mounted on /tmp....
+lspci -xvv says:
 
-> The shmem fix in 2.4.7-pre5 is the solution for your problem ?
+00:05.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10 [OHCI])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 234
+        Region 0: Memory at 000000000a090000 (32-bit, non-prefetchable)
+[size=4K]
+00: 80 10 93 c6 06 00 80 02 00 10 03 0c 00 20 80 00
+10: 00 00 09 0a 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ea 01 00 00
 
-No.  Now, the pages go to the active list.  The solution is to not
-use KDE-2.1's terminals if I fire up X ;-)  It doesn't livelock at
-oom anymore though.. thrashes uncontrollably until sysrq-e fixes it's
-attitude problem.
-
-(I never saw this problem before because I rarely run X, and never do
-anything which generates enough terminal output to oom the box if I do
-run it.  I only ran the tar thing by chance, trying to figure out why
-people were reporting updatedb causing massive swapping, when it didn't
-do that here.. shrug)
-
-> If not, I'll port the tracing code to the pre5 and hopefully we can
-> actually figure out what is going on here.
-
-No need.  What looked like a really weird kernel bug turned out to be
-a userland bug triggering oom livelock bug.
-
-	-Mike
+Further attempts to insmod usb-ohci report
+/lib/modules/2.4.6/kernel/drivers/usb/usb-ohci.o: init_module: No such device
 
 

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbRESQPX>; Sat, 19 May 2001 12:15:23 -0400
+	id <S261856AbRESQUD>; Sat, 19 May 2001 12:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261856AbRESQPO>; Sat, 19 May 2001 12:15:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2564 "EHLO
+	id <S261858AbRESQTy>; Sat, 19 May 2001 12:19:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6916 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261851AbRESQOz>; Sat, 19 May 2001 12:14:55 -0400
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-To: Axel.Thimm@physik.fu-berlin.de (Axel Thimm)
-Date: Sat, 19 May 2001 17:11:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        doelf@au-ja.de (Au-Ja), YipingChen@via.com.tw (Yiping Chen),
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        john@grulic.org.ar (John R Lenton)
-In-Reply-To: <20010519110721.A1415@pua.nirvana> from "Axel Thimm" at May 19, 2001 11:07:21 AM
+	id <S261856AbRESQTm>; Sat, 19 May 2001 12:19:42 -0400
+Subject: Re: CML2 design philosophy heads-up
+To: ben@kalifornia.com (Ben Ford)
+Date: Sat, 19 May 2001 17:13:36 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B064690.2040803@kalifornia.com> from "Ben Ford" at May 19, 2001 03:10:24 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1519KE-0008Vg-00@the-village.bc.nu>
+Message-Id: <E1519MG-0008W3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This are the latest suggestions for handling the VIA Southbridge bug as
-> derived from the hardware site www.au-ja.de (Many thanks to doelf).
+> Second, how many kernels does Redhat ship in order to have one for 
+> 386/486/586/k6/Athlon . . . .
+> Quite a pain in the ass.  And look at how much shit has to be built in 
+> in order to get a kernel that works for everybody!  People bitch at 
+> Microsoft for doing it, then turn around and do the same thing.
 
-I'd rather people left this except for the obvious fixed that were done for
-non VIA northbridge combinations until 2.5. 2.4 is not an appropriate place
-to play with possibly disk corrupting PCI hacks without documentation.
+No people bitch at microsoft for precisely the opposite - not including a
+way to build fully optimised setups for each cpu type - not including all the
+stuff that is needed (try a generic win2k install on a vaio one day)
 
-What is pathetic is that VIA have yet to place anything in the public domain
-giving correct workarounds. People are picking at BIOSes praying to spot all
-the changes (which may not be in the PCI registers even) because a vendor 
-hasn't got the decency to admit they screwed up and then to issue proper fixes
-
-If it had been a manufacturer in most respectable areas of business they'd be
-recalling and reissuing components, and paying for the end resllers to notify
-each customer 
+I think you have your facts backwards
 
 Alan
 

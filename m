@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268006AbTAIUde>; Thu, 9 Jan 2003 15:33:34 -0500
+	id <S268024AbTAIUgv>; Thu, 9 Jan 2003 15:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268007AbTAIUde>; Thu, 9 Jan 2003 15:33:34 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:21455 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268006AbTAIUdd>;
-	Thu, 9 Jan 2003 15:33:33 -0500
-Date: Thu, 9 Jan 2003 15:42:11 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@codemonkey.org.uk>, Corey Minyard <minyard@acm.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PATCH: IPMI driver
-Message-ID: <20030109204211.GA27752@gtf.org>
-References: <200301090332.h093WML05981@hera.kernel.org> <20030109164407.GA26195@codemonkey.org.uk> <1042135594.27796.37.camel@irongate.swansea.linux.org.uk> <20030109172229.GA27288@codemonkey.org.uk> <1042135971.27796.44.camel@irongate.swansea.linux.org.uk> <3E1DCA8D.4040005@acm.org> <20030109192022.GA5693@codemonkey.org.uk> <1042143476.27796.66.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042143476.27796.66.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S268025AbTAIUgv>; Thu, 9 Jan 2003 15:36:51 -0500
+Received: from [24.81.228.254] ([24.81.228.254]:59300 "EHLO
+	beatle.wrconsulting.com") by vger.kernel.org with ESMTP
+	id <S268024AbTAIUgt>; Thu, 9 Jan 2003 15:36:49 -0500
+To: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
+From: Kaz Kylheku <kazk@wrconsulting.com>
+Subject: Re: "Mother" == "computer-illiterate"
+Message-ID: <BEATLEQR7j1HaKtKufV000000ef@beatle.wrconsulting.com>
+X-OriginalArrivalTime: 09 Jan 2003 20:47:12.0890 (UTC) FILETIME=[495A15A0:01C2B820]
+Date: 9 Jan 2003 12:47:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 08:17:57PM +0000, Alan Cox wrote:
-> On Thu, 2003-01-09 at 19:20, Dave Jones wrote:
-> > time_diff = ((jiffies_now - kcs_info->last_timeout_jiffies)
-> 
-> Thats valid for unsigned maths
-> 	0x00000001 - 0xFFFFFFFF = 0x00000002
+Illiterate idiots, that should be:
 
-Just as a general note (not to Alan), this often appears in ethernet
-drivers, in their RX and TX producer/consumer ring counters...  so don't
-be surprised if you see this logic elsewhere in the kernel, too.
+    strcpy("Mother", "computer-illiterate") == 0
 
-	Jeff
+Mind what list you're on.
+
+:)
 
 
+
+
+-----Original Message-----
+    From: <jlnance@unity.ncsu.edu>
+    Sent: 1/9/03 1:24:52 PM
+    To: <linux-kernel@vger.kernel.org>
+    Subject: Re: "Mother" == "computer-illiterate"
+    
+    On Thu, Jan 09, 2003 at 12:40:19PM -0700, Val Henson wrote:
+    
+    > P.S. For extra credit (but no ThinkGeek certificate) you can look up
+    > the following women in computer science, some of whom are mothers:
+    > Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+    > Barbara Simons.
+    
+    Am I the first person to tell you you left off Ada Lovelace?  She was
+    way ahead of her time.
+    
+    Thanks,
+    
+    Jim
+    -
+    To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+    the body of a message to majordomo@vger.kernel.org
+    More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131607AbQL1TZw>; Thu, 28 Dec 2000 14:25:52 -0500
+	id <S131679AbQL1T1w>; Thu, 28 Dec 2000 14:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131575AbQL1TZm>; Thu, 28 Dec 2000 14:25:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47625 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131357AbQL1TZ1>; Thu, 28 Dec 2000 14:25:27 -0500
-Date: Thu, 28 Dec 2000 10:54:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@innominate.de>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <3A4B8895.CEDA8311@innominate.de>
-Message-ID: <Pine.LNX.4.10.10012281051480.12260-100000@penguin.transmeta.com>
+	id <S131752AbQL1T1m>; Thu, 28 Dec 2000 14:27:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56594 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131679AbQL1T1Y>; Thu, 28 Dec 2000 14:27:24 -0500
+Subject: Re: innd mmap bug in 2.4.0-test12
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Thu, 28 Dec 2000 18:57:41 +0000 (GMT)
+Cc: cw@f00f.org (Chris Wedgwood), riel@conectiva.com.br (Rik van Riel),
+        viro@math.psu.edu (Alexander Viro),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.10.10012281049140.12260-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 28, 2000 10:50:48 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14BiFF-00045E-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 28 Dec 2000, Daniel Phillips wrote:
-
-> [in vmscan.c]
-> > Between line 573 and 594 the page can have 1 user and be unlocked, so it
-> > can be removed by invalidate_inode_pages, and the mapping will be
-> > cleared here:
-> > http://innominate.org/~graichen/projects/lxr/source/mm/filemap.c?v=v2.3#L98
+> > I use ramfs for /tmp on my laptop -- it's very handy because it
+> > extends the amount of the the disk had spent spun down and therefore
+> > battery life; but writing large files into /tmp can blow away the
+> > system or at the very least eat away at otherwise usable ram. Not
+> > terribly desirable.
 > 
-> This seems like the obvious thing to do:
-> 
-> --- 2.4.0-test13.clean/mm/filemap.c	Fri Dec 29 03:14:58 2000
-> +++ 2.4.0-test13/mm/filemap.c	Fri Dec 29 03:16:21 2000
-> @@ -96,6 +96,7 @@
->  	remove_page_from_inode_queue(page);
->  	remove_page_from_hash_queue(page);
->  	page->mapping = NULL;
-> +	ClearPageDirty(page);
->  }
->  
->  void remove_inode_page(struct page *page)
+> Jeff Garzik had the code to do this, and the new shared memory code should
+> be able to be massaged to handle this all without actually bloating the
+> kernel (ie "ramfs" would still stay very very tiny, just taking advantage
+> of the common code that the VM layer already has to support for other
+> things).
 
-No, I'd much rather have
+The ramfs maintainer has patches (in -ac) which deal with the size limiting
+of RAMfs. I'm using it on a PDA and its really really nice to be able to 
+pop up a GUI app and drag the bar to '60% for apps' like other PDA systems ;)
 
-	if (PageDirty(page)) BUG();
-
-there, and then have the free_swap_cache code clear the dirty bit.
-
-We don't want to lose dirty bits by mistake. The only cases where it's ok
-to clear the dirty bit is when we truncate a page completely (so it won't
-be needed and obviously really shouldn't be written out) and when we've
-lost the last user of a swap cache entry.
-
-Any other cases might be bugs, where we remove a page from a mapping
-without noticing that it is dirty (we had this bug in reclaim_pages(), for
-example).
-
-		Linus
+They do touch the core vm/vfs code for one callback, which would be nice to
+lose but not obvious it can be
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

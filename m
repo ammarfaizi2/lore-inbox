@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273310AbRINPbr>; Fri, 14 Sep 2001 11:31:47 -0400
+	id <S273326AbRINPqK>; Fri, 14 Sep 2001 11:46:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273326AbRINPbh>; Fri, 14 Sep 2001 11:31:37 -0400
-Received: from danielle.hinet.hr ([195.29.254.157]:3968 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S273310AbRINPbe>; Fri, 14 Sep 2001 11:31:34 -0400
-Date: Fri, 14 Sep 2001 17:31:49 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: v2410p8 and v2410p9 are no go
-Message-ID: <20010914173149.A857@danielle.hinet.hr>
+	id <S273417AbRINPqB>; Fri, 14 Sep 2001 11:46:01 -0400
+Received: from pD9508A29.dip.t-dialin.net ([217.80.138.41]:15154 "EHLO
+	bennew01.localdomain") by vger.kernel.org with ESMTP
+	id <S273326AbRINPpo>; Fri, 14 Sep 2001 11:45:44 -0400
+Date: Fri, 14 Sep 2001 17:46:43 +0200
+From: Matthias Haase <matthias_haase@bennewitz.com>
+To: "James Washer" <washer@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: repeatable SMP lockups - kernel 2.4.9
+Message-Id: <20010914174643.776e1d22.matthias_haase@bennewitz.com>
+In-Reply-To: <OF21F37EC6.10570427-ON88256AC7.0052A32C@boulder.ibm.com>
+In-Reply-To: <OF21F37EC6.10570427-ON88256AC7.0052A32C@boulder.ibm.com>
+X-Operating-System: linux smp kernel 2.4* on i686
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Jim...
 
-> What IDE chipset are you using.  Also do you have ACPI enabled and if so
-> does it work if you dont compile that in ?
+> have you enable Magic Sysrq, and attempted to get a register dump
+> (Alt-Sysrq-p)..
 
-Nope, disabled ACPI and still no go, still 'uknown partition table' ..
+Alt-Sysrq-* doesn't work at this time. Couldn't do a
+sync/mount/read-only/boot or get a dump with 'p'.
 
-I'll try locating which patch makes trouble ..
+regards
+
+                          Matthias
 
 -- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...
+Gruesse
+
+
+Matthias Haase            | Telefon +49-(0)3733-23713
+Markt 2                   | Telefax +49-(0)3733-22660
+                          |
+D-09456 Annaberg-Buchholz | http://www.bennewitz.com
+

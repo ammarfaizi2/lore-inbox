@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUA0GP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 01:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUA0GP5
+	id S262714AbUA0GJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 01:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUA0GJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 01:15:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23183 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262055AbUA0GP4 (ORCPT
+	Tue, 27 Jan 2004 01:09:51 -0500
+Received: from main.gmane.org ([80.91.224.249]:47763 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262714AbUA0GJu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 01:15:56 -0500
-Date: Mon, 26 Jan 2004 22:15:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries.Brouwer@cwi.nl
-cc: akpm@osdl.org, gotom@debian.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: [uPATCH] refuse plain ufs mount
-In-Reply-To: <UTC200401270407.i0R47oi29367.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0401262210050.10794@home.osdl.org>
-References: <UTC200401270407.i0R47oi29367.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jan 2004 01:09:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: yoann <informatique-nospam@mistur.org>
+Subject: Re: atkbd.c: Unknown key released
+Date: Tue, 27 Jan 2004 07:09:56 +0100
+Message-ID: <bv4vbb$ru3$1@sea.gmane.org>
+References: <200401261834.54450@sandersweb.net> <20040127052507.GF18411@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: fr, fr-fr, en, en-gb
+In-Reply-To: <20040127052507.GF18411@charite.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 27 Jan 2004 Andries.Brouwer@cwi.nl wrote:
+>>I keep getting the following in my syslog whenever I startx:
 > 
-> Funny how we alternate - when I choose the pure, theoretical point of view
-> you prefer practice, when I prefer practice you become pure.
+> Which hardware?
+> 
+>>Jan 26 13:43:56 debian kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+>>Jan 26 13:43:56 debian kernel: atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>>Jan 26 13:43:57 debian kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+>>Jan 26 13:43:57 debian kernel: atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>>
+>>I don't get the error with the 2.4.24 kernel.
+> 
+> Same here.
 
-Heh.
+same here with a 2.6.2-rc1-mm2
+Xfree86 Version: 4.2.1-15 (debian sid)
 
-I'm actually usually very easy to predict:
+Yoann
 
- - when it comes to "core technology" bugs, I'd much rather fix them
-   _right_. To the point where I prefer to not fix them at all if the fix
-   is only hiding the real bug. Then I'd rather leave it as a known bug
-   and hope the _real_ fix comes in.
 
- - but when it comes to things that are more about "usability", I tend to
-   try to take the very practical approach. So we'll disagree on things 
-   like "should the kernel autodetect", because I think that's a usability
-   issue, and consider that it should be as easy for users as possible.
-
-The reiserfs/ufs issue to me is about "usability", not "core technology".  
-As such, to me it falls under the "practical" heading, and the solution
-should be the pragmatic trivial "just test reiserfs first" kind of silly
-thing.
-
-		Linus

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUHISvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUHIS72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266833AbUHISvL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHISuy
+	id S266870AbUHIS72 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUHIS5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:50:54 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:55607 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266867AbUHISrC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:47:02 -0400
-Date: Mon, 9 Aug 2004 20:48:59 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] Host Virtual Serial Interface driver
-Message-ID: <20040809184859.GA20397@mars.ravnborg.org>
-Mail-Followup-To: Hollis Blanchard <hollisb@us.ibm.com>,
-	linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <1091827384.31867.21.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091827384.31867.21.camel@localhost>
-User-Agent: Mutt/1.5.6i
+	Mon, 9 Aug 2004 14:57:07 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:35557 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266870AbUHISyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:54:47 -0400
+Message-Id: <200408091854.i79IsCY12450@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'William Lee Irwin III'" <wli@holomorphy.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
+       "Seth, Rohit" <rohit.seth@intel.com>
+Subject: RE: Hugetlb demanding paging for -mm tree
+Date: Mon, 9 Aug 2004 11:54:13 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcR8WZ1lKPNQOcxPRniauN4tumLoCAB48I+Q
+In-Reply-To: <20040807083613.GZ17188@holomorphy.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 04:23:05PM -0500, Hollis Blanchard wrote:
+William Lee Irwin III wrote on Saturday, August 07, 2004 1:36 AM
+> On Thu, Aug 05, 2004 at 06:39:59AM -0700, Chen, Kenneth W wrote:
+> > +static void scrub_one_pmd(pmd_t * pmd)
+> > +{
+> > +	struct page *page;
+> > +
+> > +	if (pmd && !pmd_none(*pmd) && !pmd_huge(*pmd)) {
+> > +		page = pmd_page(*pmd);
+> > +		pmd_clear(pmd);
+> > +		dec_page_state(nr_page_table_pages);
+> > +		page_cache_release(page);
+> > +	}
+> > +}
+>
+> This is needed because we're only freeing pagetables at pgd granularity
+> at munmap() -time. It makes more sense to refine it to pmd granularity
+> instead of this cleanup pass, as it's a memory leak beyond just hugetlb
+> data structure corruption.
+>
 
-Small comments after a _very_ quick skim.
+That would be nice and ease the pain on x86.  OTOH, leaving pte persistent
+right now may help in mmap/munmap intensive workload since unmap_region()
+only destroys all pte allocation at pgd granularity.
 
-	Sam
 
-> static struct tty_struct *hvsi_recv_control(struct hvsi_struct *hp,
-> 		uint8_t *packet)
-> {
-> 	struct tty_struct *to_hangup = NULL;
-> 	struct hvsi_control *header = (struct hvsi_control *)packet;
-> 
-> 	switch (header->verb) {
-> 		case VSV_MODEM_CTL_UPDATE:
-> 			if ((header->word & HVSI_TSCD) == 0) {
-> 				/* CD went away; no more connection */
-> 				pr_debug("hvsi%i: CD dropped\n", hp->index);
-> 				hp->mctrl &= TIOCM_CD;
-> 				if (!(hp->tty->flags & CLOCAL))
-> 					to_hangup = hp->tty;
-> 			}
-> 			break;
-> 		case VSV_CLOSE_PROTOCOL:
-> #warning here
+> I wonder why this bugfix was rolled into the demand paging patch instead
+> of shipped separately. And for that matter, this fix applies to mainline.
 
-This "#warning" should be deleted..
-
-> 
-> #ifdef DEBUG
-> 	pr_debug("%s: sending %i bytes\n", __FUNCTION__, packet.len);
-> 	dump_hex((uint8_t*)&packet, packet.len);
-> #endif
-
-pr_debug is a noop if DEBUG is not defined. Make dump_hex, dump_packet
-be a noop also and you get rid of several #ifdef in the code.
+The bug fix went into hugetlb_prefault() function in the mainline for the
+prefaulting case.  It went to that function instead of huge_pte_alloc and huge_pte_offset is to avoid scrubbing at pte lookup time.
+One thing we can
+do for demand paging case is to scrub it at initial mmap hugetlb vma, so
+the penalty is paid upfront instead of at every pte allocation/lookup time.
 
 

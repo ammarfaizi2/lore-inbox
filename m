@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262986AbTC1OMO>; Fri, 28 Mar 2003 09:12:14 -0500
+	id <S262985AbTC1OLJ>; Fri, 28 Mar 2003 09:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262987AbTC1OMN>; Fri, 28 Mar 2003 09:12:13 -0500
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:19843 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id <S262986AbTC1OMN>; Fri, 28 Mar 2003 09:12:13 -0500
-From: jlnance@unity.ncsu.edu
-Date: Fri, 28 Mar 2003 09:23:28 -0500
-To: linux-kernel@vger.kernel.org
-Subject: sendfile or r+w for sending file to multiple machines
-Message-ID: <20030328142328.GA5242@ncsu.edu>
+	id <S262986AbTC1OLJ>; Fri, 28 Mar 2003 09:11:09 -0500
+Received: from pop.gmx.de ([213.165.65.60]:38188 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262985AbTC1OLI>;
+	Fri, 28 Mar 2003 09:11:08 -0500
+Message-Id: <5.2.0.9.2.20030328152305.019b3e70@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 28 Mar 2003 15:26:52 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.66-mm1
+Cc: Andrew Morton <akpm@digeo.com>, Ed Tomlinson <tomlins@cam.org>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.44.0303281139500.6678-100000@localhost.localdom
+ ain>
+References: <20030327205912.753c6d53.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-    I have an application that needs to be able to send large files to
-multiple machines (less than 10).  The files get sent to the machines at
-the same time so we are thinking about writing the code so that it does
-1 read (or perhaps a mmap) on the file, and then does multiple writes,
-onece to each machines socket.
-    We are also considering using multicast but this seems unnecessarily
-complex.  I dont want to reimplement TCP.
-    We could also write this using sendfile, and I dont know if that
-is a good idea or not (hence this post).  I think I would have to start
-multiple threads to get sendfile to work.  This makes things more
-complex which is a minus, but how about performance.  Do you think
-this would work better than read+write?  The files are larger than
-system memory so our goal is to avoid reading the multiple times.
-With sendfile we can not really control how the files get read, but
-it seems likely that the different threads would inherently synchronize
-themselves.  Any thoughts?
+At 11:45 AM 3/28/2003 +0100, Ingo Molnar wrote:
 
-Thanks,
+>On Thu, 27 Mar 2003, Andrew Morton wrote:
+>
+> > That longer Code: line is really handy.
+> >
+> > You died in schedule()->deactivate_task()->dequeue_task().
+> >
+> > static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
+> > {
+> >       array->nr_active--;
+> >
+> > `array' is zero.
+> >
+> > I'm going to Cc Ingo and run away.  Ed uses preempt.
+>
+>hm, this is an 'impossible' scenario from the scheduler code POV. Whenever
+>we deactivate a task, we remove it from the runqueue and set p->array to
+>NULL. Whenever we activate a task again, we set p->array to non-NULL. A
+>double-deactivate is not possible. I tried to reproduce it with various
+>scheduler workloads, but didnt succeed.
+>
+>Mike, do you have a backtrace of the crash you saw?
 
-Jim
+No, I didn't save it due to "grubby fingerprints".
+
+         -Mike 
+

@@ -1,96 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264852AbUFBHFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUFBHI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264852AbUFBHFc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 03:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUFBHFc
+	id S262176AbUFBHI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 03:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUFBHI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 03:05:32 -0400
-Received: from mx3.cs.washington.edu ([128.208.3.132]:18336 "EHLO
-	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S264852AbUFBHFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 03:05:12 -0400
-Date: Wed, 2 Jun 2004 00:05:06 -0700 (PDT)
-From: Vadim Lobanov <vadim@cs.washington.edu>
-To: jyotiraditya@softhome.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Select/Poll
-In-Reply-To: <courier.40BD66BD.00006D7D@softhome.net>
-Message-ID: <20040601235641.M6580-100000@attu2.cs.washington.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Jun 2004 03:08:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56757 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262176AbUFBHIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 03:08:52 -0400
+Date: Wed, 2 Jun 2004 00:08:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: jeremy@redfishsoftware.com.au, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Fix signal race during process exit
+Message-Id: <20040602000812.541ee72a.akpm@osdl.org>
+In-Reply-To: <1086158988.29381.277.camel@bach>
+References: <200406021213.58305.jeremy@redfishsoftware.com.au>
+	<20040601225703.6c697bed.akpm@osdl.org>
+	<1086158988.29381.277.camel@bach>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jun 2004 jyotiraditya@softhome.net wrote:
-
-> Hello All, 
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> On Wed, 2004-06-02 at 15:57, Andrew Morton wrote:
+> > void update_process_times(int user_tick)
+> > {
+> > 	struct task_struct *p = current;
+> > 	int cpu = smp_processor_id(), system = user_tick ^ 1;
+> > versus:
+> > 
+> > void __exit_sighand(struct task_struct *tsk)
+> > {
+> > 	struct sighand_struct * sighand = tsk->sighand;
 > 
-> In one of the threads named: "Linux's implementation of poll() not 
-> scalable?'
-> Linus has stated the following:
-> **************
-> Neither poll() nor select() have this problem: they don't get more
-> expensive as you have more and more events - their expense is the number
-> of file descriptors, not the number of events per se. In fact, both poll()
-> and select() tend to perform _better_ when you have pending events, as
-> they are both amenable to optimizations when there is no need for waiting,
-> and scanning the arrays can use early-out semantics.
-> ************** 
+> No.  tsk == current for __exit_sighand.
+
+Nope.
+	wait4->wait_task_zombie->release_task->__exit_sighand
+
+>  You know, getting current is SO
+> expensive, and so we should PASS IT to functions explicitly!
 > 
-> Please help me understand the above.. I'm using select in a server to read
-> on multiple FDs and the clients are dumping messages (of fixed size) in a
-> loop on these FDs and the server maintainig those FDs is not able to get all
-> the messages.. Some of the last messages sent by each client are lost.
-> If the number of clients and hence the number of FDs (in the server) is
-> increased the loss of data is proportional.
-> eg: 5 clients send messages (100 each) to 1 server and server receives
->    96 messages from each client.
->    10 clients send messages (100 by each) to 1 server and server again
->    receives 96 from each client. 
+> One of my pet gripes: this code is badly obfuscated by this.  Is it just
+> me?
+
+It does make the code a bit hard to follow, but yes, evaluating `current'
+takes ~14 bytes of text on x86.  Although I think recent versions of the
+compiler are able to cse it.
+
+Still, the right way to do this is to lose all the dopey `p's and `tsk's
+and adopt a convention of using `this_task' or some such identifier.
+
+> > And there's a little window at the end of exit_notify() where the exitting
+> > task (which is still "current" on its CPU) can take a timer interrupt while
+> > in a state TASK_ZOMBIE.  The CPU which is running wait4() will run
+> > release_task() for the exitting task and the above race can occur.
 > 
-> If a small sleep in introduced between sending messages the loss of data
-> decreases.
-> Also please explain the algorithm select uses to read messages on FDs and
-> how does it perform better when number of FDs increases. 
+> Hmm, while we're at it, the task seems to release itself while running
+> here: exit_notify() -> release_task() -> put_task_struct() ->
+> __put_task_struct() -> BOOM?
 > 
-> Thanks and Regards,
-> Jyotiraditya 
+> Surely not, what am I missing?
 
-I think everyone else already hit on the main points of UDP, so I'll pass 
-on to the second question. :)
+There's still one put to go - that happens at the end of
+finish_task_switch(), via the next-to-run process.
 
-I believe that there is some confusion between the phrases "events" and 
-"FDs". As far as I know, both poll() and select() scale O(n) (in other 
-words, linearly) with the number of watched FDs, but scale O(1) (in other 
-words, no effect) with the number of received events. Let's put this into 
-more concrete terms:
+> > Right now, I see no alternative to adding locking which pins task->sighand
+> > while the timer handler is running.  Taking tasklist_lock on each timer
+> > tick will hurt - maybe a new per-process lock is needed?
+> 
+> Hmm, a per-cpu cache of exited tasks: one task for each CPU.  We hold a
+> reference to the task struct until the next exit on the same CPU
+> happens?  We could also reuse that cache for fork()...
 
-Suppose you select/poll on an array of 100 FDs, which currently have no 
-pending events. What the kernel will do for you, in essence, is go into an 
-infinite loop, querying each of the 100 FDs in turn, whether it has 
-received new events or not. If one of those has received an event, then 
-select/poll will return that FD. But in the end, it reduces to a simple 
-loop over the FDs to determine when events arrive, and it is exactly this 
-loop that gives it O(n) behavior.
+The problem is task_struct.sighand, not the task_struct itself.  ->sighand
+can be thrown away while update_process_times() is still poking at it.
 
-However, if by the time that select/poll are called, there are already 
-pending events upon the FD set, then that syscall can return immediately 
-with the events already present. In this case, you will not need to begin 
-looping over the FDs, and hence you will not observe the O(n) behavior. 
-Notice that this favorable scenario is more likely to occur when you have 
-more events coming in. I think that this is what Linus meant when he said 
-that select/poll like to have events waiting, for a faster return time.
+hmm, maybe it _is_ sufficient to null out current->it_prof_value and
+current->it_virt_incr in the do_exit() path.  Because in *this* case we know
+that it is always the exitting task which is doing the nulling, so the
+timer interrupt cannot run on a different CPU.
 
-As a very quick and very much simplistic summary, for select/poll, the 
-more incoming events you get, and the less FDs you watch, the better off 
-you are. But in your case, I do not think you have to worry about 
-scalability much. If you _really_ want to, however, check epoll - should 
-be standardized on the 2.6.x kernels (though my glibc still has VERY big 
-issues with it).
+--- 25/kernel/exit.c~a	2004-06-02 00:06:33.864102384 -0700
++++ 25-akpm/kernel/exit.c	2004-06-02 00:07:12.050297200 -0700
+@@ -749,6 +749,13 @@ static void exit_notify(struct task_stru
+ 	 * complete, and with interrupts blocked that will never happen.
+ 	 */
+ 	_raw_write_unlock(&tasklist_lock);
++
++	/*
++	 * comment goes here
++	 */
++	tsk->it_virt_incr = 0;
++	tsk->it_prof_value = 0;
++
+ 	local_irq_enable();
+ 
+ 	/* If the process is dead, release it - nobody will wait for it */
+_
 
-And as a final word, I have no doubts that someone out there who is more 
-knowledgeable can correct me wherever it may be needed. Such corrections 
-are welcome, since I get to learn something new in that case. :)
 
--VadimL
-
+yes?

@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266640AbUFXRWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266694AbUFXRY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266640AbUFXRWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 13:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266657AbUFXRWW
+	id S266694AbUFXRY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 13:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUFXRY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 13:22:22 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:48608
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266640AbUFXRWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 13:22:20 -0400
-Date: Thu, 24 Jun 2004 19:22:25 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Terence Ripperda <tripperda@nvidia.com>, Andi Kleen <ak@muc.de>,
-       discuss@x86-64.org, tiwai@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624172225.GO30687@dualathlon.random>
-References: <20040623234644.GC38425@colin2.muc.de> <20040624154429.GC8014@hygelac> <20040624161539.GC8085@wotan.suse.de>
+	Thu, 24 Jun 2004 13:24:27 -0400
+Received: from main.gmane.org ([80.91.224.249]:899 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266694AbUFXRYP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 13:24:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <jkwan@rackable.com>
+Subject: [HELP] Tracking down a MD bug
+Date: Thu, 24 Jun 2004 10:24:19 -0700
+Message-ID: <pan.2004.06.24.17.24.17.353731@rackable.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624161539.GC8085@wotan.suse.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 64-60-248-66.cust.telepacific.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 06:15:40PM +0200, Andi Kleen wrote:
-> reasonable to require the user to pass special boot options and
-> tie up much memory.
+Hello,
 
-the boot parameter will always work and it avoids a new zone. btw, if we
-would link the driver into the kernel no boot parameter would be
-necessary, if the hardware would be discovered it could allocated its
-tons of memory with bootmem. But it sounds like there are too many
-drivers in troubles so I believe we can't link them all.
+I've been running benchmarks on a ~2TB software RAID array of varying
+configurations using SuSE Linux 9.1's kernel 2.6.4-52-smp. I noticed that
+while resyncing a newly created RAID 5 array the kernel would just hang
+a few seconds after starting.
+
+I compiled 2.6.7-mm1 just now and the RAID array is busy resyncing, and
+still alive, right now.
+
+Are there any MD code changes that could have caused this so I can point
+SuSE somewhere? (Well, then again, many SuSE folks are on this list anyway...)
+
+This is on the x86_64 architecture, highmem + SMP + SATA RAID adapter
+(although I'm not using it in hardware mode.) I'll provide config/dmesg
+from the old kernel on request.
+
+Thanks,
+
+-- 
+Joshua Kwan
+
+

@@ -1,101 +1,298 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283927AbRLAEuy>; Fri, 30 Nov 2001 23:50:54 -0500
+	id <S283921AbRLAEuy>; Fri, 30 Nov 2001 23:50:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283935AbRLAEuv>; Fri, 30 Nov 2001 23:50:51 -0500
+	id <S283932AbRLAEuu>; Fri, 30 Nov 2001 23:50:50 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:62358 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S283926AbRLAEue>;
-	Fri, 30 Nov 2001 23:50:34 -0500
-Date: Fri, 30 Nov 2001 20:12:35 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Henning Schmiedehausen <hps@intermeta.de>, Larry McVoy <lm@bitmover.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-ID: <20011130201235.A489@mikef-linux.matchmail.com>
-Mail-Followup-To: Henning Schmiedehausen <hps@intermeta.de>,
-	Larry McVoy <lm@bitmover.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <1007140529.6655.37.camel@forge> <20011130092730.Q14710@work.bitmover.com> <1007142785.6655.39.camel@forge> <20011130100729.R14710@work.bitmover.com>
-Mime-Version: 1.0
+	by vger.kernel.org with ESMTP id <S283927AbRLAEuf>;
+	Fri, 30 Nov 2001 23:50:35 -0500
+Message-ID: <3C085A49.2DD36384@starband.net>
+Date: Fri, 30 Nov 2001 23:19:21 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Tweaking The Kernel
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011130100729.R14710@work.bitmover.com>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 10:07:29AM -0800, Larry McVoy wrote:
-> Henning, perhaps you can explain to me how the following isn't a 
-> 
-> 	"I don't do XYZ"
-> 
-> 	"XYZ"
-> 
-> statement?
-> 
-> On Fri, Nov 30, 2001 at 06:53:05PM +0100, Henning Schmiedehausen wrote:
-> > You may want to know that I work in this
-> > industry for about 15 years and write commercial code (that is "code
-> > that ships") since about that time (and I don't run around telling
-> > everybody each and every time about it and what I've already done). 
-> 
-> That would be the "I don't do XYZ..."
-> 
-> > I've
-> > written code in a good two dozen languages (including things that really
-> > deserve to die like Comal) and I've worked in projects from "one man
-> > show" to "lots of people in Elbonia also work on this".
-> 
-> And this would be the "XYZ".
-> 
-> If you are going to yell at people for a particular behaviour, it's really
-> more effective if you don't show that behaviour in the midst of your yelling,
-> wouldn't you agree?  Just a friendly thought.
->
+Does anyone have a web page or doc which explains how to tweak all of
+the /proc/sys settings?
+Like /proc/sys/vm/ settingsm etc?
 
-He's basically complaining that you like to point out what you have done in
-the past a lot.  Then goes to say that he has qualifications to prove that
-his opinion should be listened to.
+/proc/sys
+/proc/sys/abi
+/proc/sys/abi/fake_utsname
+/proc/sys/abi/trace
+/proc/sys/abi/defhandler_libcso
+/proc/sys/abi/defhandler_lcall7
+/proc/sys/abi/defhandler_elf
+/proc/sys/abi/defhandler_coff
+/proc/sys/dev
+/proc/sys/dev/sensors
+/proc/sys/dev/sensors/bt869-i2c-0-44
+/proc/sys/dev/sensors/bt869-i2c-0-44/depth
+/proc/sys/dev/sensors/bt869-i2c-0-44/colorbars
+/proc/sys/dev/sensors/bt869-i2c-0-44/half
+/proc/sys/dev/sensors/bt869-i2c-0-44/res
+/proc/sys/dev/sensors/bt869-i2c-0-44/ntsc
+/proc/sys/dev/sensors/bt869-i2c-0-44/status
+/proc/sys/dev/sensors/chips
+/proc/sys/dev/cdrom
+/proc/sys/dev/cdrom/check_media
+/proc/sys/dev/cdrom/lock
+/proc/sys/dev/cdrom/debug
+/proc/sys/dev/cdrom/autoeject
+/proc/sys/dev/cdrom/autoclose
+/proc/sys/dev/cdrom/info
+/proc/sys/debug
+/proc/sys/proc
+/proc/sys/net
+/proc/sys/net/unix
+/proc/sys/net/unix/max_dgram_qlen
+/proc/sys/net/ipv4
+/proc/sys/net/ipv4/conf
+/proc/sys/net/ipv4/conf/eth0
+/proc/sys/net/ipv4/conf/eth0/arp_filter
+/proc/sys/net/ipv4/conf/eth0/tag
+/proc/sys/net/ipv4/conf/eth0/log_martians
+/proc/sys/net/ipv4/conf/eth0/bootp_relay
+/proc/sys/net/ipv4/conf/eth0/proxy_arp
+/proc/sys/net/ipv4/conf/eth0/accept_source_route
+/proc/sys/net/ipv4/conf/eth0/send_redirects
+/proc/sys/net/ipv4/conf/eth0/rp_filter
+/proc/sys/net/ipv4/conf/eth0/shared_media
+/proc/sys/net/ipv4/conf/eth0/secure_redirects
+/proc/sys/net/ipv4/conf/eth0/accept_redirects
+/proc/sys/net/ipv4/conf/eth0/mc_forwarding
+/proc/sys/net/ipv4/conf/eth0/forwarding
+/proc/sys/net/ipv4/conf/lo
+/proc/sys/net/ipv4/conf/lo/arp_filter
+/proc/sys/net/ipv4/conf/lo/tag
+/proc/sys/net/ipv4/conf/lo/log_martians
+/proc/sys/net/ipv4/conf/lo/bootp_relay
+/proc/sys/net/ipv4/conf/lo/proxy_arp
+/proc/sys/net/ipv4/conf/lo/accept_source_route
+/proc/sys/net/ipv4/conf/lo/send_redirects
+/proc/sys/net/ipv4/conf/lo/rp_filter
+/proc/sys/net/ipv4/conf/lo/shared_media
+/proc/sys/net/ipv4/conf/lo/secure_redirects
+/proc/sys/net/ipv4/conf/lo/accept_redirects
+/proc/sys/net/ipv4/conf/lo/mc_forwarding
+/proc/sys/net/ipv4/conf/lo/forwarding
+/proc/sys/net/ipv4/conf/default
+/proc/sys/net/ipv4/conf/default/arp_filter
+/proc/sys/net/ipv4/conf/default/tag
+/proc/sys/net/ipv4/conf/default/log_martians
+/proc/sys/net/ipv4/conf/default/bootp_relay
+/proc/sys/net/ipv4/conf/default/proxy_arp
+/proc/sys/net/ipv4/conf/default/accept_source_route
+/proc/sys/net/ipv4/conf/default/send_redirects
+/proc/sys/net/ipv4/conf/default/rp_filter
+/proc/sys/net/ipv4/conf/default/shared_media
+/proc/sys/net/ipv4/conf/default/secure_redirects
+/proc/sys/net/ipv4/conf/default/accept_redirects
+/proc/sys/net/ipv4/conf/default/mc_forwarding
+/proc/sys/net/ipv4/conf/default/forwarding
+/proc/sys/net/ipv4/conf/all
+/proc/sys/net/ipv4/conf/all/arp_filter
+/proc/sys/net/ipv4/conf/all/tag
+/proc/sys/net/ipv4/conf/all/log_martians
+/proc/sys/net/ipv4/conf/all/bootp_relay
+/proc/sys/net/ipv4/conf/all/proxy_arp
+/proc/sys/net/ipv4/conf/all/accept_source_route
+/proc/sys/net/ipv4/conf/all/send_redirects
+/proc/sys/net/ipv4/conf/all/rp_filter
+/proc/sys/net/ipv4/conf/all/shared_media
+/proc/sys/net/ipv4/conf/all/secure_redirects
+/proc/sys/net/ipv4/conf/all/accept_redirects
+/proc/sys/net/ipv4/conf/all/mc_forwarding
+/proc/sys/net/ipv4/conf/all/forwarding
+/proc/sys/net/ipv4/neigh
+/proc/sys/net/ipv4/neigh/eth0
+/proc/sys/net/ipv4/neigh/eth0/locktime
+/proc/sys/net/ipv4/neigh/eth0/proxy_delay
+/proc/sys/net/ipv4/neigh/eth0/anycast_delay
+/proc/sys/net/ipv4/neigh/eth0/proxy_qlen
+/proc/sys/net/ipv4/neigh/eth0/unres_qlen
+/proc/sys/net/ipv4/neigh/eth0/gc_stale_time
+/proc/sys/net/ipv4/neigh/eth0/delay_first_probe_time
+/proc/sys/net/ipv4/neigh/eth0/base_reachable_time
+/proc/sys/net/ipv4/neigh/eth0/retrans_time
+/proc/sys/net/ipv4/neigh/eth0/app_solicit
+/proc/sys/net/ipv4/neigh/eth0/ucast_solicit
+/proc/sys/net/ipv4/neigh/eth0/mcast_solicit
+/proc/sys/net/ipv4/neigh/lo
+/proc/sys/net/ipv4/neigh/lo/locktime
+/proc/sys/net/ipv4/neigh/lo/proxy_delay
+/proc/sys/net/ipv4/neigh/lo/anycast_delay
+/proc/sys/net/ipv4/neigh/lo/proxy_qlen
+/proc/sys/net/ipv4/neigh/lo/unres_qlen
+/proc/sys/net/ipv4/neigh/lo/gc_stale_time
+/proc/sys/net/ipv4/neigh/lo/delay_first_probe_time
+/proc/sys/net/ipv4/neigh/lo/base_reachable_time
+/proc/sys/net/ipv4/neigh/lo/retrans_time
+/proc/sys/net/ipv4/neigh/lo/app_solicit
+/proc/sys/net/ipv4/neigh/lo/ucast_solicit
+/proc/sys/net/ipv4/neigh/lo/mcast_solicit
+/proc/sys/net/ipv4/neigh/default
+/proc/sys/net/ipv4/neigh/default/gc_thresh3
+/proc/sys/net/ipv4/neigh/default/gc_thresh2
+/proc/sys/net/ipv4/neigh/default/gc_thresh1
+/proc/sys/net/ipv4/neigh/default/gc_interval
+/proc/sys/net/ipv4/neigh/default/locktime
+/proc/sys/net/ipv4/neigh/default/proxy_delay
+/proc/sys/net/ipv4/neigh/default/anycast_delay
+/proc/sys/net/ipv4/neigh/default/proxy_qlen
+/proc/sys/net/ipv4/neigh/default/unres_qlen
+/proc/sys/net/ipv4/neigh/default/gc_stale_time
+/proc/sys/net/ipv4/neigh/default/delay_first_probe_time
+/proc/sys/net/ipv4/neigh/default/base_reachable_time
+/proc/sys/net/ipv4/neigh/default/retrans_time
+/proc/sys/net/ipv4/neigh/default/app_solicit
+/proc/sys/net/ipv4/neigh/default/ucast_solicit
+/proc/sys/net/ipv4/neigh/default/mcast_solicit
+/proc/sys/net/ipv4/icmp_ratemask
+/proc/sys/net/ipv4/icmp_ratelimit
+/proc/sys/net/ipv4/tcp_adv_win_scale
+/proc/sys/net/ipv4/tcp_app_win
+/proc/sys/net/ipv4/tcp_rmem
+/proc/sys/net/ipv4/tcp_wmem
+/proc/sys/net/ipv4/tcp_mem
+/proc/sys/net/ipv4/tcp_dsack
+/proc/sys/net/ipv4/tcp_ecn
+/proc/sys/net/ipv4/tcp_reordering
+/proc/sys/net/ipv4/tcp_fack
+/proc/sys/net/ipv4/tcp_orphan_retries
+/proc/sys/net/ipv4/inet_peer_gc_maxtime
+/proc/sys/net/ipv4/inet_peer_gc_mintime
+/proc/sys/net/ipv4/inet_peer_maxttl
+/proc/sys/net/ipv4/inet_peer_minttl
+/proc/sys/net/ipv4/inet_peer_threshold
+/proc/sys/net/ipv4/route
+/proc/sys/net/ipv4/route/min_adv_mss
+/proc/sys/net/ipv4/route/min_pmtu
+/proc/sys/net/ipv4/route/mtu_expires
+/proc/sys/net/ipv4/route/gc_elasticity
+/proc/sys/net/ipv4/route/error_burst
+/proc/sys/net/ipv4/route/error_cost
+/proc/sys/net/ipv4/route/redirect_silence
+/proc/sys/net/ipv4/route/redirect_number
+/proc/sys/net/ipv4/route/redirect_load
+/proc/sys/net/ipv4/route/gc_interval
+/proc/sys/net/ipv4/route/gc_timeout
+/proc/sys/net/ipv4/route/gc_min_interval
+/proc/sys/net/ipv4/route/max_size
+/proc/sys/net/ipv4/route/gc_thresh
+/proc/sys/net/ipv4/route/max_delay
+/proc/sys/net/ipv4/route/min_delay
+/proc/sys/net/ipv4/route/flush
+/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+/proc/sys/net/ipv4/icmp_echo_ignore_all
+/proc/sys/net/ipv4/ip_local_port_range
+/proc/sys/net/ipv4/tcp_max_syn_backlog
+/proc/sys/net/ipv4/tcp_rfc1337
+/proc/sys/net/ipv4/tcp_stdurg
+/proc/sys/net/ipv4/tcp_abort_on_overflow
+/proc/sys/net/ipv4/tcp_tw_recycle
+/proc/sys/net/ipv4/tcp_syncookies
+/proc/sys/net/ipv4/tcp_fin_timeout
+/proc/sys/net/ipv4/tcp_retries2
+/proc/sys/net/ipv4/tcp_retries1
+/proc/sys/net/ipv4/tcp_keepalive_intvl
+/proc/sys/net/ipv4/tcp_keepalive_probes
+/proc/sys/net/ipv4/tcp_keepalive_time
+/proc/sys/net/ipv4/ipfrag_time
+/proc/sys/net/ipv4/ip_dynaddr
+/proc/sys/net/ipv4/ipfrag_low_thresh
+/proc/sys/net/ipv4/ipfrag_high_thresh
+/proc/sys/net/ipv4/tcp_max_tw_buckets
+/proc/sys/net/ipv4/tcp_max_orphans
+/proc/sys/net/ipv4/tcp_synack_retries
+/proc/sys/net/ipv4/tcp_syn_retries
+/proc/sys/net/ipv4/ip_nonlocal_bind
+/proc/sys/net/ipv4/ip_no_pmtu_disc
+/proc/sys/net/ipv4/ip_autoconfig
+/proc/sys/net/ipv4/ip_default_ttl
+/proc/sys/net/ipv4/ip_forward
+/proc/sys/net/ipv4/tcp_retrans_collapse
+/proc/sys/net/ipv4/tcp_sack
+/proc/sys/net/ipv4/tcp_window_scaling
+/proc/sys/net/ipv4/tcp_timestamps
+/proc/sys/net/ethernet
+/proc/sys/net/802
+/proc/sys/net/core
+/proc/sys/net/core/hot_list_length
+/proc/sys/net/core/optmem_max
+/proc/sys/net/core/message_burst
+/proc/sys/net/core/message_cost
+/proc/sys/net/core/mod_cong
+/proc/sys/net/core/lo_cong
+/proc/sys/net/core/no_cong
+/proc/sys/net/core/no_cong_thresh
+/proc/sys/net/core/netdev_max_backlog
+/proc/sys/net/core/rmem_default
+/proc/sys/net/core/wmem_default
+/proc/sys/net/core/rmem_max
+/proc/sys/net/core/wmem_max
+/proc/sys/vm
+/proc/sys/vm/max-readahead
+/proc/sys/vm/min-readahead
+/proc/sys/vm/page-cluster
+/proc/sys/vm/pagetable_cache
+/proc/sys/vm/kswapd
+/proc/sys/vm/overcommit_memory
+/proc/sys/vm/bdflush
+/proc/sys/kernel
+/proc/sys/kernel/overflowgid
+/proc/sys/kernel/overflowuid
+/proc/sys/kernel/random
+/proc/sys/kernel/random/uuid
+/proc/sys/kernel/random/boot_id
+/proc/sys/kernel/random/write_wakeup_threshold
+/proc/sys/kernel/random/read_wakeup_threshold
+/proc/sys/kernel/random/entropy_avail
+/proc/sys/kernel/random/poolsize
+/proc/sys/kernel/threads-max
+/proc/sys/kernel/cad_pid
+/proc/sys/kernel/sem
+/proc/sys/kernel/msgmnb
+/proc/sys/kernel/msgmni
+/proc/sys/kernel/msgmax
+/proc/sys/kernel/shmmni
+/proc/sys/kernel/shmall
+/proc/sys/kernel/shmmax
+/proc/sys/kernel/rtsig-max
+/proc/sys/kernel/rtsig-nr
+/proc/sys/kernel/acct
+/proc/sys/kernel/sg-big-buff
+/proc/sys/kernel/printk
+/proc/sys/kernel/ctrl-alt-del
+/proc/sys/kernel/cap-bound
+/proc/sys/kernel/tainted
+/proc/sys/kernel/core_uses_pid
+/proc/sys/kernel/panic
+/proc/sys/kernel/domainname
+/proc/sys/kernel/hostname
+/proc/sys/kernel/version
+/proc/sys/kernel/osrelease
+/proc/sys/kernel/ostype
+/proc/sys/fs
+/proc/sys/fs/lease-break-time
+/proc/sys/fs/dir-notify-enable
+/proc/sys/fs/leases-enable
+/proc/sys/fs/overflowgid
+/proc/sys/fs/overflowuid
+/proc/sys/fs/dentry-state
+/proc/sys/fs/dquot-nr
+/proc/sys/fs/file-max
+/proc/sys/fs/file-nr
+/proc/sys/fs/inode-state
+/proc/sys/fs/inode-nr
+/proc/sys/fs/binfmt_misc
 
-Not that I've been reading lkml long enough to notice...
 
-> > So, please, please, Larry, _STOP THE FUCK PATRONIZING OTHERS_.
-> 
-> It would appear that you find everything I say patronizing, regardless of
-> what it is or how it is said.  I'm sorry about that, but I'm not going
-> to change how I speak to suit you.  Yell all you want.  I'd suggest
-> that if you find my emails offensive, you add me to your kill file.
->
-
-I don't know about you, but I wouldn't want to be in anyone's killfile.
-
-> > The question now is, what is "amateur behaviour": Forcing this driver
-> > writer to change or to tolerate his style in his driver? We're still
-> > talking about a driver, not about the VM subsystem or the networking
-> > core.
-> 
-> Your approach to this whole topic is a good example of why I run my own
-> company and I have absolute authority to fire people at will.  If you 
-> worked here and you persisted with this approach, you would be fired,
-> without question.  I don't know how to say it more clearly, I don't
-> say it lightly, hiring someone, training them, all of that is a huge
-> investment.  One which I would discard if you couldn't fit in.  Coding
-> style is part of fitting in, it isn't optional in any code I pay for.
->
-
-Key words: "pay for".
-
-This is Linux-Kernel.  Each developer is on their own on how they pay the
-their bills.  The question is... Why not accept a *driver* that *works* but
-the source doesn't look so good?  Maintainability? Yes.  Take the code, and
-encourage better code.  Or even convert said initial submission to the
-kernel style.
-
-What really needs to happen...
-
-Accept the driver, but also accept future submissions that *only* clean up
-the comments.  It has been said that patches with comments and without code
-have been notoriously droped.
-
-mf

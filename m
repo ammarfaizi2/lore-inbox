@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTLHVEe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 16:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTLHVEe
+	id S263645AbTLHVCS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 16:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLHVCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 16:04:34 -0500
-Received: from lvs00-fl-n03.valueweb.net ([216.219.253.136]:3979 "EHLO
-	ams003.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S263792AbTLHVEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 16:04:31 -0500
-Message-ID: <3FD4E58E.10605@coyotegulch.com>
-Date: Mon, 08 Dec 2003 15:56:46 -0500
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Florin Iucha <florin@iucha.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Of Mice and Linux
-References: <3FD4BD1B.1060708@coyotegulch.com> <20031208195203.GB28031@iucha.net>
-In-Reply-To: <20031208195203.GB28031@iucha.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 16:02:17 -0500
+Received: from holomorphy.com ([199.26.172.102]:52701 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263645AbTLHVCO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 16:02:14 -0500
+Date: Mon, 8 Dec 2003 13:02:01 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Per Andreas Buer <perbu@linpro.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4: mylex and > 2GB RAM
+Message-ID: <20031208210201.GP8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Per Andreas Buer <perbu@linpro.no>, linux-kernel@vger.kernel.org
+References: <1070897058.25490.56.camel@netstat.linpro.no> <20031208153641.GJ8039@holomorphy.com> <1070898870.25490.76.camel@netstat.linpro.no> <20031208162214.GW19856@holomorphy.com> <PERBUMSGID-ul6d6azt6b0.fsf@nfsd.linpro.no> <20031208202229.GO8039@holomorphy.com> <1070917304.1260.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1070917304.1260.44.camel@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florin Iucha wrote:
-> Hrm... you might be onto something here. My Microsoft mouse gave up
-> around test-10 or so. Then the USB ports started acting funny on my
-> SIS 745 motherboard...
+On Mon, 2003-12-08 at 21:22, William Lee Irwin III wrote:
+>> It could potentially slow it down a lot more than a few percent.
+>> The main effect you would see is heavy low memory consumption (LowFree:
+>> going down to almost nothing) and very heavy cpu consumption.
 
-Is it possible for Linux to kill a Microsoft (or any) mouse via the USB 
-port? I hadn't seriously considered that problem... I don't have the 
-proper test equipment to check the voltages on the USBs to see if 
-something is amiss.
+On Mon, Dec 08, 2003 at 10:01:45PM +0100, Per Andreas Buer wrote:
+> Right on. LowFree drops and when it reaches almost nothing the system
+> more or less goes freezes. 
+> The DAC960 driver is not a SCSI driver so this means that there is
+> something wrong with the PCI-DMA transfers, right?
+> Replacing the DAC960 with another RAID-kontroller will not help because
+> it will use the same PCI-DMA transfers, right? Any hints on how I can
+> mend this?
 
-And here I was going to write it off as "mouse suicide", the result of a 
-Microsoft mouse becoming depressed because it was attached to a Linux 
-system.
-
-(Note: For real humor, I should post a story to Slashdot about how Linux 
-kills Microsoft mice, with misleading anecdotes and undiscovered 
-evidence. But, despite my somewhat off-kilter mood today, I will 
-restrain myself.)
-
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Software Invention for High-Performance Computing
+Actually, this suggests lowmem starvation due to bounce buffering.
 
 
+-- wli

@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVCaTVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVCaTlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVCaTVG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 14:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVCaTVF
+	id S261667AbVCaTlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 14:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVCaTlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 14:21:05 -0500
-Received: from ns2.suse.de ([195.135.220.15]:51140 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261647AbVCaTUy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 14:20:54 -0500
-Date: Thu, 31 Mar 2005 21:20:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, Ian.Pratt@cl.cam.ac.uk
-Subject: Re: Incorrect comment in leave_mm()?
-Message-ID: <20050331192053.GD22855@wotan.suse.de>
-References: <E1DH2JS-00021o-00@mta1.cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 31 Mar 2005 14:41:36 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:19891 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261667AbVCaTlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 14:41:32 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: romano@dea.icai.upco.es
+Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
+Date: Thu, 31 Mar 2005 13:09:49 -0500
+User-Agent: KMail/1.8
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <20050329110309.GA17744@pern.dea.icai.upco.es> <d120d5000503310715cbc917@mail.gmail.com> <20050331165007.GA29674@pern.dea.icai.upco.es>
+In-Reply-To: <20050331165007.GA29674@pern.dea.icai.upco.es>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1DH2JS-00021o-00@mta1.cl.cam.ac.uk>
+Message-Id: <200503311309.50165.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 05:14:30PM +0100, Keir Fraser wrote:
+On Thursday 31 March 2005 11:50, Romano Giannetti wrote:
+> On Thu, Mar 31, 2005 at 10:15:26AM -0500, Dmitry Torokhov wrote:
+> > On Thu, 31 Mar 2005 16:47:29 +0200, Romano Giannetti <romanol@upco.es> wrote:
+> > > 
+> > > The bad news is that with 2.6.12-rc1 (no preempt) swsusp fails to go.
+> > 
+> > Ok, I see you have an ALPS touchpad. I think this patch will help you
+> > with swsusp:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111212532524998&q=raw
 > 
-> Hi,
+> Yes! With this it works ok.
 > 
-> I have a question regarding the per-cpu tlbstate logic that is used to
-> lazily switch to the swapper_pgdir when running a process with no
-> mm_struct of its own.
+> > Also, could you please try sticking psmouse_reset(psmouse) call at the
+> > beginning of drivers/input/mouse/alps.c::alps_reconnect() and see if
+> > it can suspend _without_ the patch above.
 > 
-> There is a comment in arch/i386/kernel/smp.c:leave_mm() that
-> states 'We need to reload %cr3 since the page tables may be going away
-> from under us'. AFAICT this is not true -- the currently-running task
-> holds a reference on the active_mm until it is context-switched off
-> the CPU, at which point the reference is dropped in
-> sched.c:finish_task_switch(). Until that point the pgd cannot be
-> freed and so kernel mappings should remain valid to use. 
+> It works, too. Which one is the best one? 
+>
 
-The PTE pages get freed earlier.  On x86-64 also PMD/PGD. 
-The code is needed to prevent a CPU from ever seeing any partially 
-freed page tables. After the flush IPI happened the PTE pages
-get freed, and if you dont reload to init_mm the CPU has
-already freed page tables in its TLB.
+Both of them are needed as they address two different problems.
 
-Modern x86 do an awful lot of prefetching behind your back, doing
-MMU lookup on adresses you never touched etc. and you have to 
-be extremly careful to only ever have fully valid page tables
-in CR3 all the time.
-
-I had this code disabled on x86-64, but I have several open bugs 
-because of this I thin (there were some other bugs in this logic too 
-which I only recently fixed, but they were all 64bit specific). 
-
-I can only advise against touching this! It is very easy to break
-and very subtle.
-
-
-> Although the corresponding function in arch/x86_64 doesn't include
-> this comment, Andi Kleen recently modified it to switch to the
-> swapper_pg_dir, instead of doing a simple __flush_tlb. Does this mean 
-> that I am missing something, and the comment in arch/i386 is in fact
-> correct? 
-
-It is correct.
-
--Andi
+-- 
+Dmitry

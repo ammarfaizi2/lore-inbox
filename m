@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSJ2X7b>; Tue, 29 Oct 2002 18:59:31 -0500
+	id <S262460AbSJ3AHg>; Tue, 29 Oct 2002 19:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262107AbSJ2X7b>; Tue, 29 Oct 2002 18:59:31 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:62696 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261908AbSJ2X7a>;
-	Tue, 29 Oct 2002 18:59:30 -0500
-Message-ID: <3DBF213E.5090902@us.ibm.com>
-Date: Tue, 29 Oct 2002 16:01:02 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S262411AbSJ3AHg>; Tue, 29 Oct 2002 19:07:36 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:56837
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S262107AbSJ3AHf>; Tue, 29 Oct 2002 19:07:35 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33C7B@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'linux-serial'" <linux-serial@vger.kernel.org>
+Subject: what serial port type are Elan ports?
+Date: Tue, 29 Oct 2002 16:13:52 -0800
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Erich Focht <efocht@ess.nec.de>, davidm@hpl.hp.com,
-       linux-ia64 <linux-ia64@linuxia64.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-ia64] Re: [PATCH] topology for ia64
-References: <200210051904.22480.efocht@ess.nec.de> <15796.38594.516266.130894@napali.hpl.hp.com> <200210221123.37145.efocht@ess.nec.de> <3DBF096D.6080703@us.ibm.com> <20021029224725.GH23425@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Tue, Oct 29, 2002 at 02:19:25PM -0800, Matthew Dobson wrote:
-> +/*
-> + * Returns the number of the first CPU on Node 'node'.
-> + * Slow in the current implementation.
-> + * Who needs this?
-> + */
-> +/* #define __node_to_first_cpu(node) pool_cpus[pool_ptr[node]] */
-> +static inline int __node_to_first_cpu(int node)
-> 
-> So far so safe... though no obvious use of it.
+Hi,
 
-Yep...
+I need to know what UART type the serial driver detects for the two built-in
+serial ports on the AMD Elan Microcontroller?
 
+Would some nice person who has an Elan based system please send me the first
+ten lines of the output of the following command?
 
-> On Tue, Oct 29, 2002 at 02:19:25PM -0800, Matthew Dobson wrote:
-> 
->>No one is using it now.  I think that I will probably deprecate this 
->>function in the near future as it is pretty useless.  Anyone looking for 
->>that functionality can just do an __ffs(__node_to_cpu_mask(node)) 
->>instead, and hope that there is a reasonably quick implementation of 
->>__node_to_cpu_mask.
-> 
-> 
-> This assumes the value returned by __node_to_cpu_mask() is a single word.
+	more /proc/tty/driver/serial
 
-Which is the case right now.  When (not if) that changes, we'll come up 
-with more flexible ffs macros, or a better way to count variable length 
-bitmasks...  especially as there will be a TON of them.
+Thanks in advance,
+Ed
 
-Cheers!
-
--Matt
+---------------------------------------------------------------- 
+Ed Vance              edv (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

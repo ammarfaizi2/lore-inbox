@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270014AbRHQJFa>; Fri, 17 Aug 2001 05:05:30 -0400
+	id <S270001AbRHQJQc>; Fri, 17 Aug 2001 05:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270001AbRHQJFW>; Fri, 17 Aug 2001 05:05:22 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:27040 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S270020AbRHQJFG>;
-	Fri, 17 Aug 2001 05:05:06 -0400
-Date: Fri, 17 Aug 2001 11:05:07 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
-Message-ID: <20010817110507.A25342@se1.cogenit.fr>
-In-Reply-To: <997936615.921.22.camel@phantasy> <20010816105010.A10595@se1.cogenit.fr> <997973433.684.3.camel@phantasy> <20010816190255.A17095@se1.cogenit.fr> <998009276.660.69.camel@phantasy>
-Mime-Version: 1.0
+	id <S270012AbRHQJQW>; Fri, 17 Aug 2001 05:16:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19212 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270001AbRHQJQI>; Fri, 17 Aug 2001 05:16:08 -0400
+Subject: Re: 2.4.9 does not compile [PATCH]
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 17 Aug 2001 10:11:17 +0100 (BST)
+Cc: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "David S. Miller" at Aug 16, 2001 04:38:52 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <998009276.660.69.camel@phantasy>; from rml@tech9.net on Thu, Aug 16, 2001 at 08:47:48PM -0400
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Xfev-0006zJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> :
-[...]
-> making it configurable.  Nothing is experimental.  This does not change
-> things; it makes things configurable.
+>    From: Anton Altaparmakov <aia21@cam.ac.uk>
+>    Date: Fri, 17 Aug 2001 00:22:43 +0100
+>    
+>    IMHO, it would have been more elegant to use the typeof construct provided 
+>    by gcc in the new macro instead of introducing a type parameter like this...
+> 
+> The whole point was to make users explicitly state the type so they
+> would have to think about it.
 
-I have checked again the patches and they allow a lot of drivers to feed 
-the entropy pool that otherwise wouldn't had ever contributed to it. Thus 
-it changes things and opens the question about the effects on entropy 
-estimate. See the figures, three (3) nics to date reference SA_SAMPLE_RANDOM.
-As the fact that 2.4 is supposed to be a stable serie, I assume it's
-irrelevant.
+And doing it by forcing them all to change their macro names isnt the
+right solution. Its actually basically impossible to do back compat macros
+with this mess. Your original smin() umin() proposal was _much_ saner.
 
--- 
-Ueimor
+As I've said, -ac will use typed_min(a,b,c), and that way I can propogate
+back compatibility glue.
+
+Alan

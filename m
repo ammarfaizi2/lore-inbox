@@ -1,340 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268247AbUHKV5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268256AbUHKV5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268247AbUHKV5l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHKV5l
+	id S268256AbUHKV5w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 17:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHKV5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:57:41 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:44556 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268247AbUHKV4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:56:33 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: James Morris <jmorris@redhat.com>
-Subject: [PATCH] aes-i586-asm.S optimization
-Date: Thu, 12 Aug 2004 00:56:03 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zXpGBVAPg2B+RUQ"
-Message-Id: <200408120056.03939.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 11 Aug 2004 17:57:52 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:24558 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S268256AbUHKV5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 17:57:35 -0400
+Subject: Re: select implementation not POSIX compliant?
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
+In-Reply-To: <20040811194018.GA3971@steel.home>
+References: <20040811194018.GA3971@steel.home>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1092261449.4717.65.camel@persist.az.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 11 Aug 2004 14:57:29 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You will find poll works as you desire but select does not.  I recommend
+porting to poll anyway; select sucks bad.  You might even try out epoll
+in 2.6.
 
---Boundary-00=_zXpGBVAPg2B+RUQ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks
+Good luck
 
-Hi James,
-
-These patches add a minor optimization to aes-i586-asm.S.
-Diffed against linux-2.6.8-rc4.
-
-formatting.patch:
-renames macro parameters to more understandable ones
-fixes wrong comment (code does not use MMX)
-
-opt.patch:
-convert fwd_rnd into pair of fwd_rnd1,fwd_rnd2 which use
-r0,r2 in mirror-image fashion, thus eliminating the need
-to do "mov r0,r2". After testing, same can be done
-to inv_rnd.
-
-Both patches are only compile tested. First one produces bit-identical
-object file. Second one, understandably, not.
-
-PS: why aes-i586-asm.S? it is valid _386_ code (no Pentium ops used AFAICS).
-
-PPS: your code is very easy to understand. It was a joy hacking on it :)
---
-vda
-
---Boundary-00=_zXpGBVAPg2B+RUQ
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="formatting.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="formatting.patch"
-
---- linux-2.6.8-rc4.src/arch/i386/crypto/aes-i586-asm.S.orig	Wed Aug 11 22:44:53 2004
-+++ linux-2.6.8-rc4.src/arch/i386/crypto/aes-i586-asm.S	Thu Aug 12 00:29:14 2004
-@@ -84,60 +84,61 @@
- // output registers r0, r1, r4 or r5.  
- 
- // Parameters:
-+// table table base address
- //   %1  out_state[0]
- //   %2  out_state[1]
- //   %3  out_state[2]
- //   %4  out_state[3]
--//   %5  table base address
--//   %6  input register for the round (destroyed)
--//   %7  scratch register for the round
--
--#define do_col(a1, a2, a3, a4, a5, a6, a7)	\
--	movzx   %l(a6),%a7;			\
--	xor     a5(,%a7,4),%a1;			\
--	movzx   %h(a6),%a7;			\
--	shr     $16,%a6;			\
--	xor     a5+tlen(,%a7,4),%a2;		\
--	movzx   %l(a6),%a7;			\
--	movzx   %h(a6),%a6;			\
--	xor     a5+2*tlen(,%a7,4),%a3;		\
--	xor     a5+3*tlen(,%a6,4),%a4;
-+//   idx input register for the round (destroyed)
-+//   tmp scratch register for the round
-+// sched key schedule
-+
-+#define do_col(table, a1,a2,a3,a4, idx, tmp)	\
-+	movzx   %l(idx),%tmp;			\
-+	xor     table(,%tmp,4),%a1;		\
-+	movzx   %h(idx),%tmp;			\
-+	shr     $16,%idx;			\
-+	xor     table+tlen(,%tmp,4),%a2;	\
-+	movzx   %l(idx),%tmp;			\
-+	movzx   %h(idx),%idx;			\
-+	xor     table+2*tlen(,%tmp,4),%a3;	\
-+	xor     table+3*tlen(,%idx,4),%a4;
- 
- // initialise output registers from the key schedule
--
--#define do_fcol(a1, a2, a3, a4, a5, a6, a7, a8)	\
--	mov     0 a8,%a1;			\
--	movzx   %l(a6),%a7;			\
--	mov     12 a8,%a2;			\
--	xor     a5(,%a7,4),%a1;			\
--	mov     4 a8,%a4;			\
--	movzx   %h(a6),%a7;			\
--	shr     $16,%a6;			\
--	xor     a5+tlen(,%a7,4),%a2;		\
--	movzx   %l(a6),%a7;			\
--	movzx   %h(a6),%a6;			\
--	xor     a5+3*tlen(,%a6,4),%a4;		\
--	mov     %a3,%a6;			\
--	mov     8 a8,%a3;			\
--	xor     a5+2*tlen(,%a7,4),%a3;
-+// NB: original a3 is in idx on exit
-+#define do_fcol(table, a1,a2,a3,a4, idx, tmp, sched) \
-+	mov     0 sched,%a1;			\
-+	movzx   %l(idx),%tmp;			\
-+	mov     12 sched,%a2;			\
-+	xor     table(,%tmp,4),%a1;		\
-+	mov     4 sched,%a4;			\
-+	movzx   %h(idx),%tmp;			\
-+	shr     $16,%idx;			\
-+	xor     table+tlen(,%tmp,4),%a2;	\
-+	movzx   %l(idx),%tmp;			\
-+	movzx   %h(idx),%idx;			\
-+	xor     table+3*tlen(,%idx,4),%a4;	\
-+	mov     %a3,%idx;			\
-+	mov     8 sched,%a3;			\
-+	xor     table+2*tlen(,%tmp,4),%a3;
- 
- // initialise output registers from the key schedule
--
--#define do_icol(a1, a2, a3, a4, a5, a6, a7, a8)	\
--	mov     0 a8,%a1;			\
--	movzx   %l(a6),%a7;			\
--	mov     4 a8,%a2;			\
--	xor     a5(,%a7,4),%a1;			\
--	mov     12 a8,%a4;			\
--	movzx   %h(a6),%a7;			\
--	shr     $16,%a6;			\
--	xor     a5+tlen(,%a7,4),%a2;		\
--	movzx   %l(a6),%a7;			\
--	movzx   %h(a6),%a6;			\
--	xor     a5+3*tlen(,%a6,4),%a4;		\
--	mov     %a3,%a6;			\
--	mov     8 a8,%a3;			\
--	xor     a5+2*tlen(,%a7,4),%a3;
-+// NB: original a3 is in idx on exit
-+#define do_icol(table, a1,a2,a3,a4, idx, tmp, sched) \
-+	mov     0 sched,%a1;			\
-+	movzx   %l(idx),%tmp;			\
-+	mov     4 sched,%a2;			\
-+	xor     table(,%tmp,4),%a1;		\
-+	mov     12 sched,%a4;			\
-+	movzx   %h(idx),%tmp;			\
-+	shr     $16,%idx;			\
-+	xor     table+tlen(,%tmp,4),%a2;	\
-+	movzx   %l(idx),%tmp;			\
-+	movzx   %h(idx),%idx;			\
-+	xor     table+3*tlen(,%idx,4),%a4;	\
-+	mov     %a3,%idx;			\
-+	mov     8 sched,%a3;			\
-+	xor     table+2*tlen(,%tmp,4),%a3;
- 
- 
- // original Gladman had conditional saves to MMX regs.
-@@ -149,42 +150,39 @@
- 
- // This macro performs a forward encryption cycle. It is entered with
- // the first previous round column values in r0, r1, r4 and r5 and
--// exits with the final values in the same registers, using the MMX
--// registers mm0-mm1 or the stack for temporary storage
-+// exits with the final values in the same registers, using stack
-+// for temporary storage
- 
--// mov current column values into the MMX registers
- #define fwd_rnd(arg, table)					\
--	/* mov current column values into the MMX registers */	\
- 	mov     %r0,%r2;					\
- 	save   (0,r1);						\
- 	save   (1,r5);						\
- 								\
- 	/* compute new column values */				\
--	do_fcol(r0,r5,r4,r1,table, r2,r3, arg);			\
--	do_col (r4,r1,r0,r5,table, r2,r3);			\
-+	do_fcol(table, r0,r5,r4,r1, r2,r3, arg);		\
-+	do_col (table, r4,r1,r0,r5, r2,r3);			\
- 	restore(r2,0);						\
--	do_col (r1,r0,r5,r4,table, r2,r3);			\
-+	do_col (table, r1,r0,r5,r4, r2,r3);			\
- 	restore(r2,1);						\
--	do_col (r5,r4,r1,r0,table, r2,r3);
-+	do_col (table, r5,r4,r1,r0, r2,r3);
- 
- // This macro performs an inverse encryption cycle. It is entered with
- // the first previous round column values in r0, r1, r4 and r5 and
--// exits with the final values in the same registers, using the MMX
--// registers mm0-mm1 or the stack for temporary storage
-+// exits with the final values in the same registers, using stack
-+// for temporary storage
- 
- #define inv_rnd(arg, table)					\
--	/* mov current column values into the MMX registers */	\
- 	mov     %r0,%r2;					\
- 	save    (0,r1);						\
- 	save    (1,r5);						\
- 								\
- 	/* compute new column values */				\
--	do_icol(r0,r1,r4,r5, table, r2,r3, arg);		\
--	do_col (r4,r5,r0,r1, table, r2,r3);			\
-+	do_icol(table, r0,r1,r4,r5, r2,r3, arg);		\
-+	do_col (table, r4,r5,r0,r1, r2,r3);			\
- 	restore(r2,0);						\
--	do_col (r1,r4,r5,r0, table, r2,r3);			\
-+	do_col (table, r1,r4,r5,r0, r2,r3);			\
- 	restore(r2,1);						\
--	do_col (r5,r0,r1,r4, table, r2,r3);
-+	do_col (table, r5,r0,r1,r4, r2,r3);
- 
- // AES (Rijndael) Encryption Subroutine
- 
-
---Boundary-00=_zXpGBVAPg2B+RUQ
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="opt.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="opt.patch"
-
---- linux-2.6.8-rc4.src/arch/i386/crypto/aes-i586-asm.S.1	Thu Aug 12 00:29:14 2004
-+++ linux-2.6.8-rc4.src/arch/i386/crypto/aes-i586-asm.S	Thu Aug 12 00:30:12 2004
-@@ -105,7 +105,8 @@
- 	xor     table+3*tlen(,%idx,4),%a4;
- 
- // initialise output registers from the key schedule
--// NB: original a3 is in idx on exit
-+// NB1: original value of a3 is in idx on exit
-+// NB2: original values of a1,a2,a4 do not matter
- #define do_fcol(table, a1,a2,a3,a4, idx, tmp, sched) \
- 	mov     0 sched,%a1;			\
- 	movzx   %l(idx),%tmp;			\
-@@ -148,23 +149,40 @@
- #define restore(a1, a2)		\
- 	mov     4*a2(%esp),%a1
- 
--// This macro performs a forward encryption cycle. It is entered with
-+// These macro perform a forward encryption cycle. They are entered with
- // the first previous round column values in r0, r1, r4 and r5 and
--// exits with the final values in the same registers, using stack
--// for temporary storage
-+// exit with the final values in the same registers, using stack
-+// for temporary storage.
- 
--#define fwd_rnd(arg, table)					\
--	mov     %r0,%r2;					\
-+// round column values
-+// on entry: r0,r1,r4,r5
-+// on exit:  r2,r1,r4,r5
-+#define fwd_rnd1(arg, table)					\
- 	save   (0,r1);						\
- 	save   (1,r5);						\
- 								\
--	/* compute new column values */				\
--	do_fcol(table, r0,r5,r4,r1, r2,r3, arg);		\
--	do_col (table, r4,r1,r0,r5, r2,r3);			\
--	restore(r2,0);						\
--	do_col (table, r1,r0,r5,r4, r2,r3);			\
--	restore(r2,1);						\
--	do_col (table, r5,r4,r1,r0, r2,r3);
-+	/* compute new column values */					\
-+	do_fcol(table, r2,r5,r4,r1, r0,r3, arg);	/* idx=r0 */	\
-+	do_col (table, r4,r1,r2,r5, r0,r3);		/* idx=r4 */	\
-+	restore(r0,0);							\
-+	do_col (table, r1,r2,r5,r4, r0,r3);		/* idx=r1 */	\
-+	restore(r0,1);							\
-+	do_col (table, r5,r4,r1,r2, r0,r3);		/* idx=r5 */
-+
-+// round column values
-+// on entry: r2,r1,r4,r5
-+// on exit:  r0,r1,r4,r5
-+#define fwd_rnd2(arg, table)					\
-+	save   (0,r1);						\
-+	save   (1,r5);						\
-+								\
-+	/* compute new column values */					\
-+	do_fcol(table, r0,r5,r4,r1, r2,r3, arg);	/* idx=r2 */	\
-+	do_col (table, r4,r1,r0,r5, r2,r3);		/* idx=r4 */	\
-+	restore(r2,0);							\
-+	do_col (table, r1,r0,r5,r4, r2,r3);		/* idx=r1 */	\
-+	restore(r2,1);							\
-+	do_col (table, r5,r4,r1,r0, r2,r3);		/* idx=r5 */
- 
- // This macro performs an inverse encryption cycle. It is entered with
- // the first previous round column values in r0, r1, r4 and r5 and
-@@ -228,20 +246,20 @@
- 	je      3f              // 12 rounds for 128-bit key
- 	add     $32,%r6
- 
--2:	fwd_rnd( -64(%r6) ,ft_tab)	// 14 rounds for 128-bit key
--	fwd_rnd( -48(%r6) ,ft_tab)
--3:	fwd_rnd( -32(%r6) ,ft_tab)	// 12 rounds for 128-bit key
--	fwd_rnd( -16(%r6) ,ft_tab)
--4:	fwd_rnd(    (%r6) ,ft_tab)	// 10 rounds for 128-bit key
--	fwd_rnd( +16(%r6) ,ft_tab)
--	fwd_rnd( +32(%r6) ,ft_tab)
--	fwd_rnd( +48(%r6) ,ft_tab)
--	fwd_rnd( +64(%r6) ,ft_tab)
--	fwd_rnd( +80(%r6) ,ft_tab)
--	fwd_rnd( +96(%r6) ,ft_tab)
--	fwd_rnd(+112(%r6) ,ft_tab)
--	fwd_rnd(+128(%r6) ,ft_tab)
--	fwd_rnd(+144(%r6) ,fl_tab)	// last round uses a different table
-+2:	fwd_rnd1( -64(%r6) ,ft_tab)	// 14 rounds for 128-bit key
-+	fwd_rnd2( -48(%r6) ,ft_tab)
-+3:	fwd_rnd1( -32(%r6) ,ft_tab)	// 12 rounds for 128-bit key
-+	fwd_rnd2( -16(%r6) ,ft_tab)
-+4:	fwd_rnd1(    (%r6) ,ft_tab)	// 10 rounds for 128-bit key
-+	fwd_rnd2( +16(%r6) ,ft_tab)
-+	fwd_rnd1( +32(%r6) ,ft_tab)
-+	fwd_rnd2( +48(%r6) ,ft_tab)
-+	fwd_rnd1( +64(%r6) ,ft_tab)
-+	fwd_rnd2( +80(%r6) ,ft_tab)
-+	fwd_rnd1( +96(%r6) ,ft_tab)
-+	fwd_rnd2(+112(%r6) ,ft_tab)
-+	fwd_rnd1(+128(%r6) ,ft_tab)
-+	fwd_rnd2(+144(%r6) ,fl_tab)	// last round uses a different table
- 
- // move final values to the output array.  CAUTION: the 
- // order of these assigns rely on the register mappings
-
---Boundary-00=_zXpGBVAPg2B+RUQ--
+On Wed, 2004-08-11 at 12:40, Alex Riesen wrote:
+> On linux-kernel, Nick Palmer wrote:
+> > I am working on porting some software from Solaris to Linux 2.6.7. I
+> > have run into a problem with the interaction of select and/or
+> > recvmsg and close in our multi-threaded application. The application
+> > expects that a close call on a socket that another thread is
+> > blocking in select and/or recvmsg on will cause select and/or
+> > recvmsg to return with an error. Linux does not seem to do this. (I
+> > also verified that the same issue exists in Linux 2.4.25, just to be
+> > sure it wasn't introduced in 2.6 in case you were wondering.)
+> 
+> It works always for stream sockets and does not at all (even with
+> shutdown, even using poll(2) or read(2) instead of select) for dgram
+> sockets.
+> 
+> What domain (inet, local) are your sockets in?
+> What type (stream, dgram)?
+> 
+> There will probably be a problem anyway with changing the behaviour:
+> there surely is lots of code, which start complaining about select and
+> poll finishing "unexpectedly".
+> 
+> I used this to check:
+> 
+> #include <unistd.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <sys/socket.h>
+> #include <sys/wait.h>
+> #include <netinet/in.h>
+> #include <fcntl.h>
+> 
+> int main(int argc, char* argv[])
+> {
+>     int status;
+>     int fds[2];
+>     fd_set set;
+> #if 0
+>     puts("stream");
+>     if (  socketpair(PF_LOCAL, SOCK_STREAM, 0, fds) < 0 )
+> #else
+>     puts("dgram");
+>     if (  socketpair(PF_LOCAL, SOCK_DGRAM, 0, fds) < 0 )
+> #endif
+>     {
+> 	perror("socketpair");
+> 	exit(1);
+>     }
+>     fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK);
+>     fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL) | O_NONBLOCK);
+>     switch ( fork() )
+>     {
+>     case 0:
+> 	sleep(1);
+> 	close(fds[0]);
+> 	shutdown(fds[1], SHUT_RD);
+> 	close(fds[1]);
+> 	exit(0);
+> 	break;
+>     case -1:
+> 	perror("fork");
+> 	exit(1);
+>     }
+>     close(fds[1]);
+>     FD_ZERO(&set);
+>     FD_SET(fds[0], &set);
+>     select(fds[0] + 1, &set, NULL, NULL, 0);
+>     wait(&status);
+>     return 0;
+> }
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

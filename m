@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVAMSZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVAMS3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVAMSZE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVAMSXZ
+	id S261346AbVAMS3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAMSWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:23:25 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59341 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261394AbVAMSRS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:17:18 -0500
-Date: Thu, 13 Jan 2005 10:16:58 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andi Kleen <ak@muc.de>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-In-Reply-To: <20050113180205.GA17600@muc.de>
-Message-ID: <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
- <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au>
- <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
- <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
- <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
- <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
- <20050113180205.GA17600@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jan 2005 13:22:44 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31127 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261430AbVAMSSy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 13:18:54 -0500
+Date: Thu, 13 Jan 2005 10:18:50 -0800
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] release_pcibus_dev() crash
+Message-ID: <20050113181850.GA24952@kroah.com>
+References: <1105576756.8062.17.camel@sinatra.austin.ibm.com> <200501121655.42947.jbarnes@engr.sgi.com> <1105636311.30960.8.camel@sinatra.austin.ibm.com> <200501130933.59041.jbarnes@engr.sgi.com> <1105638551.30960.16.camel@sinatra.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105638551.30960.16.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jan 2005, Andi Kleen wrote:
+On Thu, Jan 13, 2005 at 11:49:11AM -0600, John Rose wrote:
+> > Maybe, did you read Documentation/filesystems/sysfs-pci.c?  You need to do 
+> > more than just enable HAVE_PCI_LEGACY, you also need to implement some 
+> > functions.
+> 
+> This sounds like more than I bargained for.  I'll leave the patch as-is,
+> since I don't currently have the means to test a fix for the legacy IO
+> stuff.  Also because it doesn't crash on my architecture :)
+> 
+> If you get some time, my suggestion is to scrap
+> pci_remove_legacy_files(), and free the pci_bus->legacy_io field in
+> pci_remove_bus().  The binary sysfs files will be cleaned up
+> automatically as the class device is deleted, as described in the
+> parent.
 
-> The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
-> when its present bit is set (because the hardware could asynchronously
-> change bits in the PTE that would get lost). Atomic way means clearing
-> first and then replacing in an atomic operation.
+No, don't rely on this please.  Explicitly clean up the files, it's
+nicer that way, and when sysfs changes to not clean them up for you, it
+will be less changes then.
 
-Hmm. I replaced that portion in the swapper with an xchg operation
-and inspect the result later. Clearing a pte and then setting it to
-something would open a window for the page fault handler to set up a new
-pte there since it does not take the page_table_lock. That xchg must be
-atomic for PAE mode to work then.
+thanks,
 
-> This helps you because you shouldn't be looking at the pte anyways
-> when pte_present is false. When it is not false it is always updated
-> atomically.
-
-so pmd_present, pud_none and pgd_none could be considered atomic even if
-the pm/u/gd_t is a multi-word entity? In that case the current approach
-would work for higher level entities and in particular S/390 would be in
-the clear.
-
-But then the issues of replacing multi-word ptes on i386 PAE remain. If no
-write lock is held on mmap_sem then all writes to pte's must be atomic in
-order for the get_pte_atomic operation to work reliably.
+greg k-h

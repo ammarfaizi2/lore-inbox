@@ -1,359 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbTEUJKD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 05:10:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTEUJKC
+	id S261832AbTEUJNO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 05:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTEUJNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 05:10:02 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56773 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261324AbTEUJJq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 05:09:46 -0400
-Date: Wed, 21 May 2003 14:55:02 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Paul McKenney <Paul.McKenney@us.ibm.com>
-Subject: [patch 1/2] vfsmount_lock
-Message-ID: <20030521092502.GD1198@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	Wed, 21 May 2003 05:13:14 -0400
+Received: from pop.gmx.de ([213.165.65.60]:46894 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261832AbTEUJNN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 05:13:13 -0400
+Message-Id: <5.2.0.9.2.20030521112745.01eb9c80@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 21 May 2003 11:30:39 +0200
+To: davidm@hpl.hp.com
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: web page on O(1) scheduler
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+In-Reply-To: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+References: <16075.8557.309002.866895@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: multipart/mixed;
+	boundary="=====================_59349421==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=====================_59349421==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
+At 11:26 AM 5/21/2003 +0200, Mike Galbraith wrote:
 
-While path walking we do follow_mount or follow_down which uses 
-dcache_lock for serialisation.  vfsmount related operations also use 
-dcache_lock for all updates. I think we can use a separate lock for 
-vfsmount related work and can improve path walking. 
+>Try the attached overly simplistic (KISS:) diff, and watch your starvation 
+>issues be very noticably reduced.
 
-The following two patches does the same. The first one replaces 
-dcache_lock with new vfsmount_lock in namespace.c. The lock is 
-local to namespace.c and is not required outside. The second patch 
-uses RCU to have lock free lookup_mnt(). The patches are quite simple 
-and straight forward.
+Ahem ;-)
 
-The lockmeter reults show reduced contention, and lock acquisitions 
-for dcache_lock while running dcachebench* on a 4-way SMP box
+Now even attached.
 
-SPINLOCKS         HOLD            WAIT
-UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
+         -Mike 
+--=====================_59349421==_
+Content-Type: application/octet-stream; name="xx.diff";
+ x-mac-type="42494E41"; x-mac-creator="5843454C"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="xx.diff"
 
-baselkm-2569: 	
-20.7% 20.9%  0.5us( 146us)  2.9us( 144us)(0.81%)  31590840 79.1% 20.9%    0%  dcache_lock
-mntlkm-2569: 	
-14.3% 13.6%  0.4us( 170us)  2.9us( 187us)(0.42%)  23071746 86.4% 13.6%    0%  dcache_lock
+LS0tIGxpbnV4LTIuNS42OS9rZXJuZWwvc2NoZWQuYy5vcmcJV2VkIE1heSAyMSAwNzo0NTowMCAy
+MDAzCisrKyBsaW51eC0yLjUuNjkva2VybmVsL3NjaGVkLmMJV2VkIE1heSAyMSAwODoyNzowOSAy
+MDAzCkBAIC0xMjY0LDcgKzEyNjQsNyBAQAogCXRhc2tfdCAqcHJldiwgKm5leHQ7CiAJcnVucXVl
+dWVfdCAqcnE7CiAJcHJpb19hcnJheV90ICphcnJheTsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpxdWV1
+ZTsKKwlzdHJ1Y3QgbGlzdF9oZWFkICpoZWFkLCAqY3VycjsKIAlpbnQgaWR4OwogCiAJLyoKQEAg
+LTEzMzEsOCArMTMzMSwyMiBAQAogCX0KIAogCWlkeCA9IHNjaGVkX2ZpbmRfZmlyc3RfYml0KGFy
+cmF5LT5iaXRtYXApOwotCXF1ZXVlID0gYXJyYXktPnF1ZXVlICsgaWR4OwotCW5leHQgPSBsaXN0
+X2VudHJ5KHF1ZXVlLT5uZXh0LCB0YXNrX3QsIHJ1bl9saXN0KTsKK25leHRfcXVldWU6CisJaGVh
+ZCA9IGFycmF5LT5xdWV1ZSArIGlkeDsKKwljdXJyID0gaGVhZC0+bmV4dDsKKwluZXh0ID0gbGlz
+dF9lbnRyeShjdXJyLCB0YXNrX3QsIHJ1bl9saXN0KTsKKwljdXJyID0gY3Vyci0+bmV4dDsKKwkv
+KgorCSAqIElmIHdlIGFyZSBhYm91dCB0byB3cmFwIGJhY2sgdG8gdGhlIGhlYWQgb2YgdGhlIHF1
+ZXVlLAorCSAqIGdpdmUgYSBsb3dlciBwcmlvcml0eSBxdWV1ZSBhIGNoYW5jZSB0byBzbmVhayBv
+bmUgaW4uCisJICovCisJaWYgKGlkeCA9PSBwcmV2LT5wcmlvICYmIGN1cnIgPT0gaGVhZCAmJiBh
+cnJheS0+bnJfYWN0aXZlID4gMSkgeworCQlpbnQgdG1wID0gZmluZF9uZXh0X2JpdChhcnJheS0+
+Yml0bWFwLCBNQVhfUFJJTywgKytpZHgpOworCQlpZiAodG1wIDwgTUFYX1BSSU8pIHsKKwkJCWlk
+eCA9IHRtcDsKKwkJCWdvdG8gbmV4dF9xdWV1ZTsKKwkJfQorCX0KIAogc3dpdGNoX3Rhc2tzOgog
+CXByZWZldGNoKG5leHQpOwo=
+--=====================_59349421==_--
 
-We get more than 8% improvement on 4-way SMP and 44% improvement on 16-way
-NUMAQ while runing dcachebench*.
-
-		Average (usecs/iteration)	Std. Deviation 
-		(lower is better)
-4-way SMP
-2.5.69		15739.3				470.90
-2.5.69-mnt	14459.6				298.51
-
-16-way NUMAQ	
-2.5.69		120426.5			363.78
-2.5.69-mnt	 63225.8			427.60
-
-
-*dcachebench is a microbenchmark written by Bill Hartner and is available at
-http://www-124.ibm.com/developerworks/opensource/linuxperf/dcachebench/dcachebench.html
-
-
-vfsmount_lock.patch
--------------------
-- Patch for replacing dcache_lock with new vfsmount_lock for all mount 
-  related operation. This removes the need to take dcache_lock while
-  doing follow_mount or follow_down operations in path walking.
-
-
- fs/namei.c     |   24 +++++++++------------
- fs/namespace.c |   64 ++++++++++++++++++++++++++++++++-------------------------
- 2 files changed, 48 insertions(+), 40 deletions(-)
-
-diff -puN fs/namespace.c~vfsmount_lock fs/namespace.c
---- linux-2.5.69/fs/namespace.c~vfsmount_lock	2003-05-21 10:53:00.000000000 +0530
-+++ linux-2.5.69-maneesh/fs/namespace.c	2003-05-21 11:02:47.000000000 +0530
-@@ -28,6 +28,8 @@ extern int do_remount_sb(struct super_bl
- extern int __init init_rootfs(void);
- extern int __init fs_subsys_init(void);
- 
-+/* spinlock for vfsmount related operation, inplace of dcache_lock */
-+static spinlock_t vfsmount_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
- static struct list_head *mount_hashtable;
- static int hash_mask, hash_bits;
- static kmem_cache_t *mnt_cache; 
-@@ -69,30 +71,38 @@ void free_vfsmnt(struct vfsmount *mnt)
- 	kmem_cache_free(mnt_cache, mnt);
- }
- 
-+/*
-+ * Now, lookup_mnt increments the ref count before returning
-+ * the vfsmount struct.
-+ */
- struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
- {
- 	struct list_head * head = mount_hashtable + hash(mnt, dentry);
- 	struct list_head * tmp = head;
--	struct vfsmount *p;
-+	struct vfsmount *p, *found = NULL;
- 
-+	spin_lock(&vfsmount_lock);
- 	for (;;) {
- 		tmp = tmp->next;
- 		p = NULL;
- 		if (tmp == head)
- 			break;
- 		p = list_entry(tmp, struct vfsmount, mnt_hash);
--		if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry)
-+		if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry) {
-+			found = mntget(p);
- 			break;
-+		}
- 	}
--	return p;
-+	spin_lock(&vfsmount_lock);
-+	return found;
- }
- 
- static int check_mnt(struct vfsmount *mnt)
- {
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 	while (mnt->mnt_parent != mnt)
- 		mnt = mnt->mnt_parent;
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- 	return mnt == current->namespace->root;
- }
- 
-@@ -273,15 +283,15 @@ void umount_tree(struct vfsmount *mnt)
- 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
- 		list_del_init(&mnt->mnt_list);
- 		if (mnt->mnt_parent == mnt) {
--			spin_unlock(&dcache_lock);
-+			spin_unlock(&vfsmount_lock);
- 		} else {
- 			struct nameidata old_nd;
- 			detach_mnt(mnt, &old_nd);
--			spin_unlock(&dcache_lock);
-+			spin_unlock(&vfsmount_lock);
- 			path_release(&old_nd);
- 		}
- 		mntput(mnt);
--		spin_lock(&dcache_lock);
-+		spin_lock(&vfsmount_lock);
- 	}
- }
- 
-@@ -334,17 +344,17 @@ static int do_umount(struct vfsmount *mn
- 	}
- 
- 	down_write(&current->namespace->sem);
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 
- 	if (atomic_read(&sb->s_active) == 1) {
- 		/* last instance - try to be smart */
--		spin_unlock(&dcache_lock);
-+		spin_unlock(&vfsmount_lock);
- 		lock_kernel();
- 		DQUOT_OFF(sb);
- 		acct_auto_close(sb);
- 		unlock_kernel();
- 		security_sb_umount_close(mnt);
--		spin_lock(&dcache_lock);
-+		spin_lock(&vfsmount_lock);
- 	}
- 	retval = -EBUSY;
- 	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-@@ -352,7 +362,7 @@ static int do_umount(struct vfsmount *mn
- 			umount_tree(mnt);
- 		retval = 0;
- 	}
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- 	if (retval)
- 		security_sb_umount_busy(mnt);
- 	up_write(&current->namespace->sem);
-@@ -442,17 +452,17 @@ static struct vfsmount *copy_tree(struct
- 		q = clone_mnt(p, p->mnt_root);
- 		if (!q)
- 			goto Enomem;
--		spin_lock(&dcache_lock);
-+		spin_lock(&vfsmount_lock);
- 		list_add_tail(&q->mnt_list, &res->mnt_list);
- 		attach_mnt(q, &nd);
--		spin_unlock(&dcache_lock);
-+		spin_unlock(&vfsmount_lock);
- 	}
- 	return res;
- Enomem:
- 	if (res) {
--		spin_lock(&dcache_lock);
-+		spin_lock(&vfsmount_lock);
- 		umount_tree(res);
--		spin_unlock(&dcache_lock);
-+		spin_unlock(&vfsmount_lock);
- 	}
- 	return NULL;
- }
-@@ -476,7 +486,7 @@ static int graft_tree(struct vfsmount *m
- 	if (err)
- 		goto out_unlock;
- 
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry)) {
- 		struct list_head head;
- 		attach_mnt(mnt, nd);
-@@ -485,7 +495,7 @@ static int graft_tree(struct vfsmount *m
- 		mntget(mnt);
- 		err = 0;
- 	}
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- out_unlock:
- 	up(&nd->dentry->d_inode->i_sem);
- 	if (!err)
-@@ -522,9 +532,9 @@ static int do_loopback(struct nameidata 
- 	if (mnt) {
- 		err = graft_tree(mnt, nd);
- 		if (err) {
--			spin_lock(&dcache_lock);
-+			spin_lock(&vfsmount_lock);
- 			umount_tree(mnt);
--			spin_unlock(&dcache_lock);
-+			spin_unlock(&vfsmount_lock);
- 		} else
- 			mntput(mnt);
- 	}
-@@ -589,7 +599,7 @@ static int do_move_mount(struct nameidat
- 	if (IS_DEADDIR(nd->dentry->d_inode))
- 		goto out1;
- 
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 	if (!IS_ROOT(nd->dentry) && d_unhashed(nd->dentry))
- 		goto out2;
- 
-@@ -613,7 +623,7 @@ static int do_move_mount(struct nameidat
- 	detach_mnt(old_nd.mnt, &parent_nd);
- 	attach_mnt(old_nd.mnt, nd);
- out2:
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- out1:
- 	up(&nd->dentry->d_inode->i_sem);
- out:
-@@ -794,9 +804,9 @@ int copy_namespace(int flags, struct tas
- 	down_write(&tsk->namespace->sem);
- 	/* First pass: copy the tree topology */
- 	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- 
- 	/* Second pass: switch the tsk->fs->* elements */
- 	if (fs) {
-@@ -1017,7 +1027,7 @@ asmlinkage long sys_pivot_root(const cha
- 	if (new_nd.mnt->mnt_root != new_nd.dentry)
- 		goto out2; /* not a mountpoint */
- 	tmp = old_nd.mnt; /* make sure we can reach put_old from new_root */
--	spin_lock(&dcache_lock);
-+	spin_lock(&vfsmount_lock);
- 	if (tmp != new_nd.mnt) {
- 		for (;;) {
- 			if (tmp->mnt_parent == tmp)
-@@ -1034,7 +1044,7 @@ asmlinkage long sys_pivot_root(const cha
- 	detach_mnt(user_nd.mnt, &root_parent);
- 	attach_mnt(user_nd.mnt, &old_nd);
- 	attach_mnt(new_nd.mnt, &root_parent);
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
- 	security_sb_post_pivotroot(&user_nd, &new_nd);
- 	error = 0;
-@@ -1051,7 +1061,7 @@ out0:
- 	unlock_kernel();
- 	return error;
- out3:
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&vfsmount_lock);
- 	goto out2;
- }
- 
-diff -puN fs/namei.c~vfsmount_lock fs/namei.c
---- linux-2.5.69/fs/namei.c~vfsmount_lock	2003-05-21 10:53:00.000000000 +0530
-+++ linux-2.5.69-maneesh/fs/namei.c	2003-05-21 10:53:00.000000000 +0530
-@@ -434,19 +434,17 @@ int follow_up(struct vfsmount **mnt, str
- 	return 1;
- }
- 
-+/* no need for dcache_lock, as serialization is taken care in
-+ * namespace.c
-+ */
- static int follow_mount(struct vfsmount **mnt, struct dentry **dentry)
- {
- 	int res = 0;
- 	while (d_mountpoint(*dentry)) {
--		struct vfsmount *mounted;
--		spin_lock(&dcache_lock);
--		mounted = lookup_mnt(*mnt, *dentry);
--		if (!mounted) {
--			spin_unlock(&dcache_lock);
-+		struct vfsmount *mounted = lookup_mnt(*mnt, *dentry);
-+		if (!mounted) 
- 			break;
--		}
--		*mnt = mntget(mounted);
--		spin_unlock(&dcache_lock);
-+		*mnt = mounted;
- 		dput(*dentry);
- 		mntput(mounted->mnt_parent);
- 		*dentry = dget(mounted->mnt_root);
-@@ -455,21 +453,21 @@ static int follow_mount(struct vfsmount 
- 	return res;
- }
- 
-+/* no need for dcache_lock, as serialization is taken care in
-+ * namespace.c
-+ */
- static inline int __follow_down(struct vfsmount **mnt, struct dentry **dentry)
- {
- 	struct vfsmount *mounted;
--
--	spin_lock(&dcache_lock);
-+	
- 	mounted = lookup_mnt(*mnt, *dentry);
- 	if (mounted) {
--		*mnt = mntget(mounted);
--		spin_unlock(&dcache_lock);
-+		*mnt = mounted;
- 		dput(*dentry);
- 		mntput(mounted->mnt_parent);
- 		*dentry = dget(mounted->mnt_root);
- 		return 1;
- 	}
--	spin_unlock(&dcache_lock);
- 	return 0;
- }
- 
-
-_
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/

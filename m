@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287163AbSALQhv>; Sat, 12 Jan 2002 11:37:51 -0500
+	id <S287158AbSALQzS>; Sat, 12 Jan 2002 11:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287158AbSALQhl>; Sat, 12 Jan 2002 11:37:41 -0500
-Received: from mx.fluke.com ([129.196.128.53]:57360 "EHLO
-	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
-	id <S287163AbSALQh1>; Sat, 12 Jan 2002 11:37:27 -0500
-Date: Sat, 12 Jan 2002 08:37:37 -0800 (PST)
-From: David Dyck <dcd@tc.fluke.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.2-pre11 / IDE cdrom_read_intr: data underrun / end_request: I/O
- error
-In-Reply-To: <Pine.LNX.4.33.0201111841320.193-100000@dd.tc.fluke.com>
-Message-ID: <Pine.LNX.4.33.0201120834140.672-100000@dd.tc.fluke.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287193AbSALQzJ>; Sat, 12 Jan 2002 11:55:09 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:33029 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S287158AbSALQyy>;
+	Sat, 12 Jan 2002 11:54:54 -0500
+Date: Sat, 12 Jan 2002 09:52:09 -0700
+From: yodaiken@fsmlabs.com
+To: jogi@planetzork.ping.de
+Cc: Andrea Arcangeli <andrea@suse.de>, Robert Love <rml@tech9.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020112095209.A5735@hq.fsmlabs.com>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20020112160714.A10847@planetzork.spacenet>; from jogi@planetzork.ping.de on Sat, Jan 12, 2002 at 04:07:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002 at 18:55 -0800, David Dyck <dcd@tc.fluke.com> wrote:
+On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
+> I did my usual compile testings (untar kernel archive, apply patches,
+> make -j<value> ...
 
-I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
-reading from my cdrom for a while.  Yesterday I created examined several
-large cdrom sets that had been readable earlier and they read partially
-but get read errors.  These same cdroms can be read reliable on
-2.4.18-pre3 using the same hardware, and are readable on other
-PC's runing older kernels.
+If I understand your test, 
+you are testing different loads - you are compiling kernels that may differ
+in size and makefile organization, not to mention different layout on the
+file system and disk.
 
-Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
-
-Using 2.5.2-pre11
-
-# mount /cdrom && md5sum /cdrom/*
-md5sum: /cdrom/dcd-c.tar.gz: I/O error
-md5sum: /cdrom/dcd-d.tar.gz: I/O error
-
-
-An example of some of the messages were
-
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 32X CD-ROM drive, 256kB Cache
-
-
-VFS: Disk change detected on device ide1(22,0)
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISOFS: changing to secondary root
-hdc: cdrom_read_intr: data underrun (4294967256 blocks)
-end_request: I/O error, dev 16:00, sector 299300
-hdc: cdrom_read_intr: data underrun (4294967260 blocks)
-end_request: I/O error, dev 16:00, sector 299304
-
-  errors repeated with sector and blocks increasing by 4
-  repeating 118 times
-
-
-using 2.4.18-pre3 I get no errors
+What happens when you do the same test, compiling one kernel under multiple
+different kernels?
 

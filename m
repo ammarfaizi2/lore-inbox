@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264958AbTFCLKo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 07:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbTFCLKo
+	id S264966AbTFCLd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 07:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264967AbTFCLd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 07:10:44 -0400
-Received: from B53fa.pppool.de ([213.7.83.250]:62891 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S264958AbTFCLKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 07:10:42 -0400
-Subject: Re: VIA CHIPSET KT 400 / 8235 troubleshooting
-From: Daniel Egger <degger@fhm.edu>
-To: Henrik Storner <henrik-kernel@hswn.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bbhli0$v5j$1@ask.hswn.dk>
-References: <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com>
-	 <bbhli0$v5j$1@ask.hswn.dk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Htc4MRzGgSXkZQ3/L3LW"
-Message-Id: <1054629097.2723.7.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2 (Preview Release)
-Date: 03 Jun 2003 10:31:37 +0200
+	Tue, 3 Jun 2003 07:33:27 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:54728 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264966AbTFCLd1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 07:33:27 -0400
+Date: Tue, 3 Jun 2003 13:47:33 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+In-Reply-To: <Pine.LNX.4.50.0305310246250.31414-100000@montezuma.mastecende.com>
+Message-ID: <Pine.GSO.3.96.1030603133821.29576A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 31 May 2003, Zwane Mwaikambo wrote:
 
---=-Htc4MRzGgSXkZQ3/L3LW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > Is it really valid to go and try to calibrate the APIC timer if it was
+> > disabled by the user, or even DMI?
+> 
+> bah, the early boot hacks are just ugly, we do detect_init_APIC early in 
+> traps code and then just blindly go frobbing the APIC anyway.
 
-Am Die, 2003-06-03 um 10.17 schrieb Henrik Storner:
+ How about clearing cpu_has_apic and smp_found_config instead?  As I
+understand the problem, the local APIC is useless so the kernel shouldn't
+pretend it's present.  And the MP-table is useless without a local APIC. 
 
-> My KT400 motherboard (Soltek) requires me to boot with the "noapic"
-> parameter, or it will hang in a similar manner. Did you try that,
-> or did you just enable/disable the APIC in the BIOS ?
-
-My ECS L7VTA will boot with APIC enabled but has interrupt problems=20
-with at least the NIC and thus will stop booting (over network that is).
-Alan told me yesterday in private that he thinks he knows the problem
-and has a solution in his -ac series.
-
-Haven't had a chance to try that though...
-
---=20
-Servus,
-       Daniel
-
---=-Htc4MRzGgSXkZQ3/L3LW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+3Fzochlzsq9KoIYRArINAKDArEKMHnQJSkSBWxhJ5Ic4zbTnqgCcDpjE
-cLMU6VsDkdBmwn1DyVDG6OY=
-=kcMq
------END PGP SIGNATURE-----
-
---=-Htc4MRzGgSXkZQ3/L3LW--
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,38 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbUKDWzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbUKDW64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262487AbUKDWzD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:55:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUKDWv7
+	id S262460AbUKDW64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUKDWzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:51:59 -0500
-Received: from smtp2.jazztel.es ([62.14.3.162]:62700 "EHLO smtp2.jazztel.es")
-	by vger.kernel.org with ESMTP id S262461AbUKDWtR (ORCPT
+	Thu, 4 Nov 2004 17:55:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63720 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262460AbUKDWwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:49:17 -0500
-Message-ID: <418AB1E3.7030505@wanadoo.es>
-Date: Thu, 04 Nov 2004 23:49:07 +0100
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.4.1) Gecko/20031114
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: support of older compilers
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 17:52:31 -0500
+Date: Thu, 4 Nov 2004 14:52:29 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Serge Hallyn <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] [0/6] LSM Stacking
+Message-ID: <20041104145229.D2357@build.pdx.osdl.net>
+References: <1099609471.2096.10.camel@serge.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1099609471.2096.10.camel@serge.austin.ibm.com>; from serue@us.ibm.com on Thu, Nov 04, 2004 at 05:04:31PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+* Serge Hallyn (serue@us.ibm.com) wrote:
+> The following set of patches add support required to stack most
+> LSMs.  The most important patch is the first, which provides a
+> method for more than one LSM to annotate information to kernel
+> objects.  LSM's known to use the LSM fields include selinux, bsdjail,
+> seclvl, and digsig.  Without this patch (or something like it),
+> none of these modules can be used together.
 
-> Your "use new versions of gcc even if it is slower" argument doesn't make 
-> any _sense_. If the new versions aren't any better, why would you want to 
-> use them?
+I think, all in all, this needs more work and more justification (esp.
+w.r.t. overhead and impact on the current common use of a single
+module).
 
-Maybe because older gccs are not maintained, only 3.3.x 3.4.x and 4.0.0.
+> 2. A 2.6.10-rc1-bk10 system with the stacking patches, and capabilities
+> and SELinux compiled into the kernel under the stacker LSM.  Other
+> than stacker being compiled in and the size of the LSM void* array
+> being set to 4, the exact same .config was used.
 
-_Unless_ you have a long life time distribution (aka SLES, RHEL or clones).
+How many CPU's?
 
---
-TLOZ OOT: worse than drugs.
+> 3. The same kernel as in (2), but with bsdjail and seclvl also stacked.
+> 
+> On each of these configurations, I ran unixbench twice, and compiled
+> a kernel twice (with the same .config, and all files in the cached
+> each time).
+> 
+> The kernel compilation results are as follows:
+> 
+>          No stacking (1)           Stacking (2)      More Stacking (3)
+> Run 1    real 9m51.647s           real 9m48.045s      real 9m53.292s
+>          user 8m28.637s           user 8m29.108s      user 8m33.319s
+>           sys 1m13.900s            sys 1m14.993s       sys 1m15.377s
+> 
+> Run 2    real 9m48.154s           real 9m53.369s      real 9m53.292s
+>          user 8m28.983s           user 8m29.101s      user 8m34.407s
+>           sys 1m13.981s            sys 1m15.307s       sys 1m15.611s
+> 
+> Run 3    real 9m51.105s           real 9m51.840s      real 9m58.840s
+>          user 8m28.894s           user 8m29.192s      user 8m33.538s
+>           sys 1m14.183s            sys 1m15.345s       sys 1m16.146s
+> 
+> Unixbench summaries are as follows.  (I can send the full output if
+> anyone asks)
 
+Sorry, I forget what the Unixbench scores mean....
 
+>          No stacking (1)           Stacking (2)      More Stacking (3)
+> Run 1         651.5                    647.1                634.3
+> Run 2         648.2                    642.8                632.7
+
+How did lmbench numbers look?  And other workloads, like network?
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

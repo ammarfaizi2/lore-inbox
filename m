@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbTLWWTL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTLWWTL
+	id S262747AbTLWWNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTLWWNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:19:11 -0500
-Received: from mail.kroah.org ([65.200.24.183]:64235 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262864AbTLWWTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:19:08 -0500
-Date: Tue, 23 Dec 2003 14:13:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Scott James Remnant <scott@netsplit.com>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: udev LABEL not working: sysfs_path_is_file: stat() failed
-Message-ID: <20031223221341.GF15946@kroah.com>
-References: <1072054829.1225.11.camel@descent.netsplit.com> <20031222092329.GA30235@kroah.com> <1072090725.1225.19.camel@descent.netsplit.com> <20031222204024.GF3195@kroah.com> <1072164547.1225.25.camel@descent.netsplit.com>
+	Tue, 23 Dec 2003 17:13:09 -0500
+Received: from mother.ds.pg.gda.pl ([153.19.213.213]:7050 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S262747AbTLWWNH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:13:07 -0500
+Date: Tue, 23 Dec 2003 23:13:03 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: DevFS vs. udev
+Message-ID: <20031223221303.GA21331@irc.pl>
+Mail-Followup-To: Tomasz Torcz <zdzichu@irc.pl>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <E1AYl4w-0007A5-R3@O.Q.NET> <Pine.LNX.4.44.0312240005180.4342-100000@raven.themaw.net> <20031223173429.GA9032@mark.mielke.cc> <20031223220209.GB15946@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1072164547.1225.25.camel@descent.netsplit.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031223220209.GB15946@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 07:29:07AM +0000, Scott James Remnant wrote:
-> On Mon, 2003-12-22 at 20:40, Greg KH wrote:
-> 
-> > On Mon, Dec 22, 2003 at 10:58:45AM +0000, Scott James Remnant wrote:
-> > > One question though, it only ever seems to create a device for the
-> > > actual usb-storage disk and not the partition.  Is there some magic to
-> > > create the partition device instead?
-> > 
-> > Do you have a partition show up in /sys/block?  If not, then udev will
-> > not create it.  It works here for my usb-storage devices that have
-> > partitions on them.
-> > 
-> Yes, /dev/block/sdb/sdb1 certainly does appear, as does /udev/sdb1 --
-> the LABEL rule only seems to match "sdb" though.
+On Tue, Dec 23, 2003 at 02:02:09PM -0800, Greg KH wrote:
+> (yeah, it's probably not _all_ gentoo people, but it sure seems like the
+>  majority of them sure are wed to devfs for some strange reason...)
 
-That's odd, what is the rule?  They should both match.
+Heh, I'm happily using devfs on Slackware ;-)
+Also, it's interesting that other OSes have devfs-like
+functionality, but somehow done right and not suffering from
+linux' devfs illness. FreeBSD5 even mount devfs by default.
 
-greg k-h
+-- 
+Tomasz Torcz                 Morality must always be based on practicality.
+zdzichu@irc.-nie.spam-.pl                -- Baron Vladimir Harkonnen

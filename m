@@ -1,70 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVC2UxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVC2Uyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVC2UxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVC2UxE
+	id S261434AbVC2Uyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVC2Uxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:53:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7057 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261380AbVC2Uwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:52:43 -0500
-Date: Tue, 29 Mar 2005 22:52:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050329205225.GF8125@elf.ucw.cz>
-References: <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com> <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com>
+	Tue, 29 Mar 2005 15:53:30 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:53735 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261421AbVC2Uwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:52:53 -0500
+Subject: Re: [Alsa-devel] Re: 2.6.12-rc1-mm3, sound card lost id
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: James Courtier-Dutton <James@superbug.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, Jaroslav Kysela <perex@suse.cz>
+In-Reply-To: <20050329224630.069cda56.khali@linux-fr.org>
+References: <20050325002154.335c6b0b.akpm@osdl.org>
+	 <20050326111945.5eb58343.khali@linux-fr.org> <s5hr7hyiqra.wl@alsa2.suse.de>
+	 <20050329195721.385717aa.khali@linux-fr.org>
+	 <1112127424.5141.7.camel@mindpipe>
+	 <20050329224630.069cda56.khali@linux-fr.org>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 15:52:51 -0500
+Message-Id: <1112129571.5141.18.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005032912051fee6e91@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Well, there lies a problem - some devices have to do execve because
-> > > they need firmware to operate. Also, again, some buses with
-> > > hot-pluggable devices will attempt to clean up unsuccessful resume and
-> > > this will cause hotplug events. The point is you either resume system
-> > > or you don't. We probably need a separate "unfreeze" callback,
-> > > although this is kind of messy.
-> > 
-> > There's a better solution for firmware: You should load your firmware
-> > prior to suspend and store it in RAM. Anything else just plain does
-> > not work. (Because your wireless firmware might be on NFS mounted over
-> > that wireless card).
-> > 
-> > Hotplug... I guess udev just needs to hold that callbacks before
-> > system is fully up... it has to do something similar on regular boot,
-> > no?
+On Tue, 2005-03-29 at 22:46 +0200, Jean Delvare wrote:
+> Hi Lee,
 > 
-> Well, I did not really look into udev but hotplug (which can iteract
-> with udev) does not keep anything. If it fails its ok - that's why
-> there are coldplug scripts that "recover" lost events. But here we
-> block trying to start hotplug - we not getting an error - and this is
-> bad. Unfortunately I am not familiar with block devices working to say
-> why it hangs.
+> > I think we just have to add this PCI id to the table.  I got the same
+> > result before James added the SBLive! platinum detection.
+> > 
+> > What is the output of 'lspci -v | grep -1 EMU10k1'?
 > 
-> Should we pull Jens into the discussion?
+> 00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 06)
+>         Subsystem: Creative Labs CT4832 SBLive! Value
+> 
+> and the one you didn't ask for:
+> 
+> 00:0d.0 Class 0401: 1102:0002 (rev 06)
+>         Subsystem: 1102:8027
+> 
+> This made me realize that I could still try to hack it myself. The
+> following patch somehow helped:
+> 
+> --- linux-2.6.12-rc1-mm3/sound/pci/emu10k1/emu10k1_main.c.orig	2005-03-29 20:38:12.000000000 +0200
+> +++ linux-2.6.12-rc1-mm3/sound/pci/emu10k1/emu10k1_main.c	2005-03-29 22:32:23.000000000 +0200
+> @@ -680,6 +680,10 @@
+>  	 .driver = "EMU10K1", .name = "E-mu APS [4001]", 
+>  	 .emu10k1_chip = 1,
+>  	 .ecard = 1} ,
+> +	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80271102,
+> +	 .driver = "EMU10K1", .name = "SB Live Player 1024", 
+> +	 .emu10k1_chip = 1,
+> +	 .ac97_chip = 1} ,
+>  	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80641102,
+>  	 .driver = "EMU10K1", .name = "SB Live 5.1", 
+>  	 .emu10k1_chip = 1,
+> 
+> 
+> Now the card will be listed as "S1024" instead of "Unknown" so that's a
+> change. Looks like the short name is auto-generated? Unfortunately
+> that's still not "Live" as before so my mixer settings are not back yet.
+> And I believe that "Live" was a much better name than "S1024" too.
+> 
 
-I don't really want us to try execve during resume... Could we simply
-artifically fail that execve with something if (in_suspend()) return
--EINVAL; [except that in_suspend() just is not there, but there were
-some proposals to add it].
+Here is the patch (against ALSA CVS) in its preferred format.  You will
+probably have to apply it by hand.  If the mixer settings can't be
+restored you'll have to do it manually or edit asound.state by hand.
 
-Or just avoid calling hotplug at all in resume case? And then do
-coldplug-like scan when userspace is ready...
+Lee
 
-But we perhaps should cc linux-pm list.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Index: alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c
+===================================================================
+RCS file: /cvsroot/alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c,v
+retrieving revision 1.49
+diff -u -r1.49 emu10k1_main.c
+--- alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	27 Mar 2005 14:00:54 -0000	1.49
++++ alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	29 Mar 2005 20:51:44 -0000
+@@ -693,6 +693,10 @@
+ 	 .driver = "EMU10K1", .name = "SBLive! Platinum [CT4760P]", 
+ 	 .emu10k1_chip = 1,
+ 	 .ac97_chip = 1} ,
++	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80271102,
++	 .driver = "EMU10K1", .name = "SBLive! Value [CT4832]", 
++	 .emu10k1_chip = 1,
++	 .ac97_chip = 1} ,
+ 	{.vendor = 0x1102, .device = 0x0002,
+ 	 .driver = "EMU10K1", .name = "SB Live [Unknown]", 
+ 	 .emu10k1_chip = 1,
+
+Lee
+

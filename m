@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263934AbTIBPxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 11:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTIBPxr
+	id S261657AbTIBNHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 09:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTIBNHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 11:53:47 -0400
-Received: from 3E6B2019.rev.stofanet.dk ([62.107.32.25]:34948 "EHLO sysrq.dk")
-	by vger.kernel.org with ESMTP id S263934AbTIBPxd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 11:53:33 -0400
-Subject: Re: Airo Net 340 PCMCIA WiFi Card trouble
-From: Martin Willemoes Hansen <mwh@sysrq.dk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030902113610.D29984@flint.arm.linux.org.uk>
-References: <1062498150.356.9.camel@spiril.sysrq.dk>
-	 <20030902113610.D29984@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1062517999.391.6.camel@hugoboss.sysrq.dk>
+	Tue, 2 Sep 2003 09:07:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6631 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261874AbTIBNHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 09:07:07 -0400
+Date: Tue, 2 Sep 2003 15:06:58 +0200
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: [BUG] mtime&ctime updated when it should not
+Message-ID: <20030902130657.GB30594@atrey.karlin.mff.cuni.cz>
+References: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz> <20030901121807.29119055.akpm@osdl.org> <20030901193128.GA26983@atrey.karlin.mff.cuni.cz> <20030901125830.6f8d8f04.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 02 Sep 2003 17:53:19 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901125830.6f8d8f04.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-02 at 12:36, Russell King wrote:
-> Can you describe the problem you're experiencing in any more detail
-> please?
+> Jan Kara <jack@suse.cz> wrote:
+> >
+> >  > Isn't this sufficient?
+> >    I think it is not (I tried exactly the same patch but it didn't work)
+> >  - the problem is that vmtruncate() is called when prepare_write() fails
+> >  and this function also updates mtime and ctime.
+> 
+> Oh OK.
+> 
+> So we would need to change each filesystem's ->truncate to not update the
+> inode times, then move the timestamp updating up into vmtruncate().
+  That is one solution. The other (less intrusive) is to just store old
+time stamps and restore times when you find out that write failed.
+  I'll have a look how much work would be your solution..
 
-Umh a little update it is in fact not a 340 card I have it is a Cisco
-Airo Net 350 PCMCIA card. Sorry about that mistake.
+								Honza
 -- 
-Martin Willemoes Hansen
-
---------------------------------------------------------
-E-Mail	mwh@sysrq.dk	Website	mwh.sysrq.dk
-IRC     MWH, freenode.net
---------------------------------------------------------               
-
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-On Tue, 2003-09-02 at 12:36, Russell King wrote:
-> Can you describe the problem you're experiencing in any more detail
-> please?
+> Jan Kara <jack@suse.cz> wrote:
+> >
+> >  > Isn't this sufficient?
+> >    I think it is not (I tried exactly the same patch but it didn't work)
+> >  - the problem is that vmtruncate() is called when prepare_write() fails
+> >  and this function also updates mtime and ctime.
+> 
+> Oh OK.
+> 
+> So we would need to change each filesystem's ->truncate to not update the
+> inode times, then move the timestamp updating up into vmtruncate().
+  That is one solution. The other (less intrusive) is to just store old
+time stamps and restore times when you find out that write failed.
+  I'll have a look how much work would be your solution..
 
-Umh a little update it is in fact not a 340 card I have it is a Cisco
-Airo Net 350 PCMCIA card. Sorry about that mistake.
+								Honza
 -- 
-Martin Willemoes Hansen
-
---------------------------------------------------------
-E-Mail	mwh@sysrq.dk	Website	mwh.sysrq.dk
-IRC     MWH, freenode.net
---------------------------------------------------------               
-
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

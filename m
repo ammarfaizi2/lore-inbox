@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUB2LOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 06:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUB2LOL
+	id S262030AbUB2LJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 06:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUB2LJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 06:14:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:64909 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262033AbUB2LOI (ORCPT
+	Sun, 29 Feb 2004 06:09:17 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:41409 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S262030AbUB2LJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 06:14:08 -0500
-X-Authenticated: #20450766
-Date: Sun, 29 Feb 2004 12:13:29 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [OT] Copyright infringement by Walmart?
-Message-ID: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
+	Sun, 29 Feb 2004 06:09:16 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Date: Sun, 29 Feb 2004 11:09:15 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.6.3 - 8139too timeout debug info
+Message-ID: <4041C85B.30333.2D21C847@localhost>
+In-reply-to: <87llmmtihe.fsf@devron.myhome.or.jp>
+References: <87vflqtiz6.fsf@devron.myhome.or.jp>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus
+> > Umm.. Looks like chip registers is normal, but TX/RX interrupt doesn't
+> > happen. (BTW, there isn't rtl8139_open on debuginfo.txt. Was it already
+> > scrolled?)
+> > 
+> > The following patch (incremental patch) is some part reverts to
+> > 2.6.2. Is behavior changed?
+> 
+> Oops, wrong patches. Please try these.
 
-Don't know, if I am the first, perhaps not. But I couldn't resist. Just
-found in today's junk-mail pack an advertisement by Walmart-Germany of
-"Linux Vollwaschmittel" - a washing powder:-)) The question in the subject
-is because I am not, really, sure - maybe they did license it
-appropriately?:-) Anyway, now you know it, I am holding this paper in my
-hands, and I am going to keep it this time:-) As you know, Walmart is an
-American supermarket, if it matters. And should I say - I was amazed and
-amused!:-))
+OK, I applied patch01 first - same problems.  Then I applied patch02 
+_over_ patch01.  Still same results.
 
-Regards
-Guennadi
----
-Guennadi Liakhovetski
+I am not sure if you meant me to apply over the first debug patch you 
+sent?  Here, I just applied to standard 2.6.3 > 8139too.c file with 
+RTL8139_NDEBUG 1 set.
 
+With these patched dmesg gets flooded - and I have real trouble 
+trying to do anything on the box with the timeout issues.
 
+http://www.linicks.net/8139too_debug/patch01_02_info.txt
 
+Thanks,
+
+Nick
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

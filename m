@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264612AbTFANg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 09:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264613AbTFANg0
+	id S264606AbTFANjY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 09:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264622AbTFANjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 09:36:26 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:28432 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S264612AbTFANgZ
+	Sun, 1 Jun 2003 09:39:24 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:30610 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264606AbTFANjW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 09:36:25 -0400
-Date: Sun, 1 Jun 2003 15:49:42 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Larry McVoy <lm@work.bitmover.com>, Steven Cole <elenstev@mesatop.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about style when converting from K&R to ANSI C.
-Message-ID: <20030601134942.GA10750@alpha.home.local>
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com>
+	Sun, 1 Jun 2003 09:39:22 -0400
+Subject: Re: 2.4.18 /dev/random problem
+From: Philippe Amelant <philippe.amelant@free.fr>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030531162934.A1522@schatzie.adilger.int>
+References: <1054395393.20196.211.camel@smp-tux.free.fr>
+	 <20030531162934.A1522@schatzie.adilger.int>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: 
+Message-Id: <1054475598.20196.321.camel@smp-tux.free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030601132626.GA3012@work.bitmover.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 Jun 2003 15:53:19 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry !
-
-On Sun, Jun 01, 2003 at 06:26:26AM -0700, Larry McVoy wrote:
-> On Sat, May 31, 2003 at 11:56:16PM -0600, Steven Cole wrote:
-> > Proposed conversion:
+Le dim 01/06/2003 à 00:29, Andreas Dilger a écrit :
+> On May 31, 2003  17:36 +0200, Philippe Amelant wrote:
+> > I have a compaq server with a little problem.
+> > cat /proc/sys/kernel/random/entropy_avail is always 0
+> > so /dev/random block on all read.
 > > 
-> > int foo(void)
-> > {
-> >    	/* body here */
-> > }	
+> > I have read some discussion about /dev/random on this list.
+> > and if I understand /dev/urandom rely on /dev/random for providing good
+> > randomness and /dev/random rely on server activity for it's entropy.
+> > 
+> > But I don't understand why my disk activity doesn't refill the entropy
+> > counter. If I try to mount floppy I get some entropy but even updating
+> > locate db does not provide any entropy ? Should I activate something in
+> > disk driver ?
 > 
-> Sometimes it is nice to be able to see function names with a 
-> 
-> 	grep '^[a-zA-Z].*(' *.c
+> Maybe you only have disk drives attached via CCISS or other special
+> RAID controller, and you do not use keyboard or mouse?  It might be
+> that the RAID controller is not contributing to the entopy pool.
 
-This will return 'int foo(void)', what's the problem ?
+You are right.
+Pasi Pirhonen provide me this little patch
+Maybe it could be useful for someone else....
 
-> which is why I've always preferred
-> 
-> int
-> foo(void)
-> {
-> 	/* body here */
-> }	
-> 
-> Is there some reason that I'm missing that the kernel folks like it the other
-> way?  
+--- linux/drivers/block/cpqarray.c      Fri Apr  4 01:23:24 2003
++++ linux.TE/drivers/block/cpqarray.c   Fri Apr  4 01:21:04 2003
+@@ -517,7 +517,7 @@
+ 
+        hba[i]->access.set_intr_mask(hba[i], 0);
+        if (request_irq(hba[i]->intr, do_ida_intr,
+-               SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i])) 
++               SA_INTERRUPT|SA_SHIRQ|SA_SAMPLE_RANDOM, hba[i]->devname, hba[i])) 
+        {
+ 
+                printk(KERN_ERR "cpqarray: Unable to get irq %d for %s\n", 
 
-It will only return 'foo(void)', and you won't find its return type.
-Personally, I strongly prefer getting maximum information in one line, and
-I find it useful to have the return type, the name and the args together.
 
-If you still need the name and only the name, use some sed on the output :
+thank for help
 
-   sed 's/^\([^ ]* \)*\([^]*\)(.*/\2/'
 
-Cheers,
-Willy

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318850AbSHRF0A>; Sun, 18 Aug 2002 01:26:00 -0400
+	id <S318852AbSHRFfD>; Sun, 18 Aug 2002 01:35:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318852AbSHRF0A>; Sun, 18 Aug 2002 01:26:00 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:20726 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318850AbSHRFZ7>; Sun, 18 Aug 2002 01:25:59 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sat, 17 Aug 2002 23:28:08 -0600
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+	id <S318854AbSHRFfD>; Sun, 18 Aug 2002 01:35:03 -0400
+Received: from waste.org ([209.173.204.2]:39141 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318852AbSHRFfC>;
+	Sun, 18 Aug 2002 01:35:02 -0400
+Date: Sun, 18 Aug 2002 00:38:59 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020818052808.GS9642@clusterfs.com>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20020818021522.GA21643@waste.org> <Pine.LNX.4.44.0208171923330.1310-100000@home.transmeta.com> <20020818025913.GF21643@waste.org>
+Message-ID: <20020818053859.GM21643@waste.org>
+References: <1029642713.863.2.camel@phantasy> <Pine.LNX.4.44.0208172058200.1640-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020818025913.GF21643@waste.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.44.0208172058200.1640-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 17, 2002  21:59 -0500, Oliver Xymoron wrote:
-> On Sat, Aug 17, 2002 at 07:30:02PM -0700, Linus Torvalds wrote:
-> > Quite frankly, I'd rather have a usable /dev/random than one that runs out
-> > so quickly that it's unreasonable to use it for things like generating
-> > 4096-bit host keys for sshd etc.
+On Sat, Aug 17, 2002 at 09:01:20PM -0700, Linus Torvalds wrote:
 > 
-> > In particular, if a machine needs to generate a strong random number, and 
-> > /dev/random cannot give that more than once per day because it refuses to 
-> > use things like bits from the TSC on network packets, then /dev/random is 
-> > no longer practically useful.
+> On 17 Aug 2002, Robert Love wrote:
+> > 
+> > [1] this is why I wrote my netdev-random patches.  some machines just
+> >     have to take the entropy from the network card... there is nothing
+> >     else.
 > 
-> My box has been up for about the time it's taken to write this email
-> and it's already got a full entropy pool. A 4096-bit public key has
-> significantly less than that many bits of entropy in it (primes thin
-> out in approximate proportion to log2(n)). 
+> I suspect that Oliver is 100% correct in that the current code is just
+> _too_ trusting. And parts of his patches seem to be in the "obviously
+> good" category (ie the xor'ing of the buffers instead of overwriting).
 
-It is fairly trivial to change the init scripts to save/restore more than
-4096 bits of entropy, and for /dev/random to accumulate more than this.
-For people who have _any_ source of "real" entropy, but it is occasionally
-in high demand, they could set up a larger pool to accumulate entropy
-in between peak demand.  It is basically just a few lines of change in
-/etc/init.d/[u]random - all the kernel hooks are there.
+Make sure you don't miss this bit, I should have sent it
+separately. This is a longstanding bug that manufactures about a
+thousand bits out of thin air when the pool runs dry.
 
-Even so, I would agree with Linus in the thought that being "too
-paranoid" makes it basically useless.  If you have people sniffing
-your network right next to the WAN side of your IPSec firewall with
-GHz network analyzers and crafting packets to corrupt your entropy
-pool, then chances are they could just as easily sniff the LAN side
-of your network and get the unencrypted data directly.  The same
-holds true for keystroke logging (or spy camera) to capture your pass
-phrase instead of trying an incredibly difficult strategy to "influence"
-the generation of this huge key in advance.
+Ironically, any confidence anyone had in /dev/random vs /dev/urandom
+up until now has been misplaced.
 
-In the end, if you make it so hard to extract your secrets in a stealthy
-manner, they will just start with a few big guys and a rubber hose...
+--- a/drivers/char/random.c	2002-07-20 14:11:07.000000000 -0500
++++ b/drivers/char/random.c	2002-08-17 19:47:54.000000000 -0500
+@@ -1239,18 +1184,18 @@
+ 
+ 	if (r->entropy_count < nbytes * 8 &&
+ 	    r->entropy_count < r->poolinfo.POOLBITS) {
+-		int nwords = min_t(int,
+-				   r->poolinfo.poolwords - r->entropy_count/32,
+-				   sizeof(tmp) / 4);
++		int bytes = min_t(int,
++				   nbytes - r->entropy_count/8,
++				   sizeof(tmp));
+ 
+-		DEBUG_ENT("xfer %d from primary to %s (have %d, need %d)\n",
+-			  nwords * 32,
++		DEBUG_ENT("xfer %d to %s (have %d, need %d)\n",
++			  bytes * 8,
+ 			  r == sec_random_state ? "secondary" : "unknown",
+ 			  r->entropy_count, nbytes * 8);
+ 
+-		extract_entropy(random_state, tmp, nwords * 4, 0);
+-		add_entropy_words(r, tmp, nwords);
+-		credit_entropy_store(r, nwords * 32);
++		extract_entropy(random_state, tmp, bytes, 0);
++		add_entropy_words(r, tmp, (bytes+3)/4);
++		credit_entropy_store(r, bytes*8);
+ 	}
+ 	if (r->extract_count > 1024) {
+ 		DEBUG_ENT("reseeding %s with %d from primary\n",
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

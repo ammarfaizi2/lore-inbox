@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUHBXhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUHBXms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUHBXhD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUHBXgq
+	id S264500AbUHBXms (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUHBXms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:36:46 -0400
-Received: from zero.aec.at ([193.170.194.10]:65036 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264297AbUHBXfs (ORCPT
+	Mon, 2 Aug 2004 19:42:48 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:52740 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S264522AbUHBXmV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 19:35:48 -0400
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Initial bits to help pull jiffies out of drivers
-References: <2mGr0-7w6-27@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 03 Aug 2004 01:35:44 +0200
-In-Reply-To: <2mGr0-7w6-27@gated-at.bofh.it> (Alan Cox's message of "Tue, 27
- Jul 2004 22:10:10 +0200")
-Message-ID: <m37jshru3z.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Mon, 2 Aug 2004 19:42:21 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: libata-core, 2.4.27-rc3, and scsi_unregister_module()
+Date: Mon, 2 Aug 2004 16:42:18 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9612@hqemmail02.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: libata-core, 2.4.27-rc3, and scsi_unregister_module()
+Thread-Index: AcR0C1TpQP7X89+/TRuAZWllJhA6jAE3mN/w
+From: "Andrew Chew" <achew@nvidia.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
+X-OriginalArrivalTime: 02 Aug 2004 23:42:20.0192 (UTC) FILETIME=[5A106200:01C478EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> writes:
-
-> This is really for comment, the basic idea is to add some relative
-> timer functionality. This gives us timeout objects as well as pulling
-> jiffies use into one place in the timer code. The need for the old
-> interfaces never goes away however because some code uses a previous
-> event base to construct timeouts to avoid sliding due to the latency
-> between service and re-addition.
-
-I don't think it matters much for the specific goal of getting rid
-of regular timer ticks. I expect even a jiffies less kernel to
-emulate jiffies using CLOCK_MONOTONIC and some timer for quite some
-time. Basically on these kernels it will just be a bit more expensive
-too use, but not much.
-
-Of course add_timeout makes a nicer API in general, so it may be 
-still a good idea.
-
--Andi
-
+I noticed that in ata_pci_remove_one, that scsi_unregister_module() is
+being called for the SCSI host template.  I also noticed that the SATA
+drivers are calling scsi_unregister_module() in their cleanup routines
+as well.  Is this work-in-progress, or an actual bug?  In any case, the
+scsi_unregister_module() call in ata_pci_remove_one() takes an exception
+with a NULL sht upon driver unload (when I'm experimenting with the
+sata_nv module).  Commenting out the scsi_unregister_module() call in
+ata_pci_remove_one() fixes things.

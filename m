@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268379AbTBNMlo>; Fri, 14 Feb 2003 07:41:44 -0500
+	id <S268389AbTBNMnt>; Fri, 14 Feb 2003 07:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268376AbTBNMlo>; Fri, 14 Feb 2003 07:41:44 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:4441
+	id <S268390AbTBNMnt>; Fri, 14 Feb 2003 07:43:49 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:10585
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268379AbTBNMkt>; Fri, 14 Feb 2003 07:40:49 -0500
-Date: Fri, 14 Feb 2003 07:49:16 -0500 (EST)
+	id <S268389AbTBNMnf>; Fri, 14 Feb 2003 07:43:35 -0500
+Date: Fri, 14 Feb 2003 07:51:42 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5][7/14] smp_call_function_on_cpu - PPC64
-In-Reply-To: <Pine.LNX.4.50.0302140404300.3518-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0302140748450.3518-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140404300.3518-100000@montezuma.mastecende.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH][2.5][11/14] smp_call_function_on_cpu - PARISC
+In-Reply-To: <Pine.LNX.4.50.0302140400540.3518-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0302140751180.3518-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0302140400540.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,128 +22,118 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 One liner to fix num_cpus == 0 on SMP kernel w/ UP box
 
-Index: linux-2.5.60/arch/ppc64/kernel/smp.c
+Index: linux-2.5.60/arch/parisc/kernel/smp.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/ppc64/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.60/arch/parisc/kernel/smp.c,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/ppc64/kernel/smp.c	10 Feb 2003 22:15:14 -0000	1.1.1.1
-+++ linux-2.5.60/arch/ppc64/kernel/smp.c	14 Feb 2003 12:23:03 -0000
-@@ -452,29 +452,34 @@
- #define SMP_CALL_TIMEOUT (1UL << (30 + 3))
+--- linux-2.5.60/arch/parisc/kernel/smp.c	10 Feb 2003 22:15:32 -0000	1.1.1.1
++++ linux-2.5.60/arch/parisc/kernel/smp.c	14 Feb 2003 12:20:11 -0000
+@@ -304,31 +304,40 @@
+ void 
+ smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
  
- /*
-- * This function sends a 'generic call function' IPI to all other CPUs
-- * in the system.
+-
+-/**
+- * Run a function on all other CPUs.
+- *  <func>	The function to run. This must be fast and non-blocking.
+- *  <info>	An arbitrary pointer to pass to the function.
+- *  <retry>	If true, keep retrying until ready.
+- *  <wait>	If true, wait until function has completed on other CPUs.
+- *  [RETURNS]   0 on success, else a negative status code.
++/*
 + * smp_call_function_on_cpu - Runs func on all processors in the mask
-  *
-- * [SUMMARY] Run a function on all other CPUs.
-- * <func> The function to run. This must be fast and non-blocking.
-- * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-- * <wait> If true, wait (atomically) until function has completed on other CPUs.
-- * [RETURNS] 0 on success, else a negative status code. Does not return until
-- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
++ *
 + * @func: The function to run. This must be fast and non-blocking.
 + * @info: An arbitrary pointer to pass to the function.
 + * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask The bitmask of CPUs to call the function
++ * @mask: The bitmask of CPUs to call the function
 + * 
 + * Returns 0 on success, else a negative status code. Does not return until
 + * remote CPUs are nearly ready to execute func or have executed it.
   *
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
+- * Does not return until remote CPUs are nearly ready to execute <func>
+- * or have executed.
   */
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--		       int wait)
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
- { 
- 	struct call_data_struct data;
--	int ret = -1, cpus = num_online_cpus()-1;
-+	int ret, cpu, i, num_cpus;
- 	unsigned long timeout;
  
--	if (!cpus)
+ int
+-smp_call_function (void (*func) (void *info), void *info, int retry, int wait)
++smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++			  unsigned long mask)
+ {
+ 	struct smp_call_struct data;
+ 	long timeout;
+ 	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
++	int num_cpus, cpu, i, ret;
+ 	
 +	cpu = get_cpu();
 +	mask &= ~(1UL << cpu);
 +	num_cpus = hweight64(mask);
 +	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
++		ret = 0;
++		goto out;
 +	}
- 
  	data.func = func;
  	data.info = info;
-@@ -487,11 +492,18 @@
- 	call_data = &data;
- 	wmb();
- 	/* Send a message to all other CPUs and wait for them to respond */
--	smp_message_pass(MSG_ALL_BUT_SELF, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	if (mask == (cpu_online_map & ~(1UL << cpu))) {
-+		smp_message_pass(MSG_ALL_BUT_SELF, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	} else {
-+		for (i = 0; i < NR_CPUS; i++) {
-+			if (cpu_online(i) && ((1UL << i) & mask))
-+				smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
-+		}
+ 	data.wait = wait;
+-	atomic_set(&data.unstarted_count, smp_num_cpus - 1);
+-	atomic_set(&data.unfinished_count, smp_num_cpus - 1);
++	atomic_set(&data.unstarted_count, num_cpus);
++	atomic_set(&data.unfinished_count, num_cpus);
+ 
+ 	if (retry) {
+ 		spin_lock (&lock);
+@@ -339,15 +348,19 @@
+ 		spin_lock (&lock);
+ 		if (smp_call_function_data) {
+ 			spin_unlock (&lock);
+-			return -EBUSY;
++			ret = -EBUSY;
++			goto out;
+ 		}
+ 	}
+ 
+ 	smp_call_function_data = &data;
+ 	spin_unlock (&lock);
+ 	
+-	/*  Send a message to all other CPUs and wait for them to respond  */
+-	send_IPI_allbutself(IPI_CALL_FUNC);
++	/*  Send a message to the target CPUs and wait */
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_online(i) && (mask & (1UL << i)))
++			send_IPI_single(i, IPI_CALL_FUNC);
 +	}
  
- 	/* Wait for response */
- 	timeout = SMP_CALL_TIMEOUT;
--	while (atomic_read(&data.started) != cpus) {
-+	while (atomic_read(&data.started) != num_cpus) {
- 		HMT_low();
- 		if (--timeout == 0) {
- #ifdef CONFIG_DEBUG_KERNEL
-@@ -499,15 +511,16 @@
- 				debugger(0);
- #endif
- 			printk("smp_call_function on cpu %d: other cpus not "
--			       "responding (%d)\n", smp_processor_id(),
-+			       "responding (%d)\n", cpu,
- 			       atomic_read(&data.started));
-+			ret = -EIO;
- 			goto out;
- 		}
+ 	/*  Wait for response  */
+ 	timeout = jiffies + HZ;
+@@ -361,17 +374,25 @@
+ 	smp_call_function_data = NULL;
+ 	if (atomic_read (&data.unstarted_count) > 0) {
+ 		printk(KERN_CRIT "SMP CALL FUNCTION TIMED OUT! (cpu=%d)\n",
+-		      smp_processor_id());
+-		return -ETIMEDOUT;
++		      cpu);
++		ret = -ETIMEDOUT;
++		goto out;
  	}
  
- 	if (wait) {
- 		timeout = SMP_CALL_TIMEOUT;
--		while (atomic_read(&data.finished) != cpus) {
-+		while (atomic_read(&data.finished) != num_cpus) {
- 			HMT_low();
- 			if (--timeout == 0) {
- #ifdef CONFIG_DEBUG_KERNEL
-@@ -516,20 +529,27 @@
- #endif
- 				printk("smp_call_function on cpu %d: other "
- 				       "cpus not finishing (%d/%d)\n",
--				       smp_processor_id(),
-+				       cpu,
- 				       atomic_read(&data.finished),
- 				       atomic_read(&data.started));
-+				ret = -EIO;
- 				goto out;
- 			}
- 		}
- 	}
- 
- 	ret = 0;
+ 	while (wait && atomic_read (&data.unfinished_count) > 0)
+ 			barrier ();
 -
- out:
- 	HMT_medium();
- 	spin_unlock(&call_lock);
+-	return 0;
++	ret = 0;
++out:
 +	put_cpu_no_resched();
- 	return ret;
-+}
-+
-+int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
-+			int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
++	return ret;
  }
  
- void smp_call_function_interrupt(void)
+-
++int
++smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait,
++			  unsigned long mask)
++{
++	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
++}
+ 
+ /*
+  *	Setup routine for controlling SMP activation

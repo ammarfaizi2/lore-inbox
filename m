@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286670AbRL1Bmw>; Thu, 27 Dec 2001 20:42:52 -0500
+	id <S286660AbRL1Bwc>; Thu, 27 Dec 2001 20:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286655AbRL1Bmf>; Thu, 27 Dec 2001 20:42:35 -0500
-Received: from ns2.q-station.net ([202.66.128.35]:30982 "HELO
-	smtp.q-station.net") by vger.kernel.org with SMTP
-	id <S286679AbRL1BmO>; Thu, 27 Dec 2001 20:42:14 -0500
-Date: Fri, 28 Dec 2001 09:42:07 +0800 (CST)
-From: Leung Yau Wai <chris@gist.q-station.net>
-To: Douglas Gilbert <dougg@torque.net>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: dd cdrom error
-In-Reply-To: <3C2BA1B4.EB853055@torque.net>
-Message-ID: <Pine.LNX.4.10.10112280937570.6257-100000@gist.q-station.net>
+	id <S286655AbRL1BwW>; Thu, 27 Dec 2001 20:52:22 -0500
+Received: from dsl-213-023-039-026.arcor-ip.net ([213.23.39.26]:9479 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286649AbRL1BwM>;
+	Thu, 27 Dec 2001 20:52:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Clean up fs.h union for ext2
+Date: Fri, 28 Dec 2001 02:55:09 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <E16JR71-0000cU-00@starship.berlin> <20011227111415.D12868@lynx.no>
+In-Reply-To: <20011227111415.D12868@lynx.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16JmEq-00007I-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Douglas Gilbert wrote:
+Hi Andreas
 
-> Leung Yau Wai <chris@gist.q-station.net> wrote:
-> > I come across a problem which seem exist in kernel 
-> > 2.4.x but not in 2.2.x.
-> >
-> > The problem is that, when I try to using dd to create 
-> > a ISO image of a cdrom then around dumping the end of 
-> > the disc it will give out the following error message:
-> >
-> > e.g. dd if=/dev/cdrom of=n.iso
+On December 27, 2001 07:14 pm, Andreas Dilger wrote:
+> On Dec 27, 2001  04:21 +0100, Daniel Phillips wrote:
+> > The strategy is to abstract all references to the struct inode union through 
+> > an inline function:
+> > 
+> > 	static inline struct ext2_inode_info *ext2_i (struct inode *inode)
+> > 	{
+> > 		return &(inode->u.ext2_inode_info);
+> > 	}
+> > 
+> > There is some grist here for the mills of language lawyers here.  Note the 
+> > compilation warning:
+> > 
+> >    ialloc.c:336: warning: passing arg 1 of `ext2_i' discards qualifiers from 
+> >    pointer target type
 > 
-> If dd is used like that, it is surprising you do not get
-> more errors. An iso9660 image does not necessarily fill
-> the track. So the IDE equivalent of the SCSI READ CAPACITY 
-> command will often report a size that includes unwritten 
-> sectors at the end. Those unwritten sectors can/will cause
-> IO errors when an attempt is made to read them.
+> Why not just declare ext2_i like the following?  It _should_ work:
 > 
-> A very useful program called "isosize" has made a return to
-> util-linux-2.10s (and later). Execute:
->   isosize -x /dev/cdrom
-> to find the number of sectors and the sector size of the iso9660
-> fs held _within_ the first track. Then use those numbers as the 
-> "count=" and "bs=" arguments to dd respectively.
+> static inline struct ext2_inode_info *ext2_i(const struct inode *inode)
+> {
+> 	return &(inode->u.ext2_inode_info);
+> }
+
+If that's all we do, then we get 'warning: return discards qualifiers from
+pointer target type'.  Adding an explicit cast gets rid of that:
+
+static inline struct ext2_inode_info *ext2_i (const struct inode *inode)
+{
+	return (struct ext2_inode_info *) &(inode->u.ext2_inode_info);
+}
+
+However, then we're lying to the compiler.  I wonder how safe that is.
+
+> Minor nit: this is already done for the ext3 code, but it looks like:
 > 
+> #define EXT3_I	(&((inode)->u.ext3_i))
 > 
-> If you still have problems try turning DMA off via hdparm
-> or set the DMA mode back to 33 MHz (-X34).
+> We already have the EXT3_SB, so I thought I would be consistent with it:
+> 
+> #define EXT3_SB	(&((sb)->u.ext3_sb))
+> 
+> Do people like the inline version better?  Either way, I would like to make
+> the ext2 and ext3 codes more similar, rather than less.
 
-	So, why problem will be happened when using DMA?
+An upcoming version will use an explicit cast:
 
-	Do you mean when not using DMA then the sectors at the end of the
-disc will be auto-filled (padded)? ( I think it is impossible )
+	return (struct ext2_inode_info *) (inode + 1);
 
-	BTW, why kernel 2.2.X will success create the ISO image of the
-same disc with the same command?
+In other words, it doesn't rely on the union, which we're trying to get rid of.
+In this case, an inline function provides type saftey and a macro wouldn't.  I
+also prefer to pass the inode/sb explicitly, rather than having a macro pick it
+up from context.
 
-	Thx your reply!
+In the superblock patch, the inline will be 'ext2_s'.  Al seems comfortable with
+this terminology, so...
 
-
-
+--
+Daniel

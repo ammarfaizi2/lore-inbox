@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbUKTMBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbUKTMBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbUKTMBV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 07:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbUKTL7j
+	id S262767AbUKTMBW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 07:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUKTL7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 06:59:39 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:20117 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262805AbUKTL5E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 06:57:04 -0500
-Date: Sat, 20 Nov 2004 13:59:23 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041120125923.GD8091@elte.hu>
-References: <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125057.03b3d8c4@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041120125057.03b3d8c4@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 20 Nov 2004 06:59:25 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:32231 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262767AbUKTL5r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 06:57:47 -0500
+Message-ID: <419F313C.1010708@free.fr>
+Date: Sat, 20 Nov 2004 12:57:48 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
+Cc: Meelis Roos <mroos@linux.ee>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: [ACPI] Re: [PATCH] smsc-ircc2: Add PnP support.
+References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> <419E3B7A.4000904@free.fr> <Pine.SOC.4.61.0411200102580.12992@math.ut.ee> <20041120114327.GA11797@sci.fi>
+In-Reply-To: <20041120114327.GA11797@sci.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> here are the different layers of preemption:
+Ville Syrjälä wrote:
+> On Sat, Nov 20, 2004 at 01:09:36AM +0200, Meelis Roos wrote:
 > 
->  - !PREEMPT
->  - PREEMPT_VOLUNTARY
->  - PREEMPT
->  - PREEMPT_RT
+>>I tried it with pnpbios (acpi=off) and it started to work after auto and 
+>>activate (but not with auto alone):
+>>
+>>nartsiss:/# modprobe smsc-ircc2
+>>found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
+>>smsc_superio_flat(): IrDA not enabled
+>>smsc_superio_flat(): fir: 0x00, sir: 0x00, dma: 15, irq: 0, mode: 0x02
+>>FATAL: Error inserting smsc_ircc2 
+>>(/lib/modules/2.6.10-rc2/kernel/drivers/net/irda/smsc-ircc2.ko): No such 
+>>device
+>>nartsiss:/# echo activate > resources
+>>pnp: Device 00:0f activated.
+>>nartsiss:/# modprobe smsc-ircc2
+>>found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
+>>smsc_superio_flat(): fir: 0x2e8, sir: 0x100, dma: 03, irq: 5, mode: 0x0e
+>>SMsC IrDA Controller found
+>> IrCC version 2.0, firport 0x2e8, sirport 0x100 dma=3, irq=5
+>>No transceiver found. Defaulting to Fast pin select
+>>IrDA: Registered device irda0
 > 
-> each step forward decreases latencies, at the cost of more runtime
-> overhead.
+> 
+> It is using the legacy probe instead of the pnp probe. Did you actually 
+> apply the pnp patch?
+> 
+No he doesn't use the pnp patch : only latest snapshot for the stable 
+Linux kernel.
 
-yes, and here is how they show up in the config:
+But there is still the problem with pnpacpi that is needed to fixed.
 
-               ( ) No Forced Preemption (Server)
-               ( ) Voluntary Kernel Preemption (Desktop)
-               ( ) Preemptible Kernel (Low-Latency Desktop)
-               (X) Complete Preemption (Real-Time)
+> I'm not entirely sure what has been discussed since somebody removed 
+> me from the CC list...
+> 
 
-measurements are needed to find out how latencies and runtime overhead
-vary between these levels.
-
-	Ingo

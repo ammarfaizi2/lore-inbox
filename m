@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291355AbSB0BmV>; Tue, 26 Feb 2002 20:42:21 -0500
+	id <S291340AbSB0Brb>; Tue, 26 Feb 2002 20:47:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291348AbSB0BmN>; Tue, 26 Feb 2002 20:42:13 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62710
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S291372AbSB0BmA>; Tue, 26 Feb 2002 20:42:00 -0500
-Date: Tue, 26 Feb 2002 17:42:35 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Nicholas Kirsch <nkirsch@insynq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reproducible freeze on 2.4.18
-Message-ID: <20020227014235.GT4393@matchmail.com>
-Mail-Followup-To: Nicholas Kirsch <nkirsch@insynq.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16fsnE-0005RR-00@ark.dev.insynq.com>
+	id <S291372AbSB0BrV>; Tue, 26 Feb 2002 20:47:21 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:30668 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S291340AbSB0BrL>;
+	Tue, 26 Feb 2002 20:47:11 -0500
+Date: Tue, 26 Feb 2002 17:46:57 -0800
+To: Jaroslav Kysela <perex@suse.cz>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH 2.5.5] Conversion of hp100 to new PCI interface
+Message-ID: <20020226174657.A18197@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16fsnE-0005RR-00@ark.dev.insynq.com>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 05:22:04PM -0800, Nicholas Kirsch wrote:
-> Help! Using 2.4.18 (and verified as far back as .9) - I am getting a process freeze when an application does an fsync. Turning off HIGHMEM (the box has 2GB ram) solves the issue. Is there anyone who is interested in learning more about this situation? Please CC to nkirsch@insynq.com. 
+	Hi,
 
-Please try the -aa kernel patch series.
+	I depend on hp100, so I had to fix it and replace all those
+virt_to_bus(). Only tested on a J2585B (PCI Busmaster). Other PCI and
+ISA cards are *not* busmaster, so should not be affected. Some EISA
+cards may be busmaster, but we would need to track down a tester...
+	If the official maintainer doesn't have anything to
+add, it would be nice if it could find its way in the kernel...
+	Have fun...
 
-Also, many people including myself have had better responce from -rmap, but
-you should probably give -aa a try first.
-
-Mike
+	Jean

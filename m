@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbUKWAsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbUKWA4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbUKWAsR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 19:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUKWAsG
+	id S262477AbUKWA4P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 19:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUKWAx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 19:48:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25351 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262456AbUKWAqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 19:46:25 -0500
-Date: Tue, 23 Nov 2004 01:46:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Len Brown <len.brown@intel.com>
-Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-Message-ID: <20041123004619.GQ19419@stusta.de>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de> <1101148138.20008.6.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101148138.20008.6.camel@d845pe>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 22 Nov 2004 19:53:57 -0500
+Received: from c7ns3.center7.com ([216.250.142.14]:17323 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S261242AbUKWAv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 19:51:56 -0500
+Message-ID: <41A28D07.3080109@devicelogics.com>
+Date: Mon, 22 Nov 2004 18:06:15 -0700
+From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+Cc: Lincoln Dale <ltd@cisco.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning   and
+ sickness
+References: <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14> <419E6B44.8050505@devicelogics.com> <419E6B44.8050505@devicelogics.com> <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14> <5.1.0.14.2.20041123094109.04003720@171.71.163.14> <41A2862A.2000602@devicelogics.com>
+In-Reply-To: <41A2862A.2000602@devicelogics.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 01:28:59PM -0500, Len Brown wrote:
->...
-> > BTW: Is all what ACPI does really required, if all I need ACPI for is
-> > to turn the power off after halting my computer?
-> 
-> On this system ACPI is required to configure the IOAPIC.
-> 
-> It may be possible to save power in idle with c-states
-> and at run-time with p-states (cpufreq) on this box,
-> but I couldn't tell that from the dmesg if CONFIG_ACPI_PROCESSOR
-> was included or not.
+Jeff V. Merkey wrote:
 
-It's not.
+>
+> Bryan Sparks says no to open sourcing this code in Linux. Sorry -- I 
+> asked. I am allowed to open source any modifications
+> to public kernel sources like dev.c since we have an obligation to do 
+> so. I will provide source code enhancements for the kernel
+> for anyone who purchases our Linux based appliances and asks for the 
+> source code (so says Bryan Sparks). You can issue a purchase
+> request to Bryan Sparks (bryan@devicelogics.com) if you want any 
+> source code changes for the Linux kernel.
+>
+Lincoln,
 
-> If you don't care about interrupt performance and you don't
-> mind pressing the power button when you halt the system,
-> go ahead and run with CONFIG_ACPI=n.
+Needless to say, we are not open sourcing any of our proprietary 
+technology with the appliances, just the changes to the core
+Linux kernel files as required by the GPL, just to clarify. It comes as 
+a patch to linux-2.6.9 and does not include the appliance
+core systems.
 
-Not needed "pressing the power button when you halt the system" is the 
-"killer application" for using ACPI for me...
-
-> cheers,
-> -Len
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jeff

@@ -1,204 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264898AbSJPGTJ>; Wed, 16 Oct 2002 02:19:09 -0400
+	id <S264895AbSJPGTB>; Wed, 16 Oct 2002 02:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbSJPGTJ>; Wed, 16 Oct 2002 02:19:09 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:7696 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S264898AbSJPGTE>; Wed, 16 Oct 2002 02:19:04 -0400
-Date: Wed, 16 Oct 2002 03:24:49 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ipv4: udp seq_file support: produce only one record per seq_show
-Message-ID: <20021016062449.GC1352@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S264898AbSJPGTB>; Wed, 16 Oct 2002 02:19:01 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:39349 "EHLO
+	kolivas.net") by vger.kernel.org with ESMTP id <S264895AbSJPGTA>;
+	Wed, 16 Oct 2002 02:19:00 -0400
+Message-ID: <1034749489.3dad063203723@kolivas.net>
+Date: Wed, 16 Oct 2002 16:24:50 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.5.43 with contest
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+Here are the latest contest (http://contest.kolivas.net) benchmarks including 2.5.43
 
-	Please pull from:
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [3]              72.0    93      0       0       1.07
+2.5.39 [2]              72.2    93      0       0       1.07
+2.5.40 [1]              72.5    93      0       0       1.08
+2.5.41 [1]              73.8    93      0       0       1.10
+2.5.42 [2]              72.5    93      0       0       1.08
+2.5.42-mm3 [2]          78.1    93      0       0       1.16
+2.5.43 [2]              74.6    92      0       0       1.11
 
-master.kernel.org:/home/acme/BK/net-2.5
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [3]              89.5    74      34      28      1.33
+2.5.39 [2]              91.2    73      36      28      1.36
+2.5.40 [2]              82.8    80      25      23      1.23
+2.5.41 [1]              91.1    73      38      30      1.36
+2.5.42 [1]              98.0    69      44      33      1.46
+2.5.42-mm3 [2]          100.9   69      48      33      1.50
+2.5.43 [2]              99.7    71      44      31      1.48
 
-	Best Regards,
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [1]              97.2    79      1       6       1.45
+2.5.39 [1]              91.8    83      1       6       1.37
+2.5.40 [1]              96.9    80      1       6       1.44
+2.5.41 [1]              93.3    81      1       6       1.39
+2.5.42 [1]              96.7    80      1       7       1.44
+2.5.42-mm3 [2]          96.2    80      1       6       1.43
+2.5.43 [1]              97.6    79      1       7       1.45
 
-- Arnaldo
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [1]              120.5   63      2       8       1.79
+2.5.39 [1]              108.3   69      1       6       1.61
+2.5.40 [1]              110.7   68      1       6       1.65
+2.5.41 [2]              138.8   53      2       8       2.07
+2.5.42 [1]              112.7   66      1       7       1.68
+2.5.42-mm3 [2]          203.0   37      2       7       3.02
+2.5.43 [1]              114.9   67      1       7       1.71
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [1]              4000.0  1       500     1       59.55
+2.5.39 [2]              423.9   18      30      11      6.31
+2.5.40 [1]              315.7   25      22      10      4.70
+2.5.41 [2]              607.5   13      47      12      9.04
+2.5.42 [1]              849.1   9       69      12      12.64
+2.5.42-mm3 [2]          393.1   19      27      11      5.85
+2.5.43 [1]              578.9   13      45      12      8.62
 
-===================================================================
+Difference between 2.5.42 and .43 is likely to be due to lack of enough runs to
+get a real average. They're probably the same (ie. more than the -mm tree).
 
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [2]              100.5   76      9       5       1.50
+2.5.39 [2]              101.3   74      14      6       1.51
+2.5.40 [1]              101.5   73      13      5       1.51
+2.5.41 [1]              101.1   75      7       4       1.51
+2.5.42 [1]              102.0   75      8       5       1.52
+2.5.42-mm3 [2]          107.1   72      6       4       1.59
+2.5.43 [3]              117.3   64      6       3       1.75
 
-ChangeSet@1.858, 2002-10-16 03:11:34-03:00, acme@conectiva.com.br
-  o ipv4: udp seq_file support: produce only one record per seq_show
+This is the only significant difference. Continually reading a large file seems
+to have caused a new slow down.
 
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [1]              99.1    71      1       20      1.48
+2.5.39 [1]              101.3   70      2       24      1.51
+2.5.40 [1]              97.0    72      1       21      1.44
+2.5.41 [1]              93.6    75      1       18      1.39
+2.5.42 [1]              97.5    71      1       20      1.45
+2.5.42-mm3 [2]          97.1    73      1       21      1.45
+2.5.43 [2]              93.0    76      1       18      1.38
 
- ip_proc.c |   74 +++++++++++++++++++++++++++++++++++++++++++++++++-------------
- 1 files changed, 59 insertions(+), 15 deletions(-)
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.38 [3]              107.3   70      34      3       1.60
+2.5.39 [2]              103.1   72      31      3       1.53
+2.5.40 [2]              102.5   72      31      3       1.53
+2.5.41 [1]              101.6   73      30      3       1.51
+2.5.42 [1]              104.0   72      30      3       1.55
+2.5.42-mm3 [2]          109.6   67      27      2       1.63
+2.5.43 [1]              102.0   75      28      2       1.52
 
+Hardware: 1133Mhz P3 with 224Mb Ram, 5400rpm ATA100 HD with reiserFS. IO loads
+on same disk as kernel compile.
 
-diff -Nru a/net/ipv4/ip_proc.c b/net/ipv4/ip_proc.c
---- a/net/ipv4/ip_proc.c	Wed Oct 16 03:17:17 2002
-+++ b/net/ipv4/ip_proc.c	Wed Oct 16 03:17:17 2002
-@@ -198,16 +198,64 @@
- 
- /* ------------------------------------------------------------------------ */
- 
-+#define UDP_HASH_POS_BITS (sizeof(loff_t) * 8 - 8)
-+#define UDP_HASH_BITS (((loff_t)127) << UDP_HASH_POS_BITS)
-+#define UDP_HASH_BUCKET(p) ((p & UDP_HASH_BITS) >> UDP_HASH_POS_BITS)
-+
-+static __inline__ struct sock *udp_get_bucket(struct seq_file *seq, loff_t *pos)
-+{
-+	struct sock *sk = NULL;
-+	loff_t ppos = *pos & ~UDP_HASH_BITS, l = ppos;
-+	loff_t bucket = UDP_HASH_BUCKET(*pos);
-+
-+	for (; bucket < UDP_HTABLE_SIZE; ++bucket)
-+		for (sk = udp_hash[bucket]; sk; sk = sk->next) {
-+			if (sk->family != PF_INET)
-+				continue;
-+			if (l--)
-+				continue;
-+			*pos = (bucket << UDP_HASH_POS_BITS) | ppos;
-+			/*
-+			 * temporary HACK till we have a solution to
-+			 * get more state passed to seq_show -acme
-+			 */
-+			seq->private = (void *)(int)bucket;
-+			goto out;
-+		}
-+out:
-+	return sk;
-+}
-+
- static void *udp_seq_start(struct seq_file *seq, loff_t *pos)
- {
- 	read_lock(&udp_hash_lock);
--	return (void *)(unsigned long)++*pos;
-+	return *pos ? udp_get_bucket(seq, pos) : (void *)1;
- }
- 
- static void *udp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	return (void *)(unsigned long)((++*pos) >=
--				       (UDP_HTABLE_SIZE - 1) ? 0 : *pos);
-+	int next_bucket;
-+	struct sock *sk;
-+
-+	if (v == (void *)1) {
-+		sk = udp_get_bucket(seq, pos);
-+		goto out;
-+	}
-+
-+	sk = v;
-+	sk = sk->next;
-+	if (sk) 
-+		goto out;
-+
-+	next_bucket = UDP_HASH_BUCKET(*pos) + 1;
-+	if (next_bucket >= UDP_HTABLE_SIZE) 
-+		goto out;
-+
-+	*pos = (loff_t)next_bucket << UDP_HASH_POS_BITS;
-+	sk = udp_get_bucket(seq, pos);
-+out:
-+	++*pos;
-+	return sk;
- }
- 
- static void udp_seq_stop(struct seq_file *seq, void *v)
-@@ -215,7 +263,7 @@
- 	read_unlock(&udp_hash_lock);
- }
- 
--static void udp_format_sock(struct sock *sp, char *tmpbuf, int i)
-+static void udp_format_sock(struct sock *sp, char *tmpbuf, int bucket)
- {
- 	struct inet_opt *inet = inet_sk(sp);
- 	unsigned int dest = inet->daddr;
-@@ -225,7 +273,7 @@
- 
- 	sprintf(tmpbuf, "%4d: %08X:%04X %08X:%04X"
- 		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %p",
--		i, src, srcp, dest, destp, sp->state, 
-+		bucket, src, srcp, dest, destp, sp->state, 
- 		atomic_read(&sp->wmem_alloc), atomic_read(&sp->rmem_alloc),
- 		0, 0L, 0, sock_i_uid(sp), 0, sock_i_ino(sp),
- 		atomic_read(&sp->refcnt), sp);
-@@ -233,19 +281,15 @@
- 
- static int udp_seq_show(struct seq_file *seq, void *v)
- {
--	char tmpbuf[129];
--	struct sock *sk;
--	unsigned long l = (unsigned long)v - 1;
--
--	if (!l)
-+	if (v == (void *)1)
- 		seq_printf(seq, "%-127s\n",
- 			   "  sl  local_address rem_address   st tx_queue "
--			   "rx_queue tr tm->when retrnsmt   uid  timeout inode");
-+			   "rx_queue tr tm->when retrnsmt   uid  timeout "
-+			   "inode");
-+	else {
-+		char tmpbuf[129];
- 
--	for (sk = udp_hash[l]; sk; sk = sk->next) {
--		if (sk->family != PF_INET)
--			continue;
--		udp_format_sock(sk, tmpbuf, l);
-+		udp_format_sock(v, tmpbuf, (int)seq->private);
- 		seq_printf(seq, "%-127s\n", tmpbuf);
- 	}
- 	return 0;
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.858
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch21667
-M'XL(`&T$K3T``\U6VW+:2!!]UGQ%KUVUQ4V@T04$!#:^9>VR*Z%\>=EL2B5+
-M0U"!-(IFA.-=LM^^/1+"8)-4>2L/RT4CU-UGNON<ECB$.\&R@>8',2.'<,Z%
-M'&@!3U@@HZ7?#GC<OL_0<,TY&CHS'K/.\64G85(WVPY!R\27P0R6+!,#C;:M
-MS17YF+*!=GWV^]W5T34AHQ&<S/SD,[MA$D8C(GFV]!>A>.O+V8(G;9GYB8B9
-M+/9<;5Q7IF&8^'9HSS*<[HIV#;NW"FA(J6]3%AJF[7;M)S25X`^QJ($0EMFW
-M>BO'L&V3G`)MNXX+AMFA1H=VP;`&E`XL6\<3PP#5F;?/.P)-"KI!CN'GEG%"
-M`N`0I4M[`'F8@F!?O&FT8"#R-.69'$":\3`/&/!D\8@'!AD+>!9"RK+"6\SX
-M`[D$+*W;)Y.GEA/]E2]"#-\@X_WEKY#_CDH3#QZF%+2#JKF4=AW'LE:&T<,Z
-M`]=T7<N9NJ;5M>Y-Y]5P7:-K]*F+7/5[;J&BE[Y*3C\WS5?#V?AQ3+JR3=LQ
-M"DDY.X(R^@/J_EA03A]TZOR?):48^`!Z]E!\4"*3/63\!Z%=8"5@NN0P9-,(
-M][\[G7CG1S?GWN3#C7=\<7L#-1']Q?BTMN#3J2?KT``7='#K+T-*]UKE2<U>
-M'=Z\>0FY+_3NY/+LMI;6,3Z%7W<QZS`>[T/YDPCIRR@`SXN2!>)Y'@B9Y8$$
-MP8,Y-+#GWF<FO?L\F#-9JVP5"PT\:T&9+312+NKD;Z+M((@YC.#]W=75D&AK
-M1V1.X$7ECXG^LY,IHJ%)>3SYEYOCY>?%%CL.L0IMRC.H#2O/=<=NCXZOSKR;
-MBS_.AM!LEK8ZT4KG(B]5WLP7LX^E\=,0Q%Q]T23F^CAA7Y$NK$C3HJD*T<=3
-M/XY0:+^,8/+.NWA_=JL`-?7,D5&2LV'EN]#U/99&67FMRG,?M;"JRM>T3D,=
-M43"2Q2AW/WN$\Z.32Y#18@$/#&;^DH&/G5[D,N()#M_:'SF#F&<X)\@O@]07
-M@H5HWHP$Z,4SL_#NJ`4-^CC-<*;1'U-<\BB$1KT6);)>IEMD])DC",^+']\(
-MG@R(EC&99XEJ'?F&9)R:A@U4S85:*FM1^F_P7%!*/XI%&&RVI$,%T0<3(2B.
-MEDDT3`(4&=XFDV<:*T2@^K[$V^D34DG>ANI]&ZM"MHI2!90!R^'ZI%+"D*Q5
-M4(>=&`S8RNU[,H4FT#7"MO=X]%RK+]$KU:SO"MOA^Q14Y?W]BDO:FLU&J;,M
-M_DY-ZA;<%<OZYE!T4Z'AX,2^]%33:[L$I"T(9GX&#1FG]_FT!8JQ:N).3;,$
-M+19-*Z^W0&1!<<#@D`E9'O&'2/5QH=L68*S5!0=C;4/%[J$876RK@,?%+A0-
-M<)!]];[D+&<@,Y"Q/GZ8L00?#3+#AY%$AQRC<8QBAKV`@RHJ2GC(#I0FV$*P
-M0CQ%6655'ZG9_Z1Z9#NX$>Y7EO.\,\L65%THIF=[LA!Z\Q<SF+%@+O)X%#(?
-._RJXC/P+OD48;L\*````
-`
-end
+Con.

@@ -1,911 +1,621 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbUKRLFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbUKRLJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbUKRLFL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 06:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbUKRLFK
+	id S262734AbUKRLJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 06:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbUKRLJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 06:05:10 -0500
-Received: from lucidpixels.com ([66.45.37.187]:10635 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S262732AbUKRLAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 06:00:43 -0500
-Date: Thu, 18 Nov 2004 06:00:36 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.10-rc2 cannot boot system.
-Message-ID: <Pine.LNX.4.61.0411180557030.31405@p500>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463747160-339141392-1100775636=:31405"
+	Thu, 18 Nov 2004 06:09:36 -0500
+Received: from mail.renesas.com ([202.234.163.13]:34300 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262732AbUKRLHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 06:07:08 -0500
+Date: Thu, 18 Nov 2004 20:06:50 +0900 (JST)
+Message-Id: <20041118.200650.1059965981.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rddunlap@osdl.org, takata@linux-m32r.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc2-bk1] media: Update drivers/media/video/arv.c
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <419B7D9B.9050302@osdl.org>
+References: <20041117.153201.27776357.takata.hirokazu@renesas.com>
+	<419B7D9B.9050302@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+I made an additional patch for drivers/media/video/arv.c
+based on Randy's comment.
+  # Many thanks for kind comment, Randy.
 
----1463747160-339141392-1100775636=:31405
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Please apply.
 
-System: Dell Optiplex GX1p (500MHZ)
-When I boot the 2.6.10-rc2 kernel from LILO, the machine reboots.
-The config is attached.
+ 	* drivers/media/video/arv.c:
+	- Fix color correction parameters.
+	- Add inline functions; wait_for_vsync(), wait_acknowledge(),
+	  disable_dma(), enable_dma() and clear_dma_status().
+	- Change c++-style comments to c-style comment.
+	- Add cpu_relax() to "for" and "while" busy loops.
+ 	- Fix more white-space damages.
+	- Fix typos.
 
-I have not had the problem with any previous -pre or -rc candidate in the 
-2.6 series on this hardware.
+Regards,
 
-Other information:
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
+ arv.c |  294 +++++++++++++++++++++++++++++++++++++-----------------------------
+ 1 files changed, 166 insertions(+), 128 deletions(-)
 
 
-            CPU0
-   0:    4020154          XT-PIC  timer
-   1:          8          XT-PIC  i8042
-   2:          0          XT-PIC  cascade
-   5:          0          XT-PIC  Crystal audio controller
-   8:          1          XT-PIC  rtc
-   9:          0          XT-PIC  acpi
-  11:       1360          XT-PIC  eth0
-  12:         66          XT-PIC  i8042
-  14:       2384          XT-PIC  ide0
-  15:         18          XT-PIC  ide1
-NMI:          0 
-LOC:          0 
-ERR:          0
-MIS:          0
-Linux version 2.6.9 (root@p500b) (gcc version 3.3.4) #1 Sat Nov 13 11:16:47 EST 2004
-BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
-  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-  BIOS-e820: 0000000000100000 - 0000000013ffe000 (usable)
-  BIOS-e820: 0000000013ffe000 - 0000000014000000 (reserved)
-  BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
-319MB LOWMEM available.
-On node 0 totalpages: 81918
-   DMA zone: 4096 pages, LIFO batch:1
-   Normal zone: 77822 pages, LIFO batch:16
-   HighMem zone: 0 pages, LIFO batch:1
-DMI 2.2 present.
-ACPI: RSDP (v000 DELL                                  ) @ 0x000fdf50
-ACPI: RSDT (v001 DELL    GX1     0x00000002 ASL  0x00000061) @ 0x000fdf64
-ACPI: FADT (v001 DELL    GX1     0x00000002 ASL  0x00000061) @ 0x000fdf8c
-ACPI: DSDT (v001   DELL    dt_ex 0x00001000 MSFT 0x0100000b) @ 0x00000000
-Built 1 zonelists
-Kernel command line: auto BOOT_IMAGE=2.6.9-1 ro root=303 cs4232=0x530,5,1,0,388,5 mce video=atyfb:1600x1200-16@60
-No local APIC present or hardware disabled
-Initializing CPU#0
-PID hash table entries: 2048 (order: 11, 32768 bytes)
-Detected 498.664 MHz processor.
-Using tsc for high-res timesource
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Memory: 319312k/327672k available (3140k kernel code, 7764k reserved, 809k data, 420k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay loop... 983.04 BogoMIPS (lpj=491520)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-CPU: After generic identify, caps: 0383f9ff 00000000 00000000 00000000
-CPU: After vendor identify, caps:  0383f9ff 00000000 00000000 00000000
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 512K
-CPU: After all inits, caps:        0383f9ff 00000000 00000000 00000040
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: Intel Pentium III (Katmai) stepping 03
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-ACPI: IRQ9 SCI: Edge set to Level Trigger.
-NET: Registered protocol family 16
-PCI: PCI BIOS revision 2.10 entry at 0xfcaee, last bus=2
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20040816
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 *10 11 12 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 10 11 12 15) *0, disabled.
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 11 12 15) *0, disabled.
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-PCI: Using ACPI for IRQ routing
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-ACPI: PCI interrupt 0000:00:07.2[D] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 10
-ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 10 (level, low) -> IRQ 10
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-SGI XFS with ACLs, security attributes, realtime, no debug enabled
-SGI XFS Quota Management subsystem
-Initializing Cryptographic API
-Limiting direct PCI/PCI transfers.
-atyfb: 3D RAGE PRO (BGA, AGP) [0x4742 rev 0x7c] 8M SGRAM, 14.31818 MHz XTAL, 230 MHz PLL, 100 Mhz MCLK
-Console: switching to colour frame buffer device 200x75
-fb0: ATY Mach64 frame buffer device on PCI
-Real Time Clock Driver v1.12
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected an Intel 440BX Chipset.
-agpgart: Maximum main memory to use for agp memory: 262M
-agpgart: AGP aperture is 64M @ 0xf4000000
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 6 ports, IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-Using anticipatory io scheduler
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a National Semiconductor PC87306
-loop: loaded (max 8 devices)
-nbd: registered device at major 43
-Intel(R) PRO/1000 Network Driver - version 5.3.19-k2-NAPI
-Copyright (c) 1999-2004 Intel Corporation.
-ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 11 (level, low) -> IRQ 11
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:11.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xdc00. Vers LK1.1.19
-Linux video capture interface: v1.00
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: Maxtor 91024U4, ATA DISK drive
-hdb: Maxtor 91024D4, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
-hdd: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
-ide-probe: ignoring undecoded slave
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 19999728 sectors (10239 MB) w/2048KiB Cache, CHS=19841/16/63, UDMA(33)
-hda: cache flushes not supported
-  hda: hda1 hda2 hda3
-hdb: max request size: 128KiB
-hdb: 19999728 sectors (10239 MB) w/512KiB Cache, CHS=19841/16/63, UDMA(33)
-hdb: cache flushes not supported
-  hdb:
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard on isa0060/serio0
-input: PS/2 Generic Mouse on isa0060/serio1
-input: PC Speaker
-<Crystal audio controller (CS4236B)> at 0x530 irq 5 dma 1,0
-uart401: Failed to allocate IRQ5
-<MPU-401 (UART) MIDI> at 0x184 irq 5
-ad1848/cs4248 codec driver Copyright (C) by Hannu Savolainen 1993-1996
-NET: Registered protocol family 2
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 32768 bind 65536)
-ip_conntrack version 2.1 (2559 buckets, 20472 max) - 332 bytes per conntrack
-ip_tables: (C) 2000-2002 Netfilter core team
-ipt_recent v0.3.1: Stephen Frost <sfrost@snowman.net>.  http://snowman.net/projects/ipt_recent/
-arp_tables: (C) 2002 David S. Miller
-NET: Registered protocol family 1
-NET: Registered protocol family 10
-IPv6 over IPv4 tunneling driver
-ip6_tables: (C) 2000-2002 Netfilter core team
-registering ipv6 mark target
-NET: Registered protocol family 17
-UDF-fs: No VRS found
-XFS mounting filesystem hda3
-Ending clean XFS mount for filesystem: hda3
-VFS: Mounted root (xfs filesystem) readonly.
-Freeing unused kernel memory: 420k freed
-Adding 626524k swap on /dev/hda2.  Priority:-1 extents:1
-XFS mounting filesystem hda1
-Ending clean XFS mount for filesystem: hda1
-eth0: no IPv6 routers present
----1463747160-339141392-1100775636=:31405
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="config-2.6.10-rc2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0411180600360.31405@p500>
-Content-Description: 
-Content-Disposition: attachment; filename="config-2.6.10-rc2"
+diff -ruNp a/drivers/media/video/arv.c b/drivers/media/video/arv.c
+--- a/drivers/media/video/arv.c	2004-11-17 15:11:17.000000000 +0900
++++ b/drivers/media/video/arv.c	2004-11-18 19:09:18.000000000 +0900
+@@ -54,7 +54,7 @@
+  */
+ #define USE_INT		0	/* Don't modify */
+ 
+-#define VERSION	"0.02"
++#define VERSION	"0.03"
+ 
+ #define ar_inl(addr) 		inl((unsigned long)(addr))
+ #define ar_outl(val, addr)	outl((unsigned long)(val),(unsigned long)(addr))
+@@ -89,12 +89,12 @@ extern struct cpuinfo_m32r	boot_cpu_data
+ #define MAX_AR_LINE_BYTES	AR_LINE_BYTES_VGA
+ 
+ /* frame size & type */
+-#define AR_FRAME_BYTES_VGA	(AR_WIDTH_VGA * AR_HEIGHT_VGA * \
+-				 AR_BYTES_PER_PIXEL)
+-#define AR_FRAME_BYTES_QVGA	(AR_WIDTH_QVGA * AR_HEIGHT_QVGA * \
+-				 AR_BYTES_PER_PIXEL)
+-#define MAX_AR_FRAME_BYTES	(MAX_AR_WIDTH * MAX_AR_HEIGHT * \
+-				 AR_BYTES_PER_PIXEL)
++#define AR_FRAME_BYTES_VGA \
++	(AR_WIDTH_VGA * AR_HEIGHT_VGA * AR_BYTES_PER_PIXEL)
++#define AR_FRAME_BYTES_QVGA \
++	(AR_WIDTH_QVGA * AR_HEIGHT_QVGA * AR_BYTES_PER_PIXEL)
++#define MAX_AR_FRAME_BYTES \
++	(MAX_AR_WIDTH * MAX_AR_HEIGHT * AR_BYTES_PER_PIXEL)
+ 
+ #define AR_MAX_FRAME		15
+ 
+@@ -108,13 +108,13 @@ extern struct cpuinfo_m32r	boot_cpu_data
+ 
+ struct ar_device {
+ 	struct video_device *vdev;
+-	unsigned int start_capture;		// duaring capture in INT. mode.
++	unsigned int start_capture;	/* duaring capture in INT. mode. */
+ #if USE_INT
+-	unsigned char *line_buff;		// DMA line buffer
++	unsigned char *line_buff;	/* DMA line buffer */
+ #endif
+-	unsigned char *frame[MAX_AR_HEIGHT];	// frame data
+-	short size;				// capture size
+-	short mode;				// capture mode
++	unsigned char *frame[MAX_AR_HEIGHT];	/* frame data */
++	short size;			/* capture size */
++	short mode;			/* capture mode */
+ 	int width, height;
+ 	int frame_bytes, line_bytes;
+ 	wait_queue_head_t wait;
+@@ -126,7 +126,7 @@ static unsigned char	yuv[MAX_AR_FRAME_BY
+ 
+ /* module parameters */
+ /* default frequency */
+-#define DEFAULT_FREQ	50	// 50 or 75 (MHz) is available as BCLK
++#define DEFAULT_FREQ	50	/* 50 or 75 (MHz) is available as BCLK */
+ static int freq = DEFAULT_FREQ;	/* BCLK: available 50 or 75 (MHz) */
+ static int vga = 0;		/* default mode(0:QVGA mode, other:VGA mode) */
+ static int vga_interlace = 0;	/* 0 is normal mode for, else interlace mode */
+@@ -136,64 +136,68 @@ module_param(vga_interlace, bool, 0644);
+ 
+ static int ar_initialize(struct video_device *dev);
+ 
++static inline void wait_for_vsync(void)
++{
++	while (ar_inl(ARVCR0) & ARVCR0_VDS)	/* wait for VSYNC */
++		cpu_relax();
++	while (!(ar_inl(ARVCR0) & ARVCR0_VDS))	/* wait for VSYNC */
++		cpu_relax();
++}
++
++static inline void wait_acknowledge(void)
++{
++	int i;
++
++	for (i = 0; i < 1000; i++)
++		cpu_relax();
++	while (ar_inl(PLDI2CSTS) & PLDI2CSTS_NOACK)
++		cpu_relax();
++}
++
+ /*******************************************************************
+  * I2C functions
+  *******************************************************************/
+-void iic(int n, unsigned long addr, unsigned long data1, unsigned long data2, unsigned long data3)
++void iic(int n, unsigned long addr, unsigned long data1, unsigned long data2,
++	 unsigned long data3)
+ {
+ 	int i;
+ 
+ 	/* Slave Address */
+ 	ar_outl(addr, PLDI2CDATA);
++	wait_for_vsync();
+ 
+-	while ( ar_inl(ARVCR0) & ARVCR0_VDS ); 	  // wait for VSYNC
+-	while ( !(ar_inl(ARVCR0) & ARVCR0_VDS) ); // wait for VSYNC
+ 	/* Start */
+ 	ar_outl(1, PLDI2CCND);
++	wait_acknowledge();
+ 
+-	for(i=0; i<1000; i++);
+-	while( ar_inl(PLDI2CSTS) & PLDI2CSTS_NOACK );
+-
+-	/* Trasfer data 1 */
++	/* Transfer data 1 */
+ 	ar_outl(data1, PLDI2CDATA);
+-	while ( ar_inl(ARVCR0) & ARVCR0_VDS ); 	  // wait for VSYNC
+-	while ( !(ar_inl(ARVCR0) & ARVCR0_VDS) ); // wait for VSYNC
++	wait_for_vsync();
+ 	ar_outl(PLDI2CSTEN_STEN, PLDI2CSTEN);
++	wait_acknowledge();
+ 
+-	/* Ack wait */
+-	for(i=0; i<1000; i++);
+-	while( ar_inl(PLDI2CSTS) & PLDI2CSTS_NOACK );
+-
+-	/* Trasfer data 2 */
++	/* Transfer data 2 */
+ 	ar_outl(data2, PLDI2CDATA);
+-	while ( ar_inl(ARVCR0) & ARVCR0_VDS ); 	  // wait for VSYNC
+-	while ( !(ar_inl(ARVCR0) & ARVCR0_VDS) ); // wait for VSYNC
++	wait_for_vsync();
+ 	ar_outl(PLDI2CSTEN_STEN, PLDI2CSTEN);
++	wait_acknowledge();
+ 
+-	/* Ack wait */
+-	for(i=0; i<1000; i++);
+-
+-	while( ar_inl(PLDI2CSTS) & PLDI2CSTS_NOACK );
+-
+-	if(n==3){
+-		/* Trasfer data 3 */
++	if (n == 3) {
++		/* Transfer data 3 */
+ 		ar_outl(data3, PLDI2CDATA);
+-		while ( ar_inl(ARVCR0) & ARVCR0_VDS );    // wait for VSYNC
+-		while ( !(ar_inl(ARVCR0) & ARVCR0_VDS) ); // wait for VSYNC
++		wait_for_vsync();
+ 		ar_outl(PLDI2CSTEN_STEN, PLDI2CSTEN);
+-
+-		/* Ack wait */
+-		for(i=0; i<10000; i++);
+-
+-		while( ar_inl(PLDI2CSTS) & PLDI2CSTS_NOACK );
++		wait_acknowledge();
+ 	}
+ 
+ 	/* Stop */
+-	for(i=0; i<100; i++);
++	for (i = 0; i < 100; i++)
++		cpu_relax();
+ 	ar_outl(2, PLDI2CCND);
+ 	ar_outl(2, PLDI2CCND);
+ 
+-	while( ar_inl(PLDI2CSTS) & PLDI2CSTS_BB );
++	while (ar_inl(PLDI2CSTS) & PLDI2CSTS_BB)
++		cpu_relax();
+ }
+ 
+ 
+@@ -216,7 +220,7 @@ void init_iic(void)
+ 	} else if (freq == 50) {
+ 		ar_outl(244, PLDI2CFREQ);	/* BCLK = 50MHz */
+ 	} else {
+-		ar_outl(244, PLDI2CFREQ);	/* default:BCLK = 50MHz */
++		ar_outl(244, PLDI2CFREQ);	/* default: BCLK = 50MHz */
+ 	}
+ 	ar_outl(0x1, PLDI2CCR); 		/* I2CCR Enable */
+ }
+@@ -226,6 +230,22 @@ void init_iic(void)
+  * Video4Linux Interface functions
+  *
+  **************************************************************************/
++
++static inline void disable_dma(void)
++{
++	ar_outl(0x8000, M32R_DMAEN_PORTL);	/* disable DMA0 */
++}
++
++static inline void enable_dma(void)
++{
++	ar_outl(0x8080, M32R_DMAEN_PORTL);	/* enable DMA0 */
++}
++
++static inline void clear_dma_status(void)
++{
++	ar_outl(0x8000, M32R_DMAEDET_PORTL);	/* clear status */
++}
++
+ static inline void wait_for_vertical_sync(int exp_line)
+ {
+ #if CHECK_LOST
+@@ -233,16 +253,18 @@ static inline void wait_for_vertical_syn
+ 	int l;
+ 
+ 	/*
+-	 * check HCOUNT because we can not check vertual sync.
++	 * check HCOUNT because we cannot check vertical sync.
+ 	 */
+ 	for (; tmout >= 0; tmout--) {
+ 		l = ar_inl(ARVHCOUNT);
+-		if (l == exp_line) break;
++		if (l == exp_line)
++			break;
+ 	}
+ 	if (tmout < 0)
+ 		printk("arv: lost %d -> %d\n", exp_line, l);
+ #else
+-	while (ar_inl(ARVHCOUNT) != exp_line) ;
++	while (ar_inl(ARVHCOUNT) != exp_line)
++		cpu_relax();
+ #endif
+ }
+ 
+@@ -262,24 +284,26 @@ static ssize_t ar_read(struct file *file
+ 
+ 	DEBUG(1, "ar_read()\n");
+ 
+-	if (ar->size == AR_SIZE_QVGA) arvcr1 |= ARVCR1_QVGA;
+-	if (ar->mode == AR_MODE_NORMAL) arvcr1 |= ARVCR1_NORMAL;
++	if (ar->size == AR_SIZE_QVGA)
++		arvcr1 |= ARVCR1_QVGA;
++	if (ar->mode == AR_MODE_NORMAL)
++		arvcr1 |= ARVCR1_NORMAL;
+ 
+ 	down(&ar->lock);
+ 
+ #if USE_INT
+ 	local_irq_save(flags);
+-	ar_outl(0x80000, M32R_DMAEN_PORTL);		// disable DMA0
++	disable_dma();
+ 	ar_outl(0xa1871300, M32R_DMA0CR0_PORTL);
+ 	ar_outl(0x01000000, M32R_DMA0CR1_PORTL);
+ 
+-	// set AR FIFO address as source(BSEL5)
+-	ar_outl(ARDATA32, M32R_DMA0CSA_PORTL);		//
+-	ar_outl(ARDATA32, M32R_DMA0RSA_PORTL);		//
+-	ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);	// destination address
+-	ar_outl(ar->line_buff, M32R_DMA0RDA_PORTL); 	// reload address
+-	ar_outl(ar->line_bytes, M32R_DMA0CBCUT_PORTL); 	// byte count(bytes)
+-	ar_outl(ar->line_bytes, M32R_DMA0RBCUT_PORTL); 	// reload count (bytes)
++	/* set AR FIFO address as source(BSEL5) */
++	ar_outl(ARDATA32, M32R_DMA0CSA_PORTL);
++	ar_outl(ARDATA32, M32R_DMA0RSA_PORTL);
++	ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);	/* destination addr. */
++	ar_outl(ar->line_buff, M32R_DMA0RDA_PORTL); 	/* reload address */
++	ar_outl(ar->line_bytes, M32R_DMA0CBCUT_PORTL); 	/* byte count (bytes) */
++	ar_outl(ar->line_bytes, M32R_DMA0RBCUT_PORTL); 	/* reload count (bytes) */
+ 
+ 	/*
+ 	 * Okey , kicks AR LSI to invoke an interrupt
+@@ -297,7 +321,7 @@ static ssize_t ar_read(struct file *file
+ #else	/* ! USE_INT */
+ 	/* polling */
+ 	ar_outl(arvcr1, ARVCR1);
+-	ar_outl(0x80000, M32R_DMAEN_PORTL);		// disable DMA0
++	disable_dma();
+ 	ar_outl(0x8000, M32R_DMAEDET_PORTL);
+ 	ar_outl(0xa0861300, M32R_DMA0CR0_PORTL);
+ 	ar_outl(0x01000000, M32R_DMA0CR1_PORTL);
+@@ -307,7 +331,8 @@ static ssize_t ar_read(struct file *file
+ 	ar_outl(ar->line_bytes, M32R_DMA0RBCUT_PORTL);
+ 
+ 	local_irq_save(flags);
+-	while (ar_inl(ARVHCOUNT) != 0) ; // wait for 0
++	while (ar_inl(ARVHCOUNT) != 0)		/* wait for 0 */
++		cpu_relax();
+ 	if (ar->mode == AR_MODE_INTERLACE && ar->size == AR_SIZE_VGA) {
+ 		for (h = 0; h < ar->height; h++) {
+ 			wait_for_vertical_sync(h);
+@@ -316,20 +341,22 @@ static ssize_t ar_read(struct file *file
+ 			else
+ 				l = (((h - (AR_HEIGHT_VGA/2)) << 1) + 1);
+ 			ar_outl(virt_to_phys(ar->frame[l]), M32R_DMA0CDA_PORTL);
+-			ar_outl(0x8080, M32R_DMAEN_PORTL);	// enable DMA0
+-			while (!(ar_inl(M32R_DMAEDET_PORTL) & 0x8000)) ;
+-			ar_outl(0x80000, M32R_DMAEN_PORTL);	// disable DMA0
+-			ar_outl(0x8000, M32R_DMAEDET_PORTL);	// clear status
++			enable_dma();
++			while (!(ar_inl(M32R_DMAEDET_PORTL) & 0x8000))
++				cpu_relax();
++			disable_dma();
++			clear_dma_status();
+ 			ar_outl(0xa0861300, M32R_DMA0CR0_PORTL);
+ 		}
+ 	} else {
+ 		for (h = 0; h < ar->height; h++) {
+ 			wait_for_vertical_sync(h);
+ 			ar_outl(virt_to_phys(ar->frame[h]), M32R_DMA0CDA_PORTL);
+-			ar_outl(0x8080, M32R_DMAEN_PORTL);	// enable DMA0
+-			while (!(ar_inl(M32R_DMAEDET_PORTL) & 0x8000)) ;
+-			ar_outl(0x80000, M32R_DMAEN_PORTL);	// disable DMA0
+-			ar_outl(0x8000, M32R_DMAEDET_PORTL);	// clear status
++			enable_dma();
++			while (!(ar_inl(M32R_DMAEDET_PORTL) & 0x8000))
++				cpu_relax();
++			disable_dma();
++			clear_dma_status();
+ 			ar_outl(0xa0861300, M32R_DMA0CR0_PORTL);
+ 		}
+ 	}
+@@ -426,8 +453,8 @@ static int ar_do_ioctl(struct inode *ino
+ 	{
+ 		struct video_window *w = arg;
+ 		DEBUG(1, "VIDIOCSWIN:\n");
+-		if(w->width != AR_WIDTH_QVGA && w->height != AR_HEIGHT_QVGA)
+-			if(w->width != AR_WIDTH_VGA && w->height != AR_HEIGHT_VGA)
++		if ((w->width != AR_WIDTH_VGA || w->height != AR_HEIGHT_VGA) &&
++		    (w->width != AR_WIDTH_QVGA || w->height != AR_HEIGHT_QVGA))
+ 				return -EINVAL;
+ 
+ 		down(&ar->lock);
+@@ -514,7 +541,8 @@ static int ar_do_ioctl(struct inode *ino
+ 	return 0;
+ }
+ 
+-static int ar_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
++static int ar_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
++		    unsigned long arg)
+ {
+ 	return video_usercopy(inode, file, cmd, arg, ar_do_ioctl);
+ }
+@@ -530,7 +558,7 @@ static void ar_interrupt(int irq, void *
+ 	unsigned int line_number;
+ 	unsigned int arvcr1;
+ 
+-	line_count = ar_inl(ARVHCOUNT);			// line number
++	line_count = ar_inl(ARVHCOUNT);			/* line number */
+ 	if (ar->mode == AR_MODE_INTERLACE && ar->size == AR_SIZE_VGA) {
+ 		/* operations for interlace mode */
+ 		if ( line_count < (AR_HEIGHT_VGA/2) )	/* even line */
+@@ -547,17 +575,21 @@ static void ar_interrupt(int irq, void *
+ 		 * It is an interrupt for line 0.
+ 		 * we have to start capture.
+ 		 */
+-		ar_outl(0x8000, M32R_DMAEN_PORTL);		// disable DMA0
+-		//ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);	// needless?
++		disable_dma();
++#if 0
++		ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);	/* needless? */
++#endif
+ 		memcpy(ar->frame[0], ar->line_buff, ar->line_bytes);
+-		//ar_outl(0xa1861300, M32R_DMA0CR0_PORTL);
+-		ar_outl(0x8080, M32R_DMAEN_PORTL);		// enable DMA0
+-		ar->start_capture = 1;				// during capture
++#if 0
++		ar_outl(0xa1861300, M32R_DMA0CR0_PORTL);
++#endif
++		enable_dma();
++		ar->start_capture = 1;			/* during capture */
+ 		return;
+ 	}
+ 
+ 	if (ar->start_capture == 1 && line_number <= (ar->height - 1)) {
+-		ar_outl(0x8000, M32R_DMAEN_PORTL);		// disable DMA0
++		disable_dma();
+ 		memcpy(ar->frame[line_number], ar->line_buff, ar->line_bytes);
+ 
+ 		/*
+@@ -570,13 +602,15 @@ static void ar_interrupt(int irq, void *
+ 
+ 			/* disable AR interrupt request */
+ 			arvcr1 = ar_inl(ARVCR1);
+-			arvcr1 &= ~ARVCR1_HIEN;		// clear int. flag
+-			ar_outl(arvcr1, ARVCR1);	// disable
++			arvcr1 &= ~ARVCR1_HIEN;		/* clear int. flag */
++			ar_outl(arvcr1, ARVCR1);	/* disable */
+ 			wake_up_interruptible(&ar->wait);
+ 		} else {
+-			//ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);
+-			//ar_outl(0xa1861300, M32R_DMA0CR0_PORTL);
+-			ar_outl(0x8080, M32R_DMAEN_PORTL);		// enable DMA
++#if 0
++			ar_outl(ar->line_buff, M32R_DMA0CDA_PORTL);
++			ar_outl(0xa1861300, M32R_DMA0CR0_PORTL);
++#endif
++			enable_dma();
+ 		}
+ 	}
+ }
+@@ -602,16 +636,20 @@ static int ar_initialize(struct video_de
+ 	/*
+ 	 * initialize AR LSI
+ 	 */
+-	ar_outl(0, ARVCR0);		// assert reset of AR LSI
+-	for( i=0; i<0x18; i++);		// wait for over 10 cycles @ 27MHz
+-	ar_outl(ARVCR0_RST, ARVCR0);	// negate reset of AR LSI (enable)
+-	for( i=0; i<0x40d; i++);	// wait for over 420 cycles @ 27MHz
++	ar_outl(0, ARVCR0);		/* assert reset of AR LSI */
++	for (i = 0; i < 0x18; i++)	/* wait for over 10 cycles @ 27MHz */
++		cpu_relax();
++	ar_outl(ARVCR0_RST, ARVCR0);	/* negate reset of AR LSI (enable) */
++	for (i = 0; i < 0x40d; i++)	/* wait for over 420 cycles @ 27MHz */
++		cpu_relax();
+ 
+ 	/* AR uses INT3 of CPU as interrupt pin. */
+ 	ar_outl(ARINTSEL_INT3, ARINTSEL);
+ 
+-	if (ar->size == AR_SIZE_QVGA) cr |= ARVCR1_QVGA;
+-	if (ar->mode == AR_MODE_NORMAL) cr |= ARVCR1_NORMAL;
++	if (ar->size == AR_SIZE_QVGA)
++		cr |= ARVCR1_QVGA;
++	if (ar->mode == AR_MODE_NORMAL)
++		cr |= ARVCR1_NORMAL;
+ 	ar_outl(cr, ARVCR1);
+ 
+ 	/*
+@@ -620,18 +658,19 @@ static int ar_initialize(struct video_de
+ 	 */
+ 	init_iic();
+ 
+-	for( i=0; i<0x100000; i++) // > 0xa1d10,  56ms
+-		if((ar_inl(ARVCR0) & ARVCR0_VDS)){ // VSYNC
++	for (i = 0; i < 0x100000; i++) {	/* > 0xa1d10,  56ms */
++		if ((ar_inl(ARVCR0) & ARVCR0_VDS)) {	/* VSYNC */
+ 			found = 1;
+ 			break;
+ 		}
++	}
+ 
+-	if(found == 0)
++	if (found == 0)
+ 		return -ENODEV;
+ 
+ 	printk("arv: Initializing ");
+ 
+-	iic(2,0x78,0x11,0x01,0x00);	// start
++	iic(2,0x78,0x11,0x01,0x00);	/* start */
+ 	iic(3,0x78,0x12,0x00,0x06);
+ 	iic(3,0x78,0x12,0x12,0x30);
+ 	iic(3,0x78,0x12,0x15,0x58);
+@@ -651,7 +690,9 @@ static int ar_initialize(struct video_de
+ 	printk(".");
+ 	iic(2,0x78,0x8e,0x0c,0x00);
+ 	iic(2,0x78,0x8f,0x00,0x00);
+-//	iic(2,0x78,0x90,0x00,0x00);	// AWB on=1 off=0
++#if 0
++	iic(2,0x78,0x90,0x00,0x00);	/* AWB on=1 off=0 */
++#endif
+ 	iic(2,0x78,0x93,0x01,0x00);
+ 	iic(2,0x78,0x94,0xcd,0x00);
+ 	iic(2,0x78,0x95,0x00,0x00);
+@@ -668,34 +709,24 @@ static int ar_initialize(struct video_de
+ 	iic(2,0x78,0x9e,0x2e,0x00);
+ 	iic(2,0x78,0xb8,0x78,0x00);
+ 	iic(2,0x78,0xba,0x05,0x00);
+-//	iic(2,0x78,0x83,0x8c,0x00);	// brightness
+-	printk(".");
+-
+-	// color correction
+ #if 0
+-	iic(3,0x78,0x49,0x00,0x89);	// a
+-	iic(3,0x78,0x49,0x01,0x96);	// b
+-	iic(3,0x78,0x49,0x03,0x85);	// c
+-	iic(3,0x78,0x49,0x04,0x87);	// d
+-	iic(3,0x78,0x49,0x02,0x66);	// e(Lo)
+-	iic(3,0x78,0x49,0x05,0x84);	// f(Lo)
+-	iic(3,0x78,0x49,0x06,0x04);	// e(Hi)
+-	iic(3,0x78,0x49,0x07,0x04);	// e(Hi)
+-	iic(2,0x78,0x48,0x01,0x00);	// on=1 off=0
+-#else
+-	iic(3,0x78,0x49,0x00,0x95);	// a
+-	iic(3,0x78,0x49,0x01,0x96);	// b
+-	iic(3,0x78,0x49,0x03,0x85);	// c
+-	iic(3,0x78,0x49,0x04,0x97);	// d
+-	iic(3,0x78,0x49,0x02,0x7e);	// e(Lo)
+-	iic(3,0x78,0x49,0x05,0xa4);	// f(Lo)
+-	iic(3,0x78,0x49,0x06,0x04);	// e(Hi)
+-	iic(3,0x78,0x49,0x07,0x04);	// e(Hi)
+-	iic(2,0x78,0x48,0x01,0x00);	// on=1 off=0
++	iic(2,0x78,0x83,0x8c,0x00);	/* brightness */
+ #endif
++	printk(".");
++
++	/* color correction */
++	iic(3,0x78,0x49,0x00,0x95);	/* a		*/
++	iic(3,0x78,0x49,0x01,0x96);	/* b		*/
++	iic(3,0x78,0x49,0x03,0x85);	/* c		*/
++	iic(3,0x78,0x49,0x04,0x97);	/* d		*/
++	iic(3,0x78,0x49,0x02,0x7e);	/* e(Lo)	*/
++	iic(3,0x78,0x49,0x05,0xa4);	/* f(Lo)	*/
++	iic(3,0x78,0x49,0x06,0x04);	/* e(Hi)	*/
++	iic(3,0x78,0x49,0x07,0x04);	/* e(Hi)	*/
++	iic(2,0x78,0x48,0x01,0x00);	/* on=1 off=0	*/
+ 
+ 	printk(".");
+-	iic(2,0x78,0x11,0x00,0x00);	// end
++	iic(2,0x78,0x11,0x00,0x00);	/* end */
+ 	printk(" done\n");
+ 	return 0;
+ }
+@@ -768,12 +799,12 @@ static int __init ar_init(void)
+ 	}
+ 
+ 	ar->vdev = video_device_alloc();
+-	if(!ar->vdev){
++	if (!ar->vdev) {
+ 		printk(KERN_ERR "arv: video_device_alloc() failed\n");
+ 		return -ENOMEM;
+ 	}
+ 	memcpy(ar->vdev, &ar_template, sizeof(ar_template));
+-	ar->vdev->priv 	= ar;
++	ar->vdev->priv = ar;
+ 
+ 	if (vga) {
+ 		ar->width 	= AR_WIDTH_VGA;
+@@ -797,14 +828,14 @@ static int __init ar_init(void)
+ 	init_waitqueue_head(&ar->wait);
+ 
+ #if USE_INT
+-	if (request_irq(M32R_IRQ_INT3, ar_interrupt, 0, "arv", ar)){
++	if (request_irq(M32R_IRQ_INT3, ar_interrupt, 0, "arv", ar)) {
+ 		printk("arv: request_irq(%d) failed.\n", M32R_IRQ_INT3);
+ 		ret = -EIO;
+ 		goto out_irq;
+ 	}
+ #endif
+ 
+-	if (ar_initialize(ar->vdev) != 0 ){
++	if (ar_initialize(ar->vdev) != 0) {
+ 		printk("arv: M64278 not found.\n");
+ 		ret = -ENODEV;
+ 		goto out_dev;
+@@ -816,7 +847,7 @@ static int __init ar_init(void)
+ 	 * device is named "video[0-64]".
+ 	 * video_register_device() initializes h/w using ar_initialize().
+ 	 */
+-	if (video_register_device(ar->vdev, VFL_TYPE_GRABBER, video_nr)!=0) {
++	if (video_register_device(ar->vdev, VFL_TYPE_GRABBER, video_nr) != 0) {
+ 		/* return -1, -ENFILE(full) or others */
+ 		printk("arv: register video (Colour AR) failed.\n");
+ 		ret = -ENODEV;
+@@ -831,13 +862,18 @@ static int __init ar_init(void)
+ out_dev:
+ #if USE_INT
+ 	free_irq(M32R_IRQ_INT3, ar);
++
+ out_irq:
+ #endif
+-	for (i = 0; i < MAX_AR_HEIGHT; i++)
+-		if (ar->frame[i]) kfree(ar->frame[i]);
++	for (i = 0; i < MAX_AR_HEIGHT; i++) {
++		if (ar->frame[i])
++			kfree(ar->frame[i]);
++	}
++
+ out_line_buff:
+ #if USE_INT
+ 	kfree(ar->line_buff);
++
+ out_end:
+ #endif
+ 	return ret;
+@@ -863,8 +899,10 @@ static void __exit ar_cleanup_module(voi
+ #if USE_INT
+ 	free_irq(M32R_IRQ_INT3, ar);
+ #endif
+-	for (i = 0; i < MAX_AR_HEIGHT; i++)
+-		if (ar->frame[i]) kfree(ar->frame[i]);
++	for (i = 0; i < MAX_AR_HEIGHT; i++) {
++		if (ar->frame[i])
++			kfree(ar->frame[i]);
++	}
+ #if USE_INT
+ 	kfree(ar->line_buff);
+ #endif
 
-Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
-J3QgZWRpdA0KIyBMaW51eCBrZXJuZWwgdmVyc2lvbjogMi42LjEwLXJjMg0K
-IyBUaHUgTm92IDE4IDA1OjM5OjA2IDIwMDQNCiMNCkNPTkZJR19YODY9eQ0K
-Q09ORklHX01NVT15DQpDT05GSUdfVUlEMTY9eQ0KQ09ORklHX0dFTkVSSUNf
-SVNBX0RNQT15DQpDT05GSUdfR0VORVJJQ19JT01BUD15DQoNCiMNCiMgQ29k
-ZSBtYXR1cml0eSBsZXZlbCBvcHRpb25zDQojDQpDT05GSUdfRVhQRVJJTUVO
-VEFMPXkNCiMgQ09ORklHX0NMRUFOX0NPTVBJTEUgaXMgbm90IHNldA0KQ09O
-RklHX0JST0tFTj15DQpDT05GSUdfQlJPS0VOX09OX1NNUD15DQpDT05GSUdf
-TE9DS19LRVJORUw9eQ0KDQojDQojIEdlbmVyYWwgc2V0dXANCiMNCkNPTkZJ
-R19MT0NBTFZFUlNJT049IiINCkNPTkZJR19TV0FQPXkNCkNPTkZJR19TWVNW
-SVBDPXkNCkNPTkZJR19QT1NJWF9NUVVFVUU9eQ0KQ09ORklHX0JTRF9QUk9D
-RVNTX0FDQ1Q9eQ0KQ09ORklHX0JTRF9QUk9DRVNTX0FDQ1RfVjM9eQ0KQ09O
-RklHX1NZU0NUTD15DQojIENPTkZJR19BVURJVCBpcyBub3Qgc2V0DQpDT05G
-SUdfTE9HX0JVRl9TSElGVD0xNA0KQ09ORklHX0hPVFBMVUc9eQ0KQ09ORklH
-X0tPQkpFQ1RfVUVWRU5UPXkNCkNPTkZJR19JS0NPTkZJRz15DQpDT05GSUdf
-SUtDT05GSUdfUFJPQz15DQojIENPTkZJR19FTUJFRERFRCBpcyBub3Qgc2V0
-DQpDT05GSUdfS0FMTFNZTVM9eQ0KIyBDT05GSUdfS0FMTFNZTVNfQUxMIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0tBTExTWU1TX0VYVFJBX1BBU1MgaXMgbm90
-IHNldA0KQ09ORklHX0ZVVEVYPXkNCkNPTkZJR19FUE9MTD15DQojIENPTkZJ
-R19DQ19PUFRJTUlaRV9GT1JfU0laRSBpcyBub3Qgc2V0DQpDT05GSUdfU0hN
-RU09eQ0KQ09ORklHX0NDX0FMSUdOX0ZVTkNUSU9OUz0wDQpDT05GSUdfQ0Nf
-QUxJR05fTEFCRUxTPTANCkNPTkZJR19DQ19BTElHTl9MT09QUz0wDQpDT05G
-SUdfQ0NfQUxJR05fSlVNUFM9MA0KIyBDT05GSUdfVElOWV9TSE1FTSBpcyBu
-b3Qgc2V0DQoNCiMNCiMgTG9hZGFibGUgbW9kdWxlIHN1cHBvcnQNCiMNCkNP
-TkZJR19NT0RVTEVTPXkNCkNPTkZJR19NT0RVTEVfVU5MT0FEPXkNCkNPTkZJ
-R19NT0RVTEVfRk9SQ0VfVU5MT0FEPXkNCkNPTkZJR19PQlNPTEVURV9NT0RQ
-QVJNPXkNCiMgQ09ORklHX01PRFZFUlNJT05TIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX01PRFVMRV9TUkNWRVJTSU9OX0FMTCBpcyBub3Qgc2V0DQojIENPTkZJ
-R19LTU9EIGlzIG5vdCBzZXQNCg0KIw0KIyBQcm9jZXNzb3IgdHlwZSBhbmQg
-ZmVhdHVyZXMNCiMNCkNPTkZJR19YODZfUEM9eQ0KIyBDT05GSUdfWDg2X0VM
-QU4gaXMgbm90IHNldA0KIyBDT05GSUdfWDg2X1ZPWUFHRVIgaXMgbm90IHNl
-dA0KIyBDT05GSUdfWDg2X05VTUFRIGlzIG5vdCBzZXQNCiMgQ09ORklHX1g4
-Nl9TVU1NSVQgaXMgbm90IHNldA0KIyBDT05GSUdfWDg2X0JJR1NNUCBpcyBu
-b3Qgc2V0DQojIENPTkZJR19YODZfVklTV1MgaXMgbm90IHNldA0KIyBDT05G
-SUdfWDg2X0dFTkVSSUNBUkNIIGlzIG5vdCBzZXQNCiMgQ09ORklHX1g4Nl9F
-UzcwMDAgaXMgbm90IHNldA0KIyBDT05GSUdfTTM4NiBpcyBub3Qgc2V0DQoj
-IENPTkZJR19NNDg2IGlzIG5vdCBzZXQNCiMgQ09ORklHX001ODYgaXMgbm90
-IHNldA0KIyBDT05GSUdfTTU4NlRTQyBpcyBub3Qgc2V0DQojIENPTkZJR19N
-NTg2TU1YIGlzIG5vdCBzZXQNCiMgQ09ORklHX002ODYgaXMgbm90IHNldA0K
-IyBDT05GSUdfTVBFTlRJVU1JSSBpcyBub3Qgc2V0DQpDT05GSUdfTVBFTlRJ
-VU1JSUk9eQ0KIyBDT05GSUdfTVBFTlRJVU1NIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX01QRU5USVVNNCBpcyBub3Qgc2V0DQojIENPTkZJR19NSzYgaXMgbm90
-IHNldA0KIyBDT05GSUdfTUs3IGlzIG5vdCBzZXQNCiMgQ09ORklHX01LOCBp
-cyBub3Qgc2V0DQojIENPTkZJR19NQ1JVU09FIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX01FRkZJQ0VPTiBpcyBub3Qgc2V0DQojIENPTkZJR19NV0lOQ0hJUEM2
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX01XSU5DSElQMiBpcyBub3Qgc2V0DQoj
-IENPTkZJR19NV0lOQ0hJUDNEIGlzIG5vdCBzZXQNCiMgQ09ORklHX01DWVJJ
-WElJSSBpcyBub3Qgc2V0DQojIENPTkZJR19NVklBQzNfMiBpcyBub3Qgc2V0
-DQojIENPTkZJR19YODZfR0VORVJJQyBpcyBub3Qgc2V0DQpDT05GSUdfWDg2
-X0NNUFhDSEc9eQ0KQ09ORklHX1g4Nl9YQUREPXkNCkNPTkZJR19YODZfTDFf
-Q0FDSEVfU0hJRlQ9NQ0KQ09ORklHX1JXU0VNX1hDSEdBRERfQUxHT1JJVEhN
-PXkNCkNPTkZJR19YODZfV1BfV09SS1NfT0s9eQ0KQ09ORklHX1g4Nl9JTlZM
-UEc9eQ0KQ09ORklHX1g4Nl9CU1dBUD15DQpDT05GSUdfWDg2X1BPUEFEX09L
-PXkNCkNPTkZJR19YODZfR09PRF9BUElDPXkNCkNPTkZJR19YODZfSU5URUxf
-VVNFUkNPUFk9eQ0KQ09ORklHX1g4Nl9VU0VfUFBST19DSEVDS1NVTT15DQpD
-T05GSUdfSFBFVF9USU1FUj15DQpDT05GSUdfSFBFVF9FTVVMQVRFX1JUQz15
-DQojIENPTkZJR19TTVAgaXMgbm90IHNldA0KQ09ORklHX1BSRUVNUFQ9eQ0K
-Q09ORklHX1g4Nl9VUF9BUElDPXkNCkNPTkZJR19YODZfVVBfSU9BUElDPXkN
-CkNPTkZJR19YODZfTE9DQUxfQVBJQz15DQpDT05GSUdfWDg2X0lPX0FQSUM9
-eQ0KQ09ORklHX1g4Nl9UU0M9eQ0KQ09ORklHX1g4Nl9NQ0U9eQ0KIyBDT05G
-SUdfWDg2X01DRV9OT05GQVRBTCBpcyBub3Qgc2V0DQojIENPTkZJR19YODZf
-TUNFX1A0VEhFUk1BTCBpcyBub3Qgc2V0DQojIENPTkZJR19UT1NISUJBIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0k4SyBpcyBub3Qgc2V0DQpDT05GSUdfTUlD
-Uk9DT0RFPXkNCkNPTkZJR19YODZfTVNSPXkNCkNPTkZJR19YODZfQ1BVSUQ9
-eQ0KDQojDQojIEZpcm13YXJlIERyaXZlcnMNCiMNCiMgQ09ORklHX0VERCBp
-cyBub3Qgc2V0DQpDT05GSUdfTk9ISUdITUVNPXkNCiMgQ09ORklHX0hJR0hN
-RU00RyBpcyBub3Qgc2V0DQojIENPTkZJR19ISUdITUVNNjRHIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX01BVEhfRU1VTEFUSU9OIGlzIG5vdCBzZXQNCkNPTkZJ
-R19NVFJSPXkNCiMgQ09ORklHX0VGSSBpcyBub3Qgc2V0DQpDT05GSUdfSEFW
-RV9ERUNfTE9DSz15DQojIENPTkZJR19SRUdQQVJNIGlzIG5vdCBzZXQNCg0K
-Iw0KIyBQb3dlciBtYW5hZ2VtZW50IG9wdGlvbnMgKEFDUEksIEFQTSkNCiMN
-CkNPTkZJR19QTT15DQojIENPTkZJR19QTV9ERUJVRyBpcyBub3Qgc2V0DQoj
-IENPTkZJR19TT0ZUV0FSRV9TVVNQRU5EIGlzIG5vdCBzZXQNCg0KIw0KIyBB
-Q1BJIChBZHZhbmNlZCBDb25maWd1cmF0aW9uIGFuZCBQb3dlciBJbnRlcmZh
-Y2UpIFN1cHBvcnQNCiMNCkNPTkZJR19BQ1BJPXkNCkNPTkZJR19BQ1BJX0JP
-T1Q9eQ0KQ09ORklHX0FDUElfSU5URVJQUkVURVI9eQ0KIyBDT05GSUdfQUNQ
-SV9TTEVFUCBpcyBub3Qgc2V0DQojIENPTkZJR19BQ1BJX0FDIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX0FDUElfQkFUVEVSWSBpcyBub3Qgc2V0DQojIENPTkZJ
-R19BQ1BJX0JVVFRPTiBpcyBub3Qgc2V0DQojIENPTkZJR19BQ1BJX1ZJREVP
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX0FDUElfRkFOIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX0FDUElfUFJPQ0VTU09SIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FD
-UElfQVNVUyBpcyBub3Qgc2V0DQojIENPTkZJR19BQ1BJX0lCTSBpcyBub3Qg
-c2V0DQojIENPTkZJR19BQ1BJX1RPU0hJQkEgaXMgbm90IHNldA0KQ09ORklH
-X0FDUElfQkxBQ0tMSVNUX1lFQVI9MA0KIyBDT05GSUdfQUNQSV9ERUJVRyBp
-cyBub3Qgc2V0DQpDT05GSUdfQUNQSV9CVVM9eQ0KQ09ORklHX0FDUElfRUM9
-eQ0KQ09ORklHX0FDUElfUE9XRVI9eQ0KQ09ORklHX0FDUElfUENJPXkNCkNP
-TkZJR19BQ1BJX1NZU1RFTT15DQojIENPTkZJR19YODZfUE1fVElNRVIgaXMg
-bm90IHNldA0KDQojDQojIEFQTSAoQWR2YW5jZWQgUG93ZXIgTWFuYWdlbWVu
-dCkgQklPUyBTdXBwb3J0DQojDQojIENPTkZJR19BUE0gaXMgbm90IHNldA0K
-DQojDQojIENQVSBGcmVxdWVuY3kgc2NhbGluZw0KIw0KIyBDT05GSUdfQ1BV
-X0ZSRVEgaXMgbm90IHNldA0KDQojDQojIEJ1cyBvcHRpb25zIChQQ0ksIFBD
-TUNJQSwgRUlTQSwgTUNBLCBJU0EpDQojDQpDT05GSUdfUENJPXkNCiMgQ09O
-RklHX1BDSV9HT0JJT1MgaXMgbm90IHNldA0KIyBDT05GSUdfUENJX0dPTU1D
-T05GSUcgaXMgbm90IHNldA0KIyBDT05GSUdfUENJX0dPRElSRUNUIGlzIG5v
-dCBzZXQNCkNPTkZJR19QQ0lfR09BTlk9eQ0KQ09ORklHX1BDSV9CSU9TPXkN
-CkNPTkZJR19QQ0lfRElSRUNUPXkNCkNPTkZJR19QQ0lfTU1DT05GSUc9eQ0K
-IyBDT05GSUdfUENJX01TSSBpcyBub3Qgc2V0DQpDT05GSUdfUENJX0xFR0FD
-WV9QUk9DPXkNCkNPTkZJR19QQ0lfTkFNRVM9eQ0KQ09ORklHX0lTQT15DQoj
-IENPTkZJR19FSVNBIGlzIG5vdCBzZXQNCiMgQ09ORklHX01DQSBpcyBub3Qg
-c2V0DQojIENPTkZJR19TQ3gyMDAgaXMgbm90IHNldA0KDQojDQojIFBDQ0FS
-RCAoUENNQ0lBL0NhcmRCdXMpIHN1cHBvcnQNCiMNCiMgQ09ORklHX1BDQ0FS
-RCBpcyBub3Qgc2V0DQoNCiMNCiMgUEMtY2FyZCBicmlkZ2VzDQojDQpDT05G
-SUdfUENNQ0lBX1BST0JFPXkNCg0KIw0KIyBQQ0kgSG90cGx1ZyBTdXBwb3J0
-DQojDQojIENPTkZJR19IT1RQTFVHX1BDSSBpcyBub3Qgc2V0DQoNCiMNCiMg
-RXhlY3V0YWJsZSBmaWxlIGZvcm1hdHMNCiMNCkNPTkZJR19CSU5GTVRfRUxG
-PXkNCkNPTkZJR19CSU5GTVRfQU9VVD15DQpDT05GSUdfQklORk1UX01JU0M9
-eQ0KDQojDQojIERldmljZSBEcml2ZXJzDQojDQoNCiMNCiMgR2VuZXJpYyBE
-cml2ZXIgT3B0aW9ucw0KIw0KQ09ORklHX1NUQU5EQUxPTkU9eQ0KQ09ORklH
-X1BSRVZFTlRfRklSTVdBUkVfQlVJTEQ9eQ0KIyBDT05GSUdfRldfTE9BREVS
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX0RFQlVHX0RSSVZFUiBpcyBub3Qgc2V0
-DQoNCiMNCiMgTWVtb3J5IFRlY2hub2xvZ3kgRGV2aWNlcyAoTVREKQ0KIw0K
-IyBDT05GSUdfTVREIGlzIG5vdCBzZXQNCg0KIw0KIyBQYXJhbGxlbCBwb3J0
-IHN1cHBvcnQNCiMNCkNPTkZJR19QQVJQT1JUPXkNCkNPTkZJR19QQVJQT1JU
-X1BDPXkNCkNPTkZJR19QQVJQT1JUX1BDX0NNTDE9eQ0KQ09ORklHX1BBUlBP
-UlRfU0VSSUFMPXkNCkNPTkZJR19QQVJQT1JUX1BDX0ZJRk89eQ0KQ09ORklH
-X1BBUlBPUlRfUENfU1VQRVJJTz15DQojIENPTkZJR19QQVJQT1JUX09USEVS
-IGlzIG5vdCBzZXQNCkNPTkZJR19QQVJQT1JUXzEyODQ9eQ0KDQojDQojIFBs
-dWcgYW5kIFBsYXkgc3VwcG9ydA0KIw0KQ09ORklHX1BOUD15DQojIENPTkZJ
-R19QTlBfREVCVUcgaXMgbm90IHNldA0KDQojDQojIFByb3RvY29scw0KIw0K
-Q09ORklHX0lTQVBOUD15DQpDT05GSUdfUE5QQklPUz15DQpDT05GSUdfUE5Q
-QklPU19QUk9DX0ZTPXkNCkNPTkZJR19QTlBBQ1BJPXkNCg0KIw0KIyBCbG9j
-ayBkZXZpY2VzDQojDQpDT05GSUdfQkxLX0RFVl9GRD15DQojIENPTkZJR19C
-TEtfREVWX1hEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BBUklERSBpcyBub3Qg
-c2V0DQojIENPTkZJR19CTEtfQ1BRX0RBIGlzIG5vdCBzZXQNCiMgQ09ORklH
-X0JMS19DUFFfQ0lTU19EQSBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVW
-X0RBQzk2MCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1VNRU0gaXMg
-bm90IHNldA0KQ09ORklHX0JMS19ERVZfTE9PUD15DQpDT05GSUdfQkxLX0RF
-Vl9DUllQVE9MT09QPXkNCkNPTkZJR19CTEtfREVWX05CRD15DQojIENPTkZJ
-R19CTEtfREVWX1NYOCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1VC
-IGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVWX1JBTT1tDQpDT05GSUdfQkxL
-X0RFVl9SQU1fU0laRT00MDk2DQpDT05GSUdfSU5JVFJBTUZTX1NPVVJDRT0i
-Ig0KIyBDT05GSUdfTEJEIGlzIG5vdCBzZXQNCiMgQ09ORklHX0NEUk9NX1BL
-VENEVkQgaXMgbm90IHNldA0KDQojDQojIElPIFNjaGVkdWxlcnMNCiMNCkNP
-TkZJR19JT1NDSEVEX05PT1A9eQ0KQ09ORklHX0lPU0NIRURfQVM9eQ0KQ09O
-RklHX0lPU0NIRURfREVBRExJTkU9eQ0KQ09ORklHX0lPU0NIRURfQ0ZRPXkN
-Cg0KIw0KIyBBVEEvQVRBUEkvTUZNL1JMTCBzdXBwb3J0DQojDQpDT05GSUdf
-SURFPXkNCkNPTkZJR19CTEtfREVWX0lERT15DQoNCiMNCiMgUGxlYXNlIHNl
-ZSBEb2N1bWVudGF0aW9uL2lkZS50eHQgZm9yIGhlbHAvaW5mbyBvbiBJREUg
-ZHJpdmVzDQojDQojIENPTkZJR19CTEtfREVWX0lERV9TQVRBIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX0JMS19ERVZfSERfSURFIGlzIG5vdCBzZXQNCkNPTkZJ
-R19CTEtfREVWX0lERURJU0s9eQ0KQ09ORklHX0lERURJU0tfTVVMVElfTU9E
-RT15DQpDT05GSUdfQkxLX0RFVl9JREVDRD15DQojIENPTkZJR19CTEtfREVW
-X0lERVRBUEUgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9JREVGTE9Q
-UFkgaXMgbm90IHNldA0KIyBDT05GSUdfSURFX1RBU0tfSU9DVEwgaXMgbm90
-IHNldA0KDQojDQojIElERSBjaGlwc2V0IHN1cHBvcnQvYnVnZml4ZXMNCiMN
-CiMgQ09ORklHX0lERV9HRU5FUklDIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JM
-S19ERVZfQ01ENjQwIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfSURF
-UE5QIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVWX0lERVBDST15DQpDT05G
-SUdfSURFUENJX1NIQVJFX0lSUT15DQojIENPTkZJR19CTEtfREVWX09GRkJP
-QVJEIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfR0VORVJJQyBpcyBu
-b3Qgc2V0DQojIENPTkZJR19CTEtfREVWX09QVEk2MjEgaXMgbm90IHNldA0K
-IyBDT05GSUdfQkxLX0RFVl9SWjEwMDAgaXMgbm90IHNldA0KQ09ORklHX0JM
-S19ERVZfSURFRE1BX1BDST15DQojIENPTkZJR19CTEtfREVWX0lERURNQV9G
-T1JDRUQgaXMgbm90IHNldA0KQ09ORklHX0lERURNQV9QQ0lfQVVUTz15DQoj
-IENPTkZJR19JREVETUFfT05MWURJU0sgaXMgbm90IHNldA0KIyBDT05GSUdf
-QkxLX0RFVl9BRUM2MlhYIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZf
-QUxJMTVYMyBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0FNRDc0WFgg
-aXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9BVElJWFAgaXMgbm90IHNl
-dA0KIyBDT05GSUdfQkxLX0RFVl9DTUQ2NFggaXMgbm90IHNldA0KIyBDT05G
-SUdfQkxLX0RFVl9UUklGTEVYIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19E
-RVZfQ1k4MkM2OTMgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9DUzU1
-MjAgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9DUzU1MzAgaXMgbm90
-IHNldA0KIyBDT05GSUdfQkxLX0RFVl9IUFQzNFggaXMgbm90IHNldA0KIyBD
-T05GSUdfQkxLX0RFVl9IUFQzNjYgaXMgbm90IHNldA0KIyBDT05GSUdfQkxL
-X0RFVl9TQzEyMDAgaXMgbm90IHNldA0KQ09ORklHX0JMS19ERVZfUElJWD15
-DQojIENPTkZJR19CTEtfREVWX05TODc0MTUgaXMgbm90IHNldA0KIyBDT05G
-SUdfQkxLX0RFVl9QREMyMDJYWF9PTEQgaXMgbm90IHNldA0KIyBDT05GSUdf
-QkxLX0RFVl9QREMyMDJYWF9ORVcgaXMgbm90IHNldA0KIyBDT05GSUdfQkxL
-X0RFVl9TVldLUyBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1NJSU1B
-R0UgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX0JMS19ERVZfU0xDOTBFNjYgaXMgbm90IHNldA0K
-IyBDT05GSUdfQkxLX0RFVl9UUk0yOTAgaXMgbm90IHNldA0KIyBDT05GSUdf
-QkxLX0RFVl9WSUE4MkNYWFggaXMgbm90IHNldA0KIyBDT05GSUdfSURFX0FS
-TSBpcyBub3Qgc2V0DQojIENPTkZJR19JREVfQ0hJUFNFVFMgaXMgbm90IHNl
-dA0KQ09ORklHX0JMS19ERVZfSURFRE1BPXkNCiMgQ09ORklHX0lERURNQV9J
-VkIgaXMgbm90IHNldA0KQ09ORklHX0lERURNQV9BVVRPPXkNCiMgQ09ORklH
-X0JMS19ERVZfSEQgaXMgbm90IHNldA0KDQojDQojIFNDU0kgZGV2aWNlIHN1
-cHBvcnQNCiMNCiMgQ09ORklHX1NDU0kgaXMgbm90IHNldA0KDQojDQojIE9s
-ZCBDRC1ST00gZHJpdmVycyAobm90IFNDU0ksIG5vdCBJREUpDQojDQojIENP
-TkZJR19DRF9OT19JREVTQ1NJIGlzIG5vdCBzZXQNCg0KIw0KIyBNdWx0aS1k
-ZXZpY2Ugc3VwcG9ydCAoUkFJRCBhbmQgTFZNKQ0KIw0KIyBDT05GSUdfTUQg
-aXMgbm90IHNldA0KDQojDQojIEZ1c2lvbiBNUFQgZGV2aWNlIHN1cHBvcnQN
-CiMNCg0KIw0KIyBJRUVFIDEzOTQgKEZpcmVXaXJlKSBzdXBwb3J0DQojDQoj
-IENPTkZJR19JRUVFMTM5NCBpcyBub3Qgc2V0DQoNCiMNCiMgSTJPIGRldmlj
-ZSBzdXBwb3J0DQojDQojIENPTkZJR19JMk8gaXMgbm90IHNldA0KDQojDQoj
-IE5ldHdvcmtpbmcgc3VwcG9ydA0KIw0KQ09ORklHX05FVD15DQoNCiMNCiMg
-TmV0d29ya2luZyBvcHRpb25zDQojDQpDT05GSUdfUEFDS0VUPXkNCkNPTkZJ
-R19QQUNLRVRfTU1BUD15DQpDT05GSUdfTkVUTElOS19ERVY9eQ0KQ09ORklH
-X1VOSVg9eQ0KIyBDT05GSUdfTkVUX0tFWSBpcyBub3Qgc2V0DQpDT05GSUdf
-SU5FVD15DQpDT05GSUdfSVBfTVVMVElDQVNUPXkNCkNPTkZJR19JUF9BRFZB
-TkNFRF9ST1VURVI9eQ0KQ09ORklHX0lQX01VTFRJUExFX1RBQkxFUz15DQpD
-T05GSUdfSVBfUk9VVEVfRldNQVJLPXkNCkNPTkZJR19JUF9ST1VURV9NVUxU
-SVBBVEg9eQ0KQ09ORklHX0lQX1JPVVRFX1ZFUkJPU0U9eQ0KIyBDT05GSUdf
-SVBfUE5QIGlzIG5vdCBzZXQNCiMgQ09ORklHX05FVF9JUElQIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX05FVF9JUEdSRSBpcyBub3Qgc2V0DQpDT05GSUdfSVBf
-TVJPVVRFPXkNCkNPTkZJR19JUF9QSU1TTV9WMT15DQpDT05GSUdfSVBfUElN
-U01fVjI9eQ0KIyBDT05GSUdfQVJQRCBpcyBub3Qgc2V0DQpDT05GSUdfU1lO
-X0NPT0tJRVM9eQ0KIyBDT05GSUdfSU5FVF9BSCBpcyBub3Qgc2V0DQojIENP
-TkZJR19JTkVUX0VTUCBpcyBub3Qgc2V0DQojIENPTkZJR19JTkVUX0lQQ09N
-UCBpcyBub3Qgc2V0DQojIENPTkZJR19JTkVUX1RVTk5FTCBpcyBub3Qgc2V0
-DQpDT05GSUdfSVBfVENQRElBRz15DQpDT05GSUdfSVBfVENQRElBR19JUFY2
-PXkNCg0KIw0KIyBJUDogVmlydHVhbCBTZXJ2ZXIgQ29uZmlndXJhdGlvbg0K
-Iw0KIyBDT05GSUdfSVBfVlMgaXMgbm90IHNldA0KQ09ORklHX0lQVjY9eQ0K
-IyBDT05GSUdfSVBWNl9QUklWQUNZIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lO
-RVQ2X0FIIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lORVQ2X0VTUCBpcyBub3Qg
-c2V0DQojIENPTkZJR19JTkVUNl9JUENPTVAgaXMgbm90IHNldA0KIyBDT05G
-SUdfSU5FVDZfVFVOTkVMIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lQVjZfVFVO
-TkVMIGlzIG5vdCBzZXQNCkNPTkZJR19ORVRGSUxURVI9eQ0KIyBDT05GSUdf
-TkVURklMVEVSX0RFQlVHIGlzIG5vdCBzZXQNCg0KIw0KIyBJUDogTmV0Zmls
-dGVyIENvbmZpZ3VyYXRpb24NCiMNCkNPTkZJR19JUF9ORl9DT05OVFJBQ0s9
-eQ0KQ09ORklHX0lQX05GX0NUX0FDQ1Q9eQ0KQ09ORklHX0lQX05GX0NPTk5U
-UkFDS19NQVJLPXkNCkNPTkZJR19JUF9ORl9DVF9QUk9UT19TQ1RQPXkNCkNP
-TkZJR19JUF9ORl9GVFA9bQ0KQ09ORklHX0lQX05GX0lSQz15DQpDT05GSUdf
-SVBfTkZfVEZUUD15DQpDT05GSUdfSVBfTkZfQU1BTkRBPXkNCkNPTkZJR19J
-UF9ORl9RVUVVRT15DQpDT05GSUdfSVBfTkZfSVBUQUJMRVM9eQ0KQ09ORklH
-X0lQX05GX01BVENIX0xJTUlUPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9JUFJB
-TkdFPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9NQUM9eQ0KQ09ORklHX0lQX05G
-X01BVENIX1BLVFRZUEU9eQ0KQ09ORklHX0lQX05GX01BVENIX01BUks9eQ0K
-Q09ORklHX0lQX05GX01BVENIX01VTFRJUE9SVD15DQpDT05GSUdfSVBfTkZf
-TUFUQ0hfVE9TPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9SRUNFTlQ9eQ0KQ09O
-RklHX0lQX05GX01BVENIX0VDTj15DQpDT05GSUdfSVBfTkZfTUFUQ0hfRFND
-UD15DQpDT05GSUdfSVBfTkZfTUFUQ0hfQUhfRVNQPXkNCkNPTkZJR19JUF9O
-Rl9NQVRDSF9MRU5HVEg9eQ0KQ09ORklHX0lQX05GX01BVENIX1RUTD15DQpD
-T05GSUdfSVBfTkZfTUFUQ0hfVENQTVNTPXkNCkNPTkZJR19JUF9ORl9NQVRD
-SF9IRUxQRVI9eQ0KQ09ORklHX0lQX05GX01BVENIX1NUQVRFPXkNCkNPTkZJ
-R19JUF9ORl9NQVRDSF9DT05OVFJBQ0s9eQ0KQ09ORklHX0lQX05GX01BVENI
-X09XTkVSPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9BRERSVFlQRT15DQpDT05G
-SUdfSVBfTkZfTUFUQ0hfUkVBTE09eQ0KQ09ORklHX0lQX05GX01BVENIX1ND
-VFA9eQ0KQ09ORklHX0lQX05GX01BVENIX0NPTU1FTlQ9eQ0KQ09ORklHX0lQ
-X05GX01BVENIX0NPTk5NQVJLPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9IQVNI
-TElNSVQ9eQ0KQ09ORklHX0lQX05GX0ZJTFRFUj15DQpDT05GSUdfSVBfTkZf
-VEFSR0VUX1JFSkVDVD15DQpDT05GSUdfSVBfTkZfVEFSR0VUX0xPRz15DQpD
-T05GSUdfSVBfTkZfVEFSR0VUX1VMT0c9eQ0KQ09ORklHX0lQX05GX1RBUkdF
-VF9UQ1BNU1M9eQ0KQ09ORklHX0lQX05GX05BVD15DQpDT05GSUdfSVBfTkZf
-TkFUX05FRURFRD15DQpDT05GSUdfSVBfTkZfVEFSR0VUX01BU1FVRVJBREU9
-eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRURJUkVDVD15DQpDT05GSUdfSVBf
-TkZfVEFSR0VUX05FVE1BUD15DQpDT05GSUdfSVBfTkZfVEFSR0VUX1NBTUU9
-eQ0KQ09ORklHX0lQX05GX05BVF9MT0NBTD15DQpDT05GSUdfSVBfTkZfTkFU
-X1NOTVBfQkFTSUM9eQ0KQ09ORklHX0lQX05GX05BVF9JUkM9eQ0KQ09ORklH
-X0lQX05GX05BVF9GVFA9bQ0KQ09ORklHX0lQX05GX05BVF9URlRQPXkNCkNP
-TkZJR19JUF9ORl9OQVRfQU1BTkRBPXkNCkNPTkZJR19JUF9ORl9NQU5HTEU9
-eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9UT1M9eQ0KQ09ORklHX0lQX05GX1RB
-UkdFVF9FQ049eQ0KQ09ORklHX0lQX05GX1RBUkdFVF9EU0NQPXkNCkNPTkZJ
-R19JUF9ORl9UQVJHRVRfTUFSSz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX0NM
-QVNTSUZZPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfQ09OTk1BUks9eQ0KQ09O
-RklHX0lQX05GX1RBUkdFVF9DTFVTVEVSSVA9eQ0KQ09ORklHX0lQX05GX1JB
-Vz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX05PVFJBQ0s9eQ0KQ09ORklHX0lQ
-X05GX0FSUFRBQkxFUz15DQpDT05GSUdfSVBfTkZfQVJQRklMVEVSPXkNCkNP
-TkZJR19JUF9ORl9BUlBfTUFOR0xFPXkNCg0KIw0KIyBJUHY2OiBOZXRmaWx0
-ZXIgQ29uZmlndXJhdGlvbg0KIw0KQ09ORklHX0lQNl9ORl9RVUVVRT15DQpD
-T05GSUdfSVA2X05GX0lQVEFCTEVTPXkNCkNPTkZJR19JUDZfTkZfTUFUQ0hf
-TElNSVQ9eQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9NQUM9eQ0KQ09ORklHX0lQ
-Nl9ORl9NQVRDSF9SVD15DQpDT05GSUdfSVA2X05GX01BVENIX09QVFM9eQ0K
-Q09ORklHX0lQNl9ORl9NQVRDSF9GUkFHPXkNCkNPTkZJR19JUDZfTkZfTUFU
-Q0hfSEw9eQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9NVUxUSVBPUlQ9eQ0KQ09O
-RklHX0lQNl9ORl9NQVRDSF9PV05FUj15DQpDT05GSUdfSVA2X05GX01BVENI
-X01BUks9eQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9JUFY2SEVBREVSPXkNCkNP
-TkZJR19JUDZfTkZfTUFUQ0hfQUhFU1A9eQ0KQ09ORklHX0lQNl9ORl9NQVRD
-SF9MRU5HVEg9eQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9FVUk2ND15DQpDT05G
-SUdfSVA2X05GX0ZJTFRFUj15DQpDT05GSUdfSVA2X05GX1RBUkdFVF9MT0c9
-eQ0KQ09ORklHX0lQNl9ORl9NQU5HTEU9eQ0KQ09ORklHX0lQNl9ORl9UQVJH
-RVRfTUFSSz15DQpDT05GSUdfSVA2X05GX1JBVz15DQoNCiMNCiMgU0NUUCBD
-b25maWd1cmF0aW9uIChFWFBFUklNRU5UQUwpDQojDQojIENPTkZJR19JUF9T
-Q1RQIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FUTSBpcyBub3Qgc2V0DQojIENP
-TkZJR19CUklER0UgaXMgbm90IHNldA0KIyBDT05GSUdfVkxBTl84MDIxUSBp
-cyBub3Qgc2V0DQojIENPTkZJR19ERUNORVQgaXMgbm90IHNldA0KIyBDT05G
-SUdfTExDMiBpcyBub3Qgc2V0DQojIENPTkZJR19JUFggaXMgbm90IHNldA0K
-IyBDT05GSUdfQVRBTEsgaXMgbm90IHNldA0KIyBDT05GSUdfWDI1IGlzIG5v
-dCBzZXQNCiMgQ09ORklHX0xBUEIgaXMgbm90IHNldA0KIyBDT05GSUdfTkVU
-X0RJVkVSVCBpcyBub3Qgc2V0DQojIENPTkZJR19FQ09ORVQgaXMgbm90IHNl
-dA0KIyBDT05GSUdfV0FOX1JPVVRFUiBpcyBub3Qgc2V0DQoNCiMNCiMgUW9T
-IGFuZC9vciBmYWlyIHF1ZXVlaW5nDQojDQojIENPTkZJR19ORVRfU0NIRUQg
-aXMgbm90IHNldA0KQ09ORklHX05FVF9DTFNfUk9VVEU9eQ0KDQojDQojIE5l
-dHdvcmsgdGVzdGluZw0KIw0KIyBDT05GSUdfTkVUX1BLVEdFTiBpcyBub3Qg
-c2V0DQojIENPTkZJR19ORVRQT0xMIGlzIG5vdCBzZXQNCiMgQ09ORklHX05F
-VF9QT0xMX0NPTlRST0xMRVIgaXMgbm90IHNldA0KIyBDT05GSUdfSEFNUkFE
-SU8gaXMgbm90IHNldA0KIyBDT05GSUdfSVJEQSBpcyBub3Qgc2V0DQojIENP
-TkZJR19CVCBpcyBub3Qgc2V0DQpDT05GSUdfTkVUREVWSUNFUz15DQpDT05G
-SUdfRFVNTVk9eQ0KIyBDT05GSUdfQk9ORElORyBpcyBub3Qgc2V0DQojIENP
-TkZJR19FUVVBTElaRVIgaXMgbm90IHNldA0KIyBDT05GSUdfVFVOIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX0VUSEVSVEFQIGlzIG5vdCBzZXQNCiMgQ09ORklH
-X05FVF9TQjEwMDAgaXMgbm90IHNldA0KDQojDQojIEFSQ25ldCBkZXZpY2Vz
-DQojDQojIENPTkZJR19BUkNORVQgaXMgbm90IHNldA0KDQojDQojIEV0aGVy
-bmV0ICgxMCBvciAxMDBNYml0KQ0KIw0KQ09ORklHX05FVF9FVEhFUk5FVD15
-DQojIENPTkZJR19NSUkgaXMgbm90IHNldA0KIyBDT05GSUdfSEFQUFlNRUFM
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NVTkdFTSBpcyBub3Qgc2V0DQpDT05G
-SUdfTkVUX1ZFTkRPUl8zQ09NPXkNCiMgQ09ORklHX0VMMSBpcyBub3Qgc2V0
-DQojIENPTkZJR19FTDIgaXMgbm90IHNldA0KIyBDT05GSUdfRUxQTFVTIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0VMMTYgaXMgbm90IHNldA0KIyBDT05GSUdf
-RUwzIGlzIG5vdCBzZXQNCiMgQ09ORklHXzNDNTE1IGlzIG5vdCBzZXQNCkNP
-TkZJR19WT1JURVg9eQ0KIyBDT05GSUdfVFlQSE9PTiBpcyBub3Qgc2V0DQoj
-IENPTkZJR19MQU5DRSBpcyBub3Qgc2V0DQojIENPTkZJR19ORVRfVkVORE9S
-X1NNQyBpcyBub3Qgc2V0DQojIENPTkZJR19ORVRfVkVORE9SX1JBQ0FMIGlz
-IG5vdCBzZXQNCg0KIw0KIyBUdWxpcCBmYW1pbHkgbmV0d29yayBkZXZpY2Ug
-c3VwcG9ydA0KIw0KIyBDT05GSUdfTkVUX1RVTElQIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX0FUMTcwMCBpcyBub3Qgc2V0DQojIENPTkZJR19ERVBDQSBpcyBu
-b3Qgc2V0DQojIENPTkZJR19IUDEwMCBpcyBub3Qgc2V0DQojIENPTkZJR19O
-RVRfSVNBIGlzIG5vdCBzZXQNCiMgQ09ORklHX05FVF9QQ0kgaXMgbm90IHNl
-dA0KIyBDT05GSUdfTkVUX1BPQ0tFVCBpcyBub3Qgc2V0DQoNCiMNCiMgRXRo
-ZXJuZXQgKDEwMDAgTWJpdCkNCiMNCiMgQ09ORklHX0FDRU5JQyBpcyBub3Qg
-c2V0DQojIENPTkZJR19ETDJLIGlzIG5vdCBzZXQNCiMgQ09ORklHX0UxMDAw
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX05TODM4MjAgaXMgbm90IHNldA0KIyBD
-T05GSUdfSEFNQUNISSBpcyBub3Qgc2V0DQojIENPTkZJR19ZRUxMT1dGSU4g
-aXMgbm90IHNldA0KIyBDT05GSUdfUjgxNjkgaXMgbm90IHNldA0KIyBDT05G
-SUdfU0s5OExJTiBpcyBub3Qgc2V0DQojIENPTkZJR19USUdPTjMgaXMgbm90
-IHNldA0KDQojDQojIEV0aGVybmV0ICgxMDAwMCBNYml0KQ0KIw0KIyBDT05G
-SUdfSVhHQiBpcyBub3Qgc2V0DQojIENPTkZJR19TMklPIGlzIG5vdCBzZXQN
-Cg0KIw0KIyBUb2tlbiBSaW5nIGRldmljZXMNCiMNCiMgQ09ORklHX1RSIGlz
-IG5vdCBzZXQNCg0KIw0KIyBXaXJlbGVzcyBMQU4gKG5vbi1oYW1yYWRpbykN
-CiMNCiMgQ09ORklHX05FVF9SQURJTyBpcyBub3Qgc2V0DQoNCiMNCiMgV2Fu
-IGludGVyZmFjZXMNCiMNCiMgQ09ORklHX1dBTiBpcyBub3Qgc2V0DQojIENP
-TkZJR19GRERJIGlzIG5vdCBzZXQNCiMgQ09ORklHX0hJUFBJIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX1BMSVAgaXMgbm90IHNldA0KIyBDT05GSUdfUFBQIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX1NMSVAgaXMgbm90IHNldA0KIyBDT05GSUdf
-U0hBUEVSIGlzIG5vdCBzZXQNCiMgQ09ORklHX05FVENPTlNPTEUgaXMgbm90
-IHNldA0KDQojDQojIElTRE4gc3Vic3lzdGVtDQojDQojIENPTkZJR19JU0RO
-IGlzIG5vdCBzZXQNCg0KIw0KIyBUZWxlcGhvbnkgU3VwcG9ydA0KIw0KIyBD
-T05GSUdfUEhPTkUgaXMgbm90IHNldA0KDQojDQojIElucHV0IGRldmljZSBz
-dXBwb3J0DQojDQpDT05GSUdfSU5QVVQ9eQ0KDQojDQojIFVzZXJsYW5kIGlu
-dGVyZmFjZXMNCiMNCkNPTkZJR19JTlBVVF9NT1VTRURFVj15DQojIENPTkZJ
-R19JTlBVVF9NT1VTRURFVl9QU0FVWCBpcyBub3Qgc2V0DQpDT05GSUdfSU5Q
-VVRfTU9VU0VERVZfU0NSRUVOX1g9MTYwMA0KQ09ORklHX0lOUFVUX01PVVNF
-REVWX1NDUkVFTl9ZPTEyMDANCiMgQ09ORklHX0lOUFVUX0pPWURFViBpcyBu
-b3Qgc2V0DQojIENPTkZJR19JTlBVVF9UU0RFViBpcyBub3Qgc2V0DQojIENP
-TkZJR19JTlBVVF9FVkRFViBpcyBub3Qgc2V0DQojIENPTkZJR19JTlBVVF9F
-VkJVRyBpcyBub3Qgc2V0DQoNCiMNCiMgSW5wdXQgSS9PIGRyaXZlcnMNCiMN
-CiMgQ09ORklHX0dBTUVQT1JUIGlzIG5vdCBzZXQNCkNPTkZJR19TT1VORF9H
-QU1FUE9SVD15DQpDT05GSUdfU0VSSU89eQ0KQ09ORklHX1NFUklPX0k4MDQy
-PXkNCiMgQ09ORklHX1NFUklPX1NFUlBPUlQgaXMgbm90IHNldA0KIyBDT05G
-SUdfU0VSSU9fQ1Q4MkM3MTAgaXMgbm90IHNldA0KIyBDT05GSUdfU0VSSU9f
-UEFSS0JEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NFUklPX1BDSVBTMiBpcyBu
-b3Qgc2V0DQojIENPTkZJR19TRVJJT19SQVcgaXMgbm90IHNldA0KDQojDQoj
-IElucHV0IERldmljZSBEcml2ZXJzDQojDQpDT05GSUdfSU5QVVRfS0VZQk9B
-UkQ9eQ0KQ09ORklHX0tFWUJPQVJEX0FUS0JEPXkNCiMgQ09ORklHX0tFWUJP
-QVJEX1NVTktCRCBpcyBub3Qgc2V0DQojIENPTkZJR19LRVlCT0FSRF9MS0tC
-RCBpcyBub3Qgc2V0DQojIENPTkZJR19LRVlCT0FSRF9YVEtCRCBpcyBub3Qg
-c2V0DQojIENPTkZJR19LRVlCT0FSRF9ORVdUT04gaXMgbm90IHNldA0KQ09O
-RklHX0lOUFVUX01PVVNFPXkNCkNPTkZJR19NT1VTRV9QUzI9eQ0KIyBDT05G
-SUdfTU9VU0VfU0VSSUFMIGlzIG5vdCBzZXQNCiMgQ09ORklHX01PVVNFX0lO
-UE9SVCBpcyBub3Qgc2V0DQojIENPTkZJR19NT1VTRV9MT0dJQk0gaXMgbm90
-IHNldA0KIyBDT05GSUdfTU9VU0VfUEMxMTBQQUQgaXMgbm90IHNldA0KIyBD
-T05GSUdfTU9VU0VfVlNYWFhBQSBpcyBub3Qgc2V0DQojIENPTkZJR19JTlBV
-VF9KT1lTVElDSyBpcyBub3Qgc2V0DQojIENPTkZJR19JTlBVVF9UT1VDSFND
-UkVFTiBpcyBub3Qgc2V0DQpDT05GSUdfSU5QVVRfTUlTQz15DQpDT05GSUdf
-SU5QVVRfUENTUEtSPXkNCiMgQ09ORklHX0lOUFVUX1VJTlBVVCBpcyBub3Qg
-c2V0DQoNCiMNCiMgQ2hhcmFjdGVyIGRldmljZXMNCiMNCkNPTkZJR19WVD15
-DQpDT05GSUdfVlRfQ09OU09MRT15DQpDT05GSUdfSFdfQ09OU09MRT15DQoj
-IENPTkZJR19TRVJJQUxfTk9OU1RBTkRBUkQgaXMgbm90IHNldA0KDQojDQoj
-IFNlcmlhbCBkcml2ZXJzDQojDQpDT05GSUdfU0VSSUFMXzgyNTA9eQ0KQ09O
-RklHX1NFUklBTF84MjUwX0NPTlNPTEU9eQ0KQ09ORklHX1NFUklBTF84MjUw
-X0FDUEk9eQ0KQ09ORklHX1NFUklBTF84MjUwX05SX1VBUlRTPTINCiMgQ09O
-RklHX1NFUklBTF84MjUwX0VYVEVOREVEIGlzIG5vdCBzZXQNCg0KIw0KIyBO
-b24tODI1MCBzZXJpYWwgcG9ydCBzdXBwb3J0DQojDQpDT05GSUdfU0VSSUFM
-X0NPUkU9eQ0KQ09ORklHX1NFUklBTF9DT1JFX0NPTlNPTEU9eQ0KQ09ORklH
-X1VOSVg5OF9QVFlTPXkNCkNPTkZJR19MRUdBQ1lfUFRZUz15DQpDT05GSUdf
-TEVHQUNZX1BUWV9DT1VOVD0yNTYNCkNPTkZJR19QUklOVEVSPXkNCkNPTkZJ
-R19MUF9DT05TT0xFPXkNCkNPTkZJR19QUERFVj15DQojIENPTkZJR19USVBB
-UiBpcyBub3Qgc2V0DQoNCiMNCiMgSVBNSQ0KIw0KIyBDT05GSUdfSVBNSV9I
-QU5ETEVSIGlzIG5vdCBzZXQNCg0KIw0KIyBXYXRjaGRvZyBDYXJkcw0KIw0K
-IyBDT05GSUdfV0FUQ0hET0cgaXMgbm90IHNldA0KIyBDT05GSUdfSFdfUkFO
-RE9NIGlzIG5vdCBzZXQNCiMgQ09ORklHX05WUkFNIGlzIG5vdCBzZXQNCkNP
-TkZJR19SVEM9eQ0KIyBDT05GSUdfRFRMSyBpcyBub3Qgc2V0DQojIENPTkZJ
-R19SMzk2NCBpcyBub3Qgc2V0DQojIENPTkZJR19BUFBMSUNPTSBpcyBub3Qg
-c2V0DQojIENPTkZJR19TT05ZUEkgaXMgbm90IHNldA0KDQojDQojIEZ0YXBl
-LCB0aGUgZmxvcHB5IHRhcGUgZGV2aWNlIGRyaXZlcg0KIw0KIyBDT05GSUdf
-RlRBUEUgaXMgbm90IHNldA0KQ09ORklHX0FHUD15DQojIENPTkZJR19BR1Bf
-QUxJIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FHUF9BVEkgaXMgbm90IHNldA0K
-IyBDT05GSUdfQUdQX0FNRCBpcyBub3Qgc2V0DQojIENPTkZJR19BR1BfQU1E
-NjQgaXMgbm90IHNldA0KQ09ORklHX0FHUF9JTlRFTD15DQojIENPTkZJR19B
-R1BfSU5URUxfTUNIIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FHUF9OVklESUEg
-aXMgbm90IHNldA0KIyBDT05GSUdfQUdQX1NJUyBpcyBub3Qgc2V0DQojIENP
-TkZJR19BR1BfU1dPUktTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FHUF9WSUEg
-aXMgbm90IHNldA0KIyBDT05GSUdfQUdQX0VGRklDRU9OIGlzIG5vdCBzZXQN
-CiMgQ09ORklHX0RSTSBpcyBub3Qgc2V0DQojIENPTkZJR19NV0FWRSBpcyBu
-b3Qgc2V0DQojIENPTkZJR19SQVdfRFJJVkVSIGlzIG5vdCBzZXQNCkNPTkZJ
-R19IUEVUPXkNCiMgQ09ORklHX0hQRVRfUlRDX0lSUSBpcyBub3Qgc2V0DQpD
-T05GSUdfSFBFVF9NTUFQPXkNCkNPTkZJR19IQU5HQ0hFQ0tfVElNRVI9eQ0K
-DQojDQojIEkyQyBzdXBwb3J0DQojDQpDT05GSUdfSTJDPXkNCkNPTkZJR19J
-MkNfQ0hBUkRFVj15DQoNCiMNCiMgSTJDIEFsZ29yaXRobXMNCiMNCkNPTkZJ
-R19JMkNfQUxHT0JJVD15DQpDT05GSUdfSTJDX0FMR09QQ0Y9eQ0KIyBDT05G
-SUdfSTJDX0FMR09QQ0EgaXMgbm90IHNldA0KDQojDQojIEkyQyBIYXJkd2Fy
-ZSBCdXMgc3VwcG9ydA0KIw0KIyBDT05GSUdfSTJDX0FMSTE1MzUgaXMgbm90
-IHNldA0KIyBDT05GSUdfSTJDX0FMSTE1NjMgaXMgbm90IHNldA0KIyBDT05G
-SUdfSTJDX0FMSTE1WDMgaXMgbm90IHNldA0KIyBDT05GSUdfSTJDX0FNRDc1
-NiBpcyBub3Qgc2V0DQojIENPTkZJR19JMkNfQU1EODExMSBpcyBub3Qgc2V0
-DQojIENPTkZJR19JMkNfRUxFS1RPUiBpcyBub3Qgc2V0DQojIENPTkZJR19J
-MkNfSTgwMSBpcyBub3Qgc2V0DQojIENPTkZJR19JMkNfSTgxMCBpcyBub3Qg
-c2V0DQojIENPTkZJR19JMkNfSVNBIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ky
-Q19ORk9SQ0UyIGlzIG5vdCBzZXQNCiMgQ09ORklHX0kyQ19QQVJQT1JUIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0kyQ19QQVJQT1JUX0xJR0hUIGlzIG5vdCBz
-ZXQNCkNPTkZJR19JMkNfUElJWDQ9eQ0KIyBDT05GSUdfSTJDX1BST1NBVkFH
-RSBpcyBub3Qgc2V0DQojIENPTkZJR19JMkNfU0FWQUdFNCBpcyBub3Qgc2V0
-DQojIENPTkZJR19TQ3gyMDBfQUNCIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ky
-Q19TSVM1NTk1IGlzIG5vdCBzZXQNCiMgQ09ORklHX0kyQ19TSVM2MzAgaXMg
-bm90IHNldA0KIyBDT05GSUdfSTJDX1NJUzk2WCBpcyBub3Qgc2V0DQojIENP
-TkZJR19JMkNfU1RVQiBpcyBub3Qgc2V0DQojIENPTkZJR19JMkNfVklBIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0kyQ19WSUFQUk8gaXMgbm90IHNldA0KIyBD
-T05GSUdfSTJDX1ZPT0RPTzMgaXMgbm90IHNldA0KIyBDT05GSUdfSTJDX1BD
-QV9JU0EgaXMgbm90IHNldA0KDQojDQojIEhhcmR3YXJlIFNlbnNvcnMgQ2hp
-cCBzdXBwb3J0DQojDQpDT05GSUdfSTJDX1NFTlNPUj15DQpDT05GSUdfU0VO
-U09SU19BRE0xMDIxPXkNCiMgQ09ORklHX1NFTlNPUlNfQURNMTAyNSBpcyBu
-b3Qgc2V0DQojIENPTkZJR19TRU5TT1JTX0FETTEwMzEgaXMgbm90IHNldA0K
-IyBDT05GSUdfU0VOU09SU19BU0IxMDAgaXMgbm90IHNldA0KIyBDT05GSUdf
-U0VOU09SU19EUzE2MjEgaXMgbm90IHNldA0KIyBDT05GSUdfU0VOU09SU19G
-U0NIRVIgaXMgbm90IHNldA0KIyBDT05GSUdfU0VOU09SU19HTDUxOFNNIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX1NFTlNPUlNfSVQ4NyBpcyBub3Qgc2V0DQoj
-IENPTkZJR19TRU5TT1JTX0xNNjMgaXMgbm90IHNldA0KIyBDT05GSUdfU0VO
-U09SU19MTTc1IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NFTlNPUlNfTE03NyBp
-cyBub3Qgc2V0DQojIENPTkZJR19TRU5TT1JTX0xNNzggaXMgbm90IHNldA0K
-IyBDT05GSUdfU0VOU09SU19MTTgwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NF
-TlNPUlNfTE04MyBpcyBub3Qgc2V0DQojIENPTkZJR19TRU5TT1JTX0xNODUg
-aXMgbm90IHNldA0KIyBDT05GSUdfU0VOU09SU19MTTg3IGlzIG5vdCBzZXQN
-CiMgQ09ORklHX1NFTlNPUlNfTE05MCBpcyBub3Qgc2V0DQojIENPTkZJR19T
-RU5TT1JTX01BWDE2MTkgaXMgbm90IHNldA0KIyBDT05GSUdfU0VOU09SU19Q
-Qzg3MzYwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NFTlNPUlNfU01TQzQ3TTEg
-aXMgbm90IHNldA0KIyBDT05GSUdfU0VOU09SU19WSUE2ODZBIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX1NFTlNPUlNfVzgzNzgxRCBpcyBub3Qgc2V0DQojIENP
-TkZJR19TRU5TT1JTX1c4M0w3ODVUUyBpcyBub3Qgc2V0DQojIENPTkZJR19T
-RU5TT1JTX1c4MzYyN0hGIGlzIG5vdCBzZXQNCg0KIw0KIyBPdGhlciBJMkMg
-Q2hpcCBzdXBwb3J0DQojDQpDT05GSUdfU0VOU09SU19FRVBST009eQ0KIyBD
-T05GSUdfU0VOU09SU19QQ0Y4NTc0IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NF
-TlNPUlNfUENGODU5MSBpcyBub3Qgc2V0DQojIENPTkZJR19TRU5TT1JTX1JU
-Qzg1NjQgaXMgbm90IHNldA0KIyBDT05GSUdfSTJDX0RFQlVHX0NPUkUgaXMg
-bm90IHNldA0KIyBDT05GSUdfSTJDX0RFQlVHX0FMR08gaXMgbm90IHNldA0K
-IyBDT05GSUdfSTJDX0RFQlVHX0JVUyBpcyBub3Qgc2V0DQojIENPTkZJR19J
-MkNfREVCVUdfQ0hJUCBpcyBub3Qgc2V0DQoNCiMNCiMgRGFsbGFzJ3MgMS13
-aXJlIGJ1cw0KIw0KIyBDT05GSUdfVzEgaXMgbm90IHNldA0KDQojDQojIE1p
-c2MgZGV2aWNlcw0KIw0KIyBDT05GSUdfSUJNX0FTTSBpcyBub3Qgc2V0DQoN
-CiMNCiMgTXVsdGltZWRpYSBkZXZpY2VzDQojDQpDT05GSUdfVklERU9fREVW
-PXkNCg0KIw0KIyBWaWRlbyBGb3IgTGludXgNCiMNCg0KIw0KIyBWaWRlbyBB
-ZGFwdGVycw0KIw0KIyBDT05GSUdfVklERU9fQlQ4NDggaXMgbm90IHNldA0K
-IyBDT05GSUdfVklERU9fUE1TIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVP
-X0JXUUNBTSBpcyBub3Qgc2V0DQojIENPTkZJR19WSURFT19DUUNBTSBpcyBu
-b3Qgc2V0DQojIENPTkZJR19WSURFT19XOTk2NiBpcyBub3Qgc2V0DQojIENP
-TkZJR19WSURFT19DUElBIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVPX1NB
-QTUyNDZBIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVPX1NBQTUyNDkgaXMg
-bm90IHNldA0KIyBDT05GSUdfVFVORVJfMzAzNiBpcyBub3Qgc2V0DQojIENP
-TkZJR19WSURFT19TVFJBRElTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVP
-X1pPUkFOIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVPX1pSMzYxMjAgaXMg
-bm90IHNldA0KIyBDT05GSUdfVklERU9fU0FBNzEzNCBpcyBub3Qgc2V0DQoj
-IENPTkZJR19WSURFT19NWEIgaXMgbm90IHNldA0KIyBDT05GSUdfVklERU9f
-RFBDIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVPX0hFWElVTV9PUklPTiBp
-cyBub3Qgc2V0DQojIENPTkZJR19WSURFT19IRVhJVU1fR0VNSU5JIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX1ZJREVPX0NYODggaXMgbm90IHNldA0KIyBDT05G
-SUdfVklERU9fT1ZDQU1DSElQIGlzIG5vdCBzZXQNCg0KIw0KIyBSYWRpbyBB
-ZGFwdGVycw0KIw0KIyBDT05GSUdfUkFESU9fQ0FERVQgaXMgbm90IHNldA0K
-IyBDT05GSUdfUkFESU9fUlRSQUNLIGlzIG5vdCBzZXQNCiMgQ09ORklHX1JB
-RElPX1JUUkFDSzIgaXMgbm90IHNldA0KIyBDT05GSUdfUkFESU9fQVpURUNI
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX1JBRElPX0dFTVRFSyBpcyBub3Qgc2V0
-DQojIENPTkZJR19SQURJT19HRU1URUtfUENJIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX1JBRElPX01BWElSQURJTyBpcyBub3Qgc2V0DQojIENPTkZJR19SQURJ
-T19NQUVTVFJPIGlzIG5vdCBzZXQNCiMgQ09ORklHX1JBRElPX1NGMTZGTUkg
-aXMgbm90IHNldA0KIyBDT05GSUdfUkFESU9fU0YxNkZNUjIgaXMgbm90IHNl
-dA0KIyBDT05GSUdfUkFESU9fVEVSUkFURUMgaXMgbm90IHNldA0KIyBDT05G
-SUdfUkFESU9fVFJVU1QgaXMgbm90IHNldA0KIyBDT05GSUdfUkFESU9fVFlQ
-SE9PTiBpcyBub3Qgc2V0DQojIENPTkZJR19SQURJT19aT0xUUklYIGlzIG5v
-dCBzZXQNCg0KIw0KIyBEaWdpdGFsIFZpZGVvIEJyb2FkY2FzdGluZyBEZXZp
-Y2VzDQojDQojIENPTkZJR19EVkIgaXMgbm90IHNldA0KDQojDQojIEdyYXBo
-aWNzIHN1cHBvcnQNCiMNCkNPTkZJR19GQj15DQojIENPTkZJR19GQl9NT0RF
-X0hFTFBFUlMgaXMgbm90IHNldA0KIyBDT05GSUdfRkJfVElMRUJMSVRUSU5H
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZCX0NJUlJVUyBpcyBub3Qgc2V0DQoj
-IENPTkZJR19GQl9QTTIgaXMgbm90IHNldA0KIyBDT05GSUdfRkJfQ1lCRVIy
-MDAwIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZCX0FTSUxJQU5UIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX0ZCX0lNU1RUIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZC
-X1ZHQTE2IGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZCX1ZFU0EgaXMgbm90IHNl
-dA0KQ09ORklHX1ZJREVPX1NFTEVDVD15DQojIENPTkZJR19GQl9IR0EgaXMg
-bm90IHNldA0KIyBDT05GSUdfRkJfUklWQSBpcyBub3Qgc2V0DQojIENPTkZJ
-R19GQl9JODEwIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZCX0lOVEVMIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX0ZCX01BVFJPWCBpcyBub3Qgc2V0DQojIENPTkZJ
-R19GQl9SQURFT05fT0xEIGlzIG5vdCBzZXQNCiMgQ09ORklHX0ZCX1JBREVP
-TiBpcyBub3Qgc2V0DQojIENPTkZJR19GQl9BVFkxMjggaXMgbm90IHNldA0K
-Q09ORklHX0ZCX0FUWT15DQpDT05GSUdfRkJfQVRZX0NUPXkNCiMgQ09ORklH
-X0ZCX0FUWV9HRU5FUklDX0xDRCBpcyBub3Qgc2V0DQojIENPTkZJR19GQl9B
-VFlfWExfSU5JVCBpcyBub3Qgc2V0DQojIENPTkZJR19GQl9BVFlfR1ggaXMg
-bm90IHNldA0KIyBDT05GSUdfRkJfU0FWQUdFIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX0ZCX1NJUyBpcyBub3Qgc2V0DQojIENPTkZJR19GQl9ORU9NQUdJQyBp
-cyBub3Qgc2V0DQojIENPTkZJR19GQl9LWVJPIGlzIG5vdCBzZXQNCiMgQ09O
-RklHX0ZCXzNERlggaXMgbm90IHNldA0KIyBDT05GSUdfRkJfVk9PRE9PMSBp
-cyBub3Qgc2V0DQojIENPTkZJR19GQl9UUklERU5UIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX0ZCX1BNMyBpcyBub3Qgc2V0DQojIENPTkZJR19GQl9WSVJUVUFM
-IGlzIG5vdCBzZXQNCg0KIw0KIyBDb25zb2xlIGRpc3BsYXkgZHJpdmVyIHN1
-cHBvcnQNCiMNCkNPTkZJR19WR0FfQ09OU09MRT15DQojIENPTkZJR19NREFf
-Q09OU09MRSBpcyBub3Qgc2V0DQpDT05GSUdfRFVNTVlfQ09OU09MRT15DQpD
-T05GSUdfRlJBTUVCVUZGRVJfQ09OU09MRT15DQojIENPTkZJR19GT05UUyBp
-cyBub3Qgc2V0DQpDT05GSUdfRk9OVF84eDg9eQ0KQ09ORklHX0ZPTlRfOHgx
-Nj15DQoNCiMNCiMgTG9nbyBjb25maWd1cmF0aW9uDQojDQojIENPTkZJR19M
-T0dPIGlzIG5vdCBzZXQNCg0KIw0KIyBTb3VuZA0KIw0KQ09ORklHX1NPVU5E
-PXkNCg0KIw0KIyBBZHZhbmNlZCBMaW51eCBTb3VuZCBBcmNoaXRlY3R1cmUN
-CiMNCiMgQ09ORklHX1NORCBpcyBub3Qgc2V0DQoNCiMNCiMgT3BlbiBTb3Vu
-ZCBTeXN0ZW0NCiMNCkNPTkZJR19TT1VORF9QUklNRT15DQojIENPTkZJR19T
-T1VORF9CVDg3OCBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9DTVBDSSBp
-cyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9FTVUxMEsxIGlzIG5vdCBzZXQN
-CiMgQ09ORklHX1NPVU5EX0ZVU0lPTiBpcyBub3Qgc2V0DQojIENPTkZJR19T
-T1VORF9DUzQyODEgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfRVMxMzcw
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0VTMTM3MSBpcyBub3Qgc2V0
-DQojIENPTkZJR19TT1VORF9FU1NTT0xPMSBpcyBub3Qgc2V0DQojIENPTkZJ
-R19TT1VORF9NQUVTVFJPIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01B
-RVNUUk8zIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0lDSCBpcyBub3Qg
-c2V0DQojIENPTkZJR19TT1VORF9TT05JQ1ZJQkVTIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX1NPVU5EX1RSSURFTlQgaXMgbm90IHNldA0KIyBDT05GSUdfU09V
-TkRfTVNORENMQVMgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfTVNORFBJ
-TiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9WSUE4MkNYWFggaXMgbm90
-IHNldA0KQ09ORklHX1NPVU5EX09TUz15DQpDT05GSUdfU09VTkRfVFJBQ0VJ
-TklUPXkNCkNPTkZJR19TT1VORF9ETUFQPXkNCiMgQ09ORklHX1NPVU5EX0FE
-MTgxNiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9BRDE4ODkgaXMgbm90
-IHNldA0KIyBDT05GSUdfU09VTkRfU0dBTEFYWSBpcyBub3Qgc2V0DQojIENP
-TkZJR19TT1VORF9BRExJQiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9B
-Q0lfTUlYRVIgaXMgbm90IHNldA0KQ09ORklHX1NPVU5EX0NTNDIzMj15DQoj
-IENPTkZJR19TT1VORF9TU0NBUEUgaXMgbm90IHNldA0KIyBDT05GSUdfU09V
-TkRfR1VTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX1ZNSURJIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX1NPVU5EX1RSSVggaXMgbm90IHNldA0KIyBDT05G
-SUdfU09VTkRfTVNTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01QVTQw
-MSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9OTTI1NiBpcyBub3Qgc2V0
-DQojIENPTkZJR19TT1VORF9NQUQxNiBpcyBub3Qgc2V0DQojIENPTkZJR19T
-T1VORF9QQVMgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfUFNTIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX1NPVU5EX1NCIGlzIG5vdCBzZXQNCiMgQ09ORklH
-X1NPVU5EX0FXRTMyX1NZTlRIIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5E
-X1dBVkVGUk9OVCBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9NQVVJIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX1lNMzgxMiBpcyBub3Qgc2V0DQoj
-IENPTkZJR19TT1VORF9PUEwzU0ExIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NP
-VU5EX09QTDNTQTIgaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfWU1GUENJ
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX1VBUlQ2ODUwIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX1NPVU5EX0FFRFNQMTYgaXMgbm90IHNldA0KIyBDT05G
-SUdfU09VTkRfVFZNSVhFUiBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9B
-TEk1NDU1IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX0ZPUlRFIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX1NPVU5EX1JNRTk2WFggaXMgbm90IHNldA0KIyBD
-T05GSUdfU09VTkRfQUQxOTgwIGlzIG5vdCBzZXQNCg0KIw0KIyBVU0Igc3Vw
-cG9ydA0KIw0KQ09ORklHX1VTQj15DQojIENPTkZJR19VU0JfREVCVUcgaXMg
-bm90IHNldA0KDQojDQojIE1pc2NlbGxhbmVvdXMgVVNCIG9wdGlvbnMNCiMN
-CkNPTkZJR19VU0JfREVWSUNFRlM9eQ0KIyBDT05GSUdfVVNCX0JBTkRXSURU
-SCBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfRFlOQU1JQ19NSU5PUlMgaXMg
-bm90IHNldA0KIyBDT05GSUdfVVNCX1NVU1BFTkQgaXMgbm90IHNldA0KIyBD
-T05GSUdfVVNCX09URyBpcyBub3Qgc2V0DQpDT05GSUdfVVNCX0FSQ0hfSEFT
-X0hDRD15DQpDT05GSUdfVVNCX0FSQ0hfSEFTX09IQ0k9eQ0KDQojDQojIFVT
-QiBIb3N0IENvbnRyb2xsZXIgRHJpdmVycw0KIw0KIyBDT05GSUdfVVNCX0VI
-Q0lfSENEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9PSENJX0hDRCBpcyBu
-b3Qgc2V0DQpDT05GSUdfVVNCX1VIQ0lfSENEPXkNCg0KIw0KIyBVU0IgRGV2
-aWNlIENsYXNzIGRyaXZlcnMNCiMNCkNPTkZJR19VU0JfQVVESU89eQ0KIyBD
-T05GSUdfVVNCX0JMVUVUT09USF9UVFkgaXMgbm90IHNldA0KIyBDT05GSUdf
-VVNCX01JREkgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX0FDTSBpcyBub3Qg
-c2V0DQojIENPTkZJR19VU0JfUFJJTlRFUiBpcyBub3Qgc2V0DQojIENPTkZJ
-R19VU0JfU1RPUkFHRSBpcyBub3Qgc2V0DQoNCiMNCiMgVVNCIElucHV0IERl
-dmljZXMNCiMNCiMgQ09ORklHX1VTQl9ISUQgaXMgbm90IHNldA0KDQojDQoj
-IFVTQiBISUQgQm9vdCBQcm90b2NvbCBkcml2ZXJzDQojDQojIENPTkZJR19V
-U0JfS0JEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9NT1VTRSBpcyBub3Qg
-c2V0DQojIENPTkZJR19VU0JfQUlQVEVLIGlzIG5vdCBzZXQNCiMgQ09ORklH
-X1VTQl9XQUNPTSBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfS0JUQUIgaXMg
-bm90IHNldA0KIyBDT05GSUdfVVNCX1BPV0VSTUFURSBpcyBub3Qgc2V0DQoj
-IENPTkZJR19VU0JfTVRPVUNIIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9F
-R0FMQVggaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1hQQUQgaXMgbm90IHNl
-dA0KIyBDT05GSUdfVVNCX0FUSV9SRU1PVEUgaXMgbm90IHNldA0KDQojDQoj
-IFVTQiBJbWFnaW5nIGRldmljZXMNCiMNCiMgQ09ORklHX1VTQl9NREM4MDAg
-aXMgbm90IHNldA0KDQojDQojIFVTQiBNdWx0aW1lZGlhIGRldmljZXMNCiMN
-CiMgQ09ORklHX1VTQl9EQUJVU0IgaXMgbm90IHNldA0KIyBDT05GSUdfVVNC
-X1ZJQ0FNIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9EU0JSIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX1VTQl9JQk1DQU0gaXMgbm90IHNldA0KIyBDT05GSUdf
-VVNCX0tPTklDQVdDIGlzIG5vdCBzZXQNCkNPTkZJR19VU0JfT1Y1MTE9eQ0K
-IyBDT05GSUdfVVNCX1NFNDAxIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9T
-TjlDMTAyIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9TVFY2ODAgaXMgbm90
-IHNldA0KDQojDQojIFVTQiBOZXR3b3JrIEFkYXB0ZXJzDQojDQojIENPTkZJ
-R19VU0JfQ0FUQyBpcyBub3Qgc2V0DQojIENPTkZJR19VU0JfS0FXRVRIIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX1VTQl9QRUdBU1VTIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX1VTQl9SVEw4MTUwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9V
-U0JORVQgaXMgbm90IHNldA0KDQojDQojIFVTQiBwb3J0IGRyaXZlcnMNCiMN
-CiMgQ09ORklHX1VTQl9VU1M3MjAgaXMgbm90IHNldA0KDQojDQojIFVTQiBT
-ZXJpYWwgQ29udmVydGVyIHN1cHBvcnQNCiMNCiMgQ09ORklHX1VTQl9TRVJJ
-QUwgaXMgbm90IHNldA0KDQojDQojIFVTQiBNaXNjZWxsYW5lb3VzIGRyaXZl
-cnMNCiMNCiMgQ09ORklHX1VTQl9FTUk2MiBpcyBub3Qgc2V0DQojIENPTkZJ
-R19VU0JfRU1JMjYgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX1RJR0wgaXMg
-bm90IHNldA0KIyBDT05GSUdfVVNCX0FVRVJTV0FMRCBpcyBub3Qgc2V0DQoj
-IENPTkZJR19VU0JfUklPNTAwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9M
-RUdPVE9XRVIgaXMgbm90IHNldA0KIyBDT05GSUdfVVNCX0xDRCBpcyBub3Qg
-c2V0DQojIENPTkZJR19VU0JfTEVEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VT
-Ql9DWVRIRVJNIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9QSElER0VUS0lU
-IGlzIG5vdCBzZXQNCiMgQ09ORklHX1VTQl9QSElER0VUU0VSVk8gaXMgbm90
-IHNldA0KIyBDT05GSUdfVVNCX1RFU1QgaXMgbm90IHNldA0KDQojDQojIFVT
-QiBBVE0vRFNMIGRyaXZlcnMNCiMNCg0KIw0KIyBVU0IgR2FkZ2V0IFN1cHBv
-cnQNCiMNCiMgQ09ORklHX1VTQl9HQURHRVQgaXMgbm90IHNldA0KDQojDQoj
-IEZpbGUgc3lzdGVtcw0KIw0KIyBDT05GSUdfRVhUMl9GUyBpcyBub3Qgc2V0
-DQojIENPTkZJR19FWFQzX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0pCRCBp
-cyBub3Qgc2V0DQojIENPTkZJR19SRUlTRVJGU19GUyBpcyBub3Qgc2V0DQoj
-IENPTkZJR19KRlNfRlMgaXMgbm90IHNldA0KQ09ORklHX0ZTX1BPU0lYX0FD
-TD15DQpDT05GSUdfWEZTX0ZTPXkNCkNPTkZJR19YRlNfUlQ9eQ0KQ09ORklH
-X1hGU19RVU9UQT15DQpDT05GSUdfWEZTX1NFQ1VSSVRZPXkNCkNPTkZJR19Y
-RlNfUE9TSVhfQUNMPXkNCiMgQ09ORklHX01JTklYX0ZTIGlzIG5vdCBzZXQN
-CiMgQ09ORklHX1JPTUZTX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1FVT1RB
-IGlzIG5vdCBzZXQNCkNPTkZJR19RVU9UQUNUTD15DQpDT05GSUdfRE5PVElG
-WT15DQojIENPTkZJR19BVVRPRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdf
-QVVUT0ZTNF9GUyBpcyBub3Qgc2V0DQoNCiMNCiMgQ0QtUk9NL0RWRCBGaWxl
-c3lzdGVtcw0KIw0KQ09ORklHX0lTTzk2NjBfRlM9eQ0KQ09ORklHX0pPTElF
-VD15DQpDT05GSUdfWklTT0ZTPXkNCkNPTkZJR19aSVNPRlNfRlM9eQ0KQ09O
-RklHX1VERl9GUz15DQpDT05GSUdfVURGX05MUz15DQoNCiMNCiMgRE9TL0ZB
-VC9OVCBGaWxlc3lzdGVtcw0KIw0KQ09ORklHX0ZBVF9GUz15DQpDT05GSUdf
-TVNET1NfRlM9eQ0KQ09ORklHX1ZGQVRfRlM9eQ0KQ09ORklHX0ZBVF9ERUZB
-VUxUX0NPREVQQUdFPTQzNw0KQ09ORklHX0ZBVF9ERUZBVUxUX0lPQ0hBUlNF
-VD0iaXNvODg1OS0xIg0KQ09ORklHX05URlNfRlM9bQ0KIyBDT05GSUdfTlRG
-U19ERUJVRyBpcyBub3Qgc2V0DQpDT05GSUdfTlRGU19SVz15DQoNCiMNCiMg
-UHNldWRvIGZpbGVzeXN0ZW1zDQojDQpDT05GSUdfUFJPQ19GUz15DQpDT05G
-SUdfUFJPQ19LQ09SRT15DQpDT05GSUdfU1lTRlM9eQ0KIyBDT05GSUdfREVW
-RlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfREVWUFRTX0ZTX1hBVFRSIGlz
-IG5vdCBzZXQNCkNPTkZJR19UTVBGUz15DQojIENPTkZJR19UTVBGU19YQVRU
-UiBpcyBub3Qgc2V0DQojIENPTkZJR19IVUdFVExCRlMgaXMgbm90IHNldA0K
-IyBDT05GSUdfSFVHRVRMQl9QQUdFIGlzIG5vdCBzZXQNCkNPTkZJR19SQU1G
-Uz15DQoNCiMNCiMgTWlzY2VsbGFuZW91cyBmaWxlc3lzdGVtcw0KIw0KIyBD
-T05GSUdfQURGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19BRkZTX0ZTIGlz
-IG5vdCBzZXQNCiMgQ09ORklHX0hGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJ
-R19IRlNQTFVTX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JFRlNfRlMgaXMg
-bm90IHNldA0KIyBDT05GSUdfQkZTX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklH
-X0VGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19DUkFNRlMgaXMgbm90IHNl
-dA0KIyBDT05GSUdfVlhGU19GUyBpcyBub3Qgc2V0DQojIENPTkZJR19IUEZT
-X0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1FOWDRGU19GUyBpcyBub3Qgc2V0
-DQojIENPTkZJR19TWVNWX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VGU19G
-UyBpcyBub3Qgc2V0DQoNCiMNCiMgTmV0d29yayBGaWxlIFN5c3RlbXMNCiMN
-CkNPTkZJR19ORlNfRlM9eQ0KQ09ORklHX05GU19WMz15DQpDT05GSUdfTkZT
-X1Y0PXkNCiMgQ09ORklHX05GU19ESVJFQ1RJTyBpcyBub3Qgc2V0DQpDT05G
-SUdfTkZTRD15DQpDT05GSUdfTkZTRF9WMz15DQpDT05GSUdfTkZTRF9WND15
-DQpDT05GSUdfTkZTRF9UQ1A9eQ0KQ09ORklHX0xPQ0tEPXkNCkNPTkZJR19M
-T0NLRF9WND15DQpDT05GSUdfRVhQT1JURlM9eQ0KQ09ORklHX1NVTlJQQz15
-DQpDT05GSUdfU1VOUlBDX0dTUz15DQpDT05GSUdfUlBDU0VDX0dTU19LUkI1
-PXkNCiMgQ09ORklHX1JQQ1NFQ19HU1NfU1BLTTMgaXMgbm90IHNldA0KQ09O
-RklHX1NNQl9GUz15DQpDT05GSUdfU01CX05MU19ERUZBVUxUPXkNCkNPTkZJ
-R19TTUJfTkxTX1JFTU9URT0iY3A0MzciDQojIENPTkZJR19DSUZTIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX05DUF9GUyBpcyBub3Qgc2V0DQojIENPTkZJR19D
-T0RBX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FGU19GUyBpcyBub3Qgc2V0
-DQoNCiMNCiMgUGFydGl0aW9uIFR5cGVzDQojDQojIENPTkZJR19QQVJUSVRJ
-T05fQURWQU5DRUQgaXMgbm90IHNldA0KQ09ORklHX01TRE9TX1BBUlRJVElP
-Tj15DQoNCiMNCiMgTmF0aXZlIExhbmd1YWdlIFN1cHBvcnQNCiMNCkNPTkZJ
-R19OTFM9eQ0KQ09ORklHX05MU19ERUZBVUxUPSJ1dGY4Ig0KQ09ORklHX05M
-U19DT0RFUEFHRV80Mzc9eQ0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzczNyBp
-cyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfNzc1IGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NTAgaXMgbm90IHNldA0KIyBD
-T05GSUdfTkxTX0NPREVQQUdFXzg1MiBpcyBub3Qgc2V0DQojIENPTkZJR19O
-TFNfQ09ERVBBR0VfODU1IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RF
-UEFHRV84NTcgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2
-MCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODYxIGlzIG5v
-dCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjIgaXMgbm90IHNldA0K
-IyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MyBpcyBub3Qgc2V0DQojIENPTkZJ
-R19OTFNfQ09ERVBBR0VfODY0IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19D
-T0RFUEFHRV84NjUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdF
-Xzg2NiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODY5IGlz
-IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV85MzYgaXMgbm90IHNl
-dA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzk1MCBpcyBub3Qgc2V0DQojIENP
-TkZJR19OTFNfQ09ERVBBR0VfOTMyIGlzIG5vdCBzZXQNCiMgQ09ORklHX05M
-U19DT0RFUEFHRV85NDkgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQ
-QUdFXzg3NCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV84IGlz
-IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV8xMjUwIGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV8xMjUxIGlzIG5vdCBzZXQNCiMg
-Q09ORklHX05MU19BU0NJSSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNP
-ODg1OV8xIGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5XzIgaXMg
-bm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4NTlfMyBpcyBub3Qgc2V0DQoj
-IENPTkZJR19OTFNfSVNPODg1OV80IGlzIG5vdCBzZXQNCiMgQ09ORklHX05M
-U19JU084ODU5XzUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4NTlf
-NiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV83IGlzIG5vdCBz
-ZXQNCiMgQ09ORklHX05MU19JU084ODU5XzkgaXMgbm90IHNldA0KIyBDT05G
-SUdfTkxTX0lTTzg4NTlfMTMgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lT
-Tzg4NTlfMTQgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4NTlfMTUg
-aXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0tPSThfUiBpcyBub3Qgc2V0DQoj
-IENPTkZJR19OTFNfS09JOF9VIGlzIG5vdCBzZXQNCkNPTkZJR19OTFNfVVRG
-OD15DQoNCiMNCiMgUHJvZmlsaW5nIHN1cHBvcnQNCiMNCkNPTkZJR19QUk9G
-SUxJTkc9eQ0KQ09ORklHX09QUk9GSUxFPXkNCg0KIw0KIyBLZXJuZWwgaGFj
-a2luZw0KIw0KQ09ORklHX0RFQlVHX0tFUk5FTD15DQpDT05GSUdfTUFHSUNf
-U1lTUlE9eQ0KQ09ORklHX1NDSEVEU1RBVFM9eQ0KQ09ORklHX0RFQlVHX1NM
-QUI9eQ0KQ09ORklHX0RFQlVHX1NQSU5MT0NLPXkNCkNPTkZJR19ERUJVR19T
-UElOTE9DS19TTEVFUD15DQpDT05GSUdfREVCVUdfS09CSkVDVD15DQpDT05G
-SUdfREVCVUdfSU5GTz15DQpDT05GSUdfRlJBTUVfUE9JTlRFUj15DQpDT05G
-SUdfRUFSTFlfUFJJTlRLPXkNCkNPTkZJR19ERUJVR19TVEFDS09WRVJGTE9X
-PXkNCkNPTkZJR19LUFJPQkVTPXkNCkNPTkZJR19ERUJVR19TVEFDS19VU0FH
-RT15DQpDT05GSUdfREVCVUdfUEFHRUFMTE9DPXkNCkNPTkZJR180S1NUQUNL
-Uz15DQpDT05GSUdfWDg2X0ZJTkRfU01QX0NPTkZJRz15DQpDT05GSUdfWDg2
-X01QUEFSU0U9eQ0KDQojDQojIFNlY3VyaXR5IG9wdGlvbnMNCiMNCiMgQ09O
-RklHX0tFWVMgaXMgbm90IHNldA0KIyBDT05GSUdfU0VDVVJJVFkgaXMgbm90
-IHNldA0KDQojDQojIENyeXB0b2dyYXBoaWMgb3B0aW9ucw0KIw0KQ09ORklH
-X0NSWVBUTz15DQpDT05GSUdfQ1JZUFRPX0hNQUM9eQ0KQ09ORklHX0NSWVBU
-T19OVUxMPXkNCkNPTkZJR19DUllQVE9fTUQ0PXkNCkNPTkZJR19DUllQVE9f
-TUQ1PXkNCkNPTkZJR19DUllQVE9fU0hBMT15DQpDT05GSUdfQ1JZUFRPX1NI
-QTI1Nj15DQpDT05GSUdfQ1JZUFRPX1NIQTUxMj15DQpDT05GSUdfQ1JZUFRP
-X1dQNTEyPXkNCkNPTkZJR19DUllQVE9fREVTPXkNCkNPTkZJR19DUllQVE9f
-QkxPV0ZJU0g9eQ0KQ09ORklHX0NSWVBUT19UV09GSVNIPXkNCkNPTkZJR19D
-UllQVE9fU0VSUEVOVD15DQpDT05GSUdfQ1JZUFRPX0FFU181ODY9eQ0KQ09O
-RklHX0NSWVBUT19DQVNUNT15DQpDT05GSUdfQ1JZUFRPX0NBU1Q2PXkNCkNP
-TkZJR19DUllQVE9fVEVBPXkNCkNPTkZJR19DUllQVE9fQVJDND15DQpDT05G
-SUdfQ1JZUFRPX0tIQVpBRD15DQpDT05GSUdfQ1JZUFRPX0FOVUJJUz15DQpD
-T05GSUdfQ1JZUFRPX0RFRkxBVEU9eQ0KQ09ORklHX0NSWVBUT19NSUNIQUVM
-X01JQz15DQpDT05GSUdfQ1JZUFRPX0NSQzMyQz15DQpDT05GSUdfQ1JZUFRP
-X1RFU1Q9eQ0KDQojDQojIExpYnJhcnkgcm91dGluZXMNCiMNCkNPTkZJR19D
-UkNfQ0NJVFQ9eQ0KQ09ORklHX0NSQzMyPXkNCkNPTkZJR19MSUJDUkMzMkM9
-eQ0KQ09ORklHX1pMSUJfSU5GTEFURT15DQpDT05GSUdfWkxJQl9ERUZMQVRF
-PXkNCkNPTkZJR19HRU5FUklDX0hBUkRJUlFTPXkNCkNPTkZJR19HRU5FUklD
-X0lSUV9QUk9CRT15DQpDT05GSUdfWDg2X0JJT1NfUkVCT09UPXkNCkNPTkZJ
-R19QQz15DQo=
-
----1463747160-339141392-1100775636=:31405--
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,85 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUHEFtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUHEFwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUHEFtB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267562AbUHEFtB
+	id S267555AbUHEFwy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbUHEFwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:49:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15579 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267555AbUHEFso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 01:48:44 -0400
-Date: Wed, 4 Aug 2004 22:47:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tupshin Harper1 <tupshin@tupshin.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: /dev/hdl not showing up because of
- fix-ide-probe-double-detection patch
-Message-Id: <20040804224709.3c9be248.akpm@osdl.org>
-In-Reply-To: <4111651E.1040406@tupshin.com>
-References: <411013F7.7080800@tupshin.com>
-	<4111651E.1040406@tupshin.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 01:52:54 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:21509 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S267555AbUHEFwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 01:52:49 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Make MAX_INIT_ARGS 25
+Date: Thu, 5 Aug 2004 07:52:46 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, spot@redhat.com, akpm@osdl.org
+References: <20040804193243.36009baa@lembas.zaitcev.lan>
+In-Reply-To: <20040804193243.36009baa@lembas.zaitcev.lan>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uscEBLcevFBLPJC"
+Message-Id: <200408050752.46409.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tupshin Harper1 <tupshin@tupshin.com> wrote:
->
-> Tupshin Harper1 wrote:
-> 
-> > I have an x86 setup with a large(9) number of ide hard drives. With 
-> > 2.6.8-rc2, all of them show up (as a,b,d,e,f,g,h,i,j,k, and l), but on 
-> > 2.6.8-rc2-mm1, the last one (hdl) does not show up, even though it's a 
-> > slave on the same controller as hdk. Everything about the config is 
-> > identical between the two. Is there some default limit or other 
-> > restriction in the current mm kernels that's preventing that drive 
-> > from showing up? I haven't tried any other recent mm kernels, so I 
-> > don't know when this was introduced.
-> >
-> > -Tupshin
-> 
-> Well, I found the source of the problem. Dmesg gives a "ignoring 
-> undecoded slave" message, which is coming from the 
-> fix-ide-probe-double-detection patch.
 
-Ah, thanks for working that out.
+--Boundary-00=_uscEBLcevFBLPJC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Did you know that Cc: stands for "copy culprit"?
+On Thursday 05 of August 2004 04:32, Pete Zaitcev wrote:
 
-> Both /dev/hdk and /dev/hdl are the same model of hard drive, and 
-> unfortunately, they both report that they are Model 
-> M0000000000000000000, which triggers the double detection removal.
-> 
-> Does anybody have a suggestion (besides maintaining my own kernel 
-> without this patch)? Is the serial number settable? Is there a boot 
-> param I can use?
-> 
-> Also, what is in /proc/ide/hd?/identity besides serial number. The two 
-> drives have very similar identity files, but they are slightly 
-> different. Could that additional info be used to check for duplicates?
-> 
-> -Tupshin
-> 
-> ---snippet from dmesg---
-> PDC20276: IDE controller at PCI slot 0000:00:0c.0
-> ACPI: PCI interrupt 0000:00:0c.0[A] -> GSI 19 (level, low) -> IRQ 19
-> PDC20276: chipset revision 1
-> PDC20276: 100% native mode on irq 19
->     ide4: BM-DMA at 0xdc00-0xdc07, BIOS settings: hdi:pio, hdj:pio
->     ide5: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdk:pio, hdl:pio
-> hdi: SAMSUNG SV8004H, ATA DISK drive
-> hdj: Maxtor 6Y250P0, ATA DISK drive
-> ide4 at 0xec00-0xec07,0xe802 on irq 19
-> hdk: Maxtor 4R120L0, ATA DISK drive
-> hdl: Maxtor 4R120L0, ATA DISK drive
-> ide-probe: ignoring undecoded slave
-> ide5 at 0xe400-0xe407,0xe002 on irq 19
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> --- linux-2.6.7/init/main.c	2004-06-16 16:54:07.000000000 -0700
+> +++ linux-2.6.7-usb/init/main.c	2004-08-04 19:16:22.566593218 -0700
+> @@ -102,8 +102,8 @@
+>  /*
+>   * Boot command-line arguments
+>   */
+> -#define MAX_INIT_ARGS 8
+> -#define MAX_INIT_ENVS 8
+> +#define MAX_INIT_ARGS 25
+> +#define MAX_INIT_ENVS 25
+
+You should also increase the COMMAND_LINE_SIZE.
+
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)
+
+--Boundary-00=_uscEBLcevFBLPJC
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="kernel-MAX_INIT_ARGS.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="kernel-MAX_INIT_ARGS.patch"
+
+--- linux-2.6.7-rc2/init/main.c.org	2004-06-04 12:58:31.000000000 +0200
++++ linux-2.6.7-rc2/init/main.c	2004-06-04 13:43:02.000000000 +0200
+@@ -103,8 +103,8 @@
+ /*
+  * Boot command-line arguments
+  */
+-#define MAX_INIT_ARGS 8
+-#define MAX_INIT_ENVS 8
++#define MAX_INIT_ARGS 256
++#define MAX_INIT_ENVS 256
+ 
+ extern void time_init(void);
+ /* Default late time init is NULL. archs can override this later. */
+--- linux-2.6.7/include/asm-i386/param.h.orig	2004-07-03 16:56:41.000000000 +0200
++++ linux-2.6.7/include/asm-i386/param.h	2004-07-03 19:10:53.358244832 +0200
+@@ -18,6 +18,6 @@
+ #endif
+ 
+ #define MAXHOSTNAMELEN	64	/* max length of hostname */
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 4096
+ 
+ #endif
+diff -Nur --exclude '*.orig' linux-2.6.7-rc3.org/include/asm-i386/setup.h linux-2.6.7-rc3/include/asm-i386/setup.h
+--- linux-2.6.7-rc3.org/include/asm-i386/setup.h	2004-06-07 21:14:42.000000000 +0200
++++ linux-2.6.7-rc3/include/asm-i386/setup.h	2004-06-08 11:29:19.000000000 +0200
+@@ -17,7 +17,7 @@
+ #define MAX_NONPAE_PFN	(1 << 20)
+ 
+ #define PARAM_SIZE 2048
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 4096
+ 
+ #define OLD_CL_MAGIC_ADDR	0x90020
+ #define OLD_CL_MAGIC		0xA33F
+diff -Nur --exclude '*.orig' linux-2.6.7-rc3.org/include/asm-s390/setup.h linux-2.6.7-rc3/include/asm-s390/setup.h
+--- linux-2.6.7-rc3.org/include/asm-s390/setup.h	2004-06-07 21:14:58.000000000 +0200
++++ linux-2.6.7-rc3/include/asm-s390/setup.h	2004-06-08 11:30:38.000000000 +0200
+@@ -9,7 +9,7 @@
+ #define _ASM_S390_SETUP_H
+ 
+ #define PARMAREA		0x10400
+-#define COMMAND_LINE_SIZE 	896
++#define COMMAND_LINE_SIZE 	4096
+ #define RAMDISK_ORIGIN		0x800000
+ #define RAMDISK_SIZE		0x800000
+ 
+--- linux-2.6.7/include/asm-ppc/setup.h.orig	2004-07-06 17:53:17.000000000 +0200
++++ linux-2.6.7/include/asm-ppc/setup.h	2004-07-06 17:55:37.428864888 +0200
+@@ -8,7 +8,7 @@
+ #include <asm-m68k/setup.h>
+ /* We have a bigger command line buffer. */
+ #undef COMMAND_LINE_SIZE
+-#define COMMAND_LINE_SIZE	512
++#define COMMAND_LINE_SIZE	4096
+ 
+ #endif /* _PPC_SETUP_H */
+ #endif /* __KERNEL__ */
+--- linux-2.6.7/arch/ppc/syslib/prom.c.orig	2004-07-06 17:53:30.000000000 +0200
++++ linux-2.6.7/arch/ppc/syslib/prom.c	2004-07-06 17:55:57.781770776 +0200
+@@ -85,7 +85,7 @@
+ extern void enter_rtas(void *);
+ void phys_call_rtas(int, int, int, ...);
+ 
+-extern char cmd_line[512];	/* XXX */
++extern char cmd_line[COMMAND_LINE_SIZE];
+ extern boot_infos_t *boot_infos;
+ unsigned long dev_tree_size;
+ 
+
+--Boundary-00=_uscEBLcevFBLPJC--

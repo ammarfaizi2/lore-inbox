@@ -1,111 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSCSSvf>; Tue, 19 Mar 2002 13:51:35 -0500
+	id <S290797AbSCSSxF>; Tue, 19 Mar 2002 13:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290796AbSCSSv0>; Tue, 19 Mar 2002 13:51:26 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:64269 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S290593AbSCSSvR>; Tue, 19 Mar 2002 13:51:17 -0500
-Message-ID: <3C97889B.6060301@lexus.com>
-Date: Tue, 19 Mar 2002 10:51:07 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020318
-X-Accept-Language: en-us, en
+	id <S290796AbSCSSw5>; Tue, 19 Mar 2002 13:52:57 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:22277 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S290797AbSCSSwq>; Tue, 19 Mar 2002 13:52:46 -0500
+Message-ID: <3C9788B0.30100@evision-ventures.com>
+Date: Tue, 19 Mar 2002 19:51:28 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Wayne.Brown@altec.com
+To: Luigi Genoni <kernel@Expansa.sns.it>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 make modules_install error (oss)
-In-Reply-To: <86256B81.005C508A.00@smtpnotes.altec.com>
+Subject: Re: oops at boot with 2.5.7 and i810
+In-Reply-To: <Pine.LNX.4.44.0203191930060.26263-100000@Expansa.sns.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agreed, the oss drivers should _at least_
-be maintained as an alternative, e.g. for
-those of us who want reliable sound with
-*low latency*
+Luigi Genoni wrote:
+> that is: __get_hash_table
 
-<explanation>
-I haven't checked lately, but not too long
-ago the alsa drivers were found to be one
-of the worst sources of latency in the kernel.
-</explanation>
+The only code which could use this can propably be
+the partition table grocking code!
+So apparently the driver is oopsing on the first actual transfer attempts.
+By the way I have found the following on my desktop system:
 
-Joe
 
-Wayne.Brown@altec.com wrote:
+00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80 [Master])
+         Subsystem: Intel Corporation 82801AA IDE
+         Flags: bus master, medium devsel, latency 0
+         I/O ports at 1020 [size=16]
 
->
->I really wish the OSS drivers would be fixed.  They worked perfectly with my
->Crystal SoundFusion card, but the ALSA drivers are very unreliable with it.
->Sometimes they work, sometimes they don't.  (One day a couple of weeks ago I
->rebooted about ten times, and the sound worked consistently *on alternate boots*
->(that is, it didn't work after the first boot, worked on the second boot, didn't
->work on the third, worked on the fourth, etc.).  The next day it worked on every
->boot.  Since then it works sometimes, and sometimes doesn't, with no discernible
->pattern.  Even when it's working, it works sporadically -- some sound effects in
->Gnome work, others don't, then a few minutes later they all work again;
->RealPlayer works OK until I open a new window, then the sound cuts out and won't
->start again until I restart RealPlayer; and so forth.  The OSS drivers don't
->give me any of these problems.
->
->
->
->
->
->bonganilinux@mweb.co.za on 03/19/2002 08:10:03 AM
->
->To:   Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>,
->      linux-kernel@vger.kernel.org
->cc:    (bcc: Wayne Brown/Corporate/Altec)
->
->Subject:  Re: 2.5.7 make modules_install error (oss)
->
->
->
->>Hi,
->>
->>make -C  arch/i386/lib modules_install
->>make[1]: Entering directory `/usr/src/linux/arch/i386/lib'
->>make[1]: Nothing to be done for `modules_install'.
->>make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
->>cd /lib/modules/2.5.7; \
->>mkdir -p pcmcia; \
->>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
->>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.7; fi
->>depmod: *** Unresolved symbols in /lib/modules/2.5.7/kernel/sound/oss/sound.o
->>depmod:         virt_to_bus_not_defined_use_pci_map
->>
->
->The OSS driver that you selected has not been converted to use the new pci API
->I'm not sure if it will ever be updated though, since alsa is now part of 2.5
->try to use the alsa drivers instead. If you read this
->virt_to_bus_not_defined_use_pci_map carefully yo will see that it says
->virt_to_bus not defined use pci_map nice way to get people to fix the old
->drivers
->;)
->
->---------------------------------------------
->This message was sent using M-Web Airmail.
->JUST LIKE THAT
->http://airmail.mweb.co.za/
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+
+So heck this is precisely the same chipset as yours!
+And I'm writing this message exactly on very this system!
+
+However what may be significant is the following:
+
+VFS: Diskquotas version dquot_6.4.0 initialized
+Journalled Block Device driver loaded
+pty: 2048 Unix98 ptys configured
+Real Time Clock Driver v1.11
+block: 256 slots per queue, batch=32
+Uniform Multi-Platform E-IDE driver ver.:7.0.0
+ide: system bus speed 33MHz
+Intel Corp. 82801AA IDE: IDE controller on PCI slot 00:1f.1
+Intel Corp. 82801AA IDE: chipset revision 2
+Intel Corp. 82801AA IDE: not 100% native mode: will probe irqs later
+PIIX: Intel Corp. 82801AA IDE UDMA66 controller on pci00:1f.1
+     ide0: BM-DMA at 0x1020-0x1027, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0x1028-0x102f, BIOS settings: hdc:pio, hdd:DMA
+hda: IBM-DPTA-372050, ATA DISK drive
+hdc: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
+hdd: LTN485S, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+blk: queue c02c076c, I/O limit 4095Mb (mask 0xffffffff)
+hda: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
+Partition check:
+  hda: hda1 hda2
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+
+Could you please just underline where the oops occurs above?
+
+I would rather expect it to happen before the Parition check part.
+
+Please note as well that the only single real disk in this system
+is enabled to do UDMA by default. What's the status of yours?
+It could well be that the PIO code is the culprit here.
+
+Do you have the ATA floppy driver enabled?
+I use a setup on this system where everything with the exception of
+hard disks is compiled as module.
 
 

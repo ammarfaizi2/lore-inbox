@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTKAGU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 01:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTKAGU5
+	id S263726AbTKAGXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 01:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTKAGXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 01:20:57 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:54032 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261168AbTKAGU4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 01:20:56 -0500
-Date: Sat, 1 Nov 2003 07:20:50 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Anthony DiSante <orders@nodivisions.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Audio skips when RAM is ~full
-Message-ID: <20031101062050.GA13731@alpha.home.local>
-References: <3FA34523.30902@nodivisions.com>
+	Sat, 1 Nov 2003 01:23:12 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:37381 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S263726AbTKAGXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 01:23:10 -0500
+Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Javier Villavicencio <jvillavicencio@arnet.com.ar>
+In-Reply-To: <1067587196.715.1.camel@gaston>
+References: <20031029210321.GA11437@dreamland.darkstar.lan>
+	<1067491238.1735.4.camel@ktkhome>  <1067587196.715.1.camel@gaston>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 01 Nov 2003 01:22:43 -0500
+Message-Id: <1067667765.1642.10.camel@ktkhome>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FA34523.30902@nodivisions.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Fri, 2003-10-31 at 02:59, Benjamin Herrenschmidt wrote:
+> Can you verify that running fbset -accel 0 then back 1 cures the
+> problem for you ?
 
-On Sat, Nov 01, 2003 at 12:31:15AM -0500, Anthony DiSante wrote:
-> The kernel is buffering the contents of each directory (album) that it 
-> reads (and also, mpg321 copies each mp3 file into RAM before playing it?).  
-> I understand that the idea is to stuff as much into RAM as possible to 
-> reduce pagefile usage, and that the kernel will reclaim memory utilized by 
-> buffers if/when it needs to.  But apparently that isn't happening fast 
-> enough to allow a realtime process like music-playing to work skip-free on 
-> this system with this soundcard.  I think that if I could regularly 
-> forcibly dump the buffered stuff out of the RAM (dropping the used-RAM 
-> percentage down to, say, 10%, like at boot time) then this would make the 
-> skipping stop.
+Hi Ben -
 
-1) are you certain that none of your programs (including mpg321) leaks
-   memory ? As I understand it, it's really the cache which fills memory.
-2) you can try to preload your file into the cache just before playing it :
-   cp $file /dev/null ; mpg321 $file
+Tried it, no effect.  It did not seem to do a reset of the card; sync
+never hiccupped.  I also set the mode to a different one and back; that
+had no effect, either.  I'm using fbset 2.1 from the linux-fbdev site.
 
-> So... do I have a correct understanding of the problem, and a correct 
-> analysis of the kernel/mem issues that are related to it?  Is it possible 
-> to clear some of the RAM; if so, would that help?
+As for the YPAN problem, I have the screen set to 1280x1024 using the
+sun 22x12 font.
 
-Unless a leak happens somewhere in the kernel, sound driver, etc..., memory
-consumed by programs is restored when your programs exit. The only part which
-is not restored immediately is the cache.
-
-BTW, there may be one other reason for your problem. Considering that you
-scan your disk to find random albums, I think that the system updates all
-directories access time after 5s, thus preventing your player from reading
-an uncached file fast enough. You might be interested in mounting it with
-the 'noatime,nodiratime' options in /etc/fstab.
-
-You might also want to try 2.4.23pre9 which includes VM changes compared to
-2.4.22, and seems quite stable to me.
-
-Regards,
-Willy
+Kris
 

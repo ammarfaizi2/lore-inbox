@@ -1,50 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264904AbSJ3VXM>; Wed, 30 Oct 2002 16:23:12 -0500
+	id <S264936AbSJ3VIs>; Wed, 30 Oct 2002 16:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264913AbSJ3VXM>; Wed, 30 Oct 2002 16:23:12 -0500
-Received: from [24.82.92.252] ([24.82.92.252]:44060 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264904AbSJ3VXL>; Wed, 30 Oct 2002 16:23:11 -0500
-Message-ID: <3DC05044.5020301@silksystems.com>
-Date: Wed, 30 Oct 2002 13:33:56 -0800
-From: Richard Moss <rick@silksystems.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jerdfelt@sventech.com, linux-kernel@vger.kernel.org
-Subject: cpia and smp dead locks
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264934AbSJ3VIr>; Wed, 30 Oct 2002 16:08:47 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:42903 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264932AbSJ3VIo>; Wed, 30 Oct 2002 16:08:44 -0500
+Date: Wed, 30 Oct 2002 16:17:06 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] SCSI and FibreChannel Hotswap for linux 2.5.44-bk2
+Message-ID: <20021030211706.GA23217@redhat.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Steven Dake <sdake@mvista.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-scsi@vger.kernel.org
+References: <1036007128.5141.119.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0210301127170.7614-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210301127170.7614-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi sorry if this goes to the wrong person but I'm
-tring to submit a bug report to the cpia maintainer
+On Wed, Oct 30, 2002 at 11:29:18AM -0800, Linus Torvalds wrote:
+> 
+> On 30 Oct 2002, Alan Cox wrote:
+> >
+> > On Wed, 2002-10-30 at 18:54, Steven Dake wrote:
+> > > This patch has been reviewed by Alan Cox, Greg KH, Christoph Hellwig, 
+> > > Patrick Mansfield, Rob Landly, Jeff Garzik, Scott Murray, James 
+> > 
+> > Glanced at briefly once, not reviewed.
+> 
+> I'm going to leave the merging of this to the scsi people, in particular 
+> James and Doug. My personal feeling right now is that it's not going in 
+> the feature freeze, but as a driver thing I'm also convinced that 
+> especially if vendors need it, they'll add it anyway - and drivers tend to 
+> be less "frozen" than core code anyway (by necessity: we've always had to 
+> accept new drivers even in stable series).
 
-1. cpia hangs smp kernel (deadlock)
-2. if you compile in the cpia to the SMP kernel as either
-    a module or into the bootable image, when the
-    kernel or module load the cpia you get a deadlock
-    no ctrl+alt+del no atl+f2 deadeadead :) sorry but
-    no OOPS just frozen, this does not happen with
-    non-SMP (tested with 2.4.18-17 and 2.4.19)
-3. keyword. cpia webcam v4l ?
-4. Linux version 2.4.19smp (gcc version 2.96 20000731 (Red Hat Linux 7.3 
-2.96-112)
-5. not much else to put into here other than it's been working fine 
-untill 2.4.18-17smp
-    redhat kernel
-6. Dell poweredge dual PII 233 with 128 megs ram , parallel port 
-creative webcam ver II
-7. I did try the new 1.2.2 from souorce forge & compiled as but a 
-bootable image &
-    module with the same results
+My personal view is that it might be a candidate for inclusion in the 
+future, but not in the current version.  Several valid points have been 
+raised by other people, so I'll not rehash those.  Some of my own points 
+include the fact that I detest the locking scheme this thing uses.
 
-Love to tell you more but deadloacks gives no errors or logs, let me 
-know if I can help
+If you look at scsi_hotswap_insert_by_scsi_id() you see this:
 
-Thanks Rick Moss
-rick@silksystems.com
-rick@tdm.silk.ca
+down_interruptible (&scsi_host->host_queue_sema)
+  walk scsi_host->host_queue looking for a device with same id
+up (&scsi_host->host_queue_sema)
+did we find a device?  If so, return, else call scan_scsis()
 
+The problem is that scan_scsis() is where we would actually add the device 
+to the scsi_host->host_queue and it's not inside the lock, so putting the 
+check inside of a lock is a total waste of time.  To prevent against races 
+on insertion, you would need to, in the case that no device was present, 
+add a device to the host_queue *while still holding the lock* in order to 
+keep a second invocation of insert_by_scsi_id() from attempting to add the 
+same device twice.  Specifically, I'm thinking that a fiber channel 
+controller that has a device flutter on and off the fiber bus can easily 
+hit this problem.  Imagine if you will:
+
+fiber loop notices new device come up
+  driver calls insert_by_scsi_id to add drive
+    insert calls scan_scsis() to scan device
+before scan completes drive flutters back off the fiber
+  driver calls remove_by_scsi_id
+    remove code doesn't find a valid device because original scan_scsis 
+    hasn't added it yet
+drive comes back on fiber
+  driver calls insert_by_scsi_id
+    the check for drive present shows us clear because original scan_scsis
+    hasn't added drive yet, so we call scan_scsis() again
+we are now trying to scan drive in two different threads of execution, no 
+locking against double addition of the same device, boom.
+
+Nope, it's not there yet.
+
+
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

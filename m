@@ -1,85 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135485AbRBER1t>; Mon, 5 Feb 2001 12:27:49 -0500
+	id <S131127AbRBER1j>; Mon, 5 Feb 2001 12:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129539AbRBER1j>; Mon, 5 Feb 2001 12:27:39 -0500
-Received: from host217-32-121-81.hg.mdip.bt.net ([217.32.121.81]:63750 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S135485AbRBER1X>;
-	Mon, 5 Feb 2001 12:27:23 -0500
-Date: Mon, 5 Feb 2001 17:30:11 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Linux2.4.1-pre1, Kernel is too big for standalone boot from
- floppy
-In-Reply-To: <Pine.LNX.4.21.0102051720090.1716-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0102051728250.1716-100000@penguin.homenet>
+	id <S129539AbRBER13>; Mon, 5 Feb 2001 12:27:29 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:15103 "EHLO
+	VL-MS-MR002.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S135470AbRBER1R>; Mon, 5 Feb 2001 12:27:17 -0500
+Message-ID: <3A7EE0C2.20DF8016@videotron.ca>
+Date: Mon, 05 Feb 2001 12:20:02 -0500
+From: Martin Laberge <mlsoft@videotron.ca>
+Organization: MLSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kenneth Yeung <kkyeung@expert.cc.purdue.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: digiboard support in linux
+In-Reply-To: <Pine.GSO.3.96.1010205092911.25633A-100000@expert.cc.purdue.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Tigran Aivazian wrote:
-> Basically, I badly needed to be able to build kernels of arbitrary size
+Kenneth Yeung wrote:
 
-not just "to build", but "to boot", of course :)
+> Martin,
+>
+>         From reading the info on Digi's site, they say that for PC/x the
+> driver is already built into the kernel.  Am I still supposed to load the
+> drivers up?  If so, then i'm in trouble because I don't have any drivers
+> for the PC/X on Redhat.  I've been reading the install instructions from:
+> http://support.digi.com/support/techsupport/unix/linux/pcx.html
+>
+> Thanks for your help!
+> -Ken
+>
+> On Sat, 3 Feb 2001, Martin Laberge wrote:
+>
+> > Kenneth Yeung wrote:
+> >
+> > > Hello Martin
+> > >
+> > >         Thanks for the info, I'm having a little trouble getting the ports
+> > > configured.  On my system, it looks like half the ports are on irq 2 and
+> > > the other half are on irq 5.  and looks like they have been configured the
+> > > right way?  But i can't seem to get them to run getty so that I can test
+> > > the connection.
+> > >
+> > > Thanks!
+> > > -Ken
+> > >
+> > > On Tue, 30 Jan 2001, Martin Laberge wrote:
+> > >
+> > > > Kenneth Yeung wrote:
+> > > >
+> > > > > Hello all
+> > > > >
+> > > > > Can anyone tell me where I can find infomation on digiboard support in
+> > > > > linux specifically the PC/X model?
+> > > > >
+> > > > > THanks
+> > > > > -Ken
+> > > > >
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > Please read the FAQ at http://www.tux.org/lkml/
+> > > >
+> > > > yes i used it often in my installations and no problem with that
+> > > > since 2.0.x
+> > > >
+> > > > 2.2.x works good too
+> > > >
+> > > > never tried with linux 2.4.x
+> > > >
+> > > >
+> > > > driver is supported by digiboard itself   and by linux
+> > > >
+> > > > you have the choice of 2 drivers for these boards....
+> > > >
+> > > > i used for my part the PC/8e  PC/16e and PC/32e   In ISA versions
+> > > > and never had any problems... (except figuring out how to install for the
+> > > > first time)
+> > > > but it is very simple if you know how to read install instructions
+> > > >
+> > > >
+> > > > Martin Laberge
+> > > > mlsoft@videotron.ca
+> > > >
+> > > >
+> > > >
+> >
+> > could you send me the configuration logs and system boot messages about the
+> > digiboard...
+> >
+> > for my part i used agetty on these ports and the board use only one interrupt
+> > (exept if you have many boards...
+> > in that case one interrupt by board ... )
+> >
+> > did you executed the DigiLoad command in your boot scripts like instructed in
+> > documentations...
+> > did you put the board drivers (?????.bin) in the right places...
+> >
+> > they have to be loaded for the board to work...
+> >
+> > Martin Laberge
+> > mlsoft@videotron.ca
+> >
+> >
+> >
 
-Also, while we are in a history lesson, I might as well add that this was
-precisely the time when he (Werner) replaced the monstrously hardcoded
-initial page table with the one generated "automagically" -- hence the
-source file size went down dramatically...
+the drivers are for the Intelligents boards  and are located in /etc/digi/?????.bin
 
-> and I asked someone who I was sure would know (Werner) how to fix it --
-> and I was right -- he did know and he fixed it so now one could build very
-> large kernels and have them booted via LILO. But, the old plain bootsect.S
-> was still left as is, i.e. unable to boot very large kernels (for exact
-> size limits see the source, arch/i386/boot/tools/build.c) and so it was
-> only natural that one should printf a warning.
-> 
-> So, in short, such kernels are okay to boot with LILO (and most other
-> bootloaders) but not if you just dd if=bzImage of=/dev/fd0, i.e. not by
-> bootsect.S
-> 
-> 
-> If you want the date... it was approximately the beginning of 2000, I
-> think.
-> 
-> Regards,
-> Tigran
-> 
-> 
-> > 
-> > make[2]: Leaving directory
-> > `/usr/src/linux-2.4.2-pre1/arch/i386/boot/compressed'
-> > gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build
-> > tools/build.c -I/usr/src/linux/include
-> > objcopy -O binary -R .note -R .comment -S compressed/bvmlinux
-> > compressed/bvmlinux.out
-> > tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
-> > Root device is (8, 1)
-> > Boot sector 512 bytes.
-> > Setup is 4512 bytes.
-> > System is 1418 kB
-> > warning: kernel is too big for standalone boot from floppy
-> > 
-> >        +----------------------------------------------------------------+
-> >        | James   W.   Laferriere | System  Techniques | Give me VMS     |
-> >        | Network        Engineer | 25416      22nd So |  Give me Linux  |
-> >        | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-> >        +----------------------------------------------------------------+
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+if you are using the non intelligent boards, you can use the drivers from the kernel,
+and follow the instructions you referred abobe
+
+for my part i allways used the intelligent boards   ex: PC/16e   (note the 'e') and i
+did it with the digiboard provided drivers...
+
+for non intelligent boards, i suppose the instructions you referred to were valid...
+I read them and found it clean for me...
+make all the steps as indicated...
+
+one exeption perhaps...   I used ttyD? in place of ttyS?   just not to conflict with
+the standard serial ports...
+in the intelligent boards, they referred to ttyD? too... then i allways did it this
+way...
+
+maybe you could try the Digiboard provided drivers if you continue to have
+problems...
+I never used those included with linux kernel... Digiboard should know their hardware
+well enough to provide for working drivers
+better than anyone else... i suppose...
+
+Also there is the case of Hardware CTS/RTS/DTR/... pins...
+if you work with 3 wire serial connections, i propose you set the ports to CLOCAL
+or/and jump the 4,5 / 6,8,20 pins of the DB-25
+or the corresponding ones on others connectors...
+
+Martin Laberge
+mlsoft@videotron.ca
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

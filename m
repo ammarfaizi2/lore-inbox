@@ -1,136 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUBFA4W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 19:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267000AbUBFA4W
+	id S267000AbUBFA4w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 19:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267073AbUBFA4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 19:56:22 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:59111 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S262827AbUBFA4S (ORCPT
+	Thu, 5 Feb 2004 19:56:52 -0500
+Received: from gprs146-127.eurotel.cz ([160.218.146.127]:49537 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267000AbUBFA4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 19:56:18 -0500
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-From: Craig Bradney <cbradney@zip.com.au>
-To: Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>
-Cc: Andrew Morton <akpm@osdl.org>, david+challenge-response@blue-labs.org,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       a.verweij@student.tudelft.nl
-In-Reply-To: <4022DE3C.1080905@wanadoo.es>
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>
-	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org>
-	 <1076026496.16107.23.camel@athlonxp.bradney.info>
-	 <4022DE3C.1080905@wanadoo.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-62D+nPpzhAqQpy1pR+6D"
-Message-Id: <1076028975.23667.30.camel@athlonxp.bradney.info>
+	Thu, 5 Feb 2004 19:56:47 -0500
+Date: Fri, 6 Feb 2004 01:56:33 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.2 extremely unresponsive after rsync backup
+Message-ID: <20040206005633.GA1776@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 06 Feb 2004 01:56:15 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-62D+nPpzhAqQpy1pR+6D
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+I did 
 
-On Fri, 2004-02-06 at 01:22, Luis Miguel Garc=EDa wrote:
-> Craig Bradney wrote:
->=20
-> >On Fri, 2004-02-06 at 00:40, Andrew Morton wrote:
-> > =20
-> >
-> >>Luis Miguel Garc=EDa <ktech@wanadoo.es> wrote:
-> >>   =20
-> >>
-> >>>David Ford wrote:
-> >>>
-> >>>     =20
-> >>>
-> >>>>I have the same problem.  I "solved" it a while ago by mucking with=20
-> >>>>the AGP stuff.  IIRC, it was turning off AGP fast writes or 8x or=20
-> >>>>something similar in cmos.  Went from incredibly broken to stable=20
-> >>>>instantly.  I'll check my cmos settings in a bit and refresh my memor=
-y.
-> >>>>
-> >>>>What patches are you using?
-> >>>>       =20
-> >>>>
-> >>>I'm using nforce2-apic.patch and nforce2-disconnect-quirk.patch that=20
-> >>>Andrew Morton have sent to me. I think they have been included in=20
-> >>>previous mm kernels but now are droped because they caused some=20
-> >>>temperature problems for some people with no nforce motherboards.
-> >>>     =20
-> >>>
-> >>Yes, the patch which disables "Halt Disconnect and Stop Grant Disconnec=
-t"
-> >>apparently causes the CPU to run hot.
-> >>
-> >>   =20
-> >>
-> >>>By the way, is anyone involved in solving the IO-APIC thing in nforce=20
-> >>>motherboards? Anyone trying a different approach? Anyone contacting=20
-> >>>nvidia about this problem?
-> >>>     =20
-> >>>
-> >>As far as I know, we're dead in the water on these problems.
-> >>   =20
-> >>
-> >
-> >
-> >One day hopefully this will be sorted in the BIOSes and in mainline. I
-> >keep having to patch for every release (although as thats the only patch
-> >I have to do I'm sure there are many worse off than me). I use the 3com
-> >n/w on my A7N8X Deluxe v2 BIOS 1007 so no need for nforcedeth.
-> >
-> >Best patches are at:
-> >http://lkml.org/lkml/2003/12/21/7
-> >
-> >Ive applied them to 2.6.0 and 2.6.1 and give no crashes and no heat
-> >issues.
-> >
-> > (XP2600+ runs at 31/32C normal use and 38C compiling with Zalman cooler
-> >+exhaust fans in box)
-> >
-> >Craig
-> > =20
-> >
-> you mean 31 - 38 C readed from /proc/acpi/temp[........]????
->=20
-> I'm having readings of 53 in idle and even 64 while compiling!! I have=20
-> no case fan, but I don't think it's so important for this bug difference.
->=20
-> by the way, has anyone tried to contact nvidia with detailed information=20
-> of this bug? Perhaps they can tell us something, not to?
+rsync -zavP --exclude=/proc --exclude=/sys --delete -essh / root@hobit:/big/amd.backup/
 
+(well, originally without those --excludes)
 
-no.. /sys/bus/i2c
+now that is half an hour in past, but system is still extremely
+unresponsive. galeon is unusable, even emacs/mutt is slowed down
+considerably. gpm is unusable (its timings are messed up so double
+clicks no longer work, and for some reason pasting fails too)
 
-I was highly sceptical that these values were wrong.. but if I was to
-shut down and immediately look at the BIOS values.. they are close
-enough to make the values I'm quoting to be on the mark. Of course, the
-BIOS values could be wrong.
+vmstat shows (galeon is trying to close itself..., this is 256M machine)
 
-I had the normal Athlon cooler and one rear case fan and it was maxing
-out at around 50C. Putting on the Zalman cooler dropped it by 10C.
-Adding in the rear fans means it never goes above 39C while compiling.
-If the windows open and theres a draft through the room and cold
-outside.. :) ..it will idle at 29ish.
+ 0  4  51652   1700   1620  10132    0    0  2704     0 1157   284  0  0  0 100
+ 0  6  51652   1828   1636   9956    0    0  2548     0 1151   325  1  0  0 99
+ 0  3  51652   1588   1624  10188    0    0  2996     4 1181   327  0  1  0 99
+ 0  7  51652   1868   1632   9884    0    0  3068     0 1160   311  0  1  0 99
+ 0  5  52004   1924   1640  10236    0  468  2856   468 1390   361  0  4  0 96
+ 0  5  52004   1524   1656  10648   28    0  3116     0 1175   305  0  5  0 95
+ 0  4  52004   1692   1640  10404    0    4  2300     4 1141   273  0  0  0 100
+ 0  6  52004   1524   1636  10568   20    0  3428     0 1537   397  1  0  0 99
+ 0  6  52004   1636   1632  10468   36    0  2080     0 1178   226  1  0  0 99
+ 0  6  52004   2196   1624   9804    0    0  3312     0 1349   352  0  1  0 99
+ 0  7  52004   1524   1628  10500    0    0  3180     0 1326   321  0  1  0 99
+ 0  2  52004   2308   1636   9632   28    0  2408     0 1198   288  0  1  0 99
+ 0  3  52004   1748   1628  10192    0    0  3252     0 1376   340  0  0  0 100
+ 0  4  52004   1972   1628   9968    4    0  3056     0 1234   378  0  1  0 99
+ 0  6  52004   1972   1644   9868   64    0  4316     0 1400   365  2  1  0 98
+ 0  2  52004   2140   1644   9708    0    0  2860    12 1212   263  0  1  0 99
+ 0  4  52004   1804   1648  10064    0    0  3460     0 1246   362  0  1  0 99
+ 0  5  52004   1972   1644   9940    0    0  3284     0 1314   341  0  1  0 99
+ 0  4  52004   1636   1644  10228    0    0  3076     0 1298   309  0  0  0 100
+ 0  6  52004   1916   1652   9980    0    0  3072    12 1396   338  0  6  0 94
+ 0  7  52016   2084   1624   9708   80  120  2832   120 1340   289  2  6  0 93
+ 0  6  52068   1628   1624  10544    0  192  2284   192 1657   241  1  1  0 98
+ 0  5  52068   1460   1628  10904    0    0  3200     0 1348   300  0  2  0 98
+ 0  4  52068   1852   1652  10524    0    0  3488    12 1431   328  0  2  0 98
+ 0  3  52068   1460   1648  10940    0    4  3140    16 1376   364  0  2  0 98
+ 0  5  52068   1628   1644  10804   24    0  2956     4 1384   344  0  2  0 98
+ 0  6  52068   1572   1656  10820    8    0  4160     4 1668   438  0  2  0 98
+ 0  4  52068   1532   1652  10848    0    0  3012    16 1335   336  0  6  0 94
+ 0  7  52068   1756   1648  10696    0    0  3048     0 1367   296  0 14  0 86
+ 0  8  52068   1924   1656  10424    0    0  3592     4 1323   365  1  1  0 98
+ 0  8  52068   1812   1652  10556    0    0  2740     0 1177   223  2 11  0 87
+ 1  6  52068   1540   1652  10780    0    0  2544     0 1394   312  0  1  0 99
+ 0  6  52068   1924   1652  10260    0    0  2612     0 1324   369  0  7  0 93
+ 0  4  52068   2260   1640   9992    8    0  2520     0 1261   283  0 14  0 86
+ 0  5  52068   2204   1644   9792   56    0  2356     4 1308   296  0  0  0 100
+ 0  4  52068   1812   1644  10284    8    0  2208     8 1214   259  0 11  0 89
 
-Craig
+Meanwhile:
 
+cat /proc/slabinfo | grep ext2:
 
+ext2_inode_cache  351853 351876    512    7    1 : tunables   54   27    0 : slabdata  50268  50268      0
 
---=-62D+nPpzhAqQpy1pR+6D
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Looks like 175MB is eaten by ext2 (do I read it correctly?)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAIuYvi+pIEYrr7mQRAggJAJ0XuyxjVE8J1FwRth5OykvryNTLeACfUpwT
-PSy8fBZ8G4gvpAPxvnwjmsE=
-=VTMC
------END PGP SIGNATURE-----
-
---=-62D+nPpzhAqQpy1pR+6D--
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

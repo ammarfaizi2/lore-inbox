@@ -1,129 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbTELU2J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 16:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTELU2J
+	id S261808AbTELUeo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 16:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTELUen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 16:28:09 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:33541 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262645AbTELU2D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 16:28:03 -0400
-From: "STK" <stk@nerim.net>
-To: "'Jos Hulzink'" <josh@stack.nl>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
-Subject: RE: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
-Date: Mon, 12 May 2003 22:40:35 +0200
-Message-ID: <000c01c318c6$c0804990$0200a8c0@QUASARLAND>
+	Mon, 12 May 2003 16:34:43 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:13506 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261808AbTELUek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 16:34:40 -0400
+Message-ID: <F760B14C9561B941B89469F59BA3A847E96E70@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: acpi-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: ACPI source releases updated (20030509)
+Date: Mon, 12 May 2003 13:47:14 -0700
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <200305122135.53751.josh@stack.nl>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
-Importance: Normal
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all. Updated Linux patches are available at
+http://sf.net/projects/acpi . Non-Linux releases will be available at
+http://developer.intel.com/technology/iapc/acpi/downloads.htm soon.
 
-If no Multiple APIC Description Table (MADT) is described, in this case
-the _PIC method can be used to tell the bios to return the right table
-(PIC or APIC routing table).
+Regards -- Andy
 
-In this case, if the MPS table describes matches the ACPI APIC table
-(this is the case, because the ACPI APIC table is built from the MPS
-table), you do not need to remap all IRQs.
-
-I am really new in Kernel so I can't help you too much, but I can help
-you on ACPI (I worked 5 years in Bios).
-
-Hope it helps,
-
-Yann
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jos Hulzink
-Sent: lundi 12 mai 2003 21:36
-To: linux-kernel
-Cc: Zwane Mwaikambo
-Subject: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+----------------------------
+09 May 2003.  Summary of changes for version 20030509.
 
 
-Hi,
+1) Linux:
 
-(kernel: 2.5.69)
+Allow ":" in OS override string (Ducrot Bruno)
 
-The conclusion of bug 699 is that some / all i386 SMP systems that use
-MPS 1.4 
-(and higher ? or all MPS versions ?), should boot with the "pci=noacpi" 
-parameter to prevent IRQ problems.
+Kobject fix (Greg KH)
 
-What exactly happens: The MPS 1.4 interpreter causes PCI IRQs to be
-remapped 
-to IRQ 16 and higher, which is the desired behaviour. The ACPI
-interpreter 
-comes in and finds no MADT table, for the Multiprocessor info is stored
-as 
-MPS table. No MADT table, so ACPI sets up the APIC in PIC mode (which I 
-wonder wether correct, but ok). As a result, the kernels pci_dev table
-tells 
-us that the IRQs have not been remapped (i.e. all values less than 16),
-while 
-the IRQs are actually mapped above 16. 
+2) ACPI CA Core Subsystem:
 
-All drivers of PCI cards claim the wrong IRQ line, and the end of story
-is 
-timeouts while waiting for an IRQ that never comes.
+Changed the subsystem initialization sequence to hold off installation
+of address space handlers until the hardware has been initialized and
+the system has entered ACPI mode.  This is because the installation of
+space handlers can cause _REG methods to be run.  Previously, the _REG
+methods could potentially be run before ACPI mode was enabled.
 
-Remark: I think it is strange, that the kernel actually says: "ACPI:
-Using PIC 
-for interrupt routing", but it doesn't set up the PIC correctly
-(otherwise 
-the APIC rerouting table would be reset or something).
+Fixed some memory leak issues related to address space handler and
+notify handler installation.  There were some problems with the
+reference count mechanism caused by the fact that the handler objects
+are shared across several namespace objects.
 
-Now, my big question his: how to fix this. It is possible to have some
-code in 
-the kernel that does the same as "pci=noacpi", but what and where do I
-have 
-to do the check, with what condition ?
+Fixed a reported problem where reference counts within the namespace
+were not properly updated when named objects created by method execution
+were deleted.
 
-1) In the ACPI code, when MADT is not present ? Problem here is that the
-MPS 
-parser comes after the ACPI parser, so it isn't known yet that the MPS
-table 
-is present.
+Fixed a reported problem where multiple SSDTs caused a deletion issue
+during subsystem termination.  Restructured the table data structures to
+simplify the linked lists and the related code.
 
-2) In the MPS parser ? As soon as an I/O APIC is detected by MPS, tell
-ACPI 
-not to touch the APIC ? You get acpi related code in non-acpi procedures
+Fixed a problem where the table ID associated with secondary tables
+(SSDTs) was not being propagated into the namespace objects created by
+those tables.  This would only present a problem for tables that are
+unloaded at run-time, however.
 
-then...
+Updated AcpiOsReadable and AcpiOsWritable to use the ACPI_SIZE type as
+the length parameter (instead of UINT32).
 
-3) Somewhere else ? How early in the kernel boot process should this
-option be 
-set ?
+Solved a long-standing problem where an ALREADY_EXISTS error appears on
+various systems.  This problem could happen when there are multiple
+PCI_Config operation regions under a single PCI root bus.  This doesn't
+happen very frequently, but there are some systems that do this in the
+ASL.
 
-And an additional question: is "pci=noapic" the correct way to fix this
-? It 
-runs fine here, but maybe we should only touch the IRQ related part ? If
-so, 
-how to do that ?
+Fixed a reported problem where the internal DeleteNode function was
+incorrectly handling the case where a namespace node was the first in
+the parent's child list, and had additional peers (not the only child,
+but first in the list of children.)
 
-Please shoot... I found the problem, but this doesn't mean I understand
-the 
-kernel :)
+3 iASL Compiler/Disassembler:
 
-Jos
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Fixed a problem in the generation of the C source code files (AML is
+emitted in C source statements for BIOS inclusion) where the Ascii dump
+that appears within a C comment at the end of each line could cause a
+compile time error if the AML sequence happens to have an open comment
+or close comment sequence embedded.
 
+
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
 

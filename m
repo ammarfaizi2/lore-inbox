@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265993AbUHSGHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268063AbUHSGHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265993AbUHSGHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHSGHi
+	id S268063AbUHSGHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 02:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHSGHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:07:38 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:58514 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S265993AbUHSGHN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:07:13 -0400
-Reply-to: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-To: linux-kernel@vger.kernel.org
-From: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-Subject: Re: ati_remote for medion
-Date: Thu, 19 Aug 2004 08:00:39 +0200
-Organization: None
-Message-ID: <cg1fm7$b76$1@fritz38552.news.dfncis.de>
-References: <1092856969.11811.12.camel@kryptonix>
+	Thu, 19 Aug 2004 02:07:44 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:43680 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268063AbUHSGHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 02:07:32 -0400
+Subject: Re: kernel 2.6.8.1-mm1 ACPI bug ?
+From: Len Brown <len.brown@intel.com>
+To: Maximilian Decker <burbon04@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C36F4@hdsmsx403.hd.intel.com>
+References: <566B962EB122634D86E6EE29E83DD808182C36F4@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092895624.25902.199.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 19 Aug 2004 02:07:04 -0400
 Content-Transfer-Encoding: 7bit
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en, de-de
-In-Reply-To: <1092856969.11811.12.camel@kryptonix>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.27.0.6; VDF: 6.27.0.19; host: gurke)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Demeyer wrote:
-> I got a remote control with my PC ("Medion 8080 XL titanium") that works
-> with an USB-receiver (via radio-waves).  As it was not supported, I
-> experimented a bit and found out I could 'use' the ati-remote module in
-> the 2.6.x-kernel.  I had to change some stuff like the "#define
-> ATI_REMOTE_PRODUCT_ID   0x0006" and then it gave some input for some
-> keys.  I also had to change the whole "Translation table from hardware
-> messages to input events" which took a lot oftime for me as I had to try
-> out very much as I don't know about what I had to use and the keys all
-> had other hex-codes then those of the ati-remotes.
+On Wed, 2004-08-18 at 03:50, Maximilian Decker wrote:
+> Hi all,
 > 
-> I sent my changes to Torrey Hoffman <thoffman@arnor.net> a long time ago
-> and I thought he answered me he would put support for my kind of remote
-> in his module, but since then nothing happened in that way.  I'm not a
-> coder, so I can't give 'patches' of diffs of whatever ... I even can't
-> recode the module to support both remotes ... 
+> it seems like there is a strange ACPI related bug in the current -mm 
+> patch set... ?
+> At least with my configuration the following happens:
 > 
+> 
+> With vanilla kernel 2.6.7 oder 2.6.8 I get the following at bootup:
+> 
+> ACPI: Processor [CPU0] (supports C1 C2 C3, 8 throttling states)
+> ACPI: Thermal Zone [TZ1] (30 C)
+> ACPI: Thermal Zone [TZ2] (29 C)
+> ACPI: Thermal Zone [TZ3] (26 C)
+> cpufreq: CPU0 - ACPI performance management activated.
+> ACPI: (supports S0 S3 S4 S4bios S5)
+> 
+> 
+> With the current -mm patchset (at least with 2.6.8 rc to .1) I get the
+> following:
+> 
+> ACPI: Processor [CPU0] (supports C1 C2 C3, 8 throttling states)
+> ACPI: Thermal Zone [TZ1] (16 C)
+>     ACPI-1133: *** Error: Method execution failed [\_TZ_.C204] (Node 
+> dff45e00), AE_AML_PACKAGE_LIMIT
+>     ACPI-1133: *** Error: Method execution failed [\_TZ_.C203] (Node 
+> dff45c20), AE_AML_PACKAGE_LIMIT
+>     ACPI-1133: *** Error: Method execution failed [\_TZ_.TZ2_._TMP] 
+> (Node dff46580), AE_AML_PACKAGE_LIMIT
+> ACPI: Thermal Zone [TZ3] (31 C)
+> cpufreq: CPU0 - ACPI performance management activated.
+> ACPI: (supports S0 S3 S4 S4bios S5)
+> 
+> 
+> My hardware is a HP compaq nc8000, Pentium-M.
+> The problem is that with the -mm kernels the CPU fan stops to work -
+> causing temperature to raise very high ...... :-(
+> 
+> Are there any known problems ?
 
-I sent a patch to support the Medion RC to the linux-usb-devel list in
-April 04 (http://thread.gmane.org/gmane.linux.usb.devel/20928) but it
-got ignored. I think the main problem is to support the different key
-mappings in the driver. The easiest approach would be to expand the hard
-coded key translation table for each supported RC. If that would be
-acceptable, I could prepare a patch.
+Please take stock 2.6.8.1 and apply the latest patch here:
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.8/
+and give it a go.
 
-Is there a another way to handle remote control key mappings in the
-input subsystem?
+This will bring your kernel up to the same ACPI patch that is in the -mm
+tree, but without all the other stuff in the mm tree.
 
-Wolfgang
+If it fails, then ACPI broke.  If it works, then something in -mm broke
+ACPI.
 
-> My question is: could someone please do this for me?  I spent a lot of
-> time on it and I want to give back to the comunnity.  There are more
-> people out there using linux who maybe already gave their remote away as
-> they couldn't use it with linux.  But I use it for xmms, TVtime, Totem,
-> gxine and all those other nice apps.  I don't need my name in the
-> credits.  Yours should be if you code it :| ... please ? :)
-> 
-> friendly greeting,
-> 
-> Karel "scapor" Demeyer.
-> 
-> PS: attached is the code with changes (derivated of the ati-remote.c in
-> 2.6.8.1)
-> 
-> 
-> 
-> 
-[cut]
+thanks,
+-Len
+
 
 

@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUBENiu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 08:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbUBENiu
+	id S265225AbUBENyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 08:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUBENyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 08:38:50 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:64662 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265230AbUBENir (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 08:38:47 -0500
-Date: Thu, 5 Feb 2004 19:09:11 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RCU barrier
-Message-ID: <20040205133911.GA13005@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040205132809.GE3703@in.ibm.com> <16418.17841.293641.878787@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Feb 2004 08:54:31 -0500
+Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:970 "EHLO
+	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
+	id S265225AbUBENy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 08:54:29 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Reply-To: s0348365@sms.ed.ac.uk
+Organization: University of Edinburgh
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+Date: Thu, 5 Feb 2004 13:57:03 +0000
+User-Agent: KMail/1.6
+References: <20040205014405.5a2cf529.akpm@osdl.org>
+In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <16418.17841.293641.878787@laputa.namesys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402051357.04005.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 04:31:29PM +0300, Nikita Danilov wrote:
-> Dipankar Sarma writes:
->  > This patch introduces a new interface - rcu_barrier() which waits
->  > until all the RCUs queued until this call have been completed.
->  > Nikita asked for this quite a while ago for reiser4 jnodes.
->  > Sorry Nikita, if you are still using RCU in new reiserfs, 
->  > you don't need to use your own logic for this now. Just	
->  > call rcu_barrier() during umount.
->  > 
->  > If Nikita or other users use it, then I would like to push for
->  > including this.
-> 
-> Yes, we are still using RCU in the reiser4 (bravely). rcu_barrier()
-> would allow us to get rid of some really ugly code.
+On Thursday 05 February 2004 09:44, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-m
+>m1/
+>
+>
+> - Merged some page reclaim fixes from Nick and Nikita.  These yield some
+>   performance improvements in low memory and heavy paging situations.
+>
+> - Various random fixes.
+>
+>
 
-Cool. Let me know if the rcu-barrier patch works for you. If it
-does, I will push for its inclusion.
+Still doesn't boot on my nForce 2 system, hangs while probing PDC RAID card. 
+Confirmed from 2.6.2-rc3-mm1 that it was likely related to ACPI changes, but 
+reverting bk-acpi.patch makes no difference.
 
-Thanks
-Dipankar
+I'd like to test mainline, but I'm using gcc 3.4 snapshot, so I'll try later 
+today with 2.6.2 + linus.patch.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    7/10 Darroch Court,
+            University of Edinburgh.

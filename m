@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHJNHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUHJND1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUHJNHR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUHJNGn
+	id S265051AbUHJND1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUHJNDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:06:43 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:62445 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S265127AbUHJNGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:06:23 -0400
-Date: Tue, 10 Aug 2004 15:05:37 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408101305.i7AD5biZ014084@burner.fokus.fraunhofer.de>
-To: mj@ucw.cz, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Tue, 10 Aug 2004 09:03:15 -0400
+Received: from genesis.westend.com ([212.117.67.2]:21397 "EHLO
+	genesis.westend.com") by vger.kernel.org with ESMTP id S265051AbUHJM7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 08:59:39 -0400
+Subject: uhci-hcd oops with 2.4.27/ intel D845GLVA
+From: Kai Militzer <km@westend.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1092142777.1042.30.camel@bart.intern>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 14:59:37 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everyone!
 
->From: Martin Mares <mj@ucw.cz>
+> I unable to boot due to a kernel oops on my D845GLVA.  This 
+> worked fine in 2.4.26, but with the same (well, except for the 
+> new features) config 2.4.27 does not.
 
->> Your statements are correct for programs that include locale support.
+I've got the same problem here. Did an make oldconfig from a 2.4.26 
+config, booted and the systems made an oops.
 
->Would you accept a patch to cdrecord to add such support?
+Problem is, that the system is production and I can't test, where the 
+problem is in special. We had two reboots already and even that is 
+nearly too much.
 
-Locale support is on a top positoon of my TODO list, adding it for e.g. Solaris
-would be extremely simple but my software runs on many platforms.
+Best regards
 
-If you send a patch that includes autoconf support and everything that is needed
-else, I would be glad......
-
-
-Jörg
+Kai
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Kai Militzer                 WESTEND GmbH  |  Internet-Business-Provider
+Technik                      CISCO Systems Partner - Authorized Reseller
+                             Lütticher Straße 10      Tel 0241/701333-11
+km@westend.com               D-52064 Aachen              Fax 0241/911879
+
+

@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUIVVJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267828AbUIVVMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267930AbUIVVJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 17:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbUIVVIT
+	id S267828AbUIVVMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 17:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUIVVMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 17:08:19 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:993 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267864AbUIVVGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 17:06:49 -0400
-Subject: Re: Is there a user space pci rescan method?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Aubin <daubin@actuality-systems.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E8F8DBCB0468204E856114A2CD20741F2C13D2@mail.local.ActualitySystems.com>
-References: <E8F8DBCB0468204E856114A2CD20741F2C13D2@mail.local.ActualitySystems.com>
-Content-Type: text/plain
+	Wed, 22 Sep 2004 17:12:17 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:19351 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267828AbUIVVLI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 17:11:08 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc2-mm2
+Date: Wed, 22 Sep 2004 17:10:52 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040922131210.6c08b94c.akpm@osdl.org> <200409221659.29280.jbarnes@engr.sgi.com> <20040922140422.78f8767f.akpm@osdl.org>
+In-Reply-To: <20040922140422.78f8767f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095883470.4526.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 22 Sep 2004 21:04:31 +0100
+Content-Disposition: inline
+Message-Id: <200409221710.52695.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-22 at 21:30, Dave Aubin wrote:
-> Hi,
->  
->   Is there a user space or perhaps simple kernel module way to
-> rescan the pci bus?  I currently have a user mode program modify
-> the pci bus, but I can not push the user mode program to the
-> bios for reasons I can't get in to.  
+On Wednesday, September 22, 2004 5:04 pm, Andrew Morton wrote:
+> >  I assume you have one of the Intel Big Sur
+> > whiteboxes?
+>
+> It's an Intel "tiger" (not sure if that's the official name...)
+>
+> I'll try a defconfig build later today.
 
-Take a look at drivers/hotplug. As far as Linux is concerned you've got
-a hotplug PCI slot if you have to poke at it. Alternatively if its a
-general funny such as a card you have to poke to reveal devices behind
-it a PCI quirk would probably do the trick.
+Your config looks ok for that box.  IIRC it supports up to 4 McKinely 
+processors.
 
+Jesse

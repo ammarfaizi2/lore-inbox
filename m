@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281323AbRKVSvp>; Thu, 22 Nov 2001 13:51:45 -0500
+	id <S281239AbRKVSqN>; Thu, 22 Nov 2001 13:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281449AbRKVSve>; Thu, 22 Nov 2001 13:51:34 -0500
-Received: from mail-r5.shlink.de ([212.60.1.141]:39173 "HELO mail-r5.shlink.de")
-	by vger.kernel.org with SMTP id <S281326AbRKVSvU>;
-	Thu, 22 Nov 2001 13:51:20 -0500
-Date: Thu, 22 Nov 2001 18:21:44 +0100 (CET)
-From: Peter Adebahr <adsys@adebahr.de>
-Reply-To: <peter@adebahr.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: anyone got the same problem with DIGITAL 21143 network card ?
-In-Reply-To: <001201c1735c$9ac546d0$0b01a8c0@lotus>
-Message-ID: <Pine.LNX.4.33.0111221812580.30318-100000@siraly.adebahr.de>
+	id <S281277AbRKVSqE>; Thu, 22 Nov 2001 13:46:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24842 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281239AbRKVSpu>; Thu, 22 Nov 2001 13:45:50 -0500
+Date: Thu, 22 Nov 2001 10:40:14 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix SCSI non-blocksize reads
+In-Reply-To: <20011122102054.A11961@codepoet.org>
+Message-ID: <Pine.LNX.4.33.0111221039530.1479-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-SHLINK: Mail autoscanned by SHLINK-VirusScan
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Ishak Hartono wrote:
 
-> I tried to compile 2.4.14 and successfully detect the digital 21143 network
-> card, however, i can't ping out
-> 
-> 
+On Thu, 22 Nov 2001, Erik Andersen wrote:
+>
+> Would you like a patch that also fixes all the other SCSI drivers
+> to use block_size() then, so they will be consistent?
 
-I have had the same problem with my older 21140 card, which I have
-replaced a couple of days ago. In other systems, I have 21143 cards,
-which all behave as expected (all -ac kernels until last one).
+Eventually yes, although right now I'd like to have the minimal fix.
 
-There was an easy remedy, however: use the tulip-0.9.14 or 1.1.8 drivers.
-
-Good Luck,
-Peter
-
+		Linus
 

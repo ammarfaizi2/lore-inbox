@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVA3XWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVA3XWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVA3XWz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 18:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVA3XWz
+	id S261831AbVA3XWK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 18:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVA3XWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 18:22:55 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62617 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261833AbVA3XWo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 18:22:44 -0500
-Subject: Re: [gentoo-ppc-dev] CONFIG_THERM_PM72 is missing from .config
-	from recent kernels (2.6.10, 2.6.11)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-Cc: Michael Hanselmann <hansmi@gentoo.org>, gentoo-ppc-dev@lists.gentoo.org,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <a0620073cbe21c8047634@[129.98.90.227]>
-References: <a06200736be209a45bd65@[129.98.90.227]>
-	 <20050129103057.GA27803@hansmi.ch>  <a0620073cbe21c8047634@[129.98.90.227]>
-Content-Type: text/plain
-Date: Mon, 31 Jan 2005 10:21:13 +1100
-Message-Id: <1107127273.5713.13.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sun, 30 Jan 2005 18:22:10 -0500
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:33925 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261831AbVA3XV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 18:21:58 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: Possible bug in keyboard.c (2.6.10)
+Date: Sun, 30 Jan 2005 18:21:53 -0500
+User-Agent: KMail/1.7.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
+       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050129112510.GB2268@ucw.cz> <20050130084154.GU8859@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050130084154.GU8859@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501301821.53924.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-29 at 18:41 -0500, Maurice Volaski wrote:
-
->  From what I can tell, the .config file is built up from different 
-> files. I just looked at gentoo-dev-sources for this version and it 
-> is, in fact, present for ppc64 in
-> /usr/src/linux-2.6.10-gentoo-r6/arch/ppc64/defconfig
+On Sunday 30 January 2005 03:41, Al Viro wrote:
+> On Sat, Jan 29, 2005 at 12:25:10PM +0100, Vojtech Pavlik wrote:
+> > I know. As I said, this is a problem I know about, and will be fixed. I
+> > was mainly interested whether anyone sees further problems in scenarios
+> > which don't include device addition/removal.
+> > 
+> > We already fixed this in serio, and input and gameport are next in the
+> > list.
 > 
-> That suggests the mechanism that generates the .config files is not 
-> working right under certain circumstances related to the 64bit G5.
+> OK, I'll bite.  What's to guarantee that no events will happen in
+> the middle of serio_unregister_port(), right after we'd done
+> serio_remove_pending_events()?
 
-The default config for G5s is arch/ppc64/configs/g5_defconfig, there is
-only one for 64 bits. 32 bits on G5s is unsupported (and will probably
-not work with more recent machines).
+At this point serio is disconnected from driver and serio_interrupt
+will only queue rescans only if serio->registered. I guess I will need
+to protect change to serio->registered and take serio->lock to be
+completely in clear.
 
-Ben.
+Thanks for pointing this out.
 
-
+-- 
+Dmitry

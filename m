@@ -1,39 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUBDLkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 06:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUBDLiq
+	id S266327AbUBDLlu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 06:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266328AbUBDLhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 06:38:46 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:60326 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S266340AbUBDLhh
+	Wed, 4 Feb 2004 06:37:14 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:34249 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266326AbUBDLg2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 06:37:37 -0500
-Subject: Re: delete file function!
-From: Vladimir Saveliev <vs@namesys.com>
-To: Alexandr Chernyy <nikalex@hotbox.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4020D667.7070708@hotbox.ru>
-References: <4020D667.7070708@hotbox.ru>
-Content-Type: text/plain
-Message-Id: <1075894655.1829.125.camel@tribesman.namesys.com>
+	Wed, 4 Feb 2004 06:36:28 -0500
+Date: Wed, 4 Feb 2004 17:11:06 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>
+Subject: [RFC/T 5/6] sysfs backing store (with symlink)
+Message-ID: <20040204114106.GF4234@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040204113758.GA4234@in.ibm.com> <20040204113848.GB4234@in.ibm.com> <20040204113920.GC4234@in.ibm.com> <20040204114003.GD4234@in.ibm.com> <20040204114037.GE4234@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 04 Feb 2004 14:37:35 +0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040204114037.GE4234@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-04 at 14:24, Alexandr Chernyy wrote:
-> Hello All! I have some question! Where in kernel files i can find a 
-> deleting file  function ???
-> 
-linux/fs/inode.c:generic_delete_inode()
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+o sysfs_create_link() now does not create a dentry but allocates a
+  sysfs_dirent and links it to the parent kobject.
+
+o sysfs_dirent corresponding to symlink has an array of two string. One of
+  them is the name of the symlink and the second one is the target path of the
+  symlink
+
+
+ fs/sysfs/symlink.c |   34 +++++++++++++++++++++++++---------
+ 1 files changed, 25 insertions(+), 9 deletions(-)
+
+diff -puN fs/sysfs/symlink.c~sysfs-leaves-symlink fs/sysfs/symlink.c
+--- linux-2.6.2-rc3/fs/sysfs/symlink.c~sysfs-leaves-symlink	2004-02-02 22:41:06.000000000 +0530
++++ linux-2.6.2-rc3-maneesh/fs/sysfs/symlink.c	2004-02-02 22:42:50.000000000 +0530
+@@ -15,7 +15,7 @@ static int init_symlink(struct inode * i
+ 	return 0;
+ }
+ 
+-static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
++int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+ {
+ 	int error;
+ 
+@@ -63,6 +63,27 @@ static void fill_object_path(struct kobj
+ 	}
+ }
+ 
++static int sysfs_add_link(struct sysfs_dirent * parent_sd, char * name, char * target)
++{
++	struct sysfs_dirent * sd;
++	char ** link_names;
++
++	link_names = kmalloc(sizeof(char *) * 2, GFP_KERNEL);
++	if (!link_names)
++		return -ENOMEM;
++
++	link_names[0] = name;
++	link_names[1] = target;
++	
++	sd = sysfs_new_dirent(parent_sd, link_names, SYSFS_KOBJ_LINK);
++	if (!sd) {
++		kfree(link_names);
++		return -ENOMEM;
++	}
++
++	return 0;
++}
++
+ /**
+  *	sysfs_create_link - create symlink between two objects.
+  *	@kobj:	object whose directory we're creating the link in.
+@@ -72,7 +93,6 @@ static void fill_object_path(struct kobj
+ int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
+ {
+ 	struct dentry * dentry = kobj->dentry;
+-	struct dentry * d;
+ 	int error = 0;
+ 	int size;
+ 	int depth;
+@@ -97,14 +117,10 @@ int sysfs_create_link(struct kobject * k
+ 	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
+ 
+ 	down(&dentry->d_inode->i_sem);
+-	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d))
+-		error = sysfs_symlink(dentry->d_inode,d,path);
+-	else
+-		error = PTR_ERR(d);
+-	dput(d);
++	error = sysfs_add_link(dentry->d_fsdata, name, path);
+ 	up(&dentry->d_inode->i_sem);
+-	kfree(path);
++	if (error)
++		kfree(path);
+ 	return error;
+ }
+ 
+
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-5044999 Fax: 91-80-5268553
+T/L : 9243696

@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281277AbRKHCMm>; Wed, 7 Nov 2001 21:12:42 -0500
+	id <S281289AbRKHCQX>; Wed, 7 Nov 2001 21:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281284AbRKHCMY>; Wed, 7 Nov 2001 21:12:24 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:34574 "EHLO
+	id <S281288AbRKHCQM>; Wed, 7 Nov 2001 21:16:12 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:51471 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281277AbRKHCML>; Wed, 7 Nov 2001 21:12:11 -0500
-Message-ID: <3BE9E8B6.235E16A8@zip.com.au>
-Date: Wed, 07 Nov 2001 18:06:46 -0800
+	id <S281289AbRKHCP7>; Wed, 7 Nov 2001 21:15:59 -0500
+Message-ID: <3BE9E9A7.6F90C4DB@zip.com.au>
+Date: Wed, 07 Nov 2001 18:10:47 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: ext2-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
-In-Reply-To: <20011107123430.D5922@lynx.no> <Pine.GSO.4.21.0111071446020.4283-100000@weyl.math.psu.edu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
+In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Mike Fedyk wrote:
 > 
-> Right now I'm doing alternative strategy for directory allocation, as soon
-> as I finish that I'll put the result on usual place.
+> Hello,
+> 
+> I am trying to track down a memory accounting problem I've seen ever since I
+> tried a 2.4.13 based kernel.  Specifically I've noticed an overflow for the
+> "Cached" entry in /proc/meminfo, but also the numbers don't add up to the
+> total memory count.  Shouldn't they add up?  If they should, I haven't seen
+> one that does....
+> 
+> I first noticed it on:
+> 2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
+> 2.4.14-pre6+preempt+netdev_random+ext3_0.9.14-2414p5
+> 
+> I thought it may be preempt so I tried:
+> 2.4.14-pre8+netdev_random-p7+xsched+ext3_0.9.14-2414p8+elevator
+> 
+> But I still get the same problem with "Cached".
+> 
+> Now I'm trying to see if it could be ext3 with:
+> 2.4.14-ext3-2.4-0.9.14-2414p8
+> 
+> And I haven't noticed the problem after 16 hours uptime.  Sometimes it would
+> show earlier, or later.
+> 
 
-I'll be interested in seeing the algorithm.
+Ah.  So are you saying that it does *not* occur on
+ext3, but that it does occur on ext2?
 
-Keith Smith has kindly directed me to the current location of
-his testing workload.  This attempts to replay ten months' worth
-of real file server activity.  It's described in his paper, at
+Could you retest ext2 with this:
 
-	http://www.eecs.harvard.edu/~keith/usenix96
+--- linux-2.4.14/mm/filemap.c	Mon Nov  5 21:01:12 2001
++++ linux-akpm/mm/filemap.c	Wed Nov  7 18:09:38 2001
+@@ -223,6 +223,8 @@ static void truncate_complete_page(struc
+ 	/* Leave it on the LRU if it gets converted into anonymous buffers */
+ 	if (!page->buffers || block_flushpage(page, 0))
+ 		lru_cache_del(page);
++	else
++		atomic_inc(&buffermem_pages);
+ 
+ 	/*
+ 	 * We remove the page from the page cache _after_ we have
 
-It's all set up for a 512 megabyte filesystem.  So I ran
-it sixteen times in succession on sixteen different directories
-at the top level of an eight-gig filesystem.  It takes about
-five hours.  The filesystem ends up 76% full.
-
-I did this on two filesystems: one with stock 2.4.14 and the other
-with the `if (0 &&' change.  The patched kernel was consistently
-10-15% faster at running the workload.
-
-Now, lots of researchers seem to define lots of different ways of measuring
-fragmentation and they are all rather unconvincing - they don't take into
-account the extreme non-linear behaviour of modern disks.
-
-So I simply measured how long it took to read some files.  Which doesn't
-give any insight into the nature and sources of fragmentation, but it
-is the bottom line.
-
-And reading nine thousand files containing three hundred megs of
-data from the filesystem which was populated with the `if (0 &&'
-patch takes 1.5x to 2x as long as it does from stock 2.4.14.
-
-So that idea is a non-starter.
-
-This seems to be a pretty good fragmentation test and I'm inclined
-to stick with it.
-
-I suspect that the current algorithm, with some hysteresis to make it
-less inclined to hop into a different block group is the way to go.
-
-=
+(This will break ext3's accounting)

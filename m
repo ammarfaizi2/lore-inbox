@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272429AbSISTNT>; Thu, 19 Sep 2002 15:13:19 -0400
+	id <S272493AbSISTXB>; Thu, 19 Sep 2002 15:23:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272449AbSISTNT>; Thu, 19 Sep 2002 15:13:19 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:21444 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S272429AbSISTNS>;
-	Thu, 19 Sep 2002 15:13:18 -0400
-Date: Thu, 19 Sep 2002 21:17:38 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, henrique@cyclades.com
-Subject: Re: 2.4 + generic HDLC update? Any ideas?
-Message-ID: <20020919211738.A12722@fafner.intra.cogenit.fr>
-References: <m3r8fqm7ez.fsf@defiant.pm.waw.pl>
+	id <S272508AbSISTXB>; Thu, 19 Sep 2002 15:23:01 -0400
+Received: from albireo.ucw.cz ([81.27.194.19]:5636 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S272493AbSISTW7>;
+	Thu, 19 Sep 2002 15:22:59 -0400
+Date: Thu, 19 Sep 2002 21:27:58 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020919192758.GA430@ucw.cz>
+References: <20020918164553.GB28202@holomorphy.com> <Pine.LNX.4.44.0209181932580.24794-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3r8fqm7ez.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Thu, Sep 19, 2002 at 03:32:36PM +0200
-X-Organisation: Marie's fan club - II
+In-Reply-To: <Pine.LNX.4.44.0209181932580.24794-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> :
-[...]
-> - the other driver affected is DSCC4, but I know exactly nothing about
->   it (a 2.5 version of it is, of course, available). What do you think,
->   Francois?
+Hello, world!\n
 
-dscc4 maintainer:
-I use a code marrying the core 2.4.x dscc4 with a 2.5.x hdlc to test 2.5.x
-dscc4. Thus no real extra load. Hdlc glue in current 2.4.x dscc4 does its 
-job but I wouldn't recommend it as a model for the newer generation.
+> nevertheless we do lock up for 32 seconds if there are 32K PIDs allocated
+> in a row and last_pid hits that range - regardless of pid_max. (Depending
+> on the cache architecture it could take significantly more.)
 
-dscc4 users:
-Migration from specific scctool.c + sethdlc to single sethdlc. Definitely
-a simpler life.
+What about randomizing the PID selection a bit? I.e., allocate PIDs
+consecutively as long as they are free; if you hit an already used
+PID, roll dice to find a new position where the search should be
+continued. As long as the allocated fraction of PID space is reasonably
+small, this algorithm should be very quick in average case.
 
-If users damn me, I'll surely meet someone from Infineon in hell to discuss
-dscc4 :o)
+Another possible solution: Divide PID space to blocks and for each
+block, keep a counter of PID's available in this block and when
+allocating, just skip blocks which are full. Runs in O(sqrt(PID space
+size)) in the worst case.
 
-vendors:
-- dscc4 not included in rh 2.4 last time I looked at it (I labelled it
-  'EXPERIMENTAL');
-- 2.4.18 mdk kills it using Krzysztof's post-2.4-didn't-make-2.5 (!) hdlc;
-- don't know what the others do.
-
-Imho dscc4 doesn't need to be taken too much in consideration regarding
-2.4.x hdlc stack change.
-
+				Have a nice fortnight
 -- 
-Ueimor
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+This message is transmited on 100% recycled electrons.

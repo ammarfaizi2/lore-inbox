@@ -1,50 +1,56 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160390AbQG2NG0>; Sat, 29 Jul 2000 09:06:26 -0400
-Received: by vger.rutgers.edu id <S160440AbQG2NGF>; Sat, 29 Jul 2000 09:06:05 -0400
-Received: from enterprise.cistron.net ([195.64.68.33]:1889 "EHLO enterprise.cistron.net") by vger.rutgers.edu with ESMTP id <S160429AbQG2NES>; Sat, 29 Jul 2000 09:04:18 -0400
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: RLIM_INFINITY inconsistency between archs
-Date: 29 Jul 2000 13:23:49 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8lult5$q1q$1@enterprise.cistron.net>
-In-Reply-To: <20000728232030.C8868@gnu.org>
-X-Trace: enterprise.cistron.net 964877029 26682 195.64.65.200 (29 Jul 2000 13:23:49 GMT)
-X-Complaints-To: abuse@cistron.nl
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160093AbQGaQl5>; Mon, 31 Jul 2000 12:41:57 -0400
+Received: by vger.rutgers.edu id <S157675AbQGaQjz>; Mon, 31 Jul 2000 12:39:55 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:1493 "EHLO mailout06.sul.t-online.com") by vger.rutgers.edu with ESMTP id <S160749AbQGaQSD>; Mon, 31 Jul 2000 12:18:03 -0400
+Date: 31 Jul 2000 16:57:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.rutgers.edu
+Message-ID: <7iw6kYsXw-B@khms.westfalen.de>
+In-Reply-To: <200007271531.KAA89926@tomcat.admin.navo.hpc.mil>
+Subject: Re: RLIM_INFINITY inconsistency between archs
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <200007271459.KAA04701@tsx-prime.MIT.EDU> <200007271531.KAA89926@tomcat.admin.navo.hpc.mil>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article <cistron.20000728232030.C8868@gnu.org>,
-Adam Sampson  <azz@gnu.org> wrote:
->On Thu, Jul 27, 2000 at 07:03:57PM +0200, Jamie Lokier wrote:
->> But instead, how about a script: /lib/modules/VERSION/compile-module.
->> The script would know where to find the kernel headers.  That could be
->> /lib/modules/include for distributions, and /my/kernel/tree/include for
->> folks who used `make modules_install' recently.
+pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)  wrote on 27.07.00 in <200007271531.KAA89926@tomcat.admin.navo.hpc.mil>:
+
+> Might I suggest creating a "/lib/include" that works something like
+> the /lib/modules where the kernel name is used to generate the directory
+> for the kernel include files?
 >
->I'll second that suggestion. This kind of thing works very well indeed for
->projects like Apache.
+> That way the "uname -r" command could be used to set a symbolic link
+> to point to the correct include files at boot time (or install time).
 
-It is indeed a very good idea. The script could just spit out the
-CFLAGS used for kernel compilation like this:
+Correct for what?
 
-#! /bin/sh
-cat <<EOF
--D__KERNEL__ -I/usr/src/linux-2.2.15/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DUTS_MACHINE='"i386"'
-EOF
+I think this is silly.
 
-Then a module Makefile would be as simple as
+There are two versions of header files people tend to be interested in:
 
-# Set KVER manually if you want to compile against another kernel version
-KVER=$(shell uname -r)
-CFLAGS=$(shell /lib/modules/$(KVER)/kernel-config)
+a. The ones corresponding to the libc version their linker will link  
+against. This will be good for 99% of the situations.
 
-module.o: module.c module.h
+b. A special version for some kernel-version-dependant executable. Exact  
+version depends on what they plan to do with that executable - could be  
+most advanced kernel version available, least advanced version available,  
+a specific version whose significance depends on the configuration of a  
+different machine, whatever.
 
-I've tried this, it works.
+There is no reason to assume that the currently running kernel version is  
+any more relevant than any of the other arguments for b.
 
-Mike.
--- 
-Cistron Certified Internetwork Expert #1. Think free speech; drink free beer.
+> This way the kernel that is active would be selecting the correct includes.
+
+Correct for what?
+
+
+MfG Kai
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318689AbSHAKKa>; Thu, 1 Aug 2002 06:10:30 -0400
+	id <S318695AbSHAKSE>; Thu, 1 Aug 2002 06:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318690AbSHAKKa>; Thu, 1 Aug 2002 06:10:30 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:34820 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318689AbSHAKK3>; Thu, 1 Aug 2002 06:10:29 -0400
-Message-ID: <3D490894.9030506@evision.ag>
-Date: Thu, 01 Aug 2002 12:08:20 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
-       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 and partitions
-References: <Pine.GSO.4.21.0207311832270.8505-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318696AbSHAKSE>; Thu, 1 Aug 2002 06:18:04 -0400
+Received: from tuscan1.lnk.telstra.net ([139.130.53.165]:37900 "EHLO
+	ns.ecomrenaissance.com") by vger.kernel.org with ESMTP
+	id <S318695AbSHAKSE>; Thu, 1 Aug 2002 06:18:04 -0400
+Message-Id: <v03110701b96eb942e5cb@[192.168.0.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 1 Aug 2002 20:21:31 +1000
+To: linux-kernel@vger.kernel.org
+From: Bruce <bruce@toorak.com>
+Subject: 2.4.19-rc5 from 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Thu, 1 Aug 2002, Peter Chubb wrote:
-> 
-> 
->>Maybe we need to roll our own?  I suggest something like:
->>      struct linux_volume_header {
->>	     char  volname[16];
->>	     __u32 nparts;
->>	     __u32 blocksize;
->>	     struct linux_partition {
->>		    char partname[16]
->>		    __u64  start;
->>		    __u64  len;
->>		    __u32  usage;
->>		    __u32  flags;
->>	    } parts[]
->>    }
-> 
-> 
-> Oh, ferchrissake!  WHY???  People, we'd seen a lot of demonstrations
-> of the reasons why binary structures are *bad* for such stuff.
-> 
-> What the bleedin' hell is wrong with <name> <start> <len>\n - all in ASCII?  
-> Terminated by \0.  No need for flags, no need for endianness crap, no
-> need to worry about field becoming too narrow...
-> 
-> What, parsing that would be too slow?  Right.  Sure.  How many times do
-> we parse partition table?  How many times do we end up reading it from
-> disk?  How does IO time compare to the "overhead" of trivial sscanf loop?
-> 
-> Furrfu...  "ASCII is tough, let's go shopping"...
+I have a problem that has manifested itself since 2.4.19-rcx.
 
-Whats wrong with ASCII processing? Easy to tell:
+An ADSL driver (1483-2.4.16.o) for the DLINK dsl100d PCI ADSL modem
+operational under 2.4.18 has been broken since 2.4.19,
+specifically under rc3,rc4 and rc5. (Haven't tested rc2 or rc1)
 
-1. Look at bagtraq. (www.securityfocus.com)
+It appears to get/interpret an incorrect hardware address from the card.
 
-2. It's making data *not agnostic* against i18n issues. This is 
-something most people forgett about. /proc is LANG=en_US. ISO8859-1 - I
-do not like this language.
+There is a constraint. The driver was originally compiled for ITEX/DLINK
+under 2.4.16 and I don't have access to the source.
 
-3. For some as of jet undiscovered reason actual application programmers
-hate processing it.
+The only known location of this driver is
 
-4. Answer 1. should be actually sufficient.
+http://www.nzadsl.co.nz/software/other/Kernel-2.4.16.tar.gz
+
+and it is not strictly a DLINK driver, more a creation for itex.
+
+For reference I use
+inmod -f ./1483-2.4.16.o vpi=[8][0] vci=35 framing=1
+
+then
+
+ifconfig eth1 up (yes there is an eth0 card) This fails with the message
+
+SIOCSIFFLAGS: No such device.
+
+
+Short of rolling back to 2.4.18 which isn't a problem, any advice anyone?
+
+Cheers,
+Bruce Stephens.
+Melbourne, Australia.
+
 

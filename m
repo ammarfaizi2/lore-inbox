@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292947AbSB1Mva>; Thu, 28 Feb 2002 07:51:30 -0500
+	id <S293042AbSB1Ms7>; Thu, 28 Feb 2002 07:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293339AbSB1MtA>; Thu, 28 Feb 2002 07:49:00 -0500
-Received: from nixpbe.pdb.sbs.de ([192.109.2.33]:15757 "EHLO nixpbe.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S293338AbSB1Mph>;
-	Thu, 28 Feb 2002 07:45:37 -0500
-Date: Thu, 28 Feb 2002 13:48:23 +0100 (CET)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: PROBLEM: Timer interrupt lockup on HT machine
-Message-ID: <Pine.LNX.4.33.0202281339290.24779-100000@biker.pdb.fsc.net>
+	id <S293181AbSB1Mq1>; Thu, 28 Feb 2002 07:46:27 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:3083 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id <S293317AbSB1Mob>; Thu, 28 Feb 2002 07:44:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Henrique Gobbi <henrique@cyclades.com>
+Organization: Cyclades
+To: khc@pm.waw.pl
+Subject: Generic HDLC Protocols
+Date: Thu, 28 Feb 2002 09:44:58 -0300
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02022809445800.00921@henrique.cyclades.com.br>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello 
 
-Hello,
+I'd like to know what RFC's the protocols provided by Generic HDLC (PPP, 
+Frame-Relay ansy & CCITT, CISCO and X.25) support.
+I look up in the source code but this information is not there (should it 
+be?).
+Can someone give me this information ?
 
-we have found another problem with our HT ("Jackson") prototype
-machines. In our reboot tests we found that sometimes the timer
-interrupts stop. This happens typically after ~30-50 seconds.
-
->From that time on, no more timer interrupts are encountered.
-This happens only when the logical Jackson CPUs are enabled,
-i.e. with the "acpismp=force" command line parameter, and approximately
-at every 10th boot.
-
-Another observation is that on the HT machines (whether or not the
-above problem occurs) almost all interrupts seem to be handled by CPU 0.
-
-CPU 1 gets a few, but in a ratio of about 1:10000 wrt CPU 0.
-CPU 2 and 3 do not see any interrupts at all.
-
-Has anybody heard of these problems yet, and are workarounds available?
-I am currently investigating the problem and will be happy to supply
-more information if requested.
-
-Martin
-
+Thanks in advance
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
+Henrique Gobbi
+Software Engineer
+Cyclades Corporation
++55 11 50333365
+henrique@cyclades.com

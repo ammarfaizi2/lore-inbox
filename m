@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284619AbRLIXO3>; Sun, 9 Dec 2001 18:14:29 -0500
+	id <S284636AbRLIXQa>; Sun, 9 Dec 2001 18:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284555AbRLIXOW>; Sun, 9 Dec 2001 18:14:22 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:11015 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S284604AbRLIXOM>; Sun, 9 Dec 2001 18:14:12 -0500
-Date: Mon, 10 Dec 2001 00:13:23 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Greg Hennessy <gsh@cox.rr.com>
+	id <S284638AbRLIXQZ>; Sun, 9 Dec 2001 18:16:25 -0500
+Received: from zero.tech9.net ([209.61.188.187]:32006 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284636AbRLIXP2>;
+	Sun, 9 Dec 2001 18:15:28 -0500
+Subject: [PATCH] console close race fix
+From: Robert Love <rml@tech9.net>
+To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-Message-ID: <20011210001323.D25025@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Greg Hennessy <gsh@cox.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011206110713.A8404@cox.rr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 09 Dec 2001 18:15:26 -0500
+Message-Id: <1007939727.1237.5.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DrWhICOqskFTAXiy"
-Content-Disposition: inline
-In-Reply-To: <20011206110713.A8404@cox.rr.com>
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo,
 
---DrWhICOqskFTAXiy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The attached is a fix originally by Andrew Morton and discovered by the
+preempt-kernel patch.  It is in Alan's tree but was never merged into
+Linus's.
 
-Hi,
+There is a race between con_close and con_flush_chars. 
+n_tty_receive_buf writes to the tty queue and then flushes it via
+con_flush_chars.  If the console closes in between these operations,
+con_flush_char barfs.
 
-On Thu, Dec 06, 2001 at 11:07:14AM -0500, Greg Hennessy wrote:
-> [root@hydra bonnie]# cat bonnie.hydra bonnie.leo=20
-[...]
-> 	      --Seeks---
-> Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU
-> /sec %CPU
->           100  1765 100.0 282891 100.1 377295 100.0  2058 100.0 592709
-> 	  99.5 51920.4 196.5
+Please, for all that is righteous, apply.
 
-I bet you have more than 100MB RAM, so you measure memory performance
-instead of disk performance in the block reads and writes. Same for seeks.
-Don't do that. Always use at least twice you ram size if you're interested
-in seeing your disk speed.
-Newer bonnies warn you about it. The current release is 1.2.
-http://www.garloff.de/kurt/linux/bonnie/
+	Robert Love
 
-The char reads/writes seem to suffer glibc overhead.
-You can use the _unlocked variants with option -u and see whether this makes
-a difference.
+diff -urN linux-2.4.17-pre7/drivers/char/console.c linux/drivers/char/console.c
+--- linux-2.4.17-pre6/drivers/char/console.c	Thu Dec  6 14:08:14 2001
++++ linux/drivers/char/console.c	Thu Dec  6 14:09:06 2001
+@@ -2356,8 +2356,14 @@
+ 		return;
+ 
+ 	pm_access(pm_con);
++	
++	/*
++	 * If we raced with con_close(), `vt' may be null.
++	 * Hence this bandaid.   - akpm
++	 */
+ 	acquire_console_sem();
+-	set_cursor(vt->vc_num);
++	if (vt)
++		set_cursor(vt->vc_num);
+ 	release_console_sem();
+ }
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
-
---DrWhICOqskFTAXiy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8E/ATxmLh6hyYd04RApRkAJ4xD8gwbbQ2ukEjPil3hjgnTyQEMACfQsDQ
-RhUaLwj8elhk62TgGadmwiY=
-=qf1Q
------END PGP SIGNATURE-----
-
---DrWhICOqskFTAXiy--

@@ -1,75 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbUKCQsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUKCQs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbUKCQsx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUKCQsn
+	id S261718AbUKCQs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbUKCQs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:48:43 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:40891 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S261722AbUKCQrP
+	Wed, 3 Nov 2004 11:48:27 -0500
+Received: from alog0495.analogic.com ([208.224.223.32]:8576 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261718AbUKCQqv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:47:15 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
+	Wed, 3 Nov 2004 11:46:51 -0500
+Date: Wed, 3 Nov 2004 11:46:15 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: linux-kernel@vger.kernel.org, bert hubert <ahu@ds9a.nl>
 Subject: Re: is killing zombies possible w/o a reboot?
-Date: Wed, 3 Nov 2004 11:47:14 -0500
-User-Agent: KMail/1.7
-Cc: DervishD <lkml@dervishd.net>,
-       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <yw1xis8nhtst.fsf@ford.inprovide.com> <20041103152531.GA22610@DervishD>
-In-Reply-To: <20041103152531.GA22610@DervishD>
+In-Reply-To: <200411031124.19179.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.61.0411031133590.14117@chaos.analogic.com>
+References: <200411030751.39578.gene.heskett@verizon.net>
+ <20041103143348.GA24596@outpost.ds9a.nl> <200411031124.19179.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200411031147.14179.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.46.51] at Wed, 3 Nov 2004 10:47:14 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 10:25, DervishD wrote:
->    Hi all :)
->
-> * Måns Rullgård <mru@inprovide.com> dixit:
->> >> I'd tried to kill the zombie earlier but couldn't.
->> >> Isn't there some way to clean up a &^$#^#@)_ zombie?
->> >
->> > Kill the parent, is the only (portable) way.
+On Wed, 3 Nov 2004, Gene Heskett wrote:
+
+> On Wednesday 03 November 2004 09:33, bert hubert wrote:
+>> On Wed, Nov 03, 2004 at 07:51:39AM -0500, Gene Heskett wrote:
+>>> But I'd tried to run gnomeradio earlier to listen to the
+>>> elections,
 >>
->> Perhaps not as portable, but another possible, though slightly
->> complicated, way is to ptrace the parent and force it to wait().
+>> Depressing enough.
+>>
+>>> I'd tried to kill the zombie earlier but couldn't.
+>>> Isn't there some way to clean up a &^$#^#@)_ zombie?
+>>
+>> Kill the parent, is the only (portable) way.
 >
->    Or write a little program that just 'wait()'s for the specified
->PID's. That is perfectly portable IMHO. But I must admit that the
->preferred way should be killing the parent. 'init' will reap the
->children after that.
+> The parent would have been the icon.  It opened its usual sized small
+> window, but never did anything to it. I clicked on closing the
+> window, but 10 seconds later the system asked me if I wanted to kill
+> it as it wasn't responding. I said yes, the window disappeared, but
+> kpm said gomeradio was still present as process 8162, and that wasn't
+> killable.  Funny thing is, on the reboot, it automaticly self
+> restored and ran just fine.
+>
+> I consider this as one of linux's achilles heels.  Such a hung and
+> dead process can be properly disposed of by a primitive os called os9
+> because it keeps track of all resources in tables in the kernel
+> memory space.  Issueing a kill procnumber removes the process from
+> the exec queue, reclaims all its memory to the system free memory
+> pool, and removes it from the IRQ service tables if an entry exists
+> there.  Near instant, total cleanup, nothing left, in about 250
+> microseconds max. 1.79 mhz cpu's aren't quite instant :)
+>
+> Lets just say that I think having to reboot because of a zombie that
+> has resources locked up, and have the reboot fubared by it too,
+> aren't exactly friendly actions.
 
-But what if there is no parent, since the system has already disposed 
-of it?
+[SNIPPED....]
 
-There was no parent visible to kpm.  Unforch kpm also doesn't 
-specificaly mark zombies as such either, so its a bit clueless in 
-that regard.  Finding them is usually an exersize in stretching the 
-top window out till its about 20 screens high as its always going to 
-be at the bottom of the list.
+There is no problem killing a task and freeing its resources.
+The problem is that Linux and other Unix variations need to
+do this in a specific manner. That manner being that some
+parent (or ultimately init) needs to receive the terminating
+status. A task that has been otherwise killed, but is awaiting
+its status to be obtained is in the 'Z' or zombie state. If
+the code for either the child task or its parent was improperly
+written, the death of a parent could allow a child to wait
+forever (zombie).
 
-If init can indeed do the cleanup, then how hard is it to have a "kill 
---total procnumber" pass that info into init and let it do its thing?
+The fix is to fix the code. Your temporary fix is to use
+Ctrl-Alt-backspace to kill the X11 server (the parent).
+If it doesn't restart (it's not a kernel problem, it's
+a distribution problem), you can log in as root and
+execute:
 
-Or better yet, when X asks me if I want it gone because its not 
-responding to the close button, have X do it all in one swell foop.
+ 	/etc/X11/prefdm &
 
->    Raúl Núñez de Arenas Coronado
+All these little windows and icons are the 'children' of
+the X server. The above is a temporary work-around for
+a non-kernel problem.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

@@ -1,132 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263723AbTLOPCj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:02:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTLOPCj
+	id S263895AbTLOPEp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbTLOPEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:02:39 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:29587 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263723AbTLOPCc (ORCPT
+	Mon, 15 Dec 2003 10:04:45 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:17362 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263895AbTLOPEf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:02:32 -0500
-Subject: Re: Fwd: Re: Working nforce2, was Re: Fixes for nforce2 hard
-	lockup, apic, io-apic, udma133 covered
-From: Craig Bradney <cbradney@zip.com.au>
-To: ross@datscreative.com.au
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, recbo@nishanet.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200312160030.30511.ross@datscreative.com.au>
-References: <200312160030.30511.ross@datscreative.com.au>
-Content-Type: text/plain
-Message-Id: <1071500545.6680.15.camel@athlonxp.bradney.info>
+	Mon, 15 Dec 2003 10:04:35 -0500
+Date: Mon, 15 Dec 2003 16:04:20 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] Re: Problem with exiting threads under NPTL
+Message-ID: <20031215150420.GD1286@wohnheim.fh-wedel.de>
+References: <20031214052516.GA313@vana.vc.cvut.cz> <Pine.LNX.4.58.0312142032310.9900@earth> <Pine.LNX.4.58.0312141228170.1478@home.osdl.org> <Pine.LNX.4.58.0312141238460.1478@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Dec 2003 16:02:26 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0312141238460.1478@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to give the status here ...
-Im still running the original 2.6 test 11 patches for apic and ioapic.
-Uptime is now 2d 20h with lots of idle time and hard work too.. 
+On Sun, 14 December 2003 12:45:34 -0800, Linus Torvalds wrote:
+> 
+> Btw, on another note: to avoid the appearance of recursion, I'd prefer a
+> 
+> 	p = leader;
+> 	goto top;
+> 
+> instead of a "release_task(leader);".
+> 
+> I realize that the recursion should be just one deep (the leader of the
+> leader is itself, and that will stop the thing from going further), but it
+> looks trivial to avoid it, and any automated source checking tool would be
+> confused by the apparent recursion.
 
-/proc/interrupts as follows:
+Since you mentioned it - how would you prefer the asct (we need a
+better acronym) to detect recursion depth.  Currently, I have those in
+a seperate file that should come with the kernel, maybe in
+Documentation/recursions or so.  But how about this:
 
-           CPU0
-  0:  245382420    IO-APIC-edge  timer
-  1:     139577    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          3    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 12:    1478615    IO-APIC-edge  i8042
- 14:    1055548    IO-APIC-edge  ide0
- 15:     737664    IO-APIC-edge  ide1
- 19:   18405692   IO-APIC-level  radeon@PCI:3:0:0
- 21:    5257090   IO-APIC-level  ehci_hcd, NVidia nForce2, eth0
- 22:          3   IO-APIC-level  ohci1394
-NMI:      14944
-LOC:  245087891
-ERR:          0
-MIS:          6
+/**
+ * RECURSION:	2
+ * NAME:	do_recurse
+ */
+void do_recurse(int recurse)
+{
+	if (recurse)
+		do_recurse(0);
+}
 
-As for NMI.. I actually forget which I booted from... I think =1, but NMI is a small number now.. would it have wrapped?
+Ok, the format is ugly, feel free to pick anything nicer.  But
+explicitly stating the recursion depth right where it happens makes
+sense to me, as many human readers would like a similar comment
+anyway.
 
-Craig
-A7N8X Deluxe V2 BIOS 1007
+Any opinion?
 
+Jörn
 
-
-On Mon, 2003-12-15 at 15:30, Ross Dickson wrote:
-> >> APIC error on CPU0: 02(02) 
-> > > what?? no crash though. 
-> > [...] 
-> > > bob@where cat /proc/interrupts 
-> > > CPU0 
-> > > 0: 3350153 IO-APIC-edge timer 
-> > > 1: 5775 IO-APIC-edge i8042 
-> > > 2: 0 XT-PIC cascade 
-> > > 8: 1 IO-APIC-edge rtc 
-> > > 9: 0 IO-APIC-level acpi 
-> > > 12: 5385 IO-APIC-edge i8042 
-> > > 14: 10 IO-APIC-edge ide0 
-> > > 15: 10 IO-APIC-edge ide1 
-> > > 16: 1717957 IO-APIC-level ide2, ide3, eth0 
-> > > 19: 472929 IO-APIC-level ide4, ide5 
-> > > 21: 0 IO-APIC-level NVidia nForce2 
-> > > NMI: 822 
-> > > LOC: 3350073 
-> > > ERR: 35 
-> > > MIS: 15818 
-> 
-> >It looks like the infamous APIC delivery bug -- the "MIS" counter shows 
-> >how many level-triggered interrupts has been erronously delivered as 
-> >edge-triggered ones. No wonder the system shows instability -- you have 
-> >noise problems at the APIC bus. 
->  
-> Thanks Maciej
-> I was wondering about those, I had seen the work around code and would not
-> have thought it need apply to recent athlon chipsets?
-> 
-> 
-> For comparison here is my proc/interrupts 
-> CPU0
->   0:   50462204    IO-APIC-edge  timer
->   1:      49153    IO-APIC-edge  keyboard
->   2:          0          XT-PIC  cascade
->   9:          0   IO-APIC-level  acpi
->  12:     395912    IO-APIC-edge  PS/2 Mouse
->  14:     995872    IO-APIC-edge  ide0
->  15:        283    IO-APIC-edge  ide1
->  16:    3921102   IO-APIC-level  nvidia
->  18:          2   IO-APIC-level  bttv
->  20:     136325   IO-APIC-level  eth0, usb-ohci
->  21:     146903   IO-APIC-level  ehci_hcd, NVIDIA nForce Audio
->  22:          0   IO-APIC-level  usb-ohci
-> NMI:          0
-> LOC:   50457798
-> ERR:          0
-> MIS:          0
-> 
-> Albatron KM18G-Pro, nforce2, pheonix bios, 2200XP, 255fsb, ddr400,
-> ide0 is hard drive, ide1 is cdrom, nmi watchdog off
-> 
-> Report seems OK but this machine locks up hard without the apic delay patch.
-> 
-> I am currently trying the simpler v1 (always add a delay) patch but on all apic
-> acks as per this posting
-> 
-> http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/3291.html
-> 
-> which is a reply to an earlier posting of the same name but I accidently 
-> omitted the Re in the subject.
-> 
-> Regards,
-> Ross.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+Fools ignore complexity.  Pragmatists suffer it.
+Some can avoid it.  Geniuses remove it.
+-- Perlis's Programming Proverb #58, SIGPLAN Notices, Sept.  1982

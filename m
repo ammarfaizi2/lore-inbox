@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbTIQBhi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 21:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbTIQBhi
+	id S262585AbTIQBoX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 21:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbTIQBoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 21:37:38 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:19981 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S262581AbTIQBhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 21:37:37 -0400
-Message-Id: <5.1.0.14.2.20030917113553.02e3cd10@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 17 Sep 2003 11:37:20 +1000
-To: Jesper Juhl <jju@dif.dk>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Incremental update of TCP Checksum
-Cc: Vishwas Raman <vishwas@eternal-systems.com>, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.56.0309162230210.7665@jju_lnx.backbone.dif.dk>
-References: <3F6770CE.8040802@eternal-systems.com>
- <3F3C07E2.3000305@eternal-systems.com>
- <20030821134924.GJ7611@naboo>
- <3F675B68.8000109@eternal-systems.com>
- <Pine.LNX.4.53.0309161533030.30081@chaos>
- <3F6770CE.8040802@eternal-systems.com>
+	Tue, 16 Sep 2003 21:44:23 -0400
+Received: from blarg.net ([206.124.128.1]:718 "EHLO animal.blarg.net")
+	by vger.kernel.org with ESMTP id S262585AbTIQBoW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 21:44:22 -0400
+Date: Tue, 16 Sep 2003 18:44:21 -0700
+From: Ben Johnson <ben@blarg.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linear vs. logical addresses?  how does cpu interpret kernel addrs?
+Message-ID: <20030916184421.A25733@blarg.net>
+References: <20030916154747.A22526@blarg.net> <1562370000.1063759683@[10.10.2.4]> <20030917005446.GW4306@holomorphy.com> <1563260000.1063760286@[10.10.2.4]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1563260000.1063760286@[10.10.2.4]>; from mbligh@aracnet.com on Tue, Sep 16, 2003 at 05:58:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:35 AM 17/09/2003, Jesper Juhl wrote:
->Personally I can't see that you have any other option. The way the
->checksum is calculated information is lost, so it's impossible to
->determine exactely what input generated the current output (the checksum).
->Just as it is impossible to tell if the number 6 was generated from 2+2+2,
->from 3*2 or from 3+3 or some other...  So I don't see what else you can do
->except just recalculate the checksum from scratch. To try and determine
->how your modification would affect the checksum would probably take far
->longer than just re-calculating it.
+On Tue, Sep 16, 2003 at 05:58:08PM -0700, Martin J. Bligh wrote:
+> 
+> BTW, to the original question ... chapter 2 of "Understanding the Linux Kernel"
+> had a good explanation of all this.
 
-of course you can do an incremental checksum update.
-you know that if you're changing a field from (say) 0x22 to 0x11 then you 
-can 'back out' the 0x22 and recalculate the checksum with 0x11.
+Thank you.  I've been reading the first addition.  is there a second?
+the second chapter has a very good explanation of paging and how linear
+addresses are used.  logical addresses on the other hand are barely
+mentioned.  Segmentation is described well, but the translation of
+logical into linear addresses is not described.
 
-this is the whole rationale behind why its a _checksum_ and not a _CRC_.
+I've read elsewhere that logical addresses are comprised of a 16-bit
+segment selector and a 32-bit offset.  I thought pointers were always
+exactly 32-bits (on 32-bit intel).  where is the 16-bit selector?
 
-router(s) have taken advantage of incremental since day one.
+Thanks again.
 
-
-
-cheers,
-
-lincoln.
-
+- Ben

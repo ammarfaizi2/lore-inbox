@@ -1,82 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUFQS2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUFQSbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUFQS2s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 14:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUFQS2r
+	id S261606AbUFQSbA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 14:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUFQS3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 14:28:47 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:53976 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261606AbUFQS1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 14:27:45 -0400
-Date: Thu, 17 Jun 2004 20:26:58 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Finn Thain <ft01@webmastery.com.au>
-Cc: Andreas Schwab <schwab@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: make checkstack on m68k
-Message-ID: <20040617182658.GB29029@wohnheim.fh-wedel.de>
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be> <je3c4uqum0.fsf@sykes.suse.de> <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
+	Thu, 17 Jun 2004 14:29:15 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:27264
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S261426AbUFQS2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 14:28:35 -0400
+Date: Thu, 17 Jun 2004 11:28:32 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7 scsi regression
+Message-ID: <20040617182832.GA29333@linuxace.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 June 2004 01:17:31 +1000, Finn Thain wrote:
-> To:	Andreas Schwab <schwab@suse.de>
-> cc:	Geert Uytterhoeven <geert@linux-m68k.org>,
-> 	Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-> 	Linux Kernel Development <linux-kernel@vger.kernel.org>
+2.6.7 won't boot on a box with a sym53c896 scsi controller, but boots fine
+on 2.6.6.  Dmesg output below.
 
-Could you *please* *not* shorten the CC list?  Looks like I'm the
-checkstack maintainer, so I like to read your comments.  Especially,
-since they are useful ;)
+2.6.6:
 
-> On Thu, 17 Jun 2004, Andreas Schwab wrote:
-> >
-> >   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
-> 
-> I think that should be addaw, not addw. And it may be necessary to remove
-> the $ anchor at the end.
-
-Changed, updated patch below.  Thanks.
-
-Can anyone test?
-
-Jörn
-
--- 
-Don't patch bad code, rewrite it.
--- Kernigham and Pike, according to Rusty
+sym0: <896> rev 0x5 at pci 0000:00:0b.0 irq 17
+sym0: using 64 bit DMA addressing
+sym0: Symbios NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: open drain IRQ line driver, using on-chip SRAM
+sym0: using LOAD/STORE-based firmware.
+sym0: handling phase mismatch from SCRIPTS.
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.1.18j
+Using anticipatory io scheduler
+  Vendor: IBM       Model: DDYS-T09170N      Rev: S80D
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+sym0:0:0: tagged command queuing enabled, command queue depth 16.
+scsi(0:0:0:0): Beginning Domain Validation
+sym0:0: wide asynchronous.
+sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
+scsi(0:0:0:0): Domain Validation skipping write tests
+scsi(0:0:0:0): Ending Domain Validation
 
 
- checkstack.pl |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
+2.6.7:
 
---- linux-2.6.7cow/scripts/checkstack.pl~cs_m68k	2004-06-17 14:58:25.000000000 +0200
-+++ linux-2.6.7cow/scripts/checkstack.pl	2004-06-17 20:25:30.000000000 +0200
-@@ -40,6 +40,10 @@
- 	} elsif ($arch =~ /^ia64$/) {
- 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
- 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
-+	 } elsif ($arch =~ /^m68k$/) {
-+		#2b6c:       4e56 fb70       linkw %fp,#-1168
-+		#1df770:       defc ffe4       addaw #-28,%sp
-+		$re = qr/.*(?:linkw %fp,|addaw )#-[0-9]{1,4}(?:,%sp)?/o;
- 	} elsif ($arch =~ /^mips64$/) {
- 		#8800402c:       67bdfff0        daddiu  sp,sp,-16
- 		$re = qr/.*daddiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2})/o;
-@@ -76,7 +80,7 @@
- 		$func = $1;
- 	}
- 	if ($line =~ m/$re/) {
--		my $size = $1;
-+		my $size = $2;
- 		$size = hex($size) if ($size =~ /^0x/);
- 
- 		if ($size > 0x80000000) {
+sym0: <896> rev 0x5 at pci 0000:00:0b.0 irq 17
+sym0: using 64 bit DMA addressing
+sym0: Symbios NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: open drain IRQ line driver, using on-chip SRAM
+sym0: using LOAD/STORE-based firmware.
+sym0: handling phase mismatch from SCRIPTS.
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.1.18j
+Using anticipatory io scheduler
+  Vendor: IBM       Model: DDYS-T09170N      Rev: S80D
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+sym0:0:0: tagged command queuing enabled, command queue depth 16.
+scsi(0:0:0:0): Beginning Domain Validation
+sym0:0: wide asynchronous.
+sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
+scsi(0:0:0:0): Echo buffer size 6552 is too big, trimming to 4096
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-20 WIDE SCSI 40.0 MB/s ST (50.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-20 WIDE SCSI 38.5 MB/s ST (52.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-20 WIDE SCSI 26.3 MB/s ST (76.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-10 WIDE SCSI 17.9 MB/s ST (112.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-10 WIDE SCSI 11.9 MB/s ST (168.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: FAST-5 WIDE SCSI 7.9 MB/s ST (252.0 ns, offset 31)
+scsi(0:0:0:0): Write Buffer failure 8000002
+scsi(0:0:0:0): Domain Validation detected failure, dropping back
+sym0:0: wide asynchronous.
+sym0:0:0:M_REJECT to send for : 1-3-1-5e-1f.
+scsi(0:0:0:0): Write Buffer failure 8000002
+....
+
+This goes on forever - goes through all different speeds, then starts over.
+
+Difference seems to be in 2.6.6, it says:
+
+scsi(0:0:0:0): Domain Validation skipping write tests
+
+but does not skip these tests in 2.6.7.
+
+Ideas?
+
+
+Phil Oester
+

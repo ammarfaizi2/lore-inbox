@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUHHIVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUHHJED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUHHIVz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 04:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUHHIVz
+	id S265215AbUHHJED (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 05:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUHHJED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 04:21:55 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:10150 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264097AbUHHIVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 04:21:52 -0400
-Date: Sun, 8 Aug 2004 10:21:33 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408080821.i788LXAm007388@burner.fokus.fraunhofer.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Sun, 8 Aug 2004 05:04:03 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:64106 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S265215AbUHHJEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 05:04:00 -0400
+Message-ID: <4115EC6C.5040608@travellingkiwi.com>
+Date: Sun, 08 Aug 2004 10:03:40 +0100
+From: Hamie <hamish@travellingkiwi.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cs using 100% CPU
+References: <40FA4328.4060304@travellingkiwi.com>	 <20040806202747.H13948@flint.arm.linux.org.uk>	 <4113DD20.1010808@travellingkiwi.com> <1091917597.19077.38.camel@localhost.localdomain>
+In-Reply-To: <1091917597.19077.38.camel@localhost.localdomain>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	---->	This is a resend as it seems that somebody did remove
-		linux-kernel@vger.kernel.org
+Alan Cox wrote:
 
->From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
+>On Gwe, 2004-08-06 at 20:33, Hamie wrote:
+>  
+>
+>>Is 100% CPU not excessive? IIRC my PIII-750 used to use less CPU doing 
+>>the same job as quick, or even slightly faster...
+>>    
+>>
+>
+>PCMCIA IDE is PIO only so it burns CPU. This is one case where
+>hyperthreading is nice. Cardbus IDE is a lot better but very little
+>exists and we don't currently support hotplug IDE controllers.
+>
+>  
+>
 
->> I can just that if you set 64KiB now, it'll be a much better alround
->> value.
+Ah right. But would a CF memory card be cardbus anyway?
 
->very good, it works with 64kB:
+>>And should it not use system CPU rather than user CPU?
+>>    
+>>
+>
+>Yes - but figure out please if the kernel or userspace is getting that
+>wrong ;)
+>
+>  
+>
 
->    887         /*
->    888          * First try to raise the DMA limit to a moderate value that
->    889          * most likely does not use up all kernel memory.
->    890          */
->    891         //val = 126*1024;
->    892         val = 64*1024;
+My apologies. It was gkrellm leading me up the garden path on that 
+one... Copying about 100MB from a 512MB CF card (25+ photos from my 
+camera) vmstat 5 reports 4% usercpu, 96% system cpu. And the response on 
+the system is sluggish to say the least. (Moving the pointer in X is 
+painful :). gkrell meanwhile on it's cpu graph shows about 30% system, 
+and the rest as userCPU. No idea why, I guess till I find out I'll just 
+regard gkrellm's cpu graph as a waste of space (To differentiate system 
+& user cpu anyway :).
 
->now cdrecord will happily use the scsi-linux-sg driver even for the IDE
->burners connected to the "Digitus" controllers handled by the siimage driver.
 
-So you found a nasty bug in the Linux kernel :-(
+>  
+>
 
-The official behavior for SG_SET_RESERVED_SIZE is:
-
-1)	You call SG_SET_RESERVED_SIZE with whatever size val you like
-
-2)	It says "thank you" and _always_ returns success
-
-3)	You call SG_GET_RESERVED_SIZE to read the value set up
-	in the kernel. This value is not directly related to the value
-	used with SG_SET_RESERVED_SIZE. The proposal from Douglas
-	Gilbert was to always use 512 KB. I am unhappy with this behavior
-	but I have to take it as it has been defined by the Author :-(
-	He told me that the value returned with SG_GET_RESERVED_SIZE
-	is the value available for DMA and may be much smaller than
-	the size used with SG_SET_RESERVED_SIZE.
-
-AGAIN: I am unhappy with this behavior but this _is_ the official behavior.
-If the current Linux kernel for some reasons does not behave this way it
-is broken and needs to be fixed.
-
-See also: http://www.mail-archive.com/cdwrite@other.debian.org/msg00232.html
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRKMQH7>; Tue, 13 Nov 2001 11:07:59 -0500
+	id <S275843AbRKMQTC>; Tue, 13 Nov 2001 11:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275843AbRKMQHt>; Tue, 13 Nov 2001 11:07:49 -0500
-Received: from smtp02.web.de ([217.72.192.151]:51224 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S275743AbRKMQHb>;
-	Tue, 13 Nov 2001 11:07:31 -0500
-Date: Tue, 13 Nov 2001 17:06:26 +0100 (CET)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: Martin Eriksson <nitrax@giron.wox.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <001201c16c45$dc2b6820$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.33.0111131705230.1713-100000@neptune.sol.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275990AbRKMQSx>; Tue, 13 Nov 2001 11:18:53 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:22790 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S275843AbRKMQSm>; Tue, 13 Nov 2001 11:18:42 -0500
+Date: Tue, 13 Nov 2001 17:18:36 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x has finally made it!
+Message-ID: <20011113171836.A14967@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0111131002200.14971-100000@gurney>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.33.0111131002200.14971-100000@gurney>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Martin Eriksson wrote:
+On Tue, 13 Nov 2001, Alastair Stevens wrote:
 
-> I'm hearing rumours about my University wanting to set up a cluster with AMD
-> Athlon XP+DDR computers, so I wonder what chipset is most stable under
-> Linux?
-> I assume it's the AMD DDR chipset, but I want to be pretty sure.
+> For those who haven't seen it yet, Moshe Bar at BYTE.com has revisited his
+> Linux 2.4 vs FreeBSD benchmarks, using 2.4.12 in this case:
+> 
+>  http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html
 
-I have no problems with the ALi Magik 1 chipset. I'm running a 1 GHz Duron 
-with 512 MB DDR-RAM at the moment.
-
--- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
-
+Wow. That person is knowledgeable... NOT. Turning off fsync() for mail
+is just as good as piping it to /dev/null. See RFC-1123.

@@ -1,102 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUGJJmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUGJJpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbUGJJmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 05:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUGJJmy
+	id S266199AbUGJJpP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 05:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUGJJpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 05:42:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44191 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266147AbUGJJmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 05:42:51 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-       jmorris@redhat.com, mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
-	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
-	<m1fz80c406.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Jul 2004 03:39:13 -0600
-In-Reply-To: <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
-Message-ID: <m1smc09p6m.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jul 2004 05:45:15 -0400
+Received: from outmx003.isp.belgacom.be ([195.238.2.100]:61335 "EHLO
+	outmx003.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S266199AbUGJJpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 05:45:08 -0400
+Subject: Re: Autoregulate swappiness & inactivation
+From: FabF <fabian.frederick@skynet.be>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <40EE8075.6060700@yahoo.com.au>
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
+	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>
+	 <cone.1089268800.781084.4554.502@pc.kolivas.org>
+	 <20040708001027.7fed0bc4.akpm@osdl.org>
+	 <cone.1089273505.418287.4554.502@pc.kolivas.org>
+	 <20040708010842.2064a706.akpm@osdl.org>
+	 <cone.1089275229.304355.4554.502@pc.kolivas.org>
+	 <1089284097.3691.52.camel@localhost.localdomain>
+	 <40EDEF68.2020503@kolivas.org>
+	 <1089366486.3322.10.camel@localhost.localdomain>
+	 <40EE76CC.5070905@yahoo.com.au>
+	 <1089371646.3322.38.camel@localhost.localdomain>
+	 <40EE8075.6060700@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1089452697.3646.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 10 Jul 2004 11:44:58 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
-
-> On Fri, 9 Jul 2004, Eric W. Biederman wrote:
-> >
-> > Does this mean constructs like:
-> > ``if (pointer)'' and ``if (!pointer)'' are also outlawed.
+On Fri, 2004-07-09 at 13:24, Nick Piggin wrote:
+> FabF wrote:
+> > On Fri, 2004-07-09 at 12:43, Nick Piggin wrote:
 > 
-> Of course not.
+> >>pdflush is used to perform writeout of dirty data, so it has
+> >>no part in reducing Mozilla's RSS.
+> > 
+> > Oops ... kswapd then ?
+> > 
 > 
-> Why should they be?
+> Yep.
+> 
+> > 
+> >>I don't really understand what you are asking though. Your basic
+> >>problem is that mozilla's resident memory gets evicted too easily,
+> >>is that right?
+> >>
+> > 
+> > Not at all.My problem is mozilla has some MB to recover when
+> > reactivating; meanwhile, I consider there was sufficient resource to
+> > share with it _before_ reactivation as I'm waiting some minutes after an
+> > heavy process (e.g updatedb) to be done and over.
+> > 
+> 
+> You could try my -np7 patch, which would hopefully fix the problem
+> for you.
 
-Only because the definition of the semantics of ``if'' is in terms of
-comparisons with ``0'',  and I am familiar enough with the C
-programming language that, that is how I read it.  It is still 
-the case that because the comparison happens in pointer context the
-``0'' referred  to is the null pointer constant.  
+Hi Nick:)
+	 I've been busy benchmarking Con's autoregulation which _is_ proved
+interesting in middle pressure.
+AFAICS mm7np works that way : it cleans up memory brightly so we do see
+attractive free memory available _but_ relevant rss doesn't move 1 byte
+:( So we'll have foregrounding elevation for sure (no cleaning required)
+but application still have to 'emerge' and that's the heavier side of
+the story I'm afraid.
 
-For some of us who are extremely familiar with C your argument is
-confusing.  You make statements that sound like they are about the
-definition of the C programming language when in fact they are
-criticism of a given C programming style.  
+Regards,
+FabF
 
-Since I am already making distinctions 0 as the integer value and
-0 as the pointer constant when 0 is implicitly introduced.  It is
-really not confusing to me in the case of manifest constants.
-
-> What's considered bad form is:
->  - assignments in boolean context (because of the confusion of "=" and 
->    "==")
->  - thinking the constant "0" is a pointer.
-
-I would agree that using the constant "0" in a pointer context
-when a more explicit NULL is bad form.  But "0" is the one
-legal way in C to write the NULL pointer constant.
-
-> There's no reason why "if (!ptr)" would be wrong. That has zero confusion 
-> about 0 vs NULL.
-
-For me it has exactly the same level of confusion as the cases that
-are being fixed has.  I have to know the type to know if it is testing
-against the NULL pointer constant or if it is testing against the
-integer value zero.
- 
-> The confusion about "0" is that in traditional C it means two things: it 
-> can either be an integer (the common case) or it can sometimes be a 
-> pointer. That kind of semantic confusion is bad.
-
-Either that or it can be called greater expressive power though fewer
-concepts. 
-
-I like the fact this allows cases like ``if (!ptr)'' and friends.
- 
-> But it has nothing to do with the _value_ zero, or testing pointers for
-> being non-NULL. The value zero is not about semantic confusion, it's just 
-> a bit pattern. And testing pointers is not ambiguous: when you test a 
-> pointer, it's _un_ambigiously checking that pointer for NULL.
-
-see above.
-
-> Problems arise when there is room for confusion, and that's when the 
-> compiler should (and does) warn. If something is unambiguous, it's not 
-> bad.
-
-The compiler is compiling the correct code so the code is clearly not
-ambiguous.  But since types are not always obvious to a person
-staring at the code using the more explicit form of the constant
-i.e. NULL or '\0' instead of 0 adds useful redundancy.
-
-Hopefully that explains why I objected to the way you can out against
-using ``0'' as the null pointer constant.
-
-Eric

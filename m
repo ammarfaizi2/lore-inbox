@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129998AbQLLWBR>; Tue, 12 Dec 2000 17:01:17 -0500
+	id <S130195AbQLLWHs>; Tue, 12 Dec 2000 17:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130151AbQLLWBH>; Tue, 12 Dec 2000 17:01:07 -0500
-Received: from pop.gmx.net ([194.221.183.20]:23368 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129998AbQLLWBC>;
-	Tue, 12 Dec 2000 17:01:02 -0500
-Date: Tue, 12 Dec 2000 20:06:34 +0100
-From: Matthias Czapla <dermatsch@gmx.de>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: cdrom doesnt work anymore with 2.4
-Message-ID: <20001212200633.A331@st3>
-Reply-To: Matthias Czapla <dermatsch@gmx.de>
-In-Reply-To: <20001212141704.A225@st3> <20001212161544.A2134@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20001212161544.A2134@win.tue.nl>; from dwguest@win.tue.nl on Die, Dez 12, 2000 at 04:15:44 +0100
+	id <S130196AbQLLWHj>; Tue, 12 Dec 2000 17:07:39 -0500
+Received: from mail1.rdc3.on.home.com ([24.2.9.40]:61381 "EHLO
+	mail1.rdc3.on.home.com") by vger.kernel.org with ESMTP
+	id <S130195AbQLLWHZ>; Tue, 12 Dec 2000 17:07:25 -0500
+Message-ID: <3A369A70.549AA068@home.com>
+Date: Tue, 12 Dec 2000 16:36:48 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.16 SMP: mtrr errors
+In-Reply-To: <E145wtZ-0001pn-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, Dez 12, 2000 at 04:15:44 +0100, Guest section DW wrote:
-> On Tue, Dec 12, 2000 at 02:17:04PM +0100, Matthias Czapla wrote:
+Alan Cox wrote:
+> > to fall through, but is this correct? I've inserted a break at the end
+> > of the Intel switch before and have not had problems, but I left it out
 > 
-> > I have a quite old cdrom drive, called Cyberdrive 240D. With linux 2.2.17
-> > it worked with soemtimes odd behavior, but it worked.
-> > With 2.4.0-test11 I can mount cdroms in it but if I want to access it (eg.
-> > ls, cd...) I get messages like:
-> > _isofs_bmap: block >= EOF (1096810496, 2048)
-> > or 
-> > _isofs_bmap: block < 0
-> 
-> Fixed in 2.4.0-test12.
-> 
+> Lucky
 
-Thanks. Its workign now :))
-
--- 
-schüss,
-Matthias Czapla
+Wouldn't be the first time...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

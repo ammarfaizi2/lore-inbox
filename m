@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132158AbRAUAaa>; Sat, 20 Jan 2001 19:30:30 -0500
+	id <S131394AbRAUAcu>; Sat, 20 Jan 2001 19:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132637AbRAUAaT>; Sat, 20 Jan 2001 19:30:19 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:48913 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132158AbRAUAaK>;
-	Sat, 20 Jan 2001 19:30:10 -0500
-Message-ID: <3A6A2D8D.D55655D5@mandrakesoft.com>
-Date: Sat, 20 Jan 2001 19:30:05 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S132685AbRAUAcj>; Sat, 20 Jan 2001 19:32:39 -0500
+Received: from mailout3-0.nyroc.rr.com ([24.92.226.118]:8959 "EHLO
+	mailout3-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S132637AbRAUAcY>; Sat, 20 Jan 2001 19:32:24 -0500
+Message-ID: <022f01c08342$088f67b0$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Edgar Toernig" <froese@gmx.de>, "Michael Lindner" <mikel@att.net>
+Cc: "Chris Wedgwood" <cw@f00f.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net> <3A6A09F2.8E5150E@gmx.de>
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
+Date: Sat, 20 Jan 2001 19:35:12 -0500
 MIME-Version: 1.0
-To: Tobias Burnus <burnus@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet drivers: SiS 900, Netgear FA311
-In-Reply-To: <3A6A2B9A.5F40CA04@gmx.de>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Burnus wrote:
-> I think those drivers have not yet been merged. Since I happend to have
-> those (and had problem to get them run with the default kernel) I'd like
-> to asked whether those can be included into the kernel. They are GNU
-> licensed. Seemingly the SiS updates the existing sis900 driver, the
-> FA311 is not yet supported by the kernel.
+> It's not the select that waits. It's a delay in the tcp send
+> path waiting for more data.  Try disabling it:
+>
+> int f=1;
+> setsockopt(s, SOL_TCP, TCP_NODELAY, &f, sizeof(f));
 
-Not true, see natsemi.c (in 2.4.x at least).
+Bingo! With this fix, 2.2.18 performance becomes almost identical to 2.4.0
+performance. I assume 2.4.0 disables Nagle by default on local
+connections...
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Dan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

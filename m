@@ -1,242 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265327AbUFHV2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUFHVao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265327AbUFHV2n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbUFHV2n
+	id S264299AbUFHVao (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265343AbUFHV3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:28:43 -0400
+	Tue, 8 Jun 2004 17:29:07 -0400
 Received: from courier.cs.helsinki.fi ([128.214.9.1]:51938 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S265327AbUFHVZB
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S265325AbUFHVZD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:25:01 -0400
-Date: Wed, 9 Jun 2004 00:25:00 +0300
+	Tue, 8 Jun 2004 17:25:03 -0400
+Date: Wed, 9 Jun 2004 00:25:02 +0300
 From: Pekka J Enberg <penberg@cs.helsinki.fi>
-Message-Id: <200406082125.i58LP0mh016185@melkki.cs.helsinki.fi>
-Subject: [PATCH] ALSA: Remove subsystem-specific malloc (3/8)
+Message-Id: <200406082125.i58LP2Vs016196@melkki.cs.helsinki.fi>
+Subject: [PATCH] ALSA: Remove subsystem-specific malloc (4/8)
 To: linux-kernel@vger.kernel.org, tiwai@suse.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace magic allocator in linux/sound/drivers/ with kcalloc() and kfree().
+Replace magic allocator in linux/sound/i2c/ with kcalloc() and kfree().
 
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
- dummy.c              |   14 +++++++-------
- mpu401/mpu401_uart.c |    4 ++--
- mtpav.c              |    4 ++--
- opl3/opl3_lib.c      |    4 ++--
- opl3/opl3_oss.c      |    2 +-
- opl4/opl4_lib.c      |    4 ++--
- serial-u16550.c      |    4 ++--
- vx/vx_core.c         |    2 +-
- vx/vx_pcm.c          |    4 ++--
- 9 files changed, 21 insertions(+), 21 deletions(-)
+ cs8427.c       |    4 ++--
+ i2c.c          |    8 ++++----
+ l3/uda1341.c   |    8 ++++----
+ other/ak4117.c |    4 ++--
+ tea6330t.c     |    6 +++---
+ 5 files changed, 15 insertions(+), 15 deletions(-)
 
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/dummy.c alsa-2.6.6/sound/drivers/dummy.c
---- linux-2.6.6/sound/drivers/dummy.c	2004-06-08 23:57:25.282602592 +0300
-+++ alsa-2.6.6/sound/drivers/dummy.c	2004-06-05 21:10:02.000000000 +0300
-@@ -338,7 +338,7 @@ static snd_pcm_hardware_t snd_card_dummy
- static void snd_card_dummy_runtime_free(snd_pcm_runtime_t *runtime)
+diff -X dontdiff -purN linux-2.6.6/sound/i2c/cs8427.c alsa-2.6.6/sound/i2c/cs8427.c
+--- linux-2.6.6/sound/i2c/cs8427.c	2004-06-08 23:57:23.472877712 +0300
++++ alsa-2.6.6/sound/i2c/cs8427.c	2004-06-05 21:09:30.000000000 +0300
+@@ -159,7 +159,7 @@ static int snd_cs8427_send_corudata(snd_
+ static void snd_cs8427_free(snd_i2c_device_t *device)
  {
- 	snd_card_dummy_pcm_t *dpcm = snd_magic_cast(snd_card_dummy_pcm_t, runtime->private_data, return);
--	snd_magic_kfree(dpcm);
-+	kfree(dpcm);
+ 	if (device->private_data)
+-		snd_magic_kfree(device->private_data);
++		kfree(device->private_data);
  }
  
- static int snd_card_dummy_playback_open(snd_pcm_substream_t * substream)
-@@ -347,11 +347,11 @@ static int snd_card_dummy_playback_open(
- 	snd_card_dummy_pcm_t *dpcm;
- 	int err;
+ int snd_cs8427_create(snd_i2c_bus_t *bus,
+@@ -211,7 +211,7 @@ int snd_cs8427_create(snd_i2c_bus_t *bus
  
--	dpcm = snd_magic_kcalloc(snd_card_dummy_pcm_t, 0, GFP_KERNEL);
-+	dpcm = kcalloc(sizeof(*dpcm), GFP_KERNEL);
- 	if (dpcm == NULL)
- 		return -ENOMEM;
- 	if ((runtime->dma_area = snd_malloc_pages_fallback(MAX_BUFFER_SIZE, GFP_KERNEL, &runtime->dma_bytes)) == NULL) {
--		snd_magic_kfree(dpcm);
-+		kfree(dpcm);
- 		return -ENOMEM;
- 	}
- 	init_timer(&dpcm->timer);
-@@ -369,7 +369,7 @@ static int snd_card_dummy_playback_open(
- 	if (substream->pcm->device & 2)
- 		runtime->hw.info &= ~(SNDRV_PCM_INFO_MMAP|SNDRV_PCM_INFO_MMAP_VALID);
- 	if ((err = add_playback_constraints(runtime)) < 0) {
--		snd_magic_kfree(dpcm);
-+		kfree(dpcm);
+ 	if ((err = snd_i2c_device_create(bus, "CS8427", CS8427_ADDR | (addr & 7), &device)) < 0)
  		return err;
- 	}
- 
-@@ -382,11 +382,11 @@ static int snd_card_dummy_capture_open(s
- 	snd_card_dummy_pcm_t *dpcm;
- 	int err;
- 
--	dpcm = snd_magic_kcalloc(snd_card_dummy_pcm_t, 0, GFP_KERNEL);
-+	dpcm = kcalloc(sizeof(*dpcm), GFP_KERNEL);
- 	if (dpcm == NULL)
+-	chip = device->private_data = snd_magic_kcalloc(cs8427_t, 0, GFP_KERNEL);
++	chip = device->private_data = kcalloc(sizeof(*chip), GFP_KERNEL);
+ 	if (chip == NULL) {
+ 	      	snd_i2c_device_free(device);
  		return -ENOMEM;
- 	if ((runtime->dma_area = snd_malloc_pages_fallback(MAX_BUFFER_SIZE, GFP_KERNEL, &runtime->dma_bytes)) == NULL) {
--		snd_magic_kfree(dpcm);
-+		kfree(dpcm);
- 		return -ENOMEM;
+diff -X dontdiff -purN linux-2.6.6/sound/i2c/i2c.c alsa-2.6.6/sound/i2c/i2c.c
+--- linux-2.6.6/sound/i2c/i2c.c	2004-06-08 23:57:23.532868592 +0300
++++ alsa-2.6.6/sound/i2c/i2c.c	2004-06-05 21:08:42.000000000 +0300
+@@ -62,7 +62,7 @@ static int snd_i2c_bus_free(snd_i2c_bus_
  	}
- 	memset(runtime->dma_area, 0, runtime->dma_bytes);
-@@ -405,7 +405,7 @@ static int snd_card_dummy_capture_open(s
- 	if (substream->pcm->device & 2)
- 		runtime->hw.info &= ~(SNDRV_PCM_INFO_MMAP|SNDRV_PCM_INFO_MMAP_VALID);
- 	if ((err = add_capture_constraints(runtime)) < 0) {
--		snd_magic_kfree(dpcm);
-+		kfree(dpcm);
- 		return err;
- 	}
- 
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/mpu401/mpu401_uart.c alsa-2.6.6/sound/drivers/mpu401/mpu401_uart.c
---- linux-2.6.6/sound/drivers/mpu401/mpu401_uart.c	2004-06-08 23:57:25.198615360 +0300
-+++ alsa-2.6.6/sound/drivers/mpu401/mpu401_uart.c	2004-06-05 21:10:41.000000000 +0300
-@@ -448,7 +448,7 @@ static void snd_mpu401_uart_free(snd_raw
- 		release_resource(mpu->res);
- 		kfree_nocheck(mpu->res);
- 	}
--	snd_magic_kfree(mpu);
-+	kfree(mpu);
+ 	if (bus->private_free)
+ 		bus->private_free(bus);
+-	snd_magic_kfree(bus);
++	kfree(bus);
+ 	return 0;
  }
  
- /**
-@@ -484,7 +484,7 @@ int snd_mpu401_uart_new(snd_card_t * car
- 		*rrawmidi = NULL;
- 	if ((err = snd_rawmidi_new(card, "MPU-401U", device, 1, 1, &rmidi)) < 0)
- 		return err;
--	mpu = snd_magic_kcalloc(mpu401_t, 0, GFP_KERNEL);
-+	mpu = kcalloc(sizeof(*mpu), GFP_KERNEL);
- 	if (mpu == NULL) {
- 		snd_device_free(card, rmidi);
- 		return -ENOMEM;
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/mtpav.c alsa-2.6.6/sound/drivers/mtpav.c
---- linux-2.6.6/sound/drivers/mtpav.c	2004-06-08 23:57:25.259606088 +0300
-+++ alsa-2.6.6/sound/drivers/mtpav.c	2004-06-05 21:10:17.000000000 +0300
-@@ -695,7 +695,7 @@ static int snd_mtpav_get_RAWMIDI(mtpav_t
+@@ -81,7 +81,7 @@ int snd_i2c_bus_create(snd_card_t *card,
+ 	};
  
- static mtpav_t *new_mtpav(void)
+ 	*ri2c = NULL;
+-	bus = (snd_i2c_bus_t *)snd_magic_kcalloc(snd_i2c_bus_t, 0, GFP_KERNEL);
++	bus = kcalloc(sizeof(*bus), GFP_KERNEL);
+ 	if (bus == NULL)
+ 		return -ENOMEM;
+ 	init_MUTEX(&bus->lock_mutex);
+@@ -108,7 +108,7 @@ int snd_i2c_device_create(snd_i2c_bus_t 
+ 
+ 	*rdevice = NULL;
+ 	snd_assert(bus != NULL, return -EINVAL);
+-	device = (snd_i2c_device_t *)snd_magic_kcalloc(snd_i2c_device_t, 0, GFP_KERNEL);
++	device = kcalloc(sizeof(*device), GFP_KERNEL);
+ 	if (device == NULL)
+ 		return -ENOMEM;
+ 	device->addr = addr;
+@@ -125,7 +125,7 @@ int snd_i2c_device_free(snd_i2c_device_t
+ 		list_del(&device->list);
+ 	if (device->private_free)
+ 		device->private_free(device);
+-	snd_magic_kfree(device);
++	kfree(device);
+ 	return 0;
+ }
+ 
+diff -X dontdiff -purN linux-2.6.6/sound/i2c/l3/uda1341.c alsa-2.6.6/sound/i2c/l3/uda1341.c
+--- linux-2.6.6/sound/i2c/l3/uda1341.c	2004-06-08 23:57:23.584860688 +0300
++++ alsa-2.6.6/sound/i2c/l3/uda1341.c	2004-06-05 21:08:02.000000000 +0300
+@@ -653,7 +653,7 @@ static snd_kcontrol_new_t snd_uda1341_co
+ static void uda1341_free(struct l3_client *uda1341)
  {
--	mtpav_t *ncrd = (mtpav_t *) snd_magic_kcalloc(mtpav_t, 0, GFP_KERNEL);
-+	mtpav_t *ncrd = kcalloc(sizeof(*ncrd), GFP_KERNEL);
- 	if (ncrd != NULL) {
- 		spin_lock_init(&ncrd->spinlock);
- 
-@@ -728,7 +728,7 @@ static void free_mtpav(mtpav_t * crd)
- 		release_resource(crd->res_port);
- 		kfree_nocheck(crd->res_port);
- 	}
--	snd_magic_kfree(crd);
-+	kfree(crd);
+ 	l3_detach_client(uda1341); // calls kfree for driver_data (uda1341_t)
+-	snd_magic_kfree(uda1341);
++	kfree(uda1341);
  }
  
- /*
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/opl3/opl3_lib.c alsa-2.6.6/sound/drivers/opl3/opl3_lib.c
---- linux-2.6.6/sound/drivers/opl3/opl3_lib.c	2004-06-08 23:57:24.904660048 +0300
-+++ alsa-2.6.6/sound/drivers/opl3/opl3_lib.c	2004-06-05 21:12:20.000000000 +0300
-@@ -354,7 +354,7 @@ static int snd_opl3_free(opl3_t *opl3)
- 		release_resource(opl3->res_r_port);
- 		kfree_nocheck(opl3->res_r_port);
- 	}
--	snd_magic_kfree(opl3);
-+	kfree(opl3);
- 	return 0;
+ static int uda1341_dev_free(snd_device_t *device)
+@@ -673,7 +673,7 @@ int __init snd_chip_uda1341_mixer_new(sn
+ 
+ 	snd_assert(card != NULL, return -EINVAL);
+ 
+-	uda1341 = snd_magic_kcalloc(l3_client_t, 0, GFP_KERNEL);
++	uda1341 = kcalloc(sizeof(*uda1341), GFP_KERNEL);
+ 	if (uda1341 == NULL)
+ 		return -ENOMEM;
+          
+@@ -710,7 +710,7 @@ static int uda1341_attach(struct l3_clie
+ {
+ 	struct uda1341 *uda;
+ 
+-	uda = snd_magic_kcalloc(uda1341_t, 0, GFP_KERNEL);
++	uda = kcalloc(sizeof(*uda), 0, GFP_KERNEL);
+ 	if (!uda)
+ 		return -ENOMEM;
+ 
+@@ -734,7 +734,7 @@ static int uda1341_attach(struct l3_clie
+ static void uda1341_detach(struct l3_client *clnt)
+ {
+ 	if (clnt->driver_data)
+-		snd_magic_kfree(clnt->driver_data);
++		kfree(clnt->driver_data);
  }
  
-@@ -379,7 +379,7 @@ int snd_opl3_create(snd_card_t * card,
- 
- 	*ropl3 = NULL;
- 
--	opl3 = snd_magic_kcalloc(opl3_t, 0, GFP_KERNEL);
-+	opl3 = kcalloc(sizeof(*opl3), GFP_KERNEL);
- 	if (opl3 == NULL)
- 		return -ENOMEM;
- 
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/opl3/opl3_oss.c alsa-2.6.6/sound/drivers/opl3/opl3_oss.c
---- linux-2.6.6/sound/drivers/opl3/opl3_oss.c	2004-06-08 23:57:24.888662480 +0300
-+++ alsa-2.6.6/sound/drivers/opl3/opl3_oss.c	2004-06-05 20:41:33.000000000 +0300
-@@ -241,7 +241,7 @@ static int snd_opl3_load_patch_seq_oss(s
- 		}
- 
- 		size = sizeof(*put) + sizeof(fm_xinstrument_t);
--		put = (snd_seq_instr_header_t *)snd_kcalloc(size, GFP_KERNEL);
-+		put = kcalloc(size, GFP_KERNEL);
- 		if (put == NULL)
- 			return -ENOMEM;
- 		/* build header */
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/opl4/opl4_lib.c alsa-2.6.6/sound/drivers/opl4/opl4_lib.c
---- linux-2.6.6/sound/drivers/opl4/opl4_lib.c	2004-06-08 23:57:25.072634512 +0300
-+++ alsa-2.6.6/sound/drivers/opl4/opl4_lib.c	2004-06-05 21:10:55.000000000 +0300
-@@ -172,7 +172,7 @@ static void snd_opl4_free(opl4_t *opl4)
- 		release_resource(opl4->res_pcm_port);
- 		kfree_nocheck(opl4->res_pcm_port);
- 	}
--	snd_magic_kfree(opl4);
-+	kfree(opl4);
+ static int
+diff -X dontdiff -purN linux-2.6.6/sound/i2c/other/ak4117.c alsa-2.6.6/sound/i2c/other/ak4117.c
+--- linux-2.6.6/sound/i2c/other/ak4117.c	2004-06-08 23:57:23.526869504 +0300
++++ alsa-2.6.6/sound/i2c/other/ak4117.c	2004-06-05 21:08:59.000000000 +0300
+@@ -65,7 +65,7 @@ static void reg_dump(ak4117_t *ak4117)
+ static void snd_ak4117_free(ak4117_t *chip)
+ {
+ 	del_timer(&chip->timer);
+-	snd_magic_kfree(chip);
++	kfree(chip);
  }
  
- static int snd_opl4_dev_free(snd_device_t *device)
-@@ -199,7 +199,7 @@ int snd_opl4_create(snd_card_t *card,
- 	if (ropl4)
- 		*ropl4 = NULL;
+ static int snd_ak4117_dev_free(snd_device_t *device)
+@@ -85,7 +85,7 @@ int snd_ak4117_create(snd_card_t *card, 
+ 		.dev_free =     snd_ak4117_dev_free,
+ 	};
  
--	opl4 = snd_magic_kcalloc(opl4_t, 0, GFP_KERNEL);
-+	opl4 = kcalloc(sizeof(*opl4), GFP_KERNEL);
- 	if (!opl4)
+-	chip = (ak4117_t *)snd_magic_kcalloc(ak4117_t, 0, GFP_KERNEL);
++	chip = kcalloc(sizeof(*chip), GFP_KERNEL);
+ 	if (chip == NULL)
  		return -ENOMEM;
+ 	spin_lock_init(&chip->lock);
+diff -X dontdiff -purN linux-2.6.6/sound/i2c/tea6330t.c alsa-2.6.6/sound/i2c/tea6330t.c
+--- linux-2.6.6/sound/i2c/tea6330t.c	2004-06-08 23:57:23.568863120 +0300
++++ alsa-2.6.6/sound/i2c/tea6330t.c	2004-06-05 21:08:16.000000000 +0300
+@@ -271,7 +271,7 @@ TEA6330T_TREBLE("Tone Control - Treble",
+ static void snd_tea6330_free(snd_i2c_device_t *device)
+ {
+ 	tea6330t_t *tea = snd_magic_cast(tea6330t_t, device->private_data, return);
+-	snd_magic_kfree(tea);
++	kfree(tea);
+ }
+                                         
+ int snd_tea6330t_update_mixer(snd_card_t * card,
+@@ -286,11 +286,11 @@ int snd_tea6330t_update_mixer(snd_card_t
+ 	u8 default_treble, default_bass;
+ 	unsigned char bytes[7];
  
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/serial-u16550.c alsa-2.6.6/sound/drivers/serial-u16550.c
---- linux-2.6.6/sound/drivers/serial-u16550.c	2004-06-08 23:57:25.027641352 +0300
-+++ alsa-2.6.6/sound/drivers/serial-u16550.c	2004-06-05 21:11:10.000000000 +0300
-@@ -764,7 +764,7 @@ static int snd_uart16550_free(snd_uart16
- 		release_resource(uart->res_base);
- 		kfree_nocheck(uart->res_base);
- 	}
--	snd_magic_kfree(uart);
-+	kfree(uart);
- 	return 0;
- };
- 
-@@ -790,7 +790,7 @@ static int __init snd_uart16550_create(s
- 	int err;
- 
- 
--	if ((uart = snd_magic_kcalloc(snd_uart16550_t, 0, GFP_KERNEL)) == NULL)
-+	if ((uart = kcalloc(sizeof(*uart), GFP_KERNEL)) == NULL)
+-	tea = snd_magic_kcalloc(tea6330t_t, 0, GFP_KERNEL);
++	tea = kcalloc(sizeof(*tea), GFP_KERNEL);
+ 	if (tea == NULL)
  		return -ENOMEM;
- 	uart->adaptor = adaptor;
- 	uart->card = card;
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/vx/vx_core.c alsa-2.6.6/sound/drivers/vx/vx_core.c
---- linux-2.6.6/sound/drivers/vx/vx_core.c	2004-06-08 23:57:25.002645152 +0300
-+++ alsa-2.6.6/sound/drivers/vx/vx_core.c	2004-06-05 21:12:07.000000000 +0300
-@@ -731,7 +731,7 @@ vx_core_t *snd_vx_create(snd_card_t *car
- 
- 	snd_assert(card && hw && ops, return NULL);
- 
--	chip = snd_magic_kcalloc(vx_core_t, extra_size, GFP_KERNEL);
-+	chip = kcalloc(sizeof(chip) + extra_size, GFP_KERNEL);
- 	if (! chip) {
- 		snd_printk(KERN_ERR "vx_core: no memory\n");
- 		return NULL;
-diff -X dontdiff -purN linux-2.6.6/sound/drivers/vx/vx_pcm.c alsa-2.6.6/sound/drivers/vx/vx_pcm.c
---- linux-2.6.6/sound/drivers/vx/vx_pcm.c	2004-06-08 23:57:24.957651992 +0300
-+++ alsa-2.6.6/sound/drivers/vx/vx_pcm.c	2004-06-05 21:11:29.000000000 +0300
-@@ -480,7 +480,7 @@ static int vx_alloc_pipe(vx_core_t *chip
+ 	if ((err = snd_i2c_device_create(bus, "TEA6330T", TEA6330T_ADDR, &device)) < 0) {
+-		snd_magic_kfree(tea);
++		kfree(tea);
  		return err;
- 
- 	/* initialize the pipe record */
--	pipe = snd_magic_kcalloc(vx_pipe_t, 0, GFP_KERNEL);
-+	pipe = kcalloc(sizeof(*pipe), GFP_KERNEL);
- 	if (! pipe) {
- 		/* release the pipe */
- 		vx_init_rmh(&rmh, CMD_FREE_PIPE);
-@@ -514,7 +514,7 @@ static int vx_free_pipe(vx_core_t *chip,
- 	vx_set_pipe_cmd_params(&rmh, pipe->is_capture, pipe->number, 0);
- 	vx_send_msg(chip, &rmh);
- 
--	snd_magic_kfree(pipe);
-+	kfree(pipe);
- 	return 0;
- }
- 
+ 	}
+ 	tea->device = device;

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264799AbTBEUTL>; Wed, 5 Feb 2003 15:19:11 -0500
+	id <S264815AbTBEUUQ>; Wed, 5 Feb 2003 15:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbTBEUTL>; Wed, 5 Feb 2003 15:19:11 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:10195 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S264799AbTBEUTK>;
-	Wed, 5 Feb 2003 15:19:10 -0500
-References: <200302052021.h15KLrXv000881@darkstar.example.net>
-In-Reply-To: <200302052021.h15KLrXv000881@darkstar.example.net> 
-From: b_adlakha@softhome.net
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95 vs 3.21 performance
-Date: Wed, 05 Feb 2003 13:28:46 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+	id <S264836AbTBEUUQ>; Wed, 5 Feb 2003 15:20:16 -0500
+Received: from 200-181-159-001.ctame7025.dsl.brasiltelecom.net.br ([200.181.159.1]:46977
+	"EHLO PolesApart.wox.org") by vger.kernel.org with ESMTP
+	id <S264815AbTBEUUN>; Wed, 5 Feb 2003 15:20:13 -0500
+Message-ID: <3E417430.9000101@PolesApart.dhs.org>
+Date: Wed, 05 Feb 2003 18:29:36 -0200
+From: Alexandre Pereira Nunes <alex@PolesApart.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pt-BR; rv:1.2.1) Gecko/20021130
+X-Accept-Language: pt-br, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: kraxel@bytesex.org
+Subject: promiscuous bttv parameter checking (2.4.21-pre3)
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [210.214.82.239]
-Message-ID: <courier.3E4173FE.00002CEE@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford writes: 
+Hi,
 
->> No really, I downloaded tcc yesterday, compiled a few things with it and it 
->> is REALLY fast...and as I wrote yesterday, its small enough so people might 
->> say:  
->> 
->> A: "I can't compile linux, what is wrong?"
->> B: "Here, compile it with the compiler attached to this message"  
->> 
->> Sounds like fun doesn't it? I mean, tcc is a working C compiler (thats 
->> supposed to be a great thing), and its only 170 kb gzipped tar! 
-> 
-> I haven't actually had chance to test tcc yet, but I'll try to
-> tomorrow.  How close is it to being able to compile the kernel? 
-> 
-> John.
-Far away, it doesn't even compile the ncurses based menuconfig...I think we 
-need to hack (seriously) either tcc or linux... Since tcc is so small it 
-would be easier to make it run it (bit) more like gcc, than modifying the 
-whole kernel... 
+As of linux 2.4.21-pre3, bttv driver fails to check the "channel" 
+attribute correctly. This is caused because there is no check for 
+negative values on the  channel parameter (at least ) in ioctls 
+VIDIOCGCHAN (bttv-driver.c:1510) and VIDIOCSCHAN (same file, at line 
+1537). Negative parameters, though invalid, are passed along.
+
+While in the first case (VIDIOCGCHAN) I see no dark effects other than 
+the wacky channel name in the name member of the returned structure, it 
+is possible that passing the negative value in VIDIOCSCHAN spots 
+side-effects, specially in the function bt848_muxsel.
+
+
+(A cc: went to the maintainer. Any questions please cc: me since I'm not 
+subscribed to the kernel mailing list).
+
+
+Best regards,
+
+
+Alexandre
+
 

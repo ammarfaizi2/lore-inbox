@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbULPXjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbULPXjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbULPXjP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbULPXjP
+	id S262193AbULPXjl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbULPXjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:39:15 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:29060 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S262192AbULPXjK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:39:10 -0500
-Date: Fri, 17 Dec 2004 00:39:00 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Greg KH <greg@kroah.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Mike Waychison <Michael.Waychison@Sun.COM>,
-       linux-kernel@vger.kernel.org
-Subject: Re: debugfs in the namespace
-In-Reply-To: <20041216225323.GA10616@kroah.com>
-Message-ID: <Pine.LNX.4.60.0412170033160.25628@alpha.polcom.net>
-References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com>
- <41C20356.4010900@sun.com> <20041216221843.GA10172@kroah.com>
- <20041216144531.3a8d988c@lembas.zaitcev.lan> <20041216225323.GA10616@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Dec 2004 18:39:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:13267 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262193AbULPXjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:39:36 -0500
+Date: Thu, 16 Dec 2004 15:39:24 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH 2/2] USB: avoid OHCI autosuspend on some boxes
+Message-ID: <20041216233924.GB10997@kroah.com>
+References: <20041216233815.GA10997@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216233815.GA10997@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004, Greg KH wrote:
+Don't try autosuspend if we think the hardware won't resume correctly
+from the OHCI suspend state.  This makes the RWC bit serve double duty,
+but that appears to work OK, and the only penalty is increased power
+consumption (from OHCI clocks) on boards/chips that don't work right.
 
-> On Thu, Dec 16, 2004 at 02:45:31PM -0800, Pete Zaitcev wrote:
->> On Thu, 16 Dec 2004 14:18:43 -0800, Greg KH <greg@kroah.com> wrote:
->>
->>> Hm, what about /.debug ?  That's a compromise that I can live with (even
->>> less key strokes to get to...)
->>
->> No way, Jan is out of his mind, adding obfuscations like that. Anything
->> but that. I didn't even bother to reply, because it never occurred to me
->> that you'd fall for something so retarded.
->
-> Bah, fine :)
->
->> Otherwise, /dbg sounds good.
->
-> Ok, I can live with that.
+For example, the amd756 erratum 4 workaround needs this logic; and at
+least one ServerWorks box issues spurious resume IRQs (~3x/second!)
+in the suspend state.
 
-I agree that anything like /.* is broken and strange... But this is only 
-my little opinion. :-)
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-But why creating dir in /proc - like /proc/debug is bad? Its advantages:
-- it does not pollute namespace,
-- it can be created by kernel at startup even on systems where debugfs 
-will not be used (why not?),
-- /proc is mounted in all configurations and often it is the first thing 
-that startscripts do,
-- if somebody really needs to debug proc using debugfs he can always mount 
-it as /debug temporaily.
-
-
-Thanks,
-
-Grzegorz Kulewski
-
+diff -Nru a/drivers/usb/host/ohci-hub.c b/drivers/usb/host/ohci-hub.c
+--- a/drivers/usb/host/ohci-hub.c	2004-12-16 15:36:00 -08:00
++++ b/drivers/usb/host/ohci-hub.c	2004-12-16 15:36:00 -08:00
+@@ -305,7 +305,7 @@
+ {
+ 	struct ohci_hcd	*ohci = hcd_to_ohci (hcd);
+ 	int		ports, i, changed = 0, length = 1;
+-	int		can_suspend = 1;
++	int		can_suspend = hcd->can_wakeup;
+ 	unsigned long	flags;
+ 
+ 	spin_lock_irqsave (&ohci->lock, flags);

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131985AbRBDPug>; Sun, 4 Feb 2001 10:50:36 -0500
+	id <S131891AbRBDP4h>; Sun, 4 Feb 2001 10:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131987AbRBDPu0>; Sun, 4 Feb 2001 10:50:26 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:14721 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131985AbRBDPuL>; Sun, 4 Feb 2001 10:50:11 -0500
-Date: Sun, 4 Feb 2001 15:42:26 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Ben Ford <ben@kalifornia.com>
-cc: David Woodhouse <dwmw2@infradead.org>, Russell King <rmk@arm.linux.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pavel Machek <pavel@suse.cz>, andrew.grover@intel.com,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <3A7D6C66.749318E1@kalifornia.com>
-Message-ID: <Pine.SOL.4.21.0102041540300.14562-100000@green.csi.cam.ac.uk>
+	id <S131958AbRBDP42>; Sun, 4 Feb 2001 10:56:28 -0500
+Received: from colorfullife.com ([216.156.138.34]:2308 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131891AbRBDP4P>;
+	Sun, 4 Feb 2001 10:56:15 -0500
+Message-ID: <3A7D7B9D.9785603F@colorfullife.com>
+Date: Sun, 04 Feb 2001 16:56:13 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+CC: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel memory allocations alignment
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27119@hasmsx52.iil.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Feb 2001, Ben Ford wrote:
-
-> David Woodhouse wrote:
+"Hen, Shmulik" wrote:
 > 
-> > On Sun, 4 Feb 2001, James Sutherland wrote:
-> >
-> > > For the end-user, the ability to see readings in other units would be
-> > > useful - how many people on this list work in litres/metres/kilometres,
-> > > and how many in gallons/feet/miles? Probably enough in both groups that
-> > > neither could count as universal...
-> >
-> > Yeah. We can have this as part of the locale settings, changable by
-> > echoing the desired locale string to /proc/sys/kernel/lc_all.
-> >
-> > -
-> 
-> Just an idea, . .  but isn't this something better done in userland?
-> 
-> (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> $ date  +%s
-> 981298161
-> (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> $ date  +%c
-> Sun Feb  4 06:49:24 2001
+> When using kmalloc(size_t size), do I get a guaranty that the memory region
+> allocated is aligned according to the size specified ?
+> More to the point, if I call kmalloc for type int on an IA64 architecture is
+> the pointer going to be 8 bytes aligned ?
+>
 
-That's what I'd do, anyway - /dev/pieceofstring would return the length of
-said piece of string in some units, explicityly stated. (e.g. "5m" or
-"15ft").
+Yes, kmalloc results are always 'sizeof(void*)' aligned.
 
-"uname -s" ("how long's a piece of string on this system") would then
-convert the length into feet, metres or fathoms, depending on what the
-user prefers.
+Do you have stricter alignment requirements?
 
-
-James.
-
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUHMRNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUHMRRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266244AbUHMRNf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUHMRNe
+	id S266245AbUHMRRx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUHMRRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:13:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56803 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266244AbUHMRLk (ORCPT
+	Fri, 13 Aug 2004 13:17:53 -0400
+Received: from [80.190.193.18] ([80.190.193.18]:50060 "EHLO mx.vsadmin.de")
+	by vger.kernel.org with ESMTP id S266245AbUHMRRu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:11:40 -0400
-Date: Fri, 13 Aug 2004 10:11:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: chrisw@osdl.org, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] small simplification for two SECURITY dependencies
-Message-ID: <20040813101137.R1924@build.pdx.osdl.net>
-References: <20040812211916.GO13377@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Aug 2004 13:17:50 -0400
+From: Stefan Meyknecht <sm0407@nurfuerspam.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
+Date: Fri, 13 Aug 2004 19:17:48 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200408061833.30751.sm0407@nurfuerspam.de> <200408071412.17411.sm0407@nurfuerspam.de> <20040809063323.GB10418@suse.de>
+In-Reply-To: <20040809063323.GB10418@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040812211916.GO13377@fs.tum.de>; from bunk@fs.tum.de on Thu, Aug 12, 2004 at 11:19:17PM +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408131917.48833.sm0407@nurfuerspam.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Adrian Bunk (bunk@fs.tum.de) wrote:
-> 
-> I'd suggest the patch below to let the SECURITY_CAPABILITIES and 
-> SECURITY_ROOTPLUG dependencies look a bit more simple.
+Hi,
 
-I agree, can push this up today with a couple other outstanding changes I
-have.  Thank you.
--chris
+Jens Axboe <axboe@suse.de> wrote:
+> Patch looks fine (last hunk is a little code, but that's not your
+> fault). Thanks!
+
+Do you consider including the patch into 2.6.8 or is it too late? 
+Please mail me if something is missing or to resend.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Stefan Meyknecht
+stefan at meyknecht dot org

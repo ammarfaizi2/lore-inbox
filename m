@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUANMB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 07:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUANMB3
+	id S266131AbUANM1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 07:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUANM1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 07:01:29 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:42977 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266187AbUANMB1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 07:01:27 -0500
-Date: Wed, 14 Jan 2004 13:01:25 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix DECSTATION depends
-In-Reply-To: <20040113172751.GN9677@fs.tum.de>
-Message-ID: <Pine.LNX.4.55.0401141230400.1436@jurand.ds.pg.gda.pl>
-References: <20040113015202.GE9677@fs.tum.de> <20040113022826.GC1646@linux-mips.org>
- <Pine.LNX.4.55.0401131401300.21962@jurand.ds.pg.gda.pl> <20040113172751.GN9677@fs.tum.de>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Jan 2004 07:27:51 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:19828 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S266131AbUANM1t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 07:27:49 -0500
+Date: Wed, 14 Jan 2004 23:27:42 +1100
+From: Greg Banks <gnb@sgi.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [NFS][2.4][ReiserFS] NFS and `nohide' vs. reiserfs
+Message-ID: <20040114122742.GC9651@sgi.com>
+References: <87eku3u6pq.wl@canopus.ns.zel.ru> <1074014378.1526.53.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1074014378.1526.53.camel@nidelv.trondhjem.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004, Adrian Bunk wrote:
-
-> Does -mabi=64 really work on any DECstation?
+On Tue, Jan 13, 2004 at 12:19:38PM -0500, Trond Myklebust wrote:
+> På ty , 13/01/2004 klokka 11:57, skreiv Samium Gromoff:
+> > Participants:
+> > 
+> > - a 2.4.18 server exporting with a `nohide' option a reiserfs filesystem A
+> > with a reiserfs filesystem B mounted in it.
+> > 
 > 
-> AFAIK none of the R2000, R3x00 and the R4x00 do support the 64bit ABI.
+> Mind showing us your /etc/exports? I'll bet you have the "nohide" option
+> set on the wrong entry.
+> 
+> "nohide" should set be on the /etc/exports entry for "B" if the latter
+> is mounted inside "A". It does not have to be set on the entry for "A".
 
- Well, the R4000 and the R4400 implement the MIPS3 ISA (the R4000 was
-actually first to implement it) and are thus obviously 64-bit processors.  
-And I'm actually using a 64-bit kernel on my R4k DECstations routinely --
-currently I'm torturing it on my 5000/260 with gcc 3.4 bootstraps and it
-seems quite happy -- it appears rock-solid.
+The other gotcha is that the export entry must specify the client
+hostname explicitly, not with a * wildcard.
 
- The problem is the official kernel would work fine for a 64-bit
-DECstation if it had an R4400 rev.2.0 or later.  I haven't heard of any
-having such a processor -- the ones I have and the others reported by
-poeple have either an R4000 rev.3.0 or an R4400 rev.1.0.  These processors
-have errata that lead to erroneous behavior in a few common 64-bit
-operations (according to the errata sheet, the R4000 actually has a
-serious 32-bit erratum as well, but I haven't been able to trigger it
-yet).  I have implemented appropriate workarounds (available upon
-request), but they require changes not only to Linux, but to gcc and gas
-as well.  I'm preparing to merge the changes to the tools -- hence my
-current gcc 3.4 effort -- but until then the 64-bit port has to be marked
-as experimental (marking R4000 and R4400 processor selections as such for
-64-bit operation would be more accurate, but currently we don't have a
-separate setting for them).
+BTW I have a patch to fix this which I haven't submitted to Neil yet.
 
- See also arch/mips/dec/prom/call_o32.S for the only chunk of explicit
-support code for 64-bit operation for the DECstation -- everything else
-just works as is (modulo possible protability bugs in drivers).
-
- Going back to the subject -- what's the problem with dependencies?
-
-  Maciej
-
+Greg.
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

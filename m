@@ -1,3822 +1,2774 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264723AbSKRTgB>; Mon, 18 Nov 2002 14:36:01 -0500
+	id <S264743AbSKRTiu>; Mon, 18 Nov 2002 14:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264647AbSKRTe0>; Mon, 18 Nov 2002 14:34:26 -0500
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:62885 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S264723AbSKRTY4> convert rfc822-to-8bit; Mon, 18 Nov 2002 14:24:56 -0500
+	id <S264856AbSKRTiR>; Mon, 18 Nov 2002 14:38:17 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:21463 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S264743AbSKRTY5> convert rfc822-to-8bit; Mon, 18 Nov 2002 14:24:57 -0500
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.48 s390 (15/16): sclp driver part 1.
-Date: Mon, 18 Nov 2002 20:28:27 +0100
+Subject: [PATCH] 2.5.48 s390 (16/16): sclp driver part 2.
+Date: Mon, 18 Nov 2002 20:29:23 +0100
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200211182028.28070.schwidefsky@de.ibm.com>
+Message-Id: <200211182023.47751.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reworked sclp driver part 1.
+Reworked sclp driver part 2.
 
-diff -urN linux-2.5.48/arch/s390/defconfig linux-2.5.48-s390/arch/s390/defconfig
---- linux-2.5.48/arch/s390/defconfig	Mon Nov 18 20:11:09 2002
-+++ linux-2.5.48-s390/arch/s390/defconfig	Mon Nov 18 20:14:32 2002
-@@ -108,9 +108,10 @@
- # CONFIG_TN3270 is not set
- CONFIG_TN3215=y
- CONFIG_TN3215_CONSOLE=y
--CONFIG_HWC=y
--CONFIG_HWC_CONSOLE=y
--CONFIG_HWC_CPI=m
-+CONFIG_SCLP=y
-+CONFIG_SCLP_TTY=y
-+CONFIG_SCLP_CONSOLE=y
-+CONFIG_SCLP_CPI=m
- CONFIG_S390_TAPE=m
- 
- #
-diff -urN linux-2.5.48/arch/s390/kernel/setup.c linux-2.5.48-s390/arch/s390/kernel/setup.c
---- linux-2.5.48/arch/s390/kernel/setup.c	Mon Nov 18 05:29:22 2002
-+++ linux-2.5.48-s390/arch/s390/kernel/setup.c	Mon Nov 18 20:14:32 2002
-@@ -164,9 +164,9 @@
- 
- static int __init conmode_setup(char *str)
- {
--#if defined(CONFIG_HWC_CONSOLE)
--	if (strncmp(str, "hwc", 4) == 0)
--                SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+	if (strncmp(str, "hwc", 4) == 0 || strncmp(str, "sclp", 5) == 0)
-+                SET_CONSOLE_SCLP;
- #endif
- #if defined(CONFIG_TN3215_CONSOLE)
- 	if (strncmp(str, "3215", 5) == 0)
-@@ -198,8 +198,8 @@
- 		 */
- 		cpcmd("TERM CONMODE 3215", NULL, 0);
- 		if (ptr == NULL) {
--#if defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 			return;
- 		}
-@@ -208,16 +208,16 @@
- 			SET_CONSOLE_3270;
- #elif defined(CONFIG_TN3215_CONSOLE)
- 			SET_CONSOLE_3215;
--#elif defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#elif defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 		} else if (strncmp(ptr + 8, "3215", 4) == 0) {
- #if defined(CONFIG_TN3215_CONSOLE)
- 			SET_CONSOLE_3215;
- #elif defined(CONFIG_TN3270_CONSOLE)
- 			SET_CONSOLE_3270;
--#elif defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#elif defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 		}
-         } else if (MACHINE_IS_P390) {
-@@ -227,8 +227,8 @@
- 		SET_CONSOLE_3270;
- #endif
- 	} else {
--#if defined(CONFIG_HWC_CONSOLE)
--		SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+		SET_CONSOLE_SCLP;
- #endif
- 	}
- }
-diff -urN linux-2.5.48/arch/s390x/defconfig linux-2.5.48-s390/arch/s390x/defconfig
---- linux-2.5.48/arch/s390x/defconfig	Mon Nov 18 20:11:09 2002
-+++ linux-2.5.48-s390/arch/s390x/defconfig	Mon Nov 18 20:14:32 2002
-@@ -166,9 +166,10 @@
- # CONFIG_TN3270 is not set
- CONFIG_TN3215=y
- CONFIG_TN3215_CONSOLE=y
--CONFIG_HWC=y
--CONFIG_HWC_CONSOLE=y
--CONFIG_HWC_CPI=m
-+CONFIG_SCLP=y
-+CONFIG_SCLP_TTY=y
-+CONFIG_SCLP_CONSOLE=y
-+CONFIG_SCLP_CPI=m
- CONFIG_S390_TAPE=m
- 
- #
-diff -urN linux-2.5.48/arch/s390x/kernel/setup.c linux-2.5.48-s390/arch/s390x/kernel/setup.c
---- linux-2.5.48/arch/s390x/kernel/setup.c	Mon Nov 18 05:29:31 2002
-+++ linux-2.5.48-s390/arch/s390x/kernel/setup.c	Mon Nov 18 20:14:32 2002
-@@ -164,9 +164,9 @@
- 
- static int __init conmode_setup(char *str)
- {
--#if defined(CONFIG_HWC_CONSOLE)
--	if (strncmp(str, "hwc", 4) == 0)
--                SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+	if (strncmp(str, "hwc", 4) == 0 || strncmp(str, "sclp", 5) == 0)
-+                SET_CONSOLE_SCLP;
- #endif
- #if defined(CONFIG_TN3215_CONSOLE)
- 	if (strncmp(str, "3215", 5) == 0)
-@@ -198,8 +198,8 @@
- 		 */
- 		cpcmd("TERM CONMODE 3215", NULL, 0);
- 		if (ptr == NULL) {
--#if defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 			return;
- 		}
-@@ -208,16 +208,16 @@
- 			SET_CONSOLE_3270;
- #elif defined(CONFIG_TN3215_CONSOLE)
- 			SET_CONSOLE_3215;
--#elif defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#elif defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 		} else if (strncmp(ptr + 8, "3215", 4) == 0) {
- #if defined(CONFIG_TN3215_CONSOLE)
- 			SET_CONSOLE_3215;
- #elif defined(CONFIG_TN3270_CONSOLE)
- 			SET_CONSOLE_3270;
--#elif defined(CONFIG_HWC_CONSOLE)
--			SET_CONSOLE_HWC;
-+#elif defined(CONFIG_SCLP_CONSOLE)
-+			SET_CONSOLE_SCLP;
- #endif
- 		}
-         } else if (MACHINE_IS_P390) {
-@@ -227,8 +227,8 @@
- 		SET_CONSOLE_3270;
- #endif
- 	} else {
--#if defined(CONFIG_HWC_CONSOLE)
--		SET_CONSOLE_HWC;
-+#if defined(CONFIG_SCLP_CONSOLE)
-+		SET_CONSOLE_SCLP;
- #endif
- 	}
- }
-diff -urN linux-2.5.48/drivers/char/tty_io.c linux-2.5.48-s390/drivers/char/tty_io.c
---- linux-2.5.48/drivers/char/tty_io.c	Mon Nov 18 05:29:47 2002
-+++ linux-2.5.48-s390/drivers/char/tty_io.c	Mon Nov 18 20:14:45 2002
-@@ -146,10 +146,9 @@
- extern void console_8xx_init(void);
- extern int rs_8xx_init(void);
- extern void mac_scc_console_init(void);
--extern void hwc_console_init(void);
--extern void hwc_tty_init(void);
-+extern void sclp_console_init(void);
-+extern void sclp_tty_init(void);
- extern void con3215_init(void);
--extern void tty3215_init(void);
- extern void tub3270_con_init(void);
- extern void tub3270_init(void);
- extern void uart_console_init(void);
-@@ -2208,8 +2207,8 @@
- #ifdef CONFIG_TN3215
- 	con3215_init();
- #endif
--#ifdef CONFIG_HWC
--        hwc_console_init();
-+#ifdef CONFIG_SCLP_CONSOLE
-+        sclp_console_init();
- #endif
- #ifdef CONFIG_STDIO_CONSOLE
- 	stdio_console_init();
-@@ -2349,8 +2348,8 @@
- #ifdef CONFIG_TN3215
- 	tty3215_init();
- #endif
--#ifdef CONFIG_HWC
--	hwc_tty_init();
-+#ifdef CONFIG_SCLP
-+	sclp_tty_init();
- #endif
- #ifdef CONFIG_A2232
- 	a2232board_init();
-diff -urN linux-2.5.48/drivers/s390/Kconfig linux-2.5.48-s390/drivers/s390/Kconfig
---- linux-2.5.48/drivers/s390/Kconfig	Mon Nov 18 05:29:53 2002
-+++ linux-2.5.48-s390/drivers/s390/Kconfig	Mon Nov 18 20:14:32 2002
-@@ -257,24 +257,30 @@
- 	  Include support for using an IBM 3215 line-mode terminal as a
- 	  Linux system console.
- 
--config HWC
--	bool "Support for HWC line mode terminal"
-+config SCLP
-+	bool "Support for SCLP"
- 	help
--	  Include support for IBM HWC line-mode terminals.
-+	  Include support for the SCLP interface to the service element.
- 
--config HWC_CONSOLE
--	bool "console on HWC line mode terminal"
--	depends on HWC
-+config SCLP_TTY
-+	bool "Support for SCLP line mode terminal"
-+	depends on SCLP
-+	help
-+	  Include support for IBM SCLP line-mode terminals.
+diff -urN linux-2.5.48/drivers/s390/char/sclp.c linux-2.5.48-s390/drivers/s390/char/sclp.c
+--- linux-2.5.48/drivers/s390/char/sclp.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp.c	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,663 @@
++/*
++ *  drivers/s390/char/sclp.c
++ *     core function to access sclp interface
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
 +
-+config SCLP_CONSOLE
-+	bool "Support for console on SCLP line mode terminal"
-+	depends on SCLP_TTY
- 	help
- 	  Include support for using an IBM HWC line-mode terminal as the Linux
- 	  system console.
- 
--config HWC_CPI
-+config SCLP_CPI
- 	tristate "Control-Program Identification"
--	depends on HWC
-+	depends on SCLP
- 	help
- 	  This option enables the hardware console interface for system
--	  identification This is commonly used for workload management and
-+	  identification. This is commonly used for workload management and
- 	  gives you a nice name for the system on the service element.
- 	  Please select this option as a module since built-in operation is
- 	  completely untested.
-diff -urN linux-2.5.48/drivers/s390/char/Makefile linux-2.5.48-s390/drivers/s390/char/Makefile
---- linux-2.5.48/drivers/s390/char/Makefile	Mon Nov 18 05:29:45 2002
-+++ linux-2.5.48-s390/drivers/s390/char/Makefile	Mon Nov 18 20:14:32 2002
-@@ -2,28 +2,23 @@
- # S/390 character devices
- #
- 
--export-objs := hwc_rw.o tape.o tape34xx.o
-+export-objs := sclp_rw.o tape_core.o tape_devmap.o tape_std.o
- 
- tub3270-objs := tuball.o tubfs.o tubtty.o \
-                      tubttyaid.o tubttybld.o tubttyscl.o \
-                      tubttyrcl.o tubttysiz.o
- 
--tape390-$(CONFIG_S390_TAPE_CHAR)  += tapechar.o
--tape390-$(CONFIG_S390_TAPE_BLOCK) += tapeblock.o
--
--tape390-objs   := tape.o tape34xx.o $(sort $(tape390-y))
--tape_3480_mod-objs := tape3480.o
--tape_3490_mod-objs := tape3490.o 
--
--
- obj-y += ctrlchar.o
- obj-$(CONFIG_TN3215) += con3215.o
--obj-$(CONFIG_HWC) += hwc_con.o hwc_rw.o hwc_tty.o
--obj-$(CONFIG_HWC_CPI) += hwc_cpi.o
-+obj-$(CONFIG_SCLP) += sclp.o
-+obj-$(CONFIG_SCLP_TTY) += sclp_rw.o sclp_tty.o
-+obj-$(CONFIG_SCLP_CONSOLE) += sclp_con.o
-+obj-$(CONFIG_SCLP_CPI) += sclp_cpi.o
- obj-$(CONFIG_TN3270) += tub3270.o
--obj-$(CONFIG_S390_TAPE)       += tape390.o
--obj-$(CONFIG_S390_TAPE_3480)  += tape_3480_mod.o
--obj-$(CONFIG_S390_TAPE_3490)  += tape_3490_mod.o
-+tape-$(CONFIG_S390_TAPE_BLOCK) += tape_block.o
-+tape-$(CONFIG_PROC_FS) += tape_proc.o
-+tape-objs := tape_core.o tape_std.o tape_char.o $(tape-y)
-+obj-$(CONFIG_S390_TAPE) += tape.o
-+obj-$(CONFIG_S390_TAPE_34XX) += tape_34xx.o
- 
- include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.48/drivers/s390/char/hwc.h linux-2.5.48-s390/drivers/s390/char/hwc.h
---- linux-2.5.48/drivers/s390/char/hwc.h	Mon Nov 18 05:29:48 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc.h	Thu Jan  1 01:00:00 1970
-@@ -1,280 +0,0 @@
--/*
-- *  drivers/s390/char/hwc.h
-- * 
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-- *
-- * 
-- * 
-- */
--
--#ifndef __HWC_H__
--#define __HWC_H__
--
--#define HWC_EXT_INT_PARAM_ADDR	0xFFFFFFF8
--#define HWC_EXT_INT_PARAM_PEND 0x00000001
--
--#define ET_OpCmd		0x01
--#define ET_Msg		0x02
--#define ET_StateChange	0x08
--#define ET_PMsgCmd		0x09
--#define ET_CntlProgOpCmd	0x20
--#define ET_CntlProgIdent	0x0B
--#define ET_SigQuiesce	0x1D
--
--#define ET_OpCmd_Mask	0x80000000
--#define ET_Msg_Mask		0x40000000
--#define ET_StateChange_Mask	0x01000000
--#define ET_PMsgCmd_Mask	0x00800000
--#define ET_CtlProgOpCmd_Mask	0x00000001
--#define ET_CtlProgIdent_Mask	0x00200000
--#define ET_SigQuiesce_Mask	0x00000008
--
--#define GMF_DOM		0x8000
--#define GMF_SndAlrm	0x4000
--#define GMF_HoldMsg	0x2000
--
--#define LTF_CntlText	0x8000
--#define LTF_LabelText	0x4000
--#define LTF_DataText	0x2000
--#define LTF_EndText	0x1000
--#define LTF_PromptText	0x0800
--
--#define HWC_COMMAND_INITIATED	0
--#define HWC_BUSY		2
--#define HWC_NOT_OPERATIONAL	3
--
--#define hwc_cmdw_t u32;
--
--#define HWC_CMDW_READDATA 0x00770005
--
--#define HWC_CMDW_WRITEDATA 0x00760005
--
--#define HWC_CMDW_WRITEMASK 0x00780005
--
--#define GDS_ID_MDSMU		0x1310
--
--#define GDS_ID_MDSRouteInfo	0x1311
--
--#define GDS_ID_AgUnWrkCorr	0x1549
--
--#define GDS_ID_SNACondReport	0x1532
--
--#define GDS_ID_CPMSU		0x1212
--
--#define GDS_ID_RoutTargInstr	0x154D
--
--#define GDS_ID_OpReq		0x8070
--
--#define GDS_ID_TextCmd		0x1320
--
--#define GDS_KEY_SelfDefTextMsg	0x31
--
--#define _HWCB_HEADER	u16	length; \
--			u8	function_code; \
--			u8	control_mask[3]; \
--			u16	response_code;
--
--#define _EBUF_HEADER 	u16	length; \
--			u8	type; \
--			u8	flags; \
--			u16	_reserved;
--
--typedef struct {
--	_EBUF_HEADER
--} __attribute__ ((packed)) 
--
--evbuf_t;
--
--#define _MDB_HEADER	u16	length; \
--			u16	type; \
--			u32	tag; \
--			u32	revision_code;
--
--#define _GO_HEADER	u16	length; \
--			u16	type; \
--			u32	domid; \
--			u8	hhmmss_time[8]; \
--			u8	th_time[3]; \
--			u8	_reserved_0; \
--			u8	dddyyyy_date[7]; \
--			u8	_reserved_1; \
--			u16	general_msg_flags; \
--			u8	_reserved_2[10]; \
--			u8	originating_system_name[8]; \
--			u8	job_guest_name[8];
--
--#define _MTO_HEADER	u16	length; \
--			u16	type; \
--			u16	line_type_flags; \
--			u8	alarm_control; \
--			u8	_reserved[3];
--
--typedef struct {
--	_GO_HEADER
--} __attribute__ ((packed)) 
--
--go_t;
--
--typedef struct {
--	go_t go;
--} __attribute__ ((packed)) 
--
--mdb_body_t;
--
--typedef struct {
--	_MDB_HEADER
--	mdb_body_t mdb_body;
--} __attribute__ ((packed)) 
--
--mdb_t;
--
--typedef struct {
--	_EBUF_HEADER
--	mdb_t mdb;
--} __attribute__ ((packed)) 
--
--msgbuf_t;
--
--typedef struct {
--	_HWCB_HEADER
--	msgbuf_t msgbuf;
--} __attribute__ ((packed)) 
--
--write_hwcb_t;
--
--typedef struct {
--	_MTO_HEADER
--} __attribute__ ((packed)) 
--
--mto_t;
--
--/* FIXME: don't define static variables in a header!!! */
--#warning
--static write_hwcb_t write_hwcb_template =
--{
--	sizeof (write_hwcb_t),
--	0x00,
--	{
--		0x00,
--		0x00,
--		0x00
--	},
--	0x0000,
--	{
--		sizeof (msgbuf_t),
--		ET_Msg,
--		0x00,
--		0x0000,
--		{
--			sizeof (mdb_t),
--			0x0001,
--			0xD4C4C240,
--			0x00000001,
--			{
--				{
--					sizeof (go_t),
--					0x0001
--
--				}
--			}
--		}
--	}
--};
--
--#warning
--static mto_t mto_template =
--{
--	sizeof (mto_t),
--	0x0004,
--	LTF_EndText,
--	0x00
--};
--
--typedef u32 _hwcb_mask_t;
--
--typedef struct {
--	_HWCB_HEADER
--	u16 _reserved;
--	u16 mask_length;
--	_hwcb_mask_t cp_receive_mask;
--	_hwcb_mask_t cp_send_mask;
--	_hwcb_mask_t hwc_receive_mask;
--	_hwcb_mask_t hwc_send_mask;
--} __attribute__ ((packed)) 
--
--init_hwcb_t;
--
--#warning
--static init_hwcb_t init_hwcb_template =
--{
--	sizeof (init_hwcb_t),
--	0x00,
--	{
--		0x00,
--		0x00,
--		0x00
--	},
--	0x0000,
--	0x0000,
--	sizeof (_hwcb_mask_t),
--	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
--	ET_StateChange_Mask | ET_SigQuiesce_Mask,
--	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
--};
--
--typedef struct {
--	_EBUF_HEADER
--	u8 validity_hwc_active_facility_mask:1;
--	u8 validity_hwc_receive_mask:1;
--	u8 validity_hwc_send_mask:1;
--	u8 validity_read_data_function_mask:1;
--	u16 _zeros:12;
--	u16 mask_length;
--	u64 hwc_active_facility_mask;
--	_hwcb_mask_t hwc_receive_mask;
--	_hwcb_mask_t hwc_send_mask;
--	u32 read_data_function_mask;
--} __attribute__ ((packed)) 
--
--statechangebuf_t;
--
--#define _GDS_VECTOR_HEADER	u16	length; \
--				u16	gds_id;
--
--#define _GDS_SUBVECTOR_HEADER	u8	length; \
--				u8	key;
--
--typedef struct {
--	_GDS_VECTOR_HEADER
--} __attribute__ ((packed)) 
--
--gds_vector_t;
--
--typedef struct {
--	_GDS_SUBVECTOR_HEADER
--} __attribute__ ((packed)) 
--
--gds_subvector_t;
--
--typedef struct {
--	_HWCB_HEADER
--} __attribute__ ((packed)) 
--
--read_hwcb_t;
--
--#warning
--static read_hwcb_t read_hwcb_template =
--{
--	PAGE_SIZE,
--	0x00,
--	{
--		0x00,
--		0x00,
--		0x80
--	}
--};
--
--#endif				/* __HWC_H__ */
-diff -urN linux-2.5.48/drivers/s390/char/hwc_con.c linux-2.5.48-s390/drivers/s390/char/hwc_con.c
---- linux-2.5.48/drivers/s390/char/hwc_con.c	Mon Nov 18 05:29:21 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc_con.c	Thu Jan  1 01:00:00 1970
-@@ -1,92 +0,0 @@
--/*
-- *  drivers/s390/char/hwc_con.c
-- *    HWC line mode console driver
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-- */
--
--#include <linux/config.h>
--#include <linux/kernel.h>
--#include <linux/major.h>
--#include <linux/errno.h>
--#include <linux/kdev_t.h>
--#include <linux/string.h>
--#include <linux/console.h>
--#include <linux/fs.h>
--#include <linux/init.h>
--
--#include "hwc_rw.h"
--
--#ifdef CONFIG_HWC_CONSOLE
--
--#define  hwc_console_major 4
--#define  hwc_console_minor 64
--#define  hwc_console_name  "console"
--
--void hwc_console_write (struct console *, const char *, unsigned int);
--kdev_t hwc_console_device (struct console *);
--void hwc_console_unblank (void);
--
--#define  HWC_CON_PRINT_HEADER "hwc console driver: "
--
--struct console hwc_console =
--{
--
--	name:hwc_console_name,
--	write:hwc_console_write,
--	device:hwc_console_device,
--	unblank:hwc_console_unblank,
--	flags:CON_PRINTBUFFER,
--};
--
--void 
--hwc_console_write (
--			  struct console *console,
--			  const char *message,
--			  unsigned int count)
--{
--
--	if (kdev_val (console->device (console)) !=
--	    kdev_val (hwc_console.device (&hwc_console))) {
--
--		hwc_printk (KERN_WARNING HWC_CON_PRINT_HEADER
--			    "hwc_console_write() called with wrong "
--			    "device number");
--		return;
--	}
--	hwc_write (0, message, count);
--}
--
--kdev_t 
--hwc_console_device (struct console * c)
--{
--	return mk_kdev (hwc_console_major, hwc_console_minor);
--}
--
--void 
--hwc_console_unblank (void)
--{
--	hwc_unblank ();
--}
--
--#endif
--
--void __init 
--hwc_console_init (void)
--{
--	if (!MACHINE_HAS_HWC)
--		return;
--
--	if (hwc_init () == 0) {
--#ifdef CONFIG_HWC_CONSOLE
--
--		if (CONSOLE_IS_HWC)
--			register_console (&hwc_console);
--#endif
--	} else
--		panic (HWC_CON_PRINT_HEADER "hwc initialisation failed !");
--
--	return;
--}
-diff -urN linux-2.5.48/drivers/s390/char/hwc_cpi.c linux-2.5.48-s390/drivers/s390/char/hwc_cpi.c
---- linux-2.5.48/drivers/s390/char/hwc_cpi.c	Mon Nov 18 05:29:50 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc_cpi.c	Thu Jan  1 01:00:00 1970
-@@ -1,212 +0,0 @@
--
--/*
-- * Author: Martin Peschke <mpeschke@de.ibm.com>
-- * Copyright (C) 2001 IBM Entwicklung GmbH, IBM Corporation
-- */
--
--#include <linux/string.h>
--#include <linux/ctype.h>
--#include <linux/module.h>
--#include <linux/init.h>
--#include <linux/errno.h>
--#include <linux/slab.h>
--#include <linux/version.h>
--#include <linux/sched.h>
--#include <asm/semaphore.h>
--#include <asm/ebcdic.h>
--#include "hwc_rw.h"
--#include "hwc.h"
--
--#define CPI_RETRIES		3
--#define CPI_SLEEP_TICKS		50
--
--#define CPI_LENGTH_SYSTEM_TYPE	8
--#define CPI_LENGTH_SYSTEM_NAME	8
--#define CPI_LENGTH_SYSPLEX_NAME	8
--
--typedef struct {
--	_EBUF_HEADER
--	u8 id_format;
--	u8 reserved0;
--	u8 system_type[CPI_LENGTH_SYSTEM_TYPE];
--	u64 reserved1;
--	u8 system_name[CPI_LENGTH_SYSTEM_NAME];
--	u64 reserved2;
--	u64 system_level;
--	u64 reserved3;
--	u8 sysplex_name[CPI_LENGTH_SYSPLEX_NAME];
--	u8 reserved4[16];
--} __attribute__ ((packed)) 
--
--cpi_evbuf_t;
--
--typedef struct _cpi_hwcb_t {
--	_HWCB_HEADER
--	cpi_evbuf_t cpi_evbuf;
--} __attribute__ ((packed)) 
--
--cpi_hwcb_t;
--
--cpi_hwcb_t *cpi_hwcb;
--
--static int __init cpi_module_init (void);
--static void __exit cpi_module_exit (void);
--
--module_init (cpi_module_init);
--module_exit (cpi_module_exit);
--
--MODULE_AUTHOR (
--		      "Martin Peschke, IBM Deutschland Entwicklung GmbH "
--		      "<mpeschke@de.ibm.com>");
--
--MODULE_DESCRIPTION (
--  "identify this operating system instance to the S/390 or zSeries hardware");
--
--static char *system_name = NULL;
--MODULE_PARM (system_name, "s");
--MODULE_PARM_DESC (system_name, "e.g. hostname - max. 8 characters");
--
--static char *sysplex_name = NULL;
--#ifdef ALLOW_SYSPLEX_NAME
--MODULE_PARM (sysplex_name, "s");
--MODULE_PARM_DESC (sysplex_name, "if applicable - max. 8 characters");
--#endif
--
--static char *system_type = "LINUX";
--
--hwc_request_t cpi_request =
--{};
--
--hwc_callback_t cpi_callback;
--
--static DECLARE_MUTEX_LOCKED (sem);
--
--static int __init 
--cpi_module_init (void)
--{
--	int retval;
--	int system_type_length;
--	int system_name_length;
--	int sysplex_name_length = 0;
--	int retries;
--
--	if (!MACHINE_HAS_HWC) {
--		printk ("cpi: bug: hardware console not present\n");
--		retval = -EINVAL;
--		goto out;
--	}
--	if (!system_type) {
--		printk ("cpi: bug: no system type specified\n");
--		retval = -EINVAL;
--		goto out;
--	}
--	system_type_length = strlen (system_type);
--	if (system_type_length > CPI_LENGTH_SYSTEM_NAME) {
--		printk ("cpi: bug: system type has length of %i characters - "
--			"only %i characters supported\n",
--			system_type_length,
--			CPI_LENGTH_SYSTEM_TYPE);
--		retval = -EINVAL;
--		goto out;
--	}
--	if (!system_name) {
--		printk ("cpi: no system name specified\n");
--		retval = -EINVAL;
--		goto out;
--	}
--	system_name_length = strlen (system_name);
--	if (system_name_length > CPI_LENGTH_SYSTEM_NAME) {
--		printk ("cpi: system name has length of %i characters - "
--			"only %i characters supported\n",
--			system_name_length,
--			CPI_LENGTH_SYSTEM_NAME);
--		retval = -EINVAL;
--		goto out;
--	}
--	if (sysplex_name) {
--		sysplex_name_length = strlen (sysplex_name);
--		if (sysplex_name_length > CPI_LENGTH_SYSPLEX_NAME) {
--			printk ("cpi: sysplex name has length of %i characters - "
--				"only %i characters supported\n",
--				sysplex_name_length,
--				CPI_LENGTH_SYSPLEX_NAME);
--			retval = -EINVAL;
--			goto out;
--		}
--	}
--	cpi_hwcb = kmalloc (sizeof (cpi_hwcb_t), GFP_KERNEL);
--	if (!cpi_hwcb) {
--		printk ("cpi: no storage to fulfill request\n");
--		retval = -ENOMEM;
--		goto out;
--	}
--	memset (cpi_hwcb, 0, sizeof (cpi_hwcb_t));
--
--	cpi_hwcb->length = sizeof (cpi_hwcb_t);
--	cpi_hwcb->cpi_evbuf.length = sizeof (cpi_evbuf_t);
--	cpi_hwcb->cpi_evbuf.type = 0x0B;
--
--	memset (cpi_hwcb->cpi_evbuf.system_type, ' ', CPI_LENGTH_SYSTEM_TYPE);
--	memcpy (cpi_hwcb->cpi_evbuf.system_type, system_type, system_type_length);
--	HWC_ASCEBC_STR (cpi_hwcb->cpi_evbuf.system_type, CPI_LENGTH_SYSTEM_TYPE);
--	EBC_TOUPPER (cpi_hwcb->cpi_evbuf.system_type, CPI_LENGTH_SYSTEM_TYPE);
--
--	memset (cpi_hwcb->cpi_evbuf.system_name, ' ', CPI_LENGTH_SYSTEM_NAME);
--	memcpy (cpi_hwcb->cpi_evbuf.system_name, system_name, system_name_length);
--	HWC_ASCEBC_STR (cpi_hwcb->cpi_evbuf.system_name, CPI_LENGTH_SYSTEM_NAME);
--	EBC_TOUPPER (cpi_hwcb->cpi_evbuf.system_name, CPI_LENGTH_SYSTEM_NAME);
--
--	cpi_hwcb->cpi_evbuf.system_level = LINUX_VERSION_CODE;
--
--	if (sysplex_name) {
--		memset (cpi_hwcb->cpi_evbuf.sysplex_name, ' ', CPI_LENGTH_SYSPLEX_NAME);
--		memcpy (cpi_hwcb->cpi_evbuf.sysplex_name, sysplex_name, sysplex_name_length);
--		HWC_ASCEBC_STR (cpi_hwcb->cpi_evbuf.sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
--		EBC_TOUPPER (cpi_hwcb->cpi_evbuf.sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
--	}
--	cpi_request.block = cpi_hwcb;
--	cpi_request.word = HWC_CMDW_WRITEDATA;
--	cpi_request.callback = cpi_callback;
--
--	for (retries = CPI_RETRIES; retries; retries--) {
--		retval = hwc_send (&cpi_request);
--		if (retval) {
--
--			set_current_state (TASK_INTERRUPTIBLE);
--			schedule_timeout (CPI_SLEEP_TICKS);
--		} else {
--
--			down (&sem);
--
--			switch (cpi_hwcb->response_code) {
--			case 0x0020:
--				printk ("cpi: succeeded\n");
--				break;
--			default:
--				printk ("cpi: failed with response code 0x%x\n",
--					cpi_hwcb->response_code);
--			}
--			goto free;
--		}
--	}
--
--	printk ("cpi: failed (%i)\n", retval);
--
--      free:
--	kfree (cpi_hwcb);
--
--      out:
--	return retval;
--}
--
--static void __exit 
--cpi_module_exit (void)
--{
--	printk ("cpi: exit\n");
--}
--
--void 
--cpi_callback (hwc_request_t * req)
--{
--	up (&sem);
--}
-diff -urN linux-2.5.48/drivers/s390/char/hwc_rw.c linux-2.5.48-s390/drivers/s390/char/hwc_rw.c
---- linux-2.5.48/drivers/s390/char/hwc_rw.c	Mon Nov 18 05:29:25 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc_rw.c	Thu Jan  1 01:00:00 1970
-@@ -1,2456 +0,0 @@
--/*
-- *  drivers/s390/char/hwc_rw.c
-- *     driver: reading from and writing to system console on S/390 via HWC
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-- *
-- * 
-- *
-- * 
-- * 
-- * 
-- */
--
--#include <linux/kernel.h>
--#include <linux/string.h>
--#include <linux/errno.h>
--#include <linux/ctype.h>
--#include <linux/mm.h>
--#include <linux/timer.h>
--#include <linux/bootmem.h>
--#include <linux/module.h>
--
--#include <asm/ebcdic.h>
--#include <asm/uaccess.h>
--#include <asm/types.h>
--#include <asm/bitops.h>
--#include <asm/setup.h>
--#include <asm/page.h>
--#include <asm/s390_ext.h>
--#include <asm/irq.h>
--
--#ifndef MIN
--#define MIN(a,b) (((a<b) ? a : b))
--#endif
--
--extern void ctrl_alt_del (void);
--
--#define HWC_RW_PRINT_HEADER "hwc low level driver: "
--
--#define  USE_VM_DETECTION
--
--#define  DEFAULT_CASE_DELIMITER '%'
--
--#undef DUMP_HWC_INIT_ERROR
--
--#undef DUMP_HWC_WRITE_ERROR
--
--#undef DUMP_HWC_WRITE_LIST_ERROR
--
--#undef DUMP_HWC_READ_ERROR
--
--#undef DUMP_HWCB_INPUT
--
--#undef BUFFER_STRESS_TEST
--
--typedef struct {
--	unsigned char *next;
--	unsigned short int mto_char_sum;
--	unsigned char mto_number;
--	unsigned char times_lost;
--	unsigned short int mto_number_lost;
--	unsigned long int mto_char_sum_lost;
--} __attribute__ ((packed)) 
--
--hwcb_list_t;
--
--#define MAX_HWCB_ROOM (PAGE_SIZE - sizeof(hwcb_list_t))
--
--#define MAX_MESSAGE_SIZE (MAX_HWCB_ROOM - sizeof(write_hwcb_t))
--
--#define BUF_HWCB hwc_data.hwcb_list_tail
--#define OUT_HWCB hwc_data.hwcb_list_head
--#define ALL_HWCB_MTO hwc_data.mto_number
--#define ALL_HWCB_CHAR hwc_data.mto_char_sum
--
--#define _LIST(hwcb) ((hwcb_list_t*)(&(hwcb)[PAGE_SIZE-sizeof(hwcb_list_t)]))
--
--#define _HWCB_CHAR(hwcb) (_LIST(hwcb)->mto_char_sum)
--
--#define _HWCB_MTO(hwcb) (_LIST(hwcb)->mto_number)
--
--#define _HWCB_CHAR_LOST(hwcb) (_LIST(hwcb)->mto_char_sum_lost)
--
--#define _HWCB_MTO_LOST(hwcb) (_LIST(hwcb)->mto_number_lost)
--
--#define _HWCB_TIMES_LOST(hwcb) (_LIST(hwcb)->times_lost)
--
--#define _HWCB_NEXT(hwcb) (_LIST(hwcb)->next)
--
--#define BUF_HWCB_CHAR _HWCB_CHAR(BUF_HWCB)
--
--#define BUF_HWCB_MTO _HWCB_MTO(BUF_HWCB)
--
--#define BUF_HWCB_NEXT _HWCB_NEXT(BUF_HWCB)
--
--#define OUT_HWCB_CHAR _HWCB_CHAR(OUT_HWCB)
--
--#define OUT_HWCB_MTO _HWCB_MTO(OUT_HWCB)
--
--#define OUT_HWCB_NEXT _HWCB_NEXT(OUT_HWCB)
--
--#define BUF_HWCB_CHAR_LOST _HWCB_CHAR_LOST(BUF_HWCB)
--
--#define BUF_HWCB_MTO_LOST _HWCB_MTO_LOST(BUF_HWCB)
--
--#define OUT_HWCB_CHAR_LOST _HWCB_CHAR_LOST(OUT_HWCB)
--
--#define OUT_HWCB_MTO_LOST _HWCB_MTO_LOST(OUT_HWCB)
--
--#define BUF_HWCB_TIMES_LOST _HWCB_TIMES_LOST(BUF_HWCB)
--
--#include  "hwc.h"
--
--#define __HWC_RW_C__
--#include "hwc_rw.h"
--#undef __HWC_RW_C__
--
--static unsigned char _obuf[MAX_HWCB_ROOM];
--
--static unsigned char
-- _page[PAGE_SIZE] __attribute__ ((aligned (PAGE_SIZE)));
--
--typedef unsigned long kmem_pages_t;
--
--#define MAX_KMEM_PAGES (sizeof(kmem_pages_t) << 3)
--
--#define HWC_WTIMER_RUNS	1
--#define HWC_FLUSH		2
--#define HWC_INIT		4
--#define HWC_BROKEN		8
--#define HWC_INTERRUPT		16
--#define HWC_PTIMER_RUNS	32
--
--static struct {
--
--	hwc_ioctls_t ioctls;
--
--	hwc_ioctls_t init_ioctls;
--
--	unsigned char *hwcb_list_head;
--
--	unsigned char *hwcb_list_tail;
--
--	unsigned short int mto_number;
--
--	unsigned int mto_char_sum;
--
--	unsigned char hwcb_count;
--
--	unsigned long kmem_start;
--
--	unsigned long kmem_end;
--
--	kmem_pages_t kmem_pages;
--
--	unsigned char *obuf;
--
--	unsigned short int obuf_cursor;
--
--	unsigned short int obuf_count;
--
--	unsigned short int obuf_start;
--
--	unsigned char *page;
--
--	u32 current_servc;
--
--	unsigned char *current_hwcb;
--
--	unsigned char write_nonprio:1;
--	unsigned char write_prio:1;
--	unsigned char read_nonprio:1;
--	unsigned char read_prio:1;
--	unsigned char read_statechange:1;
--	unsigned char sig_quiesce:1;
--
--	unsigned char flags;
--
--	hwc_high_level_calls_t *calls;
--
--	hwc_request_t *request;
--
--	spinlock_t lock;
--
--	struct timer_list write_timer;
--
--	struct timer_list poll_timer;
--} hwc_data =
--{
--	{
--	},
--	{
--		8,
--		    0,
--		    80,
--		    1,
--		    MAX_KMEM_PAGES,
--		    MAX_KMEM_PAGES,
--
--		    0,
--
--		    0x6c
--
--	},
--	    NULL,
--	    NULL,
--	    0,
--	    0,
--	    0,
--	    0,
--	    0,
--	    0,
--	    _obuf,
--	    0,
--	    0,
--	    0,
--	    _page,
--	    0,
--	    NULL,
--	    0,
--	    0,
--	    0,
--	    0,
--	    0,
--	    0,
--	    0,
--	    NULL,
--	    NULL
--
--};
--
--static unsigned long cr0 __attribute__ ((aligned (8)));
--static unsigned long cr0_save __attribute__ ((aligned (8)));
--static unsigned char psw_mask __attribute__ ((aligned (8)));
--
--static ext_int_info_t ext_int_info_hwc;
--
--#define DELAYED_WRITE 0
--#define IMMEDIATE_WRITE 1
--
--static signed int do_hwc_write (int from_user, unsigned char *,
--				unsigned int,
--				unsigned char);
--
--unsigned char hwc_ip_buf[512];
--
--static asmlinkage int 
--internal_print (char write_time, char *fmt,...)
--{
--	va_list args;
--	int i;
--
--	va_start (args, fmt);
--	i = vsprintf (hwc_ip_buf, fmt, args);
--	va_end (args);
--	return do_hwc_write (0, hwc_ip_buf, i, write_time);
--}
--
--int 
--hwc_printk (const char *fmt,...)
--{
--	va_list args;
--	int i;
--	unsigned long flags;
--	int retval;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	i = vsprintf (hwc_ip_buf, fmt, args);
--	va_end (args);
--	retval = do_hwc_write (0, hwc_ip_buf, i, IMMEDIATE_WRITE);
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--
--	return retval;
--}
--
--#ifdef DUMP_HWCB_INPUT
--
--static void 
--dump_storage_area (unsigned char *area, unsigned short int count)
--{
--	unsigned short int index;
--	ioctl_nl_t old_final_nl;
--
--	if (!area || !count)
--		return;
--
--	old_final_nl = hwc_data.ioctls.final_nl;
--	hwc_data.ioctls.final_nl = 1;
--
--	internal_print (DELAYED_WRITE, "\n%8x   ", area);
--
--	for (index = 0; index < count; index++) {
--
--		if (area[index] <= 0xF)
--			internal_print (DELAYED_WRITE, "0%x", area[index]);
--		else
--			internal_print (DELAYED_WRITE, "%x", area[index]);
--
--		if ((index & 0xF) == 0xF)
--			internal_print (DELAYED_WRITE, "\n%8x   ",
--					&area[index + 1]);
--		else if ((index & 3) == 3)
--			internal_print (DELAYED_WRITE, " ");
--	}
--
--	internal_print (IMMEDIATE_WRITE, "\n");
--
--	hwc_data.ioctls.final_nl = old_final_nl;
--}
--#endif
--
--static inline u32 
--service_call (
--		     u32 hwc_command_word,
--		     unsigned char hwcb[])
--{
--	unsigned int condition_code = 1;
--
--	__asm__ __volatile__ ("L 1, 0(%0) \n\t"
--			      "LRA 2, 0(%1) \n\t"
--			      ".long 0xB2200012 \n\t"
--			      :
--			      :"a" (&hwc_command_word), "a" (hwcb)
--			      :"1", "2", "memory");
--
--	__asm__ __volatile__ ("IPM %0 \n\t"
--			      "SRL %0, 28 \n\t"
--			      :"=r" (condition_code));
--
--	return condition_code;
--}
--
--static inline unsigned long 
--hwc_ext_int_param (void)
--{
--	u32 param;
--
--	__asm__ __volatile__ ("L %0,128\n\t"
--			      :"=r" (param));
--
--	return (unsigned long) param;
--}
--
--static int 
--prepare_write_hwcb (void)
--{
--	write_hwcb_t *hwcb;
--
--	if (!BUF_HWCB)
--		return -ENOMEM;
--
--	BUF_HWCB_MTO = 0;
--	BUF_HWCB_CHAR = 0;
--
--	hwcb = (write_hwcb_t *) BUF_HWCB;
--
--	memcpy (hwcb, &write_hwcb_template, sizeof (write_hwcb_t));
--
--	return 0;
--}
--
--static int 
--sane_write_hwcb (void)
--{
--	unsigned short int lost_msg;
--	unsigned int lost_char;
--	unsigned char lost_hwcb;
--	unsigned char *bad_addr;
--	unsigned long page;
--	int page_nr;
--
--	if (!OUT_HWCB)
--		return -ENOMEM;
--
--	if ((unsigned long) OUT_HWCB & 0xFFF) {
--
--		bad_addr = OUT_HWCB;
--
--#ifdef DUMP_HWC_WRITE_LIST_ERROR
--		__asm__ ("LHI 1,0xe30\n\t"
--			 "LRA 2,0(%0) \n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (bad_addr)
--	      :	 "1", "2");
--#endif
--
--		hwc_data.kmem_pages = 0;
--		if ((unsigned long) BUF_HWCB & 0xFFF) {
--
--			lost_hwcb = hwc_data.hwcb_count;
--			lost_msg = ALL_HWCB_MTO;
--			lost_char = ALL_HWCB_CHAR;
--
--			OUT_HWCB = NULL;
--			BUF_HWCB = NULL;
--			ALL_HWCB_MTO = 0;
--			ALL_HWCB_CHAR = 0;
--			hwc_data.hwcb_count = 0;
--		} else {
--
--			lost_hwcb = hwc_data.hwcb_count - 1;
--			lost_msg = ALL_HWCB_MTO - BUF_HWCB_MTO;
--			lost_char = ALL_HWCB_CHAR - BUF_HWCB_CHAR;
--			OUT_HWCB = BUF_HWCB;
--			ALL_HWCB_MTO = BUF_HWCB_MTO;
--			ALL_HWCB_CHAR = BUF_HWCB_CHAR;
--			hwc_data.hwcb_count = 1;
--			page = (unsigned long) BUF_HWCB;
--
--			if (page >= hwc_data.kmem_start &&
--			    page <= hwc_data.kmem_end) {
--
--				page_nr = (int)
--				    ((page - hwc_data.kmem_start) >> 12);
--				set_bit (page_nr, &hwc_data.kmem_pages);
--			}
--		}
--
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--		       "found invalid HWCB at address 0x%lx. List corrupted. "
--			   "Lost %i HWCBs with %i characters within up to %i "
--			   "messages. Saved %i HWCB with last %i characters i"
--				       "within up to %i messages.\n",
--				       (unsigned long) bad_addr,
--				       lost_hwcb, lost_char, lost_msg,
--				       hwc_data.hwcb_count,
--				       ALL_HWCB_CHAR, ALL_HWCB_MTO);
--	}
--	return 0;
--}
--
--static int 
--reuse_write_hwcb (void)
--{
--	int retval;
--
--	if (hwc_data.hwcb_count < 2)
--#ifdef DUMP_HWC_WRITE_LIST_ERROR
--		__asm__ ("LHI 1,0xe31\n\t"
--			 "LRA 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (BUF_HWCB), "a" (OUT_HWCB)
--	      :	 "1", "2", "3");
--#else
--		return -EPERM;
--#endif
--
--	if (hwc_data.current_hwcb == OUT_HWCB) {
--
--		if (hwc_data.hwcb_count > 2) {
--
--			BUF_HWCB_NEXT = OUT_HWCB_NEXT;
--
--			BUF_HWCB = OUT_HWCB_NEXT;
--
--			OUT_HWCB_NEXT = BUF_HWCB_NEXT;
--
--			BUF_HWCB_NEXT = NULL;
--		}
--	} else {
--
--		BUF_HWCB_NEXT = OUT_HWCB;
--
--		BUF_HWCB = OUT_HWCB;
--
--		OUT_HWCB = OUT_HWCB_NEXT;
--
--		BUF_HWCB_NEXT = NULL;
--	}
--
--	BUF_HWCB_TIMES_LOST += 1;
--	BUF_HWCB_CHAR_LOST += BUF_HWCB_CHAR;
--	BUF_HWCB_MTO_LOST += BUF_HWCB_MTO;
--	ALL_HWCB_MTO -= BUF_HWCB_MTO;
--	ALL_HWCB_CHAR -= BUF_HWCB_CHAR;
--
--	retval = prepare_write_hwcb ();
--
--	if (hwc_data.hwcb_count == hwc_data.ioctls.max_hwcb)
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "reached my own limit of "
--			    "allowed buffer space for output (%i HWCBs = %li "
--			  "bytes), skipped content of oldest HWCB %i time(s) "
--				       "(%i lines = %i characters)\n",
--				       hwc_data.ioctls.max_hwcb,
--				       hwc_data.ioctls.max_hwcb * PAGE_SIZE,
--				       BUF_HWCB_TIMES_LOST,
--				       BUF_HWCB_MTO_LOST,
--				       BUF_HWCB_CHAR_LOST);
--	else
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "page allocation failed, "
--			   "could not expand buffer for output (currently in "
--			     "use: %i HWCBs = %li bytes), skipped content of "
--			"oldest HWCB %i time(s) (%i lines = %i characters)\n",
--				       hwc_data.hwcb_count,
--				       hwc_data.hwcb_count * PAGE_SIZE,
--				       BUF_HWCB_TIMES_LOST,
--				       BUF_HWCB_MTO_LOST,
--				       BUF_HWCB_CHAR_LOST);
--
--	return retval;
--}
--
--static int 
--allocate_write_hwcb (void)
--{
--	unsigned char *page;
--	int page_nr;
--
--	if (hwc_data.hwcb_count == hwc_data.ioctls.max_hwcb)
--		return -ENOMEM;
--
--	page_nr = find_first_zero_bit (&hwc_data.kmem_pages, MAX_KMEM_PAGES);
--	if (page_nr < hwc_data.ioctls.kmem_hwcb) {
--
--		page = (unsigned char *)
--		    (hwc_data.kmem_start + (page_nr << 12));
--		set_bit (page_nr, &hwc_data.kmem_pages);
--	} else
--		page = (unsigned char *) __get_free_page (GFP_ATOMIC | GFP_DMA);
--
--	if (!page)
--		return -ENOMEM;
--
--	if (!OUT_HWCB)
--		OUT_HWCB = page;
--	else
--		BUF_HWCB_NEXT = page;
--
--	BUF_HWCB = page;
--
--	BUF_HWCB_NEXT = NULL;
--
--	hwc_data.hwcb_count++;
--
--	prepare_write_hwcb ();
--
--	BUF_HWCB_TIMES_LOST = 0;
--	BUF_HWCB_MTO_LOST = 0;
--	BUF_HWCB_CHAR_LOST = 0;
--
--#ifdef BUFFER_STRESS_TEST
--
--	internal_print (
--			       DELAYED_WRITE,
--			       "*** " HWC_RW_PRINT_HEADER
--			    "page #%i at 0x%x for buffering allocated. ***\n",
--			       hwc_data.hwcb_count, page);
--
--#endif
--
--	return 0;
--}
--
--static int 
--release_write_hwcb (void)
--{
--	unsigned long page;
--	int page_nr;
--
--	if (!hwc_data.hwcb_count)
--		return -ENODATA;
--
--	if (hwc_data.hwcb_count == 1) {
--
--		prepare_write_hwcb ();
--
--		ALL_HWCB_CHAR = 0;
--		ALL_HWCB_MTO = 0;
--		BUF_HWCB_TIMES_LOST = 0;
--		BUF_HWCB_MTO_LOST = 0;
--		BUF_HWCB_CHAR_LOST = 0;
--	} else {
--		page = (unsigned long) OUT_HWCB;
--
--		ALL_HWCB_MTO -= OUT_HWCB_MTO;
--		ALL_HWCB_CHAR -= OUT_HWCB_CHAR;
--		hwc_data.hwcb_count--;
--
--		OUT_HWCB = OUT_HWCB_NEXT;
--
--		if (page >= hwc_data.kmem_start &&
--		    page <= hwc_data.kmem_end) {
--			/*memset((void *) page, 0, PAGE_SIZE); */
--
--			page_nr = (int) ((page - hwc_data.kmem_start) >> 12);
--			clear_bit (page_nr, &hwc_data.kmem_pages);
--		} else
--			free_page (page);
--#ifdef BUFFER_STRESS_TEST
--
--		internal_print (
--				       DELAYED_WRITE,
--				       "*** " HWC_RW_PRINT_HEADER
--			 "page at 0x%x released, %i pages still in use ***\n",
--				       page, hwc_data.hwcb_count);
--
--#endif
--	}
--	return 0;
--}
--
--static int 
--add_mto (
--		unsigned char *message,
--		unsigned short int count)
--{
--	unsigned short int mto_size;
--	write_hwcb_t *hwcb;
--	mto_t *mto;
--	void *dest;
--
--	if (!BUF_HWCB)
--		return -ENOMEM;
--
--	if (BUF_HWCB == hwc_data.current_hwcb)
--		return -ENOMEM;
--
--	mto_size = sizeof (mto_t) + count;
--
--	hwcb = (write_hwcb_t *) BUF_HWCB;
--
--	if ((MAX_HWCB_ROOM - hwcb->length) < mto_size)
--		return -ENOMEM;
--
--	mto = (mto_t *) (((unsigned long) hwcb) + hwcb->length);
--
--	memcpy (mto, &mto_template, sizeof (mto_t));
--
--	dest = (void *) (((unsigned long) mto) + sizeof (mto_t));
--
--	memcpy (dest, message, count);
--
--	mto->length += count;
--
--	hwcb->length += mto_size;
--	hwcb->msgbuf.length += mto_size;
--	hwcb->msgbuf.mdb.length += mto_size;
--
--	BUF_HWCB_MTO++;
--	ALL_HWCB_MTO++;
--	BUF_HWCB_CHAR += count;
--	ALL_HWCB_CHAR += count;
--
--	return count;
--}
--
--static int write_event_data_1 (void);
--
--static void 
--do_poll_hwc (unsigned long data)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	write_event_data_1 ();
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--}
--
--void 
--start_poll_hwc (void)
--{
--	init_timer (&hwc_data.poll_timer);
--	hwc_data.poll_timer.function = do_poll_hwc;
--	hwc_data.poll_timer.data = (unsigned long) NULL;
--	hwc_data.poll_timer.expires = jiffies + 2 * HZ;
--	add_timer (&hwc_data.poll_timer);
--	hwc_data.flags |= HWC_PTIMER_RUNS;
--}
--
--static int 
--write_event_data_1 (void)
--{
--	unsigned short int condition_code;
--	int retval;
--	write_hwcb_t *hwcb = (write_hwcb_t *) OUT_HWCB;
--
--	if ((!hwc_data.write_prio) &&
--	    (!hwc_data.write_nonprio) &&
--	    hwc_data.read_statechange)
--		return -EOPNOTSUPP;
--
--	if (hwc_data.current_servc)
--		return -EBUSY;
--
--	retval = sane_write_hwcb ();
--	if (retval < 0)
--		return -EIO;
--
--	if (!OUT_HWCB_MTO)
--		return -ENODATA;
--
--	if (!hwc_data.write_nonprio && hwc_data.write_prio)
--		hwcb->msgbuf.type = ET_PMsgCmd;
--	else
--		hwcb->msgbuf.type = ET_Msg;
--
--	condition_code = service_call (HWC_CMDW_WRITEDATA, OUT_HWCB);
--
--#ifdef DUMP_HWC_WRITE_ERROR
--	if (condition_code != HWC_COMMAND_INITIATED)
--		__asm__ ("LHI 1,0xe20\n\t"
--			 "L 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (&condition_code), "a" (OUT_HWCB)
--	      :	 "1", "2", "3");
--#endif
--
--	switch (condition_code) {
--	case HWC_COMMAND_INITIATED:
--		hwc_data.current_servc = HWC_CMDW_WRITEDATA;
--		hwc_data.current_hwcb = OUT_HWCB;
--		retval = condition_code;
--		break;
--	case HWC_BUSY:
--		retval = -EBUSY;
--		break;
--	case HWC_NOT_OPERATIONAL:
--		start_poll_hwc ();
--	default:
--		retval = -EIO;
--	}
--
--	return retval;
--}
--
--static void 
--flush_hwcbs (void)
--{
--	while (hwc_data.hwcb_count > 1)
--		release_write_hwcb ();
--
--	release_write_hwcb ();
--
--	hwc_data.flags &= ~HWC_FLUSH;
--}
--
--static int 
--write_event_data_2 (u32 ext_int_param)
--{
--	write_hwcb_t *hwcb;
--	int retval = 0;
--
--#ifdef DUMP_HWC_WRITE_ERROR
--	if ((ext_int_param & HWC_EXT_INT_PARAM_ADDR)
--	    != (unsigned long) hwc_data.current_hwcb) {
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "write_event_data_2 : "
--				       "HWCB address does not fit "
--				       "(expected: 0x%lx, got: 0x%lx).\n",
--				       (unsigned long) hwc_data.current_hwcb,
--				       ext_int_param);
--		return -EINVAL;
--	}
--#endif
--
--	hwcb = (write_hwcb_t *) OUT_HWCB;
--
--#ifdef DUMP_HWC_WRITE_LIST_ERROR
--	if (((unsigned char *) hwcb) != hwc_data.current_hwcb) {
--		__asm__ ("LHI 1,0xe22\n\t"
--			 "LRA 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "LRA 4,0(%2)\n\t"
--			 "LRA 5,0(%3)\n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (OUT_HWCB),
--			 "a" (hwc_data.current_hwcb),
--			 "a" (BUF_HWCB),
--			 "a" (hwcb)
--	      :	 "1", "2", "3", "4", "5");
--	}
--#endif
--
--#ifdef DUMP_HWC_WRITE_ERROR
--	if (hwcb->response_code != 0x0020) {
--		__asm__ ("LHI 1,0xe21\n\t"
--			 "LRA 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "LRA 4,0(%2)\n\t"
--			 "LH 5,0(%3)\n\t"
--			 "SRL 5,8\n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (OUT_HWCB), "a" (hwc_data.current_hwcb),
--			 "a" (BUF_HWCB),
--			 "a" (&(hwc_data.hwcb_count))
--	      :	 "1", "2", "3", "4", "5");
--	}
--#endif
--
--	switch (hwcb->response_code) {
--	case 0x0020:
--
--		retval = OUT_HWCB_CHAR;
--		release_write_hwcb ();
--		break;
--	case 0x0040:
--	case 0x0340:
--	case 0x40F0:
--		if (!hwc_data.read_statechange) {
--			hwcb->response_code = 0;
--			start_poll_hwc ();
--		}
--		retval = -EIO;
--		break;
--	default:
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "write_event_data_2 : "
--				       "failed operation "
--				       "(response code: 0x%x "
--				       "HWCB address: 0x%x).\n",
--				       hwcb->response_code,
--				       hwcb);
--		retval = -EIO;
--	}
--
--	if (retval == -EIO) {
--
--		hwcb->control_mask[0] = 0;
--		hwcb->control_mask[1] = 0;
--		hwcb->control_mask[2] = 0;
--		hwcb->response_code = 0;
--	}
--	hwc_data.current_servc = 0;
--	hwc_data.current_hwcb = NULL;
--
--	if (hwc_data.flags & HWC_FLUSH)
--		flush_hwcbs ();
--
--	return retval;
--}
--
--static void 
--do_put_line (
--		    unsigned char *message,
--		    unsigned short count)
--{
--
--	if (add_mto (message, count) != count) {
--
--		if (allocate_write_hwcb () < 0)
--			reuse_write_hwcb ();
--
--#ifdef DUMP_HWC_WRITE_LIST_ERROR
--		if (add_mto (message, count) != count)
--			__asm__ ("LHI 1,0xe32\n\t"
--				 "LRA 2,0(%0)\n\t"
--				 "L 3,0(%1)\n\t"
--				 "LRA 4,0(%2)\n\t"
--				 "LRA 5,0(%3)\n\t"
--				 "J .+0 \n\t"
--		      :
--		      :	 "a" (message), "a" (&hwc_data.kmem_pages),
--				 "a" (BUF_HWCB), "a" (OUT_HWCB)
--		      :	 "1", "2", "3", "4", "5");
--#else
--		add_mto (message, count);
--#endif
--	}
--}
--
--static void 
--put_line (
--		 unsigned char *message,
--		 unsigned short count)
--{
--
--	if ((!hwc_data.obuf_start) && (hwc_data.flags & HWC_WTIMER_RUNS)) {
--		del_timer (&hwc_data.write_timer);
--		hwc_data.flags &= ~HWC_WTIMER_RUNS;
--	}
--	hwc_data.obuf_start += count;
--
--	do_put_line (message, count);
--
--	hwc_data.obuf_start -= count;
--}
--
--static void 
--set_alarm (void)
--{
--	write_hwcb_t *hwcb;
--
--	if ((!BUF_HWCB) || (BUF_HWCB == hwc_data.current_hwcb))
--		allocate_write_hwcb ();
--
--	hwcb = (write_hwcb_t *) BUF_HWCB;
--	hwcb->msgbuf.mdb.mdb_body.go.general_msg_flags |= GMF_SndAlrm;
--}
--
--static void 
--hwc_write_timeout (unsigned long data)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	hwc_data.obuf_start = hwc_data.obuf_count;
--	if (hwc_data.obuf_count)
--		put_line (hwc_data.obuf, hwc_data.obuf_count);
--	hwc_data.obuf_start = 0;
--
--	hwc_data.obuf_cursor = 0;
--	hwc_data.obuf_count = 0;
--
--	write_event_data_1 ();
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--}
--
--static int 
--do_hwc_write (
--		     int from_user,
--		     unsigned char *msg,
--		     unsigned int count,
--		     unsigned char write_time)
--{
--	unsigned int i_msg = 0;
--	unsigned short int spaces = 0;
--	unsigned int processed_characters = 0;
--	unsigned char ch;
--	unsigned short int obuf_count;
--	unsigned short int obuf_cursor;
--	unsigned short int obuf_columns;
--
--	if (hwc_data.obuf_start) {
--		obuf_cursor = 0;
--		obuf_count = 0;
--		obuf_columns = MIN (hwc_data.ioctls.columns,
--				    MAX_MESSAGE_SIZE - hwc_data.obuf_start);
--	} else {
--		obuf_cursor = hwc_data.obuf_cursor;
--		obuf_count = hwc_data.obuf_count;
--		obuf_columns = hwc_data.ioctls.columns;
--	}
--
--	for (i_msg = 0; i_msg < count; i_msg++) {
--		if (from_user)
--			get_user (ch, msg + i_msg);
--		else
--			ch = msg[i_msg];
--
--		processed_characters++;
--
--		if ((obuf_cursor == obuf_columns) &&
--
--		    (ch != '\n') &&
--
--		    (ch != '\t')) {
--			put_line (&hwc_data.obuf[hwc_data.obuf_start],
--				  obuf_columns);
--			obuf_cursor = 0;
--			obuf_count = 0;
--		}
--		switch (ch) {
--
--		case '\n':
--
--			put_line (&hwc_data.obuf[hwc_data.obuf_start],
--				  obuf_count);
--			obuf_cursor = 0;
--			obuf_count = 0;
--			break;
--
--		case '\a':
--
--			hwc_data.obuf_start += obuf_count;
--			set_alarm ();
--			hwc_data.obuf_start -= obuf_count;
--
--			break;
--
--		case '\t':
--
--			do {
--				if (obuf_cursor < obuf_columns) {
--					hwc_data.obuf[hwc_data.obuf_start +
--						      obuf_cursor]
--					    = HWC_ASCEBC (' ');
--					obuf_cursor++;
--				} else
--					break;
--			} while (obuf_cursor % hwc_data.ioctls.width_htab);
--
--			break;
--
--		case '\f':
--		case '\v':
--
--			spaces = obuf_cursor;
--			put_line (&hwc_data.obuf[hwc_data.obuf_start],
--				  obuf_count);
--			obuf_count = obuf_cursor;
--			while (spaces) {
--				hwc_data.obuf[hwc_data.obuf_start +
--					      obuf_cursor - spaces]
--				    = HWC_ASCEBC (' ');
--				spaces--;
--			}
--
--			break;
--
--		case '\b':
--
--			if (obuf_cursor)
--				obuf_cursor--;
--			break;
--
--		case '\r':
--
--			obuf_cursor = 0;
--			break;
--
--		case 0x00:
--
--			put_line (&hwc_data.obuf[hwc_data.obuf_start],
--				  obuf_count);
--			obuf_cursor = 0;
--			obuf_count = 0;
--			goto out;
--
--		default:
--
--			if (isprint (ch))
--				hwc_data.obuf[hwc_data.obuf_start +
--					      obuf_cursor++]
--				    = HWC_ASCEBC (ch);
--		}
--		if (obuf_cursor > obuf_count)
--			obuf_count = obuf_cursor;
--	}
--
--	if (obuf_cursor) {
--
--		if (hwc_data.obuf_start ||
--		    (hwc_data.ioctls.final_nl == 0)) {
--
--			put_line (&hwc_data.obuf[hwc_data.obuf_start],
--				  obuf_count);
--			obuf_cursor = 0;
--			obuf_count = 0;
--		} else {
--
--			if (hwc_data.ioctls.final_nl > 0) {
--
--				if (hwc_data.flags & HWC_WTIMER_RUNS) {
--
--					mod_timer (&hwc_data.write_timer,
--						   jiffies + hwc_data.ioctls.final_nl * HZ / 10);
--				} else {
--
--					init_timer (&hwc_data.write_timer);
--					hwc_data.write_timer.function =
--					    hwc_write_timeout;
--					hwc_data.write_timer.data =
--					    (unsigned long) NULL;
--					hwc_data.write_timer.expires =
--					    jiffies +
--					    hwc_data.ioctls.final_nl * HZ / 10;
--					add_timer (&hwc_data.write_timer);
--					hwc_data.flags |= HWC_WTIMER_RUNS;
--				}
--			} else;
--
--		}
--	} else;
--
--      out:
--
--	if (!hwc_data.obuf_start) {
--		hwc_data.obuf_cursor = obuf_cursor;
--		hwc_data.obuf_count = obuf_count;
--	}
--	if (write_time == IMMEDIATE_WRITE)
--		write_event_data_1 ();
--
--	return processed_characters;
--}
--
--signed int 
--hwc_write (int from_user, const unsigned char *msg, unsigned int count)
--{
--	unsigned long flags;
--	int retval;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	retval = do_hwc_write (from_user, (unsigned char *) msg,
--			       count, IMMEDIATE_WRITE);
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--
--	return retval;
--}
--
--unsigned int 
--hwc_chars_in_buffer (unsigned char flag)
--{
--	unsigned short int number = 0;
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	if (flag & IN_HWCB)
--		number += ALL_HWCB_CHAR;
--
--	if (flag & IN_WRITE_BUF)
--		number += hwc_data.obuf_cursor;
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--
--	return number;
--}
--
--static inline int 
--nr_setbits (kmem_pages_t arg)
--{
--	int i;
--	int nr = 0;
--
--	for (i = 0; i < (sizeof (arg) << 3); i++) {
--		if (arg & 1)
--			nr++;
--		arg >>= 1;
--	}
--
--	return nr;
--}
--
--unsigned int 
--hwc_write_room (unsigned char flag)
--{
--	unsigned int number = 0;
--	unsigned long flags;
--	write_hwcb_t *hwcb;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	if (flag & IN_HWCB) {
--
--		if (BUF_HWCB) {
--			hwcb = (write_hwcb_t *) BUF_HWCB;
--			number += MAX_HWCB_ROOM - hwcb->length;
--		}
--		number += (hwc_data.ioctls.kmem_hwcb -
--			   nr_setbits (hwc_data.kmem_pages)) *
--		    (MAX_HWCB_ROOM -
--		     (sizeof (write_hwcb_t) + sizeof (mto_t)));
--	}
--	if (flag & IN_WRITE_BUF)
--		number += MAX_HWCB_ROOM - hwc_data.obuf_cursor;
--
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--
--	return number;
--}
--
--void 
--hwc_flush_buffer (unsigned char flag)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	if (flag & IN_HWCB) {
--		if (hwc_data.current_servc != HWC_CMDW_WRITEDATA)
--			flush_hwcbs ();
--		else
--			hwc_data.flags |= HWC_FLUSH;
--	}
--	if (flag & IN_WRITE_BUF) {
--		hwc_data.obuf_cursor = 0;
--		hwc_data.obuf_count = 0;
--	}
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--}
--
--unsigned short int 
--seperate_cases (unsigned char *buf, unsigned short int count)
--{
--
--	unsigned short int i_in;
--
--	unsigned short int i_out = 0;
--
--	unsigned char _case = 0;
--
--	for (i_in = 0; i_in < count; i_in++) {
--
--		if (buf[i_in] == hwc_data.ioctls.delim) {
--
--			if ((i_in + 1 < count) &&
--			    (buf[i_in + 1] == hwc_data.ioctls.delim)) {
--
--				buf[i_out] = hwc_data.ioctls.delim;
--
--				i_out++;
--
--				i_in++;
--
--			} else
--				_case = ~_case;
--
--		} else {
--
--			if (_case) {
--
--				if (hwc_data.ioctls.tolower)
--					buf[i_out] = _ebc_toupper[buf[i_in]];
--
--				else
--					buf[i_out] = _ebc_tolower[buf[i_in]];
--
--			} else
--				buf[i_out] = buf[i_in];
--
--			i_out++;
--		}
--	}
--
--	return i_out;
--}
--
--#ifdef DUMP_HWCB_INPUT
--
--static int 
--gds_vector_name (u16 id, unsigned char name[])
--{
--	int retval = 0;
--
--	switch (id) {
--	case GDS_ID_MDSMU:
--		name = "Multiple Domain Support Message Unit";
--		break;
--	case GDS_ID_MDSRouteInfo:
--		name = "MDS Routing Information";
--		break;
--	case GDS_ID_AgUnWrkCorr:
--		name = "Agent Unit of Work Correlator";
--		break;
--	case GDS_ID_SNACondReport:
--		name = "SNA Condition Report";
--		break;
--	case GDS_ID_CPMSU:
--		name = "CP Management Services Unit";
--		break;
--	case GDS_ID_RoutTargInstr:
--		name = "Routing and Targeting Instructions";
--		break;
--	case GDS_ID_OpReq:
--		name = "Operate Request";
--		break;
--	case GDS_ID_TextCmd:
--		name = "Text Command";
--		break;
--
--	default:
--		name = "unknown GDS variable";
--		retval = -EINVAL;
--	}
--
--	return retval;
--}
--#endif
--
--inline static gds_vector_t *
--find_gds_vector (
--			gds_vector_t * start, void *end, u16 id)
--{
--	gds_vector_t *vec;
--	gds_vector_t *retval = NULL;
--
--	vec = start;
--
--	while (((void *) vec) < end) {
--		if (vec->gds_id == id) {
--
--#ifdef DUMP_HWCB_INPUT
--			int retval_name;
--			unsigned char name[64];
--
--			retval_name = gds_vector_name (id, name);
--			internal_print (
--					       DELAYED_WRITE,
--					       HWC_RW_PRINT_HEADER
--					  "%s at 0x%x up to 0x%x, length: %d",
--					       name,
--					       (unsigned long) vec,
--				      ((unsigned long) vec) + vec->length - 1,
--					       vec->length);
--			if (retval_name < 0)
--				internal_print (
--						       IMMEDIATE_WRITE,
--						       ", id: 0x%x\n",
--						       vec->gds_id);
--			else
--				internal_print (
--						       IMMEDIATE_WRITE,
--						       "\n");
--#endif
--
--			retval = vec;
--			break;
--		}
--		vec = (gds_vector_t *) (((unsigned long) vec) + vec->length);
--	}
--
--	return retval;
--}
--
--inline static gds_subvector_t *
--find_gds_subvector (
--			   gds_subvector_t * start, void *end, u8 key)
--{
--	gds_subvector_t *subvec;
--	gds_subvector_t *retval = NULL;
--
--	subvec = start;
--
--	while (((void *) subvec) < end) {
--		if (subvec->key == key) {
--			retval = subvec;
--			break;
--		}
--		subvec = (gds_subvector_t *)
--		    (((unsigned long) subvec) + subvec->length);
--	}
--
--	return retval;
--}
--
--inline static int 
--get_input (void *start, void *end)
--{
--	int count;
--
--	count = ((unsigned long) end) - ((unsigned long) start);
--
--	if (hwc_data.ioctls.tolower)
--		EBC_TOLOWER (start, count);
--
--	if (hwc_data.ioctls.delim)
--		count = seperate_cases (start, count);
--
--	HWC_EBCASC_STR (start, count);
--
--	if (hwc_data.ioctls.echo)
--		do_hwc_write (0, start, count, IMMEDIATE_WRITE);
--
--	if (hwc_data.calls != NULL)
--		if (hwc_data.calls->move_input != NULL)
--			(hwc_data.calls->move_input) (start, count);
--
--	return count;
--}
--
--inline static int 
--eval_selfdeftextmsg (gds_subvector_t * start, void *end)
--{
--	gds_subvector_t *subvec;
--	void *subvec_data;
--	void *subvec_end;
--	int retval = 0;
--
--	subvec = start;
--
--	while (((void *) subvec) < end) {
--		subvec = find_gds_subvector (subvec, end, 0x30);
--		if (!subvec)
--			break;
--		subvec_data = (void *)
--		    (((unsigned long) subvec) +
--		     sizeof (gds_subvector_t));
--		subvec_end = (void *)
--		    (((unsigned long) subvec) + subvec->length);
--		retval += get_input (subvec_data, subvec_end);
--		subvec = (gds_subvector_t *) subvec_end;
--	}
--
--	return retval;
--}
--
--inline static int 
--eval_textcmd (gds_subvector_t * start, void *end)
--{
--	gds_subvector_t *subvec;
--	gds_subvector_t *subvec_data;
--	void *subvec_end;
--	int retval = 0;
--
--	subvec = start;
--
--	while (((void *) subvec) < end) {
--		subvec = find_gds_subvector (
--					 subvec, end, GDS_KEY_SelfDefTextMsg);
--		if (!subvec)
--			break;
--		subvec_data = (gds_subvector_t *)
--		    (((unsigned long) subvec) +
--		     sizeof (gds_subvector_t));
--		subvec_end = (void *)
--		    (((unsigned long) subvec) + subvec->length);
--		retval += eval_selfdeftextmsg (subvec_data, subvec_end);
--		subvec = (gds_subvector_t *) subvec_end;
--	}
--
--	return retval;
--}
--
--inline static int 
--eval_cpmsu (gds_vector_t * start, void *end)
--{
--	gds_vector_t *vec;
--	gds_subvector_t *vec_data;
--	void *vec_end;
--	int retval = 0;
--
--	vec = start;
--
--	while (((void *) vec) < end) {
--		vec = find_gds_vector (vec, end, GDS_ID_TextCmd);
--		if (!vec)
--			break;
--		vec_data = (gds_subvector_t *)
--		    (((unsigned long) vec) + sizeof (gds_vector_t));
--		vec_end = (void *) (((unsigned long) vec) + vec->length);
--		retval += eval_textcmd (vec_data, vec_end);
--		vec = (gds_vector_t *) vec_end;
--	}
--
--	return retval;
--}
--
--inline static int 
--eval_mdsmu (gds_vector_t * start, void *end)
--{
--	gds_vector_t *vec;
--	gds_vector_t *vec_data;
--	void *vec_end;
--	int retval = 0;
--
--	vec = find_gds_vector (start, end, GDS_ID_CPMSU);
--	if (vec) {
--		vec_data = (gds_vector_t *)
--		    (((unsigned long) vec) + sizeof (gds_vector_t));
--		vec_end = (void *) (((unsigned long) vec) + vec->length);
--		retval = eval_cpmsu (vec_data, vec_end);
--	}
--	return retval;
--}
--
--static int 
--eval_evbuf (gds_vector_t * start, void *end)
--{
--	gds_vector_t *vec;
--	gds_vector_t *vec_data;
--	void *vec_end;
--	int retval = 0;
--
--	vec = find_gds_vector (start, end, GDS_ID_MDSMU);
--	if (vec) {
--		vec_data = (gds_vector_t *)
--		    (((unsigned long) vec) + sizeof (gds_vector_t));
--		vec_end = (void *) (((unsigned long) vec) + vec->length);
--		retval = eval_mdsmu (vec_data, vec_end);
--	}
--	return retval;
--}
--
--static inline int 
--eval_hwc_receive_mask (_hwcb_mask_t mask)
--{
--
--	hwc_data.write_nonprio
--	    = ((mask & ET_Msg_Mask) == ET_Msg_Mask);
--
--	hwc_data.write_prio
--	    = ((mask & ET_PMsgCmd_Mask) == ET_PMsgCmd_Mask);
--
--	if (hwc_data.write_prio || hwc_data.write_nonprio) {
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can write messages\n");
--		return 0;
--	} else {
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can not write messages\n");
--		return -1;
--	}
--}
--
--static inline int 
--eval_hwc_send_mask (_hwcb_mask_t mask)
--{
--
--	hwc_data.read_statechange
--	    = ((mask & ET_StateChange_Mask) == ET_StateChange_Mask);
--	if (hwc_data.read_statechange)
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				     "can read state change notifications\n");
--	else
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				 "can not read state change notifications\n");
--
--	hwc_data.sig_quiesce
--	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
--	if (hwc_data.sig_quiesce)
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can receive signal quiesce\n");
--	else
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can not receive signal quiesce\n");
--
--	hwc_data.read_nonprio
--	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
--	if (hwc_data.read_nonprio)
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can read commands\n");
--
--	hwc_data.read_prio
--	    = ((mask & ET_PMsgCmd_Mask) == ET_PMsgCmd_Mask);
--	if (hwc_data.read_prio)
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "can read priority commands\n");
--
--	if (hwc_data.read_prio || hwc_data.read_nonprio) {
--		return 0;
--	} else {
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--				     "can not read commands from operator\n");
--		return -1;
--	}
--}
--
--static int 
--eval_statechangebuf (statechangebuf_t * scbuf)
--{
--	int retval = 0;
--
--	internal_print (
--			       DELAYED_WRITE,
--			       HWC_RW_PRINT_HEADER
--			       "HWC state change detected\n");
--
--	if (scbuf->validity_hwc_active_facility_mask) {
--
--	}
--	if (scbuf->validity_hwc_receive_mask) {
--
--		if (scbuf->mask_length != 4) {
--#ifdef DUMP_HWC_INIT_ERROR
--			__asm__ ("LHI 1,0xe50\n\t"
--				 "LRA 2,0(%0)\n\t"
--				 "J .+0 \n\t"
--		      :
--		      :	 "a" (scbuf)
--		      :	 "1", "2");
--#endif
--		} else {
--
--			retval += eval_hwc_receive_mask
--			    (scbuf->hwc_receive_mask);
--		}
--	}
--	if (scbuf->validity_hwc_send_mask) {
--
--		if (scbuf->mask_length != 4) {
--#ifdef DUMP_HWC_INIT_ERROR
--			__asm__ ("LHI 1,0xe51\n\t"
--				 "LRA 2,0(%0)\n\t"
--				 "J .+0 \n\t"
--		      :
--		      :	 "a" (scbuf)
--		      :	 "1", "2");
--#endif
--		} else {
--
--			retval += eval_hwc_send_mask
--			    (scbuf->hwc_send_mask);
--		}
--	}
--	if (scbuf->validity_read_data_function_mask) {
--
--	}
--	return retval;
--}
--
--#ifdef CONFIG_SMP
--static volatile unsigned long cpu_quiesce_map;
--
--static void 
--do_load_quiesce_psw (void)
--{
--	psw_t quiesce_psw;
--
--	clear_bit (smp_processor_id (), &cpu_quiesce_map);
--	if (smp_processor_id () == 0) {
--
--		while (cpu_quiesce_map != 0) ;
--
--		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
--		quiesce_psw.addr = 0xfff;
--		__load_psw (quiesce_psw);
--	}
--	signal_processor (smp_processor_id (), sigp_stop);
--}
--
--static void 
--do_machine_quiesce (void)
--{
--	cpu_quiesce_map = cpu_online_map;
--	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
--	do_load_quiesce_psw ();
--}
--
--#else
--static void 
--do_machine_quiesce (void)
--{
--	psw_t quiesce_psw;
--
--	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
--	queisce_psw.addr = 0xfff;
--	__load_psw (quiesce_psw);
--}
--
--#endif
--
--static int 
--process_evbufs (void *start, void *end)
--{
--	int retval = 0;
--	evbuf_t *evbuf;
--	void *evbuf_end;
--	gds_vector_t *evbuf_data;
--
--	evbuf = (evbuf_t *) start;
--	while (((void *) evbuf) < end) {
--		evbuf_data = (gds_vector_t *)
--		    (((unsigned long) evbuf) + sizeof (evbuf_t));
--		evbuf_end = (void *) (((unsigned long) evbuf) + evbuf->length);
--		switch (evbuf->type) {
--		case ET_OpCmd:
--		case ET_CntlProgOpCmd:
--		case ET_PMsgCmd:
--#ifdef DUMP_HWCB_INPUT
--
--			internal_print (
--					       DELAYED_WRITE,
--					       HWC_RW_PRINT_HEADER
--					       "event buffer "
--					   "at 0x%x up to 0x%x, length: %d\n",
--					       (unsigned long) evbuf,
--					       (unsigned long) (evbuf_end - 1),
--					       evbuf->length);
--			dump_storage_area ((void *) evbuf, evbuf->length);
--#endif
--			retval += eval_evbuf (evbuf_data, evbuf_end);
--			break;
--		case ET_StateChange:
--			retval += eval_statechangebuf
--			    ((statechangebuf_t *) evbuf);
--			break;
--		case ET_SigQuiesce:
--
--			_machine_restart = do_machine_quiesce;
--			_machine_halt = do_machine_quiesce;
--			_machine_power_off = do_machine_quiesce;
--			ctrl_alt_del ();
--			break;
--		default:
--			internal_print (
--					       DELAYED_WRITE,
--					       HWC_RW_PRINT_HEADER
--					       "unconditional read: "
--					       "unknown event buffer found, "
--					       "type 0x%x",
--					       evbuf->type);
--			retval = -ENOSYS;
--		}
--		evbuf = (evbuf_t *) evbuf_end;
--	}
--	return retval;
--}
--
--static int 
--unconditional_read_1 (void)
--{
--	unsigned short int condition_code;
--	read_hwcb_t *hwcb = (read_hwcb_t *) hwc_data.page;
--	int retval;
--
--#if 0
--
--	if ((!hwc_data.read_prio) && (!hwc_data.read_nonprio))
--		return -EOPNOTSUPP;
--
--	if (hwc_data.current_servc)
--		return -EBUSY;
--#endif
--
--	memset (hwcb, 0x00, PAGE_SIZE);
--	memcpy (hwcb, &read_hwcb_template, sizeof (read_hwcb_t));
--
--	condition_code = service_call (HWC_CMDW_READDATA, hwc_data.page);
--
--#ifdef DUMP_HWC_READ_ERROR
--	if (condition_code == HWC_NOT_OPERATIONAL)
--		__asm__ ("LHI 1,0xe40\n\t"
--			 "L 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "J .+0 \n\t"
--	      :
--	      :	 "a" (&condition_code), "a" (hwc_data.page)
--	      :	 "1", "2", "3");
--#endif
--
--	switch (condition_code) {
--	case HWC_COMMAND_INITIATED:
--		hwc_data.current_servc = HWC_CMDW_READDATA;
--		hwc_data.current_hwcb = hwc_data.page;
--		retval = condition_code;
--		break;
--	case HWC_BUSY:
--		retval = -EBUSY;
--		break;
--	default:
--		retval = -EIO;
--	}
--
--	return retval;
--}
--
--static int 
--unconditional_read_2 (u32 ext_int_param)
--{
--	read_hwcb_t *hwcb = (read_hwcb_t *) hwc_data.page;
--
--#ifdef DUMP_HWC_READ_ERROR
--	if ((hwcb->response_code != 0x0020) &&
--	    (hwcb->response_code != 0x0220) &&
--	    (hwcb->response_code != 0x60F0) &&
--	    (hwcb->response_code != 0x62F0))
--		__asm__ ("LHI 1,0xe41\n\t"
--			 "LRA 2,0(%0)\n\t"
--			 "L 3,0(%1)\n\t"
--			 "J .+0\n\t"
--	      :
--	      :	 "a" (hwc_data.page), "a" (&(hwcb->response_code))
--	      :	 "1", "2", "3");
--#endif
--
--	hwc_data.current_servc = 0;
--	hwc_data.current_hwcb = NULL;
--
--	switch (hwcb->response_code) {
--
--	case 0x0020:
--	case 0x0220:
--		return process_evbufs (
--		     (void *) (((unsigned long) hwcb) + sizeof (read_hwcb_t)),
--			    (void *) (((unsigned long) hwcb) + hwcb->length));
--
--	case 0x60F0:
--	case 0x62F0:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "unconditional read: "
--				     "got interrupt and tried to read input, "
--				  "but nothing found (response code=0x%x).\n",
--				       hwcb->response_code);
--		return 0;
--
--	case 0x0100:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--			 "unconditional read: HWCB boundary violation - this "
--			 "must not occur in a correct driver, please contact "
--				       "author\n");
--		return -EIO;
--
--	case 0x0300:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "unconditional read: "
--			"insufficient HWCB length - this must not occur in a "
--				   "correct driver, please contact author\n");
--		return -EIO;
--
--	case 0x01F0:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--				       "unconditional read: "
--			 "invalid command - this must not occur in a correct "
--				       "driver, please contact author\n");
--		return -EIO;
--
--	case 0x40F0:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--			       "unconditional read: invalid function code\n");
--		return -EIO;
--
--	case 0x70F0:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--			      "unconditional read: invalid selection mask\n");
--		return -EIO;
--
--	case 0x0040:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--				 "unconditional read: HWC equipment check\n");
--		return -EIO;
--
--	default:
--		internal_print (
--				       IMMEDIATE_WRITE,
--				       HWC_RW_PRINT_HEADER
--			"unconditional read: invalid response code %x - this "
--			 "must not occur in a correct driver, please contact "
--				       "author\n",
--				       hwcb->response_code);
--		return -EIO;
--	}
--}
--
--static int 
--write_event_mask_1 (void)
--{
--	unsigned int condition_code;
--	int retval;
--
--	condition_code = service_call (HWC_CMDW_WRITEMASK, hwc_data.page);
--
--#ifdef DUMP_HWC_INIT_ERROR
--
--	if (condition_code == HWC_NOT_OPERATIONAL)
--		__asm__ ("LHI 1,0xe10\n\t"
--			 "L 2,0(%0)\n\t"
--			 "LRA 3,0(%1)\n\t"
--			 "J .+0\n\t"
--	      :
--	      :	 "a" (&condition_code), "a" (hwc_data.page)
--	      :	 "1", "2", "3");
--#endif
--
--	switch (condition_code) {
--	case HWC_COMMAND_INITIATED:
--		hwc_data.current_servc = HWC_CMDW_WRITEMASK;
--		hwc_data.current_hwcb = hwc_data.page;
--		retval = condition_code;
--		break;
--	case HWC_BUSY:
--		retval = -EBUSY;
--		break;
--	default:
--		retval = -EIO;
--	}
--
--	return retval;
--}
--
--static int 
--write_event_mask_2 (u32 ext_int_param)
--{
--	init_hwcb_t *hwcb = (init_hwcb_t *) hwc_data.page;
--	int retval = 0;
--
--	if (hwcb->response_code != 0x0020) {
--#ifdef DUMP_HWC_INIT_ERROR
--		__asm__ ("LHI 1,0xe11\n\t"
--			 "LRA 2,0(%0)\n\t"
--			 "L 3,0(%1)\n\t"
--			 "J .+0\n\t"
--	      :
--	      :	 "a" (hwcb), "a" (&(hwcb->response_code))
--	      :	 "1", "2", "3");
--#else
--		retval = -1;
--#endif
--	} else {
--		if (hwcb->mask_length != 4) {
--#ifdef DUMP_HWC_INIT_ERROR
--			__asm__ ("LHI 1,0xe52\n\t"
--				 "LRA 2,0(%0)\n\t"
--				 "J .+0 \n\t"
--		      :
--		      :	 "a" (hwcb)
--		      :	 "1", "2");
--#endif
--		} else {
--			retval += eval_hwc_receive_mask
--			    (hwcb->hwc_receive_mask);
--			retval += eval_hwc_send_mask (hwcb->hwc_send_mask);
--		}
--	}
--
--	hwc_data.current_servc = 0;
--	hwc_data.current_hwcb = NULL;
--
--	return retval;
--}
--
--static int 
--set_hwc_ioctls (hwc_ioctls_t * ioctls, char correct)
--{
--	int retval = 0;
--	hwc_ioctls_t tmp;
--
--	if (ioctls->width_htab > MAX_MESSAGE_SIZE) {
--		if (correct)
--			tmp.width_htab = MAX_MESSAGE_SIZE;
--		else
--			retval = -EINVAL;
--	} else
--		tmp.width_htab = ioctls->width_htab;
--
--	tmp.echo = ioctls->echo;
--
--	if (ioctls->columns > MAX_MESSAGE_SIZE) {
--		if (correct)
--			tmp.columns = MAX_MESSAGE_SIZE;
--		else
--			retval = -EINVAL;
--	} else
--		tmp.columns = ioctls->columns;
--
--	tmp.final_nl = ioctls->final_nl;
--
--	if (ioctls->max_hwcb < 2) {
--		if (correct)
--			tmp.max_hwcb = 2;
--		else
--			retval = -EINVAL;
--	} else
--		tmp.max_hwcb = ioctls->max_hwcb;
--
--	tmp.tolower = ioctls->tolower;
--
--	if (ioctls->kmem_hwcb > ioctls->max_hwcb) {
--		if (correct)
--			tmp.kmem_hwcb = ioctls->max_hwcb;
--		else
--			retval = -EINVAL;
--	} else
--		tmp.kmem_hwcb = ioctls->kmem_hwcb;
--
--	if (ioctls->kmem_hwcb > MAX_KMEM_PAGES) {
--		if (correct)
--			ioctls->kmem_hwcb = MAX_KMEM_PAGES;
--		else
--			retval = -EINVAL;
--	}
--	if (ioctls->kmem_hwcb < 2) {
--		if (correct)
--			ioctls->kmem_hwcb = 2;
--		else
--			retval = -EINVAL;
--	}
--	tmp.delim = ioctls->delim;
--
--	if (!(retval < 0))
--		hwc_data.ioctls = tmp;
--
--	return retval;
--}
--
--int 
--do_hwc_init (void)
--{
--	int retval;
--
--	memcpy (hwc_data.page, &init_hwcb_template, sizeof (init_hwcb_t));
--
--	do {
--
--		retval = write_event_mask_1 ();
--
--		if (retval == -EBUSY) {
--
--			hwc_data.flags |= HWC_INIT;
--
--			__ctl_store (cr0, 0, 0);
--			cr0_save = cr0;
--			cr0 |= 0x00000200;
--			cr0 &= 0xFFFFF3AC;
--			__ctl_load (cr0, 0, 0);
--
--			asm volatile ("STOSM %0,0x01"
--				      :"=m" (psw_mask)::"memory");
--
--			while (!(hwc_data.flags & HWC_INTERRUPT))
--				barrier ();
--
--			asm volatile ("STNSM %0,0xFE"
--				      :"=m" (psw_mask)::"memory");
--
--			__ctl_load (cr0_save, 0, 0);
--
--			hwc_data.flags &= ~HWC_INIT;
--		}
--	} while (retval == -EBUSY);
--
--	if (retval == -EIO) {
--		hwc_data.flags |= HWC_BROKEN;
--		printk (HWC_RW_PRINT_HEADER "HWC not operational\n");
--	}
--	return retval;
--}
--
--void hwc_interrupt_handler (struct pt_regs *regs, __u16 code);
--
--int 
--hwc_init (void)
--{
--	int retval;
--
--#ifdef BUFFER_STRESS_TEST
--
--	init_hwcb_t *hwcb;
--	int i;
--
--#endif
--
--	if (register_early_external_interrupt (0x2401, hwc_interrupt_handler,
--					       &ext_int_info_hwc) != 0)
--		panic ("Couldn't request external interrupts 0x2401");
--
--	spin_lock_init (&hwc_data.lock);
--
--#ifdef USE_VM_DETECTION
--
--	if (MACHINE_IS_VM) {
--
--		if (hwc_data.init_ioctls.columns > 76)
--			hwc_data.init_ioctls.columns = 76;
--		hwc_data.init_ioctls.tolower = 1;
--		if (!hwc_data.init_ioctls.delim)
--			hwc_data.init_ioctls.delim = DEFAULT_CASE_DELIMITER;
--	} else {
--		hwc_data.init_ioctls.tolower = 0;
--		hwc_data.init_ioctls.delim = 0;
--	}
--#endif
--	retval = set_hwc_ioctls (&hwc_data.init_ioctls, 1);
--
--	hwc_data.kmem_start = (unsigned long)
--	    alloc_bootmem_low_pages (hwc_data.ioctls.kmem_hwcb * PAGE_SIZE);
--	hwc_data.kmem_end = hwc_data.kmem_start +
--	    hwc_data.ioctls.kmem_hwcb * PAGE_SIZE - 1;
--
--	retval = do_hwc_init ();
--
--	ctl_set_bit (0, 9);
--
--#ifdef BUFFER_STRESS_TEST
--
--	internal_print (
--			       DELAYED_WRITE,
--			       HWC_RW_PRINT_HEADER
--			       "use %i bytes for buffering.\n",
--			       hwc_data.ioctls.kmem_hwcb * PAGE_SIZE);
--	for (i = 0; i < 500; i++) {
--		hwcb = (init_hwcb_t *) BUF_HWCB;
--		internal_print (
--				       DELAYED_WRITE,
--				       HWC_RW_PRINT_HEADER
--			  "This is stress test message #%i, free: %i bytes\n",
--				       i,
--			     MAX_HWCB_ROOM - (hwcb->length + sizeof (mto_t)));
--	}
--
--#endif
--
--	return /*retval */ 0;
--}
--
--signed int 
--hwc_register_calls (hwc_high_level_calls_t * calls)
--{
--	if (calls == NULL)
--		return -EINVAL;
--
--	if (hwc_data.calls != NULL)
--		return -EBUSY;
--
--	hwc_data.calls = calls;
--	return 0;
--}
--
--signed int 
--hwc_unregister_calls (hwc_high_level_calls_t * calls)
--{
--	if (hwc_data.calls == NULL)
--		return -EINVAL;
--
--	if (calls != hwc_data.calls)
--		return -EINVAL;
--
--	hwc_data.calls = NULL;
--	return 0;
--}
--
--int 
--hwc_send (hwc_request_t * req)
--{
--	unsigned long flags;
--	int retval;
--	int cc;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--	if (!req || !req->callback || !req->block) {
--		retval = -EINVAL;
--		goto unlock;
--	}
--	if (hwc_data.request) {
--		retval = -ENOTSUPP;
--		goto unlock;
--	}
--	cc = service_call (req->word, req->block);
--	switch (cc) {
--	case 0:
--		hwc_data.request = req;
--		hwc_data.current_servc = req->word;
--		hwc_data.current_hwcb = req->block;
--		retval = 0;
--		break;
--	case 2:
--		retval = -EBUSY;
--		break;
--	default:
--		retval = -ENOSYS;
--
--	}
--      unlock:
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--	return retval;
--}
--
--EXPORT_SYMBOL (hwc_send);
--
--void 
--do_hwc_callback (u32 ext_int_param)
--{
--	if (!hwc_data.request || !hwc_data.request->callback)
--		return;
--	if ((ext_int_param & HWC_EXT_INT_PARAM_ADDR)
--	    != (unsigned long) hwc_data.request->block)
--		return;
--	hwc_data.request->callback (hwc_data.request);
--	hwc_data.request = NULL;
--	hwc_data.current_hwcb = NULL;
--	hwc_data.current_servc = 0;
--}
--
--void 
--hwc_do_interrupt (u32 ext_int_param)
--{
--	u32 finished_hwcb = ext_int_param & HWC_EXT_INT_PARAM_ADDR;
--	u32 evbuf_pending = ext_int_param & HWC_EXT_INT_PARAM_PEND;
--
--	if (hwc_data.flags & HWC_PTIMER_RUNS) {
--		del_timer (&hwc_data.poll_timer);
--		hwc_data.flags &= ~HWC_PTIMER_RUNS;
--	}
--	if (finished_hwcb) {
--
--		if ((unsigned long) hwc_data.current_hwcb != finished_hwcb) {
--			internal_print (
--					       DELAYED_WRITE,
--					       HWC_RW_PRINT_HEADER
--					       "interrupt: mismatch: "
--					       "ext. int param. (0x%x) vs. "
--					       "current HWCB (0x%x)\n",
--					       ext_int_param,
--					       hwc_data.current_hwcb);
--		} else {
--			if (hwc_data.request) {
--
--				do_hwc_callback (ext_int_param);
--			} else {
--
--				switch (hwc_data.current_servc) {
--
--				case HWC_CMDW_WRITEMASK:
--
--					write_event_mask_2 (ext_int_param);
--					break;
--
--				case HWC_CMDW_WRITEDATA:
--
--					write_event_data_2 (ext_int_param);
--					break;
--
--				case HWC_CMDW_READDATA:
--
--					unconditional_read_2 (ext_int_param);
--					break;
--				default:
--					break;
--				}
--			}
--		}
--	} else {
--
--		if (hwc_data.current_hwcb) {
--			internal_print (
--					       DELAYED_WRITE,
--					       HWC_RW_PRINT_HEADER
--					       "interrupt: mismatch: "
--					       "ext. int. param. (0x%x) vs. "
--					       "current HWCB (0x%x)\n",
--					       ext_int_param,
--					       hwc_data.current_hwcb);
--		}
--	}
--
--	if (evbuf_pending) {
--
--		unconditional_read_1 ();
--	} else {
--
--		write_event_data_1 ();
--	}
--
--	if (!hwc_data.calls || !hwc_data.calls->wake_up)
--		return;
--	(hwc_data.calls->wake_up) ();
--}
--
--void 
--hwc_interrupt_handler (struct pt_regs *regs, __u16 code)
--{
--	u32 ext_int_param = hwc_ext_int_param ();
--
--	irq_enter ();
--
--	if (hwc_data.flags & HWC_INIT) {
--
--		hwc_data.flags |= HWC_INTERRUPT;
--	} else if (hwc_data.flags & HWC_BROKEN) {
--
--		if (!do_hwc_init ()) {
--			hwc_data.flags &= ~HWC_BROKEN;
--			internal_print (DELAYED_WRITE,
--					HWC_RW_PRINT_HEADER
--					"delayed HWC setup after"
--					" temporary breakdown"
--					" (ext. int. parameter=0x%x)\n",
--					ext_int_param);
--		}
--	} else {
--		spin_lock (&hwc_data.lock);
--		hwc_do_interrupt (ext_int_param);
--		spin_unlock (&hwc_data.lock);
--	}
--	irq_exit ();
--}
--
--void 
--hwc_unblank (void)
--{
--
--	spin_lock (&hwc_data.lock);
--	spin_unlock (&hwc_data.lock);
--
--	__ctl_store (cr0, 0, 0);
--	cr0_save = cr0;
--	cr0 |= 0x00000200;
--	cr0 &= 0xFFFFF3AC;
--	__ctl_load (cr0, 0, 0);
--
--	asm volatile ("STOSM %0,0x01":"=m" (psw_mask)::"memory");
--
--	while (ALL_HWCB_CHAR)
--		barrier ();
--
--	asm volatile ("STNSM %0,0xFE":"=m" (psw_mask)::"memory");
--
--	__ctl_load (cr0_save, 0, 0);
--}
--
--int 
--hwc_ioctl (unsigned int cmd, unsigned long arg)
--{
--	hwc_ioctls_t tmp = hwc_data.ioctls;
--	int retval = 0;
--	unsigned long flags;
--	unsigned int obuf;
--
--	spin_lock_irqsave (&hwc_data.lock, flags);
--
--	switch (cmd) {
--
--	case TIOCHWCSHTAB:
--		if (get_user (tmp.width_htab, (ioctl_htab_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSECHO:
--		if (get_user (tmp.echo, (ioctl_echo_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSCOLS:
--		if (get_user (tmp.columns, (ioctl_cols_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSNL:
--		if (get_user (tmp.final_nl, (ioctl_nl_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSOBUF:
--		if (get_user (obuf, (unsigned int *) arg))
--			goto fault;
--		if (obuf & 0xFFF)
--			tmp.max_hwcb = (((obuf | 0xFFF) + 1) >> 12);
--		else
--			tmp.max_hwcb = (obuf >> 12);
--		break;
--
--	case TIOCHWCSCASE:
--		if (get_user (tmp.tolower, (ioctl_case_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSDELIM:
--		if (get_user (tmp.delim, (ioctl_delim_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCSINIT:
--		retval = set_hwc_ioctls (&hwc_data.init_ioctls, 1);
--		break;
--
--	case TIOCHWCGHTAB:
--		if (put_user (tmp.width_htab, (ioctl_htab_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGECHO:
--		if (put_user (tmp.echo, (ioctl_echo_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGCOLS:
--		if (put_user (tmp.columns, (ioctl_cols_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGNL:
--		if (put_user (tmp.final_nl, (ioctl_nl_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGOBUF:
--		if (put_user (tmp.max_hwcb, (ioctl_obuf_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGKBUF:
--		if (put_user (tmp.kmem_hwcb, (ioctl_obuf_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGCASE:
--		if (put_user (tmp.tolower, (ioctl_case_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGDELIM:
--		if (put_user (tmp.delim, (ioctl_delim_t *) arg))
--			goto fault;
--		break;
--#if 0
--
--	case TIOCHWCGINIT:
--		if (put_user (&hwc_data.init_ioctls, (hwc_ioctls_t *) arg))
--			goto fault;
--		break;
--
--	case TIOCHWCGCURR:
--		if (put_user (&hwc_data.ioctls, (hwc_ioctls_t *) arg))
--			goto fault;
--		break;
--#endif
--
--	default:
--		goto noioctlcmd;
--	}
--
--	if (_IOC_DIR (cmd) == _IOC_WRITE)
--		retval = set_hwc_ioctls (&tmp, 0);
--
--	goto out;
--
--      fault:
--	retval = -EFAULT;
--	goto out;
--      noioctlcmd:
--	retval = -ENOIOCTLCMD;
--      out:
--	spin_unlock_irqrestore (&hwc_data.lock, flags);
--	return retval;
--}
-diff -urN linux-2.5.48/drivers/s390/char/hwc_rw.h linux-2.5.48-s390/drivers/s390/char/hwc_rw.h
---- linux-2.5.48/drivers/s390/char/hwc_rw.h	Mon Nov 18 05:29:29 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc_rw.h	Thu Jan  1 01:00:00 1970
-@@ -1,132 +0,0 @@
--/*
-- *  drivers/s390/char/hwc_rw.h
-- *    interface to the HWC-read/write driver 
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-- */
--
--#ifndef __HWC_RW_H__
--#define __HWC_RW_H__
--
--#include <linux/ioctl.h>
--
--typedef struct {
--
--	void (*move_input) (unsigned char *, unsigned int);
--
--	void (*wake_up) (void);
--} hwc_high_level_calls_t;
--
--struct _hwc_request;
--
--typedef void hwc_callback_t (struct _hwc_request *);
--
--typedef struct _hwc_request {
--	void *block;
--	u32 word;
--	hwc_callback_t *callback;
--	void *data;
--} __attribute__ ((packed)) 
--
--hwc_request_t;
--
--#define HWC_ASCEBC(x) ((MACHINE_IS_VM ? _ascebc[x] : _ascebc_500[x]))
--
--#define HWC_EBCASC_STR(s,c) ((MACHINE_IS_VM ? EBCASC(s,c) : EBCASC_500(s,c)))
--
--#define HWC_ASCEBC_STR(s,c) ((MACHINE_IS_VM ? ASCEBC(s,c) : ASCEBC_500(s,c)))
--
--#define IN_HWCB      1
--#define IN_WRITE_BUF 2
--#define IN_BUFS_TOTAL        (IN_HWCB | IN_WRITE_BUF)
--
--typedef unsigned short int ioctl_htab_t;
--typedef unsigned char ioctl_echo_t;
--typedef unsigned short int ioctl_cols_t;
--typedef signed char ioctl_nl_t;
--typedef unsigned short int ioctl_obuf_t;
--typedef unsigned char ioctl_case_t;
--typedef unsigned char ioctl_delim_t;
--
--typedef struct {
--	ioctl_htab_t width_htab;
--	ioctl_echo_t echo;
--	ioctl_cols_t columns;
--	ioctl_nl_t final_nl;
--	ioctl_obuf_t max_hwcb;
--	ioctl_obuf_t kmem_hwcb;
--	ioctl_case_t tolower;
--	ioctl_delim_t delim;
--} hwc_ioctls_t;
--
--extern hwc_ioctls_t _hwc_ioctls;
--
--#define HWC_IOCTL_LETTER 'B'
--
--#define TIOCHWCSHTAB	_IOW(HWC_IOCTL_LETTER, 0, _hwc_ioctls.width_htab)
--
--#define TIOCHWCSECHO	_IOW(HWC_IOCTL_LETTER, 1, _hwc_ioctls.echo)
--
--#define TIOCHWCSCOLS	_IOW(HWC_IOCTL_LETTER, 2, _hwc_ioctls.columns)
--
--#define TIOCHWCSNL	_IOW(HWC_IOCTL_LETTER, 4, _hwc_ioctls.final_nl)
--
--#define TIOCHWCSOBUF	_IOW(HWC_IOCTL_LETTER, 5, _hwc_ioctls.max_hwcb)
--
--#define TIOCHWCSINIT	_IO(HWC_IOCTL_LETTER, 6)
--
--#define TIOCHWCSCASE	_IOW(HWC_IOCTL_LETTER, 7, _hwc_ioctls.tolower)
--
--#define TIOCHWCSDELIM	_IOW(HWC_IOCTL_LETTER, 9, _hwc_ioctls.delim)
--
--#define TIOCHWCGHTAB	_IOR(HWC_IOCTL_LETTER, 10, _hwc_ioctls.width_htab)
--
--#define TIOCHWCGECHO	_IOR(HWC_IOCTL_LETTER, 11, _hwc_ioctls.echo)
--
--#define TIOCHWCGCOLS	_IOR(HWC_IOCTL_LETTER, 12, _hwc_ioctls.columns)
--
--#define TIOCHWCGNL	_IOR(HWC_IOCTL_LETTER, 14, _hwc_ioctls.final_nl)
--
--#define TIOCHWCGOBUF	_IOR(HWC_IOCTL_LETTER, 15, _hwc_ioctls.max_hwcb)
--
--#define TIOCHWCGINIT	_IOR(HWC_IOCTL_LETTER, 16, _hwc_ioctls)
--
--#define TIOCHWCGCASE	_IOR(HWC_IOCTL_LETTER, 17, _hwc_ioctls.tolower)
--
--#define TIOCHWCGDELIM	_IOR(HWC_IOCTL_LETTER, 19, _hwc_ioctls.delim)
--
--#define TIOCHWCGKBUF	_IOR(HWC_IOCTL_LETTER, 20, _hwc_ioctls.max_hwcb)
--
--#define TIOCHWCGCURR	_IOR(HWC_IOCTL_LETTER, 21, _hwc_ioctls)
--
--#ifndef __HWC_RW_C__
--
--extern int hwc_init (void);
--
--extern int hwc_write (int from_user, const unsigned char *, unsigned int);
--
--extern unsigned int hwc_chars_in_buffer (unsigned char);
--
--extern unsigned int hwc_write_room (unsigned char);
--
--extern void hwc_flush_buffer (unsigned char);
--
--extern void hwc_unblank (void);
--
--extern signed int hwc_ioctl (unsigned int, unsigned long);
--
--extern void do_hwc_interrupt (void);
--
--extern int hwc_printk (const char *,...);
--
--extern signed int hwc_register_calls (hwc_high_level_calls_t *);
--
--extern signed int hwc_unregister_calls (hwc_high_level_calls_t *);
--
--extern int hwc_send (hwc_request_t *);
--
--#endif
--
--#endif
-diff -urN linux-2.5.48/drivers/s390/char/hwc_tty.c linux-2.5.48-s390/drivers/s390/char/hwc_tty.c
---- linux-2.5.48/drivers/s390/char/hwc_tty.c	Mon Nov 18 05:29:55 2002
-+++ linux-2.5.48-s390/drivers/s390/char/hwc_tty.c	Thu Jan  1 01:00:00 1970
-@@ -1,276 +0,0 @@
--/*
-- *  drivers/s390/char/hwc_tty.c
-- *    HWC line mode terminal driver.
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-- *
-- *  Thanks to Martin Schwidefsky.
-- */
--
--#include <linux/config.h>
--#include <linux/major.h>
--#include <linux/termios.h>
--#include <linux/tty.h>
--#include <linux/tty_driver.h>
--#include <linux/sched.h>
--#include <linux/mm.h>
--#include <linux/devfs_fs_kernel.h>
--#include <linux/init.h>
--
--#include <asm/uaccess.h>
--
--#include "hwc_rw.h"
--#include "ctrlchar.h"
--
--#define HWC_TTY_PRINT_HEADER "hwc tty driver: "
--
--#define HWC_TTY_BUF_SIZE 512
--
--typedef struct {
--
--	struct tty_struct *tty;
--
--	unsigned char buf[HWC_TTY_BUF_SIZE];
--
--	unsigned short int buf_count;
--
--	spinlock_t lock;
--
--	hwc_high_level_calls_t calls;
--} hwc_tty_data_struct;
--
--static hwc_tty_data_struct hwc_tty_data =
--{ /* NULL/0 */ };
--static struct tty_driver hwc_tty_driver;
--static struct tty_struct *hwc_tty_table[1];
--static struct termios *hwc_tty_termios[1];
--static struct termios *hwc_tty_termios_locked[1];
--static int hwc_tty_refcount = 0;
--
--extern struct termios tty_std_termios;
--
--void hwc_tty_wake_up (void);
--void hwc_tty_input (unsigned char *, unsigned int);
--
--static int 
--hwc_tty_open (struct tty_struct *tty,
--	      struct file *filp)
--{
--
--	if (minor (tty->device) - tty->driver.minor_start)
--		return -ENODEV;
--
--	tty->driver_data = &hwc_tty_data;
--	hwc_tty_data.buf_count = 0;
--	hwc_tty_data.tty = tty;
--	tty->low_latency = 0;
--
--	hwc_tty_data.calls.wake_up = hwc_tty_wake_up;
--	hwc_tty_data.calls.move_input = hwc_tty_input;
--	hwc_register_calls (&(hwc_tty_data.calls));
--
--	return 0;
--}
--
--static void 
--hwc_tty_close (struct tty_struct *tty,
--	       struct file *filp)
--{
--	if (minor (tty->device) != tty->driver.minor_start) {
--		printk (KERN_WARNING HWC_TTY_PRINT_HEADER
--			"do not close hwc tty because of wrong device number");
--		return;
--	}
--	if (tty->count > 1)
--		return;
--
--	hwc_tty_data.tty = NULL;
--
--	hwc_unregister_calls (&(hwc_tty_data.calls));
--}
--
--static int 
--hwc_tty_write_room (struct tty_struct *tty)
--{
--	int retval;
--
--	retval = hwc_write_room (IN_BUFS_TOTAL);
--	return retval;
--}
--
--static int 
--hwc_tty_write (struct tty_struct *tty,
--	       int from_user,
--	       const unsigned char *buf,
--	       int count)
--{
--	int retval;
--
--	if (hwc_tty_data.buf_count > 0) {
--		hwc_write (0, hwc_tty_data.buf, hwc_tty_data.buf_count);
--		hwc_tty_data.buf_count = 0;
--	}
--	retval = hwc_write (from_user, buf, count);
--	return retval;
--}
--
--static void 
--hwc_tty_put_char (struct tty_struct *tty,
--		  unsigned char ch)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_tty_data.lock, flags);
--	if (hwc_tty_data.buf_count >= HWC_TTY_BUF_SIZE) {
--		hwc_write (0, hwc_tty_data.buf, hwc_tty_data.buf_count);
--		hwc_tty_data.buf_count = 0;
--	}
--	hwc_tty_data.buf[hwc_tty_data.buf_count] = ch;
--	hwc_tty_data.buf_count++;
--	spin_unlock_irqrestore (&hwc_tty_data.lock, flags);
--}
--
--static void 
--hwc_tty_flush_chars (struct tty_struct *tty)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave (&hwc_tty_data.lock, flags);
--	hwc_write (0, hwc_tty_data.buf, hwc_tty_data.buf_count);
--	hwc_tty_data.buf_count = 0;
--	spin_unlock_irqrestore (&hwc_tty_data.lock, flags);
--}
--
--static int 
--hwc_tty_chars_in_buffer (struct tty_struct *tty)
--{
--	int retval;
--
--	retval = hwc_chars_in_buffer (IN_BUFS_TOTAL);
--	return retval;
--}
--
--static void 
--hwc_tty_flush_buffer (struct tty_struct *tty)
--{
--	hwc_tty_wake_up ();
--}
--
--static int 
--hwc_tty_ioctl (
--		      struct tty_struct *tty,
--		      struct file *file,
--		      unsigned int cmd,
--		      unsigned long arg)
--{
--	if (tty->flags & (1 << TTY_IO_ERROR))
--		return -EIO;
--
--	return hwc_ioctl (cmd, arg);
--}
--
--void 
--hwc_tty_wake_up (void)
--{
--	if (hwc_tty_data.tty == NULL)
--		return;
--	if ((hwc_tty_data.tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
--	    hwc_tty_data.tty->ldisc.write_wakeup)
--		(hwc_tty_data.tty->ldisc.write_wakeup) (hwc_tty_data.tty);
--	wake_up_interruptible (&hwc_tty_data.tty->write_wait);
--}
--
--void 
--hwc_tty_input (unsigned char *buf, unsigned int count)
--{
--	struct tty_struct *tty = hwc_tty_data.tty;
--
--	if (tty != NULL) {
--		unsigned int cchar = ctrlchar_handle(buf, count, tty);
--
--		switch (cchar & CTRLCHAR_MASK) {
--		case CTRLCHAR_SYSRQ:
--			return;
--
--		case CTRLCHAR_CTRL:
--			tty->flip.count++;
--			*tty->flip.flag_buf_ptr++ = TTY_NORMAL;
--			*tty->flip.char_buf_ptr++ = cchar;
--			break;
--
--		case CTRLCHAR_NONE:
--			memcpy (tty->flip.char_buf_ptr, buf, count);
--			if (count < 2 || (
--					 strncmp (buf + count - 2, "^n", 2) ||
--				    strncmp (buf + count - 2, "\0252n", 2))) {
--				tty->flip.char_buf_ptr[count] = '\n';
--				count++;
--			} else
--				count -= 2;
--			memset (tty->flip.flag_buf_ptr, TTY_NORMAL, count);
--			tty->flip.char_buf_ptr += count;
--			tty->flip.flag_buf_ptr += count;
--			tty->flip.count += count;
--			break;
--		}
--		tty_flip_buffer_push (tty);
--		hwc_tty_wake_up ();
--	}
--}
--
--void 
--hwc_tty_init (void)
--{
--	if (!CONSOLE_IS_HWC)
--		return;
--
--	memset (&hwc_tty_driver, 0, sizeof (struct tty_driver));
--	memset (&hwc_tty_data, 0, sizeof (hwc_tty_data_struct));
--	hwc_tty_driver.magic = TTY_DRIVER_MAGIC;
--	hwc_tty_driver.driver_name = "tty_hwc";
--	hwc_tty_driver.name = "ttyS";
--	hwc_tty_driver.name_base = 0;
--	hwc_tty_driver.major = TTY_MAJOR;
--	hwc_tty_driver.minor_start = 64;
--	hwc_tty_driver.num = 1;
--	hwc_tty_driver.type = TTY_DRIVER_TYPE_SYSTEM;
--	hwc_tty_driver.subtype = SYSTEM_TYPE_TTY;
--	hwc_tty_driver.init_termios = tty_std_termios;
--	hwc_tty_driver.init_termios.c_iflag = IGNBRK | IGNPAR;
--	hwc_tty_driver.init_termios.c_oflag = ONLCR;
--	hwc_tty_driver.init_termios.c_lflag = ISIG | ECHO;
--	hwc_tty_driver.flags = TTY_DRIVER_REAL_RAW;
--	hwc_tty_driver.refcount = &hwc_tty_refcount;
--
--	hwc_tty_driver.table = hwc_tty_table;
--	hwc_tty_driver.termios = hwc_tty_termios;
--	hwc_tty_driver.termios_locked = hwc_tty_termios_locked;
--
--	hwc_tty_driver.open = hwc_tty_open;
--	hwc_tty_driver.close = hwc_tty_close;
--	hwc_tty_driver.write = hwc_tty_write;
--	hwc_tty_driver.put_char = hwc_tty_put_char;
--	hwc_tty_driver.flush_chars = hwc_tty_flush_chars;
--	hwc_tty_driver.write_room = hwc_tty_write_room;
--	hwc_tty_driver.chars_in_buffer = hwc_tty_chars_in_buffer;
--	hwc_tty_driver.flush_buffer = hwc_tty_flush_buffer;
--	hwc_tty_driver.ioctl = hwc_tty_ioctl;
--
--	hwc_tty_driver.throttle = NULL;
--	hwc_tty_driver.unthrottle = NULL;
--	hwc_tty_driver.send_xchar = NULL;
--	hwc_tty_driver.set_termios = NULL;
--	hwc_tty_driver.set_ldisc = NULL;
--	hwc_tty_driver.stop = NULL;
--	hwc_tty_driver.start = NULL;
--	hwc_tty_driver.hangup = NULL;
--	hwc_tty_driver.break_ctl = NULL;
--	hwc_tty_driver.wait_until_sent = NULL;
--	hwc_tty_driver.read_proc = NULL;
--	hwc_tty_driver.write_proc = NULL;
--
--	if (tty_register_driver (&hwc_tty_driver))
--		panic ("Couldn't register hwc_tty driver\n");
--}
-diff -urN linux-2.5.48/include/asm-s390/setup.h linux-2.5.48-s390/include/asm-s390/setup.h
---- linux-2.5.48/include/asm-s390/setup.h	Mon Nov 18 05:29:54 2002
-+++ linux-2.5.48-s390/include/asm-s390/setup.h	Mon Nov 18 20:14:32 2002
-@@ -31,7 +31,7 @@
- #define MACHINE_HAS_CSP  (machine_flags & 8)
- #define MACHINE_HAS_MVPG (machine_flags & 16)
- 
--#define MACHINE_HAS_HWC  (!MACHINE_IS_P390)
-+#define MACHINE_HAS_SCLP (!MACHINE_IS_P390)
- 
- /*
-  * Console mode. Override with conmode=
-@@ -40,10 +40,10 @@
- extern unsigned int console_device;
- 
- #define CONSOLE_IS_UNDEFINED	(console_mode == 0)
--#define CONSOLE_IS_HWC		(console_mode == 1)
-+#define CONSOLE_IS_SCLP		(console_mode == 1)
- #define CONSOLE_IS_3215		(console_mode == 2)
- #define CONSOLE_IS_3270		(console_mode == 3)
--#define SET_CONSOLE_HWC		do { console_mode = 1; } while (0)
-+#define SET_CONSOLE_SCLP	do { console_mode = 1; } while (0)
- #define SET_CONSOLE_3215	do { console_mode = 2; } while (0)
- #define SET_CONSOLE_3270	do { console_mode = 3; } while (0)
- 
-diff -urN linux-2.5.48/include/asm-s390x/setup.h linux-2.5.48-s390/include/asm-s390x/setup.h
---- linux-2.5.48/include/asm-s390x/setup.h	Mon Nov 18 05:29:48 2002
-+++ linux-2.5.48-s390/include/asm-s390x/setup.h	Mon Nov 18 20:14:32 2002
-@@ -30,7 +30,7 @@
- #define MACHINE_HAS_MVPG	(machine_flags & 16)
- #define MACHINE_HAS_DIAG44	(machine_flags & 32)
- 
--#define MACHINE_HAS_HWC		(!MACHINE_IS_P390)
-+#define MACHINE_HAS_SCLP	(!MACHINE_IS_P390)
- 
- /*
-  * Console mode. Override with conmode=
-@@ -39,10 +39,10 @@
- extern unsigned int console_device;
- 
- #define CONSOLE_IS_UNDEFINED	(console_mode == 0)
--#define CONSOLE_IS_HWC		(console_mode == 1)
-+#define CONSOLE_IS_SCLP		(console_mode == 1)
- #define CONSOLE_IS_3215		(console_mode == 2)
- #define CONSOLE_IS_3270		(console_mode == 3)
--#define SET_CONSOLE_HWC		do { console_mode = 1; } while (0)
-+#define SET_CONSOLE_SCLP	do { console_mode = 1; } while (0)
- #define SET_CONSOLE_3215	do { console_mode = 2; } while (0)
- #define SET_CONSOLE_3270	do { console_mode = 3; } while (0)
- 
++#include <linux/config.h>
++#include <linux/version.h>
++#include <linux/kmod.h>
++#include <linux/bootmem.h>
++#include <linux/err.h>
++#include <linux/ptrace.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/interrupt.h>
++#include <asm/s390_ext.h>
++
++#include "sclp.h"
++
++#define SCLP_CORE_PRINT_HEADER "sclp low level driver: "
++
++/*
++ * decides wether we make use of the macro MACHINE_IS_VM to
++ * configure the driver for VM at run time (a little bit
++ * different behaviour); otherwise we use the default
++ * settings in sclp_data.init_ioctls
++ */
++#define	 USE_VM_DETECTION
++
++/* Structure for register_early_external_interrupt. */
++static ext_int_info_t ext_int_info_hwc;
++
++/* spinlock to protect global variables of sclp_core */
++static spinlock_t sclp_lock;
++
++/* Mask of valid sclp events */
++static sccb_mask_t sclp_receive_mask;
++static sccb_mask_t sclp_send_mask;
++
++/* List of registered event types */
++static struct list_head sclp_reg_list;
++
++/* sccb queue */
++struct list_head sclp_req_queue;
++
++/* sccb for unconditional read */
++static struct sclp_req sclp_read_req;
++static char sclp_read_sccb[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
++/* sccb for write mask sccb */
++static char sclp_init_sccb[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
++
++static unsigned long sclp_status = 0;
++/* some status flags */
++#define SCLP_INIT		0
++#define SCLP_RUNNING		1
++#define SCLP_READING		2
++
++/*
++ * assembler instruction for Service Call
++ */
++static int
++__service_call(sclp_cmdw_t command, void *sccb)
++{
++	int cc;
++
++	/*
++	 *  Mnemonic:	SERVC	Rx, Ry	[RRE]
++	 *
++	 *  Rx: SCLP command word
++	 *  Ry: address of SCCB
++	 */
++	__asm__ __volatile__(
++		"   .insn rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
++		"   ipm	  %0\n"
++		"   srl	  %0,28"
++		: "=&d" (cc)
++		: "d" (command), "a" (__pa(sccb))
++		: "cc", "memory" );
++	/*
++	 * cc == 0:   Service Call succesful initiated
++	 * cc == 2:   SCLP busy, new Service Call not initiated,
++	 *	      new SCCB unchanged
++	 * cc == 3:   SCLP function not operational
++	 */
++	if (cc == 3)
++		return -EIO;
++	/*
++	 * We set the SCLP_RUNNING bit for cc 2 as well because if
++	 * service_call returns cc 2 some old request is running
++	 * that has to complete first
++	 */
++	set_bit(SCLP_RUNNING, &sclp_status);
++	if (cc == 2)
++		return -EBUSY;
++	return 0;
++}
++
++static int
++__sclp_start_request(void)
++{
++	struct sclp_req *req;
++	int rc;
++
++	/* quick exit if sclp is already in use */
++	if (test_bit(SCLP_RUNNING, &sclp_status))
++		return -EBUSY;
++	/* quick exit if queue is empty */
++	if (list_empty(&sclp_req_queue))
++		return -EINVAL;
++	/* try to start the first request on the request queue. */
++	req = list_entry(sclp_req_queue.next, struct sclp_req, list);
++	rc = __service_call(req->command, req->sccb);
++	switch (rc) {
++	case 0:
++		req->status = SCLP_REQ_RUNNING;
++		break;
++	case -EIO:
++		req->status = SCLP_REQ_FAILED;
++		if (req->callback != NULL)
++			req->callback(req, req->callback_data);
++		break;
++	}
++	return rc;
++}
++
++static int
++sclp_process_evbufs(struct sccb_header *sccb)
++{
++	unsigned long flags;
++	struct evbuf_header *evbuf;
++	struct list_head *l;
++	struct sclp_register *t;
++
++	spin_lock_irqsave(&sclp_lock, flags);
++	evbuf = (struct evbuf_header *) (sccb + 1);
++	while ((void *) evbuf < (void *) sccb + sccb->length) {
++		/* check registered event */
++		list_for_each(l, &sclp_reg_list) {
++			t = list_entry(l, struct sclp_register, list);
++			if (t->receive_mask & (1 << (32 - evbuf->type))) {
++				if (t->receiver_fn != NULL)
++					t->receiver_fn(evbuf);
++				break;
++			}
++		}
++	}
++	spin_unlock_irqrestore(&sclp_lock, flags);
++	return -ENOSYS;
++}
++
++/*
++ * postprocessing of unconditional read service call
++ */
++static void
++sclp_unconditional_read_cb(struct sclp_req *read_req, void *data)
++{
++	static struct {
++		u16 code; char *msg;
++	} errors[] = {
++		{ 0x0040, "SCLP equipment check" },
++		{ 0x0100, "SCCB boundary violation" },
++		{ 0x01f0, "invalid command" },
++		{ 0x0300, "insufficient SCCB length" },
++		{ 0x40f0, "invalid function code" },
++		{ 0x60f0, "got interrupt but no data found" },
++		{ 0x62f0, "got interrupt but no data found" },
++		{ 0x70f0, "invalid selection mask" }
++	};
++	struct sccb_header *sccb;
++	char *errmsg;
++	int i;
++
++	sccb = read_req->sccb;
++	if (sccb->response_code == 0x0020 ||
++	    sccb->response_code == 0x0220) {
++		/* normal read completion, event buffers stored in sccb */
++		if (sclp_process_evbufs(sccb) == 0) {
++			clear_bit(SCLP_READING, &sclp_status);
++			return;
++		}
++		errmsg = "invalid response code";
++	} else {
++		errmsg = NULL;
++		for (i = 0; i < sizeof(errors)/sizeof(errors[0]); i++)
++			if (sccb->response_code == errors[i].code) {
++				errmsg = errors[i].msg;
++				break;
++			}
++		if (errmsg == NULL)
++			errmsg = "invalid response code";
++	}
++	printk(KERN_WARNING SCLP_CORE_PRINT_HEADER
++	       "unconditional read: %s (response code =0x%x).\n",
++	       errmsg, sccb->response_code);
++	clear_bit(SCLP_READING, &sclp_status);
++}
++
++/*
++ * Function to issue Read Event Data/Unconditional Read
++ */
++static void
++__sclp_unconditional_read(void)
++{
++	struct sccb_header *sccb;
++	struct sclp_req *read_req;
++
++	/*
++	 * Don´t try to initiate Unconditional Read if we are not able to
++	 * receive anything
++	 */
++	if (sclp_receive_mask == 0)
++		return;
++	/* Don't try reading if a read is already outstanding */
++	if (test_and_set_bit(SCLP_READING, &sclp_status))
++		return;
++	/* Initialise read sccb */
++	sccb = (struct sccb_header *) sclp_read_sccb;
++	clear_page(sccb);
++	sccb->length = PAGE_SIZE;
++	sccb->function_code = 0;	/* unconditional read */
++	sccb->control_mask[2] = 0x80;	/* variable length response */
++	/* stick the request structure to the end of the page */
++	read_req = &sclp_read_req;
++	read_req->command = SCLP_CMDW_READDATA;
++	read_req->status = SCLP_REQ_QUEUED;
++	read_req->callback = sclp_unconditional_read_cb;
++	read_req->sccb = sccb;
++	/* Add read request to the head of queue */
++	list_add(&read_req->list, &sclp_req_queue);
++}
++
++/*
++ * Handler for service-signal external interruptions
++ */
++static void
++sclp_interrupt_handler(struct pt_regs *regs, __u16 code)
++{
++	u32 ext_int_param, finished_sccb, evbuf_pending;
++	struct list_head *l;
++	struct sclp_req *req, *tmp;
++	int cpu;
++
++	cpu = smp_processor_id();
++	ext_int_param = S390_lowcore.ext_params;
++	finished_sccb = ext_int_param & -8U;
++	evbuf_pending = ext_int_param & 1;
++	irq_enter();
++	/*
++	 * Only do request callsbacks if sclp is initialised.
++	 * This avoids strange effects for a pending request
++	 * from before the last re-ipl.
++	 */
++	if (test_bit(SCLP_INIT, &sclp_status)) {
++		spin_lock(&sclp_lock);
++		req = NULL;
++		if (finished_sccb != 0U) {
++			list_for_each(l, &sclp_req_queue) {
++				tmp = list_entry(l, struct sclp_req, list);
++				if (finished_sccb == (u32)(addr_t) tmp->sccb) {
++					list_del(&tmp->list);
++					req = tmp;
++					break;
++				}
++			}
++		}
++		spin_unlock(&sclp_lock);
++		if (req != NULL) {
++			req->status = SCLP_REQ_DONE;
++			if (req->callback != NULL)
++				req->callback(req, req->callback_data);
++		}
++	}
++	spin_lock(&sclp_lock);
++	/* Head queue a read sccb if an event buffer is pending */
++	if (evbuf_pending)
++		__sclp_unconditional_read();
++	/* Now clear the running bit */
++	clear_bit(SCLP_RUNNING, &sclp_status);
++	/* and start next request on the queue */
++	__sclp_start_request();
++	spin_unlock(&sclp_lock);
++	irq_exit();
++}
++
++/*
++ * Wait synchronously for external interrupt of sclp. We may not receive
++ * any other external interrupt, so we disable all other external interrupts
++ * in control register 0.
++ */
++void
++sclp_sync_wait(void)
++{
++	unsigned long psw_mask;
++	unsigned long cr0, cr0_sync;
++
++	/*
++	 * save cr0
++	 * enable service signal external interruption (cr0.22)
++	 * disable cr0.20-21, cr0.25, cr0.27, cr0.30-31
++	 * don't touch any other bit in cr0
++	 */
++	__ctl_store(cr0, 0, 0);
++	cr0_sync = cr0;
++	cr0_sync |= 0x00000200;
++	cr0_sync &= 0xFFFFF3AC;
++	__ctl_load(cr0_sync, 0, 0);
++
++	/* enable external interruptions (PSW-mask.7) */
++	asm volatile ("STOSM 0(%1),0x01"
++		      : "=m" (psw_mask) : "a" (&psw_mask) : "memory");
++
++	/* wait until ISR signals receipt of interrupt */
++	while (test_bit(SCLP_RUNNING, &sclp_status))
++		barrier();
++
++	/* disable external interruptions */
++	asm volatile ("SSM 0(%0)"
++		      : : "a" (&psw_mask) : "memory");
++
++	/* restore cr0 */
++	__ctl_load(cr0, 0, 0);
++}
++
++/*
++ * Queue a request to the tail of the ccw_queue. Start the I/O if
++ * possible.
++ */
++void
++sclp_add_request(struct sclp_req *req)
++{
++	unsigned long flags;
++
++	if (!test_bit(SCLP_INIT, &sclp_status))
++		return;
++	spin_lock_irqsave(&sclp_lock, flags);
++	/* queue the request */
++	req->status = SCLP_REQ_QUEUED;
++	list_add_tail(&req->list, &sclp_req_queue);
++	/* try to start the first request on the queue */
++	__sclp_start_request();
++	spin_unlock_irqrestore(&sclp_lock, flags);
++}
++
++/* state change notification */
++struct sclp_statechangebuf {
++	struct evbuf_header	header;
++	u8		validity_sclp_active_facility_mask : 1;
++	u8		validity_sclp_receive_mask : 1;
++	u8		validity_sclp_send_mask : 1;
++	u8		validity_read_data_function_mask : 1;
++	u16		_zeros : 12;
++	u16		mask_length;
++	u64		sclp_active_facility_mask;
++	sccb_mask_t	sclp_receive_mask;
++	sccb_mask_t	sclp_send_mask;
++	u32		read_data_function_mask;
++} __attribute__((packed));
++
++static inline void
++__sclp_notify_state_change(void)
++{
++	struct list_head *l;
++	struct sclp_register *t;
++	sccb_mask_t receive_mask, send_mask;
++
++	list_for_each(l, &sclp_reg_list) {
++		t = list_entry(l, struct sclp_register, list);
++		receive_mask = t->receive_mask & sclp_receive_mask;
++		send_mask = t->send_mask & sclp_send_mask;
++		if (t->sclp_receive_mask != receive_mask ||
++		    t->sclp_send_mask != send_mask) {
++			t->sclp_receive_mask = receive_mask;
++			t->sclp_send_mask = send_mask;
++			if (t->state_change_fn != NULL)
++				t->state_change_fn(t);
++		}
++	}
++}
++
++static void
++sclp_state_change(struct evbuf_header *evbuf)
++{
++	unsigned long flags;
++	struct sclp_statechangebuf *scbuf;
++
++	spin_lock_irqsave(&sclp_lock, flags);
++	scbuf = (struct sclp_statechangebuf *) evbuf;
++
++	if (scbuf->validity_sclp_receive_mask) {
++		if (scbuf->mask_length != 4)
++			printk(KERN_WARNING SCLP_CORE_PRINT_HEADER
++			       "state change event with mask length %i\n",
++			       scbuf->mask_length);
++		else
++			/* set new send mask */
++			sclp_receive_mask = scbuf->sclp_receive_mask;
++	}
++
++	if (scbuf->validity_sclp_send_mask) {
++		if (scbuf->mask_length != 4)
++			printk(KERN_WARNING SCLP_CORE_PRINT_HEADER
++			       "state change event with mask length %i\n",
++			       scbuf->mask_length);
++		else
++			/* set new send mask */
++			sclp_send_mask = scbuf->sclp_send_mask;
++	}
++
++	__sclp_notify_state_change();
++	spin_unlock_irqrestore(&sclp_lock, flags);
++}
++
++struct sclp_register sclp_state_change_event = {
++	.receive_mask = EvTyp_StateChange_Mask,
++	.receiver_fn = sclp_state_change
++};
++
++
++/*
++ * SCLP quiesce event handler
++ */
++#ifdef CONFIG_SMP
++static volatile unsigned long cpu_quiesce_map;
++
++static void
++do_load_quiesce_psw(void * __unused)
++{
++	psw_t quiesce_psw;
++
++	clear_bit(smp_processor_id(), &cpu_quiesce_map);
++	if (smp_processor_id() == 0) {
++		/* Wait for all other cpus to enter do_load_quiesce_psw */
++		while (cpu_quiesce_map != 0);
++		/* Quiesce the last cpu with the special psw */
++		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++		quiesce_psw.addr = 0xfff;
++		__load_psw(quiesce_psw);
++	}
++	signal_processor(smp_processor_id(), sigp_stop);
++}
++
++static void
++do_machine_quiesce(void)
++{
++	cpu_quiesce_map = cpu_online_map;
++	smp_call_function(do_load_quiesce_psw, NULL, 0, 0);
++	do_load_quiesce_psw(NULL);
++}
++#else
++static void
++do_machine_quiesce(void)
++{
++	psw_t quiesce_psw;
++
++	quiesce_psw.mask = _DW_PSW_MASK;
++	queisce_psw.addr = 0xfff;
++	__load_psw(quiesce_psw);
++}
++#endif
++
++extern void ctrl_alt_del(void);
++
++static void
++sclp_quiesce(struct evbuf_header *evbuf)
++{
++	/*
++	 * We got a "shutdown" request.
++	 * Add a call to an appropriate "shutdown" routine here. This
++	 * routine should set all PSWs to 'disabled-wait', 'stopped'
++	 * or 'check-stopped' - except 1 PSW which needs to carry a
++	 * special bit pattern called 'quiesce PSW'.
++	 */
++	_machine_restart = (void *) do_machine_quiesce;
++	_machine_halt = do_machine_quiesce;
++	_machine_power_off = do_machine_quiesce;
++	ctrl_alt_del();
++}
++
++struct sclp_register sclp_quiesce_event = {
++	.receive_mask = EvTyp_SigQuiesce_Mask,
++	.receiver_fn = sclp_quiesce
++};
++
++/* initialisation of SCLP */
++struct init_sccb {
++	struct sccb_header header;
++	u16 _reserved;
++	u16 mask_length;
++	sccb_mask_t receive_mask;
++	sccb_mask_t send_mask;
++	sccb_mask_t sclp_send_mask;
++	sccb_mask_t sclp_receive_mask;
++} __attribute__((packed));
++
++static int
++sclp_init_mask(void)
++{
++	unsigned long flags;
++	struct init_sccb *sccb;
++	struct sclp_req *req;
++	struct list_head *l;
++	struct sclp_register *t;
++	int rc;
++
++	sccb = (struct init_sccb *) sclp_init_sccb;
++	/* stick the request structure to the end of the init sccb page */
++	req = (struct sclp_req *) ((addr_t) sccb + PAGE_SIZE) - 1;
++
++	/* SCLP setup concerning receiving and sending Event Buffers */
++	req->command = SCLP_CMDW_WRITEMASK;
++	req->status = SCLP_REQ_QUEUED;
++	req->callback = NULL;
++	req->sccb = sccb;
++	/* setup sccb for writemask command */
++	memset(sccb, 0, sizeof(struct init_sccb));
++	sccb->header.length = sizeof(struct init_sccb);
++	sccb->mask_length = sizeof(sccb_mask_t);
++	/* copy in the sccb mask of the registered event types */
++	spin_lock_irqsave(&sclp_lock, flags);
++	list_for_each(l, &sclp_reg_list) {
++		t = list_entry(l, struct sclp_register, list);
++		sccb->receive_mask |= t->receive_mask;
++		sccb->send_mask |= t->send_mask;
++	}
++	sccb->sclp_receive_mask = 0;
++	sccb->sclp_send_mask = 0;
++	if (test_bit(SCLP_INIT, &sclp_status)) {
++		/* add request to sclp queue */
++		list_add_tail(&req->list, &sclp_req_queue);
++		/* and start if SCLP is idle */
++		if (!test_bit(SCLP_RUNNING, &sclp_status))
++			__sclp_start_request();
++		spin_unlock_irqrestore(&sclp_lock, flags);
++		/* now wait for completion */
++		while (req->status != SCLP_REQ_DONE &&
++		       req->status != SCLP_REQ_FAILED)
++			sclp_sync_wait();
++		spin_lock_irqsave(&sclp_lock, flags);
++	} else {
++		/*
++		 * Special case for the very first write mask command.
++		 * The interrupt handler is not removing request from
++		 * the request queue and doesn't call callbacks yet
++		 * because there might be an pending old interrupt
++		 * after a Re-IPL. We have to receive and ignore it.
++		 */
++		do {
++			rc = __service_call(req->command, req->sccb);
++			spin_unlock_irqrestore(&sclp_lock, flags);
++			if (rc == -EIO)
++				return -ENOSYS;
++			sclp_sync_wait();
++			spin_lock_irqsave(&sclp_lock, flags);
++		} while (rc == -EBUSY);
++	}
++	sclp_receive_mask = sccb->sclp_receive_mask;
++	sclp_send_mask = sccb->sclp_send_mask;
++	__sclp_notify_state_change();
++	spin_unlock_irqrestore(&sclp_lock, flags);
++	return 0;
++}
++
++/*
++ * sclp setup function. Called early (no kmalloc!) from sclp_console_init().
++ */
++static int
++sclp_init(void)
++{
++	int rc;
++
++	if (test_bit(SCLP_INIT, &sclp_status))
++		/* Already initialised. */
++		return 0;
++
++	/*
++	 * request the 0x2401 external interrupt
++	 * The sclp driver is initialized early (before kmalloc works). We
++	 * need to use register_early_external_interrupt.
++	 */
++	if (register_early_external_interrupt(0x2401, sclp_interrupt_handler,
++					      &ext_int_info_hwc) != 0)
++		return -EBUSY;
++
++	spin_lock_init(&sclp_lock);
++	INIT_LIST_HEAD(&sclp_req_queue);
++
++	/* init event list */
++	INIT_LIST_HEAD(&sclp_reg_list);
++	list_add(&sclp_state_change_event.list, &sclp_reg_list);
++	list_add(&sclp_quiesce_event.list, &sclp_reg_list);
++
++	/* enable service-signal external interruptions,
++	 * Control Register 0 bit 22 := 1
++	 * (besides PSW bit 7 must be set to 1 sometimes for external
++	 * interruptions)
++	 */
++	ctl_set_bit(0, 9);
++
++	/* do the initial write event mask */
++	rc = sclp_init_mask();
++	if (rc == 0) {
++		/* Ok, now everything is setup right. */
++		set_bit(SCLP_INIT, &sclp_status);
++		return 0;
++	}
++
++	/* The sclp_init_mask failed. SCLP is broken, unregister and exit. */
++	ctl_clear_bit(0,9);
++	unregister_early_external_interrupt(0x2401, sclp_interrupt_handler,
++					    &ext_int_info_hwc);
++
++	return rc;
++}
++
++int
++sclp_register(struct sclp_register *reg)
++{
++	unsigned long flags;
++	struct list_head *l;
++	struct sclp_register *t;
++
++	if (!MACHINE_HAS_SCLP)
++		return -ENODEV;
++
++	if (!test_bit(SCLP_INIT, &sclp_status))
++		sclp_init();
++	spin_lock_irqsave(&sclp_lock, flags);
++	/* check already registered event masks for collisions */
++	list_for_each(l, &sclp_reg_list) {
++		t = list_entry(l, struct sclp_register, list);
++		if (t->receive_mask & reg->receive_mask ||
++		    t->send_mask & reg->send_mask) {
++			spin_unlock_irqrestore(&sclp_lock, flags);
++			return -EBUSY;
++		}
++	}
++	/*
++	 * set present mask to 0 to trigger state change
++	 * callback in sclp_init_mask
++	 */
++	reg->sclp_receive_mask = 0;
++	reg->sclp_send_mask = 0;
++	list_add(&reg->list, &sclp_reg_list);
++	spin_unlock_irqrestore(&sclp_lock, flags);
++	sclp_init_mask();
++	return 0;
++}
++
++void
++sclp_unregister(struct sclp_register *reg)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&sclp_lock, flags);
++	list_del(&reg->list);
++	spin_unlock_irqrestore(&sclp_lock, flags);
++	sclp_init_mask();
++}
++
+diff -urN linux-2.5.48/drivers/s390/char/sclp.h linux-2.5.48-s390/drivers/s390/char/sclp.h
+--- linux-2.5.48/drivers/s390/char/sclp.h	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp.h	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,157 @@
++/*
++ *  drivers/s390/char/sclp.h
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#ifndef __SCLP_H__
++#define __SCLP_H__
++
++#include <linux/types.h>
++#include <linux/list.h>
++
++#include <asm/ebcdic.h>
++
++/* maximum number of pages concerning our own memory management */
++#define MAX_KMEM_PAGES (sizeof(unsigned long) << 3)
++#define MAX_CONSOLE_PAGES	4
++
++#define EvTyp_OpCmd		0x01
++#define EvTyp_Msg		0x02
++#define EvTyp_StateChange	0x08
++#define EvTyp_PMsgCmd		0x09
++#define EvTyp_CntlProgOpCmd	0x20
++#define EvTyp_CntlProgIdent	0x0B
++#define EvTyp_SigQuiesce	0x1D
++
++#define EvTyp_OpCmd_Mask	0x80000000
++#define EvTyp_Msg_Mask		0x40000000
++#define EvTyp_StateChange_Mask	0x01000000
++#define EvTyp_PMsgCmd_Mask	0x00800000
++#define EvTyp_CtlProgOpCmd_Mask	0x00000001
++#define EvTyp_CtlProgIdent_Mask	0x00200000
++#define EvTyp_SigQuiesce_Mask	0x00000008
++
++#define GnrlMsgFlgs_DOM		0x8000
++#define GnrlMsgFlgs_SndAlrm	0x4000
++#define GnrlMsgFlgs_HoldMsg	0x2000
++
++#define LnTpFlgs_CntlText	0x8000
++#define LnTpFlgs_LabelText	0x4000
++#define LnTpFlgs_DataText	0x2000
++#define LnTpFlgs_EndText	0x1000
++#define LnTpFlgs_PromptText	0x0800
++
++#define SCLP_COMMAND_INITIATED	0
++#define SCLP_BUSY		2
++#define SCLP_NOT_OPERATIONAL	3
++
++typedef unsigned int sclp_cmdw_t;
++
++#define SCLP_CMDW_READDATA	0x00770005
++#define SCLP_CMDW_WRITEDATA	0x00760005
++#define SCLP_CMDW_WRITEMASK	0x00780005
++
++#define GDS_ID_MDSMU		0x1310
++#define GDS_ID_MDSRouteInfo	0x1311
++#define GDS_ID_AgUnWrkCorr	0x1549
++#define GDS_ID_SNACondReport	0x1532
++#define GDS_ID_CPMSU		0x1212
++#define GDS_ID_RoutTargInstr	0x154D
++#define GDS_ID_OpReq		0x8070
++#define GDS_ID_TextCmd		0x1320
++
++#define GDS_KEY_SelfDefTextMsg	0x31
++
++typedef u32 sccb_mask_t;	/* ATTENTION: assumes 32bit mask !!! */
++
++struct sccb_header {
++	u16	length;
++	u8	function_code;
++	u8	control_mask[3];
++	u16	response_code;
++} __attribute__((packed));
++
++struct gds_subvector {
++	u8	length;
++	u8	key;
++} __attribute__((packed));
++
++struct gds_vector {
++	u16	length;
++	u16	gds_id;
++} __attribute__((packed));
++
++struct evbuf_header {
++	u16	length;
++	u8	type;
++	u8	flags;
++	u16	_reserved;
++} __attribute__((packed));
++
++struct sclp_req {
++	struct list_head list;		/* list_head for request queueing. */
++	sclp_cmdw_t command;		/* sclp command to execute */
++	void	*sccb;			/* pointer to the sccb to execute */
++	char	status;			/* status of this request */
++	/* Callback that is called after reaching final status. */
++	void (*callback)(struct sclp_req *, void *data);
++	void *callback_data;
++};
++
++#define SCLP_REQ_FILLED	  0x00	/* request is ready to be processed */
++#define SCLP_REQ_QUEUED	  0x01	/* request is queued to be processed */
++#define SCLP_REQ_RUNNING  0x02	/* request is currently running */
++#define SCLP_REQ_DONE	  0x03	/* request is completed successfully */
++#define SCLP_REQ_FAILED	  0x05	/* request is finally failed */
++
++/* function pointers that a high level driver has to use for registration */
++/* of some routines it wants to be called from the low level driver */
++struct sclp_register {
++	struct list_head list;
++	/* event masks this user is registered for */
++	sccb_mask_t receive_mask;
++	sccb_mask_t send_mask;
++	/* actually present events */
++	sccb_mask_t sclp_receive_mask;
++	sccb_mask_t sclp_send_mask;
++	/* called if event type availability changes */
++	void (*state_change_fn)(struct sclp_register *);
++	/* called for events in cp_receive_mask/sclp_receive_mask */
++	void (*receiver_fn)(struct evbuf_header *);
++};
++
++/* externals from sclp.c */
++void sclp_add_request(struct sclp_req *req);
++void sclp_sync_wait(void);
++int sclp_register(struct sclp_register *reg);
++void sclp_unregister(struct sclp_register *reg);
++
++/* useful inlines */
++
++/* VM uses EBCDIC 037, LPAR+native(SE+HMC) use EBCDIC 500 */
++/* translate single character from ASCII to EBCDIC */
++static inline unsigned char
++sclp_ascebc(unsigned char ch)
++{
++	return (MACHINE_IS_VM) ? _ascebc[ch] : _ascebc_500[ch];
++}
++
++/* translate string from EBCDIC to ASCII */
++static inline void
++sclp_ebcasc_str(unsigned char *str, int nr)
++{
++	(MACHINE_IS_VM) ? EBCASC(str, nr) : EBCASC_500(str, nr);
++}
++
++/* translate string from ASCII to EBCDIC */
++static inline void
++sclp_ascebc_str(unsigned char *str, int nr)
++{
++	(MACHINE_IS_VM) ? ASCEBC(str, nr) : ASCEBC_500(str, nr);
++}
++
++#endif	 /* __SCLP_H__ */
+diff -urN linux-2.5.48/drivers/s390/char/sclp_con.c linux-2.5.48-s390/drivers/s390/char/sclp_con.c
+--- linux-2.5.48/drivers/s390/char/sclp_con.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_con.c	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,237 @@
++/*
++ *  drivers/s390/char/sclp_con.c
++ *    SCLP line mode console driver
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#include <linux/config.h>
++#include <linux/version.h>
++#include <linux/kmod.h>
++#include <linux/console.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/jiffies.h>
++#include <linux/bootmem.h>
++
++#include "sclp.h"
++#include "sclp_rw.h"
++
++#define SCLP_CON_PRINT_HEADER "sclp console driver: "
++
++#define sclp_console_major 4		/* TTYAUX_MAJOR */
++#define sclp_console_minor 64
++#define sclp_console_name  "console"
++
++/* Lock to guard over changes to global variables */
++static spinlock_t sclp_con_lock;
++/* List of free pages that can be used for console output buffering */
++static struct list_head sclp_con_pages;
++/* List of full struct sclp_buffer structures ready for output */
++static struct list_head sclp_con_outqueue;
++/* Counter how many buffers are emitted (max 1) and how many */
++/* are on the output queue. */
++static int sclp_con_buffer_count;
++/* Pointer to current console buffer */
++static struct sclp_buffer *sclp_conbuf;
++/* Timer for delayed output of console messages */
++static struct timer_list sclp_con_timer;
++
++/* Output format for console messages */
++static unsigned short sclp_con_columns;
++static unsigned short sclp_con_width_htab;
++
++static void
++sclp_conbuf_callback(struct sclp_buffer *buffer, int rc)
++{
++	unsigned long flags;
++	struct sclp_buffer *next;
++	void *page;
++
++	/* FIXME: what if rc != 0x0020 */
++	page = sclp_unmake_buffer(buffer);
++	spin_lock_irqsave(&sclp_con_lock, flags);
++	list_add_tail((struct list_head *) page, &sclp_con_pages);
++	sclp_con_buffer_count--;
++	/* Remove buffer from outqueue */
++	list_del(&buffer->list);
++	/* Check if there is a pending buffer on the out queue. */
++	next = NULL;
++	if (!list_empty(&sclp_con_outqueue))
++		next = list_entry(sclp_con_outqueue.next,
++				  struct sclp_buffer, list);
++	spin_unlock_irqrestore(&sclp_con_lock, flags);
++	if (next != NULL)
++		sclp_emit_buffer(next, sclp_conbuf_callback);
++}
++
++static inline void
++__sclp_conbuf_emit(struct sclp_buffer *buffer)
++{
++	list_add_tail(&buffer->list, &sclp_con_outqueue);
++	if (sclp_con_buffer_count++ == 0)
++		sclp_emit_buffer(buffer, sclp_conbuf_callback);
++}
++
++/*
++ * When this routine is called from the timer then we flush the
++ * temporary write buffer without further waiting on a final new line.
++ */
++static void
++sclp_console_timeout(unsigned long data)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&sclp_con_lock, flags);
++	if (sclp_conbuf != NULL) {
++		__sclp_conbuf_emit(sclp_conbuf);
++		sclp_conbuf = NULL;
++	}
++	spin_unlock_irqrestore(&sclp_con_lock, flags);
++}
++
++/*
++ * Writes the given message to S390 system console
++ */
++void
++sclp_console_write(struct console *console, const char *message,
++		   unsigned int count)
++{
++	unsigned long flags;
++	void *page;
++	int written;
++
++	if (count <= 0)
++		return;
++	spin_lock_irqsave(&sclp_con_lock, flags);
++	/*
++	 * process escape characters, write message into buffer,
++	 * send buffer to SCLP
++	 */
++	do {
++		/* make sure we have a console output buffer */
++		if (sclp_conbuf == NULL) {
++			while (list_empty(&sclp_con_pages)) {
++				spin_unlock_irqrestore(&sclp_con_lock, flags);
++				sclp_sync_wait();
++				spin_lock_irqsave(&sclp_con_lock, flags);
++			}
++			page = sclp_con_pages.next;
++			list_del((struct list_head *) page);
++			sclp_conbuf = sclp_make_buffer(page, sclp_con_columns,
++						       sclp_con_width_htab);
++		}
++		/* try to write the string to the current output buffer */
++		written = sclp_write(sclp_conbuf, message, count, 0);
++		if (written == -EFAULT || written == count)
++			break;
++		/*
++		 * Not all characters could be written to the current
++		 * output buffer. Emit the buffer, create a new buffer
++		 * and then output the rest of the string.
++		 */
++		__sclp_conbuf_emit(sclp_conbuf);
++		sclp_conbuf = NULL;
++		message += written;
++		count -= written;
++	} while (count > 0);
++	/* Setup timer to output current console buffer after 1/10 second */
++	if (sclp_conbuf != NULL && !timer_pending(&sclp_con_timer)) {
++		init_timer(&sclp_con_timer);
++		sclp_con_timer.function = sclp_console_timeout;
++		sclp_con_timer.data = 0UL;
++		sclp_con_timer.expires = jiffies + HZ/10;
++		add_timer(&sclp_con_timer);
++	}
++	spin_unlock_irqrestore(&sclp_con_lock, flags);
++}
++
++/* returns the device number of the SCLP console */
++kdev_t
++sclp_console_device(struct console *c)
++{
++	return	mk_kdev(sclp_console_major, sclp_console_minor);
++}
++
++/*
++ * This routine is called from panic when the kernel
++ * is going to give up. We have to make sure that all buffers
++ * will be flushed to the SCLP.
++ */
++void
++sclp_console_unblank(void)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&sclp_con_lock, flags);
++	if (timer_pending(&sclp_con_timer))
++		del_timer(&sclp_con_timer);
++	if (sclp_conbuf != NULL) {
++		__sclp_conbuf_emit(sclp_conbuf);
++		sclp_conbuf = NULL;
++	}
++	while (sclp_con_buffer_count > 0) {
++		spin_unlock_irqrestore(&sclp_con_lock, flags);
++		sclp_sync_wait();
++		spin_lock_irqsave(&sclp_con_lock, flags);
++	}
++	spin_unlock_irqrestore(&sclp_con_lock, flags);
++}
++
++/*
++ * used to register the SCLP console to the kernel and to
++ * give printk necessary information
++ */
++struct console sclp_console =
++{
++	.name = sclp_console_name,
++	.write = sclp_console_write,
++	.device = sclp_console_device,
++	.unblank = sclp_console_unblank,
++	.flags = CON_PRINTBUFFER
++};
++
++/*
++ * called by console_init() in drivers/char/tty_io.c at boot-time.
++ */
++void __init
++sclp_console_init(void)
++{
++	void *page;
++	int i;
++
++	if (!CONSOLE_IS_SCLP)
++		return;
++	if (sclp_rw_init() != 0)
++		return;
++	/* Allocate pages for output buffering */
++	INIT_LIST_HEAD(&sclp_con_pages);
++	for (i = 0; i < MAX_CONSOLE_PAGES; i++) {
++		page = alloc_bootmem_low_pages(PAGE_SIZE);
++		if (page == NULL)
++			return;
++		list_add_tail((struct list_head *) page, &sclp_con_pages);
++	}
++	INIT_LIST_HEAD(&sclp_con_outqueue);
++	spin_lock_init(&sclp_con_lock);
++	sclp_con_buffer_count = 0;
++	sclp_conbuf = NULL;
++	init_timer(&sclp_con_timer);
++
++	/* Set output format */
++	if (MACHINE_IS_VM)
++		/*
++		 * save 4 characters for the CPU number
++		 * written at start of each line by VM/CP
++		 */
++		sclp_con_columns = 76;
++	else
++		sclp_con_columns = 80;
++	sclp_con_width_htab = 8;
++
++	/* enable printk´s access to this driver */
++	register_console(&sclp_console);
++}
+diff -urN linux-2.5.48/drivers/s390/char/sclp_cpi.c linux-2.5.48-s390/drivers/s390/char/sclp_cpi.c
+--- linux-2.5.48/drivers/s390/char/sclp_cpi.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_cpi.c	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,243 @@
++/*
++ * Author: Martin Peschke <mpeschke@de.ibm.com>
++ * Copyright (C) 2001 IBM Entwicklung GmbH, IBM Corporation
++ *
++ * SCLP Control-Program Identification.
++ */
++
++#include <linux/config.h>
++#include <linux/version.h>
++#include <linux/kmod.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/string.h>
++#include <linux/err.h>
++#include <linux/slab.h>
++#include <asm/ebcdic.h>
++#include <asm/semaphore.h>
++
++#include "sclp.h"
++#include "sclp_rw.h"
++
++#define CPI_LENGTH_SYSTEM_TYPE	8
++#define CPI_LENGTH_SYSTEM_NAME	8
++#define CPI_LENGTH_SYSPLEX_NAME	8
++
++struct cpi_evbuf {
++	struct evbuf_header header;
++	u8	id_format;
++	u8	reserved0;
++	u8	system_type[CPI_LENGTH_SYSTEM_TYPE];
++	u64	reserved1;
++	u8	system_name[CPI_LENGTH_SYSTEM_NAME];
++	u64	reserved2;
++	u64	system_level;
++	u64	reserved3;
++	u8	sysplex_name[CPI_LENGTH_SYSPLEX_NAME];
++	u8	reserved4[16];
++} __attribute__((packed));
++
++struct cpi_sccb {
++	struct sccb_header header;
++	struct cpi_evbuf cpi_evbuf;
++} __attribute__((packed));
++
++/* Event type structure for write message and write priority message */
++static struct sclp_register sclp_cpi_event =
++{
++	.send_mask = EvTyp_CtlProgIdent_Mask
++};
++
++MODULE_AUTHOR(
++	"Martin Peschke, IBM Deutschland Entwicklung GmbH "
++	"<mpeschke@de.ibm.com>");
++
++MODULE_DESCRIPTION(
++	"identify this operating system instance to the S/390 "
++	"or zSeries hardware");
++
++static char *system_name = NULL;
++MODULE_PARM(system_name, "s");
++MODULE_PARM_DESC(system_name, "e.g. hostname - max. 8 characters");
++
++static char *sysplex_name = NULL;
++#ifdef ALLOW_SYSPLEX_NAME
++MODULE_PARM(sysplex_name, "s");
++MODULE_PARM_DESC(sysplex_name, "if applicable - max. 8 characters");
++#endif
++
++/* use default value for this field (as well as for system level) */
++static char *system_type = "LINUX";
++
++static int
++cpi_check_parms(void)
++{
++	/* reject if no system type specified */
++	if (!system_type) {
++		printk("cpi: bug: no system type specified\n");
++		return -EINVAL;
++	}
++
++	/* reject if system type larger than 8 characters */
++	if (strlen(system_type) > CPI_LENGTH_SYSTEM_NAME) {
++		printk("cpi: bug: system type has length of %li characters - "
++		       "only %i characters supported\n",
++		       strlen(system_type), CPI_LENGTH_SYSTEM_TYPE);
++		return -EINVAL;
++	}
++
++	/* reject if no system name specified */
++	if (!system_name) {
++		printk("cpi: no system name specified\n");
++		return -EINVAL;
++	}
++
++	/* reject if system name larger than 8 characters */
++	if (strlen(system_name) > CPI_LENGTH_SYSTEM_NAME) {
++		printk("cpi: system name has length of %li characters - "
++		       "only %i characters supported\n",
++		       strlen(system_name), CPI_LENGTH_SYSTEM_NAME);
++		return -EINVAL;
++	}
++
++	/* reject if specified sysplex name larger than 8 characters */
++	if (sysplex_name && strlen(sysplex_name) > CPI_LENGTH_SYSPLEX_NAME) {
++		printk("cpi: sysplex name has length of %li characters"
++		       " - only %i characters supported\n",
++		       strlen(sysplex_name), CPI_LENGTH_SYSPLEX_NAME);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++static void
++cpi_callback(struct sclp_req *req, void *data)
++{
++	struct semaphore *sem;
++
++	sem = (struct semaphore *) data;
++	up(sem);
++}
++
++static struct sclp_req *
++cpi_prepare_req(void)
++{
++	struct sclp_req *req;
++	struct cpi_sccb *sccb;
++	struct cpi_evbuf *evb;
++
++	req = (struct sclp_req *) kmalloc(sizeof(struct sclp_req), GFP_KERNEL);
++	if (req == NULL)
++		return ERR_PTR(-ENOMEM);
++	sccb = (struct cpi_sccb *) get_free_page(GFP_KERNEL);
++	if (sccb == NULL) {
++		kfree(req);
++		return ERR_PTR(-ENOMEM);
++	}
++	memset(sccb, 0, sizeof(struct cpi_sccb));
++
++	/* setup SCCB for Control-Program Identification */
++	sccb->header.length = sizeof(struct cpi_sccb);
++	sccb->cpi_evbuf.header.length = sizeof(struct cpi_evbuf);
++	sccb->cpi_evbuf.header.type = 0x0B;
++	evb = &sccb->cpi_evbuf;
++
++	/* set system type */
++	memset(evb->system_type, ' ', CPI_LENGTH_SYSTEM_TYPE);
++	memcpy(evb->system_type, system_type, strlen(system_type));
++	sclp_ascebc_str(evb->system_type, CPI_LENGTH_SYSTEM_TYPE);
++	EBC_TOUPPER(evb->system_type, CPI_LENGTH_SYSTEM_TYPE);
++
++	/* set system name */
++	memset(evb->system_name, ' ', CPI_LENGTH_SYSTEM_NAME);
++	memcpy(evb->system_name, system_name, strlen(system_name));
++	sclp_ascebc_str(evb->system_name, CPI_LENGTH_SYSTEM_NAME);
++	EBC_TOUPPER(evb->system_name, CPI_LENGTH_SYSTEM_NAME);
++
++	/* set sytem level */
++	evb->system_level = LINUX_VERSION_CODE;
++
++	/* set sysplex name */
++	if (sysplex_name) {
++		memset(evb->sysplex_name, ' ', CPI_LENGTH_SYSPLEX_NAME);
++		memcpy(evb->sysplex_name, sysplex_name, strlen(sysplex_name));
++		sclp_ascebc_str(evb->sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
++		EBC_TOUPPER(evb->sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
++	}
++
++	/* prepare request data structure presented to SCLP driver */
++	req->command = SCLP_CMDW_WRITEDATA;
++	req->sccb = sccb;
++	req->status = SCLP_REQ_FILLED;
++	req->callback = cpi_callback;
++	return req;
++}
++
++static void
++cpi_free_req(struct sclp_req *req)
++{
++	free_page((unsigned long) req->sccb);
++	kfree(req);
++}
++
++static int __init
++cpi_module_init(void)
++{
++	struct semaphore sem;
++	struct sclp_req *req;
++	int rc;
++
++	rc = cpi_check_parms();
++	if (rc)
++		return rc;
++
++	rc = sclp_register(&sclp_cpi_event);
++	if (rc) {
++		/* could not register sclp event. Die. */
++		printk("cpi: could not register to hardware console.\n");
++		return -EINVAL;
++	}
++	if (!(sclp_cpi_event.sclp_send_mask & EvTyp_CtlProgIdent_Mask)) {
++		printk("cpi: no control program identification support\n");
++		sclp_unregister(&sclp_cpi_event);
++		return -ENOTSUPP;
++	}
++
++	req = cpi_prepare_req();
++	if (IS_ERR(req)) {
++		printk("cpi: couldn't allocate request\n");
++		sclp_unregister(&sclp_cpi_event);
++		return PTR_ERR(req);
++	}
++
++	/* Prepare semaphore */
++	sema_init(&sem, 0);
++	req->callback_data = &sem;
++	/* Add request to sclp queue */
++	sclp_add_request(req);
++	/* make "insmod" sleep until callback arrives */
++	down(&sem);
++
++	rc = ((struct cpi_sccb *) req->sccb)->header.response_code;
++	if (rc != 0x0020) {
++		printk("cpi: failed with response code 0x%x\n", rc);
++		rc = -ECOMM;
++	} else
++		rc = 0;
++
++	cpi_free_req(req);
++
++	return rc;
++}
++
++
++static void __exit cpi_module_exit(void)
++{
++}
++
++
++/* declare driver module init/cleanup functions */
++module_init(cpi_module_init);
++module_exit(cpi_module_exit);
++
+diff -urN linux-2.5.48/drivers/s390/char/sclp_rw.c linux-2.5.48-s390/drivers/s390/char/sclp_rw.c
+--- linux-2.5.48/drivers/s390/char/sclp_rw.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_rw.c	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,458 @@
++/*
++ *  drivers/s390/char/sclp_rw.c
++ *     driver: reading from and writing to system console on S/390 via SCLP
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#include <linux/config.h>
++#include <linux/version.h>
++#include <linux/kmod.h>
++#include <linux/types.h>
++#include <linux/err.h>
++#include <linux/string.h>
++#include <linux/spinlock.h>
++#include <linux/ctype.h>
++#include <asm/uaccess.h>
++
++#include "sclp.h"
++#include "sclp_rw.h"
++
++#define SCLP_RW_PRINT_HEADER "sclp low level driver: "
++
++/*
++ * The room for the SCCB (only for writing) is not equal to a pages size
++ * (as it is specified as the maximum size in the the SCLP ducumentation)
++ * because of the additional data structure described above.
++ */
++#define MAX_SCCB_ROOM (PAGE_SIZE - sizeof(struct sclp_buffer))
++
++/* Event type structure for write message and write priority message */
++struct sclp_register sclp_rw_event = {
++	.send_mask = EvTyp_Msg_Mask | EvTyp_PMsgCmd_Mask
++};
++
++/*
++ * Setup a sclp write buffer. Gets a page as input (4K) and returns
++ * a pointer to a struct sclp_buffer structure that is located at the
++ * end of the input page. This reduces the buffer space by a few
++ * bytes but simplifies things.
++ */
++struct sclp_buffer *
++sclp_make_buffer(void *page, unsigned short columns, unsigned short htab)
++{
++	struct sclp_buffer *buffer;
++	struct write_sccb *sccb;
++
++	sccb = (struct write_sccb *) page;
++	/*
++	 * We keep the struct sclp_buffer structure at the end
++	 * of the sccb page.
++	 */
++	buffer = ((struct sclp_buffer *) ((addr_t) sccb + PAGE_SIZE)) - 1;
++	buffer->sccb = sccb;
++	buffer->mto_number = 0;
++	buffer->mto_char_sum = 0;
++	buffer->current_line = NULL;
++	buffer->current_length = 0;
++	buffer->columns = columns;
++	buffer->htab = htab;
++
++	/* initialize sccb */
++	memset(sccb, 0, sizeof(struct write_sccb));
++	sccb->header.length = sizeof(struct write_sccb);
++	sccb->msg_buf.header.length = sizeof(struct msg_buf);
++	sccb->msg_buf.header.type = EvTyp_Msg;
++	sccb->msg_buf.mdb.header.length = sizeof(struct mdb);
++	sccb->msg_buf.mdb.header.type = 1;
++	sccb->msg_buf.mdb.header.tag = 0xD4C4C240;	/* ebcdic "MDB " */
++	sccb->msg_buf.mdb.header.revision_code = 1;
++	sccb->msg_buf.mdb.go.length = sizeof(struct go);
++	sccb->msg_buf.mdb.go.type = 1;
++
++	return buffer;
++}
++
++/*
++ * Return a pointer to the orignal page that has been used to create
++ * the buffer.
++ */
++void *
++sclp_unmake_buffer(struct sclp_buffer *buffer)
++{
++	return buffer->sccb;
++}
++
++/*
++ * Creates a new Message Text Object with enough room for str_len
++ * characters. This function will create a new sccb for buffering
++ * the mto if the current buffer sccb is full. A full buffer sccb
++ * is submitted for output.
++ * Returns a pointer to the start of the string in the mto.
++ */
++static int
++sclp_create_mto(struct sclp_buffer *buffer, int max_len)
++{
++	struct write_sccb *sccb;
++	struct mto *mto;
++	int mto_size;
++
++	/* max size of new Message Text Object including message text  */
++	mto_size = sizeof(struct mto) + max_len;
++
++	/* check if current buffer sccb can contain the mto */
++	sccb = buffer->sccb;
++	if ((MAX_SCCB_ROOM - sccb->header.length) < mto_size)
++		return -ENOMEM;
++
++	/* find address of new message text object */
++	mto = (struct mto *)(((unsigned long) sccb) + sccb->header.length);
++
++	/*
++	 * fill the new Message-Text Object,
++	 * starting behind the former last byte of the SCCB
++	 */
++	memset(mto, 0, sizeof(struct mto));
++	mto->length = sizeof(struct mto);
++	mto->type = 4;	/* message text object */
++	mto->line_type_flags = LnTpFlgs_EndText; /* end text */
++
++	/* set pointer to first byte after struct mto. */
++	buffer->current_line = (char *) (mto + 1);
++	buffer->current_length = 0;
++
++	return 0;
++}
++
++/*
++ * Add the mto created with sclp_create_mto to the buffer sccb using
++ * the str_len parameter as the real length of the string.
++ */
++static void
++sclp_add_mto(struct sclp_buffer *buffer)
++{
++	struct write_sccb *sccb;
++	struct mto *mto;
++	int str_len, mto_size;
++
++	str_len = buffer->current_length;
++	buffer->current_line = NULL;
++	buffer->current_length = 0;
++
++	/* real size of new Message Text Object including message text	*/
++	mto_size = sizeof(struct mto) + str_len;
++
++	/* find address of new message text object */
++	sccb = buffer->sccb;
++	mto = (struct mto *)(((unsigned long) sccb) + sccb->header.length);
++
++	/* set size of message text object */
++	mto->length = mto_size;
++
++	/*
++	 * update values of sizes
++	 * (SCCB, Event(Message) Buffer, Message Data Block)
++	 */
++	sccb->header.length += mto_size;
++	sccb->msg_buf.header.length += mto_size;
++	sccb->msg_buf.mdb.header.length += mto_size;
++
++	/*
++	 * count number of buffered messages (= number of Message Text
++	 * Objects) and number of buffered characters
++	 * for the SCCB currently used for buffering and at all
++	 */
++	buffer->mto_number++;
++	buffer->mto_char_sum += str_len;
++}
++
++void
++sclp_move_current_line(struct sclp_buffer *to, struct sclp_buffer *from)
++{
++	if (from->current_line == NULL)
++		return;
++	if (sclp_create_mto(to, from->columns) != 0)
++		return;
++	if (from->current_length > 0) {
++		memcpy(to->current_line,
++		       from->current_line - from->current_length,
++		       from->current_length);
++		to->current_line += from->current_length;
++		to->current_length = from->current_length;
++	}
++	from->current_line = NULL;
++}
++
++/*
++ * processing of a message including escape characters,
++ * returns number of characters written to the output sccb
++ * ("processed" means that is not guaranteed that the character have already
++ *  been sent to the SCLP but that it will be done at least next time the SCLP
++ *  is not busy)
++ */
++int
++sclp_write(struct sclp_buffer *buffer,
++	   const char *msg, int count, int from_user)
++{
++	int spaces, i_msg;
++	char ch;
++	int rc;
++
++	/*
++	 * parse msg for escape sequences (\t,\v ...) and put formated
++	 * msg into an mto (created by sclp_create_mto).
++	 *
++	 * We have to do this work ourselfs because there is no support for
++	 * these characters on the native machine and only partial support
++	 * under VM (Why does VM interpret \n but the native machine doesn't ?)
++	 *
++	 * Depending on i/o-control setting the message is always written
++	 * immediatly or we wait for a final new line maybe coming with the
++	 * next message. Besides we avoid a buffer overrun by writing its
++	 * content.
++	 *
++	 * RESTRICTIONS:
++	 *
++	 * \r and \b work within one line because we are not able to modify
++	 * previous output that have already been accepted by the SCLP.
++	 *
++	 * \t combined with following \r is not correctly represented because
++	 * \t is expanded to some spaces but \r does not know about a
++	 * previous \t and decreases the current position by one column.
++	 * This is in order to a slim and quick implementation.
++	 */
++	for (i_msg = 0; i_msg < count; i_msg++) {
++		if (from_user) {
++			if (get_user(ch, msg + i_msg) != 0)
++				return -EFAULT;
++		} else
++			ch = msg[i_msg];
++
++		switch (ch) {
++		case '\n':	/* new line, line feed (ASCII)	*/
++			/* check if new mto needs to be created */
++			if (buffer->current_line == NULL) {
++				rc = sclp_create_mto(buffer, 0);
++				if (rc)
++					return i_msg;
++			}
++			sclp_add_mto(buffer);
++			break;
++		case '\a':	/* bell, one for several times	*/
++			/* set SCLP sound alarm bit in General Object */
++			buffer->sccb->msg_buf.mdb.go.general_msg_flags |=
++				GnrlMsgFlgs_SndAlrm;
++			break;
++		case '\t':	/* horizontal tabulator	 */
++			/* check if new mto needs to be created */
++			if (buffer->current_line == NULL) {
++				rc = sclp_create_mto(buffer, buffer->columns);
++				if (rc)
++					return i_msg;
++			}
++			/* "go to (next htab-boundary + 1, same line)" */
++			do {
++				if (buffer->current_length >= buffer->columns)
++					break;
++				/* ok, add a blank */
++				*buffer->current_line++ = 0x40;
++				buffer->current_length++;
++			} while (buffer->current_length % buffer->htab);
++			break;
++		case '\f':	/* form feed  */
++		case '\v':	/* vertical tabulator  */
++			/* "go to (actual column, actual line + 1)" */
++			/* = new line, leading spaces */
++			if (buffer->current_line != NULL) {
++				spaces = buffer->current_length;
++				sclp_add_mto(buffer);
++				rc = sclp_create_mto(buffer, buffer->columns);
++				if (rc)
++					return i_msg;
++				memset(buffer->current_line, 0x40, spaces);
++				buffer->current_line += spaces;
++				buffer->current_length = spaces;
++			} else {
++				/* one an empty line this is the same as \n */
++				rc = sclp_create_mto(buffer, buffer->columns);
++				if (rc)
++					return i_msg;
++				sclp_add_mto(buffer);
++			}
++			break;
++		case '\b':	/* backspace  */
++			/* "go to (actual column - 1, actual line)" */
++			/* decrement counter indicating position, */
++			/* do not remove last character */
++			if (buffer->current_line != NULL &&
++			    buffer->current_length > 0) {
++				buffer->current_length--;
++				buffer->current_line--;
++			}
++			break;
++		case 0x00:	/* end of string  */
++			/* transfer current line to SCCB */
++			if (buffer->current_line != NULL)
++				sclp_add_mto(buffer);
++			/* skip the rest of the message including the 0 byte */
++			i_msg = count;
++			break;
++		default:	/* no escape character	*/
++			/* do not output unprintable characters */
++			if (!isprint(ch))
++				break;
++			/* check if new mto needs to be created */
++			if (buffer->current_line == NULL) {
++				rc = sclp_create_mto(buffer, buffer->columns);
++				if (rc)
++					return i_msg;
++			}
++			*buffer->current_line++ = sclp_ascebc(ch);
++			buffer->current_length++;
++			break;
++		}
++		/* check if current mto is full */
++		if (buffer->current_line != NULL &&
++		    buffer->current_length >= buffer->columns)
++			sclp_add_mto(buffer);
++	}
++
++	/* return number of processed characters */
++	return i_msg;
++}
++
++/*
++ * Return the number of free bytes in the sccb
++ */
++int
++sclp_buffer_space(struct sclp_buffer *buffer)
++{
++	int count;
++
++	count = MAX_SCCB_ROOM - buffer->sccb->header.length;
++	if (buffer->current_line != NULL)
++		count -= sizeof(struct mto) + buffer->current_length;
++	return count;
++}
++
++/*
++ * Return number of characters in buffer
++ */
++int
++sclp_chars_in_buffer(struct sclp_buffer *buffer)
++{
++	int count;
++
++	count = buffer->mto_char_sum;
++	if (buffer->current_line != NULL)
++		count += buffer->current_length;
++	return count;
++}
++
++/*
++ * sets or provides some values that influence the drivers behaviour
++ */
++void
++sclp_set_columns(struct sclp_buffer *buffer, unsigned short columns)
++{
++	buffer->columns = columns;
++	if (buffer->current_line != NULL &&
++	    buffer->current_length > buffer->columns)
++		sclp_add_mto(buffer);
++}
++
++void
++sclp_set_htab(struct sclp_buffer *buffer, unsigned short htab)
++{
++	buffer->htab = htab;
++}
++
++/*
++ * called by sclp_console_init and/or sclp_tty_init
++ */
++int
++sclp_rw_init(void)
++{
++	static int init_done = 0;
++
++	if (init_done)
++		return 0;
++	init_done = 1;
++	return sclp_register(&sclp_rw_event);
++}
++
++/*
++ * second half of Write Event Data-function that has to be done after
++ * interruption indicating completion of Service Call.
++ */
++static void
++sclp_writedata_callback(struct sclp_req *request, void *data)
++{
++	struct sclp_buffer *buffer;
++	struct write_sccb *sccb;
++
++	buffer = (struct sclp_buffer *) data;
++	sccb = buffer->sccb;
++
++	/* FIXME: proper error handling */
++	/* check SCLP response code and choose suitable action	*/
++	switch (sccb->header.response_code) {
++	case 0x0020 :
++		/* normal completion, buffer processed, message(s) sent */
++		break;
++
++	case 0x0340:	/* contained SCLP equipment check */
++	case 0x40F0:	/* function code disabled in SCLP receive mask */
++		break;
++	default:
++		/* sclp_free_sccb(sccb); */
++		printk(KERN_WARNING SCLP_RW_PRINT_HEADER
++		       "write event data failed "
++		       "(response code: 0x%x SCCB address %p).\n",
++		       sccb->header.response_code, sccb);
++		break;
++	}
++	if (buffer->callback != NULL)
++		buffer->callback(buffer, sccb->header.response_code);
++}
++
++/*
++ * Setup the request structure in the struct sclp_buffer to do SCLP Write
++ * Event Data and pass the request to the core SCLP loop.
++ */
++void
++sclp_emit_buffer(struct sclp_buffer *buffer,
++		 void (*callback)(struct sclp_buffer *, int))
++{
++	struct write_sccb *sccb;
++
++	/* add current line if there is one */
++	if (buffer->current_line != NULL)
++		sclp_add_mto(buffer);
++
++	/* Are there messages in the output buffer ? */
++	if (buffer->mto_number <= 0)
++		return;
++
++	sccb = buffer->sccb;
++	if (sclp_rw_event.sclp_send_mask & EvTyp_Msg_Mask)
++		/* Use normal write message */
++		sccb->msg_buf.header.type = EvTyp_Msg;
++	else if (sclp_rw_event.sclp_send_mask & EvTyp_PMsgCmd_Mask)
++		/* Use write priority message */
++		sccb->msg_buf.header.type = EvTyp_PMsgCmd;
++	else {
++		callback(buffer, -ENOSYS);
++		return;
++	}
++	buffer->request.command = SCLP_CMDW_WRITEDATA;
++	buffer->request.status = SCLP_REQ_FILLED;
++	buffer->request.callback = sclp_writedata_callback;
++	buffer->request.callback_data = buffer;
++	buffer->request.sccb = sccb;
++	buffer->callback = callback;
++	sclp_add_request(&buffer->request);
++}
+diff -urN linux-2.5.48/drivers/s390/char/sclp_rw.h linux-2.5.48-s390/drivers/s390/char/sclp_rw.h
+--- linux-2.5.48/drivers/s390/char/sclp_rw.h	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_rw.h	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,94 @@
++/*
++ *  drivers/s390/char/sclp_rw.h
++ *    interface to the SCLP-read/write driver
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#ifndef __SCLP_RW_H__
++#define __SCLP_RW_H__
++
++struct mto {
++	u16 length;
++	u16 type;
++	u16 line_type_flags;
++	u8  alarm_control;
++	u8  _reserved[3];
++} __attribute__((packed));
++
++struct go {
++	u16 length;
++	u16 type;
++	u32 domid;
++	u8  hhmmss_time[8];
++	u8  th_time[3];
++	u8  reserved_0;
++	u8  dddyyyy_date[7];
++	u8  _reserved_1;
++	u16 general_msg_flags;
++	u8  _reserved_2[10];
++	u8  originating_system_name[8];
++	u8  job_guest_name[8];
++} __attribute__((packed));
++
++struct mdb_header {
++	u16 length;
++	u16 type;
++	u32 tag;
++	u32 revision_code;
++} __attribute__((packed));
++
++struct mdb {
++	struct mdb_header header;
++	struct go go;
++} __attribute__((packed));
++
++struct msg_buf {
++	struct evbuf_header header;
++	struct mdb mdb;
++} __attribute__((packed));
++
++struct write_sccb {
++	struct sccb_header header;
++	struct msg_buf msg_buf;
++} __attribute__((packed));
++
++/* The number of empty mto buffers that can be contained in a single sccb. */
++#define NR_EMPTY_MTO_PER_SCCB ((PAGE_SIZE - sizeof(struct sclp_buffer) - \
++			sizeof(struct write_sccb)) / sizeof(struct mto))
++
++/*
++ * data structure for information about list of SCCBs (only for writing),
++ * will be located at the end of a SCCBs page
++ */
++struct sclp_buffer {
++	struct list_head list;		/* list_head for sccb_info chain */
++	struct sclp_req request;
++	struct write_sccb *sccb;
++	char *current_line;
++	int current_length;
++	/* output format settings */
++	unsigned short columns;
++	unsigned short htab;
++	/* statistics about this buffer */
++	unsigned int mto_char_sum;	/* # chars in sccb */
++	unsigned int mto_number;	/* # mtos in sccb */
++	/* Callback that is called after reaching final status. */
++	void (*callback)(struct sclp_buffer *, int);
++};
++
++int sclp_rw_init(void);
++struct sclp_buffer *sclp_make_buffer(void *, unsigned short, unsigned short);
++void *sclp_unmake_buffer(struct sclp_buffer *);
++int sclp_buffer_space(struct sclp_buffer *);
++int sclp_write(struct sclp_buffer *buffer, const char *, int, int);
++void sclp_move_current_line(struct sclp_buffer *, struct sclp_buffer *);
++void sclp_emit_buffer(struct sclp_buffer *,void (*)(struct sclp_buffer *,int));
++void sclp_set_columns(struct sclp_buffer *, unsigned short);
++void sclp_set_htab(struct sclp_buffer *, unsigned short);
++int sclp_chars_in_buffer(struct sclp_buffer *);
++
++#endif	/* __SCLP_RW_H__ */
+diff -urN linux-2.5.48/drivers/s390/char/sclp_tty.c linux-2.5.48-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.5.48/drivers/s390/char/sclp_tty.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_tty.c	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,798 @@
++/*
++ *  drivers/s390/char/sclp_tty.c
++ *    SCLP line mode terminal driver.
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#include <linux/config.h>
++#include <linux/version.h>
++#include <linux/kmod.h>
++#include <linux/tty.h>
++#include <linux/tty_driver.h>
++#include <linux/sched.h>
++#include <linux/wait.h>
++#include <linux/slab.h>
++#include <asm/uaccess.h>
++
++#include "ctrlchar.h"
++#include "sclp.h"
++#include "sclp_rw.h"
++#include "sclp_tty.h"
++
++#define SCLP_TTY_PRINT_HEADER "sclp tty driver: "
++
++/*
++ * size of a buffer that collects single characters coming in
++ * via sclp_tty_put_char()
++ */
++#define SCLP_TTY_BUF_SIZE 512
++
++/*
++ * There is excatly one SCLP terminal, so we can keep things simple
++ * and allocate all variables statically.
++ */
++
++/* Lock to guard over changes to global variables. */
++static spinlock_t sclp_tty_lock;
++/* List of free pages that can be used for console output buffering. */
++static struct list_head sclp_tty_pages;
++/* List of full struct sclp_buffer structures ready for output. */
++static struct list_head sclp_tty_outqueue;
++/* Counter how many buffers are emitted. */
++static int sclp_tty_buffer_count;
++/* Pointer to current console buffer. */
++static struct sclp_buffer *sclp_ttybuf;
++/* Timer for delayed output of console messages. */
++static struct timer_list sclp_tty_timer;
++/* Waitqueue to wait for buffers to get empty. */
++static wait_queue_head_t sclp_tty_waitq;
++
++static struct tty_struct *sclp_tty;
++static unsigned char sclp_tty_chars[SCLP_TTY_BUF_SIZE];
++static unsigned short int sclp_tty_chars_count;
++
++static struct tty_driver sclp_tty_driver;
++static struct tty_struct * sclp_tty_table[1];
++static struct termios * sclp_tty_termios[1];
++static struct termios * sclp_tty_termios_locked[1];
++static int sclp_tty_refcount = 0;
++
++extern struct termios  tty_std_termios;
++
++static struct sclp_ioctls sclp_ioctls;
++static struct sclp_ioctls sclp_ioctls_init =
++{
++	8,			/* 1 hor. tab. = 8 spaces */
++	0,			/* no echo of input by this driver */
++	80,			/* 80 characters/line */
++	1,			/* write after 1/10 s without final new line */
++	MAX_KMEM_PAGES,		/* quick fix: avoid __alloc_pages */
++	MAX_KMEM_PAGES,		/* take 32/64 pages from kernel memory, */
++	0,			/* do not convert to lower case */
++	0x6c			/* to seprate upper and lower case */
++				/* ('%' in EBCDIC) */
++};
++
++/* This routine is called whenever we try to open a SCLP terminal. */
++static int
++sclp_tty_open(struct tty_struct *tty, struct file *filp)
++{
++	/* only 1 SCLP terminal supported */
++	if (minor(tty->device) != tty->driver.minor_start)
++		return -ENODEV;
++	sclp_tty = tty;
++	tty->driver_data = NULL;
++	tty->low_latency = 0;
++	return 0;
++}
++
++/* This routine is called when the SCLP terminal is closed. */
++static void
++sclp_tty_close(struct tty_struct *tty, struct file *filp)
++{
++	/* only 1 SCLP terminal supported */
++	if (minor(tty->device) != tty->driver.minor_start)
++		return;
++	if (tty->count > 1)
++		return;
++	sclp_tty = NULL;
++}
++
++/* execute commands to control the i/o behaviour of the SCLP tty at runtime */
++static int
++sclp_tty_ioctl(struct tty_struct *tty, struct file * file,
++	       unsigned int cmd, unsigned long arg)
++{
++	unsigned long flags;
++	unsigned int obuf;
++	int check;
++	int rc;
++
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return -EIO;
++	rc = 0;
++	check = 0;
++	switch (cmd) {
++	case TIOCSCLPSHTAB:
++		/* set width of horizontal tab	*/
++		if (get_user(sclp_ioctls.htab, (unsigned short *) arg))
++			rc = -EFAULT;
++		else
++			check = 1;
++		break;
++	case TIOCSCLPGHTAB:
++		/* get width of horizontal tab	*/
++		if (put_user(sclp_ioctls.htab, (unsigned short *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSECHO:
++		/* enable/disable echo of input */
++		if (get_user(sclp_ioctls.echo, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGECHO:
++		/* Is echo of input enabled ?  */
++		if (put_user(sclp_ioctls.echo, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSCOLS:
++		/* set number of columns for output  */
++		if (get_user(sclp_ioctls.columns, (unsigned short *) arg))
++			rc = -EFAULT;
++		else
++			check = 1;
++		break;
++	case TIOCSCLPGCOLS:
++		/* get number of columns for output  */
++		if (put_user(sclp_ioctls.columns, (unsigned short *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSNL:
++		/* enable/disable writing without final new line character  */
++		if (get_user(sclp_ioctls.final_nl, (signed char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGNL:
++		/* Is writing without final new line character enabled ?  */
++		if (put_user(sclp_ioctls.final_nl, (signed char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSOBUF:
++		/*
++		 * set the maximum buffers size for output, will be rounded
++		 * up to next 4kB boundary and stored as number of SCCBs
++		 * (4kB Buffers) limitation: 256 x 4kB
++		 */
++		if (get_user(obuf, (unsigned int *) arg) == 0) {
++			if (obuf & 0xFFF)
++				sclp_ioctls.max_sccb = (obuf >> 12) + 1;
++			else
++				sclp_ioctls.max_sccb = (obuf >> 12);
++		} else
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGOBUF:
++		/* get the maximum buffers size for output  */
++		obuf = sclp_ioctls.max_sccb << 12;
++		if (put_user(obuf, (unsigned int *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGKBUF:
++		/* get the number of buffers got from kernel at startup */
++		if (put_user(sclp_ioctls.kmem_sccb, (unsigned short *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSCASE:
++		/* enable/disable conversion from upper to lower case */
++		if (get_user(sclp_ioctls.tolower, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGCASE:
++		/* Is conversion from upper to lower case of input enabled? */
++		if (put_user(sclp_ioctls.tolower, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSDELIM:
++		/*
++		 * set special character used for seperating upper and
++		 * lower case, 0x00 disables this feature
++		 */
++		if (get_user(sclp_ioctls.delim, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPGDELIM:
++		/*
++		 * get special character used for seperating upper and
++		 * lower case, 0x00 disables this feature
++		 */
++		if (put_user(sclp_ioctls.delim, (unsigned char *) arg))
++			rc = -EFAULT;
++		break;
++	case TIOCSCLPSINIT:
++		/* set initial (default) sclp ioctls  */
++		sclp_ioctls = sclp_ioctls_init;
++		check = 1;
++		break;
++	default:
++		rc = -ENOIOCTLCMD;
++		break;
++	}
++	if (check) {
++		spin_lock_irqsave(&sclp_tty_lock, flags);
++		if (sclp_ttybuf != NULL) {
++			sclp_set_htab(sclp_ttybuf, sclp_ioctls.htab);
++			sclp_set_columns(sclp_ttybuf, sclp_ioctls.columns);
++		}
++		spin_unlock_irqrestore(&sclp_tty_lock, flags);
++	}
++	return rc;
++}
++
++/*
++ * This routine returns the numbers of characters the tty driver
++ * will accept for queuing to be written.  This number is subject
++ * to change as output buffers get emptied, or if the output flow
++ * control is acted. This is not an exact number because not every
++ * character needs the same space in the sccb. The worst case is
++ * a string of newlines. Every newlines creates a new mto which
++ * needs 8 bytes.
++ */
++static int
++sclp_tty_write_room (struct tty_struct *tty)
++{
++	unsigned long flags;
++	struct list_head *l;
++	int count;
++
++	spin_lock_irqsave(&sclp_tty_lock, flags);
++	count = 0;
++	if (sclp_ttybuf != NULL)
++		count = sclp_buffer_space(sclp_ttybuf) / sizeof(struct mto);
++	list_for_each(l, &sclp_tty_pages)
++		count += NR_EMPTY_MTO_PER_SCCB;
++	spin_unlock_irqrestore(&sclp_tty_lock, flags);
++	return count;
++}
++
++static void
++sclp_ttybuf_callback(struct sclp_buffer *buffer, int rc)
++{
++	unsigned long flags;
++	struct sclp_buffer *next;
++	void *page;
++
++	/* FIXME: what if rc != 0x0020 */
++	page = sclp_unmake_buffer(buffer);
++	spin_lock_irqsave(&sclp_tty_lock, flags);
++	list_add_tail((struct list_head *) page, &sclp_tty_pages);
++	sclp_tty_buffer_count--;
++	/* Remove buffer from outqueue */
++	list_del(&buffer->list);
++	/* Check if there is a pending buffer on the out queue. */
++	next = NULL;
++	if (!list_empty(&sclp_tty_outqueue))
++		next = list_entry(sclp_tty_outqueue.next,
++				  struct sclp_buffer, list);
++	spin_unlock_irqrestore(&sclp_tty_lock, flags);
++	if (next != NULL)
++		sclp_emit_buffer(next, sclp_ttybuf_callback);
++	wake_up(&sclp_tty_waitq);
++	/* check if the tty needs a wake up call */
++	if (sclp_tty != NULL) {
++		if ((sclp_tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
++		    sclp_tty->ldisc.write_wakeup)
++			(sclp_tty->ldisc.write_wakeup)(sclp_tty);
++		wake_up_interruptible(&sclp_tty->write_wait);
++	}
++}
++
++static inline void
++__sclp_ttybuf_emit(struct sclp_buffer *buffer)
++{
++	list_add_tail(&buffer->list, &sclp_tty_outqueue);
++	if (sclp_tty_buffer_count++ == 0)
++		sclp_emit_buffer(buffer, sclp_ttybuf_callback);
++}
++
++/*
++ * When this routine is called from the timer then we flush the
++ * temporary write buffer.
++ */
++static void
++sclp_tty_timeout(unsigned long data)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&sclp_tty_lock, flags);
++	if (sclp_ttybuf != NULL) {
++		__sclp_ttybuf_emit(sclp_ttybuf);
++		sclp_ttybuf = NULL;
++	}
++	spin_unlock_irqrestore(&sclp_tty_lock, flags);
++}
++
++/*
++ * Write a string to the sclp tty.
++ */
++static void
++sclp_tty_write_string(const unsigned char *str, int count, int from_user)
++{
++	unsigned long flags;
++	void *page;
++	int written;
++
++	if (count <= 0)
++		return;
++	spin_lock_irqsave(&sclp_tty_lock, flags);
++	do {
++		/* Create a sclp output buffer if none exists yet */
++		if (sclp_ttybuf == NULL) {
++			while (list_empty(&sclp_tty_pages)) {
++				spin_unlock_irqrestore(&sclp_tty_lock, flags);
++				wait_event(sclp_tty_waitq,
++					   !list_empty(&sclp_tty_pages));
++				spin_lock_irqsave(&sclp_tty_lock, flags);
++			}
++			page = sclp_tty_pages.next;
++			list_del((struct list_head *) page);
++			sclp_ttybuf = sclp_make_buffer(page,
++						       sclp_ioctls.columns,
++						       sclp_ioctls.htab);
++		}
++		/* try to write the string to the current output buffer */
++		written = sclp_write(sclp_ttybuf, str, count, from_user);
++		if (written == -EFAULT || written == count)
++			break;
++		/*
++		 * Not all characters could be written to the current
++		 * output buffer. Emit the buffer, create a new buffer
++		 * and then output the rest of the string.
++		 */
++		__sclp_ttybuf_emit(sclp_ttybuf);
++		sclp_ttybuf = NULL;
++		str += written;
++		count -= written;
++	} while (count > 0);
++	/* Setup timer to output current console buffer after 1/10 second */
++	if (sclp_ioctls.final_nl) {
++		if (sclp_ttybuf != NULL && !timer_pending(&sclp_tty_timer)) {
++			init_timer(&sclp_tty_timer);
++			sclp_tty_timer.function = sclp_tty_timeout;
++			sclp_tty_timer.data = 0UL;
++			sclp_tty_timer.expires = jiffies + HZ/10;
++			add_timer(&sclp_tty_timer);
++		}
++	} else {
++		__sclp_ttybuf_emit(sclp_ttybuf);
++		sclp_ttybuf = NULL;
++	}
++	spin_unlock_irqrestore(&sclp_tty_lock, flags);
++}
++
++/*
++ * This routine is called by the kernel to write a series of characters to the
++ * tty device. The characters may come from user space or kernel space. This
++ * routine will return the number of characters actually accepted for writing.
++ */
++static int
++sclp_tty_write(struct tty_struct *tty, int from_user,
++	       const unsigned char *buf, int count)
++{
++	if (sclp_tty_chars_count > 0) {
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_chars_count = 0;
++	}
++	sclp_tty_write_string(buf, count, from_user);
++	return count;
++}
++
++/*
++ * This routine is called by the kernel to write a single character to the tty
++ * device. If the kernel uses this routine, it must call the flush_chars()
++ * routine (if defined) when it is done stuffing characters into the driver.
++ *
++ * Characters provided to sclp_tty_put_char() are buffered by the SCLP driver.
++ * If the given character is a '\n' the contents of the SCLP write buffer
++ * - including previous characters from sclp_tty_put_char() and strings from
++ * sclp_write() without final '\n' - will be written.
++ */
++static void
++sclp_tty_put_char(struct tty_struct *tty, unsigned char ch)
++{
++	sclp_tty_chars[sclp_tty_chars_count++] = ch;
++	if (ch == '\n' || sclp_tty_chars_count >= SCLP_TTY_BUF_SIZE) {
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_chars_count = 0;
++	}
++}
++
++/*
++ * This routine is called by the kernel after it has written a series of
++ * characters to the tty device using put_char().
++ */
++static void
++sclp_tty_flush_chars(struct tty_struct *tty)
++{
++	if (sclp_tty_chars_count > 0) {
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_chars_count = 0;
++	}
++}
++
++/*
++ * This routine returns the number of characters in the write buffer of the
++ * SCLP driver. The provided number includes all characters that are stored
++ * in the SCCB (will be written next time the SCLP is not busy) as well as
++ * characters in the write buffer (will not be written as long as there is a
++ * final line feed missing).
++ */
++static int
++sclp_tty_chars_in_buffer(struct tty_struct *tty)
++{
++	unsigned long flags;
++	struct list_head *l;
++	struct sclp_buffer *t;
++	int count;
++
++	spin_lock_irqsave(&sclp_tty_lock, flags);
++	count = 0;
++	if (sclp_ttybuf != NULL)
++		count = sclp_chars_in_buffer(sclp_ttybuf);
++	list_for_each(l, &sclp_tty_outqueue) {
++		t = list_entry(l, struct sclp_buffer, list);
++		count += sclp_chars_in_buffer(sclp_ttybuf);
++	}
++	spin_unlock_irqrestore(&sclp_tty_lock, flags);
++	return count;
++}
++
++/*
++ * removes all content from buffers of low level driver
++ */
++static void
++sclp_tty_flush_buffer(struct tty_struct *tty)
++{
++	if (sclp_tty_chars_count > 0) {
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_chars_count = 0;
++	}
++}
++
++/*
++ * push input to tty
++ */
++void sclp_tty_input(unsigned char* buf, unsigned int count)
++{
++	unsigned int cchar;
++
++	/*
++	 * If this tty driver is currently closed
++	 * then throw the received input away.
++	 */
++	if (sclp_tty == NULL)
++		return;
++	cchar = ctrlchar_handle(buf, count, sclp_tty);
++	switch (cchar & CTRLCHAR_MASK) {
++	case CTRLCHAR_SYSRQ:
++		break;
++	case CTRLCHAR_CTRL:
++		sclp_tty->flip.count++;
++		*sclp_tty->flip.flag_buf_ptr++ = TTY_NORMAL;
++		*sclp_tty->flip.char_buf_ptr++ = cchar;
++		tty_flip_buffer_push(sclp_tty);
++		break;
++	case CTRLCHAR_NONE:
++		/* send (normal) input to line discipline */
++		memcpy(sclp_tty->flip.char_buf_ptr, buf, count);
++		if (count < 2 ||
++		    strncmp (buf + count - 2, "^n", 2) ||
++		    strncmp (buf + count - 2, "\0252n", 2)) {
++			sclp_tty->flip.char_buf_ptr[count] = '\n';
++			count++;
++		} else
++			count -= 2;
++		memset(sclp_tty->flip.flag_buf_ptr, TTY_NORMAL, count);
++		sclp_tty->flip.char_buf_ptr += count;
++		sclp_tty->flip.flag_buf_ptr += count;
++		sclp_tty->flip.count += count;
++		tty_flip_buffer_push(sclp_tty);
++		break;
++	}
++}
++
++/*
++ * get a EBCDIC string in upper/lower case,
++ * find out characters in lower/upper case seperated by a special character,
++ * modifiy original string,
++ * returns length of resulting string
++ */
++static int
++sclp_switch_cases(unsigned char *buf, int count,
++		  unsigned char delim, int tolower)
++{
++	unsigned char *ip, *op;
++	int toggle;
++
++	/* initially changing case is off */
++	toggle = 0;
++	ip = op = buf;
++	while (count-- > 0) {
++		/* compare with special character */
++		if (*ip == delim) {
++			/* followed by another special character? */
++			if (count && ip[1] == delim) {
++				/*
++				 * ... then put a single copy of the special
++				 * character to the output string
++				 */
++				*op++ = *ip++;
++				count--;
++			} else
++				/*
++				 * ... special character follower by a normal
++				 * character toggles the case change behaviour
++				 */
++				toggle = ~toggle;
++			/* skip special character */
++			ip++;
++		} else
++			/* not the special character */
++			if (toggle)
++				/* but case switching is on */
++				if (tolower)
++					/* switch to uppercase */
++					*op++ = _ebc_toupper[(int) *ip++];
++				else
++					/* switch to lowercase */
++					*op++ = _ebc_tolower[(int) *ip++];
++			else
++				/* no case switching, copy the character */
++				*op++ = *ip++;
++	}
++	/* return length of reformatted string. */
++	return op - buf;
++}
++
++static void
++sclp_get_input(char *start, char *end)
++{
++	int count;
++
++	count = end - start;
++	/*
++	 * if set in ioctl convert EBCDIC to lower case
++	 * (modify original input in SCCB)
++	 */
++	if (sclp_ioctls.tolower)
++		EBC_TOLOWER(start, count);
++
++	/*
++	 * if set in ioctl find out characters in lower or upper case
++	 * (depends on current case) seperated by a special character,
++	 * works on EBCDIC
++	 */
++	if (sclp_ioctls.delim)
++		count = sclp_switch_cases(start, count,
++					  sclp_ioctls.delim,
++					  sclp_ioctls.tolower);
++
++	/* convert EBCDIC to ASCII (modify original input in SCCB) */
++	sclp_ebcasc_str(start, count);
++
++	/* if set in ioctl write operators input to console  */
++	if (sclp_ioctls.echo)
++		sclp_tty_write(sclp_tty, 0, start, count);
++
++	/* transfer input to high level driver */
++	sclp_tty_input(start, count);
++}
++
++static inline struct gds_vector *
++find_gds_vector(struct gds_vector *start, struct gds_vector *end, u16 id)
++{
++	struct gds_vector *vec;
++
++	for (vec = start; vec < end; (void *) vec += vec->length)
++		if (vec->gds_id == id)
++			return vec;
++	return NULL;
++}
++
++static inline struct gds_subvector *
++find_gds_subvector(struct gds_subvector *start,
++		   struct gds_subvector *end, u8 key)
++{
++	struct gds_subvector *subvec;
++
++	for (subvec = start; subvec < end; (void *) subvec += subvec->length)
++		if (subvec->key == key)
++			return subvec;
++	return NULL;
++}
++
++static inline void
++sclp_eval_selfdeftextmsg(struct gds_subvector *start,
++			 struct gds_subvector *end)
++{
++	struct gds_subvector *subvec;
++
++	subvec = start;
++	while (subvec < end) {
++		subvec = find_gds_subvector(subvec, end, 0x30);
++		if (!subvec)
++			break;
++		sclp_get_input((void *)(subvec + 1),
++			       (void *) subvec + subvec->length);
++		(void *) subvec += subvec->length;
++	}
++}
++
++static inline void
++sclp_eval_textcmd(struct gds_subvector *start,
++		  struct gds_subvector *end)
++{
++	struct gds_subvector *subvec;
++
++	subvec = start;
++	while (subvec < end) {
++		subvec = find_gds_subvector(subvec, end,
++					    GDS_KEY_SelfDefTextMsg);
++		if (!subvec)
++			break;
++		sclp_eval_selfdeftextmsg((struct gds_subvector *)(subvec + 1),
++					 (void *)subvec + subvec->length);
++		(void *) subvec += subvec->length;
++	}
++}
++
++static inline void
++sclp_eval_cpmsu(struct gds_vector *start, struct gds_vector *end)
++{
++	struct gds_vector *vec;
++
++	vec = start;
++	while (vec < end) {
++		vec = find_gds_vector(vec, end, GDS_ID_TextCmd);
++		if (!vec)
++			break;
++		sclp_eval_textcmd((struct gds_subvector *)(vec + 1),
++				  (void *) vec + vec->length);
++		(void *) vec += vec->length;
++	}
++}
++
++
++static inline void
++sclp_eval_mdsmu(struct gds_vector *start, void *end)
++{
++	struct gds_vector *vec;
++
++	vec = find_gds_vector(start, end, GDS_ID_CPMSU);
++	if (vec)
++		sclp_eval_cpmsu(vec + 1, (void *) vec + vec->length);
++}
++
++static void
++sclp_tty_receiver(struct evbuf_header *evbuf)
++{
++	struct gds_vector *start, *end, *vec;
++
++	start = (struct gds_vector *)(evbuf + 1);
++	end = (void *) evbuf + evbuf->length;
++	vec = find_gds_vector(start, end, GDS_ID_MDSMU);
++	if (vec)
++		sclp_eval_mdsmu(vec + 1, (void *) vec + vec->length);
++}
++
++static void
++sclp_tty_state_change(struct sclp_register *reg)
++{
++}
++
++struct sclp_register sclp_input_event =
++{
++	.receive_mask = EvTyp_OpCmd_Mask | EvTyp_PMsgCmd_Mask,
++	.state_change_fn = sclp_tty_state_change,
++	.receiver_fn = sclp_tty_receiver
++};
++
++void
++sclp_tty_init(void)
++{
++	void *page;
++	int i;
++
++	if (!CONSOLE_IS_SCLP)
++		return;
++	if (sclp_rw_init() != 0)
++		return;
++	/* Allocate pages for output buffering */
++	INIT_LIST_HEAD(&sclp_tty_pages);
++	for (i = 0; i < MAX_KMEM_PAGES; i++) {
++		page = (void *) get_zeroed_page(GFP_KERNEL);
++		if (page == NULL)
++			return;
++		list_add_tail((struct list_head *) page, &sclp_tty_pages);
++	}
++	INIT_LIST_HEAD(&sclp_tty_outqueue);
++	spin_lock_init(&sclp_tty_lock);
++	init_waitqueue_head(&sclp_tty_waitq);
++	init_timer(&sclp_tty_timer);
++	sclp_ttybuf = NULL;
++	sclp_tty_buffer_count = 0;
++	if (MACHINE_IS_VM) {
++		/*
++		 * save 4 characters for the CPU number
++		 * written at start of each line by VM/CP
++		 */
++		sclp_ioctls_init.columns = 76;
++		/* case input lines to lowercase */
++		sclp_ioctls_init.tolower = 1;
++	}
++	sclp_ioctls = sclp_ioctls_init;
++	sclp_tty_chars_count = 0;
++	sclp_tty = NULL;
++
++	if (sclp_register(&sclp_input_event) != 0)
++		return;
++
++	memset (&sclp_tty_driver, 0, sizeof(struct tty_driver));
++	sclp_tty_driver.magic = TTY_DRIVER_MAGIC;
++	sclp_tty_driver.driver_name = "tty_sclp";
++	sclp_tty_driver.name = "ttyS";
++	sclp_tty_driver.name_base = 0;
++	sclp_tty_driver.major = TTY_MAJOR;
++	sclp_tty_driver.minor_start = 64;
++	sclp_tty_driver.num = 1;
++	sclp_tty_driver.type = TTY_DRIVER_TYPE_SYSTEM;
++	sclp_tty_driver.subtype = SYSTEM_TYPE_TTY;
++	sclp_tty_driver.init_termios = tty_std_termios;
++	sclp_tty_driver.init_termios.c_iflag = IGNBRK | IGNPAR;
++	sclp_tty_driver.init_termios.c_oflag = ONLCR | XTABS;
++	sclp_tty_driver.init_termios.c_lflag = ISIG | ECHO;
++	sclp_tty_driver.flags = TTY_DRIVER_REAL_RAW;
++	sclp_tty_driver.refcount = &sclp_tty_refcount;
++	/* sclp_tty_driver.proc_entry ?	 */
++	sclp_tty_driver.table = sclp_tty_table;
++	sclp_tty_driver.termios = sclp_tty_termios;
++	sclp_tty_driver.termios_locked = sclp_tty_termios_locked;
++	sclp_tty_driver.open = sclp_tty_open;
++	sclp_tty_driver.close = sclp_tty_close;
++	sclp_tty_driver.write = sclp_tty_write;
++	sclp_tty_driver.put_char = sclp_tty_put_char;
++	sclp_tty_driver.flush_chars = sclp_tty_flush_chars;
++	sclp_tty_driver.write_room = sclp_tty_write_room;
++	sclp_tty_driver.chars_in_buffer = sclp_tty_chars_in_buffer;
++	sclp_tty_driver.flush_buffer = sclp_tty_flush_buffer;
++	sclp_tty_driver.ioctl = sclp_tty_ioctl;
++	/*
++	 * No need for these function because they would be only called when
++	 * the line discipline is close to full. That means that there must be
++	 * collected nearly 4kB of input data. I suppose it is very difficult
++	 * for the operator to enter lines quickly enough to let overrun the
++	 * line discipline. Besides the n_tty line discipline does not try to
++	 * call such functions if the pointers are set to NULL. Finally I have
++	 * no idea what to do within these function. I can not prevent the
++	 * operator and the SCLP to deliver input. Because of the reasons
++	 * above it seems not worth to implement a buffer mechanism.
++	 */
++	sclp_tty_driver.throttle = NULL;
++	sclp_tty_driver.unthrottle = NULL;
++	sclp_tty_driver.send_xchar = NULL;
++	sclp_tty_driver.set_termios = NULL;
++	sclp_tty_driver.set_ldisc = NULL;
++	sclp_tty_driver.stop = NULL;
++	sclp_tty_driver.start = NULL;
++	sclp_tty_driver.hangup = NULL;
++	sclp_tty_driver.break_ctl = NULL;
++	sclp_tty_driver.wait_until_sent = NULL;
++	sclp_tty_driver.read_proc = NULL;
++	sclp_tty_driver.write_proc = NULL;
++
++	if (tty_register_driver(&sclp_tty_driver))
++		panic("Couldn't register sclp_tty driver\n");
++}
+diff -urN linux-2.5.48/drivers/s390/char/sclp_tty.h linux-2.5.48-s390/drivers/s390/char/sclp_tty.h
+--- linux-2.5.48/drivers/s390/char/sclp_tty.h	Thu Jan  1 01:00:00 1970
++++ linux-2.5.48-s390/drivers/s390/char/sclp_tty.h	Mon Nov 18 20:14:52 2002
+@@ -0,0 +1,67 @@
++/*
++ *  drivers/s390/char/sclp_tty.h
++ *    interface to the SCLP-read/write driver
++ *
++ *  S390 version
++ *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
++
++#ifndef __SCLP_TTY_H__
++#define __SCLP_TTY_H__
++
++#include <linux/ioctl.h>
++
++/* This is the type of data structures storing sclp ioctl setting. */
++struct sclp_ioctls {
++	unsigned short htab;
++	unsigned char echo;
++	unsigned short columns;
++	signed char final_nl;
++	unsigned short max_sccb;
++	unsigned short kmem_sccb;	/* can´t be modified at run time */
++	unsigned char tolower;
++	unsigned char delim;
++};
++
++/* must be unique, FIXME: must be added in Documentation/ioctl_number.txt */
++#define SCLP_IOCTL_LETTER 'B'
++
++/* set width of horizontal tabulator */
++#define TIOCSCLPSHTAB	_IOW(SCLP_IOCTL_LETTER, 0, unsigned short)
++/* enable/disable echo of input (independent from line discipline) */
++#define TIOCSCLPSECHO	_IOW(SCLP_IOCTL_LETTER, 1, unsigned char)
++/* set number of colums for output */
++#define TIOCSCLPSCOLS	_IOW(SCLP_IOCTL_LETTER, 2, unsigned short)
++/* enable/disable writing without final new line character */
++#define TIOCSCLPSNL	_IOW(SCLP_IOCTL_LETTER, 4, signed char)
++/* set the maximum buffers size for output, rounded up to next 4kB boundary */
++#define TIOCSCLPSOBUF	_IOW(SCLP_IOCTL_LETTER, 5, unsigned short)
++/* set initial (default) sclp ioctls */
++#define TIOCSCLPSINIT	_IO(SCLP_IOCTL_LETTER, 6)
++/* enable/disable conversion from upper to lower case of input */
++#define TIOCSCLPSCASE	_IOW(SCLP_IOCTL_LETTER, 7, unsigned char)
++/* set special character used for seperating upper and lower case, */
++/* 0x00 disables this feature */
++#define TIOCSCLPSDELIM	_IOW(SCLP_IOCTL_LETTER, 9, unsigned char)
++
++/* get width of horizontal tabulator */
++#define TIOCSCLPGHTAB	_IOR(SCLP_IOCTL_LETTER, 10, unsigned short)
++/* Is echo of input enabled ? (independent from line discipline) */
++#define TIOCSCLPGECHO	_IOR(SCLP_IOCTL_LETTER, 11, unsigned char)
++/* get number of colums for output */
++#define TIOCSCLPGCOLS	_IOR(SCLP_IOCTL_LETTER, 12, unsigned short)
++/* Is writing without final new line character enabled ? */
++#define TIOCSCLPGNL	_IOR(SCLP_IOCTL_LETTER, 14, signed char)
++/* get the maximum buffers size for output */
++#define TIOCSCLPGOBUF	_IOR(SCLP_IOCTL_LETTER, 15, unsigned short)
++/* Is conversion from upper to lower case of input enabled ? */
++#define TIOCSCLPGCASE	_IOR(SCLP_IOCTL_LETTER, 17, unsigned char)
++/* get special character used for seperating upper and lower case, */
++/* 0x00 disables this feature */
++#define TIOCSCLPGDELIM	_IOR(SCLP_IOCTL_LETTER, 19, unsigned char)
++/* get the number of buffers/pages got from kernel at startup */
++#define TIOCSCLPGKBUF	_IOR(SCLP_IOCTL_LETTER, 20, unsigned short)
++
++#endif	/* __SCLP_TTY_H__ */
 

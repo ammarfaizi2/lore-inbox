@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVA0AnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVA0AnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVA0AnP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVA0AUX
+	id S262485AbVA0AnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVA0AW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:20:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49826 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262485AbVAZWtZ (ORCPT
+	Wed, 26 Jan 2005 19:22:57 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:24773 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262494AbVAZXXc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 17:49:25 -0500
-Date: Wed, 26 Jan 2005 14:42:31 -0800
-From: Greg KH <greg@kroah.com>
-To: "Mark A. Greer" <mgreer@mvista.com>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
-Message-ID: <20050126224231.GA4874@kroah.com>
-References: <41F6F1D5.90601@mvista.com> <20050126205619.4c0b41fa.khali@linux-fr.org> <41F81227.6070101@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F81227.6070101@mvista.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 26 Jan 2005 18:23:32 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E5705B83A31@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'Greg KH'" <greg@kroah.com>
+Cc: "'Patrick Mansfield'" <patmans@us.ibm.com>,
+       "'James Bottomley'" <James.Bottomley@steeleye.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Wed, 26 Jan 2005 18:23:16 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 02:56:55PM -0700, Mark A. Greer wrote:
-> +#include <linux/config.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/sched.h>
-> +#include <linux/init.h>
-> +#include <linux/pci.h>
-> +#include <linux/wait.h>
-> +#include <linux/spinlock.h>
-> +#include <asm/io.h>
-> +#include <asm/ocp.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
-> +#include <linux/mv643xx.h>
-> +#include "i2c-mv64xxx.h"
+> 
+> And what do you mean "different implementations for /sbin/hotplug"?
+> What distros do not use the standard "linux-hotplug" type 
+> scripts, or if not the scripts, the same functionality?
 
-Please put <asm/ after <linux/
+You are right, even though distributions (I checked Red Hat and SuSE) have
+different /sbin/hotplug scripts (e.g., SuSE 9.2 will not execute files from
+/etc/hotplug.d whereas Red Hat does) udev will be invoked in all cases,
+which will take care of creating device nodes.
 
-> +static inline void
-> +mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
-> +{
-> +	pr_debug("mv64xxx_i2c_fsm: ENTER--state: %d, status: 0x%x\n",
-> +		drv_data->state, status);
+But our concern is that how would the applications get the cue that udev has
+actually created the nodes for the new devices? 
 
-You have a lot of pr_debug and other printk() for stuff in this driver.
-Please use dev_dbg(), dev_err() and friends instead.  That way you get a
-consistant message, that points to the exact device that is causing the
-message.
+Make sure an agent is called after the, e.g., scsi agents are executed from
+/etc/hotplug directory (which happen to be scsi.agent, scsi_device.agent,
+scsi_host.agent in one and only scsi.agent in other distribution), by
+writing an rc like script?
 
-> +static inline void
-> +mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
-> +	struct i2c_msg *msg)
+Or more likely, by placing our agent in /etc/dev.d directory. Unfortunately,
+there seems be not a consensus here as well. On system has "default" and
+"net" directories and other has "block", "input", "net", "tty"?
 
-You have some big inline functions here.  Should they really be inline?
-We aren't really worried about speed here, right?  Size is probably a
-bigger issue.
 
-> diff -Nru a/drivers/i2c/busses/i2c-mv64xxx.h b/drivers/i2c/busses/i2c-mv64xxx.h
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.h	2005-01-26 14:49:22 -07:00
+Thanks
 
-Is this header file really needed?  Does any other file other than this
-single driver ever include it?  If not, please just put it into the
-driver itself.
-
-thanks,
-
-greg k-h
+--------------------------------
+Atul Mukker
+Architect, RAID Drivers and BIOS
+LSI Logic Corporation

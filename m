@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUIGVHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUIGVMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268650AbUIGVHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIGVHn
+	id S268646AbUIGVMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUIGVKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:07:43 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64435 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268602AbUIGVCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:02:19 -0400
-Date: Tue, 7 Sep 2004 23:02:16 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: 2.6.9-rc1-mm4 breaks OpenOffice
-Message-ID: <20040907210216.GB17555@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 7 Sep 2004 17:10:18 -0400
+Received: from slartibartfast.pa.net ([66.59.111.182]:40360 "EHLO
+	slartibartfast.pa.net") by vger.kernel.org with ESMTP
+	id S268657AbUIGVJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 17:09:17 -0400
+Date: Tue, 7 Sep 2004 17:05:01 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ML-reiserfs <reiserfs-list@namesys.com>,
+       William Stearns <wstearns@pobox.com>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document
+ the idea of what reiser4 wants to do with metafiles and why
+In-Reply-To: <413E170F.9000204@namesys.com>
+Message-ID: <Pine.LNX.4.58.0409071658120.2985@sparrow>
+References: <41323AD8.7040103@namesys.com> <20040831131201.GA1609@elf.ucw.cz>
+ <413E170F.9000204@namesys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Good day, all,
 
-Are there some futex-related changes in -mm4? [Hmm, does not seem
-so]. OpenOffice seems to be pretty unhappy... (read "crashes with
-segmentation fault after some futex operations).
+On Tue, 7 Sep 2004, Hans Reiser wrote:
 
-Anyone else see the problems?
+> >What about choosing just "..." instead of "metas"? "metas" is string
+> >that needs translation etc, while "..." is nicely neutral.
+> >
+> >cat /sound_of_silence.mp3/.../author
+> >
+> >does not look bad, either...
+> >
+> "..." is pretty good, but I think it has been used by others, but I 
+> really forget who.  I could live with "...", but I think "metas" and 
 
-open("/home/pavel/.user60.rdb", O_RDWR) = 6
-fcntl64(6, F_GETFD)                     = 0
-fcntl64(6, F_SETFD, FD_CLOEXEC)         = 0
-lseek(6, 0, SEEK_END)                   = 2048
-mmap2(NULL, 2048, PROT_READ|PROT_WRITE, MAP_SHARED, 6, 0) = 0xb6c46000
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb6c45000
-mmap2(NULL, 8388608, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb6445000
-mprotect(0xb6445000, 4096, PROT_NONE)   = 0
-clone(child_stack=0xb6c44b48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0xb6c44bf8, {entry_number:6, base_addr:0xb6c44bb0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0xb6c44bf8) = 1112
-futex(0x808cd98, FUTEX_WAKE, 1)         = 1
-futex(0x808ce10, FUTEX_WAIT, 0, NULL)   = -1 EINTR (Interrupted system call)
-+++ killed by SIGSEGV (core dumped) +++
+	Some trojans and rootkits have used it to store files; 
+/usr/lib/... , /usr/doc/... , /usr/sbin/... , /usr/local/bin/... , 
+/dev/... , and /usr/include/... are used by bobkit.
+	This might trigger false positives for rootkit detection tools 
+like chkrootkit and rootkit-hunter.
+	Cheers,
+	- Bill
 
-								Pavel
-
+---------------------------------------------------------------------------
+        "What is the most effective Windows NT remote management tool? 
+A car."
+        -- Network Intrusion Detection, An Analyst's Handbook
+           2nd Edition, 2000
+           Stephen Northcutt et al, page 147
+(Courtesy of Rodrigo Goya <lucent@securenet.com.mx>)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+--------------------------------------------------------------------------

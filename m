@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284177AbRLASDg>; Sat, 1 Dec 2001 13:03:36 -0500
+	id <S281966AbRLASF5>; Sat, 1 Dec 2001 13:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284183AbRLASD0>; Sat, 1 Dec 2001 13:03:26 -0500
-Received: from finch-post-12.mail.demon.net ([194.217.242.41]:33289 "EHLO
-	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S284174AbRLASDJ>; Sat, 1 Dec 2001 13:03:09 -0500
-Subject: Re: esr cut off my genitives
-From: Richard Russon <ldm@flatcap.org>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200112011714.fB1HErY09774@snark.thyrsus.com>
-In-Reply-To: <200112011714.fB1HErY09774@snark.thyrsus.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
-Date: 01 Dec 2001 18:03:07 +0000
-Message-Id: <1007229787.2134.10.camel@addlestones>
-Mime-Version: 1.0
+	id <S284174AbRLASFs>; Sat, 1 Dec 2001 13:05:48 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:3332 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S281966AbRLASFa>; Sat, 1 Dec 2001 13:05:30 -0500
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] if (foo) kfree(foo) /fs cleanup + reverted JBD code path changes
+In-Reply-To: <Pine.LNX.4.33.0112011942340.14914-100000@netfinity.realnet.co.sz>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 02 Dec 2001 03:05:10 +0900
+In-Reply-To: <Pine.LNX.4.33.0112011942340.14914-100000@netfinity.realnet.co.sz>
+Message-ID: <871yierf3d.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi esr,
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> writes:
 
-There are a couple of lines of the patch I'm not quite happy with.
+> On Sun, 2 Dec 2001, OGAWA Hirofumi wrote:
+> > In all failed cases, this message will be outputted. I think I shouldn't do
+> > so. (or remove this message.)
+> 
+> I found all sorts of interesting things in my little adventure...
+> Heres an interesting one;
 
-> -Windows' Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
-> +Windows Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
+Do you want to see the following message, even when not using nls?
 
-> -Windows' LDM extra logging
-> +Windows LDM extra logging
-
-Not wishing to sound too pedantic, but I did put the apostropes in on
-purpose.  "Windows" is a plural noun and the genitive of it is "Windows'".
-
-Of course if it's a limitation of the new config tool I'll understand :-)
-(and you'll need to apply the following, too).
-
--IBM's S/390 architecture
-+IBMs S/390 architecture
-
-Cheers,
-  FlatCap (Rich)
-  ldm@flatcap.org
-
-
-
-
-
+FAT: freeing iocharset=<NULL>
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

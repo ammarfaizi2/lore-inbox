@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271806AbTGRPGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271842AbTGRPGS
+	id S269299AbTGRPbq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268548AbTGRPar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:06:18 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:23058 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S271764AbTGROyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:54:04 -0400
-Date: Fri, 18 Jul 2003 17:10:13 +0200
-From: DervishD <raul@pleyades.net>
-To: joe briggs <jbriggs@briggsmedia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: run-parts,find, kupdated: What are they and how to control them?
-Message-ID: <20030718151013.GB3963@DervishD>
-References: <200307180925.24867.jbriggs@briggsmedia.com>
+	Fri, 18 Jul 2003 11:30:47 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:34544 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S271857AbTGRPYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 11:24:34 -0400
+Subject: Re: libata driver update posted
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Catalin BOIE <util@deuroconsult.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <3F17F28C.9050105@pobox.com>
+References: <3F1711C8.6040207@pobox.com>
+	 <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
+	 <3F17F28C.9050105@pobox.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058542771.13515.1599.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200307180925.24867.jbriggs@briggsmedia.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 18 Jul 2003 17:39:32 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Joe :)
+On Fri, 2003-07-18 at 15:13, Jeff Garzik wrote:
+> Catalin BOIE wrote:
+> >>Next update will add several host drivers, now that the libata API is
+> >>settling down.
+> > 
+> > 
+> > Sii3112A is/will be supported?
+> 
+> 
+> Yes, will be.
+> 
+> Silicon Image and Promise support are most likely next.
+> 
 
- * joe briggs <jbriggs@briggsmedia.com> dixit:
-> Can someone 
-> PLEASE either explain what these are doing and how they are controlled, or 
-> point me in the right direction? Many thanks.
+How is performance compared to the default driver for the ICH5 SATA ?
 
-    Your problem has nothing to do with the kernel itself. Your
-problem is that you have cron jobs that eat resources. If you don't
-want them, just disable cron, or delete the cron jobs, etc...
 
-    Without knowing your distro, your cron config or more details for
-you system I cannot tell you more. Just in case, find is a binary
-for... finding files; run-parts is for running things in your
-/etc/rc* directories and kupdated is the buffer cache manager (well,
-more or less...). BTW, googling for 'kupdated' shows a lot of info...
+Thanks,
 
-    I don't know of a mailing list related to this kind of questions,
-so I think this can be as good as any. If you want more help you will
-have to give me more information about your problem.
-
-    Raúl Núñez de Arenas Coronado
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Martin Schlemmer
+
+

@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbUKQXFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbUKQXL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbUKQXFy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 18:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUKQXDo
+	id S262668AbUKQXL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 18:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUKQXI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 18:03:44 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:17820
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S262578AbUKQXD2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 18:03:28 -0500
-Date: Wed, 17 Nov 2004 18:14:38 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: ISO9660 file size limitation
-Message-ID: <20041117231437.GA21986@animx.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Wed, 17 Nov 2004 18:08:56 -0500
+Received: from dsl-213-023-007-213.arcor-ip.net ([213.23.7.213]:50180 "EHLO
+	be3.lrz.7eggert.dyndns.org") by vger.kernel.org with ESMTP
+	id S262668AbUKQXHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 18:07:22 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: vm-pageout-throttling.patch: hanging in throttle_vm_writeout/blk_congestion_wait
+To: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@nurfuerspam.de
+Date: Thu, 18 Nov 2004 00:07:37 +0100
+References: <fa.hmuv5gp.g5krg5@ifi.uio.no> <fa.c8odfd2.1a3mtig@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CUYtl-0001Ga-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just came across this today after burning backups to dvd-r.  The file that
-caused the problem is 2,471,265,365 bytes.  After searching a little bit
-I found that the kernel doesn't like the size even though it's valid (That
-is from what I read).  So I did this:
+Hans Reiser wrote:
 
---- inode.c-old	2004-11-17 17:50:51.000000000 -0500
-+++ inode.c	2004-11-17 17:57:44.000000000 -0500
-@@ -1218,12 +1218,16 @@
- 	 * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully
- 	 *	    legal. Do not prevent to use DVD's schilling@fokus.gmd.de
- 	 */
-+#if 0
- 	if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
- 	    inode->i_sb->u.isofs_sb.s_cruft == 'n') {
- 		printk(KERN_WARNING "Warning: defective CD-ROM.  "
- 		       "Enabling \"cruft\" mount option.\n");
- 		inode->i_sb->u.isofs_sb.s_cruft = 'y';
- 	}
-+#else
-+	inode->i_size &= 0xFFFFFFFF;
-+#endif
- 
- 	/*
- 	 * Some dipshit decided to store some other bit of information
+> Does Andrew's approach prevent putting swap on a compressed file (useful
+> for reiser4 once the compression plugin is stable, not reiserfs)?
 
-
-It seems to work for me, but I would like to know if doing this might cause
-problems.  The large file is a tar.gz.  After doing the above modification
-and loading the module, I ran gzip -t on the file.  gzip reported the file
-was ok.  With out doing "inode->i_size &= 0xFFFFFFFF", I noticed that the
-file size was 18446744071885849685 (0xFFFFFFFF934C8455)
-
+No, it's prevented by having a sane mind. Compression might be OK for swap,
+but a compressed file will compete for physical disk space - and lose.
+As long as the swap system doesn't know it's going to happen, you're going
+to lose, too.
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Orbiting [..] is a planet whose ape-descended life forms are so
+amazingly primitive that they still think digital watches are a
+pretty neat idea.  --  "The Hitchhiker's Guide to the Galaxy"

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264547AbTCZBVm>; Tue, 25 Mar 2003 20:21:42 -0500
+	id <S263230AbTCZBUh>; Tue, 25 Mar 2003 20:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264548AbTCZBVm>; Tue, 25 Mar 2003 20:21:42 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:46523 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S264547AbTCZBVk>; Tue, 25 Mar 2003 20:21:40 -0500
-Date: Tue, 25 Mar 2003 20:32:50 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
+	id <S264547AbTCZBUh>; Tue, 25 Mar 2003 20:20:37 -0500
+Received: from adsl-67-117-70-243.dsl.sntc01.pacbell.net ([67.117.70.243]:12162
+	"HELO top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S263230AbTCZBUg>; Tue, 25 Mar 2003 20:20:36 -0500
+From: brian@worldcontrol.com
+Date: Wed, 26 Mar 2003 01:30:27 -0800
 To: linux-kernel@vger.kernel.org
-Subject: Preferred way to load non-free firmware
-Message-ID: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Can't recover from broken ext3 journal
+Message-ID: <20030326093027.GA14108@localhost.localdomain>
+Mail-Followup-To: Brian Litzinger <brian@localhost.localdomain>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I'm writing a Linux device driver for a device that requires non-free
-firmware in order to function.  The firmware can be easily extracted from
-the Windows driver for that device.  The device is a PCMCIA wireless card.
+I had a harddrive develop hard IO errors in the section of the drive
+that holds the ext3 journal.
 
-The firmware is about 60k in size, and it mostly consists of executable
-code for ARM processor.  Reimplementing it is out of question for me.
+If it try to fsck the filesystem, fsck eventually terminates after
+trying to replay the journal.
 
-What would be the best approach to handle this situation:
+I tried to use debugfs but that fails in similar way.
 
-1) Register a file on procfs and use "cat" to load the firmware into the
-kernel.
+When I use tune2fs to try to turn off the journal, even with
+the -f option, it simply reports 'the needs_recovery flag is
+set, please run e2fsck'.
 
-2) Register a device for the same purpose.
+I've replaced the drive and restored from backups, however, it seems
+rather poor design that I should lose *all* my data on the drive simply
+because the journal won't replay due to an disk error.
 
-3) Register a device, but use ioctl().
+The man pages for 'tune2fs' even implies you can use it for
+the very purpose of removing a broken journal but it doesn't
+work, as I reported above.
 
-4) Open a network socket and use ioctl() on it (like ifconfig does).
+I could comment out the check in the tune2fs source code, however, is
+there a proper way to do this?
 
-5) Use one of the the above ways to send the filename to the module and
-let the module load the firmware from file using do_generic_file_read().
-
-6) Provide a script to wrap firmware into a module and load it using
-modprobe.
-
-7) Encode the firmware into a header file, add it to the driver and
-pretend that the copyright issue doesn't exist (like it's done in the
-Keyspan USB driver).
-
-Better ideas?
+Thanks,
 
 -- 
-Regards,
-Pavel Roskin
+Brian Litzinger

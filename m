@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273465AbRIULmV>; Fri, 21 Sep 2001 07:42:21 -0400
+	id <S273446AbRIULtV>; Fri, 21 Sep 2001 07:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273450AbRIULmB>; Fri, 21 Sep 2001 07:42:01 -0400
-Received: from t2.redhat.com ([199.183.24.243]:49394 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S273446AbRIULlx>; Fri, 21 Sep 2001 07:41:53 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200109202208.f8KM8o902962@deathstar.prodigy.com> 
-In-Reply-To: <200109202208.f8KM8o902962@deathstar.prodigy.com> 
-To: davidsen@tmr.com (bill davidsen)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lockup with 2.4.9-ac10 on Athlon 
-Mime-Version: 1.0
+	id <S273450AbRIULtL>; Fri, 21 Sep 2001 07:49:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61714 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273446AbRIULtF>; Fri, 21 Sep 2001 07:49:05 -0400
+Subject: Re: probable hardware bug: clock timer configuration lost
+To: bcrl@redhat.com (Benjamin LaHaise)
+Date: Fri, 21 Sep 2001 12:54:14 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        wolfy@nobugconsulting.ro (lonely wolf), linux-kernel@vger.kernel.org
+In-Reply-To: <20010920221610.A14451@redhat.com> from "Benjamin LaHaise" at Sep 20, 2001 10:16:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 21 Sep 2001 12:42:12 +0100
-Message-ID: <10119.1001072532@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kOso-000878-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Odd, I just got this during booting of my ALi based boards (never had seen 
+> it before).  Are we certain the test is correct?
 
-davidsen@tmr.com said:
->  Look for BIOS updates. I have a BP6 (dual Celeron) system, and I am
-> really disappointed that the only way I can power it down under
-> software control is to boot to another o/s. You may be able to get a
-> BIOS which works.
+Not entirely thats why I havent sent that specific change on to Linus.
+(He has the quiet early fix one which is vital to boot some old VIA boxes
+ but not that one)
 
-Strange - mine works. Either with APM and 'apm=power-off' on the command 
-line, or with ACPI and a hack to work around the incompetence of Abit's 
-BIOS engineers.
+If you have a box with he thing triggering and a moment of time, tweak the
+code to read "low1, high, low2, high2" and take min(low1,low2), with high1
+as the test.
 
-Me: "There's a one-char typo in your ACPI bytecode which prevents it from 
-	working. This is the fix...."
-Abit: "You can work around that by turning off ACPI support in the BIOS 
-	setup"
-Me: "But that just disables it, and makes it continue to not work. To make
-	it work, it needs to be enabled - but there's a simple typo which
-	prevents it from working."
-Abit: <silence>
-
-Sometimes it amazes me just how stupid some people can be and still 
-actually keep their job.
-
---
-dwmw2
-
-
+Alan

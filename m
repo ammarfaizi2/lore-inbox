@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbUCWK3n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 05:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCWK3n
+	id S262451AbUCWKbd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 05:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUCWKbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 05:29:43 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:36496 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262442AbUCWK3l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 05:29:41 -0500
-Date: Tue, 23 Mar 2004 11:29:40 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Robert_Hentosh@Dell.com,
-       fleury@cs.auc.dk, linux-kernel@vger.kernel.org
-Subject: RE: spurious 8259A interrupt
-In-Reply-To: <Pine.LNX.4.53.0403221701460.24245@chaos>
-Message-ID: <Pine.LNX.4.55.0403231127110.16819@jurand.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0403222105380.3493-100000@poirot.grange>
- <Pine.LNX.4.53.0403221701460.24245@chaos>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Mar 2004 05:31:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28167 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262451AbUCWKbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 05:31:06 -0500
+Date: Tue, 23 Mar 2004 10:31:02 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christof <mail@pop2wap.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: synchronous serial port communication (16550A)
+Message-ID: <20040323103102.B23349@flint.arm.linux.org.uk>
+Mail-Followup-To: Christof <mail@pop2wap.net>, linux-kernel@vger.kernel.org
+References: <40600CDD.5050807@pop2wap.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40600CDD.5050807@pop2wap.net>; from mail@pop2wap.net on Tue, Mar 23, 2004 at 11:09:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004, Richard B. Johnson wrote:
+On Tue, Mar 23, 2004 at 11:09:33AM +0100, Christof wrote:
+> To make the story short: I see a lot of garbage on the LCD.
+> It looks like output would be buffered and all data would be sent at
+> once without giving me the possibility to check if everything's
+> allright. Sometimes I can send >400 Bytes and ioctl says that CTS is not
+> asserted, altough it certainly is.
 
-> First, you are using the 8259A (XT-PIC). This means you have
-> IO-APIC turned off (or it doesn't exist).
+It probably isn't, at the time you check it.  When you write a byte,
+the call will generally return immediately because it'll be placed in
+a buffer.  Transmission has only just started, and you then go and check
+the CTS line.  Repeat multiple times on a slow enough baud rate, and
+you'll end up queueing a lot of bytes.
 
- An I/O APIC can be used for the wirtual-wire mode as well.  Using the
-8259A doesn't preclude using an I/O APIC semi-transparently, with ExtINTA
-messages travelling across the inter-APIC bus (depending on an APIC
-implementation).
+You could write a byte, wait for it to complete by calling ioctl(TCSETSW)
+without changing any parameters, and then read the CTS status.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

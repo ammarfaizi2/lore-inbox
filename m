@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135899AbRD3Uro>; Mon, 30 Apr 2001 16:47:44 -0400
+	id <S135901AbRD3UmO>; Mon, 30 Apr 2001 16:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135900AbRD3Urf>; Mon, 30 Apr 2001 16:47:35 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:32179
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S135899AbRD3Ur2>; Mon, 30 Apr 2001 16:47:28 -0400
-Message-ID: <3AEDCF40.5020805@fugmann.dhs.org>
-Date: Mon, 30 Apr 2001 22:46:56 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.8.1+) Gecko/20010429
+	id <S135900AbRD3UmF>; Mon, 30 Apr 2001 16:42:05 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:27112 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135899AbRD3Uly>;
+	Mon, 30 Apr 2001 16:41:54 -0400
+Message-ID: <3AEDCE0C.3AB34D47@mandrakesoft.com>
+Date: Mon, 30 Apr 2001 16:41:48 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: canbus@fugmann.dhs.org
-Subject: CANBus driver.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-via@havoc.gtf.org
+Cc: Capricelli Thomas <orzel@kde.org>, josh <skulcap@mammoth.org>,
+        Arjan van de Ven <arjanv@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.4.4: Via audio fixes
+In-Reply-To: <XFMail.010501044118.hosler@lugs.org.sg>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Would it be possible for you to make a code change and send me the dmesg
+output?
 
-Some of my fellow students and I, have started a project in which we 
-have to implement a linux driver for a CANbus ISA card ( AROS: A-858D 
-PCCAN -x ver. 1.12).
+Update linux/arch/i386/kernel/pci-i386.h and change
+-#undef DEBUG
++#define DEBUG 1
 
-Does there exist any work on a CANBus driver for linux already?
+Recompile, and privately e-mail me "dmesg -s 16384" output...
 
-Also, is there any interrest for this kind of driver, or would something 
-like this end up on a useless outdated website?
-
-
-Any comments welcome.
-
-Thanks in advance.
-
-
-
-
-
-
-
-
-
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

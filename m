@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291026AbSBLNgB>; Tue, 12 Feb 2002 08:36:01 -0500
+	id <S291041AbSBLNhb>; Tue, 12 Feb 2002 08:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291043AbSBLNfw>; Tue, 12 Feb 2002 08:35:52 -0500
-Received: from grisu.bik-gmbh.de ([194.233.237.82]:30213 "EHLO
-	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
-	id <S291026AbSBLNfj>; Tue, 12 Feb 2002 08:35:39 -0500
-Date: Tue, 12 Feb 2002 14:36:19 +0100
-From: Florian Hars <florian@hars.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unknown Southbridge (was: Disk-I/O and kupdated@99.9% system (2.4.18-pre9))
-Message-ID: <20020212133619.GA324@bik-gmbh.de>
-In-Reply-To: <20020208164250.GA321@bik-gmbh.de> <20020212102005.GB365@bik-gmbh.de> <20020212112349.A1691@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020212112349.A1691@suse.cz>
-User-Agent: Mutt/1.3.24i
+	id <S291042AbSBLNhN>; Tue, 12 Feb 2002 08:37:13 -0500
+Received: from unicef.org.yu ([194.247.200.148]:1294 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S291041AbSBLNhE>;
+	Tue, 12 Feb 2002 08:37:04 -0500
+Date: Tue, 12 Feb 2002 14:36:56 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question about i820 chipset.
+In-Reply-To: <Pine.LNX.4.21.0202121345430.20359-100000@tux.rsn.bth.se>
+Message-ID: <Pine.LNX.4.33.0202121435010.7616-100000@unicef.org.yu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-begin  Vojtech Pavlik quote:
-> On Tue, Feb 12, 2002 at 11:20:05AM +0100, Florian Hars wrote:
-> > I use a Gigabyte GA-7VTXE with a VIA KT266A chipset and a Southbridge
-> > called VT8233A, which does not look like one of the "FUTURE_BRIDGES"
-> 
-> 2.5.2 (and later, and maybe some earlier versions as well) have support
-> for this chipset. You can copy over the via82cxxx.c and ide-timing.h to
-> your kernel and it should work.
 
-Not really:
 
-via82cxxx.c: In function `ide_init_via82cxxx':
-via82cxxx.c:548: structure has no member named `highmem'
-make[4]: *** [via82cxxx.o] Fehler 1
+> Using an UP kernel with IO-APIC support and MPS 1.4 they don't share irqs:
 
-I had to remove the offending line (it isn't there in the 2.4 version
-of the file), and of course add the PCI ID of the SouthBridge in
-the appropriate places. Now the system boots and hdparm says that
-dma is activated. So lets see how well it behaves...
+try without IO-APIC support is it still the same ?
 
-Yours, Florian Hars.
+Z
+>
+>            CPU0
+>   0:   66083638    IO-APIC-edge  timer
+>   1:        828    IO-APIC-edge  keyboard
+>   2:          0          XT-PIC  cascade
+>   4:          3    IO-APIC-edge  serial
+>   8:          0    IO-APIC-edge  rtc
+>  14:      17840    IO-APIC-edge  ide0
+>  16:         14   IO-APIC-level  eth2
+>  17:         12   IO-APIC-level  eth3
+>  18:      20790   IO-APIC-level  eth0
+>  19:         39   IO-APIC-level  eth1
+> NMI:   66083576
+> LOC:   66081746
+> ERR:          0
+> MIS:          0
+>
+> I've tried changing slots aswell and I havn't seen any improvments with
+> either MPS 1.1 or 1.4
+>
+> /Martin
+>
+> Never argue with an idiot. They drag you down to their level, then beat you with experience.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264917AbSJ3VYI>; Wed, 30 Oct 2002 16:24:08 -0500
+	id <S264904AbSJ3VXM>; Wed, 30 Oct 2002 16:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264922AbSJ3VYI>; Wed, 30 Oct 2002 16:24:08 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:16647 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264917AbSJ3VYG>; Wed, 30 Oct 2002 16:24:06 -0500
-Message-ID: <3DC04F39.1030709@namesys.com>
-Date: Thu, 31 Oct 2002 00:29:29 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+	id <S264913AbSJ3VXM>; Wed, 30 Oct 2002 16:23:12 -0500
+Received: from [24.82.92.252] ([24.82.92.252]:44060 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264904AbSJ3VXL>; Wed, 30 Oct 2002 16:23:11 -0500
+Message-ID: <3DC05044.5020301@silksystems.com>
+Date: Wed, 30 Oct 2002 13:33:56 -0800
+From: Richard Moss <rick@silksystems.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: Torrey Hoffman <thoffman@arnor.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Reiserfs List <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] Mounting reiserfs with nonstandard journal size
- fails
-References: <1035934581.1487.1409.camel@rivendell.arnor.net> <20021030093911.B5560@namesys.com>
-In-Reply-To: <1035934581.1487.1409.camel@rivendell.arnor.net>
+To: jerdfelt@sventech.com, linux-kernel@vger.kernel.org
+Subject: cpia and smp dead locks
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+Hi sorry if this goes to the wrong person but I'm
+tring to submit a bug report to the cpia maintainer
 
->Hello!
->
->On Tue, Oct 29, 2002 at 03:36:20PM -0800, Torrey Hoffman wrote:
->  
->
->>I'm having trouble mounting a reiserfs filesystem created with a
->>nonstandard (smaller) journal size.  But if I use the default journal
->>size, it works fine.
->>    
->>
->
->Sure. Non-standard journal is only supported in 2.5 kernel for now.
->
->Bye,
->    Oleg
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-That should be in the queue for the next pre1, yes?
+1. cpia hangs smp kernel (deadlock)
+2. if you compile in the cpia to the SMP kernel as either
+    a module or into the bootable image, when the
+    kernel or module load the cpia you get a deadlock
+    no ctrl+alt+del no atl+f2 deadeadead :) sorry but
+    no OOPS just frozen, this does not happen with
+    non-SMP (tested with 2.4.18-17 and 2.4.19)
+3. keyword. cpia webcam v4l ?
+4. Linux version 2.4.19smp (gcc version 2.96 20000731 (Red Hat Linux 7.3 
+2.96-112)
+5. not much else to put into here other than it's been working fine 
+untill 2.4.18-17smp
+    redhat kernel
+6. Dell poweredge dual PII 233 with 128 megs ram , parallel port 
+creative webcam ver II
+7. I did try the new 1.2.2 from souorce forge & compiled as but a 
+bootable image &
+    module with the same results
 
--- 
-Hans
+Love to tell you more but deadloacks gives no errors or logs, let me 
+know if I can help
 
+Thanks Rick Moss
+rick@silksystems.com
+rick@tdm.silk.ca
 

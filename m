@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262979AbTJJPzk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbTJJPzj
+	id S262954AbTJJPpI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTJJPpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:55:39 -0400
-Received: from snerble.cc.purdue.edu ([128.210.189.21]:48596 "EHLO
-	snerble.fmepnet.org") by vger.kernel.org with ESMTP id S262979AbTJJPzR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:55:17 -0400
-From: Michael Shuey <shuey@fmepnet.org>
-Reply-To: shuey@fmepnet.org
-Organization: fmepnet.org
-To: trond.myklebust@fys.uio.no
-Subject: Re: Misc NFSv4 (was Re: statfs() / statvfs() syscall ballsup...)
-Date: Fri, 10 Oct 2003 10:55:10 -0500
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org> <20031010143553.GA28795@mail.shareable.org> <16262.53512.249701.158271@charged.uio.no>
-In-Reply-To: <16262.53512.249701.158271@charged.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	Fri, 10 Oct 2003 11:45:08 -0400
+Received: from pat.uio.no ([129.240.130.16]:16526 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262954AbTJJPpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:45:04 -0400
+To: Miles Bader <miles@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: net/sunrpc/clnt.c compilation error: tk_pid field
+References: <buo65ixv63j.fsf@mcspd15.ucom.lsi.nec.co.jp>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 10 Oct 2003 11:44:52 -0400
+In-Reply-To: <buo65ixv63j.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Message-ID: <shs3ce1ksgb.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310101055.12626.shuey@fmepnet.org>
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 October 2003 10:32 am, Trond Myklebust wrote:
-> The client implementation in 2.6.0 is still lacking several important
-> features, including locking, ACLs, delegation support and recovery of
-> state (in case of server reboot or network partitions). I'm hoping
-> Andrew/Linus will allow me to send updates once the early 2.6.x
-> codefreeze period is over.
+>>>>> " " == Miles Bader <miles@lsi.nec.co.jp> writes:
 
-How about other features?  In particular, do the client/server do 
-authentication (krb5? lipkey/spkm3?), integrity and privacy?
+     > With linux-2.6.0-test7, I get compilation errors like:
+     >      CC net/sunrpc/clnt.o
+     >    net/sunrpc/clnt.c:965: structure has no member named
+     >    `tk_pid' net/sunrpc/clnt.c:970: structure has no member
+     >    named `tk_pid' net/sunrpc/clnt.c:976: structure has no
+     >    member named `tk_pid' make[2]: *** [net/sunrpc/clnt.o] Error
+     >    1
 
-Also, are any patches on Citi's site useful anymore?  I see patches for 
-2.6.0-test1, but nothing more recent.  Have they been folded into the main 
-tree?
+See yesterday's discussion of this very same topic on this very same
+list. A fix is already in Linus' bitkeeper repository...
 
-> That said, I definitely encourage people to test out the existing code
-> for stability, and I will be offering an 'NFS_ALL' series with those
-> features that are missing from the main tree as and when I judge they
-> are approaching release quality.
-
-Neato!  Those of us with hordes of machines using Linux's NFS appreciate the 
-extra effort.
-
--- 
-Mike Shuey
+Cheers,
+   Trond

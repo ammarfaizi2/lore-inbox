@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319108AbSIJNLz>; Tue, 10 Sep 2002 09:11:55 -0400
+	id <S319120AbSIJNXQ>; Tue, 10 Sep 2002 09:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319112AbSIJNK6>; Tue, 10 Sep 2002 09:10:58 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:31507 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S319110AbSIJNKs>;
-	Tue, 10 Sep 2002 09:10:48 -0400
-Date: Tue, 10 Sep 2002 15:02:01 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-Message-ID: <20020910130201.GO2992@marowsky-bree.de>
-References: <20020909095652.A21245@eng2.beaverton.ibm.com> <200209091734.g89HY5p11796@localhost.localdomain> <20020909184026.GD1334@beaverton.ibm.com>
+	id <S319118AbSIJNXQ>; Tue, 10 Sep 2002 09:23:16 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:41738 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S319120AbSIJNXP>; Tue, 10 Sep 2002 09:23:15 -0400
+Date: Tue, 10 Sep 2002 17:27:42 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: SIGSTKFLT on alpha, mips and sparc
+Message-ID: <20020910172742.A28993@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020909184026.GD1334@beaverton.ibm.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-09T11:40:26,
-   Mike Anderson <andmike@us.ibm.com> said:
+SIGSTKFLT (stack fault on coprocessor) is not defined on these
+platforms, so signal.c won't compile.
 
-> When you get into networking I believe we may get into path failover
-> capability that is already implemented by the network stack. So the
-> paths may not be visible to the block layer.
+I would suggest something like this.
 
-It depends. The block layer might need knowledge of the different paths for
-load balancing.
+Ivan.
 
-> The utility does transcend SCSI, but transport / device specific
-> characteristics may make "true" generic implementations difficult.
-
-I disagree. What makes "generic" implementations difficult is the absolutely
-mediocre error reporting and handling from the lower layers.
-
-With multipathing, you want the lower level to hand you the error
-_immediately_ if there is some way it could be related to a path failure and
-no automatic retries should take place - so you can immediately mark the path
-as faulty and go to another. 
-
-However, on a "access beyond end of device" or a clear read error, failing a
-path is a rather stupid idea, but instead the error should go up immediately.
-
-This will need to be sorted regardless of the layer it is implemented in.
-
-How far has this been already addressed in 2.5 ?
-
-> > > For sd, this means if you have n paths to each SCSI device, you are
-> > > limited to whatever limit sd has divided by n, right now 128 / n.
-> > > Having four paths to a device is very reasonable, limiting us to 32
-> > > devices, but with the overhead of 128 devices. 
-> > 
-> > I really don't expect this to be true in 2.6.
-> > 
-> While the device space may be increased in 2.6 you are still consuming
-> extra resources, but we do this in other places also.
-
-For user-space reprobing of failed paths, it may be vital to expose the
-physical paths too. Then "reprobing" could be as simple as
-
-	dd if=/dev/physical/path of=/dev/null count=1 && enable_path_again
-
-I dislike reprobing in kernel space, in particular using live requests as
-the LVM1 patch by IBM does it.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
-
+--- 2.5.34/kernel/signal.c	Tue Sep 10 01:15:36 2002
++++ linux/kernel/signal.c	Tue Sep 10 11:27:46 2002
+@@ -75,10 +75,17 @@ int max_queued_signals = 1024;
+ 
+ #define M(sig) (1UL << (sig))
+ 
++/* SIGSTKFLT does not exist on some architectures */
++#ifdef	SIGSTKFLT
++#define	M_SIGSTKFLT	M(SIGSTKFLT)
++#else
++#define	M_SIGSTKFLT	0
++#endif
++
+ #define SIG_USER_SPECIFIC_MASK (\
+ 	M(SIGILL)    |  M(SIGTRAP)   |  M(SIGABRT)   |  M(SIGBUS)    | \
+ 	M(SIGFPE)    |  M(SIGSEGV)   |  M(SIGPIPE)   |  M(SIGXFSZ)   | \
+-	M(SIGPROF)   |  M(SIGSYS)    |  M(SIGSTKFLT) |  M(SIGCONT)   )
++	M(SIGPROF)   |  M(SIGSYS)    |  M_SIGSTKFLT  |  M(SIGCONT)   )
+ 
+ #define SIG_USER_LOAD_BALANCE_MASK (\
+         M(SIGHUP)    |  M(SIGINT)    |  M(SIGQUIT)   |  M(SIGUSR1)   | \
+@@ -95,7 +102,7 @@ int max_queued_signals = 1024;
+ 	M(SIGKILL)   |  M(SIGUSR1)   |  M(SIGSEGV)   |  M(SIGUSR2)   | \
+ 	M(SIGPIPE)   |  M(SIGALRM)   |  M(SIGTERM)   |  M(SIGXCPU)   | \
+ 	M(SIGXFSZ)   |  M(SIGVTALRM) |  M(SIGPROF)   |  M(SIGPOLL)   | \
+-	M(SIGSYS)    |  M(SIGSTKFLT) |  M(SIGPWR)    |  M(SIGCONT)   | \
++	M(SIGSYS)    |  M_SIGSTKFLT  |  M(SIGPWR)    |  M(SIGCONT)   | \
+         M(SIGSTOP)   |  M(SIGTSTP)   |  M(SIGTTIN)   |  M(SIGTTOU)   )
+ 
+ #define SIG_KERNEL_ONLY_MASK (\

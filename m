@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281047AbRKUN2w>; Wed, 21 Nov 2001 08:28:52 -0500
+	id <S281234AbRKUNbB>; Wed, 21 Nov 2001 08:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281028AbRKUN2m>; Wed, 21 Nov 2001 08:28:42 -0500
-Received: from bbnrel4.hp.com ([155.208.254.68]:33297 "HELO
-	bbnrel4.net.external.hp.com") by vger.kernel.org with SMTP
-	id <S280998AbRKUN23>; Wed, 21 Nov 2001 08:28:29 -0500
-Message-ID: <3BFBABFA.9040200@hp.com>
-Date: Wed, 21 Nov 2001 14:28:26 +0100
-From: Francois-Xavier KOWALSKI <francois-xavier_kowalski@hp.com>
-Reply-To: francois-xavier_kowalski@hp.com
-Organization: HP
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linux-Kernel Mailing-List <linux-kernel@vger.kernel.org>
-Subject: [2.4.14] wrong IPv4 listen syscall return code
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S281050AbRKUNav>; Wed, 21 Nov 2001 08:30:51 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:63239 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S280998AbRKUNaj>;
+	Wed, 21 Nov 2001 08:30:39 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: block_dev.c: fsync() on close() considered harmful
+Date: Wed, 21 Nov 2001 13:30:38 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9tga9u$62i$1@ncc1701.cistron.net>
+X-Trace: ncc1701.cistron.net 1006349438 6226 195.64.65.67 (21 Nov 2001 13:30:38 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel developpers,
+I'm running an INN usenet news server that uses raw partitions for
+storage. I.e. it opens /dev/sda7 etc. and mmap()s [which finally
+works in 2.4, hurray]
 
-(please Cc: me in reply, since I am not on the ML).
+Even though the server is keeping those devices open, when a utility
+program opens that file/device and closes() it the close() causes
+a fsync() on the device, something that is not wanted.
 
-I am puzzled my a problem around the listen(2) system call.
+I applied the following patch which fixes it for me, it prevents
+the sync-after-close if it was close() calling blkdev_put()
+and we're not the last one to call blkdev_put().
 
-The man page states the following item, which make sense:
+That means fsync() will still be done on unmounts or when the
+last user of the device closes it, but not otherwise.
 
-ERRORS
-       EADDRINUSE
-              Another socket is already  listening  on  the  same
-              port.
+Is this correct or am I overlooking something?
 
-       EBADF  The argument s is not a valid descriptor.
+--- linux-2.4.15-pre8/fs/block_dev.c.orig	Thu Oct 25 22:58:35 2001
++++ linux-2.4.15-pre8/fs/block_dev.c	Wed Nov 21 13:32:16 2001
+@@ -603,7 +603,7 @@
+ 
+ 	down(&bdev->bd_sem);
+ 	lock_kernel();
+-	if (kind == BDEV_FILE)
++	if (kind == BDEV_FILE && bdev->bd_openers == 1)
+ 		__block_fsync(bd_inode);
+ 	else if (kind == BDEV_FS)
+ 		fsync_no_super(rdev);
 
-       ENOTSOCK
-              The argument s is not a socket.
 
-       EOPNOTSUPP
-              The  socket is not of a type that supports the lis­
-              ten operation.
 
-But when I go within the source code of listen implementation for STREAM 
-protocol (as specified for TCL in net/ipv4/af_inet.c) in the function 
-inet_listen() the default return code is EINVAL instead of EOPNOTSUPP.
-
-Who holds the truth? I believe source code is wrong, since EOPNOTSUPP is 
-much more explicit.
-
-BTW, where is the official & as much up-to-date as possible source for 
-kernel syscalls man pages?
-
+Mike.
 -- 
-Francois-Xavier "FiX" KOWALSKI
-
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 

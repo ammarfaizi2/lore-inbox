@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263745AbUFQUMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUFQUPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbUFQUMX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFQUMW
+	id S262398AbUFQUPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUFQUPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:12:22 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:24007 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262337AbUFQUMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:12:20 -0400
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20040617152818.GZ20511@parcelfarce.linux.theplanet.co.uk>
-References: <1087481331.2210.27.camel@mulgrave> 
-	<20040617152818.GZ20511@parcelfarce.linux.theplanet.co.uk>
+	Thu, 17 Jun 2004 16:15:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:35233 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262398AbUFQUPL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 16:15:11 -0400
+Subject: Re: [PATCH] remove EXPORT_SYMBOL(kallsyms_lookup)
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200406171731.i5HHVA0M015051@car.linuxhacker.ru>
+References: <20040617162927.GA12498@kroah.com>
+	 <200406171731.i5HHVA0M015051@car.linuxhacker.ru>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 17 Jun 2004 15:12:17 -0500
-Message-Id: <1087503138.1795.60.camel@mulgrave>
+Message-Id: <1087503272.29041.34.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 17 Jun 2004 15:14:33 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 10:28, Matthew Wilcox wrote:
-> So let's look at the sym2 implementation to see how this would work.
-> A straight diff -u is not terribly helpful, So let's try a more verbose
-> context diff:
+On Thu, 2004-06-17 at 12:31, Oleg Drokin wrote:
 
-actually, no.  I'm proposing an additional API, not a modification to
-dma_set_mask(), so the new code would read
+> Or perhaps we need dump_stack version that will print the dump into a
+> supplied buffer then?
 
-       struct pci_dev *pdev = &np->s.device;
- 
-        if (np->features & FE_DAC) {
-               if (dma_set_mask(&pdev->dev, 0xffffffffffULL))
-	               if (dma_get_required_mask(&pdev->dev) > 0xffffffffUL)
-        	               goto use_dac;
-		
-        }
- 
-       dma_set_mask(&pdev->dev, 0xffffffffUL);
-        return 0;
-  
-  use_dac:
-       np->use_dac = 1;
-       printf_info("%s: using 64 bit DMA addressing\n", sym_name(np));
-       return 0;
-
-James
-
+That would make it easy to implement /proc/<num>/stack.  I think that
+would be useful.
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

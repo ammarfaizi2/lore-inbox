@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315736AbSENORe>; Tue, 14 May 2002 10:17:34 -0400
+	id <S315742AbSENOfO>; Tue, 14 May 2002 10:35:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315739AbSENORd>; Tue, 14 May 2002 10:17:33 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:19382 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S315736AbSENORc>;
-	Tue, 14 May 2002 10:17:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: markh@compro.net
-Subject: Re: Combined low latency & performance patches for 2.4.18
-Date: Wed, 15 May 2002 00:17:17 +1000
-X-Mailer: KMail [version 1.4]
-In-Reply-To: <20020429142443.A62481333@pc.kolivas.net> <200205142343.10555.conman@kolivas.net> <3CE11705.35E1FFC5@compro.net>
+	id <S315748AbSENOfN>; Tue, 14 May 2002 10:35:13 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19585 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S315742AbSENOfM>; Tue, 14 May 2002 10:35:12 -0400
+Date: Tue, 14 May 2002 08:35:03 -0600
+Message-Id: <200205141435.g4EEZ3V07379@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200205150017.31108.conman@kolivas.net>
+Subject: Re: [PATCH] remove compat code for old devfs naming scheme
+In-Reply-To: <20020514125339.A23979@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Christoph Hellwig writes:
+> Hi Richard,
+> 
+> current init/do_mounts.c contains the devfs_make_root/convert_name
+> functions which provide compatiblility for the old, pre kernel-merge
+> devfs naming scheme in the root= kernel command line.
+> 
+> As this was never present in official kernels there is really no need
+> in keeping it - it just bloats the kernel.
+> 
+> Could you please forward this patch to Linus and maybe Marcelo with
+> your next devfs update?
 
-Mark
+What on earth are you talking about? This code has been in the kernel
+since 2.3.46. It's just lived in a different place: fs/devfs/util.c.
 
-On Tue, 14 May 2002 23:54, you wrote:
-> I'm using 2.95.3 but also SMP. Maybe thats it..
+And FYI: 2.5.x kernels *are* official!
 
-Bingo. Cant remember which one it was but one of these didnt support SMP.
- 
-Con.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+				Regards,
 
-iD8DBQE84RxtF6dfvkL3i1gRAnYJAJwKTI6M2fUOZyrzxyKv6r9yl1WjPQCcDzwn
-kArjn0U/ghc1qXMorgaKji8=
-=J2Gy
------END PGP SIGNATURE-----
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

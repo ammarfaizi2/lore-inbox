@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRHKLDL>; Sat, 11 Aug 2001 07:03:11 -0400
+	id <S266710AbRHKMAX>; Sat, 11 Aug 2001 08:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266673AbRHKLDC>; Sat, 11 Aug 2001 07:03:02 -0400
-Received: from CPE-61-9-149-76.vic.bigpond.net.au ([61.9.149.76]:41198 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S266488AbRHKLCu>;
-	Sat, 11 Aug 2001 07:02:50 -0400
-Message-ID: <3B750F77.FAA9A123@eyal.emu.id.au>
-Date: Sat, 11 Aug 2001 20:56:55 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-ac8 i686)
-X-Accept-Language: en
+	id <S266914AbRHKMAN>; Sat, 11 Aug 2001 08:00:13 -0400
+Received: from [212.18.191.177] ([212.18.191.177]:9231 "EHLO smtp.netc.pt")
+	by vger.kernel.org with ESMTP id <S266710AbRHKMAH>;
+	Sat, 11 Aug 2001 08:00:07 -0400
+From: Paulo Andre <l16083@alunos.uevora.pt>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8 fails on compiling modules (emuk101)
+Date: Sat, 11 Aug 2001 14:01:54 +0100
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: quintaq@yahoo.co.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Errors compiling emu10k1 module under 2.4.8
-In-Reply-To: <20010811101557Z266921-760+224@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01081114015400.05901@nirvana.local.net>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-quintaq@yahoo.co.uk wrote:
-> 
-> Hi,
-> 
-> I just d/ld the 2.4.8 patch and compilation of emu10k1 fails with :
-> 
-> main.o(.modinfo+0x20): multiple definition of `__module_author'
-> joystick.o(.modinfo+0x80): first defined here
-> ld: Warning: size of symbol `__module_author' changed from 67 to 81 in
-> main.o
-> main.o(.modinfo+0x80): multiple definition of `__module_description'
-> joystick.o(.modinfo+0xe0): first defined here
-> ld: Warning: size of symbol `__module_description' changed from 83 to 96 in
-> main.o
-> main.o: In function `init_module':
-> main.o(.text+0x1878): multiple definition of `init_module'
-> joystick.o(.text+0x240): first defined here
-> ld: Warning: size of symbol `init_module' changed from 64 to 67 in main.o
-> main.o: In function `cleanup_module':
-> main.o(.text+0x18bc): multiple definition of `cleanup_module'
-> joystick.o(.text+0x280): first defined here
-> make[3]: *** [emu10k1.o] Error 1
+Hi,
 
-Seems that joystick.c wants to be a module by itself, so it cannot be
-linked with the rest of the modules here.
+Got the following error on compiling the emuk101 module:
 
-Removing 'joystick.o' from drivers/sound/emu10k1/Makefile solves the
-compile problem, but I do not know that it is the correct solution.
+make -C emu10k1 modules
+make[3]: Entering directory `/usr/src/linux/drivers/sound/emu10k1'
+make[3]: *** No rule to make target `emu_wrapper.h', needed by `hwaccess.h'.  
+Stop.
+make[3]: Leaving directory `/usr/src/linux/drivers/sound/emu10k1'
+make[2]: *** [_modsubdir_emu10k1] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
+[root@nirvana linux]#
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+This is 2.4.8 vanilla and it used to work fine with all the pre patches 
+(well, it never ever happened before).
+
+Cheers,
+
+// Paulo Andre'
+
+PS - Please CC me any replies if you don't mind, I'd be grateful.
+

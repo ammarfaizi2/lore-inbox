@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315941AbSGYSen>; Thu, 25 Jul 2002 14:34:43 -0400
+	id <S315923AbSGYSh7>; Thu, 25 Jul 2002 14:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSGYSen>; Thu, 25 Jul 2002 14:34:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63245 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315941AbSGYSen>;
-	Thu, 25 Jul 2002 14:34:43 -0400
-Message-ID: <3D404506.45E6900@zip.com.au>
-Date: Thu, 25 Jul 2002 11:35:50 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: linux-kernel@vger.kernel.org, wli@holomorphy.com, torvalds@transmeta.com,
-       jsantos@austin.ibm.com
-Subject: Re: [PATCH] Missing memory barrier in pte_chain_unlock
-References: <20020725005932.GA18140@krispykreme>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315942AbSGYSh6>; Thu, 25 Jul 2002 14:37:58 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:45375 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id <S315923AbSGYSh6>;
+	Thu, 25 Jul 2002 14:37:58 -0400
+From: <diegocg@teleline.es>
+Subject: 2.5.28 OOPS with date
+Message-Id: <20020725183758Z315923-685+18075@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
+Date: Thu, 25 Jul 2002 14:37:58 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> 
-> ...
-> +       smp_mb__before_clear_bit();
->         clear_bit(PG_chainlock, &page->flags);
+this is a very short oops
+it happened while doing _nothing_ (idle state)
+oh, wait, this lne was run just before
+Jul 25 16:35:01 diego /USR/SBIN/CRON[322]: (root) CMD (test -x /usr/lib/sysstat/sa1 && /usr/lib/sysstat/sa1)
 
-Bah.   The problem with this smp_mb thing is that nobody knows
-what it does, nobody remembers to do it and it's as ugly as sin.
+the oops is here:
+diego:~# ksymoops < bug
+ksymoops 2.4.5 on i586 2.5.27.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.27/ (default)
+     -m /boot/System.map-2.5.27 (default)
 
-I bet there are plenty of identical bugs around the place which
-haven't been discovered yet.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Is there some clean, centralised way of fixing this problem
-permanently?
+Jul 25 16:35:01 diego kernel: Unable to handle kernel paging request at virtual address 401340c8
+Jul 25 16:35:01 diego kernel: 400082d3
+Jul 25 16:35:01 diego kernel: *pde = 017ee067
+Jul 25 16:35:01 diego kernel: Oops: 0006
+Jul 25 16:35:01 diego kernel: CPU:    0
+Jul 25 16:35:01 diego kernel: EIP:    0023:[pnpbios_proc_exit+1073773491/-1072695072]    Not tainted
+Jul 25 16:35:01 diego kernel: EFLAGS: 00010246
+Jul 25 16:35:01 diego kernel: eax: 401340c8   ebx: 400130ec   ecx: 40034710   edx: 40032d38
+Jul 25 16:35:01 diego kernel: esi: 4001f000   edi: 40030570   ebp: bffff924   esp: bffff86c
+Jul 25 16:35:01 diego kernel: ds: 002b   es: 002b   ss: 002b
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-Correctness comes first.  Why not move the barrier into
-clear_bit() and then have a clear_bit_no_mb() operation for those
-performance-sensitive places where the barrier is not needed?
 
- 
--
+>>eax; 401340c8 Before first symbol
+>>ebx; 400130ec Before first symbol
+>>ecx; 40034710 Before first symbol
+>>edx; 40032d38 Before first symbol
+>>esi; 4001f000 Before first symbol
+>>edi; 40030570 Before first symbol
+>>ebp; bffff924 Before first symbol
+>>esp; bffff86c Before first symbol
+
+
+2 warnings issued.  Results may not be reliable.
+
+
+regards, Diego Calleja <diegocg@teleline.es>

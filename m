@@ -1,49 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbTEMR7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTEMR5h
+	id S263381AbTEMSCB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTEMSBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:57:37 -0400
-Received: from crack.them.org ([146.82.138.56]:15251 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S262383AbTEMR5U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:57:20 -0400
-Date: Tue, 13 May 2003 14:09:46 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030513180946.GA10647@nevyn.them.org>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <shswugvjcy9.fsf@charged.uio.no> <20030513155901.GA26116@nevyn.them.org> <16065.6462.15209.428226@charged.uio.no>
+	Tue, 13 May 2003 14:01:44 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:15911 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263376AbTEMSBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 14:01:05 -0400
+Subject: [PATCH] 2.5.69 synclink_cs.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052849546.1992.6.camel@diemos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16065.6462.15209.428226@charged.uio.no>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 13 May 2003 13:12:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 06:11:42PM +0200, Trond Myklebust wrote:
-> >>>>> " " == Daniel Jacobowitz <dan@debian.org> writes:
-> 
->      > Well, using BK as of Friday last week I'm still having a
->      > complete disaster of NFS support.
-> 
-> Please try a more recent snapshot. The OOM situation was only fixed
-> with the patches that Linus pulled for patch-2.5.69-bk7
-> (i.e. yesterday's snapshot).
-> 
-> Oh. Please also turn off any 'soft' mount option that you may
-> have. Like it or not, those *will* cause EIO errors.
+* Remove PCMCIA release from timer context
+* Add irqreturn_t to ISR
+* Add dosyncppp module parameter
 
-Thanks for the quick and accurate response.  I switched to this
-morning's BK, and now NFS-root is working like a charm.  I used to get
-both EIO and EPERM errors under load; now everything appears to work
-OK.
+Please apply.
+
+
+
+--- linux-2.5.69/drivers/char/pcmcia/synclink_cs.c	2003-05-06 14:16:19.000000000 -0500
++++ linux-2.5.69-mg/drivers/char/pcmcia/synclink_cs.c	2003-05-13 13:08:55.000000000 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/pcmcia/synclink_cs.c
+  *
+- * $Id: synclink_cs.c,v 4.6 2003/04/21 17:46:55 paulkf Exp $
++ * $Id: synclink_cs.c,v 4.10 2003/05/13 16:06:03 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink PC Card
+  * multiprotocol serial adapter.
+@@ -430,7 +430,7 @@
+ static int  rx_alloc_buffers(MGSLPC_INFO *info);
+ static void rx_free_buffers(MGSLPC_INFO *info);
+ 
+-static void mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs);
++static irqreturn_t mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs);
+ 
+ /*
+  * Bottom half interrupt handlers
+@@ -476,6 +476,7 @@
+ 
+ static int debug_level = 0;
+ static int maxframe[MAX_DEVICE_COUNT] = {0,};
++static int dosyncppp[MAX_DEVICE_COUNT] = {1,1,1,1};
+ 
+ /* The old way: bit map of interrupts to choose from */
+ /* This means pick from 15, 14, 12, 11, 10, 9, 7, 5, 4, and 3 */
+@@ -492,11 +493,12 @@
+ MODULE_PARM(cuamajor,"i");
+ MODULE_PARM(debug_level,"i");
+ MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
++MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
+ 
+ MODULE_LICENSE("GPL");
+ 
+ static char *driver_name = "SyncLink PC Card driver";
+-static char *driver_version = "$Revision: 4.6 $";
++static char *driver_version = "$Revision: 4.10 $";
+ 
+ static struct tty_driver serial_driver, callout_driver;
+ static int serial_refcount;
+@@ -574,9 +576,6 @@
+     link->priv = info;
+     
+     /* Initialize the dev_link_t structure */
+-    init_timer(&link->release);
+-    link->release.function = &mgslpc_release;
+-    link->release.data = (u_long)link;
+ 
+     /* Interrupt setup */
+     link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
+@@ -813,7 +812,7 @@
+ 	    link->state &= ~DEV_PRESENT;
+ 	    if (link->state & DEV_CONFIG) {
+ 		    ((MGSLPC_INFO *)link->priv)->stop = 1;
+-		    mod_timer(&link->release, jiffies + HZ/20);
++		    mgslpc_release((u_long)link);
+ 	    }
+ 	    break;
+     case CS_EVENT_CARD_INSERTION:
+@@ -1356,7 +1355,7 @@
+  * dev_id  device ID supplied during interrupt registration
+  * regs    interrupted processor context
+  */
+-static void mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs)
++static irqreturn_t mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs)
+ {
+ 	MGSLPC_INFO * info = (MGSLPC_INFO *)dev_id;
+ 	unsigned short isr;
+@@ -1366,10 +1365,10 @@
+ 	if (debug_level >= DEBUG_LEVEL_ISR)	
+ 		printk("mgslpc_isr(%d) entry.\n", irq);
+ 	if (!info)
+-		return;
++		return IRQ_NONE;
+ 		
+ 	if (!(info->link.state & DEV_CONFIG))
+-		return;
++		return IRQ_HANDLED;
+ 
+ 	spin_lock(&info->lock);
+ 
+@@ -1459,6 +1458,8 @@
+ 	if (debug_level >= DEBUG_LEVEL_ISR)	
+ 		printk("%s(%d):mgslpc_isr(%d)exit.\n",
+ 		       __FILE__,__LINE__,irq);
++
++	return IRQ_HANDLED;
+ }
+ 
+ /* Initialize and start device.
+@@ -3113,8 +3114,7 @@
+ 	if (info->line < MAX_DEVICE_COUNT) {
+ 		if (maxframe[info->line])
+ 			info->max_frame_size = maxframe[info->line];
+-//		info->dosyncppp = dosyncppp[info->line];
+-		info->dosyncppp = 1;
++		info->dosyncppp = dosyncppp[info->line];
+ 	}
+ 
+ 	mgslpc_device_count++;
+@@ -3276,7 +3276,6 @@
+ 
+ 	unregister_pccard_driver(&dev_info);
+ 	while (dev_list != NULL) {
+-		del_timer(&dev_list->release);
+ 		if (dev_list->state & DEV_CONFIG)
+ 			mgslpc_release((u_long)dev_list);
+ 		mgslpc_detach(dev_list);
+
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+

@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUDEMLT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 08:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUDEMLT
+	id S262153AbUDEMOf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 08:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUDEMOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 08:11:19 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:32266 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262114AbUDEMLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 08:11:18 -0400
-Date: Mon, 5 Apr 2004 13:11:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040405131113.A5094@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-	hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20040402164634.GF21341@dualathlon.random> <20040402195927.A6659@infradead.org> <20040402192941.GP21341@dualathlon.random> <20040402205410.A7194@infradead.org> <20040402203514.GR21341@dualathlon.random> <20040403094058.A13091@infradead.org> <20040403152026.GE2307@dualathlon.random> <20040403155958.GF2307@dualathlon.random> <20040403170258.GH2307@dualathlon.random> <20040405105912.A3896@infradead.org>
+	Mon, 5 Apr 2004 08:14:35 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:20621 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S262153AbUDEMOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 08:14:33 -0400
+Subject: Re: disable-cap-mlock
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, andrea@suse.de,
+       lkml <linux-kernel@vger.kernel.org>, kenneth.w.chen@intel.com
+In-Reply-To: <20040402133540.1dfa0256.akpm@osdl.org>
+References: <20040401135920.GF18585@dualathlon.random>
+	 <20040401170705.Y22989@build.pdx.osdl.net>
+	 <20040401173034.16e79fee.akpm@osdl.org>
+	 <20040402133540.1dfa0256.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1081167231.5343.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040405105912.A3896@infradead.org>; from hch@infradead.org on Mon, Apr 05, 2004 at 10:59:12AM +0100
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 05 Apr 2004 08:13:51 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 10:59:12AM +0100, Christoph Hellwig wrote:
-> On Sat, Apr 03, 2004 at 07:02:58PM +0200, Andrea Arcangeli wrote:
-> > can you try this potential fix too? (maybe you want to try this first
-> > thing)
-> > 
-> > this is from Hugh's anobjramp patches.
-> > 
-> > I merged it once, then I got a crash report, so I backed it out since it
-> > was working anyways, but it was due a merging error that it didn't work
-> > correctly, the below version should be fine and it seems really needed.
-> > 
-> > I'll upload a new kernel with this applied.
-> 
-> Still fails with 2.6.5-aa3 which seems to have this one applied.
+On Fri, 2004-04-02 at 16:35, Andrew Morton wrote:
+> Particularly as, apparently, the new security stuff STILL cannot solve the
+> extremely simple Oracle-wants-CAP_IPC_LOCK requirement.
 
-Disabling compound pages unconditionally gets it working again.
+Actually, it can.  With SELinux enabled, you run oracle as uid 0 in a TE
+domain that is allowed to use CAP_IPC_LOCK (e.g. allow oracle_t
+self:capability ipc_lock;) and no other capabilities, and you are done. 
+Naturally, you would need to define a domain for oracle.  uid 0 has no
+special significance to SELinux; it is only required to satisfy the
+secondary module you stack with SELinux, i.e. dummy or capabilities, and
+the ability to use capabilities is controlled by the TE policy.  
+
+Or, if you want to drop the need to use uid 0 entirely, you unhook the
+secondary_ops from SELinux so that SELinux alone makes the capability
+decisions.  But that will require finer tuning of the policy
+configuration.
+
+None of this is to argue against fixing the base capability logic, just
+to note that SELinux can control capability usage.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVBAJOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVBAJW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVBAJOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 04:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBAJMW
+	id S261716AbVBAJW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 04:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBAJW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 04:12:22 -0500
-Received: from mailgate.hob.de ([62.91.19.101]:49564 "EHLO mailgate.hob.de")
-	by vger.kernel.org with ESMTP id S261870AbVBAJFL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 04:05:11 -0500
-Message-ID: <41FF45EA.5010908@hob.de>
-Date: Tue, 01 Feb 2005 10:03:38 +0100
-From: Christian Hildner <christian.hildner@hob.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: de-de, de
+	Tue, 1 Feb 2005 04:22:27 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:40293 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261716AbVBAJRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 04:17:40 -0500
+Message-ID: <41FF492D.8000700@yahoo.com.au>
+Date: Tue, 01 Feb 2005 20:17:33 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: baswaraj kasture <kbaswaraj@yahoo.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: Kernel 2.4.21 hangs up
-References: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
+Subject: Re: 2.6.11-rc2-mm2
+References: <20050129131134.75dacb41.akpm@osdl.org>
+In-Reply-To: <20050129131134.75dacb41.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-baswaraj kasture schrieb:
+Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm2/
+> 
+> 
+> 
+> 
+> Changes since 2.6.11-rc2-mm1:
+> 
 
->Hi,
->
->I compiled kernel 2.4.21 with intel compiler .
->While booting it hangs-up . further i found that it
->hangsup due to call to "calibrate_delay" routine in
->"init/main.c". Also found that loop in the
->callibrate_delay" routine goes infinite.When i comment
->out the call to "callibrate_delay" routine, it works
->fine.Even compiling "init/main.c" with "-O0" works
->fine. I am using IA-64 (Intel Itanium 2 ) with EL3.0.
->
->Any pointers will be great help.
->
-- Download ski from http://www.hpl.hp.com/research/linux/ski/download.php
-- Compile your kernel for the simulator
-- set simulator breakpoint at calibrate_delay
-- look at ar.itc and cr.itm (cr.itm must be greater than ar.itc)
+Just a couple of things:
 
-Or for debugging on hardware:
--run into loop, press the TOC button, reboot and analyze the dump with 
-efi shell + errdump init
+> +task_size-is-variable.patch
+> +use-mm_vm_size-in-exit_mmap.patch
+> 
 
-Christian
+I didn't hear back about my comments on this patch. I don't see
+why MM_VM_SIZE should round up to the next PGDIR? This means
+architecture implementations need to do the same thing, yes?
+
+If MM_VM_SIZE means "the total address span of all top level page
+tables an mm can contain", then OK. Otherwise it should probably
+be left in the caller.
+
+>  Fixes for recent TASK_SIZE changes (these are still in flux)
+> 
+                                               ^^^
+Oh, I see :P
+
+> 
+> -sched-isochronous-class-for-unprivileged-soft-rt-scheduling.patch
+> -sched-account-rt_tasks-as-iso_ticks.patch
+> +rlimit_rt_cpu.patch
+> +rlimit_rt_cpu-fix.patch
+> +rlimit_rt_cpu-sparc64-fix.patch
+> 
+>  Drop SCHED_ISO, add the rlimit which allows non-privileged users to gain
+>  limited RT scheduling policy.
+> 
+
+At the risk of sounding like a luddite who doesn't want to see a
+complex new userspace API introduced that we're forced to support
+for the next 10 years... I have some valid concerns with the rt
+limit patches.
+
+A simple rlimit of RT priorities (a very well definied quantity,
+in contrast the vague "CPU usage"), is easy, a patch exists, it
+doesn't touch a single fastpath or add complexity, it immediately
+addresses the concerns of the RT audio guys who started all this,
+and can be used meaningfully by userspace systems that want to
+control and limit *real* RT scheduling, and without breaking
+defined userspace RT scheduling APIs, IMO would be a better place
+to start.
+
+If someone later comes along and wants the extra features and
+quirks that these patches provide, then I'd be all for further work
+and discussion.
+
+And this isn't meant to be an attack on anyone - I'm aware that
+the -mm tree is for testing and discussion and further progression
+of patches.
 

@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280035AbRLEF4D>; Wed, 5 Dec 2001 00:56:03 -0500
+	id <S281323AbRLEF6n>; Wed, 5 Dec 2001 00:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280307AbRLEFzx>; Wed, 5 Dec 2001 00:55:53 -0500
-Received: from ns1.calixo.net ([213.166.201.1]:5650 "EHLO ns1.rmcnet.fr")
-	by vger.kernel.org with ESMTP id <S280035AbRLEFzj>;
-	Wed, 5 Dec 2001 00:55:39 -0500
-Date: Wed, 5 Dec 2001 06:55:09 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Gradual VM-related freeze in 2.4.16,17-pre2 !
-Message-ID: <20011205055509.GB11283@calixo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-X-Face: "99`N"mZV/:<T->OLp[>#d3R;u.!ivtwAEpIQDL8rD#;L3Wm)~^)Uv=#;S!LZf1y8oRY7J#JR\Lr{*4Cn*32C89ln>0~5~tm--}j%hvhj+vtW><xbwA=@G8M||zPV0-r`:6zhMqq+_OC_0W*-:Wxzm3%|A5EE}VFnIgRU=+,L-hGdM"j&l'_^zK+%MBOsdmi#e3(3fGg^SGM
-From: Cyrille Chepelov <cyrille@chepelov.org>
+	id <S281124AbRLEF6X>; Wed, 5 Dec 2001 00:58:23 -0500
+Received: from donna.siteprotect.com ([64.41.120.44]:52745 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S280967AbRLEF6N>; Wed, 5 Dec 2001 00:58:13 -0500
+Date: Wed, 5 Dec 2001 00:58:07 -0500 (EST)
+From: John Clemens <john@deater.net>
+X-X-Sender: <john@pianoman.cluster.toy>
+To: Cory Bell <cory.bell@usa.net>
+cc: <linux-kernel@vger.kernel.org>, <mj@ucw.cz>
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+In-Reply-To: <1007529416.2339.0.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0112050036440.25305-100000@pianoman.cluster.toy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-I've converted yesterday my router, which until now had been happily running
-ext2+2.4.13-pre2 on 8 MB of RAM + 200 MB of swap, to the ext3 + 2.4.16 (and
-2.4.17-pre2) combinations (still eight megs of RAM, unfortunately 8-bit
-SIMMs ain't cheap nowadays).
+On 4 Dec 2001, Cory Bell wrote:
+> 11. Using the patch below (shamelessly stolen from John Clemens and
+> modified slightly -
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0111.2/0005.html),
 
-Now, as soon as the system gets some use (inetd kicks exim in, one ssh
-attempt, etc.), most processes go freeze themselves into 
-  <shrink_caches +57/80>
-I can very temporarily regain some control over the system by SAKing it, but
-eventually, everything userland is frozen up (packets still get routed, but
-after a while I get a load of netfilter-related messages questioning Rusty's
-sanity, which I'm willing to ignore as long as the VM is misbehaving).
+someone noticed! ;) Glad to see you also noticed my minor oversight in
+using INTERRUPT_PIN instead of the correct INTERRUPT_LINE.  Glad someone
+found the work useful... A few people have asked me separately for my
+patch and are using it successfully on thier laptops with no failure
+reports.
 
-Going a little backwards, to 2.4.13-ac8 (of course) solves the problem (but
-incidentally, the interactive feel is much worse than what 2.4.16 gives 
-before it freezes).
+> What I'm wondering is - what's broken?
+> Is it:
+> 1) Bad BIOS? (changing the date is as configurable as it gets - and I
+> have updated to the latest available version)
 
-What can I do to further isolate the problem ? 
+Most probably.. that in combination with number 3.. And, to top it all
+off, ACPI is thrown in there too as a non-PCI device on IRQ9.  All in all,
+quite a quirky laptop (for reference, I own an N5430, an earlier version
+of your notebook).
 
-Thanks for any help.
-	
-	-- Cyrille
+> 2) Bad Linux interperetation of ALi IRQ router? (comments in
+> linux/arch/i386/kernel/pci-irq.c seem to suggest it's possible)
+
+Doubtful, as I have an Ali Aladdin7 board in my desktop (don't get much
+more obscure than that one), and the Router works fine, as well as in a
+Magik1 based motherboard I've used.
+
+> Is there a "correct" way to fix this? Info follows. If anyone would like
+> additional info (full dmesg output, etc) I'd be happy to email it
+> seperately.
+
+I've been wondering this one myself... one thing these laptops do
+implement is a complete DMI table.. maybe we can do some sort of fixup
+through there... does anyone know of any way to use the "DMI workarounds"
+to effect PCI IRQ mapping -without- modifying the generic pci code?
+
+And I like you patch, it's a slightly cleaner for of ugly than mine :).
+
+john.c
 
 -- 
-Grumpf.
+John Clemens          http://www.deater.net/john
+john@deater.net     ICQ: 7175925, IM: PianoManO8
+      "I Hate Quotes" -- Samuel L. Clemens
+
+
 

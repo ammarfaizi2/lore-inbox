@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317566AbSGTXVk>; Sat, 20 Jul 2002 19:21:40 -0400
+	id <S317582AbSGTX1s>; Sat, 20 Jul 2002 19:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317568AbSGTXVk>; Sat, 20 Jul 2002 19:21:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40464 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317566AbSGTXVj>; Sat, 20 Jul 2002 19:21:39 -0400
-Date: Sat, 20 Jul 2002 16:25:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>,
-       <riel@conectiva.com.br>, <wli@holomorphy.com>
-Subject: Re: [PATCH] generalized spin_lock_bit
-In-Reply-To: <1027200016.1086.800.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0207201622350.1814-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317590AbSGTX1s>; Sat, 20 Jul 2002 19:27:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21487 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317582AbSGTX1r>; Sat, 20 Jul 2002 19:27:47 -0400
+Subject: Re: [PATCH] VM strict overcommit
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@zip.com.au, Linus Torvalds <torvalds@transmeta.com>,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <1027211556.17234.55.camel@irongate.swansea.linux.org.uk>
+References: <1027196403.1086.751.camel@sinai> 
+	<1027211556.17234.55.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Jul 2002 16:30:35 -0700
+Message-Id: <1027207835.1116.861.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-07-20 at 17:32, Alan Cox wrote:
 
+> Your 95% mode is pure crap. I tried various values and I can assure you
+> that your code will fail dismally to do anything useful unless you are
+> below 65% when running Oracle for example.
 
-On 20 Jul 2002, Robert Love wrote:
->
-> My assumption was similar - that the bit locking may be inefficient on
-> other architectures - so I put the spin_lock_bit code in per-arch
-> headers.
+Relax Alan.  Nothing is set in stone and we need to pick some number to
+start playing with.
 
-Well, but you also passed it an unsigned long, and the bit number.
+My test suite was _not_ Oracle (and who would run Oracle on a swapless
+machine?) and I was not able to OOM the machine with my tests.  I in no
+way contend 95% is perfect.  Even your 50% mode is not (nothing but
+solely backing store can make any guarantees).
 
-Which at least to me implies that they have to set that bit.
+But "works for me" is a start and we can work on tuning it.  No
+"swapless" mode will be perfect and while 65% may work for, another load
+with gross overhead may need more room.
 
-Which is totally unnecessary, if they _instead_ decide to set something
-else altogether.
+I sent you an email and told you I was doing this and asked your opinion
+on a percentage.  Why are you picking on me now?
 
-For example, the implementation on pte_chain_lock(page) might be something
-like this instead:
-
-	static void pte_chain_lock(struct page *page)
-	{
-		unsigned long hash = hash(page) & PTE_CHAIN_MASK;
-		spin_lock(pte_chain[hash]);
-	}
-
-	static void pte_chain_unlock(struct page *page)
-	{
-		unsigned long hash = hash(page) & PTE_CHAIN_MASK;
-		spin_unlock(pte_chain[hash]);
-	}
-
-> In other words, I assumed we may need to make some changes but to
-> bit-locking in general and not rip out the whole design.
-
-bit-locking in general doesn't work. Some architectures can sanely only
-lock a byte (or even just a word).
-
-		Linus
+	Robert Love
 

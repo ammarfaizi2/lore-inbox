@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTI3FPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 01:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTI3FPg
+	id S263158AbTI3FYB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 01:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTI3FX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 01:15:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29444 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263107AbTI3FPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 01:15:33 -0400
-Date: Mon, 29 Sep 2003 22:11:29 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: bunk@fs.tum.de, netdev@oss.sgi.com, pekkas@netcore.fi,
-       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-Id: <20030929221129.7689e088.davem@redhat.com>
-In-Reply-To: <20030929003229.GM1039@conectiva.com.br>
-References: <20030928225941.GW15338@fs.tum.de>
-	<20030928231842.GE1039@conectiva.com.br>
-	<20030928232403.GX15338@fs.tum.de>
-	<20030928233909.GG1039@conectiva.com.br>
-	<20030929001439.GY15338@fs.tum.de>
-	<20030929003229.GM1039@conectiva.com.br>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 30 Sep 2003 01:23:58 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:17075 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S263152AbTI3FX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 01:23:56 -0400
+Date: Mon, 29 Sep 2003 22:23:45 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: effect of nfs blocksize on I/O ?
+Message-ID: <20030929222345.A3043@google.com>
+References: <20030928234236.A16924@google.com> <16247.56578.861224.328086@charged.uio.no> <20030929005250.A9110@google.com> <16247.60679.415937.295532@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16247.60679.415937.295532@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Sep 29, 2003 at 01:27:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Sep 2003 21:32:30 -0300
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
-
-> Em Mon, Sep 29, 2003 at 02:14:39AM +0200, Adrian Bunk escreveu:
-> > On Sun, Sep 28, 2003 at 08:39:10PM -0300, Arnaldo Carvalho de Melo wrote:
-> > What about the following solution (the names and help texts for the
-> > config options might not be optimal, I hope you understand the
-> > intention):
-> > 
-> > config IPV6_SUPPORT
-> > 	bool "IPv6 support"
-> > 
-> > config IPV6_ENABLE
-> > 	tristate "enable IPv6"
-> > 	depends on IPV6_SUPPORT
-> > 
-> > IPV6_SUPPORT changes structs etc. and IPV6_ENABLE is responsible for 
-> > ipv6.o .
+On Mon, Sep 29, 2003 at 01:27:51AM -0700, Trond Myklebust wrote:
+> >>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
 > 
-> Humm, and the idea is? This seems confusing, could you elaborate on why such
-> scheme is a good thing?
+>     >> OTOH, bsize is of informational interest to programs that wish
+>     >> to optimize I/O throughput by grouping their data into
+>     >> appropriately sized records.
+> 
+>      > So then isn't the optimal record size 8192 for r/wsize=8192?
+>      > Since the data is going to be grouped into 8192-byte reads and
+>      > writes over the wire, shouldn't bsize match that?  Why should I
+>      > make 16x 512-byte write() syscalls (if "optimal" I/O size is
+>      > bsize=512) instead of 1x 8192-byte syscall?
+> 
+> Yes. It is already on my list of bugs.
+> 
+> We basically need to feed 'wtpref' (a.k.a. 'wsize') into the f_bsize,
+> and 'wtmult' into f_frsize.
 
-I think the idea is totally broken.  At first, Adrian comments that
-changing the layout of structs based upon a config option is broken,
-then he proposes a config option that does nothing except change the
-layout of structures.
+Then it sounds like the current wtmult/512 value for f_bsize is a bug.
+Until such time as you get f_frsize going, just directly plugging
+wsize into s_blocksize seems like a win.  Doesn't it?  At least, I don't
+see the advantage of using wtmult.  (but could easily be missing it!)
 
-The current situation is perfectly fine.
+> OTOH, the s_blocksize (and inode->i_blkbits) might well want to stay
+> with wtmult.
+
+ISTM that f_frsize is pretty useless for NFS.  Even if the server gives
+you this value (as wtmult), what use besides conversion of tbytes/abytes
+values does it have?
+
+If you like, I can supply such a patch.
+
+- s_blocksize, either
+  . leave it as is (wtmult?wtmult:512)
+  . set to wsize (ie, my first patch in this thread)
+- statfs, both
+  . report wtpref as f_bsize (already done if s_blocksize = wsize)
+  . report (wtmult?wtmult:wtpref) as f_frsize
+
+I think the second s_blocksize option is better because not only statfs()
+but also stat() will use this value without any additional work.
+
+/fc

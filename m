@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264509AbTLLIHO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 03:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTLLIHO
+	id S264510AbTLLIsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 03:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTLLIsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 03:07:14 -0500
-Received: from findaloan.ca ([66.11.177.6]:17599 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S264509AbTLLIHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 03:07:10 -0500
-Date: Thu, 11 Dec 2003 11:33:50 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-ID: <20031211163350.GC29601@mark.mielke.cc>
-References: <3FD78645.9090300@wmich.edu> <Pine.LNX.4.44.0312110046350.3331-100000@gaia.cela.pl> <20031211015348.GA23489@mark.mielke.cc> <yw1xoeufhhjm.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 12 Dec 2003 03:48:04 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:46212
+	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S264510AbTLLIru
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 03:47:50 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Fri, 12 Dec 2003 09:47:48 +0100
+User-Agent: KMail/1.5.4
+Cc: Alan Stern <stern@rowland.harvard.edu>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, mfedyk@matchmail.com,
+       zwane@holomorphy.com, linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0312081127080.1043-100000@ida.rowland.org> <200312081859.03773.baldrick@free.fr> <3FD92632.50200@pacbell.net>
+In-Reply-To: <3FD92632.50200@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xoeufhhjm.fsf@kth.se>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312120947.48602.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 09:42:21AM +0100, Måns Rullgård wrote:
-> Mark Mielke <mark@mark.mielke.cc> writes:
-> > I was under the impression, that on the x86 processors, it is not
-> > possible to have more than ~640Kb of 'unswappable'
-> > memory. Everything else *is* swappable.
-> Swappable or not doesn't depend on physical memory address.  It
-> depends on whether the kernel memory management allows it or not.  No
-> Linux kernels to date will swap out kernel memory.  The swappability
-> of a page is determined by some flags when it is allocated.
+On Friday 12 December 2003 03:21, David Brownell wrote:
+> > PS: Here is the patch that fixed the original usbfs Oops, but gained the
+> > new one Vince reported:
+>
+> Good -- more locks vanishing from usbcore; it's about time!
+> This is a case where fewer locks are better.
+>
+> My main patch feedback here would be that it should merge
+> most of the usbfs patch I sent (second URL below).  There's
+> a driver model locking requirement that you didn't know about,
+> it needs to bubble up (subsys.rwsem writelock must be held if
+> you're going to change driver bindings).  And there were a
+> few other rough spots, which I think you've mentioned (and
+> I don't think they were new issues).
 
-Is this something that should be fixed? Or is this a related issue where
-the perceived gain is small enough that it isn't worth tackling, or modules
-is the recommended and desirable solution to this problem?
+Hi Dave, indeed your patch [2] and mine should go together.
+I will clean mine, amalgamate with yours, and send to Greg
+in logical pieces.
 
-Is Microsoft Windows different in this regard?
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Duncan.

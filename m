@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTESWl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTESWl2
+	id S263183AbTESWmy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTESWmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:41:28 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:30102 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263195AbTESWl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:41:26 -0400
-Date: Mon, 19 May 2003 23:57:39 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: D & E Radel <radel@inet.net.nz>
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org,
-       Flavio Stanchina <flavio.stanchina@tin.it>,
-       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Subject: Re: AGP Kernel Patch for VIA KM266 / KL266
-Message-ID: <20030519225739.GA16521@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	D & E Radel <radel@inet.net.nz>, alan@redhat.com,
-	linux-kernel@vger.kernel.org,
-	Flavio Stanchina <flavio.stanchina@tin.it>,
-	Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-References: <002101c31e58$9881bae0$1d687cca@xp1800>
+	Mon, 19 May 2003 18:42:54 -0400
+Received: from aneto.able.es ([212.97.163.22]:41182 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263183AbTESWmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:42:53 -0400
+Date: Tue, 20 May 2003 00:55:42 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org,
+       lm@bitmover.com, cs@tequila.co.jp
+Subject: Re: [PATCH] Documentation for iostats
+Message-ID: <20030519225542.GE6096@werewolf.able.es>
+References: <200305192118.h4JLIu710201@owlet.beaverton.ibm.com> <20030519154858.3b3e2677.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <002101c31e58$9881bae0$1d687cca@xp1800>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030519154858.3b3e2677.akpm@digeo.com>; from akpm@digeo.com on Tue, May 20, 2003 at 00:48:58 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 20, 2003 at 10:47:10AM +1200, D & E Radel wrote:
 
- > With much help from Nicolas Mailhot and Flavio Stanchina, I have tested a 
- > Kernel 2.4.20 patch for AGP support for the VIA KM266 / KL266. It 
- > patches cleanly, compiles and runs in full 3D H/W acceleration with my 
- > ATI Radeon 9000.
- > 
- > Who do I send this to so that it can be included in the kernel?
+On 05.20, Andrew Morton wrote:
+> Rick Lindsley <ricklind@us.ibm.com> wrote:
+> >
+> > As promised, here is a file to add to the Documentation/ directory which
+> > describes the disk statistics fields.
+> 
+> Could we have /proc/diskstats too?
+> 
+> > +Last modified 5/15/03
+> 
+> Pet peeve number 4,592: There is no fifteenth month.
+> 
 
-marcelo@conectiva.com.br, Cc: Alan.
+How about using ISO dates to avoid this confussions ?
+Last modified: 20030515
 
-Slight nitpick...
 
- > Linux agpgart interface v0.99 (c) Jeff Hartmann
- > agpgart: Maximum main memory to use for agp memory: 203M
- > agpgart: Detected Via Apollo Pro KM266 / KL266 chipset
-                     ^^^
-s/Via/VIA/
-
-		Dave
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc2-jam1 (gcc 3.2.3 (Mandrake Linux 9.2 3.2.3-1mdk))

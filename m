@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264202AbUFSRuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUFSRxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264202AbUFSRuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 13:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbUFSRub
+	id S264371AbUFSRxo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 13:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUFSRxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 13:50:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21168 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264202AbUFSRua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 13:50:30 -0400
-Date: Sat, 19 Jun 2004 10:50:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Memory and rsync problem with vanilla 2.6.7
-In-Reply-To: <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
-Message-ID: <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org>
-References: <20040426013944.49a105a8.akpm@osdl.org>
- <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
- <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
- <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
- <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
- <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
+	Sat, 19 Jun 2004 13:53:44 -0400
+Received: from wasp.conceptual.net.au ([203.190.192.17]:37076 "EHLO
+	wasp.net.au") by vger.kernel.org with ESMTP id S264371AbUFSRxm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 13:53:42 -0400
+Message-ID: <40D47DA2.1000201@wasp.net.au>
+Date: Sat, 19 Jun 2004 21:53:38 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20040602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Darren Hart <darren@dvhart.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: IR Remotes under 2.6
+References: <1087658340.2792.31.camel@farah>
+In-Reply-To: <1087658340.2792.31.camel@farah>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 19 Jun 2004, Grzegorz Kulewski wrote:
+Darren Hart wrote:
+> I had some thoughts regarding the >=2.6.6 approach to handling remotes
+> as keyboards (specifically the ir-kbd-i2c driver).
 > 
-> Is this bug or feature? Is there some wreid memmory leak? Where is my RAM?
+> 1) First, I believe the kernel can really only recognize the receiver,
 
-Your memory is apparently in dentry and inode memory:
+> Thoughts?
 
-	ext3_inode_cache   62553  62553   4096		(244MB)
-	dentry_cache       48768  48768   4096		(190MB)
+Something completely different.. Perhaps userspace?
 
-and it really looks like you have enabled CONFIG_DEBUG_PAGEALLOC, which 
-just eats memory like mad (a dentry is normally ~200 bytes, but then when 
-it is rounded up to page-size, it takes 20 times the memory).
+I'm using a streamzap USB ir remote with lirc. I have a modified version of Nils Faebers kbdd 
+package that does the translation and injects the packets into /dev/misc/uinput.
+Whammo. Userspace IR remote to keyboard translator.
 
-So don't enable DEBUG_PAGEALLOC unless you really want to debug some 
-strange problem.
+You may want to do it in kernel space however. I'm just throwing it out there.
+Modified version here http://www.wasp.net.au/~brad/kbdd-lirc-0.01.tar.gz
+Ugly and bad code is most probably mine :p)
 
-That said, there might be a memory balancing problem too, and
-DEBUG_PAGEALLOC just makes it more obvious.  Nick Piggin reports that an
-"obvious fix" by Andrew potentially causes problems, and if you're a BK
-user, you could try just backing out this cset:
+If you have a good reason to keep it in kernel space, them my argument is null and void :p)
+It's nice being able to specify Remote->Key maps on a per app basis depending on what you are 
+running at the time.
 
-	ChangeSet@1.1722.88.2, 2004-06-03 07:58:03-07:00, akpm@osdl.org
-	  [PATCH] shrink_all_memory() fixes
+Makes controlling bash scripts using dialog really easy by remote :p)
 
-	....
-
-(check with "bk changes" what the revision is in your tree, and do a
-
-	bk cset -xX.XXX.XX.X
-
-to try reverting it. Quite possibly that fix makes the VM much less likely
-to throw out the VM caches, which would make the debug problem much 
-worse).
-
-		Linus
+Regards,
+Brad

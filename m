@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKOUet>; Wed, 15 Nov 2000 15:34:49 -0500
+	id <S129097AbQKOUg7>; Wed, 15 Nov 2000 15:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKOUeh>; Wed, 15 Nov 2000 15:34:37 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:33970 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129091AbQKOUeV>; Wed, 15 Nov 2000 15:34:21 -0500
-Date: Wed, 15 Nov 2000 15:05:41 -0500 (EST)
-From: Scott Murray <scott@spiteful.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: test11-pre5 breaks vmware
-In-Reply-To: <CF021B54DF0@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.21.0011151454590.10690-100000@godzilla.spiteful.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129671AbQKOUgt>; Wed, 15 Nov 2000 15:36:49 -0500
+Received: from host213-120-4-75.host.btclick.com ([213.120.4.75]:22053 "EHLO
+	linux.home") by vger.kernel.org with ESMTP id <S129097AbQKOUga>;
+	Wed, 15 Nov 2000 15:36:30 -0500
+Date: Wed, 15 Nov 2000 20:08:55 GMT
+From: James Stevenson <mistral@stev.org>
+Message-Id: <200011152008.UAA20801@linux.home>
+To: mike@flyn.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EJECT ioctl fails on empty SCSI CD-ROM
+In-Reply-To: <20001115185958.A5072@dragon.flyn.org>
+In-Reply-To: <20001115185958.A5072@dragon.flyn.org>
+Reply-To: mistral@stev.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000, Petr Vandrovec wrote:
 
-> On 15 Nov 00 at 1:59, Tigran Aivazian wrote:
-> 
-> > You probably noticed this already but I just wanted to bring it to your
-> > attention that /usr/bin/vmware-config.pl script needs updating since the
-> > flags in /proc/cpuinfo is now called "features" so it otherwise fails
-> > complaining that my 2xP6 has no tsc. Trivial change but still worthy of
-> > propagating into your latest .tar.gz file for 2.4.x
-> 
-> Oh. I did not compiled 11-test5, as G450 finally arrived ;-) OK,
-> I'll release patch for vmware, as I cannot stop kernel developers
-> from changing field names :-)
+Hi
 
-Actually, I know of at least one other shipping commercial product
-(Sitraka's JProbe Java Profiler) that will require patching because of
-this change.  It seems unwise to be changing field names in commonly
-used /proc files like cpuinfo at this point in time.
+this is what i get on 2.2.17
 
-Scott
+open("/dev/scd1", O_RDONLY|O_NONBLOCK)  = 3
+ioctl(3, CDROMEJECT, 0xbffffc78)        = 0
+close(3)                                = 0
+
+
+
+In local.linux-kernel-list, you wrote:
+>Apparently using the CDROMEJECT ioctl with kernel 2.4-testX fails on
+>a SCSI CD-ROM that does not have a disc in it.  The errno returned
+>corresponds to the string ``No such file or directory.''
+>
+>The Linux CD-ROM Standard states that CDROMEJECT opens the drive tray.
+>It does not mention any prerequisite such as media being present.
+>
+>Is this the expected behavior?  If so, I am curious to hear the rationale
+>behind it.
 
 
 -- 
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.interlog.com/~scottm                       ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
-
-
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  8:00pm  up 32 days,  7:56,  5 users,  load average: 0.17, 0.53, 0.29
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265315AbRF0RKC>; Wed, 27 Jun 2001 13:10:02 -0400
+	id <S265319AbRF0RZH>; Wed, 27 Jun 2001 13:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265334AbRF0RJw>; Wed, 27 Jun 2001 13:09:52 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:44515 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S265315AbRF0RJq>; Wed, 27 Jun 2001 13:09:46 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880ACD@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: failed kernel 2.4.2 build after applying the patch ac28
-Date: Wed, 27 Jun 2001 11:09:41 -0600
+	id <S265333AbRF0RY5>; Wed, 27 Jun 2001 13:24:57 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:14024 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S265319AbRF0RYv>; Wed, 27 Jun 2001 13:24:51 -0400
+Date: Wed, 27 Jun 2001 10:22:25 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: How to change DVD-ROM speed?
+Message-ID: <Pine.LNX.4.33.0106271018000.32012-100000@heat.gghcwest.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-then why the kernel build is failing ?
+I am trying to change the spin rate of my IDE DVD-ROM drive.  My system is
+an Apple PowerBook G4, and I am using kernel 2.4.  I want the drive to
+spin at 1X when I watch movies.  Currently, it spins at its highest speed,
+which is very loud and a large power load.
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Wednesday, June 27, 2001 4:02 AM
-To: hiren_mehta@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: failed kernel 2.4.2 build after applying the patch ac28
+/proc/sys/dev/cdrom/info indicates that the speed of the drive can be
+changed.  I use hdparm -E 1 /dev/dvd to attempt to set the speed, and it
+reports success.  However, the drive continues to spin at its highest
+speed.
 
+Is this ioctl supposed to work on DVD drives?  PPC?  In MacOS, the DVD
+spins quietly when watching movies.
 
-> *** Install db development libraries
-> I thought kernel build should be independent of any userland libraries.
+Regards,
+Jeffrey
 
-The kernel is, the tools are not

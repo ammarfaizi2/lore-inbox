@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272319AbTGYUke (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 16:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272331AbTGYUk0
+	id S272330AbTGYUkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272328AbTGYUj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:40:26 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:45202 "EHLO
+	Fri, 25 Jul 2003 16:39:57 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:46226 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S272319AbTGYUif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:38:35 -0400
-Date: Fri, 25 Jul 2003 22:51:06 +0200
+	id S272320AbTGYUik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:38:40 -0400
+Date: Fri, 25 Jul 2003 22:51:11 +0200
 From: Harald Welte <laforge@netfilter.org>
 To: David Miller <davem@redhat.com>
 Cc: Netfilter Development Mailinglist 
 	<netfilter-devel@lists.netfilter.org>,
        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] netfilter refcount fix
-Message-ID: <20030725205106.GN3244@sunbeam.de.gnumonks.org>
+Subject: [PATCH 2.4] netfilter ipt_REJECT: Add RFC1812 ICMP_PKT_FILTERED
+Message-ID: <20030725205111.GO3244@sunbeam.de.gnumonks.org>
 Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
 	David Miller <davem@redhat.com>,
 	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
 	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GSe1yqLCWMTKXEPF"
+	protocol="application/pgp-signature"; boundary="3wDDcJ525A5nbDoJ"
 Content-Disposition: inline
 X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
 X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
@@ -32,77 +32,71 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---GSe1yqLCWMTKXEPF
+--3wDDcJ525A5nbDoJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi Dave!
 
-This is the 7th of a set of bugfixes (all tested against 2.4.22-pre7).
-You might need to apply them incrementally (didn't test it in a
-different order).  You will receive 2.6 merges of those patches soon.
+The seven patch set of bugfixes for 2.4 is now complete.  Well, one more
+thing, depending on the definition of 'bug' (since Marcelo only accepts
+bug fixes from now on).
+
+We now have a small patch that adds an ICMP type to the REJECT target.
+But since before this patch, we don't fully comply with RFC1812, you
+might also consider it as a bugfix.
 
 
-Author: Patrick McHardy <kaber@trash.net>
+Author: Maciej Soltysiak <solt@dns.toxicfilms.tv>
 
-Drop reference to conntrack after removing confirmed expectation
+This patch adds support for the iptables '--reject-with admin-prohib'
+option of the REJECT target, making it compliant with RFC 1812.
 
 
 Please apply,
 
 
-diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
-er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
-cmd' --exclude '*.mod.c' --exclude '*~' linux-2.4.22-pre7-plain/net/ipv4/ne=
-tfilter/ip_conntrack_core.c linux-2.4.22-pre7-nfsubm/net/ipv4/netfilter/ip_=
-conntrack_core.c
---- linux-2.4.22-pre7-plain/net/ipv4/netfilter/ip_conntrack_core.c	2003-07-=
-19 10:12:19.000000000 +0200
-+++ linux-2.4.22-pre7-nfsubm/net/ipv4/netfilter/ip_conntrack_core.c	2003-07=
--19 10:37:17.000000000 +0200
-@@ -257,7 +257,7 @@
- }
-=20
- /* delete all unconfirmed expectations for this conntrack */
--static void remove_expectations(struct ip_conntrack *ct)
-+static void remove_expectations(struct ip_conntrack *ct, int drop_refcount)
- {
- 	struct list_head *exp_entry, *next;
- 	struct ip_conntrack_expect *exp;
-@@ -272,8 +272,11 @@
- 		 * the un-established ones only */
- 		if (exp->sibling) {
- 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sib=
-ling, ct);
--			/* Indicate that this expectations parent is dead */
--			exp->expectant =3D NULL;
-+			if (drop_refcount) {
-+				/* Indicate that this expectations parent is dead */
-+				ip_conntrack_put(exp->expectant);
-+				exp->expectant =3D NULL;
-+			}
- 			continue;
- 		}
-=20
-@@ -298,7 +301,7 @@
- 		    &ct->tuplehash[IP_CT_DIR_REPLY]);
-=20
- 	/* Destroy all un-established, pending expectations */
--	remove_expectations(ct);
-+	remove_expectations(ct, 1);
- }
-=20
- static void
-@@ -1140,7 +1143,7 @@
- {
- 	if (i->ctrack->helper =3D=3D me) {
- 		/* Get rid of any expected. */
--		remove_expectations(i->ctrack);
-+		remove_expectations(i->ctrack, 0);
- 		/* And *then* set helper to NULL */
- 		i->ctrack->helper =3D NULL;
- 	}
+diff -Nru linux.bak/include/linux/netfilter_ipv4/ipt_REJECT.h linux/include=
+/linux/netfilter_ipv4/ipt_REJECT.h
+--- linux.bak/include/linux/netfilter_ipv4/ipt_REJECT.h	2003-04-08 20:21:22=
+=2E000000000 +0200
++++ linux/include/linux/netfilter_ipv4/ipt_REJECT.h	2003-04-09 16:40:05.000=
+000000 +0200
+@@ -9,7 +9,8 @@
+ 	IPT_ICMP_ECHOREPLY,
+ 	IPT_ICMP_NET_PROHIBITED,
+ 	IPT_ICMP_HOST_PROHIBITED,
+-	IPT_TCP_RESET
++	IPT_TCP_RESET,
++	IPT_ICMP_ADMIN_PROHIBITED
+ };
+
+ struct ipt_reject_info {
+diff -Nru linux.bak/net/ipv4/netfilter/ipt_REJECT.c linux/net/ipv4/netfilte=
+r/ipt_REJECT.c
+--- linux.bak/net/ipv4/netfilter/ipt_REJECT.c	2003-04-08 20:21:56.000000000=
+ +0200
++++ linux/net/ipv4/netfilter/ipt_REJECT.c	2003-04-09 16:41:07.000000000 +02=
+00
+@@ -1,6 +1,7 @@
+ /*
+  * This is a module which is used for rejecting packets.
+  * Added support for customized reject packets (Jozsef Kadlecsik).
++ * Added support for ICMP type-3-code-13 (Maciej Soltysiak). [RFC 1812]
+  */
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -330,6 +331,9 @@
+ 	case IPT_ICMP_HOST_PROHIBITED:
+     		send_unreach(*pskb, ICMP_HOST_ANO);
+     		break;
++    	case IPT_ICMP_ADMIN_PROHIBITED:
++		send_unreach(*pskb, ICMP_PKT_FILTERED);
++		break;
+ 	case IPT_TCP_RESET:
+ 		send_reset(*pskb, hooknum =3D=3D NF_IP_LOCAL_IN);
+ 	case IPT_ICMP_ECHOREPLY:
 --=20
 - Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -113,16 +107,16 @@ ling, ct);
    architectural error that shows how much experimentation was going
    on while IP was being designed."                    -- Paul Vixie
 
---GSe1yqLCWMTKXEPF
+--3wDDcJ525A5nbDoJ
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/IZg6XaXGVTD0i/8RAi7eAJ4kr82J78rXzj02FD48MnPz/VYhXwCfY0w+
-ku3gA3mH8XA29580TNA7m5M=
-=RQOt
+iD8DBQE/IZg/XaXGVTD0i/8RAogtAJ9Bun71ggWdzdulCYV/gpF8edroDACbB4xi
+WpNqZGf8gYpG70DyiwXqTjo=
+=zYbt
 -----END PGP SIGNATURE-----
 
---GSe1yqLCWMTKXEPF--
+--3wDDcJ525A5nbDoJ--

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264678AbTFARbO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 13:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTFARbO
+	id S264679AbTFAReh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 13:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbTFAReh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 13:31:14 -0400
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:48867 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264678AbTFARbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 13:31:13 -0400
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.2.0.9.2.20030601084615.00ce6e30@pop.gmx.net>
-References: <5.2.0.9.2.20030601084615.00ce6e30@pop.gmx.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054489407.1722.50.camel@iso-8590-lx.zeusinc.com>
+	Sun, 1 Jun 2003 13:34:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36555 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264679AbTFAReg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 13:34:36 -0400
+Date: Sun, 1 Jun 2003 18:47:59 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Bernard Blackham <b-lkml@blackham.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VFS mapping table
+Message-ID: <20030601174758.GM9502@parcelfarce.linux.theplanet.co.uk>
+References: <20030601133804.GA4131@amidala>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Jun 2003 13:43:27 -0400
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.3, required 10,
-	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030601133804.GA4131@amidala>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-01 at 02:54, Mike Galbraith wrote:
-> 
-> Hi,
-> 
-> Wine is the shockwave plugin server right?  You reniced _wine_ and the 
-> problem went away?
-> 
->          -Mike 
-> 
+On Sun, Jun 01, 2003 at 09:38:04PM +0800, Bernard Blackham wrote:
 
-Yes, this is correct.  It's showed as pluginserver in the 'ps ax' output
-but I've since noticed that it is simply a symlink to wine.  Of the two
-wine processes, wine and wineserver, it was the wine frontend process
-that was getting all of the CPU, showing 100% utilization.  Renicing the
-wine process made the problem go away.
+> Whilst setting up a bunch of thin clients, I thought it'd be really
+> useful if a symlink could be pointed at, say /mnt/{ip}/hostname and
+> {ip} would expand to the IP address of the machine (inspired by
+> Tru64 unix).
 
-Running the exact same config on a 2.4.20 kernel uses only a few % of
-the CPU.
+You can trivially do that by having '/mnt/{ip}' a directory and
+mount --bind /mnt/$IP '/mnt/{ip}' done from initscripts.  No magic
+needed.
+ 
+> So does anybody think this would be a useful feature to have, or
+> just feature bloat? If useful, I'd be happy to port it to 2.5.xx.
 
-Later,
-Tom
+a) it affects all pathname components.  IOW, in effect you are getting
+the same bunch of symlinks in each directory.  Besides, what is supposed
+to happen if somebody wants different things for different tasks (quite
+realistic with your '{ip}' example)?
 
+b) what if I set value to something that contains '/'?
+c) what's so special about ' ', '\n' or '\r' (?!?) in the keys and values?
+d) no locking whatsoever.
 
+(a) is the real problem - such things should be (at the very least)
+per-directory.  What's more, rationale for that stuff in OSF^WTrue64
+doesn't apply to Linux - we don't have to modify any filesystem objects
+to get host-specific mappings.  Yes, symlinks do not work if fs is
+imported read-only.  But we don't need these beasts to be symlinks -
+host (or group of processes) can have whatever mounts it wants and
+bindings are mounts.  Moreover, with bindings '..' works correctly,
+regardless of the relative positions in the tree, so you are less
+constrained in the choice of layout.  IOW, we already have tools
+to do it in a clean way - no need to copy kludges caused by lack
+of decent mount layer in other kernels.

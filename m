@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVCaAwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVCaAwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVCaAwm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 19:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbVCaAwl
+	id S262674AbVCaAwI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 19:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbVCaAwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 19:52:41 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7379 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262675AbVCaAvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 19:51:12 -0500
-Subject: Re: 2.6.11, USB: High latency?
-From: Lee Revell <rlrevell@joe-job.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: kus Kusche Klaus <kus@keba.com>, stern@rowland.harvard.edu,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200503301457.35464.david-b@pacbell.net>
-References: <200503301457.35464.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 19:51:05 -0500
-Message-Id: <1112230265.19975.21.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 30 Mar 2005 19:52:08 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:56259 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262674AbVCaAuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 19:50:23 -0500
+X-ORBL: [69.107.61.180]
+From: David Brownell <david-b@pacbell.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] USB: usbnet uses netif_msg_*() ethtool filtering
+Date: Wed, 30 Mar 2005 16:50:17 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dbrownell@users.sourceforge.net, Greg KH <greg@kroah.com>
+References: <200503302319.j2UNJEBP019719@hera.kernel.org> <424B44C3.4040804@pobox.com>
+In-Reply-To: <424B44C3.4040804@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503301650.17486.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc list restored]
-
-On Wed, 2005-03-30 at 14:57 -0800, David Brownell wrote:
-> Quoth rlevell@joe-job.com:
-> > I think this is connected to a problem people have been reporting on the
-> > Linux audio lists.  With some USB chipsets, USB audio interfaces just
-> > don't work.  There are dropouts even at very high latencies.  
+On Wednesday 30 March 2005 4:30 pm, Jeff Garzik wrote:
+> Linux Kernel Mailing List wrote:
+> > ChangeSet 1.2181.4.72, 2005/03/24 15:31:29-08:00, david-b@pacbell.net
+> > 
+> > 	[PATCH] USB: usbnet uses netif_msg_*() ethtool filtering
+> > 	
+> > 	This converts most of the usbnet code to actually use the ethtool
+> > 	message flags.  The ASIX code is left untouched, since there are
+> > 	a bunch of patches pending there ... that's where the remaining
+> > 	handful of "sparse -Wbitwise" warnings come from.
+> > 	
+> > 	Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> > 	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > 
-> Well, I'd not yet expect USB audio to work over EHCI quite yet,
-> though one of the patches Greg just posted should help some of
-> the issues with full speed iso through USB 2.0 hubs.  (At least
-> for OUT transfers as to speakers.)
+> It would be nice if people at least CC'd me on net driver patches.
+
+Sorry.  When drivers fit multiple classifications (e.g. USB _and_ NET,
+or USB _and_ PCI _and_ PM, etc) it's unfortunately routine that not all
+interested parties see them until something hits LKML.  Even when the
+changes have significant cross-subsystem impact (these don't).
+
+
+> netfi_msg_ifdown() is only for __interface__ up/down events; as such, 
+> there should be only one message of this type in dev->open(), and one 
+> message of this type in dev->stop().
+
+I was going by the only writeup I've ever seen, which doesn't mention
+such a rule at all.  The messages you highlighted are compatible with
+these rules:  the interface is actually going down at that point.
+
+  http://www.tux.org/hypermail/linux-vortex/2001-Nov/0021.html
+
+If there are other rules, they belong in Documentation/netif-msg.txt
+don't they?  That way folk won't be forced to guess.  Or risk
+accidentally following the "wrong" set of rules...
+
+
+> > @@ -3044,7 +3047,7 @@
+> >  
+> >  	memset(urb->transfer_buffer, 0, urb->transfer_buffer_length);
+> >  	status = usb_submit_urb (urb, GFP_ATOMIC);
+> > -	if (status != 0)
+> > +	if (status != 0 && netif_msg_timer (dev))
+> >  		deverr(dev, "intr resubmit --> %d", status);
+> >  }
+> >  
 > 
+> this looks more like a debugging message?
 
-This is the exact configuration of one of the users who reported the
-problem on LAU.  Got a pointer to the patch?  And what's the issue with
-IN transfers?
+It's an error of the "what do I do now??" variety, triggered by
+what's effectively a timer callback.  USB interrupt transfers
+are polled by the host controller according to a schedule that's
+maintained by the HCD.
 
-> You might consider reporting such issues on the Linux-USB list.
-> It's been ages since anyone reported such a bug with the OHCI
-> or UHCI drivers ... probably why folk have assumed there are
-> no problems there.
-> 
-
-OK, good to know.
-
-> 
-> Something to consider specifically with audio.  That uses the
-> isochronous transfer mode, reserving USB bandwidth.  But I've
-> certainly seen systems with PCI busses that are severely clogged,
-> so that the USB controllers have a hard time accessing main
-> memory.  Even a perfectly functional USB stack will have a hard
-> time with such hardware!
-
-Unlikely because it works under Windows.  We're not all that far behind
-however; USB audio on that OS did not really work until XP SP1.  Also,
-if that were a widespread problem we would be seeing problems with PCI
-devices too.
-
-Also please fix the threading in your email client.
-
-Lee
+- Dave
 

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315324AbSDWT7C>; Tue, 23 Apr 2002 15:59:02 -0400
+	id <S315319AbSDWUDK>; Tue, 23 Apr 2002 16:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315326AbSDWT7B>; Tue, 23 Apr 2002 15:59:01 -0400
-Received: from mirapoint2.brutele.be ([212.68.193.7]:56639 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id <S315324AbSDWT7B>; Tue, 23 Apr 2002 15:59:01 -0400
-Date: Tue, 23 Apr 2002 22:54:32 +0200
-From: Vincent Guffens <guffens@auto.ucl.ac.be>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Frank Louwers <frank@openminds.be>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2 NICs on same network
-Message-ID: <20020423225432.A9021@auto.ucl.ac.be>
-In-Reply-To: <20020423113935.A30329@openminds.be> <3CC55D62.1501C94A@nortelnetworks.com> <20020423172051.A22111@auto.ucl.ac.be> <3CC58DF3.A6AB95B1@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-face: $!yrw0$NB\Y%oy$vuiO5|@s&!qPXX?$FdAr!v/Jx1C8mGr,?D_,\-z|P^),fiP.EvS`t@/@f6zSb,<tSt2liuZz}@-tK6K1mTd@H+XHh/TaCQC^.8#?)wlRP3WE2L@8G[K.IK8"ckxDDz
+	id <S315321AbSDWUDJ>; Tue, 23 Apr 2002 16:03:09 -0400
+Received: from ausxc10.us.dell.com ([143.166.98.229]:40200 "EHLO
+	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
+	id <S315319AbSDWUDI>; Tue, 23 Apr 2002 16:03:08 -0400
+Message-ID: <7425061BF9693F4F8C74BA48F43856900DD5AD@AUSXMPS310.aus.amer.dell.com>
+From: Robert_Hentosh@Dell.com
+To: m.knoblauch@TeraPort.de, robert@exchange.dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] reboot=bios is invalidating cache incorrectly
+Date: Tue, 23 Apr 2002 15:02:47 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
+> -----Original Message-----
+> From: Martin Knoblauch [mailto:Martin.Knoblauch@TeraPort.de]
+> Sent: Tuesday, April 23, 2002 8:51 AM
+> Subject: Re: [PATCH] reboot=bios is invalidating cache incorrectly
 > 
-> Actually, as long as you have your system set up to route based on source
-> address (which you probably should if you care about strict arp replies)
-> arp_filter seems to work properly.  I just tested with a 2.4.18 box, with the
-> following address configuration:
+> 
+> > [PATCH] reboot=bios is invalidating cache incorrectly
+> > 
+> > 
+> > This patch applies cleanly to 2.4.18 and 2.5.8. It probably 
+> also works
+> > with all 2.2.x, 2.4.x and 2.5.x kernels.
+> > 
+> > This fixes a long standing bug that prevented reliable 
+> reboots on some
+> > platforms.
+> > 
+> Robert,
+> 
+>  care to specify which platforms? :-) I ask because I am experiencing
+> reboot hangs between BISO and lilo on Tyan 2462 boards. Apparently
+> others see similar things.
 > 
 
-ok, I see, so both interfaces are replying to the arp request but this time, the first interface to reply, eth0, will have its
-arp reply filtered by the arp_filter as ip_route_output will indicate eth1 as the outgoing interface for a packet that has its
-source set to the ip to resolve, which has a source route policy entry to point to eth1, is it ?
+Martin,
 
-But then, by curiosity, is there some reasons why two different interfaces shouldn't be in the same subnet ? I was in this
-impression having configured some cisco routers which don't even accept this configuration. Is it possible on other network
-devices ? Is there any theoretical justification ?
+I only have extensive experience with Dell's Server platforms.  But because
+of the nature of the error, it can happen on any platform using reboot=bios.
 
+On the platforms I was debugging.. invalidating the cache left a bunch of
+ADD's in memory followed by a JMP to itself.  So you would see the message
+"rebooting system" but then you would never get a blank screen and BIOS
+posting (the reboot vector was never called).
 
-thanks for your explanations,
-
---
-			Vincent Guffens
+- Robert

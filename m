@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRJKIKg>; Thu, 11 Oct 2001 04:10:36 -0400
+	id <S273729AbRJKIGG>; Thu, 11 Oct 2001 04:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273724AbRJKIKQ>; Thu, 11 Oct 2001 04:10:16 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:36059 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273691AbRJKIKM>; Thu, 11 Oct 2001 04:10:12 -0400
-Date: Thu, 11 Oct 2001 10:13:35 +0200
-From: Steffen Moser <lists@steffen-moser.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10-ac11
-Message-ID: <20011011101335.A746@steffen-moser.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011011042228.A10133@emma1.emma.line.org> <Pine.A41.4.21L1.0110110025590.37700-100000@login3.isis.unc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.A41.4.21L1.0110110025590.37700-100000@login3.isis.unc.edu>
-User-Agent: Mutt/1.3.22.1i
+	id <S273724AbRJKIF4>; Thu, 11 Oct 2001 04:05:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59409 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273691AbRJKIFr>; Thu, 11 Oct 2001 04:05:47 -0400
+Date: Thu, 11 Oct 2001 01:04:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Uhhuh.. 2.4.12
+Message-ID: <Pine.LNX.4.33.0110110058550.1198-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-* On Thu, Oct 11, 2001 at 12:34 AM (-0400), Daniel T. Chen wrote:
+2.4.11 had a fix for a symlink DoS attack, but sadly that fix broke the
+creation of files through a dangling symlink rather badly (it caused the
+inode to be created in the very same inode as the symlink, with unhappy
+end results).
 
-> I'm using ext3-0.9.12, which Andrew Morton posted as
-> http://www.zip.com.au/~akpm/ext3-0.9.12_for_2.4.10-ac9 a few days ago
-> (note: it's unofficial, which is why it's not linked on the main page). It
-> applied with only tiny fuzz against -ac11.
+Happily nobody uses that particular horror - or _almost_ nobody does. It
+looks like at least the SuSE installer (yast2) does, which causes a nasty
+unkillable inode as /dev/mouse if you use yast2 on 2.4.11.
 
-Now there is also a more official patch against "linux-2.4.10-ac11":
+("debugfs -w rootdev" + "rm /dev/mouse" will remove it, although I suspect
+there are other less drastic methods too if your fsck doesn't seem to
+notice anything wrong with it. Only one report of this actually happening
+so far).
 
-  http://www.zip.com.au/~akpm/ext3-2.4-0.9.12-2410ac11.gz
+So I made a 2.4.12, and renamed away the sorry excuse for a kernel that
+2.4.11 was.
 
-It's also linked on the main ext3 page...
+		Linus
 
-Best regards,
-Steffen 
+-----
+final:
+ - Greg KH: USB update (fix UHCI timeouts, serial unplug)
+ - Christoph Rohland: shmem locking fixes
+ - Al Viro: more mount cleanup
+ - me: fix bad interaction with link_count handling
+ - David Miller: Sparc updates, net cleanup
+ - Tim Waugh: parport update
+ - Jeff Garzik: net driver updates
+

@@ -1,50 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318389AbSHELl4>; Mon, 5 Aug 2002 07:41:56 -0400
+	id <S318387AbSHELjd>; Mon, 5 Aug 2002 07:39:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318390AbSHELl4>; Mon, 5 Aug 2002 07:41:56 -0400
-Received: from mail-fe71.tele2.ee ([212.107.32.235]:20376 "HELO everyday.com")
-	by vger.kernel.org with SMTP id <S318389AbSHELlz> convert rfc822-to-8bit;
-	Mon, 5 Aug 2002 07:41:55 -0400
-Date: Mon, 5 Aug 2002 13:45:27 +0200
-Message-Id: <200208051145.g75BjRN30389@eday-fe5.tele2.ee>
-From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
-Cc: linux-kernel@vger.kernel.org
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Sv: i810 sound broken...
-MIME-Version: 1.0
-X-EdMessageId: 5408581e5a5855190e4b545346615c404714594b105544554a4951504a1a565d5a91
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S318389AbSHELjd>; Mon, 5 Aug 2002 07:39:33 -0400
+Received: from fw.2d3d.co.za ([66.8.28.230]:42403 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S318388AbSHELjb>;
+	Mon, 5 Aug 2002 07:39:31 -0400
+Date: Mon, 5 Aug 2002 13:46:57 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: ethtool documentation
+Message-ID: <20020805134657.A12200@crystal.2d3d.co.za>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 1:44pm  up 5 days, 19:01,  8 users,  load average: 0.11, 0.20, 0.15
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2002-08-05 at 12:27, Thomas Munck Steenholdt wrote:
-> > I've noticed some writing on lkml on how i810(AC97) sound was broken.
-> > Aparantly a couple of fixes have been posted, but I couldn't see
-> > where(if at all) those patches have gone... 2.4.19 still does not work
-> > and 2.4.19-ac3 won't even load the i810 module.
-> >
-> > Does anybody know if the known i810 sound issue has, in fact, been
-> fixed,
-> and if so - in what kernel/patch?
-> 
-> Its working nicely for me in 2.4.19 and 2.4.19-ac1. The 2.4.19-ac3 tree
-> has a bug in pci_enable_device which will stop it working if built with
-> some compilers (by chance it works ok the way I tested it). Thats fixed
-> in ac4.
-> 
-> The changes in the recent i810 audio are
-> - Being more pessimistic in our interpretation of codec power up
-> - Turning on EAPD in case the BIOS didn't do so at boot up
-> 
-> Longer term full EAPD control as we do with the cs46xx is on my list,
-> paticularly as i8xx laptops are becoming common . (EAPD is the amplifier
-> power controller)
 
-That's strange - I get the same scratchy sounds on 2.4.19 as I did on 2.4.18 and a couple of the 2.4.19-pre's... Is there anything I should try, to make sure things are configged / built correctly..?
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+Is there a document describing the ethtool ioctl's which need to be
+implemented in each ethernet driver?
+
+--=20
+
+Regards
+ Abraham
+
+Superstition, idolatry, and hypocrisy have ample wages, but truth goes
+a-begging.
+		-- Martin Luther
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Aintree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
 
 
--- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9TmWxzNXhP0RCUqMRAlrwAKCFr2IQhhxaYD26Elw7cSgec01lkACfcHhD
+XWK9leveiiI87PxTnQaqpu8=
+=d2lQ
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

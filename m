@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbSKVTZo>; Fri, 22 Nov 2002 14:25:44 -0500
+	id <S265230AbSKVTaK>; Fri, 22 Nov 2002 14:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265228AbSKVTZo>; Fri, 22 Nov 2002 14:25:44 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:6153 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265222AbSKVTZn>; Fri, 22 Nov 2002 14:25:43 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1998@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: linux-kernel@vger.kernel.org, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: Manish Lachwani <manish@Zambeel.com>
-Subject: Early determinition of bad sectors and correcting them ...
-Date: Fri, 22 Nov 2002 11:32:41 -0800
+	id <S265236AbSKVTaK>; Fri, 22 Nov 2002 14:30:10 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37293 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265230AbSKVTaJ>; Fri, 22 Nov 2002 14:30:09 -0500
+Message-ID: <3DDE8652.5070003@us.ibm.com>
+Date: Fri, 22 Nov 2002 11:32:34 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.5.48 hangs during boot
+References: <3DDD8F4D.8080103@us.ibm.com> <20021122021131.GW23425@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had thought abt this earlier and tried to implemented it.
+William Lee Irwin III wrote:
+> On Thu, Nov 21, 2002 at 05:58:37PM -0800, Matthew Dobson wrote:
+> 
+>>Hello all,
+>>	2.5.48 + Bill/Martin's noearlyirq patch hangs on boot on our NUMA-Q 
+>>machines.  It boots normally up to
+>>TCP: Hash tables configured (established 524288 bind 65536)
+>>NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+>>VFS: Mounted root (ext2 filesystem) readonly.
+>>Freeing unused kernel memory: 268k freed
+>>Then it *VERY* slowly proceeds to output a few more lines before hanging 
+>>completely.  The lines come out one at a time, with large time delays 
+>>between each line.  The last bit of output I get is the enabling swap line.
+>>The -mm1 patch fixes this problem, and I'm in the process of determining 
+>>exactly what fixes it.  Any input/ideas would be greatly appreciated.
+>>Thanks!
+>>-Matt
+> 
+> 
+> get the axboe/akpm fixes for the elevator deadlock and/or an intermediate
+> bk tree. This is an io scheduling issue.
+> 
+> 
+> Bill
 
-Everytime there is an ECC error (0x40), there is a pending set of sectors
-that the drive needs to remap. The drive can map the sectors as part of its
-house keeping function or the drive can remap it when an explicit write is
-made to that sector. Once an ECC error occurs, the remapping process is
-manual or we have to wait till an write operation takes place to that
-sector. 
+Yep..  the axboe-scsi patch from the mm1 tree fixes our problem...
 
-If a READ gives an ECC error, the amount of time it takes to read is usually
-higher as compared to READ operations accross sectors that are good. Even
-for a sector or a region of sectors that are degrading over time, the READ
-time is a good indication that the sector is deteriorating. A write to that
-sector will fix the problem.
+Linus, you'll make a bunch of NUMA-Q developers (and likely many other 
+people) really happy if you add that patch to the mainline.
 
-Based on the above, I modified the ide driver to implement this simple
-change. I created a sysctl entry called ide_disk_delay_threshold which is
-initially set to 250 ms. In ide-dma.c, I measure the amount of time it takes
-to complete a READ request:
+Cheers!
 
-	drive->service_time = jiffies - drive->service_start;
-	if (rq->cmd == READ && (ide_disk_delay_threshold > 0) &&
-            ( (drive->service_time*10) > ide_disk_delay_threshold) ) {
-        printk("%s: re-write, ", drive->name);
-        printk("READ took %d ms \n", drive->service_time*10);
-        /*
-         * Set the command to write
-         */
-        rq->cmd = WRITE;
-        return ide_stopped;
-       }
-
-I have tested the above and I have found that everytime I get accross an ECC
-error (0x40), the driver immediately writes to that location remapping that
-sector. This way, I get away with the bad sectors. The threshold 250 ms can
-be changed depending on the application or requirement. But, it seems to be
-a good indicator for early prediction of bad sectors ...
-
-Thanks
--Manish
+-Matt
 

@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315334AbSE2OAP>; Wed, 29 May 2002 10:00:15 -0400
+	id <S315285AbSE2N4U>; Wed, 29 May 2002 09:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315300AbSE2OAN>; Wed, 29 May 2002 10:00:13 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35816 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315335AbSE2N7l>;
-	Wed, 29 May 2002 09:59:41 -0400
-Date: Wed, 29 May 2002 06:58:02 -0700 (PDT)
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-X-Sender: <nivedita@w-nivedita2.des.beaverton.ibm.com>
-To: Ben Greear <greearb@candelatech.com>
-cc: <cfriesen@nortelnetworks.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: how to get per-socket stats on udp rx buffer overflow?
-In-Reply-To: <3CF3EE2A.1030605@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0205290640580.4572-100000@w-nivedita2.des.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315282AbSE2N4T>; Wed, 29 May 2002 09:56:19 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52213 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315285AbSE2N4G>; Wed, 29 May 2002 09:56:06 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0205291440420.17583-100000@serv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 May 2002 15:59:17 +0100
+Message-Id: <1022684357.4123.219.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 May 2002, Ben Greear wrote:
-
-> Nivedita Singhvi wrote:
+On Wed, 2002-05-29 at 14:43, Roman Zippel wrote:
+> > patent grant says it can be used for GPL software. As a free software
+> > author I have no problems at all with Victor's patent.
 > 
-> >>Is there any way for me to see how many incoming packets 
-> >>were dropped on a udp socket due to overflowing the input buffer?  
-> >>I specifically want this information on a per-socket basis.
-> >>
-> > 
-> > The /proc/net/snmp Udp counter InErrors includes the global
-> > count. It would be expensive and usually unnecessary to keep
-> > per-socket stats. Is there a real need for seeing the 
-> > per-socket count?
-> 
-> 
-> It would not be that expensive..it's just an extra counter that
-> is bumped whenever a pkt is dropped.
+> GPL is not the only free software license.
 
-True for one counter, but generally when considering per
-socket stats as a feature, you include all the TCP/UDP/IP
-stats, and if youre not holding locks, thats probably an
-atomic increment.  Pretty soon we're talking actual
-performance and scalability money. (Even if we're not
-in the mindset of saving every cycle wherever possible).
+Take that up with Richard Stallman, he defined what the GPL linking
+rules were, nobody else.
 
 
-> I have need of similar information, but it's low priority
-> for me right now, so I probably won't be adding a patch anytime
-> soon...
+> 1. We are talking about a free software project here!
+> 2. They asked a lawyer, here is the result:
+>    http://lwn.net/2002/0131/a/rtai-24.1.8.php3
 
-If the info was needed and useful however, then thats a 
-different matter :).
-
-
-> > If it helps, you can check the current bytes in the recv queue
-> > in netstat output - you wont know how many bytes have been dropped,
-> > but at least you know the amnt in the queue waiting to be read..
-> 
-> 
-> That is nearly worthless unless you are really killing your machine
-> and constantly have your buffers full...
-
-Yep, true, it was just a thought to help him identify
-the connection that was droping packets because the queue
-was full..
-
-> Ben
-> 
-
-thanks,
-Nivedita
+So why is he still moaning. He's got a legal opinion that he can use
+binary apps on RTAI without paying the license. What else does he want ?
 

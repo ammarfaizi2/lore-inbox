@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317669AbSGZKJH>; Fri, 26 Jul 2002 06:09:07 -0400
+	id <S317564AbSGZKO6>; Fri, 26 Jul 2002 06:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317670AbSGZKJH>; Fri, 26 Jul 2002 06:09:07 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:2823 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317669AbSGZKJG>; Fri, 26 Jul 2002 06:09:06 -0400
-Date: Fri, 26 Jul 2002 12:12:06 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] new module interface 
-In-Reply-To: <20020726034921.368CE4575@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0207261109470.28515-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317464AbSGZKO5>; Fri, 26 Jul 2002 06:14:57 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:36877 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317564AbSGZKOl>; Fri, 26 Jul 2002 06:14:41 -0400
+Date: Fri, 26 Jul 2002 11:17:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: martin@dalecki.de
+Cc: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>,
+       linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: LVM 1.0.5 patch for Linux 2.4.19-rc3
+Message-ID: <20020726111752.A8734@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, martin@dalecki.de,
+	"Heinz J . Mauelshagen" <mauelshagen@sistina.com>,
+	linux-kernel@vger.kernel.org, mge@sistina.com
+References: <20020725153944.A8060@sistina.com> <20020725155433.A12776@infradead.org> <3D409C3C.8090009@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D409C3C.8090009@evision.ag>; from dalecki@evision.ag on Fri, Jul 26, 2002 at 02:47:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 26, 2002 at 02:47:56AM +0200, Marcin Dalecki wrote:
+> Or of course the normal u8 u16 and u32 and infally u64, which are so
+> much more explicit about the fact that we are actually dealig with
+> bit slices.
 
-On Fri, 26 Jul 2002, Rusty Russell wrote:
+*nod*
 
-> > I introduced usecount() to gain more flexibility, currently one is forced
-> > to pass the module pointer everywhere.
->
-> Well, you substituted the module pointer for an atomic counter.  Bit
-> of a wash, really.
+> > All in all this patch would be _soooo_ much easier to review if you wouldn't
+> > mix random indentation changes with real fixes.
+> 
+> Christoph applying the patch and rediffing with diffs "ingore white 
+> space' options can help you here.
 
-Converting the module pointer into a counter is the easiest way to convert
-to the new interface. Behind that is a very important concept - complete
-seperation of module state management (done in kernel/module.c) and module
-usage management (done by the module). Both are independent in my patch,
-so the module has complete freedom how to do the later. This means it
-doesn't has to use a counter, the usecount function could be as well
-something like "return busy ? 1 : 0;" and the module won't be bothered
-with unloading. On the other hand if a module needs something more
-complex, it can do so without bothering the remaining the module code
-(e.g. if I look at the LSM hooks, I'm really not sure how to sanely unload
-a module from that).
-We get this flexibility only by removing the usecount from the module
-structure. As long as that usecount is used for synchronisation, we have
-to pass around the module pointer everywhere to get to that damned
-usecount.
+It's not that easy - he randomly moves the conditional statements on the
+if or else lines and changes brace placement..
 
-> > I was thinking about it, but couldn't we just put these function in a
-> > seperate section and discard them during init (maybe depending on some
-> > hotplug switch)?
->
-> No, if you drop them newer binutils notices the link problem, hence
-> the __devexit_p(x) macro.
+> And plese note that this kind of problems wouldn't be that common
+> if we finally decided to make indent -kr -i8 mandatory.
 
-AFAIK we have that problem if we discard the sections immediately at link
-time, but we could also discard them at kernel init. On the other hand I'm
-not completely against wrapping the field initialization in a macro.
+nightly run on the bk repo...  Larry, is that possible? :)
 
-> > Not yet. The problem is the module name, e.g. ext2 is called
-> > fs_ext2_super, it will need some kbuild changes to get the right module
-> > name.
->
-> I need that too: the mythical "KBUILD_MODNAME".  Both Keith and Kai
-> promised it to me...
+<advertise>
+for all those who want an indent with sane defaults:
 
-I found a solution for that yesterday. :)
+version 0.2 of the 'portable' version of NetBSD is now available.
+get it from https://developer.berlios.de/project/filelist.php?group_id=192
+and package it for $DISTRO.
 
-I looked at your patch and some interesting parts are missing, so it's
-difficult to comment. It's really small, but it also has lots of FIXMEs. :)
-My module pointer comment above applies to your patch as well. Since
-module unloading isn't implemented yet, it's difficult to say how you want
-to avoid the races.
-One thing I mentioned earlier is that I still think that module linkage
-is better done in user space, if we also keep all the symbol and
-dependency information in user space. Insmod just had to relocate the
-module and the kernel only needs the pointer to the module structure and
-finds the rest through it, so no adding of new sections/symbols or
-initialization of the module structure would be required, so insmod hadn'
-
-BTW I also looked at the automatic initcall generation script, I think I
-have a solution for a big part of the problem, that would at least allow
-to order the init calls of all normal modules. (Patches are coming
-hopefully soon. :) )
-
-bye, Roman
-
+feedback welcome.
+</advertise>

@@ -1,60 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267510AbRGMRcZ>; Fri, 13 Jul 2001 13:32:25 -0400
+	id <S267508AbRGMRbO>; Fri, 13 Jul 2001 13:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267511AbRGMRcP>; Fri, 13 Jul 2001 13:32:15 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15019 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267510AbRGMRcI>; Fri, 13 Jul 2001 13:32:08 -0400
-Date: Fri, 13 Jul 2001 10:31:44 -0700
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
-        Mike Kravetz <mkravetz@sequent.com>
-Subject: Re: CPU affinity & IPI latency
-Message-ID: <20010713103144.E1137@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20010712173641.C11719@work.bitmover.com> <XFMail.20010713094144.davidel@xmailserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010713094144.davidel@xmailserver.org>; from davidel@xmailserver.org on Fri, Jul 13, 2001 at 09:41:44AM -0700
+	id <S267510AbRGMRbE>; Fri, 13 Jul 2001 13:31:04 -0400
+Received: from picard.csihq.com ([204.17.222.1]:30171 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S267508AbRGMRaw>;
+	Fri, 13 Jul 2001 13:30:52 -0400
+Message-ID: <125101c10bc1$85eab630$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Andrew Morton" <andrewm@uow.edu.au>
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com> <3B4F0273.1DF40F8E@uow.edu.au>
+Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
+Date: Fri, 13 Jul 2001 13:30:34 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 13, 2001 at 09:41:44AM -0700, Davide Libenzi wrote:
-> 
-> I personally think that a standard scheduler/cpu is the way to go for SMP.
-> I saw the one IBM guys did and I think that the wrong catch there is trying
-> always to grab the best task to run over all CPUs.
+Here's the oops:
+Message on console:
+yeti kernel: EXT3-fs error (device md(9,0)): ext3_new_inode: reserved inode
+or inode > inodes count - block_group = 0,inode=1
 
-That was me/us.  Most of the reason for making 'global scheduling'
-decisions was an attempt to maintain the same behavior as the existing
-scheduler.  We are trying to see how well we can make this scheduler
-scale, while maintaining this global behavior.  Thought is that if
-there was ever any hope of someone adopting this scheduler, they would
-be more likely to do so if it attempted to maintain existing behavior.
+Here line 575:
+        J_ASSERT_JH(jh, !buffer_locked(jh2bh(jh)));
+
+Kernel BUG at transaction.c:575!
+invalid operand: 0000
+CPU: 1
+EIP: 0010:[<c015b21d>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000021 ebx: df83e850 ecx: 00000001 edx: 00000001
+esi: d13fa880 edi: cf83e850 ebp: f7856600 esp: f73e5cac
+ds: 0018 es: 0018 ss: 0018
+Process syslogd (pid: 57, stackpage=f73e5000)
+Stack: c0245fcb c0246140 0000023f f7856600 d13fa880 cf83e850 f78576694
+c3217a58
+        00000000 00000000 00000000 d73f42a0 c015b689 d13fa880 cf83e850
+00000000
+        00000912 f7856800 00000913 f73e5d34 c01529e9 d13fa880 f784eec0
+d13fa880
+Call Trace: c015b689 c01529e9 c01540ee c01543eb c01546ac c0154952 c015b62a
+        c0135694 c0154b46 c0135c88 c01364d6 c0154f96 c0154ad4 c01270b2
+        c0154f96 c0154ad4 c01270b2 c01531be c01331b6 c01531a4 c01332c5
+c0106c7b
+Code: 0f 0b 83 c4 0c f0 fe 0d a0 aa 28 c0 0f 88 35 f5 0c 00 8b 53
+
+>>EIP; c015b21d <do_get_write_access+205/638>   <=====
+Trace; c015b689 <journal_get_write_access+39/5c>
+Trace; c01529e9 <ext3_new_block+349/55c>
+Trace; c01540ee <ext3_alloc_block+1e/24>
+Trace; c01543eb <ext3_alloc_branch+3f/24c>
+Trace; c01546ac <ext3_splice_branch+b4/130>
+Trace; c0154952 <ext3_get_block_handle+22a/3ac>
+Trace; c015b62a <do_get_write_access+612/638>
+Code;  c015b21d <do_get_write_access+205/638>
+00000000 <_EIP>:
+Code;  c015b21d <do_get_write_access+205/638>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c015b21f <do_get_write_access+207/638>
+   2:   83 c4 0c                  add    $0xc,%esp
+Code;  c015b222 <do_get_write_access+20a/638>
+   5:   f0 fe 0d a0 aa 28 c0      lock decb 0xc028aaa0
+Code;  c015b229 <do_get_write_access+211/638>
+   c:   0f 88 35 f5 0c 00         js     cf547 <_EIP+0xcf547> c022a764
+<stext_lock+33bc/92c6>
+Code;  c015b22f <do_get_write_access+217/638>
+  12:   8b 53 00                  mov    0x0(%ebx),%edx
 
 
-> I think that this concept could be relaxed introducing less chains between each
-> CPU scheduler.
-> A cheap load balancer should run, "time to time"(tm), to move tasks when a
-> certain level of unbalancing has been reached.
-> This will give each scheduler more independence and will make it more scalable,
-> IMVHO.
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+----- Original Message -----
+From: "Andrew Morton" <andrewm@uow.edu.au>
+To: "Mike Black" <mblack@csihq.com>
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>;
+<ext2-devel@lists.sourceforge.net>
+Sent: Friday, July 13, 2001 10:15 AM
+Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
 
-Take a look at the 'CPU pooling & Load balancing' extensions to our
-scheduler(lse.sourceforge.net/scheduling).  It allows you to divide
-the system into CPU pools keep scheduling decisions limited to
-these pools.  Periodicly, load balancing will be performed among
-the pools.  This has shown some promise on NUMA architectures (as
-one would expect).  You could define pool sizes to be 1 CPU and
-get the scheduling behavior you desire on SMP.
 
-But, none of this has to do with CPU affinity issues with the
-current scheduler.
+Mike Black wrote:
+>
+> I give up!  I'm getting file system corruption now on the ext3
+partition...
+> and I've got a kernel oops (soon to be decoded) This is the worst file
+> corruption I've ever seen other than having a disk go bad.
 
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+There was a truncate-related bug fixed in 0.9.2.  What workload
+were you using at the time?
+

@@ -1,72 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUHHDUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUHHD7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbUHHDUd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 23:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUHHDUc
+	id S265044AbUHHD7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 23:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265048AbUHHD7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 23:20:32 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:59522 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265108AbUHHDUU (ORCPT
+	Sat, 7 Aug 2004 23:59:36 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:18403 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S265044AbUHHD7f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 23:20:20 -0400
-Date: Sat, 7 Aug 2004 20:17:55 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20040807201755.16eeeab9.pj@sgi.com>
-In-Reply-To: <200408071722.36705.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<200408071722.36705.efocht@hpce.nec.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Aug 2004 23:59:35 -0400
+Message-Id: <200408080118.i781Isku007461@localhost.localdomain>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel bug report (includes fix) 
+In-Reply-To: Message from Joerg Schilling <schilling@fokus.fraunhofer.de> 
+   of "Sat, 07 Aug 2004 14:51:35 +0200." <200408071251.i77CpZqE007029@burner.fokus.fraunhofer.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Sat, 07 Aug 2004 21:18:54 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich wrote:
-> The complaints about the huge size of the patch should therefore have
-> in mind that we might well get rid of the user interface part of it.
+Joerg Schilling <schilling@fokus.fraunhofer.de> said:
+> -	Linux Kernel include files (starting with Linux-2.5) are buggy and 
+> 	prevent compilation.
 
-To put some numbers on things, building 2.6.8-rc2-mm2 for arch=ia64,
-with gcc 3.3.2, using sn2_defconfig, I see the following kernel text
-byte costs:
-
-	Enabling CONFIG_CPUSETS:   22384   (22028 cpuset.o, 356 hooks)
-	The  bitmap list UI:        1552
-	                           -----
-	Total:                     23936
-
-The bitmap list user interface is a fairly small part of the total.
-
-Of the 22384 for CONFIG_CPUSETS, 22028 bytes is in kernel/cpuset.o and
-the remaining 356 for the cpuset kernel hooks (which are essentially
-zero if CONFIG_CPUSETS is disabled).
-
-
-> The core infrastructure of cpusets will be needed anyway and the
-> amount of code is the absolutely required minimum, IMHO.
-
-I agree.  If anyone can see further opportunities to trim, let me know.
-
-
-> What I proposed was to include cpusets ASAP
-
-I agree.
-
-
->  A better world ;-)
-
-Yeah !!
-
+They do not, the kernel compiles just fine. They are _not_ to be used for
+random userspace programs.
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282872AbRLQVBy>; Mon, 17 Dec 2001 16:01:54 -0500
+	id <S282890AbRLQVJo>; Mon, 17 Dec 2001 16:09:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282873AbRLQVBp>; Mon, 17 Dec 2001 16:01:45 -0500
-Received: from a56d18.elisa.omakaista.fi ([212.54.5.56]:7296 "EHLO
-	masiina.localdomain") by vger.kernel.org with ESMTP
-	id <S282872AbRLQVBg>; Mon, 17 Dec 2001 16:01:36 -0500
-Message-ID: <3C1E5D26.8050400@retiisi.dyndns.org>
-Date: Mon, 17 Dec 2001 23:01:26 +0200
-From: Sakari Ailus <sailus@retiisi.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: fi, en-us, sv
+	id <S282882AbRLQVJZ>; Mon, 17 Dec 2001 16:09:25 -0500
+Received: from canardo.info.unicaen.fr ([193.55.128.18]:21519 "HELO
+	canardo.info.unicaen.fr") by vger.kernel.org with SMTP
+	id <S282877AbRLQVJT>; Mon, 17 Dec 2001 16:09:19 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] TEST of patch proposed for i810 audio
+From: Samir Saidani <saidani@info.unicaen.fr>
+Date: 17 Dec 2001 22:14:00 +0100
+Message-ID: <w4ry9k1h7mv.fsf@info.unicaen.fr>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Diego Calleja <grundig@teleline.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs corruption on 2.4.17-rc1!
-In-Reply-To: <20011216184836.A418@diego> <20011216211208.D5226@vestdata.no> <20011217025856.A1649@diego>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
+Salut,
 
-> badblocks -n (non-destructive write-test) -vv /dev/hdc5
-> results in:
-> attempt to access beyond end of device
-> 16:05: rw=0, want=9671068, limit=9671067
-> attempt to access beyond end of device
-> 16:05: rw=0, want=9671068, limit=9671067
-> attempt to access beyond end of device
-> 16:05: rw=0, want=9671068, limit=9671067
-> 3 bad blocks found
-> 
-> This means it's broken? 
+I sum up the different thread about i810_audio
+(i'm only a user testing this driver)
 
-No, it is what it says, AFAIK.
+Doug Ledford : release 0.11 in his site
+(http://people.redhat.com/dledford/i810_audio.c.gz)
+don't work : cat /vmlinuz > /dev/dsp freezes the kernel,
+no sound played
+No possibility to Alt-SysRq
 
-read/write/whatever system call tries to access past end of device 
-although it isn't asked to (or the problem is somewhere deeper). This 
-has happened to me on swap partition which had fairly dramatic effect. 
-;-) Not using last few blocks solved the problem. Of course, this 
-shouldn't be the case...
 
--- 
-Sakari Ailus
-sakari.ailus@retiisi.dyndns.org
+Nathan Bryant : patch for 0.11
+not tested
+
+Andris Pavenis : other patch for 0.11 (seems to be better)
+not tested
+
+Doug Ledford : patch for 0.11, 0.11 becomes 0.12
+don't work, see 0.11
+
+
+Andris Pavenis : patch for 0.12, 0.12 becomes 0.12a
+don't work, see 0.11, one difference : sound played
+and then freeze.
+
+
+My system
+---------
+Kernel : 2.4.16
+Debian unstable
+
+++
+Samir Saidani
 

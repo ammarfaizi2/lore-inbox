@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293693AbSCFREM>; Wed, 6 Mar 2002 12:04:12 -0500
+	id <S293687AbSCFRDM>; Wed, 6 Mar 2002 12:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293696AbSCFRD6>; Wed, 6 Mar 2002 12:03:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293689AbSCFRD2>; Wed, 6 Mar 2002 12:03:28 -0500
-Date: Wed, 6 Mar 2002 12:03:10 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Trever L. Adams" <tadams-lists@myrealbox.com>,
-        Petro <petro@auctionwatch.com>,
-        "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <Pine.LNX.4.44L.0203061325360.2181-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.95.1020306115541.12216C-100000@chaos.analogic.com>
+	id <S293689AbSCFRDG>; Wed, 6 Mar 2002 12:03:06 -0500
+Received: from gate.perex.cz ([194.212.165.105]:25353 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S293687AbSCFRA0>;
+	Wed, 6 Mar 2002 12:00:26 -0500
+Date: Wed, 6 Mar 2002 17:57:54 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Paul Davis <pbd@op.net>
+cc: Ulrich Zadow <ulrich.zadow@ARTCOM.DE>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Timer?
+In-Reply-To: <200203061631.LAA17147@renoir.op.net>
+Message-ID: <Pine.LNX.4.33.0203061741300.2187-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Rik van Riel wrote:
+On Wed, 6 Mar 2002, Paul Davis wrote:
 
-> On 5 Mar 2002, Trever L. Adams wrote:
-> > On Tue, 2002-03-05 at 23:26, Petro wrote:
-> > >     Do what they tell you, or go to jail. (Well, there is a third
-> > >     choice, but it would best not be discussed here).
-> >
-> > And for the safety of those in the USA and around the world,
-> > particularly on this list... it is best not to even think about it...
+> >Is there any documentation on the timer api that goes beyond what's on the als
+> >a-project pages? We're trying to sync Video and Audio, and all we need is a wa
+> >y to query the current time relative to some arbitrary start point.
 > 
-> Wasn't the second amendment created for this purpose ?
+> i don't believe that the timer API has much to do with this. its more
+> a way of getting a trigger from a timer, not of reading time per se.
 > 
+> to sync audio + video you have to keep track of the number of frames
+> you've delivered to both streams. the audio stream is giving you
+> exactly the same timing info (albeit implicitly) as it would do if you
+> used as a timer.
 
-You mean some junk in the Constitution that Bush never read?
+You're right. But it would be really nice to have a continuous timer 
+source in some resolution (microseconds?) available for all platforms
+to satisfy synchronization requirements. 
 
-Somebody who targets civilian airliners to "protect certain assets",
-thereby denying innocents the "due process" guaranteed by the
-Constitution, certainly in unconcerned with mere legality. This
-is not only illegal and immoral, it's even insane. The current
-President of the United States has committed treason against the
-Constitution and People of the United States of America and the
-average American, having sold his birthright for the promise of
-a job, remains sleeping in comfort.
+It's not probably required exactly for this example where timing from one
+audio target is sufficient, but I can imagine several applications
+synchronized together. As far as I know, Linux has not a continous timer.
+I am ready to work on this issue. It is very simple to create an interface
+with one ioctl returning struct timeval with the absolute timer value
+measured from system boot on i386 using rdtsc instruction.
 
-Next they will come for your neighbor.
+Perhaps, I'm trying to reinvent wheel, so please, let me know, if someone 
+solved this issue.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
-
-	Bill Gates? Who?
 

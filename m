@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265813AbRFYAIy>; Sun, 24 Jun 2001 20:08:54 -0400
+	id <S265818AbRFYA1s>; Sun, 24 Jun 2001 20:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265814AbRFYAIn>; Sun, 24 Jun 2001 20:08:43 -0400
-Received: from mail2.ameuro.de ([62.208.90.8]:11027 "EHLO mail2.ameuro.de")
-	by vger.kernel.org with ESMTP id <S265813AbRFYAIb>;
-	Sun, 24 Jun 2001 20:08:31 -0400
-Message-ID: <3B36808A.70A74B97@alarsen.net>
-Date: Mon, 25 Jun 2001 02:06:12 +0200
-From: Anders Larsen <anders@alarsen.net>
-Organization: syst.eng. A.Larsen (http://www.alarsen.net/)
-MIME-Version: 1.0
+	id <S265817AbRFYA1i>; Sun, 24 Jun 2001 20:27:38 -0400
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:22547 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S265818AbRFYA1Y>; Sun, 24 Jun 2001 20:27:24 -0400
+Date: Sun, 24 Jun 2001 20:26:54 -0400
+From: Michael Meissner <meissner@spectacle-pond.org>
 To: "Richard B. Johnson" <root@chaos.analogic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <Pine.LNX.3.95.1010621203455.6995A-100000@chaos.analogic.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+Message-ID: <20010624202654.B30355@munchkin.spectacle-pond.org>
+In-Reply-To: <19093.993348744@ocs3.ocs-net> <Pine.LNX.3.95.1010623224028.22442A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010623224028.22442A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Sat, Jun 23, 2001 at 10:43:14PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Fri, 22 Jun 2001, Anders Larsen wrote:
-> 
-> > "Richard B. Johnson" wrote:
-> > >
-> > > QNX does not have any difference between user-space and kernel space.
-> > > It's not paged-virtual. It's just one big sheet of address space
-> > > with no memory protection (everything is shared). All procedures
-> > > to be executed are known at compile time.
-> >
-> > That's completely, utterly untrue.
-> > QNX does indeed sport paged-virtual memory with memory protection;
-> > (although QNX4 does not support swap).
-> 
-> Then QNX is not the QNX that I have used.
+On Sat, Jun 23, 2001 at 10:43:14PM -0400, Richard B. Johnson wrote:
+> Previous to the "Draft" "Proposal" of C98, there were no such
+> requirements. And so-called ANSI -C specifically declined to
+> define any order within structures.
 
-Or you haven't used it recently (= within the past 10 years)
+As one of the founding members of the X3J11 ANSI committee, and having served
+on the committee for 10 1/2 years, I can state categorically that Appendix A of
+the original K&R (which was one of the 3 base documents for ANSI C) had the
+requirement that non-bitfield fields are required to have monotonically
+increasing addresses (bitfields don't have addresses, and different compiler
+ABIs do lay them out in different fashions within the words).  C89 never
+changed the wording that mandates this.
 
-> > User-mode interrupts are standard procedure; the deadlock problems
-> > Alan has mentioned do not apply, since any running process is
-> > always resident in memory.
-> > Shared regions have to be explicitly created; access is *not* open
-> > to anybody.
-> >
-> > Nothing has to be known at "compile time"; QNX is a full-featured
-> > OS with dynamic loading.
-> >
-> 
-> The QNX that I have used, advertised as QNX, and been around since
-> 32-bit ix86 was available, is EXACTLY as I stated.
-
-Dynamic loading of executables has been in QNX for as long as I know
-it (fifteen years).
-With the appearance of QNX version 4 some ten years ago came 32-bit
-address space, full memory management/protection etc.
-
-> > > Therefore, any piece of code can do anything it wants including
-> > > handling hardware directly.
-> >
-> > Again not true; only privileged processes can enter kernel mode
-> > to execute port I/O instructions directly.
-> 
-> The QNX that I have used, again is EXACTLY as stated.
-
-It must have been an early QNX version 2, then.
-QNX 2 did not have any memory protection.
-
-> If you have used a different QNX, then QNX has either changed
-> radically, or is a different company/QNX than what I used.
-> And, I had a lot of good experiences with it since standard
-> I/O was provided, as was boot, but it was an open book otherwise
-> in which you were not prevented from doing anything you wanted
-> to do, at any instant you wanted to do it.
-
-Of course QNX has changes radically over the decades (it's been
-around for some twenty years now); what I frowned at was that
-you made your statements as if they would apply to the *current*
-state of affairs, which they certainly do not.
-
-cheers
-Anders
 -- 
-"In theory there is no difference between theory and practice.
- In practice there is." - Yogi Berra
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482

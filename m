@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUAOTcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUAOTcm
+	id S261775AbUAOTdh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAOTdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:32:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38457 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261744AbUAOTck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:32:40 -0500
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Intel Alder IOAPIC fix
-References: <1073876117.2549.65.camel@mulgrave>
-	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
-	<1073948641.4178.76.camel@mulgrave>
-	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
-	<1073954751.4178.98.camel@mulgrave>
-	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
-	<1074012755.2173.135.camel@mulgrave>
-	<m1smihg56u.fsf@ebiederm.dsl.xmission.com>
-	<1074185897.1868.118.camel@mulgrave>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Jan 2004 12:26:34 -0700
-In-Reply-To: <1074185897.1868.118.camel@mulgrave>
-Message-ID: <m17jztau8l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 15 Jan 2004 14:33:37 -0500
+Received: from dhcp22.ists.dartmouth.edu ([129.170.249.122]:39042 "EHLO
+	uml.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S261775AbUAOTdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:33:35 -0500
+Message-Id: <200401140725.i0E7Pr9b001444@uml.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.6.1
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Wed, 14 Jan 2004 02:25:52 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@steeleye.com> writes:
+This patch updates UML to 2.6.1.  No functional changes or bug fixes this time
+around.
 
+The 2.6.1 UML patch is available at
+	http://www.user-mode-linux.org/mirror/uml-patch-2.6.1-1.bz2
 
-> Ah, that explains why it's expecting to find the new resource covering
-> the old one.
+BK users can pull my 2.5 repository from
+	http://www.user-mode-linux.org:5000/uml-2.5
 
-And that is why I believe it tucks the old resource under the new one.
-
-> > Which is totally something different from this case where we just want
-> > to ignore the BIOS, because we know better.  I have seen a number of
-> > boxes that reserver the area where apics or ioapics live.  So I think
-> > we need an IORESOURCE_TENTATIVE thing.  This is the third flavor of
-> > thing that has shown up, lately.
-> > 
-> > Want me to code up a patch?
-> 
-> Well, I'm not sure there's a need for it.  It seems to me that all
-> insert_resource is supposed to be doing is saying "I've got this
-> resource here that should have been placed into the tree...please do it
-> now".
-> 
-> The ia64 I forgot this bridge, and the Alder IO-APIC this PCI BAR is
-> actually the IO-APIC and thus part of the reserved BIOS area look to be
-> similar aspects of the same problem.
-
-The problem of you have an incorrect device tree what do you do yes.
-The difference that I see is in how the tree gets wrong, and what
-parts of it you want to keep.
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
  
-> The only difference (which is what I needed the patch for) was that the
-> Alder resource needs to go underneath the bios reserved area.
-> 
-> How are you proposing that IORESOURCE_TENTATIVE should work?
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
 
-The solution I keep am thinking of is to simply push an IORESOURCE_TENTATIVE
-thing out of the way.
+				Jeff
 
-What I am thinking is that /proc/iomem would start out looking link:
-fec00000-fec08fff : reserved
-ffe80000-ffffffff : reserved
-
-And end up looking like:
-fec00000-fec00fff : reserved
-fec01000-fec013ff : 0000:00:0f.0
-fec01400-fec08fff : reserved
-ffe80000-ffffffff : reserved
-
-And either put the code to do that in request_resource, or have
-a demand_resource thing that does it.  The only thing worth preserving
-in the mixed up BIOS case is that find_resource does not allocate that
-range for something else.
-
-Eric

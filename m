@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQJaSjd>; Tue, 31 Oct 2000 13:39:33 -0500
+	id <S129413AbQJaSnx>; Tue, 31 Oct 2000 13:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130205AbQJaSjY>; Tue, 31 Oct 2000 13:39:24 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15123 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129029AbQJaSjJ>; Tue, 31 Oct 2000 13:39:09 -0500
-Date: Tue, 31 Oct 2000 10:38:46 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vladislav Malyshkin <mal@gromco.com>
-cc: Peter Samuelson <peter@cadcamlab.org>, R.E.Wolff@BitWizard.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <39FF0A71.FE05FAEB@gromco.com>
-Message-ID: <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130205AbQJaSno>; Tue, 31 Oct 2000 13:43:44 -0500
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:34813 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129413AbQJaSnd>; Tue, 31 Oct 2000 13:43:33 -0500
+From: Ulrich.Weigand@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: Andrea Arcangeli <andrea@suse.de>
+cc: slpratt@us.ibm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        linux-mm@kvack.org
+Message-ID: <C1256989.0066C1B8.00@d12mta01.de.ibm.com>
+Date: Tue, 31 Oct 2000 19:42:21 +0100
+Subject: Re: [PATCH] 2.4.0-test10-pre6 TLB flush race in establish_pte
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Ok, how about this approach? It only works for the case where we do not
-have the kind of multiple stuff that drivers/net has, but hey, we don't
-actually need to handle all the cases right now.
 
-We can leave that for the future, as the configuration process is likely
-to change anyway during 2.5.x, and the multiple object case may go away
-entirely (ie the case of slhc and 8390 will become just a normal
-configuration dependency: you'd have a "CONFIG_SLHC" entry that is
-computed by the dependency graph at configuration time, rather than by the
-Makefile at build time).
+Andrea Arcangeli wrote:
 
-This is the simplest rule base that I could come up with that should work
-for both SCSI and USB:
+>>On Mon, Oct 30, 2000 at 03:31:22PM -0600, Steve Pratt/Austin/IBM wrote:
+>> [..] no patch ever
+>> appeared. [..]
+>
+>You didn't followed l-k closely enough as the strict fix was submitted two
+>times but it got not merged. (maybe because it had an #ifdef __s390__ that
+was
+>_necessary_ by that time?)
 
-	# Translate to Rules.make lists.
-	multi-used      := $(filter $(list-multi), $(obj-y) $(obj-m))
-	multi-objs      := $(foreach m, $(multi-used), $($(basename $(m))-objs))
-	active-objs     := $(sort $(multi-objs) $(obj-y) $(obj-m))
 
-	O_OBJS          := $(obj-y)
-	M_OBJS          := $(obj-m)
-	MIX_OBJS        := $(filter $(export-objs), $(active-objs))
+Unfortunately, the current code is racey even on the S/390.
+We originally wanted to use the IPTE instruction to flush
+a particular TLB entry, and this requires that the old PTE
+value is still present at the time IPTE is performed.
 
-Does anybody see any problems with it? Basically, we're sidestepping the
-sorting, because neither SCSI nor USB need it. Making the problem simpler
-is always good.
+Thus we wanted to place IPTE inside flush_tlb_page, and have
+flush_tlb_page called before the new PTE is written.  However,
+even with the current establish_pte routine this doesn't work,
+as flush_tlb_page is called from several other places *after*
+the PTE has been changed, so we still cannot actually use IPTE.
 
-Now, the above won't work for drivers/net, but I think it will work for
-just about anything else. So let's just leave drivers/net alone for now.
-Simplicity is good.
+So, what we do now is simply flush the complete TLB in
+flush_tlb_page, and don't use IPTE at all.  This is obviously
+not ideal, but at least correct.  Except, that is, for the
+race condition in establish_pte that we now share with the
+other architectures :-/
 
-		Linus
+IMO you should apply Steve's patch (without any #ifdef __s390__) now.
+However, we'd like to look further for a more general solution
+that would allow us to make use of IPTE again in the future.
+This would possibly involve something like making establish_pte
+architecture-specific.
+
+
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

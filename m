@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285593AbRLYQib>; Tue, 25 Dec 2001 11:38:31 -0500
+	id <S285654AbRLYQhb>; Tue, 25 Dec 2001 11:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285633AbRLYQiW>; Tue, 25 Dec 2001 11:38:22 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:48794 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S285593AbRLYQiM>;
-	Tue, 25 Dec 2001 11:38:12 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 25 Dec 2001 16:38:11 GMT
-Message-Id: <UTC200112251638.QAA94646.aeb@cwi.nl>
-To: jlladono@pie.xtec.es
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-Cc: linux-kernel@vger.kernel.org
+	id <S285633AbRLYQhV>; Tue, 25 Dec 2001 11:37:21 -0500
+Received: from CPE0080C82B2487.cpe.net.cable.rogers.com ([24.112.142.143]:47610
+	"EHLO sh.od.inet") by vger.kernel.org with ESMTP id <S285593AbRLYQhQ>;
+	Tue, 25 Dec 2001 11:37:16 -0500
+Date: Tue, 25 Dec 2001 11:37:56 -0500
+From: "Carlos O'Donell Jr." <carlos@baldric.uwo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Merry Christmas!
+Message-ID: <20011225113756.B4823@systemhalted>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Useless-Header: oooohhmmm, chant the email mantra...
+X-Mailer: Patched Mutt OS 1.2.5 - Neural Implant (96% Sync Ratio [==========])
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josep Lladonosa i Capell:
+LKML,
 
-> Linux adopts the 'false' geometry (65530/16/63) ) to bypass the bios
-> boot.
+Merry Chritmas LKML!
 
-You can see that this is the wrong way around.
-When you start your computer, first the BIOS boots, then Linux.
-But maybe you mean to say that you set a jumper on the disk
-so as to bypass the BIOS boot problem, and that as a result
-also Linux sees a smaller disk?
+Thank you all for the love and time you've put into
+everything ... even though at times it seems like we
+don't appreciate it. We do! :)
 
-> hdc: IC35L060AVER07-0, ATA DISK drive
-> hdc: 66055247 sectors (33820 MB) w/1916KiB Cache, CHS=119150/16/63,
-
-Funny. Where did this CHS come from? Did you give boot parameters?
-
-> setmax.c does its job for my ide ibm - 60Gb, but kernel
-> leaves bios parameters - 32Gb
-
-Can you be more explicit? What precisely do you do?
-Call setmax in a boot script? And afterwards you can access
-the entire disk, but some proc files still mention the old
-geometry? Or are there any real problems?
-What precisely do you mean by "kernel leaves bios parameters"?
-
-
-Santiago Garcia Mantinan:
-
-: What I'm using is change the geometry after the boot and before any
-: partition besides root is mounted, I do this at the beginning of
-: checkroot.sh by calling "/sbin/setmax -d 0 /dev/hda"
-: This works ok for me, of course you can have other solutions.
-
-Good to hear that it works OK. Sooner or later setmax or something
-similar must become part of the standard kernel, but so far I've
-gotten almost no feedback. Can you give the disk manufacturer and model
-(mail aeb@cwi.nl)?
-
-Andries
+Cheers,
+Carlos Jr.
+(Reading/Participating since 1997)

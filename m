@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314559AbSEMW5Y>; Mon, 13 May 2002 18:57:24 -0400
+	id <S314583AbSEMXGj>; Mon, 13 May 2002 19:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314583AbSEMW5X>; Mon, 13 May 2002 18:57:23 -0400
-Received: from web10402.mail.yahoo.com ([216.136.130.94]:58403 "HELO
-	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314559AbSEMW5W>; Mon, 13 May 2002 18:57:22 -0400
-Message-ID: <20020513225722.38379.qmail@web10402.mail.yahoo.com>
-Date: Tue, 14 May 2002 08:57:22 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
-To: vda@port.imtp.ilyichevsk.odessa.ua, kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200205131412.g4DECHY06608@Port.imtp.ilyichevsk.odessa.ua>
+	id <S314612AbSEMXGi>; Mon, 13 May 2002 19:06:38 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26646 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314583AbSEMXGh>; Mon, 13 May 2002 19:06:37 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200205132306.g4DN6bb04733@devserv.devel.redhat.com>
+Subject: Re: Wine problems w/ 2.4.19-pre8-ac1
+To: aibara@ucsd.edu
+Date: Mon, 13 May 2002 19:06:37 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020513210339.GA8045@thibs.menloschool.org> from "Allen H. Ibara" at May 13, 2002 02:03:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'd like to report that vm86 handling still seems to be broken as
+> of 2.4.19-pre8-ac1.
 > 
-> When no one answers on lkml to your oops report, you
-> have basically the only choice: start looking at
-> stack trace
-> yourself, insert printks here and there, recompile
-> and give it a try.
-> 
-> In other words, the source is with you. You *can* do
-> it.
+> Wine does not work properly until I copy arch/i386/kernel/vm86.c over from
+> a vanilla 2.4.18 tree (Although dosemu works fine without this).
 
-I consider myself much less experienced in C
-programming than any of you guys, (just graduated :-)
-) so first test and problem report , hope it helps
-others; but when no one come up with a solution, I
-*will* try....
-
-thanks for your advice,
-
-> vda 
-
-=====
-Steve Kieu
-
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- A great way to communicate long-distance for FREE!
+What sort of problems does it show ?

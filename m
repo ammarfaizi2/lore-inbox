@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbUKDFLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbUKDFOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbUKDFLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 00:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUKDFLG
+	id S262072AbUKDFOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 00:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbUKDFOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 00:11:06 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:27094 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S262067AbUKDFLA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 00:11:00 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Thu, 4 Nov 2004 00:14:45 -0500
+Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:22409 "EHLO
+	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S262072AbUKDFOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 00:14:40 -0500
+Subject: [PATCH] bttv winfast 2000 tuner type
+From: John McCutchan <ttb@tentacle.dhs.org>
 To: linux-kernel@vger.kernel.org
-Subject: adding new device to pci bus
-Date: Thu, 4 Nov 2004 00:10:59 -0500
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411040010.59065.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.11.139] at Wed, 3 Nov 2004 23:11:00 -0600
+Content-Type: multipart/mixed; boundary="=-l+cj6R+82/g9koMD6BXK"
+Date: Thu, 04 Nov 2004 00:18:27 -0500
+Message-Id: <1099545507.24027.1.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2004.11.3.5
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTYPE_HAS_BOUNDARY 0, __CTYPE_MULTIPART 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-Some smallish non-progress on my CNC project.  I added the 
-vendor/product description (00ff:0800) to drivers/pci/pci.ids and 
-recompiled.
+--=-l+cj6R+82/g9koMD6BXK
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The data does make it into the self generated devlist.h file during 
-the compile, but that appears to be as far as it gets.  On the reboot 
-there is still no recognition of the cards presence in the logs, and 
-the data I can extract from the /proc filesystem about the card is as 
-limited as before.  It shows up on the pci bus as 00:10.0 and thats 
-it.
-
-This was using 2.6.10-rc1-bk10 as the test kernel, and on that old 
-slow box, a 233mhz PII with 384 megs of ram, a kernel compile is a 
-bit over 65 minutes!
-
-I didn't ever expect that one change to be the magic twanger, but 
-shouldn't I at least have seen something?
-
-Whats the next step here since it appears I'm taking 1/64" steps?
+Trivial patch that lets you configure the tuner type of your winfast
+2000 tuner card. The default value is the previous hard coded value.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+John McCutchan <ttb@tentacle.dhs.org>
+
+--=-l+cj6R+82/g9koMD6BXK
+Content-Disposition: attachment; filename=bttv-winfast-2000-tuner-type.diff
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=bttv-winfast-2000-tuner-type.diff; charset=UTF-8
+
+LS0tIGNsZWFuL2xpbnV4L2RyaXZlcnMvbWVkaWEvdmlkZW8vS2NvbmZpZwkyMDA0LTEwLTE4IDE3
+OjU1OjE4LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4L2RyaXZlcnMvbWVkaWEvdmlkZW8vS2Nv
+bmZpZwkyMDA0LTExLTA0IDAwOjA3OjU3LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTIyLDYgKzIyLDE4
+IEBADQogCSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVy
+ZTogdGhlDQogCSAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIGJ0dHYuDQogDQorY29uZmlnIFZJREVP
+X1dJTkZBU1QyMDAwX1RVTkVSX1RZUEUNCisJaW50ICJMZWFkdGVrIFdpbkZhc3QgMjAwMCB0dW5l
+ciB0eXBlIg0KKwlkZXBlbmRzIG9uIFZJREVPX0JUODQ4DQorCWRlZmF1bHQgNQ0KKwloZWxwDQor
+CSAgU2VsZWN0cyB0aGUgdHVuZXIgdHlwZSBmb3IgdGhlIFdpbkZhc3QgMjAwMCBUViBUdW5lciBj
+YXJkcy4NCisNCisJICBLbm93biB0dW5lciB0eXBlczoNCisNCisJICA1IC0gUEFMDQorCSAgMiAt
+IE5UU0MNCisNCiBjb25maWcgVklERU9fUE1TDQogCXRyaXN0YXRlICJNZWRpYXZpc2lvbiBQcm8g
+TW92aWUgU3R1ZGlvIFZpZGVvIEZvciBMaW51eCINCiAJZGVwZW5kcyBvbiBWSURFT19ERVYgJiYg
+SVNBDQotLS0gY2xlYW4vbGludXgvZHJpdmVycy9tZWRpYS92aWRlby9idHR2LWNhcmRzLmMJMjAw
+NC0xMC0xOCAxNzo1NDowOC4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51eC9kcml2ZXJzL21lZGlh
+L3ZpZGVvL2J0dHYtY2FyZHMuYwkyMDA0LTExLTA0IDAwOjExOjI1LjAwMDAwMDAwMCAtMDUwMA0K
+QEAgLTc5NCw3ICs3OTQsNyBAQA0KIAkubmVlZHNfdHZhdWRpbwk9IDAsDQogCS5wbGwJCT0gUExM
+XzI4LA0KIAkuaGFzX3JhZGlvCT0gMSwNCi0JLnR1bmVyX3R5cGUJPSA1LCAvLyBkZWZhdWx0IGZv
+ciBub3csIGdwaW8gcmVhZHMgQkZGRjA2IGZvciBQYWwgYmcrZGsNCisJLnR1bmVyX3R5cGUJPSBD
+T05GSUdfVklERU9fV0lORkFTVDIwMDBfVFVORVJfVFlQRSwgDQogCS5hdWRpb19ob29rCT0gd2lu
+ZmFzdDIwMDBfYXVkaW8sDQogCS5oYXNfcmVtb3RlICAgICA9IDEsDQogfSx7DQo=
+
+
+--=-l+cj6R+82/g9koMD6BXK--

@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUGFV2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUGFVgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUGFV2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 17:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUGFV2k
+	id S264278AbUGFVgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 17:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUGFVgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 17:28:40 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:29625 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264560AbUGFV2g (ORCPT
+	Tue, 6 Jul 2004 17:36:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65495 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264278AbUGFVgI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 17:28:36 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 6 Jul 2004 17:36:08 -0400
+Date: Tue, 6 Jul 2004 22:35:52 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, torvalds@osdl.org, agk@redhat.com,
+       jim.houston@comcast.net
+Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
+Message-ID: <20040706213552.GA30237@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+	dm-devel@redhat.com, torvalds@osdl.org, agk@redhat.com,
+	jim.houston@comcast.net
+References: <200407011035.13283.kevcorry@us.ibm.com> <200407021233.09610.kevcorry@us.ibm.com> <20040702124218.0ad27a85.akpm@osdl.org> <200407061323.27066.kevcorry@us.ibm.com> <20040706142335.14efcfa4.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16619.6526.367058.311714@napali.hpl.hp.com>
-Date: Tue, 6 Jul 2004 14:28:30 -0700
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>
-Subject: Re: Table of mmap PROT_* implementations by architecture
-In-Reply-To: <20040701033620.GB1564@mail.shareable.org>
-References: <20040701033620.GB1564@mail.shareable.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040706142335.14efcfa4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 1 Jul 2004 04:36:20 +0100, Jamie Lokier <jamie@shareable.org> said:
+On Tue, Jul 06, 2004 at 02:23:35PM -0700, Andrew Morton wrote:
+> Kevin Corry <kevcorry@us.ibm.com> wrote:
 
-  >> From a study of Linux 2.6.5 source code, and some patches.
-  Jamie> This is based on studying the source, not running tests, so
-  Jamie> there may be errors.
+> > It seems (based on some comments in lib/idr.c) that
+ 
+> Confused.  idr_find() returns the thing it found, or NULL.  
 
-  Jamie> This table shows expected page protections, for different
-  Jamie> values of PROT_READ, PROT_WRITE and PROT_EXEC passed to
-  Jamie> mmap() and mprotect().
+Yes, but the comments imply that the thing it found might in some
+circumstances not be the thing you asked it to look for (if there've 
+been deletions) and it's the caller's responsibility to verify
+what's returned.
 
-  Jamie> (As noted in a recent mail from me, real behaviour isn't
-  Jamie> quite this simple.  Reading from a write-only page will
-  Jamie> *sometimes* raise a signal, and sometimes not, possibly
-  Jamie> dependent on background paging decisions.  Therefore some of
-  Jamie> these entries should say "!w!" instead of "rwx", and "!w-"
-  Jamie> instead of "rw-".  Perhaps there are other combinations too,
-  Jamie> depending on architecture-specific fault handlers).
+> To which comments do you refer?
 
+lib/idr.c:30
 
-  Jamie> ==============================================================
-  Jamie> Requested PROT flags | --- R-- -W- RW- --X    R-X -WX RWX
-  Jamie> ==============================================================
-  Jamie> ia64                 | --- r-- rw- rw- --x(1) r-x rwx rwx
-  Jamie> --------------------------------------------------------------
+ * What you need to do is, since we don't keep the counter as part of
+ * id / ptr pair, to keep a copy of it in the pointed to structure
+ * (or else where) so that when you ask for a ptr you can varify that
+ * the returned ptr is correct by comparing the id it contains with the one
+ * you asked for.  In other words, we only did half the reuse protection.
+ * Since the code depends on your code doing this check, we ignore high
+ * order bits in the id, not just the count, but bits that would, if used,
+ * index outside of the allocated ids.  In other words, if the largest id
+ * currently allocated is 32 a look up will only look at the low 5 bits of
+ * the id.  Since you will want to keep this id in the structure anyway
+ * (if for no other reason than to be able to eliminate the id when the
+ * structure is found in some other way) this seems reasonable.  If you
+ * really think otherwise, the code to check these bits here, it is just
+ * disabled with a #if 0.
 
-  Jamie> (1) - In kernel, maybe these pages are readable using
-  Jamie> "write()"?
-
-That's correct for ia64.  The architecture does not support an
-"execute-only at all privilege levels" protection per se, so this
-behavior is the easiest (most efficient) to implement.  If we really
-cared about the "read execute-only at kernel-level", we could use
-"probe" instructions in the __access_ok() macro to verify (user-level)
-access permission.
-
-	--david
+Alasdair
+-- 
+agk@redhat.com

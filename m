@@ -1,186 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261727AbSIXR2M>; Tue, 24 Sep 2002 13:28:12 -0400
+	id <S261779AbSIXR7k>; Tue, 24 Sep 2002 13:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261726AbSIXR1p>; Tue, 24 Sep 2002 13:27:45 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:54428 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261728AbSIXRWo> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:44 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.38 s390 fixes: 19_syncisc.
-Date: Tue, 24 Sep 2002 19:22:59 +0200
-X-Mailer: KMail [version 1.4]
+	id <S261780AbSIXR6l>; Tue, 24 Sep 2002 13:58:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2804 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261779AbSIXR61>;
+	Tue, 24 Sep 2002 13:58:27 -0400
+Message-ID: <3D90A8C1.5390CD82@mvista.com>
+Date: Tue, 24 Sep 2002 11:02:41 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209241922.59438.schwidefsky@de.ibm.com>
+To: Richard Henderson <rth@twiddle.net>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Daniel Jacobowitz <dan@debian.org>, Brian Gerst <bgerst@didntduck.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: CHECKER bate: Syscall changes registers beyond %eax, on linux-i386 
+References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919192434.GA3286@nevyn.them.org> <15754.12963.763811.307755@kim.it.uu.se> <3D8ADD05.999E4A5C@mvista.com> <20020920231946.B27148@twiddle.net> <3D8C2928.EC37FEC7@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove bogus sanity check from {en,dis}able_sync_isc() and really disable all
-interrupt sub classes except isc 7 in wait_cons_dev.
+george anzinger wrote:
+> 
+> Richard Henderson wrote:
+> >
+> > On Fri, Sep 20, 2002 at 01:32:05AM -0700, george anzinger wrote:
+> > > So, is there a problem?  Yes, neither the call stub macros
+> > > in asm/unistd.h nor those in glibc bother to list the used
+> > > registers beyond the third ":".
+> >
+> > No, this is not the real problem.  The real problem is that if
+> > the program receives a signal during a system call, the kernel
+> > will return all the way up to entry.S, deliver the signal and
+> > then restart the syscall.
+> >
+> > Except the syscall will restart with the corrupted registers.
+> >
+> > Hilarity ensues.
+> >
+> I submit that BOTH of these are problems.  And only  the
+> kernel can fix the latter.
+> 
+Sounds like a job for the CHECKER.  Should be easy to verify
+that a system call does not modify its call parameters.
 
-diff -urN linux-2.5.38/drivers/s390/cio/cio.c linux-2.5.38-s390/drivers/s390/cio/cio.c
---- linux-2.5.38/drivers/s390/cio/cio.c	Tue Sep 24 17:43:30 2002
-+++ linux-2.5.38-s390/drivers/s390/cio/cio.c	Tue Sep 24 17:43:38 2002
-@@ -1715,7 +1715,7 @@
- 		 */
- 		__ctl_store (cr6, 6, 6);
- 		save_cr6 = cr6;
--		cr6 &= 0x01FFFFFF;
-+		cr6 = 0x01000000;
- 		__ctl_load (cr6, 6, 6);
- 
- 		do {
-@@ -1855,47 +1855,39 @@
- 
- 	/* This one spins until it can get the sync_isc lock for irq# irq */
- 
--	if ((irq <= highest_subchannel) && 
--	    (ioinfo[irq] != INVALID_STORAGE_AREA) &&
--	    (!ioinfo[irq]->st)) {
--		if (atomic_read (&sync_isc) != irq)
--			atomic_compare_and_swap_spin (-1, irq, &sync_isc);
--
--		sync_isc_cnt++;
--
--		if (sync_isc_cnt > 255) {	/* fixme : magic number */
--			panic ("Too many recursive calls to enable_sync_isc");
--
--		}
--		/*
--		 * we only run the STSCH/MSCH path for the first enablement
--		 */
--		else if (sync_isc_cnt == 1) {
--			ioinfo[irq]->ui.flags.syncio = 1;
--
--			ccode = stsch (irq, &(ioinfo[irq]->schib));
--
--			if (!ccode) {
--				ioinfo[irq]->schib.pmcw.isc = 5;
--				rc = s390_set_isc5(irq, 0);
--
--			} else {
--				rc = -ENODEV;	/* device is not-operational */
--
--			}
--		}
--
--		if (rc) {	/* can only happen if stsch/msch fails */
--			sync_isc_cnt = 0;
--			atomic_set (&sync_isc, -1);
-+	if (atomic_read (&sync_isc) != irq)
-+		atomic_compare_and_swap_spin (-1, irq, &sync_isc);
-+	
-+	sync_isc_cnt++;
-+	
-+	if (sync_isc_cnt > 255) {	/* fixme : magic number */
-+		panic ("Too many recursive calls to enable_sync_isc");
-+		
-+	}
-+	/*
-+	 * we only run the STSCH/MSCH path for the first enablement
-+	 */
-+	else if (sync_isc_cnt == 1) {
-+		ioinfo[irq]->ui.flags.syncio = 1;
-+		
-+		ccode = stsch (irq, &(ioinfo[irq]->schib));
-+		
-+		if (!ccode) {
-+			ioinfo[irq]->schib.pmcw.isc = 5;
-+			rc = s390_set_isc5(irq, 0);
-+			
-+		} else {
-+			rc = -ENODEV;	/* device is not-operational */
-+			
- 		}
--	} else {
--
--		rc = -EINVAL;
--
-+	}
-+	
-+	if (rc) {	/* can only happen if stsch/msch fails */
-+		sync_isc_cnt = 0;
-+		atomic_set (&sync_isc, -1);
- 	}
- 
--	return (rc);
-+	return rc;
- }
- 
- 
-@@ -1910,44 +1902,36 @@
- 	sprintf (dbf_txt, "disisc%x", irq);
- 	CIO_TRACE_EVENT (4, dbf_txt);
- 
--	if ((irq <= highest_subchannel) && 
--	    (ioinfo[irq] != INVALID_STORAGE_AREA) && 
--	    (!ioinfo[irq]->st)) {
--		/*
--		 * We disable if we're the top user only, as we may
--		 *  run recursively ... 
--		 * We must not decrease the count immediately; during
--		 *  msch() processing we may face another pending
--		 *  status we have to process recursively (sync).
--		 */
--
--		if (sync_isc_cnt == 1) {
--			ccode = stsch (irq, &(ioinfo[irq]->schib));
--
--			if (!ccode) {
--
--				ioinfo[irq]->schib.pmcw.isc = 3;
--				rc = s390_set_isc5(irq, 1);
--			} else {
--				rc = -ENODEV;
--			}
--				
--			ioinfo[irq]->ui.flags.syncio = 0;
--
--			sync_isc_cnt = 0;
--			atomic_set (&sync_isc, -1);
--
-+	/*
-+	 * We disable if we're the top user only, as we may
-+	 *  run recursively ... 
-+	 * We must not decrease the count immediately; during
-+	 *  msch() processing we may face another pending
-+	 *  status we have to process recursively (sync).
-+	 */
-+	
-+	if (sync_isc_cnt == 1) {
-+		ccode = stsch (irq, &(ioinfo[irq]->schib));
-+		
-+		if (!ccode) {
-+			
-+			ioinfo[irq]->schib.pmcw.isc = 3;
-+			rc = s390_set_isc5(irq, 1);
- 		} else {
--			sync_isc_cnt--;
--
-+			rc = -ENODEV;
- 		}
-+		
-+		ioinfo[irq]->ui.flags.syncio = 0;
-+		
-+		sync_isc_cnt = 0;
-+		atomic_set (&sync_isc, -1);
-+		
- 	} else {
--
--		rc = -EINVAL;
--
-+		sync_isc_cnt--;
-+		
- 	}
- 
--	return (rc);
-+	return rc;
- }
- 
- EXPORT_SYMBOL (halt_IO);
 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

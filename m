@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316851AbSEVEdy>; Wed, 22 May 2002 00:33:54 -0400
+	id <S316853AbSEVEoc>; Wed, 22 May 2002 00:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316852AbSEVEdx>; Wed, 22 May 2002 00:33:53 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:22433 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S316851AbSEVEdw>; Wed, 22 May 2002 00:33:52 -0400
-Date: Tue, 21 May 2002 21:33:03 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: What to do with all of the USB UHCI drivers
- in the kernel ?
-To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Message-id: <3CEB1F7F.4000000@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-In-Reply-To: <5.1.0.14.2.20020521133408.068d2ef8@mail1.qualcomm.com>
- <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com>
- <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com>
- <20020521195925.GA2623@kroah.com>
- <5.1.0.14.2.20020521133408.068d2ef8@mail1.qualcomm.com>
- <5.1.0.14.2.20020521164157.06b68430@mail1.qualcomm.com>
+	id <S316854AbSEVEob>; Wed, 22 May 2002 00:44:31 -0400
+Received: from [212.42.230.145] ([212.42.230.145]:62681 "EHLO
+	pomo.hostsharing.net") by vger.kernel.org with ESMTP
+	id <S316853AbSEVEob>; Wed, 22 May 2002 00:44:31 -0400
+Date: Wed, 22 May 2002 06:44:29 +0200
+From: Michael Hoennig <michael@hostsharing.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: suid bit on directories
+Message-Id: <20020522064429.0f8c7ea7.michael@hostsharing.net>
+In-Reply-To: <Pine.LNX.3.96.1020521135800.1427B-100000@gatekeeper.tmr.com>
+Organization: http://www.hostsharing.net
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maksim (Max) Krasnyanskiy wrote:
+Hi Bill,
+
+> > Anyway, when I find time in the next weeks, I will try this patch and
+> > post it.  I will do it as a mount option.  Nobody is forced to use it
+> > ;-)
 > 
-> One-shot interrupt transfers are broken in *-hcd drivers. core/hcd.c 
-> returns EINVAL if urb->interval==0.
+> If I might offer a suggestion, that requires a patched mount command,
+> etc. I would offer as an alternative implementation which might be both
+> easier to do and more useful in testing. Make the capability an option
+> in the kernel, and then require that it be enabled in /proc/sys with
+> default off. Think TCP_SYN_COOKIES or similar. That way you can have a
+> single patch set for the kernel only, and no one can possibly "stumble
+> on it" and complain. Also, you can disable without reboot or remount
+> after testing.
 
-Hmm, eventually that automagic resubmit model needs to go away,
-in favor of a straight queued transfer model -- where in effect
-there are _only_ "one shot" transfers, which for interrupts are
-just going to hang out on endpoint queues that are properly
-scheduled.  That's needed to make interrupt reads and writes
-have the same transfer model ... right now interrupt OUT transfers
-don't work very well.  (And they'll be the most common type when
-we eventually get those device/target side driver APIs sorted.)
+Good idea; I will consider it.  
 
-Meanwhile, I suppose I can see wanting access to that UHCI-ism.
-However your patch would do that wrong, since it should only
-apply to interrupt transfers.
+	Michael
 
-
-> usb-uhci-hcd has to be fixed.
-> btw It tries to round interval value even thought it's done by hcd.c
-
-That was one of my quick-review comments too.  It doesn't hurt,
-it's just one of several URB sanity-check/preprocessing steps
-that doesn't need to be in every driver.
-
-
-> On a side note. Why are URBs still not SLABified ?
-
-Hasn't seemed to be necessary.  kmalloc() is slabified already,
-so it's not clear that a control/bulk/interrupt URB pool shared
-between drivers -- size, maybe a handful -- would be better than
-sharing that same memory with other kernel code.
-
-- Dave
-
-
-
-
-
+-- 
+Hostsharing eG / c/o Michael Hönnig / Boytinstr. 10 / D-22143 Hamburg
+phone:+49/40/67581419 / mobile:+49/177/3787491 / fax:++49/40/67581426
+http://www.hostsharing.net ---> Webhosting Spielregeln selbst gemacht

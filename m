@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275853AbRJPKBz>; Tue, 16 Oct 2001 06:01:55 -0400
+	id <S274875AbRJPKLj>; Tue, 16 Oct 2001 06:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275857AbRJPKBp>; Tue, 16 Oct 2001 06:01:45 -0400
-Received: from dspnet.claranet.fr ([212.43.196.92]:14342 "HELO
-	dspnet.fr.eu.org") by vger.kernel.org with SMTP id <S275853AbRJPKBa>;
-	Tue, 16 Oct 2001 06:01:30 -0400
-Date: Tue, 16 Oct 2001 12:02:01 +0200
-From: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: some bugs in preparsing directives
-Message-ID: <20011016120201.S6667@dspnet.fr.eu.org>
+	id <S275861AbRJPKLa>; Tue, 16 Oct 2001 06:11:30 -0400
+Received: from ns.etm.at ([212.88.180.5]:36875 "EHLO etm.at")
+	by vger.kernel.org with ESMTP id <S274875AbRJPKLW>;
+	Tue, 16 Oct 2001 06:11:22 -0400
+Message-Id: <01Oct16.121213cest.117125@fwetm.etm.at>
+From: "Stanislav Meduna" <stano@meduna.org>
+To: "Kevin Krieser" <kkrieser_list@footballmail.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <NDBBLFLJADKDMBPPNBALAEHFGAAA.kkrieser_list@footballmail.com>
+Subject: Re: USB stability - possibly printer related
+Date: Tue, 16 Oct 2001 12:11:38 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Msmail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-here are some probable bugs :
-(line numbers are from 2.4.12-ac3)
+> One thing I have noticed is that, with the 2.4 kernels, my
+> system doesn't like sharing IRQs as well as the 2.2 kernels.
+> So you may want to see what devices share interrupts with
+> your USB controller, and move the cards if necessary.
 
-* drivers/telephony/ixj.c : unknown directive in line 390
--> should be #define
+For the record: in my setup the USB controller has its own interrupt.
 
-* drivers/acorn/scsi/ecoscsi.c : #endif missing at the end of file
--> the #if directive is in line 235
+ide2 shares one with the ISDN card (Elsa Quickstep PCI) - I had
+no problems with this in several months I am using this setup.
 
-* drivers/scsi/dpt_i2o.c : Expression expected in #elif at lines 83 and 1804
-->  "defined"
+Regards
+-- 
+                                                Stano
 
-* drivers/media/video/planb.c : #endif unexpected out of an #if at line 69
--> line 67 should be "#else" (not #endif)
-
-	JLL
 

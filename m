@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbTHSVin (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbTHSVeb
+	id S261508AbTHSVaN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTHSV1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:34:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5380 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261473AbTHSVcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:32:07 -0400
-Date: Tue, 19 Aug 2003 22:32:03 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jonsmirl@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: Standard driver call to enable/disable PCI ROM
-Message-ID: <20030819223203.I23670@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, jonsmirl@yahoo.com,
-	linux-kernel@vger.kernel.org
-References: <20030819210618.D23670@flint.arm.linux.org.uk> <20030819204643.75442.qmail@web14913.mail.yahoo.com> <20030819215246.H23670@flint.arm.linux.org.uk> <20030819141735.52ffedc7.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030819141735.52ffedc7.davem@redhat.com>; from davem@redhat.com on Tue, Aug 19, 2003 at 02:17:35PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 19 Aug 2003 17:27:30 -0400
+Received: from host1.attachmate.com ([63.89.163.150]:54293 "EHLO
+	exch-ims.attachmate.com") by vger.kernel.org with ESMTP
+	id S261619AbTHSVX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 17:23:29 -0400
+From: Exchange Administrator <ExchanAd@Attachmate.com>
+To: linux-kernel@vger.kernel.org
+InterScan-Notification: yes
+Subject: BLOCKED ATTACHMENT (Replaced with text)
+Date: Tue, 19 Aug 2003 14:17:24 -0700
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_1061327844_B78506032.R82506026"
+Message-Id: <S261619AbTHSVX3/20030819212526Z+392@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 02:17:35PM -0700, David S. Miller wrote:
-> On Tue, 19 Aug 2003 21:52:46 +0100
-> Russell King <rmk@arm.linux.org.uk> wrote:
-> >                 new |= res->flags & PCI_ROM_ADDRESS_ENABLE;
-> >                 reg = dev->rom_base_reg;
-> 
-> A word of caution, please do not enable PCI ROMs lightly.
-> 
-> There are many devices which stop responding to MEM and IO
-> space once their ROM is enabled, Qlogic-ISP chips are one
-> such device and there are several others.
+This is a multi-part message in MIME format.
 
-Indeed - we leave the ROM enable bit in whatever state it was when
-we scanned the device.
+------=_NextPart_000_1061327844_B78506032.R82506026
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-However, there are device drivers which want to access the ROM for
-whatever reason, and we should provide a standard way to allow
-drivers to enable / disable ROM access for architecture portability
-reasons (so that VGA drivers can find tables in their ROMs for
-instance.)
+************* eManager Notification **************
 
-Since this is critical to some devices, maybe their drivers should
-consider ensuring that the ROM resources are disabled upon driver
-initialisation of the device?
+Your message contained an attachment type that has been blocked in order to prevent *potential* viruses from entering Attachmate's mail servers.  The best method for sending file attachments to Attachmate employees is to compress the file and send it as a .ZIP file.  If you have any questions, you can contact the intended Attachmate recipient for more information.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Destination mailbox(es): support@attachmate.com
+Policy: Replaced with text
+Attachment file name: thank_you.pif - application/octet-stream
+Action: Attachment Removal
 
+******************* End of message *******************
+
+------=_NextPart_000_1061327844_B78506032.R82506026--

@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292819AbSBQHWo>; Sun, 17 Feb 2002 02:22:44 -0500
+	id <S292544AbSBPV3I>; Sat, 16 Feb 2002 16:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292816AbSBQHWf>; Sun, 17 Feb 2002 02:22:35 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:54917 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S292818AbSBQHWW>; Sun, 17 Feb 2002 02:22:22 -0500
-Message-Id: <200202161737.g1GHbkJh001254@tigger.cs.uni-dortmund.de>
-To: Michael Sinz <msinz@wgate.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Core dump file control 
-In-Reply-To: Message from Michael Sinz <msinz@wgate.com> 
-   of "Fri, 15 Feb 2002 12:57:09 EST." <3C6D4BF5.918049D8@wgate.com> 
-Date: Sat, 16 Feb 2002 18:37:46 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S292546AbSBPV26>; Sat, 16 Feb 2002 16:28:58 -0500
+Received: from mail311.mail.bellsouth.net ([205.152.58.171]:44774 "EHLO
+	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S292544AbSBPV2u>; Sat, 16 Feb 2002 16:28:50 -0500
+Subject: future of rmap VM
+From: Louis Garcia <louisg00@bellsouth.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 (1.0.2-1) 
+Date: 16 Feb 2002 16:29:23 -0500
+Message-Id: <1013894969.1283.8.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Sinz <msinz@wgate.com> said:
-> I have, for a long time, wished that Linux had a way to specify where
-> core dumps are stored
+When do you plan to have a complete rmap VM ready for general use? Whats left to do?
 
-CWD (chdir(2))
+Also, have you discussed merging this VM into the mainline kernel, either 2.4 or 2.5?
 
->                       and what the name of the core dump is.
+To me, this VM is far better than the current VM.
 
-/proc/sys/kernel/core_uses_pid
--- 
-Horst von Brand			     http://counter.li.org # 22616
+--Louis
+

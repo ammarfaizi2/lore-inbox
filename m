@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262800AbRE3OMW>; Wed, 30 May 2001 10:12:22 -0400
+	id <S262810AbRE3O0p>; Wed, 30 May 2001 10:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262808AbRE3OMB>; Wed, 30 May 2001 10:12:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:2322 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262800AbRE3OL5>;
-	Wed, 30 May 2001 10:11:57 -0400
-Date: Wed, 30 May 2001 16:06:53 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: andrea@e-mind.com
-Cc: Jens Axboe <axboe@kernel.org>, Mark Hemment <markhe@veritas.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
+	id <S262809AbRE3O0f>; Wed, 30 May 2001 10:26:35 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:55143 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262810AbRE3O0V>; Wed, 30 May 2001 10:26:21 -0400
+Date: Wed, 30 May 2001 16:26:07 +0200
+From: andrea@e-mind.com
+To: Mark Hemment <markhe@veritas.com>
+Cc: Jens Axboe <axboe@kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
 Subject: Re: [patch] 4GB I/O, cut three
-Message-ID: <20010530160653.G17136@suse.de>
-In-Reply-To: <20010529160704.N26871@suse.de> <Pine.LNX.4.21.0105301022410.7153-100000@alloc> <20010530115538.B15089@suse.de> <20010530160008.C1408@athlon.random>
+Message-ID: <20010530162607.D1408@athlon.random>
+In-Reply-To: <20010530115538.B15089@suse.de> <Pine.LNX.4.21.0105301113550.7153-100000@alloc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010530160008.C1408@athlon.random>; from andrea@suse.de on Wed, May 30, 2001 at 04:00:08PM +0200
+In-Reply-To: <Pine.LNX.4.21.0105301113550.7153-100000@alloc>; from markhe@veritas.com on Wed, May 30, 2001 at 11:59:50AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30 2001, Andrea Arcangeli wrote:
-> > >   I did change the patch so that bounce-pages always come from the NORMAL
-> > > zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
-> > > I'm not 100% sure the VM is capable of keeping the zones it already has
-> > > balanced - and adding another one might break the camels back.  But as the
-> > > test box has 4GB, it wasn't bouncing anyway.
-> > 
-> > You are right, this is definitely something that needs checking. I
-> > really want this to work though. Rik, Andrea? Will the balancing handle
-> > the extra zone?
-> 
-> The bounces can came from the ZONE_NORMAL without problems, however the
+On Wed, May 30, 2001 at 11:59:50AM +0100, Mark Hemment wrote:
+> 	Now, when HIGHMEM allocations come in (for page cache pages), they
+> 	skip the HIGH zone and use the NORMAL zone (as it now has plenty
+> 	of free pages) - the code at the top of __alloc_pages(), which
+> 	checks against ->pages_low.
 
-Of course
+btw, I think such heuristic is horribly broken ;), the highmem zone
+simply needs to be balanced if it is under the pages_low mark, just
+skipping it and falling back into the normal zone that happens to be
+above the low mark is the wrong thing to do.
 
-> ZONE_DMA32 way is fine too, but yes probably it isn't needed in real
-> life unless you do an huge amount of I/O at the same time. If you want
+>   Also, the problem isn't as bad as it first looks - HIGHMEM page-cache
+> pages do get "recycled" (reclaimed), but there is a slight imbalance.
 
-It's not strictly needed, but it does buy us 3 extra gig to do I/O from
-an a pae enabled x86.
+there will always be some imbalance unless all allocations would be
+capable of highmem (which will never happen). The only thing we can do
+is to optimize the zone usage so we won't run out of normal pages unless
+there was a good reason. Once we run out of normal pages we'll simply
+return NULL and the reserved pool of highmem bounces will be used
+instead (other callers will behave differently).
 
-> to reduce the amount of changes you can defer the zone_dma32 patch and
-> possibly plug it in later.
-
-Yes, I did modular patches for this reason.
-
-Thanks!
-
--- 
-Jens Axboe
-
+Andrea

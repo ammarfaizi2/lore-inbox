@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137051AbREKFgw>; Fri, 11 May 2001 01:36:52 -0400
+	id <S137053AbREKFic>; Fri, 11 May 2001 01:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137053AbREKFgn>; Fri, 11 May 2001 01:36:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10133 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S137051AbREKFge>;
-	Fri, 11 May 2001 01:36:34 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15099.31325.228963.52019@pizda.ninka.net>
-Date: Thu, 10 May 2001 22:36:29 -0700 (PDT)
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        Duncan Gauld <duncan@gauldd.freeserve.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Possible README patch
-In-Reply-To: <Pine.LNX.4.21.0105101754080.283-100000@presario>
-In-Reply-To: <20010505102133.A16788@flint.arm.linux.org.uk>
-	<Pine.LNX.4.21.0105101754080.283-100000@presario>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S137054AbREKFiX>; Fri, 11 May 2001 01:38:23 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:46086 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S137053AbREKFiG>;
+	Fri, 11 May 2001 01:38:06 -0400
+Date: Thu, 10 May 2001 21:39:30 -0700
+From: Greg KH <greg@kroah.com>
+To: clameter@lameter.com, linux-kernel@vger.kernel.org
+Cc: Drew Bertola <drew@drewb.com>
+Subject: Re: USB broken in 2.4.4? Serial Ricochet works, USB performance sucks.
+Message-ID: <20010510213930.A8483@kroah.com>
+In-Reply-To: <20010509222456.A4960@kroah.com> <Pine.LNX.4.10.10105092324130.30061-100000@melchi.fuller.edu> <20010510200750.A29230@drewb.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010510200750.A29230@drewb.com>; from drew@drewb.com on Thu, May 10, 2001 at 08:07:50PM -0700
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Anuradha Ratnaweera writes:
- > 
- > On Sat, 5 May 2001, Russell King wrote:
- > 
- > > gzip -dc linux-2.4.XX.tar.gz | tar zvf -
- > > gzip -dc patchXX.gz | patch -p0
- > 
- > This does _not_ work for international kernel patch. They assume the
- > directories lin.2.x.x/ (old) and int.2.x.x/ (new) and not linux/.
- > Therefore it _is_ necessary to `cd linux' and do a `patch -p1'.
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yes, but this document is about the official final patches Linus and
-Alan release for 2.2.x and 2.4.x, not about arbitrary kernel patches
-that are available.
+On Thu, May 10, 2001 at 08:07:50PM -0700, Drew Bertola wrote:
+> 
+> Joey Hess had a problem similar to what you described, though he noticed
+> it while using the pcmcia ricochet modem.  He passed along this patch:
 
-Later,
-David S. Miller
-davem@redhat.com
+Doh!  I've only fixed this same kind of problem about 3 different times
+in the usb-serial drivers.  clameter, could you try the attached patch
+against 2.4.4 and see if that fixes the MTU issue for you?
 
+Thanks Drew for reminding me of this.
+
+greg k-h
+
+
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-acm-2.4.4.patch"
+
+--- linux-2.4.4/drivers/usb/acm.c	Fri Feb 16 16:06:17 2001
++++ linux-2.4/drivers/usb/acm.c	Thu May 10 21:29:29 2001
+@@ -233,8 +240,14 @@
+ 		dbg("nonzero read bulk status received: %d", urb->status);
+ 
+ 	if (!urb->status & !acm->throttle)  {
+-		for (i = 0; i < urb->actual_length && !acm->throttle; i++)
++		for (i = 0; i < urb->actual_length && !acm->throttle; i++) {
++			/* if we insert more than TTY_FLIPBUF_SIZE characters, 
++			 * we drop them. */
++			if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
++				tty_flip_buffer_push(tty);
++			}
+ 			tty_insert_flip_char(tty, data[i], 0);
++		}
+ 		tty_flip_buffer_push(tty);
+ 	}
+ 
+
+--IS0zKkzwUGydFO0o--

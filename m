@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129585AbQLAKkP>; Fri, 1 Dec 2000 05:40:15 -0500
+	id <S129539AbQLALDU>; Fri, 1 Dec 2000 06:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQLAKj4>; Fri, 1 Dec 2000 05:39:56 -0500
-Received: from indus-bh.indusriver.com ([63.81.64.2]:40951 "EHLO
-	post.indusriver.com") by vger.kernel.org with ESMTP
-	id <S129585AbQLAKjy>; Fri, 1 Dec 2000 05:39:54 -0500
-Message-ID: <3A277808.153AFC0C@indusriver.com>
-Date: Fri, 01 Dec 2000 05:06:00 -0500
-From: Ben McCann <bmccann@indusriver.com>
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Julian Anastasov <ja@ssi.bg>
-CC: Mike Perry <mikepery@fscked.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.17 IP masq bug
-In-Reply-To: <Pine.LNX.4.21.0012010905400.966-100000@u>
+	id <S129639AbQLALDL>; Fri, 1 Dec 2000 06:03:11 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:9740
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129539AbQLALC6>; Fri, 1 Dec 2000 06:02:58 -0500
+Date: Fri, 1 Dec 2000 23:32:27 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: romieu@ensta.fr
+Cc: Ivan Passos <lists@cyclades.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux
+Message-ID: <20001201233227.A9457@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.10.10011301103320.4692-100000@main.cyclades.com> <20001201100124.A4986@se1.cogenit.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001201100124.A4986@se1.cogenit.fr>; from romieu@cogenit.fr on Fri, Dec 01, 2000 at 10:01:24AM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm curious about how ICMP redirect is causing this problem.
-Would you elaborate on how ICMP is involved?
+On Fri, Dec 01, 2000 at 10:01:24AM +0100, Francois romieu wrote:
 
--Ben McCann
+    > Questions:
+    > - Is there any existing _standard_ interface to do that??
+    
+    No.
 
-Julian Anastasov wrote:
-> 
->         Hello,
-> 
-> On Fri, 1 Dec 2000, Mike Perry wrote:
-> 
-> > external net, so it can IP masq the other 14 machines. The machines are on a
-> > switch, and share a semi-switched network segment with a bunch of other
-> > external IP'd machines (we are all in the same lab, actually).
-> >
-> > The bug:
-> > When I make a connection from any internal node to the one of the other
-> > externally routed machines in my lab, then close it, this external machine then
-> > becomes unreachable to successive connects from that node.
-> 
->         This problem can be caused from the ICMP redirect. Can these
-> commands help?
-> 
-> echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
-> echo 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
-> 
-> Regards
-> 
-> --
-> Julian Anastasov <ja@ssi.bg>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+[...]
 
--- 
-Ben McCann                              Indus River Networks
-                                        31 Nagog Park
-                                        Acton, MA, 01720
-email: bmccann@indusriver.com           web: www.indusriver.com 
-phone: (978) 266-8140                   fax: (978) 266-8111
+    > I'm interested in implementing this, but I don't want to reinvent the
+    > wheel (if such wheel exists ...).
+    
+    Ditto.
+
+
+Actually; Ethernet badly needs something like this too. I would kill
+to be able to do something like:
+
+	ifconfig eth0 speed 100 duplex full
+
+o across different networks cards -- I've been thinking about it of
+late as I had to battle with this earlier this week; depending on
+what network card you use, you need different magic incarnations to
+do the above.
+
+A standard interface is really needed; unless anyone objects I may
+look at drafting something up -- but it will require some input if it
+is not to look completely Ethernet centric.
+
+
+
+  --cw
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

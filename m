@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290756AbSBFTqH>; Wed, 6 Feb 2002 14:46:07 -0500
+	id <S290767AbSBFTsq>; Wed, 6 Feb 2002 14:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSBFTp5>; Wed, 6 Feb 2002 14:45:57 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:24962
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S290756AbSBFTpf>; Wed, 6 Feb 2002 14:45:35 -0500
-Date: Wed, 6 Feb 2002 12:45:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206194515.GJ1447@opus.bloom.county>
-In-Reply-To: <20020206000343.I14622@work.bitmover.com> <200202061935.g16JZLh18377@ns.caldera.de>
-Mime-Version: 1.0
+	id <S290779AbSBFTsg>; Wed, 6 Feb 2002 14:48:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64017 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290767AbSBFTsY>;
+	Wed, 6 Feb 2002 14:48:24 -0500
+Message-ID: <3C618863.DA7AC3B9@zip.com.au>
+Date: Wed, 06 Feb 2002 11:47:47 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200202061935.g16JZLh18377@ns.caldera.de>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 08:35:21PM +0100, Christoph Hellwig wrote:
-> In article <20020206000343.I14622@work.bitmover.com> you wrote:
-> >> I second that. Maybe however we can have it both ways -- I have no
-> >> experience with bk, but can't this same info be made available elsewhere
-> >> like a public web interface or some such thing?
-> >
-> > I've put up read-only clones on 
-> >
-> > 	http://linux.bkbits.net
-> >
-> > you can go there and get the changelogs in web form.  I just figured out
-> > what a bad choice 8088 was for a port and we'll be moving stuff over to
-> > 8080 since that seems to go through more firewalls.
+Hugh Dickins wrote:
 > 
-> Btw, is there a generic way to move repos cloned from Ted's (now
-> orphaned?) 2.4 tree to Linus' official one?
+> Sorry, no solution, but maybe another oops in __free_pages_ok might help?
 
-Working under the assuming that Linus started his own tree first and
-didn't grab Ted's, no.
+What problem are you trying to solve?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> 
+> --- 2.4.18-pre8/mm/page_alloc.c Tue Feb  5 12:55:36 2002
+> +++ linux/mm/page_alloc.c       Wed Feb  6 18:31:07 2002
+> @@ -73,9 +73,11 @@
+>         /* Yes, think what happens when other parts of the kernel take
+>          * a reference to a page in order to pin it for io. -ben
+>          */
+> -       if (PageLRU(page))
+> +       if (PageLRU(page)) {
+> +               if (in_interrupt())
+> +                       BUG();
+>                 lru_cache_del(page);
+> -
+> +       }
+
+Yes.  lru_cache_del() in interrupt context will deadlock on SMP
+or wreck the LRU list on UP.  I can't see how we can ever perform
+the final release of a PageLRU page in interrupt context but I agree
+this test is a good one.
+
+-

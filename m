@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVDFRd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVDFRs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVDFRd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 13:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVDFRd3
+	id S262266AbVDFRs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 13:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVDFRs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 13:33:29 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:53170 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262257AbVDFRd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 13:33:27 -0400
-Date: Wed, 6 Apr 2005 19:33:36 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Renate Meijer <kleuske@xs4all.nl>
-Cc: Greg KH <gregkh@suse.de>, jdike@karaya.com,
-       Blaisorblade <blaisorblade@yahoo.it>, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [stable] Re: [08/08] uml: va_copy fix
-Message-ID: <20050406173336.GA17413@wohnheim.fh-wedel.de>
-References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <20050406113233.GD7031@wohnheim.fh-wedel.de> <14410feafdb3a83e1ae457b93e593b81@xs4all.nl> <20050406122750.GE7031@wohnheim.fh-wedel.de> <20050406154648.GA28638@kroah.com> <c9f1f9c86f38a0dc3ff50ac93d2f9979@xs4all.nl>
+	Wed, 6 Apr 2005 13:48:28 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:38040 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262262AbVDFRsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 13:48:21 -0400
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Chris Rankin <rankincj@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050329120311.GO16636@suse.de>
+References: <20050329115405.97559.qmail@web52909.mail.yahoo.com>
+	 <20050329120311.GO16636@suse.de>
+Content-Type: text/plain
+Date: Wed, 06 Apr 2005 11:27:20 -0500
+Message-Id: <1112804840.5476.16.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <c9f1f9c86f38a0dc3ff50ac93d2f9979@xs4all.nl>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 April 2005 19:29:46 +0200, Renate Meijer wrote:
->
-> I think its worth the time and trouble to take this up with the gcc 
-> crowd. So if you could provide a list of things 3.3 misses, i'm sure 
-> the gcc-crowd would like it.
+On Tue, 2005-03-29 at 14:03 +0200, Jens Axboe wrote:
+> It is quite a serious problem, not just for CFQ. SCSI referencing is
+> badly broken there.
 
-If you volunteer to do work with the gcc-crowd, I can dig up some old
-stuff and send you testcases.  Sure.
+OK ... I accept that with regard to the queue lock.
 
-Jörn
+However, rather than trying to work out a way to tie all the refcounted
+objects together, what about the simpler solution of making the lock
+bound to the lifetime of the queue?
 
--- 
-The strong give up and move away, while the weak give up and stay.
--- unknown
+As far as SCSI is concerned, we could simply move the lock into the
+request_queue structure and everything would work since the device holds
+a reference to the queue.  The way it would work is that we'd simply
+have a lock in the request_queue structure, but it would be up to the
+device to pass it in in blk_init_queue.  Then we'd alter the scsi_device
+sdev_lock to be a pointer to the queue lock?  This scheme would also
+work for the current users who have a global lock (they simply wouldn't
+use the lock int the request_queue).
+
+The only could on the horizon with this scheme is that there may
+genuinely be places where we want multiple queues to share a non-global
+lock:  situations where we have shared issue queues (like IDE), or
+shared tag resources are a possibility.  To cope with those, we'd
+probably have to have a separately allocated, reference counted lock.
+
+However, I'm happy to implement the simpler solution (lock in
+requuest_queue) if you agree.
+
+James
+
+
+James
+
+

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268003AbRHBA04>; Wed, 1 Aug 2001 20:26:56 -0400
+	id <S267973AbRHBAR4>; Wed, 1 Aug 2001 20:17:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268015AbRHBA0q>; Wed, 1 Aug 2001 20:26:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55308 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268003AbRHBA0j>; Wed, 1 Aug 2001 20:26:39 -0400
-Subject: Re: OT: Virii on vger.kernel.org lists
-To: viro@math.psu.edu (Alexander Viro)
-Date: Thu, 2 Aug 2001 01:27:30 +0100 (BST)
-Cc: kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson),
-        rogers@ISI.EDU (Craig Milo Rogers),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.GSO.4.21.0108011713080.27494-100000@weyl.math.psu.edu> from "Alexander Viro" at Aug 01, 2001 05:15:43 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15S6Ko-00085c-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S267988AbRHBARq>; Wed, 1 Aug 2001 20:17:46 -0400
+Received: from wawura.off.connect.com.au ([202.21.9.2]:56043 "HELO
+	wawura.off.connect.com.au") by vger.kernel.org with SMTP
+	id <S267973AbRHBARk>; Wed, 1 Aug 2001 20:17:40 -0400
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4 
+In-Reply-To: Your message of "Wed, 01 Aug 2001 17:02:30 +0100."
+             <20010801170230.B7053@redhat.com> 
+Date: Thu, 02 Aug 2001 10:17:32 +1000
+From: Andrew McNamara <andrewm@connect.com.au>
+Message-Id: <20010802001732.4DED1BE95@wawura.off.connect.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 1 Aug 2001, Dr. Kelsey Hudson wrote:
-> > On Tue, 31 Jul 2001, Craig Milo Rogers wrote:
-> > > 	Better than that, simply strip all non-text MIME attachments,
-> > > or bounce the messages containing them.  End of story.
-> > 
-> > That has the rather stupid effect of also killing gzip/bzip2ed patches
-> > that come to the list. Survey says: BZZZZZT!
-> 
-> Don't use attachments on l-k. If patch is small - include it in the body.
-> If it isn't - post URL.
+>Please quote chapter and verse --- my reading of SUS shows no such
+>requirement.  
+>
+>fsync is required to force "all currently queued I/O operations
+>associated with the file indicated by file descriptor fildes to the
+>synchronised I/O completion state."  But as you should know, directory
+>entries and files are NOT the same thing in Unix/SUS.  
 
-Nice theory but netscape, mozilla, and most versions of pine tend to make
-a mess of patch files sent plain
+But does fsync() have any meaning if it doesn't ensure the file is
+visible within the filesystem? 
+
+This all comes back to the fact that old UFS's made directory
+operations syncronous, at a substantial cost in performance. Writing
+the directory data wasn't necessary for them, because it was already
+commited when the creat() call returned.
+
+I can easily understand people's asthetic objection to having fsync
+touch the directory object as well as the file, however what meaning
+does fsync() have it it doesn't - under linux, it tells usermode "yes,
+your object is committed, but it might be in lost+found next time you
+want it", and with the syncronous UFS implementations, it tells
+usermode "yes, your object is committed, you can find it where you left
+it (unless the directory was corrupted)".
+
+ ---
+Andrew McNamara (System Architect)
+
+connect.com.au Pty Ltd
+Lvl 3, 213 Miller St, North Sydney, NSW 2060, Australia
+Phone: +61 2 9409 2117, Fax: +61 2 9409 2111

@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbUB0Nt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbUB0Nt6
+	id S262860AbUB0Nuu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbUB0Nut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:49:58 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63118 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262886AbUB0Ntv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 08:49:51 -0500
-Message-ID: <403F4AFD.8060909@acm.org>
-Date: Fri, 27 Feb 2004 07:49:49 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IPMI driver updates, part 3
-References: <20040226225419.20A032C360@lists.samba.org>
-In-Reply-To: <20040226225419.20A032C360@lists.samba.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 08:50:49 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56587 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262860AbUB0Nue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:50:34 -0500
+Date: Fri, 27 Feb 2004 13:50:19 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
+       Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why no interrupt priorities?
+Message-ID: <20040227135019.A24457@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
+	Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th> <20040227090548.A15644@flint.arm.linux.org.uk> <opr306i5cm4evsfm@smtp.pacific.net.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <opr306i5cm4evsfm@smtp.pacific.net.th>; from mhf@linuxmail.org on Fri, Feb 27, 2004 at 09:31:43PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I see that this is much better.  I'll work on renaming all these 
-and switching to module_param, for the 2.6 version.
+On Fri, Feb 27, 2004 at 09:31:43PM +0800, Michael Frank wrote:
+> On Fri, 27 Feb 2004 09:05:48 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
+> >> Is this to imply that edge triggered shared interrupts are used anywhere?
+> >
+> > It is (or used to be) rather common with serial ports.  Remember that
+> > COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
+> > IRQ3.
+> >
+> >> Never occured to me to use shared IRQ's edge triggered as this mode
+> >> _cannot_ work reliably for HW limitations.
+> >
+> > The serial driver takes great care with this - when we service such an
+> > interrupt, we keep going until we have scanned all the devices until
+> > such time that we can say "all devices are no longer signalling an
+> > interrupt".
+> >
+> > This is something it has always done - it's nothing new.
+> >
+> 
+> Sorry, i think the serial driver IRQ is level triggered :)
 
-Thanks,
+That's actually incorrect.  Serial devices are (were) connected to the
+old ISA PICs which are definitely edge triggered.
 
--Corey
-
-Rusty Russell wrote:
-
->In message <403A242A.6000802@acm.org> you write:
->  
->
->>+  insmod ipmi_smb_intf.o
->>+	smb_addr=<adapter1>,<i2caddr1>[,<adapter2>,<i2caddr2>[,...]]
->>+	smb_dbg=<flags1>,<flags2>...
->>+	[smb_defaultprobe=0] [smb_dbg_probe=1]
->>    
->>
->
->Please use "modprobe" not "insmod" in examples, and drop the ".o"
->extension.
->
->  
->
->>+When compiled into the kernel, the addresses can be specified on the
->>+kernel command line as:
->>+
->>+  ipmi_smb=[<adapter1>.]<addr1>[:<debug1>],[<adapter2>.<addr2>[:<debug1>]....
->>    
->>
->
->I realize this is traditional.  However, I suggest you:
->1) Rename the module to impi_smb.
->2) Change the variable names to addr, debug, debug_probe and
->   default_probe.
->3) Change MODULE_PARM to module_param
->4) Get rid of the #ifndef MODULE code.
->
->The results will be symmetry, and less code:
->
->	modprobe ipmi_smb addr=<adapter1>,<i2caddr1>[,<adapter2>,<i2caddr2>[,...]]
->		debug=<flags1>,<flags2>...
->		default_probe=0 debug_probe=1
->
->and
->
->	boot ipmi_smb.addr=... ipmi_smb.debug=... ipmi.default_probe=0 ipmi.debug_probe=1
->
->Of course, if you really want to you can use module_param_named and
->keep the variable names the same as they are now, and "#undef
->KBUILD_MODNAME // #define KBUILD_MODNAME ipmi_smb", to avoid renaming
->your module.
->
->But I really think the module name wants a revisit (although I have no
->idea what it does, so might be wrong).
->
->Cheers!
->Rusty.
->--
->  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
->  
->
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUJYRRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUJYRUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbUJYRRv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUJYRRI
+	id S261181AbUJYRUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbUJYRSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:17:08 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:58839 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261166AbUJYRNs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:13:48 -0400
-Date: Mon, 25 Oct 2004 10:12:23 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041025171223.GA4503@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
-	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-References: <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025164732.GE14325@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Oct 2004 13:18:32 -0400
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:49937 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261174AbUJYRQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:16:43 -0400
+Message-ID: <417D35F0.1070501@kolumbus.fi>
+Date: Mon, 25 Oct 2004 20:20:48 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Waychison <michael.waychison@sun.com>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Subject: Re: [PATCH 13/28] VFS: Introduce soft reference counts
+References: <10987154731896@sun.com> <10987155032816@sun.com>
+In-Reply-To: <10987155032816@sun.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 25.10.2004 20:18:01,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 25.10.2004 20:18:45,
+	Serialize complete at 25.10.2004 20:18:45
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:47:32PM +0200, Andrea Arcangeli wrote:
-> On Mon, Oct 25, 2004 at 09:20:22AM -0700, Larry McVoy wrote:
-> > The implication that Andrew doesn't use BK is incorrect, we see him in
-> > the logs all the time. [..]
+Mike Waychison wrote:
+
+>This patch introduces the concept of a 'soft' reference count for a vfsmount.
+>This type of reference count allows for references to be held on mountpoints
+>that do not affect their busy states for userland unmounting.  Some might
+>argue that this is wrong because 'when I unmount a filesystem, I want the
+>resources associated with it to go away too', but this way of thinking was
+>deprecated with the addition of namespaces and --bind back in the 2.4 series.
+>
+>A future addition may see a callback mechanism so that in kernel users can
+>use a given mountpoint and have it deregistered some way (quota and
+>accounting come to mind).
+>
+>These soft reference counts are used by a later patch that adds an interface
+>for holding and manipulating mountpoints using filedescriptors.
+>
+>Signed-off-by: Mike Waychison <michael.waychison@sun.com>
 > 
-> I assume this is great news for bitmover: one more tainted open source
-> developer that will not be allowed by law to ever compete with your
-> business, right? Anyways this is offtopic for l-k, but you can still
-> celebrate elsewhere.
+>+static inline struct vfsmount *mntsoftget(struct vfsmount *mnt)
+>+{
+>+	if (mnt) {
+>+		read_lock(&vfsmountref_lock);
+>+		atomic_inc(&mnt->mnt_softcount);
+>+		mntgroupget(mnt);
+>+		read_unlock(&vfsmountref_lock);
+>+	}
+>+	return mnt;
+>+}
+>+
+>+static inline void mntsoftput(struct vfsmount *mnt)
+>+{
+>+	struct vfsmount *cleanup;
+>+	might_sleep();
+>+	if (mnt) {
+>+		if (atomic_dec_and_test(&mnt->mnt_count))
+>+			__mntput(mnt);
+>+		read_lock(&vfsmountref_lock);
+>+		cleanup = mntgroupput(mnt);
+>+		atomic_dec(&mnt->mnt_softcount);
+>+		read_unlock(&vfsmountref_lock);
+>+		if (cleanup)
+>+			__mntgroupput(cleanup);
+>+	}
+>+}
+>+
+> extern void free_vfsmnt(struct vfsmount *mnt);
+>  
+>
+What is this against? What are mntgroupput and mntgroupget? Why does 
+soft put decrement mnt_count which isn't increment by soft get? How do 
+soft references allow userland umount? I don't see soft references used 
+anywhere...
 
-You have made this point hundreds of times, everyone knows your position
-that we're screwing over the open source world by preventing them from
-copying our work.  OK, I can see that you think that, we respectfully
-disagree because we feel we have to protect our IP.  Rightly or wrongly,
-we feel we did some new work that is worth protecting.
+--Mika
 
-The big flaw in your position is that you are not tainted, you are a good
-programmer, you claim to care deeply about this issue, so you could go
-solve the problem.  Either by fixing arch or creating your own system.
-You should be the poster child for why the BitKeeper license is a
-flawed idea.  
-
-We both think we care about helping the kernel.  You think that we're
-screwing over a pile of people who could write a GPLed SCM system.
-We think that that is not true and you yourself prove our point.  Kernel
-guys like working on the kernel.  If they liked working on SCM they would
-be doing that, there would be a GPLed answer that was better than BK or at
-least good enough, and we wouldn't be arguing, we'd probably be friends.
-
-So who cares more about the kernel development process?  The guy who took
-crap from you and your friends for years but cared enough to keep going
-because what counted were _results_, or the guy who sits around and whines
-that we are polluting the well which was already dry?
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

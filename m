@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271697AbRH0Kwu>; Mon, 27 Aug 2001 06:52:50 -0400
+	id <S271701AbRH0K5A>; Mon, 27 Aug 2001 06:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271699AbRH0Kwl>; Mon, 27 Aug 2001 06:52:41 -0400
-Received: from iproxy1.ericsson.dk ([130.228.248.98]:9409 "EHLO
-	iproxy1.ericsson.dk") by vger.kernel.org with ESMTP
-	id <S271697AbRH0Kwb>; Mon, 27 Aug 2001 06:52:31 -0400
-Message-ID: <3B8A262C.82ED7793@ted.ericsson.dk>
-Date: Mon, 27 Aug 2001 12:51:24 +0200
-From: Fabbione <fabio.m.d.nitto@ted.ericsson.dk>
-Reply-To: fabbione@fabbione.net
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S271702AbRH0K4u>; Mon, 27 Aug 2001 06:56:50 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8709 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271701AbRH0K4n>; Mon, 27 Aug 2001 06:56:43 -0400
+Subject: Re: Linux 2.4.8-ac12
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Mon, 27 Aug 2001 12:00:16 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010827093529.A31359@emma1.> from "Matthias Andree" at Aug 27, 2001 09:35:29 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [Possibly OT] ipt_unclean.c on kernel-2.4.7-9
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15bK7s-0003iU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi gurus,
-	I've possibly found a bug in the iptables unclean match support
-but I was not able to find the email of the mantainer so I'm posting
-here....
+> 2.4.9 is somewhat stable for me, here's where it bit me:
+> 
+> - init occasionally hangs on boot
 
-the module is incorrectly matching ftp session. Ex:
+Seen that too.
 
-iptables -j DROP -A INPUT --match unclean
-iptables -j ACCEPT -A INPUT -p tcp --dport 21
+> - bridge (with netfilter patches from bridge.sf.net) kills NFS (I have
+>   been told bridge and fragmented traffic don't go together well and I'd
+>   have to change rsize/wsize to prevent fragmentation)
+> 
+> Is 2.4.8-ac12 "testable" or rather "stable"?
 
-in this case all my packets directed to the ftp server where dropped by
-the
-"unclean" match and this make impossible to open ftp session.
+That sounds like your bridge cards lack enough buffering or can't cope with
+back to back frames. This bites people who use 8K buffer ISA cards in 
+paticular.
 
-It's obvious that you can swap the entry to make it working but I think
-it should work also in this way. I've also tested using different
-client.
+-ac12 should be pretty solid. Im about to put out 2.4.9-ac1 which is 
+more experimental, although it has run all night, something 2.4.9 never 
+managed
+Alan
 
-If people need more info jus ask please.
-
-Fabbione

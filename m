@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317443AbSG2AOF>; Sun, 28 Jul 2002 20:14:05 -0400
+	id <S317816AbSG2AUF>; Sun, 28 Jul 2002 20:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317446AbSG2AOF>; Sun, 28 Jul 2002 20:14:05 -0400
-Received: from h-64-105-136-34.SNVACAID.covad.net ([64.105.136.34]:18606 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317443AbSG2AOE>; Sun, 28 Jul 2002 20:14:04 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 28 Jul 2002 17:17:07 -0700
-Message-Id: <200207290017.RAA00259@baldur.yggdrasil.com>
-To: rmk@arm.linux.org.uk, viro@math.psu.edu
-Subject: Re: Patch?: initial ramdisks did not work in 2.5.28-29
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+	id <S317695AbSG2AUF>; Sun, 28 Jul 2002 20:20:05 -0400
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:21634
+	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
+	id <S317552AbSG2AUE> convert rfc822-to-8bit; Sun, 28 Jul 2002 20:20:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tabris <tabris@tabris.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: APIC Error, AMD 1800XP, VIAKT333, UP
+Date: Sun, 28 Jul 2002 20:23:25 -0400
+User-Agent: KMail/1.4.1
+Cc: linux-smp@vger.kernel.org
+References: <200207282008.45409.tabris@tabris.net>
+In-Reply-To: <200207282008.45409.tabris@tabris.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207282023.25172.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002 00:51:56 +0100, Russell King wrote:
->On Sun, Jul 28, 2002 at 04:42:20PM -0700, Adam J. Richter wrote:
->> 	Initial ramdisks do not work in linux-2.5.2{8,9}, because
+On Sunday 28 July 2002 08:08 pm, Tabris wrote:
+> When I enable the APIC on in my bios (this is an ABIT KX7-333), i get
+>
+> APIC Error CPU0: 02(02)
+>
+> here's a syslog excerpt (sorry, don't have a /var/log/dmesg from an
+> APIC-enabled boot.
+>
+> Anyway, any help much appreciated.
+>
 
->Correct.
-[...]
->Al has been working on the problem.  To permanently fix it so it doesn't
->break each time a change to do_open() happens.
-[...]
->My temporary hack around the problem was to use rd_length[unit] since
->that's already in bytes.
-[...]
-
-	Thanks for the quick response.  Your solution is simpler.
-
-	Although some bigger change may be in the works, would anyone
-object to my submitting the following patch (your version of the fix)
-to Linus in the meantime?  I am cc'ing this message to Al Viro.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---- linux-2.5.29/drivers/block/rd.c	2002-07-26 19:58:39.000000000 -0700
-+++ linux/drivers/block/rd.c	2002-07-28 16:59:05.000000000 -0700
-@@ -379,6 +404,7 @@
- 		rd_bdev[unit]->bd_openers++;
- 		rd_bdev[unit]->bd_block_size = rd_blocksize;
- 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
-+		rd_bdev[unit]->bd_inode->i_size = rd_length[unit];
- 		rd_bdev[unit]->bd_queue = &blk_dev[MAJOR_NR].request_queue;
- 	}
- 
+Oops. forgot to say what kernel version... 2.4.19-rc1-mjc1

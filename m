@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283006AbRLTJsO>; Thu, 20 Dec 2001 04:48:14 -0500
+	id <S283488AbRLTKHk>; Thu, 20 Dec 2001 05:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282640AbRLTJrz>; Thu, 20 Dec 2001 04:47:55 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:21772 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S282702AbRLTJrq>;
-	Thu, 20 Dec 2001 04:47:46 -0500
-Message-ID: <3C21B3BF.9AFA674A@xss.co.at>
-Date: Thu, 20 Dec 2001 10:47:43 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock: Linux-2.2.18, sym53c8xx, Compaq ProLiant, HP Ultrium
-In-Reply-To: <3C2121B8.1030702@colorfullife.com>
+	id <S283430AbRLTKHZ>; Thu, 20 Dec 2001 05:07:25 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:32517 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S283244AbRLTKGi>;
+	Thu, 20 Dec 2001 05:06:38 -0500
+Date: Wed, 19 Dec 2001 23:16:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>, anton@samba.org, davej@suse.de,
+        marcelo@conectiva.com.br, lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.4.17-pre5
+Message-ID: <20011219231619.A120@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.40.0112081824210.1019-100000@blue1.dev.mcafeelabs.com> <E16D6l9-00073R-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E16D6l9-00073R-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Thank you for your reply!
-
-Manfred Spraul wrote:
+> > Using the scheduler i'm working on and setting a trigger load level of 2,
+> > as soon as the idle is scheduled it'll go to grab the task waiting on the
+> > other cpu and it'll make it running.
 > 
-> >
-> >
-> >   After that, the amanda process hangs in state "D" and
-> >   cannot be killed anymore. The machine itself is still
-> >   working.
-> >
-> >
-> If something is stuck in D state, always try sysrq-T.
-> This dumps the kernel stack of all processes. Check that the stuck
-> process is logged (the kernel log can overflow if many processes are
-> running), then parse the result through ksymoops.
-> This shows you/us where it stuck.
+> That rapidly gets you thrashing around as I suspect you've found.
 > 
-Well, I know that. But as I mentioned im my mail, the
-machine currently runs "headless" (no keyboard, no monitor).
-And it's running in a server room several kilometers away 
-from my office...
+> I'm currently using the following rule in wake up
+> 
+> 	if(current->mm->runnable > 0)	/* One already running ? */
+> 		cpu = current->mm->last_cpu;
 
-I decided to try a different SCSI controller first.
-We'll see then how it works...
+Is this really a win?
 
-Regards,
-
-- andreas
+I mean, if I have two tasks that can run from L2 cache, I want them on
+different physical CPUs even if they share current->mm, no?
+								Pavel
 
 -- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

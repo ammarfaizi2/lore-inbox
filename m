@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbTGLCy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 22:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbTGLCy1
+	id S267402AbTGLDJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 23:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbTGLDJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 22:54:27 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:35302 "EHLO
-	imf22aec.bellsouth.net") by vger.kernel.org with ESMTP
-	id S267381AbTGLCy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 22:54:26 -0400
-From: "J.C. Wren" <jcwren@jcwren.com>
-Reply-To: jcwren@jcwren.com
-To: linux-kernel@vger.kernel.org
-Subject: Bug in open() function (?)
-Date: Fri, 11 Jul 2003 23:09:08 -0400
-User-Agent: KMail/1.5.2
-References: <20030712011716.GB4694@bouh.unh.edu> <16143.25800.785348.314274@cargo.ozlabs.ibm.com> <20030712024216.GA399@bouh.unh.edu>
-In-Reply-To: <20030712024216.GA399@bouh.unh.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 11 Jul 2003 23:09:50 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10635 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S267402AbTGLDJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 23:09:48 -0400
+Date: Fri, 11 Jul 2003 20:24:26 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Pekka Pietikainen <pp@netppl.fi>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: REQ: BCM4400 network driver for 2.4.22
+Message-Id: <20030711202426.5b0e475b.davem@redhat.com>
+In-Reply-To: <20030711163345.GA23076@netppl.fi>
+References: <200307092333.36917.bas@basmevissen.nl>
+	<3F0C9194.5060206@pobox.com>
+	<20030711163345.GA23076@netppl.fi>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307112309.08542.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I was playing around today and found that if an existing file is opened with 
-O_TRUNC | O_RDONLY, the existing file is truncated.  This is contrary to the 
-documentation for "man 2 open".  Which behavior is correct, the man page, or 
-what actually happens?  Or wold this be considered a glibc/libc problem?  
-This is on a stock 2.5.74 kernel.
+On Fri, 11 Jul 2003 19:33:45 +0300
+Pekka Pietikainen <pp@netppl.fi> wrote:
 
-	'man 2 open', on O_TRUNC: If  the  file already exists and is a regular file 
-and the open mode allows writing (i.e., is O_RDWR or O_WRONLY) it will be 
-truncated to length 0.
+> @@ -660,9 +671,12 @@
+>  	ctrl = src_desc->ctrl;
+>  	if (dest_idx == (B44_RX_RING_SIZE - 1))
+>  		ctrl |= cpu_to_le32(DESC_CTRL_EOT);
+> +	else
+> +		ctrl &= ~DESC_CTRL_EOT;
 
-	--John
+Please be kind to us underprivileged big-endian users
+out here :-)
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
+-		ctrl &= ~DESC_CTRL_EOT;
++		ctrl &= cpu_to_le32(~DESC_CTRL_EOT);
 
-int main (int argc, char **argv)
-{
-   int fd;
+> @@ -733,6 +749,7 @@
+>  			/* DMA sync done above */
+>  			memcpy(copy_skb->data, skb->data, len);
+>  
+> +			skb->data-=bp->rx_offset;
+>  			skb = copy_skb;
+>  		}
+>  		skb->ip_summed = CHECKSUM_NONE;
 
-   if ((fd = open ("test", O_TRUNC | O_RDONLY)) == -1)
-   {
-      printf ("%d:%s\n", errno, strerror (errno));
-      exit (1);
-   }
+You can't modify skb->data without doing something sane
+with skb->len and friends too, this is why we have skb_*()
+interfaces to do these kinds of operations which do all
+the necessary book-keeping :-)
 
-   close (fd);
-
-   exit (0);
-}
-
-[bash] cc test.c
-[bash] ls -l >test
-[bash] ls -l test
--rw-r--r--    1 jcw      users         195 Jul 11 23:06 test
-[bash] ./a.out
-[bash] ls -l test
--rw-r--r--    1 jcw      users           0 Jul 11 23:06 test
-
+Otherwise looks good.

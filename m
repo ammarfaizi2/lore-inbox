@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314207AbSD0OVs>; Sat, 27 Apr 2002 10:21:48 -0400
+	id <S314208AbSD0OWn>; Sat, 27 Apr 2002 10:22:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314208AbSD0OVr>; Sat, 27 Apr 2002 10:21:47 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:51890 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S314207AbSD0OVq>; Sat, 27 Apr 2002 10:21:46 -0400
-Date: Sat, 27 Apr 2002 07:19:53 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: unnecessary use of set_bit
-To: paulus@samba.org, greg@kroah.com
+	id <S314210AbSD0OWm>; Sat, 27 Apr 2002 10:22:42 -0400
+Received: from p5082870C.dip0.t-ipconnect.de ([80.130.135.12]:44929 "EHLO
+	leonov.stosberg.net") by vger.kernel.org with ESMTP
+	id <S314208AbSD0OWj>; Sat, 27 Apr 2002 10:22:39 -0400
+Date: Sat, 27 Apr 2002 16:22:17 +0200
+From: Dennis Stosberg <dennis@stosberg.net>
+To: tomas szepe <kala@pinerecords.com>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <037201c1edf6$9a39c6e0$6800000a@krypton>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <15562.39130.683869.175699@argo.ozlabs.ibm.com>
+Subject: Re: 2.4.19-pre7-ac2: Promise Ultra100TX2 broken
+Message-ID: <20020427142217.GA580@leonov.stosberg.net>
+In-Reply-To: <20020426214218.A27868@louise.pinerecords.com> <20020426215537.GA554@leonov.stosberg.net> <20020427130204.A30313@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-ICQ: 63537718
+X-PGP-Key: http://stosberg.net/dennis.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The ohci_hub_status_data() procedure in drivers/usb/host/ohci-hub.c in
-> 2.5.11 is broken in a couple of ways: it uses set_bit on a char *
-> address and it assumes little-endian byte order in the bitmap.
+On 27 Apr 2002 at 1:02pm tomas szepe wrote:
 
-Greg already submitted my patch to Linus, but I guess it didn't
-make it in yet.  You'll be glad to know it stopped using set_bit().
+> Be my guest. :)
 
-Looks like your patch also preserves the API requirement that
-the result be in little-endian byte order.
+Thanks. The problem persists with your .config. I guess I have
+to make out the change that breaks my config in the source. 
 
-- Dave
+I will report, if I succeed. 
 
 
+Regards,
+Dennis
+
+-- 
+Dennis Stosberg
+  eMail: dennis@stosberg.net
+         dstosber@techfak.uni-bielefeld.de
+pgp key: http://stosberg.net/dennis.asc

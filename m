@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLVR2B>; Fri, 22 Dec 2000 12:28:01 -0500
+	id <S129784AbQLVRdV>; Fri, 22 Dec 2000 12:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQLVR1l>; Fri, 22 Dec 2000 12:27:41 -0500
-Received: from inet.connecttech.com ([206.130.75.2]:1218 "EHLO
-	inet.connecttech.com") by vger.kernel.org with ESMTP
-	id <S129458AbQLVR1g>; Fri, 22 Dec 2000 12:27:36 -0500
-Message-ID: <00c301c06c38$814ab860$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Matthias Andree" <matthias.andree@gmx.de>,
-        "Andrea Arcangeli" <andrea@suse.de>
-Cc: "Linux-Kernel mailing list" <linux-kernel@vger.kernel.org>,
-        "Theodore Ts'o" <tytso@valinux.com>
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org> <20001222162159.A29397@athlon.random> <20001222173538.A12949@krusty.e-technik.uni-dortmund.de>
-Subject: Re: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Date: Fri, 22 Dec 2000 11:59:10 -0500
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S129842AbQLVRdB>; Fri, 22 Dec 2000 12:33:01 -0500
+Received: from pm3-13-34.dial.stratos.net ([207.86.135.34]:23796 "EHLO
+	mobile.torri.linux") by vger.kernel.org with ESMTP
+	id <S129784AbQLVRc6>; Fri, 22 Dec 2000 12:32:58 -0500
+Date: Fri, 22 Dec 2000 17:01:02 +0000 (GMT)
+From: Stephen Torri <s.torri@lancaster.ac.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Transmission errors for Xircom RealPort2 10/100 Cardbus NIC.
+Message-ID: <Pine.LNX.4.21.0012221649060.1705-100000@mobile.torri.linux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Matthias Andree" <matthias.andree@gmx.de>
-> 3. patch the kernel with that 2.2.18-fix-serial-5.05-pre.patch, it takes
->    a high fuzz factor (try patch -p1 -F10)
-> 4. unpack serial-5.05
+I am having a real interesting time with the Xircom card and
+kernel-2.2.16. All transmission packets from the NIC are being flagged for
+errors while all received packets are fine. The card is in a Twinhead
+P88TE Cardbus PCMCIA slot. Eradicate errors like total packet loss, 1
+packet out of 4 returning fine with ping, and others are causing me to be
+concerned. The module I am using is tulip_cb.
 
-I don't have permission to fetch
-2.2.18-fix-serial-5.05-pre.patch
-at
-http://www-dt.e-technik.uni-dortmund.de/~ma/kernelpatches/v2.2/v2.2.18/
+I got these details from ifconfig.
 
-What file does step 3 modify? It's likely this patch is being overwritten
-(lost) in step 4. Probably not the source of the problem though.
+eth0      Link encap:Ethernet  HWaddr 00:10:A4:B9:6C:D2  
+          inet addr:10.0.0.4  Bcast:10.0.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:965 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:983 dropped:0 overruns:0 carrier:983
+          collisions:0 txqueuelen:100 
+          Interrupt:3 Base address:0x100 
 
-..Stu
+I checked the file /proc/net/dev
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo:  613871    2002    0    0    0     0          0         0   613871    2002    0    0    0     0       0          0
+  eth0:  597544    1017    0    0    0     0          0         0        0       0 1038    0    0     0    1038          0
 
+That reports no errors.
+
+Just to let you know what modules are loaded:
+
+Module                  Size  Used by
+tulip_cb               30856   2 
+cb_enabler              2472   2  [tulip_cb]
+ds                      6600   2  [cb_enabler]
+i82365                 29764   2 
+pcmcia_core            44192   0  [cb_enabler ds i82365]
+nls_cp437               3876   3  (autoclean)
+vfat                    9276   1  (autoclean)
+fat                    30400   1  (autoclean) [vfat]
+es1371                 27264   0 
+soundcore               2628   4  [es1371]
+
+Stephen
+-- 
+Buyer's Guide for a Operating System:
+Don't care to know: Mac
+Don't mind knowing but not too much: Windows
+Hit me! I can take it!: Linux
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

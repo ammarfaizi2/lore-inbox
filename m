@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTETGBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 02:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbTETGBl
+	id S263579AbTETF7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 01:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTETF7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 02:01:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:64457 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263587AbTETGBk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 02:01:40 -0400
-Date: Mon, 19 May 2003 23:13:19 -0700 (PDT)
-Message-Id: <20030519.231319.91314647.davem@redhat.com>
-To: mbligh@aracnet.com
-Cc: haveblue@us.ibm.com, wli@holomorphy.com, arjanv@redhat.com,
-       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
-       johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
-       mannthey@us.ibm.com
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <88560000.1053409990@[10.10.2.4]>
-References: <20030520034622.GK8978@holomorphy.com>
-	<1053407030.13207.253.camel@nighthawk>
-	<88560000.1053409990@[10.10.2.4]>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 20 May 2003 01:59:42 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:8945 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S263579AbTETF7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 01:59:41 -0400
+Subject: Re: Recent changes to sysctl.h breaks glibc
+From: Martin Schlemmer <azarah@gentoo.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030519225602.GH8978@holomorphy.com>
+References: <1053289316.10127.41.camel@nosferatu.lan>
+	 <20030519063813.A30004@infradead.org>
+	 <1053341023.9152.64.camel@workshop.saharact.lan>
+	 <20030519105152.GD8978@holomorphy.com> <babheo$s9r$1@cesium.transmeta.com>
+	 <20030519224414.GG8978@holomorphy.com> <3EC95EA9.9060504@zytor.com>
+	 <20030519225602.GH8978@holomorphy.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053410793.9142.125.camel@workshop.saharact.lan>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 20 May 2003 08:06:34 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Martin J. Bligh" <mbligh@aracnet.com>
-   Date: Mon, 19 May 2003 22:53:11 -0700
 
-   I have no frigging idea why you'd want to tear something out that
-   works well already, and has a shitload of work put into it. 
-   
-It's pretty fundamentally broken for having had so much work
-put into it.  Show me something other than "SpecWEB run for IBM
-ran faster" as a reason for keeping this code in there.  Can you
-even do this?
+> On Mon, May 19, 2003 at 03:46:01PM -0700, H. Peter Anvin wrote:
+> > Unfortunately "the current policy" is unrealistic, and repeating it
+> > doesn't make it any less so.
+> 
+> No contest there; unfortunately unrealistic amounts of work seem to
+> be required to get around the general state of affairs at times. =(
+> Does it really have to be 2.7? It seems most of this would be header
+> reorganization with no runtime impact on the kernel.
+> 
 
-It is crap, from the very beginning, would you like to know why?
+Well, this is a tender issue - both for users and non kernel developers
+working on a project that may (according to the author at least *g*)
+need kernel headers.
 
-How does the in-kernel IRQ load balancing measure "load" and
-"busyness"?  Herein lies the most absolutely fundamental problem with
-this code, it fails to recognize that we end up with most of our
-networking "load" from softint context.
+Getting something done sooner than later would thus be appreciated from
+many venues, and will also get rid of your head aces =)
 
-We can process thousands of packets for one hardware interrupt.  Are
-you able to comprehend this?
+Trying to get back to my point ... I am sure there are many people
+that will help getting this done, if only somebody with enough knowledge
+of how the kernel devs want the ABI headers to look like will take some
+kind of lead in the effort - i2c and sensor support in 2.5 is a good
+example.
 
-Measuring hardware interrupts in some was as "load" is about
-as far from the truth as you can get.
 
-This is just the tip of the iceberg.
+Regards,
 
-rm -rf in-kernel-irqbalance;
+-- 
+Martin Schlemmer
 
-And hey, if _YOU_ want a broken system which uses this bogus algorithm,
-YOU CAN DO THIS with the userland thing if you want.
+

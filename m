@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272437AbTGZHzx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 03:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272438AbTGZHzx
+	id S272435AbTGZHwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 03:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272436AbTGZHwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 03:55:53 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:2948 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S272437AbTGZHzw (ORCPT
+	Sat, 26 Jul 2003 03:52:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7916 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272435AbTGZHwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 03:55:52 -0400
-Date: Sat, 26 Jul 2003 11:11:01 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Jeff Sipek <jeffpc@optonline.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] TCP and UDP implementations
-Message-ID: <20030726081101.GD6898@mea-ext.zmailer.org>
-References: <200307260316.02149.jeffpc@optonline.net>
+	Sat, 26 Jul 2003 03:52:13 -0400
+Date: Sat, 26 Jul 2003 01:08:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Romit Dasgupta <romit@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Debug: sleeping function called from invalid context at
+ include/linux/rwsem.h:43
+Message-Id: <20030726010826.488bd7ea.akpm@osdl.org>
+In-Reply-To: <3F1ECCD6.5060007@myrealbox.com>
+References: <3F1ECCD6.5060007@myrealbox.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307260316.02149.jeffpc@optonline.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 03:15:53AM -0400, Jeff Sipek wrote:
-> Hello all,
-> I noticed that there are two implementations of TCP and UDP in the kernel - 
-> one for IPv4 and the other for IPv6. Correct me if I am wrong, but wouldn't 
-> it be better to just have one implementation for both versions of IP? I know 
-> this for sure:
+Romit Dasgupta <romit@myrealbox.com> wrote:
+>
+>             Just found some debug messages like the subject above, from 
+>  the latest kernel compiled with debug options. Attached are the dmesg 
+>  output and the .config file. Not sure if anyone has seen this.
 
-The way how things are in 2.4 (I haven't looked too deeply into 2.5/2.6),
-IPv6 TCP and UDP do NEED IPv4 TCP code to make most of TCP logic.
-With UDP the amount of logic in kernel side is a lot simpler, and
-I do think the code was in essense duplicated.
+Probably some initcall has more spin_lock()s than spin_unlock()s and the
+init process's preempt count ended up permanently out of whack.
 
-> 1) it would decrease the size of the kernel (this wouldn't be too dramatic, 
-> but still)
-> 
-> 2) it would make maintaining of the code half the work
+Please boot with "initcall_debug=1" on the boot command line and if you see
+a line of the form:
 
-Because of the degree of present sharing: no.
+error in initcall at 0xXXXXXXXX: returned with preemption imbalance
 
-> AFAIK there are small differences in TCP and UDP between IPv4 and IPv6,
-> but they could be resolved using simple "work arounds."
+then please look up 0xXXXXXXXX in System.map and let us know.
 
-IPv6's TCP is (was) just that kind of "work around" to handle differences
-in IP addresses.
-
-> Thanks,
-> Jeff.
-
-/Matti Aarnio

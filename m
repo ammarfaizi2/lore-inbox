@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbQLBSWI>; Sat, 2 Dec 2000 13:22:08 -0500
+	id <S129538AbQLBS37>; Sat, 2 Dec 2000 13:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130070AbQLBSV6>; Sat, 2 Dec 2000 13:21:58 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:25433 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S130013AbQLBSVr>; Sat, 2 Dec 2000 13:21:47 -0500
-Date: Sat, 2 Dec 2000 19:58:49 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-cc: folkert@vanheusden.com, "Theodore Y Ts'o" <tytso@mit.edu>,
-        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <Pine.LNX.4.10.10012021108350.31306-100000@sphinx.mythic-beasts.com>
-Message-ID: <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
+	id <S129700AbQLBS3s>; Sat, 2 Dec 2000 13:29:48 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28404 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129538AbQLBS3o>;
+	Sat, 2 Dec 2000 13:29:44 -0500
+Date: Sat, 2 Dec 2000 12:59:16 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <20001202173959.A10166@vana.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.21.0012021255330.28923-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Indeed, you are correct.  Is vpnd broken then, for assuming
-> that it can gather the required randomness in one read?
 
-Yep. It assumes that if the required randommness numbers aren't met a read
-to /dev/random will block.
+On Sat, 2 Dec 2000, Petr Vandrovec wrote:
 
-And it's not the only program that assumes this : I also did. 
+[I wrote:]
 
-/dev/random is called a blocking random device, which more or less implies
-that it will totally block. I suggest we put this somewhere in the kernel
-docs, since lots of people out there assume that it totally blocks.
+> > ed fs/buffer.c <<EOF
+> > /unmap_buffer/
+> > /}/i
+		spin_lock(&lru_list_lock);
+> > 		remove_inode_queue(bh);
+		spin_unlock(&lru_list_lock);
+> > .
+> > wq
+> > EOF
 
-Means I've got to updates some sources of mine :)
-
-> Matthew.
-
-
-	Igmar
+Damn. I claim the sudden idiocy attack - didn't look at the locking
+rules for the ->b_inode_buffers. My apologies.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

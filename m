@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbUKIK6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbUKIK6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbUKIK6T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 05:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUKIK4w
+	id S261493AbUKIK6X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 05:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUKIK4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 05:56:52 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:53719 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261498AbUKIKmP (ORCPT
+	Tue, 9 Nov 2004 05:56:22 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:9660 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261489AbUKIKo2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 05:42:15 -0500
-Subject: [PATCH 11/11] oprofile: update sparc64 for api changes
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: OProfile List <oprofile-list@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-NP/PRKhQN1X2nzxcqKwi"
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1099996920.1985.801.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 09 Nov 2004 21:42:00 +1100
+	Tue, 9 Nov 2004 05:44:28 -0500
+Message-ID: <4190ADD7.CE7EFB7C@tv-sign.ru>
+Date: Tue, 09 Nov 2004 14:45:27 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] little schedule() cleanup: use cached current value
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---=-NP/PRKhQN1X2nzxcqKwi
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+schedule() can use prev/next instead of get_current().
 
+Oleg.
 
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-
---=-NP/PRKhQN1X2nzxcqKwi
-Content-Disposition: attachment; filename=oprofile-callgraph-sparc64
-Content-Type: text/plain; name=oprofile-callgraph-sparc64; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-oprofile sparc64 arch updates, including some internal
-API changes.
-
-Signed-off-by: John Levon <levon@movementarian.org>
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
----
-
- arch/sparc64/oprofile/init.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
-
-Index: linux/arch/sparc64/oprofile/init.c
-===================================================================
---- linux.orig/arch/sparc64/oprofile/init.c	2004-10-19 07:54:37.%N +1000
-+++ linux/arch/sparc64/oprofile/init.c	2004-11-06 01:26:59.%N +1100
-@@ -12,11 +12,8 @@
- #include <linux/errno.h>
- #include <linux/init.h>
-  
--extern void timer_init(struct oprofile_operations ** ops);
--
--int __init oprofile_arch_init(struct oprofile_operations ** ops)
-+void __init oprofile_arch_init(struct oprofile_operations * ops)
- {
--	return -ENODEV;
- }
+--- 2.6.10-rc1/kernel/sched.c~	2004-11-08 19:43:29.000000000 +0300
++++ 2.6.10-rc1/kernel/sched.c	2004-11-08 22:52:26.547195920 +0300
+@@ -2508,7 +2508,7 @@ need_resched:
+ 	 * The idle thread is not allowed to schedule!
+ 	 * Remove this check after it has been exercised a bit.
+ 	 */
+-	if (unlikely(current == rq->idle) && current->state != TASK_RUNNING) {
++	if (unlikely(prev == rq->idle) && prev->state != TASK_RUNNING) {
+ 		printk(KERN_ERR "bad: scheduling from the idle thread!\n");
+ 		dump_stack();
+ 	}
+@@ -2531,8 +2531,8 @@ need_resched:
  
+ 	spin_lock_irq(&rq->lock);
  
-
---=-NP/PRKhQN1X2nzxcqKwi--
-
+-	if (unlikely(current->flags & PF_DEAD))
+-		current->state = EXIT_DEAD;
++	if (unlikely(prev->flags & PF_DEAD))
++		prev->state = EXIT_DEAD;
+ 	/*
+ 	 * if entering off of a kernel preemption go straight
+ 	 * to picking the next task.
+@@ -2636,7 +2636,7 @@ switch_tasks:
+ 	} else
+ 		spin_unlock_irq(&rq->lock);
+ 
+-	reacquire_kernel_lock(current);
++	reacquire_kernel_lock(next);
+ 	preempt_enable_no_resched();
+ 	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
+ 		goto need_resched;

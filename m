@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbTKROtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 09:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTKROtZ
+	id S263294AbTKRPBH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 10:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTKRPBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 09:49:25 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:3221 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262792AbTKROtX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 09:49:23 -0500
-Date: Tue, 18 Nov 2003 15:49:21 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: michael@lug-owl.de, mw@microdata-pos.de
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031118144921.GE1037@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, michael@lug-owl.de,
-	mw@microdata-pos.de
-References: <3FBA25CD.5020708@pobox.com> <Pine.LNX.4.44.0311181510290.29639-100000@gaia.cela.pl>
+	Tue, 18 Nov 2003 10:01:07 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:1002 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263294AbTKRPBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 10:01:05 -0500
+Date: Tue, 18 Nov 2003 07:01:01 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Larry McVoy <lm@bitmover.com>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031118150101.GA10584@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@ucw.cz>, Larry McVoy <lm@bitmover.com>,
+	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311112021.34631.andrew@walrond.org> <20031111235215.GA22314@work.bitmover.com> <200311131010.27315.andrew@walrond.org> <20031113162712.GA2462@work.bitmover.com> <20031118095912.GA233@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Yb+qhiCg54lqZFXW"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311181510290.29639-100000@gaia.cela.pl>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031118095912.GA233@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 18, 2003 at 10:59:13AM +0100, Pavel Machek wrote:
+> > I suppose it sounds like we don't want to give out more free engineering
+> > but let's put things into perspective.  The CVS server has about 6
+> > users.
+> 
+> I do not know where you got that number, but its wrong. You cited 6
+> unique IP addresses... I certainly did updates from more than
+> _that_. But I use time rsync -zav --delete
+> rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5 ., so I'm
+> probably not counted in your statistics.
 
---Yb+qhiCg54lqZFXW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2003-11-18 15:14:01 +0100, Maciej Zenczykowski <maze@cela.pl>
-wrote in message <Pine.LNX.4.44.0311181510290.29639-100000@gaia.cela.pl>:
-> > Pontus Fuchs wrote:
-
-> Speaking of io-trace has anyone actually done this?  I'm working on a=20
-
-It's actually not all that simple. Some CPUs do have direct inb/outb
-instructions that are not syscalls. So you either have to single-step
-all the program and look at it's execution path, or you'd run it as a
-notmal user and handle the privilege penetration then luser starts
-inb'ing:) A coworker of me has done that with a DOS driver, doing such
-IO tracing for the dosemu it was running it.
-
-Maybe he cares to explain it in detail...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---Yb+qhiCg54lqZFXW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/ujFxHb1edYOZ4bsRAkXzAJ9i1bk1FyQM4G/h6mlGhzzlOSzJWQCgjuFi
-W96WPO+XNizdhU2GhBi6kWE=
-=CfTc
------END PGP SIGNATURE-----
-
---Yb+qhiCg54lqZFXW--
+"CVS server", Pavel.  That means people talking to the pserver process, not
+rsync.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

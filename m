@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262430AbSLJQOu>; Tue, 10 Dec 2002 11:14:50 -0500
+	id <S262528AbSLJQPj>; Tue, 10 Dec 2002 11:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbSLJQOu>; Tue, 10 Dec 2002 11:14:50 -0500
-Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:9664 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262430AbSLJQOt>; Tue, 10 Dec 2002 11:14:49 -0500
-Subject: Re: Radeon DRI w/ large memory
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Franke <daniel@franke.homeip.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       arjanv@redhat.com
-In-Reply-To: <20021210015423.GA469@silmaril>
-References: <20021209224553.GA469@silmaril>  <20021210015423.GA469@silmaril>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Dec 2002 16:56:18 +0000
-Message-Id: <1039539378.14175.31.camel@irongate.swansea.linux.org.uk>
+	id <S262469AbSLJQPj>; Tue, 10 Dec 2002 11:15:39 -0500
+Received: from ns.suse.de ([213.95.15.193]:19205 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262446AbSLJQPh>;
+	Tue, 10 Dec 2002 11:15:37 -0500
+Date: Tue, 10 Dec 2002 17:23:20 +0100
+From: Dave Jones <davej@suse.de>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
+Message-ID: <20021210172320.A4586@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Antonino Daplas <adaplas@pol.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1039522886.1041.17.camel@localhost.localdomain> <20021210131143.GA26361@suse.de> <1039538881.2025.2.camel@localhost.localdomain> <20021210140301.GC26361@suse.de> <1039547210.1071.26.camel@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1039547210.1071.26.camel@localhost.localdomain>; from adaplas@pol.net on Wed, Dec 11, 2002 at 12:08:22AM +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 01:54, Daniel Franke wrote:
-> Everything seems fine when I use vanilla 2.4.20.  Hightower from #kernelnewbies
-> tells me that there is a known bug in -ac with Radeon DRI and 2.4.20-ac1, but
-> that as far as he is aware, the bug occurs regardless of the large memory 
-> setting.  However, since the bug goes away when I switch to the linus tree, I
-> will assume that it is the same bug.  If I see otherwise when the known bug is
-> supposedly fixed, I will post further information.
+On Wed, Dec 11, 2002 at 12:08:22AM +0500, Antonino Daplas wrote:
+ > Tried it with framebuffer console off, same results. Moved agp before vt
+ > in char/Makefile, same. Even manually calling agp_init() doesn't work
+ > because what's really needed is agp_intel_init(). 
+ > 
+ > Anyway, I guess I'll stick to what I'm doing right now, periodically do
+ > an inter_module_get("drm_agp") until it becomes available.
 
-Sounds unrelated. I'm removing the drm update in -ac soon I think. 
+That's really quite icky. Even putting an..
+
+#ifdef CONFIG_FRAMEBUFFER_I810
+    dev = pci_find_blah..
+    agp_intel_init(dev);
+#endif
+
+before console_init() call in init/main.c seems cleaner than that imo,
+(and this is still quite gross).
+
+        Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

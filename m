@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUFRXXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUFRXhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbUFRXXB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUFRXTH
+	id S263735AbUFRXhW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUFRXYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 18 Jun 2004 19:24:02 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:22470 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265782AbUFRXTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 18 Jun 2004 19:19:07 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31434 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265785AbUFRXQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:16:19 -0400
-Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
-	mapping
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20040618142710.5d467d1b.akpm@osdl.org>
-References: <1087523668.8002.103.camel@watt.suse.com>
-	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087563810.8002.116.camel@watt.suse.com>
-	 <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087570031.8002.153.camel@watt.suse.com>
-	 <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087573303.8002.172.camel@watt.suse.com>
-	 <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087574752.8002.194.camel@watt.suse.com>
-	 <20040618132628.45e1d364.akpm@osdl.org>
-	 <1087591484.1512.14.camel@watt.suse.com>
-	 <20040618142710.5d467d1b.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1087600516.1512.26.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 19:15:17 -0400
-Content-Transfer-Encoding: 7bit
+Date: Sat, 19 Jun 2004 00:18:58 +0100 (BST)
+From: jsimmons@pentafluge.infradead.org
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040618213830.GT20632@lug-owl.de>
+Message-ID: <Pine.LNX.4.56.0406190009390.26434@pentafluge.infradead.org>
+References: <40D33C58.1030905@am.sony.com>
+ <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
+ <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org>
+ <20040618211000.GP20632@lug-owl.de> <20040618211352.GC7404@suse.de>
+ <20040618213830.GT20632@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 NO_REAL_NAME           From: does not include a real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 17:27, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > [ skip writing block-special inodes ]
-> > 
-> > Hmmm, any risk in missing data integrity syncs because of this?
+
+> On Fri, 2004-06-18 23:13:53 +0200, Jens Axboe <axboe@suse.de>
+> wrote in message <20040618211352.GC7404@suse.de>:
+> > On Fri, Jun 18 2004, Jan-Benedict Glaw wrote:
 > 
-> Need to think about that.  sys_fsync(), sys_fdatasync() and sys_msync() go
-> direct to file->f_mapping and sys_sync() will sync the blockdev via its
-> kernel-internal inode.  What does that leave?
+> > > Hope the CE Forum will show some engagement there. Or OSDL. Or IBM.
+> > > Or ...  But usually, that's hot air. No direct income :--<
 
-I was worried about O_SYNC, That actually looks safe though,
-generic_osync_inode will first write the mapping via filemap_fdatawrite
-(the mapping comes from f_mapping).
+I have heard companies complain about the free beer mentality linux users 
+have. I guess they have the same problem :-(  
 
-It doesn't really give me warm fuzzies, but looks safe enough.  Al had a
-slightly different plan, maybe with your patch we can push his larger
-changes off a bit?
+> > Come on people, not everything is counted in dollars or euros. Lots of
+> > people enjoy doing auxiliary work in their spare time and get loads
+> > done. If it doesn't work for you, then maybe you are not the right for
+> > the job or maybe you are doing something wrong.
+> 
+> Well, sometimes I actually do some nice work to put on the table, but
+> keeping an eye on a good number of vendor trees is IMHO *far* beyond
+> what you'd actually do at some late evening at the weekends. That's way
+> more than a good full-time job. At least, I think so.
 
--chris
-
+I agree. Its not a matter of money but of time. Of course it is nice to 
+pay bills. Quality takes time. That is just reality. The question is how 
+much time can you put in it over say a week period. If you work for a 
+living doing something else there goes 40 hours working on a open source 
+project. 
 

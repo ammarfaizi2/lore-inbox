@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTFKLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTFKLq3
+	id S264432AbTFKLtn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 07:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTFKLtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 07:46:29 -0400
-Received: from [200.244.152.3] ([200.244.152.3]:11478 "EHLO
-	lablinux.ipiranga.com.br") by vger.kernel.org with ESMTP
-	id S264379AbTFKLq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 07:46:27 -0400
-Message-ID: <3EE7193F.40405@ipiranga.com.br>
-Date: Wed, 11 Jun 2003 08:57:51 -0300
-From: =?ISO-8859-1?Q?Jos=E9_Francisco_Ribeiro_Neto?= 
-	<xyko@ipiranga.com.br>
-Reply-To: xyko_ig@ig.com.br
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: pt-br, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: xyko_ig@ig.com.br
-Subject: Wrong number of cpus detected/reported - thanks for everyboy - problem
- solved
-X-Priority: 1 (highest)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 11 Jun 2003 07:49:43 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14250
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264432AbTFKLtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 07:49:42 -0400
+Subject: Re: Device-driver debugger on Linux ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3EE7B34C.B803F915@adaptec.com>
+References: <3EE7B34C.B803F915@adaptec.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055332852.872.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jun 2003 13:00:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mer, 2003-06-11 at 23:55, Mathur, Shobhit wrote:
+> Hello,
+> 
+> I would like to know whether there exists a device-driver debugger on
+> Linux like SoftIce on Windows. From the working of kgdb, I understand
+> that the debugging on the Target machine can happen once the code
+> reaches the gdbstub, which is well past the driver-initialisations.
 
-I would like to thank for those fantastic people of the list that are 
-always ready to help the community. You are the really power of free 
-software.
-
-Special thanks to
-
-Robinson Maureira Castillo
-John Appleby
-Sam Flory
-Steven Cole
-Alan Cox
-Mikpe
-David Schwartz
-Timoty Miller
-Jordan Breeding
-John Lauro
-
-who answered my question.
-
-Best regards from Brasil to everybody.
-
-José Francisco Ribeiro Neto ( Xyko )
+You can invoke the kgdbstubs stuff very very early, well before device
+driver setup. Also you can (and its normally easier for development)
+load device drivers at run time 
 

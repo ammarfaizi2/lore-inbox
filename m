@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279674AbRKFUUn>; Tue, 6 Nov 2001 15:20:43 -0500
+	id <S279964AbRKFU1d>; Tue, 6 Nov 2001 15:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280524AbRKFUUd>; Tue, 6 Nov 2001 15:20:33 -0500
-Received: from user-119a3cr.biz.mindspring.com ([66.149.13.155]:62220 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S280517AbRKFUUY>; Tue, 6 Nov 2001 15:20:24 -0500
-From: dank@trellisinc.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <20011105155955.A16505@codepoet.org>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19ext3 (i686))
-Message-Id: <20011106194923.D6AB1A3C19@fancypants.trellisinc.com>
-Date: Tue,  6 Nov 2001 14:49:23 -0500 (EST)
+	id <S280517AbRKFU1N>; Tue, 6 Nov 2001 15:27:13 -0500
+Received: from philotas.hosting.pacbell.net ([216.100.99.24]:38565 "EHLO
+	philotas.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S279964AbRKFU1H>; Tue, 6 Nov 2001 15:27:07 -0500
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux kernel 2.4 and TCP terminations per second.
+Date: Tue, 6 Nov 2001 12:25:56 -0800
+Message-ID: <017001c16701$3de5c0a0$3b10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <Pine.SOL.3.96.1011001075038.29567C-100000@libra.cus.cam.ac.uk>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011105155955.A16505@codepoet.org> Erik Anderson wrote:
-> Come now, it really isn't that difficult: 
+Does anybody know , what is the maximum number of TCP (http)
+terminations/per second a server (single/dual/.. processor)  in todays
+market can do, without much CPU load. The server would be running linux
+kernel 2.4 and apache web server.
 
->    char name[80];
->    if (sscanf(line, "%4u %4u %llu %s", &major, &minor, &size, name) == 4)
+Thanks,
+Imran.
 
-if it's so easy to do, why do you have a great big buffer overflow here?
-
--- 
-nicholas black (dank@trellisinc.com)    developer, trellis network security

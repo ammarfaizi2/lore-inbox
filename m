@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289344AbSAOBiP>; Mon, 14 Jan 2002 20:38:15 -0500
+	id <S289351AbSAOBkp>; Mon, 14 Jan 2002 20:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289351AbSAOBiG>; Mon, 14 Jan 2002 20:38:06 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:58759
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289344AbSAOBhu>; Mon, 14 Jan 2002 20:37:50 -0500
-Date: Mon, 14 Jan 2002 20:21:50 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114202150.B24120@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020114174133.D23081@thyrsus.com> <E16QGVZ-0003Ky-00@the-village.bc.nu>
+	id <S289350AbSAOBkZ>; Mon, 14 Jan 2002 20:40:25 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:31110
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289347AbSAOBkX>; Mon, 14 Jan 2002 20:40:23 -0500
+Date: Mon, 14 Jan 2002 18:39:54 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16QGVZ-0003Ky-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 11:27:17PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > You miss my point.  Sure he's entitled to them.  But why should he
-> > *have to have them*?  They're extra state which, in the presence
-> > of a proper autoconfigurator, he doesn't need.
+On Mon, Jan 14, 2002 at 04:59:09PM -0500, Eric S. Raymond wrote:
+
+[snip]
+> She's just heard about a PCMCIA card that has a MEMS array of chemical
+> sensors on it.  The thing could replace the bulky, balky
+> gel-chromatography setup she's using now, and make it unnecessary for
+> her to fight other students for bench time.  There's even a Linux
+> driver for the card (and user-space utilities to talk to it) on one of
+> the bio sites she uses -- way too specialized an item for her distro
+> to carry, and anyway she doesn't want to wait for the next release.
 > 
-> You have it backwards. The _autoconfigurator_ is extra state which in the
-> presence of the config he doesn't need
+> Penelope needs to build a kernel to support her exotic driver, but she
+> hasn't got more than the vaguest idea how to go about it.  The
+[snip]
 
-Oh, come on Alan.  You can do better than that.  
+Wrong.  She needs to compile a new module for her kernel.  What might be
+useful is some automagic tool that will find the vendor-provided kernel
+source tree and config (which is usually /boot/config-`uname -r`, but
+still findable anyhow) and then compile said module for her, toss it
+into the modules dir and maybe even add it to the always-loaded module
+list (just incase hotplug doesn't grok it).
 
-If Melvin loses the autoconfigurator, there's no state he has to reconstruct.
-There will be one exactly like it in the next tarball.
+With some support from people writing external drivers, you could even
+have a file that lists things like which files are needed, a URL and
+version info, and store it someplace too.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-[The disarming of citizens] has a double effect, it palsies the hand
-and brutalizes the mind: a habitual disuse of physical forces totally
-destroys the moral [force]; and men lose at once the power of
-protecting themselves, and of discerning the cause of their
-oppression.
-        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

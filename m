@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268331AbRHKP5H>; Sat, 11 Aug 2001 11:57:07 -0400
+	id <S268382AbRHKQDQ>; Sat, 11 Aug 2001 12:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268382AbRHKP44>; Sat, 11 Aug 2001 11:56:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:55670 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268331AbRHKP4o>; Sat, 11 Aug 2001 11:56:44 -0400
-Date: Sat, 11 Aug 2001 17:56:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: struct page to 36 (or 64) bit bus address?
-Message-ID: <20010811175626.O19169@athlon.random>
-In-Reply-To: <20010809151022.C1575@sventech.com> <E15UvLO-0007tH-00@the-village.bc.nu> <15218.61869.424038.30544@pizda.ninka.net> <20010809163531.D1575@sventech.com>
+	id <S268427AbRHKQC4>; Sat, 11 Aug 2001 12:02:56 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:23822 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S268382AbRHKQCy>;
+	Sat, 11 Aug 2001 12:02:54 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available. 
+In-Reply-To: Your message of "Sat, 11 Aug 2001 16:20:28 +0100."
+             <20010811162028.A2732@flint.arm.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010809163531.D1575@sventech.com>; from johannes@erdfelt.com on Thu, Aug 09, 2001 at 04:35:32PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Sun, 12 Aug 2001 02:03:00 +1000
+Message-ID: <2286.997545780@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 04:35:32PM -0400, Johannes Erdfelt wrote:
-> It's not a big deal. It's just less efficient which isn't the end of the
-> world.
+On Sat, 11 Aug 2001 16:20:28 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>On Sun, Aug 12, 2001 at 01:03:00AM +1000, Keith Owens wrote:
+>> * Create arch/$(ARCH)/offsets.c containing code like this, from
+>>   arch/i386/offsets.c.  This should be the standard format on all
+>>   architectures, the only difference should be the list of fields to
+>>   generate.
+>
+>I'm sorry, the ARM version of GCC does not support %c0 in a working
+>state.  The way we generate the offsets on ARM is here to stay for
+>the next few years until GCC 3 has stabilised well enough for use
+>with the kernel, and the ARM architecture specifically.
+>
+>Please don't rely on %c0 working.
 
-It's not only less efficient, your machine is going to crash as soon as
-you ask the iommu to map some giga of ram with the current state of
-drivers (the API says that if you get null out of the map call you
-should fallback, but no driver checks for this null retval and so in
-turn they're all prone to crash, not going to be fixed in 2.4 I guess).
-So try to reduce as much as possible the number of simultaneous pci
-mappings and it will probably not crash.
+If you have to use %0 instead of %c0, that is all right.  Just remove
+the extra '$' in the Makefile as arch/arm/tools/Makefile already does.
+I would still like to see arm in 2.5 using the same style as i386,
+including printing the offset in decimal and hex together with the
+comment.  But that is just style, the important thing is to generate
+assembler offsets so that kbuild can correctly track the dependencies.
 
-Andrea

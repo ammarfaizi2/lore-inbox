@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
+	id <S261345AbSJUMRq>; Mon, 21 Oct 2002 08:17:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261341AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63155 "EHLO
+	id <S261346AbSJUMRq>; Mon, 21 Oct 2002 08:17:46 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:2484 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261339AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
-Subject: Re: [PATCH] Voyager subarchitecture for 2.5.44
+	id <S261345AbSJUMRp>; Mon, 21 Oct 2002 08:17:45 -0400
+Subject: Re: 2.6: Shortlist of Missing Features
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021019063230.GE23425@holomorphy.com>
-References: <200210190612.g9J6Cqu11812@localhost.localdomain> 
-	<20021019063230.GE23425@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, zippel@linux-m68k.org, riel@conectiva.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       akpm@zip.com.au, davej@suse.de, boissiere@adiglobal.com,
+       mingo@redhat.com
+In-Reply-To: <20021020.210457.54428758.davem@redhat.com>
+References: <Pine.LNX.4.44L.0210192357430.22993-100000@imladris.surriel.com>
+	<Pine.LNX.4.44.0210201444460.8911-100000@serv>
+	<20021021135137.2801edd2.rusty@rustcorp.com.au> 
+	<20021020.210457.54428758.davem@redhat.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 13:35:08 +0100
-Message-Id: <1035203709.27318.73.camel@irongate.swansea.linux.org.uk>
+Date: 21 Oct 2002 13:39:23 +0100
+Message-Id: <1035203963.27318.78.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-19 at 07:32, William Lee Irwin III wrote:
-> Also, I'd like to say this patch is impressively isolated from generic
-> i386 code. Although I've not tested, it seems very clear from the form
-> of the code that it will have no impact on UP i386 or other subarches.
+On Mon, 2002-10-21 at 05:04, David S. Miller wrote:
+>    From: Rusty Russell <rusty@rustcorp.com.au>
+>    Date: Mon, 21 Oct 2002 13:51:37 +1000
+>    
+>    It's a relatively short list: how many am I missing?  (Dave?)
+> 
+> IPSEC from Alexey and myself, and new CryptoAPI from James Morris.
 
-Its been in -ac for ages - it doesnt cause problems. Would be nice if
-James had an update diff btw;)
+Oh other one I missed - DVB layer - digital tv etc. Pretty much
+essential now for europe, but again its basically all driver layer
 

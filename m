@@ -1,84 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUCVMeB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 07:34:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUCVMeA
+	id S261397AbUCVMmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 07:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUCVMmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 07:34:00 -0500
-Received: from web.ngs.ru ([212.164.71.11]:60690 "EHLO mx1.intranet.ru")
-	by vger.kernel.org with ESMTP id S261946AbUCVMd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 07:33:56 -0500
-Message-ID: <405EDE3D.6050805@ngs.ru>
-Date: Mon, 22 Mar 2004 18:38:21 +0600
-From: Stepan Yakovenko <yakovenko@ngs.ru>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: =?KOI8-R?Q?=E1_trouble_with_2=2E4=2E25_linux_kernel?=
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Mar 2004 07:42:09 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53423
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261397AbUCVMmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 07:42:05 -0500
+Date: Mon, 22 Mar 2004 13:42:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: do we want to kill VM_RESERVED or not? [was Re: 2.6.5-rc1-aa3]
+Message-ID: <20040322124257.GT3649@dualathlon.random>
+References: <20040320210306.GA11680@dualathlon.random> <200403212042.18092@WOLK> <20040322001023.GD3649@dualathlon.random> <200403221310.38481@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403221310.38481@WOLK>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Mon, Mar 22, 2004 at 01:10:38PM +0100, Marc-Christian Petersen wrote:
+> And VMware won't work at all. Booting a VMware Image triggers the 2 warnings 
+> and the kernel BUG and the screen stays black in VMware.
 
-I want to get linux 2.4.25 running on my server, whitch currently uses 
-2.2.20.
-I've read /linux-2.4.25/Documentation/Changes and it seems
-that everything required is ok.
+I see, the below patch will avoid your oops (I also removed the stack
+trace dump from memory.c since it's useless to get the stack trace from
+there and this will reduce the noise).
 
-But.
+--- x/mm/memory.c.~1~	2004-03-21 15:21:42.000000000 +0100
++++ x/mm/memory.c	2004-03-22 13:40:26.852849384 +0100
+@@ -324,9 +324,11 @@ skip_copy_pte_range:
+ 					 * Device driver pages must not be
+ 					 * tracked by the VM for unmapping.
+ 					 */
+-					BUG_ON(!page_mapped(page));
+-					BUG_ON(!page->mapping);
+-					page_add_rmap(page, vma, address, PageAnon(page));
++					if (likely(page_mapped(page) && page->mapping))
++						page_add_rmap(page, vma, address, PageAnon(page));
++					else
++						printk("Badness in %s at %s:%d\n",
++						       __FUNCTION__, __FILE__, __LINE__);
+ 				} else {
+ 					BUG_ON(page_mapped(page));
+ 					BUG_ON(page->mapping);
+@@ -1429,7 +1431,9 @@ retry:
+ 	 * real anonymous pages, they're "device" reserved pages instead.
+ 	 */
+ 	reserved = !!(vma->vm_flags & VM_RESERVED);
+-	WARN_ON(reserved == pageable);
++	if (unlikely(reserved == pageable))
++		printk("Badness in %s at %s:%d\n",
++		       __FUNCTION__, __FILE__, __LINE__);
+ 
+ 	/*
+ 	 * Should we do an early C-O-W break?
 
-My server has Pentium MMX in it. So when I compile the 2.4.25 kernel 
-with all defaults (i use menuconfig), it fails on startup. Just reboots 
-the PC, and I can't see anything. I've googled through linux-kernel 
-archives and got the idea that I've not configured the Processor type 
-correctly. Ok, I choose Pentium MMX from menu (as my old 2.2.20 reports 
-in /proc/cpuinfo) and try to compile the kernel. All the other kernel 
-settings are default.
-
-It fails ! Here's the log. I've tested that on my workstation with some 
-new cool fast processor and it says the same:
-
-In file included from 
-/root/linux-2.4.25/include/linux/modversions.h:69,       
-                 from 
-/root/linux-2.4.25/include/linux/module.h:21,            
-                 from 
-ksyms.c:14:                                              
-/root/linux-2.4.25/include/linux/modules/dec_and_lock.ver:2: warning: 
-`atomic_de
-c_and_lock' 
-redefined                                                          
-/root/linux-2.4.25/include/linux/spinlock.h:67: warning: this is the 
-location of
- the previous 
-definition                                                       
-In file included from 
-/root/linux-2.4.25/include/linux/modversions.h:135,      
-                 from 
-/root/linux-2.4.25/include/linux/module.h:21,            
-                 from 
-ksyms.c:14:                                              
-/root/linux-2.4.25/include/linux/modules/i386_ksyms.ver:84: warning: 
-`cpu_data'
-redefined
-
-.... and so on.....
-
-I can send the whole stderr output if that's not enough.
-It seems to me that one can easily reproduce all this error and 
-warning messages that I've got. Just set Pentinum MMX processor and 
-leave all the other settings default.
-
-So, how should I understand this ? Have I done something wrong ? Is that 
-a bug in kernel ? Can I run 2.4.25 on Pentium MMX?
-
-Please, advice me something, hope you can easily reproduce the bug.
-
-Thanx in advance !
-
-Stepan Yakovenko
-
+many thanks for the help!

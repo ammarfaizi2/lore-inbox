@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbTIEUYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbTIEUWs
+	id S265457AbTIEUN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265470AbTIEUN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:22:48 -0400
-Received: from pimout6-ext.prodigy.net ([207.115.63.78]:22446 "EHLO
-	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S265899AbTIEUWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:22:31 -0400
-Message-ID: <3F58F08E.5060402@ameritech.net>
-Date: Fri, 05 Sep 2003 15:22:38 -0500
-From: watermodem <aquamodem@ameritech.net>
-Reply-To: aquamodem@ameritech.net
-Organization: not at all
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tonildg <tonildg@terra.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4  on to mpegs and DVB
-References: <3F560DC6.2090709@ameritech.net>	<3F57D776.4050404@ameritech.net> <20030904173901.7ab1b4bb.akpm@osdl.org> <3F57EC78.80801@ameritech.net> <3F57F236.3000809@terra.es>
-In-Reply-To: <3F57F236.3000809@terra.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 5 Sep 2003 16:13:56 -0400
+Received: from mx.laposte.net ([213.30.181.11]:59551 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S265457AbTIEUNq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:13:46 -0400
+Subject: Re: Fix up power managment in 2.6
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f3axngtEXbHJsMvJvEUQ"
+Organization: Adresse personnelle
+Message-Id: <1062792822.9672.6.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Fri, 05 Sep 2003 22:13:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tonildg wrote:
-> 
->>>> The DVD looked and sounded great, but, it was using 98% of the CPU!  
->>>> 2.4 never used that much.
->>>
->>>
-> 
-> Couldn't it be caused by the Xfree configuration? I see you have a 
-> Nvidia card. Have you compiled the Nvidia closed and fu*king module for 
-> a 2.6.0-test4 kernel (if it is available ¿?¿?) ?
-> 
-> 
-Twice posted.  The first time I replied to you in person.
-The answer is NO!.  Default X11 rivafb stuff.
-If it was NVIDIA special stuff the kernel would say "TAINTED" on the 
-insmod.  It obviously dosen't!
-NOT TAINTED!
 
-The only tainting on that card is replacing the default heatsink with a 
-huge one, silver heatsink paste and a processor fan.  It takes up 2 pci 
-slots too but runs very cool. In fact, if you put your finger on the 
-downside of the circuit board, you feel no heat.  Try that on your card. 
-It is an absolutely rock solid video card with XFree drivers and 3+ 
-years of use.
+--=-f3axngtEXbHJsMvJvEUQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Again, NOT TAINTED, GOOD HARDWARE, Opensource software, GPL.  OK?
+| > P.S.  I reeeeeeeeeeeeeeeeeally hate it the way the keys on the=20
+| > keyboard=20
+| > sometimes have an up event delayed (or miss it entirely) and decide to=20
+| > auto-repeat insanely fast.  It happens about twice an hour.  I've seen =
+mouse=20
+| > clicks do it as well.  Not a show-stopper, just annoying.
 
+| I guess that *is* showstopper. Unfortunately notebook keyboards tend
+| to be crappy :-(.
+
+Just take a look at :
+
+http://bugzilla.xfree86.org/show_bug.cgi?id=3D532
+
+and
+
+http://bugzilla.kernel.org/show_bug.cgi?id=3D912
+
+runaway keyboard. And *not* a notebook one or even a crappy desktop one.
+Not the top-of-the line mechanical keyboard one can buy today, but a
+good almost new better-than-average one.
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-f3axngtEXbHJsMvJvEUQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/WO52I2bVKDsp8g0RAg++AJ0VRUMdbL799n+2HK2XqfuQMMzSnwCfR3nq
+tEQdxbqA4LxXSOz8PzaIQUs=
+=d+TP
+-----END PGP SIGNATURE-----
+
+--=-f3axngtEXbHJsMvJvEUQ--
 

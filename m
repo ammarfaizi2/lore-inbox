@@ -1,69 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284968AbRLFEVM>; Wed, 5 Dec 2001 23:21:12 -0500
+	id <S284937AbRLFE0m>; Wed, 5 Dec 2001 23:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284969AbRLFEVD>; Wed, 5 Dec 2001 23:21:03 -0500
-Received: from mangalore.zip.com.au ([203.12.97.48]:12558 "EHLO
-	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S284968AbRLFEUu>; Wed, 5 Dec 2001 23:20:50 -0500
-Message-ID: <3C0EF20C.36449AAB@zip.com.au>
-Date: Wed, 05 Dec 2001 20:20:28 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
-X-Accept-Language: en
+	id <S284969AbRLFE0c>; Wed, 5 Dec 2001 23:26:32 -0500
+Received: from dsl-213-023-038-088.arcor-ip.net ([213.23.38.88]:27153 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284937AbRLFE0O>;
+	Wed, 5 Dec 2001 23:26:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Dan Hollis <goemon@anime.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: tux2: what happen?
+Date: Thu, 6 Dec 2001 05:29:01 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.30.0112051417280.8130-100000@anime.net>
+In-Reply-To: <Pine.LNX.4.30.0112051417280.8130-100000@anime.net>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0
-In-Reply-To: Your message of "Wed, 05 Dec 2001 14:13:17 -0800."
-	             <3C0E9BFD.BC189E17@zip.com.au> <E16Bo4c-00031f-00@wagner>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Bq9e-0000mX-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 
-> In message <3C0E9BFD.BC189E17@zip.com.au> you write:
-> > Rusty Russell wrote:
-> > >
-> > > PS.  Also would be nice to #define del_timer del_timer_sync, and have a
-> > >      del_timer_async for those (very few) cases who really want this.
-> >
-> > That could cause very subtle deadlocks.   I'd prefer to do:
-> >
-> > #define del_timer_async       del_timer
-> 
-> I'd prefer to audit them all, create a patch, and remove del_timer.
-> Doing it slowly usually means things just get forgotten, then hacked
-> around when it finally gets ripped out.
+On December 5, 2001 11:18 pm, Dan Hollis wrote:
+> tux2... dead?
 
-um.  Auditing them all is a big task:
+Nope, just going slowly.
 
-akpm-1:/usr/src/linux-2.4.17-pre4> grep -r del_timer . | wc
-    800    2064   48299
-akpm-1:/usr/src/linux-2.4.17-pre4> grep -r del_timer_sync . | wc 
-     85     245    5384
-
-I tried it, when I was a young man.
-
-One mindset would be to just replace all the del_timer calls
-with del_timer_sync by default, and to then look for the below
-deadlock pattern.   But if you do this, Alexey shouts at you,
-because his code actually gets del_timer right, by looking at
-its return value.
-
-I'd urge you to reconsider.  We have a *lot* of timer deletion
-races in Linux, and squashing them all in one patch just isn't
-feasible.
-
-> The deadlock you're referring to is, I assume, del_timer_sync() called
-> inside the timer itself?  Can you think of any other dangerous cases?
-
-Nope.  The deadlock is where the caller of del_timer_sync holds
-some lock which would prevent the completion of the timer handler.
-It happens, and is sometimes subtle.
-
-drivers/video/txfxfb.c is an unsubtle example.
-
--
+--
+Daniel

@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263904AbUEMHm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUEMHtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263904AbUEMHm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 03:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUEMHm7
+	id S263879AbUEMHtX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 03:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUEMHtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 03:42:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47749 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263881AbUEMHm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 03:42:56 -0400
-Subject: Re: [2.6 patch] fix aic7xxx_old.c for !PCI
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040512235555.GF21408@fs.tum.de>
-References: <20040512235555.GF21408@fs.tum.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7SNQo3iRIcbNGT+8tjGU"
-Organization: Red Hat UK
-Message-Id: <1084434113.2781.6.camel@laptop.fenrus.com>
+	Thu, 13 May 2004 03:49:23 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:16 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263879AbUEMHtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 03:49:21 -0400
+Date: Thu, 13 May 2004 08:49:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, Adam Litke <agl@us.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: More convenient way to grab hugepage memory
+Message-ID: <20040513084903.B6631@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	Adam Litke <agl@us.ibm.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+References: <20040513055520.GF27403@zax>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 May 2004 09:41:53 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040513055520.GF27403@zax>; from david@gibson.dropbear.id.au on Thu, May 13, 2004 at 03:55:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 13, 2004 at 03:55:20PM +1000, David Gibson wrote:
+> Andrew, please apply:
+> 
+> At present, getting a block of (quasi-) anonymous memory mapping with
+> hugepages is a slightly convoluted process, involving creating a dummy
+> file in a hugetlbfs filesystem.  In particular that means finding
+> where such a filesystem is mounted, for which there is no standard
+> mechanism.  Getting hugepage SysV shm segments is easier, just requing
+> the SHM_HUGETLB flag.  This patch adds an analagous MAP_HUGETLB mmap()
+> flag to easily request that a block of anonymous memory come from
+> hugepages.
+> 
+> [The MAP_HUGETLB flag has the side effect that MAP_SHARED semantics
+> will apply, even if MAP_PRIVATE is specific - but that's no different
+> to explicitly mapping hugetlbfs].
 
---=-7SNQo3iRIcbNGT+8tjGU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Please don't do this.  It's messing all over sensitive codepathes in the
+kernel, creating special cases and bloat of what you could with simple a
+simpe hugetlb_mmap() wrapper ala (pseudocode)
 
-On Thu, 2004-05-13 at 01:55, Adrian Bunk wrote:
-> I got the following compile error in 2.6.6-mm1 (but it's not specific to=20
-> -mm) with CONFIG_PCI=3Dn:
+hugetlb_mmap()
+{
+	fd = open(file in hugetlbfs)
 
-or how about just providing a dummy pci_release_regions() for the !PCI
-case ?
+	mmap(.., fd, ...)
+	close(fd)
+}
 
---=-7SNQo3iRIcbNGT+8tjGU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD4DBQBAoybAxULwo51rQBIRAjHOAJiUaMAFy6/lSgpzUbNrPOdJBGGZAJ9jWTVr
-A3qu5QSQ+q33oEZiMBJZgQ==
-=uzO8
------END PGP SIGNATURE-----
-
---=-7SNQo3iRIcbNGT+8tjGU--
+in some library.  The hugetlbfs implementation was chosen exactly because
+if kept the impact of hugetlb pages down to normal kernel codepathes.
 

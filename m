@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264254AbTCXQEr>; Mon, 24 Mar 2003 11:04:47 -0500
+	id <S264262AbTCXQO5>; Mon, 24 Mar 2003 11:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264256AbTCXQEr>; Mon, 24 Mar 2003 11:04:47 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49926 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264254AbTCXQEq>; Mon, 24 Mar 2003 11:04:46 -0500
-Date: Mon, 24 Mar 2003 16:15:51 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: linux-kernel@vger.kernel.org, Spang Oliver <oliver.spang@siemens.com>
-Subject: Re: drivers/serial/Makefile
-Message-ID: <20030324161551.B10370@flint.arm.linux.org.uk>
-Mail-Followup-To: Duncan Sands <duncan.sands@math.u-psud.fr>,
-	linux-kernel@vger.kernel.org,
-	Spang Oliver <oliver.spang@siemens.com>
-References: <200303241652.50213.duncan.sands@math.u-psud.fr>
+	id <S264265AbTCXQO5>; Mon, 24 Mar 2003 11:14:57 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:32235 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S264262AbTCXQOy>; Mon, 24 Mar 2003 11:14:54 -0500
+Date: Mon, 24 Mar 2003 17:25:19 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pcmcia_bus_type changes cause oops...
+Message-ID: <20030324162519.GB2194@brodo.de>
+References: <20030324153659.GA32044@hottah.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303241652.50213.duncan.sands@math.u-psud.fr>; from duncan.sands@math.u-psud.fr on Mon, Mar 24, 2003 at 04:52:50PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030324153659.GA32044@hottah.alcove-fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 04:52:50PM +0100, Duncan Sands wrote:
-> The serial driver is now compiled as "8250", rather than
-> the traditional "serial" (Kconfig says "serial" as well).
-> Assuming this was a mistake in the Makefile, I went and
-> had a look, but my brain exploded.
+Hi Stelian,
 
-It isn't a mistake.  "serial" is meaningless with you've got multiple
-serial ports of different types.  It's a general name of a class of
-devices, not a specific device.
+Thanks for your bug report. Let me analyze it a bit:
 
-> What exactly is this intended to do?
+> ds: no socket drivers loaded!
 
-Well, core.c is the core driver which knows how to talk to user space,
-and on to that bolts the hardware specific bits, 8250.c, sa1100.c,
-suncore.c etc.
+ds.o is loaded for the first time, but fails as the yenta-socket driver was 
+not loaded before
 
-> PS: 8250_gsc, 8250_pci can be compiled as modules in their
-> own right.
+> pcnet_cs: Unknown symbol pcmcia_unregister_driver
+> pcnet_cs: Unknown symbol pcmcia_register_driver
 
-In theory they can, and maybe one day we'll teach the Kconfig system
-to allow it.  Feel free to send a patch for this. 8)
+This is strange. There is an EXPORT_SYMBOL(pcmcia_register_driver) ...
+maybe gets away after a "make clean"... not worriesome, though; as the
+loading continues.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> kobject pcmcia: registering. parent: <NULL>, set: bus
+ds.o is loaded for the second time; and pcmcia_bus_type is to be added
+again. Due to a bug in ds.c it didn't get unregistered in the failed loading
+of ds.o - the attached patch should fix it. Could you please try it?
 
+It is strange, though, that you nonetheless managed to get it to work with
+"inadvertedly modified" timings...
+
+Thanks,
+
+	Dominik
+
+--- linux/drivers/pcmcia/ds.c.original	2003-03-24 17:23:29.000000000 +0100
++++ linux/drivers/pcmcia/ds.c	2003-03-24 17:14:10.000000000 +0100
+@@ -920,16 +920,16 @@
+     pcmcia_get_card_services_info(&serv);
+     if (serv.Revision != CS_RELEASE_CODE) {
+ 	printk(KERN_NOTICE "ds: Card Services release does not match!\n");
+-	return -1;
++	goto error;
+     }
+     if (serv.Count == 0) {
+ 	printk(KERN_NOTICE "ds: no socket drivers loaded!\n");
+-	return -1;
++	goto error;
+     }
+     
+     sockets = serv.Count;
+     socket_table = kmalloc(sockets*sizeof(socket_info_t), GFP_KERNEL);
+-    if (!socket_table) return -1;
++    if (!socket_table) goto error;
+     for (i = 0, s = socket_table; i < sockets; i++, s++) {
+ 	s->state = 0;
+ 	s->user = NULL;
+@@ -984,6 +984,9 @@
+     init_status = 0;
+ #endif
+     return 0;
++ error:
++    bus_unregister(&pcmcia_bus_type);
++    return 1;
+ }
+ 
+ 

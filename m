@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVBJUL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVBJUN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVBJUL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 15:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVBJUL5
+	id S261697AbVBJUN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 15:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVBJUMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 15:11:57 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:56042 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261653AbVBJUKj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 15:10:39 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Cc: Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, Jon Smirl <jonsmirl@gmail.com>,
-       ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050210192554.GA15726@sci.fi>
-References: <1107695583.14847.167.camel@localhost.localdomain>
-	 <420BB267.8060108@tmr.com>  <20050210192554.GA15726@sci.fi>
-Date: Thu, 10 Feb 2005 20:08:15 +0000
-Message-Id: <1108066096.4085.69.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]  
-	Samsung P35, S3, black screen (radeon))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+	Thu, 10 Feb 2005 15:12:05 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:47787 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261660AbVBJULR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 15:11:17 -0500
+X-OB-Received: from unknown (205.158.62.49)
+  by wfilter.us4.outblaze.com; 10 Feb 2005 20:05:38 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+From: "Simon White" <s_a_white@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 10 Feb 2005 15:05:37 -0500
+Subject: Detecting kernel shutdown in a kernel driver
+X-Originating-Ip: 81.102.24.86
+X-Originating-Server: ws1-1.us4.outblaze.com
+Message-Id: <20050210200537.AD4754BE65@ws1-1.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 21:25 +0200, Ville Syrjälä wrote:
-> BTW it seems that old ATI cards use the BIOS to initialize secondary 
-> adapters even under Windows.
-> See http://www.ati.com/support/infobase/3663.html.
+Hi,
 
-It also explicitly states that Windows 2000 and XP don't support this,
-which leads me to suspect that vendors no longer expect POSTing to be
-possible after initial system boot.
+I've been writing a device driver for a piece of hardware that we recently found the pci bridge has an issue on software reset (kernel 2.6.8.1, hardware reset is fine).  The bridge appears to corrupt the subvendor/device ids on next boot.  We have found a software work around in that I can write to the bridge on module exit and it will always detect correctly next boot (through module_exit when rmmod'd).
+
+However on shutting down a machine with the module loaded it never works next time, so is module_exit actually called?
+
+Secondly I searched through some code and on google to determine if I could detect a shutdown notification in the kernel.  I thougt I'd found something using:
+
+static struct pci_driver hsid_driver =
+{
+    .name     = HSID_NAME,
+    .id_table = id_table,
+    .probe    = hsid_probe,
+    .driver   =
+    {
+        .shutdown = hsid_shutdown,
+    },
+};
+
+However that also appears not to work.  I wondered what the correct solution was for detecting system shutdown in the kernel even if the application using the device has locked up on un-interruptible sleep, so I may try to clean the hardware up a little.
+
+Thankyou for any assistance,
+Simon
+
+Please CC me.
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
 

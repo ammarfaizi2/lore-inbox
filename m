@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269773AbUHZWiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269751AbUHZWig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269773AbUHZWiX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269753AbUHZWfY
+	id S269751AbUHZWig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 18:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUHZWdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 18:35:24 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:14084 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S269685AbUHZWao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 18:30:44 -0400
-From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: silent semantic changes with reiser4
-Date: Fri, 27 Aug 2004 00:30:19 +0200
-User-Agent: KMail/1.7
-Cc: Christophe Saout <christophe@saout.de>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <1093536282.5482.6.camel@leto.cs.pocnet.net> <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 18:33:23 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:62475 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S269743AbUHZW3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 18:29:39 -0400
+Date: Fri, 27 Aug 2004 00:26:22 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+Subject: Re: Linux 2.4.28-pre2
+Message-ID: <20040826222622.GD564@alpha.home.local>
+References: <412E012F.4050503@ttnet.net.tr> <20040826191501.GA12772@fs.tum.de> <412E3EEB.5010603@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408270030.20647.lkml@felipe-alfaro.com>
+In-Reply-To: <412E3EEB.5010603@ttnet.net.tr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 August 2004 23:05, David Lang wrote:
+On Thu, Aug 26, 2004 at 10:50:03PM +0300, O.Sezer wrote:
+> >They are not a real problem with gcc 3.4, and whether gcc 3.5 will ever 
+> >be supported as compiler for kernel 2.4 is a question whose answer lies 
+> >far in the future.
+> 
+> That is a valid point but it'd be sad if gcc3.5 wouldn't be supported.
 
-> I also don't see why the VFS/Filesystem can't decide that (for example)
-> this tar.gz is so active that instead of storing it as a tar.gz and
-> providing a virtual directory of the contents that it instead stores the
-> directory of the contents and makes the tar.gz virtual (regenerating it as
-> needed or as extra system resources are available)
+Tell that to gcc developpers who constantly break compatibility between
+versions. I even have userland programs which do not compile anymore with
+gcc-3.3 and which I don't even know how to 'fix' (workaround ?).
 
-Because that would mean the kernel should "talk" the tar format, which is, 
-IMHO, a Bad Idea (TM). Maybe the kernel could notify a user-space daemon to 
-perform this task, instead.
+Cheers,
+Willy
+

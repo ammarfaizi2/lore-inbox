@@ -1,96 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130074AbQKFTFV>; Mon, 6 Nov 2000 14:05:21 -0500
+	id <S129920AbQKFTKC>; Mon, 6 Nov 2000 14:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbQKFTFL>; Mon, 6 Nov 2000 14:05:11 -0500
-Received: from CC859385856-a.hnglo1.ov.nl.home.com ([212.120.96.103]:41220
-	"EHLO debian.besselink") by vger.kernel.org with ESMTP
-	id <S129920AbQKFTE7>; Mon, 6 Nov 2000 14:04:59 -0500
-Date: Mon, 6 Nov 2000 20:18:50 +0100 (CET)
-From: Leen Besselink <leen@wirehub.nl>
-Reply-To: Leen Besselink <leen@wirehub.nl>
-To: Jeff Dike <jdike@karaya.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Play Kernel Hangman!
-In-Reply-To: <200011061631.LAA02504@ccure.karaya.com>
-Message-ID: <Pine.LNX.3.96.1001106195143.2553B-100000@debian.besselink>
+	id <S130008AbQKFTJx>; Mon, 6 Nov 2000 14:09:53 -0500
+Received: from waste.org ([209.173.204.2]:22372 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129920AbQKFTJh>;
+	Mon, 6 Nov 2000 14:09:37 -0500
+Date: Mon, 6 Nov 2000 13:09:19 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Keith Owens <kaos@ocs.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <3A06FA73.948357F6@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10011061305040.30477-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Jeff Dike wrote:
+On Mon, 6 Nov 2000, Jeff Garzik wrote:
 
-> After a stranger than usual late-night #kernelnewbies session on Thursday, I 
-> was inspired to come up with Kernel Hangman.  This is the traditional game of 
-> hangman, except that the words you have to guess are kernel symbols.
+> Oliver Xymoron wrote:
+> > 
+> > On Mon, 6 Nov 2000, David Woodhouse wrote:
+> > 
+> > > The point here is that although I've put up with just keeping the sound
+> > > driver loaded for the last few years, permanently taking up a large amount
+> > > of DMA memory, the inter_module_xxx stuff that Keith is proposing would
+> > > give us a simple way of storing the data which we want to store.
+> > ...
+> > > Being able to do it completely in userspace would be neater, though.
+> > 
+> > I think there are a bunch of other devices that need stuff from userspace
+> > before they fully init, namely the ones that load proprietary firmware
+> > images. Will an approach like that work here?
 > 
-> So, test your knowledge of kernel trivia and play it at 
-> http://user-mode-linux.sourceforge.net/cgi-bin/hangman
-> 
-> 				Jeff
+> Some devices have a firmware.h that is compiled into the driver.  A few
+> sound devices use a function that loads a firmware file from userspace,
+> given a filename.  The comment in drivers/sound/sound_firmware.c says
+> that this is a poor method, and that the recommended method for
+> uploading firmware to a device is via ioctl.
 
-Actually, OpenBSD already has this (in the kernel !) After a kernel crash
-ones, I got in the kerneldebugger. I didn't really know how to use it, but
-I could play hangman. I just downloaded the source 
-(pub/OpenBSD/2.7/srcsys.tar.gz) to be sure, here is a short excerpt from
-sys/ddb/db_hangman.c:
----
-static __inline char *
-db_randomsym(lenp)
-        size_t  *lenp;
-{
-        register char   *p, *q;
-                /* choose random symtab */
-        register db_symtab_t    stab = db_istab(db_random(db_nsymtabs));
+Ioctl (or alternate device for plan9 groupies) is fine. My point is final
+initialization of the device is obviously delayed until the firmware is
+loaded. Adopting a similar strategy for initializing mixers (possibly
+falling back to initializing with zero levels) minimizes the window
+between resetting a device and having sane mixer settings.
 
-                /* choose random symbol from the table */
-        q = db_qualify(X_db_isym(stab,
-db_random(X_db_nsyms(stab))),stab->name);
-
-                /* don't show symtab name if there are less than 3 of 'em
-*/
-        if (db_nsymtabs < 3)
-                while(*q++ != ':');
-
-                /* strlen(q) && ignoring underscores and colons */
-        for ((*lenp) = 0, p = q; *p; p++)
-                if (ISALPHA(*p))
-                        (*lenp)++;
-
-        return q;
-}
-
-static char hangpic[]=
-        "\n88888 \r\n"
-          "9 7 6 \r\n"
-          "97  5 \r\n"
-          "9  423\r\n"
-          "9   2 \r\n"
-          "9  1 0\r\n"
-          "9\r\n"
-          "9  ";
-static char substchar[]="\\/|\\/O|/-|";
-
----
-and an other part:
----
-
-void
-db_hangman(addr, haddr, count, modif)
-        db_expr_t addr;
-        int     haddr;
-        db_expr_t count;
-        char    *modif;
-{
-        if (modif[0] == 's' && '0' <= modif[1] && modif[1] <= '9')
-                skill = modif[1] - '0';
-        else
-                skill = 5;
-
-        while (db_hangon());
-}
-
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUIJDEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUIJDIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUIJDEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 23:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUIJDEY
+	id S267598AbUIJDIy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 23:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUIJDIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 23:04:24 -0400
-Received: from lakermmtao01.cox.net ([68.230.240.38]:15538 "EHLO
-	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S267588AbUIJDEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 23:04:13 -0400
-In-Reply-To: <1094784025.19981.188.camel@hole.melbourne.sgi.com>
-References: <20040908123524.GZ390@unthought.net> <322909db040908080456c9f291@mail.gmail.com> <20040908154434.GE390@unthought.net> <1094661418.19981.36.camel@hole.melbourne.sgi.com> <20040909140017.GP390@unthought.net> <1094784025.19981.188.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <16F6CCFE-02D6-11D9-B8B0-000393ACC76E@mac.com>
+	Thu, 9 Sep 2004 23:08:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51353 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267598AbUIJDIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 23:08:52 -0400
+Date: Thu, 9 Sep 2004 20:06:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
+Message-Id: <20040909200650.787001fc.akpm@osdl.org>
+In-Reply-To: <4141092B.2090608@bigpond.net.au>
+References: <413FA9AE.90304@bigpond.net.au>
+	<20040909010610.28ca50e1.akpm@osdl.org>
+	<4140EE3E.5040602@bigpond.net.au>
+	<20040909171450.6546ee7a.akpm@osdl.org>
+	<4141092B.2090608@bigpond.net.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       Anando Bhattacharya <a3217055@gmail.com>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Major XFS problems...
-Date: Thu, 9 Sep 2004 23:04:11 -0400
-To: Greg Banks <gnb@melbourne.sgi.com>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 09, 2004, at 22:40, Greg Banks wrote:
-> Like I said, knfsd does unnatural things to the dcache.
+Peter Williams <pwil3058@bigpond.net.au> wrote:
+>
+>  Andrew Morton wrote:
+>  > Peter Williams <pwil3058@bigpond.net.au> wrote:
+>  > 
+>  >>>Please try earlier snapshots, see if you can ascertain which one introduced
+>  >>>the bug.
+> 
+>  bk10 is where the problem was introduced.
 
-Perhaps there needs to be a standard API that knfsd can use to do many
-of the (currently) non-standard dcache operations.  This would likely be
-useful for other kernel-level file-servers that would be useful to have
-(OpenAFS? Coda?).  Of course, I could just be totally ignorant of some
-nasty reason for the unstandardized hackery, but it doesn't hurt to
-ask. :-D
+OK, thanks for hanging in there.
 
-Cheers,
-Kyle Moffett
+I've placed four backout patches at
+http://www.zip.com.au/~akpm/linux/patches/stuff/pid-revert/.  Could you
+please try them, see which one fixes it up?  
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Grab the latest Linus snapshot and apply them in this order:
 
+1-1911-3-2.patch
+1-1901-1-17.patch
+1-1860-1-29.patch
+1-1860-1-28.patch
 
+Thanks.

@@ -1,36 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267614AbSLNOPd>; Sat, 14 Dec 2002 09:15:33 -0500
+	id <S267619AbSLNO35>; Sat, 14 Dec 2002 09:29:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbSLNOPc>; Sat, 14 Dec 2002 09:15:32 -0500
-Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:51082 "EHLO
-	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S267614AbSLNOPc>;
-	Sat, 14 Dec 2002 09:15:32 -0500
-Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
-From: Mohamed El Ayouty <melayout@umich.edu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DFB03E8.C7AB1271@digeo.com>
-References: <1039790158.25215.48.camel@syKr0n.mine.nu> 
-	<3DFB03E8.C7AB1271@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Dec 2002 09:22:31 -0500
-Message-Id: <1039875751.10805.3.camel@syKr0n.mine.nu>
-Mime-Version: 1.0
+	id <S267620AbSLNO35>; Sat, 14 Dec 2002 09:29:57 -0500
+Received: from [203.199.93.15] ([203.199.93.15]:53255 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S267619AbSLNO34>; Sat, 14 Dec 2002 09:29:56 -0500
+From: "arun4linux" <arun4linux@indiatimes.com>
+Message-Id: <200212141428.TAA32351@WS0005.indiatimes.com>
+To: "Michael Richardson" <mcr@sandelman.ottawa.on.ca>, <netdev@oss.sgi.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: "arun4linux" <arun4linux@indiatimes.com>
+Subject: Re: Re: pci-skeleton duplex check 
+Date: Sat, 14 Dec 2002 20:05:30 +0530
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I started having that problem since 2.5.48.
+&lt;&lt;Interfaces should NEVER change in patch level versions.
+Just *DO NOT DO IT*.
+&gt;&gt;I do agree on this.
 
-I just commented out those 4 lines in init/do_mounts.c:
 
-#ifdef CONFIG_DEVFS_FS
-        sys_mount("devfs", "/dev", "devfs", 0, NULL);
-        do_devfs = 1;
-#endif
+This is a common complaint about linux kernel developers. And this always gives an insecure feeling  :-) for the device driver or kernel module programmers. 
+This was one of the issues in my earlier company/work and they have gone for another OS.
 
-and 2.5.51 now works.
 
-Mohamed
+Warm Regards
+
+
+Arun
+"Michael Richardson" wrote:
+
+
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+
+&gt;&gt;&gt;&gt;&gt; "Donald" == Donald Becker writes:
+Donald&gt; The drivers in the kernel are now heavily modified and have significantly
+Donald&gt; diverged from my version. Sure, you are fine with having someone else
+Donald&gt; do the difficult and unrewarding debugging and maintainence work, while
+Donald&gt; you work on just the latest cool hardware, change the interfaces and are
+Donald&gt; concerned only with the current kernel version.
+
+I agree strongly with Donald.
+
+Interfaces should NEVER change in patch level versions.
+Just *DO NOT DO IT*.
+
+Go wild in odd-numbered.. get the interfaces right there.
+But leave them alone afterward.
+
+This is a fundamental tenant of being professional. Otherwise, the kernel
+people are the biggest reason I've ever seen for using *BSD.
+Microsoft is not the real enemy. Gratuitous change is.
+
+] ON HUMILITY: to err is human. To moo, bovine. | firewalls [
+] Michael Richardson, Sandelman Software Works, Ottawa, ON |net architect[
+] mcr@sandelman.ottawa.on.ca http://www.sandelman.ottawa.on.ca/ |device driver[
+] panic("Just another Debian GNU/Linux using, kernel hacking, security guy"); [
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy the best in Movies at http://www.videos.indiatimes.com
+
+Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
+

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263668AbTIAScj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 14:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTIAScf
+	id S263638AbTIASaU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 14:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTIASaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 14:32:35 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:12188 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263670AbTIASbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 14:31:53 -0400
-Date: Mon, 01 Sep 2003 11:31:14 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v10
-Message-ID: <6860000.1062441073@[10.10.2.4]>
-In-Reply-To: <3F52A546.9020608@cyberone.com.au>
-References: <3F5044DC.10305@cyberone.com.au> <1806700000.1062361257@[10.10.2.4]> <1807550000.1062362498@[10.10.2.4]> <3F52A546.9020608@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 1 Sep 2003 14:30:17 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:499
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263400AbTIAS30
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 14:29:26 -0400
+Date: Mon, 1 Sep 2003 17:58:50 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Ian Kumlien <pomac@vapor.com>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [SHED] Questions.
+Message-ID: <20030901155850.GD2359@wind.cocodriloo.com>
+References: <1062324435.9959.56.camel@big.pomac.com> <1062373274.1313.28.camel@boobies.awol.org> <1062374409.5171.194.camel@big.pomac.com> <200309011250.48238.kernel@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200309011250.48238.kernel@kolivas.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Kernbench: (make -j vmlinux, maximal tasks)
->>>                              Elapsed      System        User         CPU
->>>              2.6.0-test4       45.87      116.92      571.10     1499.00
->>>       2.6.0-test4-nick10       46.91      114.03      584.16     1489.25
->>> 
->> 
->> Actually, now looks like you have significantly more idle time, so perhaps
->> the cross-cpu (or cross-node) balancing isn't agressive enough:
->> 
-> 
-> Yeah, there is a patch for this in mm that is not in mine. It should
-> help both mine and mainline though...
+On Mon, Sep 01, 2003 at 12:50:48PM +1000, Con Kolivas wrote:
+> On Mon, 1 Sep 2003 10:00, Ian Kumlien wrote:
+> > On Mon, 2003-09-01 at 01:41, Robert Love wrote:
 
-Not convinced of that - mm performs worse than mainline for me.
+[ big snip ]
  
-> Looks like mine is still context switching a bit more by the increased
-> user time but its probably nearly acceptable now.
+> > Well, there is latency and there is latency. To take the AmigaOS
+> > example. Voyager, a webbrowser for AmigaOS uses MUI (a fully dynamic gui
+> > with weighted(prioritized) sections) and renders images. It's responsive
+> > even on a 40mhz 68040 using Executive with the feedback scheduler.
+> 
+> Multiple processors to do different tasks on amigas kinda helped there...
 
-Yeah, is odd, you have more user time, but also more idle time. schedstats
-should measure context switch rates, balances, etc.
+Amiga had just one multipurpose CPU. All other processors were
+completelly specialized. It was just that one of these, the blitter,
+could be used as a generic "memcpy on steroids" processor, allowing
+you to mix 3 sources with shifting and logical operations onto one
+destination.
+ 
+> > 500 mhz is a lot of horsepower when it comes to playing mp3's and
+> > scheduling.. It feels like something is wrong when i see all these
+> > discussions but i most certainly don't know enough to even begin to
+> > understand it. I only tried to show the thing i thought was really wrong
+> > but you do have a point with the runqueues and timeslices =P
+> 
+> Things are _never ever ever ever_ as simple as they appear on the surface.
 
-M.
-
+This is SOOOO true :)
+ 
+Greets, Antonio.

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317335AbSFCJ1x>; Mon, 3 Jun 2002 05:27:53 -0400
+	id <S317338AbSFCJZ3>; Mon, 3 Jun 2002 05:25:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317336AbSFCJ1w>; Mon, 3 Jun 2002 05:27:52 -0400
-Received: from dsl-213-023-039-253.arcor-ip.net ([213.23.39.253]:17311 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317335AbSFCJ1v>;
-	Mon, 3 Jun 2002 05:27:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Karim Yaghmour <karim@opersys.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Date: Mon, 3 Jun 2002 11:26:56 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3CFB2A38.60242CBA@opersys.com>
+	id <S317337AbSFCJZ2>; Mon, 3 Jun 2002 05:25:28 -0400
+Received: from jaded.cynicism.com ([206.129.95.68]:9743 "HELO
+	jaded.cynicism.com") by vger.kernel.org with SMTP
+	id <S317334AbSFCJZZ>; Mon, 3 Jun 2002 05:25:25 -0400
+Date: Mon, 3 Jun 2002 02:25:22 -0700 (PDT)
+From: Derek Vadala <derek@cynicism.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+        Tedd Hansen <tedd@konge.net>, Christian Vik <christian@konge.net>,
+        Lars Christian Nygaard <lars@snart.com>
+Subject: Re: RAID-6 support in kernel?
+In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv>
+Message-ID: <Pine.GSO.4.21.0206030213510.23709-100000@gecko.roadtoad.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Eo76-0000rv-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 June 2002 10:35, Karim Yaghmour wrote:
-> We have released the initial implementation of the Adeos nanokernel.
-> This provides a mechanism for the implementation of systems that can
-> provide guaranteed realtime response.
+On Mon, 3 Jun 2002, Roy Sigurd Karlsbakk wrote:
 
-Congratulations!  This looks beautiful.  I really do think you've
-wiped out the intellectual property roadblock that's been holding Linux
-back from penetrating the control system space at the same rate as
-traditional IT.  Not to mention that I can look forward to a sound
-system where I can be *sure* my mp3s won't skip.
+> It'll waste 9 drives, giving me a total capacity of 7n instead of 14n. 
+> And, by definition, RAID-6 _can_ withstand _any_ two-drive failure.
 
-In my opinion, this is fundamental progress for free (as in freedom)
-software.
+This is certainly not true. 
 
--- 
-Daniel
+Combining N RAID-5 into a stripe wastes on N disks. 
+
+If you combine two it wastes 2 disks, etc.
+
+That is, for each RAID-5 you waste a single disk worth of storage for
+partiy. I don't know what equation you're using where you get 9 drives
+from.
+
+As far as it's ability to withstand _any_ 2-disk failure... I'm not sure
+what you mean by definition. RAID-6 implemations don't follow a standard
+because there isn't one. Depending on how it's implemented, RAID-6 is not
+necessarily able to withstand a filaure of any two disks. We can argue as
+much as you want, but I'm not willing to invest the time.
+
+> With a 1500MHz Athlon on a typical file server where there's not much 
+> writes, the CPU is sitting there chrunching RC5-64 som 99,95 % of the 
+> time. I don't think it'll make much differnce with today's CPUs
+
+It's up to you to decide if the performance trade-off is worthwhile. I
+merely trying to point out that system with 2 RAID-5 is likely to incur
+the same CPU hit as a single RAID-6, implemented in the kernel. 
+
+
+---
+Derek Vadala, derek@cynicism.com, http://www.cynicism.com/~derek
+

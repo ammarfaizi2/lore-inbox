@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUDAB02 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 20:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUDAB02
+	id S261817AbUDABa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 20:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDABa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 20:26:28 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6853
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261790AbUDAB0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 20:26:25 -0500
-Date: Thu, 1 Apr 2004 03:26:25 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040401012625.GV2143@dualathlon.random>
-References: <20040331150718.GC2143@dualathlon.random> <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain> <20040331172851.GJ2143@dualathlon.random> <20040401004528.GU2143@dualathlon.random> <20040331172216.4df40fb3.akpm@osdl.org>
+	Wed, 31 Mar 2004 20:30:29 -0500
+Received: from clix.aarnet.edu.au ([192.94.63.10]:33761 "EHLO
+	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S261817AbUDABaY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 20:30:24 -0500
+Subject: New entry for MAINTAINERS
+From: Glen Turner <glen.turner@aarnet.edu.au>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Organization: Australian Academic and Research Network
+Message-Id: <1080782885.6555.10.camel@andromache>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040331172216.4df40fb3.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 10:58:05 +0930
+Content-Transfer-Encoding: 8bit
+X-MDSA: Yes
+X-Spam-Score: -100 USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 05:22:16PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > @@ -151,8 +151,11 @@ int rw_swap_page_sync(int rw, swp_entry_
-> >  	lock_page(page);
-> >  
-> >  	BUG_ON(page->mapping);
-> > -	page->mapping = &swapper_space;
-> > -	page->index = entry.val;
-> > +	ret = add_to_page_cache(page, &swapper_space, entry.val, GFP_KERNEL);
-> 
-> Doing a __GFP_FS allocation while holding lock_page() is worrisome.  It's
-> OK if that page is private, but how do we know that the caller didn't pass
-> us some page which is on the LRU?
 
-it _has_ to be private if it's using rw_swap_page_sync. How can a page
-be in a lru if we're going to execute add_to_page_cache on it? That
-would be pretty broken in the first place.
+"MILLIONS OF LINES OF UNIX® CODE" DISCOVERED BY "MIT MATHEMATICIANS"
+P: Darl McBride
+W: http://www.sco.com/
+W: http://www.thescogroup.com/
+S: The Dark Matter Theory of Linux which explains why the kernel
+   tarball is so much larger than can be reasonably expected and is
+   ever-expanding.  Even legal discovery seeking the code "with
+   specificity" cannot find these millions of lines without the
+   closest judicial assistance.
+W: http://www.novell.com/ -- it's our UNIX®, we didn't sell it to
+                             Caldera when we sold them... well
+                             not much really.
+W: http://www.berkeley.edu/ -- it's mostly our Unix in UNIX®.
+W: http://www.opengroup.org/ -- it's our ® in UNIX®.
+W: http://www.sgi.com/ -- our search finds no Darl^H^H Dark Matter
+                          in Linux.
+W: http://www.legal.ibm.com/ -- "we spell Linux 'LINUX®'".
+W: http://www.eng.ibm.com/ -- "we would like to spell Linux 'LNX' bt
+                              Lns Trvlds hs trd mrk".
 
-> Your patch seems reasonable to run with for now, but to be totally anal
-> about it, I'll run with the below monstrosity.
+-- 
+ gdt/2004-04-01
 
-It's not needed IMO. We also already bugcheck on page->mapping, if
-you're scared about the page being in a lru, you can add further
-bugchecks on PageLru etc.. calling add_to_page_cache on anything that is
-already visible to the VM in some lru is broken by design and should be
-forbidden. All the users of swap suspend must work with freshly
-allocated pages, the page_mapped bugcheck already covers most of the
-cases.
+

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267257AbSKVBGi>; Thu, 21 Nov 2002 20:06:38 -0500
+	id <S267253AbSKVBEl>; Thu, 21 Nov 2002 20:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267256AbSKVBGi>; Thu, 21 Nov 2002 20:06:38 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:49648 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267257AbSKVBGh>; Thu, 21 Nov 2002 20:06:37 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A535@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, "'Stelian Pop'" <stelian.pop@fr.alcove.com>
-Subject: [BK PATCH] Allow others to use ACPI EC interface
-Date: Thu, 21 Nov 2002 17:13:37 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S267258AbSKVBEl>; Thu, 21 Nov 2002 20:04:41 -0500
+Received: from holomorphy.com ([66.224.33.161]:52355 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267253AbSKVBEk>;
+	Thu, 21 Nov 2002 20:04:40 -0500
+Date: Thu, 21 Nov 2002 17:08:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.5.48-mm1
+Message-ID: <20021122010853.GI11776@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Bill Davidsen <davidsen@tmr.com>, Hugh Dickins <hugh@veritas.com>,
+	lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+References: <Pine.LNX.4.44.0211191338590.1596-100000@localhost.localdomain> <Pine.LNX.3.96.1021121160056.10456D-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1021121160056.10456D-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a
+On Thu, Nov 21, 2002 at 04:04:25PM -0500, Bill Davidsen wrote:
+> This is purely a performance decision. If you want to avoid bad latency on
+> reads then you have to throttle writes. The loop_thread will make the
+> system just as slow as a user application writing the same number of
+> pages.
+> If you want io scheduling you will deliberately slow writes to let reads
+> happen in reasonable time. And vice-versa I imagine, although I don't
+> think I've seen that case.
 
-	bk pull http://linux-acpi.bkbits.net/linux-acpi
+Not entirely so. This is just a scheduling decision that has to
+discriminate between blocking and nonblocking requests and prevent
+starvation of the blocking requests. Write throttling is an
+oversimplification that functions poorly.
 
-Stelian's sonypi driver will make use of these in the near future.
 
-Regards -- Andy
-
-This will update the following files:
-
- drivers/acpi/acpi_ksyms.c |    9 +
- drivers/acpi/ec.c         |  165 ++++++++++++++++++++--------------
- include/linux/acpi.h      |    6 +
- 3 files changed, 115 insertions(+), 65 deletions(-)
-
-through these ChangeSets:
-
-<agrover@groveronline.com> (02/11/20 1.842.1.56)
-   ACPI: Add ec_read and ec_write external functions
-     Other ec.c cleanups, too
+Bill

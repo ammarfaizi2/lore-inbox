@@ -1,97 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270587AbUJUBdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270681AbUJUB36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270587AbUJUBdB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270619AbUJUBax
+	id S270681AbUJUB36 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270591AbUJUBZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:30:53 -0400
-Received: from zlynx.org ([199.45.143.209]:30213 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S270587AbUJUBZa (ORCPT
+	Wed, 20 Oct 2004 21:25:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63923 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270454AbUJUBRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:25:30 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Zan Lynx <zlynx@acm.org>
-To: Timothy Miller <theosib@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041020234819.23232.qmail@web40706.mail.yahoo.com>
-References: <20041020234819.23232.qmail@web40706.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cppaWZeVP1Bd3okGg9aa"
-Date: Wed, 20 Oct 2004 19:25:21 -0600
-Message-Id: <1098321921.4215.30.camel@localhost>
+	Wed, 20 Oct 2004 21:17:08 -0400
+Date: Wed, 20 Oct 2004 18:17:03 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2][LSM] remove net related includes from security.h
+Message-ID: <20041020181702.T2357@build.pdx.osdl.net>
+References: <20041020181507.S2357@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041020181507.S2357@build.pdx.osdl.net>; from chrisw@osdl.org on Wed, Oct 20, 2004 at 06:15:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With this we're back to the times when changing skbuff.h
+only triggers rebuild of _net_ related stuff 8)
 
---=-cppaWZeVP1Bd3okGg9aa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This uncovered a bug in rmap.h, that was not including
+mm.h to get the definition of struct vm_area_struct,
+working by luck.
 
-On Wed, 2004-10-20 at 16:48 -0700, Timothy Miller wrote:
-> I'm posting from home, so this won't look right.  Sorry.
->=20
-> Anyhow, Andre Eisenbach said this:
->=20
-> >>>
-> If the graphics card mostly supports 2D initially, it's really not
-> much better then just about any off the shelf graphics card with VESA
-> drivers. As in, the hardware doesn't need to be open for just that.
-> Most (all?) the frustration in Linux graphics card land comes from
-> unsupported/closed 3D drivers.
-> <<<
->=20
-> I have tried using cards with VESA drivers before, and I found it to be
-> very painful.  Certainly, you can turn off certain features and get a
-> reasonably useful UI experience, but dragging windows around with "show
-> window contents while moving" enabled is painfully slow, even with AGP
-> 4x.  Just imagine doing it over PCI.
->=20
-> When it comes to desktop applications, the FIRST thing you need is good
-> 2D acceleration.  In fact, that's really the ONLY thing.  OpenOffice
-> does not need to use OpenGL.  GNOME doesn't need to use OpenGL.  In
-> fact, for the most part, they don't bother.  There are some instances
-> where they use OpenGL, but most of what a workstation user does fits
-> squarely within all the functionality supplied by Xlib, which is
-> entirely 2D.
-[snip]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-My opinion, for what its worth:
-
-Do 3D first and only.  2D is a subset of 3D.  Implement as much of
-OpenGL as you can in hardware and software can emulate any 2D interface
-desired.
-
-I agree that existing graphics cards do 2D just fine.  I can get a ATI
-card for $20 that does all the 2D I need.  But 2D isn't enough for me.
-I spend $400 on one Nvidia card.  Maybe I'm not the average, common
-user, but users like me have the highest profit margin. :-)
-
-I'm a pragmatic user.  I'd like full-featured Open Source drivers for my
-Nvidia card but I use the binary because they work really well and for
-me, (excellent_performance - closed_drivers) > (crappy_performance +
-open_drivers).
-
-If it can be done well enough to run Doom 3 in 640x480 at 20 fps for
-less than $500, I'll buy one.  That's the performance level where I'd
-consider sacrificing 60 fps for the open drivers.
-
-Of course, in 5 years I'll expect 120 fps so its definitely a moving
-target.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-cppaWZeVP1Bd3okGg9aa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBdxABG8fHaOLTWwgRAgoeAJ4zEHZQWI1CahmCYC5grpLaPVnfsgCgqXQJ
-FXC8dOlfNdSkgxVvTiu4KAY=
-=rUxQ
------END PGP SIGNATURE-----
-
---=-cppaWZeVP1Bd3okGg9aa--
-
+--- linux-2.6/include/linux/security.h~uninline	2004-10-20 18:01:57.753401840 -0700
++++ linux-2.6/include/linux/security.h	2004-10-20 18:07:29.143022960 -0700
+@@ -30,8 +30,6 @@
+ #include <linux/shm.h>
+ #include <linux/msg.h>
+ #include <linux/sched.h>
+-#include <linux/skbuff.h>
+-#include <linux/netlink.h>
+ 
+ struct ctl_table;
+ 
+@@ -55,18 +53,14 @@
+ extern int cap_syslog (int type);
+ extern int cap_vm_enough_memory (long pages);
+ 
+-static inline int cap_netlink_send (struct sock *sk, struct sk_buff *skb)
+-{
+-	NETLINK_CB (skb).eff_cap = current->cap_effective;
+-	return 0;
+-}
++struct msghdr;
++struct sk_buff;
++struct sock;
++struct sockaddr;
++struct socket;
+ 
+-static inline int cap_netlink_recv (struct sk_buff *skb)
+-{
+-	if (!cap_raised (NETLINK_CB (skb).eff_cap, CAP_NET_ADMIN))
+-		return -EPERM;
+-	return 0;
+-}
++extern int cap_netlink_send(struct sock *sk, struct sk_buff *skb);
++extern int cap_netlink_recv(struct sk_buff *skb);
+ 
+ /*
+  * Values used in the task_security_ops calls
+@@ -2518,11 +2512,6 @@
+ 	return -EINVAL;
+ }
+ 
+-/*
+- * The netlink capability defaults need to be used inline by default
+- * (rather than hooking into the capability module) to reduce overhead
+- * in the networking code.
+- */
+ static inline int security_netlink_send (struct sock *sk, struct sk_buff *skb)
+ {
+ 	return cap_netlink_send (sk, skb);
+--- linux-2.6/include/linux/rmap.h~uninline	2004-10-20 17:51:00.568309160 -0700
++++ linux-2.6/include/linux/rmap.h	2004-10-20 18:04:52.862781168 -0700
+@@ -7,6 +7,7 @@
+ #include <linux/config.h>
+ #include <linux/list.h>
+ #include <linux/slab.h>
++#include <linux/mm.h>
+ #include <linux/spinlock.h>
+ 
+ /*
+--- linux-2.6/security/commoncap.c~uninline	2004-10-20 17:51:00.574308248 -0700
++++ linux-2.6/security/commoncap.c	2004-10-20 18:04:52.875779192 -0700
+@@ -24,6 +24,23 @@
+ #include <linux/xattr.h>
+ #include <linux/hugetlb.h>
+ 
++int cap_netlink_send(struct sock *sk, struct sk_buff *skb)
++{
++	NETLINK_CB(skb).eff_cap = current->cap_effective;
++	return 0;
++}
++
++EXPORT_SYMBOL(cap_netlink_send);
++
++int cap_netlink_recv(struct sk_buff *skb)
++{
++	if (!cap_raised(NETLINK_CB(skb).eff_cap, CAP_NET_ADMIN))
++		return -EPERM;
++	return 0;
++}
++
++EXPORT_SYMBOL(cap_netlink_recv);
++
+ int cap_capable (struct task_struct *tsk, int cap)
+ {
+ 	/* Derived from include/linux/sched.h:capable. */

@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUGDWSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265824AbUGDWZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265817AbUGDWSz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 18:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265824AbUGDWSz
+	id S265824AbUGDWZy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 18:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUGDWZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 18:18:55 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:31166 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S265817AbUGDWSx (ORCPT
+	Sun, 4 Jul 2004 18:25:54 -0400
+Received: from zero.aec.at ([193.170.194.10]:5897 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265824AbUGDWZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 18:18:53 -0400
-Subject: Re: [BUG] FAT broken in 2.6.7-bk15
-From: Jesse Stockall <stockall@magma.ca>
-To: Ali Akcaagac <aliakc@web.de>
-Cc: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
-In-Reply-To: <1088979061.1277.6.camel@localhost>
-References: <1088979061.1277.6.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1088979472.8606.18.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 04 Jul 2004 18:17:52 -0400
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jul 2004 18:25:53 -0400
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: linux-kernel@vger.kernel.org
+Subject: Re: procfs permissions on 2.6.x
+References: <2dZjc-7BP-15@gated-at.bofh.it> <2dZjf-7BP-27@gated-at.bofh.it>
+	<2dZsQ-7GF-23@gated-at.bofh.it> <2dZVV-867-33@gated-at.bofh.it>
+	<2e0oZ-8lm-35@gated-at.bofh.it> <2emSs-6R8-17@gated-at.bofh.it>
+	<2enbS-72q-19@gated-at.bofh.it> <2env9-7li-9@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 05 Jul 2004 00:25:49 +0200
+In-Reply-To: <2env9-7li-9@gated-at.bofh.it> (viro@parcelfarce.linux.theplanet.co.uk's
+ message of "Mon, 05 Jul 2004 00:20:07 +0200")
+Message-ID: <m34qone7f6.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-07-04 at 18:11, Ali Akcaagac wrote:
-> Yeah here the .config snipplet. But I still wonder how this influences mounting an msdos or vfat partition. Unfortunately I am no expert in FAT related stuff but I assume that textual stuff stored in a filesystem shouldn't affect mounting and unmounting. The only thing NLS changes in a filesystem is special charakters for filenames but it doesn't change the technical structure of the FS itself so in worst case I only get some strange characters shown in filenames.
-> 
+viro@parcelfarce.linux.theplanet.co.uk writes:
+>
+> Why on the earth do we ever want to allow chown/chmod on procfs in the first
+> place?
 
-Do you have both nls_cp437 and nls_iso8859_1 modules loaded?
+It's useful to stop other people from reading your environment
+or command line.
 
-Jesse
-
--- 
-Jesse Stockall <stockall@magma.ca>
+-Andi
 

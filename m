@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269989AbUJHNeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269967AbUJHNgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269989AbUJHNeg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 09:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269957AbUJHNeJ
+	id S269967AbUJHNgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 09:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269973AbUJHNgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 09:34:09 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:27813 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S269980AbUJHNaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 09:30:55 -0400
-Subject: Re: [PATCH] PPC64 Replace cmp instructions with cmpw/cmpd
-From: David Woodhouse <dwmw2@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, anton@samba.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-In-Reply-To: <16742.36752.461737.252196@cargo.ozlabs.ibm.com>
-References: <16742.10154.523798.177319@cargo.ozlabs.ibm.com>
-	 <1097228724.318.65.camel@hades.cambridge.redhat.com>
-	 <16742.36752.461737.252196@cargo.ozlabs.ibm.com>
+	Fri, 8 Oct 2004 09:36:54 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:56898 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S269967AbUJHNfO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 09:35:14 -0400
+Subject: Re: [RFC][PATCH] TTY flip buffer SMP changes
+From: Paul Fulghum <paulkf@microgate.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041008062650.GC2745@thunk.org>
+References: <1097179099.1519.17.camel@deimos.microgate.com>
+	 <1097177830.31768.129.camel@localhost.localdomain>
+	 <20041008062650.GC2745@thunk.org>
 Content-Type: text/plain
-Message-Id: <1097242246.318.107.camel@hades.cambridge.redhat.com>
+Message-Id: <1097242506.2008.30.camel@deimos.microgate.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 08 Oct 2004 14:30:46 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 08:35:06 -0500
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 23:01 +1000, Paul Mackerras wrote:
-> Looks fine to me.  Andrew/Linus, please apply.  Or, if David resends
-> with a signed-off-by, I'll add mine and send it on. :)
+On Fri, 2004-10-08 at 01:26, Theodore Ts'o wrote:
+> Even if kmalloc() isn't as fast using two ring buffers which we flip
+> back and forth, CPU's have gotten a lot faster since when I
+> implemented the flip buffers some 12 years ago (i.e., 8 Moore law's
+> doublings ago).
 
-Oops I forgot again; must try harder.
+The sk_buff solution does look attractive,
+particularly for high data rates.
 
-Here's a few copies. Feel free to cut them out and attach them to any
-patch I send you without a question mark. When you run out, let me know
-and I'll send you some more :)
+It does seem to carry serious overhead (in relation
+to ring buffers) for devices with small FIFOs.
 
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
+At 115200bps, I saw the 16550 driver accumulate
+~8 bytes per interrupt. Using 2 sk_buffs per interrupt
+means 256 sk_buff allocations to push 1KiB (71ms) of data
+to the line discipline. This amounts to ~3600 sk_buff
+allocations per second at 115200bps.
 
 -- 
-dwmw2
+Paul Fulghum
+paulkf@microgate.com
 

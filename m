@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVAaIOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVAaHcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVAaIOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 03:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVAaIKL
+	id S261689AbVAaHcc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVAaHaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 03:10:11 -0500
-Received: from cantva.canterbury.ac.nz ([132.181.2.27]:15112 "EHLO
-	cantva.canterbury.ac.nz") by vger.kernel.org with ESMTP
-	id S261952AbVAaIHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 03:07:03 -0500
-Date: Mon, 31 Jan 2005 21:07:00 +1300
-From: ych43 <ych43@student.canterbury.ac.nz>
-Subject: where can I find the values of a file descriptor in Linux?
-To: linux-kernel@vger.kernel.org
-Message-id: <41F40C43@webmail>
-MIME-version: 1.0
-X-Mailer: WebMail (Hydra) SMTP v3.61
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-WebMail-UserID: ych43
-X-EXP32-SerialNo: 00002797
+	Mon, 31 Jan 2005 02:30:09 -0500
+Received: from waste.org ([216.27.176.166]:10732 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261940AbVAaHZ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 02:25:58 -0500
+Date: Mon, 31 Jan 2005 01:25:53 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8.687457650@selenic.com>
+Message-Id: <9.687457650@selenic.com>
+Subject: [PATCH 8/8] base-small: shrink console buffer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-  Does anybody know how to find the specific information included in the file 
-descriptor in Linux. When a file is created, the file manager creates a file 
-descriptor, in which it stores detailed information about the file. But I do 
-not know where I can find this detailed information? Does command ls -l 
-display all the information included in the file descriptor.
-  Does anybody can help me?
-  Thanks in advance
+CONFIG_BASE_SMALL reduce console transfer buffer
 
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
+Index: mm2/include/linux/vt_kern.h
+===================================================================
+--- mm2.orig/include/linux/vt_kern.h	2005-01-30 21:26:28.000000000 -0800
++++ mm2/include/linux/vt_kern.h	2005-01-30 21:51:19.000000000 -0800
+@@ -84,7 +84,8 @@
+  * vc_screen.c shares this temporary buffer with the console write code so that
+  * we can easily avoid touching user space while holding the console spinlock.
+  */
+-#define CON_BUF_SIZE	PAGE_SIZE
++
++#define CON_BUF_SIZE (CONFIG_BASE_SMALL ? 256 : PAGE_SIZE)
+ extern char con_buf[CON_BUF_SIZE];
+ extern struct semaphore con_buf_sem;
+ 

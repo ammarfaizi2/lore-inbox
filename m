@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275989AbRJGK2C>; Sun, 7 Oct 2001 06:28:02 -0400
+	id <S276229AbRJGKjG>; Sun, 7 Oct 2001 06:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276234AbRJGK1w>; Sun, 7 Oct 2001 06:27:52 -0400
-Received: from www.funmail.co.uk ([212.62.7.9]:4721 "HELO
-	mh-a05.dmz.another.com") by vger.kernel.org with SMTP
-	id <S275989AbRJGK1l>; Sun, 7 Oct 2001 06:27:41 -0400
-Message-ID: <4345806.1002450485849.JavaMail.root@172.16.100.50>
-Date: Sun, 7 Oct 2001 11:28:05 +0100 (BST)
-From: sven@uncivilised.com
+	id <S276234AbRJGKi4>; Sun, 7 Oct 2001 06:38:56 -0400
+Received: from c999639-a.carneg1.pa.home.com ([24.180.243.111]:59642 "EHLO
+	maul.jdc.home") by vger.kernel.org with ESMTP id <S276229AbRJGKij>;
+	Sun, 7 Oct 2001 06:38:39 -0400
+Subject: AIC7xxx panic
+From: Jim Crilly <noth@noth.is.eleet.ca>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10 VM problems burning CDs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14 (Preview Release)
+Date: 07 Oct 2001 06:37:30 -0400
+Message-Id: <1002451051.3718.20.camel@warblade>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1867889.1002450485062.JavaMail.root@www-a21"
-X-Funmail-UID: 1801179
-X-Senders-IP: 127.0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---1867889.1002450485062.JavaMail.root@www-a21
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I got a reproducible panic while running dbench simulating 25+ clients,
+the new aic7xxx driver panics with "Too few segs for dma mapping.
+"Increase AHC_NSEG". The partition in question is FAT32 and on a
+different disk than /, I'm not using HIGHMEM. I am using XFS and the
+preempt patches, but I don't think they're related to the panic.
 
-Hi all,
+The odd thing, is if I run dbench in the same manner on my / partition,
+which is on a different disk on the same controller, it goes fine. It
+seems, to my untrained eye anyway, to be a bad interaction between the
+vfat driver and the aic7xxx driver.
 
-I've found that when I try to burn a CD in 2.4.10 using cdrdao I get the lots of
-the following error:
+I'm using the old aic7xxx driver right now and it's fine, has anyone
+else seen anything like this?
 
-__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c012cd56
-This happens every time I burn a CD larger than about 300M. Sometimes 
-the OOM killer starts killing processes as well, but I haven't found a reliable
-way to reproduce this.
-
-I get no errors using 2.4.9, or if I use cdrecord instead of cdrdao.
-
-Regards,
-Steven
-
---
-  Steven Cook
-  Perth, Western Australia
-  http://www.harshbutfair.org
-
-
-
-----------
-Get a free, personalised email address at http://another.com
-TXT ALRT! Stop wasting money now. Send FREE, personalised txt
-from http://another.com
---1867889.1002450485062.JavaMail.root@www-a21--
+Jim
+-- 
+Help protect your rights on-line.
+Join the Electronic Frontiers Foundation today: http://www.eff.org/join
+-----------------------------------------------------------------------
+Security: Antonyms: See Microsoft
+-----------------------------------------------------------------------
+"We are coming after you. God may have mercy on you, but we won't,"
+declared Sen. John McCain, R-Arizona.
 

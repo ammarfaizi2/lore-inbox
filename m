@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267541AbUG3ADM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267557AbUG3AIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267541AbUG3ADM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 20:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUG3ABu
+	id S267557AbUG3AIL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 20:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267562AbUG3AHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 20:01:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54145 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267544AbUG3AAR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 20:00:17 -0400
-Date: Fri, 30 Jul 2004 01:00:14 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jan Blunck <j.blunck@tu-harburg.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ext2_readdir() filp->f_pos fix
-Message-ID: <20040730000014.GL12308@parcelfarce.linux.theplanet.co.uk>
-References: <41094D69.9030008@tu-harburg.de> <20040729154625.0a6f48a3.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 29 Jul 2004 20:07:51 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49084 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267548AbUG3AFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 20:05:13 -0400
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
+       jbarnes@engr.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <E1BqJQF-00053v-00@w-gerrit2>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2004 18:04:06 -0600
+In-Reply-To: <E1BqJQF-00053v-00@w-gerrit2>
+Message-ID: <m1zn5i2weh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040729154625.0a6f48a3.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 03:46:25PM -0700, Andrew Morton wrote:
-> If the filldir() call returns non-zero your patch will leave f_pos pointing at
-> the problematic directory entry.  I'm not sure whether this is desirable.
+Gerrit Huizenga <gh@us.ibm.com> writes:
+
+> On Thu, 29 Jul 2004 22:20:13 BST, Alan Cox wrote:
+> > 
+> > On Iau, 2004-07-29 at 19:17, Andrew Morton wrote:
+> > > Of course, there's an assumption here that the dead kernel doesn't scribble
+> > > on pages which were never available to its page allocator.  If DMA somehow
+> > > goes off and scribbles on the dump kernel we lose.
+> > 
+> > If the new kernel image starts with an SHA hash check including the
+> > SHA hash check code that can be pretty robust as a sanity check.
+> > 
+> > > See above.  We assume that network RX DMA won't be scribbling in the 16MB
+> > > which was pre-reserved.  That's reasonable.  We _have_ to assume that.
+> > 
+> > Ok
 > 
-> hmm, ext2_readir() isn't propagating EFAULT back up to the caller.
+> Okay, I may be confused a bit but I *thought* kexec was going to
+> load the thin, new kernel (e.g. read from disk operations, which is
+> better than write to disk operations from the sick kernel).
 
-filldir callback does that.  Please, read through fs/readdir.c and take
-a look at the way error value is generated.
+/sbin/kexec will load it with sys_kexec_load, before the kernel becomes
+sick.
+ 
+> This concept of having it pre-loaded sounds interesting, protecting
+> it from being written on doesn't bother me much, but why *not* read
+> it from disk/filesystem and then use the SHA hash in the newly
+> loaded & exec'd kernel to make sure that what we loaded was sane?
 
-Return value of filldir has only one meaning - should we stop or should
-we go on.  It's boolean, not an error value.
+Exactly.  That is where the SHA hash and all of the features will
+go in the new ``kernel''.  What we are exec is an arbitrary
+stand-alone program.  I suspect a SHA hash generator and checker
+is something we can easily add as a wrapper. 
 
-Errors are stored in data we are passing to filldir and picked by caller
-of vfs_readdir() once it's done.
+> That sounds simpler than changing the kernel load process around,
+> ensuring you have the new kexec'd kernel build and loaded, etc.
+> At least it sounds simpler and more in line with using kexec for
+> fastboot as well.
+
+The only process that is going to be changed around is where
+we store the kernel before we transfer control to it, and when/and
+how that transfer of control happens.
+
+The beauty of kexec is all of these fun things become user 
+problems from the point of the view of the sick kernel so
+it does not need to worry about them.
+
+I will be happy to see a SHA patch for /sbin/kexec.  
+
+Eric

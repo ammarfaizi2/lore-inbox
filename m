@@ -1,43 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266620AbRGTG1R>; Fri, 20 Jul 2001 02:27:17 -0400
+	id <S266641AbRGTG5p>; Fri, 20 Jul 2001 02:57:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266629AbRGTG1H>; Fri, 20 Jul 2001 02:27:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30850 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266620AbRGTG05>;
-	Fri, 20 Jul 2001 02:26:57 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S266650AbRGTG5g>; Fri, 20 Jul 2001 02:57:36 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:45317 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S266641AbRGTG5Y>; Fri, 20 Jul 2001 02:57:24 -0400
+Date: Fri, 20 Jul 2001 02:57:22 -0400 (EDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH re-sent] one more starfire net driver fix for 2.4.7pre6+
+Message-ID: <Pine.LNX.4.33.0107200256020.8516-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15191.53042.470246.343943@pizda.ninka.net>
-Date: Thu, 19 Jul 2001 23:26:58 -0700 (PDT)
-To: Niels Kristian Bech Jensen <nkbj@image.dk>
-Cc: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.4.7-pre9.
-In-Reply-To: <Pine.LNX.4.33.0107200815230.858-100000@hafnium.nkbj.dk>
-In-Reply-To: <Pine.LNX.4.33.0107200815230.858-100000@hafnium.nkbj.dk>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi,
 
-Niels Kristian Bech Jensen writes:
- > >>EIP; c01467e3 <proc_pid_make_inode+83/b0>   <=====
+This patch reverses the MII hunk from the previous patch (included in
+2.4.7-pre6), which was apparently breaking some cards. It also fixes an
+incorrect comment.
 
-This should fix it:
+Please apply.
 
---- fs/proc/base.c.~1~	Thu Jul 19 23:02:12 2001
-+++ fs/proc/base.c	Thu Jul 19 23:25:28 2001
-@@ -670,7 +670,8 @@
- 	inode->u.proc_i.task = task;
- 	inode->i_uid = 0;
- 	inode->i_gid = 0;
--	if (ino == PROC_PID_INO || task->mm->dumpable) {
-+	if (ino == PROC_PID_INO ||
-+	    (task->mm && task->mm->dumpable)) {
- 		inode->i_uid = task->euid;
- 		inode->i_gid = task->egid;
- 	}
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+---------------------------------
+--- linux-2.4/drivers/net/starfire.c.orig	Thu Jul 12 10:15:18 2001
++++ linux-2.4/drivers/net/starfire.c	Thu Jul 12 10:17:30 2001
+@@ -87,8 +87,7 @@
+ 
+ 	LK1.3.3 (Ion Badulescu)
+ 	- Initialize the TxMode register properly
+-	- Set the MII registers _after_ resetting it
+-	- Don't dereference dev->priv after unregister_netdev() has freed it
++	- Don't dereference dev->priv after freeing it
+ 
+ TODO:
+ 	- implement tx_timeout() properly
+@@ -987,12 +986,12 @@
+ 	struct netdev_private *np = dev->priv;
+ 	u16 reg0;
+ 
++	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
+ 	mdio_write(dev, np->phys[0], MII_BMCR, BMCR_RESET);
+ 	udelay(500);
+ 	while (mdio_read(dev, np->phys[0], MII_BMCR) & BMCR_RESET);
+ 
+ 	reg0 = mdio_read(dev, np->phys[0], MII_BMCR);
+-	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
+ 
+ 	if (np->autoneg) {
+ 		reg0 |= BMCR_ANENABLE | BMCR_ANRESTART;
+@@ -1939,12 +1938,12 @@
+ 		pci_free_consistent(pdev, PAGE_SIZE,
+ 				    np->rx_ring, np->rx_ring_dma);
+ 
+-	unregister_netdev(dev);			/* Will also free np!! */
++	unregister_netdev(dev);
+ 	iounmap((char *)dev->base_addr);
+ 	pci_release_regions(pdev);
+ 
+ 	pci_set_drvdata(pdev, NULL);
+-	kfree(dev);
++	kfree(dev);			/* Will also free np!! */
+ }
+ 
+ 
+
+

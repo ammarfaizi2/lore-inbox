@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274964AbRJYPZv>; Thu, 25 Oct 2001 11:25:51 -0400
+	id <S275031AbRJYPbA>; Thu, 25 Oct 2001 11:31:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275012AbRJYPZl>; Thu, 25 Oct 2001 11:25:41 -0400
-Received: from mail.microtecsecurite.com ([199.84.138.3]:33804 "EHLO
-	microtecsecurite.com") by vger.kernel.org with ESMTP
-	id <S274964AbRJYPZb>; Thu, 25 Oct 2001 11:25:31 -0400
-Date: Thu, 25 Oct 2001 11:32:45 -0400
-From: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
-Organization: Microtec Technologies Inc.
-X-Priority: 3 (Normal)
-Message-ID: <56261134684.20011025113245@microtecsecurite.com>
-To: Kernel Mailing lists <linux-kernel@vger.kernel.org>
-Subject: In great need
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S275082AbRJYPau>; Thu, 25 Oct 2001 11:30:50 -0400
+Received: from rj.sgi.com ([204.94.215.100]:13973 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S275031AbRJYPag>;
+	Thu, 25 Oct 2001 11:30:36 -0400
+Message-Id: <200110251527.f9PFRIx15728@jen.americas.sgi.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: mdiwan@wagweb.com (Frontgate Lab), linux-kernel@vger.kernel.org
+Subject: Re: kernel compiler 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Thu, 25 Oct 2001 16:28:22 BST." <E15wmQg-0005Bl-00@the-village.bc.nu> 
+Date: Thu, 25 Oct 2001 10:27:18 -0500
+From: Steve Lord <lord@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi to you all great Linux Kernel maintainers.
+Alan Cox wrote:
+> > What compiler do Alan Cox and Linus use to create the 2.4 series
+> > kernels?
+> 
+> Im using Red Hat 2.96-85
+> 
+> > I am currently using RedHat's compiler gcc-2.96-85 and have been told
+> > not to do so because it "breaks things" .
+> 
+> Generally ignore that story: 2.96-54 has problems, but not the later ones
+> 
+> > The question would be .. how hard is it going to be for me to upgrade to
+> > gcc 3 +  and  will i get any benefit from it?  WillI loose any
+> > advantages that i currently do have?
+> 
+> Gcc 3.0 doesn't always build correct kernels. Its very much a .0 release -
+> new infrastructure, the core to do far better thinga than gcc 2.* but not
+> yet the actual results as the bugs all get kicked out
+> 
+> > Or can i still get what i need from compiling 2.4.12 or 2.4.13 with the
+> > compiler I have now?
+> 
+> Yeah
+> -
 
-As a follower of linux for a couple of years now
-I wanted to go deeper into the madness,
-so I said to myself, why no go as deep as you
-can and get yourself into the Kernel.
+Just for information, none of the Redhat compilers (the 2.96 leg) build
+all of XFS correctly, see this bug for info:
 
-My simple question is this:
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=54571
 
-Were should I start.
-I would like to have a nice overview of the kernel
-something that would help me understand all the part
-of the kernel and how they work toghether.
+Steve
 
-If anyone could tell me where I could get
-such information.. I would be pleased.
-
-Thanx to you all and keep up the good work.
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-Patrick Ouellet - Programmeur Sénior
-patrick.ouellet@microtecsecurite.com
-Recherche & Devloppement
-Les Entreprise Microtec inc.
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-"First they ignore you. Then they laugh at you.
-Then they fight you. Then you win."
--Mohandas Gandhi
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-All source code included (if any ) is
-copyright Microtec Technologies Inc. 2001
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

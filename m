@@ -1,130 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbTDKTkR (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTDKTkR (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:40:17 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27272 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261623AbTDKTkP (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 15:40:15 -0400
-Date: Fri, 11 Apr 2003 15:54:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Mike Dresser <mdresser_l@windsormachine.com>
-cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com
-Subject: Re: [ANNOUNCE] udev 0.1 release
-In-Reply-To: <Pine.LNX.4.33.0304111418320.14943-100000@router.windsormachine.com>
-Message-ID: <Pine.LNX.4.53.0304111553050.15140@chaos>
-References: <Pine.LNX.4.33.0304111418320.14943-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261625AbTDKTkV (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTDKTkV (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:40:21 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:60884 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261625AbTDKTkS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 15:40:18 -0400
+Date: Fri, 11 Apr 2003 12:54:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add i2c-viapro.c
+Message-ID: <20030411195415.GN1821@kroah.com>
+References: <20030411193216.GA9505@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030411193216.GA9505@dreamland.darkstar.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Apr 2003, Mike Dresser wrote:
+On Fri, Apr 11, 2003 at 09:32:16PM +0200, Kronos wrote:
+> Hi,
+> the following patch  (against 2.5.67) adds support for the  SMBus bus on
+> VIA  motherboard based  of 82C596,  82C686 and  823x. It is  needed, for
+> example, for the eeprom driver and for w83781d. I've tested it on a 8233
+> chipset.  Comments and feedback are welcome.
 
-> On Fri, 11 Apr 2003, John Bradford wrote:
->
-> > [Puzzle]
-> >
-> > Say the power supply had five 5.25" drive power connecters, how many 1
-> > into 3 power cable splitters would you need to connect all 4000 disks?
->
-> never seen a 3 into 1, but we'll play along.
->
-> every 3 in 1 connector you use, triples your connections, go two
-> levels deep, it's 3 * 3 = 9, pretty obvious.
->
-> I'm just going to use one connector off the power supply for now.
->
-> 3 ^ 7 = 2187
->
-> So we'll use another two off the PS and not go as deep
->
-> 2 * (3 ^ 6) = 1458
->
-> 2187 + 1458 = 3645
->
-> Need another 4000 - 3645 = 355
->
-> 3 ^ 5 = 243.
->
-> Need another 355 - 243 = 112
->
-> Use another connector
->
-> 3 ^ 4 = 81
->
-> Need another 112 - 81 = 31.  So close but out of first level connectors.
->
-> So I put a 3 way splitter on one of those.
->
-> 3 ^ 3 = 27.  argh!
->
-> Need another 31+1(had to use up a connector) - 27 = 5.
-> So I put another 3 way splitter. 5 + 1 = 6.
->
-> 3 ^ 1 = 3.  Need another three.  Take one off, pass it around, and we're
-> almost done.  Add another 3 way splitter, we've got two connectors left
-> over, and everything is plugged in.  Turn on the ps.  Boom, done.
->
-> Now, to count up the total.
->
-> level 1 = 1	    = 1
-> level 2 = 1 + 3	    =  4
-> Level 3 = 4 + 9     = 13
-> Level 4 = 13 + 27   = 40
-> Level 5 = 40 + 81   = 121
-> Level 6 = 121 + 243 = 324
-> Level 7 = 324 + 729 = 1053
->
-> So anyways, I used one level 7, two level 6's, one level 5, one level 4,
-> one level 1, one level 3, one level 1, another level 1 and finally another
-> level 1
->
-> total of 1053 + 324 + 324 + 121 + 40 + 1 + 13 + 1 + 1 + 1
->
-> I come up with 1879.
->
-> If i'm too high, that's to account for the fact you broke some connectors
-> at some point, so you used the spares.
->
-> If i'm too low, that's to account for the fact that out of 4000 drives, a
-> few are going to be DOA and you couldn't hook them up anyways.
->
-> Someone PLEASE tell me the simpler way to do this.
->
-> Mike
->
+Looks good, with a few minor things that I can see:
+
+> +/* Detect whether a compatible device can be found, and initialize it. */
+> +int vt596_setup(void)
+
+This function should take a struct pci_dev * as a paramater, that way we
+don't have to do:
+
+> +	/* First check whether we can access PCI at all */
+> +	if (pci_present() == 0)
+> +		return(-ENODEV);
+> +
+> +	/* Look for a supported device/function */
+> +	do {
+> +		if((VT596_dev = pci_find_device(PCI_VENDOR_ID_VIA, num->dev,
+> +					        VT596_dev)))
+> +			break;
+> +	} while ((++num)->dev);
+> +
+> +	if (VT596_dev == NULL)
+> +		return(-ENODEV);
+> +	dev_info("Found Via %s device\n", num->name);
+
+All of this is not necessary, as the pci core will give is a proper
+pointer to a device that is in the pci device list that is passed to it.
+
+> +#ifdef DEBUG
+> +	if ((temp & 0x0E) == 8)
+> +		dev_info(&VT596_dev->dev, "using Interrupt 9 for SMBus.\n");
+> +	else if ((temp & 0x0E) == 0)
+> +		dev_info(&VT596_dev->dev, "using Interrupt SMI# for SMBus.\n");
+> +	else
+> +		dev_warn(&VT596_dev->dev, "Illegal Interrupt configuration "
+> +			"(or code out of date)!\n");
+> +
+> +	pci_read_config_byte(VT596_dev, SMBREV, &temp);
+> +	dev_info(&VT596_dev->dev, "SMBREV = 0x%X\n", temp);
+> +	dev_info(&VT596_dev->dev, "VT596_smba = 0x%X\n", vt596_smba);
+> +#endif	/* DEBUG */
+
+You can drop the #ifdef and change the dev_info() and dev_warn() calls
+here to dev_dbg().
 
 
+> +static int __devinit vt596_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> +{
+> +	int retval;
+> +
+> +	retval = vt596_setup();
 
-Every three-connection connector supplies power to two drives.
-
-     |--------D1
------|--------D2    ________D3
-     |______________|_______D4
-                    |_______Continue
-
-If you have 4000, drives, you need 2,000 connectors if you only
-had one power cable to start. Or 'N' power cables! The number
-of power cables doesn't count!  Note that you can only
-add drives in "2s" so odd-numbers of drives give you an extra
-connection. Also, for the limit-check, you need 0 connectors
-if you have 4000 lines to start, and 1 connector on each line
-if you have 2000 lines, (look above, 2,000 connectors). Now,
-if you have 1000 lines, you need 2 connectors for each line.
-That's still 2000 connectors!
-If you have 500 lines, you need 4 connectors for each line.
-That's still 2000 connectors!
-If you have 250 lines, you need 8 connectors for each line.
-That's still 2000 connectors!
-.etc!
+Here's where we can just pass the dev paramater to the function.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Other than those minor things, it looks very good.  Almost ready to add
+to the tree.
 
+thanks,
+
+greg k-h

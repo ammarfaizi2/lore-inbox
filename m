@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317898AbSIEQ0J>; Thu, 5 Sep 2002 12:26:09 -0400
+	id <S317799AbSIEQjU>; Thu, 5 Sep 2002 12:39:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSIEQ0J>; Thu, 5 Sep 2002 12:26:09 -0400
-Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:6567 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317898AbSIEQ0I>;
-	Thu, 5 Sep 2002 12:26:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Subject: Re: [RFC] Alternative raceless page free
-Date: Thu, 5 Sep 2002 18:10:48 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, Christian Ehrhardt <ulcae@in-ulm.de>
-References: <3D644C70.6D100EA5@zip.com.au> <E17myRo-00068H-00@starship> <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mzDV-00068Z-00@starship>
+	id <S317829AbSIEQjU>; Thu, 5 Sep 2002 12:39:20 -0400
+Received: from 216-42-72-141.ppp.netsville.net ([216.42.72.141]:2979 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S317799AbSIEQjT>;
+	Thu, 5 Sep 2002 12:39:19 -0400
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+From: Chris Mason <mason@suse.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+In-Reply-To: <20020905181721.D32687@namesys.com>
+References: <3D76A6FF.509@namesys.com> <1031186951.1684.205.camel@tiny>
+	<20020905054008.GH24323@louise.pinerecords.com>
+	<20020904.223651.79770866.davem@redhat.com>
+	<20020905135442.A19682@namesys.com> <20020905174902.A32687@namesys.com>
+	<1031234624.1726.224.camel@tiny>  <20020905181721.D32687@namesys.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Sep 2002 12:45:34 -0400
+Message-Id: <1031244334.1684.264.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 18:04, Christian Ehrhardt wrote:
-> On Thu, Sep 05, 2002 at 05:21:31PM +0200, Daniel Phillips wrote:
-> > On Thursday 05 September 2002 14:34, Christian Ehrhardt wrote:
-> > > @@ -455,7 +458,7 @@
-> > >                         } else {
-> > >                                 /* failed to drop the buffers so stop here */
-> > >                                 UnlockPage(page);
-> > > -                               page_cache_release(page);
-> > > +                               put_page(page);
-> > > 
-> > >                                 spin_lock(&pagemap_lru_lock);
-> > >                                 continue;
-> > > 
-> > > looks a bit suspicious. put_page is not allowed if the page is still
-> > > on the lru and there is no other reference to it. As we don't hold any
-> > > locks between UnlockPage and put_page there is no formal guarantee that
-> > > the above condition is met. I don't have another path that could race
-> > > with this one though and chances are that there actually is none.
-> > 
-> > The corresponding get_page is just above, you must have overlooked it.
+On Thu, 2002-09-05 at 10:17, Oleg Drokin wrote:
+> Hello!
+> 
+> On Thu, Sep 05, 2002 at 10:03:44AM -0400, Chris Mason wrote:
+> 
+> > read the -noleaf description on the find man page to see why we need to
+> > set the directory link count to 1 when we are lying to userspace about
+> > the actual link count on directories. 
+> 
+> There is nothing about nlink == 1 means assume -noleaf, so it should not work
+> with old way too, right? Have anybody verified? ;)
 
-I misspoke.  You're right, page_cache_release is the appropriate function
-here, not put_page.  Fixed, thanks.
+I remember that happening during the initial discussions for the link
+patch.  1 was chosen as the best way to do it, since it was a flag to
+various programs that the unix directory link convention was not being
+followed.
 
--- 
-Daniel
+> 
+> Actually patch might be easily modified to represent i_nlink == 1 for
+> large directories, but still maintain correct on-disk nlink count.
+
+Right.
+
+> (and show maximal possible nlink count for regular files. Hm,
+> I wonder if tar and stuff would break if met with file that have
+> 67000 hardlinks ;) ).
+
+Certainly seems like it would on sparc at least ;-)
+
+-chris
+
+

@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbTJAK0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTJAK0i
+	id S261686AbTJAKSP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbTJAKSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:26:38 -0400
-Received: from [212.239.225.111] ([212.239.225.111]:49280 "EHLO precious")
-	by vger.kernel.org with ESMTP id S261476AbTJAK0f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:26:35 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: Dave Jones <davej@redhat.com>, marcelo.tosatti@cyclades.com.br
-Subject: Re: [2.4.23-pre3] Cache size for Centrino CPU incorrect
-Date: Wed, 1 Oct 2003 12:26:09 +0200
-User-Agent: KMail/1.5.3
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
-References: <7F740D512C7C1046AB53446D3720017304A790@scsmsx402.sc.intel.com> <200309301423.18378.lkml@kcore.org> <20030930140102.GA12812@redhat.com>
-In-Reply-To: <20030930140102.GA12812@redhat.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Wed, 1 Oct 2003 06:18:15 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:25571 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261686AbTJAKSK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 06:18:10 -0400
+Date: Wed, 1 Oct 2003 12:14:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: len.brown@intel.com
+Subject: ACPI blacklisting code in 2 places
+Message-ID: <20031001101447.GA3425@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310011226.13899.lkml@kcore.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-On Tuesday 30 September 2003 16:01, Dave Jones wrote:
-> On Tue, Sep 30, 2003 at 02:23:15PM +0200, Jan De Luyck wrote:
->  > > --- linux-2.4.21/arch/i386/kernel/setup.c	2003-06-13
->  > > 07:51:29.000000000 -0700
->  > > +++ new/arch/i386/kernel/setup.c	2003-07-08 17:21:48.000000000
->  > > -0700
->  > > @@ -2246,6 +2249,8 @@
->  > >  	{ 0x83, LVL_2,      512 },
->  > >  	{ 0x84, LVL_2,      1024 },
->  > >  	{ 0x85, LVL_2,      2048 },
->  > > +	{ 0x86, LVL_2,      512 },
->  > > +	{ 0x87, LVL_2,      1024 },
->  > >  	{ 0x00, 0, 0}
->  > >  };
->  >
->  > This works like a charm. Thanks. Maybe for inclusion in 2.4.23-pre6?
->
-> If someone cares enough. I got tired of pushing that patch since 2.4.21.
+Currently, acpi blacklisting code has 3 (!) components:
 
-Marcelo, can this be included in 2.4.23-pre6? It fixed the 0 KB L2 cache for 
-Pentium M cpu's.
+drivers/acpi/blacklist.c
+arch/i386/kernel/dmi_scan.c -- code based on bios date
+arch/i386/kernel/dmi_scan.c -- code based bios name
 
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+. Thats messy. For example drivers/acpi/blacklist.c knows my toshiba
+bios is okay (it knows it contains non-fatal errors), but BIOS date
+code overrides it, and simulates user doing acpi=off. So system tells
+me I have non-fatal errors and then behaves like I passed
+acpi=off. Ouch.
 
-iD8DBQE/eqvFUQQOfidJUwQRAvuOAJ446Grj1qUC/sJ2xZ6zjA+sT4xlbACfZXvj
-7YhsYbS8hJvD6BBegovaXU4=
-=U2o3
------END PGP SIGNATURE-----
+Part 1: include acpi.h to dmi_scan.c; dmi_scan and acpi layer both
+want to have function called acpi_disable, rename dmi_scan's one. (It
+matches rest of file better, anyway).
 
+Please apply,
+								Pavel
+
+--- /usr/src/tmp/linux/arch/i386/kernel/dmi_scan.c	2003-09-28 22:05:29.000000000 +0200
++++ /usr/src/linux/arch/i386/kernel/dmi_scan.c	2003-10-01 11:55:21.000000000 +0200
+@@ -10,6 +10,7 @@
+ #include <linux/pm.h>
+ #include <asm/system.h>
+ #include <linux/bootmem.h>
++#include <linux/acpi.h>
+ 
+ unsigned long dmi_broken;
+ EXPORT_SYMBOL(dmi_broken);
+@@ -506,7 +507,7 @@
+ 
+ extern int acpi_disabled, acpi_force;
+ 
+-static __init __attribute__((unused)) int acpi_disable(struct dmi_blacklist *d) 
++static __init __attribute__((unused)) int disable_acpi(struct dmi_blacklist *d) 
+ { 
+ 	if (!acpi_force) { 
+ 		printk(KERN_NOTICE "%s detected: acpi off\n",d->ident); 
+@@ -880,7 +881,7 @@
+ 	 *	Boxes that need ACPI disabled
+ 	 */
+ 
+-	{ acpi_disable, "IBM Thinkpad", {
++	{ disable_acpi, "IBM Thinkpad", {
+ 			MATCH(DMI_BOARD_VENDOR, "IBM"),
+ 			MATCH(DMI_BOARD_NAME, "2629H1G"),
+ 			NO_MATCH, NO_MATCH }},
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

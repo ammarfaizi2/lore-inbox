@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSI1TlF>; Sat, 28 Sep 2002 15:41:05 -0400
+	id <S262315AbSI1Twb>; Sat, 28 Sep 2002 15:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262313AbSI1TlE>; Sat, 28 Sep 2002 15:41:04 -0400
-Received: from [210.73.87.125] ([210.73.87.125]:65284 "HELO www.gnuchina.org")
-	by vger.kernel.org with SMTP id <S262312AbSI1TlE>;
-	Sat, 28 Sep 2002 15:41:04 -0400
-Date: Sat, 28 Sep 2002 12:45:13 -0700
-From: chrisl@gnuchina.org
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       Ryan Cumming <ryan@completely.kicks-ass.org>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020928194513.GA1254@vmware.com>
-References: <E17uINs-0003bG-00@think.thunk.org> <20020926235741.GC10551@think.thunk.org> <20020927041234.GS22795@clusterfs.com> <200209271820.41906.ryan@completely.kicks-ass.org> <20020928141330.GA653@think.thunk.org> <20020928172748.GF22795@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020928172748.GF22795@clusterfs.com>
-User-Agent: Mutt/1.4i
+	id <S262316AbSI1Twb>; Sat, 28 Sep 2002 15:52:31 -0400
+Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:35722 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S262315AbSI1Twa>; Sat, 28 Sep 2002 15:52:30 -0400
+Date: Sat, 28 Sep 2002 13:58:36 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
+In-Reply-To: <20020928154900.B13817@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0209281355270.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That is exactly the case. Now I am looking what where is those entry
-come from. Remove entry should merge with the previous one.
+Hi,
 
-Add a check in dx_make_map will help.
+To all: I'm not interested in personal attacks. If I want them, I'll tell
+you.
 
+You won't see further works from me. I'll also stop communicating to the
+maintainers. My work doesn't seem of interest to you. I really don't think
+we'll get anywhere with this attitude. If it's about names, be glad to
+have an accepted name. I like mine.
 
-Chris
+Have fun.
 
-On Sat, Sep 28, 2002 at 11:27:49AM -0600, Andreas Dilger wrote:
-> On Sep 28, 2002  10:13 -0400, Theodore Ts'o wrote:
-> > The nature of the corruption is that a directory entry of size 8
-> > (which is enough room for a zero-length name) is left in the
-> > directory.  This is harmless, but it should never happen normally, and
-> > so the ext3 sanity-checking code flags it as an error.  With this
-> > patch, e2fsck is much smarter about salvaging corrupt directories, and
-> > so it can do so without causing any directory entries to be lost.
-> > (This corrupted, too-small directory entry appears at the beginning of
-> > the directory block, which is another reason why I strongly suspect
-> > the dx_split code.)
-> 
-> One idea I just had but don't have time to investigate (babysitting
-> both kids today) is if the do_split() code is creating a hash entry
-> for unused dir entries (i.e. inode == 0 or name_len == 0).  If that
-> is the case, then it could explain the presence of this short entry.
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> http://sourceforge.net/projects/ext2resize/
-> 
-> 
-> 
-> -------------------------------------------------------
-> This sf.net email is sponsored by:ThinkGeek
-> Welcome to geek heaven.
-> http://thinkgeek.com/sf
-> _______________________________________________
-> Ext2-devel mailing list
-> Ext2-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ext2-devel
+			Thunder
+

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267101AbSLDVfN>; Wed, 4 Dec 2002 16:35:13 -0500
+	id <S267099AbSLDVfG>; Wed, 4 Dec 2002 16:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267102AbSLDVfN>; Wed, 4 Dec 2002 16:35:13 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:11784 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S267101AbSLDVfL>; Wed, 4 Dec 2002 16:35:11 -0500
-Message-Id: <200212042142.gB4LgfI04384@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Miles Bader <miles@gnu.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation 
-In-Reply-To: Message from Miles Bader <miles@gnu.org> 
-   of "05 Dec 2002 06:21:42 +0900." <87smxdiiop.fsf@tc-1-100.kawasaki.gol.ne.jp> 
-Mime-Version: 1.0
+	id <S267101AbSLDVfF>; Wed, 4 Dec 2002 16:35:05 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:32442 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267099AbSLDVfF>; Wed, 4 Dec 2002 16:35:05 -0500
+Date: Wed, 04 Dec 2002 13:36:35 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>, haveblue@us.ibm.com
+Subject: [PATCH] make sure all PMDs are allocated under PAE mode
+Message-ID: <91490000.1039037795@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 04 Dec 2002 15:42:41 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-miles@gnu.org said:
-> Keep in mind that sometimes the actual _implementation_ is also highly
-> PCI-specific -- that is, what works for PCI devices may not work for
-> other devices and vice-versa.
+Below is a bugfix I found for a problem Dave Hansen was hitting
+when using PAE mode on a 1Gb RAM box. Basically if we change
+PAGE_OFFSET to have more than 1Gb of KVA in excess of the 
+physical ram used, we forget to instantiate the upper PMDs.
+(The PMDs for kernel space seem to be created only if there's
+physical ram against them, but we also need them for the vmalloc
+space).
 
-> So perhaps instead of just replacing `pci_...' with `dma_...', it
-> would be better to add new function pointers to `struct bus_type' for
-> all this stuff (or something like that). 
+The change below makes us walk from PAGE_OFFSET up to the top
+of virtual address space (instead of up to the top of phys ram),
+and ignores the rest of the loop apart from the PMD alloc for
+that upper region (above the 1-1 phys-virt mapping region).
 
-Not really, that can all be taken care of in the platform implementation.
+Thanks to Dave for doing the actual patch creation and testing.
+It's designed to be minimally invasive, rather than desperately
+efficient.
 
-The parisc implementation has exactly that problem.  The platform 
-implementation uses the generic device platform_data to cache the iommu 
-accessor methods (it actually finds the iommu by walking up the device parents 
-until it gets to the iommu driver--which means it needs to walk off the PCI 
-bus).
+M.
 
-In general, the generic device already has enough information that the 
-platform implementation can be highly bus specific---and, of course, once you 
-know exactly what bus it's on, you can cast it to the bus device if you want.
-
-James
-
+diff -Nru a/arch/i386/mm/init.c b/arch/i386/mm/init.c
+--- a/arch/i386/mm/init.c	Tue Dec  3 15:54:44 2002
++++ b/arch/i386/mm/init.c	Tue Dec  3 15:54:44 2002
+@@ -134,8 +134,10 @@
+ 	pgd = pgd_base + pgd_ofs;
+ 	pfn = 0;
+ 
+-	for (; pgd_ofs < PTRS_PER_PGD && pfn < max_low_pfn; pgd++, pgd_ofs++) {
++	for (; pgd_ofs < PTRS_PER_PGD; pgd++, pgd_ofs++) {
+ 		pmd = one_md_table_init(pgd);
++		if (pfn >= max_low_pfn)
++			continue;
+ 		for (pmd_ofs = 0; pmd_ofs < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, pmd_ofs++) {
+ 			/* Map with big pages if possible, otherwise create normal page tables. */
+ 			if (cpu_has_pse) {
 

@@ -1,96 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276138AbRJPNVP>; Tue, 16 Oct 2001 09:21:15 -0400
+	id <S276150AbRJPNXF>; Tue, 16 Oct 2001 09:23:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276150AbRJPNVF>; Tue, 16 Oct 2001 09:21:05 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:31749 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S276138AbRJPNUz>;
-	Tue, 16 Oct 2001 09:20:55 -0400
-Date: Tue, 16 Oct 2001 15:21:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Allan Sandfeld <linux@sneulv.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13pre3aa1
-Message-Id: <20011016152126.01d58180.skraw@ithnet.com>
-In-Reply-To: <E15tTMq-0000E6-00@Princess>
-In-Reply-To: <20011016110708.D2380@athlon.random>
-	<E15tTMq-0000E6-00@Princess>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S276204AbRJPNW4>; Tue, 16 Oct 2001 09:22:56 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:14469 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S276150AbRJPNWo>; Tue, 16 Oct 2001 09:22:44 -0400
+Date: Tue, 16 Oct 2001 14:23:16 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: oops from our mailer
+In-Reply-To: <Pine.LNX.4.33.0110151107060.2244-100000@nick.dcs.qmul.ac.uk>
+Message-ID: <Pine.LNX.4.33.0110161410270.801-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001 14:30:43 +0200 Allan Sandfeld <linux@sneulv.dk> wrote:
+Please ignore my earlier message (and apologies to the postmasters for my
+follow-up--I didn't realise just how large my oops logs were); despite
+having run memtest86 on my RAM before installing it into said mailer, only
+one of the three DIMMs was any good--one had 800+ errors in half an hour's
+testing, and the third didn't get as far as the BIOS..
 
-> I was expecting a more serious bug-fix. I recently upgraded my kernel from 
-> 2.4.11pre1 to 2.4.13-pre2aa1. Now anacron "kill"s the machine every morning 
-> by starting updatedb. Basicly everything swaps out. If I don't touch the 
-> mouse for 3 seconds, it will take 15 seconds to respond next time I touch it.
+Sorry (and how did the machine work at all?),
 
-> Switching between desktops in KDE, takes from 3 to 10 minutes, and updatedb 
-> never seems to complete, I have had to kill it manually every time so far. I 
-> had similar problems every morning with 2.4.9 although not as bad, but I 
-> havent seen them before in 2.4.10 and later.
-> The problem is easily replicable, I just need to run updatedb. Would you like
+Matt
 
-> some statistics and which?
+On Oct 15 Matt Bernstein wrote:
 
-That would be really interesting. If you want to have a look:
-
-admin:/etc # cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  922664960 882900992 39763968        0 104587264 214876160
-Swap: 271392768        0 271392768
-MemTotal:       901040 kB
-MemFree:         38832 kB
-MemShared:           0 kB
-Buffers:        102136 kB
-Cached:         209840 kB
-SwapCached:          0 kB
-Active:          40252 kB
-Inactive:       271724 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       901040 kB
-LowFree:         38832 kB
-SwapTotal:      265032 kB
-SwapFree:       265032 kB
-
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda3              6297280   5941616    355664  95% /
-/dev/sda2                31111     25873      3632  88% /boot
-/dev/hda1             20043416  19405616    637800  97% /p3
-/dev/sda4             29245432  27529888   1715544  95% /p2
-shmfs                   450520         0    450520   0% /dev/shm
-
-admin:/ # time updatedb --localpaths="/ /p2 /p3"
-
-real    0m19.197s
-user    0m15.440s
-sys     0m5.260s
-
-admin:/etc # ls -l /var/lib/locatedb 
--rw-r--r--    1 root     root      5321293 Oct 16 15:13 /var/lib/locatedb
-
-admin:/etc # uname -r
-2.4.13-pre2
-
-  3:14pm  up 2 days, 18:15, 24 users,  load average: 1.16, 1.10, 1.04
-119 processes: 117 sleeping, 2 running, 0 zombie, 0 stopped
-CPU0 states: 54.5% user,  2.4% system, 53.0% nice, 42.4% idle
-CPU1 states: 45.0% user,  1.1% system, 45.1% nice, 53.1% idle
-Mem:   901040K av,  847480K used,   53560K free,       0K shrd,   90544K buff
-Swap:  265032K av,       0K used,  265032K free                  206296K cached
-
-On my system I cannot see anything the like. Look at the execution time.
-Ok, I must admit: I do not use brain-dead K stuff (warning: this is a very
-personal opinion, don't flame me here :-).
-
-What does your setup look like? Have you ever tested without K?
-
-Regards,
-Stephan
+>more oopses (this time apparently self-decoded) from my 2.4.9-ac10 + ext3
+>0.9.9 + both extra ext3 patches + jfs-1.0.4.
+>
+>This machine is a UP Athlon, probably not highmem (I could check?).
+>
+>Oct 15 06:25:01 nick kernel:  printing eip:
+>Oct 15 06:25:01 nick kernel: c012adb3
+>Oct 15 06:25:01 nick kernel: Oops: 0002
+>Oct 15 06:25:01 nick kernel: CPU:    0
+>Oct 15 06:25:02 nick kernel: EIP:    0010:[__free_pages_ok+403/672]
+>Oct 15 06:25:02 nick kernel: EFLAGS: 00010087
+>Oct 15 06:25:02 nick kernel: eax: c09ead50   ebx: c09eacb4   ecx: c09eacd8   edx: 00000000
+>Oct 15 06:25:02 nick kernel: esi: 181a6cad   edi: 00000000   ebp: 0c0d3656   esp: d7efbf6c
+>Oct 15 06:25:02 nick kernel: ds: 0018   es: 0018   ss: 0018
+>Oct 15 06:25:02 nick kernel: Process kswapd (pid: 4, stackpage=d7efb000)
+>Oct 15 06:25:02 nick kernel: Stack: c12124a8 5a2cf071 c09eacd8 00000217 ffffffff c131cec0 c131ce98 00000000
+>Oct 15 06:25:02 nick kernel:        00001489 c012a005 00000001 00000000 000003ff 00000000 000000c0 00000000
+>Oct 15 06:25:02 nick kernel:        000000c0 0008e000 c012a6ab 000000c0 00000000 c01f0040 00000006 c012a75e
+>Oct 15 06:25:02 nick kernel: Call Trace: [page_launder+1461/2208] [do_try_to_free_pages+27/96] [kswapd+110/240] [stext+0/48] [stext+0/48]
+>Oct 15 06:25:02 nick kernel:    [kernel_thread+38/48] [kswapd+0/240]
+>Oct 15 06:25:02 nick kernel:
+>Oct 15 06:25:02 nick kernel: Code: 0f bb 2a 19 c0 85 c0 0f 84 c5 00 00 00 8b 44 24 10 f7 d8 31
+>Oct 15 06:29:14 nick kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 00000018
+>Oct 15 06:29:14 nick kernel:  printing eip:
+>Oct 15 06:29:14 nick kernel: c01344e5
+>Oct 15 06:29:14 nick kernel: Oops: 0002
+>Oct 15 06:29:14 nick kernel: CPU:    0
+>Oct 15 06:29:14 nick kernel: EIP:    0010:[brw_page+85/208]
+>Oct 15 06:29:14 nick kernel: EFLAGS: 00010213
+>Oct 15 06:29:14 nick kernel: eax: 00000002   ebx: c14cb5b8   ecx: c023ba00   edx: 00000301
+>Oct 15 06:29:14 nick kernel: esi: 00000000   edi: c6ec5dd8   ebp: c6d1d53c   esp: c6ec5d8c
+>Oct 15 06:29:14 nick kernel: ds: 0018   es: 0018   ss: 0018
+>Oct 15 06:29:14 nick kernel: Process ypserv (pid: 32724, stackpage=c6ec5000)
+>Oct 15 06:29:14 nick kernel: Stack: 00000001 00000000 00000000 00001000 c012aa37 00000001 c14cb5b8 00000301
+>Oct 15 06:29:14 nick kernel:        c6ec5dd4 00001000 00000000 0000822b 030174ee 00000000 00000001 c022b280
+>Oct 15 06:29:14 nick kernel:        fffffffe 00000046 0000822b 00000046 c6ec5e04 0000000b 00000282 00000282
+>Oct 15 06:29:14 nick kernel: Call Trace: [rw_swap_page_base+311/400] [rw_swap_page+95/160] [swap_writepage+120/128] [page_launder+772/2208] [do_try_to_free_pages+27/96]
+>Oct 15 06:29:14 nick kernel:    [try_to_free_pages+40/64] [__alloc_pages+430/576] [do_wp_page+370/592] [rtc:__insmod_rtc_O/lib/modules/2.4.9-ac10-jfs/kernel/drivers/ch+-281148/96] [handle_mm_fault+157/208] [posix_lock_file+1343/1360]
+>Oct 15 06:29:14 nick kernel:    [do_page_fault+374/1152] [kmem_cache_free+533/672] [fcntl_setlk+448/464] [rtc:__insmod_rtc_O/lib/modules/2.4.9-ac10-jfs/kernel/drivers/ch+-331759/96] [filp_close+82/96] [do_page_fault+0/1152]
+>Oct 15 06:29:14 nick kernel:    [error_code+56/64]
+>Oct 15 06:29:14 nick kernel:
+>Oct 15 06:29:14 nick kernel: Code: 0f ab 46 18 19 c0 85 c0 74 26 bb 02 00 00 00 8d b6 00 00 00
 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317471AbSFKSZ4>; Tue, 11 Jun 2002 14:25:56 -0400
+	id <S317504AbSFKS2L>; Tue, 11 Jun 2002 14:28:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317489AbSFKSZ4>; Tue, 11 Jun 2002 14:25:56 -0400
-Received: from cpe.atm2-0-1071115.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:59547
-	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
-	id <S317471AbSFKSZy>; Tue, 11 Jun 2002 14:25:54 -0400
-Message-ID: <3D0640B3.8090308@fugmann.dhs.org>
-Date: Tue, 11 Jun 2002 20:25:55 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606 Debian/1.0.0-0pre1v1
-MIME-Version: 1.0
-To: DervishD <raul@pleyades.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bandwidth 'depredation' revisited
-In-Reply-To: <3D05EEAF.mailZE11URHZ@viadomus.com> <3D060FF6.5000409@fugmann.dhs.org> <3D0630D1.mail1QU4CMT6K@viadomus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317503AbSFKS2K>; Tue, 11 Jun 2002 14:28:10 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:19128 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317501AbSFKS1M>;
+	Tue, 11 Jun 2002 14:27:12 -0400
+Date: Tue, 11 Jun 2002 20:26:52 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206111826.UAA02633@harpo.it.uu.se>
+To: nick@octet.spb.ru
+Subject: Re: linux 2.4.19-preX IDE bugs
+Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
->     Hi Anders :)
-> 
->>tc qdisc add dev eth0 handle ffff: ingress
->>tc filter add dev etc0 parent ffff: protocol ip prio 50 u32 \
->>        match ip src 0.0.0.0/0 police \
->>        rate 232kbit burst 10k drop flowid :1
- >
-> OK. Maybe a stupid question: will I need to mark the packages
-> with iptables in order to get them thru de ingress scheduler :?
+On Tue, 11 Jun 2002 19:31:48 +0400, Nick Evgeniev wrote:
+>> > I added it to the collection of IDE oddities I'm looking at. There are
+>> > also some promise requested changes due to get merged at the end of this
+>> > week. Then we can see where we stand
+>>
+>> Also, it is hard to answer email without connectivity in the air.
 >
-No. You can, but dont need to. The above lines match anything comming from eth0, and
-shapes it to 232kbit. Tweak the value to suit your needs.
+>Agreed. But all what I see is that STABLE Linux kernel DOESN'T has working
+>driver for promise controller (including latest ac patches) for SEVERAL
+>MONTHS.
 
-Anders Fugmann
+I don't know what your problem with the Promise driver is, but
+my experience is the opposite. I have never had any problems with
+the 2.4 (or 2.2 + Andre's IDE patch) pdc202xx driver and my
+Ultra100 (20267) card, which sits in a 24/7 News server and
+receives, stores, and sends many gigabytes of data between reboots.
+(And it's only rebooted once a month or so because I prefer using
+uptodate kernels. Currently running 2.4.19-pre9.)
 
-
-
-
-
+/Mikael

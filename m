@@ -1,53 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTFHBAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 21:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTFHBAL
+	id S264221AbTFHBNT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 21:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbTFHBNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 21:00:11 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:1721 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S264186AbTFHBAH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 21:00:07 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Christoph Hellwig <hch@lst.de>, mdharm-usb@one-eyed-alien.net
-Subject: Re: 2.5.70-mm6
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	<873cilz9os.fsf@lapper.ihatent.com>
-	<20030607175649.6bf3813b.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 08 Jun 2003 03:13:46 +0200
-In-Reply-To: <20030607175649.6bf3813b.akpm@digeo.com>
-Message-ID: <87y90dfk1h.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 7 Jun 2003 21:13:19 -0400
+Received: from [168.115.196.22] ([168.115.196.22]:47886 "HELO 209.116.70.75")
+	by vger.kernel.org with SMTP id S264203AbTFHBNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 21:13:11 -0400
+Message-ID: <71k33--puk1$1$o$3v$8c4n-i-7553@rx3v86nz6>
+From: "Merle Erickson" <m1scg9wzzjt@juno.com>
+To: linux-kernel-owner@vger.kernel.org
+Cc: <linux-kernel@vger.kernel.org>, <linux-msdos@vger.kernel.org>,
+       <linux-net@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       <linux-serial@vger.kernel.org>
+Subject: You Are Being Watched gj kqr fw sbbhtut f
+Date: Sat, 07 Jun 03 22:27:44 GMT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: The Bat! (v1.52f) Business
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="59_7AE4B889DD.2..28"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+This is a multi-part message in MIME format.
 
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
-> >
-> > Andrew Morton <akpm@digeo.com> writes:
-> > >
-> > > [SNIP]
-> > >
-> > 
-> > It builds nicely here and runs nicely so far, but my USB-drive still
-> > blows up after a few gigs
-> 
-> Is that usb-storage?  There seem to have been a few reports of
-> erratic behaviour lately.
-> 
+--59_7AE4B889DD.2..28
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Indeed. Lots of the noise is from me :) You CC'ed Matthew Dharm on a
-mail about it, so I tucked him in the CC here too.
+Protect Your Privacy NOW!
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Did you know that government agencies are spying on
+your computer? Hackers? Marketers? Etc.
+
+We'll the latest program gets rid of all these sources
+and protects you.
+
+Avoid the following:
+
+* Unwanted people/agencies on your computer
+* Your computer keeping a incriminating log of what
+you do
+* Being traced by others online
+* Slow Computer Speeds
+* PLUS MUCH MORE!
+
+Click below to Learn more and get your essential copy
+today!
+
+
+http://www.bestdealss.net/cgi-bin/kherefer.cgi/he/index008.html?MID=3Dkhe0=
+08&r=3DEraser8373
+
+
+
+"Many employees remain unaware technology isn't
+private. They may visit sexually explicit Web sites
+and not realize their employer is watching, for
+example. Many don't know messages can be retrieved
+months later."
+
+-- USA Today
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To be removed click below:
+http://cythsia.com/auto/index.htm
+
+ 
+ht noohxxuocds
+p znssddhmmmjx vwahjpxoqq  otahzhi
+--59_7AE4B889DD.2..28--
+

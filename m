@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVDFHBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVDFHDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVDFHBx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 03:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDFHBx
+	id S262123AbVDFHDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 03:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDFHDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 03:01:53 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64209 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262124AbVDFHBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 03:01:51 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: AMD64 Machine hardlocks when using memset
-Date: Wed, 6 Apr 2005 09:02:11 +0200
-User-Agent: KMail/1.7.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <3Ojst-4kX-19@gated-at.bofh.it> <3PxjH-812-3@gated-at.bofh.it> <42535FFF.4080503@shaw.ca>
-In-Reply-To: <42535FFF.4080503@shaw.ca>
+	Wed, 6 Apr 2005 03:03:12 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:55191 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262123AbVDFHDD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 03:03:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504060902.12066.rjw@sisk.pl>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
+Date: Wed, 6 Apr 2005 03:01:37 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3002F68228@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
+Thread-Index: AcU54sjnOsa14PZaTKaOOeupgWggewAk9ZdA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Reuben Farrelly" <reuben-lkml@reub.net>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 06 Apr 2005 07:01:39.0364 (UTC) FILETIME=[7AF95640:01C53A76]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>@Len:
+>ACPI=y and ACPI_BOOT=n seems to be a legal configuration (with 
+>X86_HT=y), but it breaks into pieces if you try the compilation.
 
-On Wednesday, 6 of April 2005 06:05, Robert Hancock wrote:
-> Alan Cox wrote:
-> > On Sad, 2005-04-02 at 05:50, Robert Hancock wrote:
-> > 
-> >>I'm wondering if one does a ton of these cache-bypassing stores whether 
-> >>something gets hosed because of that. Not sure what that could be 
-> >>though. I don't imagine the chipset is involved with any of that on the 
-> >>Athlon 64 - either the CPU or RAM seems the most likely suspect to me
-> > 
-> > 
-> > The glibc version is essentially the "perfect" copy function for the
-> > CPU. If you have any bus/memory problems or chipset bugs it will bite
-> > you.
-> 
-> Anyone have any suggestions on how to track this further? It seems 
-> fairly clear what circumstances are causing it, but as for figuring out 
-> what's at fault..
+yeah, don't do that:-)
+I'm sorry I didn't push the patch to delete CONFIG_ACPI_BOOT earlier.
+For now, just enable them both.
 
-Well, I would start from changing memory modules.
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+thanks,
+-Len

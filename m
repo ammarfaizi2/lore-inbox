@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265187AbTALL34>; Sun, 12 Jan 2003 06:29:56 -0500
+	id <S266868AbTALLqX>; Sun, 12 Jan 2003 06:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266307AbTALL34>; Sun, 12 Jan 2003 06:29:56 -0500
-Received: from tag.witbe.net ([81.88.96.48]:5139 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S265187AbTALL3z>;
-	Sun, 12 Jan 2003 06:29:55 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: <linux-kernel@vger.kernel.org>, "'Dominik Brodowski'" <linux@brodo.de>
-Cc: <rol@as2917.net>
-Subject: [PATCH 2.5.56] cpufreq not compiling without /proc
-Date: Sun, 12 Jan 2003 12:38:37 +0100
-Message-ID: <008e01c2ba2f$25df84f0$2101a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S267027AbTALLqX>; Sun, 12 Jan 2003 06:46:23 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:17286 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S266868AbTALLqW>; Sun, 12 Jan 2003 06:46:22 -0500
+From: Richard Stallman <rms@gnu.org>
+To: randall@uph.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20030110101043.A19070@uph.com> (message from Jeff Randall on
+	Fri, 10 Jan 2003 10:10:43 -0600)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Reply-to: rms@gnu.org
+References: <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8Q-0004k6-00@fencepost.gnu.org> <20030108115327.GA5020@gnuppy.monkey.org> <E18WlrH-0000NO-00@fencepost.gnu.org> <20030110101043.A19070@uph.com>
+Message-Id: <E18Xghf-0004GP-00@fencepost.gnu.org>
+Date: Sun, 12 Jan 2003 06:54:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+    I also note that you didn't start your campaign to rename it lignux or
+    GNU/Linux until it was well established and very commonly known as Linux.
 
-This is a quick patch to ensure that functions used to create
-and remove entries in /proc are not compiled in support for /proc
-is not enabled.
+I think we started in 1994 (although mostly privately until 1996).
 
-Regards,
-Paul Rolland, rol@as2917.net
+    To a lot of people, myself included, this feels like an attempt to steal
+    credit and draw attention to yourself and the FSF by trying to hijack the
+    name of a project that you didn't contribute to, but instead used tools you
+    provided such as gcc and glibc.
 
---- linux-2.5.56/net/ipv4/route.c       2003-01-10 21:12:25.000000000
-+0100
-+++ linux-2.5.56-work/net/ipv4/route.c  2003-01-12 12:11:30.000000000
-+0100
-@@ -2672,12 +2672,14 @@
-                                        ip_rt_gc_interval;
-        add_timer(&rt_periodic_timer);
- 
-+#ifdef CONFIG_PROC_FS
-        if (rt_cache_proc_init())
-                goto out_enomem;
-        proc_net_create ("rt_cache_stat", 0, rt_cache_stat_get_info);
- #ifdef CONFIG_NET_CLS_ROUTE
-        create_proc_read_entry("net/rt_acct", 0, 0, ip_rt_acct_read,
-NULL);
- #endif
-+#endif
-        xfrm_init();
- out:
-        return rc;
+If you believe this is a "project that we didn't contribute to", it's
+natural you would believe the rest.  That's why calling the system
+"Linux" is so unfair.  We started developing this system, and we
+developed more of it than anyone else; but thinking of it as "Linux"
+leads people to focus on the part that we didn't do, and devalue our
+part.  (See http://www.gnu.org/gnu/gnu-linux-faq.html#tools.)
 
+That's why we can never go along with calling the system "Linux".  No matter
+how many people do that, we will keep on pointing out why that is wrong.
+
+    It may be publicity (and there may be no such thing as bad press), but
+    it's not favorable publicity, and it rubs a lot of people who have been
+    involved with Linux a long time the wrong way.
+
+There are people who get angry at us for correcting the mistaken
+picture, but in the long run it would be self-defeating (as well as
+dishonorable) to bow to such pressure.  See
+http://www.gnu.org/gnu/gnu-linux-faq.html#alienate.
 

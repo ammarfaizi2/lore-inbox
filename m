@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291664AbSBXW1f>; Sun, 24 Feb 2002 17:27:35 -0500
+	id <S291637AbSBXW3J>; Sun, 24 Feb 2002 17:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291637AbSBXW1Q>; Sun, 24 Feb 2002 17:27:16 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:50439 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S291633AbSBXW04>;
-	Sun, 24 Feb 2002 17:26:56 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S291700AbSBXW3C>; Sun, 24 Feb 2002 17:29:02 -0500
+Received: from a213-22-82-74.netcabo.pt ([213.22.82.74]:1797 "EHLO
+	skyblade.homeip.net") by vger.kernel.org with ESMTP
+	id <S291676AbSBXW2e>; Sun, 24 Feb 2002 17:28:34 -0500
+Date: Sun, 24 Feb 2002 22:28:34 +0000 (WET)
+From: =?iso-8859-15?Q?Jos=E9_Carlos_Monteiro?= <jcm@skyblade.homeip.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Emu10k1 SPDIF passthru doesn't work if CONFIG_NOHIGHMEM is not
+ enabled
+Message-ID: <Pine.LNX.4.33.0202242226510.2026-100000@skyblade.homeip.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15481.26582.444363.148078@argo.ozlabs.ibm.com>
-Date: Mon, 25 Feb 2002 09:23:18 +1100 (EST)
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Troy Benjegerdes <hozer@drgw.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <20020224230855.A2199@ucw.cz>
-In-Reply-To: <Pine.LNX.4.10.10202232136560.5715-100000@master.linux-ide.org>
-	<Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com>
-	<20020224013038.G10251@altus.drgw.net>
-	<3C78DA19.4020401@evision-ventures.com>
-	<20020224142902.C1682@altus.drgw.net>
-	<20020224215422.B1706@ucw.cz>
-	<20020224151923.E1682@altus.drgw.net>
-	<20020224223759.C1814@ucw.cz>
-	<15481.25374.253992.643727@argo.ozlabs.ibm.com>
-	<20020224230855.A2199@ucw.cz>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik writes:
-> On Mon, Feb 25, 2002 at 09:03:10AM +1100, Paul Mackerras wrote:
-> > Vojtech Pavlik writes:
-> > 
-> > > > 83 MHz     55 MHz          41 MHz    0111 1101
-> > > 
-> > > This one is a problem, because 41*2 != 55. However, this is also illegal
-> > > according to the PCI spec.
-> > 
-> > Where does the PCI spec say that is illegal?
-> 
-> Well, I'm assuming the 41 MHz clocked bus is not a 66-MHz type PCI bus
-> (doesn't have the 66 MHz bit set and can't operate at 20.5 MHz if you
-> plug in a card that can't do 66 MHz operation), rather it's an
-> overclocked 33 MHz bus.
+Hi!
+After some more careful testing, I was able to identify the exact moment
+when the changes in the Linux kernel broke SPDIF passthru of Emu10k1
+cards. I tested all the pre-patches between kernels 2.4.12 and 2.4.13
+and I found that kernel 2.4.13-pre2 was the one that broke it. Up until
+2.4.13-pre1, everything works fine. From 2.4.13-pre2 on, passthru sound
+is broken (if kernel option CONFIG_HIGHMEM4G or CONFIG_HIGHMEM64G is
+used).
 
-Yes, of course the 41MHz bus would have to conform to the rules for
-66MHz buses.  Does it, Troy?
+According to the kernel Changelog, it appears that one of these changes
+was the responsible for it:
 
-Paul.
+2.4.13-pre2:
+- Alan Cox: more merging
+- Ben Fennema: UDF module license
+- Jeff Mahoney: reiserfs endian safeness
+- Chris Mason: reiserfs O_SYNC/fsync performance improvements
+- Jean Tourrilhes: wireless extension update
+- Joerg Reuter: AX.25 updates
+- David Miller: 64-bit DMA interfaces
+
+
+I hope this helps and I hope you can fix it soon.
+
+Regards
+Zé
+
+PS- I'm not a subscriber of the lkml. Please send any messages to
+jcm@netcabo.pt if you want to contact me.
+
+On Thu, 21 Feb 2002, José Carlos Monteiro wrote:
+> Emu10k1 SPDIF passthru with the creative/kernel OSS driver only works
+> if the kernel option CONFIG_NOHIGHMEM is set. If one of the other two
+> related options (CONFIG_HIGHMEM4G or CONFIG_HIGHMEM64G) is used
+> instead, the sound card is unable to "pass" AC3 streams "through" the
+> SPDIF output; only PCM and multi-channel sound gets to the
+> amp/speakers. This bug is present since kernel 2.4.13 (with kernel
+> 2.4.12 and earlier it worked fine),and it's still present in 2.4.18-rc4
+

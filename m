@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270478AbTGPIpm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGPIpm
+	id S270426AbTGPInE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270460AbTGPInD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:45:42 -0400
-Received: from gandalf.avalon.ru ([195.209.229.227]:44715 "EHLO smtp.avalon.ru")
-	by vger.kernel.org with ESMTP id S270478AbTGPIn5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:43:57 -0400
-content-class: urn:content-classes:message
+	Wed, 16 Jul 2003 04:43:03 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:6570 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S270426AbTGPInB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:43:01 -0400
+Date: Wed, 16 Jul 2003 10:55:52 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Sean Neakums <sneakums@zork.net>
+Cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.6.0-test1-mm1
+In-Reply-To: <6uwueidhdd.fsf@zork.zork.net>
+Message-ID: <Pine.LNX.4.44.0307161052310.6193-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Partitioned loop device..
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Wed, 16 Jul 2003 12:59:43 +0400
-Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B3840AE@frodo.avalon.ru>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Partitioned loop device..
-Thread-Index: AcNLFqtdn4SSHbleShSHsTvLDZ7TAQAXTZ7A
-From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
-To: "Lars Marowsky-Bree" <lmb@suse.de>, "Kevin Corry" <kevcorry@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is no difference. What makes /dev/loop1a worse than 
-> /dev/hda1? It's just block devices, that's it.
-Yes, it is. But I meant its still impossible to use legacy fdisk to
-create that DM mapped partitions (or am I wrong?)
 
-> I have hopes that the entire partitioning code etc will be 
-> ripped out in 2.7 in favour of full userspace discovery + DM, 
-> and that MD will hit the same fate...
-MD - did you mean metadisks (software raids?)
+On Wed, 16 Jul 2003, Sean Neakums wrote:
 
-Dimitry.
+> [...] If I keep running 'ps aux' its output does start to become slow
+> again, snapping back to full speed after a few more runs.  Kind of an
+> odd one.
+
+there was a similar bug in the gnome terminal code, it was a userspace X
+window-refresh/event-qeueing bug/race that was sensitive to scheduler
+timings. So it can go away and come back based on precise timings. Eg. it
+was more likely to happen with antialiasing turned on than off.
+
+	Ingo
+

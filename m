@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280416AbRKJB54>; Fri, 9 Nov 2001 20:57:56 -0500
+	id <S280430AbRKJCtC>; Fri, 9 Nov 2001 21:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280417AbRKJB5g>; Fri, 9 Nov 2001 20:57:36 -0500
-Received: from jalon.able.es ([212.97.163.2]:680 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S280416AbRKJB5a>;
-	Fri, 9 Nov 2001 20:57:30 -0500
-Date: Sat, 10 Nov 2001 02:57:22 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <laughing@shared-source.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: cache acoounting in Linus tree
-Message-ID: <20011110025722.A1526@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.3
+	id <S280433AbRKJCsw>; Fri, 9 Nov 2001 21:48:52 -0500
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:28846 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S280460AbRKJCsi>; Fri, 9 Nov 2001 21:48:38 -0500
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200111100248.DAA00341@faui11.informatik.uni-erlangen.de>
+Subject: Re: Patch for kernel.real-root-dev on s390
+To: zaitcev@redhat.com
+Date: Sat, 10 Nov 2001 03:48:33 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org, uweigand@de.ibm.com
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Pete Zaitcev wrote:
 
-Does Linus' tree need the cache accounting patch ? Listed below. Please,
-confirm or deny....
+>what do you think about the attached patch. Without it, 
+>a sysctl to kernel.real-root-dev corrupts adjacent memory. 
 
---- linux-2.4.13-ac5/fs/proc/proc_misc.c.blkpg	Wed Oct 31 13:09:51 2001
-+++ linux-2.4.13-ac5/fs/proc/proc_misc.c	Wed Oct 31 13:12:27 2001
-@@ -140,7 +140,9 @@
- {
- 	struct sysinfo i;
- 	int len;
--	int pg_size ;
-+	unsigned int cached;
-+
-+	cached = atomic_read(&page_cache_size) - atomic_read(&shmem_nrpages);
+I agree that this looks broken, but I don't see why it 
+would be s390 specific.  The clobber of adjacent memory
+happens on all architectures, and on all big endian systems
+the value read is incorrect even if adjacent memory happens 
+to be 0.
 
- /*
-  * display in kilobytes.
-@@ -149,14 +151,12 @@
- #define B(x) ((unsigned long long)(x) << PAGE_SHIFT)
- 	si_meminfo(&i);
- 	si_swapinfo(&i);
--	pg_size = atomic_read(&page_cache_size) - i.bufferram ;
--
- 	len = sprintf(page, "        total:    used:    free:  shared: buffers:  cached:\n"
- 		"Mem:  %8Lu %8Lu %8Lu %8Lu %8Lu %8Lu\n"
- 		"Swap: %8Lu %8Lu %8Lu\n",
- 		B(i.totalram), B(i.totalram-i.freeram), B(i.freeram),
- 		B(i.sharedram), B(i.bufferram),
--		B(pg_size), B(i.totalswap),
-+		B(cached), B(i.totalswap),
- 		B(i.totalswap-i.freeswap), B(i.freeswap));
- 	/*
- 	 * Tagged format, for easy grepping and expansion.
-@@ -182,7 +182,7 @@
- 		K(i.freeram),
- 		K(i.sharedram),
- 		K(i.bufferram),
--		K(pg_size - swapper_space.nrpages),
-+		K(cached - swapper_space.nrpages),
- 		K(swapper_space.nrpages),
- 		K(nr_active_pages),
- 		K(nr_inactive_pages),
+However, I'm not convinced the patch is a proper fix; it
+will cause the MAJOR and MINOR macros to be applied to a
+variable not of type kdev_t, which happens to work now but will 
+break if the definition of kdev_t is changed to a structure
+or pointer type (as it probably will at some point in the 
+future, if I recall the various discussions correctly).
+
+What about either
+ - adding support for kdev_t values to procfs
+or
+ - keeping two int variables real_root_major and 
+   real_root_minor ?
+
+Bye,
+Ulrich
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.15-pre2-beo #1 SMP Sat Nov 10 02:24:33 CET 2001 i686
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

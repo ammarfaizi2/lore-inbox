@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264425AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
+	id <S264450AbSIQRtq>; Tue, 17 Sep 2002 13:49:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264436AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34061 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264425AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
-Message-ID: <3D876ADD.9090800@transmeta.com>
-Date: Tue, 17 Sep 2002 10:48:13 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Padraig Brady <padraig.brady@corvil.com>
-CC: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: Re: [PATCH][2.5.35] CPU frequency and voltage scaling (0/5)
-References: <20020917113047.C25385@brodo.de> <3D870734.9080301@corvil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264452AbSIQRtq>; Tue, 17 Sep 2002 13:49:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9476 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264450AbSIQRtp>; Tue, 17 Sep 2002 13:49:45 -0400
+Date: Tue, 17 Sep 2002 18:54:40 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jbradford@dial.pipex.com,
+       Nuitari <nuitari@balthasar.nuitari.net>, venom@sns.it,
+       linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
+Subject: Re: Hi is this critical??
+Message-ID: <20020917185440.C29890@flint.arm.linux.org.uk>
+References: <20020917120937.B28438@flint.arm.linux.org.uk> <Pine.LNX.4.10.10209171030210.11597-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.10.10209171030210.11597-100000@master.linux-ide.org>; from andre@linux-ide.org on Tue, Sep 17, 2002 at 10:34:10AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady wrote:
+On Tue, Sep 17, 2002 at 10:34:10AM -0700, Andre Hedrick wrote:
+> Quietly it is the SHIPPER's Test.
 > 
-> This is much better, but I preferred Dave Jones' suggestion of
-> supporting stackable policies as I can see no end to them:
-> max_cpu_temp, temp_hysteresis, favor_fast_{fsb,multiplier}, ...
-> 
+> There should be an appilcation you run when you get the device.
+> If you fail to run it when you get first powerup the device, you are at
+> fault.  To many devices have been smoked in shipping.
 
-It would be especially interesting if the policy name can be a loadable 
-module (via kmod.)
+Umm, that's crap.  If the program is an x86 binary, I don't have
+the facilities to run it here.
 
-	-hpa
+Its their problem.  Its a crap system.  Period.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

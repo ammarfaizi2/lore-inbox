@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUJCDBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUJCDVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267454AbUJCDBn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 23:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUJCDBn
+	id S267686AbUJCDVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 23:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267696AbUJCDVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 23:01:43 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:18412 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267454AbUJCDBl (ORCPT
+	Sat, 2 Oct 2004 23:21:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49550 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267686AbUJCDVn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 23:01:41 -0400
-Date: Sat, 2 Oct 2004 19:59:05 -0700
+	Sat, 2 Oct 2004 23:21:43 -0400
+Date: Sat, 2 Oct 2004 20:19:33 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Peter Williams <pwil3058@bigpond.net.au>
 Cc: frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
@@ -19,7 +19,7 @@ Cc: frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
        linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
        ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041002195905.484d5b97.pj@sgi.com>
+Message-Id: <20041002201933.41e4cdc4.pj@sgi.com>
 In-Reply-To: <415F37F9.6060002@bigpond.net.au>
 References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
 	<20040805190500.3c8fb361.pj@sgi.com>
@@ -41,27 +41,34 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Peter writes:
->
-> I say this because, 
-> strictly speaking and as you imply, the current affinity mechanism is 
-> sufficient to provide that isolation BUT it would be a huge pain to 
-> implement.
+> 
+> The way I see it you just replace the task's affinity mask with a 
+> pointer to its "CPU set" which contains the affinity mask shared by 
+> tasks belonging to that set ...
 
-The affects on any given task - where it gets scheduled and where it
-allocates memory - can be duplicated using the current affinity
-mechanisms (setaffinity/mbind/mempolicy).
+I too like this suggestion.  The current duplication of cpus_allowed and
+mems_allowed between task and cpuset is a fragile design, forced on us
+by incremental feature addition and the need to maintain backwards
+compatibility.
 
-However the system wide naming of cpusets, the control of their access,
-use and modification, the exclusive rights to a CPU or Memory and the
-robust linkage of tasks to these named cpusets are, in my view, just the
-sort of system wide resource synchronization that kernels are born to
-do, and these capabilities are not provided by the per-task existing
-affinity mechanisms.
 
-However, my point doesn't matter much.  Whether its a huge pain, or an
-infinite pain, so long as we agree it's more painful than we can
-tolerate, that's enough agreement to continue this discussion along
-other more fruitful lines.
+> A possible problem is that there may be users whose use of the current 
+> affinity mechanism would be broken by such a change.  A compile time 
+> choice between the current mechanism and a set based mechanism would be 
+> a possible solution.
+
+Do you mean kernel or application compile time?  The current affinity
+mechanisms have enough field penetration that the kernel will have to
+support or emulate these calls for a long period of deprecation at best.
+
+So I guess you mean application compile time.  However, the current user
+level support, in glibc and other libraries, for these calls is
+sufficiently confused, at least in my view, that rather than have that
+same API mean two things, depending on a compile time switch, I'd rather
+explore (1) emulating the existing calls, just as they are, (2) adding
+new calls that are try these API's again, in line with our kernel
+changes, and (3) eventually deprecate and remove the old calls, over a
+multi-year period.
 
 -- 
                           I won't rest till it's the best ...

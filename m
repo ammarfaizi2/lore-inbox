@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268339AbTGLTTd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 15:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268364AbTGLTTd
+	id S268370AbTGLTYK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 15:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268376AbTGLTYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 15:19:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:3988 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S268339AbTGLTTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 15:19:32 -0400
-Date: Sat, 12 Jul 2003 20:34:01 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
+	Sat, 12 Jul 2003 15:24:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17036 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268370AbTGLTYJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 15:24:09 -0400
+Message-ID: <3F1063AD.40206@pobox.com>
+Date: Sat, 12 Jul 2003 15:38:21 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
        linux-kernel@vger.kernel.org
 Subject: Re: 2.5 'what to expect'
-Message-ID: <20030712193401.GD10450@mail.jlokier.co.uk>
-References: <20030711140219.GB16433@suse.de> <20030712152406.GA9521@mail.jlokier.co.uk> <3F103018.6020008@pobox.com> <20030712112722.55f80b60.akpm@osdl.org> <20030712183929.GA10450@mail.jlokier.co.uk> <3F105B9A.7070803@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F105B9A.7070803@pobox.com>
-User-Agent: Mutt/1.4.1i
+References: <20030711140219.GB16433@suse.de> <20030712152406.GA9521@mail.jlokier.co.uk> <3F103018.6020008@pobox.com> <20030712112722.55f80b60.akpm@osdl.org> <20030712183929.GA10450@mail.jlokier.co.uk> <3F105B9A.7070803@pobox.com> <20030712193401.GD10450@mail.jlokier.co.uk>
+In-Reply-To: <20030712193401.GD10450@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> These are separate db4+kernel problems.
-> 
-> The first is that there needs to be a reliable way to know if O_DIRECT 
-> writes are going to succeed or not.  The 2.4 kernel fails on write(2) 
-> but not open(2) or fcntl(2).
-> 
-> The second is that db4 doesn't appear to know about the alignment 
-> requirement.
+Jamie Lokier wrote:
+> 2.4 fails on write()?  A strace of "rpm --rebuilddb" shows it is
+> opening with O_DIRECT and writing just fine.  Or does that only work
+> with RedHat's 2.4 kernels?
 
-The alignment requirement can be probed if necessary - by reading a
-misaligned page.  It's ugly, but fixable in db4.
 
-2.4 fails on write()?  A strace of "rpm --rebuilddb" shows it is
-opening with O_DIRECT and writing just fine.  Or does that only work
-with RedHat's 2.4 kernels?
+Are you testing on a filesystem where an O_DIRECT is not supported?
 
--- Jamie
+The "it works" case is not an issue.
+
+	Jeff
+
+
+

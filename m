@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVEAD5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261573AbVDEGak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVEAD5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 23:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVEAD5y
+	id S261573AbVDEGak (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 5 Apr 2005 02:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVDEGak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 23:57:54 -0400
-Received: from thunk.org ([69.25.196.29]:467 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261520AbVEAD5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 23:57:52 -0400
-Date: Sat, 30 Apr 2005 23:57:47 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Daniel Phillips <phillips@istop.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050501035746.GA6578@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Lang <dlang@digitalinsight.com>,
-	Daniel Phillips <phillips@istop.com>,
-	Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-References: <20050425151136.GA6826@redhat.com> <20050428145715.GA21645@marowsky-bree.de> <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz> <200504282152.31137.phillips@istop.com> <Pine.LNX.4.62.0504291011220.7439@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504291011220.7439@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.8i
+	Tue, 5 Apr 2005 02:30:40 -0400
+Received: from mailout06.infosat.net ([66.18.69.6]:11677 "EHLO
+	mail02.infosat.net") by vger.kernel.org with ESMTP id S261573AbVDEGaf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 02:30:35 -0400
+From: "patrick Dekeledi" <patrickumtanta@webmail.co.za>
+Subject: Hello
+To: patrickumtanta@webmail.co.za
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Tue, 05 Apr 2005 08:30:30 +0200
+Message-ID: <web-699221861@mail01.infosat.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the claim was that UUID's are unique and don't have to be assigned by the 
-> admins.
-> 
-> I'm saying that in my experiance there isn't any standard or reliable way 
-> to generate such a UUID and I'm asking for the people makeing the 
-> claim to educate me on what I'm missing becouse a reliable UUID for linux 
-> on all hardware would be extremely useful for many things.
-
-How to reliably generate universally unique ID's have been well
-understood for over twenty years, and is implemented on nearly every
-Linux system for over ten.  For more information I refer you to
-doc/draft-leach-uuid-guids-01.txt in the e2fsprogs sources, and for an
-implementation, the uuid library in e2fsprogs, which is used by both
-GNOME and KDE.  UUID's are also used by Apple's Mac OS X (using
-libuuid from e2fsprogs), Microsoft Windows, more historically by the
-OSF DCE, and even more historically by the Apollo Domain OS (1980 --
-1989, RIP).  Much of this usage is due to the efforts of Paul Leach, a
-key architect at Apollo, and OSF/DCE, before he left and joined the
-Dark Side at Microsoft.
-
-Also, FYI the OSF/DCE, including the specification for generating
-UUID's, was submitted by OSF to the X/Open where it was standardized,
-who in turn submitted it to the ISO where it was approved as
-Publically Available Specification (PAS).  So technically, there *is*
-an internationally standardized way of generating UUID's, and it is
-already implemented and deployed on nearly all Linux systems.
-
-						- Ted
+Dear friend, 
+I am Patrick Umtanta, an accountant with the ministry 
+of 
+Energy and natural resources South Africa, presently 
+we discovered the sum of 19.6 million 
+British pounds sterling, floating in our suspense 
+Account. 
+This money as a matter of fact was an over invoiced 
+Contract payment which has been approved for payment 
+Since 1999, now we want to secretly transfer 
+This money out for our personal use into an overseas 
+Account   if you will allow us to use your account to 
+Receive this fund, we shall give you 20% for all your 
+Effort and expenses you will incur if you agree to 
+Help. This is just a brief detail on this transaction 
+If you are ready and will to give us a chance please 
+For more confidentiality Contact me on my private 
+tel +27 73 226 0191 or you send a fax to me on+27 11 
+507 6228 for more details. 
+Thanks & God Bless 
+Patrick Umtanta 
+_____________________________________________________________________
+For super low premiums, click here http://www.dialdirect.co.za/quote

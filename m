@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312928AbSDYF2f>; Thu, 25 Apr 2002 01:28:35 -0400
+	id <S312931AbSDYFbi>; Thu, 25 Apr 2002 01:31:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312931AbSDYF2e>; Thu, 25 Apr 2002 01:28:34 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:65041 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S312928AbSDYF2d>;
-	Thu, 25 Apr 2002 01:28:33 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200204250528.g3P5SHo462311@saturn.cs.uml.edu>
-Subject: Re: [PATCH] gcc 3.1 breaks wchan
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 25 Apr 2002 01:28:17 -0400 (EDT)
-Cc: anton@samba.org (Anton Blanchard), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204242158140.6714-100000@home.transmeta.com> from "Linus Torvalds" at Apr 24, 2002 09:59:38 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S312942AbSDYFbi>; Thu, 25 Apr 2002 01:31:38 -0400
+Received: from sunny.pacific.net.au ([203.25.148.40]:35313 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S312931AbSDYFbh>; Thu, 25 Apr 2002 01:31:37 -0400
+Message-ID: <005101c1ec19$3f280750$0400a8c0@MrDice>
+From: "Geoff Powell" <gbp@pacific.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.21-rc3 IDE/Keyboard problem
+Date: Thu, 25 Apr 2002 15:22:50 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Thu, 25 Apr 2002, Anton Blanchard wrote:
+Hi
 
->> I noticed on a ppc64 kernel compiled with gcc 3.1 that context_switch
->> was left out of line. It ended up outside of the
->> scheduling_functions_start_here/end_here placeholders which breaks
->> wchan.
->>
->> This is one place where we require the code to be inline, so we
->> should use extern.
->
-> ABSOLUTELY NOT!
->
-> "extern inline" does not guarantee inlining. It only guarantees that _if_
-> the code isn't inlined, it also won't be compiled as a static function.
->
-> Complain to the gcc guys, they've made up some not-backwards-compatible
-> thing called "always_inline" or something, apparently without any way to
-> know whether it is supported or not.
+I'm having some trouble finding a kernel which will successfully boot on my
+computer. It seems to be having trouble during the boot process finding the
+IDE devices, parts of my dmesg are below
 
-This is why anything but INLINE or _INLINE (chosen in a Makefile
-or header) is broken. Every compiler wants something different
-these days. So, as needed, we get one of:
+PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=244b
+PCI_IDE: not 100% native mode: will prove irqs later
+ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+ide1: BM-DMA at 0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hdc: IRQ probe failed (0)
+hdc: IRQ probe failed (0)
+hdc: CD-ROM 36x/AKU, ATAPI CDROM drive
+hdc: IRQ probe failed (0)
+hdd: IRQ probe failed (0)
+hdd: IRQ probe failed (0)
+hdd: 8X4X32, ATAPI CDROM drive
+hdd: IRQ probe failed (0)
+ide1 at 0x170-0x177,0x376 on irq 15
+hdc: lost interrupt
+hdc: lost interrupt
+hdc: lost interrupt
+hdc: ATAPI 36X CD-ROM drive, 128kb Cache
+Uniform CD-ROM driver Revision: 3.11
+hdd: lost interrupt
+hdd: lost interrupt
+hdd: lost interrupt
+Floppy drive(s): fd0 is 1.44M
+floppy0: no floppy controllers found
 
-#define INLINE inline /* sanity! */
-#define INLINE extern inline /* an oxymoron */
-#define INLINE static inline /* another oxymoron */
-#define INLINE __forceinline
-#define INLINE __attribute__((always_inline))
-#define INLINE inline_me_harder
-#define INLINE inline_this_or_I_shove_it_up_your_gnu
+(after ethernet device is detected)
+hda: 8223MB, CHS=16708/16/63
+hdb: 29180MB, CHS=3720/255/63
+Partition check:
+ hda:hda: timeout
+ hda: timeout (10 times)
 
-BTW, I said this during the "extern inline" to "static inline" conversion.
+And, earlier in the dmesg I get a keyboard error:
+keyboard: Timeout - AT keyboard not present?
 
-IMHO "extern inline" and "static inline" are oxymorons and, were it
-not for the silly C99 standard, ought to produce error messsages.
-They make as much sense as "extern static" does. The compiler's
-inability to inline something ought to be an error as well. Oh well.
+My system is a P4, motherboard is the Gigabyte GA-8IDML-C (Intel 845
+AGPset), 256M pc133 ram. Both of my hard drives are seagate. I use debian,
+the 2.2.19-pre17-idepci rescue kernel works boots fine (no IDE or keyboard
+problems), I also tried 2.2.20 which produced the same errors as 2.2.21-rc3.
 
+What is going on?
+
+Geoff
 

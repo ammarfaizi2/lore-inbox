@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271911AbTGRVuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271894AbTGRVsN
+	id S271894AbTGRVu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271900AbTGRVr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:48:13 -0400
-Received: from mail47-s.fg.online.no ([148.122.161.47]:52944 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP id S271871AbTGRVq1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:46:27 -0400
-From: Svein Ove Aas <svein.ove@aas.no>
-To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
-       Richard Stallman <rms@gnu.org>
+	Fri, 18 Jul 2003 17:47:56 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:50266 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S271894AbTGRVqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 17:46:51 -0400
 Subject: Re: Bitkeeper
-Date: Sat, 19 Jul 2003 00:00:37 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <E19dbGS-00026T-9R@fencepost.gnu.org> <20030718210601.GA29771@wohnheim.fh-wedel.de>
-In-Reply-To: <20030718210601.GA29771@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200307190000.41301.svein.ove@aas.no>
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
+References: <E19dbGS-00026T-9R@fencepost.gnu.org>
+	 <20030718204405.GA658@work.bitmover.com>
+	 <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1058565696.2479.40.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 18 Jul 2003 18:01:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2003-07-18 at 17:23, Alan Cox wrote:
+> Actually your license is simply irrelevant in most of thre world. You
+> aren't allowed to forbid reverse engineering for interoperability.
 
-fredag 18. juli 2003, 23:06, skrev Jörn Engel:
-> On Fri, 18 July 2003 15:51:36 -0400, Richard Stallman wrote:
-> > I think it would be appropriate at this point to write a free client
-> > that talks with Bitkeeper, and for Linux developers to start switching
-> > to that from Bitkeeper.  At that point, McVoy will face a hard choice:
-> > if he carries out these threats, he risks alienating the community
-> > that he hopes will market Bitkeeper for him.
->
-> I've told other people before and I'll tell you again:
-> Please, pretty please, leave linux-kernel for discussions about the
-> linux kernel and leave the bitkeeper flames for those that enjoy
-> electronic pyrotechnic.
->
-> Apart from that: Larry is right.  Noone cared about crappy ol' cvs
-> until bk came alone and showed what everyone already knew.  If you
-> didn't have to improve cvs back then, it is still as good as it was,
-> so thy improve it now?  Pure jealousy?
+Well, here in the US the right to reverse engineer may be gone.  It lost
+out in a recent case.  Hopefully that isn't telling of the future and
+future court cases.
 
-No, I think we'd improve CVS because bk came along and showed us what we 
-already knew.
+Long live that right everywhere, even if the US sticks its legal head up
+a dark, dark tunnel.
 
-Bitkeeper *is* better, but as long as the ideas those improvements are based 
-on don't get patented there is no reason for us not to claim them for 
-ourselves.
-
-Summa summarum:
-Having a Free CVS is good.
-Having a useful BitKeeper is sometimes better.
-Having a Free CVS with all the features of BK would be best.
-
-
-- - Svein Ove Aas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/GG4H9OlFkai3rMARAkt/AKCdvO7UCiK2AdBKZg0sSoXghmW6vgCfedcB
-zKSd79Dwa/ZPwijYMtR3lO0=
-=Xuj7
------END PGP SIGNATURE-----
+Trever
+--
+"Love is friendship set on fire." -- French Proverb
 

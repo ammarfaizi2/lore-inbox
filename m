@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbTFLRRz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 13:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264906AbTFLRRz
+	id S264905AbTFLRSm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 13:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTFLRSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 13:17:55 -0400
-Received: from h2.prohosting.com.ua ([217.106.231.81]:15086 "EHLO
-	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
-	id S264918AbTFLRRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 13:17:50 -0400
-From: Artemio <artemio@artemio.net>
-To: Matt Reppert <repp0017@tc.umn.edu>
-Subject: Re: SMP question
-Date: Thu, 12 Jun 2003 20:25:10 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306120837.40421.artemio@artemio.net> <20030612084932.437a010c.repp0017@tc.umn.edu>
-In-Reply-To: <20030612084932.437a010c.repp0017@tc.umn.edu>
+	Thu, 12 Jun 2003 13:18:41 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:13184 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264905AbTFLRSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 13:18:36 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 12 Jun 2003 10:30:24 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       piggin@cyberone.com.au
+Subject: Re: 2.5.70-mm8: freeze after starting X
+In-Reply-To: <1055438377.1058.2.camel@serpentine.internal.keyresearch.com>
+Message-ID: <Pine.LNX.4.55.0306121022400.3626@bigblue.dev.mcafeelabs.com>
+References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com> 
+ <20030611154122.55570de0.akpm@digeo.com> <1055374476.673.1.camel@localhost>
+  <1055377120.665.6.camel@localhost> <20030611172444.76556d5d.akpm@digeo.com>
+ <1055438377.1058.2.camel@serpentine.internal.keyresearch.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306122025.10583.artemio@artemio.net>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - artemio.net
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > As I understood, with HT enabled, Linux-SMP sees four CPUs with 5000 bogo
-> > mips each (of course I've already seen this in /proc/cpuinfo).
-> >
-> > So, if I deactivate HT, will a UP Linux see one CPU with 4x5000=20000
-> > bogo mips?
+On Thu, 12 Jun 2003, Bryan O'Sullivan wrote:
+
+> On Wed, 2003-06-11 at 17:24, Andrew Morton wrote:
 >
-> No. It will see one CPU with 5000 BogoMips.
+> > Odd that starting the X server triggers it.  Be interesting if your patch
+> > fixes things for Brian.
+>
+> I think Robert and I are seeing different things.  For me, -mm6 is fine
+> (unlike Robert's case), -mm7 oopses in the PCI init code during early
+> boot (somewhere in the radeon init stuff, can't capture the oops
+> easily), and -mm8 gives itself a wedgie a few seconds after starting X.
+>
+> I'm about to try, um, whichever of the umpty-ump patches that went back
+> and forth looks most plausible.
 
-Thanks, I've already checked this out myself.
+I'm having total freezes with 2.5.69 in both my home laptop with a SiS650
+chipset and in my machine at work with Intel Corp. 82845G/GL. Using X with
+Gnome (RH9) the system will end up to a completely frozen state after a
+random amount of time. This happens with almost no activity on the machine
+that makes me thing to be not related to some kind of load. IRQ are
+disabled and the IDE drive light remains on. I planned to debug the thing
+but I didn't have time yet. I set up the NMI oopser and I need to do
+something to get the dump since when the NMI trigger I'm in graphic mode.
+I was thinking about LKCD. It has never happened in console mode so it
+must be X/Gnome+2.5.69
 
-We have decided not to use rtlinux on SMP - it seems to be some bug in rtlinux 
-- but that's not for discussion here.
 
-Thank you all for your replies.
 
-Good luck!
-
-Artemio.
+- Davide
 

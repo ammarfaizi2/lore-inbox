@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbTJFKi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 06:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbTJFKi1
+	id S261625AbTJFLBl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 07:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTJFLBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 06:38:27 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:34522 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261421AbTJFKi0 (ORCPT
+	Mon, 6 Oct 2003 07:01:41 -0400
+Received: from mail.tactel.se ([195.22.66.197]:63418 "EHLO mail.tactel.se")
+	by vger.kernel.org with ESMTP id S261625AbTJFLBk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 06:38:26 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Oct 2003 07:01:40 -0400
+Subject: [PATCH] 2.4 Radeonfb patch for Asus L5
+From: Pontus Fuchs <pontus.fuchs@tactel.se>
+To: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Content-Type: text/plain
+Message-Id: <1065438092.1434.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 06 Oct 2003 13:01:32 +0200
 Content-Transfer-Encoding: 7bit
-Message-ID: <16257.17952.546250.954616@gargle.gargle.HOWL>
-Date: Mon, 6 Oct 2003 12:38:24 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Otavio Salvador <otavio@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6-bk7: kernel freeze if try to change to console
-In-Reply-To: <87d6db2gw0.fsf@retteb.casa>
-References: <87d6db2gw0.fsf@retteb.casa>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otavio Salvador writes:
- > Folks,
- > 
- > I'm using kernel 2.6.0-test6-bk7 and have some problems. If I try to
- > change to console from X my system freeze. I'm including my .config
- > file bellow.
+Hi,
 
-I have a hunch but I need to see your boot dmesg log to confirm.
-Please post it.
+This is the 2.4 version of the same patch that's now in 2.6.0-mm. It's
+needed to the the flatpanel on the Asus L5 laptop working.
 
-/Mikael
+--- radeonfb.c.orig	2003-10-02 16:45:49.000000000 +0200
++++ radeonfb.c	2003-10-02 16:46:13.000000000 +0200
+@@ -1485,7 +1485,7 @@
+ 	printk("radeonfb: detected LCD panel size from BIOS: %dx%d\n",
+ 		rinfo->panel_xres, rinfo->panel_yres);
+ 
+-	for(i=0; i<20; i++) {
++	for(i=0; i<21; i++) {
+ 		tmp0 = rinfo->bios_seg + readw(tmp+64+i*2);
+ 		if (tmp0 == 0)
+ 			break;
+
+
+

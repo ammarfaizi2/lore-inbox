@@ -1,64 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAURPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVAURS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVAURPT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 12:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVAURPT
+	id S262425AbVAURS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 12:18:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVAURS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 12:15:19 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63431 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262423AbVAURPM (ORCPT
+	Fri, 21 Jan 2005 12:18:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262425AbVAURSW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 12:15:12 -0500
-Message-ID: <41F134DC.8020204@osdl.org>
-Date: Fri, 21 Jan 2005 08:59:08 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Fri, 21 Jan 2005 12:18:22 -0500
+Message-ID: <41F13924.50602@sgi.com>
+Date: Fri, 21 Jan 2005 12:17:24 -0500
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-CC: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: FATAL: Error inserting fm -- invalid module format
-References: <4EE0CBA31942E547B99B3D4BFAB348112B93D8@mail.esn.co.in>
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348112B93D8@mail.esn.co.in>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC]: Clean up resource allocation in i8042 driver
+References: <41F11C66.5000707@sgi.com> <d120d500050121074313788f99@mail.gmail.com> <20050121163540.GC4795@ucw.cz> <200501210847.04654.jbarnes@engr.sgi.com>
+In-Reply-To: <200501210847.04654.jbarnes@engr.sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------000500090909080801010402"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srinivas G. wrote:
-> Dear All,
-> 
-> We were developed a block device driver on linux-2.6.x kernel. We want
-> to distribute our driver as a RPM Binary. We are using the SuSE 9.1 with
-> 2.6.5-7.71 kernel.
-> 
-> We build the RPM file using the fm.ko file on SuSE 9.1 with 2.6.5-7.71
-> kernel where fm.ko indicates our Block Driver module.  When I try to run
-> the RPM file on a different kernel version it has given the following
-> error message.
-> 
-> FATAL: Error inserting fm
-> (/lib/modules/2.6.4-52-default/kernel/drivers/block/fm.ko): Invalid
-> module format
-> 
-> As I know the error message indicates that I compiled the driver under
-> 2.6.5-7.71 kernel where as I am trying to insert the module in
-> 2.6.4-52-default kernel.
-> 
-> My question is: Is it possible to compile and build a .ko file with out
-> including the version information? (i.e. I want to build a RPM file
-> using fm.ko file which was compiled using 2.6.5-7.71 and to run the RPM
-> file on a different kernel versions.)
-> 
-> We are not very sure of how to achieve this. 
-> Please help us address this issue.
+This is a multi-part message in MIME format.
+--------------000500090909080801010402
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-So you want to get around a mechanism that is preventing your driver
-from causing an Oops because of different data structures, different
-kernel APIs, etc., between those version?  or any versions?
+I've taken into account Dmitry's comments (thanks Dmitry!) and generated 
+a new patch.
 
-This is just asking for trouble.  IOW, forget it.
+Thanks,
 
--- 
-~Randy
+P.
+Jesse Barnes wrote:
+
+>On Friday, January 21, 2005 8:35 am, Vojtech Pavlik wrote:
+>  
+>
+>>No. But vacant ports usually return 0xff. The problem here is that 0xff
+>>is a valid value for the status register, too. Fortunately this patch
+>>checks for 0xff only after the timeout failed.
+>>    
+>>
+>
+>On PCs you'll get all 1s, but on some ia64 platforms and others, you'll take a 
+>hard machine check exception if you try to access non-existent memory (mmio, 
+>port space, or otherwise).
+>
+>Jesse
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+
+--------------000500090909080801010402
+Content-Type: text/plain;
+ name="i8042.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i8042.c.diff"
+
+===== i8042.c 1.71 vs edited =====
+--- 1.71/drivers/input/serio/i8042.c	2005-01-03 08:11:49 -05:00
++++ edited/i8042.c	2005-01-21 11:50:11 -05:00
+@@ -696,7 +696,10 @@
+ 		unsigned char param;
+ 
+ 		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+-			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++			if (i8042_read_status() != 0xFF)
++				printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++			else
++				printk(KERN_ERR "i8042.c: no i8042 controller found.\n");
+ 			return -1;
+ 		}
+ 
+@@ -1016,16 +1019,22 @@
+ 	i8042_aux_values.irq = I8042_AUX_IRQ;
+ 	i8042_kbd_values.irq = I8042_KBD_IRQ;
+ 
+-	if (i8042_controller_init())
++	if (i8042_controller_init()) {
++		i8042_platform_exit();
+ 		return -ENODEV;
++	}
+ 
+ 	err = driver_register(&i8042_driver);
+-	if (err)
++	if (err) {
++		i8042_platform_exit();
+ 		return err;
++	}
+ 
+ 	i8042_platform_device = platform_device_register_simple("i8042", -1, NULL, 0);
+ 	if (IS_ERR(i8042_platform_device)) {
+ 		driver_unregister(&i8042_driver);
++		i8042_platform_exit();
++		del_timer_sync(&i8042_timer);
+ 		return PTR_ERR(i8042_platform_device);
+ 	}
+ 
+
+--------------000500090909080801010402--

@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135779AbRDYA71>; Tue, 24 Apr 2001 20:59:27 -0400
+	id <S135784AbRDYBBh>; Tue, 24 Apr 2001 21:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135780AbRDYA7Q>; Tue, 24 Apr 2001 20:59:16 -0400
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:52996
-	"HELO ns1.theoesters.com") by vger.kernel.org with SMTP
-	id <S135779AbRDYA7G>; Tue, 24 Apr 2001 20:59:06 -0400
-From: "Phil Oester" <phil@theoesters.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Process start times moving in reverse on 2.4.x
-Date: Tue, 24 Apr 2001 17:59:05 -0700
-Message-ID: <LAEOJKHJGOLOPJFMBEFEOEJDDGAA.phil@theoesters.com>
+	id <S135783AbRDYBB2>; Tue, 24 Apr 2001 21:01:28 -0400
+Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:48605 "EHLO
+	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
+	id <S135780AbRDYBBL>; Tue, 24 Apr 2001 21:01:11 -0400
+Message-ID: <3AE621D1.FE45602B@bigfoot.com>
+Date: Tue, 24 Apr 2001 18:01:05 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-intel-smp-ide i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Whit Blauvelt <whit@transpect.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 Realaudio masq problem
+In-Reply-To: <20010424201403.A1909@free.transpect.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having continual unexplained lockup problems since converting one
-of my outgoing qmail servers to 2.4.x.  This has been discussed before on
-this list, where the symptoms are that anything typed on console takes
-forever to actually come up, and after a few minutes the machine is so
-unresponsive it requires a powercycle.
+I've been running masquerading unchanged from 2.2.13, currently 2.2.19 as:
 
-Noticed that when this box is in its state of unresponsiveness, the process
-start times in ps gradually move backwards.  The following listings were
-taken over about a 1.5 hour timespan.
+        real IP +
+         masq.                 192.168.1.NNN
+DSL <-> gateway <-> switch <-> client 1
+        server             <-> client 2
+                           ...
+                           <-> client n
 
-First
-root         1     0  0 11:04 ?        00:00:09 init
-root         2     1  0 11:04 ?        00:00:00 [keventd]
-root         3     1  0 11:04 ?        00:00:00 [kswapd]
-root         4     1  0 11:04 ?        00:00:00 [kreclaimd]
-root         5     1  0 11:04 ?        00:00:00 [bdflush]
-root         6     1  0 11:04 ?        00:00:02 [kupdated]
-root        96     1  0 11:06 ?        00:00:00 [kreiserfsd]
-root       356     1  0 11:06 ?        00:00:02 syslogd -m 0
-root       366     1  0 11:06 ?        00:00:00 klogd
-Second
-root         1     0  0 10:54 ?        00:00:09 init
-root         2     1  0 10:54 ?        00:00:00 [keventd]
-root         3     1  0 10:54 ?        00:00:00 [kswapd]
-root         4     1  0 10:54 ?        00:00:00 [kreclaimd]
-root         5     1  0 10:54 ?        00:00:00 [bdflush]
-root         6     1  0 10:54 ?        00:00:02 [kupdated]
-root        96     1  0 10:56 ?        00:00:00 [kreiserfsd]
-root       356     1  0 10:56 ?        00:00:02 syslogd -m 0
-root       366     1  0 10:56 ?        00:00:00 klogd
-Third
-root         1     0  0 10:03 ?        00:00:09 init
-root         2     1  0 10:03 ?        00:00:00 [keventd]
-root         3     1  0 10:03 ?        00:00:00 [kswapd]
-root         4     1  0 10:03 ?        00:00:00 [kreclaimd]
-root         5     1  0 10:03 ?        00:00:00 [bdflush]
-root         6     1  0 10:03 ?        00:00:02 [kupdated]
-root        96     1  0 10:06 ?        00:00:00 [kreiserfsd]
-root       356     1  0 10:06 ?        00:00:02 syslogd -m 0
-root       366     1  0 10:06 ?        00:00:00 klogd
-Fourth
-root         1     0  0 09:53 ?        00:00:09 init
-root         2     1  0 09:53 ?        00:00:00 [keventd]
-root         3     1  0 09:53 ?        00:00:00 [kswapd]
-root         4     1  0 09:53 ?        00:00:00 [kreclaimd]
-root         5     1  0 09:53 ?        00:00:00 [bdflush]
-root         6     1  0 09:53 ?        00:00:02 [kupdated]
-root        96     1  0 09:55 ?        00:00:00 [kreiserfsd]
-root       356     1  0 09:55 ?        00:00:02 syslogd -m 0
-root       366     1  0 09:55 ?        00:00:00 klogd
+There was some general slowness over the last few days (Bay Area, California
+<-> US East Coast) including realaudio being unable to locate servers and/or
+content.  This one is working right now:
 
+RealPlayer v 7.0.3.338
 
-Thoughts?
+abit:~ > cat On24ram.asp
+rtsp://rm.on24.com/media/news/04192001/palumbo_ted6.rm
+--stop--
+http://rm.on24.com/media/news/04192001/palumbo_ted6.rm
 
+Try '# strace /usr/bin/X11/realplay On24ram.asp > log' and see where the
+connect fails if you aren't getting specific error messages.
+
+rgds,
+tim.
+
+Whit Blauvelt wrote:
+> 
+> The Release Notes say "Fix problems with realaudio masquerading". Looked
+> promising, since with 2.2.17 one masqueraded system (but not another) was
+> having occassional problems with realaudio at some (but not all) sites.
+> 
+> Compiled 2.2.19 with 'make oldconfig,' no to new options. Otherwise running
+> with the same firewall and masquerading settings (and yes I built and
+> installed ip_masq_raudio.o). Masquerading is otherwise working, but now
+> neither masqueraded system can connect with realaudio - the realplay routine
+> to find a way to make a connection automatically fails for both.
+
+rgds,
+tim.
+--

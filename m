@@ -1,43 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263359AbTCNNti>; Fri, 14 Mar 2003 08:49:38 -0500
+	id <S263362AbTCNNvm>; Fri, 14 Mar 2003 08:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263360AbTCNNti>; Fri, 14 Mar 2003 08:49:38 -0500
-Received: from karpfen.mathe.tu-freiberg.de ([139.20.24.195]:11392 "EHLO
-	karpfen.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S263359AbTCNNth> convert rfc822-to-8bit; Fri, 14 Mar 2003 08:49:37 -0500
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: pcmcia-ide hang with 2.4.21-pre
-Date: Fri, 14 Mar 2003 15:03:03 +0100
-User-Agent: KMail/1.5
-References: <200303132358.15629.dreher@math.tu-freiberg.de> <1047654024.29544.12.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1047654024.29544.12.camel@irongate.swansea.linux.org.uk>
+	id <S263363AbTCNNvl>; Fri, 14 Mar 2003 08:51:41 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:11997 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S263362AbTCNNvk>;
+	Fri, 14 Mar 2003 08:51:40 -0500
+Message-ID: <3E71E179.20408@nokia.com>
+Date: Fri, 14 Mar 2003 16:04:41 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200303141503.03732.dreher@math.tu-freiberg.de>
+To: Affix Support DL <affix-support@lists.sourceforge.net>,
+       Affix Devel DL <affix-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: affix-2.0.0-pre2 and affix-kernel-2.0.0-pre2 releases
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Mar 2003 14:01:58.0986 (UTC) FILETIME=[4792C2A0:01C2EA32]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Freitag, 14. März 2003 16:00 wrote Alan Cox:
-> On Thu, 2003-03-13 at 22:58, Michael Dreher wrote:
-> > Hello all,
-> >
-> > I get a hang as soon as I insert a pcmcia-cd-rom drive into my
-> > vaio picturebook (ALi/Transmeta).
-> > The box is just dead, after some seconds. 100% reproducible.
-> > No sysrq works, nothing in the logs.
-> >
-> > external pcmcia-cs from David Hinds, version 3.2.4 (February 26)
-> > 2.4.20 is OK
-> > 2.4.21-pre1 and later hang.
->
-> Which kernel pcmcia code are you using ? The supplied kernel code
-> or the Dave Hinds extras. (Both of course use the pcmcia user space)
+Hi all,
 
-I use everything from David Hinds. His user space as well as his
-kernel modules.
+Affix 2.0.0-pre2 released
+http://affix.sourceforge.net
+
+- looks stable, and everything is working now.
+- NEW: Working Aydio -> see btmpg123 in source package how to listen mp3
+- NEW: DUN GW with real modem support.
+- NEW: Fax Profile from Christian Plog
+
+Now available profiles:
+- General Access Profie
+- Service Discovery Profile
+- Serial Port Profile
+- DialUp Networking Profile (real)
+- DialUp Networking Profile (emulation)
+- LAN Access Profile
+- OBEX Object Push Profile
+- OBEX File Transfer Profile
+- PAN Profile
+- FAX Profile
+
+affix-kernel-2.0.0-pre2 [14.03.2003]
+- [fix] pre1 -> pre2 fixes. everything works.
+- [new] ability to compile with external PCMCIA package
+
+
+affix-2.0.0-pre2 [14.03.2003]
+- [new] Complete Audio Support -> can play MP3 on your headset
+	see btmpg123 script
+- [new] FAX profile from Christian Plog
+- [new] real DUN profile -> works with real modem.
+- [fix] pre1 -> pre2 fixes. everything works.
+- [new] Redhat init.d stcript.
+- [new] affix.conf has extra options: load_modules and audio.
+
+
+
+br, Dmitry
+
+
+br, Dmitry
+
+-- 
+        Dmitry Kasatkin
+        Nokia Research Center / Helsinki
+        *Affix* Project Leader (http://affix.sourceforge.net)
+        Mobile: +358 50 4836365
+         E-Mail: dmitry.kasatkin@nokia.com
+
+
+
+
+
+
+
+
+-------------------------------------------------------
+This SF.net email is sponsored by: Get the new Palm Tungsten T
+handheld. Power & Color in a compact size!
+http://ads.sourceforge.net/cgi-bin/redirect.pl?palm0002en
+_______________________________________________
+Affix-devel mailing list
+Affix-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/affix-devel
+
+
+
+

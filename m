@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUI0VFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267396AbUI0VQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267370AbUI0VFT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 17:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUI0VEK
+	id S267396AbUI0VQE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUI0VOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 17:04:10 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:43150 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267374AbUI0VBt (ORCPT
+	Mon, 27 Sep 2004 17:14:03 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:38276 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267391AbUI0VMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 17:01:49 -0400
-Message-ID: <41588073.70102@austin.ibm.com>
-Date: Mon, 27 Sep 2004 16:04:51 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ray Bryant <raybry@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Simplified Readahead
-References: <4152F46D.1060200@austin.ibm.com>	<20040923194216.1f2b7b05.akpm@osdl.org>	<41543FE2.5040807@austin.ibm.com> <20040924150523.4853465b.akpm@osdl.org> <4154A5FF.6040206@austin.ibm.com> <4158782B.9000509@sgi.com>
-In-Reply-To: <4158782B.9000509@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Sep 2004 17:12:38 -0400
+Date: Mon, 27 Sep 2004 23:14:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc2-mm4
+Message-ID: <20040927211412.GA24232@elte.hu>
+References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270053.22911.gene.heskett@verizon.net> <20040927201928.GB19257@elte.hu> <1096317273.2523.5.camel@deimos.microgate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096317273.2523.5.camel@deimos.microgate.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Bryant wrote:
 
-> Hi Steve,
->
-> On question I have (and I'm sorry, I haven't had time to look at your
-> patch to sort this out) is what happens if the user supplies a rather
-> serious I/O size, will you read ahead multiples of that, or what
-> happens?  Or, for that matter, how well will it perform?
+* Paul Fulghum <paulkf@microgate.com> wrote:
 
-Same behavior as the old code.  I/Os are broken up into at most 
-max_readahead size pieces.  In the case of the old code only 1 of these 
-could be outstanding. In the new code there could be at most 2 
-outstanding at any point in time.
+> > > Checking 'hlt' instruction... OK.
+> > > -----
+> > > 2.6.9-rc2-mm4 hangs here, and never gets to the next line
 
->
-> I've heard about HPC applications for IRIX that issue a 2GB read.  :-)
+> > could you send me your .config?
+> 
+> I'm seeing the exact same thing at the same point.
+> Removing pre-emptable bkl option allows boot.
+> .config is attached
 
-This is why for these types of applications, especially on RAID arrays, 
-you need to set max_readahead into the MBs. (But that is a different topic).
+ok, could you re-enable bkl preemption but also enable SCHED_SMT - does
+that fix the hang too?
 
-Steve
-
+	Ingo

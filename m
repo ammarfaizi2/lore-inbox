@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbUJ1OWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbUJ1OZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbUJ1OWT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUJ1OWT
+	id S261669AbUJ1OZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUJ1OXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:22:19 -0400
-Received: from mxsf21.cluster1.charter.net ([209.225.28.221]:3724 "EHLO
-	mxsf21.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261410AbUJ1OUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:20:51 -0400
-X-Ironport-AV: i="3.86,109,1096862400"; 
-   d="scan'208"; a="390419328:sNHT16120716"
-Message-ID: <009f01c4bcf9$39f98930$0200a8c0@haneyhbmu5pv2g>
-From: "Ameer Armaly" <ameer@charter.net>
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Subject: cisco aironet 4800 pci wireless card not configuring properly
-Date: Thu, 28 Oct 2004 10:19:06 -0400
+	Thu, 28 Oct 2004 10:23:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8323 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261609AbUJ1OVl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:21:41 -0400
+Message-ID: <41810066.5000705@pobox.com>
+Date: Thu, 28 Oct 2004 10:21:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due
+ to pci_save_state change)
+References: <20041028025536.5d9b1067.akpm@osdl.org>
+In-Reply-To: <20041028025536.5d9b1067.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
-I've got a cisco 4800 aironet card, that is detected successfully by the
-driver in the kernel.  However, when I configure with ifup, it says that it
-doesn't
-understand hardware address 801 for wifi0.
-I'm running debian unstable with kernel 2.6.8.1 on an athlon 2.07 ghz with
-256 mb ram.
----
-Life is either tragedy or comedy.
- Usually it's your choice. You can whine or you can laugh.
---Animorphs
+Andrew Morton wrote:
+> 
+> Begin forwarded message:
+> 
+> Date: Thu, 28 Oct 2004 17:34:19 +0800 (CST)
+> From: "Zhu, Yi" <yi.zhu@intel.com>
+> To: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due to pci_save_state change)
+> 
+> 
+> 
+> Hi,
+> 
+> Recent 2.6.10-rc1 merged the pci_save_state change. This prevents some
+> drivers from working with suspend/resume. The reason is the
+> pci_save_state() called in driver's ->suspend doesn't take effect any more,
+> since pci bus ->suspend will override it. And the two states might be
+> different in some drivers, i.e. e100. I don't know if there are other
+> drivers also suffer from it.
+> 
+> Thanks,
+> -yi
+> 
+> 
+> Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+> 
+> --- /tmp/e100.c	2004-10-28 16:31:41.000000000 +0800
+> +++ drivers/net/e100.c	2004-10-28 16:33:14.000000000 +0800
+> @@ -2309,9 +2309,7 @@ static int e100_suspend(struct pci_dev *
+>  
+> -	pci_save_state(pdev);
+>  	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
+> -	pci_disable_device(pdev);
+>  	pci_set_power_state(pdev, state);
+
+
+I'm waiting for Greg to respond to the serious concerns raised by 
+BenH[1] and me[2].
+
+AFAICS, Greg has broken the standard Linux "driver knows it, driver does 
+it" model.
+
+	Jeff
+
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=109867742404637&w=2
+[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=109868495426108&w=2

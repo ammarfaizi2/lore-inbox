@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271336AbTHDAMN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 20:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271337AbTHDAMN
+	id S271335AbTHDALZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 20:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271336AbTHDALZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 20:12:13 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:50104 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271336AbTHDAMI (ORCPT
+	Sun, 3 Aug 2003 20:11:25 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:39856 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S271335AbTHDALX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 20:12:08 -0400
-Date: Mon, 4 Aug 2003 02:11:44 +0200 (MEST)
-Message-Id: <200308040011.h740BiPQ002895@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.0-pre3 released
-Cc: linux-kernel@vger.kernel.org
+	Sun, 3 Aug 2003 20:11:23 -0400
+From: "Bryan D. Stine" <admin@kentonet.net>
+Organization: KentoNET Communications
+To: Russell Whitaker <russ@ashlandhome.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-bk3
+Date: Sun, 3 Aug 2003 20:11:11 -0400
+User-Agent: KMail/1.5.3
+References: <Pine.LNX.4.53.0308031641270.127@bigred.russwhit.org>
+In-Reply-To: <Pine.LNX.4.53.0308031641270.127@bigred.russwhit.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308032011.16699.admin@kentonet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.0-pre3 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In addition to 2.6.0-pre3 there is also a 2.6.0-pre3+marshal
-release available as a patch on top of 2.6.0-pre3.
-2.6.0-pre3+marshal includes the new user/kernel structure
-passing mechanism I've been working on over the last month.
-This mechanism provides us with two benefits:
-- Allows x86 API extensions, including extending the various
-  API structures, without breaking binary compatibility.
-- Allows the x86-64 driver to handle x86 binaries. This
-  has been validated by running x86 binaries for the 'self'
-  and 'perfex' example programs on x86-64.
+Are you using the module-init-tools package? Normal modutils won't work with 
+kernel 2.6.
 
-Although I believe the new parameter passing code is suitable
-for merging now, I'm releasing it separately for review first.
+On Sunday 03 August 2003 07:45 pm, Russell Whitaker wrote:
+> Hi
+>
+> Durring boot I get:
+>
+>   modprobe: QM_MODULES: function not implemented
+>
+> Hopes this helps
+>   Russ
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-There will be one more ABI change soon to handle the "cpumask_t"
-changes in some 2.6 kernel trees. That will be fun, NOT.
+- -- 
+Bryan D. Stine
 
-Version 2.6.0-pre3, 2003-08-03
-- Replaced 'long' by 'int' in the API structures to eliminate
-  unnecessary ABI incompatibilities between x86 and x86-64.
-- Simplified global-mode perfctrs API: the write-control and
-  read-state commands now operate on a single CPU instead of on
-  a set of CPUs. Added a new start command to start the counters.
-- Added thin library wrappers for per-process perfctr kernel calls.
-  Cleaned up examples/perfex and the library itself.
-- Removed the requirement that CCCR.ACTIVE_THREAD == 3 on P4.
-- Extended cascading should now work on Pentium 4 Model 2 processors.
-- Fixed a bug where the perfctr module's refcount could be zero with
-  code still running in the module. This could race with rmmod in
-  preemptive kernels, and in theory also in SMP kernels.
+GPG Key: 56E8B7A3 / 
+http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x56E8B7A3
 
-/ Mikael Pettersson
+Key Fingerprint: 96B1 E668 71F8 201A AA80  128E E027 6AFD 56E8 B7A3
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/LaSh4Cdq/Vbot6MRAm3VAJ9JQOD3zxMRPr4/LMBhNQefvvmO6ACdGf7A
+8DW3zgJqclJlwDEqvo1/Gnw=
+=Lc0l
+-----END PGP SIGNATURE-----
+

@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279778AbRKVOn3>; Thu, 22 Nov 2001 09:43:29 -0500
+	id <S279722AbRKVOn7>; Thu, 22 Nov 2001 09:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279768AbRKVOnT>; Thu, 22 Nov 2001 09:43:19 -0500
-Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:12295 "EHLO
-	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
-	id <S279722AbRKVOnG>; Thu, 22 Nov 2001 09:43:06 -0500
-Date: Thu, 22 Nov 2001 15:43:05 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Dave Airlie <airlied@skynet.ie>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA and APM/ACPI issue (xircom card problem)
-In-Reply-To: <Pine.LNX.4.32.0111221429030.22550-100000@skynet>
-Message-ID: <Pine.LNX.4.33.0111221534500.27255-100000@chaos.tp1.ruhr-uni-bochum.de>
+	id <S279768AbRKVOnt>; Thu, 22 Nov 2001 09:43:49 -0500
+Received: from odysseus1.dohle.com ([194.127.185.21]:13 "EHLO
+	odysseus1.dohle.com") by vger.kernel.org with ESMTP
+	id <S279722AbRKVOnp>; Thu, 22 Nov 2001 09:43:45 -0500
+Message-ID: <3BFD0F19.86D23BEB@dohle.com>
+Date: Thu, 22 Nov 2001 15:43:37 +0100
+From: Achim =?iso-8859-1?Q?Kr=FCmmel?= <akruemmel@dohle.com>
+Organization: Dohle Systemberatung GmbH
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Intel I860
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Dave Airlie wrote:
+Hi,
 
-> > > work..
-> >
-> > So basically, the problem exists when CONFIG_ACPI=y, right? Can you try to
-> > boot the ACPI enabled kernel with acpi=off in the command line?
-> 
-> okay one kernel with ACPI it doesn't work with ACPI off it does ...
-> 2.4.15-pre8
+I have to setup a fast Linux Server for a database application.
+I would like to use a Mainboard for 2 Pentium4 CPUs for this.
+I found such a board with a Intel I860 chip. Is this chip
+supported by the current Kernel v2.4.14 or will I get problems
+with this board and Linux?
 
-If I got this right, "acpi=off" fixes the problem using a kernel which
-otherwise shows the problem. If so, this clearly indicates that ACPI is
-the culprit, or, more precisely, probably an _INI method which is executed
-by the ACPI interpreter at boot time. Can you mail me (privately) a copy
-of your DSDT (cat /proc/acpi/dsdt > file), that's a table provided by the
-ACPI BIOS.
+many thanks,
 
-> > Which exact error do you get from lspci? Does it give the error on both
-> > kernels?
-> 
-> lspci without ACPI dumps out:
-> pcilib: Cannot open /proc/bus/pci/02/00.1
-> lspci: Unable to read 64 bytes of configuration space.
-> 
-> same except 00.1 is 00.7 on the ACPI boot..
-
-That's weird enough, somethings seems wrong with your PCI enumeration. 
-Can you recompile your kernel with #define DEBUG instead of #undef DEBUG 
-in drivers/pci/pci.c and arch/i386/kernel/pci-i386.h? Then please send the 
-boot messages again.
-
---Kai
-
+   Achim Kruemmel

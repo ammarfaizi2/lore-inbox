@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271162AbRHOMLD>; Wed, 15 Aug 2001 08:11:03 -0400
+	id <S271163AbRHOMMN>; Wed, 15 Aug 2001 08:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271163AbRHOMKx>; Wed, 15 Aug 2001 08:10:53 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:56331 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S271162AbRHOMKn>; Wed, 15 Aug 2001 08:10:43 -0400
-Date: Wed, 15 Aug 2001 14:07:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [patch] zero-bounce highmem I/O
-Message-ID: <20010815140740.A4352@suse.de>
-In-Reply-To: <20010815112621.F545@suse.de> <20010815.032218.55508716.davem@redhat.com> <20010815131335.H545@suse.de> <20010815.044757.112624116.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010815.044757.112624116.davem@redhat.com>
+	id <S271166AbRHOMMD>; Wed, 15 Aug 2001 08:12:03 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:14626 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S271163AbRHOMLu>; Wed, 15 Aug 2001 08:11:50 -0400
+Message-ID: <006001c12583$70808960$fe01a8c0@federationspace.org>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Ihar Filipau" <philips@iph.to>, "lkml" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B7A4659.9B40682C@iph.to>
+Subject: Re: status of VMware on 2.4?
+Date: Wed, 15 Aug 2001 08:11:34 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15 2001, David S. Miller wrote:
->    From: Jens Axboe <axboe@suse.de>
->    Date: Wed, 15 Aug 2001 13:13:35 +0200
-> 
->    Looks fine to me, exactly the interface I've used/wanted. But you want
->    to add the extra page/offset to the existing scatterlist, and not scrap
->    that one completely?
-> 
-> The idea is that address/alt_address disappear sometime in 2.5.
-> Something like this right?
+> Hello All!
+>
+> Could anyone say something good about VMware support of 2.4 kernel.
+> I heard about problems with earlier 2.4 kernels.
+>
+> Any success stories?
 
-Ok so you just want to turn scatterlist into what I call sg_list in 2.5
-time, fine with me too. Depends on whether we want to keep the
-pci_map_sg and struct scatterlist interface intact, or just break it and
-tell driver authors they must fix their stuff regardless of whether they
-want to support highmem. As I write this sentence, it's clear to me
-which way is the superior :-)
+I've been using VMware on both a Dell Inspiron 5000 and ,within the last
+year, a 5000e on Linux kernels since the 2.3.99 kernels and it has worked
+very well.
 
-> BTW, on x86 we can ifdef the dma64_address to u32 or u64 based
-> upon CONFIG_HIGHMEM if we wish.
+The earlier system was running Redhat 6.2, and the 5000e has run RH 7.0,
+7.1, and most recently the roswell beta.  VMware does require some patches
+to thier modules to make them compile with recent 2.4.x kernels (I think it
+broke around 2.4.7).  I don't have the URL handy but it's in the lkml
+archives (that's where I found them when I recently upgraded to 2.4.8-ac1).
 
-Yep. Want me to add in the x86 parts of your patch?
+Anyway, I've used this machine daily for over a year now, I spend about 50%
+of my time in the VM running Windows 2000 Pro for compatibility with
+applications at work.  It's been rock solid for me, the last serious problem
+I had was trying to get the modem to work when, for some reason, Windows
+2000 lost the settings for serial ports and on the next reboot decided I had
+8 serial ports.   Still, this was minor, and I did get that resolved as
+well.
 
--- 
-Jens Axboe
+Later,
+Tom
+
 

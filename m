@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbTEDSR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 14:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEDSR5
+	id S261323AbTEDSSC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 14:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEDSSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 14:17:57 -0400
-Received: from verein.lst.de ([212.34.181.86]:55567 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S261320AbTEDSRw (ORCPT
+	Sun, 4 May 2003 14:18:02 -0400
+Received: from verein.lst.de ([212.34.181.86]:56079 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S261323AbTEDSR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 14:17:52 -0400
-Date: Sun, 4 May 2003 20:30:18 +0200
+	Sun, 4 May 2003 14:17:56 -0400
+Date: Sun, 4 May 2003 20:30:23 +0200
 From: Christoph Hellwig <hch@lst.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove partition_name()
-Message-ID: <20030504203018.A11474@lst.de>
+Subject: [PATCH] make <linux/blk.h> obsolete
+Message-ID: <20030504203023.B11474@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,275 +24,118 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-partition_name() is a variant of __bdevname() with a slightly more
-fancy find-the-name algorithm but with the disadvantage that it returns
-a buffer to static allocated data and barfs up when devices are remove
-and other reuse the same dev_t.  It's only used by the raid code and
-most calls are through a wrapper, bdev_partition_name() that takes
-a struct block_device * that maybe be NULL.
+This file was _the_ header for block-device related stuff in earlier
+Linux versions, but nowdays there's just a few prototypes left that
+really belong into blkdev.h or genhd.h (and in one case elevator.h).
 
-The patch below changes the bdev_partition_name() to call bdevname()
-if possible and the other calls where we really have nothing more than
-a dev_t to __bdevname.
-
-Btw, it would be nice if someone who knows the md code a bit better
-than me could remove bdev_partition_name() in favour of direct calls
-to bdevname() where possible - that would also get rid of the returns
-pointer to string on stack issue that this patch can't fix yet.
+This patch moves them over and removes everything but including
+blkdev.h from blk.h  Note that blkdev.h gets all the headers that
+were included in blk.h inmplicitly too.  Now we can start removing
+all references to it an maybe kill it off before 2.6.  *sniff*
 
 
---- 1.166/drivers/md/md.c	Fri Apr 25 18:16:28 2003
-+++ edited/drivers/md/md.c	Thu May  1 17:15:57 2003
-@@ -1111,8 +1111,10 @@
- 
- static void print_desc(mdp_disk_t *desc)
- {
-+	char b[BDEVNAME_SIZE];
-+
- 	printk(" DISK<N:%d,%s(%d,%d),R:%d,S:%d>\n", desc->number,
--		partition_name(MKDEV(desc->major,desc->minor)),
-+		__bdevname(MKDEV(desc->major, desc->minor), b),
- 		desc->major,desc->minor,desc->raid_disk,desc->state);
- }
- 
-@@ -1294,6 +1296,7 @@
-  */
- static mdk_rdev_t *md_import_device(dev_t newdev, int super_format, int super_minor)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err;
- 	mdk_rdev_t *rdev;
- 	sector_t size;
-@@ -1301,7 +1304,7 @@
- 	rdev = (mdk_rdev_t *) kmalloc(sizeof(*rdev), GFP_KERNEL);
- 	if (!rdev) {
- 		printk(KERN_ERR "md: could not alloc mem for %s!\n", 
--			partition_name(newdev));
-+			__bdevname(newdev, b));
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	memset(rdev, 0, sizeof(*rdev));
-@@ -1312,7 +1315,7 @@
- 	err = lock_rdev(rdev, newdev);
- 	if (err) {
- 		printk(KERN_ERR "md: could not lock %s.\n",
--			partition_name(newdev));
-+			__bdevname(newdev, b));
- 		goto abort_free;
- 	}
- 	rdev->desc_nr = -1;
-@@ -1840,6 +1843,7 @@
- 
- static int autostart_array(dev_t startdev)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err = -EINVAL, i;
- 	mdp_super_t *sb = NULL;
- 	mdk_rdev_t *start_rdev = NULL, *rdev;
-@@ -1847,7 +1851,7 @@
- 	start_rdev = md_import_device(startdev, 0, 0);
- 	if (IS_ERR(start_rdev)) {
- 		printk(KERN_WARNING "md: could not import %s!\n",
--			partition_name(startdev));
-+			__bdevname(startdev, b));
- 		return err;
- 	}
- 
-@@ -1884,7 +1888,7 @@
- 		if (IS_ERR(rdev)) {
- 			printk(KERN_WARNING "md: could not import %s,"
- 				" trying to run array nevertheless.\n",
--				partition_name(dev));
-+				__bdevname(dev, b));
- 			continue;
- 		}
- 		list_add(&rdev->same_set, &pending_raid_disks);
-@@ -2116,6 +2120,7 @@
- 
- static int hot_generate_error(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	struct request_queue *q;
- 	mdk_rdev_t *rdev;
- 
-@@ -2123,7 +2128,7 @@
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to generate %s error in md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	rdev = find_rdev(mddev, dev);
- 	if (!rdev) {
-@@ -2151,13 +2156,14 @@
- 
- static int hot_remove_disk(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	mdk_rdev_t *rdev;
- 
- 	if (!mddev->pers)
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to remove %s from md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	rdev = find_rdev(mddev, dev);
- 	if (!rdev)
-@@ -2178,6 +2184,7 @@
- 
- static int hot_add_disk(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err;
- 	unsigned int size;
- 	mdk_rdev_t *rdev;
-@@ -2186,7 +2193,7 @@
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to hot-add %s to md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	if (mddev->major_version != 0) {
- 		printk(KERN_WARNING "md%d: HOT_ADD may only be used with"
-@@ -2344,6 +2351,7 @@
- static int md_ioctl(struct inode *inode, struct file *file,
- 			unsigned int cmd, unsigned long arg)
- {
-+	char b[BDEVNAME_SIZE];
- 	unsigned int minor;
- 	int err = 0;
- 	struct hd_geometry *loc = (struct hd_geometry *) arg;
-@@ -2403,7 +2411,7 @@
- 		err = autostart_array(arg);
- 		if (err) {
- 			printk(KERN_WARNING "md: autostart %s failed!\n",
--				partition_name(arg));
-+				__bdevname(arg, b));
- 			goto abort;
- 		}
- 		goto done;
-@@ -3516,6 +3524,7 @@
- 
- static void autostart_arrays(void)
- {
-+	char b[BDEVNAME_SIZE];
- 	mdk_rdev_t *rdev;
- 	int i;
- 
-@@ -3527,7 +3536,7 @@
- 		rdev = md_import_device(dev,0, 0);
- 		if (IS_ERR(rdev)) {
- 			printk(KERN_ALERT "md: could not import %s!\n",
--				partition_name(dev));
-+				__bdevname(dev, b));
- 			continue;
- 		}
- 		if (rdev->faulty) {
---- 1.108/fs/partitions/check.c	Tue Apr 29 17:42:50 2003
-+++ edited/fs/partitions/check.c	Thu May  1 17:05:27 2003
-@@ -420,53 +420,3 @@
- 	}
- 	kobject_del(&disk->kobj);
- }
+--- 1.35/include/linux/blk.h	Sun Apr 20 19:22:00 2003
++++ edited/include/linux/blk.h	Thu May  1 17:20:09 2003
+@@ -1,41 +1,2 @@
+-#ifndef _BLK_H
+-#define _BLK_H
 -
--struct dev_name {
--	struct list_head list;
--	dev_t dev;
--	char namebuf[BDEVNAME_SIZE];
--	char *name;
--};
++/* this file is obsolete, please use <linux/blkdev.h> instead */
+ #include <linux/blkdev.h>
+-#include <linux/elevator.h>
+-#include <linux/config.h>
+-#include <linux/spinlock.h>
+-#include <linux/compiler.h>
 -
--static LIST_HEAD(device_names);
+-extern void set_device_ro(struct block_device *bdev, int flag);
+-extern void set_disk_ro(struct gendisk *disk, int flag);
+-extern void add_disk_randomness(struct gendisk *disk);
+-extern void rand_initialize_disk(struct gendisk *disk);
 -
--char *partition_name(dev_t dev)
+-/*
+- * end_request() and friends. Must be called with the request queue spinlock
+- * acquired. All functions called within end_request() _must_be_ atomic.
+- *
+- * Several drivers define their own end_request and call
+- * end_that_request_first() and end_that_request_last()
+- * for parts of the original function. This prevents
+- * code duplication in drivers.
+- */
+-
+-extern int end_that_request_first(struct request *, int, int);
+-extern int end_that_request_chunk(struct request *, int, int);
+-extern void end_that_request_last(struct request *);
+-extern void end_request(struct request *req, int uptodate);
+-struct request *elv_next_request(request_queue_t *q);
+-
+-static inline void blkdev_dequeue_request(struct request *req)
 -{
--	struct gendisk *hd;
--	static char nomem [] = "<nomem>";
--	char b[BDEVNAME_SIZE];
--	struct dev_name *dname;
--	struct list_head *tmp;
--	int part;
+-	BUG_ON(list_empty(&req->queuelist));
 -
--	list_for_each(tmp, &device_names) {
--		dname = list_entry(tmp, struct dev_name, list);
--		if (dname->dev == dev)
--			return dname->name;
--	}
+-	list_del_init(&req->queuelist);
 -
--	dname = kmalloc(sizeof(*dname), GFP_KERNEL);
--
--	if (!dname)
--		return nomem;
--	/*
--	 * ok, add this new device name to the list
--	 */
--	hd = get_gendisk(dev, &part);
--	dname->name = NULL;
--	if (hd) {
--		dname->name = disk_name(hd, part, dname->namebuf);
--		module_put(hd->fops->owner);
--		put_disk(hd);
--	}
--	if (!dname->name) {
--		sprintf(dname->namebuf, "[dev %s]", __bdevname(dev, b));
--		dname->name = dname->namebuf;
--	}
--
--	dname->dev = dev;
--	list_add(&dname->list, &device_names);
--
--	return dname->name;
+-	if (req->q)
+-		elv_remove_request(req->q, req);
 -}
 -
---- 1.4/include/linux/blkpg.h	Tue Oct 15 16:49:02 2002
-+++ edited/include/linux/blkpg.h	Thu May  1 17:04:48 2003
-@@ -54,10 +54,4 @@
- 	char volname[BLKPG_VOLNAMELTH];	/* volume label */
- };
- 
--#ifdef __KERNEL__
--
--extern char * partition_name(dev_t dev);
--
--#endif /* __KERNEL__ */
--
- #endif /* _LINUX_BLKPG_H */
---- 1.26/include/linux/raid/md.h	Thu Apr  3 20:21:33 2003
-+++ edited/include/linux/raid/md.h	Thu May  1 17:12:35 2003
-@@ -61,9 +61,20 @@
- #define MD_MINOR_VERSION                90
- #define MD_PATCHLEVEL_VERSION           0
- 
--extern inline char * bdev_partition_name (struct block_device *bdev)
-+/*
-+ * XXX(hch): This function is broken.  Someone who understands the md
-+ * code needs to go through all callers, check whether bdev could
-+ * be NULL and replace it with direct calls to bdevmame.
-+ *
-+ * This would also fix the returns buffer on stack issue nicely :)
-+ */
-+static inline const char *bdev_partition_name (struct block_device *bdev)
- {
--	return partition_name(bdev ? bdev->bd_dev : 0);
-+	char b[BDEVNAME_SIZE];
-+
-+	if (!bdev)
-+		return __bdevname(0, b);
-+	return bdevname(bdev, b);
+-#endif /* _BLK_H */
+--- 1.101/include/linux/blkdev.h	Thu Apr 24 06:23:09 2003
++++ edited/include/linux/blkdev.h	Thu May  1 17:21:03 2003
+@@ -349,6 +349,30 @@
  }
- extern int register_md_personality (int p_num, mdk_personality_t *p);
- extern int unregister_md_personality (int p_num);
---- 1.195/kernel/ksyms.c	Tue Apr 29 17:42:50 2003
-+++ edited/kernel/ksyms.c	Thu May  1 17:05:10 2003
-@@ -579,8 +579,6 @@
- EXPORT_SYMBOL(fasync_helper);
- EXPORT_SYMBOL(kill_fasync);
  
--EXPORT_SYMBOL(partition_name);
--
- /* binfmt_aout */
- EXPORT_SYMBOL(get_write_access);
- 
+ /*
++ * end_request() and friends. Must be called with the request queue spinlock
++ * acquired. All functions called within end_request() _must_be_ atomic.
++ *
++ * Several drivers define their own end_request and call
++ * end_that_request_first() and end_that_request_last()
++ * for parts of the original function. This prevents
++ * code duplication in drivers.
++ */
++extern int end_that_request_first(struct request *, int, int);
++extern int end_that_request_chunk(struct request *, int, int);
++extern void end_that_request_last(struct request *);
++extern void end_request(struct request *req, int uptodate);
++
++static inline void blkdev_dequeue_request(struct request *req)
++{
++	BUG_ON(list_empty(&req->queuelist));
++
++	list_del_init(&req->queuelist);
++
++	if (req->q)
++		elv_remove_request(req->q, req);
++}
++
++/*
+  * get ready for proper ref counting
+  */
+ #define blk_put_queue(q)	do { } while (0)
+--- 1.18/include/linux/elevator.h	Sun Jan 12 09:10:40 2003
++++ edited/include/linux/elevator.h	Thu May  1 17:21:24 2003
+@@ -54,6 +54,7 @@
+ extern void elv_merged_request(request_queue_t *, struct request *);
+ extern void elv_remove_request(request_queue_t *, struct request *);
+ extern int elv_queue_empty(request_queue_t *);
++extern struct request *elv_next_request(struct request_queue *q);
+ extern struct request *elv_former_request(request_queue_t *, struct request *);
+ extern struct request *elv_latter_request(request_queue_t *, struct request *);
+ extern int elv_register_queue(struct gendisk *);
+--- 1.51/include/linux/genhd.h	Fri Apr 25 18:16:28 2003
++++ edited/include/linux/genhd.h	Thu May  1 17:20:09 2003
+@@ -190,6 +190,14 @@
+ extern void del_gendisk(struct gendisk *gp);
+ extern void unlink_gendisk(struct gendisk *gp);
+ extern struct gendisk *get_gendisk(dev_t dev, int *part);
++
++extern void set_device_ro(struct block_device *bdev, int flag);
++extern void set_disk_ro(struct gendisk *disk, int flag);
++
++/* drivers/char/random.c */
++extern void add_disk_randomness(struct gendisk *disk);
++extern void rand_initialize_disk(struct gendisk *disk);
++
+ static inline sector_t get_start_sect(struct block_device *bdev)
+ {
+ 	return bdev->bd_offset;

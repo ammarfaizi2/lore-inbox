@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVAZDL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVAZDUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVAZDL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 22:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVAZDL2
+	id S262188AbVAZDUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 22:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVAZDUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 22:11:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29348 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262161AbVAZDLZ (ORCPT
+	Tue, 25 Jan 2005 22:20:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:58571 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262188AbVAZDUh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 22:11:25 -0500
-Date: Tue, 25 Jan 2005 19:10:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: paulmck@us.ibm.com
-Cc: arjan@infradead.org, trond.myklebust@fys.uio.no, viro@zenII.uk.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: make flock_lock_file_wait static
-Message-Id: <20050125191050.68fb0cdf.akpm@osdl.org>
-In-Reply-To: <20050125185812.GA1499@us.ibm.com>
-References: <20050109194209.GA7588@infradead.org>
-	<1105310650.11315.19.camel@lade.trondhjem.org>
-	<1105345168.4171.11.camel@laptopd505.fenrus.org>
-	<1105346324.4171.16.camel@laptopd505.fenrus.org>
-	<1105367014.11462.13.camel@lade.trondhjem.org>
-	<1105432299.3917.11.camel@laptopd505.fenrus.org>
-	<1105471004.12005.46.camel@lade.trondhjem.org>
-	<1105472182.3917.49.camel@laptopd505.fenrus.org>
-	<20050125185812.GA1499@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 25 Jan 2005 22:20:37 -0500
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <1106698655.1589.8.camel@cog.beaverton.ibm.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <1106607153.30884.12.camel@cog.beaverton.ibm.com>
+	 <1106620134.15850.3.camel@gaston>
+	 <1106694561.30884.52.camel@cog.beaverton.ibm.com>
+	 <1106697227.5235.28.camel@gaston>
+	 <1106698655.1589.8.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Wed, 26 Jan 2005 14:14:52 +1100
+Message-Id: <1106709293.6249.37.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->
->  So, could the exports for the following symbols from the list please be
->  retained through December 31, 2005?
+On Tue, 2005-01-25 at 16:17 -0800, john stultz wrote:
+
+> Hmm. In my code, I move the interval delta (similar to your pre-scale
+> offset) to system_time (seems to be equivalent to the post-scale) at
+> each call to timeofday_interrupt_hook(). So while 64 bits are normally
+> used, you could probably get away doing the interval delta calculations
+> in 32bits if your timesource frequency isn't too large. This would only
+> be done in the arch-specific 32bit vsyscall code, right?
+
+Yes. Looks ok so far, but I need to make sure by looking at the code.
+I'll let you know.
+
+> > > I still want to support vsyscall gettimeofday, although it does have to
+> > > be done on an arch-by-arch basis. It's likely the systemcfg data
+> > > structure can still be generated and exported. I'll look into it and see
+> > > what can be done.
+> > 
+> > Well, since it only contains the prescale and postscale offsets and the
+> > scaling value, it only needs to be updated when they change, so a hook
+> > here would be fine.
 > 
->  	blk_get_queue
->  	sock_setsockopt
->  	vfs_follow_link
->  	__read_lock_failed
->  	__write_lock_failed
+> Great, thats what I was hoping.
+> 
+> thanks
+> -john
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-I don't think there's any plan to unexport any of these, and in most cases
-it would be a dopey thing to do anyway.  And if we _were_ to try to remove
-any of the above exports we should go through the
-feature-removal-schedule.txt process.
-
-So I think we're OK?

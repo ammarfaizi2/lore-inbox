@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266355AbRGBDS0>; Sun, 1 Jul 2001 23:18:26 -0400
+	id <S266360AbRGBDei>; Sun, 1 Jul 2001 23:34:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266357AbRGBDSQ>; Sun, 1 Jul 2001 23:18:16 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:13585 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266355AbRGBDR6>; Sun, 1 Jul 2001 23:17:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Soft updates for 2.5?
-Date: Mon, 2 Jul 2001 05:17:18 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Alex Khripin <akhripin@morgoth.mit.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva> <994042685.12022.5.camel@localhost.localdomain>
-In-Reply-To: <994042685.12022.5.camel@localhost.localdomain>
-MIME-Version: 1.0
-Message-Id: <01070205171802.03938@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S266359AbRGBDe2>; Sun, 1 Jul 2001 23:34:28 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:21228 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266360AbRGBDeR>; Sun, 1 Jul 2001 23:34:17 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 1 Jul 2001 20:34:07 -0700
+Message-Id: <200107020334.UAA02295@adam.yggdrasil.com>
+To: kaos@ocs.com.au
+Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+Cc: linux-kernel@vger.kernel.org, rhw@MemAlpha.CX, rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 July 2001 04:58, Michael Rothwell wrote:
-> While on the topic of reslilent, high-performance filesystems, what ever
-> became of "Tux", Daniel Philip's mythical WAFL-type filesystem?
+Keith Owens <kaos@ocs.com.au> writes:
+>On Sun, 1 Jul 2001 19:25:11 -0700, 
+>"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>>	Does anyone know if there is any code that would break if
+>>we put quotation marks around the $CONFIG_xxxx references in the
+>>dep_xxx commands in all of the Config.in files?
 
-He's working on it.
+>That has the same problem that AC was worried about.  Variables that
+>used to be treated as "undefined, don't care" are now treated as
+>"undefined, assume n and forbid".
 
---
-Daniel
+	What variables?  Please show me a real example.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

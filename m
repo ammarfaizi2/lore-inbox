@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279599AbRJ2XMu>; Mon, 29 Oct 2001 18:12:50 -0500
+	id <S279598AbRJ2XPL>; Mon, 29 Oct 2001 18:15:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279596AbRJ2XMd>; Mon, 29 Oct 2001 18:12:33 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:23801
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S279597AbRJ2XMT>; Mon, 29 Oct 2001 18:12:19 -0500
-Date: Mon, 29 Oct 2001 15:12:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: elko <elko@home.nl>
-Cc: Hugh Dickins <hugh@veritas.com>, Marko Rauhamaa <marko@pacujo.nu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Need blocking /dev/null
-Message-ID: <20011029151243.G20280@mikef-linux.matchmail.com>
-Mail-Followup-To: elko <elko@home.nl>, Hugh Dickins <hugh@veritas.com>,
-	Marko Rauhamaa <marko@pacujo.nu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0110292144120.1085-100000@localhost.localdomain> <01103000034207.13457@ElkOS>
+	id <S279601AbRJ2XPB>; Mon, 29 Oct 2001 18:15:01 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:62996 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279598AbRJ2XOv>; Mon, 29 Oct 2001 18:14:51 -0500
+Date: Mon, 29 Oct 2001 18:15:28 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: please revert bogus patch to vmscan.c
+Message-ID: <20011029181527.G25434@redhat.com>
+In-Reply-To: <20011029180837.F25434@redhat.com> <20011029.151422.102554141.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <01103000034207.13457@ElkOS>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011029.151422.102554141.davem@redhat.com>; from davem@redhat.com on Mon, Oct 29, 2001 at 03:14:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 12:03:42AM +0100, elko wrote:
-> On Monday 29 October 2001 22:45, Hugh Dickins wrote:
-> > On Mon, 29 Oct 2001, Marko Rauhamaa wrote:
-> > > I noticed that I need a pseudodevice that opens normally but blocks
-> > > all reads (and writes). The only way out would be through a signal.
-> > > Neither /dev/zero nor /dev/null block, but is there some other
-> > > standard device that would do the job?
-> > >
-> > > If there isn't, writing such a pseudodevice would be trivial. What
-> > > should it be called? Any chance of including that in the kernel?
-> >
-> > /dev/never
+On Mon, Oct 29, 2001 at 03:14:22PM -0800, David S. Miller wrote:
+>    From: Benjamin LaHaise <bcrl@redhat.com>
+>    Date: Mon, 29 Oct 2001 18:08:37 -0500
 > 
-> sorry, the bait was too obvious: /dev/microsoft
+>    is completely bogus.  Without the tlb flush, the system may never update 
+>    the accessed bit on a page that is heavily being used.
+> 
+> It's intentional Ben, think about the high cost of the SMP invalidate
+> when kswapd is just scanning page tables.
 
-No,
+I think it's far more expensive to pull a page back in from disk.
 
-cat /dev/microsoft > /dev/never
-
-;)
+		-ben

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTEJE6E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 00:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTEJE6D
+	id S263358AbTEJFHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 01:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTEJFHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 00:58:03 -0400
-Received: from mta03ps.bigpond.com ([144.135.25.135]:36039 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP id S261921AbTEJE6D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 00:58:03 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Date: Sat, 10 May 2003 15:06:38 +1000
-User-Agent: KMail/1.5.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <20030509230542.GA3267@kroah.com> <3EBC4C50.8040304@pacbell.net>
-In-Reply-To: <3EBC4C50.8040304@pacbell.net>
-MIME-Version: 1.0
-Content-Description: clearsigned data
+	Sat, 10 May 2003 01:07:38 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:34322 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263358AbTEJFHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 01:07:37 -0400
+Date: Sat, 10 May 2003 06:20:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!)
+Message-ID: <20030510062015.A21408@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	chas williams <chas@locutus.cmf.nrl.navy.mil>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20030510000222.A10796@electric-eye.fr.zoreil.com> <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305101506.42756.bhards@bigpond.net.au>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Fri, May 09, 2003 at 07:38:34PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, May 09, 2003 at 07:38:34PM -0400, chas williams wrote:
+> +
+> +init_one_failure:
+> +	if (atm_dev) atm_dev_deregister(atm_dev);
+> +	if (he_dev) kfree(he_dev);
+> +	pci_disable_device(pci_dev);
+> +	return err;
 
-On Sat, 10 May 2003 10:48 am, David Brownell wrote:
-> > s/uint32_t/u32/ please.
->
-> "u32" is prettier, but is there actually a policy against using
-> the more standard type names?  (POSIX, someone had said.)
-Not Invented Here?
+kfree(NULL) if perfectly fine.  Also please untangle all this if
+statements to two separate lines.
 
-Brad
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+vIjiW6pHgIdAuOMRAm6+AKCg3P6rUZOvUEcv4emlpwXiGwAA8ACfUlLG
-MuHfr7Pmc8yk017a1aWGLYw=
-=8zSh
------END PGP SIGNATURE-----

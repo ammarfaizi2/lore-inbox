@@ -1,131 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132770AbRC2Q3n>; Thu, 29 Mar 2001 11:29:43 -0500
+	id <S132778AbRC2Qbn>; Thu, 29 Mar 2001 11:31:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132776AbRC2Q3g>; Thu, 29 Mar 2001 11:29:36 -0500
-Received: from admin.csn.ul.ie ([136.201.105.1]:56840 "HELO admin.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S132770AbRC2Q3Y>;
-	Thu, 29 Mar 2001 11:29:24 -0500
-Date: Thu, 29 Mar 2001 17:28:37 +0100 (IST)
-From: Dave Airlie <airlied@csn.ul.ie>
-X-X-Sender: <airlied@skynet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.2.19 USB and Digianswer/Tektronix sniffer 
-In-Reply-To: <Pine.LNX.4.32.0103291710540.29897-100000@skynet>
-Message-ID: <Pine.LNX.4.32.0103291728060.29897-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132773AbRC2Qbh>; Thu, 29 Mar 2001 11:31:37 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:11607 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132783AbRC2QbZ>; Thu, 29 Mar 2001 11:31:25 -0500
+Date: Thu, 29 Mar 2001 10:30:26 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103291630.KAA67240@tomcat.admin.navo.hpc.mil>
+To: jamagallon@able.es, "Richard B . Johnson" <root@quark.analogic.com>
+Subject: Re: Linux connectivity trashed.
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"J . A . Magallon" <jamagallon@able.es>:
+> On 03.29 Richard B. Johnson wrote:
+> > 
+> > The penetration occurred because somebody changed our  firewall
+> > configuration
+> > so that all of the non-DHCP addresses, i.e., all the real IP addresses had
+> > complete
+> > connectivity to the outside world. This meant that every Linux and Sun
+> > Workstation
+> > in this facility was exposed to tampering from anywhere in the world. This
+> > appears
+> > to be part of a plan to remove all non-DHCP machines by getting them
+> > trashed.
+> >
+> 
+> See the cleverness of his network admins, that spent their time configuring
+> a firewall to MAKE HOLES where there are not any...
 
-And of course the olibgatory self-followup...
+And obviously not tell anyone they were doing so....
 
-usb-uhci.c: USB UHCI at I/O 0x1080, IRQ 9
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-usb.c: USB new device connect, assigned device number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb.c: USB new device connect, assigned device number 2
-usb-uhci.c: interrupt, status 2, frame# 879
-usb-uhci.c: interrupt, status 2, frame# 881
-usb-uhci.c: interrupt, status 2, frame# 883
-usb-uhci.c: interrupt, status 2, frame# 885
-usb-uhci.c: interrupt, status 2, frame# 887
-usb.c: couldn't get all of config descriptors
-usb.c: unable to get configuration (error=-84)
-usb.c: USB new device connect, assigned device number -1
-usb.c: USB device not responding, giving up (error=-90)
-usb.c: USB disconnect on device -1
-kmem_free: Bad obj addr (objp=c1f69120, name=size-32)
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-forgot people might want to see this bit as well..
-
-Dave.
-
-
-On Thu, 29 Mar 2001, Dave Airlie wrote:
-
->
-> when boot Linux 2.2.19 with a Digianswer Bluetooth Sniffer plugged into
-> the USB I get the following oops ... I know the device isn't supported but
-> I'd like to be able to leave it plugged in without oopsen between
-> Linux/Windows..
->
-> Regards,
-> 	Dave.
->
-> ksymoops 0.7c on i686 2.2.19.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.2.19/ (default)
->      -m /usr/src/linux/System.map (default)
->
-> Warning: You did not tell me where to find symbol information.  I will
-> assume that the log matches the kernel and modules that are running
-> right now and I'll use the default options above for symbol resolution.
-> If the current kernel and/or modules do not match the log, you can get
-> more accurate output by telling me the kernel version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains the options.
->
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> current->tss.cr3 = 00101000, %cr3 = 00101000
-> *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[<c0120825>]
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010202
-> eax: 00000039   ebx: c40fc080   ecx: c01a2c68   edx: cf422000
-> esi: c1f69120   edi: 00000202   ebp: 00000000   esp: c6f95f1c
-> ds: 0018   es: 0018   ss: 0018
-> Process khubd (pid: 1646, process nr: 100, stackpage=c6f95000)
-> Stack: 00000000 00000000 c1f6915c c01bed26 d09695ea c1f69120 ce79c600 00000010
->        00000000 00000000 cf73d25c d0976b8d 00000000 ce79c600 d0968ad0 ce79c600
->        ce79c600 00000000 d096993e ce79c600 ce79c600 00000000 00000000 00000001
-> Call Trace: [<d09695ea>] [<d0976b8d>] [<d0968ad0>] [<d096993e>] [<d096b659>] [<d096b719>] [<d09710e7>]
->        [<d0970001>] [<d097253c>] [<d096b8bd>] [<d0968050>] [<c0107b8b>] [<d0968000>]
-> Code: c7 05 00 00 00 00 00 00 00 00 eb 1b 8d 76 00 56 68 22 b0 18
->
-> >>EIP; c0120825 <kfree+179/1a8>   <=====
-> Trace; d09695ea <[usbcore]usb_destroy_configuration+66/1a8>
-> Trace; d0976b8d <[usb-uhci]uhci_free_dev+29/30>
-> Trace; d0968ad0 <[usbcore]usb_free_dev+24/30>
-> Trace; d096993e <[usbcore]usb_disconnect+ea/f4>
-> Trace; d096b659 <[usbcore]usb_hub_port_connect_change+2f9/324>
-> Trace; d096b719 <[usbcore]usb_hub_events+95/1f0>
-> Trace; d09710e7 <[usbcore]usb_bandwidth_option+18a7/20b4>
-> Trace; d0970001 <[usbcore]usb_bandwidth_option+7c1/20b4>
-> Trace; d097253c <[usbcore]__ksymtab_usb_inc_dev_use+4/8>
-> Trace; d096b8bd <[usbcore]usb_hub_thread+49/6c>
-> Trace; d0968050 <[usbcore].text.start+4/8c>
-> Trace; c0107b8b <kernel_thread+23/30>
-> Trace; d0968000 <[serial].bss.end+778d/77d9>
-> Code;  c0120825 <kfree+179/1a8>
-> 00000000 <_EIP>:
-> Code;  c0120825 <kfree+179/1a8>   <=====
->    0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
-> Code;  c012082c <kfree+180/1a8>
->    7:   00 00 00
-> Code;  c012082f <kfree+183/1a8>
->    a:   eb 1b                     jmp    27 <_EIP+0x27> c012084c <kfree+1a0/1a8>
-> Code;  c0120831 <kfree+185/1a8>
->    c:   8d 76 00                  lea    0x0(%esi),%esi
-> Code;  c0120834 <kfree+188/1a8>
->    f:   56                        push   %esi
-> Code;  c0120835 <kfree+189/1a8>
->   10:   68 22 b0 18 00            push   $0x18b022
->
->
-> 1 warning issued.  Results may not be reliable.
->
->
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
-
-
+Any opinions expressed are solely my own.

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265418AbTFXAXv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 20:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265450AbTFXAXv
+	id S265597AbTFXAaw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 20:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265573AbTFXAaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 20:23:51 -0400
-Received: from firewall.ocs.com.au ([203.34.97.9]:22407 "EHLO
-	firewall.ocs.com.au") by vger.kernel.org with ESMTP id S265418AbTFXAXu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 20:23:50 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 doesn't boot: /bin/insmod.old: file not found 
-In-reply-to: Your message of "23 Jun 2003 20:40:17 +0200."
-             <1056366638.2185.23.camel@shrek.bitfreak.net> 
+	Mon, 23 Jun 2003 20:30:52 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:48870 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265597AbTFXAat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 20:30:49 -0400
+Subject: Re: 2.5.7[23]: wall-clock time advancing too rapidly?
+From: john stultz <johnstul@us.ibm.com>
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: Andreas Haumer <andreas@xss.co.at>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1056413771.1209.14.camel@andyp.pdx.osdl.net>
+References: <1056039012.3879.5.camel@andyp.pdx.osdl.net>
+	 <1056058206.18644.532.camel@w-jstultz2.beaverton.ibm.com>
+	 <3EF32223.6000207@xss.co.at> <1056151705.1162.114.camel@andyp.pdx.osdl.net>
+	 <1056154072.1027.13.camel@w-jstultz2.beaverton.ibm.com>
+	 <1056413771.1209.14.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056415040.1028.82.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 24 Jun 2003 10:37:43 +1000
-Message-ID: <23770.1056415063@firewall.ocs.com.au>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Jun 2003 17:37:20 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jun 2003 20:40:17 +0200, 
-Ronald Bultje <rbultje@ronald.bitfreak.net> wrote:
->On Mon, 2003-06-23 at 11:26, Keith Owens wrote:
->> Did you copy /bin/insmod.old to the initrd that you are booting from?
->> Is /bin/insmod.old a static binary?
->
->/bin/insmod.old is a symlink to the dynamically linked binary in
->/sbin/insmod.old. The static one is in /{s,}bin/insmod.static.old.
->Should I swap them around?
+On Mon, 2003-06-23 at 17:16, Andy Pfiffer wrote:
+> Hmmm... I tried the patch in 2.5.73 and it appeared to have no effect.
 
-initrd needs the static version of insmod.  Copy /sbin/insmod.static.old
-to the ramdisk and rename it as /bin/insmod.old to suit the 2.5 modutils.
+Ah, just when I sent it off to Andrew. Well, I've been getting a number
+of successful reports, so its still good to give it further testing. 
+
+
+> The system continues to advance what it thinks is wall-clock time by
+> about 7.25 seconds for every 15 seconds actual wall-clock time:
+[snip]
+> 
+> None of the printk's in the patch have been printed on the console.
+
+Yea, it clearly isn't triggering the code. 
+
+> Adding "clock=pit" continues to work as a workaround.
+> 
+> I have attached the output of dmesg from the boot of the kernel with the
+> patch present.
+
+Looking over it again you're still not showing any of the signs of
+changing cpu-frequency. But the symptoms are very similar. I'm curious,
+this is the x220? Do you have a service processor installed in that box?
+Maybe we're running into some sort of SMI trouble?
+
+thanks
+-john
 

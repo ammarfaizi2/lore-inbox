@@ -1,552 +1,1121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264874AbSJ3Tta>; Wed, 30 Oct 2002 14:49:30 -0500
+	id <S264885AbSJ3TxO>; Wed, 30 Oct 2002 14:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264866AbSJ3Tta>; Wed, 30 Oct 2002 14:49:30 -0500
-Received: from smtp3.us.dell.com ([143.166.148.134]:37639 "EHLO
-	smtp3.us.dell.com") by vger.kernel.org with ESMTP
-	id <S264903AbSJ3TtD>; Wed, 30 Oct 2002 14:49:03 -0500
-Date: Wed, 30 Oct 2002 13:55:28 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 2.5.44] EDD updates 1/4
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68BC03E6@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.44.0210301354050.27031-100000@humbolt.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+	id <S264883AbSJ3TwT>; Wed, 30 Oct 2002 14:52:19 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41715 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264876AbSJ3Tto>;
+	Wed, 30 Oct 2002 14:49:44 -0500
+Message-ID: <3DC03934.3A5C35BB@mvista.com>
+Date: Wed, 30 Oct 2002 11:55:32 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/3] High-res-timers part 1 (core) take 9
+Content-Type: multipart/mixed;
+ boundary="------------80AD62642C6697D02D87A555"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can import this changeset into BK by piping this whole message to
-'| bk receive [path to repository]' or apply the patch as usual.
 
-===================================================================
+This is a multi-part message in MIME format.
+--------------80AD62642C6697D02D87A555
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Once again I run up against my own stupidity :)  This is the
+correct patch.
 
-ChangeSet@1.809, 2002-10-21 15:01:15-05:00, Matt_Domsch@dell.com
-  EDD: add comments, magic value defines, use snprintf always
+This patch supplies the core changes to implement high
+resolution timers.  Mostly it changes the timer list from
+the multi stage hash (or cascade) list to a single stage
+hash list.  This change makes it easy to configure the list
+size for those who are concerned with performance.  It also
+eliminates the "time out" for the cascade operation every
+512 jiffies, thus eliminating possibly long preemption
+times.  On input from Stephen Hemminger<shemminger@osdl.org>
+the configuration of the timer list size is no longer
+presented as a configure option.  The code can still be
+change (one line) to use larger or smaller lists.
 
+It also adds a sub jiffie word to the timer structure to
+allow timers to exist between jiffies.  However, to support
+the sub jiffie timers, work needs to be done in the platform
+code for each arch.  The platform work for the i386 arch
+follows in part 2.  To prevent requests from
+nonexistent code for sub jiffies stuff, these parts of this
+patch are disabled with the IF_HIGH_RES() macro which
+depends on CONFIG_HIGH_RES_TIMERS which will be defined for
+each platform as they supply the needed code.
 
- arch/i386/boot/setup.S   |   34 ++++++++++--
- arch/i386/kernel/edd.c   |  129 ++++++++++++++++++++++++-----------------------
- arch/i386/kernel/setup.c |    3 -
- include/asm-i386/edd.h   |    4 +
- 4 files changed, 100 insertions, 70 deletions
+Some of Ingo's timer code has been optimized to drop stuff
+not needed if the system is not SMP.
 
+With this patch applied, the system should boot and run much
+as it does prior to the patch.  This patch depends on the
+POSIX clocks & timers patch in that it assumes the changes
+that patch made to timer.c to remove timer_t.  This
+dependency can be removed if needed.
 
-diff -Nru a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
---- a/arch/i386/boot/setup.S	Wed Oct 23 13:15:30 2002
-+++ b/arch/i386/boot/setup.S	Wed Oct 23 13:15:30 2002
-@@ -46,8 +46,9 @@
-  * by Robert Schwebel, December 2001 <robert@schwebel.de>
-  *    
-  * BIOS Enhanced Disk Drive support
-- * by Matt Domsch <Matt_Domsch@dell.com> September 2002 
-- *
-+ * by Matt Domsch <Matt_Domsch@dell.com> October 2002
-+ * conformant to T13 Committee www.t13.org
-+ *   projects 1572D, 1484D, 1386D, 1226DT
-  */
- 
- #include <linux/config.h>
-@@ -549,6 +550,27 @@
- 
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
- # Do the BIOS Enhanced Disk Drive calls
-+# This consists of two calls:
-+#    int 13h ah=41h "Check Extensions Present"
-+#    int 13h ah=48h "Get Device Parameters"
-+#
-+# A buffer of size EDDMAXNR*(EDDEXTSIZE+EDDPARMSIZE) is reserved for our use
-+# in the empty_zero_page at EDDBUF.  The first four bytes of which are
-+# used to store the device number, interface support map and version
-+# results from fn41.  The following 74 bytes are used to store
-+# the results from fn48.  Starting from device 80h, fn41, then fn48
-+# are called and their results stored in EDDBUF+n*(EDDEXTSIZE+EDDPARMIZE).
-+# Then the pointer is incremented to store the data for the next call.
-+# This repeats until either a device doesn't exist, or until EDDMAXNR
-+# devices have been stored.
-+# The one tricky part is that ds:si always points four bytes into
-+# the structure, and the fn41 results are stored at offsets
-+# from there.  This removes the need to increment the pointer for
-+# every store, and leaves it ready for the fn48 call.
-+# A second one-byte buffer, EDDNR, in the empty_zero_page stores
-+# the number of BIOS devices which exist, up to EDDMAXNR.
-+# In setup.c, copy_edd() stores both empty_zero_page buffers away
-+# for later use, as they would get overwritten otherwise. 
- # This code is sensitive to the size of the structs in edd.h
- edd_start:  
- 						# %ds points to the bootsector
-@@ -559,12 +581,12 @@
-     	movb	$0x80, %dl			# BIOS device 0x80
- 
- edd_check_ext:
--	movb	$0x41, %ah			# Function 41
--	movw	$0x55aa, %bx			# magic
-+	movb	$CHECKEXTENSIONSPRESENT, %ah    # Function 41
-+	movw	$EDDMAGIC1, %bx			# magic
- 	int	$0x13				# make the call
- 	jc	edd_done			# no more BIOS devices
- 
--    	cmpw	$0xAA55, %bx			# is magic right?
-+    	cmpw	$EDDMAGIC2, %bx			# is magic right?
- 	jne	edd_next			# nope, next...
- 
-     	movb	%dl, %ds:-4(%si)		# store device number
-@@ -574,7 +596,7 @@
-         
- edd_get_device_params:  
- 	movw	$EDDPARMSIZE, %ds:(%si)		# put size
--    	movb	$0x48, %ah			# Function 48
-+    	movb	$GETDEVICEPARAMETERS, %ah	# Function 48
- 	int	$0x13				# make the call
- 						# Don't check for fail return
- 						# it doesn't matter.
-diff -Nru a/arch/i386/kernel/edd.c b/arch/i386/kernel/edd.c
---- a/arch/i386/kernel/edd.c	Wed Oct 23 13:15:30 2002
-+++ b/arch/i386/kernel/edd.c	Wed Oct 23 13:15:30 2002
-@@ -65,6 +65,8 @@
- #define EDD_DEVICE_NAME_SIZE 16
- #define REPORT_URL "http://domsch.com/linux/edd30/results.html"
- 
-+#define left (count - (p - buf) - 1)
+Patch is against 2.5.44-bk3
+
+This patch as well as the POSIX clocks & timers patch is
+available on the project site:
+http://sourceforge.net/projects/high-res-timers/
+
+The 3 parts to the high res timers are:
+*core		The core kernel (i.e. platform independent) changes
+ i386		The high-res changes for the i386 (x86) platform
+ posixhr	The changes to the POSIX clocks & timers patch to
+use high-res timers
+
+Please apply.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------80AD62642C6697D02D87A555
+Content-Type: text/plain; charset=us-ascii;
+ name="hrtimers-core-2.5.44-bk3-1.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-core-2.5.44-bk3-1.1.patch"
+
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/include/linux/hrtime.h linux/include/linux/hrtime.h
+--- linux-2.5.44-bk3-posix/include/linux/hrtime.h	Wed Dec 31 16:00:00 1969
++++ linux/include/linux/hrtime.h	Wed Oct 30 10:45:03 2002
+@@ -0,0 +1,156 @@
++#ifndef _HRTIME_H
++#define _HRTIME_H
 +
- /*
-  * bios_dir may go away completely,
-  * and it definitely won't be at the root
-@@ -133,35 +135,36 @@
++
++
++/*
++ * This file is the glue to bring in the platform stuff.
++ * We make it all depend on the CONFIG option so all archs
++ * will work as long as the CONFIG is not set.	Once an 
++ * arch defines the CONFIG, it had better have the 
++ * asm/hrtime.h file in place.
++ */
++
++/*
++ * This gets filled in at init time, either static or dynamic.
++ * Someday this will be what NTP fiddles with.
++ * Do we need the scale here?  I don't think so, as long as we
++ * do percentage offsets for NTP.
++ */
++struct timer_conversion_bits {
++	unsigned long _arch_to_usec; 
++	unsigned long _arch_to_nsec;
++	unsigned long _usec_to_arch; 
++	unsigned long _nsec_to_arch;
++	long _cycles_per_jiffies;
++	unsigned long _arch_to_latch;
++};
++extern struct timer_conversion_bits timer_conversion_bits;
++/*
++ * The following four values are not used for machines 
++ * without a TSC.  For machines with a TSC they
++ * are caculated at boot time. They are used to 
++ * calculate "cycles" to jiffies or usec.  Don't get
++ * confused into thinking they are simple multiples or
++ * divisors, however.  
++ */
++#define arch_to_usec timer_conversion_bits._arch_to_usec 
++#define arch_to_nsec timer_conversion_bits._arch_to_nsec
++#define usec_to_arch timer_conversion_bits._usec_to_arch 
++#define nsec_to_arch timer_conversion_bits._nsec_to_arch
++#define cycles_per_jiffies timer_conversion_bits._cycles_per_jiffies
++#define arch_to_latch timer_conversion_bits._arch_to_latch 
++
++#include <linux/config.h>
++#ifdef CONFIG_HIGH_RES_TIMERS
++#include <asm/hrtime.h>
++/*
++ * The schedule_next_int function is to be defined by the "arch" code
++ * when an "arch" is implementing the high-res part of POSIX timers.
++ * The actual function will be called with the offset in "arch" (parm 2)
++ * defined sub_jiffie units from the reference jiffie boundry (parm 1)to
++ * the next required sub_jiffie timer interrupt. This value will be -1
++ * if the next timer interrupt should be the next jiffie value.	 The
++ * "arch" code must determine how far out the interrupt is, based on
++ * current jiffie, sub_jiffie time and set up the hardware to interrupt
++ * at that time.  It is possible that the time will already have passed,
++ * in which case the function should return true (no interrupt is
++ * needed), otherwise the return should be 0.  The third parameter is the
++ * "always" flag which says that the code needs an interrupt, even if the
++ * time has passed.  In this case a "close" in time should be used to 
++ * generate the required interrupt.  The sub_jiffie interrupt
++ * should just call do_timer(). If the interrupt code ususally does stuff
++ * each jiffie, a flag should be kept by the jiffies update code to
++ * indicate that a new jiffie has started.  This flag is to keep this code 
++ * from being executed on the sub jiffie interrupt.
++ */
++#ifndef schedule_next_int
++#define schedule_next_int(s,d,a) 0
++#undef CONFIG_HIGH_RES_TIMERS
++#endif	// schedule_next_int
++/*
++ * The sub_jiffie() macro should return the current time offset from the latest
++ * jiffie.  This will be in "arch" defined units and is used to determine if
++ * a timer has expired.	 Since no sub_expire value will be used if "arch" 
++ * has not defined the high-res package, 0 will work well here.
++ *
++ * In addition, to save time if there is no high-res package (or it is not
++ * configured), we define the sub expression for the run_timer_list.
++ */
++
++#ifndef sub_jiffie
++#undef CONFIG_HIGH_RES_TIMERS
++#define sub_jiffie() 0
++#endif	// sub_jiffie
++
++/*
++ * The high_res_test() macro should set up a test mode that will do a
++ * worst case timer interrupt.	I.e. it may be that a call to 
++ * schedule_next_int() could return -1 indicating that the time has
++ * already expired.  This macro says to set it so that schedule_next_int()
++ * will always set up a timer interrupt.  This is used during init to
++ * calculate the worst case loop time from timer set up to int to 
++ * the signal code.
++
++ * high_res_end_test() cancels the above state and allows the no
++ * interrupt return from schedule_next_int()
++ */
++#ifndef high_res_test
++#define high_res_test()
++#define high_res_end_test()
++#endif
++
++
++#define IF_HIGH_RES(a) a
++
++#else	/*  CONFIG_HIGH_RES_TIMERS */
++#define IF_HIGH_RES(a)
++#define nsec_to_arch_cycles(a) 0
++
++#endif	 /*  CONFIG_HIGH_RES_TIMERS */
++
++/*
++ * Here is an SMP helping macro...
++ */
++#ifdef CONFIG_SMP
++#define IF_SMP(a) a
++#else
++#define IF_SMP(a)
++#endif
++/*
++ * These should have been defined in the platform hrtimers.h
++ * If not (or HIGH_RES_TIMERS not configured) define the default.
++ */
++#ifndef update_jiffies
++extern u64 jiffies_64;
++#define update_jiffies() (*(u64 *)&jiffies_64)++
++#endif
++#ifndef new_jiffie
++#define new_jiffie() 0
++#endif
++#ifndef schedule_next_int
++#define schedule_next_int(a,b,c)
++#endif
++/*
++ * If we included a high-res file, we may have gotten a more efficient 
++ * u64/u32, u64%u32 routine.  The one in div64.h actually handles a 
++ * u64 result, something we don't need, and, since it is more expensive
++ * arch porters are encouraged to implement the div_long_long_rem().
++ *
++ * int div_long_long_rem(u64 dividend,int divisor,int* remainder)
++ * which returns dividend/divisor.
++ * 
++ * Here we provide default code for those who, for what ever reason,
++ * have not provided the above.
++ */
++#ifndef div_long_long_rem
++#include <asm/div64.h>
++
++#define div_long_long_rem(dividend,divisor,remainder) ({ \
++		       u64 result = dividend;		\
++		       *remainder = do_div(result,divisor); \
++		       result; })
++
++#endif	 /* ifndef div_long_long_rem */
++
++#endif	 /* _HRTIME_H  */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/include/linux/signal.h linux/include/linux/signal.h
+--- linux-2.5.44-bk3-posix/include/linux/signal.h	Wed Oct 30 11:12:10 2002
++++ linux/include/linux/signal.h	Wed Oct 30 10:45:03 2002
+@@ -219,6 +219,35 @@
+ }
+ 
+ extern long do_sigpending(void *, unsigned long);
++/*
++ * We would like the asm/signal.h code to define these so that the using
++ * function can call do_signal().  In loo of that, we define a genaric
++ * version that pretends that do_signal() was called and delivered a signal.
++ * To see how this is used, see nano_sleep() in timer.c and the i386 version
++ * in asm_i386/signal.h.
++ */
++#ifndef PT_REGS_ENTRY
++#define PT_REGS_ENTRY(type,name,p1_type,p1, p2_type,p2) \
++type name(p1_type p1,p2_type p2)\
++{
++#endif
++#ifndef _do_signal
++#define _do_signal() 1
++#endif
++#ifndef NANOSLEEP_ENTRY
++#define NANOSLEEP_ENTRY(a) asmlinkage long sys_nanosleep( struct timespec* rqtp, \
++							  struct timespec * rmtp) \
++{ a
++#endif
++#ifndef CLOCK_NANOSLEEP_ENTRY
++#define CLOCK_NANOSLEEP_ENTRY(a) asmlinkage long sys_clock_nanosleep( \
++			       clockid_t which_clock,	   \
++			       int flags,		   \
++			       const struct timespec *rqtp, \
++			       struct timespec *rmtp)	    \
++{ a
++ 
++#endif
+ 
+ #ifndef HAVE_ARCH_GET_SIGNAL_TO_DELIVER
+ struct pt_regs;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/include/linux/time.h linux/include/linux/time.h
+--- linux-2.5.44-bk3-posix/include/linux/time.h	Wed Oct 30 11:12:10 2002
++++ linux/include/linux/time.h	Wed Oct 30 10:45:03 2002
+@@ -1,7 +1,7 @@
+ #ifndef _LINUX_TIME_H
+ #define _LINUX_TIME_H
+ 
+-#include <asm/param.h>
++#include <linux/param.h>
+ #include <linux/types.h>
+ 
+ #ifndef _STRUCT_TIMESPEC
+@@ -51,6 +51,19 @@
+ #define NSEC_PER_USEC (1000L)
+ #endif
+ 
++/* Parameters used to convert the timespec values */
++#ifndef USEC_PER_SEC
++#define USEC_PER_SEC (1000000L)
++#endif
++
++#ifndef NSEC_PER_SEC
++#define NSEC_PER_SEC (1000000000L)
++#endif
++
++#ifndef NSEC_PER_USEC
++#define NSEC_PER_USEC (1000L)
++#endif
++
+ static __inline__ unsigned long
+ timespec_to_jiffies(struct timespec *value)
+ {
+@@ -59,16 +72,16 @@
+ 
+ 	if (sec >= (MAX_JIFFY_OFFSET / HZ))
+ 		return MAX_JIFFY_OFFSET;
+-	nsec += 1000000000L / HZ - 1;
+-	nsec /= 1000000000L / HZ;
++	nsec += NSEC_PER_SEC / HZ - 1;
++	nsec /= NSEC_PER_SEC / HZ;
+ 	return HZ * sec + nsec;
+ }
+ 
+ static __inline__ void
+-jiffies_to_timespec(unsigned long jiffies, struct timespec *value)
++jiffies_to_timespec(unsigned long _jiffies, struct timespec *value)
+ {
+-	value->tv_nsec = (jiffies % HZ) * (1000000000L / HZ);
+-	value->tv_sec = jiffies / HZ;
++	value->tv_nsec = (_jiffies % HZ) * (NSEC_PER_SEC / HZ);
++	value->tv_sec = _jiffies / HZ;
+ }
+ 
+ /* Same for "timeval" */
+@@ -155,9 +168,9 @@
+ #define	ITIMER_VIRTUAL	1
+ #define	ITIMER_PROF	2
+ 
+-struct  itimerspec {
+-        struct  timespec it_interval;    /* timer period */
+-        struct  timespec it_value;       /* timer expiration */
++struct	itimerspec {
++	struct	timespec it_interval;	 /* timer period */
++	struct	timespec it_value;	 /* timer expiration */
  };
  
- static int
--edd_dump_raw_data(char *b, void *data, int length)
-+edd_dump_raw_data(char *b, int count, void *data, int length)
- {
- 	char *orig_b = b;
--	char buffer1[80], buffer2[80], *b1, *b2, c;
-+	char hexbuf[80], ascbuf[20], *h, *a, c;
- 	unsigned char *p = data;
- 	unsigned long column = 0;
--	int length_printed = 0;
-+	int length_printed = 0, d;
- 	const char maxcolumn = 16;
--	while (length_printed < length) {
--		b1 = buffer1;
--		b2 = buffer2;
-+	while (length_printed < length && count > 0) {
-+		h = hexbuf;
-+		a = ascbuf;
- 		for (column = 0;
- 		     column < maxcolumn && length_printed < length; column++) {
--			b1 += sprintf(b1, "%02x ", (unsigned char) *p);
--			if (*p < 32 || *p > 126)
-+			h += sprintf(h, "%02x ", (unsigned char) *p);
-+			if (!isprint(*p))
- 				c = '.';
- 			else
- 				c = *p;
--			b2 += sprintf(b2, "%c", c);
-+			a += sprintf(a, "%c", c);
- 			p++;
- 			length_printed++;
- 		}
- 		/* pad out the line */
- 		for (; column < maxcolumn; column++) {
--			b1 += sprintf(b1, "   ");
--			b2 += sprintf(b2, " ");
-+			h += sprintf(h, "   ");
-+			a += sprintf(a, " ");
- 		}
--
--		b += sprintf(b, "%s\t%s\n", buffer1, buffer2);
-+		d = snprintf(b, count, "%s\t%s\n", hexbuf, ascbuf);
-+		b += d;
-+		count -= d;
- 	}
- 	return (b - orig_b);
- }
-@@ -179,18 +182,18 @@
+ struct	itimerval {
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/include/linux/timer.h linux/include/linux/timer.h
+--- linux-2.5.44-bk3-posix/include/linux/timer.h	Mon Oct  7 15:24:31 2002
++++ linux/include/linux/timer.h	Wed Oct 30 10:45:03 2002
+@@ -14,6 +14,7 @@
+ 	unsigned long data;
  
- 	for (i = 0; i < 4; i++) {
- 		if (isprint(info->params.host_bus_type[i])) {
--			p += sprintf(p, "%c", info->params.host_bus_type[i]);
-+			p += snprintf(p, left, "%c", info->params.host_bus_type[i]);
- 		} else {
--			p += sprintf(p, " ");
-+			p += snprintf(p, left, " ");
- 		}
- 	}
+ 	struct tvec_t_base_s *base;
++	long sub_expires;
+ };
  
- 	if (!strncmp(info->params.host_bus_type, "ISA", 3)) {
--		p += sprintf(p, "\tbase_address: %x\n",
-+		p += snprintf(p, left, "\tbase_address: %x\n",
- 			     info->params.interface_path.isa.base_address);
- 	} else if (!strncmp(info->params.host_bus_type, "PCIX", 4) ||
- 		   !strncmp(info->params.host_bus_type, "PCI", 3)) {
--		p += sprintf(p,
-+		p += snprintf(p, left,
- 			     "\t%02x:%02x.%01x  channel: %u\n",
- 			     info->params.interface_path.pci.bus,
- 			     info->params.interface_path.pci.slot,
-@@ -199,12 +202,12 @@
- 	} else if (!strncmp(info->params.host_bus_type, "IBND", 4) ||
- 		   !strncmp(info->params.host_bus_type, "XPRS", 4) ||
- 		   !strncmp(info->params.host_bus_type, "HTPT", 4)) {
--		p += sprintf(p,
-+		p += snprintf(p, left,
- 			     "\tTBD: %llx\n",
- 			     info->params.interface_path.ibnd.reserved);
+ /***
+@@ -46,6 +47,7 @@
+ extern void add_timer(struct timer_list * timer);
+ extern int del_timer(struct timer_list * timer);
+ extern int mod_timer(struct timer_list *timer, unsigned long expires);
++extern void update_real_wall_time(void);
+   
+ #if CONFIG_SMP
+   extern int del_timer_sync(struct timer_list * timer);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.5.44-bk3-posix/kernel/ksyms.c	Wed Oct 30 10:11:21 2002
++++ linux/kernel/ksyms.c	Wed Oct 30 10:45:03 2002
+@@ -54,6 +54,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/dnotify.h>
+ #include <asm/checksum.h>
++#include <linux/hrtime.h>
  
- 	} else {
--		p += sprintf(p, "\tunknown: %llx\n",
-+		p += snprintf(p, left, "\tunknown: %llx\n",
- 			     info->params.interface_path.unknown.reserved);
- 	}
- 	return (p - buf);
-@@ -223,43 +226,43 @@
- 
- 	for (i = 0; i < 8; i++) {
- 		if (isprint(info->params.interface_type[i])) {
--			p += sprintf(p, "%c", info->params.interface_type[i]);
-+			p += snprintf(p, left, "%c", info->params.interface_type[i]);
- 		} else {
--			p += sprintf(p, " ");
-+			p += snprintf(p, left, " ");
- 		}
- 	}
- 	if (!strncmp(info->params.interface_type, "ATAPI", 5)) {
--		p += sprintf(p, "\tdevice: %u  lun: %u\n",
-+		p += snprintf(p, left, "\tdevice: %u  lun: %u\n",
- 			     info->params.device_path.atapi.device,
- 			     info->params.device_path.atapi.lun);
- 	} else if (!strncmp(info->params.interface_type, "ATA", 3)) {
--		p += sprintf(p, "\tdevice: %u\n",
-+		p += snprintf(p, left, "\tdevice: %u\n",
- 			     info->params.device_path.ata.device);
- 	} else if (!strncmp(info->params.interface_type, "SCSI", 4)) {
--		p += sprintf(p, "\tid: %u  lun: %llu\n",
-+		p += snprintf(p, left, "\tid: %u  lun: %llu\n",
- 			     info->params.device_path.scsi.id,
- 			     info->params.device_path.scsi.lun);
- 	} else if (!strncmp(info->params.interface_type, "USB", 3)) {
--		p += sprintf(p, "\tserial_number: %llx\n",
-+		p += snprintf(p, left, "\tserial_number: %llx\n",
- 			     info->params.device_path.usb.serial_number);
- 	} else if (!strncmp(info->params.interface_type, "1394", 4)) {
--		p += sprintf(p, "\teui: %llx\n",
-+		p += snprintf(p, left, "\teui: %llx\n",
- 			     info->params.device_path.i1394.eui);
- 	} else if (!strncmp(info->params.interface_type, "FIBRE", 5)) {
--		p += sprintf(p, "\twwid: %llx lun: %llx\n",
-+		p += snprintf(p, left, "\twwid: %llx lun: %llx\n",
- 			     info->params.device_path.fibre.wwid,
- 			     info->params.device_path.fibre.lun);
- 	} else if (!strncmp(info->params.interface_type, "I2O", 3)) {
--		p += sprintf(p, "\tidentity_tag: %llx\n",
-+		p += snprintf(p, left, "\tidentity_tag: %llx\n",
- 			     info->params.device_path.i2o.identity_tag);
- 	} else if (!strncmp(info->params.interface_type, "RAID", 4)) {
--		p += sprintf(p, "\tidentity_tag: %x\n",
-+		p += snprintf(p, left, "\tidentity_tag: %x\n",
- 			     info->params.device_path.raid.array_number);
- 	} else if (!strncmp(info->params.interface_type, "SATA", 4)) {
--		p += sprintf(p, "\tdevice: %u\n",
-+		p += snprintf(p, left, "\tdevice: %u\n",
- 			     info->params.device_path.sata.device);
- 	} else {
--		p += sprintf(p, "\tunknown: %llx %llx\n",
-+		p += snprintf(p, left, "\tunknown: %llx %llx\n",
- 			     info->params.device_path.unknown.reserved1,
- 			     info->params.device_path.unknown.reserved2);
- 	}
-@@ -289,15 +292,15 @@
- 	if (!(info->params.key == 0xBEDD || info->params.key == 0xDDBE))
- 		len = info->params.length;
- 
--	p += sprintf(p, "int13 fn48 returned data:\n\n");
--	p += edd_dump_raw_data(p, ((char *) edd) + 4, len);
-+	p += snprintf(p, left, "int13 fn48 returned data:\n\n");
-+	p += edd_dump_raw_data(p, left, ((char *) edd) + 4, len);
- 
- 	/* Spec violation.  Adaptec AIC7899 returns 0xDDBE
- 	   here, when it should be 0xBEDD.
- 	 */
--	p += sprintf(p, "\n");
-+	p += snprintf(p, left, "\n");
- 	if (info->params.key == 0xDDBE) {
--		p += sprintf(p,
-+		p += snprintf(p, left,
- 			     "Warning: Spec violation.  Key should be 0xBEDD, is 0xDDBE\n");
- 		email++;
- 	}
-@@ -314,13 +317,13 @@
- 	}
- 
- 	if (checksum) {
--		p += sprintf(p,
-+		p += snprintf(p, left,
- 			     "Warning: Spec violation.  Device Path checksum invalid.\n");
- 		email++;
- 	}
- 
- 	if (!nonzero_path) {
--		p += sprintf(p, "Error: Spec violation.  Empty device path.\n");
-+		p += snprintf(p, left, "Error: Spec violation.  Empty device path.\n");
- 		email++;
- 		goto out;
- 	}
-@@ -337,7 +340,7 @@
- 	}
- 
- 	if (warn_padding) {
--		p += sprintf(p,
-+		p += snprintf(p, left,
- 			     "Warning: Spec violation.  Padding should be 0x20.\n");
- 		email++;
- 	}
-@@ -350,8 +353,8 @@
- 						  info->params.interface_path.
- 						  pci.function));
- 		if (!pci_dev) {
--			p += sprintf(p, "Error: BIOS says this is a PCI device, but the OS doesn't know\n");
--			p += sprintf(p, "  about a PCI device at %02x:%02x.%01x\n",
-+			p += snprintf(p, left, "Error: BIOS says this is a PCI device, but the OS doesn't know\n");
-+			p += snprintf(p, left, "  about a PCI device at %02x:%02x.%01x\n",
- 				     info->params.interface_path.pci.bus,
- 				     info->params.interface_path.pci.slot,
- 				     info->params.interface_path.pci.function);
-@@ -365,18 +368,18 @@
- 	if (found_pci) {
- 		sd = edd_find_matching_scsi_device(edev);
- 		if (!sd) {
--			p += sprintf(p, "Error: BIOS says this is a SCSI device, but\n");
--			p += sprintf(p, "  the OS doesn't know about this SCSI device.\n");
--			p += sprintf(p, "  Do you have it's driver module loaded?\n");
-+			p += snprintf(p, left, "Error: BIOS says this is a SCSI device, but\n");
-+			p += snprintf(p, left, "  the OS doesn't know about this SCSI device.\n");
-+			p += snprintf(p, left, "  Do you have it's driver module loaded?\n");
- 			email++;
- 		}
- 	}
- 
- out:
- 	if (email) {
--		p += sprintf(p, "\nPlease check %s\n", REPORT_URL);
--		p += sprintf(p, "to see if this has been reported.  If not,\n");
--		p += sprintf(p, "please send the information requested there.\n");
-+		p += snprintf(p, left, "\nPlease check %s\n", REPORT_URL);
-+		p += snprintf(p, left, "to see if this has been reported.  If not,\n");
-+		p += snprintf(p, left, "please send the information requested there.\n");
- 	}
- 
- 	return (p - buf);
-@@ -391,7 +394,7 @@
- 		return 0;
- 	}
- 
--	p += sprintf(p, "0x%02x\n", info->version);
-+	p += snprintf(p, left, "0x%02x\n", info->version);
- 	return (p - buf);
- }
- 
-@@ -406,16 +409,16 @@
- 	}
- 
- 	if (info->interface_support & EDD_EXT_FIXED_DISK_ACCESS) {
--		p += sprintf(p, "Fixed disk access\n");
-+		p += snprintf(p, left, "Fixed disk access\n");
- 	}
- 	if (info->interface_support & EDD_EXT_DEVICE_LOCKING_AND_EJECTING) {
--		p += sprintf(p, "Device locking and ejecting\n");
-+		p += snprintf(p, left, "Device locking and ejecting\n");
- 	}
- 	if (info->interface_support & EDD_EXT_ENHANCED_DISK_DRIVE_SUPPORT) {
--		p += sprintf(p, "Enhanced Disk Drive support\n");
-+		p += snprintf(p, left, "Enhanced Disk Drive support\n");
- 	}
- 	if (info->interface_support & EDD_EXT_64BIT_EXTENSIONS) {
--		p += sprintf(p, "64-bit extensions\n");
-+		p += snprintf(p, left, "64-bit extensions\n");
- 	}
- 	return (p - buf);
- }
-@@ -431,21 +434,21 @@
- 	}
- 
- 	if (info->params.info_flags & EDD_INFO_DMA_BOUNDRY_ERROR_TRANSPARENT)
--		p += sprintf(p, "DMA boundry error transparent\n");
-+		p += snprintf(p, left, "DMA boundry error transparent\n");
- 	if (info->params.info_flags & EDD_INFO_GEOMETRY_VALID)
--		p += sprintf(p, "geometry valid\n");
-+		p += snprintf(p, left, "geometry valid\n");
- 	if (info->params.info_flags & EDD_INFO_REMOVABLE)
--		p += sprintf(p, "removable\n");
-+		p += snprintf(p, left, "removable\n");
- 	if (info->params.info_flags & EDD_INFO_WRITE_VERIFY)
--		p += sprintf(p, "write verify\n");
-+		p += snprintf(p, left, "write verify\n");
- 	if (info->params.info_flags & EDD_INFO_MEDIA_CHANGE_NOTIFICATION)
--		p += sprintf(p, "media change notification\n");
-+		p += snprintf(p, left, "media change notification\n");
- 	if (info->params.info_flags & EDD_INFO_LOCKABLE)
--		p += sprintf(p, "lockable\n");
-+		p += snprintf(p, left, "lockable\n");
- 	if (info->params.info_flags & EDD_INFO_NO_MEDIA_PRESENT)
--		p += sprintf(p, "no media present\n");
-+		p += snprintf(p, left, "no media present\n");
- 	if (info->params.info_flags & EDD_INFO_USE_INT13_FN50)
--		p += sprintf(p, "use int13 fn50\n");
-+		p += snprintf(p, left, "use int13 fn50\n");
- 	return (p - buf);
- }
- 
-@@ -459,7 +462,7 @@
- 		return 0;
- 	}
- 
--	p += sprintf(p, "0x%x\n", info->params.num_default_cylinders);
-+	p += snprintf(p, left, "0x%x\n", info->params.num_default_cylinders);
- 	return (p - buf);
- }
- 
-@@ -473,7 +476,7 @@
- 		return 0;
- 	}
- 
--	p += sprintf(p, "0x%x\n", info->params.num_default_heads);
-+	p += snprintf(p, left, "0x%x\n", info->params.num_default_heads);
- 	return (p - buf);
- }
- 
-@@ -487,7 +490,7 @@
- 		return 0;
- 	}
- 
--	p += sprintf(p, "0x%x\n", info->params.sectors_per_track);
-+	p += snprintf(p, left, "0x%x\n", info->params.sectors_per_track);
- 	return (p - buf);
- }
- 
-@@ -500,7 +503,7 @@
- 		return 0;
- 	}
- 
--	p += sprintf(p, "0x%llx\n", info->params.number_of_sectors);
-+	p += snprintf(p, left, "0x%llx\n", info->params.number_of_sectors);
- 	return (p - buf);
- }
- 
-diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c	Wed Oct 23 13:15:30 2002
-+++ b/arch/i386/kernel/setup.c	Wed Oct 23 13:15:30 2002
-@@ -471,7 +471,8 @@
- unsigned char eddnr;
- struct edd_info edd[EDDNR];
- /**
-- * copy_edd() - Copy the BIOS EDD information into a safe place.
-+ * copy_edd() - Copy the BIOS EDD information
-+ *              from empty_zero_page into a safe place.
-  *
+ #if defined(CONFIG_PROC_FS)
+ #include <linux/proc_fs.h>
+@@ -481,6 +482,9 @@
+ #endif
+ EXPORT_SYMBOL(jiffies);
+ EXPORT_SYMBOL(jiffies_64);
++#ifdef CONFIG_HIGH_RES_TIMERS
++EXPORT_SYMBOL(timer_conversion_bits);
++#endif
+ EXPORT_SYMBOL(xtime);
+ EXPORT_SYMBOL(do_gettimeofday);
+ EXPORT_SYMBOL(do_settimeofday);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-posix/kernel/timer.c linux/kernel/timer.c
+--- linux-2.5.44-bk3-posix/kernel/timer.c	Wed Oct 30 11:12:11 2002
++++ linux/kernel/timer.c	Wed Oct 30 10:45:03 2002
+@@ -17,6 +17,8 @@
+  *  2000-10-05  Implemented scalable SMP per-CPU timer handling.
+  *                              Copyright (C) 2000, 2001, 2002  Ingo Molnar
+  *              Designed by David S. Miller, Alexey Kuznetsov and Ingo Molnar
++ *  2002-10-01	High res timers code by George Anzinger 
++ *		    Copyright (C)2002 by MontaVista Software.
   */
- static inline void copy_edd(void)
-diff -Nru a/include/asm-i386/edd.h b/include/asm-i386/edd.h
---- a/include/asm-i386/edd.h	Wed Oct 23 13:15:30 2002
-+++ b/include/asm-i386/edd.h	Wed Oct 23 13:15:30 2002
-@@ -36,6 +36,10 @@
- #define EDDMAXNR 6		/* number of edd_info structs starting at EDDBUF  */
- #define EDDEXTSIZE 4		/* change these if you muck with the structures */
- #define EDDPARMSIZE 74
-+#define CHECKEXTENSIONSPRESENT 0x41
-+#define GETDEVICEPARAMETERS 0x48
-+#define EDDMAGIC1 0x55AA
-+#define EDDMAGIC2 0xAA55
  
- #ifndef __ASSEMBLY__
+ #include <linux/kernel_stat.h>
+@@ -25,38 +27,44 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
  
++#include <linux/hrtime.h>
++#include <linux/compiler.h>
++#include <asm/signal.h>
+ #include <asm/uaccess.h>
+ 
++#ifndef IF_HIGH_RES
++#ifdef CONFIG_HIGH_RES_TIMERS
++/*
++ * ifdef eliminator macro...
++ */
++#define IF_HIGH_RES(a) a
++#else
++#define IF_HIGH_RES(a)
++#endif
++#endif
++#ifdef CONFIG_SMP
++#undef IF_SMP
++#define IF_SMP(a) a
++#define SMP 1
++#else
++#undef IF_SMP
++#define IF_SMP(a) 
++#define SMP 0
++#endif
++#ifndef CONFIG_NEW_TIMER_LISTSIZE
++#define CONFIG_NEW_TIMER_LISTSIZE 512
++#endif
++#define NEW_TVEC_SIZE CONFIG_NEW_TIMER_LISTSIZE
++#define NEW_TVEC_MASK (NEW_TVEC_SIZE - 1)
+ /*
+  * per-CPU timer vector definitions:
+  */
+-#define TVN_BITS 6
+-#define TVR_BITS 8
+-#define TVN_SIZE (1 << TVN_BITS)
+-#define TVR_SIZE (1 << TVR_BITS)
+-#define TVN_MASK (TVN_SIZE - 1)
+-#define TVR_MASK (TVR_SIZE - 1)
+-
+-typedef struct tvec_s {
+-	int index;
+-	struct list_head vec[TVN_SIZE];
+-} tvec_t;
+-
+-typedef struct tvec_root_s {
+-	int index;
+-	struct list_head vec[TVR_SIZE];
+-} tvec_root_t;
+-
+ 
+ struct tvec_t_base_s {
+ 	spinlock_t lock;
+ 	unsigned long timer_jiffies;
+-	struct timer_list *running_timer;
+-	tvec_root_t tv1;
+-	tvec_t tv2;
+-	tvec_t tv3;
+-	tvec_t tv4;
+-	tvec_t tv5;
++ 	volatile struct timer_list * volatile running_timer;
++ 	struct list_head tv[NEW_TVEC_SIZE];
+ } ____cacheline_aligned_in_smp;
+ 
+ typedef struct tvec_t_base_s tvec_base_t;
+@@ -66,42 +74,101 @@
+ /* Fake initialization needed to avoid compiler breakage */
+ static DEFINE_PER_CPU(struct tasklet_struct, timer_tasklet) = { NULL };
+ 
+-static inline void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
+-{
+-	unsigned long expires = timer->expires;
+-	unsigned long idx = expires - base->timer_jiffies;
+-	struct list_head *vec;
+-
+-	if (idx < TVR_SIZE) {
+-		int i = expires & TVR_MASK;
+-		vec = base->tv1.vec + i;
+-	} else if (idx < 1 << (TVR_BITS + TVN_BITS)) {
+-		int i = (expires >> TVR_BITS) & TVN_MASK;
+-		vec = base->tv2.vec + i;
+-	} else if (idx < 1 << (TVR_BITS + 2 * TVN_BITS)) {
+-		int i = (expires >> (TVR_BITS + TVN_BITS)) & TVN_MASK;
+-		vec = base->tv3.vec + i;
+-	} else if (idx < 1 << (TVR_BITS + 3 * TVN_BITS)) {
+-		int i = (expires >> (TVR_BITS + 2 * TVN_BITS)) & TVN_MASK;
+-		vec = base->tv4.vec + i;
+-	} else if ((signed long) idx < 0) {
+-		/*
+-		 * Can happen if you add a timer with expires == jiffies,
+-		 * or you set a timer to go off in the past
+-		 */
+-		vec = base->tv1.vec + base->tv1.index;
+-	} else if (idx <= 0xffffffffUL) {
+-		int i = (expires >> (TVR_BITS + 3 * TVN_BITS)) & TVN_MASK;
+-		vec = base->tv5.vec + i;
+-	} else {
+-		/* Can only get here on architectures with 64-bit jiffies */
+-		INIT_LIST_HEAD(&timer->entry);
+-		return;
+-	}
+-	/*
+-	 * Timers are FIFO:
+-	 */
+-	list_add_tail(&timer->entry, vec);
++ static inline void internal_add_timer(tvec_base_t *base, 
++ 				      struct timer_list *timer)
++  {
++ 	/*
++ 	 * must be cli-ed when calling this
++ 	 */
++  	unsigned long expires = timer->expires;
++ 	IF_HIGH_RES(int sub_expires = timer->sub_expires;)
++ 		int indx;
++ 	struct list_head *pos,*list_start;
++  
++ 	if ( time_before(expires, base->timer_jiffies) ){
++ 		/*
++ 		 * already expired, schedule for next tick 
++ 		 * would like to do better here
++ 		 * Actually this now works just fine with the
++ 		 * back up of timer_jiffies in "run_timer_list".
++ 		 * Note that this puts the timer on a list other
++ 		 * than the one it idexes to.  We don't want to
++ 		 * change the expires value in the timer as it is
++ 		 * used by the repeat code in setitimer and the
++ 		 * POSIX timers code.
++ 			 */
++ 		expires = base->timer_jiffies;
++ 		IF_HIGH_RES(sub_expires = 0);
++ 	}
++ 			
++ 	indx =	expires & NEW_TVEC_MASK;
++ 	if ((expires - base->timer_jiffies) <= NEW_TVEC_SIZE) {
++ #ifdef CONFIG_HIGH_RES_TIMERS
++ 		unsigned long jiffies_f;
++  		/*
++ 		 * The high diff bits are the same, goes to the head of 
++ 		 * the list, sort on sub_expire.
++  		 */
++ 		for (pos = (list_start = &base->tv[indx])->next; 
++ 		     pos != list_start; 
++ 		     pos = pos->next){
++ 			struct timer_list *tmr = 
++ 				list_entry(pos,
++ 					   struct timer_list,
++ 					   entry);
++ 			if ((tmr->sub_expires >= sub_expires) ||
++ 			    (tmr->expires != expires)){
++ 				break;
++ 			}
++ 		}
++ 		list_add_tail(&timer->entry, pos);
++ 		/*
++ 		 * Notes to me.	 Use jiffies here instead of 
++ 		 * timer_jiffies to prevent adding unneeded interrupts.
++ 		 * Running_timer is NULL if we are NOT currently 
++ 		 * activly dispatching timers.	Since we are under
++ 		 * the same spin lock, it being false means that 
++ 		 * it has dropped the spinlock to call the timer
++ 		 * function, which could well be who called us.
++ 		 * In any case, we don't need a new interrupt as
++ 		 * the timer dispach code (run_timer_list) will
++ 		 * pick this up when the function it is calling 
++ 		 * returns.
++ 		 */
++ 		if ( expires == (jiffies_f = jiffies) && 
++ 		     list_start->next == &timer->entry &&
++ 		     (base->running_timer == NULL)) {
++ 			schedule_next_int(jiffies_f, sub_expires,1);
++ 		}
++ #else
++ 		pos = (&base->tv[indx])->next;
++ 		list_add_tail(&timer->entry, pos);
++ #endif
++ 	}else{
++ 		/*
++ 		 * The high diff bits differ, search from the tail
++ 		 * The for will pick up an empty list.
++ 		 */
++ 		for (pos = (list_start = &base->tv[indx])->prev; 
++ 		     pos != list_start; 
++ 		     pos = pos->prev){
++ 			struct timer_list *tmr = 
++ 				list_entry(pos,
++ 					   struct timer_list,
++ 					   entry);
++ 			if (time_after(tmr->expires, expires)){
++ 				continue;
++ 			}
++ 			IF_HIGH_RES(
++ 				if ((tmr->expires != expires) ||
++ 				    (tmr->sub_expires < sub_expires)) {
++ 					break;
++ 				}
++ 				);
++ 		}
++ 		list_add(&timer->entry, pos);
++ 	}
++ 				
+ }
+ 
+ /***
+@@ -152,9 +219,11 @@
+  * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
+  * active timer returns 1.)
+  */
++#ifndef CONFIG_HIGH_RES_TIMERS
+ int mod_timer(struct timer_list *timer, unsigned long expires)
+ {
+-	tvec_base_t *old_base, *new_base;
++	tvec_base_t *new_base;
++	IF_SMP( tvec_base_t *old_base;)
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+@@ -169,6 +238,7 @@
+ 
+ 	local_irq_save(flags);
+ 	new_base = tvec_bases + smp_processor_id();
++#ifdef CONFIG_SMP
+ repeat:
+ 	old_base = timer->base;
+ 
+@@ -184,6 +254,74 @@
+ 			spin_lock(&new_base->lock);
+ 		}
+ 		/*
++		 * Subtle, we rely on timer->base being always
++		 * valid and being updated atomically.
++		 */
++		if (timer->base != old_base) {
++			spin_unlock(&new_base->lock);
++			spin_unlock(&old_base->lock);
++			goto repeat;
++		}
++	} else
++#endif
++		spin_lock(&new_base->lock);
++
++	timer->expires = expires;
++	/*
++	 * Delete the previous timeout (if there was any), and install
++	 * the new one:
++	 */
++	if (timer->base) {
++		list_del(&timer->entry);
++		ret = 1;
++	}
++	internal_add_timer(new_base, timer);
++	timer->base = new_base;
++
++	IF_SMP(if (old_base && (new_base != old_base))
++	       spin_unlock(&old_base->lock);
++		)
++	spin_unlock_irqrestore(&new_base->lock, flags);
++
++	return ret;
++}
++#else
++/*
++ * Is this useful?  It is not used by POSIX timers.
++ */
++int mod_timer_hr(struct timer_list *timer, 
++		 unsigned long expires,
++		 long sub_expires)
++{
++	tvec_base_t *new_base;
++	IF_SMP( tvec_base_t *old_base;)
++	unsigned long flags;
++	int ret = 0;
++
++	if (timer_pending(timer) && 
++	    timer->expires == expires &&
++	    timer->sub_expires == sub_expires)
++		return 1;
++
++	local_irq_save(flags);
++	new_base = tvec_bases + smp_processor_id();
++#ifdef CONFIG_SMP
++
++ repeat: 
++	old_base = timer->base;
++
++	/*
++	 * Prevent deadlocks via ordering by old_base < new_base.
++	 */
++	if (old_base && (new_base != old_base)) {
++		if (old_base < new_base) {
++			spin_lock(&new_base->lock);
++			spin_lock(&old_base->lock);
++		} else {
++			spin_lock(&old_base->lock);
++			spin_lock(&new_base->lock);
++		}
++		/*
+ 		 * The timer base might have changed while we were
+ 		 * trying to take the lock(s):
+ 		 */
+@@ -193,26 +331,35 @@
+ 			goto repeat;
+ 		}
+ 	} else
++#endif
++
+ 		spin_lock(&new_base->lock);
+ 
+ 	/*
+ 	 * Delete the previous timeout (if there was any), and install
+ 	 * the new one:
+ 	 */
+-	if (old_base) {
++	if (timer->base) {
+ 		list_del(&timer->entry);
+ 		ret = 1;
+ 	}
+ 	timer->expires = expires;
++	timer->sub_expires = sub_expires;
+ 	internal_add_timer(new_base, timer);
+ 	timer->base = new_base;
+ 
+-	if (old_base && (new_base != old_base))
+-		spin_unlock(&old_base->lock);
++	IF_SMP(if (old_base && (new_base != old_base))
++	       spin_unlock(&old_base->lock);
++		)
+ 	spin_unlock_irqrestore(&new_base->lock, flags);
+ 
+ 	return ret;
+ }
++int mod_timer(struct timer_list *timer, unsigned long expires)
++{
++	return mod_timer_hr(timer, expires, timer->sub_expires);
++}
++#endif
+ 
+ /***
+  * del_timer - deactive a timer.
+@@ -289,55 +436,42 @@
+ #endif
+ 
+ 
+-static int cascade(tvec_base_t *base, tvec_t *tv)
+-{
+-	/* cascade all the timers from tv up one level */
+-	struct list_head *head, *curr, *next;
+-
+-	head = tv->vec + tv->index;
+-	curr = head->next;
+-	/*
+-	 * We are removing _all_ timers from the list, so we don't  have to
+-	 * detach them individually, just clear the list afterwards.
+-	 */
+-	while (curr != head) {
+-		struct timer_list *tmp;
+-
+-		tmp = list_entry(curr, struct timer_list, entry);
+-		if (tmp->base != base)
+-			BUG();
+-		next = curr->next;
+-		internal_add_timer(base, tmp);
+-		curr = next;
+-	}
+-	INIT_LIST_HEAD(head);
+-
+-	return tv->index = (tv->index + 1) & TVN_MASK;
+-}
+-
+-/***
+- * __run_timers - run all expired timers (if any) on this CPU.
+- * @base: the timer vector to be processed.
+- *
+- * This function cascades all vectors and executes all expired timer
+- * vectors.
++/*
++ * run_timer_list is ALWAYS called from softirq which calls with irq enabled.
++ * We may assume this and not save the flags.
+  */
+-static inline void __run_timers(tvec_base_t *base)
++  
++  
++static void __run_timers(tvec_base_t *base)
+ {
++	IF_HIGH_RES( unsigned long jiffies_f;
++		     long sub_jiff = -1;
++		     long sub_jiffie_f);
+ 	spin_lock_irq(&base->lock);
++#ifdef CONFIG_HIGH_RES_TIMERS
++	read_lock(&xtime_lock);
++	jiffies_f = jiffies;
++	sub_jiffie_f = sub_jiffie() + quick_get_cpuctr();
++	read_unlock(&xtime_lock);
++	while ( unlikely(sub_jiffie_f >= cycles_per_jiffies)){
++		sub_jiffie_f -= cycles_per_jiffies;
++		jiffies_f++;
++	}
++	while ((long)(jiffies_f - base->timer_jiffies) >= 0) {
++#else
+ 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
++#endif
++ 
+ 		struct list_head *head, *curr;
+-
++		head = base->tv + 
++			(base->timer_jiffies	& NEW_TVEC_MASK);
+ 		/*
+-		 * Cascade timers:
++		 * Note that we never move "head" but continue to
++		 * pick the first entry from it.  This allows new
++		 * entries to be inserted while we unlock for the
++		 * function call below.
+ 		 */
+-		if (!base->tv1.index &&
+-			(cascade(base, &base->tv2) == 1) &&
+-				(cascade(base, &base->tv3) == 1) &&
+-					cascade(base, &base->tv4) == 1)
+-			cascade(base, &base->tv5);
+ repeat:
+-		head = base->tv1.vec + base->tv1.index;
+ 		curr = head->next;
+ 		if (curr != head) {
+ 			void (*fn)(unsigned long);
+@@ -345,28 +479,68 @@
+ 			struct timer_list *timer;
+ 
+ 			timer = list_entry(curr, struct timer_list, entry);
+- 			fn = timer->function;
+- 			data = timer->data;
+-
+-			list_del(&timer->entry);
+-			timer->base = NULL;
+-#if CONFIG_SMP
+-			base->running_timer = timer;
++#ifdef CONFIG_HIGH_RES_TIMERS
++			/*
++			 * This would be simpler if we never got behind
++			 * i.e. if timer_jiffies == jiffies, we could
++			 * drop one of the tests.  Since we may get 
++			 * behind, (in fact we don't up date until
++			 * we are behind to allow sub_jiffie entries)
++			 * we need a way to negate the sub_jiffie
++			 * test in that case...
++			 */
++			if (time_before(timer->expires, jiffies_f)||
++			    ((timer->expires == jiffies_f) &&
++			     timer->sub_expires <= sub_jiffie_f))
++#else
++			if (time_before_eq(timer->expires, jiffies))
+ #endif
+-			spin_unlock_irq(&base->lock);
+-			if (!fn)
+-				printk("Bad: timer %p has NULL fn. (data: %08lx)\n", timer, data);
+-			else
++				{fn = timer->function;
++				data= timer->data;
++
++				list_del(&timer->entry);
++				timer->base = NULL;
++				timer->entry.next = timer->entry.prev = NULL;
++				base->running_timer = timer;
++				spin_unlock_irq(&base->lock);
+ 				fn(data);
+-			spin_lock_irq(&base->lock);
+-			goto repeat;
++				spin_lock_irq(&base->lock);
++				goto repeat;
++			}
++#ifdef CONFIG_HIGH_RES_TIMERS
++			else{
++				/*
++				 * The new timer list is not always emptied
++				 * here as it contains:
++				 * a.) entries (list size)^N*jiffies out and
++				 * b.) entries that match in jiffies, but have
++				 *     sub_expire times further out than now.
++				 */
++				 if (timer->expires == jiffies_f ){
++					sub_jiff = timer->sub_expires;
++				}
++			}
++#endif
+ 		}
+ 		++base->timer_jiffies; 
+-		base->tv1.index = (base->tv1.index + 1) & TVR_MASK;
+ 	}
+-#if CONFIG_SMP
++	/*
++	 * It is faster to back out the last bump, than to prevent it.
++	 * This allows zero time inserts as well as sub_jiffie values in
++	 * the current jiffie.	Did not work for the cascade as tv1.index
++	 * also needs adjusting. 
++	 */
++	--base->timer_jiffies;
+ 	base->running_timer = NULL;
+-#endif
++
++	IF_HIGH_RES(if (schedule_next_int( jiffies_f, sub_jiff, 0)){
++		/*
++		 * If schedule_next_int says the time has passed
++		 * bump the tasklet lock so we go round again
++		 */
++		run_local_timers();
++		});
++
+ 	spin_unlock_irq(&base->lock);
+ }
+ 
+@@ -649,15 +823,37 @@
+ /*
+  * Called from the timer interrupt handler to charge one tick to the current 
+  * process.  user_tick is 1 if the tick is user time, 0 for system.
++ *
++ * Here is where we need to sort out the sub-jiffie interrupts from the 
++ * jiffie ones and make sure we only do accounting once per jiffie per cpu.
++ * We do this by using new_jiffie as a bit per cpu. All ops are atomic.
+  */
++/*
++ * This read-write spinlock protects us from races in SMP while
++ * playing with xtime and avenrun.
++ */
++rwlock_t xtime_lock __cacheline_aligned_in_smp = RW_LOCK_UNLOCKED;
++
+ void update_process_times(int user_tick)
+ {
+ 	struct task_struct *p = current;
+ 	int cpu = smp_processor_id(), system = user_tick ^ 1;
+ 
+-	update_one_process(p, user_tick, system, cpu);
++	/*
++	 * always run the timer list to pick up sub-jiffie timers
++	 */
+ 	run_local_timers();
+-	scheduler_tick(user_tick, system);
++
++	/* 
++         * If high-res, we come here more often that 1/HZ.  Don't pass
++	 * the extra calls to those who only want the 1/HZ call.
++         */
++#ifdef CONFIG_HIGH_RES_TIMERS
++	if (test_and_clear_bit(cpu, (volatile unsigned long *)&new_jiffie()))
++#endif	 
++	{	update_one_process(p, user_tick, system, cpu);
++		scheduler_tick(user_tick, system);
++	}
+ }
+ 
+ /*
+@@ -676,35 +872,38 @@
+  *
+  * Requires xtime_lock to access.
+  */
+-unsigned long avenrun[3];
+ 
+ /*
+- * calc_load - given tick count, update the avenrun load estimates.
+- * This is called while holding a write_lock on xtime_lock.
++ * calc_load - (runs on above timer), update the avenrun load estimates.
++ * This is called from soft_irq context, ints on, bh locked.
+  */
+-static inline void calc_load(unsigned long ticks)
++unsigned long avenrun[3];
++static inline void calc_load(void);
++
++struct timer_list calc_load_timer = {
++	expires: LOAD_FREQ,
++	function:(void (*)(unsigned long))calc_load,
++	entry: {0,0} };
++				       
++static inline void calc_load(void)
+ {
+ 	unsigned long active_tasks; /* fixed-point */
+-	static int count = LOAD_FREQ;
+ 
+-	count -= ticks;
+-	if (count < 0) {
+-		count += LOAD_FREQ;
+-		active_tasks = count_active_tasks();
+-		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
+-		CALC_LOAD(avenrun[1], EXP_5, active_tasks);
+-		CALC_LOAD(avenrun[2], EXP_15, active_tasks);
+-	}
++	active_tasks = count_active_tasks();
++	write_lock_irq(&xtime_lock);
++	CALC_LOAD(avenrun[0], EXP_1, active_tasks);
++	CALC_LOAD(avenrun[1], EXP_5, active_tasks);
++	CALC_LOAD(avenrun[2], EXP_15, active_tasks);
++	write_unlock_irq(&xtime_lock);
++
++	calc_load_timer.expires = jiffies + LOAD_FREQ;
++	add_timer(&calc_load_timer);
+ }
+ 
++
+ /* jiffies at the most recent update of wall time */
+ unsigned long wall_jiffies;
+ 
+-/*
+- * This read-write spinlock protects us from races in SMP while
+- * playing with xtime and avenrun.
+- */
+-rwlock_t xtime_lock __cacheline_aligned_in_smp = RW_LOCK_UNLOCKED;
+ unsigned long last_time_offset;
+ 
+ /*
+@@ -714,8 +913,7 @@
+ {
+ 	tvec_base_t *base = tvec_bases + smp_processor_id();
+ 
+-	if ((long)(jiffies - base->timer_jiffies) >= 0)
+-		__run_timers(base);
++	__run_timers(base);
+ }
+ 
+ /*
+@@ -740,8 +938,25 @@
+ 		update_wall_time(ticks);
+ 	}
+ 	last_time_offset = 0;
+-	calc_load(ticks);
+ }
++#ifdef CONFIG_HIGH_RES_TIMERS
++void update_real_wall_time(void)
++{
++	unsigned long ticks;
++       /*
++	 * To get the time of day really right, we need to make sure 
++	 * every one is on the same jiffie. (Because of adj_time, etc.)
++	 * So we provide this for the high res code.  Must be called 
++	 * under the write(xtime_lock).	 (External locking allows the
++	 * caller to include sub jiffies in the lock region.)
++	 */
++	ticks = jiffies - wall_jiffies;
++	if (ticks) {
++		wall_jiffies += ticks;
++		update_wall_time(ticks);
++	}
++}
++#endif
+   
+ /*
+  * The 64-bit jiffies value is not atomic - you MUST NOT read it
+@@ -751,12 +966,12 @@
+ 
+ void do_timer(struct pt_regs *regs)
+ {
+-	jiffies_64++;
+-#ifndef CONFIG_SMP
+-	/* SMP process accounting uses the local APIC timer */
+-
+-	update_process_times(user_mode(regs));
+-#endif
++	update_jiffies();
++	/* 
++	 * SMP process accounting uses the local APIC timer 
++	 */
++	if (!SMP )
++		update_process_times(user_mode(regs));
+ 	update_times();
+ }
+ 
+@@ -765,7 +980,7 @@
+ extern int do_setitimer(int, struct itimerval *, struct itimerval *);
+ 
+ /*
+- * For backwards compatibility?  This can be done in libc so Alpha
++ * For backwards compatibility?	 This can be done in libc so Alpha
+  * and all newer ports shouldn't need it.
+  */
+ asmlinkage unsigned long sys_alarm(unsigned int seconds)
+@@ -875,7 +1090,7 @@
+ asmlinkage long sys_getegid(void)
+ {
+ 	/* Only we change this so SMP safe */
+-	return  current->egid;
++	return	current->egid;
+ }
+ 
+ #endif
+@@ -1004,8 +1219,9 @@
+ 
+ 	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+ 
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire);
++	do {
++		current->state = TASK_INTERRUPTIBLE;
++	} while((expire = schedule_timeout(expire)) && !_do_signal());
+ 
+ 	if (expire) {
+ 		if (rmtp) {
+@@ -1099,14 +1315,9 @@
+ 	       
+ 		base = tvec_bases + i;
+ 		spin_lock_init(&base->lock);
+-		for (j = 0; j < TVN_SIZE; j++) {
+-			INIT_LIST_HEAD(base->tv5.vec + j);
+-			INIT_LIST_HEAD(base->tv4.vec + j);
+-			INIT_LIST_HEAD(base->tv3.vec + j);
+-			INIT_LIST_HEAD(base->tv2.vec + j);
+-		}
+-		for (j = 0; j < TVR_SIZE; j++)
+-			INIT_LIST_HEAD(base->tv1.vec + j);
++		for (j = 0; j < NEW_TVEC_SIZE; j++)
++			INIT_LIST_HEAD(base->tv + j);
+ 		tasklet_init(&per_cpu(timer_tasklet, i), run_timer_tasklet, 0);
+ 	}
++	calc_load();
+ }
 
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.809
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch19533
-M'XL(`$+GMCT``[5::W<:1Q+]#+^B5HX3R08T[QG(RHDBL*.3V-:1Y#TY&^=P
-MAIE&S&J88><A1)8?O[>ZAS%Z`+82R[(;F*[;5;>KJZH+/Z,/N<AZC;=^40S[
-MZ30/)LUG]'.:%[U&*.*X$Z13?'">IOC@<)).Q>$TE-,.1]>'<924MVVC8[=%
-M&+:+E-_G3<P_\XM@0C<BRWL-O6/6GQ2+F>@US@=O/OQZ?-YL'AW1R<1/KL2%
-M*.CHJ%FDV8T?A_F/?C&)TZ139'Z23T7ALQK+>NK2T#0#?VS=-37;6>J.9KG+
-M0`]UW;=T$6J&Y3G6)S16>RN6KNE=S;0=PUH:IF=VFWW2.Y[6)<TXU+5#0R?=
-M[FEZ3[?;&EYHM$;7CRN:Z*5%;:WY$_V]5IPT`QKT^SWRPY``,!5)D;=HZE]%
-M`6&=4E`HQE$B\&&9"\J3618EQ9C\>.XO\N8O!),,K7GVB>IF^PM_FDW-UYJO
-M=ECF9_"*R/2<PVN1)2(^S$51SCK!FJ$6N%Y:KJEK2U_78*5KZ6,]"`S7?I33
-M[9@Z?G7'-`UCJ7NN[4+#SP.!M]806M?0=-.VEKIMN-:RZSA==SQV1WYHCET_
-M>`)BK11V5>M^`6TCG++*P(N[I&E+8$)'1PL]?>0;ANL)=VR,=VGW`'%-.\LP
-M'&,395$2Q&4H#OU\VI9(;.#D/F6FYQG>4H2CD:W[KJ]U`\_2G2<@UDJ97=>R
-M9&!XG&*.$G_['C\=T5Z:ENM:,EX8GZ*%YO1,K6?H6Z.%XU#;,;]*O'@L#KPF
-MW<,?Q`/IE>^IG<WE+X[WV0:VGQ`H3AV7C.8S%9(H%N."]H.T3`IJT_X,_XS*
-M\0$&_:#YL=G738?TYJD:L.0P+*>S8>;/AZ%?^/O!Q,_HQ:A%,(0D2HMNTBBD
-M%_Q8?1R+Y*J8'#!65V'QT)"B$W&+Y7[WM#]:Y.<!OS;X]8L)_D(^^!YBEB'%
-MY-#XA#B4](F0CDAK42AG6F3R3`=#8SZ)8D'[]R;_LY*F;[]5"M,KT@[H?\U&
-M8P(DI=#W>.?CG5))(G=!VJEN:Q@://7E$>5J__:AZ]YSS;BEO1;METD>7258
-MB.T[H!>S`P9K1&/:_T>D)/;Q(=-A6](N.31XP35,GS$#``8'O+RCR>4=?</R
-M1+2G%GJ`(A\`P50(S%"CP:2M_&\?VU=MW=[S_&.!OPD65DRLMD6"CQ@[Y%>5
-MPQPIVCVU07*`"C.IP@I]UI).MK(G2L9I^]7,S_QIWIF@C!F.RGS(9<?OT1]2
-M4T_1XEG;T2J[/.53<M@\^6,Q\G,Q1(;.1)[WZ/DMVPCQKBG%Y;!)O-G'J>9I
-M:M@VS573W!W*E,EUDLX3Z!''E2:(]5)6#E]$(OMU-O8#L<ZB87@*SOL<%@U3
-MV6=NLX\5#\5-%`CH71+%)1M05NJK.*&&ST-8"7:5X*X-C,+U9>-X)6_)'53#
-M-GE4T9$?#Y-R.D(]O<Z\I52W=JDNRNBNG-+<VJ7Y?"YUAV"M_`K"5LK;NY2/
-M0A254;$8%O[570"EN[U+]WL`M;@RP=YEPH-=<Y3#.+L<YHZGKRO>-3@>&5T.
-M2QOE\58W:9Q8'F6HD3*.JYQ8>A\3P'!,DI(/\U(-L5^EJ`.>=$`OR>(GB73Z
-MKCHB<MAL@ERG;Z)*P&0U;(X`IBXC@!JV3#/DOJMA,WV#+$OAJA<S@8M$E,9^
-M$:'Z(!I,9\6"U)[0#$5)9Z6EI;2T=FAIRV2`>DNEDQWK_W3Z_H)RE"A43**<
-M\.O3V<EII4`+!4.!)X(P*TQ%GGQ7$&]ZM4-;8@_YHQ2RZVCD%\2YM,?_=)YK
-M>N4OIN-Q:C==3>:OIZA\<7)Q1^?/T.\1JRJ=)>P:8N<ST/HI+=*2)OZ-H*CX
-M+J<PBW`#IVD:EJA4XM0/1?C#:BM=5QG<E09O=L^S6""UH=P0P355N?M\</;^
-M_'+XX?Q7J=,FX2*E7$"7L3)GXN<T$B+!69NE&8HEN-KIF)*T:*VLVX0T4TKD
-M(@DE:9R@LJGT5Z#]MQ0YUUYXDHG:5[LRSZMA([!VRXX@C5))CUL60&4$2Y/1
-M2PV;=7L=W7+8B/)K\H,`Z;]2P-)E#%/#9O&^\LLX#:ZCY(I\6"C^(X(";VH@
-M6P'9VT]S@HM"`%7ZK$J?]Y[R<L94UT">`O*V`CE6>Q05)&X+D3`7M4&F9%0-
-M6PQZ>TSPX23,%B3XN)"\SZ":0(JHH1P%M3VO7(D4UR#@X'H4A;6LLL+<;D4F
-MINF-/XK%2DS%+FMK[**]>185@AM7T7A12ZJ-M+9OY%2$D<]E.6YK[-31.`JD
-MA]8PBCYK.WWL"'?45DSMJ!Z2E-3Z,Q2@:SQ;BBMK.U=\75SE0EM;R:H<K(9M
-M!VC]^%0U(ZJ@(6Z`?AD7PV`11TF(8R5!766.'/X"Z$3XH0+LJFV5PQ<"YCAF
-M:98/9R(;PD>#:P:T-9D[U;`-L*HU'NB(\F^8CH<5.""YF?%X\V-C,^.O=%^>
-MCF@O35UWS2<U,[Y:Z_,X#%?]34+07^][KO<T5-_H7E/C<:.?TM1`L+'JIL;)
-MSX.37P:_70[>79R^?W=Q=CZX&+R[).W6TNLY;P:7_<&_3D\&9\?GQV\'EX/S
-M"Y[@U1,&?03*-Z<GX/?6MH^/'SS`#MP>']OVO6;8>D=O=\O\K_06=W7%'NDM
-MUHYD=[NF+1U)=[[0DW"E;#M?RY4B#LA^7/?1USQ(M4,WML76K7V"!_55A\?F
-M^I)>T&@AK2=E/?WS,2I>T7N$$(038A-9*DA5W9.@0$SI$O'Z!'9$18$J:SZ?
-M=Q#!.VEVQ5,)F2#E.B(GW7:-?HMTR[-X@#$\P-K^)12R=3+@MG3))1H6R*,<
-M,BEJMGE*@1_'>0]/\<.=,=V<D#\YLO0)[9W(BG!05PETIE+/WL/I'J:_$;!6
-MU3IG'"M%@92`N9A]S#W!,>S$JGGT9W4$?GMW_F(?KW#0+D[_/7B)ESA+;_GU
-M`5?<O%IV@WJ'HT):9MST!%B4R`I1\!UF^*?(TN',OY)U/P!^^O`:1><EGH^C
-M+"\@"KG1HA#2XODDPEZ@3@$,P$(F.8<;"HE872!4A)>M1]466159B$PS6;Y5
-M)21`H"*2%>)6!L?&-5-?+9[&<3KG<L^UJN6QZMTU(<ZKWH?P`'%1^!G7A^K#
-M2B]/F[3D&BV62^1<8#`N[R*0?54\1UD-*A<*F3+%S<OD,<:9\([T$*&XG:72
-M>-X$1%@46D*V/N^RA6NRW!E^DZ"6E%IT5HZ&*X#PH4&9%%%,(N+2'7>HRI;5
-MA4C<PAE;!!0U;^470%$S<W7;D;<*94RE**6(I$46!=<+W&"Q.1%?U>`$8=[+
-MHZHEK@S)U[T`[].*^;S(RJ`H,]SF*N8DO35YS&Q%('#3\1C!(8>LW!1U%:&5
-ML2A%15Y1H9BJB;O#*`@#@H`'+12V6ANW'Y9'49ZA[EG4O,K.Q8K78UR/<'Y#
-M-KW-UE2GJL6TO3MO;3H9<IV\,EIY-Q\&><5=L:Q.1K4=Y8P-6.T%+WT*]M77
-M<MSJG2V&R+/[!Q4R+@/%Y,&J2C>PB(U@TF!1[#,%.`3<%&9M%C1/RSBD*X0.
-M$)AQ;8YH0RFS.X]R$(QZS9&='ELVH!L@>M3XYO$$W:+G_H1#TS-Z72:!O#PB
-M8[/,O/%-G8\Q;72+B_8S56KP"K+IH@:6;P33V9J$\4D"FZWJDRRZFA0_0-95
-MLFXMJS1\I#R0ZC76=?,>_QZLHOI+DO]3OH_]S"_%[GX?6Q<`NJ-;KBP`L#%?
-M6`!06_\J^7_]"_2UQ*^^.M[U?5AEYY-2OZMN?B[WPV0:KX](&QE\MI!'3QXX
-M^-1Z<T-E\K4?&5SNGR4.6@B>N3]&)(F1DCJ?_@N&[-ODY?1HU$7HL,*P^7^.
-'%/N:\B$`````
-`
-end
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+--------------80AD62642C6697D02D87A555--
 

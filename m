@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVAIWrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVAIWst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbVAIWrk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVAIWrk
+	id S261933AbVAIWst (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVAIWst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:47:40 -0500
-Received: from gprs215-6.eurotel.cz ([160.218.215.6]:31104 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261921AbVAIWr1 (ORCPT
+	Sun, 9 Jan 2005 17:48:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44160 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261933AbVAIWsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:47:27 -0500
-Date: Sun, 9 Jan 2005 23:47:11 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: shawvrana@acm.org
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
-       plazmcman@softhome.net
-Subject: Re: Screwy clock after apm suspend
-Message-ID: <20050109224711.GF1353@elf.ucw.cz>
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com>
+	Sun, 9 Jan 2005 17:48:41 -0500
+Date: Sun, 9 Jan 2005 14:48:40 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       clameter@sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fixes for prep_zero_page
+Message-ID: <20050109144840.W2357@build.pdx.osdl.net>
+References: <20050108010629.M469@build.pdx.osdl.net> <20050109014519.412688f6.akpm@osdl.org> <Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com> <20050109125212.330c34c1.akpm@osdl.org> <Pine.LNX.4.61.0501091409490.13639@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7bb8b8de05010710085ea81da9@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.61.0501091409490.13639@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Sun, Jan 09, 2005 at 02:32:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* Zwane Mwaikambo (zwane@arm.linux.org.uk) wrote:
+> On Sun, 9 Jan 2005, Andrew Morton wrote:
+> > Can't we simply move the page zeroing to the very end of __alloc_pages()?
+> 
+> Ok, i've changed that bit to something like;
 
-> Just thought I'd add that I too am seeing a big time drift on my
-> Thinkpad (T30) without ACPI during an APM suspend w/ 2.6.10.  If I can
-> help by testing patches, or providing any additional information,
-> please let me know.
+I did it the other way around, and moved kernel_map_pages to prep_new_page
+so it's called before zeroing to keep that with the other prep bits
+in buffered_rmqueue.  Made sense to me that kernel_map_pages is part of
+prepping a new page, but this isn't my area, so I could be way off ;-)
+It works for me with DEBUG_PAGEALLOC enabled.
 
-Probably code to compensate clock after ACPI suspend breaks apm case
-:-(.
-
-arch/i386/kernel/time.c, can you comment out         
-jiffies += sleep_length * HZ;
-
-in timer_resume to see if it goes away?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+===== mm/page_alloc.c 1.251 vs edited =====
+--- 1.251/mm/page_alloc.c	2005-01-07 21:44:07 -08:00
++++ edited/mm/page_alloc.c	2005-01-09 14:36:38 -08:00
+@@ -413,6 +413,7 @@ static void prep_new_page(struct page *p
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	page->private = 0;
+ 	set_page_refs(page, order);
++	kernel_map_pages(page, 1 << order, 1);
+ }
+ 
+ /* 
+@@ -823,7 +824,6 @@ nopage:
+ 	return NULL;
+ got_pg:
+ 	zone_statistics(zonelist, z);
+-	kernel_map_pages(page, 1 << order, 1);
+ 	return page;
+ }
+ 

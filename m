@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269232AbTGVMvM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 08:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTGVMvM
+	id S270819AbTGVMyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbTGVMym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 08:51:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:1951 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269232AbTGVMvK (ORCPT
+	Tue, 22 Jul 2003 08:54:42 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:28100 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S270819AbTGVMyl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 08:51:10 -0400
-Date: Tue, 22 Jul 2003 06:07:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Deas, Jim" <James.Deas@warnerbros.com>
+	Tue, 22 Jul 2003 08:54:41 -0400
+Date: Tue, 22 Jul 2003 15:09:42 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmalloc - kmalloc and page locks
-Message-ID: <20030722130728.GW15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Deas, Jim" <James.Deas@warnerbros.com>,
-	linux-kernel@vger.kernel.org
-References: <S270817AbTGVMp3/20030722124529Z+5562@vger.kernel.org>
+Subject: Re: [Patch] Non-ASCII chars in visor.c messages
+Message-ID: <20030722150941.E26218@fi.muni.cz>
+References: <20030722143821.C26218@fi.muni.cz> <20030722125039.GA2310@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S270817AbTGVMp3/20030722124529Z+5562@vger.kernel.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030722125039.GA2310@kroah.com>; from greg@kroah.com on Tue, Jul 22, 2003 at 08:50:39AM -0400
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 06:00:14AM -0700, Deas, Jim wrote:
-> How can I look at what memory are being paged out of memory in the kernel
-> or how to lock kmalloc and vmalloc pages so they do not get put to swap?
->  I have a program that runs great 90% of the time but the other 10%
-> of the time the system usage (using 'top')goes from 3% to 50% and latency goes out
-> the window!  I am assuming this is due to some of my buffers getting swaped 
-> out as it often corrects itself and runs well the majority of time.
-> Doubling the base memory from 256M to 512M did nothing to fix this.
-> I need some way to find out who is holding up the process.
-> Any suggestions? linux-newbe did not give me any replys, if
-> this is the wrong groups can someone redirect me?
+Greg KH wrote:
+: > 
+: > 	What do you think about it?
+: 
+: I don't think it's really needed.  Why change this, syslog can't handle
+: this?  It works for me...
+: 
+	Yes, syslog can handle this, but in order to parse syslog files
+you should have your LC_CTYPE set to something Latin-1 compatible
+(which UTF-8 is not, and it is the default on many distros).
 
-Linux is not a pageable kernel; neither vmalloc() nor kmalloc() return
-swappable memory.
+	Why Latin-1 and not UTF-8? I think UTF-8 is more "correct", while
+ASCII is "works for all". Latin-1 is neither "correct" nor "works for all".
 
+	Thanks,
 
--- wli
+-Yenya
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+|__ If you want "aesthetics", go play with microkernels. -Linus Torvalds __|

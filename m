@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTBLPbx>; Wed, 12 Feb 2003 10:31:53 -0500
+	id <S267242AbTBLPaY>; Wed, 12 Feb 2003 10:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTBLPbw>; Wed, 12 Feb 2003 10:31:52 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46464
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267248AbTBLPbV>; Wed, 12 Feb 2003 10:31:21 -0500
-Subject: Re: via rhine bug? (timeouts and resets)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-Cc: rl@hellgate.ch, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030212155836.A797@pc9391.uni-regensburg.de>
-References: <20030212155836.A797@pc9391.uni-regensburg.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045068074.2166.18.camel@irongate.swansea.linux.org.uk>
+	id <S267243AbTBLPaY>; Wed, 12 Feb 2003 10:30:24 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:24847 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267242AbTBLPaX>; Wed, 12 Feb 2003 10:30:23 -0500
+Date: Wed, 12 Feb 2003 15:40:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (0/34) summary
+Message-ID: <20030212154012.C10171@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Osamu Tomita <tomita@cinet.co.jp>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20030212131737.GA1551@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Feb 2003 16:41:15 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030212131737.GA1551@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Wed, Feb 12, 2003 at 10:17:37PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-12 at 14:58, Christian Guggenberger wrote:
-> > o       Always set interrupt line with VIA northbridge  (me)
-> >        | Should fix apic mode problems with USB/audio/net on VIA boards
-> > 
-> Can you please send a patch against 2.5.60, cause I would like to test these 
-> IO APIC things on my via board. 2.4-ac is no choice for me, since patching xfs 
-> into 2.4-ac is a little bit too painful for me;-)
+On Wed, Feb 12, 2003 at 10:17:37PM +0900, Osamu Tomita wrote:
+> This is patchset to support NEC PC-9800 subarchitecture against 2.5.60.
+> 
+> You can get this patchset from URL bellow.
+> http://downloads.sourceforge.jp/linux98/2350/linux98-2.5.60.patch.tar.bz2
+> Comments and test reports are wellcome.
 
-At the moment I can't even get 2.5.60 to boot so its a bit hard to do any work
-on it. Just run via boxes with "noapic" and dont enable the apic stuff on single
-cpu systems. Thats as good if not a better test
+Please reorder your patches into chunk that make sense standalone.
+
+i.e. start with sending the new files under arch/i386/, then add the missing
+hooks in arch/i386, then add one driver after another.  Then as last thing
+we can discuss the ifdef mess you add all over the place :)
 

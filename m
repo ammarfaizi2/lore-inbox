@@ -1,14 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265187AbSKJVtJ>; Sun, 10 Nov 2002 16:49:09 -0500
+	id <S265197AbSKJVwy>; Sun, 10 Nov 2002 16:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265189AbSKJVtJ>; Sun, 10 Nov 2002 16:49:09 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:6585 "EHLO
+	id <S265198AbSKJVwy>; Sun, 10 Nov 2002 16:52:54 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:7609 "EHLO
 	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S265187AbSKJVsv>; Sun, 10 Nov 2002 16:48:51 -0500
+	id <S265197AbSKJVwm>; Sun, 10 Nov 2002 16:52:42 -0500
 To: linux-kernel@vger.kernel.org
 Cc: jgarzik@pobox.com
-Subject: [PATCH] sysfs stuff for eisa bus [1/3]
+Subject: Re: [PATCH] sysfs stuff for eisa bus [2/3]
+References: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
 Organization: Metropolis -- Nowhere
 X-Attribution: maz
 X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
@@ -17,8 +18,9 @@ X-Love-1: Gone
 X-Love-2: Crazy-Cat
 Reply-to: mzyngier@freesurf.fr
 From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 10 Nov 2002 22:55:15 +0100
-Message-ID: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
+Date: 10 Nov 2002 22:59:10 +0100
+Message-ID: <wrp65v5gk7l.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,1352 +28,513 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 --=-=-=
 
-Hi all,
-
-Here is a first shot at sysfs for the EISA bus. Nothing spectacular,
-just some basic probing/registration/naming. It also includes an
-EISA-ids database, which could also be useful for ISA-PNP devices, if
-it ever gets sysfs-ized.
-
-I also ported two drivers to this infrastructure : 3c509 and 3c59x.
-
-Tested on i386 SMP and alpha. Will try on parisc and mips later.
-
-I'd be happy to have any comment on this.
-
-        M.
-
-First patch is contains the infrastructure and the naming database :
+Second patch is 3c509 driver ported to the sysfs EISA infrastructure :
 
 --=-=-=
 Content-Type: text/x-patch
-Content-Disposition: attachment; filename=eisa-sysfs.patch
+Content-Disposition: attachment; filename=eisa-3c509.patch
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.802   -> 1.803  
-#	   arch/i386/Kconfig	1.6     -> 1.7    
-#	drivers/parisc/Kconfig	1.2     -> 1.3    
-#	  arch/alpha/Kconfig	1.4     -> 1.5    
-#	    drivers/Makefile	1.23    -> 1.24   
-#	               (new)	        -> 1.1     drivers/eisa/Makefile
-#	               (new)	        -> 1.2     drivers/eisa/eisa.ids
-#	               (new)	        -> 1.1     drivers/eisa/Kconfig
-#	               (new)	        -> 1.2     drivers/eisa/eisa-bus.c
-#	               (new)	        -> 1.2     include/linux/eisa.h
+#	           ChangeSet	1.803   -> 1.804  
+#	 drivers/net/3c509.c	1.25    -> 1.26   
+#	 drivers/net/Space.c	1.13    -> 1.14   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/11/10	maz@hina.wild-wind.fr.eu.org	1.803
-# Sysfs infrastructure for the EISA bus.
-# Provides minimal probing/registration/naming.
+# 02/11/10	maz@hina.wild-wind.fr.eu.org	1.804
+# Ported to sysfs EISA framework.
+# Added new style init/cleanup.
 # --------------------------------------------
 #
-diff -Nru a/arch/alpha/Kconfig b/arch/alpha/Kconfig
---- a/arch/alpha/Kconfig	Sun Nov 10 22:49:03 2002
-+++ b/arch/alpha/Kconfig	Sun Nov 10 22:49:03 2002
-@@ -534,6 +534,7 @@
- 	bool "Verbose Machine Checks"
+diff -Nru a/drivers/net/3c509.c b/drivers/net/3c509.c
+--- a/drivers/net/3c509.c	Sun Nov 10 22:49:20 2002
++++ b/drivers/net/3c509.c	Sun Nov 10 22:49:20 2002
+@@ -53,11 +53,13 @@
+ 			- Additional ethtool features
+ 		v1.19a 28Oct2002 Davud Ruggiero <jdr@farfalle.com>
+ 			- Increase *read_eeprom udelay to workaround oops with 2 cards.
++		v1.19b 08Nov2002 Marc Zyngier <maz@wild-wind.fr.eu.org>
++		    - Introduce driver model for EISA cards.
+ */
  
- source "drivers/pci/Kconfig"
-+source "drivers/eisa/Kconfig"
+ #define DRV_NAME	"3c509"
+-#define DRV_VERSION	"1.19a"
+-#define DRV_RELDATE	"28Oct2002"
++#define DRV_VERSION	"1.19b"
++#define DRV_RELDATE	"08Nov2002"
  
- config HOTPLUG
- 	bool "Support for hot-pluggable devices"
-diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	Sun Nov 10 22:49:03 2002
-+++ b/arch/i386/Kconfig	Sun Nov 10 22:49:03 2002
-@@ -1070,6 +1070,8 @@
+ /* A few values that may be tweaked. */
  
- 	  Otherwise, say N.
- 
-+source "drivers/eisa/Kconfig"
-+
- config MCA
- 	bool "MCA support"
- 	depends on !VISWS
-diff -Nru a/drivers/Makefile b/drivers/Makefile
---- a/drivers/Makefile	Sun Nov 10 22:49:03 2002
-+++ b/drivers/Makefile	Sun Nov 10 22:49:03 2002
-@@ -42,5 +42,6 @@
- obj-$(CONFIG_BT)		+= bluetooth/
- obj-$(CONFIG_HOTPLUG_PCI)	+= hotplug/
- obj-$(CONFIG_ISDN_BOOL)		+= isdn/
-+obj-$(CONFIG_EISA)		+= eisa/
- 
- include $(TOPDIR)/Rules.make
-diff -Nru a/drivers/eisa/Kconfig b/drivers/eisa/Kconfig
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/eisa/Kconfig	Sun Nov 10 22:49:03 2002
-@@ -0,0 +1,20 @@
-+#
-+# PCI configuration
-+#
-+config EISA_NAMES
-+	bool "EISA device name database"
-+	depends on EISA
-+	default y
-+	---help---
-+	  By default, the kernel contains a database of all known EISA
-+	  device names to make the information in sysfs comprehensible
-+	  to the user. This database increases size of the kernel
-+	  image by about 40KB, but it gets freed after the system
-+	  boots up, so it doesn't take up kernel memory. Anyway, if
-+	  you are building an installation floppy or kernel for an
-+	  embedded system where kernel image size really matters, you
-+	  can disable this feature and you'll get device ID instead of
-+	  names.
-+
-+	  When in doubt, say Y.
-+
-diff -Nru a/drivers/eisa/Makefile b/drivers/eisa/Makefile
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/eisa/Makefile	Sun Nov 10 22:49:03 2002
-@@ -0,0 +1,10 @@
-+# Makefile for the Linux device tree
-+
-+obj-$(CONFIG_EISA)	+= eisa-bus.o
-+
-+export-objs	:= eisa-bus.o
-+
-+include $(TOPDIR)/Rules.make
-+
-+$(obj)/devlist.h : $(src)/eisa.ids
-+	sed -e 's/^\([[:alnum:]]\{7\}\) \+\(".*"\)/EISA_DEVINFO ("\1", \2),/' $< > $@
-diff -Nru a/drivers/eisa/eisa-bus.c b/drivers/eisa/eisa-bus.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/eisa/eisa-bus.c	Sun Nov 10 22:49:03 2002
-@@ -0,0 +1,199 @@
-+/*
-+ * EISA bus support functions for sysfs.
-+ *
-+ * (C) 2002 Marc Zyngier <maz@wild-wind.fr.eu.org>
-+ *
-+ * This code is released under the GPL version 2.
-+ */
-+
-+#include <linux/kernel.h>
+@@ -85,6 +87,8 @@
+ #include <linux/delay.h>	/* for udelay() */
+ #include <linux/spinlock.h>
+ #include <linux/ethtool.h>
 +#include <linux/device.h>
 +#include <linux/eisa.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <asm/io.h>
-+
-+#define EISA_DEVINFO(i,s) { .id = { .sig = i }, .name = s }
-+
-+struct eisa_device_info {
-+	struct eisa_device_id id;
-+	char name[DEVICE_NAME_SIZE];
-+};
-+
-+struct eisa_device_info __initdata eisa_table[] = {
-+#ifdef CONFIG_EISA_NAMES
-+#include "devlist.h"
+ 
+ #include <asm/uaccess.h>
+ #include <asm/bitops.h>
+@@ -169,6 +173,9 @@
+ #ifdef CONFIG_PM
+ 	struct pm_dev *pmdev;
+ #endif
++#ifdef CONFIG_EISA
++	struct eisa_device *edev;
 +#endif
+ };
+ static int id_port __initdata = 0x110;	/* Start with 0x110 to avoid new sound cards.*/
+ static struct net_device *el3_root_dev;
+@@ -193,6 +200,26 @@
+ static int el3_pm_callback(struct pm_dev *pdev, pm_request_t rqst, void *data);
+ #endif
+ 
++#ifdef CONFIG_EISA
++struct eisa_device_id el3_eisa_ids[] = {
++		{ "TCM5092" },
++		{ "TCM5093" },
++		{ "" }
 +};
 +
-+#define EISA_INFOS (sizeof (eisa_table) / (sizeof (struct eisa_device_info)))
++static int el3_eisa_probe (struct device *device);
++static int el3_eisa_remove (struct device *device);
 +
-+static void __init eisa_name_device (struct eisa_device *edev)
-+{
-+	int i;
-+
-+	for (i = 0; i < EISA_INFOS; i++) {
-+		if (!strcmp (edev->id.sig, eisa_table[i].id.sig)) {
-+			strcpy (edev->dev.name, eisa_table[i].name);
-+			return;
++struct eisa_driver el3_eisa_driver = {
++		.id_table = el3_eisa_ids,
++		.driver   = {
++				.name    = "3c509",
++				.probe   = el3_eisa_probe,
++				.remove  = __devexit_p (el3_eisa_remove)
 +		}
++};
++#endif
++
+ #ifdef CONFIG_MCA
+ struct el3_mca_adapters_struct {
+ 	char* name;
+@@ -239,55 +266,102 @@
+ #endif /* __ISAPNP__ */
+ static int nopnp;
+ 
+-int __init el3_probe(struct net_device *dev, int card_idx)
++/* With the driver model introduction for EISA devices, both init
++ * and cleanup have been split :
++ * - EISA devices probe/remove starts in el3_eisa_probe/el3_eisa_remove
++ * - MCA/ISA still use el3_probe
++ *
++ * Both call el3_common_init/el3_common_remove. */
++
++static int __init el3_common_init (struct net_device *dev)
+ {
+-	struct el3_private *lp;
+-	short lrs_state = 0xff, i;
+-	int ioaddr, irq, if_port;
+-	u16 phys_addr[3];
+-	static int current_tag;
+-	int mca_slot = -1;
+-#ifdef __ISAPNP__
+-	static int pnp_cards;
+-#endif /* __ISAPNP__ */
++    struct el3_private *lp = dev->priv;
++	short i;
++  
++#ifdef CONFIG_EISA
++	if (!lp->edev)				/* EISA devices are not chained */
++#endif
++	{
++			lp->next_dev = el3_root_dev;
++			el3_root_dev = dev;
 +	}
-+
-+	/* No name was found */
-+	sprintf (edev->dev.name, "Unknown EISA device %s", edev->id.sig);
-+}
-+
-+static char __init *decode_eisa_sig(unsigned long addr)
-+{
-+        static char sig_str[EISA_SIG_LEN];
-+	u8 sig[4];
-+        u16 rev;
-+	int i;
-+
-+	sig[0] = inb (addr);
-+
-+	if (sig[0] & 0x80)
-+                return NULL;
-+
-+	for (i = 1; i < 4; i++)
-+		sig[i] = inb (addr + i);
-+	
-+        sig_str[0] = ((sig[0] >> 2) & 0x1f) + ('A' - 1);
-+        sig_str[1] = (((sig[0] & 3) << 3) | (sig[1] >> 5)) + ('A' - 1);
-+        sig_str[2] = (sig[1] & 0x1f) + ('A' - 1);
-+        rev = (sig[2] << 8) | sig[3];
-+        sprintf(sig_str + 3, "%04X", rev);
-+
-+        return sig_str;
-+}
-+
-+static int eisa_bus_match (struct device *dev, struct device_driver *drv)
-+{
-+	struct eisa_device *edev = to_eisa_device (dev);
-+	struct eisa_driver *edrv = to_eisa_driver (drv);
-+	const struct eisa_device_id *eids = edrv->id_table;
-+
-+	if (!eids)
-+		return 0;
-+
-+	while (strlen (eids->sig)) {
-+		if (!strcmp (eids->sig, edev->id.sig))
-+			return 1;
-+
-+		eids++;
++	spin_lock_init(&lp->lock);
+ 
+-	if (dev) SET_MODULE_OWNER(dev);
++	if (dev->mem_start & 0x05) { /* xcvr codes 1/3/4/12 */
++		dev->if_port = (dev->mem_start & 0x0f);
++	} else { /* xcvr codes 0/8 */
++		/* use eeprom value, but save user's full-duplex selection */
++		dev->if_port |= (dev->mem_start & 0x08);
 +	}
-+
+ 
+-	/* First check all slots of the EISA bus.  The next slot address to
+-	   probe is kept in 'eisa_addr' to support multiple probe() calls. */
+-	if (EISA_bus) {
+-		static int eisa_addr = 0x1000;
+-		while (eisa_addr < 0x9000) {
+-			int device_id;
++	{
++		const char *if_names[] = {"10baseT", "AUI", "undefined", "BNC"};
++		printk("%s: 3c5x9 at %#3.3lx, %s port, address ",
++			dev->name, dev->base_addr, if_names[(dev->if_port & 0x03)]);
++	}
+ 
+-			ioaddr = eisa_addr;
+-			eisa_addr += 0x1000;
++	/* Read in the station address. */
++	for (i = 0; i < 6; i++)
++		printk(" %2.2x", dev->dev_addr[i]);
++	printk(", IRQ %d.\n", dev->irq);
+ 
+-			/* Check the standard EISA ID register for an encoded '3Com'. */
+-			if (inw(ioaddr + 0xC80) != 0x6d50)
+-				continue;
++	if (el3_debug > 0)
++		printk(KERN_INFO "%s" KERN_INFO "%s", versionA, versionB);
+ 
+-			/* Avoid conflict with 3c590, 3c592, 3c597, etc */
+-			device_id = (inb(ioaddr + 0xC82)<<8) + inb(ioaddr + 0xC83);
+-			if ((device_id & 0xFF00) == 0x5900) {
+-				continue;
+-			}
++	/* The EL3-specific entries in the device structure. */
++	dev->open = &el3_open;
++	dev->hard_start_xmit = &el3_start_xmit;
++	dev->stop = &el3_close;
++	dev->get_stats = &el3_get_stats;
++	dev->set_multicast_list = &set_multicast_list;
++	dev->tx_timeout = el3_tx_timeout;
++	dev->watchdog_timeo = TX_TIMEOUT;
++	dev->do_ioctl = netdev_ioctl;
+ 
+-			/* Change the register set to the configuration window 0. */
+-			outw(SelectWindow | 0, ioaddr + 0xC80 + EL3_CMD);
++#ifdef CONFIG_PM
++	/* register power management */
++	lp->pmdev = pm_register(PM_ISA_DEV, card_idx, el3_pm_callback);
++	if (lp->pmdev) {
++		struct pm_dev *p;
++		p = lp->pmdev;
++		p->data = (struct net_device *)dev;
++	}
++#endif
+ 
+-			irq = inw(ioaddr + WN0_IRQ) >> 12;
+-			if_port = inw(ioaddr + 6)>>14;
+-			for (i = 0; i < 3; i++)
+-				phys_addr[i] = htons(read_eeprom(ioaddr, i));
 +	return 0;
 +}
-+
-+struct bus_type eisa_bus_type = {
-+	.name  = "eisa",
-+	.match = eisa_bus_match,
-+};
-+
-+/* The default EISA device parent (virtual root device). */
-+static struct device eisa_bus_root = {
-+       .name           = "EISA Bridge",
-+       .bus_id         = "eisa",
-+};
-+
-+int eisa_driver_register (struct eisa_driver *edrv)
+ 
+-			/* Restore the "Product ID" to the EEPROM read register. */
+-			read_eeprom(ioaddr, 3);
++static void el3_common_remove (struct net_device *dev)
 +{
-+	int r;
-+	
-+	edrv->driver.bus = &eisa_bus_type;
-+	if ((r = driver_register (&edrv->driver)) < 0)
-+		return r;
++		struct el3_private *lp = dev->priv;
+ 
+-			/* Was the EISA code an add-on hack?  Nahhhhh... */
+-			goto found;
+-		}
+-	}
++		(void) lp;				/* Keep gcc quiet... */
++#ifdef CONFIG_MCA		
++		if(lp->mca_slot!=-1)
++			mca_mark_as_unused(lp->mca_slot);
++#endif
++#ifdef CONFIG_PM
++		if (lp->pmdev)
++			pm_unregister(lp->pmdev);
++#endif
 +
-+	return 1;
++		unregister_netdev (dev);
++		release_region(dev->base_addr, EL3_IO_EXTENT);
++		kfree (dev);
 +}
 +
-+void eisa_driver_unregister (struct eisa_driver *edrv)
++static int __init el3_probe(int card_idx)
 +{
-+	bus_remove_driver (&edrv->driver);
-+	driver_unregister (&edrv->driver);
++    struct net_device *dev;
++	struct el3_private *lp;
++	short lrs_state = 0xff, i;
++	int ioaddr, irq, if_port;
++	u16 phys_addr[3];
++	static int current_tag;
++	int mca_slot = -1;
++#ifdef __ISAPNP__
++	static int pnp_cards;
++#endif /* __ISAPNP__ */
+ 
+ #ifdef CONFIG_MCA
+ 	/* Based on Erik Nygren's (nygren@mit.edu) 3c529 patch, heavily
+@@ -464,6 +538,8 @@
+ 	}
+ 	irq = id_read_eeprom(9) >> 12;
+ 
++#if 0							/* Huh ?
++								   Can someone explain what is this for ? */
+ 	if (dev) {					/* Set passed-in IRQ or I/O Addr. */
+ 		if (dev->irq > 1  &&  dev->irq < 16)
+ 			irq = dev->irq;
+@@ -476,6 +552,7 @@
+ 				return -ENODEV;
+ 		}
+ 	}
++#endif
+ 
+ 	if (!request_region(ioaddr, EL3_IO_EXTENT, "3c509"))
+ 		return -EBUSY;
+@@ -495,76 +572,83 @@
+ 	/* Free the interrupt so that some other card can use it. */
+ 	outw(0x0f00, ioaddr + WN0_IRQ);
+  found:
++	dev = init_etherdev(NULL, sizeof(struct el3_private));
+ 	if (dev == NULL) {
+-		dev = init_etherdev(dev, sizeof(struct el3_private));
+-		if (dev == NULL) {
+-			release_region(ioaddr, EL3_IO_EXTENT);
+-			return -ENOMEM;
+-		}
+-		SET_MODULE_OWNER(dev);
++	    release_region(ioaddr, EL3_IO_EXTENT);
++		return -ENOMEM;
+ 	}
++	SET_MODULE_OWNER(dev);
++
+ 	memcpy(dev->dev_addr, phys_addr, sizeof(phys_addr));
+ 	dev->base_addr = ioaddr;
+ 	dev->irq = irq;
++	dev->if_port = if_port;
++	lp = dev->priv;
++	lp->mca_slot = mca_slot;
+ 
+-	if (dev->mem_start & 0x05) { /* xcvr codes 1/3/4/12 */
+-		dev->if_port = (dev->mem_start & 0x0f);
+-	} else { /* xcvr codes 0/8 */
+-		/* use eeprom value, but save user's full-duplex selection */
+-		dev->if_port = (if_port | (dev->mem_start & 0x08) );
+-	}
++	return el3_common_init (dev);
 +}
-+
-+static ssize_t eisa_show_sig (struct device *dev, char *buf,
-+			      size_t count, loff_t off)
+ 
+-	{
+-		const char *if_names[] = {"10baseT", "AUI", "undefined", "BNC"};
+-		printk("%s: 3c5x9 at %#3.3lx, %s port, address ",
+-			dev->name, dev->base_addr, if_names[(dev->if_port & 0x03)]);
++#ifdef CONFIG_EISA
++static int __init el3_eisa_probe (struct device *device)
 +{
-+        struct eisa_device *edev = to_eisa_device (dev);
-+        return off ? 0 : sprintf (buf,"%s\n", edev->id.sig);
-+}
-+
-+static DEVICE_ATTR(signature, S_IRUGO, eisa_show_sig, NULL);
-+
-+static void __init eisa_register_device (char *sig, int slot)
-+{
++	struct el3_private *lp;
++	short i;
++	int ioaddr, irq, if_port;
++	u16 phys_addr[3];
++	struct net_device *dev = NULL;
 +	struct eisa_device *edev;
 +
-+	if (!(edev = kmalloc (sizeof (*edev), GFP_KERNEL)))
-+		return;
-+
-+	memset (edev, 0, sizeof (*edev));
-+	strcpy (edev->id.sig, sig);
-+	edev->slot = slot;
-+	edev->base_addr = 0x1000 * slot;
-+	eisa_name_device (edev);
-+	edev->dev.parent = &eisa_bus_root;
-+	edev->dev.bus = &eisa_bus_type;
-+	sprintf (edev->dev.bus_id, "00:%02X", slot);
-+
-+	if (device_register (&edev->dev)) {
-+		kfree (edev);
-+		return;
-+	}
-+
-+	device_create_file (&edev->dev, &dev_attr_signature);
-+}
-+
-+static int __init eisa_probe (void)
-+{
-+        int i, c;
-+        char *str;
-+        unsigned long slot_addr;
-+
-+        printk (KERN_INFO "EISA: Probing bus...\n");
-+        for (c = 0, i = 0; i <= EISA_MAX_SLOTS; i++) {
-+                slot_addr = (0x1000 * i) + EISA_VENDOR_ID_OFFSET;
-+                if ((str = decode_eisa_sig (slot_addr))) {
-+			if (!i)
-+				printk (KERN_INFO "EISA: Motherboard %s detected\n",
-+					str);
-+			else {
-+				printk (KERN_INFO "EISA: slot %d : %s detected.\n",
-+					i, str);
-+
-+				c++;
-+			}
-+
-+			eisa_register_device (str, i);
-+                }
-+        }
-+        printk (KERN_INFO "EISA: Detected %d card%s.\n", c, c < 2 ? "" : "s");
-+
-+	return 0;
-+}
-+
-+static int __init eisa_init (void)
-+{
-+	int r;
++	/* Yeepee, The driver framework is calling us ! */
++	edev = to_eisa_device (device);
++	ioaddr = edev->base_addr;
 +	
-+	if ((r = bus_register (&eisa_bus_type)))
-+		return r;
-+	
-+	if ((r = device_register (&eisa_bus_root))) {
-+		bus_unregister (&eisa_bus_type);
-+		return r;
-+	}
++	if (!request_region(ioaddr, EL3_IO_EXTENT, "3c509"))
++		return -EBUSY;
 +
-+	printk (KERN_INFO "EISA bus registered\n");
-+	return eisa_probe ();
-+}
++	/* Change the register set to the configuration window 0. */
++	outw(SelectWindow | 0, ioaddr + 0xC80 + EL3_CMD);
 +
-+postcore_initcall (eisa_init);
++	irq = inw(ioaddr + WN0_IRQ) >> 12;
++	if_port = inw(ioaddr + 6)>>14;
++	for (i = 0; i < 3; i++)
++			phys_addr[i] = htons(read_eeprom(ioaddr, i));
 +
-+EXPORT_SYMBOL (eisa_bus_type);
-+EXPORT_SYMBOL (eisa_driver_register);
-+EXPORT_SYMBOL (eisa_driver_unregister);
-diff -Nru a/drivers/eisa/eisa.ids b/drivers/eisa/eisa.ids
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/eisa/eisa.ids	Sun Nov 10 22:49:03 2002
-@@ -0,0 +1,949 @@
-+ACC1200 "ACCTON EtherCombo-32 Ethernet Adapter"
-+ACC120A "ACCTON EtherCombo-32 Ethernet Adapter"
-+ACE1010 "ACME Super Fast System Board"
-+ACE2010 "ACME PC Network"
-+ACE3010 "ACME Arcnet Plan"
-+ACE3030 "ACME Sample VS Board 1"
-+ACE4010 "ACME Tape Controller"
-+ACE5010 "ACME VDU Video Board"
-+ACE6010 "ACME Disk Controller"
-+ACE7010 "ACME Multi-Function Board"
-+ACR1211 "AcerFrame 3000SP33 486/33 EISA System Board"
-+ACR1341 "M1 486SX/20 CPU Board"
-+ACR1351 "M1 486SX/20 CPU Board"
-+ACR1361 "M1 487/20 CPU Board"
-+ACR1371 "M1 487/20 CPU Board"
-+ACR1381 "M1 486/20 CPU Board"
-+ACR1391 "M1 486/20 CPU Board"
-+ACR1581 "M1 486/33 CPU Board"
-+ACR1591 "M1 486/33 CPU Board"
-+ACR15A1 "M1 486/33 CPU Board"
-+ACR15B1 "M1 486/33 CPU Board"
-+ACR1701 "AcerFrame 1000"
-+ACR1711 "AcerFrame 1000 486/33 SYSTEM-2"
-+ACR1801 "Acer P43WE EISA System Board"
-+ACR3211 "AcerFrame 3000MP 486 SYSTEM-1"
-+ACR3221 "AcerFrame 486 Series SYSTEM-2"
-+ACR3231 "AcerFrame 486 Series SYSTEM-3"
-+ACR3241 "AcerFrame 486 Series SYSTEM-4"
-+ACR3261 "AcerFrame 3000MP 486 SYSTEM-1"
-+ACR3271 "AcerFrame 486 Series SYSTEM-2"
-+ACR3281 "AcerFrame 486 Series SYSTEM-3"
-+ACR3291 "AcerFrame 486 Series SYSTEM-4"
-+ACR4509 "ACER/Altos M1 System Board"
-+ADI0001 " Lightning Networks 32-Bit EISA Ethernet LAN Adapter"
-+ADP0000 "Adaptec 32-bit SCSI Host Adapter (Early Revision)"
-+ADP0001 "Adaptec 32-bit SCSI Host Adapter for Alpha AXP (without floppy)"
-+ADP0002 "Adaptec 32-bit SCSI Host Adapter for Alpha AXP (with floppy)"
-+ADP0100 "Adaptec AHA-1540/1542 ISA SCSI Host Adapter"
-+ADP0200 "Adaptec AHA-1520/1522 ISA SCSI Host Adapter"
-+ADP0400 "Adaptec 32-bit Differential SCSI Host Adapter"
-+ADP7770 "NetServer LM AIC-7770 Integrated SCSI Host Adapter"
-+ADP7771 "Adaptec AHA-2740/2742 SCSI Host Adapter"
-+AEI0401 "486EI EISA System Board"
-+AEO0301 "486EO EISA System Board"
-+AIR0101 "AIR486SE/25/33 EISA Baby AT-foot print motherboard."
-+AIR0103 "AIR486SE/25/33/50"
-+AIR0201 "AIR486LE/25/33/50"
-+AIR0301 "AIR 486EO EISA System Board"
-+AIR0401 "486EI EISA System Board"
-+AIR0501 "AIR 586EP PCI/EISA System Board"
-+AIR0601 "AIR 54CEP PCI/EISA System Board"
-+AIR0701 "AIR 54CDP PCI/EISA System Board"
-+AIR0702 "AIR 54CDP PCI/EISA Dual-Processors System Board"
-+AIR0901 "AIR 54TDP PCI/EISA Dual-Processors System Board"
-+AIR1001 "AIR P6NDP PCI/EISA Dual-Pentium Processor System Board"
-+AIR2001 "AIR SCSI-2E"
-+AIR2101 "AIR SCSI-2V"
-+AIR3001 "ENET2E EISA BUS MASTER ETHERNET ADAPTER"
-+AIR3101 "ENET-2V LOCAL BUS MASTER ETHERNET ADAPTER"
-+ALR0001 "Power/Business VEISA System Board"
-+ALR0041 "PowerPro System Board"
-+ALR0181 "PowerPro System Board"
-+ALR0241 "Evolution V Pentium Tower System Board"
-+ALR0341 "EISA PCI base System Board"
-+ALR3000 "80486 Processor Module"
-+ALR3010 "Pentium Processor Board"
-+ALR3023 "ALR 16-bit VGA without Parallel port"
-+ALR8580 "Advanced Disk Array Caching EISA Controller"
-+ALRA0C1 "System Board"
-+ALRA301 "Revolution Q-SMP System Board"
-+ALRA311 "Revolution Q-2SMP System Board"
-+ALRB0A0 "Primary System Processor Board - 80486DX2/66"
-+ALRB0B0 "Secondary System Processor Board - 80486DX2/66"
-+AMI15C1 "AMI SCSI Host Adapter"
-+AMI15D1 "AMI SCSI Host Adapter - Rev 2"
-+AMI15E1 "AMI Normal Single Ended EISA SCSI CACHING Controller-Ver 1.22"
-+AMI16B1 "AMI ENTERPRISE EISA system board"
-+AMI2509 "AMI ENTERPRISE EISA system board"
-+AMI25B1 "AMI ENTERPRISE EISA system board"
-+AMI28A1 "AMI EZ-FLEX EISA System Board"
-+AMI44D2 "AMI Fast Single Ended EISA SCSI CACHING Controller"
-+AMI4801 "AMI EISA Fast SCSI Host Adapter"
-+AMI68B1 "AMI Enterprise III 486 EISA System Board"
-+APS0101 "EISA PIP INTERFACE"
-+APS0102 "EISA PIP INTERFACE"
-+APS0103 "EISA PIP INTERFACE"
-+ARC0010 "Alta EtherTPI/Combo"
-+ARC0020 "Alta TokenCombo-16 S/U"
-+ASU0100 "ASUS EISA-SC100 SCSI Cache Host Adapter (CFG file V2.0)"
-+ASU0500 "ASUS EISA-L500 Ethernet LAN ADAPTOR"
-+ASU4001 "EISA-486C Main Board"
-+ASU4101 "EISA-486E Main Board"
-+ASU4201 "EISA-486A Main Board"
-+ASU4301 " EISA-486SI Main Board (CFG File V1.3)"
-+ASU4501 "Mini EISA-486H Main Board"
-+ASU4701 " Mini EISA-486AS Main Board (CFG File V1.2)"
-+ASU4901 "VL/EISA-486SV1 Main Board (CFG File V1.1)"
-+ASU5101 " PCI/E-P5MP4 Main Board (CFG File V2.2)"
-+ASU5201 "P/E-P55T2P4D  Main Board (CFG File V1.2)"
-+ATI4400 "mach32 EISA Video Accelerator Card"
-+ATI4402 "mach32 EISA Video Accelerator Card"
-+ATI4410 "mach32 Video Accelerator Card"
-+ATI4420 "mach32 Video Accelerator Card"
-+ATI4430 "mach32 VLB Video Accelerator Card"
-+ATT2402 "AT&T SCSI Host Adapter A (StarServer E)"
-+ATT2404 "DPT SCSI Host Bus Adapter (PM2012B/9X)"
-+AVI2E01 "AVIEW2E EISA SVGA Adapter"
-+BUS4201 "BusTek 32 Bit Bus Master EISA-to-SCSI Host Adapter (v1.6)"
-+BUS4202 "BusLogic 32 Bit Bus Master EISA-to-SCSI Host Adapter (v2.00)"
-+CCI0000 "Cache Computers, Inc. Memory Refresh Controller"
-+CCI1001 "Cache Computers Inc. 486/25  EISA System Board"
-+CCI2001 "Cache Computers Inc. 486/33  EISA System Board"
-+CCI3001 "Cache Computers, Inc. Modular EISA System Board"
-+CCI3009 "Cache Computers Inc. Modular EISA System Board"
-+CCI4000 "Cache Computers, Inc. 486/33 CPU Board"
-+CCI4001 "Cache Computers, Inc. 486/33 CPU Board"
-+CCI5001 "Cache Computers, Inc. 486/50 CPU Board"
-+CCI6001 "Cache Computer EISA Ethernet LAN Adapter"
-+CCI7001 "Cache Computers, Inc. EISA System Board"
-+CCI8001 "Cache Computers, Inc. EISA System Board"
-+CHAA041 "Chase AT4 Intelligent Serial Controller"
-+CHAA081 "Chase AT8 Intelligent Serial Controller"
-+CHAA091 "Chase AT8+ Intelligent Serial Controller"
-+CHAA161 "Chase AT16 Intelligent Serial Controller"
-+CHAA171 "Chase AT16+ Intelligent Serial Controller"
-+CMD0003 "CMD Technology, Inc. EISA SCSI Host Adapter"
-+CNT2000 "950E EISA Bus 32-bit Ethernet LAN Adapter"
-+COG5000 "Cogent eMASTER+ AT Combo 16-Bit Workstation Ethernet Adapter"
-+COG7002 "Cogent eMASTER+ ATS Combo Bus-Mastering Ethernet Adapter"
-+COG9002 "Cogent eMASTER+ EISA XL 32-Bit Burst-mode Ethernet Adapter"
-+CPQ0101 "Compaq SYSTEMPRO System Board"
-+CPQ0109 "Compaq SYSTEMPRO System Board (ASSY # 001981)"
-+CPQ0401 "Compaq DESKPRO 486/33L or 386/33L System Board"
-+CPQ0501 "Compaq DESKPRO/M System Board"
-+CPQ0509 "Compaq DESKPRO/M System Board with Audio"
-+CPQ0511 "Compaq SYSTEMPRO/LT System Board"
-+CPQ0601 "Compaq ProSignia Server"
-+CPQ0609 "Compaq ProSignia Server"
-+CPQ0611 "Compaq ProSignia Server"
-+CPQ0621 "Compaq ProSignia Server (ASSY # 3154)"
-+CPQ0629 "Compaq ProSignia Server (ASSY # 3154)"
-+CPQ0631 "Compaq ProLiant 1000 Server"
-+CPQ0639 "Compaq ProLiant 1000 Server"
-+CPQ1001 "Compaq Portable 486"
-+CPQ1009 "Compaq Portable 486/66"
-+CPQ1201 "Compaq DESKPRO 486/25"
-+CPQ1301 "Compaq DESKPRO 486/50L"
-+CPQ1401 "Compaq Portable 486c"
-+CPQ1409 "Compaq Portable 486c/66"
-+CPQ1501 "Compaq SYSTEMPRO/XL Server"
-+CPQ1509 "Compaq ProLiant 4000 Server"
-+CPQ1519 "Compaq ProLiant 2000 Server"
-+CPQ3001 "Compaq Advanced VGA"
-+CPQ3011 "COMPAQ QVision 1024/E Video Controller for Alpha AXP"
-+CPQ3021 "Compaq QVision 1024/I Video Controller"
-+CPQ3111 "COMPAQ QVision 1024/E Graphics Controller for Alpha AXP"
-+CPQ3112 "COMPAQ QVision 1280/E Graphics Controller for Alpha AXP"
-+CPQ3121 "Compaq QVision 1024/I Graphics Controller"
-+CPQ3122 "Compaq QVision 1280/I Graphics Controller"
-+CPQ4001 "Compaq 32-Bit Intelligent Drive Array Controller"
-+CPQ4002 "Compaq Intelligent Drive Array Controller-2"
-+CPQ4010 "Compaq 32-Bit Intelligent Drive Array Expansion Controller"
-+CPQ4020 "Compaq SMART Array Controller"
-+CPQ4300 "Compaq Advanced ESDI Fixed Disk Controller"
-+CPQ4401 "Compaq Integrated SCSI-2 Options Port"
-+CPQ4410 "Compaq Integrated 32-Bit Fast-SCSI-2 Controller"
-+CPQ4411 "Compaq 32-Bit Fast-SCSI-2 Controller"
-+CPQ4420 "Compaq 6260 SCSI-2 Controller"
-+CPQ5000 "Compaq 386/33 System Processor Board used as Secondary"
-+CPQ5281 "Compaq 486/50 System Processor Board used as Secondary"
-+CPQ5282 "Compaq 486/50 System Processor Board used as Secondary"
-+CPQ5287 "Compaq 5/66 System Processor Board used as Secondary"
-+CPQ528F "Compaq 486DX2/66 System Processor Board used as Secondary"
-+CPQ5900 "Compaq 486/33 System Processor Board used as Secondary"
-+CPQ5A00 "Compaq 486/33 System Processor Board (ASSY # 002013) used as Secondary"
-+CPQ5B00 "Compaq 486DX2/66 System Processor Board used as Secondary"
-+CPQ5C00 "Compaq 486/33 System Processor Board used as Secondary"
-+CPQ6000 "Compaq 32-Bit DualSpeed Token Ring Controller"
-+CPQ6001 "Compaq 32-Bit DualSpeed Token Ring Controller"
-+CPQ6100 "Compaq NetFlex ENET-TR"
-+CPQ6101 "Compaq NetFlex-2 Controller"
-+CPQ6200 "Compaq DualPort Ethernet Controller"
-+CPQ7000 "Compaq 32-Bit Server Manager/R Board"
-+CPQ7001 "Compaq 32-Bit Server Manager/R Board"
-+CPQ9004 "Compaq 386/33 Processor Board"
-+CPQ9005 "Compaq 386/25 Processor Board"
-+CPQ9013 "Compaq 486DX2/66 System Processor Board used as Primary"
-+CPQ9014 "Compaq 486/33 System Processor Board used as Primary"
-+CPQ9015 "Compaq 486/33 Processor Board"
-+CPQ9016 "Compaq 486DX2/66 Processor Board"
-+CPQ9017 "Compaq 486DX2/50 Processor Board"
-+CPQ9018 "Compaq 486/33 Processor Board (8 MB)"
-+CPQ9034 "Compaq 486SX/25 Processor Board"
-+CPQ9035 "Compaq 486SX/16 Processor Board"
-+CPQ9036 "Compaq 486SX/25 Processor Board (8 MB)"
-+CPQ9037 "Compaq 486SX/16 Processor Board (8 MB)"
-+CPQ9038 "Compaq 486SX/33 Processor Board (8 MB)"
-+CPQ903C "Compaq 486SX/33 Processor Board (4 MB)"
-+CPQ9040 "Compaq 5/66 Processor Board"
-+CPQ9041 "Compaq 5/66 Processor Board"
-+CPQ9042 "Compaq 5/66 Processor Board"
-+CPQ9043 "Compaq 5/66 Processor Board"
-+CPQ9044 "Compaq 5/60 Processor Board"
-+CPQ9045 "Compaq 5/60 Processor Board"
-+CPQ9046 "Compaq 5/60 Processor Board"
-+CPQ9047 "Compaq 5/60 Processor Board"
-+CPQ9281 "Compaq 486/50 System Processor Board used as Primary"
-+CPQ9282 "Compaq 486/50 System Processor Board used as Primary"
-+CPQ9287 "Compaq 5/66 System Processor Board used as Primary"
-+CPQ928F "Compaq 486DX2/66 System Processor Board used as Primary"
-+CPQ9381 "Compaq 486/50 System Processor Board"
-+CPQ9382 "Compaq 486/50 System Processor Board"
-+CPQ9387 "Compaq 5/66 System Processor Board"
-+CPQ9481 "Compaq 486/50 System Processor Board"
-+CPQ9482 "Compaq 486/50 System Processor Board"
-+CPQ9487 "Compaq 5/66 System Processor Board"
-+CPQ9901 "Compaq 486SX/16 Processor Board"
-+CPQ9902 "Compaq 486SX/16 Processor Board"
-+CPQ9903 "Compaq 486SX/25 Processor Board"
-+CPQ9904 "Compaq 486SX/25 Processor Board"
-+CPQ9905 "Compaq 486SX/25 Processor Board"
-+CPQ9906 "Compaq 486/33 Processor Board"
-+CPQ9907 "Compaq 486DX2/66 Processor Board"
-+CPQ9908 "Compaq 486SX/16 Processor Board"
-+CPQ9909 "Compaq 486SX/16 Processor Board"
-+CPQ990A "Compaq 486SX/25 Processor Board"
-+CPQ990B "Compaq 486SX/25 Processor Board"
-+CPQ990C "Compaq 486SX/25 Processor Board"
-+CPQ990D "Compaq 486/33 Processor Board"
-+CPQ990E "Compaq 486SX/33 Processor Board (8 MB)"
-+CPQ990F "Compaq 486SX/33 Processor Board (8 MB)"
-+CPQ9990 "Compaq 386/33 System Processor Board used as Primary"
-+CPQ9991 "Compaq 386/33 Desktop Processor Board"
-+CPQ9999 "Compaq 486/33 System Processor Board used as Primary"
-+CPQ999A "Compaq 486/33 Desktop Processor Board"
-+CPQA000 "Compaq Enhanced Option Slot Serial Board"
-+CPQA010 "Compaq Enhanced Option Slot Modem Board"
-+CPQA020 "Compaq Integrated CD Rom Adapter"
-+CPQA030 "Compaq Integrated CD Rom Adapter"
-+CPQF000 "Compaq Fixed Disk Drive Feature"
-+CPQF100 "Compaq Ethernet 16TP Controller"
-+CPQFA0D "Compaq SYSTEMPRO 4-Socket System Memory Board"
-+CPQFA0E "Compaq SYSTEMPRO 6-Socket System Memory Board"
-+CPQFA0F "Compaq DESKPRO 486/25 System Memory Board"
-+CPQFA1A "Compaq DESKPRO 3-Socket System Memory Board"
-+CPQFA1B "Compaq DESKPRO 486/50 System Memory Board"
-+CPQFA1C "Compaq System Memory Expansion Board"
-+CPQFA1D "Compaq Memory Expansion Board"
-+CPQFB03 "Compaq Async/Parallel Printer Intf Assy 000990"
-+CPQFB07 "Compaq DESKPRO 2400 Baud Modem"
-+CPQFC0B "Compaq Advanced Graphics 1024 Board"
-+CPQFD08 "Compaq 135Mb, 150/250Mb Tape Adapter"
-+CPQFD13 "Compaq 15MHz ESDI Fixed Disk Controller 001283"
-+CPQFD17 "Compaq SCSI Tape Adapter"
-+CRS3203 "Crescendo 320 FDDI/CDDI EISA Adapter"
-+CRS3204 "Cisco CDDI/FDDI EISA Adapter"
-+CSI0690 "CSI F70X9 EISA FDDI DNI adapter card"
-+CUI0000 "CUI Examples -- Virtual Board"
-+DBI0101 "Digi C/X Host Adapter - EISA"
-+DBI0102 "Digi C/X Host Adapter - EISA"
-+DBI0201 "Digi EISA/Xem Host Adapter"
-+DBI0301 "Digi EPC/X Host Adapter - EISA"
-+DBI0501 "Digi Ports/Xem Host Adapter - ISA"
-+DBI0601 "Digi EPC/X Host Adapter - ISA"
-+DBI0701 "Digi C/X Host Adapter - ISA"
-+DBI0801 "Digi PC/Xr - ISA"
-+DBI0901 "Digi PC/Xt - ISA"
-+DBI0C01 "Digi DataFire - ISA"
-+DBI0D01 "Digi DataFire/4 - ISA"
-+DBI0E01 "Digi PC IMAC - ISA"
-+DBI0F01 "Digi PC IMAC/4 - ISA"
-+DBI1001 "Digi PC/Xe - ISA"
-+DBI1101 "Digi ES/4 Host Adapter - EISA"
-+DBI1201 "Digi Acceleport Xr 920 - ISA"
-+DEC1011 "Digital EISA Video Controller (EVC-1)"
-+DEC1021 "Digital EISA SCSI Controller (ESC-1)"
-+DEC2400 "DECpc AXP/150 System Board"
-+DEC2500 "DEC EISA NVRAM for Alpha AXP"
-+DEC2A01 "Digital AlphaServer 2100 Family System Board"
-+DEC2E00 "Digital KFESA DSSI EISA Host Adapter"
-+DEC2F00 "Digital WANcontroller/EISA (DNSES)"
-+DEC3001 "DEC FDDIcontroller/EISA Adapter"
-+DEC3002 "DEC FDDIcontroller/EISA Adapter"
-+DEC3003 "DEC FDDIcontroller/EISA Adapter"
-+DEC4220 "Digital EISA Ethernet Controller (DE422-SA)"
-+DEC4250 "Digital EtherWORKS Turbo EISA (DE425-AA)"
-+DEC5000 "Digital AlphaServer 1000, 1000A and AlphaStation 600A System Board"
-+DEC5100 "Digital AlphaStation 600 Family System Board"
-+DEC5301 "Digital 800 AlphaServer Family System Board"
-+DEC6000 "Digital AlphaServer 8200 and 8400 Family System Board"
-+DEC6400 "Digital AlphaServer 4100 System Board"
-+DEC8101 "DEC VGA 1024 Graphics Adapter"
-+DEC8102 "DEC 8514/A-Compatible Graphics Adapter"
-+DEC8103 "DECpc VGA 1024 NI Graphics Adapter"
-+DEC8300 "DEC DEPCA LC Ethernet Controller"
-+DEC8301 "DEC DEPCA TURBO Ethernet Controller"
-+DEL0054 "Dell System PowerEdge 2100"
-+DEL0058 "Dell System PowerEdge 4100"
-+DEL005A "Dell System PowerEdge 2200"
-+DEL005C "Dell System PowerEdge 4200"
-+DEL2100 "Dell Remote Server Assistant Card"
-+DEL4002 "Dell SCSI Array Controller"
-+DELFC00 "Dell GPX-1024 Graphics Performance Accelerator"
-+DELFC01 "Dell VGA Professional 16-bit"
-+DELFC02 "Paradise Hi-Res Graphics Adapter"
-+DELFC03 "Paradise Hi-Res Graphics Card"
-+DELFD02 "Archive XL Tape Host Adapter"
-+DELFD03 "Wangtek Tape Host Adapter"
-+DELFD05 "Adaptec AHA-1510 ISA SCSI Host Adapter"
-+DPT2402 "DPT SCSI Host Bus Adapter (PM2012A/9X)"
-+DPT2403 "DPT SCSI Host Bus Adapter (PM2012A/90)"
-+DPTA401 "DPT SCSI Host Bus Adapter (PM2012B/9X)"
-+DPTA402 "DPT SCSI Host Bus Adapter (PM2012B2/9X) - Banyan Vines"
-+DPTA410 "DPT SCSI Host Bus Adapter (PM2X22A/9X)"
-+DPTA501 "DPT SCSI Host Bus Adapter (PM2012B1/9X)"
-+DPTA502 "DPT SCSI Host Bus Adapter (PM2012B2/9X)"
-+DPTA701 "DPT SCSI Host Bus Adapter (PM2011B1/9X)"
-+DPTBC01 "DPT ESDI Caching Hard Disk Controller (PM3011/7X)"
-+DTC1101 "DTC2290 EISA IDE Controller"
-+DTC3101 "DTC3290 Host Adapter - Rev.3.2"
-+DTK0001 "DTK PLM-3300I 80486 EISA Board"
-+DTK0003 "DTK PLM-3331P EISACACHE486 33/25/50 MHZ"
-+ECS0580 "DI-580A EISA SCSI Host Adapter"
-+ECS0590 "DI-590 EISA SCSI Cache Host Adapter"
-+ELS8041 "ELSA  WINNER 1000  Enhanced VGA"
-+EVX0002 "PN-3000 System Board"
-+FCT0001 "EISA SYSTEM BOARD"
-+FCT0002 "386 EISA SYSTEM BOARD"
-+FCT0003 "486 EISA SYSTEM BOARD"
-+FIC0000 "LEO 486VE EISA Main Board"
-+GDT2001 "GDT2000/GDT2020 Fast-SCSI Cache Controller - Rev. 1.0"
-+GDT3001 "GDT3000/GDT3020 Dual Channel SCSI Controller - Rev. 1.0"
-+GDT3002 "GDT3000A/GDT3020A/GDT3050A EISA SCSI Cache Controller - Rev. 1.0"
-+GDT3003 "GDT3000B/GDT3010A EISA SCSI Cache Controller - Rev. 1.0"
-+GIT0000 "G486PEL EISA & LOCAL Bus Mother Board."
-+GIT0001 "G486HVL EISA & VESA LOCAL Bus Mother Board."
-+HCL0801 "HCL-Hewlett Packard Limited PANTHER System Board"
-+HIT0001 "MCC Mini-EISA486 Board"
-+HMS0000 "HMSI ESIC EVALUATION BOARD"
-+HWP0070 "HP Intelligent Graphics Controller 20 (A1083A)"
-+HWP1440 "HP Terminal Multiplexor Board (D2040A)"
-+HWP1820 "HP EtherTwist Adapter Card/8 (27245-60002)"
-+HWP1832 "HP EtherTwist PC LAN Adapter/16 TP Plus (27247B)"
-+HWP1840 "HP EtherTwist EISA LAN Adapter/32"
-+HWP18A0 "HP EtherTwist PC LAN Adapter/16 TL Plus (27252A)"
-+HWP18C0 "HP EtherTwist PC LAN Adapter NC/16 TP (J2405A)"
-+HWP1940 "HP 10/100VG Selectable EISA LAN Adapter (J2577A)"
-+IBM0001 "IBM Auto 16/4 Token Ring ISA Adapter"
-+IBM1000 "IBM 16/4 Busmaster EISA Adapter"
-+ICLA080 "ICL EtherTeam 32 EISA 32-bit Ethernet Controller"
-+ICU0010 "Intel SatisFAXtion Modem/400"
-+ICU0020 "Intel SatisFAXtion Modem/100"
-+ICU0030 "DigiBoard DigiChannel PC/4E Serial Adapter"
-+ICU0040 "Western Digital WD1003V-MM2(WITH FIRMWARE) Hard/Floppy Disk Controller"
-+ICU0041 "Western Digital WD1003V-MM2(WITHOUT FIRMWARE) Hard/Floppy Disk Controller"
-+ICU0050 "Western Digital WD1007A-WA2(WITH BIOS) Hard/Floppy Disk Controller"
-+ICU0051 "Western Digital WD1007A-WA2(WITHOUT BIOS) Hard/Floppy Disk Controller"
-+ICU0052 "Western Digital WD1007V-SE2 Hard/Floppy Disk Controller"
-+ICU0060 "Archive SC402/VP402 QIC-02 Tape Controller"
-+ICU0070 "Wangtek PC-36 Tape Controller"
-+ICU0080 "Wangtek PC-02 Tape Controller"
-+ICU0091 "Adaptec 1542B SCSI/Floppy Disk Controller"
-+ICU0092 "Adaptec 1542C SCSI/Floppy Disk Controller"
-+ICU00A0 "DPT PM2011B1/9X SCSI Controller"
-+ICU00B0 "3COM Etherlink II (3C503) Network Adapter"
-+ICU00C0 "3COM Etherlink 16 (3C507) Network Adapter"
-+ICU00D0 "SMC PC600WS Network Adapter"
-+ICU00E0 "SMC PC130E Network Adapter"
-+ICU00F0 "Novell NE2000 Network Adapter"
-+ICU0100 "Western Digital WD8003E Network Adapter"
-+ICU0110 "Paradise VGA Plus 16 Video Adapter "
-+ICU0120 "Paradise VGA 1024 Video Adapter "
-+ICU0130 "Orchid Prodesigner IIs Video Adapter"
-+ICU0140 "ATI Graphics Ultra Pro Video Adapter"
-+ICU0150 "Orchid Fahrenheit 1280 Video Adapter "
-+ICU0160 "ATI VGA Wonder XL24 Video Adapter"
-+ICU0170 "ATI Graphics Ultra Video Adapter"
-+ICU0180 "Sound Blaster Multi-Media Adapter"
-+ICU0190 "Sound Blaster Pro Multi-Media Adapter"
-+ICU01A0 "Sound Blaster 16ASP Multi-Media Adapter"
-+ICU01B0 "Gravis Ultra Sound Multi-Media Adapter"
-+ICU01C0 "Logitech Soundman 16 Multi-Media Adapter"
-+ICU01D0 "Media Vision Thunderboard Multi-Media Adapter"
-+ICU01E0 "Pro Audio Spectrum 16 Multi-Media Adapter"
-+ICU01F0 "Microsoft Windows Sound System Multi-Media Adapter"
-+ICU0200 "Intel Above Board Plus 8 I/O"
-+ICU0210 "Logitech Bus Mouse"
-+ICU0220 "Microfield Graphics V8 Video Controller"
-+ICU0230 "Accton Ringpair-4/16 (TR1605)"
-+ICU0240 "CNet CN600E/680E"
-+ICU0250 "CNet CN1000T"
-+ICU0260 "CNet CN850E"
-+ICU0270 "CNet CN800E/880E"
-+ICU0280 "Cogent E/Master II-AT"
-+ICU0290 "Cogent E/Master I-AT"
-+ICU02A0 "D-Link DE-100"
-+ICU02B0 "D-Link DE-200"
-+ICU02C0 "Eagle/Novell NE1000 (810-160-00X)"
-+ICU02C1 "Eagle/Novell NE1000 (950-054401)"
-+ICU02D0 "Eagle/Novell NE1500T"
-+ICU02E0 "Eagle/Novell NE2100"
-+ICU02F0 "Gateway Ethertwist 16 (Fujitsu Chipset)"
-+ICU02F1 "Gateway Ethertwist 16 (National Chipset)"
-+ICU0300 "Gateway Ethertwist PC/PC-WS(National Chipset)"
-+ICU0310 "Proteon ProNET-4/16 Model p1390"
-+ICU0320 "Racal-Datacom InterLan AT"
-+ICU0330 "SMC PC330"
-+ICU0340 "SMC PC500"
-+ICU0350 "SMC PC550"
-+ICU0360 "SMC PC650"
-+ICU0370 "SMC PC270E"
-+ICU0380 "SMC 3008"
-+ICU0390 "SMC 3016"
-+ICU03A0 "Thomas-Conrad TC5045-2"
-+ICU03B0 "Thomas-Conrad TC6042/TC6142/TC6242"
-+ICU03C0 "Thomas-Conrad TC6045"
-+ICU03D0 "Thomas-Conrad TC6245"
-+ICU03E0 "Tiara Lancard 2002/2003"
-+ICU03F0 "Tiara Lancard AT"
-+ICU0400 "Tiara Lancard PC"
-+ICU0410 "Tiara ARCNET Lancard AT"
-+ICU0420 "Tiara Ethernet Lancard * 2000"
-+ICU0430 "Tiara Ethernet Lancard E2000"
-+ICU0440 "Tiara Lancard A-286"
-+ICU0450 "Tiara Lancard E"
-+ICU0460 "Tiara Lancard E * AT"
-+ICU0470 "Tiara Lancard E * AT TP"
-+ICU0480 "Tiara Lancard E * PC"
-+ICU0490 "Tiara Lancard E * PC10BT"
-+ICU04A0 "Tiara Lancard E * PC10TP"
-+ICU04B0 "Tiara Token Ring Lancard*16 AT"
-+ICU04C0 "Zenith LAN10E-MAT/FAT/FL-AT"
-+ICU04D0 "Zenith LAN16TR-AT"
-+ICU04E0 "Zenith LAN16TR-XT"
-+ICU04F0 "Zenith LAN4TR-AT"
-+ICU0500 "Zenith LAN4TR-XT"
-+ICU0510 "Zenith OfficeNIC"
-+ICU0520 "Zenith XT Lancard"
-+ICU0530 "BOCA M1440I 14.4Kbps V.32bis Modem"
-+ICU0540 "Always Technology IN-2000 SCSI Controller"
-+ICU0550 "Data Technology DTC3180A/DTC3280A SCSI Controller"
-+ICU0560 "DTC3150 SCSI Controller"
-+ICU0561 "DTC3150B SCSI Controller"
-+ICU0570 "Data Technology DTC3250 SCSI Controller"
-+ICU0580 "TMC-850M/TMC-850RL SCSI Controller"
-+ICU0590 "Future Domain TMC-880/TMC-881 SCSI Controller"
-+ICU05A0 "Future Domain TMC-1650/1660/1670/1680 SCSI Controller V5"
-+ICU05B0 "Future Domain TMC-1650/1660/1670/1680 SCSI Controller V4"
-+ICU05C0 "Promise Technology DC-2030 IDE Controller"
-+ICU05D0 "Promise Technology DC-2031 IDE Controller"
-+ICU05E0 "Promise Technology DC-2040 SCSI Controller"
-+ICU05F0 "Ultrastor ULTRA14F SCSI Controller"
-+ICU0600 "Ultrastor ULTRA12C/12F ESDI Controller"
-+ICU0610 "Ultrastor ULTRA15C IDE Controller"
-+ICU0620 "Longshine LCS-6624/6624G IDE Controller"
-+ICU0630 "Longshine LCS-6631/6631F SCSI Controller"
-+ICU0640 "Intel EtherExpress TPE Hub Controller"
-+ICU0650 "US Robotics Sportster 9600/PC Modem w/V.42BIS"
-+ICU0660 "Zoom AFC FAX Modem"
-+ICU0680 "DFI DIO-500 Serial/Parallel I/O Card"
-+ICU0681 "DFI DIO-200 Serial/Parallel I/O Card"
-+ICU0690 "Practical Peripherals PM9600FX Modem/FAX"
-+ICU06A0 "Practical Peripherals PM2400 Modem"
-+ICU06B0 "Zoom VFP V.32bis FAX Modem"
-+ICU06C0 "Zoom VP V.32bis Modem"
-+ICU06D0 "Zoom AMC 2400 Modem"
-+ICU06E0 "Cardinal MVP96IF 9600 Baud FAX/Modem"
-+ICU06F0 "Cardinal MB2296SR 9600 Baud FAX/Modem"
-+ICU0700 "Hayes Accura 2400B Modem"
-+ICU0710 "US Robotics Sportster 2400/PC Modem"
-+ICU0720 "US Robotics Sportster 14,400/PC FAX/Modem"
-+ICU0730 "Intel SatisFAXtion Modem/200"
-+ICU0740 "Racal InterLan NI5210-10BT"
-+ICU0750 "Racal InterLan NI6510-UTP"
-+ICU0760 "Intel Smart Video Recorder"
-+ICU0770 "Diamond Stealth Pro Accelerator"
-+ICU0780 "Diamond SpeedStar 24X VGA adapter"
-+ICU0790 "Video Seven WIN.PRO card"
-+ICU0800 "Video Seven WIN.VGA card"
-+ICU0810 "BOCA Super X Accelerator VGA"
-+ICU0820 "Metheus Premier 928"
-+ICU0830 "GraphicsENGINE ULTRA Series"
-+ICU0840 "Cardinal VIDEO spectrum"
-+ICU0850 "SigmaDegins Legend 24LX"
-+ICU0860 "Hercules Graphite Card"
-+ICU0870 "Focus GUIVGA"
-+ICU0880 "AIR AVIEW2V SVGA"
-+ICU0890 "NDI Volante Warp Series Warp10"
-+ICU0900 "NDI Volante Warp Series Warp10LB and 24LB"
-+ICU0910 "Cyber Audio Multi-Media Adapter"
-+ICU0920 "Genoa SuperVGA 6000 Series"
-+ICU0930 "Acculogic sIDE-1"
-+ICU0940 "Acculogic sIDE-1/16"
-+ICU0950 "Acculogic sIDE-3/plus"
-+ICU0960 "Alpha Research S4251 ISA"
-+ICU0970 "CMS Enhancement Universal AT/XT Controller"
-+ICU0980 "Eastern IDC-747"
-+ICU0990 "Juko D16-X"
-+ICU1000 "NCL538/NCL539"
-+ICU1010 "NCL538B"
-+ICU1020 "NCL538C"
-+ICU1030 "easyCACHE IDE/easyCACHEPro IDE"
-+ICU1040 "Plus Development HARDCARD II XL"
-+ICU1050 "Plus Development HARDCARD II"
-+ICU1060 "Seagate ST05A"
-+ICU1070 "Seagate ST05X"
-+ICU1080 "Silicon ADP60"
-+ICU1090 "Silicon ADP65"
-+ICU1100 "HP ISA SCSI Host Adapter (D1682A)"
-+ICU1101 "HP SCSI-1 Host Adapter for HP CD-ROM (D2886A)"
-+ICU1110 "Adaptec AHA-1540A/AHA-1542A"
-+ICU1120 "Bustek BT-542B"
-+ICU1130 "Bustek BT-542S/BT-542D"
-+ICU1140 "Computer Electronik Infosys C5610"
-+ICU1150 "Computer Electronik Infosys C5630"
-+ICU1160 "Computer Electronik Infosys C5635"
-+ICU1170 "Control Concepts HB A8"
-+ICU1180 "DPT PM2001B/90,PM2001B/95"
-+ICU1190 "Quantum ISA-200S"
-+ICU1200 "easyCACHE SCSI/easyCACHEPro SCSI"
-+ICU1210 "Procom CC-8 SCSI ENABLER"
-+ICU1220 "Procom CC-16 SCSI ENABLER"
-+ICU1230 "Procomp S-DCB"
-+ICU1240 "Procomp USA, Incoprated S-DCB"
-+ICU1250 "Rancho RT10-AT"
-+ICU1260 "SMS OMTI-810/812/820/822"
-+ICU1270 "SMC 4004-PC"
-+ICU1280 "Sumo SPI 200"
-+ICU1290 "Trantor T100"
-+ICU1300 "IBM Token-Ring 16/4 Adapter"
-+ICU1310 "Thomas TC-4045"
-+ICU1330 "DPT PM2011/95 SCSI Controller"
-+ICU1340 "DPT PM2021 SamrtCacheIII Adapter"
-+ICU1360 "SyQuest SQ08  IDE  Controller"
-+ICU1370 "SyQuest ST01 SCSI HOST Adapter"
-+IDS0100 "EISC960 EISA Caching SCSI Host Adapter"
-+IIN0B01 "Intel TokenExpress(tm) ISA/8 Network Adapter"
-+IMS1001 "Integrated Micro Solution Inc. 486 EISA System Board"
-+ING2040 "HCL-Hewlett Packard Limited PANTHER System Board"
-+INT0000 "Mercury/Neptune PCI-EISA Main Board"
-+INT0081 "HCL-Hewlett Packard Limited PANTHER System Board"
-+INT0701 "Intel TokenExpress(tm) ISA 16/4 Network Adapter"
-+INT0703 "Intel TokenExpress(tm) ISA/16s Network Adapter"
-+INT0902 "TokenExpress EISA 16/4 Token-Ring Network Adapter"
-+INT0B01 "Intel TokenExpress(tm) ISA/8 Network Adapter"
-+INT1000 "Intel EtherExpress 16 Family LAN Adapter"
-+INT1010 "Intel EtherExpress(tm) Flash32 Ethernet Adapter"
-+INT1030 "Intel EtherExpress(TM) PRO/10 LAN Adapter"
-+INT1031 "Intel EtherExpress(TM) PRO/10+ LAN Adapter"
-+INT1060 "Intel EtherExpress(tm) PRO/100 LAN Adapter"
-+INT1201 "Intel TokenExpress(tm) EISA/32 Network Adapter"
-+INT30F1 "HP NetServer LM System Board"
-+ISA0000 "Generic ISA Adapter Definition"
-+ISA1000 "Serial/Parallel Adapter Board"
-+ISA1010 "Generic OSF ISA COM/MODEM/LPT"
-+ISA2000 "Microsoft Sound Board ISA Adapter Definition"
-+ISA3000 "ISA-PCMCIA Adapter"
-+ISA4000 "Dialogic Voice Card Adapter"
-+ISA4010 "Dialogic DTI/2xx, DMX, MSI/C Adapter"
-+ISA4020 "GammaLink Fax Card Adapter Definitions"
-+ISA4030 "Dialogic Antares Card Definitions"
-+ISA6400 "ISA ATI MACH64 VGA controller"
-+ISA8100 "Attachmate 3270 COAX Adapter (Long Board)"
-+ISA8101 "Attachmate Advanced 3270 COAX Adapter (Short Board)"
-+ISA8102 "Attachmate SDLC/Autolink Adapter"
-+ISA8103 "Attachmate SDLC Adapter"
-+ISA8200 "AST 3270/COAX II Rev. X4"
-+ISA8201 "AST 5251/11 Enhanced Plus"
-+ISA8202 "AST SixPakPlus Version A"
-+ISA8203 "AST Rampage 286 (Rev.X2)"
-+ISA8204 "AST RAMvantage"
-+ISA8300 "IBM Enhanced 5250 Emulator"
-+ISA8301 "IBM Enhanced 5250 Emulator Rev B"
-+ISA8302 "IBM SDLC (3270 or 5250 Remote)"
-+ISA8303 "IBM Advanced 3278/79 Adapter"
-+ISA8304 "IBM Serial/Parallel Adapter"
-+ISA8305 "IBM PC Network"
-+ISA8306 "IBM TOKEN RING Adapter I"
-+ISA8307 "IBM TOKEN RING Adapter II"
-+ISA8308 "IBM Monochrome Adapter"
-+ISA8309 "IBM VGA Display Adapter"
-+ISA830A "IBM Token Ring II Short Adapter"
-+ISA830B "IBM Token Ring 16/4 Adapter"
-+ISA830C "IBM Enhanced Graphics Adapter"
-+ISA830D "IBM PGA"
-+ISA830E "IBM Realtime Interface Co-Processor Multiport Adapter, Model 2"
-+ISA8400 "IDEAssociates IDEAcomm 5250/Remote"
-+ISA8401 "IDEAssociates IDEAcomm 5251 Twinax Plus Rev D"
-+ISA8402 "IDEAssociates IDEAcomm 5251 Twinax Plus Rev C"
-+ISA8403 "IDEAssociates IDEAcomm 5251 Twinax Rev A,B,C"
-+ISA8500 "DCA IRMA2 Adapter"
-+ISA8501 "DCA IRMA 3278 Emulation"
-+ISA8502 "DCA IRMA 3279 Graphics Adapter"
-+ISA8503 "DCA IRMA3 Convertible"
-+ISA8505 "DCA Smart Alec 5250"
-+ISA8506 "DCA IRMA Remote SDLC Adapter"
-+ISA8507 "DCA 10-NET Adapter"
-+ISA8508 "DCA IRMA2 3279 Graphics Adapter"
-+ISA8509 "DCA Intelligent Serial PC Adapter (Long SDLC)"
-+ISA8700 "Novell Coax Adapter 3270 Connection"
-+ISA8701 "Novell COAX GRAPHICS Rev. A"
-+ISA8702 "Novell TWINAX 5250"
-+ISA8711 "Novell NE1000 Ethernet Adapter"
-+ISA8712 "Novell NE2000 Ethernet Adapter"
-+ISA8713 "Novell RX-Net REV B,C,D NIC"
-+ISA8714 "Novell RX-Net REV E,F,G NIC"
-+ISA8804 "Tecmar EGA Master 480/800"
-+ISA8805 "Tecmar Maestro AT"
-+ISA8900 "SMC ARCNET PC"
-+ISA8901 "SMC ARCNET PC100"
-+ISA8902 "SMC ARCNET PC110"
-+ISA8903 "SMC Arcnet PC130/E"
-+ISA8904 "SMC Arcnet PC220/120"
-+ISA8905 "SMC Arcnet PC270/E"
-+ISA8906 "SMC Arcnet PC500"
-+ISA8907 "SMC Ethernet PC510"
-+ISA8A00 "NESTAR ARCNET PLAN 2000"
-+ISA8B00 "DEC DEPCA EtherLink Adapter, Rev D1"
-+ISA8B01 "DEC DEPCA EtherLink Adapter, Rev E or F"
-+ISA8C00 "3COM 3C505-2012 EtherLink Plus 16bit Mode"
-+ISA8C01 "3COM EtherLink 3C501 ASM 1221"
-+ISA8C02 "3COM EtherLink 3C500B ASM 34-0780"
-+ISA8C03 "3COM 3C503 EtherLink II"
-+ISA8C04 "3COM 3C603 Tokenlink 16bit"
-+ISA8C05 "3COM 3C605-2065 Tokenlink Plus 8bit"
-+ISA8C06 "3COM 3C505-2012 EtherLink Plus 8bit Mode"
-+ISA8C07 "3COM 3C605-2065 Tokenlink Plus 16bit Mode"
-+ISA8C08 "3COM 3C603 Tokenlink 8bit Mode"
-+ISA8C09 "3COM 3C507 Etherlink 16"
-+ISA8C10 "3COM 3C507TP Etherlink 16"
-+ISA8D00 "Tiara LANCARD/A REV B"
-+ISA8D01 "Tiara LANCard/E * PC 16"
-+ISA8E00 "Microsoft Mouse Controller"
-+ISA8E01 "Scanman Plus by Logitech"
-+ISA8F00 "AT&T STARLAN Network Adapter"
-+ISA8F01 "AT&T Truevision Image Capture Board"
-+ISA9000 "Hercules GB222 InColor Card"
-+ISA9001 "Hercules Graphics Card Plus (Rev.D)"
-+ISA9002 "Hercules VGA Card"
-+ISA9100 "Quadram QuadEGA+"
-+ISA9101 "Quadram QuadVGA Video Adapter"
-+ISA9102 "Quadram QUADMEG-AT"
-+ISA9103 "QUADEMS+ W/IO"
-+ISA9200 "Intel Above Board/AT (no Piggyback)"
-+ISA9201 "Intel Above Board/AT With 2MB Piggyback"
-+ISA9202 "Intel Above Board 286 (no Piggyback)"
-+ISA9203 "Intel Above Board 286 With 2MB Piggyback"
-+ISA9204 "Intel Above Board PS/286 (no Piggyback)"
-+ISA9205 "Intel Above Board PS/286 With 2MB Piggyback"
-+ISA9206 "Intel Above Board Plus 8 (including 6Mb Piggyback)"
-+ISA9207 "Intel Visual Edge printing enhancement system"
-+ISA9208 "Intel iMX-LAN/586"
-+ISA9209 "Intel PC586E"
-+ISA9300 "MICOM-Interlan NP600A Ethernet 16bit"
-+ISA9302 "MICOM-Interlan NI5210/8 Ethernet"
-+ISA9303 "MICOM-Interlan NI5210/16 Ethernet"
-+ISA9400 "Gateway G/Ethernet AT"
-+ISA9401 "Gateway G/Ethernet 8-bit PC"
-+ISA9402 "Gateway G/Token Ring 8-bit "
-+ISA9403 "Gateway G/Token Ring AT "
-+ISA9404 "Gateway G/Net VS "
-+ISA9405 "Gateway G/Net LNIM"
-+ISA9500 "Proteon ProNET-4/AT P1344"
-+ISA9600 "Madge AT Ring Node"
-+ISA9601 "Smart ISA Ringnode"
-+ISA9700 "IMC PCnic 16bit NIC"
-+ISA9800 "Video Seven V-RAM VGA"
-+ISA9801 "Headlands Vega Deluxe EGA Adapter"
-+ISA9802 "Video Seven FastWrite VGA Video Adapter"
-+ISA9803 "Video Seven VGA 1024i Video Adapter"
-+ISA9900 "Sigma Designs VGA-PC-HP160/162"
-+ISA9901 "Sigma Designs SigmaVGA or VGA/HP8"
-+ISA9A00 "Verticom M16/M256E"
-+ISA9A01 "Verticom MX16/AT & MX256/AT"
-+ISA9B00 "HP 82328A Intelligent Graphics Controller"
-+ISA9C01 "Matrox PG-1281"
-+ISA9C02 "Matrox PG-1024"
-+ISA9C03 "Matrox PG-641"
-+ISA9D00 "Renaissance GRX Rendition I"
-+ISA9E00 "Pixelworks Micro Clipper Graphics"
-+ISA9E01 "Pixelworks Ultra Clipper Graphics"
-+ISA9F00 "Genoa Super VGA 16-Bit"
-+ISA9F02 "Genoa SuperVGA"
-+ISA9F03 "Genoa SuperEGA HiRes+"
-+ISA9F04 "Genoa SuperSpectrum Model 4650"
-+ISA9F05 "Genoa SuperSpectrum Model 4640"
-+ISA9F07 "Genoa Systems QIC-02 Tape Controller"
-+ISAA000 "Vermont Page Manager 100  (FW 01.27)"
-+ISAA100 "Orchid TurboPGA"
-+ISAA101 "Altos Advanced Graphics Controller"
-+ISAA102 "Orchid Enhanced Board OM"
-+ISAA103 "Orchid Enhanced Board w/IO"
-+ISAA200 "Paradise VGA Professional 16-bit"
-+ISAA201 "Paradise VGA Plus 8-bit"
-+ISAA202 "Paradise Autoswitch EGA (Rev. 2)"
-+ISAA300 "Truevision ATVista ICB"
-+ISAA400 "Excelan EXOS 205E"
-+ISAA401 "Excelan EXOS 205T 16-Bit"
-+ISAA500 "Pure Data PDI8025 Token Ring"
-+ISAA501 "Pure Data PDI508 ArcNet"
-+ISAA600 "BICC ISOLAN Ethernet"
-+ISAA700 "Control Systems Artist 10"
-+ISAA701 "Control Systems Artist XJ10"
-+ISAA800 "Codenoll Codenet3051"
-+ISAAB01 "HAYES Smartmodem 1200B"
-+ISAAB02 "HAYES Smartmodem 2400B"
-+ISAAB03 "HAYES Smartmodem 2400Q"
-+ISAAC00 "ATI Tech. Inc. EGA WONDER"
-+ISAAC01 "ATI Tech. Inc. VGA WONDER"
-+ISAAE01 "Arnet SMARTPORT Card"
-+ISAAE02 "Arnet MODULAR SMARTPORT Card"
-+ISAAE03 "Arnet SMARTPORT 16 Card"
-+ISAAF00 "Computone INTELLIPORT Multiport Serial Card"
-+ISAB000 "Anvil Designs Stallion Intelligent I/O Controller"
-+ISAB100 "Emerald 3XTwin 5250 Twinax"
-+ISAB101 "Emerald 3XPlus 5250 Remote"
-+ISAB401 "STB Systems EGA Plus"
-+ISAB402 "STB Chauffeur HT"
-+ISAB403 "STB VGA Extra"
-+ISAB404 "STB EGA MultiRes"
-+ISAB500 "Banyan Intelligent Communications Adapter"
-+ISAB600 "Computer Peripherals Monographic Video"
-+ISAB601 "Computer Peripherals VisionMaster VGA"
-+ISAB602 "Graphmaster Plus EGA Video Adapter"
-+ISAB700 "Iomega Bernoulli PC3B/50 Board"
-+ISAB701 "Iomega Bernoulli PC2/50, PC2B/50 Boards"
-+ISAB702 "Iomega Bernoulli II Combo Adapter Board"
-+ISAB800 "Archive SC499R Tape Controller"
-+ISAB801 "Archive VP402 Tape Adapter"
-+ISAB900 "DigiBoard DigiCHANNEL PC/Xe"
-+ISAB901 "DigiBoard DigiCHANNEL PC/8i"
-+ISAB903 "Digiboard Digichannel PC/8e"
-+ISAB904 "DigiBoard Com/8s"
-+ISAB905 "DigiBoard DigiCHANNEL PC/8"
-+ISABA00 "Alloy IMP2 Multiuser Port Controller"
-+ISABA01 "Alloy IMP8 Multiuser Port Controller"
-+ISABA02 "Alloy PC-HIA XBUS Controller"
-+ISABA03 "Alloy FTFA Tape & Floppy Controller"
-+ISABB00 "BIT3 403/404/405 Bus Communications Adaptors"
-+ISABC00 "Boca Research BOCARAM/AT Plus"
-+ISABC01 "Boca Research I/O Master AT"
-+ISABD00 "Racal-Interlan NP600A Ethernet 16bit"
-+ISABD02 "Racal-Interlan NI5210/8 Ethernet"
-+ISABD03 "Racal-Interlan NI5210/16 Ethernet"
-+ISABE00 "Qua Tech PXB-1608 Parallel Expansion Board"
-+ISABE01 "Qua Tech ES-100 8 Channel Asyncronous"
-+ISABE02 "Qua Tech QS-100M 4 Channel Asyncronous"
-+ISABE03 "Qua Tech MXI-100 IEEE 488 GPIB"
-+ISABE04 "Qua Tech DS-201 Dual Channel RS-422"
-+ISABE05 "Qua Tech PXB-721 Parallel Expansion"
-+ISABE06 "Qua Tech DSDP-402 Dual Serial/Dual Parallel"
-+ISABE07 "Qua Tech WSB-10 Waveform Synthesizer"
-+ISABE08 "Qua Tech SmartLynx Multiport Adapter"
-+ISABF00 "EOgraph Plus"
-+ISAC000 "Corollary 8x4 Mux (Jumpers)"
-+ISAC001 "Corollary 8x4 Mux (Rotary Switches)"
-+ISAC100 "Bell Technologies' ACE Multiport Serial Card"
-+ISAC200 "Micro-Integration PC-STWINAX"
-+ISAC201 "Micro-Integration PC-MICOAX"
-+ISAC300 "BlueLynx 5251-12"
-+ISAC301 "BlueLynx 5250"
-+ISAC302 "BlueLynx 3270 Remote"
-+ISAC303 "BlueLynx Enhanced 5251-11"
-+ISAC304 "BlueLynx 3270 Enhanced Coax"
-+ISAC400 "Core CNT-ATP ESDI Internal FD Ctrl"
-+ISAC500 "CEC PC 488 IEEE Printer Controller"
-+ISAC700 "LSE Electronics YC808 Color Graphics Printer Adapter"
-+ISAC701 "LSE Electronics Platinum VGA16 Card"
-+ISAC800 "Street Electronics ECHO PC+ Speech Synthesizer"
-+ISAC900 "SIIG ARCLAN-100 Arcnet Network Board."
-+ISACA00 "National Instruments GPIB-PCIIA"
-+ISACA01 "National Instruments AT-GPIB"
-+ISACA02 "National Instruments GPIB-PC"
-+ISACB00 "Konan TNT-1050 Caching Disk Controller"
-+ISACC00 "Packard Bell PB 3270 Coax"
-+ISACD00 "Digital Storage Systems ARC6000"
-+ISACE00 "Ideaphone Input Device"
-+ISACF00 "Atronics Professional Image Board Plus"
-+ISAD000 "Bi-Tech SCSI 2110 HD/TAPE Controller"
-+ISAD001 "Bi-Tech SCSI 2200 Controller"
-+ISAD100 "Equinox Megaport Board"
-+ISAD200 "Comtrol SMART HOSTESS Multiport Serial Card"
-+ISAD300 "Emulex MPC-II Comm Controller"
-+ISAD301 "Altos Wide Area Network Board /2"
-+ISAD400 "Western Digital WD1004A-WX1 Controller"
-+ISAD401 "Western Digital WD1006V-MM2 Winchester/Floppy Controller"
-+ISAD402 "Western Digital WD1006V-SR2 Winchester/Floppy Controller"
-+ISAD500 "GammaLink GammaFax NA"
-+ISAD501 "GammaLink GammaFax CP"
-+ISAD600 "The Complete FAX/9600"
-+ISAD601 "The Complete Page Scanner"
-+ISAD602 "Scanman Plus"
-+ISAD700 "Hughes 4140 Ethernet Board"
-+ISAD701 "Hughes 6130 Broadband Network Card"
-+ISAD702 "Hughes(Sytek) 6140 Token Ring Net. Board"
-+ISAD800 "AMI SMART PACK 2 W/ PAL 5.1"
-+ISAD801 "AMI SMART PACK 2 W/ PAL 6.1"
-+ISAD802 "AMI SMART PACK 2 W/ PAL 6.2"
-+ISAD900 "NEC Multisync Graphics Board GB-1"
-+ISADA00 "Torus Systems Ethernet Adapter"
-+ISADA01 "Torus Systems Ethernet Adapter/SB"
-+ISADB00 "Rabbit Software RB14 X.25 Adapter"
-+ISADB01 "Rabbit Software RB24 Multi-Protocol Comm"
-+ISADC00 "Nth Graphics Nth Engine"
-+ISADD00 "Chase AT4/AT8/AT16"
-+ISADE00 "QMS JetScript"
-+ISADF00 "Altos ACPA/AT"
-+ISADF01 "SoundBlaster by Creative Labs, Inc."
-+ISADF02 "Emerald Systems SCSI Tape Adapter"
-+ISADF03 "Weitek Array Processor, Brd #3002-0046-01"
-+ISAE000 "Headlands VGA 1024i Video Adapter"
-+ISAE100 "Scanman Plus"
-+ISAE300 "Overland Data 9-Track Tape TX-8 Controller"
-+ISAE401 "Microfield V8 Color Graphics Controller"
-+ISAE402 "Microfield T8 Color Graphics Controller"
-+ISY0010 "(SYSTEM) VGA Board"
-+ISY0020 "(SYSTEM) COM Ports"
-+ISY0030 "(SYSTEM) Mother Board PS-2 style Mouse"
-+ISY0040 "(SYSTEM) Hard Disk Controller"
-+ISY0050 "(SYSTEM) Floppy Drive Controller"
-+ISY0060 "(SYSTEM) LPT Ports"
-+ISY0070 "(SYSTEM) IRQ9 Cascaded Interrupt"
-+ITC0001 "EISA-486C Main Board"
-+KCI3201 "ET32EM EISA 32-bit BUS-MASTER Ethernet Adapter"
-+KCI3202 "ET-32EM 32-bit EISA Bus Master Ethernet Adapter"
-+MCC0000 "MCC EISA-486 Board"
-+MCC0001 "MCCI-486 EISA System Board"
-+MDG0002 "Madge Smart 16/4 EISA Ringnode"
-+MDG0020 "Madge Smart 16/4 ISA Client Ringnode"
-+MET1104 "Metheus UGA 1104 Graphics Controller"
-+MET1128 "Metheus UGA 1124/1128 Graphics Ctlr."
-+MIC0001 "MICRONICS EISA 486/33/25 System Board"
-+MIC3001 "Micronics EISA3 System Board"
-+MINIADP "Adaptec 32-bit SCSI Host Adapter (with floppy)"
-+MIR0928 "miroCRYSTAL / miroMAGIC / miroRAINBOW (14-Sep-93) "
-+MLX0010 "Mylex LNE390A EISA 32-bit Ethernet LAN Adapter"
-+MLX0011 "Mylex LNE390B EISA 32-bit Ethernet LAN Adapter"
-+MLX0020 "Mylex DCE376 EISA 32-Bit SCSI Host Adapter"
-+MLX0021 "Mylex DCE376 EISA 32-Bit SCSI Host Adapter"
-+MLX0022 "Mylex DCE376 EISA 32-Bit SCSI Host Adapter"
-+MLX0030 "Mylex LNI390A ISA 16-Bit Ethernet LAN Adapter"
-+MLX0040 "Mylex GXE020B EISA 32-Bit Graphics Controller"
-+MLX0075 "SWXCR-EB (3-ch) EISA RAID Cntlr for OSF, VMS"
-+MLX0077 "SWXCR-EA (1-ch) EISA RAID Cntlr for OSF, VMS"
-+MLXFD01 "Mylex Corporation MDE486 EISA 32-Bit 486 System Board"
-+MLXFE01 "Mylex MBE486 EISA 32-Bit 486 System Board"
-+MLXFF01 "Mylex MAE486 EISA 32-Bit 486 System Board"
-+MLXFF02 "Mylex Corporation MDE486 EISA 32-Bit 486 System Board"
-+NEC8201 "DPT SCSI Host Bus Adapter w/ Cache (PM2012B/90)"
-+NON0101 "c't Universal 16-Bit Multi I/O Adapter"
-+NON0102 "c't Universal 16-Bit Multi I/O Adapter"
-+NON0201 "c't Universal 8-Bit Multi I/O Adapter"
-+NON0301 "c't Universale Graphic Adapter"
-+NON0401 "c't Universal Ethernet Adapter"
-+NON0501 "c't Universal 16-Bit Sound Adapter"
-+NON0601 "c't Universal 8-Bit Adapter"
-+NSS0011 "Newport Systems Solutions WNIC Adapter"
-+NVL0701 "Novell NE3200 Bus Master Ethernet"
-+NVL0901 "Novell NE2100 Ethernet/Cheapernet Adapter"
-+NVL1201 "Novell NE32HUB 32-bit Base EISA Adapter"
-+NVL1301 "Novell NE32HUB 32-bit TPE EISA Adapter"
-+NVL1401 "Novell NE32HUB PME ISA Adapter"
-+NVL1501 "Novell NE2000PLUS Ethernet Adapter"
-+OLC0701 "HP ISA 16/4 Token-Ring Network Adapter (D2378A)"
-+OLC0902 "Olicom EISA 16/4 Token-Ring Network Adapter"
-+OLC1201 "Olicom 32 Bit EISA 16/4 Token-Ring Network Adapter"
-+OPT0000 "OPTi HUNTER EISA 32-Bit 486 System Board"
-+OPT0200 "OPTi 691/696 FOR 407 CONFIGURATION FILE"
-+PCI0080 "PIONEER 486WB 8 SLOT EISA SYSTEM BOARD"
-+PCI0120 "PIONEER 486WB 12 SLOT EISA SYSTEM BOARD"
-+PCI2080 "PIONEER 486WB 8 SLOT EISA SYSTEM BOARD"
-+PHI8041 "Standard VGA controller"
-+PLX1001 "OCEAN EISALink EISA 32-Bit BUS-MASTER Ethernet Controller"
-+PRO6000 "Proteon ProNET 4/16 Token Ring Adapter"
-+PRO6001 "Proteon ProNET 4/16 Token Ring Adapter"
-+PRO6002 "Proteon ProNET 4/16 Token Ring Adapter"
-+PTI5401 "Poseidon P6 QUAD PCI-EISA Board"
-+RII0101 "Racal InterLan ES3210 Ethernet Controller"
-+SGT0101 "AT&T GIS  8/16 Port Serial Controller"
-+SIS0000 "4DESD EISA-486 System Board"
-+SIS0001 "EISA-486 Demo Board"
-+SKD0100 "SK-NET FDDI-FE EISA 32-Bit FDDI LAN Adapter"
-+SMC03E0 "SMC EtherCard PLUS Family LAN Adapters"
-+SMC13E0 "SMC EtherCard PLUS Elite16 Family LAN Adapters"
-+SMC8010 "Standard Microsystems Corp. Ethernet"
-+SUK1022 "SK-NET Token Ring LAN Interface Board"
-+SUK1059 "SK-NET G16 LAN Interface Board"
-+SUK1072 "SK-FDDI FI LAN Interface Board"
-+TCC010C "Thomas-Conrad TC6045 ARC-Card/AT"
-+TCC030D "Thomas-Conrad TC6042 ARC-Card/CE"
-+TCC040B "Thomas-Conrad TC6142 ARC-Card/CE"
-+TCC3047 "Thomas-Conrad TC3047 TCNS Adapter/EISA"
-+TCM5090 "3Com 3C509-TP Network Adapter"
-+TCM5091 "3Com 3C509 Network Adapter"
-+TCM5092 "3Com 3C579-TP EISA Network Adapter"
-+TCM5093 "3Com 3C579 EISA Network Adapter"
-+TCM5094 "3Com 3C509-Combo Network Adapter"
-+TCM5095 "3Com 3C509-TPO Network Adapter"
-+TCM5098 "3Com 3C509-TPC Network Adapter"
-+TCM5920 "3Com EtherLink III Bus Master EISA (3C592) Network Adapter"
-+TCM5970 "3Com Fast EtherLink EISA (3C597-TX) Network Adapter"
-+TCM7700 "3Com 3C770 FDDI Adapter"
-+TCO010C "Thomas-Conrad TC6045 ARC-Card/AT"
-+TCO030D "Thomas-Conrad TC6042 ARC-Card/CE"
-+TCO040B "Thomas-Conrad TC6142 ARC-Card/CE"
-+TCO050D "Thomas-Conrad TC4035 TOKEN RING Adapter/AT (Rev D)"
-+TCO3147 "TC3047 Thomas Conrad Network System (TCNS) EISA Adapter"
-+TCO345A "TC3045 Thomas-Conrad Network System (TCNS) AT Adapter"
-+TCO345B "TC3045 Thomas-Conrad Network System (TCNS) AT Adapter"
-+TEC8000 "Tecmar QIC60 HOST ADAPTER"
-+TEC8001 "Tecmar QIC PC36 TAPE CONTROLLER"
-+TEC8002 "Tecmar QT HOST ADAPTER"
-+TEC8003 "Tecmar QT PC36 TAPE CONTROLLER"
-+TRM0001 "EISA-486C SYSTEM BOARD"
-+TRM0620 "DC-620 EISA IDE Cache Controller"
-+TRU0210 "Truevision Image Capture Board"
-+TRU0520 "Truevision ATVista (R) VideoGraphics Adapter"
-+TXN0011 "TACT84500 MODULAR EISA SYSTEM BOARD"
-+TYN0000 "Tyan 486 PRO-EISA Board"
-+TYN0001 "TYN VL EISA-486  Board"
-+TYN0003 "Tyn S1452/S1462 PCI-EISA Main Board"
-+UBIA100 "Ungermann-Bass Personal NIU"
-+UBIA200 "Ungermann-Bass Personal NIU/ex"
-+UBIB100 "Ungermann-Bass NIUpc"
-+UBIB200 "Ungermann-Bass 3270 NIUpc"
-+UBIC100 "Ungermann-Bass NIC"
-+UBID100 "Ungermann-Bass NIUpc/Token Ring"
-+USC0120 "UltraStor - U12F"
-+USC0220 "UltraStor - U22C"
-+USC0225 "UltraStor - ULTRA-22F ESDI Hard Disk Controller"
-+USC0240 "UltraStor - ULTRA-24F SCSI Host Adapter"
-+USR0011 "USROBOTICS 33.6 TELEPHONY MODEM"
-+VMI0201 "Vermont Image Manager 1024"
-+VMI0211 "Vermont Cobra"
-+VMI0601 "Vermont Image Manager 640"
-+VMI0E01 "Vermont Cobra Plus"
-+WDC0101 "Western Digital WD1009V-MM1 Winchester Controller"
-+WDC0102 "Western Digital WD1009V-SE1 Winchester Controller"
-+WDC0300 "Western Digital StarCard PLUS 8003S"
-+WDC0301 "Western Digital StarLink PLUS 8003SH"
-+WDC03E0 "Western Digital EtherCard PLUS 8003E"
-+WDC03E1 "Western Digital EtherCard PLUS w/Boot 8003EBT"
-+WDC03E2 "Western Digital EtherCard + 8003EB 61-600245-02"
-+WDC03E3 "Western Digital EtherCard PLUS TP 8003WT"
-+WDC03E4 "Western Digital EtherCard + 8003EB 61-600090-00"
-+WDC0510 "Western Digital TokenCard 8005TR/8005TRWS"
-+WDC1009 "Western Digital WD1009V-MM1/MM2 Winchester Controller"
-+WDC13E0 "Western Digital EtherCard PLUS 16 8013EBT"
-+XTI02B1 "XNET 1800 PARALLEL SWITCH"
-diff -Nru a/drivers/parisc/Kconfig b/drivers/parisc/Kconfig
---- a/drivers/parisc/Kconfig	Sun Nov 10 22:49:03 2002
-+++ b/drivers/parisc/Kconfig	Sun Nov 10 22:49:03 2002
-@@ -47,6 +47,8 @@
- 	  supports both the Mongoose & Wax EISA adapters.  It is sadly
- 	  incomplete and lacks support for card-to-host DMA.
++	/* Restore the "Product ID" to the EEPROM read register. */
++	read_eeprom(ioaddr, 3);
++
++	dev = init_etherdev(NULL, sizeof(struct el3_private));
++	if (dev == NULL) {
++			release_region(ioaddr, EL3_IO_EXTENT);
++			return -ENOMEM;
+ 	}
  
-+source "drivers/eisa/Kconfig"
-+
- config ISA
- 	bool
- 	depends on EISA
-diff -Nru a/include/linux/eisa.h b/include/linux/eisa.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/eisa.h	Sun Nov 10 22:49:03 2002
-@@ -0,0 +1,60 @@
-+#ifndef _LINUX_EISA_H
-+#define _LINUX_EISA_H
-+
-+#define EISA_SIG_LEN   8
-+#define EISA_MAX_SLOTS 8
-+
-+/* A few EISA constants/offsets... */
-+
-+#define EISA_DMA1_STATUS            8
-+#define EISA_INT1_CTRL           0x20
-+#define EISA_INT1_MASK           0x21
-+#define EISA_INT2_CTRL           0xA0
-+#define EISA_INT2_MASK           0xA1
-+#define EISA_DMA2_STATUS         0xD0
-+#define EISA_DMA2_WRITE_SINGLE   0xD4
-+#define EISA_EXT_NMI_RESET_CTRL 0x461
-+#define EISA_INT1_EDGE_LEVEL    0x4D0
-+#define EISA_INT2_EDGE_LEVEL    0x4D1
-+#define EISA_VENDOR_ID_OFFSET   0xC80
-+
-+/* The EISA signature, in ASCII form, null terminated */
-+struct eisa_device_id {
-+	char sig[EISA_SIG_LEN];
-+};
-+
-+/* There is not much we can say about an EISA device, apart from
-+ * signature, slot number, and base address */
-+struct eisa_device {
-+	struct eisa_device_id id;
-+	int                   slot;
-+	unsigned long         base_addr;
-+	void                 *driver_data;
-+	struct device         dev; /* generic device */
-+};
-+
-+#define to_eisa_device(n) container_of(n, struct eisa_device, dev)
-+
-+struct eisa_driver {
-+	const struct eisa_device_id *id_table;
-+	struct device_driver         driver;
-+};
-+
-+#define to_eisa_driver(drv) container_of(drv,struct eisa_driver, driver)
-+
-+extern struct bus_type eisa_bus_type;
-+int eisa_driver_register (struct eisa_driver *edrv);
-+void eisa_driver_unregister (struct eisa_driver *edrv);
-+
-+/* Mimics pci.h... */
-+static inline void *eisa_get_drvdata (struct eisa_device *edev)
-+{
-+        return edev->driver_data;
+-	/* Read in the station address. */
+-	for (i = 0; i < 6; i++)
+-		printk(" %2.2x", dev->dev_addr[i]);
+-	printk(", IRQ %d.\n", dev->irq);
++	SET_MODULE_OWNER(dev);
+ 
+-	/* Make up a EL3-specific-data structure. */
+-	if (dev->priv == NULL)
+-		dev->priv = kmalloc(sizeof(struct el3_private), GFP_KERNEL);
+-	if (dev->priv == NULL)
+-		return -ENOMEM;
+-	memset(dev->priv, 0, sizeof(struct el3_private));
+-	
++	memcpy(dev->dev_addr, phys_addr, sizeof(phys_addr));
++	dev->base_addr = ioaddr;
++	dev->irq = irq;
++	dev->if_port = if_port;
+ 	lp = dev->priv;
+-	lp->mca_slot = mca_slot;
+-	lp->next_dev = el3_root_dev;
+-	spin_lock_init(&lp->lock);
+-	el3_root_dev = dev;
++	lp->mca_slot = -1;
++	lp->edev = edev;
++	edev->driver_data = dev;
+ 
+-	if (el3_debug > 0)
+-		printk(KERN_INFO "%s" KERN_INFO "%s", versionA, versionB);
++	return el3_common_init (dev);
 +}
-+
-+static inline void eisa_set_drvdata (struct eisa_device *edev, void *data)
+ 
+-	/* The EL3-specific entries in the device structure. */
+-	dev->open = &el3_open;
+-	dev->hard_start_xmit = &el3_start_xmit;
+-	dev->stop = &el3_close;
+-	dev->get_stats = &el3_get_stats;
+-	dev->set_multicast_list = &set_multicast_list;
+-	dev->tx_timeout = el3_tx_timeout;
+-	dev->watchdog_timeo = TX_TIMEOUT;
+-	dev->do_ioctl = netdev_ioctl;
++static int __devexit el3_eisa_remove (struct device *device)
 +{
-+        edev->driver_data = data;
-+}
-+
++		struct eisa_device *edev;
++		struct net_device *dev;
+ 
+-#ifdef CONFIG_PM
+-	/* register power management */
+-	lp->pmdev = pm_register(PM_ISA_DEV, card_idx, el3_pm_callback);
+-	if (lp->pmdev) {
+-		struct pm_dev *p;
+-		p = lp->pmdev;
+-		p->data = (struct net_device *)dev;
+-	}
+-#endif
++		edev = to_eisa_device (device);
++		dev  = edev->driver_data;
+ 
+-	/* Fill in the generic fields of the device structure. */
+-	ether_setup(dev);
+-	return 0;
++		el3_common_remove (dev);
++		return 0;
+ }
 +#endif
+ 
+ /* Read a word from the EEPROM using the regular EEPROM access register.
+    Assume that we are in register window zero.
+@@ -974,7 +1058,8 @@
+ el3_close(struct net_device *dev)
+ {
+ 	int ioaddr = dev->base_addr;
+-
++	struct el3_private *lp = (struct el3_private *)dev->priv;
++	
+ 	if (el3_debug > 2)
+ 		printk("%s: Shutting down ethercard.\n", dev->name);
+ 
+@@ -983,8 +1068,12 @@
+ 	free_irq(dev->irq, dev);
+ 	/* Switching back to window 0 disables the IRQ. */
+ 	EL3WINDOW(0);
+-	/* But we explicitly zero the IRQ line select anyway. */
+-	outw(0x0f00, ioaddr + WN0_IRQ);
++	if (!lp->edev) {
++	    /* But we explicitly zero the IRQ line select anyway. Don't do
++	     * it on EISA cards, it prevents the module from getting an
++	     * IRQ after unload+reload... */
++	    outw(0x0f00, ioaddr + WN0_IRQ);
++	}
+ 
+ 	return 0;
+ }
+@@ -1406,7 +1495,6 @@
+ 
+ #endif /* CONFIG_PM */
+ 
+-#ifdef MODULE
+ /* Parameters that may be passed into the module. */
+ static int debug = -1;
+ static int irq[] = {-1, -1, -1, -1, -1, -1, -1, -1};
+@@ -1428,8 +1516,7 @@
+ MODULE_DESCRIPTION("3Com Etherlink III (3c509, 3c509B) ISA/PnP ethernet driver");
+ MODULE_LICENSE("GPL");
+ 
+-int
+-init_module(void)
++static int __init el3_init_module(void)
+ {
+ 	int el3_cards = 0;
+ 
+@@ -1437,7 +1524,7 @@
+ 		el3_debug = debug;
+ 
+ 	el3_root_dev = NULL;
+-	while (el3_probe(0, el3_cards) == 0) {
++	while (el3_probe(el3_cards) == 0) {
+ 		if (irq[el3_cards] > 1)
+ 			el3_root_dev->irq = irq[el3_cards];
+ 		if (xcvr[el3_cards] >= 0)
+@@ -1445,34 +1532,36 @@
+ 		el3_cards++;
+ 	}
+ 
++#ifdef CONFIG_EISA
++	if (eisa_driver_register (&el3_eisa_driver) < 0) {
++			eisa_driver_unregister (&el3_eisa_driver);
++	}
++	else
++			el3_cards++;				/* Found an eisa card */
++#endif
+ 	return el3_cards ? 0 : -ENODEV;
+ }
+ 
+-void
+-cleanup_module(void)
++static void __exit el3_cleanup_module(void)
+ {
+ 	struct net_device *next_dev;
+ 
+ 	/* No need to check MOD_IN_USE, as sys_delete_module() checks. */
+ 	while (el3_root_dev) {
+ 		struct el3_private *lp = (struct el3_private *)el3_root_dev->priv;
+-#ifdef CONFIG_MCA		
+-		if(lp->mca_slot!=-1)
+-			mca_mark_as_unused(lp->mca_slot);
+-#endif
+ 
+-#ifdef CONFIG_PM
+-		if (lp->pmdev)
+-			pm_unregister(lp->pmdev);
+-#endif
+ 		next_dev = lp->next_dev;
+-		unregister_netdev(el3_root_dev);
+-		release_region(el3_root_dev->base_addr, EL3_IO_EXTENT);
+-		kfree(el3_root_dev);
++		el3_common_remove (el3_root_dev);
+ 		el3_root_dev = next_dev;
+ 	}
++
++#ifdef CONFIG_EISA
++	eisa_driver_unregister (&el3_eisa_driver);
++#endif
+ }
+-#endif /* MODULE */
++
++module_init (el3_init_module);
++module_exit (el3_cleanup_module);
+ 
+ /*
+  * Local variables:
+diff -Nru a/drivers/net/Space.c b/drivers/net/Space.c
+--- a/drivers/net/Space.c	Sun Nov 10 22:49:20 2002
++++ b/drivers/net/Space.c	Sun Nov 10 22:49:20 2002
+@@ -56,7 +56,6 @@
+ extern int hp_plus_probe(struct net_device *dev);
+ extern int express_probe(struct net_device *);
+ extern int eepro_probe(struct net_device *);
+-extern int el3_probe(struct net_device *);
+ extern int at1500_probe(struct net_device *);
+ extern int at1700_probe(struct net_device *);
+ extern int fmv18x_probe(struct net_device *);
+@@ -215,9 +214,6 @@
+  * look for EISA/PCI/MCA cards in addition to ISA cards).
+  */
+ static struct devprobe isa_probes[] __initdata = {
+-#ifdef CONFIG_EL3		/* ISA, EISA, MCA 3c5x9 */
+-	{el3_probe, 0},
+-#endif
+ #ifdef CONFIG_HP100 		/* ISA, EISA & PCI */
+ 	{hp100_probe, 0},
+ #endif	
 
 --=-=-=
 

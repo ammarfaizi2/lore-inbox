@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbTALUYk>; Sun, 12 Jan 2003 15:24:40 -0500
+	id <S267510AbTALUYj>; Sun, 12 Jan 2003 15:24:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267503AbTALUXd>; Sun, 12 Jan 2003 15:23:33 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:37818 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267491AbTALUWi> convert rfc822-to-8bit; Sun, 12 Jan 2003 15:22:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: robw@optonline.net, David Ford <david+cert@blue-labs.org>
+	id <S267491AbTALUXh>; Sun, 12 Jan 2003 15:23:37 -0500
+Received: from zork.zork.net ([66.92.188.166]:40672 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S267497AbTALUXN>;
+	Sun, 12 Jan 2003 15:23:13 -0500
+To: linux-kernel@vger.kernel.org
 Subject: Re: any chance of 2.6.0-test*?
-Date: Sun, 12 Jan 2003 21:31:10 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <3E21C8D5.5010301@blue-labs.org> <1042402051.3162.59.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042402051.3162.59.camel@RobsPC.RobertWilkens.com>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: SALACIOUS IMAGININGS, SLOTHFUL
+ INDUCTION
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 12 Jan 2003 20:32:01 +0000
+In-Reply-To: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu> (Valdis.Kletnieks@vt.edu's
+ message of "Sun, 12 Jan 2003 15:18:38 -0500")
+Message-ID: <6uk7haxg72.fsf@zork.zork.net>
+User-Agent: Gnus/5.090011 (Oort Gnus v0.11) Emacs/21.2
+ (i386-debian-linux-gnu)
+References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
+	<1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
+	<200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301122131.10232.oliver@neukum.name>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+commence  Valdis.Kletnieks@vt.edu quotation:
 
-> But in this case, the condition was already there..  My point is that if
-> you don't need a goto, you shouldn't use it.  Whenever there's an
-> obvious way not to use it, don't.
+> The real problem is that C doesn't have a good multi-level "break"
+> construct.  On the other hand, I don't know of any language that has
+> a good one - some allow "break 3;" to break 3 levels- but that's
+> still bad because you get screwed if somebody adds an 'if'
+> clause....
 
-You should not code to avoid a construction that's valid C.
-Just use the control structure that comes natural.
-Of course "if (c % 2) goto a;" is a crime, but things
-like "if (!buffer) goto err_out_nomem;" are better because
-the tell you why the code jumps here, it includes an implicit
-comment.
-if (buffer) {
-	/* do stuff */
-} else {
-	return -ENOMEM;
-}
-just obscures the logic of the code.
-Or look at it another way, if you dislike goto you should
-crusade against conditional return as well.
+Perl's facility for labelling blocks and jumping to the beginning or
+end with 'next' and 'last' may be close to what you want, but I don't
+know if it's ever been implemented in a language one could sensibly
+use to write a kernel.
 
-	Regards
-		Oliver
-
+-- 
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

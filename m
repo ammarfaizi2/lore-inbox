@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129955AbRBGIxl>; Wed, 7 Feb 2001 03:53:41 -0500
+	id <S129028AbRBGJCf>; Wed, 7 Feb 2001 04:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129982AbRBGIxb>; Wed, 7 Feb 2001 03:53:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61457 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129955AbRBGIxQ>; Wed, 7 Feb 2001 03:53:16 -0500
-Subject: Re: CPU error codes
-To: carlos@fisica.ufpr.br (Carlos Carvalho)
-Date: Wed, 7 Feb 2001 08:53:24 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <14976.24819.276892.26475@hoggar.fisica.ufpr.br> from "Carlos Carvalho" at Feb 06, 2001 06:39:15 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14QQLw-00087S-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129568AbRBGJCQ>; Wed, 7 Feb 2001 04:02:16 -0500
+Received: from dell-pe2450-1.cambridge.redhat.com ([172.16.18.1]:273 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S129028AbRBGJCN>; Wed, 7 Feb 2001 04:02:13 -0500
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI-SCI Drivers v1.1-7 released 
+In-Reply-To: Your message of "Tue, 06 Feb 2001 19:06:24 MST."
+             <20010206190624.C23960@vger.timpanogas.org> 
+Date: Wed, 07 Feb 2001 09:01:49 +0000
+Message-ID: <22678.981536509@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Really? I thought it could be because of RAM. Here's the story:
 
-RAM talks to the chipset so I dont think it could (unless it confused the
-chipset)
+> More to add on the gcc 2.96 problems.  After compiling a Linux 2.4.1 
+> kernel on gcc 2.91, running SCI benchmarks, then compiling on RedHat 
+> 7.1 (Fischer) with gcc 2.96, the 2.96 build DROPPED 30% in throughput
+> from the gcc 2.91 compiled version on the identical SAME 2.4.1 
+> source tree. 
 
-> CPU 1: Machine Check Exception: 0000000000000004
-> Bank 4: b200000000040151<0>Kernel panic: CPU context corrupt
+Out of interest, could you run your benchmark test against a "latest snapshot
+build" of gcc?
 
-Ok that decodes as:
-	Status valid
-	Uncorrect Error
-	Error Enabled
-	Processor Context Corrupt
+	http://www.codesourcery.com/gcc-snapshots/
 
-Memory Heirarchy Error
-	Instruction Fetch
-	L1 cache
-
-More than that I can't really say. Power and heat problems can certainly
-trigger MCE's. I don't know if I/O devices can influence them.
-
-
+Cheers,
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

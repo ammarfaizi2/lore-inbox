@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVAXVOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVAXVD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVAXVOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVOG
+	id S261651AbVAXVD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVAXVCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:14:06 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:21154 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261662AbVAXVNs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:13:48 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Subject: Re: Linux 2.6.11-rc2
-Date: Mon, 24 Jan 2005 13:13:43 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200501232251.42394.david-b@pacbell.net> <1106589954.1085.5.camel@tux.rsn.bth.se>
-In-Reply-To: <1106589954.1085.5.camel@tux.rsn.bth.se>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 24 Jan 2005 16:02:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56213 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261665AbVAXU6t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:58:49 -0500
+Subject: Re: [Ext2-devel] [PATCH] JBD: log space management optimization
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <m3fz0qd1cf.fsf@bzzz.home.net>
+References: <m3llapv3i7.fsf@bzzz.home.net>
+	 <1106593003.2103.147.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <m3fz0qd1cf.fsf@bzzz.home.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501241313.43361.david-b@pacbell.net>
+Message-Id: <1106600313.2103.261.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 24 Jan 2005 20:58:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 January 2005 10:05 am, Martin Josefsson wrote:
-> On Sun, 2005-01-23 at 22:51 -0800, David Brownell wrote:
-> > ...
-> >  - Each gets an ICMP destination unreachable, frag needed, next hop MTU 1492
-> >  - ... all retransmits are 1500 bytes not 1492, triggering ICMPs ...
-> > 
-> > Naturally the connection goes nowhere.  
-> 
-> Is there a firewall on this machine? And if so, do you allow inbound
-> icmp?
+Hi,
 
-It's behind a firewall; no firewall on that box though.  The only
-difference between a working RC1 and non-working RC2 was the kernel.
+On Mon, 2005-01-24 at 20:22, Alex Tomas wrote:
 
-- Dave
+> during truncate ext3 calls journal_forget() for freed blocks, but
+> before these blocks go to the transaction and jbd reserves space
+> in log for them (->t_outstanding_credits). also, journal_forget()
+> removes these blocks from the transaction, but doesn't correct
+> log space reservation. for example, removal of 500MB file reserves
+> 136 blocks, but only 10 blocks go to the log. a commit is expensive
+> and correct reservation allows us to avoid needless commits. here
+> is the patch. tested on UP.
+
+> +drop:
+> +	if (drop_reserve) {
+> +		/* no need to reserve log space for this block -bzzz */
+> +		handle->h_buffer_credits++;
+> +	}
+> +
+
+Looks good to me.
+
+--Stephen
+

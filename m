@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266265AbUARILc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 03:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUARILb
+	id S266279AbUARISf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 03:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266285AbUARISd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 03:11:31 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:61650 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S266265AbUARILa (ORCPT
+	Sun, 18 Jan 2004 03:18:33 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:20392 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266279AbUARISZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 03:11:30 -0500
-Date: Sun, 18 Jan 2004 09:11:28 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.1-mm4
-Message-ID: <20040118081128.GA3153@werewolf.able.es>
-References: <20040115225948.6b994a48.akpm@osdl.org> <20040118001217.GE3125@werewolf.able.es> <20040117215535.0e4674b8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040117215535.0e4674b8.akpm@osdl.org> (from akpm@osdl.org on Sun, Jan 18, 2004 at 06:55:35 +0100)
-X-Mailer: Balsa 2.0.15
+	Sun, 18 Jan 2004 03:18:25 -0500
+Message-ID: <400A4147.4090405@colorfullife.com>
+Date: Sun, 18 Jan 2004 09:18:15 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kill sleep_on
+References: <40098251.2040009@colorfullife.com>	 <1074367701.9965.2.camel@imladris.demon.co.uk>	 <20040117201000.GL21151@parcelfarce.linux.theplanet.co.uk>	 <1074383111.9965.4.camel@imladris.demon.co.uk>	 <20040117224139.5585fb9c.akpm@osdl.org>	 <1074409074.1569.12.camel@nidelv.trondhjem.org>	 <20040117233618.094c9d22.akpm@osdl.org> <400A396B.4090207@colorfullife.com> <1074412980.1574.40.camel@nidelv.trondhjem.org>
+In-Reply-To: <1074412980.1574.40.camel@nidelv.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust wrote:
 
-On 01.18, Andrew Morton wrote:
-> "J.A. Magallon" <jamagallon@able.es> wrote:
-> >
-> > On 01.16, Andrew Morton wrote:
-> >  > 
-> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/
-> >  > 
-> >  > 
-> > 
-> >  Net driver problem:
-> > 
-> >  werewolf:/etc# modprobe --verbose 3c59x
-> >  insmod /lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko 
-> >  FATAL: Error inserting 3c59x (/lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko): Invalid argument
-> 
-> hmm, cute.
-> 
+>I'm not sure that taking inode->i_sem would be much of an improvement.
+>Both th BKL and the inode semaphore seem superfluous to me in this
+>situation.
+>
+I think the purpose of i_sem or lock_kernel is to protect the file 
+pointer. Most local filesystems use i_sem, it's noticably faster - 
+global vs. per-object locking.
+Btw, generic_mapping_read should also lock it's accesses to f_pos: right 
+now it reads and writes f_pos without any locking...
 
-Yes.
-It worked. 
-I thought of this, but why this and not the other parameters ? Compiler bug ?
+--
+    Manfred
 
-Witches...
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.1-jam4 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

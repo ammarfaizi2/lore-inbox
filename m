@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTJSSxS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 14:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJSSxS
+	id S262050AbTJSTAW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbTJSTAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 14:53:18 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:7301
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262040AbTJSSxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 14:53:17 -0400
-From: John Mock <kd6pag@qsl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7 
-Message-Id: <E1ABIg9-0003s2-00@penngrove.fdns.net>
-Date: Sun, 19 Oct 2003 11:53:25 -0700
+	Sun, 19 Oct 2003 15:00:22 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:56784 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262050AbTJSTAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:00:20 -0400
+Message-ID: <01f601c39671$553cbaa0$fb457dc0@tgasterix>
+Reply-To: "Thomas Giese" <Thomas.Giese@gmx.de>
+From: "Thomas Giese" <Thomas.Giese@gmx.de>
+To: "Paul Blazejowski" <paulb@blazebox.homeip.net>
+Cc: <linux-kernel@vger.kernel.org>
+References: <1066588403.1232.57.camel@blaze.homeip.net>
+Subject: Re: Linux-2.6.0-test8, e1000 timeouts.
+Date: Sun, 19 Oct 2003 20:46:40 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Seen: false
+X-ID: SgX63iZLQeTFN3ev3tSQhpXYO96Tg70Y-BdjncpOX9f9znFvasrNUF@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > First, is it possible to mount an md device as root (superblock is
-    > present)?
+i got this in /var/log/messages with 3c59x on 2.6.0-test8, and lan is very
+slow:
 
-Yes, software RAID5 works for me on a PPC with 2.6.0-test7 (aside from other
-video problems which make it hard for me to test adequately).  There is a
-HOW-TO which explains how to do this (you want the >= 0.9 version, not the
-0.4 version which is not relevant for modern kernels).
+Oct 19 18:55:19 linux kernel: eth0: Transmit error, Tx status register 82.
+Oct 19 18:55:19 linux kernel: Probably a duplex mismatch.  See
+Documentation/networking/vortex.txt
+Oct 19 18:55:19 linux kernel:    Flags; bus-master 1, dirty 2761(9) current
+2761(9)
+Oct 19 18:55:19 linux kernel:   Transmit list 00000000 vs. cfcf57a0.
+Oct 19 18:55:19 linux kernel:   0: @cfcf5200  length 80000043 status
+00010043
+Oct 19 18:55:19 linux kernel:   1: @cfcf52a0  length 80000043 status
+00010043
+Oct 19 18:55:19 linux kernel:   2: @cfcf5340  length 80000043 status
+00010043
+Oct 19 18:55:19 linux kernel:   3: @cfcf53e0  length 80000043 status
+00010043
+Oct 19 18:55:19 linux kernel:   4: @cfcf5480  length 80000043 status
+00010043
 
-    > If so, I can't get it to work :(
-    > I pass root=/dev/md0 to the kernl, but I get the "Kernel panic: VFS:
-    > Unable to mount root fs on md0" error.
 
-The basic problem here is that the kernel has no idea what disks comprise
-your RAID when you just say "root=/dev/md0", e.g., it has no idea where to
-start.  Here's an extract from my PPC's .config file:
 
-    CONFIG_CMDLINE="root=/dev/md0 md=0,/dev/sda7,/dev/sdb7,/dev/sdc7"
+-----Ursprüngliche Nachricht----- 
+Von: "Paul Blazejowski" <paulb@blazebox.homeip.net>
+An: "LKML" <linux-kernel@vger.kernel.org>
+Gesendet: Sonntag, 19. Oktober 2003 20:33
+Betreff: Linux-2.6.0-test8, e1000 timeouts.
 
-Something like that could also be in /etc/lilo.conf if you use LILO (which
-a PowerPC does not).
 
-Thus the kernel has three disk to look at, to find out which partitions
-make up /dev/md0.  Since i want the machine to work no matter which of my
-three disk might fail, i have arranged my disks to have the root partition 
-on the same partition number on each drive (even though they're not the 
-same capacity or even organized in the same way otherwise).  If /dev/sda 
-and /dev/sdb differ too much, then if /dev/sda fails sufficiently badly, 
-then the drives get 'renumbered' (e.g. what was /dev/sdb because /dev/sda, 
-/dev/sdc becomes /dev/sdb, etc.).
-
-Write privately if you want to discuss this further (albeit i am hardly an
-expert on this), as this mailing list is about maintaining the kernel rather
-than about helping people get started with new configurations.  Yes, it can
-work, and if it does with one recent kernel, but not another, then that's a
-good hint that this may be an appropriate place to post (assuming a search 
-of the archives doesn't already contain alot of discussion on your topic).
-Good luck!
-			         -- JM

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273295AbRINExr>; Fri, 14 Sep 2001 00:53:47 -0400
+	id <S273298AbRINFCR>; Fri, 14 Sep 2001 01:02:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273294AbRINExi>; Fri, 14 Sep 2001 00:53:38 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:12814 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S273295AbRINExY>; Fri, 14 Sep 2001 00:53:24 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C65269@dcmtechdom.dcmtech.co.in>
-From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: "'spamtrap@spinics.net'" <spamtrap@spinics.net>,
-        linux-kernel@vger.kernel.org
-Subject: RE: iSCSI support for Linux??
-Date: Fri, 14 Sep 2001 10:25:20 +0530
+	id <S273300AbRINFCH>; Fri, 14 Sep 2001 01:02:07 -0400
+Received: from c009-h018.c009.snv.cp.net ([209.228.34.131]:62689 "HELO
+	c009.snv.cp.net") by vger.kernel.org with SMTP id <S273298AbRINFB6>;
+	Fri, 14 Sep 2001 01:01:58 -0400
+X-Sent: 14 Sep 2001 05:02:15 GMT
+Date: Thu, 13 Sep 2001 22:02:27 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dri-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>, <mharris@redhat.com>
+Subject: Re: Radeon lockup fix
+In-Reply-To: <20010913221834.E29816@redhat.com>
+Message-ID: <Pine.LNX.4.33.0109132157010.474-100000@desktop>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UNH is faking on the server side and moreover it is not supporting
-any security.
+On Thu, 13 Sep 2001, Stephen C. Tweedie wrote:
 
-- Nitin
+> Hi,
+>
+> I've also been seeing the AMD-761 + radeon total lockup when X starts,
+> as described in
+>
+> http://sourceforge.net/tracker/index.php?func=detail&aid=221904&group_id=387&atid=100387
+>
+> The X server fixes from ATI seem to fix this when running without dri,
+> but in dri mode, I still see the lockups 75% of the time.  However,
+> the fix described above and appended below appears to be a complete
+> cure for me so far.
 
- -----Original Message-----
-From: 	spamtrap@spinics.net [mailto:spamtrap@spinics.net] 
-Sent:	Thursday, September 13, 2001 3:38 PM
-To:	linux-kernel@vger.kernel.org
-Subject:	Re: iSCSI support for Linux??
+This patch also works fine for my All-in-Wonder Radeon on an AMD 760
+mainboard.  Tested with the DRI trunk.
 
-In article <017401c13c61$9fc5d000$0a02a8c0@consensys.com> you write:
+-jwb
 
->I am also investigating the iSCSI stuff now, and focusing on the server
->side. I found most implementors have no support to authentication and
->security. That's the reason why I prefer to the Cisco one, which support
->CHAP authentication. But I can't find the server code in their site,
->http://sourceforge.net/projects/linux-iscsi/, only the driver and daemon on
->client side here. So can you tell me where I can get a linux server code
->matching this client?
-
-Have you tried the code from UNH?
-
-  http://www.cs.uml.edu/~mbrown/iSCSI/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,96 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272628AbTHEKNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 06:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272625AbTHEKNS
+	id S272329AbTHEKQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 06:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272535AbTHEKQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 06:13:18 -0400
-Received: from zmamail03.zma.compaq.com ([161.114.64.103]:32265 "EHLO
-	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S272611AbTHEKNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 06:13:14 -0400
-Posted-Date: Tue, 5 Aug 2003 05:13:01 -0500
-Message-ID: <3F2F84D2.8000202@nospam.com>
-Date: Tue, 05 Aug 2003 05:20:02 -0500
-From: wb <dead_email@nospam.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	Tue, 5 Aug 2003 06:16:55 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:3230
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272329AbTHEKQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 06:16:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] O13int for interactivity
+Date: Tue, 5 Aug 2003 20:22:01 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <200308050207.18096.kernel@kolivas.org> <1060060568.3f2f3d989683f@kolivas.org> <3F2F4076.1030009@cyberone.com.au>
+In-Reply-To: <3F2F4076.1030009@cyberone.com.au>
 MIME-Version: 1.0
-To: Paul Blazejowski <paulb@blazebox.homeip.net>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Patrick Mansfield <patmans@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-References: <20030801182207.GA3759@blazebox.homeip.net>	    <20030801144455.450d8e52.akpm@osdl.org>	    <20030803015510.GB4696@blazebox.homeip.net>	    <20030802190737.3c41d4d8.akpm@osdl.org>	    <20030803214755.GA1010@blazebox.homeip.net>	    <20030803145211.29eb5e7c.akpm@osdl.org>	    <20030803222313.GA1090@blazebox.homeip.net>	    <20030803223115.GA1132@blazebox.homeip.net>	    <20030804093035.A24860@beaverton.ibm.com>    <1060021614.889.6.camel@blaze.homeip.net>    <1352160000.1060025773@aslan.btc.adaptec.com> <5793.199.181.174.146.1060050091.squirrel@www.blazebox.homeip.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Aug 2003 10:13:12.0998 (UTC) FILETIME=[2DBB3460:01C35B3A]
+Content-Disposition: inline
+Message-Id: <200308052022.01377.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Aug 2003 15:28, Nick Piggin wrote:
+> Con Kolivas wrote:
+> >Quoting Nick Piggin <piggin@cyberone.com.au>:
+> Yes yes, but we come to the same conclusion no matter why you have decided
+> to make the change ;) namely that you're only papering over a flaw in the
+> scheduler!
 
-> 
-> I'll look into serial console and try to set it up.Do i need extra
-> hardware or cables to run serial console? any poniters or setup
-> suggestions would be welcome as i never used serial consoles before.
-> Regards,
-> 
-> Paul
-> -
+This would take a redesign in the interactivity estimator. I worked on one for 
+a while but decided it best to stick to one infrastructure and tune it as 
+much as possible; especially in this stage of 2.6 blah blah...
 
-  Your need a NULL modem serial cable available
-  from any computer store.
+> What happens in the same sort of workload that is using interruptible
+> sleeps?
+> Say the same make -j NFS mounted interrruptible (I think?).
 
-Install uucp - I use on the HOST :
+Dunno. Can't say. I've only ever seen NFS D but I don't have enough test 
+material...
 
-uucp-1.06.1-33.7.2.
+> I didn't really understand your answer a few emails ago... please just
+> reiterate: if the problem is that processes sleeping too long on IO get
+> too high a priority, then give all processes the same boost after they
+> have slept for half a second?
+>
+> Also, why is this a problem exactly? Is there a difference between a
+> process that would be a CPU hog but for its limited disk bandwidth, and
+> a process that isn't a CPU hog? Disk IO aside, they are exactly the same
+> thing to the CPU scheduler, aren't they?
+>
+> _wants_ to be a CPU hog, but can't due to disk
 
-Also , LILO is broken on some machines and ignores
-serial input so make sure you use at least
+You're on the right track; I'll try and explain differently. 
 
-lilo-21.6-71
+A truly interactive task has periods of sleeping irrespective of disk 
+activity. It is the time spent sleeping that the estimator uses to decide 
+"this task is interactive, improve it's dynamic priority by 5". A true cpu 
+hog (eg cc1) never sleeps intentionally and the estimator sees this as "I'm a 
+hog; drop my priority by 5". Now if the cpu hog sleeps while waiting on disk 
+i/o the estimator suddenly decides to elevate it's priority. If it gets to 
+maximum boost and then stops doing I/O and goes back to being a hog it now 
+starts starving other processes till it's dynamic priority drops enough 
+again. As I said it's a design quirk (bug?) and _limiting_ how high the 
+priority goes if the sleep is due to I/O would be ideal but I don't have a 
+simple way to tell that apart from knowing that the sleep was 
+UNINTERRUPTIBLE. This is not as bad as it sounds as for the most part it 
+still is counted as sleep except that it can't ever get maximum priority 
+boost to be a sustained starver.
 
-On the TARGET
+However, since you're a disk I/O kind of guy you may have a better solution to 
+this problem and give me some data I can feedback into the estimator ;-)
 
-1. Connect the serial ports together ( COM1->COM1 ) with
-    the serial cable .
-
-2. Modify LILO to use serial line on the TARGET
-    add to lilo.conf:
-       append="console=ttyS0,9600n8  console=tty0 "
-       serial=0,9600N8
-
-    Run lilo
-
-3. Add to /etc/inittab on the HOST
-
-       S0:s12345:respawn:/sbin/agetty 9600 ttyS0
-
-4. To see ALL THE CONSOLE MESSAGES during boot on the TARGET
-
-    mv /dev/console /dev/console.org
-    ln  /dev/ttyS0 /dev/console
-
-5. Start uucp on the HOST:
-
-     cu -l /dev/ttyS0 -s 9600
-
-6. Boot your target
-
-///
-
-John Donnelly AT HP DOT com
-
-
-
-
-
-
-
-
-
-
-
-
-
+Con
 

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262607AbREZGH7>; Sat, 26 May 2001 02:07:59 -0400
+	id <S262611AbREZGxI>; Sat, 26 May 2001 02:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262611AbREZGHt>; Sat, 26 May 2001 02:07:49 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39299 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262607AbREZGHj>; Sat, 26 May 2001 02:07:39 -0400
-Date: Sat, 26 May 2001 02:07:26 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105260146280.30264-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0105260203250.4419-100000@toomuch.toronto.redhat.com>
+	id <S262613AbREZGw6>; Sat, 26 May 2001 02:52:58 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:46348 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262611AbREZGwv>; Sat, 26 May 2001 02:52:51 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200105260109.DAA02469@kufel.dom>
+Subject: Re: [PATCH] __init -> __initdata in drivers/video/matrox/matroxfb_base.c (244ac16)
+To: kufel!jaquet.dk!rasmus@green.mif.pg.gda.pl (Rasmus Andersen)
+Date: Sat, 26 May 2001 03:09:51 +0200 (CEST)
+Cc: kufel!vc.cvut.cz!vandrove@green.mif.pg.gda.pl,
+        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
+In-Reply-To: <20010525231122.N851@jaquet.dk> from "Rasmus Andersen" at maj 25, 2001 11:11:22 
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Rik van Riel wrote:
+> --- linux-244-ac11-clean/drivers/video/matrox/matroxfb_base.c	Sat May 19 20:58:43 2001
+> +++ linux-244-ac11/drivers/video/matrox/matroxfb_base.c	Sun May 20 23:55:24 2001
+> @@ -2483,7 +2483,7 @@
+>  	return 0;
+>  }
+>  
+> -static int __init initialized = 0;
+> +static int __initdata initialized = 0;
 
-> That might be a 2.5 thing, though ... Ben?
+It should be 
 
-It isn't an immediate priority for me at this moment, but in a few weeks I
-hope to have it back at the top of my concerns.  If anyone considers it
-truely important, I might be persuaded to give it a bit more nudging
-along, but if people try to explain to me that the concept is completely
-unnescessary, I'll redirect their notes to /dev/null.
+static int initialized __initdata = 0;
 
-		-ben
+Andrzej
 

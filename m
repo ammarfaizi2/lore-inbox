@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbSLFT0y>; Fri, 6 Dec 2002 14:26:54 -0500
+	id <S265650AbSLFTgX>; Fri, 6 Dec 2002 14:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265713AbSLFT0y>; Fri, 6 Dec 2002 14:26:54 -0500
-Received: from 216-42-72-140.ppp.netsville.net ([216.42.72.140]:8073 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id <S265711AbSLFT0x>;
-	Fri, 6 Dec 2002 14:26:53 -0500
-Subject: Re: [patch] fix the ext3 data=journal unmount bug
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "ext3-users@redhat.com" <ext3-users@redhat.com>
-In-Reply-To: <3DF0F69E.FF0E513A@digeo.com>
-References: <3DF03B35.AA5858DC@digeo.com> <1039197769.7939.46.camel@tiny> 
-	<3DF0F69E.FF0E513A@digeo.com>
-Content-Type: text/plain
+	id <S265656AbSLFTgW>; Fri, 6 Dec 2002 14:36:22 -0500
+Received: from snow.ball.teaser.net ([213.91.6.13]:7684 "EHLO
+	snow.ball.reliam.net") by vger.kernel.org with ESMTP
+	id <S265650AbSLFTgW>; Fri, 6 Dec 2002 14:36:22 -0500
+Date: Fri, 6 Dec 2002 20:42:07 +0100
+From: Tobias Rittweiler <inkognito.anonym@uni.de>
+X-Mailer: The Bat! (v1.60q)
+Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
+X-Priority: 3 (Normal)
+Message-ID: <6723376646.20021206204207@uni.de>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [STATUS] fbdev api.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Dec 2002 14:34:47 -0500
-Message-Id: <1039203287.9244.97.camel@tiny>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 14:12, Andrew Morton wrote:
-> 
-> It won't.  There isn't really a sane way of doing this properly unless
-> we do something like:
-> 
-> 1) Add a new flag to the superblock
-> 2) Set that flag against all r/w superblocks before starting the sync
-> 3) Use that flag inside the superblock walk.
-> 
-> That would provide a reasonable solution, but I don't believe we
-> need to go to those lengths in 2.4, do you?
+Hello James,
 
-Grin, I'm partial to changing sync_supers to allow the FS to leave
-s_dirt set in its write_super call.
+Monday, December 2, 2002, 10:07:33 PM, you wrote:
 
-I see what ext3 gains from your current patch in the unmount case, but
-the sync case is really unchanged because of interaction with kupdate. 
+JS> Hi!
 
-Other filesystems trying to use the sync_fs() call might think adding
-one is enough to always get called on sync, and I think that will lead
-to unreliable sync implementations.
+JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
+JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
--chris
+Besides the hunks posted recently, I encountered three problems/bugs:
 
+a) Although your patch fixes the FB oddness for me, it makes booting
+   without using framebuffer fail, IOW the kernel hangs:
+
+   Video mode to be used for restore is f00
+   BIOS-provided physical RAM map:
+    BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+
+b) After returning from blanking mode (via APM) to normal mode, no
+   character is drawn. Let's assume I'm using VIM when that happens:
+   After putting any character to return from blank mode, the screen stays
+   blanked apart from the cursor that _is_ shown. Now I'm able to move
+   the cursor, and when the cursor encounters a character, this char
+   is drawn (and keeps drawn). Though when I press Ctrl-L or when I go one line
+   above to the current top-line (i.e. by forcing a redrawn), the
+   whole screen is drawn properly.
+
+c) instruction:          | produces:
+   ======================|==================
+   1. typing abc def     | $ abc def
+                         |          ^ (<- cursor)
+   2. going three chars  | $ abc def
+      ro the left        |       ^
+   3. pressing backspace | $ abcddef
+                         |      ^
+   4. pressing enter     | -bash: abcdef: command not found
+                         |
+
+HTH.
+--
+cheers,
+ Tobias
 

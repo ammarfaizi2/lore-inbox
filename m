@@ -1,68 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVCaOlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVCaOpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVCaOlC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 09:41:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVCaOkw
+	id S261478AbVCaOpr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 09:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVCaOpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 09:40:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29672 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261470AbVCaOkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 09:40:40 -0500
-Date: Thu, 31 Mar 2005 15:40:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
-       jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: [patch 03/12] uml: export getgid for hostfs
-Message-ID: <20050331144026.GA18248@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Blaisorblade <blaisorblade@yahoo.it>,
-	user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
-	jdike@addtoit.com, linux-kernel@vger.kernel.org
-References: <20050322162123.890086BA6F@zion> <200503240302.29153.blaisorblade@yahoo.it> <20050329114529.GA26005@infradead.org> <200503302005.26311.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503302005.26311.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 31 Mar 2005 09:45:47 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:26000 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261480AbVCaOpV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 09:45:21 -0500
+Message-ID: <424C0D4C.4060003@watson.ibm.com>
+Date: Thu, 31 Mar 2005 09:46:36 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@engr.sgi.com>
+CC: Diego Calleja <diegocg@gmail.com>, gh@us.ibm.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [patch 0/8] CKRM: Core patch set
+References: <20050330225505.7a443227.diegocg@gmail.com>	<E1DGkl7-0002aV-00@w-gerrit.beaverton.ibm.com>	<20050331002900.5c5dd04a.diegocg@gmail.com> <20050330173232.3ae4c791.pj@engr.sgi.com>
+In-Reply-To: <20050330173232.3ae4c791.pj@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 08:05:26PM +0200, Blaisorblade wrote:
-> > My unaswered reply to the first submission is at
-> >
-> > http://groups-beta.google.com/group/linux.kernel/messages/de9504fe5963ccd1,
-> >0c05294c599b22b1,eab26a4ed3f8ff17?thread_id=16c905c7e28e7498&mode=thread&noh
-> >eader=1&q=uml-export-getgid-for-hostfs#doc_eab26a4ed3f8ff17
-> >
-> > (sorry, couldn't find it on marc), it's been Cc'ed to the lists you sent
-> > the patch to.
-> Sorry, I wasn't clear... I read *that* answer, but it says "as mentioned in 
-> the discussion about ROOT_DEV", and I couldn't find it.
+Paul Jackson wrote:
+> Diego wrote:
+> 
+>>I bet I'm not the only one here
+>>who can't understand it either.....
+> 
+> 
+> You're not alone.
+> 
+> See an email thread entitled:
+> 
+>     Classes: 1) what are they, 2) what is their name?
+>     http://sourceforge.net/mailarchive/forum.php?thread_id=5328162&forum_id=35191
+> 
+> on the ckrm-tech@lists.sourceforge.net email list between Aug 14 and Aug
+> 27, 2004, where I did my best to encourage the CKRM project to address
+> this problem.  To no avail.
 
-That'd be:
+That is not really a fair categorization of the thread. Hubertus and I 
+did try to explain what CKRM classes are. As the last parts of the 
+thread show, it was the choice of names that you disagreed with.
 
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=110664428918937&w=2
+> Apparently, to some of the smartest amongst us, who got to hear
+> live presentations describing CKRM, it makes sense and is worthy
+> of serious consideration.
 
-> Also, I'd like to know whether there's a correct way to implement this (using 
-> something different than root_dev, for instance the init[1] root directory 
-> mount device). I understand that with the possibility for multiple mounts the 
-> "root device" is more difficult to know (and maybe this is the reason for 
-> which ROOT_DEV is bogus, is this?), but at least a check on the param 
-> "rootfstype=hostfs" could be done.
+Except for the Kernel Summit talk (slides of which were very brief),
+you have access to the very same presentations on the ckrm website.
 
-personally I think it's a bad misfeature by itself.  If you absolutely
-want it make it a mount option so it's explicit at least.
+> For myself, of more ordinary intelligence and working just from the
+> documentation and an occassional glance at the code, it has been a
+> difficult proposal to understand, with a rather large patch requiring
+> some non-trivial kernel hooks.
 
-And yes, the only place where ROOT_DEV makes sense is in the early boot
-process where the first filesystem in the first namespace is mounted, that's
-why I want to get rid of the export to modules for it.
 
-> Ok, this is nice. I'll repost the (updated) patch CC'ing Ingo Molnar (unless 
-> there's another Ingo).
+Have you read Section 2 of the
+	http://ckrm.sourceforge.net/downloads/ckrm-ols04-paper.pdf
 
-Yupp, mingo
+There the terms class, classtype, resource controllers and 
+classification engine have all been explained. If you continue to have 
+trouble understanding what these mean, we'd be happy to go over it once 
+more. Perhaps we should try a twiki type site or come up with a specific 
+set of doubts that need to be addressed.
+
+
+> A question for the CKRM developers:
+> 
+>     What middleware packages, outside the kernel, exist or are
+>     in the works that will rely on CKRM?
+>     
+>     CKRM (like another project near and dear to me, cpusets)
+>     strikes me as a "middleware foundation" facility, intended
+>     to provide the essential kernel support required for some
+>     serious enterprise software.  So perhaps in addition to
+>     asking what end-users (of a combined kernel-middleware
+>     platform) exist, we should also be asking who will be
+>     directly using CKRM - directly layering middleware on top
+>     of it.
+>     
+>     The details don't matter much and may have to remain
+>     obscured in the competitive fog.  But the presence of
+>     multiple groups lobbying for the same kernel infrastructure,
+>     as an apparent basis for competing middleware products,
+>     would I think weigh in CKRM's favor.
+
+Undoubtedly so. However, workload management middleware developers don't 
+seem to have a history of actively participating in LKML for useful 
+features so its left to the likes of us to determine what *would* be 
+useful and then go build it if it makes sense and is acceptable to the 
+community.
+
+
+> My impression, which may not align with how the CKRM developers view
+> things, is that CKRM is descendent from what have been called fair-share
+> schedulers.  The following comes from the above email thread.
+
+Doing fair-share scheduling is indeed the ultimate goal of CKRM. But 
+using that characterization *alone* will not, in my opinion, be 
+sufficient to explain what are classes, classtypes etc.
+
+> No doubt the CKRM experts are already familiar with these, but for the
+> possible benefit of other readers:
+> 
+>   UNICOS Resource Administration - Chapter 4. Fair-share Scheduler
+>   http://oscinfo.osc.edu:8080/dynaweb/all/004-2302-001/@Generic__BookTextView/22883
+> 
+>   SHARE II -- A User Administration and Resource Control System for UNIX
+>   http://www.c-side.com/c/papers/lisa-91.html
+> 
+>   Solaris Resource Manager White Paper
+>   http://wwws.sun.com/software/resourcemgr/wp-mixed/
+> 
+>   ON THE PERFORMANCE IMPACT OF FAIR SHARE SCHEDULING
+>   http://www.cs.umb.edu/~eb/goalmode/cmg2000final.htm
+> 
+>   A Fair Share Scheduler, J. Kay and P. Lauder
+>   Communications of the ACM, January 1988, Volume 31, Number 1, pp 44-55.
+
+Thanks for the links. Yes, some of these are useful in understanding the 
+utility of fair-share scheduling and may even help in creating better 
+"controllers" in CKRM-speak.
+
+
+-- Shailabh
+
 

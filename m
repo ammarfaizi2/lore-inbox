@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316912AbSE1Up4>; Tue, 28 May 2002 16:45:56 -0400
+	id <S316939AbSE1Ush>; Tue, 28 May 2002 16:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316910AbSE1UoA>; Tue, 28 May 2002 16:44:00 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:64412 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316939AbSE1UnD>;
-	Tue, 28 May 2002 16:43:03 -0400
-Date: Mon, 27 May 2002 13:44:14 +0000
+	id <S316915AbSE1Up5>; Tue, 28 May 2002 16:45:57 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1437 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316935AbSE1Uns>;
+	Tue, 28 May 2002 16:43:48 -0400
+Date: Mon, 27 May 2002 08:53:02 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: Steve Whitehouse <Steve@ChyGwyn.com>,
-        linux kernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk,
-        chen_xiangping@emc.com
-Subject: Re: Kernel deadlock using nbd over acenic driver
-Message-ID: <20020527134413.E35@toy.ucw.cz>
-In-Reply-To: <200205241011.LAA26311@gw.chygwyn.com> <200205241143.g4OBh1332485@oboe.it.uc3m.es>
+To: Dave Jones <davej@suse.de>, Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        "J.A. Magallon" <jamagallon@able.es>, Luca Barbieri <ldb@ldb.ods.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
+Message-ID: <20020527085301.A38@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.44.0205260128110.2047-100000@Expansa.sns.it> <Pine.LNX.4.44.0205260044270.10923-100000@sharra.ivimey.org> <20020526023009.G16102@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -23,16 +24,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Look in some of the block drivers, floppy.c or loop.c.  These do call
-> the task queue, even though that's only as an aid to the rest of the
-> kernel, because they know they can help at that point, and it's not at
-> all clear what context they're in.  Perhaps it's best to look in
-> floppy.c, which runs the task queue in its init routine!  I mean to say
+> I would be (pleasantly) surprised to see gcc turn a C memcpy into faster
+> assembly than our current implementation. And I'll bet
 
-Init routine is called from insmod context or at kernel bootup (from pid==1).
+gcc has hand-coded assembly inside itself, if gcc compiled memcpy is slower
+than hand-optimized one, you found a compiler bug.
 
-Both look like process context to me.
-								Pavel
+>  it'll stay that way for some time.
+> gcc has come on in leaps and bounds, but for something as performance
+> critical as memory copying/clearing, hand tuned assembly wins hands down.
+> Even AMD's/Intel's performance guides suggest doing this. It's the only
+> way to fly.
 
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

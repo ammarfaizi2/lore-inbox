@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbTCaLoM>; Mon, 31 Mar 2003 06:44:12 -0500
+	id <S261614AbTCaLvJ>; Mon, 31 Mar 2003 06:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbTCaLoM>; Mon, 31 Mar 2003 06:44:12 -0500
-Received: from [203.124.139.208] ([203.124.139.208]:37311 "EHLO
-	pcsbom.patni.com") by vger.kernel.org with ESMTP id <S261605AbTCaLoL>;
-	Mon, 31 Mar 2003 06:44:11 -0500
-Reply-To: <chandrasekhar.nagaraj@patni.com>
-From: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem created by Zoning on Linux
-Date: Mon, 31 Mar 2003 17:57:09 +0530
-Message-ID: <000001c2f780$da0265e0$e9bba5cc@patni.com>
+	id <S261618AbTCaLvJ>; Mon, 31 Mar 2003 06:51:09 -0500
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:46553 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S261614AbTCaLvH>; Mon, 31 Mar 2003 06:51:07 -0500
+Date: Mon, 31 Mar 2003 14:02:20 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Andrew Morton <akpm@digeo.com>
+cc: "J.A. Magallon" <jamagallon@able.es>, <linux-kernel@vger.kernel.org>,
+       <marcelo@conectiva.com.br>, <vortex@scyld.com>
+Subject: Re: [vortex] Re: Bad PCI IDs-Names table in 3c59x.c
+In-Reply-To: <20030329131218.04a8cf1e.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0303311359240.22108-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-We are trying to create zoning (IO fencing) on our storage device.
-The zoning is to be done on the LUN basis, so that a particular HBA will
-accesses the only those LUNs which are assigned to it.
+On Sat, 29 Mar 2003, Andrew Morton wrote:
 
-We have two HBA cards residing on different Hosts.
+> Nope, Donald's latest driver has
+>     {"3c982 Server Tornado",{ 0x980510B7, 0xffffffff },
+>      PCI_IOTYPE, CYCLONE_SIZE, FEATURE_TORNADO, },
+> (Note: no HAS_NWAY either)
 
-We have created 8 LUNs (from 0 to 7).
-Now we want to give access to only 4 LUNs from each HBA card.
+You missed something above that:
 
-So we have given access to LUN 0 to 3 from HBA card 1.
-Also LUN 4 to 7 is to be accessed from HBA card 2.
+#define FEATURE_TORNADO  (IS_TORNADO|HAS_NWAY|HAS_V2_TX) /* 905C */
 
-When we did the above, we observed that the Host, which has access to LUN 0
-to 3, is working fine. i.e. its /proc/scsi/scsi is showing entries
-corresponding to LUN 0 to 3. Also 4 scsi devices are created & can be viewed
-in /proc/partitions.
+> hm, the 2.5 kernel has 
+>     {"3c980C Python-T",
+>      PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_NWAY|HAS_HWCKSM, 128, },
+> for 10b7/9805, which looks much more healthy.
 
-But the second Host, which should have access to LUN 4 to 7, has some
-problem.
-The /proc/partitions does not show any scsi device file. Also
-/proc/scsi/scsi does not entries corresponding to LUN 4 to 7; but it have
-only one entry corresponding to LUN 0 (which should not be allowed).
+But I would argue that this should have IS_CYCLONE replaced by IS_TORNADO. 
+Not that it makes much difference though, as they are not used much in the 
+code ;-)
 
-So, is there any restriction on Linux that the LUN number should start with
-0 only??
-If so, then what is the solution/workaround?
+-- 
+Bogdan Costescu
 
-Thanks and Regards
-Chandrasekhar
-
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

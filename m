@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSEBMgg>; Thu, 2 May 2002 08:36:36 -0400
+	id <S314392AbSEBMsG>; Thu, 2 May 2002 08:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314383AbSEBMgf>; Thu, 2 May 2002 08:36:35 -0400
-Received: from sbmail.sb.aau.dk ([130.225.24.60]:14085 "EHLO
-	sbmail.statsbiblioteket.dk") by vger.kernel.org with ESMTP
-	id <S314380AbSEBMge>; Thu, 2 May 2002 08:36:34 -0400
-Date: Thu, 2 May 2002 14:36:01 +0200 (CEST)
-From: "Tom G. Christensen" <tom.christensen@get2net.dk>
-To: linux-kernel@vger.kernel.org
-cc: Carlos Francisco Regis <zeca@h8.ita.br>
-Subject: Re: smp/dac960/i450gx boot problem
-In-Reply-To: <20020430233558.51bf6ed2.zeca@h8.ita.br>
-Message-ID: <Pine.LNX.4.44.0205021302490.8394-100000@ares.statsbiblioteket.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314393AbSEBMsF>; Thu, 2 May 2002 08:48:05 -0400
+Received: from ns.suse.de ([213.95.15.193]:43530 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314392AbSEBMsF>;
+	Thu, 2 May 2002 08:48:05 -0400
+Date: Thu, 2 May 2002 14:48:04 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.12-dj1
+Message-ID: <20020502144804.A16935@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rudmer@legolas.dynup.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020501203612.GA4167@suse.de> <20020502110625.3DFA41EF73@Cantor.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Apr 2002, Carlos Francisco Regis wrote:
+On Thu, May 02, 2002 at 01:06:07PM +0200, Rudmer van Dijk wrote:
+ > drivers/block/block.o: In function `ramdisk_updatepage':
+ > drivers/block/block.o(.text+0x3740): undefined reference to 
+ > `mark_buffer_uptodate'
 
-> 
-> 	
-> 	Hello all,
-> 
-> 	I'm with some troubles on trying to boot a kernel in a dual PPro machine. When a compile the kernel with smp support the machine hungs during the boot, this occurs exactly when the dac960 driver is being loaded. When I remove the smp support the driver is loaded but I have only one processor running.
-> 
-> 	I think the problem is the i450kx/gx pci bridge and the pci->apic irq transform. But I can't figure out why this is happening.
-> 
-> 	If someone knows some workaround, please let me know.
-> 
-> 
-Me too.
+The chunk of code introduced to the ramdisk code in 2.5.12-dj1 is
+a forward port of what happened in 2.4.  It probably needs fixing up
+again (I've rewritten and jiggled it a little since the initial
+forward port).  I'm not entirely sure it works as advertised anymore.
 
-I have what looks like the same problem here only my machine is a quad 
-PPro system (Intel Alder arch).
+It's on my radar, I'll take a look for the next patch I put out.
 
-One thing is different though, I can't get the DAC960 to initialize no 
-matter what I do (it's a DAC960PL-2, fw 2.73)
-Only thing I've gotten working so far is boot off a RH 7.2 install CD in 
-rescue mode (DAC960 driver in RH 7.2 CD is too old to support 2.73 fw)
-
-If I boot the RH 7.2 installer the machine hangs right after loading the 
-AIC7xxx driver.
-The symptoms are the same with kernel 2.4.18 booted of a floppy. If I 
-include the DAC960 driver the machine will hang as soon as it 
-loads, only displaying the 2 lines with driver version and copyright information.
-A 2.4.18 SMP kernel boots until the DAC960 driver then hangs.
-
-I get these PCI messages on boot (kernel 2.4.18 built for i386)
-PCI: Cannot allocate resource region 1 of device 00:0f.0
-PCI: Cannot allocate resource region 2 of device 00:0f.0
-PCI: Cannot allocate resource region 3 of device 00:0f.0
-PCI: Cannot allocate resource region 4 of device 00:0f.0
-PCI: Cannot allocate resource region 5 of device 00:0f.0
-PCI: Error while updating region 00:0f.0/1 (20000408 != 20000008)
-PCI: Error while updating region 00:0f.0/2 (20000408 != 20000008)
-PCI: Error while updating region 00:0f.0/3 (20000408 != 20000008)
-PCI: Error while updating region 00:0f.0/4 (20000408 != 20000008)
-PCI: Error while updating region 00:0f.0/5 (20000408 != 20000008) 
-
-lspci output is available if needed.
-
-I tried a few other OS just to make sure the machine is okay, and I found 
-that Win2000 and Solaris 8/IA will install and run without any problems.
-FreeBSD 4.5 release seems to have the same problem as Linux, a 
-hang soon after initializing the AIC7xxx driver.
-
--tgc
+    Dave.
 
 -- 
-Tom G. Christensen - Email: tom.christensen@get2net.dk
-Linux ares 2.4.18 on an i686
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

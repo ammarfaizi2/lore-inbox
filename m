@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUKOVLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUKOV2C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUKOVLR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 16:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUKOVIz
+	id S261369AbUKOV2C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 16:28:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUKOV1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 16:08:55 -0500
-Received: from vega.lnet.lut.fi ([157.24.109.150]:64005 "EHLO vega.lnet.lut.fi")
-	by vger.kernel.org with ESMTP id S261712AbUKOVHV (ORCPT
+	Mon, 15 Nov 2004 16:27:48 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:10730 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261369AbUKOV0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 16:07:21 -0500
-Date: Mon, 15 Nov 2004 23:07:19 +0200
-To: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-alpha <linux-alpha@vger.kernel.org>
-Subject: Re: [alpha] linux-2.6.10-rc1-bk20 compile error
-Message-ID: <20041115210719.GC690@vega.lnet.lut.fi>
-References: <1100202570.26565.3.camel@pro30.local.promotion-ie.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100202570.26565.3.camel@pro30.local.promotion-ie.de>
-User-Agent: Mutt/1.3.28i
-From: lapinlam@vega.lnet.lut.fi (Tomi Lapinlampi)
+	Mon, 15 Nov 2004 16:26:37 -0500
+Date: Mon, 15 Nov 2004 22:26:32 +0100 (MET)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <200411152126.iAFLQWa26071@apps.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org
+Subject: [PATCH] fix appletalk locking
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 08:49:30PM +0100, Alexander Rauth wrote:
-> 
-> error appears with linux-2.6.10-rc1-bk20:
-> 
->   CC      arch/alpha/kernel/setup.o
-> arch/alpha/kernel/setup.c: In function `setup_arch':
-> arch/alpha/kernel/setup.c:597: warning: implicit declaration of function
-> `__sysrq_get_key_op'
-> arch/alpha/kernel/setup.c:597: warning: initialization makes pointer
-> from integer without a cast
-> make[1]: *** [arch/alpha/kernel/setup.o] Error 1
-> make: *** [arch/alpha/kernel] Error 2
-> 
+Just tried the new toy. It works.
 
-Hi,
-
-This issue is still present in 2.6.10-rc2.
-
-drivers/char/sysrq.c no longer exports __sysrq_get_key_op which
-is required by arch/alpha/kernel/setup.c.
-
-Tomi
-
-
+diff -uprN -X /linux/dontdiff a/net/appletalk/ddp.c b/net/appletalk/ddp.c
+--- a/net/appletalk/ddp.c	2004-11-15 20:02:25.000000000 +0100
++++ b/net/appletalk/ddp.c	2004-11-15 22:33:43.000000000 +0100
+@@ -563,7 +563,7 @@ static int atrtr_create(struct rtentry *
+ 
+ 		retval = -ENOBUFS;
+ 		if (!rt)
+-			goto out;
++			goto out_unlock;
+ 		memset(rt, 0, sizeof(*rt));
+ 
+ 		rt->next = atalk_routes;

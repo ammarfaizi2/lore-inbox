@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264651AbSJ3KYF>; Wed, 30 Oct 2002 05:24:05 -0500
+	id <S264652AbSJ3KaQ>; Wed, 30 Oct 2002 05:30:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264653AbSJ3KYE>; Wed, 30 Oct 2002 05:24:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22534 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264651AbSJ3KYD>;
-	Wed, 30 Oct 2002 05:24:03 -0500
-Message-ID: <3DBFB4A5.2050201@pobox.com>
-Date: Wed, 30 Oct 2002 05:29:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S264655AbSJ3KaQ>; Wed, 30 Oct 2002 05:30:16 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:55055 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S264652AbSJ3KaP>; Wed, 30 Oct 2002 05:30:15 -0500
+Date: Wed, 30 Oct 2002 21:36:11 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "Nicolas S. Dade" <ndade@adsl-63-197-69-248.dsl.snfc21.pacbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG in 2.2.22 skb_realloc_headroom()
+In-Reply-To: <20021029211945.A17657@ipx.esperanza>
+Message-ID: <Mutt.LNX.4.44.0210302117420.13753-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-To: dcinege@psychosis.com
-CC: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
- candidate list.
-References: <200210272017.56147.landley@trommello.org> <200210300322.17933.dcinege@psychosis.com> <20021030085149.GA7919@codepoet.org> <200210300455.21691.dcinege@psychosis.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Cinege wrote:
+On Tue, 29 Oct 2002, Nicolas S. Dade wrote:
 
->On Wednesday 30 October 2002 3:51, Erik Andersen wrote:
->
->Erik,
->
->  
->
->>Both formats are simple.  But cpio is simpler.
->>    
->>
->
->untar runs about 5K...same as 'un-cpio'. No differece there.
->
-Wrong.  un-cpio is obviously smaller.  Just look at the generated 
-assembly... on any platform.
+> skb_realloc_headroom() panics when new headroom is smaller
+> than existing headroom.
 
->But not from userland. Tar is used en masse, cpio isn't.
->It's the only reason to use tar over cpio...I feel it's a
->good one.
->
-IOW you'd rather bloat the kernel because tarballs are popular...
+Would you please test out the patch below?
 
->#1 I'll be reviewing initramfs and adding loading images from
->
->the kernel support. I don't deny it's a good thing to have.
->
+Thanks,
 
-There is no need to add anything.
-
->My patch is the best of both because, it re-writes initrd
->properly within a sane framework. (Not to mention I scrubed the hell
->out of do_mounts.)
->
-No need for this, initramfs means that initrd and do_mounts are moved 
-out of the kernel.
-
->If you want to get rid of all the backwards compatible stuff
->(IE identifing and loading raw images to /dev/ram0,
->pivoting to /initrd) that's fine with me. The code is layed out now
->so I can litterally cut it out 10K of that junk in 30 seconds.
->Better yet I can ifdef it for the poor souls that still need it.
->  
->
-
-Or better yet use initramfs, where it simply doesn't exist in the kernel 
-image at all :)
-
-    Jeff
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
 
-
+diff -urN -X dontdiff linux-2.2.22.orig/net/core/skbuff.c linux-2.2.22.skbrealloc/net/core/skbuff.c
+--- linux-2.2.22.orig/net/core/skbuff.c	Wed Sep 25 00:06:26 2002
++++ linux-2.2.22.skbrealloc/net/core/skbuff.c	Wed Oct 30 21:25:02 2002
+@@ -316,13 +316,16 @@
+ {
+ 	struct sk_buff *n;
+ 	unsigned long offset;
+-	int headroom = skb_headroom(skb);
++	int delta = newheadroom - skb_headroom(skb);
++
++	if (delta <= 0)
++		delta = 0;
+ 
+ 	/*
+ 	 *	Allocate the copy buffer
+ 	 */
+  	 
+-	n=alloc_skb(skb->truesize+newheadroom-headroom, GFP_ATOMIC);
++	n=alloc_skb(skb->truesize + delta, GFP_ATOMIC);
+ 	if(n==NULL)
+ 		return NULL;
+ 
 
 

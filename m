@@ -1,96 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275476AbTHJImn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 04:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272579AbTHJImn
+	id S275483AbTHJIsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 04:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275484AbTHJIsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 04:42:43 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:38554 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S275476AbTHJImk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 04:42:40 -0400
-Date: Sun, 10 Aug 2003 10:42:27 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: PATCH: mouse and keyboard by default if not embedded
-In-Reply-To: <200307272003.h6RK3ckm029604@hraefn.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0308101040220.19901-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Aug 2003 04:48:43 -0400
+Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:26010 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id S275483AbTHJIsl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 04:48:41 -0400
+Date: Sun, 10 Aug 2003 01:48:27 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O14int
+Message-ID: <20030810084827.GA30869@netnation.com>
+References: <20030808220821.61cb7174.lista1@telia.com> <200308091036.18208.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308091036.18208.kernel@kolivas.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jul 2003, Alan Cox wrote:
-> (Andi Kleen)
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/input/Kconfig linux-2.6.0-test2-ac1/drivers/input/Kconfig
-> --- linux-2.6.0-test2/drivers/input/Kconfig	2003-07-10 21:04:59.000000000 +0100
-> +++ linux-2.6.0-test2-ac1/drivers/input/Kconfig	2003-07-16 18:39:32.000000000 +0100
-> @@ -5,7 +5,7 @@
->  menu "Input device support"
->  
->  config INPUT
-> -	tristate "Input devices (needed for keyboard, mouse, ...)"
-> +	tristate "Input devices (needed for keyboard, mouse, ...)" if EMBEDDED
->  	default y
->  	---help---
->  	  Say Y here if you have any input device (mouse, keyboard, tablet,
-> @@ -27,7 +27,7 @@
->  comment "Userland interfaces"
->  
->  config INPUT_MOUSEDEV
-> -	tristate "Mouse interface"
-> +	tristate "Mouse interface" if EMBEDDED
->  	default y
->  	depends on INPUT
->  	---help---
-> @@ -45,7 +45,7 @@
->  	  a module, say M here and read <file:Documentation/modules.txt>.
->  
->  config INPUT_MOUSEDEV_PSAUX
-> -	bool "Provide legacy /dev/psaux device"
-> +	bool "Provide legacy /dev/psaux device" if EMBEDDED
+On Sat, Aug 09, 2003 at 10:36:17AM +1000, Con Kolivas wrote:
 
-Now INPUT_MOUSEDEV_PSAUX is always (on non-embedded machines) forced to true,
-even on machines without PS/2 keyboard/mouse hardware. Is that OK?
+> On Sat, 9 Aug 2003 06:08, Voluspa wrote:
+> > On 2003-08-08 15:49:25 Con Kolivas wrote:
+> > > More duck tape interactivity tweaks
+> >
+> > Do you have a premonition... Game-test goes down in flames. Volatile to
+> > the extent where I can't catch head or tail. It can behave like in
+> > A3-O12.2 or as an unpatched 2.6.0-test2. Trigger badness by switching to
+> > a text console. 
+> 
+> Ah. There's the answer. You've totally changed the behaviour of the 
+> application in question by moving to the text console. No longer is it the 
+> sizable cpu hog that it is when it's in the foreground on X, so you've 
+> totally changed it's behaviour and how it is treated.
 
-So far (compiling, not running 2.6.0-test3) I didn't notice any problems,
-though.
+I haven't been following this as closely as I would have liked to
+(recent vacation and all), but I am definitely seeing issues with the
+recent 2.5.x, 2.6.x-testx secheduler code and have been looking over
+these threads.
 
->  	default y
->  	depends on INPUT_MOUSEDEV
->  
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/input/keyboard/Kconfig linux-2.6.0-test2-ac1/drivers/input/keyboard/Kconfig
-> --- linux-2.6.0-test2/drivers/input/keyboard/Kconfig	2003-07-10 21:14:55.000000000 +0100
-> +++ linux-2.6.0-test2-ac1/drivers/input/keyboard/Kconfig	2003-07-16 18:39:32.000000000 +0100
-> @@ -2,7 +2,7 @@
->  # Input core configuration
->  #
->  config INPUT_KEYBOARD
-> -	bool "Keyboards"
-> +	bool "Keyboards" if (X86 && EMBEDDED) || (!X86)
->  	default y
->  	depends on INPUT
->  	help
-> @@ -12,7 +12,7 @@
->  	  If unsure, say Y.
->  
->  config KEYBOARD_ATKBD
-> -	tristate "AT keyboard support"
-> +	tristate "AT keyboard support" if (X86 && EMBEDDED) || (!X86) 
->  	default y
->  	depends on INPUT && INPUT_KEYBOARD && SERIO
->  	help
+I don't really understand why these changes were made at all to the
+scheduler.  As I understand it, the 2.2.x and older 2.4.x scheduler was
+simple in that it allowed any process to wake up if it had available
+ticks, and would switch to that process if any new event occurred and
+woke it up.  The rest was just limiting the ticks based on nice value
+and remembering to switch when the ticks run out.
 
-Gr{oetje,eeting}s,
+It seems that newer schedulers are now temporarily postponing the
+waking up of other processes when the running process is running with
+"preemptive" ticks, and that there's all sorts of hacks involved in
+trying to hide the bad effects of this decision.
 
-						Geert
+If this is indeed what is going on, what is the reasoning behind it?
+I didn't really see any problems before with the simple scheduler, so
+it seems to me like this may just be a hack to make poorly-written
+applications seem to be a bit "faster" by starving other processes of
+CPU when the poorly-written applications decide they want to do
+something (such as rendering a page with a large table in Mozilla
+-- grr).  Is this really making a large enough difference to be worth
+all of this trouble?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+To me it would seem the best algorithm would be what we had before all
+of this started.  Isn't it best to switch to a task as soon as an event
+(such as disk I/O finishing or a mouse move waking up X to read mouse
+input) occurs for both latency and cache reasons (queued in LIFO
+order)?  DMA may make some this more complicated, I don't know.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I am seeing similar starvation problems that others are seeing in these
+threads.  At first it was whenever I clicked a link in Mozilla -- xmms
+would stop, sometimes for a second or so, on a Celeron 466 MHz machine.
+More recently I found that loading a web page consisting of several
+large animated gif images (a security camera web page) caused
+absolutely horrible jerking of mouse and keyboard input in all other
+windows, even when the browser window was minimized or hidden.  What's
+worse is the jerking tends to subside if I do a lot of typing or more
+the mouse a lot, probably because I'm changing the scheduler's idea of
+what "kind" of processes are running (which makes this stuff even
+harder to debug).
 
+Simon-

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267478AbTA3KsP>; Thu, 30 Jan 2003 05:48:15 -0500
+	id <S267463AbTA3KxV>; Thu, 30 Jan 2003 05:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267479AbTA3KsP>; Thu, 30 Jan 2003 05:48:15 -0500
-Received: from mail1.ugr.es ([150.214.20.24]:61624 "EHLO mail1.ugr.es")
-	by vger.kernel.org with ESMTP id <S267478AbTA3KsO>;
-	Thu, 30 Jan 2003 05:48:14 -0500
-Message-ID: <3E39052F.3060903@ugr.es>
-Date: Thu, 30 Jan 2003 11:57:51 +0100
-From: Miguel Lastra <mlastral@ugr.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: es, en
+	id <S267480AbTA3KxV>; Thu, 30 Jan 2003 05:53:21 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:46984 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267463AbTA3KxU> convert rfc822-to-8bit; Thu, 30 Jan 2003 05:53:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: sys_sendfile64 not in Linux 2.4.21-pre4
+Date: Thu, 30 Jan 2003 12:02:01 +0100
+User-Agent: KMail/1.4.3
+Cc: John Fremlin <vii@users.sourceforge.net>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, cw@f00f.org, bcrl@redhat.com
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva> <20030130082922.A22879@infradead.org> <1043926388.28133.16.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1043926388.28133.16.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: data corruption on 845PE ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301301202.01897.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thursday 30 January 2003 12:33, Alan Cox wrote:
 
-  I am experiencing some IDE problems with a Abit IT7 MAX2 V2.0 
-motherboard. It's chipset is intel 845PE . I installed the Suse 8.0 
-distribution (2.4.18 kernel) and it did no recognize the IDE controler 
-(so no dma).
+> On Thu, 2003-01-30 at 08:29, Christoph Hellwig wrote:
+> > On Thu, Jan 30, 2003 at 12:47:14AM +0000, John Fremlin wrote:
+> > > Why isn't sendfile64 included in 2.4.21-pre4? glibc 2.3 already
+> > > expects it, so programs with 64-bit off_t will not be able to use
+> > > sendfile otherwise. And the patch is IIUC very small . . .
+> >
+> > I sent patches to Marcelo a few times, but they got silently ignored..
+>
+> Can you forward me a copy ?
+to me too please :)
 
-  I have tried with 2.4.20 and 2.4.21-pre4 kernels (stock kernels form 
-kernel.org) and with both a get ide-dma errors after a while reported 
-when using e2fsck (on my Ext3 filesystems).
-
-Is there any data corruption issue with the intel 845PE chipset ?
-
-Thanks in advance
-
-
-    Miguel
-
-
-
+ciao, Marc

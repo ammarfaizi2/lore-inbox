@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129098AbRBPJX2>; Fri, 16 Feb 2001 04:23:28 -0500
+	id <S129272AbRBPJ2j>; Fri, 16 Feb 2001 04:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbRBPJXT>; Fri, 16 Feb 2001 04:23:19 -0500
-Received: from stud3.tuwien.ac.at ([193.170.75.13]:40715 "EHLO
-	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S129098AbRBPJXI>; Fri, 16 Feb 2001 04:23:08 -0500
-Date: Fri, 16 Feb 2001 10:21:54 +0100 (MET)
-From: Daniel Wagner <e9925791@student.tuwien.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: hp5300 usb module in linux 2.4.1-ac14
-Message-ID: <Pine.HPX.4.10.10102161020080.15451-100000@stud3.tuwien.ac.at>
+	id <S129379AbRBPJ2T>; Fri, 16 Feb 2001 04:28:19 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:24590 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129272AbRBPJ2R>; Fri, 16 Feb 2001 04:28:17 -0500
+Message-ID: <3A8CF261.59FAC3E5@idb.hist.no>
+Date: Fri, 16 Feb 2001 10:26:57 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <FF2E85D46133D3119868006008AC264808D0FBDA@MAIL1>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+They are wrong about linux stifling innovation, there
+is plenty of innovation in linux itself.
 
-i tried to test the hp5300 usb module for my scanner but it wasn't buildt.
+On the other hand:
+''I can't imagine something that could be worse than this 
+for the software business and the intellectual-property business.''
 
-any hints?
+Sure.  Linux *is* bad for the IP business.  Open source outcompetes it!
+I see no problem with that though.  And those who want to get
+paid for computing work?  No problem.  There is always support.
 
-thx,
-daniel
-
-ps: experimental drivers, scsi and usb are enabled.
-
--- 
-@gpg: http://stud3.tuwien.ac.at/~e9925791/daniel_wagner.asc
-      C63A 06F0 3E2A A039 E830  83A0 C1DA 3479 803F 078F
-
+Helge Hafting

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129797AbRB1CAR>; Tue, 27 Feb 2001 21:00:17 -0500
+	id <S130038AbRB1CUn>; Tue, 27 Feb 2001 21:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129973AbRB1CAI>; Tue, 27 Feb 2001 21:00:08 -0500
-Received: from cts2161208021.cts.com ([216.120.80.21]:11504 "EHLO NICK2.")
-	by vger.kernel.org with ESMTP id <S129797AbRB1CAF>;
-	Tue, 27 Feb 2001 21:00:05 -0500
-Date: Tue, 27 Feb 2001 18:00:02 -0800
-From: Nick Pasich <npasich@crash.cts.com>
-To: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: Error running menuconfig
-Message-ID: <20010227180002.A19242@NICK2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S130043AbRB1CUd>; Tue, 27 Feb 2001 21:20:33 -0500
+Received: from asbestos.brocade.com ([63.121.140.244]:60485 "EHLO
+	mail.brocade.com") by vger.kernel.org with ESMTP id <S130038AbRB1CUV>;
+	Tue, 27 Feb 2001 21:20:21 -0500
+Message-ID: <3A9C6184.9050802@brocade.com>
+Date: Tue, 27 Feb 2001 18:25:08 -0800
+From: Amit D Chaudhary <amitc@brocade.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: mke2fs hangs while running on /dev/loop0 - kernel version 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I am hoping someone knows more about this case. I have a intel pc 
+running linux 2.4 and the last command below hangs and the statements as 
+they are printed. Even kill -9 does not get it to terminate.
 
- I received this error running "make menuconfig" after applying
- patch-2.4.2-ac6.bz2 to linux-2.4.2 ...........................
+#touch img.test
+#dd if=/dev/zero of=img.test bs=1k count=2000
+2000+0 records in
+2000+0 records out
+#losetup /dev/loop0 img.test
+#mke2fs
 
-                     ----( Nick Pasich )----
+mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+OS type: Linux
+Block size=1024 (log=0)
+Fragment size=1024 (log=0)
+256 inodes, 2000 blocks
+100 blocks (5.00%) reserved for the super user
+First data block=1
+1 block group
+8192 blocks per group, 8192 fragments per group
+256 inodes per group
 
- ************************************************************************
- ************************************************************************
+Writing inode tables: done
+......
 
- Menuconfig has encountered a possible error in one of the kernel's
- configuration files and is unable to continue.  Here is the error
- report:
-
-  Q> scripts/Menuconfig: MCmenu0: command not found
-
-  Please report this to the maintainer <mec@shout.net>.  You may also
-  send a problem report to <linux-kernel@vger.kernel.org>.
-
-  Please indicate the kernel version you are trying to configure and
-  which menu you were trying to enter when this error occurred.
-
-  make: *** [menuconfig] Error 1
-
- ************************************************************************
- ************************************************************************
+Thanks
+Amit
 

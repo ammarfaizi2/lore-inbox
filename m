@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313572AbSD3VVh>; Tue, 30 Apr 2002 17:21:37 -0400
+	id <S315185AbSD3VaJ>; Tue, 30 Apr 2002 17:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315165AbSD3VVg>; Tue, 30 Apr 2002 17:21:36 -0400
-Received: from velli.mail.jippii.net ([195.197.172.114]:27591 "HELO
-	velli.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S313572AbSD3VVg>; Tue, 30 Apr 2002 17:21:36 -0400
-Message-ID: <8050080.1020201510415.JavaMail.ground12@jippii.fi>
-Date: Wed, 1 May 2002 00:18:30 +0300 (EEST)
-From: Eric M <ground12@jippii.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+	id <S315213AbSD3VaI>; Tue, 30 Apr 2002 17:30:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14027 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315185AbSD3VaI>;
+	Tue, 30 Apr 2002 17:30:08 -0400
+Date: Tue, 30 Apr 2002 14:19:39 -0700 (PDT)
+Message-Id: <20020430.141939.46853738.davem@redhat.com>
+To: bruce.holzrichter@monster.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pgtable.h in Sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A7817806A@nocmail101.ma.tmpw.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; Charset=iso-8859-15; Format=Flowed
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Jippii webmail - http://www.jippiigroup.com/
-X-Originating-IP: 213.139.166.70
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have a plextor cd-rw drive which i use via scsi emulation, it is the 
-only device on my second ide bus.
+   From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+   Date: Tue, 30 Apr 2002 13:32:44 -0500
 
-often when i rip cds with grip that have scratches, grip completely 
-stops responding to input and signals, even -9 wont go through. today i 
-tried waiting for over half an hour for it to terminate, got bored and 
-quit X. the grip process died after doing that but the kernel's scsi 
-layer kept spewing error messages on my console and my machine "lagged" 
-on about 10-15 second intervals a few seconds at a time. i waited over 
-an hour for it to give up, but it didn't so i had to reboot. kernel 
-version i'm using is 2.4.17.
--- 
+   Are you already splitting out the stuff to make a cacheflush.h and
+   tlbflush.h from asm-sparc64/pgtable.h?  It doesn't look to be to bad a
+   split, to keep the build working.  
 
-__
-Ota itsellesi luotettava kotimainen email http://www.jippii.fi/
-Tutustu samalla netin parhaaseen pelipaikkaan JIPPIIGAMESIIN.
+I have done all of this work already, I just haven't merged it to
+Linus yet.  In fact I did this two weeks ago.
 
+I've just been really busy...

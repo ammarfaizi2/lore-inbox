@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbTJAATp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 20:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTJAATp
+	id S261786AbTI3WAc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 18:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTI3WAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 20:19:45 -0400
-Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:52656 "EHLO
-	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
-	id S261793AbTJAATn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 20:19:43 -0400
-Message-Id: <200310010011.JAA28339@toshiba.co.jp>
-From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
-To: Matt_Domsch@Dell.com, xose@wanadoo.es
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br,
-       atulm@lsil.com, linux-megaraid-devel@dell.com
-Subject: RE: Megaraid does not work with 2.4.22
-Date: Wed, 1 Oct 2003 09:11:08 +0900 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="shift_jis"
+	Tue, 30 Sep 2003 18:00:32 -0400
+Received: from mail.kroah.org ([65.200.24.183]:1233 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261786AbTI3WA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 18:00:28 -0400
+Date: Tue, 30 Sep 2003 14:58:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: tom@qwws.net, Brandon Low <lostlogic@gentoo.org>, jbinpg@shaw.ca,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB-problem with uhci-hcd in versions 2.6.0-test5 and 2.6.0-test6
+Message-ID: <20030930215804.GB20864@kroah.com>
+References: <20030929191850.A21072@infomag.infomag.iguana.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030929191850.A21072@infomag.infomag.iguana.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+On Mon, Sep 29, 2003 at 07:18:50PM +0200, Wim Van Sebroeck wrote:
+> Hi All,
+> 
+> I saw that you also reported problems with USB/uhci-hcd on your systems. Can you test
+> the following patch and see if it works now?
 
-Matt wrote;
+I've applied this to my tree and will send it to Linus in the next batch
+of USB updates.
 
-Matt> Atul should be submitting changelogs and patches to James 
-Matt> Bottomley and linux-scsi for inclusion in both 2.4.x and 2.6.x,
-Matt> unless Marcelo asks to receive them directly.
+thanks,
 
-I think that it is better to also update the driver of 1.18x 
-in the kernel tree of 2.4.x to the latest version(1.18k).
--- 
-Haruo
+greg k-h

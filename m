@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbUKSBQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbUKSBOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbUKSBQt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 20:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbUKSBOj
+	id S261217AbUKSBOa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 20:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKSBO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 20:14:39 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57862 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263031AbUKSBOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 20:14:20 -0500
-Date: Fri, 19 Nov 2004 02:14:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kill blk.h
-Message-ID: <20041119011413.GA6589@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 18 Nov 2004 20:14:29 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:55664 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263034AbUKSBOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:14:14 -0500
+Message-ID: <419D48DE.6030703@yahoo.com.au>
+Date: Fri, 19 Nov 2004 12:14:06 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: ak@suse.de, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: let x86_64 no longer define X86
+References: <20041119005117.GM4943@stusta.de>
+In-Reply-To: <20041119005117.GM4943@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All blk.h users were vonverted in 2.5, and at the same time blk.h began 
-giving a warning.
+Adrian Bunk wrote:
 
-The patch below removes this obsolete file.
+> And if you want to support both older and more recent kernels, the 
+> following dependencies will be correct both before and after this 
+> change:
+> - (X86 && !X86_64)
+> - (X86 && X86_64)
+> 
 
+This last one surely can't be correct before *and* afterwards. But even in
+the current system, it is a pretty perverse thing to check for. I guess you
+meant:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm2-full/include/linux/blk.h	2004-10-18 23:54:55.000000000 +0200
-+++ /dev/null	2004-08-23 02:01:39.000000000 +0200
-@@ -1,2 +0,0 @@
--#warning this file is obsolete, please use <linux/blkdev.h> instead
--#include <linux/blkdev.h>
-
+(X86 || X86_64)

@@ -1,282 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVBFRJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVBFRJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVBFRJI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 12:09:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVBFRJH
+	id S261221AbVBFRJt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 12:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBFRJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 12:09:07 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:16282 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261214AbVBFRHd
+	Sun, 6 Feb 2005 12:09:49 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:57581 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261221AbVBFRHv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 12:07:33 -0500
-Subject: Linux 2.6.10-ac12
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107695728.14782.170.camel@localhost.localdomain>
+	Sun, 6 Feb 2005 12:07:51 -0500
+Date: Sun, 6 Feb 2005 09:07:52 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050206170751.GA13936@atomide.com>
+References: <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com> <20050206035417.GB15853@atomide.com> <20050206085009.GA1073@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Feb 2005 16:02:42 +0000
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+In-Reply-To: <20050206085009.GA1073@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven is now building RPMS of the kernel and those can be found
-in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
-diff a little as the RPM builds and tests do take time.
 
-Nothing terribly exciting here security wise but various bugs for problems
-people have been hitting that are now fixed upstream, and also the ULi
-tulip variant should now work. If you are running IPv6 you may well want
-the networking fixes.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+* Pavel Machek <pavel@ucw.cz> [050206 00:50]:
+> Hi!
+> 
+> > > > Ok, works slightly better: time no longer runs 2x too fast. When TSC
+> > > > is used, I get same behaviour  as before ("sleepy machine"). With
+> > > > "notsc", machine seems to work okay, but I still get 1000 timer
+> > > > interrupts a second.
+> > > 
+> > > Sounds like your system is not running with the dyn-tick... I'll try
+> > > to fix that TSC bug.
+> > 
+> > The following patch fixes TSC timer with dyn-tick, and local APIC
+> > timer on UP system with CONFIG_SMP.
+> 
+> I disabled CPUFREQ & PREEMPT, but still get "sleepy machine"
+> behaviour. Could you perhaps send me your .config?
 
-Key:	o	- only in -ac
-	*	- already fixed upstream
-	X	- discarded later as wrong
-	+	- ac specific (fix not relevant to non -ac)
+I don't have CPUFREQ on but I do have PREEMPT. Attached is my
+generic config that I'm using on my Celeron box and my dual Athlon
+box for testing with NFS root. I don't think your problems are caused
+by the Kconfig options any longer though.
 
-2.6.10-ac12
-+	Fix a bug in the new vma checks			(Rik van Riel)
-*	Several small 64bit sign/cleanness fixes	(George Guninski)
-*	tty layer typo fix				(Al Viro)
-o	Fix a further ULI ethernet detail		(Clear Zhang)
-o	Fix a problem with mxser.c on SMP boxes		(Alan Cox)
-X	Pull problematic TLB patch
+Tony
+--BXVAT5kNtrzKuDFl
+Content-Type: application/x-gunzip
+Content-Disposition: attachment; filename="config.gz"
+Content-Transfer-Encoding: base64
 
-2.6.10-ac11
-o	First phase of HPT driver cleanups		(Alan Cox)
-	| This is just clean ups: the actual changes to make HPT372N
-	| work well will happen elsewhere first for obvious reasons
-o	ACARD scsi driver updates
-o	netpoll fixes					(Matt Mackall)
-*	Fix a bug that could cause corruption of large	(Petr Vandrovec)
-	x86-64 apps when run mixed with x86-32 apps
-*	Fix oops with md over dm			(Jens Axboe)
-*	Fix a tlb race that could machine check	x86-64	(Andi Kleen)
-*	Fix the "can only burn one DVD" bug		(Michal Schmidt)
-*	Fix a whole pile of pegasus driver bugs		(David Brownell)
-*	Don't collapse multi-packet skb's		(David Miller)
-o	Samsung SN-124 should not be on DMA blacklist	(Alan Cox)
-	| Reported/tested by Amit Bhutani
-*	Fix an ipv6 "badness" 				(Herbert Xu)
-	| (Split out for -ac by Pekka Pietikanien)
-*	Fix a couple of small merge errors I made in	(Clear Zhang)
-	the ULi ethernet support patch
+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
 
-2.6.10-ac10
-*	acpi video fix reapply 				(Dave Jones)
-	| How it escaped is a bit of a mystery
-*	Fix an x86 64 crash on vsyscall page		(Roland McGrath)
-o	Fix AF_NETROM locking				(Alan Cox)
-*	32bit compatibility for some socket options	(David Miller)
-	could be wrong due to a missing SOL_SOCKET check
-*	Fix stack leakage in ipv6 netfilter		(Patrick McHardy)
-	| not serious
-o	Add ICH7 to the audio idents			(Jason Gaston)
-*	Fix bio free before reuse case for clones	(Jens Axboe)
-	| Fixes assorted raid oops/crashes
-*	Fix a /proc/ide locking bug			(Alan Cox)
-*	Further small OOM fix				(Rik van Riel)
-
-2.6.10-ac9
-*	2.6.10 variant of the stack race fix		(Alan Cox)
-	| Found by Paul Staretz
-*	Stronger ELF validity checks			(Solar Designer)
-*	Add ATI SATA identifiers			(Frederick Li)
-*	Update ATI PATA/SATA support			(Frederick Li)
-*	Audit fixups				(Steve Grubb, Roger Luethi)
-*	FPU/signal handling fix				(Bodo Stroesser)
-*	nForce2 APIC/LAPIC errata fixup			(Prakash Punnoor)
-*	Swap aacraid fix in -ac with 2.6.11rc base fix	(Tom Coughlan)
-*	Connnection track/rst fix			(Martin Josefsson)
-*	Format ide printk's more nicely			(Gunther Mayer)
-o	Stallion serial resurrection (part one)		(Wayne Meissner)
-*	Fix nls_ascii					(Ogawa Hirofumi)
-*	Count writeback pages in nr_scanned		(Rik van Riel)
-	| OOM fixing
-o	Revert ac97_patch changes			(Jules Villard)
-	| with this change many users get no sound out
-*	Correct handling of some module parameter	(Rusty Russell)
-	errors
-
-2.6.10-ac8
-*	I2O init/exit call fix				(Randy Dunlap)
-o	More build ia-32 on x86-64 bits			(Arjan van de Ven)
-*	NFS error path fixup				(Bill Rugolsky)
-*	Swap the coda fix in ac7 with the official	(Jan Harkes)
-	authors fix
-*	Fix some problematic ptrace/kill interactions	(Roland McGrath)
-*	Fix ptrace/coredump problems with threaded	(Roland McGrath)
-	apps
-
-2.6.10-ac7
-+	Fix failure at boot with some setups and ac6	(Alan Cox)
-	| Dumb bug indeed
-o	Fix random poolsize sysctl			(Brad Spengler)
-*	Fix scsi_ioctl leak				(Brad Spengler)
-*	Fix rlimit memlock				(Brad Spengler)
-o	Fix Moxa serial					(Alan Cox)
-	| While moxa won't actually even build on 2.6 the grsecurity fix
-	| is wrong (for 2.2, 2.4 as well). Without it being CAP_SYS_RAWIO
-	| a user can insert alternative bios firmware into the card.
-
-2.6.10-ac6
-+	Fix ide-pnp build				(Alan Cox)
-*	do_brk security fixes				(Marcelo Tosatti)
-	| slightly reworked
-o	Fixes for Coverity Inc reported bugs		(Alan Cox)
-	- coda_pioctl
-	- xfs_attrmulti_by_handle
-	- br_ioctl
-	- rose_rt_ioctl
-	- sdla_xfer 
-*	Improve the no-overcommit behaviour		(Andries Brouwer)
-
-2.6.10-ac5
-+	Remove obsolete usb_unlink_urb in pwc		(Alan Cox)
-	| From instructions by Dwaine Garden
-*	Subset of ALSA updates to fix sound bugs in .10	(Takashi Iwai)
-	| This is the set Takashi kindly identified as being
-	| worth applying for 10-ac.
-*	First run at merging ISI and base isicom driver	(Alan Cox)
-	into a working 2.6 driver
-+	IDE mode selection fixes for IT821x PIO		(Alan Cox)
-	| Bug noted by Bartlomiej
-*	Fix a 32bit compatibility error in the cmsg	(Olaf Kirch)
-	check logic
-*	Hopefully fix CD-ROM autoclose			(Stas Sergeev)
-o	Disable sidewinder debugging spew		(Michael Marineau)
-o	Openprom fixes					(Al Viro)
-o	Fix cosa module crash on load			(Jan Kasprzak)
-o	Add the build environment bits to kernel	(Kevin Fenzi)
-	make rpm output
-*	Fix megaraid unload oops			(Al Viro)
-*	Make gconfig work with current gtk 2.4		(J Magallon)
-*	Fix harmless parport overflow by one		(Alexander Nyberg)
-*	Fix drivers that put a '/' in /proc/irq/..	(Olaf Hering)
-
-2.6.10-ac4
-*	Initial fixes for /dev/tty v setsid() crash	(Alan Cox)
-	[/dev/tty v vhangup needs more work]
-+	Fixed AGP compile on ia-32			(Arjan van de Ven)
-+	PPC fixes 					(Dave Jones)
-o	Document irqpoll/irqfixup			(Alan Cox)
-o	IBM ACPI reference __exit unsafely		(Arjan van de Ven)
-o	Allow pwc to be compiled into the kernel	(Christian Hesse)
-
-2.6.10-ac3
-*	Fix a pile of mmc warnings/errors		(Russell King)
-*	Fix acpi video memory corruption		(Linus Torvalds)
-*	Fix module param breakage in parport_pc		(Randy Dunlap)
-*	Intel ICH7 IDE support and $PIR support		(Jason Gaston)
-*	Intel ICH7 SATA support				(Jason Gaston)
-o	Intel ICH7 I2C support				(Jason Gaston)
-o	Fix an IDE CD-ROM crash/BUG case		(Prarit Bhargava)
-*	Swap -ac AGP annotations for head AGP fixes	(Dave Jones,
-							 Bjorn Helgaas,
-							 Masao Takahashi)
-o	Add proper delaying/sleeping ide_pci_unregister	(Alan Cox)
-o	Do the same for PCMCIA (ide_cs)	and ISA PnP	(Alan Cox)
-o	Use msleep for ide-cd and ide-cs		(Nishanth Aravamudan)
-o	Fix missing type in lapic_shutdown		(Miael Pettersson)
-*	Fix some missing build dependancies for CX88	(Adrian Bunk)
-o	Move pwc to use remap_pfn_range			(Arjan van de Ven)
-
-2.6.10-ac2
-o	Fix printk fixes for geometry free drives	(Alan Cox)
-	| Found by Bartlomiej
-o	Bartlomiej's requested cleanups for IT8212	(Alan Cox)
-X	Drop unneeded i810 audio patch
-X	Drop useless kmalloc size patch
-+	Fix proposed ide ISA v PIO change to work	(Alan Cox)
-	| Bug noted by .. everyone
-*	Backport mxser compile fix			(Al Viro)
-*	Backport via acpi irq routing fixes		(Len Brown, Shaohua Li)
-	| Replaces the old -ac fix
-*	Backport further aacraid chipset support	(Mark Haverkamp)
-*	ULi 5281 support				(Peer Chen)
-*	Backport several libata fixes notably problems	(Albert Lee)
-	with PDC20275
-*	FW_LOADER is needed by several dvb devices	(Michal Feix)
-o	Add IT8211 PCI identifiers to IT8212 and	(Alan Cox)
-	rename driver and functions it iT821x
-	| Thanks to Philipp Imhof for the IT8211 idents
-*	Clean up and merge LAN M526X support		(Clear Zhang)
-	| 2.6 port/slight tidy done on the original
-
-2.6.10-ac1
-*	Revert AX.25 protocol breakage			(Alan Cox)
-o	Remove bogus obsolete option junk from 2.6.10	(Alan Cox)
-	ide changes
-	| Options are often useful, so should be kept.
-	| Especially stuff like serialize
-o	Fix bogus dma_ naming in the 2.6.10 patch	(Alan Cox)
-o	Initial CS5520 fixups for VDMA and 2.6.10
-	| Must set vdma flag before command issue
-	| ?? could we just set it at boot and leave it - probably (check)
-
-Forward ported from 2.6.9-ac
-*	Smbfs improved parsing fixes			(Chuck Ebbert)
-*	Fix several IDE drivers that assumed > 0 was	(Alan Cox)
-	also an error return for pci probe functions
-*	Fix sys5 semaphore wakeups			(Manfred Spraul)
-o	Suggest irqpoll when we get screaming irqs	(Alan Cox)
-*	Fix reset problems with older 3c59x/3c90x	(John Linville)
-o	Configurable 100/1Khz clock for x86		(James Bottomley)
-	| 100Hz is great for battery life
-o	Delkin cardbus IDE support			(Mark Lord)
-o	IT8212 IDE support				(Alan Cox)
-X	Add more AC97 table data
-o	Token ring locking fix
-o	Fix URL for lanana				(Alexander Stohr)
-X	Add a 1620 byte slab cache for ethernet frames	(Arjan van de Ven)
-*	EDD boot options				(Matt Domsch)
-o	Don't probe legacy ISA ide2,3,4,5 on PCI boxes	(Alan Cox)
-o	Restore PWC driver				(Luc Saillard)
-	| Please port away from remap_page_range
-o	Fix AT2701FX AMD PCnet32 on fibre		(Guido Guenther)
-*	Fix build of CS461x gameport			(Adrian Bunk)
-*	Fix crash with aacraid double complete	(Mark Salyzyn, Tom Coughlan,
-						 Alan Cox)
-*	Fix getblk_slow hang				(Chris Mason)
-+	Fix SMP hang with IDE unregister		(Mark Lord)
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-*	More ATI IDE PCI identifiers			(Enrico Scholz)
-o	Initial patch for ide_abort hang		(Alan Cox)
-*	Fix serveral ide timing violations on reset	(Alan Cox)
-*	Support CSB6-R Serverworks raid			(Alan Cox)
-o	Teach ide-cd to use sense data for file system	(Alan Cox)
-	requests
-	- This means you get better diagonstics on CD errors
-	- It means a partial I/O failure will get you back the ok sectors
-	- It may fix the problem some users have with ISO copying and ide-cd
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
-o	Fix ide /proc and legacy devices problem	(Alan Cox)
-*	Watchdog support for early cobalt ALi hardware	(Mike Waychison)
-*	Make sx8 naming follow LANANA			(Jeremy Katz)
-*	Don't warn on scsi ioctl kmalloc fail		(Arjan van de Ven)
-*	Fix Paul Laufer's email address			(Paul Laufer)
-*	Fix misleading microcode message		(Arjan van de Ven)
-o	Allow cross compile of x86_32 kernel on x86_64	(Arjan van de Ven)
-o	Kill "open failed" cdrom message.		(Alan Cox)
-	| This is a natural event from code poking around
-	| doing CD detection etc
-*	Minor typo fix in cdrom driver			(efalk@google)
-*	Add support for newer ALi AGP			(Clear Zhang)
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
-
-Cleanups in porting
-o	Drop ->taskfile hooks in the IDE layer 		(Alan Cox)
-	(->fixup replaces)
-o	Fix up IT8212 for 2.6.10 ide_use_dma cleanups	(Alan Cox)
-	and other 2.6.10 cleaning
-
-Dropped for now
-o	VIA extra quirk
-o	HP Cardbus routing fixup
-
+--BXVAT5kNtrzKuDFl--

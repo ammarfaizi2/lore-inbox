@@ -1,71 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbUCTGL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 01:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbUCTGL2
+	id S263236AbUCTGPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 01:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbUCTGPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 01:11:28 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:11676 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263234AbUCTGL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 01:11:26 -0500
-Date: Fri, 19 Mar 2004 22:09:07 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040319220907.1e07d36f.pj@sgi.com>
-In-Reply-To: <20040320031843.GY2045@holomorphy.com>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-	<20040318175654.435b1639.pj@sgi.com>
-	<1079737351.17841.51.camel@arrakis>
-	<20040319165928.45107621.pj@sgi.com>
-	<20040320031843.GY2045@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 01:15:33 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:33930 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263236AbUCTGP2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 01:15:28 -0500
+Date: Sat, 20 Mar 2004 02:54:49 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.26-pre5
+Message-ID: <Pine.LNX.4.44.0403200251350.3436-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The stack footprint of cpumasks is a concern in general. I don't have a
-> good answer to this. The half-answer I anticipate is that the truly
-> larger systems will configure themselves with deeper stacks.
 
-Sounds like a good enough answer to me.
+Hi, 
+
+Here goes the fifth -pre of 2.4.26.
+
+It includes a number of USB bugfixes/updates, SCSI driver/stack fixes from 
+Doug Ledford, another ACPI update, amongst others.
+
+This is probably the last -pre of 2.4.26 series.
+
+Detailed changelog follows
+
+Summary of changes from v2.4.26-pre4 to v2.4.26-pre5
+============================================
+
+<brill:fs.math.uni-frankfurt.de>:
+  o USB Storage: unusual_devs.h entry submission
+
+<dledford:build-base.perf.redhat.com>:
+  o scsi_lib.c: Fix sg segment recounting
+  o Fix various minor compiler warning issues
+  o Fix for Red Hat bug #98264, usb reset locking problem
+  o sym53c8xx:  Only do SCSI-3 PPR message based negotiations on SCSI-3 devices or SCSI-2 devices that know to set the DT bit in their INQUIRY return data.
+  o scsi_scan.c: Correctness fix for scanning of multi-lun devices
+  o scsi_scan.c: Add an option for making linux treat offlined devices as online
+  o Update the error handler to use mod_timer
+  o Don't leak command structs when no device is found
+
+<jamesl:appliedminds.com>:
+  o USB: Fixing HID support for non-explicitly specified usages
+
+<michal_dobrzynski:mac.com>:
+  o USB: add IRTrans support to ftdi_sio driver
+
+<mlotek:foobar.pl>:
+  o USB: another unusual_devs.h change
+
+<not:just.any.name>:
+  o USB: Using physical extents instead of logical ones for NEC USB HID gamepads
+
+<pg:futureware.at>:
+  o USB: more FTDI-SIO devices
+
+<rene.herman:keyaccess.nl>:
+  o 8139too assertions
+
+<ricklind:us.ibm.com>:
+  o block layer accounting fix
+
+Alan Stern:
+  o USB: fix unneeded SubClass entry in unusual_devs.h
+
+Dave Kleikamp:
+  o JFS: zero new log pages, etc
+
+David Brownell:
+  o USB Gadget: ethernet gadget locking tweaks
+  o USB: EHCI updates (mostly periodic schedule scanning)
+  o USB Gadget: make usb gadget strings talk utf-8
+  o USB: add "gadget_chips.h"
+  o USB: gadget config buffer utilities
+  o USB: usb gadget, dualspeed {run,compile}-time flags
+  o USB: gadget zero, simplified controller-specific configuration
+
+Don Fry:
+  o pcnet32 correct names for changes
+  o pcnet32.c oops
+
+Greg Kroah-Hartman:
+  o USB: add support for the Aceeca Meazura device to the visor driver
+
+Ian Abbott:
+  o USB: ftdi_sio new PIDs and name fix for sysfs
+
+Jeff Garzik:
+  o Update pci_ids.h with new Intel PCI ids
+  o Add Intel ICH6 irq router
+  o Add Intel PCI ids to i810_audio
+  o Add Intel PCI ids to IDE (PATA) driver
+  o [netdrvr natsemi] Fix RX DMA mapping
+
+Kumar Gala:
+  o [PPC32] Modified OCP support so its not IBM specific and added new APIs to allow modification of the device tree before drivers are bound
+
+Len Brown:
+  o [ACPI] acpi_wakeup_address - print only when broken
+  o [ACPI] global lock macro fixes (Paul Menage, Luming Yu) http://bugzilla.kernel.org/show_bug.cgi?id=1669
+  o [ACPI] SMP poweroff (David Shaohua Li) http://bugzilla.kernel.org/show_bug.cgi?id=1141
+  o [ACPI] ACPICA 20040311 from Bob Moore
+  o [ACPI] add boot parameters "acpi_osi=" and "acpi_serialize" acpi_osi= will disable the _OSI method -- which by default tells the BIOS to behave as if Windows is the OS.
+
+Luca Tettamanti:
+  o USB: fix hid-core compile warning
+
+Manfred Spraul:
+  o forcedeth update
+
+Marcelo Tosatti:
+  o Changed EXTRAVERSION to -pre5
+
+Martin Diehl:
+  o USB: fix stack usage in pl2303 driver
+
+Paul Mackerras:
+  o [PPC32] Add support for the EP405/EP405PC embedded platforms
+  o [PPC32] Avoid prefetching past the end of the source in copy routines
+  o [PPC32] Add stabs debug entries to some assembler files
+  o [PPC32] Add support for the Redwood 5 and 6 embedded boards
+
+Paulo Marques:
+  o USB: usblp.c (Was: usblp_write spins forever after an error)
+
+Per Winkvist:
+  o USB Storage: unusual devs fix for Pentax cameras
+
+Pete Zaitcev:
+  o USB: Change the USB Maintainer entry
+  o USB: fix hid-input problem with BTC keyboards
+  o Trivial input.c change: Add missing new line on error case printk()
+
+Petko Manolov:
+  o USB: patch for pegasus.h
+  o USB: another patch to pegasus.h
+
+Richard Curnow:
+  o USB: Fix handling of bounce buffers by rh_call_control
+
+Stelian Pop:
+  o sonypi driver update
+  o meye driver update
+
+Thomas Chen:
+  o USB: fix little bug in io_edgeport.c
+
+Thomas Sailer:
+  o USB: OSS audio driver workaround for buggy descriptors
 
 
-That is, a richer API can help - more 
-
-> This is one of the areas where I believe I carried out some innovation.
-> cpumask_const_t allows more aggressive conversion to call-by-reference
-
-True, you did do some substantial work there, and for const objects,
-calls by value and reference can be used interchangeably, for best
-performance, without semantic impact.
-
-However, something about the current cpus_*_const() macros doesn't seem
-to be having the desired impact.  I see five uses in files matching
-include/asm-i386/mach-*/mach_apic.h, and one in include/asm-x86_64/smp.h
-That's all.  None, for example, in any ia64 code.
-
-That's it.  And why should one have to code explicitly the choice of
-the cpus_*_const() variant?  Shouldn't each macro know which of routines
-it calls change things, and which don't, letting it pass a pointer to
-the read-only routines if that helps?  It knows the sizes as well, so
-it can even pick and choose which variation of code to generate.
-
-If one needs an explicit call by reference to avoid passing a multi-word
-object, one should ask the user to pass an explicit pointer, to a
-routine or macro that expects a pointer to a non-const, not an apparent
-value.  Shouldn't try to hide the reference semantics behind quasi-const
-labels.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

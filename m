@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbUKCMk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUKCMvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbUKCMk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 07:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUKCMk6
+	id S261580AbUKCMvR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 07:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUKCMvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 07:40:58 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:30986 "EHLO
-	cyclades.com.br") by vger.kernel.org with ESMTP id S261577AbUKCMkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 07:40:51 -0500
-Subject: Re: patch for sysfs in the cyclades driver
-From: Germano <germano.barreiro@cyclades.com>
-Reply-To: germano.barreiro@cyclades.com
-To: greg@kroah.com
-Cc: Scott_Kilau@digi.com, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Content-Type: text/plain
-Organization: Cyclades Latin America
-Message-Id: <1099487348.1428.16.camel@tsthost>
+	Wed, 3 Nov 2004 07:51:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:5352 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261580AbUKCMuK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 07:50:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=W2uoqdMC1q9A6WChJaCOa+0yFbeKEn/ebwrtZT7BQfS81PB/0fqEgkO8LfH73Ww8BjLuEQRJQ6bdiBRciaHNYBF/Ibk5g22Pjv63WgP/BZrpwCK4vbimsd3y2KZeoLET3+RBN3QEb/OkRax7dqmIUam1x7LFqO9wlQtWjDJGwE0=
+Message-ID: <605a56ed041103045027f52b73@mail.gmail.com>
+Date: Wed, 3 Nov 2004 14:50:10 +0200
+From: Arne Henrichsen <ahenric@gmail.com>
+Reply-To: Arne Henrichsen <ahenric@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to ship binary proprietary modules?
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 03 Nov 2004 11:09:08 -0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi,
 
-I will have to study again the code I tried first (it was long ago), but
-the main problem was that due to that class be (somehow) derived from
-class_simple, I can one export using it the major and minor numbers for
-the device. Tosatti, maybe you can complete my answer with details,
-since it was you that advised me about this limitation.
-However, this was some time ago (kernel 2.6.7 was going to be released),
-and I didn't check how much sysfs for the tty drivers has changed since
-them. If I can attach this data (signalling states) to the port, it
-would be very preferable than attaching to the board as me and Scott are
-trying. Even because his advise about the possibility of my patch be
-overwritting one channel data with other's make a lot of sense and I
-will have to test it (I'm grateful for you, Scott).
+I would like to get some clarification on how to ship binary
+proprietary modules.
 
-Cheers :)
-Germano
+First some info. We want to ship our module in binary form, without
+ever releasing the source. We have marked the module:
+MODULE_LICENSE("Proprietary");
+The module is written for Linux 2.6.X, also build using the kernel
+build system. I have no problem loading the module, only when its
+loaded for a different version, then I get the following error:
+insmod: error inserting './mymodule.ko': -1 Invalid module format 
 
-On Tue, Nov 02, 2004 at 02:51:33PM -0600, Kilau, Scott wrote:
-> > I know you have done work on USB serial drivers with devices with
-> > multiple ports...
-> > Is there any way to create a file in sys that can point back to a port,
-> > and NOT the port's
-> > parent (ie, the board) WITHOUT having to create a new kobject per port?
-What's wrong with the kobject in /sys/class/tty/ which has one object
-per port?  I think we might not be exporting that class_device
-structure, but I would not have a problem with doing that.
+and in /var/log/messages:
 
-thanks,
+kernel: mymodule: disagrees about version of symbol struct_module
 
-greg k-h
+I did compile my module under linux 2.6.8.1. and loaded it under
+2.6.9. From what I understand of versioning it should check if the
+software interface is valid still and then allow the module to be
+loaded. Surely between version 2.6.8.1 and 2.6.9 nothing that drastic
+changed?
 
+Or do I totally misunderstood versioning? Must a customer for instance
+request the module compiled for a specific kernel?
 
+Thanks
+Arne

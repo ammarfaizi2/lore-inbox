@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273269AbRKNRw6>; Wed, 14 Nov 2001 12:52:58 -0500
+	id <S275843AbRKNR6s>; Wed, 14 Nov 2001 12:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275973AbRKNRwi>; Wed, 14 Nov 2001 12:52:38 -0500
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:65290 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S273269AbRKNRw3>;
-	Wed, 14 Nov 2001 12:52:29 -0500
-Message-ID: <3BF29DC4.B1BD0F1B@nyc.rr.com>
-Date: Wed, 14 Nov 2001 11:37:24 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre4 fails to build in setup.c
-In-Reply-To: <fa.kvqcg8v.1d3c0qv@ifi.uio.no>
+	id <S275973AbRKNR6i>; Wed, 14 Nov 2001 12:58:38 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:7172 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275843AbRKNR63>;
+	Wed, 14 Nov 2001 12:58:29 -0500
+Date: Wed, 14 Nov 2001 10:57:17 -0800
+From: Greg KH <greg@kroah.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML 1.8.4 is available
+Message-ID: <20011114105717.D5287@kroah.com>
+In-Reply-To: <20011113175010.A15716@thyrsus.com> <20011113182718.A1630@kroah.com> <20011114123325.A500@thyrsus.com> <20011114100020.A5287@kroah.com> <20011114123314.A1978@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011114123314.A1978@thyrsus.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 17 Oct 2001 16:21:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is in the archives.  you'll find a patch here:
+On Wed, Nov 14, 2001 at 12:33:14PM -0500, Eric S. Raymond wrote:
+> > 
+> > CONFIG_HOTPLUG_PCI
+> > CONFIG_HOTPLUG_PCI_COMPAQ
+> > CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM
+> > 
+> > See the Config.in file in that directory for the dependencies they have
+> > on each other.
+> 
+> OK, this wiull be in 1.8.6.  I'm going to have to figure out why my coverage 
+> tools didn't catch those three symbols.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100559812101821&w=2
+Thanks.  2.4.15-pre4 didn't allow the user to select these options.  The
+attached patch is necessary for them to show up.  Perhaps this is the
+reason.
+
+thanks,
+
+greg k-h
 
 
+diff --minimal -Nru a/arch/i386/config.in b/arch/i386/config.in
+--- a/arch/i386/config.in	Mon Nov 12 11:34:30 2001
++++ b/arch/i386/config.in	Mon Nov 12 11:34:30 2001
+@@ -234,8 +234,10 @@
+ 
+ if [ "$CONFIG_HOTPLUG" = "y" ] ; then
+    source drivers/pcmcia/Config.in
++   source drivers/hotplug/Config.in
+ else
+    define_bool CONFIG_PCMCIA n
++   define_bool CONFIG_HOTPLUG_PCI n
+ fi
+ 
+ bool 'System V IPC' CONFIG_SYSVIPC
 
-Chris Meadors wrote:
-> 
-> I don't think I've seen this yet.
-> 
-> Build failed with this error:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c
-> -o setup.o setup.c
-> setup.c: In function `c_start':
-> setup.c:2791: subscripted value is neither array nor pointer
-> setup.c:2792: warning: control reaches end of non-void function
-> make[1]: *** [setup.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
-> make: *** [_dir_arch/i386/kernel] Error 2
-> 
-> My "grep ^CONFIG .config" is attatched.
-> 
-> -Chris
-> --
-> Two penguins were walking on an iceberg.  The first penguin said to the
-> second, "you look like you are wearing a tuxedo."  The second penguin
-> said, "I might be..."                         --David Lynch, Twin Peaks
-> 
->   ------------------------------------------------------------------------
->              Name: config
->    config    Type: Plain Text (TEXT/PLAIN)
->          Encoding: BASE64

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264543AbTI2TVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTI2TVY
+	id S264459AbTI2S6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTI2S6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:21:24 -0400
-Received: from dp.samba.org ([66.70.73.150]:11466 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264543AbTI2TVW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:21:22 -0400
-Date: Tue, 30 Sep 2003 05:19:44 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030929191944.GC24019@krispykreme>
-References: <20030928144102.5097ad81.akpm@osdl.org> <Pine.GSO.4.21.0309291155090.7432-100000@vervain.sonytel.be> <20030929110806.A5855@flint.arm.linux.org.uk>
+	Mon, 29 Sep 2003 14:58:42 -0400
+Received: from p508EE58A.dip.t-dialin.net ([80.142.229.138]:17840 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id S264459AbTI2S6k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:58:40 -0400
+Date: Mon, 29 Sep 2003 20:58:34 +0200
+From: Patrick Mau <mau@oscar.ping.de>
+Cc: Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
+Message-ID: <20030929185834.GA31748@oscar.prima.de>
+Reply-To: Patrick Mau <mau@oscar.ping.de>
+References: <200309282031.54043.MalteSch@gmx.de> <20030928204753.GA28255@oscar.prima.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030929110806.A5855@flint.arm.linux.org.uk>
+In-Reply-To: <20030928204753.GA28255@oscar.prima.de>
 User-Agent: Mutt/1.5.4i
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo Malte,
 
-> I can confirm that no mail was received from the mail alias for the week
-> including September 18th.  Maybe the mail about sched_clock() never made
-> it to the alias in the first place?
+I accidently deleted your original mail. Did you try exporting your
+filesystems with "no_subtree_check", like this ?
 
-I got it just fine:
+/dvd \
+  tony.local.net(rw,async,no_subtree_check)
 
->From akpm@osdl.org  Thu Sep 18 20:09:05 2003
-Date:   Thu, 18 Sep 2003 12:45:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-Subject: sched_clock implementation
-Message-Id: <20030918124552.7eb34d6a.akpm@osdl.org>
- 
-I'll be merging Ingo & Con's CPOU scheduler changes into Linus's tree
-soon.
- 
-It does require that the architecture provides a new timing function:
+If not, could you please try and tell me if that helps ?
 
-...
+Thanks,
+Patrick

@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264471AbUEMTkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUEMTy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbUEMTkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUEMTjq
+	id S264894AbUEMTy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUEMTyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:39:46 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:10123 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S264496AbUEMTRc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:17:32 -0400
-Date: Thu, 13 May 2004 15:17:28 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Chuck Wolber <chuckw@quantumlinux.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird cold boot problems with Abit KT7 motherboard
-In-Reply-To: <Pine.LNX.4.44.0405121619380.26332-100000@bailey.quantumlinux.com>
-Message-ID: <Pine.LNX.4.58.0405131505030.2310@marabou.research.att.com>
-References: <Pine.LNX.4.44.0405121619380.26332-100000@bailey.quantumlinux.com>
+	Thu, 13 May 2004 15:54:03 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:21636 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S264524AbUEMTgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:36:38 -0400
+From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: aic79xx trouble
+Date: Thu, 13 May 2004 21:36:31 +0200
+User-Agent: KMail/1.5.4
+References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
+In-Reply-To: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_A58oAGonSlg+XU+";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 May 2004, Chuck Wolber wrote:
 
-> On Wed, 12 May 2004, Pavel Roskin wrote:
->
-> > I have noticed several anomalies with Abit KT7 motherboard.  They all
-> > happen after power on.  First reboot from Linux (using the reboot
-> > command or reset button) usually fixes all the problems.  Sometimes two
-> > or three resets are needed before the motherboard starts working
-> > properly.  In two cases (of about 20) the motherboard started working
-> > properly right after powering up.
->
-> %< SNIP
->
-> > I just hope the description below will rings a bell with somebody, and
-> > I'll gladly test the suggestions.  If not, the motherboard will go to the
-> > dumpster.
->
->
-> We just recently saw a similar report with the same motherboard. The
-> system apparently boots fine under FC2. This is only second-hand
-> information though, I have not personally tested this.
+--Boundary-02=_A58oAGonSlg+XU+
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-The kernel from Fedora testing (kernel-2.6.5-1.358.i686) indeed passed the
-PCI probe on the cold booted machine with the TI PCI1410 bridge inserted
-(it would have booted if not missing reiserfs support).  However, I was
-unable to reproduce the cold boot problems I described with any kernel
-since then.  Everything is working properly today.
+Oh, I forgot the system specifications:
 
-I just didn't want to miss a chance to fix support for this motherboard.
-But from my today's experience, from the replies I got and from further
-search on the web, it appears unlikely that there is anything we can do in
-the kernel to work around the cold boot problems with Abit KT7.
+=2D dual opteron on tyan S2882 board
+=2D vanilla linux-2.4.26
 
-Thanks to everybody who replied!
+Also, is acpi relevant? It is enabled in the kernel-configuration and the t=
+he=20
+kernel prints quite a lot of error messages when it parses the dsdt.
 
--- 
-Regards,
-Pavel Roskin
+
+On Thursday 13 May 2004 21:25, Bernd Schubert wrote:
+> Hello,
+>
+> we are just in the process of setting up a new server, which will serve t=
+he
+> data of an IDE/SCSI raid system (transtec 5008). Some partions of this ra=
+id
+> device are also mirrored via drbd to a failover system. During a full
+> resync of all (3) failover partitions *from* the failover server, the
+> main-server first logs many scsi errors and later the access to the
+> raid-partitions completely locks up.
+>
+> Below is some relevant dmesg output, I already enabled the verbose option
+> for the aic79xx driver. Should I also enable debugging, if so, which mode?
+>
+> Any help is highly appreciated.
+>
+>
+> Thanks in advance,
+> 	Bernd
+>
+
+--Boundary-02=_A58oAGonSlg+XU+
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAo85ALR5WR6DFumYRAlsQAJ94ORnp1Dm8I/I5hLQbIa05Xi1EkwCgiUXk
+Asr6Dvc4Pwd9y6hnQj58R5s=
+=P73+
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_A58oAGonSlg+XU+--

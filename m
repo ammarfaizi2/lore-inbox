@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129648AbQKHSSC>; Wed, 8 Nov 2000 13:18:02 -0500
+	id <S129451AbQKHSTC>; Wed, 8 Nov 2000 13:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129650AbQKHSRw>; Wed, 8 Nov 2000 13:17:52 -0500
-Received: from adsl-63-194-89-126.dsl.snfc21.pacbell.net ([63.194.89.126]:18700
-	"HELO skull.piratehaven.org") by vger.kernel.org with SMTP
-	id <S129648AbQKHSRr>; Wed, 8 Nov 2000 13:17:47 -0500
-Date: Wed, 8 Nov 2000 10:12:48 -0800
-From: Brian Pomerantz <bapper@piratehaven.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Pentium 4 and 2.4/2.5
-Message-ID: <20001108101248.A8902@skull.piratehaven.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E13tZMe-0000F8-00@the-village.bc.nu> <Pine.LNX.4.10.10011080953130.16579-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <Pine.LNX.4.10.10011080953130.16579-100000@penguin.transmeta.com>
-X-homepage: http://www.piratehaven.org/~bapper/
+	id <S129694AbQKHSSx>; Wed, 8 Nov 2000 13:18:53 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:11791 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129689AbQKHSSj>;
+	Wed, 8 Nov 2000 13:18:39 -0500
+Date: Wed, 8 Nov 2000 10:18:54 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011081856460.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+Message-ID: <Pine.LNX.4.21.0011081017320.2704-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 10:10:45AM -0800, Linus Torvalds wrote:
-> 
-> Now, I could imagine that Intel would select an instruction that didn't
-> work on Athlon on purpose, but I really don't think they did.  I don't
-> have an athlon to test.
-> 
-> It's easy enough to generate a test-program. If the following works,
-> you're pretty much guaranteed that it's ok
-> 
-> 	int main()
-> 	{
-> 		printf("Testing 'rep nop' ... ");
-> 		asm volatile("rep ; nop");
-> 		printf("okey-dokey\n"); 
-> 		return 0;
-> 	}
-> 
-> (there's not much a "rep nop" _can_ do, after all - the most likely CPU
-> extension would be to raise an "Illegal Opcode" fault).
-> 
 
-Just for the curious, this works on Athlons. :)
+> Sure - but this was always the case. And using 2.2 with the same
+> (or more) stress the Xserver is still able to set the video hardware
+> back to vga text mode. I just want to know whats the difference
+> between 2.2 and 2.4 that causes failure in 2.4.
 
+I don't think it is the console system. I bet if you stress 2.2 even more
+you will get the same results.
 
-BAPper
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

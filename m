@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269068AbRHBTy2>; Thu, 2 Aug 2001 15:54:28 -0400
+	id <S269099AbRHBTz6>; Thu, 2 Aug 2001 15:55:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269082AbRHBTyS>; Thu, 2 Aug 2001 15:54:18 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:27063 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S269068AbRHBTyK>; Thu, 2 Aug 2001 15:54:10 -0400
-Date: Thu, 2 Aug 2001 14:54:09 -0500
-From: J Troy Piper <jtp@dok.org>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, chrisv@b0rked.dhs.org,
-        nerijus@users.sourceforge.net, dwguest@win.tue.nl
-Subject: Re: cannot copy files larger than 40 MB from CD
-Message-ID: <20010802145409.A2217@dok.org>
-Mime-Version: 1.0
-Content-Type: message/rfc822
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S269102AbRHBTzt>; Thu, 2 Aug 2001 15:55:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:17280 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S269082AbRHBTza>; Thu, 2 Aug 2001 15:55:30 -0400
+Date: Thu, 2 Aug 2001 15:54:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.4.33.0108021206570.21298-100000@heat.gghcwest.com>
+Message-ID: <Pine.LNX.3.95.1010802154206.6297A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
+[SNIPPED...]
 
-On 2001.08.02 10:14 Alan Cox wrote:
-> > > Tried vfat, ext2 and reiserfs.
-> > >
-> > > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
-> >                                ^^^^^^^^^^^
-> > > that matters.
-> > 
-> > Have you tried compiling your kernel using kgcc?
-> > 
-> > gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
-> > used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
 > 
-> [x86 hat on]
+> My process are not small.  They are huge.  They take up nearly all
+> available memory.  And then when a lot of file I/O kicks in, they get
+> swapped out in favor of RAM, then the thrashing starts, and the box goes
+> to la la land.
 > 
-> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so
-> is
-> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right
-> thing
-> -
+> Are you saying that I can expect any userland process to be able to take
+> the box down?
 
-Sounds to me like someone needs to check their ulimit.
----
+Not if you enable user quotas.
+
+> Shit, why don't I just go back to DOS?
+
+Because 640k doesn't hack it.
+
+Seriously, it doesn't do any good to state that something sucks. You
+need to point out the specific problem that you are experiencing.
+"going to la la land.." is not quite technical enough. In fact, you
+imply that the machine is still alive because of "disk thrashing".
+If, in fact, you are a member of the Association for Computing Machinery
+(so am I), you should know all this. Playing Troll doesn't help.
+
+If you suspend (^Z) one of the huge tasks, does the thrashing stop?
+When suspended, do you still have swap-file space?
+Are you sure you have managed the user quotas so that the sum of
+the user's demands for resources can't bring down the machine?
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

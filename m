@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUJJAEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUJJAFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267650AbUJJAEj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 20:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUJJAEj
+	id S267653AbUJJAFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 20:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJJAFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 20:04:39 -0400
-Received: from mail.dif.dk ([193.138.115.101]:51157 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S267650AbUJJAEh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 20:04:37 -0400
-Date: Sun, 10 Oct 2004 02:12:14 +0200 (CEST)
-From: Jesper Juhl <juhl@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] check copy_to_user return value in raw1394
-Message-ID: <Pine.LNX.4.61.0410100208270.2973@dragon.hygekrogen.localhost>
+	Sat, 9 Oct 2004 20:05:40 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:63475 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S267653AbUJJAFa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 20:05:30 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+References: <41677E4D.1030403@mvista.com> <yw1xk6u0hw2m.fsf@mru.ath.cx>
+	<1097356829.1363.7.camel@krustophenia.net>
+	<yw1xis9ja82z.fsf@mru.ath.cx>
+	<1097365941.1363.31.camel@krustophenia.net>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Date: Sun, 10 Oct 2004 02:05:18 +0200
+In-Reply-To: <1097365941.1363.31.camel@krustophenia.net> (Lee Revell's
+ message of "Sat, 09 Oct 2004 19:52:22 -0400")
+Message-ID: <yw1xfz4n8mkh.fsf@mru.ath.cx>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lee Revell <rlrevell@joe-job.com> writes:
 
-Here's a proposed patch to make sure we check the return value of 
-copy_to_user in raw1394.c::raw1394_read
-I've changed __copy_to_user into copy_to_user since I don't see where we 
-would otherwhise be doing the access_ok checking...
-Please review this patch before applying.
+> On Sat, 2004-10-09 at 17:35, Måns Rullgård wrote:
+>> Lee Revell <rlrevell@joe-job.com> writes:
+>> 
+>> > On Sat, 2004-10-09 at 09:15, Måns Rullgård wrote:
+>> >> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+>> >> Now it seems to be running quite well.  I am, however, getting
+>> >> occasional "bad: scheduling while atomic!" messages, all alike:
+>> >> 
+>> >
+>> > I am getting the same message.   Also, leaving all the default debug
+>> > options on, I got this debug output, but it did not coincide with the
+>> > "bad" messages.
+>> >
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> 
+>> Well, those don't give me any clues.
+>
+> Pid 773 is the IRQ thread for eth0.  I am using the via-rhine driver.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+I was using a prism54 wireless card.
 
-diff -up linux-2.6.9-rc3-bk9-orig/drivers/ieee1394/raw1394.c linux-2.6.9-rc3-bk9/drivers/ieee1394/raw1394.c
---- linux-2.6.9-rc3-bk9-orig/drivers/ieee1394/raw1394.c	2004-09-30 05:03:45.000000000 +0200
-+++ linux-2.6.9-rc3-bk9/drivers/ieee1394/raw1394.c	2004-10-10 02:05:54.000000000 +0200
-@@ -411,6 +411,7 @@ static ssize_t raw1394_read(struct file 
-         struct file_info *fi = (struct file_info *)file->private_data;
-         struct list_head *lh;
-         struct pending_request *req;
-+        ssize_t ret;
- 
-         if (count != sizeof(struct raw1394_request)) {
-                 return -EINVAL;
-@@ -443,10 +444,15 @@ static ssize_t raw1394_read(struct file 
-                         req->req.error = RAW1394_ERROR_MEMFAULT;
-                 }
-         }
--        __copy_to_user(buffer, &req->req, sizeof(req->req));
-+        if(copy_to_user(buffer, &req->req, sizeof(req->req))) {
-+		ret = -EFAULT;
-+		goto out;
-+	}
- 
-+        ret = (ssize_t)sizeof(struct raw1394_request);
-+out:
-         free_pending_request(req);
--        return sizeof(struct raw1394_request);
-+	return ret;
- }
- 
- 
-
+-- 
+Måns Rullgård
+mru@mru.ath.cx

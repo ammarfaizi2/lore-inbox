@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293009AbSBVVth>; Fri, 22 Feb 2002 16:49:37 -0500
+	id <S293014AbSBVVyh>; Fri, 22 Feb 2002 16:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293011AbSBVVtU>; Fri, 22 Feb 2002 16:49:20 -0500
-Received: from casbah.gatech.edu ([130.207.165.18]:2261 "EHLO
-	casbah.gatech.edu") by vger.kernel.org with ESMTP
-	id <S293009AbSBVVtF>; Fri, 22 Feb 2002 16:49:05 -0500
-Subject: Re: more detailed information about the AMD 1.6+ GHz MP smp-problem
-From: Rob Myers <rob.myers@gtri.gatech.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mw@suk.net, linux-kernel@vger.kernel.org
-In-Reply-To: <E16dtT5-0006wD-00@the-village.bc.nu>
-In-Reply-To: <E16dtT5-0006wD-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 22 Feb 2002 16:49:24 -0500
-Message-Id: <1014414565.1231.263.camel@ransom>
+	id <S293015AbSBVVy1>; Fri, 22 Feb 2002 16:54:27 -0500
+Received: from codepoet.org ([166.70.14.212]:12008 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S293014AbSBVVyX>;
+	Fri, 22 Feb 2002 16:54:23 -0500
+Date: Fri, 22 Feb 2002 14:54:24 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Greg KH <greg@kroah.com>
+Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+Message-ID: <20020222215424.GC30290@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Greg KH <greg@kroah.com>,
+	=?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020222200750.GE9558@kroah.com> <20020221221842.V1779-100000@gerard> <20020222204157.GG9558@kroah.com> <20020222213014.GB30290@codepoet.org> <20020222214225.GA10333@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020222214225.GA10333@kroah.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-21 at 08:41, Alan Cox wrote:
-> > if anyone knows what bios settings and kernel bits make this board
-> > stable please pass that info along...
+On Fri Feb 22, 2002 at 01:42:25PM -0800, Greg KH wrote:
+> Hm, I didn't try the 'cat' test, but I did successfully unplug and then
+> add a card, and then spin up the drives attached to that drive.  But
+> that was a long time ago.  Things might have changed since then.
 > 
-> MP table on 
-> MP table version 1.1
-> 
-> You want 2.4.18-rc2 in order to get the fixups for what appears to be a BIOS
-> PCI compliance config problem. You also may need to remove any 3com gige
-> cards using broadcom chipsets.
+> This is with a cardbus device, right?  I have never looked into them
+> before.
 
-ah thank you, those settings work nicely.  turns out i had a bad
-motherboard.  the new one seems rock solid (after one day).  redhat 7.2
-kernels 2.4.7-10 and 2.4.9-21 worked for me, as does 2.4.18-rc4.  
+Yup.  One of these: 
+    http://www.adaptec.com/worldwide/product/proddetail.html?prodkey=APA-1480B
+which I have been using to connect my MO drive to my laptop.  I'm
+happy to provide details.  I spent about two hours last week
+digging through the various layers trying to understand how the
+SCSI layer had leftover state.  I found one little bug, but had
+to move on to other things before I'd found the cause,
 
-so if anyone else is having trouble with an asus a7m266d *with the
-proper bios settings*, its possible (likely?) you've got a bad
-motherboard.
+ -Erik
 
-rob.
-
-ps- for the record my stable configuration includes 2 AMD Athlon(TM) XP
-1900+, matrox g200, intel eepro100, hdd, and floppy.
-
-[root@localhost root]# lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c
-(rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
-00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440
-(rev 04)
-00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441
-(rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev
-03)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448
-(rev 04)
-01:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP
-(rev 01)
-02:04.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-10)
-02:06.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-(rev 08)
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

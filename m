@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbULOSsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbULOSt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbULOSsa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbULOSsa
+	id S262447AbULOSt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 13:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbULOStW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:48:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47779 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262445AbULOSs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:48:28 -0500
-Subject: Re: Issue on connect 2 modems with a single phone line
-From: Lee Revell <rlrevell@joe-job.com>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: dave@lafn.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041215184206.43601.qmail@web51505.mail.yahoo.com>
-References: <20041215184206.43601.qmail@web51505.mail.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 15 Dec 2004 13:48:26 -0500
-Message-Id: <1103136506.18982.73.camel@krustophenia.net>
+	Wed, 15 Dec 2004 13:49:22 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:35516 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262447AbULOStC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 13:49:02 -0500
+Date: Wed, 15 Dec 2004 10:48:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] add class_device to miscdevice
+Message-ID: <20041215184850.GA9639@kroah.com>
+References: <1100710140.5009.6.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100710140.5009.6.camel@betsy.boston.ximian.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-15 at 10:42 -0800, Park Lee wrote:
-> Hi,
->   I want to try serial console in order to see the
-> complete Linux kernel oops. 
->   I have 2 computers, one is a PC, and the other is a
-> Laptop. Unfortunately,my Laptop doesn't have a serial
-> port on it.
+On Wed, Nov 17, 2004 at 11:48:59AM -0500, Robert Love wrote:
+> Greg, et al.
+> 
+> Currently misc_register() throws away the return from
+> class_simple_device_add().  This makes it impossible to get to the
+> class_device of the directories in /sys/class/misc and, for example,
+> thus impossible to add attributes to those directories.
+> 
+> Attached patch adds a class_device structure to the miscdevice structure
+> and assigns to it the value returned from class_simple_device_add() in
+> misc_register(), thus caching the value and allowing us to f.e. later
+> call class_device_create_file().
+> 
+> We need this for inotify, but I can see plenty of other misc. devices
+> wanting this and consider it missing but required functionality.
 
-No idea but it would be way easier to use netconsole.  That is, unless
-the oops happens before the network is up.
+Applied, will show up in the next -mm release.
 
-Lee
+thanks,
 
+greg k-h

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbTA0WGS>; Mon, 27 Jan 2003 17:06:18 -0500
+	id <S267313AbTA0WMF>; Mon, 27 Jan 2003 17:12:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263491AbTA0WGS>; Mon, 27 Jan 2003 17:06:18 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20233 "EHLO
+	id <S263899AbTA0WMF>; Mon, 27 Jan 2003 17:12:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21769 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S263366AbTA0WGR>; Mon, 27 Jan 2003 17:06:17 -0500
-Date: Mon, 27 Jan 2003 17:12:13 -0500 (EST)
+	id <S267313AbTA0WME>; Mon, 27 Jan 2003 17:12:04 -0500
+Date: Mon, 27 Jan 2003 17:18:35 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Update PnP IDE (2/6)
-In-Reply-To: <Pine.LNX.4.10.10301251824510.1744-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.3.96.1030127170934.27928I-100000@gatekeeper.tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.21-pre3-jam3
+In-Reply-To: <20030126003309.GG1507@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1030127171313.27928J-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Jan 2003, Andre Hedrick wrote:
+On Sun, 26 Jan 2003, J.A. Magallon wrote:
 
-> 
-> 
-> "ide_unregister" is only called if you are physically removing the
-> controller.  If PNP is going to permit physical removal when the OS is
-> HOT, it may be justified.  This can make a "hole" in the rest of the
-> driver an generate an OOPS.  IDE-CS has alway insured the ordering was
-> last.
-> 
-> I need to thinks some more about it first.
+> Changelog:
+> - aa updated to -pre3-aa1
+> - highpage_init integrated in -aa
+> - killed cd-read-audio-dma, because it was giving too much oopses...
 
-When I have multiple PCMCIA cards with CompactFlash cards mounted, could
-this result in a hole if I umount and remove them in the wrong order? I
-haven't gotten it working with 2.5, but I do mount several with 2.4, and
-presumably will with 2.5 when I figure it out.
+Is someone working on this (assuming it will eventually get into 2.6)? It
+seems to make a worthwhile improvement when ripping CDs. Not as worthwhile
+as stability, obviously ;-)
+
+> - 37-ext3-scheduling-storm.bz2
+>     Fixes an inefficiency and potential system lockup in ext3 filesystem.
+>     Anyone who is using tasks which have realtime scheduling policy on ext3
+>     systems should apply this change.
+>     Author: Andrew Morton <akpm@digeo.com>
+
+Hum, I believe that means cdrecord, although I've never seen a problem.
+
+> Enjoy !!
+
+Thanks for the integration.
 
 -- 
 bill davidsen <davidsen@tmr.com>

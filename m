@@ -1,69 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbUABDxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 22:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbUABDxJ
+	id S263303AbUABEPS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 23:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbUABEPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 22:53:09 -0500
-Received: from simmts5.bellnexxia.net ([206.47.199.163]:17073 "EHLO
-	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261953AbUABDxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 22:53:06 -0500
-Message-ID: <3FF4EB54.7060809@sympatico.ca>
-Date: Fri, 02 Jan 2004 03:53:56 +0000
-From: Tyler Hall <tyler_hall@sympatico.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rpc@cafe4111.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur> <200401011814.22415.rpc@cafe4111.org>
-In-Reply-To: <200401011814.22415.rpc@cafe4111.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jan 2004 23:15:18 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61890 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263303AbUABEPN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 23:15:13 -0500
+Date: Fri, 2 Jan 2004 09:50:36 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel McNeil <daniel@osdl.org>, janetmor@us.ibm.com, pbadari@us.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6.1-rc1-mm1] filemap_fdatawait.patch
+Message-ID: <20040102042036.GA3311@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20031231095503.GA4069@in.ibm.com> <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com> <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com> <20031231025309.6bc8ca20.akpm@osdl.org> <20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org> <1072910061.712.67.camel@ibm-c.pdx.osdl.net> <20031231154239.7c4d140e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031231154239.7c4d140e.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since we're moving toward treating device numbers as unique handles for 
-devices in a system, why can't we just dynamically allocate them like 
-process ID's? As each device driver loads and registers with the kernel, 
-it can request a device number and the kernel can assign the next 
-available one.
+On Wed, Dec 31, 2003 at 03:42:39PM -0800, Andrew Morton wrote:
+> Daniel McNeil <daniel@osdl.org> wrote:
+> >
+> > The other potential race in filemap_fdatawait() was that it
+> > removed the page from the locked list while waiting for a writeback
+> > and if there was a 2nd filemap_fdatawait() running on another cpu,
+> > it would not wait for the page being written since it would never see
+> > it on the list.
+> 
+> That would only happen if one thread or the other was not running under
+> i_sem.   The only path I see doing that is in generic_file_direct_IO()?
 
-Tyler
+Yes, and we should simply fix generic_file_direct_IO to avoid doing so.
+We anyway issue filemap_fdatawait later with i_sem held.
 
-Rob wrote:
+The race that we need to worry about is between background writeouts
+(which don't take i_sem) and filemap_fdatawrite/filemap_fdatawait - i.e
+the first one discussed.
 
->On Wednesday 31 December 2003 07:31 pm, Rob Love wrote:
->
-><snip>
->  
->
->>This is definitely an interesting problem space.
->>
->>I agree wrt just inventing consecutive numbers.  If there was a nice way
->>to trivially generate a random and unique number from some
->>device-inherent information, that would be nice.
->>
->>	Rob Love
->>    
->>
->
->my first thought was hardware serial numbers, but i'm guessing they mostly 
->don't exist based on the discomfort caused by the pentium 3 serial number in 
->the past. my second thought was raw latency. in the real world, 2 identical 
->devices of any nature are going to respond electrically at different rates. i 
->kind of stole the concept from what i read about the i810 rng... quantum 
->differences can distinguish between 2 of anything, and based on the response 
->time, 'cookies' can be written out to keep them separately ID'd. some devices 
->will get slower over time, e.g. increasing error rates and aging silicon will 
->throw the 'cookie' off, so you'd re-calibrate every so often, like on a 
->reboot. those are rare for some of us ;)
->
->the big IF: can you measure that with enough precision to at least decrease 
->the probablity of collision? 
->
->  
->
+> 
+> > +		/*
+> > +		 * If the page is locked, it might be in process of being 
+> > +		 * setup for writeback but without PG_writeback set 
+> > +		 * and with PG_dirty cleared.
+> > +		 * (PG_dirty is cleared BEFORE PG_writeback is set)
+> > +		 * So, wait for the PG_locked to clear, then start over.
+> > +		 */
+> > +		if (PageLocked(page)) {
+> > +			page_cache_get(page);
+> > +			spin_unlock(&mapping->page_lock);
+> > +			wait_on_page_locked(page);
+> > +			page_cache_release(page);
+> > +			goto restart;
+> > +		}
+> 
+> Why is this a problem which needs addressing here?  If some other thread is
+> in the process of starting I/O against this page then the page must have
+> been clean when this thread ran filemap_fdatawrite()?
+
+This is the same race that we have been discussing (background writer
+pulled this page off io_pages, put it on locked pages but hasn't set 
+PG_writeback as yet). To me it seemed that Daniel's solution was just an 
+alternative to what you proposed - i.e. adding lock_page() to filemap_fdatawait.
+I have to think a little about the fix -- AFAICS but we are all talking
+about the same (real) problem here.
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

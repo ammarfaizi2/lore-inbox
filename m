@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265016AbUETJXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUETJYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265016AbUETJXv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 05:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUETJXv
+	id S265038AbUETJYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 05:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbUETJYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 05:23:51 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:30850 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S265016AbUETJXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 05:23:48 -0400
-Date: Thu, 20 May 2004 04:23:43 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Sebastian <sebastian@expires0604.datenknoten.de>
-cc: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Strange DMA-errors and system hang with Promise 20268
-In-Reply-To: <1084990345.4371.5.camel@coruscant.datenknoten.de>
-Message-ID: <Pine.GSO.4.21.0405200422280.24137-100000@dirac.phys.uwm.edu>
+	Thu, 20 May 2004 05:24:10 -0400
+Received: from monster.roma2.infn.it ([141.108.255.100]:48109 "EHLO
+	monster.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S265038AbUETJYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 05:24:03 -0400
+From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: DervishD <raul@pleyades.net>
+Subject: Re: [OT ML related]
+Date: Thu, 20 May 2004 11:23:47 +0200
+User-Agent: KMail/1.6.2
+Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us> <200405201109.29864.AlberT@SuperAlberT.it> <20040520092047.GE30708@DervishD>
+In-Reply-To: <20040520092047.GE30708@DervishD>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200405201123.47576.AlberT@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hhmm. I have not changed anything major on that machine except the
-> Kernel for years. Only after upgrading from 2.4.23 to 2.4.25, I got
-> these problems. 
-> If there is no problem with the kernel, I have to assume a hardware
-> failure of some kind. Badblocks/smartlog reveal no errors.
+On 11:20, giovedì 20 maggio 2004, DervishD wrote:
+>  IMHO, adding a string to the subject (I assume that you were
+> talking about adding the string to the subject and not to the message
+> body) is not needed and will impose visual clutter. If you cannot (or
+> don't want to) use procmail, try to do the filtering with your MUA if
+> it is powerful enough.
 
-Sebastian, does the disk's SMART error log (smartctl -l error) give any
-indication of what's wrong?
+Obviously I know that I can filter it using the header (I said it in my first 
+post)... but my opinion is that a prepended string in the Subject can be very 
+usefull... I understand that here nobody thinks the same thing, so never 
+mind :-)
 
-Bruce
 
+-- 
+<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
+           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
+           '  Web:    http://SuperAlberT.it  '."\n".
+'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>

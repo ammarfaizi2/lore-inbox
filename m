@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUGUGJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUGUGXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbUGUGJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 02:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUGUGJN
+	id S265510AbUGUGXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 02:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGUGXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 02:09:13 -0400
-Received: from adsl-68-20-219-62.dsl.chcgil.ameritech.net ([68.20.219.62]:57871
-	"HELO bontekoe.demon.nl") by vger.kernel.org with SMTP
-	id S265154AbUGUGJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 02:09:10 -0400
-Message-ID: <127701c46ee9$55fb3a22$30f1e9a1@bontekoe.demon.nl>
-From: "Denny G. Kenney" <denny_gkenneyee@istas.co.za>
-To: linux-kernel@vger.kernel.org
-Subject: Get $200 bonus at our Casino!
-Date: Tue, 20 Jul 2004 23:09:07 -0700
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 21 Jul 2004 02:23:23 -0400
+Received: from 209-87-233-98.storm.ca ([209.87.233.98]:33429 "EHLO
+	ottawa.interneqc.com") by vger.kernel.org with ESMTP
+	id S265510AbUGUGXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 02:23:22 -0400
+Date: Wed, 21 Jul 2004 02:14:41 -0400
+From: Greg KH <greg@kroah.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] kref shrinkage patches -- 2 of 2 -- kref shrinkage
+Message-ID: <20040721061441.GC18787@kroah.com>
+References: <20040720122307.GA1235@obelix.in.ibm.com> <20040720122659.GB1235@obelix.in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040720122659.GB1235@obelix.in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I have a special offer available for you at our casino.
+On Tue, Jul 20, 2004 at 05:57:01PM +0530, Ravikiran G Thirumalai wrote:
+> Here's the patch to change current kref users to use the modified 
+> kref_init and kref_put api (result of kref object shrinkage).
 
-$20 to try our internet casino, no deposit is necessary!
-At the casino software's cashier enter bonus code: FR93P
+I applied this too, with some tweaks to the usb-serial code.
 
-$200 bonus on your first deposit!
-At the casino software's cashier enter bonus code: FMJKU
+thanks,
 
-Allow us to show you our quality operation, fast payouts,
-generous bonuses, and super friendly around-the-clock
-customer support.
-
-Click here: http://bigbonus-casino.net 
-
-Best regards,
-Jamie Zawinsky
-
-
-
-No thanks: http://bigbonus-casino.net/u/
-
+greg k-h

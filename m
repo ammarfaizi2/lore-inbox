@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282236AbRLWKUG>; Sun, 23 Dec 2001 05:20:06 -0500
+	id <S282843AbRLWK2S>; Sun, 23 Dec 2001 05:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286862AbRLWKT4>; Sun, 23 Dec 2001 05:19:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59653 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286861AbRLWKTq>; Sun, 23 Dec 2001 05:19:46 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: AMD SC410 boot problems with recent kernels
-Date: 23 Dec 2001 02:19:32 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a04b3k$7sr$1@cesium.transmeta.com>
-In-Reply-To: <a03cuj$661$1@cesium.transmeta.com> <Pine.LNX.4.33.0112231009500.10528-100000@callisto.local>
+	id <S286864AbRLWK2J>; Sun, 23 Dec 2001 05:28:09 -0500
+Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:43017 "HELO
+	mail.ludost.net") by vger.kernel.org with SMTP id <S286862AbRLWK1w>;
+	Sun, 23 Dec 2001 05:27:52 -0500
+Date: Sun, 23 Dec 2001 12:27:50 +0200 (EET)
+From: Vasil Kolev <lnxkrnl@mail.ludost.net>
+X-X-Sender: <lnxkrnl@doom.bastun.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference
+ to `local symbols...
+Message-ID: <Pine.LNX.4.33.0112231226260.1032-100000@doom.bastun.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0112231009500.10528-100000@callisto.local>
-By author:    Robert Schwebel <robert@schwebel.de>
-In newsgroup: linux.dev.kernel
-> 
-> Could you elaborate why you think that the old code worked only by
-> accident? [please be patient - I'm no native speaker and it may be that I
-> do sometimes not understand everything correctly. I'm trying hard.] As I
-> said above: before I do not understand _why_ the new code breaks it's
-> rather difficult to draw conclusions.
-> 
-> If the board is really _broken_ I have no problem with the fact that in
-> the future the manufacturer has either to supply a correct BIOS or a
-> workaround patch has to be used. If it's only uggly that there's no BIOS
-> routine it would IMHO be better to find a way to make it work again. There
-> are fixes for other uggly architectures in the code as well, see the
-> Toshiba Laptop reference. If the board may be PC compatible, Linux should
-> IMHO boot without further changes.
-> 
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o
+drivers/net/wan/wan.o drivers/ide/idedriver.o drivers/cdrom/driver.o
+drivers/sound/sounddrivers.o drivers/pci/driver.o
+drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o
+drivers/video/video.o \
+        net/network.o \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+/usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/net/net.o(.data+0x514): undefined reference to `local symbols in
+discarded section .text.exit'
+make: *** [vmlinux] Error 1
 
-The weird part about your board is that the code clearly *works*, or
-your kernel wouldn't boot at all.  It somehow poisons the system,
-though, and that's utterly bizarre.
 
-I don't think this is debuggable without access to hardware (and maybe
-not even then.)
+# ./reference_discarded.pl
+Finding objects, 538 objects, ignoring 0 module(s)
+Finding conglomerates, ignoring 48 conglomerate(s)
+Scanning objects
+Error: ./drivers/net/dmfe.o .data refers to 00000514 R_386_32
+.text.exit
+Done
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+

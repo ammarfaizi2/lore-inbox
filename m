@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318999AbSH1Vw7>; Wed, 28 Aug 2002 17:52:59 -0400
+	id <S319028AbSH1V4B>; Wed, 28 Aug 2002 17:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319013AbSH1Vw7>; Wed, 28 Aug 2002 17:52:59 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:9600 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318999AbSH1Vw6>;
-	Wed, 28 Aug 2002 17:52:58 -0400
-Date: Wed, 28 Aug 2002 12:42:04 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt latency
-Message-ID: <20020828124204.B39@toy.ucw.cz>
-References: <20020827135400.A31990@hq.fsmlabs.com> <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S319029AbSH1V4A>; Wed, 28 Aug 2002 17:56:00 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:33288 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319028AbSH1V4A>; Wed, 28 Aug 2002 17:56:00 -0400
+Message-ID: <3D6D477C.F5116BA7@zip.com.au>
+Date: Wed, 28 Aug 2002 14:58:20 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] adjustments to dirty memory thresholds
+References: <3D6C53ED.32044CAD@zip.com.au> <20020828200857.GB888@holomorphy.com> <3D6D3216.D472CBC3@zip.com.au> <20020828214243.GC888@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Aug 27, 2002 at 04:44:34PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > On Tue, Aug 27, 2002 at 02:01:43PM -0400, Richard B. Johnson wrote:
-> > > This cannot be. A stock kernel-2.4.18, running a 133 MHz AMD-SC520,
-> > > (like a i586) with a 33 MHz bus, handles interrupts off IRQ7 (the lowest
-> > > priority), from the 'printer port' at well over 75,000 per second without
-> > > skipping a beat or missing an edge. This means that latency is at least
-> > > as good as 1/57,000 sec = 0.013 microseconds.
-> > 
-> > Assuming you mean 75,000 then ... 
-> > Thats 0.013 MILLISECONDS which is 13 microseconds and its not likely.
+William Lee Irwin III wrote:
 > 
-> Yes 13 microseconds.
-> 
-> > I bet that your data source drops data or looks at some handshake
-> > pins on the parallel connect.
-> > 
-> 
-> No. You can easily read into memory 75,000 bytes per second from the
-> parallel port, hell RS-232C will do 22,400++ bytes per second (224,000
-> baud) on a Windows machine, done all the while to feed a PROM burner. I
-> never measured Linux RS-232C, but it's got to be at least as good.
+> ...
+> I've already written the patch to address it, though of course, I can
+> post those traces along with the patch once it's rediffed. (It's trivial
+> though -- just a fresh GFP flag and a check for it before calling
+> out_of_memory(), setting it in mempool_alloc(), and ignoring it in
+> slab.c.) It requires several rounds of "un-throttling" to reproduce
+> the OOM's, the nature of which I've outlined elsewhere.
 
-There's >16bytes FIFO at the rs-232, and kernel uses flip buffers so
-that it does nlot have to wake userspace each time.
+That's a sane approach.  mempool_alloc() is designed for allocations
+which "must" succeed if you wait long enough.
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+In fact it might make sense to only perform a single scan of the
+LRU if __GFP_WLI is set, rather than the increasing priority thing.
 
+But sigh.  Pointlessly scanning zillions of dirty pages and doing nothing
+with them is dumb.  So much better to go for a FIFO snooze on a per-zone
+waitqueue, be woken when some memory has been cleansed.  (That's effectively
+what mempool does, but it's all private and different).
+
+> One such trace is below, some of the others might require repeating the
+> runs. It's actually a relatively deep call chain, I'd be worried about
+> blowing the stack at this point as well.
+
+Well it's presumably the GFP_NOIO which has killed it - we can't wait
+on PG_writeback pages and we can't write out dirty pages.  Taking a
+nap in mempool_alloc is appropriate.

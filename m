@@ -1,21 +1,23 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSE1VDe>; Tue, 28 May 2002 17:03:34 -0400
+	id <S316960AbSE1VJf>; Tue, 28 May 2002 17:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316954AbSE1VDd>; Tue, 28 May 2002 17:03:33 -0400
-Received: from holomorphy.com ([66.224.33.161]:39310 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316951AbSE1VDd>;
-	Tue, 28 May 2002 17:03:33 -0400
-Date: Tue, 28 May 2002 14:03:14 -0700
+	id <S316961AbSE1VJe>; Tue, 28 May 2002 17:09:34 -0400
+Received: from holomorphy.com ([66.224.33.161]:41870 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316960AbSE1VJe>;
+	Tue, 28 May 2002 17:09:34 -0400
+Date: Tue, 28 May 2002 14:09:17 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: cleanup -- use list_for_each in head_of_free_region
-Message-ID: <20020528210314.GT14918@holomorphy.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+Message-ID: <20020528210917.GU14918@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pavel Machek <pavel@ucw.cz>, torvalds@transmeta.com,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020528193357.GA801@elf.ucw.cz>
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com> <20020528193220.GB189@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Description: brief message
@@ -25,12 +27,17 @@ Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 28, 2002 at 09:33:57PM +0200, Pavel Machek wrote:
-> This cleans up is_head_of_free_region, thanks to William Lee Irwin III
-> <wli@holomorphy.com>. Please apply,
+On Tue, May 28, 2002 at 09:32:22PM +0200, Pavel Machek wrote:
+> Hi!
+> I had to add
+> 	if (!curr) break; 
+> to fix the oops. It now looks way nicer. Thanx.
 
-Whoa! Mike Galbraith noticed a return without dropping the lock in there,
-it's really easy to fix (of course), though.
+It's pretty odd that this happens to the buddy lists. I guess if it's
+needed as a stopgap measure, I can't complain too much, but I'd suspect
+something's corrupting it or you're catching a buddy list operation in
+progress. I might be interested in taking a stab at finding out where
+the corruption happens if you also think that's what's going on.
 
 
 Cheers,

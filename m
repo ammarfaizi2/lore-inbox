@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbUDANf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDANf6
+	id S262904AbUDANjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDANjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:35:58 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40667
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262901AbUDANf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:35:56 -0500
-Date: Thu, 1 Apr 2004 15:35:55 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040401133555.GC18585@dualathlon.random>
-References: <20040401020126.GW2143@dualathlon.random> <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain>
+	Thu, 1 Apr 2004 08:39:18 -0500
+Received: from mail.shareable.org ([81.29.64.88]:4757 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S262904AbUDANjQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 08:39:16 -0500
+Date: Thu, 1 Apr 2004 14:39:12 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: bert hubert <ahu@ds9a.nl>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: who is merlin.fit.vutbr.cz?
+Message-ID: <20040401133912.GA25163@mail.shareable.org>
+References: <200403290108.i2T18T8d024595@work.bitmover.com> <20040331182039.GA29397@outpost.ds9a.nl> <20040331213143.GC20693@mail.shareable.org> <20040331214517.GB1599@outpost.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain>
+In-Reply-To: <20040331214517.GB1599@outpost.ds9a.nl>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let's forget the "should we allow people to use rw_swap_page_sync to
-swapout/swapin anonymous pages" discussion, there's a major issue that
-my latest patch still doesn't work:
+bert hubert wrote:
+> On Wed, Mar 31, 2004 at 10:31:43PM +0100, Jamie Lokier wrote:
+> > > RCU for BitKeeper trees? :-)
+> > 
+> > Last I heard, RCU is patented by IBM, with permission to use it in GPL
+> > programs (maybe limited to version 2 of the GPL?), so that Linux can use it.
+> 
+> This is really astonishing. It is not possible to say one thing about
+> bitkeeper without descending into a discussion on patents and licenses!
 
-Writing data to swap (5354 pages): .<1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c01d9b34
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c01d9b34>]    Not tainted
-EFLAGS: 00010082   (2.6.4-41.8-default)
-EIP is at radix_tree_delete+0x14/0x160
-eax: 00000004   ebx: c10361c0   ecx: 00000016   edx: 000023ee
-esi: 000023ee   edi: 00000000   ebp: 000000d0   esp: cdee5e1c
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 1, threadinfo=cdee4000 task=cdf9d7b0)
-Stack: 00000000 f7b0d200 00000004 00000016 c041d440 c03ffe2e c0108d48 c041d440
-       00000000 000003fd 000026b6 c041d440 c03ffe2e 00000320 0000007b ffff007b
-       ffffff00 c021a39e 00000060 c10361c0 c0341d20 00000056 00000056 00000056
-Call Trace:
- [<c0108d48>] common_interrupt+0x18/0x20
- [<c021a39e>] serial_in+0x1e/0x40
- [<c014fc3c>] swap_free+0x1c/0x30
- [<c0151597>] remove_exclusive_swap_page+0x97/0x155
- [<c013bc1f>] __remove_from_page_cache+0x3f/0xa0
- [<c013bc9b>] remove_from_page_cache+0x1b/0x27
- [<c014eb59>] rw_swap_page_sync+0xa9/0x1d0
- [<c013588d>] do_magic_suspend_2+0x27d/0x7d0
- [<c0275c2d>] do_magic+0x4d/0x130
- [<c0135310>] software_suspend+0xd0/0xe0
- [<c01fad86>] acpi_system_write_sleep+0xb5/0xd2
- [<c01facd1>] acpi_system_write_sleep+0x0/0xd2
- [<c0153e4e>] vfs_write+0xae/0xf0
- [<c0153f2c>] sys_write+0x2c/0x50
- [<c0107dc9>] sysenter_past_esp+0x52/0x79
+No.  It's an unfortunate coincidence that you mentioned RCU on a
+BitKeeper(tm) thread.  A suggestion to use RCU in, say, Mozilla or
+FreeBSD would have elicited a similar response.
 
-Code: 8b 28 8d 7c 24 10 3b 14 ad 00 99 41 c0 0f 87 18 01 00 00 8d
- <0>Kernel panic: Attempted to kill init!
+RCU patents were mentioned numerous times in the news when RCU was
+added to the kernel.  One presumes, then, that IBM was keen for it to
+be known the technique is patented, and one would be wise to tread
+carefully if intending to copy the technique as it is used in Linux,
+as you jokingly suggested.
 
+In case you misunderstood, the grandparent post was not an attack on
+BitMover.  Fwiw, I'm on BitMover's side if the RCU patent is relevant,
+which it probably is not.  I doubt if the patent extends beyond task
+scheduling done in a certain way, although as I said I have not read it.
 
-Pavel told me a SMP kernel cannot suspend, that's probably why I
-couldn't reproduce, I'll recompile UP and hopefully I will be able to
-reproduce, so I can debug it, and I can try latest Andrew's patch too
-(the one allowing anonymous memory swapin/swapouts too).
+-- Jamie

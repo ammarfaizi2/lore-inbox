@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264705AbTI2UZw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTI2UZw
+	id S264710AbTI2U2W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264712AbTI2U2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:25:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22544 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264705AbTI2UZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:25:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] ULL fixes for qlogicfc
-Date: 29 Sep 2003 13:25:20 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bla4fg$pbp$1@cesium.transmeta.com>
-References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org>
+	Mon, 29 Sep 2003 16:28:21 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:36132 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264710AbTI2U2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 16:28:19 -0400
+Date: Mon, 29 Sep 2003 16:27:57 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Erik Andersen <andersen@codepoet.org>
+cc: Rob Landley <rob@landley.net>, <public@mikl.as>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linksys WRT54G: Part 2
+In-Reply-To: <20030929150823.GA5160@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0309291624040.5758-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030929172329.GD6526@gtf.org>
-By author:    Jeff Garzik <jgarzik@pobox.com>
-In newsgroup: linux.dev.kernel
->
-> On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
-> > diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/scsi/qlogicfc.c linux-2.5/drivers/scsi/qlogicfc.c
-> > --- bk-linus/drivers/scsi/qlogicfc.c	2003-09-08 00:47:00.000000000 +0100
-> > +++ linux-2.5/drivers/scsi/qlogicfc.c	2003-09-08 01:30:56.000000000 +0100
-> > @@ -718,8 +718,8 @@ int isp2x00_detect(Scsi_Host_Template * 
-> >  				continue;
-> >  
-> >  			/* Try to configure DMA attributes. */
-> > -			if (pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff) &&
-> > -			    pci_set_dma_mask(pdev, (u64) 0xffffffff))
-> > +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) &&
-> > +			    pci_set_dma_mask(pdev, 0xffffffffULL))
-> >  					continue;
+On Mon, 29 Sep 2003, Erik Andersen wrote:
+
+>     "the Linksys technical folks are digging into your questions -
+>     all the the software in question is from Linksys' suppliers
+>     (Linksys doesn't have the source code to this software), so we
+>     have to work with these suppliers to address any concerns."
 > 
-> Looks great.
-> 
-> I wonder if you are motivated to create similar pci_set_dma_mask()
-> cleanups for other drivers?  ;-)  Several other drivers need this same
-> cleanup, too.
-> 
+> but that was July 15 and I have heard nothing substantive from
+> them since that time.
 
-Dumb question: why marking these explicitly as ULL instead of letting
-the compiler do its usual promotion?
+I have no idea who their supplier is, but it's not
+unthinkable that the supplier is trying to take
+advantage of the situation by asking extraordinary
+amounts of money from Cisco and/or Linksys in order
+to give them the source code.
 
-(By all means, remove the explicit cast -- the function call should do
-this by itself.)
+Hell, their contractor could even have removed the
+source code from their systems already ("mmm, the
+disk is full, lets remove some old projects").
 
-0xffffffff is unsigned int and will be promoted to
-0x00000000ffffffffULL by the function call.  0xffffffffffffffff is UL
-on 64-bit platforms and ULL on 32-bit platforms and will be promoted
-to 0xffffffffffffffffULL by the function call.
+Personally I'd like to treat Cisco and Linksys nicely
+for the time being, since the full extent of the nasty
+situation they're in could well be covered in an NDA
+with their contractor, making them unable to tell us
+the reasons for the way things are going.
 
-	-hpa
+Hmmm, guess I _should_ mail the FSF as one of the
+copyright holders, just so I'm in the group and can
+argue for a friendly approach ;)
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

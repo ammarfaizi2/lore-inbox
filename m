@@ -1,94 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbUKVSaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbUKVSdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbUKVSaH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 13:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUKVS3L
+	id S262320AbUKVSdt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 13:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbUKVScU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 13:29:11 -0500
-Received: from imap.gmx.net ([213.165.64.20]:12512 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262315AbUKVS2l (ORCPT
+	Mon, 22 Nov 2004 13:32:20 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:467 "EHLO caduceus.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262320AbUKVSaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 13:28:41 -0500
-X-Authenticated: #8922711
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Kernel thoughts of a Linux user
-Date: Mon, 22 Nov 2004 22:33:45 +0100
-User-Agent: KMail/1.6.82
-References: <200411201131.12987.gjwucherpfennig@gmx.net> <20041121182952.GA26874@kroah.com>
-In-Reply-To: <20041121182952.GA26874@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 22 Nov 2004 13:30:17 -0500
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041120124001.GA2829@stusta.de>
+References: <20041115152721.U14339@build.pdx.osdl.net>
+	 <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net>
+	 <1100941324.987.238.camel@d845pe>  <20041120124001.GA2829@stusta.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1101148138.20008.6.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 22 Nov 2004 13:28:59 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411222233.45709.gjwucherpfennig@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 November 2004 19:29, you wrote:
-> On Sat, Nov 20, 2004 at 11:31:12AM +0100, Gerold J. Wucherpfennig wrote:
-> > > On Thu, Nov 18, 2004 at 06:59:27PM +0100, Gerold J. Wucherpfennig wrote:
-> > > > - Make sysfs optional and enable to publish kernel <-> userspace data
-> > > > especially the kernel's KObject data across the kernel's netlink
-> > > > interface
+On Sat, 2004-11-20 at 07:40, Adrian Bunk wrote:
+> On Sat, Nov 20, 2004 at 04:02:04AM -0500, Len Brown wrote:
+> 
+> > Please try this updated debug patch.
 > >
-> > as
-> >
-> > > > it has been summarized on www.kerneltrap.org. This will avoid the
-> > > > deadlocks sysfs does introduce when some userspace app holds an open
-> > > > file handle of an sysfs object (KObject) which is to be removed. An
-> > > > importrant
-> >
-> > side
-> >
-> > > > effect for embedded systems will be that the RAM overhead introduced
-> > > > by
-> >
-> > sysfs
-> >
-> > > > will vaporize.
-> > >
-> > > What RAM overhead?  With 2.6.10-rc2 the memory footprint of sysfs has
-> > > been drasticly shrunk.
-> >
-> > Sorry I my kernel knowledge only consists of kerneltrap.org news :-(
-> > I didn't knew that.
->
-> Please research things before claiming they are a problem.
->
-> > > What deadlocks are you referring to?
-> >
-> > I don't know if it are deadlocks, please read last years article from
-> > lwn: http://lwn.net/Articles/36850/
->
-> My word, that's a year and a half old article.  Do you really think that
-> we would have not fixed this issue by now?  Again, please do a semblance
-> of research before claiming there are problems in today's kernels.
+> > It clears the ELCR on Linux boot.
 
-I'm a stupid idiot, but I'm sure that the sysfs and hal thing still has to
-mature for a few years. Just imagine such things like listing all
-available modem devices. Listing /sys/class/tty/*/dev without
-the virtual consoles just isn't enough.
+> With your patch, the boot failure goes away.
+> This was with a kernel without Linus' patch applied.
 
-Regards,
-Gerold
+Thanks for running this test Adrian.
 
->
-> > > And the netlink interface for hotplug events is already present in the
-> > > latest kernel.
-> >
-> > I don't know much about netlink. But sysfs --> libsysfs --> hal --> dbus
-> > seems to be a lot of an overhead. Maybe create an in-kernel queue
-> > for hardware information requests and publish the hardware information
-> > with netlink would be a little less overhead??? Just a though...
->
-> Again, please do a bit of research.  This is not how HAL or the hotplug
-> interfaces work today.
->
-> Not to be rude, but again, if you had spent a little ammount of time
-> looing into the claims you were making, you would have found out that
-> they were false.
->
-> greg k-h
+> 
+> BTW: Is all what ACPI does really required, if all I need ACPI for is
+> to turn the power off after halting my computer?
+
+On this system ACPI is required to configure the IOAPIC.
+
+It may be possible to save power in idle with c-states
+and at run-time with p-states (cpufreq) on this box,
+but I couldn't tell that from the dmesg if CONFIG_ACPI_PROCESSOR
+was included or not.
+
+If you don't care about interrupt performance and you don't
+mind pressing the power button when you halt the system,
+go ahead and run with CONFIG_ACPI=n.
+
+cheers,
+-Len
+
+

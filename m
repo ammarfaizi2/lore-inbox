@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbRBXVhn>; Sat, 24 Feb 2001 16:37:43 -0500
+	id <S129631AbRBXVrf>; Sat, 24 Feb 2001 16:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129620AbRBXVhd>; Sat, 24 Feb 2001 16:37:33 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9229 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129618AbRBXVhQ>; Sat, 24 Feb 2001 16:37:16 -0500
-Date: Sat, 24 Feb 2001 17:50:51 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: refill_freelist() and page_launder()
-Message-ID: <Pine.LNX.4.21.0102241655520.3804-100000@freak.distro.conectiva>
+	id <S129627AbRBXVrZ>; Sat, 24 Feb 2001 16:47:25 -0500
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:15815 "EHLO
+	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129631AbRBXVrM>; Sat, 24 Feb 2001 16:47:12 -0500
+Message-ID: <3A982B87.3040201@wanadoo.fr>
+Date: Sat, 24 Feb 2001 22:45:43 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jeisen@mindspring.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Odd network problems
+In-Reply-To: <Pine.LNX.4.21.0102241235310.30688-100000@dominia>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jon Eisenstein wrote:
 
-Linus, 
 
-refill_freelist() (fs/buffer.c) calls page_launder(GFP_BUFFER) after
-syncing some of the oldest dirty buffers.
+> Here is a partial list of sites that I have had problems with. Note that
+> once I find one of these sites, it is consistantly unreachable, even with
+> sites found months ago.
 
-As fair as I can see, that used to make sense because clean pages could be
-freed with page_launder(GFP_BUFFER) -- this could avoid a potential sleep
-on kswapd when trying to allocate a buffer page with grow_buffers().
+i had a try with Linux-2.4.2 Mozilla 0.8
+> www.codewarrioru.com
+time out answer (pingable however)
 
-But now __alloc_pages will not wait kswapd anymore. 
+> www.backwire.com
+connection refused with ECN.
+echo '0' > tcp_ecn makes it reachable. Mozilla sucks (CPU99%) and does
+not display the page in a reasonable time (maybe a problem i have with
+java and glibc-2.2.2)
 
-Instead the running thread will free clean pages only when it has to call
-page_launder() itself because kswapd could not keep up.
+> www.counterpane.com
+no problem with this one.
 
-Could you remove the call to page_launder() and the if() on top on your
-tree ? 
+> www.zip2it.com
+un-resolved (could it be www.zip2.com)
 
-Come one, doing by hand its easier than a patch.
 
-Here's the function:
-
-/*
- * We used to try various strange things. Let's not.
- * We'll just try to balance dirty buffers, and possibly
- * launder some pages.
- */
-static void refill_freelist(int size)
-{
-        balance_dirty(NODEV);
-        if (free_shortage())
-                page_launder(GFP_BUFFER, 0);
-        grow_buffers(size);
-}
-
-grow_buffers() calls alloc_page(GFP_BUFFER).
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267202AbSLKQJT>; Wed, 11 Dec 2002 11:09:19 -0500
+	id <S267195AbSLKQCG>; Wed, 11 Dec 2002 11:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267199AbSLKQJT>; Wed, 11 Dec 2002 11:09:19 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50962 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267197AbSLKQJR>; Wed, 11 Dec 2002 11:09:17 -0500
-Date: Wed, 11 Dec 2002 11:15:29 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>
-Subject: Re: hidden interface (ARP) 2.4.20
-In-Reply-To: <3DF62F2F.3030805@drugphish.ch>
-Message-ID: <Pine.LNX.3.96.1021211110329.18520C-100000@gatekeeper.tmr.com>
+	id <S267196AbSLKQCG>; Wed, 11 Dec 2002 11:02:06 -0500
+Received: from dhcp5.colorado-research.com ([65.171.192.245]:12933 "EHLO
+	dhcp5.colorado-research.com") by vger.kernel.org with ESMTP
+	id <S267195AbSLKQCF>; Wed, 11 Dec 2002 11:02:05 -0500
+Message-ID: <3DF76302.7040503@cora.nwra.com>
+Date: Wed, 11 Dec 2002 09:08:34 -0700
+From: Orion Poplawski <orion@cora.nwra.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: scott@thomasons.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Reliable hardware
+References: <3DF6291C.3090100@cora.nwra.com> <1039554145.14175.70.camel@irongate.swansea.linux.org.uk> <200212102000.54287.scott@thomasons.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Dec 2002, Roberto Nibali wrote:
+scott thomason wrote:
 
-> > I have in mid multiple ISPs for redundancy, perhaps a pair of OC12s or
-> > similar. Sites would be reachable from either, but fewer hops to one or
-> > the other. When the client connects, it avoids asymmetric routing to reply
-> > on the same router.
-> 
-> I understand everything but the last sentence. You have a couple of 
-> redundant ISP links which can all act as a router to the Internet, the 
-> only difference is that if you go over some of them you need less hops. 
-> Now in order to avoid asymmetric routing you need the hidden patch? I 
-> apologise for being so narrow minded but I still don't get it.
+>On Tuesday 10 December 2002 03:00 pm, Alan Cox wrote:
+>  
+>
+>>Random lockups on dual athlons are a notorious problem under all
+>>OS's. Start by checking it passes memtest86, that will verify the
+>>RAM is ok - and the AMD is -very- picky about RAM.
+>>
+>>If thats ok then let me know which board you have, what is plugged
+>>into it and what PSU you are using.
+>>    
+>>
+>
+>I have two AMD MP 2000+ cpus in an ASUS A7M266-D. Even after returning 
+>my memory for new chips the store owner memtest86'd, my combo of cpus 
+>and mobo was finding the occasional error. I finally ended up 
+>resolving it by simply underclocking the bus about 6Mhz :( 
+>
+>Next time, I'm buying ECC memory.
+>---scott
+>  
+>
+Is there a good site for pointers towards assembling reliable Linux 
+machines?  It seems to me the trickiest part of the whole operation is 
+choosing good hardware in the first place.  I just started a new job and 
+inherited a buch of new but flakey machines, and I'd like to avoid doing 
+that in the future.
 
-Don't. You are right about this one, a client originated connection will
-have an ARP entry and route back by the original route. Connections
-originated on the dual-homed system might put a packet out on either NIC,
-from any IP, that's a different issue, and the whole hidden interface
-patch really doesn't address it.
-
-I was mixing things from two problems I've seen, sorry for any confusion.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVDCPvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDCQB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVDCPvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 11:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVDCPvt
+	id S261801AbVDCQB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 12:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDCQB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 11:51:49 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:55304 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261168AbVDCPvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 11:51:47 -0400
-Date: Sun, 3 Apr 2005 12:51:44 -0300
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, davem@davemloft.net
-Subject: Re: initramfs linus tree breakage in last day
-Message-ID: <20050403155144.GD640@conectiva.com.br>
-Mail-Followup-To: acme@ghostprotocols.net,
-	Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-	davem@davemloft.net
-References: <9e473391050401181824d9e50f@mail.gmail.com> <9e47339105040119302e6bb405@mail.gmail.com>
-Mime-Version: 1.0
+	Sun, 3 Apr 2005 12:01:26 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:39073 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261801AbVDCQBY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 12:01:24 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Esben Stien <b0ef@esben-stien.name>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+	<87psxcsq06.fsf@quasar.esben-stien.name>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Esben Stien <b0ef@esben-stien.name>,
+	linux-kernel@vger.kernel.org
+Date: Sun, 03 Apr 2005 18:01:21 +0200
+In-Reply-To: <87psxcsq06.fsf@quasar.esben-stien.name> (Esben Stien's message
+	of "Sun, 03 Apr 2005 01:44:25 +0200")
+Message-ID: <87u0mn3l4e.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e47339105040119302e6bb405@mail.gmail.com>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.6i
-From: acme@ghostprotocols.net (Arnaldo Carvalho de Melo)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Apr 01, 2005 at 10:30:42PM -0500, Jon Smirl escreveu:
-> This is what I see on boot.
-> 
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
-> 
-> Linux version 2.6.12-rc1 (jonsmirl@jonsmirl.smirl.net) (gcc version
-> 3.4.2 200410
-> 17 (Red Hat 3.4.2-6.fc3)) #21 SMP Fri Apr 1 22:09:28 EST 2005
-> found SMP MP-table at 000fe710                              
+Esben Stien <b0ef@esben-stien.name> writes:
 
-OK, SMP, could you please try this patch by James Bottomley that fixes
-a brown paper bag bug in my proto_register patch?
+> Jeremy Nickurak <atrus@rifetech.com> writes:
+>
+>> I'm playing with this under 2.6.11.4 
+>
+> I got 2.6.12-rc1 
+>
+>> The vertical cruise control buttons work properly, with the
+>> exception of the extra button press.
+>
+> Yup, nice, I see the same
 
-Regards,
+Same here.
 
-- Arnaldo
+>> But the horizontal buttons are mapping to 6/7 as non-repeat
+>> buttons, and adding simulateously the 4/5 events auto-repeated for
+>> as long as the button is down. That is to say, pressing the the
+>> horizontal scroll in a 2d scrolling area will scroll *diagonally*
+>> one step, then vertically until the button is released.
+>
+> Yup, seeing exactly the same here. 
+
+Horizontal scrolling works fine for me.  I just get repeated 6/7
+events, nothing else.
+
+I'm using the configuration described at:
+http://blog.blackdown.de/2005/04/03/logitech-mx1000-configuration/
 
 
-===== net/core/sock.c 1.67 vs edited =====
---- 1.67/net/core/sock.c	2005-03-26 17:04:35 -06:00
-+++ edited/net/core/sock.c	2005-04-02 13:37:20 -06:00
-@@ -1352,7 +1352,7 @@
- 
- EXPORT_SYMBOL(sk_common_release);
- 
--static rwlock_t proto_list_lock;
-+static DEFINE_RWLOCK(proto_list_lock);
- static LIST_HEAD(proto_list);
- 
- int proto_register(struct proto *prot, int alloc_slab)
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

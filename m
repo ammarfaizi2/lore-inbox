@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbTLEPdm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 10:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbTLEPdm
+	id S264142AbTLEPhG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 10:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLEPhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 10:33:42 -0500
-Received: from realityfailure.org ([209.150.103.212]:13746 "EHLO
-	bushido.realityfailure.org") by vger.kernel.org with ESMTP
-	id S264561AbTLEPdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 10:33:37 -0500
-Date: Fri, 5 Dec 2003 10:33:32 -0500 (EST)
-From: John Jasen <jjasen@realityfailure.org>
-X-X-Sender: jjasen@bushido
-To: Jan Rychter <jan@rychter.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-In-Reply-To: <m2k75dzj6n.fsf@tnuctip.rychter.com>
-Message-ID: <Pine.LNX.4.44.0312051021300.1469-100000@bushido>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Dec 2003 10:37:05 -0500
+Received: from h80ad26ab.async.vt.edu ([128.173.38.171]:10635 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264142AbTLEPhC (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 10:37:02 -0500
+Message-Id: <200312051536.hB5Fawps012152@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: David Schwartz <davids@webmaster.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause? 
+In-Reply-To: Your message of "Fri, 05 Dec 2003 03:25:47 PST."
+             <MDEHLPKNGKAHNMBLJOLKOEJJIHAA.davids@webmaster.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKOEJJIHAA.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_149358229P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 05 Dec 2003 10:36:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Dec 2003, Jan Rychter wrote:
+--==_Exmh_149358229P
+Content-Type: text/plain; charset=us-ascii
 
-> >>>>> "Marcelo" == Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
->  Marcelo> The intention of this email is to clarify my position on 2.4.x
->  Marcelo> future.
-> 
->  Marcelo> 2.6 is becoming more stable each day, and we will hopefully
->  Marcelo> see a 2.6.0 release during this month or January.
+On Fri, 05 Dec 2003 03:25:47 PST, David Schwartz <davids@webmaster.com>  said:
 
-I would argue that 2.2 wasn't really usable until somewhere around 2.2.12.
+> 	So how is running the program infringement of a license that clearly sa
+ys
+> executing is unrestricted? How do you execute without copying into RAM?
 
-I would also claim that 2.4 wasn't useful until 2.4.10.
+The copy into RAM has its own exemption in 17 USC 117(a)(1):
 
-If we continue to improve along these lines, can I expect 2.6 to be 
-generally usable somewhere around 2.6.8? :)
+Sec. 117. - Limitations on exclusive rights: Computer programs
 
-> On my notebook, I have spent the last two years going through regular
-> painful kernel patching and upgrades. 
+(a) Making of Additional Copy or Adaptation by Owner of Copy. -
+Notwithstanding the provisions of section 106, it is not an infringement for
+the owner of a copy of a computer program to make or authorize the making of
+another copy or adaptation of that computer program provided:
 
-<snip>
+(1) that such a new copy or adaptation is created as an essential step in the
+utilization of the computer program in conjunction with a machine and that it
+is used in no other manner, or
 
-His experiences pretty much mirror my own -- ACPI has been an adventure, 
-cpufreq occasionally didn't work, full USB doesn't work without ACPI, I 
-need alsa drivers and ACPI in order to have acceptable sound, and I need 
-to use GATOS drivers for my display, else 3d just blows chunks.
-
-For the longest time on this beast, kernel upgrades were a day long 
-adventure. 
-
-First, to push in acpi, cpufreq, and freeswan. (Oh, look, 2.4.foo is 
-out ... but the latest ACPI patch was 2.4.foo-prebar and CPUfreq is 
-2.4.foo-pre(bar-2)-3weeks-earlier ... time to patch and resolve 
-rejections!)
-
-Then it was off to put in alsa, radoen, freeswan, linux-wlan-ng and so 
-forth ...
-
-Some things should be migrated in and updated. drm modules, for example. I 
-would also vote for alsa being merged. ACPI was brought up to date in 
-2.4.22, I believe, but I haven't checked since then. It should also be 
-relativelt current, IMHO.
-
->   1) Please don't stop working (and that does include pulling in new
->      stuff) on 2.4, as many people still have to use it.
-> 
->   2) Please don't start developing 2.7 too soon. Go for at least 6
->      months of bug-fixing. During that time, patches with new features
->      will accumulate anyway, so it isn't lost time. But it will at least
->      prevent people from saying "well, I use 2.7.45 and it works for
->      me".
-
-I have to agree with both of these points. 2.6.0 will probably have 
-problems that will take a while to sort out. Putting it on systems to test 
-is one thing, putting it into production as its the only blessed solution 
-is another ...
-
--- 
--- John E. Jasen (jjasen@realityfailure.org)
--- User Error #2361: Please insert coffee and try again.
+You're intentionally being obtuse.  NOTHING IN THE GPL CONTROLS WHAT YOU DO
+WITH IT ON YOUR MACHINE.  You're *totally* free to write the most
+non-GPL-compliant code and run it.  What you're NOT allowed to do is then
+DISTRIBUTE the resulting code to others.
 
 
+--==_Exmh_149358229P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/0KYZcC3lWbTT17ARAujpAJ0a+3kSSY+MLVuPN+R28w3Pxjd5agCg9yxv
+AQmKlNflM1xtnK0unmE6esU=
+=yia8
+-----END PGP SIGNATURE-----
+
+--==_Exmh_149358229P--

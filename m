@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277746AbRJIOxQ>; Tue, 9 Oct 2001 10:53:16 -0400
+	id <S277740AbRJIOx4>; Tue, 9 Oct 2001 10:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277747AbRJIOxH>; Tue, 9 Oct 2001 10:53:07 -0400
-Received: from falka.mfa.kfki.hu ([148.6.72.6]:46011 "EHLO falka.mfa.kfki.hu")
-	by vger.kernel.org with ESMTP id <S277744AbRJIOwt>;
-	Tue, 9 Oct 2001 10:52:49 -0400
-Date: Tue, 9 Oct 2001 16:52:57 +0200 (CEST)
-From: Gergely Tamas <dice@mfa.kfki.hu>
-To: Alejandro Conty <zz01f074@etsiig.uniovi.es>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
-In-Reply-To: <20011009165246.52151c4d.zz01f074@etsiig.uniovi.es>
-Message-ID: <Pine.LNX.4.33.0110091651020.20120-100000@falka.mfa.kfki.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277744AbRJIOxt>; Tue, 9 Oct 2001 10:53:49 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:59696 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277749AbRJIOxh>; Tue, 9 Oct 2001 10:53:37 -0400
+Date: Tue, 9 Oct 2001 16:53:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+Message-ID: <20011009165316.I15943@athlon.random>
+In-Reply-To: <20011009163126.D15943@athlon.random> <Pine.LNX.4.21.0110091122190.5604-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0110091122190.5604-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Oct 09, 2001 at 11:23:24AM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Oct 09, 2001 at 11:23:24AM -0200, Marcelo Tosatti wrote:
+> machine is available to the community. If you (or any other VM people who
+> need the machine) want access, just tell me.  
 
- > Ok, so is not that bug, I get an oops only once in a week.
- >
- > >
- > >  > I have a VIA (ASUS A7V) cipset an K7 1000Mhz, and sometimes the
- > >
- > > VIA KT133A ?
+I'd like to get a login. I think my project is been approved and we'll
+get soon an additional machine to test (that doesn't hurt), but in the
+meantime I'd be just interested to run some test on real highmem of
+course.
 
-Another thing. Which BIOS do you use ? Everything seems to be ok until
-BIOS rel. 3C . Patch is only required for computers with BIOS rel. 3R and
-later (as shown today :)) ...
-
-Gergely
-
+Andrea

@@ -1,448 +1,612 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbTIUU3D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 16:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTIUU3C
+	id S262556AbTIUU0F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 16:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbTIUU0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 16:29:02 -0400
-Received: from pop.gmx.de ([213.165.64.20]:53133 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262563AbTIUU2n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 16:28:43 -0400
-X-Authenticated: #8108751
-Message-ID: <3F6E09F7.7000506@gmx.de>
-Date: Sun, 21 Sep 2003 22:28:39 +0200
-From: JSTHEMASTER <cheaterjs@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030702
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
+	Sun, 21 Sep 2003 16:26:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49541 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262556AbTIUUZq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 16:25:46 -0400
+Date: Sun, 21 Sep 2003 21:25:45 +0100
+From: Matthew Wilcox <willy@debian.org>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4.22 ACPI hangs up NFORCE2 system when using kudzu
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] MCA_bus cleanup
+Message-ID: <20030921202545.GK13172@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.]
-When using Kernel 2.4.22 (<= 2.4.21 works perfectly) ACPI on a system 
-with NFORCE2 chipset the system hangs when starting
-kudzu without any output or log-entry!
 
-[2.]
-If you enable kernel 2.4.22 ACPI on a system running NFORCE2 chipset (I 
-got a MSI K7N2 Delta-L mainboard) the system hangs
-when using kudzu (Redhat Hardware detection tool, any version) without 
-any output or log entry. I'm sorry, I was unable to monitor any crash 
-dump information because the whole system hung up and didn't write any 
-data. Kernels 2.4.21 or lower work fine.
+Following hot on the heels of Linus' acceptance of the EISA_bus cleanup,
+here's the counterpart for MCA_bus:
 
+ - Move MCA_bus definition to drivers/mca/mca-bus.c
+ - Declare MCA_bus in <linux/mca.h>
+ - We can always include <linux/mca.h> whether or not CONFIG_MCA is defined.
 
-[3.]
-acpi, kudzu, nforce2, k72n delta-l, hwacpi, kernel 2.4.22
+ arch/i386/kernel/i386_ksyms.c     |    1 -
+ arch/i386/kernel/setup.c          |    4 +++-
+ arch/i386/kernel/time.c           |    1 +
+ arch/i386/kernel/traps.c          |    6 ------
+ arch/i386/mach-pc9800/setup.c     |    1 +
+ drivers/isdn/eicon/eicon_isa.c    |    1 +
+ drivers/isdn/eicon/eicon_mod.c    |    2 --
+ drivers/mca/mca-bus.c             |    3 +++
+ drivers/net/depca.c               |   12 +++---------
+ drivers/serial/8250.c             |    1 +
+ include/asm-alpha/processor.h     |    6 ------
+ include/asm-arm/processor.h       |    3 ---
+ include/asm-arm26/processor.h     |    3 ---
+ include/asm-h8300/processor.h     |    5 -----
+ include/asm-i386/processor.h      |    1 -
+ include/asm-ia64/processor.h      |    6 ------
+ include/asm-m68k/processor.h      |    5 -----
+ include/asm-m68knommu/processor.h |    5 -----
+ include/asm-mips/processor.h      |    6 ------
+ include/asm-parisc/processor.h    |    3 ---
+ include/asm-ppc/processor.h       |    6 ------
+ include/asm-ppc64/processor.h     |    6 ------
+ include/asm-sh/processor.h        |    6 ------
+ include/asm-sparc/processor.h     |    6 ------
+ include/asm-sparc64/processor.h   |    4 ----
+ include/asm-v850/processor.h      |    6 ------
+ include/asm-x86_64/processor.h    |    6 ------
+ include/linux/mca.h               |    6 +++---
+ 28 files changed, 16 insertions(+), 105 deletions(-)
 
-[4.] Linux version 2.4.22 (root@mrsuicide) (gcc version 3.2.2 20030222 
-(Red Hat Linux 3.2.2-5)) #1 Fre Aug 8 02:24:50 CEST 2003
+Index: arch/i386/kernel/i386_ksyms.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/kernel/i386_ksyms.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 i386_ksyms.c
+--- arch/i386/kernel/i386_ksyms.c	21 Sep 2003 19:23:20 -0000	1.2
++++ arch/i386/kernel/i386_ksyms.c	21 Sep 2003 19:44:13 -0000
+@@ -62,7 +62,6 @@ extern unsigned long get_cmos_time(void)
+ 
+ /* platform dependent support */
+ EXPORT_SYMBOL(boot_cpu_data);
+-EXPORT_SYMBOL(MCA_bus);
+ #ifdef CONFIG_DISCONTIGMEM
+ EXPORT_SYMBOL(node_data);
+ EXPORT_SYMBOL(physnode_map);
+Index: arch/i386/kernel/setup.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/kernel/setup.c,v
+retrieving revision 1.4
+diff -u -p -r1.4 setup.c
+--- arch/i386/kernel/setup.c	8 Sep 2003 21:41:30 -0000	1.4
++++ arch/i386/kernel/setup.c	21 Sep 2003 19:44:13 -0000
+@@ -35,6 +35,7 @@
+ #include <linux/console.h>
+ #include <linux/root_dev.h>
+ #include <linux/highmem.h>
++#include <linux/mca.h>
+ #include <linux/module.h>
+ #include <video/edid.h>
+ #include <asm/e820.h>
+@@ -78,7 +79,6 @@ EXPORT_SYMBOL(acpi_disabled);
+ int acpi_force __initdata = 0;
+ 
+ 
+-int MCA_bus;
+ /* for MCA, but anyone else can use it if they want */
+ unsigned int machine_id;
+ unsigned int machine_submodel_id;
+@@ -963,7 +963,9 @@ void __init setup_arch(char **cmdline_p)
+ 	saved_videomode = VIDEO_MODE;
+ 	printk("Video mode to be used for restore is %lx\n", saved_videomode);
+ 	if( SYS_DESC_TABLE.length != 0 ) {
++#ifdef CONFIG_MCA
+ 		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
++#endif
+ 		machine_id = SYS_DESC_TABLE.table[0];
+ 		machine_submodel_id = SYS_DESC_TABLE.table[1];
+ 		BIOS_revision = SYS_DESC_TABLE.table[2];
+Index: arch/i386/kernel/time.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/kernel/time.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 time.c
+--- arch/i386/kernel/time.c	8 Sep 2003 21:41:30 -0000	1.2
++++ arch/i386/kernel/time.c	21 Sep 2003 19:44:13 -0000
+@@ -41,6 +41,7 @@
+ #include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/smp.h>
++#include <linux/mca.h>
+ #include <linux/module.h>
+ #include <linux/sysdev.h>
+ #include <linux/bcd.h>
+Index: arch/i386/kernel/traps.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/kernel/traps.c,v
+retrieving revision 1.4
+diff -u -p -r1.4 traps.c
+--- arch/i386/kernel/traps.c	21 Sep 2003 19:23:20 -0000	1.4
++++ arch/i386/kernel/traps.c	21 Sep 2003 19:44:14 -0000
+@@ -25,15 +25,9 @@
+ #include <linux/highmem.h>
+ #include <linux/kallsyms.h>
+ #include <linux/ptrace.h>
+-
+-#ifdef CONFIG_EISA
+ #include <linux/ioport.h>
+ #include <linux/eisa.h>
+-#endif
+-
+-#ifdef CONFIG_MCA
+ #include <linux/mca.h>
+-#endif
+ 
+ #include <asm/processor.h>
+ #include <asm/system.h>
+Index: arch/i386/mach-pc9800/setup.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/mach-pc9800/setup.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 setup.c
+--- arch/i386/mach-pc9800/setup.c	29 Jul 2003 17:00:25 -0000	1.1
++++ arch/i386/mach-pc9800/setup.c	21 Sep 2003 19:44:14 -0000
+@@ -9,6 +9,7 @@
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/apm_bios.h>
++#include <linux/mca.h>
+ #include <asm/setup.h>
+ #include <asm/arch_hooks.h>
+ 
+Index: drivers/isdn/eicon/eicon_isa.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/isdn/eicon/eicon_isa.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 eicon_isa.c
+--- drivers/isdn/eicon/eicon_isa.c	12 Aug 2003 19:11:04 -0000	1.2
++++ drivers/isdn/eicon/eicon_isa.c	21 Sep 2003 19:44:16 -0000
+@@ -13,6 +13,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/mca.h>
+ #include "eicon.h"
+ #include "eicon_isa.h"
+ 
+Index: drivers/isdn/eicon/eicon_mod.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/isdn/eicon/eicon_mod.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 eicon_mod.c
+--- drivers/isdn/eicon/eicon_mod.c	29 Jul 2003 17:01:10 -0000	1.1
++++ drivers/isdn/eicon/eicon_mod.c	21 Sep 2003 19:44:16 -0000
+@@ -27,9 +27,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+-#ifdef CONFIG_MCA
+ #include <linux/mca.h>
+-#endif /* CONFIG_MCA */
+ 
+ #include "eicon.h"
+ 
+Index: drivers/mca/mca-bus.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/mca/mca-bus.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 mca-bus.c
+--- drivers/mca/mca-bus.c	23 Aug 2003 02:46:48 -0000	1.2
++++ drivers/mca/mca-bus.c	21 Sep 2003 19:44:16 -0000
+@@ -36,6 +36,9 @@
+  * expansion.  None that I know have more than 2 */
+ struct mca_bus *mca_root_busses[MAX_MCA_BUSSES];
+ 
++int MCA_bus;
++EXPORT_SYMBOL(MCA_bus);
++
+ #define MCA_DEVINFO(i,s) { .pos = i, .name = s }
+ 
+ struct mca_device_info {
+Index: drivers/net/depca.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/net/depca.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 depca.c
+--- drivers/net/depca.c	29 Jul 2003 17:01:18 -0000	1.1
++++ drivers/net/depca.c	21 Sep 2003 19:44:16 -0000
+@@ -254,20 +254,14 @@
+ #include <linux/unistd.h>
+ #include <linux/ctype.h>
+ #include <linux/mca-legacy.h>
++#include <linux/mca.h>
++#include <linux/device.h>
++#include <linux/eisa.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/bitops.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+-
+-#ifdef CONFIG_MCA
+-#include <linux/mca.h>
+-#endif
+-
+-#ifdef CONFIG_EISA
+-#include <linux/device.h>
+-#include <linux/eisa.h>
+-#endif
+ 
+ #include "depca.h"
+ 
+Index: drivers/serial/8250.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/serial/8250.c,v
+retrieving revision 1.10
+diff -u -p -r1.10 8250.c
+--- drivers/serial/8250.c	8 Sep 2003 22:00:25 -0000	1.10
++++ drivers/serial/8250.c	21 Sep 2003 19:44:17 -0000
+@@ -29,6 +29,7 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/console.h>
++#include <linux/mca.h>
+ #include <linux/sysrq.h>
+ #include <linux/serial_reg.h>
+ #include <linux/serial.h>
+Index: include/asm-alpha/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-alpha/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-alpha/processor.h	21 Sep 2003 19:23:25 -0000	1.2
++++ include/asm-alpha/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -26,12 +26,6 @@
+ #define TASK_UNMAPPED_BASE \
+   ((current->personality & ADDR_LIMIT_32BIT) ? 0x40000000 : TASK_SIZE / 2)
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ typedef struct {
+ 	unsigned long seg;
+ } mm_segment_t;
+Index: include/asm-arm/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-arm/processor.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 processor.h
+--- include/asm-arm/processor.h	21 Sep 2003 19:23:25 -0000	1.3
++++ include/asm-arm/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -19,9 +19,6 @@
+ 
+ #ifdef __KERNEL__
+ 
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro
+-
+ #include <asm/atomic.h>
+ #include <asm/ptrace.h>
+ #include <asm/procinfo.h>
+Index: include/asm-arm26/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-arm26/processor.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 processor.h
+--- include/asm-arm26/processor.h	21 Sep 2003 19:23:25 -0000	1.3
++++ include/asm-arm26/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -20,9 +20,6 @@
+ 
+ #ifdef __KERNEL__
+ 
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro
+-
+ #include <asm/atomic.h>
+ #include <asm/ptrace.h>
+ #include <linux/string.h>
+Index: include/asm-h8300/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-h8300/processor.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 processor.h
+--- include/asm-h8300/processor.h	21 Sep 2003 19:23:26 -0000	1.4
++++ include/asm-h8300/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -45,11 +45,6 @@ extern inline void wrusp(unsigned long u
+  */
+ #define TASK_UNMAPPED_BASE	0
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-
+ struct thread_struct {
+ 	unsigned long ksp;		/* kernel stack pointer */
+ 	unsigned long usp;		/* user stack pointer */
+Index: include/asm-i386/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-i386/processor.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 processor.h
+--- include/asm-i386/processor.h	21 Sep 2003 19:23:26 -0000	1.4
++++ include/asm-i386/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -260,7 +260,6 @@ static inline void clear_in_cr4 (unsigne
+  * Bus types (default is ISA, but people can check others with these..)
+  * pc98 indicates PC98 systems (CBUS)
+  */
+-extern int MCA_bus;
+ #ifdef CONFIG_X86_PC9800
+ #define pc98 1
+ #else
+Index: include/asm-ia64/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-ia64/processor.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 processor.h
+--- include/asm-ia64/processor.h	21 Sep 2003 19:23:27 -0000	1.4
++++ include/asm-ia64/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -53,12 +53,6 @@
+  */
+ #define TASK_UNMAPPED_BASE	(current->thread.map_base)
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ #define IA64_THREAD_FPH_VALID	(__IA64_UL(1) << 0)	/* floating-point high state valid? */
+ #define IA64_THREAD_DBG_VALID	(__IA64_UL(1) << 1)	/* debug registers valid? */
+ #define IA64_THREAD_PM_VALID	(__IA64_UL(1) << 2)	/* performance registers valid? */
+Index: include/asm-m68k/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-m68k/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-m68k/processor.h	21 Sep 2003 19:23:27 -0000	1.2
++++ include/asm-m68k/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -53,11 +53,6 @@ extern inline void wrusp(unsigned long u
+ #endif
+ #define TASK_UNMAPPED_ALIGN(addr, off)	PAGE_ALIGN(addr)
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-
+ struct task_work {
+ 	unsigned char sigpending;
+ 	unsigned char notify_resume;	/* request for notification on
+Index: include/asm-m68knommu/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-m68knommu/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-m68knommu/processor.h	21 Sep 2003 19:23:28 -0000	1.2
++++ include/asm-m68knommu/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -55,11 +55,6 @@ extern inline void wrusp(unsigned long u
+  */
+ #define TASK_UNMAPPED_BASE	0
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-
+ /* 
+  * if you change this structure, you must change the code and offsets
+  * in m68k/machasm.S
+Index: include/asm-mips/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-mips/processor.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 processor.h
+--- include/asm-mips/processor.h	21 Sep 2003 19:23:28 -0000	1.3
++++ include/asm-mips/processor.h	21 Sep 2003 19:44:18 -0000
+@@ -132,12 +132,6 @@ extern void (*cpu_wait)(void);
+ 
+ extern unsigned int vced_count, vcei_count;
+ 
+-/*
+- * Bus types (default is ISA, but people can check others with these..)
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ #ifdef CONFIG_MIPS32
+ /*
+  * User space process size: 2GB. This is hardcoded into a few places,
+Index: include/asm-parisc/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-parisc/processor.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 processor.h
+--- include/asm-parisc/processor.h	21 Sep 2003 19:23:29 -0000	1.3
++++ include/asm-parisc/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -101,9 +101,6 @@ extern struct cpuinfo_parisc cpu_data[NR
+ 
+ #define CPU_HVERSION ((boot_cpu_data.hversion >> 4) & 0x0FFF)
+ 
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ typedef struct {
+ 	int seg;  
+ } mm_segment_t;
+Index: include/asm-ppc/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-ppc/processor.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 processor.h
+--- include/asm-ppc/processor.h	21 Sep 2003 19:23:29 -0000	1.4
++++ include/asm-ppc/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -800,12 +800,6 @@ extern void prepare_to_copy(struct task_
+  */
+ extern long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro
+-
+ /* Lazy FPU handling on uni-processor */
+ extern struct task_struct *last_task_used_math;
+ extern struct task_struct *last_task_used_altivec;
+Index: include/asm-ppc64/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-ppc64/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-ppc64/processor.h	21 Sep 2003 19:23:30 -0000	1.2
++++ include/asm-ppc64/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -609,12 +609,6 @@ void release_thread(struct task_struct *
+  */
+ extern long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ /* Lazy FPU handling on uni-processor */
+ extern struct task_struct *last_task_used_math;
+ 
+Index: include/asm-sh/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-sh/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-sh/processor.h	21 Sep 2003 19:23:30 -0000	1.2
++++ include/asm-sh/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -166,12 +166,6 @@ extern void release_thread(struct task_s
+  */
+ extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(p, mm)	do { } while(0)
+ #define release_segments(mm)	do { } while(0)
+Index: include/asm-sparc/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-sparc/processor.h,v
+retrieving revision 1.2
+diff -u -p -r1.2 processor.h
+--- include/asm-sparc/processor.h	21 Sep 2003 19:23:31 -0000	1.2
++++ include/asm-sparc/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -25,12 +25,6 @@
+ #include <asm/atomic.h>
+ 
+ /*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+-/*
+  * The sparc has no problems with write protection
+  */
+ #define wp_works_ok 1
+Index: include/asm-sparc64/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-sparc64/processor.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 processor.h
+--- include/asm-sparc64/processor.h	21 Sep 2003 19:23:31 -0000	1.4
++++ include/asm-sparc64/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -21,10 +21,6 @@
+ #include <asm/segment.h>
+ #include <asm/page.h>
+ 
+-/* Bus types */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ /* The sparc has no problems with write protection */
+ #define wp_works_ok 1
+ #define wp_works_ok__is_a_macro /* for versions in ksyms.c */
+Index: include/asm-v850/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-v850/processor.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 processor.h
+--- include/asm-v850/processor.h	21 Sep 2003 19:23:31 -0000	1.3
++++ include/asm-v850/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -49,12 +49,6 @@
+ #define current_text_addr()	({ __label__ _l; _l: &&_l;})
+ 
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro /* for versions in ksyms.c */
+-
+ /* If you change this, you must change the associated assembly-languages
+    constants defined below, THREAD_*.  */
+ struct thread_struct {
+Index: include/asm-x86_64/processor.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-x86_64/processor.h,v
+retrieving revision 1.5
+diff -u -p -r1.5 processor.h
+--- include/asm-x86_64/processor.h	21 Sep 2003 19:23:32 -0000	1.5
++++ include/asm-x86_64/processor.h	21 Sep 2003 19:44:19 -0000
+@@ -157,12 +157,6 @@ static inline void clear_in_cr4 (unsigne
+ 		:"ax");
+ }
+ 
+-/*
+- * Bus types
+- */
+-#define MCA_bus 0
+-#define MCA_bus__is_a_macro
+-
+ 
+ /*
+  * User space process size: 512GB - 1GB (default).
+Index: include/linux/mca.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/mca.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 mca.h
+--- include/linux/mca.h	9 Sep 2003 20:50:51 -0000	1.3
++++ include/linux/mca.h	21 Sep 2003 19:44:19 -0000
+@@ -11,17 +11,17 @@
+  * are sorted out */
+ #include <linux/device.h>
+ 
+-/* get the platform specific defines */
+ #ifdef CONFIG_MCA
++/* get the platform specific defines */
+ #include <asm/mca.h>
+-#endif
+ 
+ /* The detection of MCA bus is done in the real mode (using BIOS).
+  * The information is exported to the protected code, where this
+  * variable is set to one in case MCA bus was detected.
+  */
+-#ifndef MCA_bus__is_a_macro
+ extern int  MCA_bus;
++#else
++#define MCA_bus 0
+ #endif
+ 
+ /* This sets up an information callback for /proc/mca/slot?.  The
 
-[5.] No message or log entry.
-
-[6.] Get a NFORCE2 board and try kernel 2.4.22 with acpi.
-
-[7.]
-[7.1.] Gnu C                  3.2.2
-Gnu make               3.79.1
-util-linux             2.11y
-mount                  2.11y
-modutils               2.4.22
-e2fsprogs              1.32
-jfsutils               1.0.17
-reiserfsprogs          3.6.4
-pcmcia-cs              3.1.31
-quota-tools            3.06.
-PPP                    2.4.1
-isdn4k-utils           3.1pre4
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 2.0.11
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               4.5.3
-Modules Loaded         nvaudio nvidia i2c-nforce2 w83781d i2c-isa 
-i2c-dev i2c-proc i2c-core ipt_state ipt_MASQUERADE iptable_nat 
-ip_conntrack parport_pc lp parport iptable_filter ip_tables ppp_synctty 
-ppp_async ppp_generic slhc nvnet nls_iso8859-1 nls_cp437 keybdev 
-mousedev hid input rtc
-
-[7.2.] processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) XP 2600+
-stepping        : 1
-cpu MHz         : 2079.544
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov
-pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 4141.87
-
-[7.3.]
-nvaudio                39668   0 (autoclean)
-nvidia               1764672  11 (autoclean)
-i2c-nforce2             4040   0 (unused)
-w83781d                24592   0 (unused)
-i2c-isa                 1292   0 (unused)
-i2c-dev                 4960   0 (unused)
-i2c-proc                8052   0 [w83781d]
-i2c-core               19556   0 [i2c-nforce2 w83781d i2c-isa i2c-dev 
-i2c-proc]
-ipt_state               1048  12 (autoclean)
-ipt_MASQUERADE          2200   1 (autoclean)
-iptable_nat            20824   1 (autoclean) [ipt_MASQUERADE]
-ip_conntrack           26824   2 (autoclean) [ipt_state ipt_MASQUERADE 
-iptable_nat]
-parport_pc             18756   1 (autoclean)
-lp                      8772   0 (autoclean)
-parport                35968   1 (autoclean) [parport_pc lp]
-iptable_filter          2412   1 (autoclean)
-ip_tables              14648   6 [ipt_state ipt_MASQUERADE iptable_nat 
-iptable_filter]
-ppp_synctty             7840   0 (unused)
-ppp_async               9376   1
-ppp_generic            24316   3 [ppp_synctty ppp_async]
-slhc                    6932   0 [ppp_generic]
-nvnet                  30720   1
-nls_iso8859-1           3548   1 (autoclean)
-nls_cp437               5148   1 (autoclean)
-keybdev                 2880   0 (unused)
-mousedev                5428   1
-hid                    22020   0 (unused)
-input                   5664   0 [keybdev mousedev hid]
-rtc                     8444   0 (autoclean)
-
-[7.4.] 0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0290-0297 : w83627hf
-02f8-02ff : serial(auto)
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-5000-5007 : nForce2 SMBus
-5040-5047 : nForce2 SMBus
-c000-cfff : PCI Bus #01
- c000-c0ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-   c000-c0ff : 8139too
-d000-d007 : PCI device 10de:0066 (nVidia Corporation)
-d400-d4ff : PCI device 10de:006a (nVidia Corporation)
- d400-d4ff : NVIDIA nForce2 Audio
-d800-d87f : PCI device 10de:006a (nVidia Corporation)
- d800-d83f : NVIDIA nForce2 Audio
-e400-e41f : PCI device 10de:0064 (nVidia Corporation)
-f000-f00f : PCI device 10de:0065 (nVidia Corporation)
- f000-f007 : ide0
- f008-f00f : ide1
-
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000cc000-000cd7ff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1ffeffff : System RAM
- 00100000-00305268 : Kernel code
- 00305269-0038a943 : Kernel data
-1fff0000-1fff2fff : ACPI Non-volatile Storage
-1fff3000-1fffffff : ACPI Tables
-d0000000-d7ffffff : PCI device 10de:01e0 (nVidia Corporation)
-d8000000-dfffffff : PCI Bus #02
- d8000000-dfffffff : nVidia Corporation NV10 [GeForce 256 SDR]
-   d8000000-d9ffffff : rivafb
-e0000000-e1ffffff : PCI Bus #02
- e0000000-e0ffffff : nVidia Corporation NV10 [GeForce 256 SDR]
-e2000000-e2ffffff : PCI Bus #01
- e2000000-e20000ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-   e2000000-e20000ff : 8139too
-e3000000-e3000fff : PCI device 10de:0066 (nVidia Corporation)
- e3000000-e3000fff : nvnet
-e3001000-e3001fff : PCI device 10de:006a (nVidia Corporation)
-e3003000-e3003fff : PCI device 10de:0067 (nVidia Corporation)
- e3003000-e3003fff : usb-ohci
-e3004000-e3004fff : PCI device 10de:0067 (nVidia Corporation)
- e3004000-e3004fff : usb-ohci
-e3005000-e30050ff : PCI device 10de:0068 (nVidia Corporation)
- e3005000-e30050ff : ehci-hcd
-
-
-[7.5.] 00:00.0 Host bridge: nVidia Corporation: Unknown device 01e0 (rev 
-c1)
-       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0
-       Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
-       Capabilities: [40] AGP version 2.0
-               Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2,x4
-               Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x4
-       Capabilities: [60] #08 [2001]
-
-00:00.1 RAM memory: nVidia Corporation: Unknown device 01eb (rev c1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-
-00:00.2 RAM memory: nVidia Corporation: Unknown device 01ee (rev c1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-
-00:00.3 RAM memory: nVidia Corporation: Unknown device 01ed (rev c1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-
-00:00.4 RAM memory: nVidia Corporation: Unknown device 01ec (rev c1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-
-00:00.5 RAM memory: nVidia Corporation: Unknown device 01ef (rev c1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-
-00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a3)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0
-       Capabilities: [48] #08 [01e1]
-
-00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Interrupt: pin A routed to IRQ 12
-       Region 0: I/O ports at e400 [size=32]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot+,D3cold+)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev 
-a3) (prog-if 10 [OHCI])
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (750ns min, 250ns max)
-       Interrupt: pin A routed to IRQ 10
-       Region 0: Memory at e3003000 (32-bit, non-prefetchable) [size=4K]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev 
-a3) (prog-if 10 [OHCI])
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (750ns min, 250ns max)
-       Interrupt: pin B routed to IRQ 11
-       Region 0: Memory at e3004000 (32-bit, non-prefetchable) [size=4K]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev 
-a3) (prog-if 20 [EHCI])
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (750ns min, 250ns max)
-       Interrupt: pin C routed to IRQ 4
-       Region 0: Memory at e3005000 (32-bit, non-prefetchable) [size=256]
-       Capabilities: [44] #0a [2080]
-       Capabilities: [80] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet 
-Controller (rev a1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 570c
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (250ns min, 5000ns max)
-       Interrupt: pin A routed to IRQ 11
-       Region 0: Memory at e3000000 (32-bit, non-prefetchable) [size=4K]
-       Region 1: I/O ports at d000 [size=8]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-               Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
-
-00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 
-Audio Controler (MCP) (rev a1)
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (500ns min, 1250ns max)
-       Interrupt: pin A routed to IRQ 5
-       Region 0: I/O ports at d400 [size=256]
-       Region 1: I/O ports at d800 [size=128]
-       Region 2: Memory at e3001000 (32-bit, non-prefetchable) [size=4K]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:08.0 PCI bridge: nVidia Corporation: Unknown device 006c (rev a3) 
-(prog-if 00 [Normal decode])
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0
-       Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-       I/O behind bridge: 0000c000-0000cfff
-       Memory behind bridge: e2000000-e2ffffff
-       Prefetchable memory behind bridge: fff00000-000fffff
-       BridgeCtl: Parity- SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
-
-00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2) (prog-if 
-8a [Master SecP PriP])
-       Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
-       Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort-
-<MAbort- >SERR- <PERR-
-       Latency: 0 (750ns min, 250ns max)
-       Region 4: I/O ports at f000 [size=16]
-       Capabilities: [44] Power Management version 2
-               Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1) (prog-if 00 
-[Normal
-decode])
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-       Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-       Latency: 32
-       Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-       I/O behind bridge: 0000f000-00000fff
-       Memory behind bridge: e0000000-e1ffffff
-       Prefetchable memory behind bridge: d8000000-dfffffff
-       BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-01:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-       Subsystem: Allied Telesyn International AT-2500TX/ACPI
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-       Latency: 32 (8000ns min, 16000ns max)
-       Interrupt: pin A routed to IRQ 10
-       Region 0: I/O ports at c000 [size=256]
-       Region 1: Memory at e2000000 (32-bit, non-prefetchable) [size=256]
-       Capabilities: [50] Power Management version 2
-               Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-02:00.0 VGA compatible controller: nVidia Corporation NV10 [GeForce 256 
-SDR] (rev 10) (prog-if 00 [VGA])
-       Subsystem: Elsa AG: Unknown device 0c41
-       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-       Latency: 248 (1250ns min, 250ns max)
-       Interrupt: pin A routed to IRQ 12
-       Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=16M]
-       Region 1: Memory at d8000000 (32-bit, prefetchable) [size=128M]
-       Expansion ROM at <unassigned> [disabled] [size=64K]
-       Capabilities: [60] Power Management version 1
-               Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-       Capabilities: [44] AGP version 2.0
-               Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2,x4
-               Command: RQ=31 SBA- AGP+ 64bit- FW- Rate=x4
-
-[7.6.] Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
- Vendor: HL-DT-ST Model: CD-RW GCE-8320B  Rev: 1.04
- Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-[7.7.] -
-
-[X.] If nothing works, a simple downgrade of ACPI modules would fix the 
-problem...
-
-Greeings,
-Jan Schiefer!
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317414AbSGTO1r>; Sat, 20 Jul 2002 10:27:47 -0400
+	id <S317416AbSGTOjX>; Sat, 20 Jul 2002 10:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317410AbSGTO1r>; Sat, 20 Jul 2002 10:27:47 -0400
-Received: from [210.78.134.243] ([210.78.134.243]:19981 "EHLO 210.78.134.243")
-	by vger.kernel.org with ESMTP id <S317408AbSGTO1q>;
-	Sat, 20 Jul 2002 10:27:46 -0400
-Date: Sat, 20 Jul 2002 22:32:30 +0800
-From: zhengchuanbo <zhengcb@netpower.com.cn>
-To: "fxzhang@ict.ac.cn" <fxzhang@ict.ac.cn>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: problem with eepro100 NAPI driver
-X-mailer: FoxMail 3.11 Release [cn]
+	id <S317418AbSGTOjW>; Sat, 20 Jul 2002 10:39:22 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:169 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S317416AbSGTOjW>;
+	Sat, 20 Jul 2002 10:39:22 -0400
+Date: Sat, 20 Jul 2002 16:42:17 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Joseph Malicki" <jmalicki@starbak.net>
+Cc: "Patrick J. LoPresti" <patl@curl.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: close return value
+Message-ID: <20020720144217.GA2259@win.tue.nl>
+References: <200207182347.g6INlcl47289@saturn.cs.uml.edu> <s5gsn2fr922.fsf@egghead.curl.com> <015401c22f40$c4471380$da5b903f@starbak.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200207202235471.SM00792@zhengcb>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <015401c22f40$c4471380$da5b903f@starbak.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 19, 2002 at 12:24:33PM -0400, Joseph Malicki wrote:
 
-i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
-i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
-then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
-so what's the problem? is there something wrong with the driver?
-please cc. thanks.
+> Those mistakes are your ignorance.  The manpage is wrong.
+> It does return -1 on error.
 
+Yes, you are right (or, at least, "a negative value").
+Now you deserve a beating for noting that there is a bug on
+a man page without submitting a correction, or at least
+telling the maintainer. (Yes, that's me.)
 
-zhengchuanbo  
+> Sure, if you require an event to be successful to continue you should always
+> check it.  And yes, it's nice to print an error message on close sometimes,
+> if something is critical.  But the question to ask is what you would
+> actually _DO_ about an error... if the answer is nothing,
+> then why check it?
 
+But here you are wrong. Even if the program doesn't know what to do,
+the user will want to know about it. If I make a backup and some error
+occurs then I would be very unhappy if the program were silent about it.
+
+Andries
+aeb@cwi.nl

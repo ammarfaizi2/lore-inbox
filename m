@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318423AbSGYLpX>; Thu, 25 Jul 2002 07:45:23 -0400
+	id <S318425AbSGYLqC>; Thu, 25 Jul 2002 07:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318425AbSGYLpX>; Thu, 25 Jul 2002 07:45:23 -0400
-Received: from ns.suse.de ([213.95.15.193]:52489 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318423AbSGYLpW>;
-	Thu, 25 Jul 2002 07:45:22 -0400
-Date: Thu, 25 Jul 2002 13:48:35 +0200
-From: Dave Jones <davej@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] agpgart changes for 2.5.27
-Message-ID: <20020725134835.R16446@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20020724185105.GA10897@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020724185105.GA10897@kroah.com>; from greg@kroah.com on Wed, Jul 24, 2002 at 11:51:05AM -0700
+	id <S318427AbSGYLqA>; Thu, 25 Jul 2002 07:46:00 -0400
+Received: from babyruth.hotpop.com ([204.57.55.14]:49085 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP
+	id <S318425AbSGYLp7> convert rfc822-to-8bit; Thu, 25 Jul 2002 07:45:59 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Mike Insch <vofka@hotpop.com>
+Reply-To: vofka@hotpop.com
+To: linux-kernel@vger.kernel.org
+Subject: Oddities with HighPoint HPT374, 2.4.19-pre10-ac2
+Date: Thu, 25 Jul 2002 12:49:02 +0100
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207251249.02531.vofka@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 11:51:05AM -0700, Greg KH wrote:
+Hi,
 
- > Seems that some people think that I'm the person to send agpgart patches
- > to as I touched it last, when will I ever learn...
+I have a system with an ABIT AT7 Motherboard (Duron 1200, 256MB PC2100 RAM), 
+and have 8 80GB Maxtor IDE HDD's connected to the HPT374 controller on the 
+board, configured as a single RAID-0 Array in hardware.
 
-Conspiracy theorists may suggest I had this planned when I convinced
-you to push the split-up work. Heh.. Excellent 8-)
+When copying data from another disk connected to the VIA IDE Controller, the 
+kernel oopses with an 'Unable to handle NULL pointer dereference at virtual 
+address 00000004' after about 5MB has copied.  The process implicated by the 
+oops is the kjournald process for the only partition on the RAID array.
 
-Truth be told though, despite agpgart having a maintainer, and Jeff
-popping up on dri-devel once a month or so, it's pretty much been
-hacked on by everyone and his dog since Jeff last touched it, so
-I don't think you have too much to worry about by being "it" 8-)
+Sorry I have no output from the oops - it locks totally, and the oops is never 
+logged :(
 
-        Dave
+Copying large amounts of data from a Samba Share on the network (over 15GB!) 
+has produced no similar problems - so I'm guessing that kjournald, or the 
+HPT374 drivers don't like the 640GB array when data is being committed too 
+fast. (All the drives involved are UDMA 133 Drives, both the one on the VIA 
+Controller, and all 8 on the HPT Controller).
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I know it's hard to say without me giving more info, but does anyone have any 
+idea what could possibly cause this?  Have there been updates in newer 
+releases to either the HPT374 Code, or to the kjournald code that could solve 
+this?  Is it worth me getting and compiling 2.4.19-rc3-ac3 to see if the 
+problem is solved there?  Any and all info. which may help tracking down this 
+gremlin would be greatly appreciated....
+
+(I can post detailed info. about the hardware (lspci, dmesg etc), and kernel 
+configurations if that would be of any use?)
+
+

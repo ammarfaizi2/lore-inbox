@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbULIOTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbULIOWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbULIOTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbULIOTZ
+	id S261418AbULIOWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULIOWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:19:25 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:21943 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261412AbULIOTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:19:09 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57057A1AEA@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'Matt Domsch'" <Matt_Domsch@Dell.com>,
-       "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Thu, 9 Dec 2004 09:11:15 -0500 
+	Thu, 9 Dec 2004 09:22:03 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:59639 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261418AbULIOVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:21:47 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Greg Banks <gnb@sgi.com>, John Levon <levon@movementarian.org>
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Date: Thu, 9 Dec 2004 23:22:27 +0900
+User-Agent: KMail/1.5.4
+Cc: Greg Banks <gnb@sgi.com>, Philippe Elie <phil.el@wanadoo.fr>,
+       linux-kernel@vger.kernel.org
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041209014622.GB48804@compsoc.man.ac.uk> <20041209015024.GG4239@sgi.com>
+In-Reply-To: <20041209015024.GG4239@sgi.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412092322.27096.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> > >The real way I'd like to handle this is via hotplug.  The hotplug 
-> > >event would transmit the HCTL in the environment.
-> > >Whether the drive actually gets incorporated into the system and 
-> > >where is user policy, so it's appropriate that it should be in 
-> > >userland.
-> > 
-> > James, it is the application that is adding the drive. So 
-> it is not a 
-> > hotplug event for the driver.
-> 
-> Then perhaps I don't understand what the issue is.  If the 
-> application is adding the drive, then surely it would know 
-> the numbers.  If not, then the driver must communicate this 
-> back, and that's what the hotplug would be about.
-> 
-> James
-> 
-> 
-Let me elaborate it.
+On Thursday 09 December 2004 10:50, Greg Banks wrote:
+> On Thu, Dec 09, 2004 at 01:46:22AM +0000, John Levon wrote:
+> > On Thu, Dec 09, 2004 at 11:39:06AM +1100, Greg Banks wrote:
+> > > But for now I don't see any drama with leaving in the ->setup() and
+> > > ->shutdown() methods when rewriting the ops structure.  Ditto for
+> > > the ->create_files() methods.
+> >
+> > Wouldn't this mean that we try to set up the NMI stuff regardless of
+> > forcing the timer ? I can imagine a flaky system where somebody needs to
+> > avoid going near that stuff.
+> >
+> > timer_init() making sure to set all fields seems reasonable to me.  Or
+> > oprofile_init() could grab ->backtrace, memset the structure, then
+> > replace ->backtrace...
+>
+> Ok, how about this patch?
 
-1. The management applications decide to created new logical drives or
-remove some of the existing ones.
+Thanks, but..
 
-2. How applications would do this, is by sending commands to the megaraid
-firmware via driver. Driver does not intercept these commands for a simple
-reason that the driver code would become unnecessarily bulky to understanad
-all the possible ways applications can change the number of logical devices.
+This patch is broken on several architectures (sparc64, sh, parisc, s390).
+Even though i386 without CONFIG_X86_LOCAL_APIC and CONFIG_X86_IO_APIC.
 
-3. Once the change in configuration has happened, someone must notify kernel
-about new or removed devices.
+Since the timer interrupt is the only way of getting sampling for oprofile
+on such environments. if no module parameters specified (i.e. timer == 0),
+then oprofile_timer_init() is never called. and I have got this error:
 
-4. Since megaraid driver does not know about these changes, it cannot notify
-kernel.
 
-5. So this becomes the responsibility of the application which caused the
-change in configuration. Application dilemma is, all it know is it created a
-few devices and removed some. But there is no way for it to relate the
-affected devices with the way how kernel was or would be seeing them, that
-is, the affected device's scsi address. Remember, the affected devices are
-only logical, there is no physical bus, target, lun associated with them.
-Driver creates this mapping on the fly.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+e81a97b0
+*pde = 0b690001
+Oops: 0000 [#1]
+PREEMPT DEBUG_PAGEALLOC
+Modules linked in: oprofile 3c59x microcode ntfs video
+CPU:    0
+EIP:    0060:[<e81a97b0>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.10-rc2-mm4) 
+EIP is at oprofilefs_str_to_user+0x10/0x2c [oprofile]
+eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: 00000000
+esi: c7169f54   edi: 00000000   ebp: c7616f6c   esp: c7616f68
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 3366, threadinfo=c7616000 task=c716da60)
+Stack: c7616fa8 c7616f90 c0171a80 00000000 0804d888 00001000 c7616fa8 c7169f54 
+       fffffff7 0804d888 c7616fbc c0171cfe c7169f54 0804d888 00001000 c7616fa8 
+       00000000 00000000 00000000 00000003 00001000 c7616000 c0103d41 00000003 
+Call Trace:
+ [<c0104397>] show_stack+0x6f/0x88
+ [<c01044c6>] show_registers+0xfe/0x160
+ [<c01046f1>] die+0x13d/0x288
+ [<c0112c74>] do_page_fault+0x324/0x6a1
+ [<c0103f3b>] error_code+0x2b/0x30
+ [<c0171a80>] vfs_read+0x88/0x104
+ [<c0171cfe>] sys_read+0x3a/0x64
+ [<c0103d41>] sysenter_past_esp+0x52/0x71
+Code: 53 58 89 43 54 89 43 4c 89 53 50 89 43 44 89 53 48 89 d8 8b 5d fc c9 c3 8d 76 00 55 89 e5 8b 55 08 57 31 c0 b9 ff ff ff ff 89 d7 <f2> ae f7 d1 49 51 52 ff 75 14 ff 75 10 ff 75 0c e8 97 70 ff d7 
 
-6. That's where application seeks help from driver and requests for the scsi
-address driver would be using for the affected devices.
 
-7. Once it has the scsi address for the devices in question, depending on
-the application and system administrator's preference, application would
-either use sysfs to add/remove affected devices or cause a hotplug event
-resulting in the configured behavior.
 
-8. So, all driver has to do to assist applications is to provide the logical
-drive number to scsi address mapping. Application would say, hey! I
-added/removed logical drive number 5, driver reverts, here is the scsi
-address for it "host:2, channel:5, target:5 lun:0" :-)
 
--Atul Mukker

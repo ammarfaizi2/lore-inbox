@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288156AbSACDZb>; Wed, 2 Jan 2002 22:25:31 -0500
+	id <S288166AbSACDcb>; Wed, 2 Jan 2002 22:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288163AbSACDZL>; Wed, 2 Jan 2002 22:25:11 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:17356 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S288156AbSACDZH>; Wed, 2 Jan 2002 22:25:07 -0500
-Message-Id: <200201030324.g033Ovj13057@lmail.actcom.co.il>
-Content-Type: text/plain; charset=US-ASCII
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: Jeff <piercejhsd009@earthlink.net>, nknight@pocketinet.com
-Subject: Re: Who fixed via82cxxx_audio.c ?
-Date: Thu, 3 Jan 2002 05:24:53 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <WHITExvWvqzAoa2JB1n000005b3@white.pocketinet.com> <3C28A640.9C9B8462@loewe-komp.de> <3C2B43FD.6E2961E0@earthlink.net>
-In-Reply-To: <3C2B43FD.6E2961E0@earthlink.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288168AbSACDcV>; Wed, 2 Jan 2002 22:32:21 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:6021
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288166AbSACDcQ>; Wed, 2 Jan 2002 22:32:16 -0500
+Date: Wed, 2 Jan 2002 22:18:45 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020102221845.A27252@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102220333.A26713@thyrsus.com> <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>; from davej@suse.de on Thu, Jan 03, 2002 at 04:26:40AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 December 2001 05:53 pm, Jeff wrote:
-> Nicholas,
->
-> Does the record work on your via82c686 sound?
-...
->
-> Using 2.4.16 kernel and via82cxxx_audio ver. 1.9.1
->
+Dave Jones <davej@suse.de>:
+> Go down the DMI path, and get it right _sometimes_, or take a zero.
+> Getting it right sometimes is likely to do more harm than good.
 
-I just compiler and installed kernel-2.4.16-0.13 frpm redhat
-rawhide. I'm using ASUS cuv4x with on-board sound (via 686).
+Not in this case.  If the DMI read fails, the worst-case result is the
+user sees some ISA extra questions.
+ 
+> Crap. I'm implying that there should be a learning curve to everything
+> no matter how small it may be. You're trying to remove the curve
+> altogether.
 
-Well, this fixed the mixer problems. I'm experimenting
-with recordeing - with some success. 
+Damn straight.  Not that I think that's necessarily 100% achievable, but 
+it's the right way to aim.
+ 
+> And write a book perchance ? SCNR  8-)
 
-Things don't work exactly as I expect but I have not
-pinned any specific problem yet.
+It's happened before... :-)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
--- Itai
+No kingdom can be secured otherwise than by arming the people.  The possession
+of arms is the distinction between a freeman and a slave. 
+        -- "Political Disquisitions", a British republican tract of 1774-1775

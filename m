@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRAAVD0>; Mon, 1 Jan 2001 16:03:26 -0500
+	id <S129604AbRAAVI6>; Mon, 1 Jan 2001 16:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbRAAVDQ>; Mon, 1 Jan 2001 16:03:16 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20489
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129436AbRAAVDD>; Mon, 1 Jan 2001 16:03:03 -0500
-Date: Mon, 1 Jan 2001 12:32:16 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Chipsets, DVD-RAM, and timeouts....
-In-Reply-To: <Pine.LNX.4.10.10101011222560.22433-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101011231070.22396-100000@master.linux-ide.org>
+	id <S129704AbRAAVIt>; Mon, 1 Jan 2001 16:08:49 -0500
+Received: from srv12-sao.sao.terra.com.br ([200.246.248.67]:25863 "EHLO
+	srv12-sao.sao.terra.com.br") by vger.kernel.org with ESMTP
+	id <S129604AbRAAVIh>; Mon, 1 Jan 2001 16:08:37 -0500
+From: Rafael Diniz <rafael2k@terra.com.br>
+Reply-To: rafael2k@terra.com.br
+To: linux-kernel@vger.kernel.org
+Subject: PC-speaker control 
+Date: Mon, 1 Jan 2001 18:30:37 -0200
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01010118360105.00896@rafael>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey, Is there a way to control the PC-speaker with the Linux kernel 2.2?
+I want to disable it.
+I guy told me that with this assembly code I can disable it:
+	in al , 97
+	and al,253
+	out 97,al
+Linux 2.4 will have any syscall to do this?
 
-I screwed up on the patch for that one and have to find the correct one
-that does the correct walk around on the mis matched standard problems.
-
-This is my bad, sorry...back in 20 minutes...
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+Thanks
+Rafael Diniz
+Brazil
+=================================================
+Conectiva Linux 6.0 (2.2.17)  XFree86-4.0.1
+PII 233mhz 96Mb ram
+SB16, USR56k, S3 VirgeDX/GX 4Mb, CD creative48X 
+HDa 10Gb Quantum  HDb 4.1Gb Fugitsu
+MSX2.0 256k MegaRam 256k Mapper 128k Vram
+MSX is the future
+=================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131586AbQLLMPa>; Tue, 12 Dec 2000 07:15:30 -0500
+	id <S131638AbQLLMYD>; Tue, 12 Dec 2000 07:24:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131659AbQLLMPU>; Tue, 12 Dec 2000 07:15:20 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:37591 "EHLO
+	id <S131639AbQLLMXx>; Tue, 12 Dec 2000 07:23:53 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:32474 "EHLO
 	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131586AbQLLMPL>; Tue, 12 Dec 2000 07:15:11 -0500
-Date: Tue, 12 Dec 2000 06:44:32 -0500 (EST)
+	id <S131638AbQLLMXo>; Tue, 12 Dec 2000 07:23:44 -0500
+Date: Tue, 12 Dec 2000 06:53:16 -0500 (EST)
 From: "Mohammad A. Haque" <mhaque@haque.net>
 To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test12 not liking high disk i/o
-Message-ID: <Pine.LNX.4.30.0012120636480.1053-100000@viper.haque.net>
+Subject: Re: 2.4.0-test12 not liking high disk i/o
+In-Reply-To: <Pine.LNX.4.30.0012120636480.1053-100000@viper.haque.net>
+Message-ID: <Pine.LNX.4.30.0012120650060.9714-100000@viper.haque.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+If anyone is interested, this is what I am doing before it blows up
+everytime...
 
-Any one else experiencing problems when they do lots of disk activity
-in test12?
+sudo tar zxfv ~mhaque/linux-2.4.0-test5.tar.gz
+cd linux
+cat ~mhaque/kernel-patches/patch-2.4.0-test? ~mhaque/kernel-patches/patch-2.4.0-test1? | sudo patch -p1
+sudo make mrproper
+sudo cp ~/kernel-config .config
+sudo make oldconfig
+sudo make dep bzImage modules modules_install install
 
-I was able to grab the tail end of an oops. Probably not too usefull.
 
-Code: 89 42 04 89 10 b8 01 00 00 00 07 43 04 00 00 00 00 c7 03 00
-Aiee, killing interrupt handler
-Kernel panic: Attempted to kill the idle task!
-In interrupt handler - not syncing.
+On Tue, 12 Dec 2000, Mohammad A. Haque wrote:
 
-If I Alt+SysRq+s I get more oops (only tails again) and if I do it
-enough times it hits a BUG and reboots immediately.
+> Hey guys,
+>
+> Any one else experiencing problems when they do lots of disk activity
+> in test12?
+>
+
 -- 
 
 =====================================================================

@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTBTQlu>; Thu, 20 Feb 2003 11:41:50 -0500
+	id <S265936AbTBTQhM>; Thu, 20 Feb 2003 11:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266043AbTBTQlu>; Thu, 20 Feb 2003 11:41:50 -0500
-Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:19585
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266041AbTBTQlt> convert rfc822-to-8bit; Thu, 20 Feb 2003 11:41:49 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: James Buchanan <jamesbuch@iprimus.com.au>
-Reply-To: jamesbuch@iprimus.com.au
+	id <S265939AbTBTQhL>; Thu, 20 Feb 2003 11:37:11 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:22547 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S265936AbTBTQhK>;
+	Thu, 20 Feb 2003 11:37:10 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+Date: Thu, 20 Feb 2003 16:47:15 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b330qj$sri$1@news.cistron.nl>
+References: <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1045759635 29554 62.216.29.200 (20 Feb 2003 16:47:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Subject: Linux kernel rant
-Date: Fri, 21 Feb 2003 15:51:28 +1100
-User-Agent: KMail/1.4.3
-X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
-X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
-X-Location: Australia, NSW
-X-Religion: Athiest, Secular
-X-Operating-System: RedHat Linux/GNU
-X-Message: The Truth Is Out There
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302211551.28222.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>,
+Ingo Molnar  <mingo@elte.hu> wrote:
+>the fix for this is two-fold. First, it must be possible for procps to
+>separate 'threads' from 'processes' without having to go into 16 thousand
+>directories. I solved this by prefixing 'threads' (ie. non-group-leader
+>threads) with a dot ('.') character in the /proc listing:
 
-I am just wondering if anyone thinks the same way.  I am thinking 
-about going to BSD for good because of these things.
+Why not put threads belonging to a thread group into /proc/17072/threads ?
 
-Linux is starting to include code written under non-disclosure 
-agreements and other nasties, and for me this kills the magic of 
-Linux.  Doesn't stop anyone from reading the code, but it's the 
-principle that counts.
+> $ ls -a /proc
 
-I don't know.  I feel Linux has lost the plot.  It's supposed to be 
-getting bigger and better (well, at least bigger -- to borrow words 
-from Andy Tanenbaum.  He was referring to the onslaught of 
-"improvements" to Minix being submitted, but now this applies to 
-Linux as well.)
+I'm seeing 17072 as a group-leader and the 'threads' as .17073 etc.
+When you put all 'threads' into /proc/17072/threads, you'd get
+/proc/17072/threads/17072, /proc/17072/threads/17073, etc.
+/proc/17072 would show stats for the whole threads group, while
+/proc/17072/threads/17072 would show stats for just that thread.
 
-True, there are lots of nice improvements and binary only drivers 
-cannot use ksysms, so I've read somewhere.  (True?  Nice.)  But NDAs?  
-Come on, where do you get off on that?
+>the .17073 ... .17082 entries belong to the thread-group 17072.
 
-End rant.
+Yuck ;(
 
-Thanks,
-James
+>The key here is for procps to be able to parse threads without having to
+>call into the kernel 16K times. The dot-approach also has the added
+>benefit of 'hiding' threads in the default 'ls /proc' listing.
+
+What is against /proc/<pid>/threads ?
+
+>the other change needed was the ability to read comulative CPU usage
+>statistics from the thread group leader. I've introduced 4 new fields in
+>/proc/PID/stat for that purpose, the kernel keeps those uptodate across
+>fork/exit and in the timer interrupt - it's very low-overhead.
+
+That would also be solved with /proc/<pid> and /proc/<pid>/threads/<thread>
+
+>another advantage of this approach is that old procps is fully compatible
+>with the new kernel, and new procps is fully compatible with old kernels.  
+
+That would also be the case with /proc/<pid>/threads
+
+Mike.
+-- 
+Anyone who is capable of getting themselves made President should
+on no account be allowed to do the job -- Douglas Adams.
+

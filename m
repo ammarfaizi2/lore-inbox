@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263928AbRFEIvQ>; Tue, 5 Jun 2001 04:51:16 -0400
+	id <S263924AbRFEIwQ>; Tue, 5 Jun 2001 04:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263927AbRFEIvG>; Tue, 5 Jun 2001 04:51:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57760 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263924AbRFEIu6>;
-	Tue, 5 Jun 2001 04:50:58 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263925AbRFEIwG>; Tue, 5 Jun 2001 04:52:06 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:36367 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S263924AbRFEIvx>;
+	Tue, 5 Jun 2001 04:51:53 -0400
+Date: Tue, 5 Jun 2001 10:49:50 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Akash Jain <aki.jain@stanford.edu>, <linux-kernel@vger.kernel.org>,
+        <su.class.cs99q@nntp.stanford.edu>
+Subject: Re: [PATCH] fs/devfs/base.c
+In-Reply-To: <E156o6c-0005AB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106051047460.2339-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15132.40298.80954.434805@pizda.ninka.net>
-Date: Tue, 5 Jun 2001 01:50:50 -0700 (PDT)
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        bjornw@axis.com, linux-kernel@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush. 
-In-Reply-To: <25587.991730769@redhat.com>
-In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net>
-	<13942.991696607@redhat.com>
-	<3B1C1872.8D8F1529@mandrakesoft.com>
-	<15132.15829.322534.88410@pizda.ninka.net>
-	<20010605155550.C22741@metastasis.f00f.org>
-	<25587.991730769@redhat.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-David Woodhouse writes:
- > What I want is a function like simon_says_flush_page_to_ram(). In
- > this case, I _do_ know better than the CPU. It is _not_ coherent
- > with these devices.
+On Mon, 4 Jun 2001, Alan Cox wrote:
 
-One way to do this, (even portably :-) is via displacement flushes.
-Linus mentioned this.
+> >  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
+> >    noticeable portion of it. It doesn't matter if you "know" your caller
+>
+> Umm Linus on what platform - its 8K or more on all that I can think of
 
-Basically if you know the L2 cache size and the assosciativity you can
-do this as long as you can get a "2 * L2 cache size * assosciativity"
-piece of contiguous physical memory.  When you need this "simon says"
-flush, you basically read this physical memory span and this will
-guarentee that all dirty data has exited the L2 cache.
+it's 8K-sizeof(struct task_struct). On x86, the size of task_struct is
+getting near to 2K already, and it's not getting smaller in the future, so
+4K is a safe thing.
 
-Later,
-David S. Miller
-davem@redhat.com
+	Ingo
+
+

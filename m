@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267614AbTGLFEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 01:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbTGLFEJ
+	id S267634AbTGLFIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 01:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbTGLFIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 01:04:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54456 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S267614AbTGLFEH (ORCPT
+	Sat, 12 Jul 2003 01:08:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:24034 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267634AbTGLFIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 01:04:07 -0400
-Date: Fri, 11 Jul 2003 22:09:05 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: James Morris <jmorris@intercode.com.au>
-Cc: jkenisto@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       akpm@osdl.org, jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk,
-       rddunlap@osdl.org, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
-Message-Id: <20030711220905.2ea9ebc5.davem@redhat.com>
-In-Reply-To: <Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
-References: <3F0DB9A5.23723BE1@us.ibm.com>
-	<Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sat, 12 Jul 2003 01:08:11 -0400
+Date: Fri, 11 Jul 2003 22:23:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
+Subject: Re: Bug in open() function (?)
+Message-Id: <20030711222300.7627a811.akpm@osdl.org>
+In-Reply-To: <200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
+References: <20030712011716.GB4694@bouh.unh.edu>
+	<16143.25800.785348.314274@cargo.ozlabs.ibm.com>
+	<20030712024216.GA399@bouh.unh.edu>
+	<200307112309.08542.jcwren@jcwren.com>
+	<20030711203809.3c320823.akpm@osdl.org>
+	<200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jul 2003 01:37:44 +1000 (EST)
-James Morris <jmorris@intercode.com.au> wrote:
+Valdis.Kletnieks@vt.edu wrote:
+>
+> On Fri, 11 Jul 2003 20:38:09 PDT, Andrew Morton said:
+> > "J.C. Wren" <jcwren@jcwren.com> wrote:
+> > >
+> > > I was playing around today and found that if an existing file is opened wit
+> h 
+> > >  O_TRUNC | O_RDONLY, the existing file is truncated.
+> > 
+> > Well that's fairly idiotic, isn't it?
+> 
+> Not idiotic at all
 
-> On Thu, 10 Jul 2003, Jim Keniston wrote:
-> 
-> > That begs the question: do we trust that nobody but the kernel will send
-> > packets to a NETLINK_KERROR socket?  Ordinary users can't, but any root
-> > application can.  Without kerror_netlink_rcv(), such packets don't get
-> > dequeued.
-> 
-> Indeed, the kernel socket buffer fills up.
-> 
-> I think this needs to be addressed in the netlink code, per the patch 
-> below.
+Sigh.  I meant the kernel behaviour is idiotic.  Returning -EINVAL would
+have been much better behaviour.
 
-Looks good, I'll apply this.
+> 
+> > The Open Group go on to say "The result of using O_TRUNC with O_RDONLY is
+> > undefined" which is also rather silly.
+> > 
+> > I'd be inclined to leave it as-is, really.
+> 
+> I hate to think how many programmers are relying on the *documented* behavior to
+> prevent data loss during debugging/test runs....
+
+We've lived with it for this long.
+
+The behaviour is "undefined".  Any application which uses O_RDONLY|O_TRUNC
+is buggy.
+
+If we were to alter the behaviour now, any buggy-but-happens-to-work app
+which is accidentally using O_RDONLY|O_TRUNC may break.  And now is not the
+time to break things.
+
+Given that the behaviour is undefined, the behaviour which we should
+implement is clearly "whatever 2.4 is doing".  So let's leave it alone.

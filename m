@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUAYCg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 21:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUAYCg1
+	id S263606AbUAYCmq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 21:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUAYCmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 21:36:27 -0500
-Received: from dp.samba.org ([66.70.73.150]:11675 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263448AbUAYCg0 (ORCPT
+	Sat, 24 Jan 2004 21:42:46 -0500
+Received: from tekla.ing.umu.se ([130.239.117.80]:11216 "EHLO tekla.ing.umu.se")
+	by vger.kernel.org with ESMTP id S263606AbUAYCmo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 21:36:26 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove More Unneccessary CPU Notifiers 
-In-reply-to: Your message of "Sat, 24 Jan 2004 10:10:39 -0800."
-             <20040124101039.296c34fd.akpm@osdl.org> 
-Date: Sun, 25 Jan 2004 13:23:22 +1100
-Message-Id: <20040125023641.1CB592C29E@lists.samba.org>
+	Sat, 24 Jan 2004 21:42:44 -0500
+Date: Sun, 25 Jan 2004 03:42:38 +0100
+From: Tomas Ogren <stric@ing.umu.se>
+To: linux-kernel@vger.kernel.org
+Subject: Fried the onboard Broadcom 4401 network...
+Message-ID: <20040125024238.GA10424@ing.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+X-System: Linux tekla 2.4.24-rc1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040124101039.296c34fd.akpm@osdl.org> you write:
-> Or are you saying that we should just leave the per-cpu accounting in a
-> non-zero state when its CPU has gone away, and rely upon the stats
-> gathering code iterating across all cpu_possible cpus?
+Hello.
 
-In general, yes!  In general, if you cared about performance you
-wouldn't be doing such iteration.
+I'm not exactly sure what caused this or if it's reproducable, but
+here's my story anyway.
 
-> That's a bit lame in the case of __get_page_state() at least.  We've had
-> problems with excess CPU consumption in there at times and it would be good
-> to be able to change that function to iterate across all online CPUs, not
-> all possible ones.  We can do that if we have a notifier which spills the
-> numbers from the gone-away CPU into the local CPU's slot.
+I have an ASUS A7V8X with onboard Broadcom 4401 (Rev 01) 10/100 and I've
+been running 2.4.x (2.4.21) for a long time now with Broadcoms bcm4400
+driver (v2.0.2) which has worked just fine. Now I decided to try 2.6 and
+installed 2.6.2-rc1-bk2 with the b44 driver that comes with the kernel.
+While doing some tests I noticed that I got really crappy performance
+(3-4MB/s) while sending, but full throughput (~11MB/s) while receiving.
 
-Well, that's what's happening at the moment if you look at the code:
+So I figured that it could be the shipped driver.. Downloaded bcm4400
+v3.0.7 which has 2.6 support and installed it. Didn't make stuff go
+faster. So I thought I'd boot into 2.4.25pre6 and see how it behaves
+under a 2.4 kernel with the latest bcm4400 driver. The 2.4.25pre6 I had
+compiled includes the b44 driver. I booted it up and then I got a bunch
+of the following:
+"eth0: b44: BUG!  Timeout waiting for bit 80000000 of register 428 to
+clear."
+followed by:
+"eth0: Link is down."
 
-	while (cpu < NR_CPUS) {
-		unsigned long *in, *out, off;
+After that, I have not been able to get link (neither see it through
+Linux/WinXP or the physical LED). I have tried multiple cables and my
+laptop is perfectly happy with all of them, but the broadcom thingie
+seems not. The switch doesn't see link either.
 
-		if (!cpu_possible(cpu)) {
-			cpu++;
-			continue;
-		}
+The actual chip seems to be alive, it responds to PCI stuff... it can be
+initialized and all but I can't get link.
 
-Spilling the stats is a fine optimization, sure, but that can come
-later.
+Not sure what you can do with this information, but I can probably not
+do anything more with this NIC at least..
 
-Especially since it need only be done at CPU_DEAD time: the hotplug
-CPU patch adds a convenient macro for such things.
-"hotcpu_notifier()" compiles out when !CONFIG_HOTPLUG_CPU.
+CC me for any replies, please.
 
-What's there at the moment really is just wasted code.
-RUsty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+/Tomas
+-- 
+Tomas Ögren, stric@ing.umu.se, http://www.ing.umu.se/~stric/
+|- Student at Computing Science, University of Umeå
+`- Sysadmin at {cs,ing,acc}.umu.se

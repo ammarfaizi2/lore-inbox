@@ -1,23 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318652AbSHAH25>; Thu, 1 Aug 2002 03:28:57 -0400
+	id <S318649AbSHAHVM>; Thu, 1 Aug 2002 03:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318657AbSHAH25>; Thu, 1 Aug 2002 03:28:57 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:46091 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S318652AbSHAH24>;
-	Thu, 1 Aug 2002 03:28:56 -0400
-Date: Thu, 1 Aug 2002 08:56:31 +0200
+	id <S318650AbSHAHVM>; Thu, 1 Aug 2002 03:21:12 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:15112 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S318649AbSHAHVK>;
+	Thu, 1 Aug 2002 03:21:10 -0400
+Date: Wed, 31 Jul 2002 23:24:26 +0200
 From: Nico Schottelius <nico-mutt@schottelius.org>
-To: James Simmons <jsimmons@transvirtual.com>
+To: linux.nics@intel.com
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUGS] 2.5.29: scsi/pcmcia|sound/trident|devfs
-Message-ID: <20020801065631.GA754@schottelius.org>
-References: <20020731171517.GA818@schottelius.org> <Pine.LNX.4.44.0207311037570.13905-100000@www.transvirtual.com>
+Subject: network driver informations [general NIC, Wireless and e100]
+Message-ID: <20020731212426.GA3342@schottelius.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207311037570.13905-100000@www.transvirtual.com>
 User-Agent: Mutt/1.4i
 X-MSMail-Priority: Is not really needed
 X-Mailer: Yam on Linux ?
@@ -26,37 +24,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--wac7ysb48OaltWcw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-James Simmons [Wed, Jul 31, 2002 at 10:41:16AM -0700]:
-> > #######################################################################=
-####
-> > ### Hangup/Kernel Panics:
-> > #######################################################################=
-####
-> >
-> >    - devfs: drivers/char/console.c:2527: con_init_devfs(); is missing.
-> >      Hey guys, this bug exists in at least 3 kernel versions!
->=20
-> I'm working on a proper fix. BTW how do you get a kernel panic?
+Hello!
 
-In fact it's 'only' a hangup, because getties are unable to open /dev/vc/* =
-[>0].
+I recently tried the e100 driver and was happy that it reports
+if there is a connection and speed and so on.
 
-> I'm
-> running devfs plus con_init_devfs is not called. tty_register_devfs is
-> called by tty_register_driver. It is a issue of different flags being
-> passed to devfs by either tty functions. As soon a linus gives me a answer
-> to the problem I will post a patch for people to try and then push it to
-> BK.
+But should these informations not be reported through /proc-fs ?
+I think this would make it easier for programs to monitor connection
+status. We could even have a small red/green light in the KDE panel
+to display connection status for different cards.
 
-sounds good. When you've finished the patch and Linux said it's fine,
-please send a copy of it to me.
+The point in fact is, looking into dmesg for connection status is definitly
+wrong IMHO. It's neither a clean access nor easy to watch for applications.
+
+So what do you think about /proc/net/<DEVNAME> support for status ?
+
+As far as I can see this is partly implemented in /proc/net/wireless
+or in /proc/net/dev.
+Adding another column in the latter would do the job, too.
+
+Anyways, just an idea.
+
+Hope to hear your critics,
 
 Nico
+
 
 --=20
 Changing mail address: please forget all known @pcsystems.de addresses.
@@ -66,16 +63,16 @@ ils
 to mailing list!). If you don't know what pgp is visit www.gnupg.org.
 (public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
 
---ikeVEW9yuYc//A+q
+--wac7ysb48OaltWcw
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE9SNuetnlUggLJsX0RAnBhAJ9Ib/BGOjIhzDKBX0Pe16ouQrUd4ACgmx6B
-iqpQzinFxAH1ffXmggIYvSQ=
-=iDMA
+iD8DBQE9SFWKtnlUggLJsX0RAsk8AJ45LAFB8OcmBflYxVnm0Y77fAe9LwCdFJ3q
+XBefQwz0Ax3SFQkX3Pt7usw=
+=oW9g
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--wac7ysb48OaltWcw--

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285093AbSBCDXH>; Sat, 2 Feb 2002 22:23:07 -0500
+	id <S285709AbSBCESy>; Sat, 2 Feb 2002 23:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSBCDW5>; Sat, 2 Feb 2002 22:22:57 -0500
-Received: from web14608.mail.yahoo.com ([216.136.224.88]:57616 "HELO
-	web14608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S285093AbSBCDWs>; Sat, 2 Feb 2002 22:22:48 -0500
-Message-ID: <20020203032247.61375.qmail@web14608.mail.yahoo.com>
-Date: Sun, 3 Feb 2002 03:22:47 +0000 (GMT)
-From: =?iso-8859-1?q?Kurt=20Johnson?= <gorydetailz@yahoo.co.uk>
-Subject: cant compile 2.5.3-dj1
-To: linux-kernel@vger.kernel.org
+	id <S285666AbSBCESp>; Sat, 2 Feb 2002 23:18:45 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26681 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S286179AbSBCESc>; Sat, 2 Feb 2002 23:18:32 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davem@redhat.com (David S. Miller), vandrove@vc.cvut.cz,
+        torvalds@transmeta.com, garzik@havoc.gtf.org,
+        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
+        ralf@gnu.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
+In-Reply-To: <E16WQYs-0003Ux-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 02 Feb 2002 21:14:33 -0700
+In-Reply-To: <E16WQYs-0003Ux-00@the-village.bc.nu>
+Message-ID: <m17kpv8amu.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I cant seem to be able to compile 2.5.3-dj1, the build
-dies with:
+> > As a side note, this thing is so tiny (less than 4K on sparc64!) so
+> > why don't we just include it unconditionally instead of having all
+> > of this "turn it on for these drivers" stuff?
+> 
+> Because 100 4K drivers suddenly becomes 0.5Mb. There are those of us trying
+> to stuff Linux into embedded devices who if anything want more configuration
+> options not people taking stuff out.
+> 
+> What I'd much rather see if this is an issue is:
+> 
+> bool	'Do you want to customise for a very small system' 
+> 
+> which auto enables all the random small stuff if you say no, and goes
+> much deeper into options if you say yes.
 
-make[2]: Circular
-/usr/local/src/linux-2.5/include/linux/qnx4_fs.h <-
-/usr/local/src/linux-2.5/include/linux/fs.h dependency
-dropped.
-/usr/local/bin/gcc -D__KERNEL__
--I/usr/local/src/linux-2.5/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i586  
--DKBUILD_BASENAME=filesystems  -DEXPORT_SYMTAB -c
-filesystems.c
-filesystems.c:36: syntax error before `int'
-make[2]: *** [filesystems.o] Error 1
-make[2]: Leaving directory
-`/usr/local/src/linux-2.5/fs'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory
-`/usr/local/src/linux-2.5/fs'
-make: *** [_dir_fs] Error 2
+I mostly agree.  Except when I have looked at trying to get the kernel
+(compiled size down) the biggest bloat was in the core.  Things like
+having both a page and a block cache.
 
-Is this a known issue? If so, is there any patch? 
+Getting code reuse in the core higher would cut down on kernel size a
+lot.  But that isn't quick fix territory.
 
-Regards,
-
-/kj
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+Eric

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbTE0BqF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 21:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTE0BqF
+	id S262434AbTE0BqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 21:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTE0BqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 21:46:05 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40827 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262430AbTE0BqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 21:46:04 -0400
-Date: Mon, 26 May 2003 18:59:20 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: davem@redhat.com, andrea@suse.de, davidsen@tmr.com, haveblue@us.ibm.com,
-       habanero@us.ibm.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-Message-Id: <20030526185920.64e9751f.akpm@digeo.com>
-In-Reply-To: <20030527015307.GC8978@holomorphy.com>
-References: <20030527000639.GA3767@dualathlon.random>
-	<20030526.171527.35691510.davem@redhat.com>
-	<20030527004115.GD3767@dualathlon.random>
-	<20030526.174841.116378513.davem@redhat.com>
-	<20030527015307.GC8978@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2003 01:59:17.0751 (UTC) FILETIME=[94D4E070:01C323F3]
+	Mon, 26 May 2003 21:46:22 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:8363 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262434AbTE0BqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 21:46:20 -0400
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5] [Cool stuff] "checking" mode for kernel builds
+References: <3ED2AEA9.1000401@gmx.net>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 27 May 2003 10:58:35 +0900
+In-Reply-To: <3ED2AEA9.1000401@gmx.net>
+Message-ID: <buowugddub8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> In
->  the userspace implementation the reprogramming is done infrequently
->  enough to make even significant cost negligible; in-kernel the cost
->  is entirely uncontrolled and the rate of reprogramming unlimited.
+Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net> writes:
+> > +# Linus's kernel sanity checking tool
+> 
+> IIRC my english lessons it should be
+> +# Linus' kernel sanity checking tool
 
-eh?
+BTW, it just follows the sound, and at least I say something sounding
+like `Linusez kernel' -- which would be written "Linus's kernel."
 
-#define MAX_BALANCED_IRQ_INTERVAL       (5*HZ)
-#define MIN_BALANCED_IRQ_INTERVAL       (HZ/2)
+[in some cases, e.g. many plurals, you _do_ merge the two uses of S,
+e.g., "The Smiths' car"]
+
+-Miles
+-- 
+I'm beginning to think that life is just one long Yoko Ono album; no rhyme
+or reason, just a lot of incoherent shrieks and then it's over.  --Ian Wolff

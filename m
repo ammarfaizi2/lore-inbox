@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317793AbSFMRwq>; Thu, 13 Jun 2002 13:52:46 -0400
+	id <S317790AbSFMRxy>; Thu, 13 Jun 2002 13:53:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317790AbSFMRwp>; Thu, 13 Jun 2002 13:52:45 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:42000 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S317791AbSFMRwn>; Thu, 13 Jun 2002 13:52:43 -0400
-Message-Id: <200206131752.g5DHqdm24049@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Roland Dreier <roland@topspin.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4 use __dma_buffer in scsi.h 
-In-Reply-To: Message from Roland Dreier <roland@topspin.com> 
-   of "13 Jun 2002 10:42:16 PDT." <52fzzr2hzb.fsf@topspin.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 13 Jun 2002 13:52:39 -0400
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S317791AbSFMRxx>; Thu, 13 Jun 2002 13:53:53 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28383 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317790AbSFMRxw>;
+	Thu, 13 Jun 2002 13:53:52 -0400
+Date: Thu, 13 Jun 2002 13:53:51 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Dawson Engler <engler@csl.Stanford.EDU>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+In-Reply-To: <E17IYam-0000Qh-00@starship>
+Message-ID: <Pine.GSO.4.21.0206131350180.20315-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-roland@topspin.com said:
-> Out of curiousity, how do you deal with someone writing to Scsi_Cmnd
-> _before_ the DMA and having that data lost when pci_map_single() with
-> PCI_DMA_FROMDEVICE invalidates the cache before writeback? 
 
-The the pci_map_single with PCI_DMA_FROMDEVICE is supposed to do a writeback 
-invalidate cycle on the cache when pci_sync_single is called (at least this is 
-how it is implemented on parisc) so any writes up to the sync point are 
-flushed to memory before the cache line is trashed.
 
-James
+On Thu, 13 Jun 2002, Daniel Phillips wrote:
 
+> > I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
+> > ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
+> > for everything that can be called by any of these functions.  And that's
+> > a _lot_ of stuff.
+> 
+> Then at the point of recursion a dynamic check for stack space is
+> needed, and [checker]'s role would be to determine the deepest static
+> depth, to plug into the stack check.  If we want to be sure about 
+> stack integrity there isn't any way around this.
+
+Wrong.  Check for stack _space_ will mean that maximal depth of nested
+symlinks depends on syscall.  Definitely not what you want to see.
+There is a static limit (no more than 5 nested), but it must be
+explicitly known to checker - deducing it from code is easy for a
+human, but hopeless for anything automatic.
 

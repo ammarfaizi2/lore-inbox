@@ -1,135 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290926AbSBLKOu>; Tue, 12 Feb 2002 05:14:50 -0500
+	id <S290930AbSBLKUK>; Tue, 12 Feb 2002 05:20:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290930AbSBLKOb>; Tue, 12 Feb 2002 05:14:31 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62222 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S290926AbSBLKOR>; Tue, 12 Feb 2002 05:14:17 -0500
-Message-Id: <200202121012.g1CACht07809@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: System.map aughmentation: file names, email addresses
-Date: Tue, 12 Feb 2002 12:12:44 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Keith Owens <kaos@ocs.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290953AbSBLKUB>; Tue, 12 Feb 2002 05:20:01 -0500
+Received: from grisu.bik-gmbh.de ([194.233.237.82]:36882 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
+	id <S290930AbSBLKTn>; Tue, 12 Feb 2002 05:19:43 -0500
+Date: Tue, 12 Feb 2002 11:20:05 +0100
+From: Florian Hars <florian@hars.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Unknown Southbridge (was: Disk-I/O and kupdated@99.9% system (2.4.18-pre9))
+Message-ID: <20020212102005.GB365@bik-gmbh.de>
+In-Reply-To: <20020208164250.GA321@bik-gmbh.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020208164250.GA321@bik-gmbh.de>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+I wrote:
+> Whenever I do some heavy disk-I/O (like untaring an archive with 13000
+> files that amount to 5GB), the CPU-state repeatedly goes to 99.9%
+> system
 
-I was thinking about better handling of oops reports.
-There are two things I'm trying to do:
+Part of the problem could be alleviated by unmasking the interrupts,
+but now some part of the IDE system is crying for its master:
 
-1. Add .c file names to function names in call trace.
-Yes it's easily greppable and most hardcore haskers
-already remember where those functions are, but _oops reporters_
-are not. They need a way to figure what subsystem is failing and
-where to send oops in addition to lkml. Maintainer don't read each
-and every message on lkml.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 89
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: Unknown VIA SouthBridge, contact Vojtech Pavlik <vojtech@suse.cz>
 
-2. When (1) is done, add email addresses of maintainers to .c
-file names based on regexp match. Oops reporter will get CC list
-prepared from oops.
+I use a Gigabyte GA-7VTXE with a VIA KT266A chipset and a Southbridge
+called VT8233A, which does not look like one of the "FUTURE_BRIDGES"
+that are ifdefed out in the driver (or is it the same as the
+{ "vt8233c",    PCI_DEVICE_ID_VIA_8233C,    0x00, 0x2f, VIA_UDMA_100 } ?).
 
-I'm not hacked in ksymoops (yet?) but I have a pair of scripts which
-generate aughmented System.map. Here they are for anybody curious.
---
-vda
-
-email2pattern.map - list of victims to CC
-=================
-Alexander Viro <viro@math.psu.edu>:^fs/[A-Za-z0-9]*.c$
-Neil Brown <neilb@cse.unsw.edu.au>:fs/nfsd/.*
-Neil Brown <neilb@cse.unsw.edu.au>:drivers/md/(md)|(raid)|(linear).*
-Tester <tester@host.org>:.*/mm/.*
-Tester2 <tester2@host.org>:.*usb.*
-Tester3 <tester3@host.org>:^fs/.*
-Tester4 <tester4@host.org>:.*ext2.*
-
-gen_func2file
-=============
-#!/bin/sh
-
-# Meant to be run in top lever kernel source dir
-# after kernel has been built
-#
-# Makes list of the form:
-# symbol1 object_file_pathname1
-# symbol2 object_file_pathname2
-# symbol3 object_file_pathname3
-
-LIST=`find -name '*.c' | xargs`
-> func2file.map
-for a in $LIST; do
-    #nm: get symbols from .o
-    #grep: discard non-text symbols
-    #awk: remove './', add .o pathname
-    #cut: remove address and symbol type letter
-    l=$((${#a}-2))
-    b=${a:0:$l}
-    if test -e "$b.o"; then
-        nm "$b.o" \
-	| grep '\( T \)\|\( t \)' \
-	| awk "BEGIN { N=\" ${a:2:9999}\" } { print \$0,N }" \
-	| cut -b12- \
-	>> func2file.map
-    fi
-done
-
-gen_System.map.annot - yes, my first Python... it probably sucks
-====================
-#!/usr/bin/python
-
-import string
-import re
-
-#
-# Build func->file dictionary
-#
-f=open('func2file.map', 'r')
-func2file={}
-l=f.readline()
-while l <> '':
-    l=l[0:len(l)-1]
-    t=string.split(l)
-    func2file[t[0]]=t[1]
-    l=f.readline()
-
-#
-# Build email:pattern list
-#
-f=open('email2pattern.map', 'r')
-people=[]
-l=f.readline()
-while l <> '':
-    l=l[0:len(l)-1]
-    people.append(l)
-    l=f.readline()
-
-#
-# Read System.map, add file names and email addresses
-#
-f=open('System.map', 'r')
-l=f.readline()
-while l <> '':
-    l=l[0:len(l)-1]
-    t=string.split(l)
-    if func2file.has_key(t[2]):
-	file=func2file[t[2]]
-	print l+'\t'+file,
-	for p in people:
-	    t=string.split(p,':')
-	    email=t[0]
-	    pattern=t[1]
-            expr=re.compile(pattern)
-	    if expr.match(file):
-		print '\t'+email,
-	print
-    else:
-	print l
-    l=f.readline()
+Yours, Florian Hars.

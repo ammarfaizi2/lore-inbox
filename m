@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUG3Ii3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUG3Ilh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267660AbUG3Ii3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 04:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUG3Ii3
+	id S267653AbUG3Ilh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 04:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUG3Ilh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 04:38:29 -0400
-Received: from mail4.bluewin.ch ([195.186.4.74]:5256 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267658AbUG3Ii1 (ORCPT
+	Fri, 30 Jul 2004 04:41:37 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:5391 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S267658AbUG3IlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 04:38:27 -0400
-Date: Fri, 30 Jul 2004 10:38:15 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Cc: rob@landley.net, linux-kernel@vger.kernel.org
-Subject: Re: Interesting race condition...
-Message-ID: <20040730083815.GA16881@k3.hellgate.ch>
-Mail-Followup-To: Marc Ballarin <Ballarin.Marc@gmx.de>,
-	rob@landley.net, linux-kernel@vger.kernel.org
-References: <200407222204.46799.rob@landley.net> <20040729235654.GA19664@k3.hellgate.ch> <20040730102726.57519859.Ballarin.Marc@gmx.de>
+	Fri, 30 Jul 2004 04:41:07 -0400
+Date: Fri, 30 Jul 2004 10:41:03 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Paul Jackson <pj@sgi.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       akpm@osdl.org, aebr@win.tue.nl, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-ID: <20040730084103.GA5261@pclin040.win.tue.nl>
+References: <20040728134202.5938b275.pj@sgi.com> <87llh3ihcn.fsf@ibmpc.myhome.or.jp> <20040728231548.4edebd5b.pj@sgi.com> <87oelzjhcx.fsf@ibmpc.myhome.or.jp> <20040729024931.4b4e78e6.pj@sgi.com> <20040729162423.7452e8f5.akpm@osdl.org> <20040729165152.492faced.pj@sgi.com> <87pt6e2sm3.fsf@devron.myhome.or.jp> <20040730002706.2330974d.pj@sgi.com> <20040730080757.GA1068@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040730102726.57519859.Ballarin.Marc@gmx.de>
-X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040730080757.GA1068@ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004 10:27:26 +0200, Marc Ballarin wrote:
-> > --- linux-2.6.8-rc2-bk1/fs/proc/base.c.orig	2004-07-30 01:43:23.535967505 +0200
-> > +++ linux-2.6.8-rc2-bk1/fs/proc/base.c	2004-07-30 01:43:27.428303752 +0200
-> > @@ -329,6 +329,8 @@ static int proc_pid_cmdline(struct task_
-> >  	struct mm_struct *mm = get_task_mm(task);
-> >  	if (!mm)
-> >  		goto out;
-> > +	if (!mm->arg_end)
-> > +		goto out;	/* Shh! No looking before we're done */
-> >  
-> >   	len = mm->arg_end - mm->arg_start;
-> >   
+On Fri, Jul 30, 2004 at 10:07:57AM +0200, Vojtech Pavlik wrote:
+
+> Let me summarize.
 > 
-> Yes, this seems to fix it. First I replaced "goto out" with a printk, and
-> the printks matched the occurence of the bug.
-> However, I got multiple printks per bug (between 2 and 7). Is that
-> supposed to happen?
+> In the past, the kernel had various different values of NR_KEYS, in this
+> order: 128, 512, 256, 255.
+> 
+> 128 was not enough, 512 didn't fit in a byte (while allowed to address
+> all keycodes the input layer uses), 256 broke some apps that relied on
+> unsigned char counters,
 
-Every time we proceed through proc_pid_cmdline with mm->arg_end == 0 is a
-bug. AFAICT anyway. Whether you see an "occurence of the bug" depends on
-how you measure it. Of course you are wecome to add more printks following
-the code path to see how and when it propagates to where you are catching
-it.
+Can you elaborate on this part? Which applications broke?
 
-Roger
+> ...
+> BUT some binaries are still compiled with 256 and try to set up a
+> mapping for keycode 255 (although there is _no_ such keycode), and
+> break. IMO it's a bug in the app.
+> 
+> Now I believe that simply adding the check back by reverting the old
+> Andrew's patch and recompiling/fixing what breaks is the right way to
+> go.
+
+Revert Andrew's patch: yes.
+Choosing 255/256 - I have no opinion yet, my opinion will depend
+on your answer to the above "Which applications broke?".
+
+Andries

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271265AbRHTO63>; Mon, 20 Aug 2001 10:58:29 -0400
+	id <S271267AbRHTPDW>; Mon, 20 Aug 2001 11:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271267AbRHTO6T>; Mon, 20 Aug 2001 10:58:19 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:46569 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271265AbRHTO6M>; Mon, 20 Aug 2001 10:58:12 -0400
-Date: Mon, 20 Aug 2001 07:58:26 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-atm-general@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH: linux-2.4.9/drivers/atm to new module_{init,exit} + some pci_device_id tables
-Message-ID: <20010820075826.A368@baldur.yggdrasil.com>
-Mime-Version: 1.0
+	id <S271276AbRHTPDJ>; Mon, 20 Aug 2001 11:03:09 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30728 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271267AbRHTPCv>; Mon, 20 Aug 2001 11:02:51 -0400
+Subject: Re: PATCH: linux-2.4.9/drivers/i2o to new module_{init,exit} interface
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Mon, 20 Aug 2001 16:05:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, deepak@plexity.net, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20010820072925.A296@baldur.yggdrasil.com> from "Adam J. Richter" at Aug 20, 2001 07:29:25 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Yqbv-0006BW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	The following patch moves linux-2.4.9/drivers/atm
-to the relatively new module_{init,exit} interface, simplifying
-the code and removing the reference to the ATM drivers from
-linux/drivers/genhd.c (this is partly motivated by my effort to get
-rid of genhd.c).  The changes also include some pci_device_id tables,
-which enable automatic loading of the modules via pcimodules (or
-a similar program).  These changes are also all steps toward porting
-the atm drivers to the new PCI interface.  In the case zatm.c, I
-have actually ported it to the new PCI interface, although it
-shares the stock zatm driver's deficiency of not supporting
-module removal.
+> 	I'm not exactly sure where to send i2o patches, so I'm
+> posting them to linux-kernel.  I would appreciate a pointer if there
+> is a more specialized address for i2o patches.
 
-	Note that this change deletes linux-2.4.9/drivers/atmdev_init.c,
-since the conversion to module_{init,exit} completely obseletes that file.
+Me for i2o
 
-	If these changes look OK, I would like to get them
-into the stock kernel.  If there is a maintainer on linux-atm-general
-who shepherds these patches to Alan and Linus, and if these changes
-are good, please let me know if you are going to "officially" send them
-to Alan and Linus or if you want me to do so or if there is some other
-procedure that I should follow.
+>  	sti();
+> -#ifdef CONFIG_I2O
+> -	i2o_init();
+> -#endif
+>  #ifdef CONFIG_BLK_DEV_DAC960
+>  	DAC960_Initialize();
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Rejected. The ordering is critical because drivers may have both i2o and
+non i2o interfaces. Also an i2o card may control other pci devices and
+we will need to claim the resources beforehand when we finally support that.
+
+>  dep_tristate '  I2O Block OSM' CONFIG_I2O_BLOCK $CONFIG_I2O
+> -if [ "$CONFIG_NET" = "y" ]; then
+> +if [ "$CONFIG_NET" != "n" ]; then
+
+NET cannot be modular
+
+> -#ifdef MODULE
+>  	i = core->install(c);
+> -#else
+> -	i = i2o_install_controller(c);
+> -#endif /* MODULE */
+
+This changes all the module dependancy patterns - yes its right, no its not
+appropriate for a "stable" kernel.
+

@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbRFUU5W>; Thu, 21 Jun 2001 16:57:22 -0400
+	id <S265225AbRFUVDW>; Thu, 21 Jun 2001 17:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265223AbRFUU5M>; Thu, 21 Jun 2001 16:57:12 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:41190 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S265222AbRFUU5B>;
-	Thu, 21 Jun 2001 16:57:01 -0400
-Message-ID: <3B325F05.8D2F492A@alsa-project.org>
-Date: Thu, 21 Jun 2001 22:54:29 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, D.A.Fedorov@inp.nsk.su,
-        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <Pine.LNX.3.95.1010621161215.4263A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265226AbRFUVDN>; Thu, 21 Jun 2001 17:03:13 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:61714 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265225AbRFUVC7>; Thu, 21 Jun 2001 17:02:59 -0400
+Date: Thu, 21 Jun 2001 16:02:49 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010621164625.E23465@pimlott.ne.mediaone.net>
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> 
+	<20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net> 
+	<20010621161322.A6873@thyrsus.com> <20010621161322.A6873@thyrsus.com> 
+	; from esr@thyrsus.com on Thu, Jun 21, 2001 at 04:13:22PM -0400
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <pg4C1B.A.WWC.7DmM7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> It just broke. The handler returned before the cause of the interrupt
-> was handled. Think LEVEL interrupts. The same interrupt will again
-> be entered, looping over and over again, until the tiny bit if CPU
-> resource available for the few instants the handler was not in the
-> ISR, was enough for the user-mode signal-handler to shut the
-> damn thing off, pull the plug, and figure this will never work.
+** Reply to message from Andrew Pimlott <andrew@pimlott.ne.mediaone.net> on
+Thu, 21 Jun 2001 16:46:25 -0400
 
-Sorry, I've missed an action writing the previous message (now marked
-with a +)
 
-Kernel space:
-- irq 9 arrives from our device
-- interrupts are disabled
-- our kernel space micro handler is invoked
-- interrupt source is checked
-+ interrupt is acknowledged to our device
-- if no notification is pending a signal is notificated for user space
-(or a process is marked runnable)
-- optionally our device interrupt generation is disabled
-- handler returns
-- interrupts are enabled
+> I agree entirely that Linus, as creator of the license, is
+> privileged with respect to interpretation of the license.
 
-> >
-> > User space:
-> > - signal arrive (or process is restarted)
-> > - action is done
-> > - notification is acknowledged (using an ioctl)
-> >
-> 
-> Way too late see above.
+Ah, but Linus didn't create the license, he's using someone else's.  The GPL is
+a creation of the FSF, not Linus.  The actual meanings of a license can only be
+determined by the judicial system of whatever country you live in.
 
-Don't equivocate me: this not the IRQ acknowledge, it's the acknowledge
-of the user space notification.
-
-Also note that this mechanism is not an attempt to demonstrate that to
-move interrupt handlers to user space is a good thing. I wanted only to
-show a way to permit to have *pseudo* interrupt handlers in user space
-also having shared IRQ.
 
 -- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!

@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVC2BRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVC2BX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVC2BRu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 20:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVC2BRu
+	id S262137AbVC2BX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 20:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVC2BX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 20:17:50 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:484 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S262136AbVC2BRq (ORCPT
+	Mon, 28 Mar 2005 20:23:57 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:42217 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262137AbVC2BX4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 20:17:46 -0500
-Message-ID: <4248AC8E.6070604@tlinx.org>
-Date: Mon, 28 Mar 2005 17:17:02 -0800
-From: "L. A. Walsh" <law@tlinx.org>
-Organization: Tlinx Solutions
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, Jean Delvare <khali@linux-fr.org>,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] typo fix in Documentation/eisa.txt
-References: <200503271554.44382.eike-kernel@sf-tec.de> <200503272145.10266.eike-kernel@sf-tec.de> <42470E99.7010304@osdl.org> <200503272201.36092.eike-kernel@sf-tec.de>
-In-Reply-To: <200503272201.36092.eike-kernel@sf-tec.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 28 Mar 2005 20:23:56 -0500
+Date: Mon, 28 Mar 2005 17:22:09 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: arjan@infradead.org, vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com,
+       floam@sh.nu, gilbertd@treblig.org, linux-kernel@vger.kernel.org,
+       bunk@stusta.de
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-Id: <20050328172209.4adbd3a1.pj@engr.sgi.com>
+In-Reply-To: <1112055671.3691.8.camel@localhost.localdomain>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+	<1112011441.27381.31.camel@localhost.localdomain>
+	<1112016850.6003.13.camel@laptopd505.fenrus.org>
+	<1112018265.27381.63.camel@localhost.localdomain>
+	<20050328154338.753f27e3.pj@engr.sgi.com>
+	<1112055671.3691.8.camel@localhost.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> So you are saying that a stand alone section of code, that needs
+> wrappers to work with Linux is a derived work of Linux?
 
+Not what I said.
 
-Rolf Eike Beer wrote:
-
->Typo fixes.
->
->Thanks to Randy Dunlap and Jean Delvare.
->
->Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
->
->--- linux-2.6.11/Documentation/eisa.txt	2005-03-02 08:38:12.000000000 +0100
->+++ linux-2.6.12-rc1/Documentation/eisa.txt	2005-03-27 21:58:04.000000000 +0200
->@@ -171,9 +171,9 @@
-> virtual_root.force_probe :
-> 
-> Force the probing code to probe EISA slots even when it cannot find an
->-EISA compliant mainboard (nothing appears on slot 0). Defaultd to 0
->-(don't force), and set to 1 (force probing) when either
->-CONFIG_ALPHA_JENSEN or CONFIG_EISA_VLB_PRIMING are set.
->+EISA compliant mainboard (nothing appears on slot 0). Defaults to 0
->+(don't force) and set to 1 (force probing) when either
->+CONFIG_ALPHA_JENSEN or CONFIG_EISA_VLB_PRIMING is set.
->
----
-01234567890123456789012345678901234567890123456789012345678901234567890123456789
-    My expertise is limited by a fuzzy memory, and I know it's bad form to
-comment much on english usage or spelling as they are often tangential to
-the issue at hand, but as long as we are on the topic, I think you had it
-right the first time.
-
-    I believe the comment, properly used the "imperative":
-declaring intended usage of the variable, i.e. - "Do this or do
-that"; "Default to 0 or set to 1".  To use a perl like example:
-
-                       # set probe action:
-probe=0;               # default to 0 (don't force)
-probe=1 if (X || Y);   # and set to 1 (force), if either X or Y is set
-
-    If you use "Defaults", then I think that's an implied 3rd person
-singular usage and for correct parallelism, the parallel clause (after
-the "and") should use the same tense.  Third person tense for "set"
-would use "is" as a passive-voice auxiliary: "[it] is set to 1..."
-
-    Saying "default to 0" is like the perlism:
-    setup values of v:
-
-    v=0;               # default to 0
-    v=1 if (X || Y);   # and set to 1 if X or Y is set
- 
-    I can't believe we are discussing grammer concerns in comments in
-the linux-kenel.  :-) (!).
-
--linda
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

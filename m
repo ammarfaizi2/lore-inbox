@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274677AbRITWZk>; Thu, 20 Sep 2001 18:25:40 -0400
+	id <S274676AbRITWZa>; Thu, 20 Sep 2001 18:25:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274678AbRITWZa>; Thu, 20 Sep 2001 18:25:30 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:63989 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274677AbRITWZW>;
-	Thu, 20 Sep 2001 18:25:22 -0400
-Date: Fri, 21 Sep 2001 00:25:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: flush_tlb_all in vmalloc_area_pages
-Message-ID: <20010921002547.G729@athlon.random>
-In-Reply-To: <20010907165612.T11329@athlon.random> <20010920.142638.68040129.davem@redhat.com>
+	id <S274678AbRITWZU>; Thu, 20 Sep 2001 18:25:20 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:19744 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274677AbRITWZL> convert rfc822-to-8bit; Thu, 20 Sep 2001 18:25:11 -0400
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
+From: Robert Love <rml@tech9.net>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Andrew Morton <akpm@zip.com.au>, Chris Mason <mason@suse.com>,
+        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <200109202112.f8KLCXG16849@zero.tech9.net>
+In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com>
+	<3BAA29C2.A9718F49@zip.com.au> <1001019170.6090.134.camel@phantasy> 
+	<200109202112.f8KLCXG16849@zero.tech9.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
+Date: 20 Sep 2001 18:24:48 -0400
+Message-Id: <1001024694.6048.246.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010920.142638.68040129.davem@redhat.com>; from davem@redhat.com on Thu, Sep 20, 2001 at 02:26:38PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 02:26:38PM -0700, David S. Miller wrote:
->    From: Andrea Arcangeli <andrea@suse.de>
->    Date: Fri, 7 Sep 2001 16:56:12 +0200
->    
->    For the flush_cache_all for the virtually indexed caches should be the
->    same issue in theory (at least the kmap logic only needs to flush the
->    caches before the unmapping [not before the mapping] too)
->    
->    Am I missing something, Dave?
+On Thu, 2001-09-20 at 17:11, Dieter Nützel wrote:
+> > I am putting together a conditional scheduling patch to fix some of the
+> > worst cases, for use in conjunction with the preemption patch, and this
+> > might be useful.
 > 
-> Anything that creates or takes away vmalloc() mappings needs to flush
-> the data cache if it is virtuall indexed.
+> The conditional_schedule() function hampered me from running it already.
 
-The only question I'd like to get a answer is "what is actually the
-data that can be virtually indexed) in the vmalloc range at the time we
-run vmalloc?" Where does it cames from?
+hrm, i didnt notice that conditional_schedule wasnt defined in that
+patch.  you will need to do it, but do something more like
 
-If there is no such data (as I think), we obviously don't need to flush
-the virtually indexed caches at vmalloc time (but just at vfree).
+if (current->need_resched && current->lock_depth == 0) {
+	unlock_kernel();
+	lock_kernel();
+}
 
-Furthmore I recall on sparc you cannot flush the cache if you don't have
-a mapping in place, and when you run vmalloc there should be no mapping
-in place for the region of cache that you're trying to flush (or we
-wouldn't trap the invalid faults there).
+like Andrew wrote.
 
-If anybody is using at boot time the vmalloc range for whatever purpuse
-it should be its own business to flush the cache before dropping the
-mappings from there.
+If you don't jump on the idea of trying this :) I will send work out a
+patch that does some other low-latency thigns and send it out.
 
-Andrea
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

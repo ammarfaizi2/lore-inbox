@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267663AbUHEM3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUHEMed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267663AbUHEM3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 08:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267669AbUHEM3Z
+	id S263850AbUHEMed (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 08:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUHEMec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 08:29:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:16585 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267663AbUHEM3Y (ORCPT
+	Thu, 5 Aug 2004 08:34:32 -0400
+Received: from mato.luukku.com ([193.209.83.251]:35292 "EHLO mato.luukku.com")
+	by vger.kernel.org with ESMTP id S267681AbUHEMc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 08:29:24 -0400
-Date: Thu, 5 Aug 2004 14:29:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040805122907.GI11159@suse.de>
-References: <200408051225.i75CPT4U004434@burner.fokus.fraunhofer.de>
-Mime-Version: 1.0
+	Thu, 5 Aug 2004 08:32:26 -0400
+Message-ID: <411228FF.485E4D07@users.sourceforge.net>
+Date: Thu, 05 Aug 2004 15:33:03 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Fruhwirth Clemens <clemens@endorphin.org>,
+       James Morris <jmorris@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.6.8-rc3 - BSD licensing
+References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+		 <1091644663.21675.51.camel@ghanima> <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
+		 <1091647612.24215.12.camel@ghanima> <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408051225.i75CPT4U004434@burner.fokus.fraunhofer.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05 2004, Joerg Schilling wrote:
-> >From: Jens Axboe <axboe@suse.de>
-> 
-> >ATA method is misnamed, it's really SG_IO that is used. And you want to
-> >use that regardless of the device type, SCSI or ATAPI. There's no such
-> >thing as an ATA burner, and there's no need to differentiate between
-> >SCSI or ATAPI CD-ROM's when burning - SG_IO is the method to use. So
-> >forget browsing /proc/ide and other hacks.
-> 
-> I am sorry but as Linux already has 6 different interfaces for sending 
-> Generic SCSI commands and thus, we are running out of names.
-> 
-> Let me give you an advise: consolidate Linux so that is does only need
-> /dev/sg and fix the bugs in ide-scsi instead of constantly inventing new
-> unneeded interfaces.
+Linus Torvalds wrote:
+> Now, I obviously believe that Jari has acted like an ass, since he has
+> used the very same code under the GPL before, but hey, that's his problem.
 
-That's been the general direction for quite some time, just that SG_IO
-is the preferred method since that works all around. You were the one
-that merged support for the CDROM_SEND_PACKET interface, which has
-_never_ been advertised as a way to burn CDs in Linux. I'd suggest you
-remove that.
+Linus, are you saying that anyone who refuses to re-license their work under
+license of your choice, is an ass? Or just the ones who catch you
+re-licencing their work without permission?
+
+> Jari - please stop distributing your loop-aes patches. If you consider the
+> license to be non-GPL-compatible, then you have no business distributing
+> the thing as kernel patches. Alternatively, just say it's GPL'd. You can't
+> have it both ways.
+
+I say that loop-AES is GPL-compatible.
+
+Most of the files in loop-AES are licensed under GPL. Some files have less
+restrictive license, but are still licensed under GPL-compatible license.
+I am not aware of any files in loop-AES that are GPL-incompatible.
 
 -- 
-Jens Axboe
-
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUGFFAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUGFFdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUGFFAa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 01:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGFFAa
+	id S263085AbUGFFdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 01:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUGFFdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 01:00:30 -0400
-Received: from [211.100.22.21] ([211.100.22.21]:6039 "EHLO nec.com.cn")
-	by vger.kernel.org with ESMTP id S263032AbUGFFA2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 01:00:28 -0400
-Message-ID: <40EA325A.2060507@necas.nec.com.cn>
-Date: Tue, 06 Jul 2004 13:02:18 +0800
-From: lihg <lihg@necas.nec.com.cn>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: How to improve my dirver's performance
+	Tue, 6 Jul 2004 01:33:41 -0400
+Received: from jupiter.loonybin.net ([208.248.0.98]:21001 "EHLO
+	jupiter.loonybin.net") by vger.kernel.org with ESMTP
+	id S263085AbUGFFdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 01:33:38 -0400
+Date: Tue, 6 Jul 2004 00:33:28 -0500
+From: Zinx Verituse <zinx@epicsol.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 8139too in 2.6.x tx timeout
+Message-ID: <20040706053328.GA860@bliss>
+References: <20040626222304.GA31195@bliss> <87hdsoghdv.fsf@devron.myhome.or.jp> <20040704194009.GA2029@bliss> <873c4713fl.fsf@ibmpc.myhome.or.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <873c4713fl.fsf@ibmpc.myhome.or.jp>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have writen a driver as this :
+On Mon, Jul 05, 2004 at 01:30:22PM +0900, OGAWA Hirofumi wrote:
+> Zinx Verituse <zinx@epicsol.org> writes:
+> 
+> > Up with some other files:
+> > http://zinx.xmms.org/misc/tmp/8139too/
+> > linux-2.6.7-mobius-dotconfig (.config being used for the kernel)
+> 
+> Probably this isn't fix the problem, but can you try the following?
+> 
+> CONFIG_8139TOO_PIO=n
+> CONFIG_8139TOO_TUNE_TWISTER=n
+> 
+> (both config to "n")
+> 
 
-1)a kernel thread receive data sent by other computer via tcp/ip, and
-put them into a queue;
-2)another kernel thread get the data from the queue ,and write it to a
-disk .In this step,i implement by the follow code:
+Tried, but didn't work (not relevant due to new information after I tried,
+though -- see below)
 
-	......
-	    generic_make_request(WRITE,bh);//the buffer head is alloced by
-kmalloc by myself
-            run_task_queue(&tq_disk);
-   	......
+> > On the ping -c1: several pings made it, then it didn't reply for one,
+> > but also reported no timeout in the messages.  Another ping caused it
+> > to not reply _and_ to timeout/reset.
+> 
+> This may not be the problem of 8139too driver, because 2.4.24's
+> driver didn't fix.
+> 
+> Umm.. possible of cable or hub problem, but 2.4.24 is work...
+> Do you know lastest worked version?
+> 
 
-My problem :
-	In this way ,the disk's performance is bad.
-	How can i do to improve the disk's performance ?
-	Please give me a hand.
+I just tried a 2.4.24 kernel I compiled myself -- It doesn't work.
+I tried booting the 2.4.24-xfs knoppix kernel on my actual system
+instead of the knoppix CD (required a bit of fiddling to get it
+booting) -- Also does not work.
 
+So, it seems to be some configuration issue on my end, though I'm
+not sure what at this point (first thing i tried way back was copying
+knoppix's /etc/pcmcia).  Ah well, I'll figure it out eventually :)
+Thanks for your time :)
 
+> > By the way, I downloaded the specs for the 8139C and noticed immediately
+> > it claims writing to the ISR has no effect and that reading it clears it.
+> > The drivers appear to indicate this documentation is entirely wrong --
+> > Is there any real documentation for this chipset?
+> 
+> Indeed. I think you are reading the same document with me. Docs says it,
+> however, the interrupt status wasn't cleared by read.
+> -- 
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+>  
+> 
 
-
-
+-- 
+Zinx Verituse                                    http://zinx.xmms.org/

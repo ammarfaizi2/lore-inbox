@@ -1,227 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbUBPNpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUBPNpf
+	id S265535AbUBPNum (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265587AbUBPNto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:45:35 -0500
-Received: from gizmo03bw.bigpond.com ([144.140.70.13]:65231 "HELO
-	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
-	id S265531AbUBPNpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:45:10 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
+	Mon, 16 Feb 2004 08:49:44 -0500
+Received: from mail.gmx.net ([213.165.64.20]:18641 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265535AbUBPNq3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:46:29 -0500
+X-Authenticated: #20799612
+Date: Mon, 16 Feb 2004 14:34:18 +0100
+From: Hansjoerg Lipp <hjlipp@web.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 Paging Fault, Source Line located in slab.c, kmem_cache_reap()
-Date: Mon, 16 Feb 2004 23:45:36 +1000
-User-Agent: KMail/1.5.1
-Cc: vda@port.imtp.ilyichevsk.odessa.ua
-References: <200402150306.35704.ross@datscreative.com.au> <200402152349.36136.ross@datscreative.com.au> <200402162025.11540.ross@datscreative.com.au>
-In-Reply-To: <200402162025.11540.ross@datscreative.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: hjlipp@web.de
+Subject: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040216133418.GA4399@hobbes>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402162345.36632.ross@datscreative.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tracked down Oops to source line in kmem_cache_reap.
-...............................................................
-This Line is number 1784 in my file.........................
-		full_free = 0;
-		p = searchp->slabs_free.next;
-		while (p != &searchp->slabs_free) {  
-#if DEBUG
-			slabp = list_entry(p, slab_t, list);
+Hi!
 
-			if (slabp->inuse)
-				BUG();
-#endif
-			full_free++;
-			p = p->next; <======Oops Here
-		}
-............................
-objdump for above code section:
-Oops identified offending instruction at kmem_cache_reap+80 which is af0
-............................
-add:       8b 4c 24 08             mov    0x8(%esp,1),%ecx
-     ae1:       31 db                   xor    %ebx,%ebx
-     ae3:       8b 41 10                mov    0x10(%ecx),%eax
-     ae6:       89 ca                   mov    %ecx,%edx
-     ae8:       83 c2 10                add    $0x10,%edx
-     aeb:       39 d0                   cmp    %edx,%eax
-     aed:       74 08                   je     af7 <kmem_cache_reap+0x87>
-     aef:       90                      nop
-     af0:       8b 00                   mov    (%eax),%eax {<=====Oops}
-     af2:       43                      inc    %ebx
-     af3:       39 d0                   cmp    %edx,%eax
-     af5:       75 f9                   jne    af0 <kmem_cache_reap+0x80>
-     af7:       8b 44 24 08             mov    0x8(%esp,1),%eax
-...............................
-I do not know how this part of the kernel works.
-Have we walked off the end of a list or something?
-Can anyone help with a theory or still better a fix? 
+In a newsgroup about unix shells we had a discussion, why it is not
+possible to pass more than one argument to an interpreter using the
+shebang line of a script. We found, that this behaviour is rather
+OS dependent. See Sven Mascheck's page for details:
+  http://www.in-ulm.de/~mascheck/various/shebang/
 
-Hopefully thanks in advance,
-Ross.
+As I'm really missing this feature in Linux and changing this would not
+break anything (unless someone uses rather unportable "#!cmd x y" to
+pass _one_ argument "x y" containing spaces), I'd like to know if it's
+possible to apply the patch below to the kernel.
 
+It also allows to pass whitespace by using '\' as escape character:
+  "\t" => TAB
+  "\n" => LF
+  "\ " => SPC
+  "\\" => backslash
+All other backslashes are discarded.
 
-On Monday 16 February 2004 20:25, Ross Dickson wrote:
-> On Sunday 15 February 2004 23:49, Ross Dickson wrote:
-> > On Sunday 15 February 2004 06:33, you wrote:
-> > > On Saturday 14 February 2004 19:06, Ross Dickson wrote:
-> > > > I have an imaging system writing files to removable hard drives.
-> > > > Compact Flash boot with ram drives so I usually have no swap partition or
-> > > > file.
-> > > >
-> > > > Recently I upgraded kernel from 2.4.20 to 2.4.24.
-> Is KM18G Pro (nforce2 dual memory mode), AMD 2400XP, Preempt, Low latency,
-> 64Bit jiffies 1000Hz patched.
-> 
-> I found some articles about memory overcommitment, checked the source and saw
-> strict in use for arm systems - no swap- so this time I thought I would try 
-> 
-> echo 1 > /proc/sys/vm/overcommit_memory
-> 
-> I got another oops under equivalent circumstances to earlier (no swap).  
-> I ran oops through ksymoops on another machine with same kernel , results below.
-> At this point I think the trigger may be a slow (bad blocks?) 80Gb hard drive the files
-> are being written to. The PCI bus is quite busy with imaging from 3 cameras on two
-> capture cards (bttv and meteor II mc).
-> 
-> > > > Can the paging cache be tuned in /proc or somewhere to prevent it being so
-> > > > greedy as to want more memory than the machine has?
-> > > 
-> > > Maybe. But you should concentrate on finding where exactly it oopsed.
-> ...snip...
-> > ......I added a 16mb ram drive swap (see earlier posting)
-> > I note memfree stabilises at around 4Mb when running OK, given it only wanted
-> > an extra 1Mb cache swap, can I cat something to /proc/sys/vm/????? to force
-> > it to stabilise at around 10Mb or 20Mb? Otherwise can I change a constant
-> > and recompile kernel to achieve same? It might help give more headroom when
-> > the event occurs.
-> > 
-> > > 
-> > > > Is the quickest fix to give it more ram. I read on another posting that
-> > > > with greater than 512Mb the cache won't grab any more?
-> > > 
-> > > Please don't succumb to 'add more RAM' syndrome. 460 megs should be fine
-> > > for you. I'd say better find the root of the problem.
-> ...snip...
-> > > vda
-> > > 
-> 
-> Thanks for the response
-> Regards
-> Ross.
-> 
-> Was run "mem=450" with this Oops
-> 
-> ksymoops 2.4.8 on i686 2.4.24-rd.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -L (specified)
->      -o /lib/modules/2.4.24-rd/ (default)
->      -m /boot/System.map (specified)
-> 
-> Unable to handle kernel paging request at virtual address 6a65656a
-> c0133f20
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c0133f20>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010883
-> eax: 6a65656a   ebx: 000000f5   ecx: c14dfdd4   edx: c14dfde4
-> esi: 00000000   edi: 00000008   ebp: c14dfe40   esp: dc16df38
-> ds: 0018   es: 0018   ss: 0018
-> Process kswapd (pid: 4, stackpage=dc16d000)
-> Stack: 000001d0 00000001 c14dfdd4 00000000 00000005 00000005 00000020 000001d0 
->        c032c4d8 c032c4d8 c0134ebc dc16df84 000001d0 0000003c 00000020 c0134f58 
->        dc16df84 dc16c000 00000000 00000000 c032c4d8 dc16c000 c032c400 00000000 
-> Call Trace:    [<c0134ebc>] [<c0134f58>] [<c01350f6>] [<c0135169>] [<c013529d>]
->   [<c0135210>] [<c0105000>] [<c01057db>] [<c0135210>]
-> Code: 8b 00 43 39 d0 75 f9 8b 44 24 08 89 da 8b 70 24 8b 40 44 89 
-> 
-> 
-> >>EIP; c0133f20 <kmem_cache_reap+80/1f0>   <=====
-> 
-> >>ecx; c14dfdd4 <_end+1115228/1e4db4b4>
-> >>edx; c14dfde4 <_end+1115238/1e4db4b4>
-> >>ebp; c14dfe40 <_end+1115294/1e4db4b4>
-> >>esp; dc16df38 <_end+1bda338c/1e4db4b4>
-> 
-> Trace; c0134ebc <shrink_caches+1c/60>
-> Trace; c0134f58 <try_to_free_pages_zone+58/e0>
-> Trace; c01350f6 <kswapd_balance_pgdat+56/b0>
-> Trace; c0135169 <kswapd_balance+19/30>
-> Trace; c013529d <kswapd+8d/b0>
-> Trace; c0135210 <kswapd+0/b0>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c01057db <arch_kernel_thread+2b/40>
-> Trace; c0135210 <kswapd+0/b0>
-> 
-> Code;  c0133f20 <kmem_cache_reap+80/1f0>
-> 00000000 <_EIP>:
-> Code;  c0133f20 <kmem_cache_reap+80/1f0>   <=====
->    0:   8b 00                     mov    (%eax),%eax   <=====
-> Code;  c0133f22 <kmem_cache_reap+82/1f0>
->    2:   43                        inc    %ebx
-> Code;  c0133f23 <kmem_cache_reap+83/1f0>
->    3:   39 d0                     cmp    %edx,%eax
-> Code;  c0133f25 <kmem_cache_reap+85/1f0>
->    5:   75 f9                     jne    0 <_EIP>
-> Code;  c0133f27 <kmem_cache_reap+87/1f0>
->    7:   8b 44 24 08               mov    0x8(%esp,1),%eax
-> Code;  c0133f2b <kmem_cache_reap+8b/1f0>
->    b:   89 da                     mov    %ebx,%edx
-> Code;  c0133f2d <kmem_cache_reap+8d/1f0>
->    d:   8b 70 24                  mov    0x24(%eax),%esi
-> Code;  c0133f30 <kmem_cache_reap+90/1f0>
->   10:   8b 40 44                  mov    0x44(%eax),%eax
-> Code;  c0133f33 <kmem_cache_reap+93/1f0>
->   13:   89 00                     mov    %eax,(%eax)
-> 
-> Mem starts like this when programs have been started.
-> Was run "mem=460" for these mem readings.
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  473899008 22151168 451747840        0   327680  7737344
-> Swap:        0        0        0
-> MemTotal:       462792 kB
-> MemFree:        441160 kB
-> MemShared:           0 kB
-> Buffers:           320 kB
-> Cached:           7556 kB
-> SwapCached:          0 kB
-> Active:           2320 kB
-> Inactive:         7072 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       462792 kB
-> LowFree:        441160 kB
-> SwapTotal:           0 kB
-> SwapFree:            0 kB
-> 
-> And is like this near to Oops time
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  473899008 469348352  4550656        0   831488 420454400
-> Swap:        0        0        0
-> MemTotal:       462792 kB
-> MemFree:          4444 kB
-> MemShared:           0 kB
-> Buffers:           812 kB
-> Cached:         410600 kB
-> SwapCached:          0 kB
-> Active:           5064 kB
-> Inactive:       410968 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       462792 kB
-> LowFree:          4444 kB
-> SwapTotal:           0 kB
-> SwapFree:            0 kB
-> 
+This allows something like
+  #!/usr/bin/awk -F \t -f
+
+This part could break old scripts if the interpreter's path/filename or
+the arguments contain backslashes. Although I don't consider this a real
+problem, this feature can be deactivated by removing the
+  if (c=='\\') { ... }
+part from the patch.
+
+Another change: -ENOEXEC is returned, if the shebang line is too long.
+So, excessive characters are not dropped silently any more.
+
+The patch is tested for 2.6.1, but also applies cleanly to 2.6.2. I can
+also send a tested patch for 2.4.24.
+
+[ CC me on replies, please, as I'm not subscribed. ]
+
+Kind regards
+	Hansjoerg Lipp
+
+--- linux-2.6.1/fs/binfmt_script.c.orig	2004-02-06 22:21:30.000000000 +0100
++++ linux-2.6.1/fs/binfmt_script.c	2004-02-06 22:21:30.000000000 +0100
+@@ -18,10 +18,16 @@
+ 
+ static int load_script(struct linux_binprm *bprm,struct pt_regs *regs)
+ {
+-	char *cp, *i_name, *i_arg;
++	char *cp;
+ 	struct file *file;
+ 	char interp[BINPRM_BUF_SIZE];
+ 	int retval;
++	char *argv[(BINPRM_BUF_SIZE-1)/2];
++	char **cur_arg;
++	unsigned argc;
++	int in_arg;
++	char *end, *dest;
++	char c;
+ 
+ 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!') || (bprm->sh_bang)) 
+ 		return -ENOEXEC;
+@@ -35,51 +41,47 @@
+ 	fput(bprm->file);
+ 	bprm->file = NULL;
+ 
+-	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+-	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+-		cp = bprm->buf+BINPRM_BUF_SIZE-1;
+-	*cp = '\0';
+-	while (cp > bprm->buf) {
+-		cp--;
+-		if ((*cp == ' ') || (*cp == '\t'))
+-			*cp = '\0';
+-		else
+-			break;
++	in_arg=0;
++	cur_arg=argv;
++	argc=0;
++	dest=bprm->buf+2;
++	end=bprm->buf+BINPRM_BUF_SIZE;
++	for (cp=bprm->buf+2;cp<end;++cp) {
++		c=*cp;
++		if (c==' '|| c=='\t' || c=='\n' || !c) {
++			if (in_arg) {
++				in_arg=0;
++				*dest++=0;
++			}
++			if (c=='\n' || !c) break;
++		} else {
++			if (c=='\\') {
++				if (++cp>=end) return -ENOEXEC;
++				c=*cp;
++				if (c=='\n' || !c) return -ENOEXEC;
++				if (c=='t')
++					c='\t';
++				else if (c=='n')
++					c='\n';
++			}
++			if (!in_arg) {
++				in_arg=1;
++				argc++;
++				*cur_arg++=dest;
++			}
++			*dest++=c;
++		}
+ 	}
+-	for (cp = bprm->buf+2; (*cp == ' ') || (*cp == '\t'); cp++);
+-	if (*cp == '\0') 
+-		return -ENOEXEC; /* No interpreter name found */
+-	i_name = cp;
+-	i_arg = 0;
+-	for ( ; *cp && (*cp != ' ') && (*cp != '\t'); cp++)
+-		/* nothing */ ;
+-	while ((*cp == ' ') || (*cp == '\t'))
+-		*cp++ = '\0';
+-	if (*cp)
+-		i_arg = cp;
+-	strcpy (interp, i_name);
+-	/*
+-	 * OK, we've parsed out the interpreter name and
+-	 * (optional) argument.
+-	 * Splice in (1) the interpreter's name for argv[0]
+-	 *           (2) (optional) argument to interpreter
+-	 *           (3) filename of shell script (replace argv[0])
+-	 *
+-	 * This is done in reverse order, because of how the
+-	 * user environment and arguments are stored.
+-	 */
++	if (cp>=end||!argc) return -ENOEXEC;
++
++	strcpy (interp, argv[0]);
+ 	remove_arg_zero(bprm);
+ 	retval = copy_strings_kernel(1, &bprm->interp, bprm);
+-	if (retval < 0) return retval; 
+-	bprm->argc++;
+-	if (i_arg) {
+-		retval = copy_strings_kernel(1, &i_arg, bprm);
+-		if (retval < 0) return retval; 
+-		bprm->argc++;
+-	}
+-	retval = copy_strings_kernel(1, &i_name, bprm);
+-	if (retval) return retval; 
++	if (retval < 0) return retval;
+ 	bprm->argc++;
++	retval = copy_strings_kernel(argc, argv, bprm);
++	if (retval < 0) return retval;
++	bprm->argc += argc;
+ 	bprm->interp = interp;
+ 
+ 	/*
 

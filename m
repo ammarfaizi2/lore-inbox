@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264437AbRFOQRh>; Fri, 15 Jun 2001 12:17:37 -0400
+	id <S264438AbRFOQWH>; Fri, 15 Jun 2001 12:22:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264438AbRFOQRT>; Fri, 15 Jun 2001 12:17:19 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:16610 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S264437AbRFOQQ4>; Fri, 15 Jun 2001 12:16:56 -0400
-Date: Fri, 15 Jun 2001 18:16:45 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: "L. K." <lk@Aniela.EU.ORG>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 3C905B -- EEPROM (i blive so) problem
-In-Reply-To: <Pine.LNX.4.21.0106131838110.30298-100000@ns1.Aniela.EU.ORG>
-Message-ID: <Pine.LNX.4.33.0106151804330.13655-100000@kenzo.iwr.uni-heidelberg.de>
+	id <S264446AbRFOQV5>; Fri, 15 Jun 2001 12:21:57 -0400
+Received: from www.wen-online.de ([212.223.88.39]:34053 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264438AbRFOQVu>;
+	Fri, 15 Jun 2001 12:21:50 -0400
+Date: Fri, 15 Jun 2001 18:21:13 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT][PATCH] even out background aging
+In-Reply-To: <Pine.LNX.4.33.0106151211360.2262-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0106151800130.312-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001, L. K. wrote:
+On Fri, 15 Jun 2001, Rik van Riel wrote:
 
-> I have a 3COM 3C905B ethernet card that has been hit by a power outage for
-> aprox. 0.5 sec.
+> [Request For Testers:  please test this on your system...]
+>
+> Hi,
+>
+> the following patch makes use of the fact that refill_inactive()
+> now calls swap_out() before calling refill_inactive_scan() and
+> the fact that the inactive_dirty list is now reclaimed in a fair
+> LRU order.
+>
+> Background scanning can now be replaced by a simple call to
+> refill_inactive(), instead of the refill_inactive_scan(), which
+> gave mapped pages an unfair advantage over unmapped ones.
 
-What do you mean by "power outage" ? If you mean cutting the power, this
-is not a serious reason for EEPROM damages, unless you were modifying it
-at that moment.
+Hi Rik,
 
-> I do belive something happened to the eeprom of the card. I would like
-> to know if I can overwrite-it with a new one so that I can make my
-> ethernet card work again.
+While I was testing this suggestion (still actually) prior to your
+RFT, the first thing I did was the straight substitution, but under
+heavy load, the additional swap/aging when there is a ~persistant
+shortage hurt ~fairly badly.  What I did instead, and shows no ill
+effects under any load I've tried so far was...
 
-Maybe 3Com's DOS-based tool (3c90xcfg.exe) can help.
+		/* If needed, try to free some memory. */
+		if (inactive_shortage() || free_shortage())
+			do_try_to_free_pages(GFP_KSWAPD, 0);
+		else {
+			/* Do background page aging. */
+			swap_out(DEF_PRIORITY, GFP_KSWAPD);
+			refill_inactive_scan(DEF_PRIORITY, 0);
+		}
 
-In order to re-write the EEPROM, you need to use vortex-diag; I think that
-you need to hack it a bit as the EEPROM writting code is not enabled. But
-most important is that you need a good EEPROM image to write; if you have
-another similar card, you can use vortex-diag to dump the EEPROM, then
-change the MAC address (if you put both cards on the same network
-segment). If you don't have a similar card... you have to download the
-card's documentation from 3Com and build your own EEPROM image based on
-what you know about your card's capabilities - having an EEPROM image from
-a different card might screw things up badly.
+I still had the benefit of idle pages being pushed to disk quickly
+and staying there :)  IMHO, this is the first real candidate for a
+sysctl tunable, as it's possibly not good for everyone.  As indicated
+privately, I like the effect of this suggestion a lot, but laptop
+people may not because of the infrequent and miniscule swapin (which
+_might_ be an irritant _if_ they are doing enough work etc etc).
 
-If you decide to go the last way, maybe I can help with some
-interpretation of the docs - please e-mail me in private.
+	-Mike
 
-Sincerely,
-
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+(this report would have landed in your mailbox tomorrow.. I was too
+slow.  sending it to lkml lest someone sees the same high load thing
+I did and determine it's a loss unfairly)
 

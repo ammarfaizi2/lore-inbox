@@ -1,64 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUHYJ26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267237AbUHYMtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUHYJ26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 05:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUHYJ25
+	id S267237AbUHYMtT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 08:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267226AbUHYMtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 05:28:57 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:10715 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264973AbUHYJOH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 05:14:07 -0400
-Date: Wed, 25 Aug 2004 11:13:31 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Matt Mackall <mpm@selenic.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-Message-ID: <Pine.GSO.4.58.0408251103340.18759@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
- <20040824184245.GE5414@waste.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Aug 2004 08:49:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38322 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267237AbUHYMtN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 08:49:13 -0400
+Date: Wed, 25 Aug 2004 08:08:49 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [9/10] [3/4]
+Message-ID: <20040825110848.GA13285@logos.cnet>
+References: <412A2630.70509@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412A2630.70509@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Linus Torvalds wrote:
-> On Tue, 24 Aug 2004, Matt Mackall wrote:
-> > Phew, I was worried about that. Can I get a ruling on how you intend
-> > to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
-> > looking to unbreak. My preference would be for all x.y.z.n patches to
-> > be relative to x.y.z.
->
-> Hmm.. I have no strong preferences. There _is_ obviously a well-defined
-> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have
-> any ordering wrt the bugfixes), so either interdiffs or whole new full
-> diffs are totally "logical". We just have to chose one way or the other,
-> and I don't actually much care.
->
-> Any reason for your preference?
+On Mon, Aug 23, 2004 at 08:15:28PM +0300, O.Sezer wrote:
+> splitted-up the fs/* gcc3.4-inline-patches.
+> 
+> [3/4] intermezzo, while we're here
+> 
+> 
 
-I prefer diffs between x.y.z.w-1 and x.y.z.w. x.y.z.{...,w-1,w,w+1,...} is one
-stream of development, x.y.{...,z-1,z,z+1,...} is another one.
+Ozkan,
 
-BTW, I always found it pretty rare that the rc patches weren't like that.
-`unpatching' w-1 and `patching' w afterwards isn't fun if you have local
-changes.
+What is this about?
 
-Gr{oetje,eeting}s,
+I can't understand this as trivial gcc3.4 inline fixes.
 
-						Geert
 
-P.S. Personally I wouldn't suffer from unpatching and patching, since I use
-     merging (using a script that does recursive merges with RCS merge). But if
-     I would not be an architecture maintainer but just a plain user who
-     sometimes does a few hacks (or applies some patches from others) on his
-     kernel, I would just want to apply the x.y.z.w-1-to-x.y.z.w patch, fixup
-     the (hopefully few) rejects, and be happy...
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> --- 28p1/fs/intermezzo/file.c~	2004-02-18 15:36:31.000000000 +0200
+> +++ 28p1/fs/intermezzo/file.c	2004-08-07 14:09:39.000000000 +0300
+> @@ -78,16 +78,19 @@
+>          pathlen = MYPATHLEN(buffer, path);
+>          
+>          CDEBUG(D_FILE, "de %p, dd %p\n", de, dd);
+> +
+>          if (dd->remote_ino == 0) {
+>                  rc = presto_get_fileid(minor, fset, de);
+> +                if (dd->remote_ino == 0)
+> +                        CERROR("get_fileid failed %d, ino: %Lx, fetching by name\n", rc,
+> +                               dd->remote_ino);
+> +
+>          }
+>          memset (&info, 0, sizeof(info));
+>          if (dd->remote_ino > 0) {
+>                  info.remote_ino = dd->remote_ino;
+>                  info.remote_generation = dd->remote_generation;
+> -        } else
+> -                CERROR("get_fileid failed %d, ino: %Lx, fetching by name\n", rc,
+> -                       dd->remote_ino);
+> +        }
+>  
+>          rc = izo_upc_open(minor, pathlen, path, fset->fset_name, &info);
+>          PRESTO_FREE(buffer, PAGE_SIZE);
+> === http://marc.theaimsgroup.com/?l=bk-commits-head&m=105399886001079&w=2
+> --- 28p1/fs/intermezzo/methods.c~	2002-11-29 01:53:15.000000000 +0200
+> +++ 28p1/fs/intermezzo/methods.c	2004-08-17 05:02:58.000000000 +0300
+> @@ -254,8 +254,8 @@
+>          if (ops == NULL) {
+>                  CERROR("prepare to die: unrecognized cache type for Filter\n");
+>          }
+> -        return ops;
+>          FEXIT;
+> +        return ops;
+>  }
+>  
+>  
+> --- 28p1/fs/intermezzo/journal_xfs.c~	2002-11-29 01:53:15.000000000 +0200
+> +++ 28p1/fs/intermezzo/journal_xfs.c	2004-08-17 05:02:58.000000000 +0300
+> @@ -58,7 +57,7 @@
+>          VFS_STATVFS(vfsp, &stat, NULL, rc);
+>          avail = statp.f_bfree;
+>  
+> -        return sbp->sb_fdblocks;; 
+> +        return sbp->sb_fdblocks;
+>  #endif
+>          return 0x0fffffff;
+>  }
+> --- 28p1/fs/intermezzo/psdev.c~	2002-11-29 01:53:15.000000000 +0200
+> +++ 28p1/fs/intermezzo/psdev.c	2004-08-17 15:18:34.000000000 +0300
+> @@ -564,6 +564,10 @@
+>          buffer->u_uniq = req->rq_unique;
+>          buffer->u_async = async;
+>  
+> +        /* Remove potential datarace possibility*/
+> +        if ( async ) 
+> +                req->rq_flags = REQ_ASYNC;
+> +
+>          spin_lock(&channel->uc_lock); 
+>          /* Append msg to pending queue and poke Lento. */
+>          list_add(&req->rq_chain, channel->uc_pending.prev);
+> @@ -576,7 +580,7 @@
+>  
+>          if ( async ) {
+>                  /* req, rq_data are freed in presto_psdev_read for async */
+> -                req->rq_flags = REQ_ASYNC;
+> +                /* req->rq_flags = REQ_ASYNC;*/
+>                  EXIT;
+>                  return 0;
+>          }
+> @@ -647,5 +651,6 @@
+>  exit_req:
+>          PRESTO_FREE(req, sizeof(struct upc_req));
+>  exit_buf:
+> +        PRESTO_FREE(buffer,*size);
+>          return error;
+>  }
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

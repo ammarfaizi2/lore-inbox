@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270368AbTGMTsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 15:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270370AbTGMTsP
+	id S270382AbTGMT5C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 15:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270397AbTGMT5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 15:48:15 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:4286 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id S270368AbTGMTsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 15:48:14 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-Date: Sun, 13 Jul 2003 22:03:55 +0200
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200307112053.55880.kernel@kolivas.org> <20030712154924.GC15452@holomorphy.com>
-In-Reply-To: <20030712154924.GC15452@holomorphy.com>
+	Sun, 13 Jul 2003 15:57:02 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:44508 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S270382AbTGMT47
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 15:56:59 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Mike Black" <mblack@csi-inc.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Pthread performance
+Date: Sun, 13 Jul 2003 13:11:44 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEEOEFAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307132203.55414.phillips@arcor.de>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <022401c3479e$2b1cd2e0$c8de11cc@black>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 July 2003 17:49, William Lee Irwin III wrote:
-> On Fri, Jul 11, 2003 at 08:53:38PM +1000, Con Kolivas wrote:
-> > Wli coined the term "isochronous" (greek for same time) for a real time
-> > task that was limited in it's timeslice but still guaranteed to run. I've
-> > decided to abuse this term and use it to name this new policy in this
-> > patch. This is neither real time, nor guaranteed.
->
-> I didn't coin it; I know of it from elsewhere.
 
-Right, for example, USB has an isochronous transfer facility intended to 
-support media applications, e.g., cameras, that require realtime 
-bandwidth/latency guarantees.  The thing is, such guarantees have to be 
-end-to-end in the media pipeline.  Sound is just one of the applications that 
-needs the kind of realtime support we (or more properly, Davide) just 
-proposed.
+> I found a benchmark program for threads and found a major
+> difference between a single CPU and dual CPU system.
+> Here's the code:
+> http://www-124.ibm.com/pipermail/pthreads-users/2002-April/000176.html
+> Is this showing context switches going between CPUs??
 
-Regards,
+	No.
 
-Daniel
+> Wouldn't one expect the dual CPU to run twice as fast instead of
+> ten times slower?
+
+	Not necessarily. The code doesn't do much other than modified shared data
+without a lock. Not only does this invoke undefined behavior, but it
+penalizes SMP machines because only they are subject to cache ping-ponging.
+
+> As you can see from the timing user time increases by a factor of
+> 4 and system time by a factor of 10.
+> I seem to remember something about gettimeofday() possibly being
+> a problem but couldn't find a reference to it.
+> Anybody have an explanation/fix for this?
+
+	The program doesn't seem to measure anything useful and invokes undefined
+behavior.
+
+	If you would like a fix, try this:
+
+#define sched_yield() while(false)
+
+	DS
+
 

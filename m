@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293631AbSCFP7z>; Wed, 6 Mar 2002 10:59:55 -0500
+	id <S293639AbSCFQEX>; Wed, 6 Mar 2002 11:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293633AbSCFP7o>; Wed, 6 Mar 2002 10:59:44 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:64262 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S293631AbSCFP7h>;
-	Wed, 6 Mar 2002 10:59:37 -0500
-Date: Wed, 6 Mar 2002 08:59:57 -0700
-From: yodaiken@fsmlabs.com
-To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux   Maintainers
-Message-ID: <20020306085957.A9147@hq.fsmlabs.com>
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org.suse.lists.linux.kernel> <3C8543CC.A6017F76@zip.com.au.suse.lists.linux.kernel> <p73vgca11b7.fsf@oldwotan.suse.de> <20020306111745.G6531@suse.de> <20020306144849.GB28744@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20020306144849.GB28744@stingr.net>; from i@stingr.net on Wed, Mar 06, 2002 at 05:48:49PM +0300
-Organization: FSM Labs
+	id <S293634AbSCFQEO>; Wed, 6 Mar 2002 11:04:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41222 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293633AbSCFQD5>; Wed, 6 Mar 2002 11:03:57 -0500
+Date: Wed, 6 Mar 2002 11:01:28 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <3C85F872.7050306@evision-ventures.com>
+Message-ID: <Pine.LNX.3.96.1020306105428.386A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 05:48:49PM +0300, Paul P Komkoff Jr wrote:
-> Replying to Dave Jones:
-> >  Something I've not yet worked out is why none of the proponents of
-> >  arch, subversion etc are offering to run a mirror of Linus'
-> >  bitkeeper tree for those who don't want to use bk, but
-> >  "must have 0-day kernels".
-> 
-> Because they do not want bitkeeper, and do not know how to bk pull & export
-> WITHOUT bk itself :)
+On Wed, 6 Mar 2002, Martin Dalecki wrote:
 
-Really, that's too stupid for words. Let them first figure out how to
-keep the data from passing through any proprietary routers in the Internet.
+> 2. It convinced me that the current task-file interface in linux
+>     is inadequate. So Alan please bear with me if your CF format
+>     microdrive will have to not wakeup properly for some time...
+>     The current mess will just have to go before something more
+>     adequate can go in.
 
-The real answer is that they can't do it. 
+  Fortunately you have the 2.5 kernel to do just this type of thing,
+and others who don't share the "it's not perfect, rewrite from scratch"
+may be able to find a clean way to provide true RAW access for root."
+ 
+> 3. Someone had too much time at apple, becouse the C++ found
+>     there doesn't apparently contain anything that couldn't
+>     be expressed without any pain in plain C with structs containing
+>     function pointers ;-).
 
-
+  Can't disagree, I never understood how people who can understand
+inheritance can be fuddled by pointers to functions.
 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

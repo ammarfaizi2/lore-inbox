@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUJOMbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUJOMdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267739AbUJOMbj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 08:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUJOMbj
+	id S267743AbUJOMdX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 08:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJOMdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 08:31:39 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:20609 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267739AbUJOMbh
+	Fri, 15 Oct 2004 08:33:22 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:32208 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S267743AbUJOMdC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 08:31:37 -0400
-Subject: Re: Fw: signed kernel modules?
-From: Josh Boyer <jdub@us.ibm.com>
-To: root@chaos.analogic.com
-Cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
-References: <27277.1097702318@redhat.com>
-	 <1097626296.4013.34.camel@localhost.localdomain>
-	 <1096411448.3230.22.camel@localhost.localdomain>
-	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
-	 <20040812092029.GA30255@devserv.devel.redhat.com>
-	 <20040811211719.GD21894@kroah.com>
-	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
-	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
-	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
-	 <30797.1092308768@redhat.com>
-	 <20040812111853.GB25950@devserv.devel.redhat.com>
-	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
-	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
-	 <10345.1097507482@redhat.com>
-	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
-	 <1097534090.16153.7.camel@localhost.localdomain>
-	 <1097570159.5788.1089.camel@baythorne.infradead.org>
-	 <23446.1097777340@redhat.com> <Pine.LNX.4.61.0410151253360.7182@scrub.home>
-	 <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
-Content-Type: text/plain
-Message-Id: <1097843492.29988.6.camel@weaponx.rchland.ibm.com>
+	Fri, 15 Oct 2004 08:33:02 -0400
+Date: Fri, 15 Oct 2004 14:33:00 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: __attribute__((unused))
+Message-ID: <20041015123300.GA12530@janus>
+References: <20041014220243.B28649@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 15 Oct 2004 07:31:32 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014220243.B28649@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 07:10, Richard B. Johnson wrote:
-> On Fri, 15 Oct 2004, Roman Zippel wrote:
+On Thu, Oct 14, 2004 at 10:02:43PM +0100, Russell King wrote:
 > 
-> > Hi,
-> >
-> > On Thu, 14 Oct 2004, David Howells wrote:
-> >
-> >> I've uploaded an updated module signing patch with Rusty's suggested
-> >> additions:
-> >
-> > Can someone please put this patch into some context, where it's not
-> > completely pointless? As is it does not make anything more secure.
-> > Why is the kernel more trustable than a kernel module?
-> > If someone could show me how I can trust the running kernel, it should be
-> > rather easy to extend the same measures to modules without the need for
-> > this patch.
-> >
-> > bye, Roman
-> > -
+> I notice that module.h contains stuff like:
 > 
-> This is just the first step, which I think must be quashed
-> immediately. The ultimate goal is to control what you put
-> into your computer. Eventually, some central licensing
-> authority will certify any modules that are allowed to
-> be run in your computer. Doesn't anybody else see this?
+> #define MODULE_GENERIC_TABLE(gtype,name)                        \
+> extern const struct gtype##_id __mod_##gtype##_table            \
+>   __attribute__ ((unused, alias(__stringify(name))))
+> 
+> and even:
+> 
+> #define __MODULE_INFO(tag, name, info)                                    \
+> static const char __module_cat(name,__LINE__)[]                           \
+>   __attribute_used__                                                      \
+>   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
+> 
+> My understanding is that we shouldn't be using __attribute__((unused))
+> in either of these - can someone confirm.
+> 
+> The second one looks fairly dodgy since we're telling a compiler that
+> it's both used and unused.  That sounds a bit like a HHGTTG puzzle (you
+> have tea and no tea.)
 
-cd linux-2.6;
-patch -R -p1 < ../<modsign patch name>
+This makes sense, assuming the gcc info pages are correct:
+`unused'
+     This attribute, attached to a function, means that the function is
+     meant to be possibly unused.  GCC will not produce a warning for
+     this function.  GNU C++ does not currently support this attribute
+     as definitions without parameters are valid in C++.
 
-josh
+`used'
+     This attribute, attached to a function, means that code must be
+     emitted for the function even if it appears that the function is
+     not referenced.  This is useful, for example, when the function is
+     referenced only in inline assembly.
 
+So, a function could be "used" and "unused" at the same time:
+
+	unused -> don't warn
+	used -> don't discard
+
+-- 
+Frank

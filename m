@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbUDSNiz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 09:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUDSNhm
+	id S264429AbUDSNkC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 09:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbUDSNjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 09:37:42 -0400
-Received: from adsl-76-231.38-151.net24.it ([151.38.231.76]:44562 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S264449AbUDSNfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 09:35:11 -0400
-Date: Mon, 19 Apr 2004 15:35:08 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: Re: 2.4.26 IRDA BUG - blocker
-Message-ID: <20040419133507.GB10382@gateway.milesteg.arr>
-Mail-Followup-To: "Michal Semler (volny.cz)" <cijoml@volny.cz>,
-	linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-References: <200404190152.16594.cijoml@volny.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404190152.16594.cijoml@volny.cz>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.5.1i
+	Mon, 19 Apr 2004 09:39:08 -0400
+Received: from smtp.ncy.finance-net.fr ([62.161.220.65]:46346 "EHLO
+	smtp.ncy.finance-net.fr") by vger.kernel.org with ESMTP
+	id S264426AbUDSNiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:38:13 -0400
+Date: Mon, 19 Apr 2004 15:37:59 +0200
+From: Fabian Fenaut <fabian.fenaut@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20040312 Debian/1.4.1-0jds1
+X-Accept-Language: fr
+MIME-Version: 1.0
+To: Jan Kasprzak <kas@informatics.muni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Sensors (W83627HF) in Tyan S2882
+References: <20040419120132.GP23938@fi.muni.cz>
+In-Reply-To: <20040419120132.GP23938@fi.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+Message-Id: <S264426AbUDSNiN/20040419133854Z+431@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 01:52:16AM +0200, Michal Semler (volny.cz) wrote:
-> When I try connect with 2.4.26 kernel to T68i
-> I getts this message and then port freezes - no devices discovered and no 
-> communication, sometimes freezes whole laptop:
+Jan Kasprzak a écrit le 19.04.2004 14:01:
+> 
+> I have two systems with Tyan S2882 boards (K8S Pro). The sensors chip is
+> Winbond w83627hf according to the mainboard documentation.  The w83627hf 
+> driver can read values from the sensors, but apparently not all values. The
+> board has six fan connectors (two labeled CPU1 fan and CPU2 fan, and four
+> chassis fans). BIOS displays the fan status correctly for all fans, so all
+> fans are connected to the sensors chip. However, there are only three fans
+> listed in /sys/devices/platform/i2c-1/1-0290.
 
-I'm seeing this same behaviour with a Nokia 6610, same modules, same
-messages, but kernel 2.6.5.
-I also noted that with irdaping I loose one ping every 2, so that
-sequence numbers follow the following pattern:
-1
-2
-4
-5
-7
-8
-...
 
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
+Probably unrelated to your problem, but isn't there a typo in 
+drivers/i2c/chips/Kconfig ? maybe patch below ?
+
+--
+Fabian
+
+
+diff -Nru drivers/i2c/chips/Kconfig.orig drivers/i2c/chips/Kconfig
+--- drivers/i2c/chips/Kconfig.orig      Fri Apr 16 11:12:17 2004
++++ drivers/i2c/chips/Kconfig   Mon Apr 19 15:23:48 2004
+@@ -158,7 +158,7 @@
+           will be called via686a.
+
+  config SENSORS_W83781D
+-       tristate "Winbond W83781D, W83782D, W83783S, W83627HF, Asus AS99127F"
++       tristate "Winbond W83781D, W83782D, W83783S, W83682HF, Asus AS99127F"
+         depends on I2C && EXPERIMENTAL
+         select I2C_SENSOR
+         help
 

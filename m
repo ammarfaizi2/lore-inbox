@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264546AbTLGVVX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTLGU4c
+	id S264544AbTLGVcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTLGV2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:56:32 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:42031 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264534AbTLGUzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:55:40 -0500
-Date: Sun, 7 Dec 2003 21:51:26 +0100
-Message-Id: <200312072051.hB7KpQmX000747@callisto.of.borg>
+	Sun, 7 Dec 2003 16:28:24 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:6236 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264544AbTLGUzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:55:53 -0500
+Date: Sun, 7 Dec 2003 21:51:32 +0100
+Message-Id: <200312072051.hB7KpWv5000789@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 136] Amiga Gayle E-Matrix 530 IDE
+Subject: [PATCH 143] NCR53C9x SCSI inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga Gayle IDE: Add support for the IDE interface on the M-Tech E-Matrix 530
-expansion card
+NCR53C9x SCSI: Kill bogus inline
 
---- linux-2.4.23/Documentation/Configure.help	2003-10-30 14:06:08.000000000 +0100
-+++ linux-m68k-2.4.23/Documentation/Configure.help	2003-11-03 22:10:12.000000000 +0100
-@@ -1485,12 +1485,15 @@
+--- linux-2.4.23/drivers/scsi/NCR53C9x.h	2001-09-25 10:15:03.000000000 +0200
++++ linux-m68k-2.4.23/drivers/scsi/NCR53C9x.h	2003-11-30 12:51:50.000000000 +0100
+@@ -639,8 +639,7 @@
  
- Amiga Gayle IDE interface support
- CONFIG_BLK_DEV_GAYLE
--  This is the IDE driver for the builtin IDE interface on some Amiga
--  models. It supports both the `A1200 style' (used in A600 and A1200)
--  and `A4000 style' (used in A4000 and A4000T) of the Gayle IDE
--  interface. Say Y if you have such an Amiga model and want to use IDE
--  devices (hard disks, CD-ROM drives, etc.) that are connected to the
--  builtin IDE interface.
-+  This is the IDE driver for the Amiga Gayle IDE interface. It supports
-+  both the `A1200 style' and `A4000 style' of the Gayle IDE interface,
-+  This includes builtin IDE interfaces on some Amiga models (A600,
-+  A1200, A4000, and A4000T), and IDE interfaces on the Zorro expansion
-+  bus (M-Tech E-Matrix 530 expansion card).
-+  Say Y if you have an Amiga with a Gayle IDE interface and want to use
-+  IDE devices (hard disks, CD-ROM drives, etc.) that are connected to it.
-+  Note that you also have to enable Zorro bus support if you want to
-+  use Gayle IDE interfaces on the Zorro expansion bus.
  
- Falcon IDE interface support
- CONFIG_BLK_DEV_FALCON_IDE
---- linux-2.4.23/drivers/ide/legacy/gayle.c	2003-05-09 11:02:33.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/ide/legacy/gayle.c	2003-11-02 13:49:18.000000000 +0100
-@@ -29,7 +29,7 @@
-      */
+ /* External functions */
+-extern inline void esp_cmd(struct NCR_ESP *esp, struct ESP_regs *eregs,
+-			   unchar cmd);
++extern void esp_cmd(struct NCR_ESP *esp, struct ESP_regs *eregs, unchar cmd);
+ extern struct NCR_ESP *esp_allocate(Scsi_Host_Template *, void *);
+ extern void esp_deallocate(struct NCR_ESP *);
+ extern void esp_release(void);
+--- linux-2.4.23/drivers/scsi/mac_esp.c	2003-10-20 23:16:45.000000000 +0200
++++ linux-m68k-2.4.23/drivers/scsi/mac_esp.c	2003-11-23 22:17:06.000000000 +0100
+@@ -44,7 +44,7 @@
+ #define mac_turnon_irq(x)	mac_enable_irq(x)
+ #define mac_turnoff_irq(x)	mac_disable_irq(x)
  
- #define GAYLE_BASE_4000	0xdd2020	/* A4000/A4000T */
--#define GAYLE_BASE_1200	0xda0000	/* A1200/A600 */
-+#define GAYLE_BASE_1200	0xda0000	/* A1200/A600 and E-Matrix 530 */
+-extern inline void esp_handle(struct NCR_ESP *esp);
++extern void esp_handle(struct NCR_ESP *esp);
+ extern void mac_esp_intr(int irq, void *dev_id, struct pt_regs *pregs);
  
-     /*
-      *  Offsets from one of the above bases
-@@ -118,9 +118,17 @@
-     if (!MACH_IS_AMIGA)
- 	return;
- 
--    if (!(a4000 = AMIGAHW_PRESENT(A4000_IDE)) && !AMIGAHW_PRESENT(A1200_IDE))
--	return;
-+    if ((a4000 = AMIGAHW_PRESENT(A4000_IDE)) || AMIGAHW_PRESENT(A1200_IDE))
-+	goto found;
-+
-+#ifdef CONFIG_ZORRO
-+    if (zorro_find_device(ZORRO_PROD_MTEC_VIPER_MK_V_E_MATRIX_530_SCSI_IDE,
-+			  NULL))
-+	goto found;
-+#endif
-+    return;
- 
-+found:
-     for (i = 0; i < GAYLE_NUM_PROBE_HWIFS; i++) {
- 	ide_ioreg_t base, ctrlport, irqport;
- 	ide_ack_intr_t *ack_intr;
+ static int  dma_bytes_sent(struct NCR_ESP * esp, int fifo_count);
 
 Gr{oetje,eeting}s,
 

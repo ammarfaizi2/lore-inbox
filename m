@@ -1,63 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUBDIoy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 03:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266226AbUBDIox
+	id S266303AbUBDIwS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 03:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266325AbUBDIwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 03:44:53 -0500
-Received: from m244.net81-65-141.noos.fr ([81.65.141.244]:43190 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S264391AbUBDIow
+	Wed, 4 Feb 2004 03:52:18 -0500
+Received: from mail.uni-kl.de ([131.246.137.52]:35513 "EHLO uni-kl.de")
+	by vger.kernel.org with ESMTP id S266303AbUBDIwO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 03:44:52 -0500
-Date: Wed, 4 Feb 2004 09:44:37 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] meye: correct printk of dma_addr_t
-Message-ID: <20040204084437.GA13455@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040203153606.76442b9c.rddunlap@osdl.org> <20040203155752.17a8e274.akpm@osdl.org> <20040203162822.64ee18e1.rddunlap@osdl.org>
+	Wed, 4 Feb 2004 03:52:14 -0500
+Date: Wed, 4 Feb 2004 09:51:57 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: "P. Christeas" <p_christ@hol.gr>, lkml <linux-kernel@vger.kernel.org>,
+       viro@math.psu.edu
+Subject: Re: Q: large files in iso9660 ?
+Message-ID: <20040204085157.GA21174@zombie.inka.de>
+References: <200402020024.31785.p_christ@hol.gr> <20040203133551.GA11957@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040203162822.64ee18e1.rddunlap@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040203133551.GA11957@bitwizard.nl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by mailgate1.uni-kl.de id i148qARL023137
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03, 2004 at 04:28:22PM -0800, Randy.Dunlap wrote:
-
-> | mchip_ptable[] just contains pointers to kernel memory.  It doesn't seem
-> | appropriate to be casting these to dma_addr_t's
+#include <hallo.h>
+* Erik Mouw [Tue, Feb 03 2004, 02:35:51PM]:
+> On Mon, Feb 02, 2004 at 12:24:31AM +0200, P. Christeas wrote:
+> > I've tried to create a disk (DVD) which contains a single 3.8GB file. The 
+> > creation (mkisofs) worked and the disk's TOC reads 3.8GB.
 > 
+> No, it didn't. Last time I tried mkisofs warned about files being
+> larger than 2GB. Feel free to ignore the warnings, though.
+
+No, normal mkisofs does not warn, are you sure that your distributor did
+not patch it?
+
+> > However, the 
+> > filesystem reads as if one ~9MB file only exists. 
+> > I guess large files in isofs may be out of spec. 
+> > 
+> > Q: What's the file size limit in iso9660?
 > 
-> Ugh... if I am reading this correcly, what I see is that
-> mchip_table[] is mostly used for kernel pointers, like you say.
+> About 2GB.
 
-Yep. The meye driver uses 256 PAGE_SIZE buffers. The kernel virtual
-pointers to these buffers are stored in mchip_ptable[]. The
-"toc" containing the dma pointers to these buffers must be given
-to the device as a table having 256 entries, each being 32 bits in length.
+Really? Quoting Joerg Schilling:
 
-In the code I used the last entry of mchip_ptable to store the toc,
-but I could as well construct a different data structure.
+| >#include <hallo.h>
+| >* christophe nowicki [Thu, Jan 22 2004, 01:22:34PM]:
+| 
+| >> #mount -t iso9660 -o loop burn.iso /mnt
+| >> $ls -sh /mnt
+| >> total 4.0M
+| >> 4.0M test
+| >>       ^ all my data are lost !
+| >>=20
+| >> During the creation process mkisofs did not make a warning ...
+| 
+| Definitely wrong (even for the outdated 2.0 version)!
+| 
+| .... see log below:
+| 
+| mkdir LD
+| cd LD
+|  mkfile -n 5g 5g
+| cd ..
+| /opt/schily/bin/mkisofs -o /tmp/0a LD
+| /opt/schily/bin/mkisofs: Value too large for defined data type. File LD/5g is too large - ignoring
+| Total translation table size: 0
+| Total rockridge attributes bytes: 0
+| Total directory bytes: 0
+| Path table size(bytes): 10
+| Max brk space used 8000
+| 48 extents written (0 Mb)
+| 
+| 
+| >Reproducible for me. IMHO it is not only the iso9660 filesize limit,
+| >since Joliet should support larger files.
+| 
+| Definitely wrong too: Joliet is a half hearted hack on ISO-9660.
+| If you like to have large files in ISO-9660 (and/or Joliet!), you would need
+| multi extent file support.
+| 
+| In order to implement this, you need an OS to test with....
+| 
+| Solaris has no multi extent file support
+| 
+| Linux fails with several other problems in the vicinity of large files on 
+| ISO-9660 and in such a case auto activates evil mount options that prevents
+| you from using such media.
+| 
+| 
+| Jörg
 
-Anyway, the device expects a dma_addr to be 32 bits in length, so this
-will not work anyway with HIGHMEM32 (moreover, this is a driver for the
-motion eye camera which is found only in C1 Vaio Sony laptops, which
-motherboard is limited to 384 MB...).
+> The kernel (2.6 and 2.4) has the following code in isofs_read_inode():
+> 
+>         /*
+>          * The ISO-9660 filesystem only stores 32 bits for file size.
+>          * mkisofs handles files up to 2GB-2 = 2147483646 = 0x7FFFFFFE bytes
+>          * in size. This is according to the large file summit paper from 1996.
+>          * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully
+>          *          legal. Do not prevent to use DVD's schilling@fokus.gmd.de
+>          */
 
-I can see only two solutions:
-	*) put the toc in a different, dma_addr_t[] structure, so the
-	   driver will compile even with HIGHMEM32 (but won't work...)
+Interesting, what should be "multiple extents" then?
 
-	*) exclude meye from kernel config when HIGHMEM32 is set.
-	
-Which one do you prefer ?
+>         if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
+>             sbi->s_cruft == 'n') {
+>                 printk(KERN_WARNING "Warning: defective CD-ROM.  "
+>                        "Enabling \"cruft\" mount option.\n");
 
-Stelian.
+I have never seen this warning on mounting "defective" filesystems.
+
+Regards,
+Eduard.
 -- 
-Stelian Pop <stelian@popies.net>
+Man weist ein Lob zurück in dem Wunsch, nochmals gelobt zu werden.
+		-- François de La Rochefoucauld

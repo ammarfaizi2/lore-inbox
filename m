@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbUCTQan (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUCTQan
+	id S263467AbUCTQas (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263471AbUCTQas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:30:43 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59605
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263472AbUCTQal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:30:41 -0500
-Date: Sat, 20 Mar 2004 17:31:32 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-Message-ID: <20040320163132.GV9009@dualathlon.random>
-References: <20040318164253.GO2246@dualathlon.random> <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
+	Sat, 20 Mar 2004 11:30:48 -0500
+Received: from ns.suse.de ([195.135.220.2]:1760 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263467AbUCTQao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:30:44 -0500
+Subject: Re: [PATCH] barrier patch set
+From: Chris Mason <mason@suse.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200403201723.11906.bzolnier@elka.pw.edu.pl>
+References: <20040319153554.GC2933@suse.de>
+	 <200403200059.22234.bzolnier@elka.pw.edu.pl>
+	 <20040320095341.GA2711@suse.de>
+	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1079800362.11062.280.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 20 Mar 2004 11:32:43 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 11:49:52AM -0500, Rik van Riel wrote:
-> It's in the RHEL3 kernel, a patch named linux-2.4.21-mlock.patch.
-> 
-> Basically it allows any normal process to have up to its
-> current->rlim[RLIMIT_MEMLOCK].rlim_cur memory locked.
-> Root can configure, in /etc/security/limits.conf, how much 
-> memory the processes of each user are allowed to mlock.
-> 
-> Processes with CAP_IPC_LOCK set can mlock as much as they
-> want, unrestricted by the limit.
-> 
-> Last year at the kernel summit, Linus seemed pretty happy
-> with this approach.  I think Wim Coekaerts at Oracle has
-> ported the patch to 2.6 already...
-> 
-> I suspect the security paranoid will like this patch too,
-> because it allows gnupg to mlock the memory it wants to
-> have locked.
+On Sat, 2004-03-20 at 11:23, Bartlomiej Zolnierkiewicz wrote:
 
-I agree.
+> > > - why are we doing pre-flush?
+> >
+> > To ensure previously written data is on platter first.
+> 
+> I know this, I want to know what for you are doing this?
+> 
+> Previously written data is already acknowledgment to the upper layers so you
+> can't do much even if you hit error on flush cache.  IMO if error happens we
+> should just check if failed sector is of our ordered write if not well report
+> it and continue.  It's cleaner and can give some (small?) performance gain.
+> 
 
-> Now it just needs to be submitted to Andrew and Linus ;)
+The journaled filesystems need this.  We need to make sure that before
+we write the commit block for a transaction, all the previous log blocks
+we're written are safely on media.  Then we also need to make sure the
+commit block is on media.  
 
-could somebody submit it to me too? ;) otherwise I'll have to search for
-some big rpm.
+We end up with a log blocks, pre-flush, commit block, post-flush cycle,
+which is what gives the proper transaction ordering on disk.
 
-what I was thinking about was more basic without checking the rlimits,
-certainly I agree using the rlimits is a very nice bonus (though the
-code is a bit more complicated, and it won't be a one liner in
-remap_file_pages as I was hoping for ;).
+For data blocks we only need the post flush, which is why Jens made
+blkdev_issue_flush skip the pre-flush.
+
+-chris
+
+

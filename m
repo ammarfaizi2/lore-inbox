@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275282AbTHGLGo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 07:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275283AbTHGLGo
+	id S275240AbTHGLZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 07:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275242AbTHGLZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 07:06:44 -0400
-Received: from mail.gondor.com ([212.117.64.182]:19473 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S275282AbTHGLGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 07:06:42 -0400
-Date: Thu, 7 Aug 2003 13:06:41 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: uncorrectable ext2 errors
-Message-ID: <20030807110641.GA31809@gondor.com>
-References: <20030806150335.GA5430@gondor.com>
+	Thu, 7 Aug 2003 07:25:46 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:37762 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275240AbTHGLZm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 07:25:42 -0400
+Subject: Re: [Dri-devel] Re: any DRM update scheduled for 2.4.23-pre?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: arjanv@redhat.com, Mikael Pettersson <mikpe@csd.uu.se>, faith@valinux.com,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mitch@0Bits.COM
+In-Reply-To: <200308061743.46570.m.c.p@wolk-project.de>
+References: <16177.5641.6571.273023@gargle.gargle.HOWL>
+	 <200308061714.36595.m.c.p@wolk-project.de>
+	 <1060184267.5848.6.camel@laptop.fenrus.com>
+	 <200308061743.46570.m.c.p@wolk-project.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060255303.3123.16.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030806150335.GA5430@gondor.com>
-X-Request-PGP: http://gondor.com/key.asc
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 12:21:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 05:03:35PM +0200, Jan Niehusmann wrote:
-> To summarize the problem: e2fsck reports block bitmap differences, but
-> telling it to repair these doesn't help, another e2fsck run reports the
-> same differences.
+On Mer, 2003-08-06 at 16:44, Marc-Christian Petersen wrote:
+> > did you clean the tree up like in -ac's tree or did you take it as is
+> > from some cvs repo ?
+> nope, cvs. If Alan will be so kind to send me the fixes he made and I don't 
+> have to do the double-work, I'll integrate and test them up.
 
-Now I pvmoved one PE which contains areas of the filesystem with errors
-to a different drive. Surprise: e2fsck is now able to correct these
-errors. Block bitmap differences in other PEs are still not fixed.
+Your code won't work with 4.1 users i810 at least then, and has some
+other problems that were fixed over time.
 
-This strengthens my assumption that this is not a e2fsck problem, but
-an LVM or IDE one.
+> Or another choice would be that Alan will send his drm 4.3 code to Marcelo 
+> once .22 final is out for .23-pre1 inclusion.
 
-Are there any known problems with huge hard disks (250GB) on Promise
-IDE?
-
-Jan
+I can send him the -ac one minus the small change for the memory accounting
+stuff easily enough. Thats a tree which lots of people have run (both vendor
+and non vendor) so its probably a safer pick.
 

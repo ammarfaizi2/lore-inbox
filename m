@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317045AbSFKNm0>; Tue, 11 Jun 2002 09:42:26 -0400
+	id <S317047AbSFKNug>; Tue, 11 Jun 2002 09:50:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317047AbSFKNmZ>; Tue, 11 Jun 2002 09:42:25 -0400
-Received: from fysh.org ([212.47.68.126]:42672 "EHLO bowl.fysh.org")
-	by vger.kernel.org with ESMTP id <S317045AbSFKNmY>;
-	Tue, 11 Jun 2002 09:42:24 -0400
-Date: Tue, 11 Jun 2002 14:42:25 +0100
-From: Athanasius <Athanasius@miggy.org.uk>
-To: Keith Owens <kaos@ocs.com.au>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel: request_module[net-pf-10]: fork failed, errno 11
-Message-ID: <20020611134225.GD13726@miggy.org.uk>
-Mail-Followup-To: Athanasius <Athanasius@miggy.org.uk>,
-	Keith Owens <kaos@ocs.com.au>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020608094307.GA6522@miggy.org.uk> <21483.1023531725@ocs3.intra.ocs.com.au> <20020609175414.GB13726@miggy.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317049AbSFKNuf>; Tue, 11 Jun 2002 09:50:35 -0400
+Received: from hm61.locaweb.com.br ([200.213.197.161]:54914 "HELO
+	hm61.locaweb.com.br") by vger.kernel.org with SMTP
+	id <S317047AbSFKNuf>; Tue, 11 Jun 2002 09:50:35 -0400
+Message-ID: <20020611135017.5201.qmail@hm36.locaweb.com.br>
+From: "Renato" <webmaster@cienciapura.com.br>
+Date: Tue, 11 Jun 2002 10:50:17
+To: linux-kernel@vger.kernel.org
+Subject: Problems with e1000 driver and ksoftirqd_CPU0
+In-Reply-To: <02061116333800.01217@fortress.mirotel.net>
+X-Mailer: LocaWeb Mail
+X-IPAddress: 200.192.44.199
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 06:54:14PM +0100, Athanasius wrote:
-> On Sat, Jun 08, 2002 at 08:22:05PM +1000, Keith Owens wrote:
-> > On Sat, 8 Jun 2002 10:43:07 +0100, 
-> > Athanasius <link@gurus.tf> wrote:
-> > >  I'm seeing a lot of:
-> > >
-> > >	kernel: request_module[net-pf-10]: fork failed, errno 11
-> [snip]
-> > 
-> > That error is occurring before modprobe has run, long before it gets to
-> > modules.conf.  You need to find out why fork() for modprobe on your
-> > system is failing with EAGAIN.  Have you reached the limit on the
-> > number of tasks?
-> 
->    Not as far as I can tell.  It would be easier to tell if 'sa' (BSD
-> process accounting) carried useful information like timestamps per
-> process or even just their PIDs (to match to a *.* syslog'd file).
+Hi all,
 
-  Ok, a little more investigation:
+I'm just using the latest kernel from RedHat - 2.4.18-4smp ( which I 
+suppose it mostly -ac series ) and I'm having real problems with an 
+Ethernet Gigabit network. It looks like "ksoftirqd_CPU0" eats up all the 
+CPU processing with a traffic of just 55 Mbps !! ( it's not my hardware... 
+I'm using a Dual Xeon 2Ghz and with kernel 2.4.9 it could handle easily 85 
+Mbps ) 
 
-root@bowl:/sbin# cat modprobe-logging 
-#!/bin/sh
+'vmstat 1' output:
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  
+sy  id
+ 0  0  1      0 1988284   2528  17052   0   0     0     0  826   352   0  
+16  84
+ 0  0  0      0 1988264   2528  17052   0   0     0     0 17486    51   0  
+25  75
+ 0  0  1      0 1988264   2528  17052   0   0     0     0 17661    29   0  
+25  75
+ 0  0  1      0 1988264   2528  17052   0   0     0     0 17424    32   0  
+25  75
+ 0  0  1      0 1988264   2528  17052   0   0     0     0 17428    42   0  
+25  75
+ 0  0  1      0 1988264   2528  17052   0   0     0     0 17572    46   0  
+25  75
 
-echo "`date` `ps axh | wc -l`: $@" >> /var/log/modprobe.log
-exec /sbin/modprobe $@
-root@bowl:/sbin# cat /proc/sys/kernel/modprobe 
-/sbin/modprobe-logging
+( with 2.4.9 interrupt rate was over 50.000 !! )
 
-In /var/log/kern.log:
-Jun 11 14:36:58 bowl kernel: request_module[net-pf-10]: fork failed, errno 11
+lsmod output:
 
-And in /var/log/modprobe.log:
+Module                  Size  Used by    Tainted: P  
+ipchains               46184 162 
+e1000                  57508   2 
+raid1                  15780   2 
+aic7xxx               125440   6 
+sd_mod                 12896  12 
+scsi_mod              112272   2  [aic7xxx sd_mod]
 
-Tue Jun 11 14:36:41 BST 2002     229: -s -k -- net-pf-10
-Tue Jun 11 14:36:58 BST 2002     228: -s -k -- net-pf-10
-Tue Jun 11 14:36:58 BST 2002     227: -s -k -- net-pf-10
-Tue Jun 11 14:37:02 BST 2002     227: -s -k -- net-pf-10
+( I don't rules loaded that could impact performance )
 
-/proc/sys/kernel/threads-max is 4095.
+Anybody ? 
 
-  So, nowhere near threads-max (if ps axh is a good test of that),
-certainly not processes-wise.  Yet at times the request_module is
-failing anyway.  It would seem that an immediate followup attempt works.
-Yup, just had another instance:
+Renato - Brazil.
 
-Jun 11 14:40:11 bowl kernel: request_module[net-pf-10]: fork failed, errno 11
-Tue Jun 11 14:40:07 BST 2002     235: -s -k -- net-pf-10
-Tue Jun 11 14:40:11 BST 2002     229: -s -k -- net-pf-10
-Tue Jun 11 14:40:11 BST 2002     230: -s -k -- net-pf-10
-Tue Jun 11 14:40:42 BST 2002     227: -s -k -- net-pf-10
-
-  Note that ulimit -u is 256, but that's per login instance normally and
-I'd not have thought a kernel thread goes through PAM anyway...
-
--Ath
--- 
-- Athanasius = Athanasius(at)miggy.org.uk / http://www.clan-lovely.org/~athan/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME

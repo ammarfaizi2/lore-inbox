@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbUBXSX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUBXSXq
+	id S262376AbUBXSZm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUBXSYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:23:46 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:15745 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262395AbUBXSX1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:23:27 -0500
-Date: Tue, 24 Feb 2004 16:08:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Philippe Troin <phil@fifi.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] Nfs lost locks
-In-Reply-To: <87k72h17n7.fsf@ceramic.fifi.org>
-Message-ID: <Pine.LNX.4.58L.0402241607500.23951@logos.cnet>
-References: <87k72h17n7.fsf@ceramic.fifi.org>
+	Tue, 24 Feb 2004 13:24:07 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:25298 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S262382AbUBXSXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 13:23:09 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 24 Feb 2004 18:23:06 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Subject: Re: 2.6.3 RT8139too NIC problems
+Cc: Andy Whitcroft <apw@shadowen.org>
+Message-ID: <403B968A.7806.14EEFCEE@localhost>
+In-reply-to: <14539106.1077630890@42.150.104.212.access.eclipse.net.uk>
+References: <40377251.25966.4C15915@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 20 Feb 2004, Philippe Troin wrote:
-
-> The NFS client is prone to loose locks on filesystems when the locking
-> process is killed with a signal. This has been discussed on the nfs
-> mailing list in these threads:
+ > Ok, the normal step from here is a binary search for the offending patch. 
+> You know it works on 2.6.2 and not on 2.6.3.  There should be daily BK 
+> snapshots for the period from 2.6.2 to 2.6.3.  See if it broke in the first 
+> half/second half and so on.  If you can find the offending patch or day 
+> then I am sure someone can find the issue.
 >
->   http://sourceforge.net/mailarchive/forum.php?thread_id=3213117&forum_id=4930
->
->   http://marc.theaimsgroup.com/?l=linux-nfs&m=107074045907620&w=2
->
-> Marcelo, if the above links are not sufficient, please email back for
-> more details.
->
-> The enclosed patch is from Trond, and it fixes the problem.
 
-Hi Philippe,
+Hi Andy,
 
-It might be wise to wait for the patch to be in 2.6 first?
+Thanks for reply.
 
-Trond, what do you think?
+Funnily enough, I looked at this at work today and decided to check 
+against 8139too.c from 2.6.2 and 2.6.3 trees.  There was a lot of 
+changes, but it appeared only to that file (i.e. nothing referencing 
+it) - so I have just built 2.6.3 with the 8139too.c source from 2.6.2 
+just to make sure it isn't code elsewhere (i.e. pci stuff?) that is 
+causing it.
+
+So far it is running perfectly.  I will wait a while to test, and if 
+it doesn't show any problems, we can presume it is the changes that 
+caused this problem for me on my system.
+
+Enquiries to the HantsLUG seem to be that no-one else gets this 
+problem.
+
+Nick
+-- 
+"I am not Spock", said Leonard Nimoy.
+"And it is highly illogical of humans to assume so."
+

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUDGRVr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 13:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUDGRVr
+	id S263840AbUDGR1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 13:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUDGR1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 13:21:47 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:59268 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263815AbUDGRVe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 13:21:34 -0400
-Subject: Re: Rewrite Kernel
-From: Redeeman <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040407150516.GC23517@marowsky-bree.de>
-References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
-	 <1081348038.5049.6.camel@redeeman.linux.dk>
-	 <200404071455.i37EtOn8000182@81-2-122-30.bradfords.org.uk>
-	 <20040407150516.GC23517@marowsky-bree.de>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1081358490.4927.14.camel@redeeman.linux.dk>
+	Wed, 7 Apr 2004 13:27:12 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11243
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263840AbUDGR1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 13:27:11 -0400
+Date: Wed, 7 Apr 2004 19:27:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Eric Whiting <ewhiting@amis.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
+Message-ID: <20040407172709.GH26888@dualathlon.random>
+References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu> <20040406155925.GW2234@dualathlon.random> <20040406192549.GA14869@elte.hu> <20040406202548.GI2234@dualathlon.random> <20040407060330.GB26888@dualathlon.random> <20040407064629.GA31338@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 07 Apr 2004 19:21:30 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040407064629.GA31338@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-07 at 17:05, Lars Marowsky-Bree wrote:
-> Guys, gals,
-> 
-> you are all missing the point.
-> 
-> It is obvious that what we really need is a hand-optimized in-kernel
-> core LISP machine written in >i386 assembly, then we need to port the
-> rest of the kernel to run as LISP bytecode on top of that in ring1 (in
-> particular the security policies).
-> 
-> Of course, important privileged user-space such as glibc should be
-> ported to this highly efficient non-recursive LISP machine too for
-> efficiency and run on ring 2 for speed and security.
-> 
-> As a further benefit, this could provide us with a stable kernel binary
-> ABI via the LISP interfaces to which we could dynamically translate the
-> existing kernel modules on load, for which nvidia and the binary-only
-> Inifiband stack seem perfect candidates to secure industry buyin.
+On Wed, Apr 07, 2004 at 08:46:29AM +0200, Ingo Molnar wrote:
+> 4:4 patch) but a __flush_tlb() added before and after do_IRQ(), in
 
-this is a good idea, but i doubt that anyone would dare to do that :D
-> 
-> Oh, and of course this project needs to be managed via BitKeeper.
-> 
-> 
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+I added __flush_tlb_global on entry to better simulate the effect of
+4:4. I doubt it makes a difference though.
 
+--- x/arch/i386/kernel/irq.c.~1~	2004-03-11 08:27:22.000000000 +0100
++++ x/arch/i386/kernel/irq.c	2004-04-07 19:23:21.735733664 +0200
+@@ -427,6 +427,7 @@ asmlinkage unsigned int do_IRQ(struct pt
+ 	struct irqaction * action;
+ 	unsigned int status;
+ 
++	__flush_tlb_global();
+ 	irq_enter();
+ 
+ #ifdef CONFIG_DEBUG_STACKOVERFLOW
+@@ -507,6 +508,7 @@ out:
+ 	spin_unlock(&desc->lock);
+ 
+ 	irq_exit();
++	__flush_tlb();
+ 
+ 	return 1;
+ }

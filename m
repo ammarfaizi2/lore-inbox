@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293626AbSCPAtW>; Fri, 15 Mar 2002 19:49:22 -0500
+	id <S293630AbSCPA7M>; Fri, 15 Mar 2002 19:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293630AbSCPAtD>; Fri, 15 Mar 2002 19:49:03 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:27893 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293626AbSCPAs7>;
-	Fri, 15 Mar 2002 19:48:59 -0500
-Date: Fri, 15 Mar 2002 16:48:45 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [QUESTION] Micro-Second timers in kernel ?
-Message-ID: <20020315164845.A15889@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S293631AbSCPA7D>; Fri, 15 Mar 2002 19:59:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45840 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293630AbSCPA6t>; Fri, 15 Mar 2002 19:58:49 -0500
+Date: Fri, 15 Mar 2002 16:58:14 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: bit ops on unsigned long?
+In-Reply-To: <E16m2Qu-0007mc-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0203151656320.1379-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
 
-	I'm wondering what is the lowest resolution of timers that can
-be get in Linux across all platforms. The goal : I need to do
-microsecond resolution delay in the hard_xmit function of the IrDA-USB
-driver, and don't want to just grab the CPU.
 
-	The function sys_nanosleep() seems to indicate that under 2ms,
-we should not even bother using a timer. Well, on a modern CPU, 2ms is
-a very long time (on the other hand, it seems OK for PDAs).
-	The definition of "tick" in timer.c indicate that the timer_bh
-is called at a maximum of HZ time per second (which is consistent with
-the definition of jiffies). On i386, this would be one tick every
-10ms.
-	Well... I'm stuck. 10ms is a very long time at 4Mb/s. So, I
-guess I'll continue to busy wait before sending each packet. Ugh !
+On Sat, 16 Mar 2002, Rusty Russell wrote:
+>
+> 	nfs is broken in 2.5 ATM because it does set_bit on an "int".
+> Can be *please* just bite the bullet and change the prototype on these
+> ops so we stop seeing the same mistakes over and over?
 
-	Regards,
+The problem with the prototype is that it's not always correct.
 
-	Jean
+It's fine to pass non-"unsigned long *" pointers to set_bit, if you know
+the pointers are otherwise aligned. Things like buffer bitmaps etc.
+
+How does the patch look? If it has a lot of unnecessary casts, I don't
+want it, but if the casts are only in things like ext2_setbit(), then that
+might be ok..
+
+		Linus
+

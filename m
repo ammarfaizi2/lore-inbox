@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285000AbRLQFAZ>; Mon, 17 Dec 2001 00:00:25 -0500
+	id <S285007AbRLQF2e>; Mon, 17 Dec 2001 00:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285007AbRLQFAF>; Mon, 17 Dec 2001 00:00:05 -0500
-Received: from marine.sonic.net ([208.201.224.37]:30787 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S285000AbRLQE7z>;
-	Sun, 16 Dec 2001 23:59:55 -0500
-X-envelope-info: <dhinds@sonic.net>
-Date: Sun, 16 Dec 2001 20:59:50 -0800
-From: David Hinds <dhinds@sonic.net>
-To: David Gibson <hermes@gibson.dropbear.id.au>,
-        Ian Morgan <imorgan@webcon.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: in-kernel pcmcia oopsing in SMP
-Message-ID: <20011216205950.B21159@sonic.net>
-In-Reply-To: <20011201120541.B28295@sonic.net> <Pine.LNX.4.40.0112011513041.2329-100000@light.webcon.net> <20011201124630.A30249@sonic.net> <20011217142400.L30975@zax>
+	id <S285014AbRLQF2Y>; Mon, 17 Dec 2001 00:28:24 -0500
+Received: from arsenal.visi.net ([206.246.194.60]:40337 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S285007AbRLQF2Q>;
+	Mon, 17 Dec 2001 00:28:16 -0500
+Date: Mon, 17 Dec 2001 00:28:12 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.11 is available
+Message-ID: <20011217002812.A377@blimpo.internal.net>
+In-Reply-To: <4738.1008565495@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011217142400.L30975@zax>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <4738.1008565495@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 02:24:00PM +1100, David Gibson wrote:
+On Mon, Dec 17, 2001 at 04:04:55PM +1100, Keith Owens wrote:
 > 
-> > Your oops, in tasklet code, sounds to me like a locking bug in the
-> > driver code for managing the transmit stack vs. interrupt handling.
-> > Have there been reports of the driver working well on SMP boxes?
+> The sparc support is against Linus's 2.4.16 kernel, not against the
+> vger tree, the latter is moving too fast.  I expect that some tweaking
+> will be required for the vger sparc changes, in particular the removal
+> of config options for netlink.  Release 1.11 does not contain any
+> changes to the sparc patches, use the release 1.10 patches for sparc.
 > 
-> Well, one of the main features of the driver is that the Tx path and
-> the interupt handler (Rx path) are permitted to run concurrently.
-> This is an issue even on UP (although not as complex), since the Rx
-> patch can interrupt the Tx path.  I believe there has been at least
-> some successful operation on SMP machines, but unfortunately I don't
-> know any details.
 
-Yes, after I wrote that, I looked at the orinoco code, and the tx and
-interrupt paths looked pretty straightforward.  But I don't think I
-would be able to catch anything that wasn't really obvious.
+If anyone needs them, I can provide a small diff for the sparc/sparc64
+Vger CVS changes to apply on top of the main kbuild-2.5 patch. Very
+minor change (hint, in Vger, netlink is compiled unconditionally now).
 
--- Dave
+
+Ben
+
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCKExs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVCKE5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVCKExs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 23:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVCKExr
+	id S263125AbVCKE5C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 23:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbVCKE5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 23:53:47 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:2141 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261432AbVCKExq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 23:53:46 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: inappropriate use of in_atomic()
-X-Message-Flag: Warning: May contain useful information
-References: <20050310204006.48286d17.akpm@osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 10 Mar 2005 20:53:45 -0800
-In-Reply-To: <20050310204006.48286d17.akpm@osdl.org> (Andrew Morton's
- message of "Thu, 10 Mar 2005 20:40:06 -0800")
-Message-ID: <52k6oe9412.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Mar 2005 04:53:45.0690 (UTC) FILETIME=[4E5E1BA0:01C525F6]
+	Thu, 10 Mar 2005 23:57:02 -0500
+Received: from gate.crashing.org ([63.228.1.57]:40153 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263125AbVCKE4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 23:56:52 -0500
+Subject: Re: Average power consumption in S3?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Moritz Muehlenhoff <jmm@inutil.org>,
+       Martin Josefsson <gandalf@wlug.westbo.se>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050311034615.GA314@thunk.org>
+References: <20050309142612.GA6049@informatik.uni-bremen.de>
+	 <1110388970.1076.48.camel@tux.rsn.bth.se>
+	 <20050310180826.GA6795@informatik.uni-bremen.de>
+	 <20050311034615.GA314@thunk.org>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 15:51:19 +1100
+Message-Id: <1110516679.32557.350.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > Consequently the use of in_atomic() in the below files is probably
-    > deadlocky if CONFIG_PREEMPT=n:
-    ...
-    > 	drivers/infiniband/core/mad.c
+On Thu, 2005-03-10 at 22:46 -0500, Theodore Ts'o wrote:
+> On Thu, Mar 10, 2005 at 07:08:26PM +0100, Moritz Muehlenhoff wrote:
+> > I've got the e100 and with WOL disabled and Matthew's hacked radeontool
+> > power consumption decreases to 970 mWh.
+> 
+> I have a T40p, and with the following patches (versus 2.6.11) and the
+> following sleep script, I have power consuption down to 580 mWh.
+> 
+> The 05-radeonfb-Thinkpad-Power.patch will have to patched with your
+> specific Thinkpad model number, or booted with the force_sleep option.
+> See the Linux thinkpad mailing list (linux-thinkpad@linux-thinkpad.org) 
+> archives for more information.
+> 
+> Warning: The 05-radeonfb-Thinkpad-Power.patch is not quite ready for
+> merging, but compared to completely pathetic battery life when using
+> ACPI's suspend-to-memory without them, it's definitely worth it.
 
-Thanks for pointing this out.  I'll get you a patch in the next day or
-two.  As you can probably tell, the code is just trying to decide
-whether to use GFP_ATOMIC or GFP_KERNEL to allocate a couple of
-things, depending on what context we're being called from.  So at
-worst we can just change to GFP_ATOMIC unconditionally.
+Hi Ted !
 
-I'll check into whether we can do something cleverer, but just going
-the GFP_ATOMIC route won't be horrible.
+Hopefully, somebody is gathering those patches. I intend to merge them
+all at one point, though I can't promise it will happen before 2.6.12.
 
-Thanks,
-  Roland
+It would be good to "ping" me regulary though ;)
+
+I've sort-of been waiting for ATI to tell me how to retreive the proper
+memory register setting from the BIOS, since the code in there currently
+is quite powerbook specific, and might not write the exact correct value
+on all models. I suppose it works fine on yours so far, but I'd rather
+have a way to know the right value ... unfortunately, they didn't reply
+on this request.
+
+Ben.
+
+

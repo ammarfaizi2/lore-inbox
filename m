@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVCCIX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVCCI2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVCCIX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCCIXZ
+	id S261588AbVCCI2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVCCI2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:23:25 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:6564 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261591AbVCCIV6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:21:58 -0500
-To: davidm@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch - 2.6.11-rc5-mm1] genalloc - general purpose allocator
-References: <16934.4191.474769.320391@jaguar.mkp.net>
-	<16934.5385.841758.628631@napali.hpl.hp.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 03 Mar 2005 03:21:56 -0500
-In-Reply-To: <16934.5385.841758.628631@napali.hpl.hp.com>
-Message-ID: <yq03bvdf8bf.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 3 Mar 2005 03:28:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23173 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261588AbVCCI2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 03:28:00 -0500
+Message-ID: <4226CA7E.4090905@pobox.com>
+Date: Thu, 03 Mar 2005 03:27:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com>
+In-Reply-To: <20050303080459.GA29235@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
+Greg KH wrote:
+> Sure they've been asking for it, but I think they really don't know what
+> it entails.  Look at all of the "non-stable" type patches in the -ac and
+> as tree.  There's a lot of stuff in there.  It's a slippery slope down
+> when trying to say, "I'm only going to accept bug fixes." 
 
-David> At the risk of asking the obvious: what's preventing genalloc
-David> to be implemented in terms of mempool?
+We have all these problems precisely because _nobody_ is saying "I'm 
+only going to accept bug fixes".  We _need_ some amount of release 
+engineering.  Right now we basically have none.
 
-David,
 
-Taking another look at mempool, there's several reasons why mempool
-isn't well suited for this job.
+> Bug fixes for what?  Kernel api changes that fix bugs?  That's pretty
+> big.  Some driver fixes, but not others?  Driver fixes that are in the
+> middle of bigger, subsystem reworks as a series of patches?  All of this
+> currently happens today in the main tree in a semi-cohesive manner.  To
+> try to split it out is a very difficult task.
 
-Basically for the uncached page case we want to first pull out all the
-spill pages in the lower granules[1] and only after those have been
-used, do we want to start converting pages from cached to uncached.
+Easiest to answer with a concrete example:
 
-mempool on the other hand will first try and call the user provided
-allocation function and only if that fails try and take memory from
-the pool, this will force us to convert pages from cached to uncached
-if we don't have to.
+Linux 2.6.11 is released.  Linus then does a
+	bk clone linux-2.6 linux-2.6.11
 
-The other issue is that mempool isn't designed to handle the case
-where you do not want to hand the memory back to the system using the
-user provided free() function, somehing which we can't even do for the
-spill pages and converting the normal pages back is a nightmare since
-you have to wait for a full granule to reappear.
+Bug fixes that
+(a) 2.6.11 users really should have, or
+(b) Linus/Andrew feels are important, or
+(c) a subsystem maintainer feels are important [and does the work to 
+split out the fixes]
 
-Last, mempool interacts quite a lot with the vm, kicking bdflush if it
-is unable to allocate memory which will not have any effect for these
-kinds of pages anyway.
+go into linux-2.6.11 repo, and then is pulled into linux-2.6 repo.
 
-One could probably do this via mempool, but it would basically require
-one to put another object allocator below mempool which really makes
-the whole exercise pointless as this could just as well be done
-standalone ... ie. genalloc.
+All other changes go into linux-2.6.
 
-Cheers,
-Jes
+There's no need to over-think or over-work this.  The goal is to provide 
+a stable 2.6.11 for users, until 2.6.12 is available.
 
-[1]: For those who are interested, on ia64 one has to convert a full
-granule, 16MB, at a time in order to avoid data corruption due to the
-CPU might be doing speculative loads within a full granule.
+My prediction is that several patches will flow into the linux-2.6.11 
+repo a week or so after a release, and then the flow will die off to a 
+trickle.  Subsystem maintainers that care can submit patches/BK-pulls 
+for the stable release if they so desire.
+
+Only important "oh shit, that should have been in 2.6.11" bug fixes need 
+apply.  Bug fixes for reworks, API changes, etc. are -not- applicable to 
+linux-2.6.11 repo.
+
+Since BitKeeper can handle nicely a
+	cd linux-2.6
+	bk pull ../linux-2.6.11
+there is no duplication of bug fixes.
+
+	Jeff
+
+

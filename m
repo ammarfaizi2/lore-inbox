@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317982AbSGLEPO>; Fri, 12 Jul 2002 00:15:14 -0400
+	id <S317599AbSGLEfv>; Fri, 12 Jul 2002 00:35:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317983AbSGLEPN>; Fri, 12 Jul 2002 00:15:13 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4618 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317982AbSGLEPM>; Fri, 12 Jul 2002 00:15:12 -0400
-Message-ID: <3D2E585F.2010302@zytor.com>
-Date: Thu, 11 Jul 2002 21:17:35 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <agl7ov$p91$1@cesium.transmeta.com> <20020712041320.GA2046@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317648AbSGLEfu>; Fri, 12 Jul 2002 00:35:50 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:15298 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S317599AbSGLEft>;
+	Fri, 12 Jul 2002 00:35:49 -0400
+Date: Thu, 11 Jul 2002 21:38:34 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: pmenage@ensim.com
+Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: spinlock assertion macros
+Message-ID: <20020712043834.GA710558@sgi.com>
+Mail-Followup-To: pmenage@ensim.com, Daniel Phillips <phillips@arcor.de>,
+	linux-kernel@vger.kernel.org
+References: <0C01A29FBAE24448A792F5C68F5EA47D2B0FDD@nasdaq.ms.ensim.com> <E17SpMA-0008OG-00@pmenage-dt.ensim.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17SpMA-0008OG-00@pmenage-dt.ensim.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
-> On Thu Jul 11, 2002 at 05:27:11PM -0700, H. Peter Anvin wrote:
-> 
->>Okay, I have suggested this before, and I haven't quite looked at this
->>in detail, but I would again like to consider the following,
->>especially given the changes in 2.5:
->>
->>Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
->>and treat all ATAPI devices as what they really are -- SCSI over IDE.
->>It is a source of no ending confusion that a Linux system will not
->>write CDs to an IDE CD-writer out of the box, for the simple reason
->>that cdrecord needs access to the generic packet interface, which is
->>only available in the nonstandard ide-scsi configuration.
-> 
-> 
-> cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
-> work regardless,
-> 
+On Thu, Jul 11, 2002 at 06:36:26PM -0700, pmenage@ensim.com wrote:
+> The spin_assert_unlocked() macro in Jesse's patch doesn't cope with
+> the fact that someone else might quite legitimately have the spinlock
+> locked. You'd need debugging spinlocks that track the owner of the
+> spinlock, and then check in MUST_NOT_HOLD() you'd check that
+> lock->owner != current. You'd also have to have some special
+> non-checking lock/unlock macros to handle situations where locks are
+> taken in non-process context or released by someone other than the
+> original locker (does the migration code still do that?).
 
-Lovely.  Let's make EACH APPLICATION support two disjoint APIs for no 
-good reason.
+You're right about that, it would be much more useful to add a
+spin_assert_unlocked_all() or MUST_NOT_HOLD_ANY() macro, as Arnd
+suggested.  I'll take the suggestions I've received and try to put
+together a more complete patch early next week.  It'll include lock
+checks for rwlocks, semaphores, and rwsems as well as the global
+no-locks-held macro.  And as an added bonus, I'll even try to test it
+:).
 
-Got any other brilliant ideas?
-
-	-hpa
-
-
+Thanks,
+Jesse

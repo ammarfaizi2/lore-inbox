@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281029AbRKYUTx>; Sun, 25 Nov 2001 15:19:53 -0500
+	id <S281023AbRKYUUD>; Sun, 25 Nov 2001 15:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281027AbRKYUTo>; Sun, 25 Nov 2001 15:19:44 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:11538 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S281023AbRKYUTg>; Sun, 25 Nov 2001 15:19:36 -0500
-Date: Sun, 25 Nov 2001 12:29:36 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Niels Christiansen <nchr@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /var corruption after 2.4.15 and 2.5.0 reboot
-In-Reply-To: <OFEE692835.D71F93C9-ON85256B0F.006BE841@raleigh.ibm.com>
-Message-ID: <Pine.LNX.4.40.0111251227110.7354-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281027AbRKYUTx>; Sun, 25 Nov 2001 15:19:53 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:52124 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S281023AbRKYUTp>; Sun, 25 Nov 2001 15:19:45 -0500
+Date: Sun, 25 Nov 2001 21:19:35 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.0 schedule ?
+Message-ID: <20011125211935.A16508@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Operating-System: vega Linux 2.4.15-pre4 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Nov 2001, Niels Christiansen wrote:
+Hi,
 
-[...]
+Is there any publication somewhere which summarizes the planned changes
+during the 2.5.x cycle? It would be nice to know exactly WHAT type of
+new changes will be done and who works on them.
 
-Pls apply Al's patch or use Linus's -pre01
+Or just to know answers like when will be alsa,XFS,dirindex for ext2/ext3
+and such new features will be integrated and what is the current state
+of these projects and so on ...
 
-
-
-
-- Davide
-
-
-
+- Gabor

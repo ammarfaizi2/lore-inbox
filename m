@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbUARUGS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 15:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUARUGS
+	id S261953AbUARUMO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 15:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUARUMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 15:06:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31645 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263598AbUARUGR (ORCPT
+	Sun, 18 Jan 2004 15:12:14 -0500
+Received: from main.gmane.org ([80.91.224.249]:19378 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261953AbUARUMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 15:06:17 -0500
-Date: Sun, 18 Jan 2004 20:04:54 +0000
-From: Dave Jones <davej@redhat.com>
-To: glee@gnupilgrims.org
-Cc: Pedro Larroy <piotr@member.fsf.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1 MCE falseness?] Hardware reports non-fatal error
-Message-ID: <20040118200454.GA19136@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, glee@gnupilgrims.org,
-	Pedro Larroy <piotr@member.fsf.org>, linux-kernel@vger.kernel.org
-References: <200401181430.48997.piotr@member.fsf.org> <20040118142338.GA11517@gandalf.chinesecodefoo.org>
+	Sun, 18 Jan 2004 15:12:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jens Benecke <jens-usenet@spamfreemail.de>
+Subject: Re: 2.6.1mm2: nforce2 IDE lockups + debug messages about mm/slab.c:1868
+Date: Sun, 18 Jan 2004 21:12:18 +0100
+Message-ID: <3470087.tyEklBsDEN@spamfreemail.de>
+References: <7361760.2YrQ8yO7uQ@spamfreemail.de> <20040118014021.641dfbfe.backblue@netcabo.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040118142338.GA11517@gandalf.chinesecodefoo.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.6
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 18, 2004 at 10:23:38PM +0800, glee@gnupilgrims.org wrote:
- > 
- > I get them too, so I applied this patch.
+backblue wrote:
 
-gah, that still didn't get applied?
+> Before asking, please checkout the mailing list! I think that topic, it's
+> releated to the one, i have talked, search for a7n8x-x in the lkml, and
+> see.
 
-		Dave
+I did, and it said in the thread that upgrading the BIOS semmed to help
+sometimes, but is a workaround, not a fix. Compiling IDE drivers as modules
+does not work currently (2.6.1mm2), and is therefore a bug (IMHO).
+
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+Jens Benecke

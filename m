@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281464AbRKPSCg>; Fri, 16 Nov 2001 13:02:36 -0500
+	id <S281463AbRKPSHQ>; Fri, 16 Nov 2001 13:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281471AbRKPSC0>; Fri, 16 Nov 2001 13:02:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:13840 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281464AbRKPSCV>;
-	Fri, 16 Nov 2001 13:02:21 -0500
-Date: Fri, 16 Nov 2001 19:02:21 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New Power Managment code
-In-Reply-To: <Pine.LNX.4.33.0111160952090.21985-100000@segfault.osdlab.org>
-Message-ID: <Pine.LNX.4.30.0111161858520.22532-100000@Appserv.suse.de>
+	id <S281471AbRKPSHG>; Fri, 16 Nov 2001 13:07:06 -0500
+Received: from Aniela.EU.ORG ([194.102.102.235]:2564 "EHLO NS1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S281463AbRKPSG4>;
+	Fri, 16 Nov 2001 13:06:56 -0500
+Date: Fri, 16 Nov 2001 20:06:50 +0200 (EET)
+From: <lk@Aniela.EU.ORG>
+To: <linux-kernel@vger.kernel.org>
+Subject: what hardware for AMD processors ?
+Message-ID: <Pine.LNX.4.33.0111162002560.785-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Patrick Mochel wrote:
 
-> > There were some bits at ftp://ftp.kernel.org/pub/people/mochel last time
-> > I looked.
-> That's where it is. The most recent drop is the -1115 patches.
+Hi,
 
-I meant /pub/linux/kernel/people/ of course, but I'm sure James was
-smart enough to figure that out 8)
+	I have a question about AMD AthlonXP and AthlonMP:
+What motherboards do you recomend for building an Atlon based network
+server that will run 24/7 365days a year under high loads ? I need a rock
+solid motherboard that can support at least 2GB of RAM, and optionally
+integrated video card onboard.
 
-> The power management transitions live in the most recent ACPI code, which
-> you can get from Intel:
 
-Something I'm curious on wrt to this new work. Would it make sense for
-these callbacks to get called before/after APM suspend as well as ACPI ?
-(I'm thinking of older pre-ACPI compliant boxes).
+Thanks!
 
-Saving state of devices etc seems a logical thing to do.
 
-regards,
 
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

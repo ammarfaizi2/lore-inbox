@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317650AbSFRWbP>; Tue, 18 Jun 2002 18:31:15 -0400
+	id <S317649AbSFRWab>; Tue, 18 Jun 2002 18:30:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSFRWbN>; Tue, 18 Jun 2002 18:31:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:47580 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317650AbSFRWbH>;
-	Tue, 18 Jun 2002 18:31:07 -0400
-Date: Wed, 19 Jun 2002 00:28:27 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: David Schwartz <davids@webmaster.com>
-Cc: mgix@mgix.com, Robert Love <rml@tech9.net>, <root@chaos.analogic.com>,
-       Chris Friesen <Chris.Friesen@mail.elte.hu>,
-       <cfriesen@nortelnetworks.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Question about sched_yield()
-In-Reply-To: <20020618204237.AAA5802@shell.webmaster.com@whenever>
-Message-ID: <Pine.LNX.4.44.0206190018310.23460-100000@e2>
+	id <S317650AbSFRWab>; Tue, 18 Jun 2002 18:30:31 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:61199 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317649AbSFRWaa>; Tue, 18 Jun 2002 18:30:30 -0400
+Date: Tue, 18 Jun 2002 15:30:18 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Paul Mundt <lethal@chaoticdreams.org>
+cc: Martin Diehl <lists@mdiehl.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.22: FB_VESA - early crash in fbcon_cursor()
+In-Reply-To: <20020618104340.A1671@ChaoticDreams.ORG>
+Message-ID: <Pine.LNX.4.44.0206181527330.5510-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 18 Jun 2002, David Schwartz wrote:
+> On Tue, Jun 18, 2002 at 10:15:08AM -0700, James Simmons wrote:
+> > Your right. Alot of people have been bitten by that. Especially since
+> > people are so use to manually setting the CFB stuff. Patch applied to BK
+> > tree.
+> >
+> Looks like I was a bit hasty with the patch .. fbcon_accel won't resolve if
+> fbcon-accel.c isn't linked in, which in turn won't happen unless
+> CONFIG_FBCON_ACCEL is set. Can we just do something like the attached instead
+> (in addition to killing the ifdef in fbgen.c..)?
 
-> 	Exactly. This is the UNIX tradition of static and dynamic
-> priorities. The more polite you are about yielding the CPU when you
-> don't need it, the more claim you have to getting it when you do need
-> it.
+Not just yet. Several fbdev drivers have been converted but a good number
+need to ported yet. When we are two thirds of the way done then we can
+start building in fbcon-accel.c.
 
-firstly, the thing that defines the scheduler's implementation details is
-not tradition but actual, hard, verifiable use. If you've ever seen
-sched_yield() code under Linux then you'll quickly realize that it's
-mainly used as a "oh damn, i cannot continue now, i have no proper kernel
-object to sleep on, lets busy-wait" kind of mechanizm. (Which, by the way,
-is as far from polite as it gets.)
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
 
-secondly, i'd like to ask everyone arguing one way or other, and this
-means you and Robert and everyone else as well, to actually read and think
-about the fix i did.
-
-The new implementation of sched_yield() is *not* throwing away your
-timeslices immediately. In fact it first tries it the 'polite' way to get
-some progress by gradually decreasing its priority - *IF* that fails (and
-it has to fail and keep looping for at least ~10 times if there are
-default priorities) then it will start dropping away timeslices - one by
-one. That gives another 20 opportunities for the task to actually get some
-work done. Even after this we still let the task run one more jiffy.
-*THEN* only is the task pushed back into the expired array.
-
-so the tests quoted here were the extreme example: a task did nothing but
-sched_yield(). And the modified scheduler did a good job of supressing
-this process, if there was other, non-sched_yield() work around. A
-database process with a casual sched_yield() call should not see much
-effect.
-
-	Ingo
 

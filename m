@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUGGQRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUGGQVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265214AbUGGQRT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbUGGQRS
+	id S265230AbUGGQVj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUGGQVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:17:18 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:18074 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265214AbUGGQRR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:17:17 -0400
-Subject: Re: 2.6.7-ck5
-From: Redeeman <lkml@metanurb.dk>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       John Richard Moser <nigelenki@comcast.net>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>
-In-Reply-To: <40EC1C85.9030008@gmx.de>
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
-	 <40EC1B0A.8090802@kolivas.org>  <40EC1C85.9030008@gmx.de>
-Content-Type: text/plain
-Date: Wed, 07 Jul 2004 18:17:08 +0200
-Message-Id: <1089217028.31825.0.camel@localhost>
+	Wed, 7 Jul 2004 12:21:39 -0400
+Received: from nevyn.them.org ([66.93.172.17]:25519 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S265230AbUGGQVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 12:21:36 -0400
+Date: Wed, 7 Jul 2004 12:21:14 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: question about /proc/<PID>/mem in 2.4
+Message-ID: <20040707162114.GA15238@nevyn.them.org>
+Mail-Followup-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.44.0407071444300.26475-100000@localhost.localdomain> <Pine.LNX.4.44.0407071424250.2972-100000@einstein.homenet>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407071424250.2972-100000@einstein.homenet>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-07 at 17:53 +0200, Prakash K. Cheemplavam wrote:
-> Con Kolivas wrote:
-> > John Richard Moser wrote:
-> >> When do you think the staircase, batch, and isometric scheduling will
-> >> reach mainline-quality?  Do you think you'll be ready to ask Andrew to
-> >> merge it soon, or will it be a while before it's quite ready for that?
-> > 
-> > 
-> > Well I think they're all ready for prime time now, I just dont think 
-> > prime time is ready for it. This is too large a change for mainline 2.6 
-> > which keeps -ck in business ;)
-> 
-> I don't know whether this was already discussed, but what about adding 
-> framework so that (like io-schedulers) the cpu scheduler could be chosen 
-> on boot time? This would make it easy to test different cpu schedulers.
-might be a good idea, but i dont think doing such a change in 2.6 is
-good, but for 2.7, a good idea
-> 
-> Cheers,
-> 
-> Prakash
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Wed, Jul 07, 2004 at 02:26:41PM +0100, Tigran Aivazian wrote:
+> the address solar@openwall.dot.com bounced back and on some mailing list
 
+The dot is not supposed to be included literally....
+
+> "Solar Designer" set his email address to be solar@false,com which I
+> assume is false...
+
+In fact it isn't false....
+
+
+-- 
+Daniel Jacobowitz

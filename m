@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbTH3FZW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 01:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTH3FZW
+	id S261464AbTH3Fic (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 01:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTH3Fib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 01:25:22 -0400
-Received: from coffee.creativecontingencies.com ([210.8.121.66]:7081 "EHLO
-	coffee.cc.com.au") by vger.kernel.org with ESMTP id S261469AbTH3FZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 01:25:19 -0400
-Message-Id: <5.1.0.14.2.20030830152430.01be2350@caffeine.cc.com.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 30 Aug 2003 15:25:11 +1000
-To: linux-kernel@vger.kernel.org
-From: Peter Lieverdink <cafuego@cc.com.au>
-Subject: Re: 2.6.0-test4-mm2: fdisk causes Oops
-In-Reply-To: <1062133972.499.5.camel@kahlua>
+	Sat, 30 Aug 2003 01:38:31 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:61705 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261464AbTH3Fia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 01:38:30 -0400
+Date: Sat, 30 Aug 2003 15:37:58 +1000
+To: Linus Torvalds <torvalds@osdl.org>, shemminger@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [COSA] free_netdev typo
+Message-ID: <20030830053758.GA24332@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI: I can't reproduce this under 2.6.0-test4-mm3-1
 
-- Peter.
---
-At 15:12 29/08/2003 +1000, you wrote:
->Hi,
->
->When running fdisk -l under 2.6.0-test4-mm2, the kernel oopses. dmesg,
->the oops (fdisk.txt) and output from lspci are attached.
->
->I've tried after disabling the Promise controller in the BIOS, but the
->oops still occurs. Same when I specify a device instead of -l.
->
->fdisk is from debian/unstable, version 2.11z
->
->- Peter.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi:
+
+The free_netdev fixes in 2.6.0-test4 broke drivers/net/wan/cosa.c.
+This patch fixes it.
+
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-source-2.5/drivers/net/wan/cosa.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/net/wan/cosa.c,v
+retrieving revision 1.1.1.8
+diff -u -r1.1.1.8 cosa.c
+--- kernel-source-2.5/drivers/net/wan/cosa.c	22 Aug 2003 23:51:01 -0000	1.1.1.8
++++ kernel-source-2.5/drivers/net/wan/cosa.c	30 Aug 2003 05:32:28 -0000
+@@ -632,7 +632,7 @@
+ {
+ 	sppp_detach(chan->pppdev.dev);
+ 	unregister_netdev(chan->pppdev.dev);
+-	free_netdev(chan->ppp.dev);
++	free_netdev(chan->pppdev.dev);
+ }
+ 
+ static int cosa_sppp_open(struct net_device *d)
+
+--ZPt4rx8FFjLCG7dd--

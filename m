@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbSKSP1E>; Tue, 19 Nov 2002 10:27:04 -0500
+	id <S265863AbSKSPRS>; Tue, 19 Nov 2002 10:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbSKSP1E>; Tue, 19 Nov 2002 10:27:04 -0500
-Received: from k100-145.bas1.dbn.dublin.eircom.net ([159.134.100.145]:28688
-	"EHLO corvil.com.") by vger.kernel.org with ESMTP
-	id <S266718AbSKSP1D>; Tue, 19 Nov 2002 10:27:03 -0500
-Message-ID: <3DDA5969.9040809@corvil.com>
-Date: Tue, 19 Nov 2002 15:31:53 +0000
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Josh Grebe <squash2@brokedown.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Keyboard/Mouse Locking Up On Laptop
-References: <1037719215.7701.13.camel@squashlaptop>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S266240AbSKSPRS>; Tue, 19 Nov 2002 10:17:18 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33669 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265863AbSKSPRR>;
+	Tue, 19 Nov 2002 10:17:17 -0500
+Date: Tue, 19 Nov 2002 15:24:36 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Grant Taylor <gtaylor+lkml_ihdeh111902@picante.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021119152436.GA6663@bjl1.asuk.net>
+References: <200211190549.gAJ5nGmU007542@habanero.picante.com> <20021119062205.GC17927@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119062205.GC17927@mark.mielke.cc>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Grebe wrote:
-> Hi All,
+Mark Mielke wrote:
+> On Tue, Nov 19, 2002 at 12:49:16AM -0500, Grant Taylor wrote:
+> > For example, sometimes TCP reads return EAGAIN when in fact they have
+> > data.  This seems to stem from the case where the signal is found
+> > before the first segment copy (from tcp.c circa 1425, there's even a
+> > handy FIXME note there).  If you use epoll and get an EAGAIN, you have
+> > no idea if it was a signal or a real empty socket unless you are also
+> > very careful to notice when you got a signal during the read.
 > 
-> I have a Compaq Evo n600c laptop. This unit works great while plugged
-> in, but when it runs on battery power, after a couple of minutes of
-> idle, the keyboard and mouse will stop responding. The BIOS is pretty
-> limited in options, and doesn't have anything to adjust APM settings,
-> and compiling the kernel with apm enabled or disabled also makes no
-> difference.
+> I hope this isn't a stupid question: Why doesn't the code you speak of
+> return EINTR instead of EAGAIN?
 
-Does disabling local APIC help?
+Mark's right, it should be EINTR.  EAGAIN shouldn't break any
+single-thread user state machines using poll/select, as a non-blocking
+read is always allowed to return EAGAIN for any transient reason.
 
-Pádraig
+I'm not sure if EAGAIN can cause a poll() wakeup event to be missed.
+If so, that would be a TCP bug that breaks epoll, and it would also
+break some user state machines using poll/select, when there are
+multiple processes waiting on a socket.
 
+-- Jamie

@@ -1,76 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131742AbRDFPtB>; Fri, 6 Apr 2001 11:49:01 -0400
+	id <S131733AbRDFPrb>; Fri, 6 Apr 2001 11:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131756AbRDFPsv>; Fri, 6 Apr 2001 11:48:51 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:11278 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S131742AbRDFPsc>;
-	Fri, 6 Apr 2001 11:48:32 -0400
-Message-ID: <3ACDE4F5.BF04F941@mountain.net>
-Date: Fri, 06 Apr 2001 11:47:01 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: smaneesh@in.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Race in fs/proc/generic.c:make_inode_number()
-In-Reply-To: <3ACBFF4C.97AA345F@mountain.net> <3ACC82DA.11D76D45@mountain.net> <20010406173129.A14391@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131742AbRDFPrW>; Fri, 6 Apr 2001 11:47:22 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:32494 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S131733AbRDFPrI>;
+	Fri, 6 Apr 2001 11:47:08 -0400
+Date: Fri, 6 Apr 2001 17:46:02 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200104061546.RAA15266@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk, benh@kernel.crashing.org,
+        linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        mikpe@csd.uu.se
+Subject: Re: console.c unblank_screen problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote:
+On Wed, 4 Apr 2001 13:09:11 +0200 (MET DST), Mikael Petterson wrote:
+
+> On Sun, 25 Mar 2001 18:40:03 +0200, Benjamin Herrenschmidt wrote:
 > 
-> Just a couple of points:
-> 
-> On Thu, Apr 05, 2001 at 10:36:10AM -0400, Tom Leete wrote:
-> [...]
-> > +spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
-> > +
-> Why not make this static?
-> Initializer should be SPIN_LOCK_UNLOCKED.
-> 
+> >There is a problem with the power management code for console.c
+> >
+> >The current code calls do_blank_screen(0); on PM_SUSPEND, and
+> >unblank_screen() on PM_RESUME.
+> >
+> >The problem happens when X is the current display while putting the
+> >machine to sleep. The do_blank_screen(0) code will do nothing as
+> >the console is not in KD_TEXT mode.
+> >However, unblank_screen has no such protection. That means that
+> >on wakeup, the cursor timer & console blank timers will be re-enabled
+> >while X is frontmost, causing the blinking cursor to be displayed on
+> >top of X, and other possible issues.
+> >
+> >I hacked the following pacth to work around this. It appear to work
+> >fine, but since the console code is pretty complex, I'm not sure about
+> >possible side effects and I'd like some comments before submiting it
+> >to Linus:
+>...
+> Before the patch: After a few days with a 2.4 kernel and RH7.0
+> (XFree86-4.0.1-1 and XFree86-SVGA-3.3.6-33) the latop would
+> misbehave at a resume event: when I opened the lid the screen would
+> unblank and then after less than a second the entire screen would
+> shift (wrap/rotate) left by about 40% of its width.
+>...
+> With the patch: No problem after 10 days with frequent suspend/resume
+> cycles. (2.4.2-ac24 + the patch)
 
-Thanks, you're right on both counts.
+Correction: While the patch eliminated the X screen wrap problem at resume,
+it caused a new problem: now when I exit X the console is left in a blanked
+state. This seems to happen if at least one suspend/resume cycle has
+occurred before X is terminated.
 
-Linus, Alan, this version is more correct. I also checked for other uses of
-proc_alloc_map[], The only case is in deallocation, and it looks ok to me.
+After some experimentation I came up with the patch below (vs. 2.4.3-ac3)
+which _so_far_ behaves ok on my laptop. If the resume-while-in-X problems
+resurface or not I won't know until after several more days of testing,
+but at least the console is unblanked correctly again.
 
-Tom
+Does _anyone_ understand this code and its interactions with X? I'm lost...
 
--- 
-The Daemons lurk and are dumb. -- Emerson
+/Mikael
 
-diff -u linux-2.4.3/fs/proc/generic.c.orig linux-2.4.3/fs/proc/generic.c
---- linux-2.4.3/fs/proc/generic.c.orig	Thu Apr  5 10:03:02 2001
-+++ linux-2.4.3/fs/proc/generic.c	Thu Apr  5 10:22:48 2001
-@@ -192,13 +192,22 @@
- 
- static unsigned char proc_alloc_map[PROC_NDYNAMIC / 8];
- 
-+spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
-+
- static int make_inode_number(void)
- {
--	int i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
--	if (i<0 || i>=PROC_NDYNAMIC) 
--		return -1;
-+	int i;
-+	spin_lock(&proc_alloc_map_lock);
-+	i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
-+	if (i<0 || i>=PROC_NDYNAMIC) {
-+		i = -1;
-+		goto out;
+--- linux-2.4.3-ac3/drivers/char/console.c.~1~	Thu Apr  5 15:57:36 2001
++++ linux-2.4.3-ac3/drivers/char/console.c	Thu Apr  5 18:52:43 2001
+@@ -2713,23 +2713,23 @@
+ 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
+ 		return;
+ 	}
+-	currcons = fg_console;
+-	if (vcmode != KD_TEXT) {
+-		console_blanked = 0;
+-		return;
+-	}
+ 	console_timer.function = blank_screen;
+ 	if (blankinterval) {
+ 		mod_timer(&console_timer, jiffies + blankinterval);
+ 	}
+-
++	currcons = fg_console;
+ 	console_blanked = 0;
+ 	if (console_blank_hook)
+ 		console_blank_hook(0);
+ 	set_palette(currcons);
+-	if (sw->con_blank(vc_cons[currcons].d, 0))
++	if (sw->con_blank(vc_cons[currcons].d, 0)) {
++		if (vcmode != KD_TEXT)
++			return;
+ 		/* Low-level driver cannot restore -> do it ourselves */
+ 		update_screen(fg_console);
 +	}
- 	set_bit(i, (void *) proc_alloc_map);
--	return PROC_DYNAMIC_FIRST + i;
-+	i += PROC_DYNAMIC_FIRST;
-+out:
-+	spin_unlock(&proc_alloc_map_lock);
-+	return i;
++	if (vcmode != KD_TEXT)
++		return;
+ 	set_cursor(fg_console);
  }
  
- static int proc_readlink(struct dentry *dentry, char *buffer, int buflen)

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282346AbRKZTWc>; Mon, 26 Nov 2001 14:22:32 -0500
+	id <S281991AbRKZSQC>; Mon, 26 Nov 2001 13:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282381AbRKZTVQ>; Mon, 26 Nov 2001 14:21:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6785 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S282427AbRKZTUt>;
-	Mon, 26 Nov 2001 14:20:49 -0500
-Date: Mon, 26 Nov 2001 11:20:33 -0800 (PST)
-Message-Id: <20011126.112033.88487539.davem@redhat.com>
-To: marcelo@conectiva.com.br
-Cc: olh@suse.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] net/802/Makefile
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0111261514070.13961-100000@freak.distro.conectiva>
-In-Reply-To: <20011126140645.B3014@suse.de>
-	<Pine.LNX.4.21.0111261514070.13961-100000@freak.distro.conectiva>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S282007AbRKZSO7>; Mon, 26 Nov 2001 13:14:59 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:13062 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S281999AbRKZSNG>; Mon, 26 Nov 2001 13:13:06 -0500
+Message-ID: <3C028629.B455653A@lexus.com>
+Date: Mon, 26 Nov 2001 10:12:57 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Persson <martin@cendio.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <20011124214114.E241@localhost> <46FF80FA-E151-11D5-A24C-00306569F1C6@haque.net> <vwbshp3fdx.fsf@akrulino.lkpg.cendio.se>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Marcelo Tosatti <marcelo@conectiva.com.br>
-   Date: Mon, 26 Nov 2001 15:14:33 -0200 (BRST)
-   
-   Let the correction come to me through the 802 maintainer, please. 
+Martin Persson wrote:
 
-Technically there is no such person currently.  At best it comes under
-"networking" and that I guess would be me.
+> I must say I'm seriously annoyed with the 2.4-tree so far. As far as
+> I'm concerned, 2.4 were obviously released too eary (or maybe the
+> 2.5-tree should have been opened earlier so we wouldn't had this
+> VM-mess in the "stable" release).
 
-The person who originally wrote this 802 stuff is not active anymore
-and he is only mentioned in the credits.
+Actually it's a good thing it wasn't released
+before the vm "mess" was fixed!
+
+> It's obvious that stories like this really won't improve the
+> reputation of Linux...
+
+That's a tough one - perhaps if he had a Linux
+savvy buddy to guide him through the tough
+parts... I have been doing all gaming on Linux,
+and would not consider going back to windows.
+
+cu
+
+jjs
+
+
+

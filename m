@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVAOFJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVAOFOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbVAOFJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVAOFJ7
+	id S262198AbVAOFOS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVAOFOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:09:59 -0500
-Received: from ozlabs.org ([203.10.76.45]:63876 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262226AbVAOFJm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:09:42 -0500
-Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, manpreet@fabric7.com,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-In-Reply-To: <20050115040951.GC13525@wotan.suse.de>
-References: <20050115040951.GC13525@wotan.suse.de>
-Content-Type: text/plain
-Date: Sat, 15 Jan 2005 16:09:19 +1100
-Message-Id: <1105765760.12263.12.camel@localhost.localdomain>
+	Sat, 15 Jan 2005 00:14:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3857 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262198AbVAOFOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 00:14:12 -0500
+Date: Sat, 15 Jan 2005 06:14:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Steffen Moser <lists@steffen-moser.de>, linux-kernel@vger.kernel.org,
+       David Dyck <david.dyck@fluke.com>
+Subject: Re: Linux 2.4.29-rc2
+Message-ID: <20050115051410.GD4274@stusta.de>
+References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de> <20050114231712.GH3336@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050114231712.GH3336@logos.cnet>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-15 at 05:09 +0100, Andi Kleen wrote:
-> Fix boot up SMP race in timer setup on i386/x86-64.
+On Fri, Jan 14, 2005 at 09:17:12PM -0200, Marcelo Tosatti wrote:
+>...
+> On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
+>...
+> > [1.] One line summary of the problem: 
+> > 
+> > Kernel module "serial.o" cannot be loaded
+> > 
+> > 
+> > [2.] Full description of the problem/report:
+> > 
+> > I cannot load the module "serial.o" anymore, so I won't have serial 
+> > port support (which is needed to have the machine communicating with
+> > the UPS):
+> > 
+> >  | fsa01:~ # modprobe serial
+> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_ldisc_flush
+> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_wakeup
+> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o failed
+> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod serial failed
 > 
-> This fixes a long standing race in 2.6 i386/x86-64 SMP boot.
-> The per CPU timers would only get initialized after an secondary
-> CPU was running. But during initialization the secondary CPU would
-> already enable interrupts to compute the jiffies. When a per 
-> CPU timer fired in this window it would run into a BUG in timer.c
-> because the timer heap for that CPU wasn't fully initialized.
+> Steffen, 
 > 
-> The race only happens when a CPU takes a long time to boot
-> (e.g. very slow console output with debugging enabled).
-> 
-> To fix I added a new cpu notifier notifier command CPU_UP_PREPARE_EARLY
-> that is called before the secondary CPU is started. timer.c
-> uses that now to initialize the per CPU timers early before
-> the other CPU runs any Linux code.
+> Please try this:
+>...
+> -EXPORT_SYMBOL_GPL(tty_wakeup);
+> +EXPORT_SYMBOL(tty_wakeup);
+>...
+> -EXPORT_SYMBOL_GPL(tty_ldisc_flush);
+> +EXPORT_SYMBOL(tty_ldisc_flush);
+>...
 
-Andi, that's horrible.  I suspect you know it's horrible and were hoping
-someone would fix it properly.  The semantics of CPU_UP_PREPARE are
-supposed to do this already.
+This shouldn't make any difference unless 2.4.29-rc2 contains non-GPL 
+code.
 
-The cause of this bug is that (1) i386 and x86_64 actually bring the
-secondary CPUs up at boot before the core code officially brings them up
-using cpu_up(), after the appropriate callbacks, and (2) they call into
-core code tp process timer interrupts before they've been officially
-brought up.
+cu
+Adrian
 
-The former is because I just added a shim rather than rewriting the x86
-boot process, because it would have broken too much.  The fix is do the
-boot process properly, or to suppress the call to do_timer before the
-CPU is actually "up".
-
-Sorry,
-Rusty.
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

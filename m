@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUFKCaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUFKCk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263596AbUFKCaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 22:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUFKCaZ
+	id S263741AbUFKCk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 22:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFKCk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 22:30:25 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:16543 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S263596AbUFKCaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 22:30:24 -0400
-Message-ID: <40C9193F.9080107@tomt.net>
-Date: Fri, 11 Jun 2004 04:30:23 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream plan
- for AHCI and iswraid??)
-References: <20040610155740.81227.qmail@web90109.mail.scd.yahoo.com> <40C8A5F6.3030002@pobox.com>
-In-Reply-To: <40C8A5F6.3030002@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 10 Jun 2004 22:40:58 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:50085 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263741AbUFKCkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 22:40:49 -0400
+Subject: Re: 2.6.7-rc2-mm2
+From: Len Brown <len.brown@intel.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040603152042.GK1946@suse.de>
+References: <20040603015356.709813e9.akpm@osdl.org>
+	 <20040603152042.GK1946@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086921637.2242.471.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 10 Jun 2004 22:40:37 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> My deadline for integrating AHCI into Red Hat's kernel is measured in 
-> days, if that gives you an indication ;-)
+On Thu, 2004-06-03 at 11:20, Jens Axboe wrote:
+> On Thu, Jun 03 2004, Andrew Morton wrote:
+> >  bk-acpi.patch
+> 
+> Doesn't compile if you disable ACPI, since mp_register_gsi is guarded by
+> 
+> #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
+> 
+> but used in arch/i386/kernel/acpi/boot.c if CONFIG_X86_IO_APIC is set
+> alone. I have to disable ACPI on this box still, otherwise it crashes
+> very hard immediately after displaying ACPI banner.
 
-Since we're on the topic of new libata drivers, how is the Marvell 
-driver coming along? I'm getting several server units with a 4-port 
-version on-board in the not-so-distant future, it would be nice if they 
-could use all their drive bays ;-)
+"Crashes very hard" I would like to know more.
+Does the box have an IOAPIC?
+If no, does it boot with "nolapic"?
+If yes, does this patch help? 
+http://bugme.osdl.org/show_bug.cgi?id=1269
+
+thanks,
+-Len
+
+
+

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268540AbSIRVZ4>; Wed, 18 Sep 2002 17:25:56 -0400
+	id <S268564AbSIRV2D>; Wed, 18 Sep 2002 17:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268544AbSIRVZ4>; Wed, 18 Sep 2002 17:25:56 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:65031 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268540AbSIRVZz>;
-	Wed, 18 Sep 2002 17:25:55 -0400
-Date: Wed, 18 Sep 2002 14:30:59 -0700
-From: Greg KH <greg@kroah.com>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux hot swap support
-Message-ID: <20020918213058.GH10970@kroah.com>
-References: <180577A42806D61189D30008C7E632E8793A6A@boca213a.boca.ssc.siemens.com>
+	id <S268631AbSIRV2C>; Wed, 18 Sep 2002 17:28:02 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3982 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268564AbSIRV1U>;
+	Wed, 18 Sep 2002 17:27:20 -0400
+Date: Wed, 18 Sep 2002 14:22:50 -0700 (PDT)
+Message-Id: <20020918.142250.130847722.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: ebiederm@xmission.com, hadi@cyberus.ca, akpm@digeo.com,
+       manfred@colorfullife.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1032383727.20463.155.camel@irongate.swansea.linux.org.uk>
+References: <1032381789.20498.151.camel@irongate.swansea.linux.org.uk>
+	<20020918.134630.127509858.davem@redhat.com>
+	<1032383727.20463.155.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <180577A42806D61189D30008C7E632E8793A6A@boca213a.boca.ssc.siemens.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 18, 2002 at 05:09:50PM -0400, Bloch, Jack wrote:
-> Our HW uses an AMCC S5935 PCI controller. Right now, since we own both
-> device and SW, we are using a simple interrupt mechanism to accomplish the
-> hot swap. 
-
-What do you mean "simple interrupt mechanism"?  How does the OS know
-that a PCI card has disappeared or show up?
-
-thanks,
-
-greg k-h
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 18 Sep 2002 22:15:27 +0100
+   
+   It doesnt matter what XFree86 is doing. Thats just to load the PCI bus
+   and jam it up to prove the point. It'll change your inb timing
+   
+Understood.  Maybe a more accurate wording would be "a fixed minimum
+timing".

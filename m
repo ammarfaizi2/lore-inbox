@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275003AbRJQHhJ>; Wed, 17 Oct 2001 03:37:09 -0400
+	id <S274789AbRJQHzY>; Wed, 17 Oct 2001 03:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274990AbRJQHg7>; Wed, 17 Oct 2001 03:36:59 -0400
-Received: from mail.science.uva.nl ([146.50.4.51]:56270 "EHLO
-	mail.science.uva.nl") by vger.kernel.org with ESMTP
-	id <S274872AbRJQHgv>; Wed, 17 Oct 2001 03:36:51 -0400
-X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
-X-URL: http://www.science.uva.nl/
-Date: Wed, 17 Oct 2001 09:36:04 +0200 (CEST)
-From: Kamil Iskra <kamil@science.uva.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Poor floppy performance in kernel 2.4.10
-Message-ID: <Pine.LNX.4.33.0110170926050.3761-100000@krakow.science.uva.nl>
+	id <S274990AbRJQHzO>; Wed, 17 Oct 2001 03:55:14 -0400
+Received: from eamail1-out.unisys.com ([192.61.61.99]:9418 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S274789AbRJQHy7>; Wed, 17 Oct 2001 03:54:59 -0400
+Message-ID: <DD0DC14935B1D211981A00105A1B28DB033ED3D8@NL-ASD-EXCH-1>
+From: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>
+To: "'lkm'" <linux-kernel@vger.kernel.org>
+Subject: Re: VM
+Date: Wed, 17 Oct 2001 02:55:29 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've tried more-or-less comparable desktop workloads on various
+kernel-versions.
 
-Hi,
+So far my conclusion is that for desktops, the VM in the recent -ac kernels
+is worst, the VM in Linus's recent kernels is much better for the desktop,
+but that the kernel with the smoothest operation on the desktop is:
 
-Since kernel 2.4.10, I observe a rather poor performance of the good old
-floppy drive.  It used to work find in kernel 2.4.9.  Kernel 2.4.10 broke
-it, and 2.4.12 did not fix it.  I access my floppy using mtools-3.9.7-4 as
-found in RH 7.1.
+2.4.4ac8
 
-Not knowing anything about the kernel internals, I would say that the
-floppy driver does not do any caching anymore.  With kernel 2.4.9, "mdir"
-of a standard 1.44 MB, completely empty floppy disk takes about 1 second
-for the first invocation, and next to nothing for the subsequent ones.
->From 2.4.10 on, it takes over 2 seconds every time.  Writing a 30 KB file
-with 2.4.9 takes below 3 seconds, with >=2.4.10 it's over 6 seconds.
+(There are several 2.4.4-ac kernels with identical VM just I happen to have
+this one installed as a sort of backup)
 
-Maybe I should just keep quiet and be happy that it works at all, after
-all floppies are rarely used nowadays, but letting such a performance
-degradation go unreported is just beyond me :-).
+This is a really old kernel, and I know that there were problems with that
+VM version under certain loads. Still, the fact that it performs well is
+perhaps an interesting datapoint.
+I don't know if problems in the 2.4.4-ac8 VM can be killed without also
+killing the performance?
 
-Regards,
+The tested load is:
 
--- 
-Kamil Iskra                 http://www.science.uva.nl/~kamil/
-Section Computational Science, Faculty of Science, Universiteit van Amsterdam
-kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
-Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
+- Compiling kernel
+- Browsing web with Mozilla or Galeon
+- Opening Evolution and looking at mail
+- Editing files with XEmacs
+
+My criteria were speed of opening new big applications when another big
+application is running and compiling at the same time, how useable the
+system is while the application starts up, how quickly and smoothly I can
+switch from one app. to the other.
+
+All of these are of course highly subjective criteria.
+
+I'm not interested in audio, so I didn't do any tests for smoothness of
+playing sound while doing any of these things.
+
+Next weekend I hope to have time to give the VM's another try; this time
+I'll apply relevant Rik's patches to the -ac kernel too.
+
+My PC has 64MB of RAM and some slow IDE disks (tuned with DMA and -u 1), and
+a 200MHz MMX P1
+
+
+--Tim
 

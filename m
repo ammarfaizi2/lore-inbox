@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVAYI1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVAYIhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVAYI1l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 03:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVAYI1l
+	id S261607AbVAYIhD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 03:37:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVAYIhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 03:27:41 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:33152
-	"EHLO pbaldrick.hd.free.fr") by vger.kernel.org with ESMTP
-	id S261598AbVAYI1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 03:27:38 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Enforce USB interface claims
-Date: Tue, 25 Jan 2005 09:27:33 +0100
-User-Agent: KMail/1.7.1
-Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20050123111258.GA29513@taniwha.stupidest.org> <20050125060555.GC2061@kroah.com>
-In-Reply-To: <20050125060555.GC2061@kroah.com>
+	Tue, 25 Jan 2005 03:37:03 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54994 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261607AbVAYIg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 03:36:58 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 4/29] x86-i8259-shutdown
+References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+	<1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Jan 2005 01:35:00 -0700
+In-Reply-To: <20050125035930.GG13394@redhat.com>
+Message-ID: <m1sm4phpor.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501250927.33971.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > -	/* if not yet claimed, claim it for the driver */
-> > -	dev_warn(&ps->dev->dev, "usbfs: process %d (%s) did not claim interface %u before use\n",
-> > -	       current->pid, current->comm, ifnum);
-> > -	return claimintf(ps, ifnum);
-> > +	return -EINVAL;
-> >  }
-> >  
-> >  static int findintfep(struct usb_device *dev, unsigned int ep)
-> 
-> 
-> Um, why?  I think this is there to help with "broken" userspace code
-> that was written before we enforced the rules of "you must claim an
-> interface before using it."  As such, I don't think we can apply this
-> patch.
+Dave Jones <davej@redhat.com> writes:
 
-Unfortunately it also means that there is no pressure to fix the user-space
-code.  How about having it say that the autoclaiming is deprecated, and will
-be removed at some point?
+> On Mon, Jan 24, 2005 at 10:32:50PM -0500, Len Brown wrote:
+>  > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
+>  > > From: Eric W. Biederman <ebiederm@xmission.com>
+>  > > 
+>  > > This patch disables interrupt generation from the legacy pic on
+>  > > reboot.  Now that there is a sys_device class it should not be called
+>  > > while drivers are still using interrupts.
+>  > > 
+>  > > There is a report about this breaking ACPI power off on some systems.
+>  > > http://bugme.osdl.org/show_bug.cgi?id=4041
+>  > > However the final comment seems to exhonorate this code.  So until
+>  > > I get more information I believe that was a false positive.
+>  > 
+>  > No, the last comment in the bug report
+>  > (davej says that there were poweroff problems in FC)
+>  > does not exhonerate this patch.
+>  > All it says is that there are additional poweroff bugs out there.
 
-Ciao,
+So I will ask again, as I did when Andrew first pointed this in my
+direction.  What code path in the kernel could possibly care if we
+disable the i8259 after we have disabled all of the other hardware in
+the system.
 
-Duncan.
+The i8259 is a system device so everything else is shutoff first
+(by design).  I have one vague reference that this is a/the
+problem but I don't have anything to go on with respect to fixing it.
+
+I don't have a system that reproduces this.
+
+Eric
+

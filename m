@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313366AbSDGReC>; Sun, 7 Apr 2002 13:34:02 -0400
+	id <S313407AbSDGRxW>; Sun, 7 Apr 2002 13:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313401AbSDGReB>; Sun, 7 Apr 2002 13:34:01 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:49681 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S313366AbSDGReA>; Sun, 7 Apr 2002 13:34:00 -0400
-Date: Sun, 7 Apr 2002 18:33:43 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Steven N. Hirsch" <shirsch@adelphia.net>, linux-kernel@vger.kernel.org
-Subject: Re: Two fixes for 2.4.19-pre5-ac3
-Message-ID: <20020407173343.GA18940@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.44.0204071240360.15439-100000@atx.fast.net> <E16uGg1-0006Ln-00@the-village.bc.nu>
+	id <S313412AbSDGRxV>; Sun, 7 Apr 2002 13:53:21 -0400
+Received: from 216-42-72-142.ppp.netsville.net ([216.42.72.142]:17088 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S313407AbSDGRxV>; Sun, 7 Apr 2002 13:53:21 -0400
+Subject: Re: ReiserFS Bug Fixes 2 of 6
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Hans Reiser <reiser@namesys.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0204061107230.632-100000@weyl.math.psu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 07 Apr 2002 13:18:36 -0400
+Message-Id: <1018199916.3563.275.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *16uGY0-000194-00*0kYvd1Afdqg* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 06:42:05PM +0100, Alan Cox wrote:
-
-> > And, unless this is reversed the OpenAFS kernel module won't load (it 
-> > needs sys_call_table.):
+On Sat, 2002-04-06 at 11:07, Alexander Viro wrote:
 > 
-> Correct. There was agreement a very long time ago that code should not patch
-> the syscall table (for one its not safe). AFS probably needs fixing so the
-> AFS syscall hook is exported portably and nicely in the syscall code.
+> 
+> On Sat, 6 Apr 2002, Hans Reiser wrote:
+> 
+> > 
+> > This changeset is to fix reiserfs problems that arose after applying one of
+> > Al Viro's cleanup. This changeset simply removes offending part.
+> 
+> Hans, it's already fixed by Oleg's patch.
+> 
 
-Sure, AFS can do that ...
+Correct.  Hans, numerous people have explained that reversing this patch
+fixes nothing.  
 
-But what about the recent discussion on the removal of sys_call_table ?
+-chris
 
-(I believe it was along the lines of "it's ugly, prevent it ...", "ah,
-but it has real uses, so why can't it stay as deprecated/unadvised ?"
-"*no response*").
 
-I'm a bit disappointed this has just gone in without any real discussion
-on the usefulness of this for certain circumstances :(
-
-regards
-john
-
--- 
-"I never understood what's so hard about picking a unique
- first and last name - and not going beyond the 6 character limit."
- 	- Toon Moene

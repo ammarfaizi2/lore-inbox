@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129819AbQKZNBj>; Sun, 26 Nov 2000 08:01:39 -0500
+        id <S129626AbQKZNwS>; Sun, 26 Nov 2000 08:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130192AbQKZNBT>; Sun, 26 Nov 2000 08:01:19 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:62419 "EHLO
-        obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-        id <S129819AbQKZNBR>; Sun, 26 Nov 2000 08:01:17 -0500
-Date: Sun, 26 Nov 2000 14:30:59 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: "Mr. Big" <mrbig@sneaker.sch.bme.hu>, linux-kernel@vger.kernel.org,
-        rik@informatik.tu-chemnitz.de
-Subject: readonly /proc/sys/vm/freepages (was: Re: PROBLEM: crashing kernels)
-Message-ID: <20001126143059.M13759@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.3.96.1001124183828.385A-100000@sneaker.sch.bme.hu> <3A20501E.32EEB3C8@uow.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A20501E.32EEB3C8@uow.edu.au>; from andrewm@uow.edu.au on Sun, Nov 26, 2000 at 10:49:50AM +1100
+        id <S129873AbQKZNwI>; Sun, 26 Nov 2000 08:52:08 -0500
+Received: from mailb.telia.com ([194.22.194.6]:21011 "EHLO mailb.telia.com")
+        by vger.kernel.org with ESMTP id <S129626AbQKZNv5>;
+        Sun, 26 Nov 2000 08:51:57 -0500
+From: Anders Torger <torger@ludd.luth.se>
+Reply-To: torger@ludd.luth.se
+Organization: -
+To: linux-kernel@vger.kernel.org
+Subject: How to transfer memory from PCI memory directly to user space safely and portable?
+Date: Sun, 26 Nov 2000 14:21:31 +0100
+X-Mailer: KMail [version 1.1.61]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <00112614213105.05228@paganini>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 10:49:50AM +1100, Andrew Morton wrote:
-> You may also get some benefit from running:
-> 
-> # echo "512 1024 1536" > /proc/sys/vm/freepages
-> 
-> after booting.
 
-... which is a NOOP on recent 2.4.0-testX-kernels. So please
-complain at Rik for this (CC'ed him) ;-)
+I'm writing a sound card driver where I need to transfer memory from the card 
+to user space using the CPU. Ideally I'd like to do that without needing to 
+have an intermediate buffer in kernel memory. I have implemented the copy 
+functions like this:
 
-It's simply not that easy to set in the new VM since we count the
-inactive_clean and/or inactive_dirty pages like free pages in
-some cases.
+>From user space to the sound card:
 
-> The default values are a little too low for
-> applications which are very network intensive.
+	if (verify_area(VERIFY_READ, user_space_src, count) != 0) {
+	    return -EFAULT;
+	}
+	memcpy_toio(iobase, user_space_src, count);
+	return 0;
 
-Especially for low memory machines, which are dedicated only for
-this purpose. Many people use (embedded) Linux and a (embedded)
-PC to cheaply fill functionality gaps in industrial environments.
+>From the sound card to user space:
 
-Regards
+	if (verify_area(VERIFY_WRITE, user_space_dst, count) != 0) {
+	    return -EFAULT;
+	}
+	memcpy_fromio(user_space_dst, iobase, count);
+	return 0;
 
-Ingo Oeser
--- 
-To the systems programmer, users and applications
-serve only to provide a test load.
-<esc>:x
+
+These functions are called on the behalf of the user, so the current process 
+should be the correct one. The iobase is ioremapped: 
+
+	iobase = ioremap(sound_card_port, sound_card_io_size);
+
+Now, this code works, I have a working driver. However, some questions have 
+been raised about the code, namely the following:
+
+1. What happens if the user space memory is swapped to disk? Will 
+verify_area() make sure that the memory is in physical RAM when it returns, 
+or will it return -EFAULT, or will something even worse happen?
+
+2. Is this code really portable? I currently have an I386 architecture, and I 
+could use copy_to/from_user on that instead, but that is not portable. Now, 
+by using memcpy_to/fromio instead, is this code fully portable?
+
+3. Will the current process always be the correct one? The copy functions is 
+directly initiated by the user, and not through an interrupt, so I think the 
+user space mapping will always be to the correct process. Is that correct?
+
+Since I'm not on the list, I'd like to have answers CC'd to my address. Thank 
+you.
+
+/Anders Torger
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

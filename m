@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261217AbRENNBD>; Mon, 14 May 2001 09:01:03 -0400
+	id <S261294AbRENNCm>; Mon, 14 May 2001 09:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbRENNAw>; Mon, 14 May 2001 09:00:52 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:43968 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261217AbRENNAi>; Mon, 14 May 2001 09:00:38 -0400
-Message-ID: <3AFFD5B1.82678220@uow.edu.au>
-Date: Mon, 14 May 2001 22:55:13 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
+	id <S261238AbRENNCc>; Mon, 14 May 2001 09:02:32 -0400
+Received: from 13dyn155.delft.casema.net ([212.64.76.155]:8717 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S261294AbRENNCR>; Mon, 14 May 2001 09:02:17 -0400
+Message-Id: <200105141302.PAA14005@cave.bitwizard.nl>
+Subject: Re: Minor numbers
+In-Reply-To: <E14zDcI-0007TB-00@the-village.bc.nu> from Alan Cox at "May 14,
+ 2001 09:22:09 am"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 14 May 2001 15:02:08 +0200 (MEST)
+CC: Alex Q Chen <aqchen@us.ibm.com>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: Juri Haberland <juri@koschikode.com>
-CC: r.verhees@chello.nl, linux-kernel@vger.kernel.org
-Subject: Re: 3c900 card and kernel 2.4.3 <
-In-Reply-To: <20010504203107.DVQ23593.amsmta01-svc@[192.168.2.1]> <20010514111251.32556.qmail@babel.spoiled.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juri Haberland wrote:
+Alan Cox wrote:
+> > 255.  Has this limitation been some how addressed with 2.4?  256 devices
+> > per module, sometimes is not enough, especially if you are in the SAN
+> > environment; or when the 256 minors numbers are broken down to several
 > 
-> r.verhees@chello.nl wrote:
-> > Hi there,
-> >
-> > when i install kernel 2.4.3 or higher on my slackware
-> > system the card (3c900) gets detected but doesn't do
-> > anything, i also get the line "using NWAY 8" or something
-> > like that (had to switch back to 2.4.2 to type e-mail)
-> > wondered if anyone else had this problem and if there's
-> > some way to solve it?
+> 2.4 is using 16bit dev_t in kernel still. Application space sees a much
+> larger dev_t so we can make the move in 2.5 very easily
 > 
-> Hi Ronnie,
+> > work-around or is proposing a solution?  I believe that minor and major
+> > numbers for SUN and AIX are both 16 bits each (32 bits dev_t).
 > 
-> did you receive any answer?
-> 
-> Do you use 10Base2 (aka cheaper net)?
-> I do and after upgrading to 2.4.3 (I think) I had to force the driver to
-> use the BNC connector though the card was configured (via the little config
-> program supplied by 3com) to always use the BNC connector...
-> This way I lost several hours to figure out why it wasn't working anymore and
-> to discover that I have to build it as a module instead of having it compiled
-> into the kernel because I couldn't make it work with kernel options - only
-> with driver options...
-> Any suggestions?
+> 20:12 is more common
 
-Yes, sorry.
+Which is major, which is minor?
 
-The problem with earlier kernels was that autoselection
-would notice the lack of 10baseT link beat and would then
-advance on to trying AUI/SQE/10base2/etc.  None of these
-interfaces allow the driver to know if there's anything
-connected and the driver consequently gets stuck on that
-interface.  The net effect: if you unplug the 10baseT
-the driver gets stuck and you have to reboot.
+I have one (private) driver that requires around 5000 minors.
+(currently through some 20 majors) (Currently only just over half of
+these are physically installed....)
 
-So autoselection was turned off if the NIC was found
-to have autonegotiation hardware.  If you want to use
-the other interfaces, you have to provide an option,
-as described in Documentation/networking/vortex.txt.
+			Roger. 
 
-For non-modular drivers things are less easy.  If you
-want to force it to use 10baseT (if_port zero) then
-it should work OK if you cheat and use mem_start=0x400.
-So `ether=0,0,0x400'.
-
-For BNC, it should work just fine with `ether=0,0,1'.
-If it doesn't, please shout at me.   Compile the
-driver with `static int vortex_debug = 7;' at line
-183 and send me the boot logs.
-
-Thanks.
-
-
--
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

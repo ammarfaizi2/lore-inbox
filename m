@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbQJZQfe>; Thu, 26 Oct 2000 12:35:34 -0400
+	id <S129697AbQJZQrt>; Thu, 26 Oct 2000 12:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129676AbQJZQfY>; Thu, 26 Oct 2000 12:35:24 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:3957 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S129423AbQJZQfS>; Thu, 26 Oct 2000 12:35:18 -0400
-Date: Thu, 26 Oct 2000 19:35:08 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: linux-kernel@vger.kernel.org
-Cc: saw@saw.sw.com.sg
-Subject: eepro100: card reports no resources [was VM-global...]
-Message-ID: <20001026193508.A19131@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129676AbQJZQrj>; Thu, 26 Oct 2000 12:47:39 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29702 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129509AbQJZQrZ>; Thu, 26 Oct 2000 12:47:25 -0400
+Date: Thu, 26 Oct 2000 09:44:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dan Kegel <dank@alumni.caltech.edu>
+cc: "Eric W. Biederman" <ebiederm@biederman.org>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Linux's implementation of poll() not scalable?
+In-Reply-To: <39F859C7.FC0A726F@alumni.caltech.edu>
+Message-ID: <Pine.LNX.4.10.10010260936330.2460-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Pfeiffer <profmakx@profmakx.de> wrote:
+
+
+On Thu, 26 Oct 2000, Dan Kegel wrote:
 > 
-> > Oct 26 11:24:13 ns29 kernel: eth0: card reports no resources.
-> > Oct 26 11:24:15 ns29 kernel: eth0: card reports no resources.
-> > Oct 26 12:22:21 ns29 kernel: eth0: card reports no resources.
-> > Oct 26 16:16:59 ns29 kernel: eth0: card reports no resources.
-> > Oct 26 16:28:37 ns29 kernel: eth0: card reports no resources.
-> > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
-> > 
-> let me guess: intel eepro100 or similar??
-> Well known problem with that one. dont know if its fully fixed ... With
+> With level-triggered interfaces like poll(), your chances
+> of writing a correctly functioning program are higher because you
+> can throw events away (on purpose or accidentally) with no consequences; 
+> the next time around the loop, poll() will happily tell you the current
+> state of all the fd's.
 
-Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
-The network stalls for several minutes when it happens.
+Agreed.
 
-> 2.4.0-test9-pre3 it doesnt happen on my machine ...
+However, we also need to remember what got us to this discussion in the
+first place. One of the reasons why poll() is such a piggy interface is
+exactly because it tries to be "nice" to the programmer.
 
-What about a fix for a 2.2.x...?
+I'd much rather have an event interface that is documented to be edge-
+triggered and is really _lightweight_, than have another interface that
+starts out with some piggy features.
 
+I do understand that level to some degree is "nicer", but everybody pretty
+much agrees that apart from requireing more care, edge-triggered certainly
+does everything the level-triggered interfaces do. 
 
--- v --
+For example, if you want to only partially handle an event (one of the
+more valid arguments I've seen, although I do not agree with it actually
+being all that common or important thing to do), the edge-triggered
+interface _does_ allow for that. It's fairly easy, in fact: you just
+re-bind the thing.
 
-v@iki.fi
+(My suggested "bind()" interface would be to just always add a newly bound
+fd to the event queue, but I would not object to a "one-time test for
+active" kind of "bind()" interface either - which would basically allow
+for a poll() interface - and the existing Linux internal "poll()"
+implementation actually already allows for exactly this so it wouldn't
+even add any complexity).
+
+> With edge-triggered interfaces, the programmer must be much more careful
+> to avoid ever dropping a single event; if he does, he's screwed.
+> This gives rise to complicated code in apps to remember the current
+> state of fd's in those cases where the programmer has to drop events.
+
+No, the "re-bind()" approach works very simply, and means that the
+overhead of testing whether the event is still active is not a generic
+thing that _always_ has to be done, but something where the application
+can basically give the kernel the information that "this time we're
+leaving the event possibly half-done, please re-test now".
+
+Advantage: performance again. The common case doesn't take the performance
+hit.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268925AbTCDAm7>; Mon, 3 Mar 2003 19:42:59 -0500
+	id <S268928AbTCDA56>; Mon, 3 Mar 2003 19:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268928AbTCDAm7>; Mon, 3 Mar 2003 19:42:59 -0500
-Received: from nef.ens.fr ([129.199.96.32]:30728 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S268925AbTCDAm6>;
-	Mon, 3 Mar 2003 19:42:58 -0500
-Date: Tue, 4 Mar 2003 01:53:20 +0100
-From: David Madore <david.madore@ens.fr>
-To: linux-kernel@vger.kernel.org
-Subject: unmounting multiply-mounted directories
-Message-ID: <20030304015320.A13363@clipper.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S268929AbTCDA56>; Mon, 3 Mar 2003 19:57:58 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:36510 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S268928AbTCDA55>;
+	Mon, 3 Mar 2003 19:57:57 -0500
+Message-Id: <200303040107.h2417dPx010515@eeyore.valparaiso.cl>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: nickn <nickn@www0.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone 
+In-Reply-To: Your message of "Sun, 02 Mar 2003 21:32:48 CDT."
+             <3E62BED0.8040204@pobox.com> 
+Date: Mon, 03 Mar 2003 22:07:39 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Jeff Garzik <jgarzik@pobox.com> said:
 
-I use devfs on my installation, even though my distribution
-(RedHat-7.3) does not endorse it.  Most of the time it works fine.
-However, when I want to upgrade certain packages (for example, that
-which contains the entries in the non-devfs /dev directory) I need to
-make the original /dev directory visible to the package management
-(viz. rpm) program.
+[...]
 
-Seeing that I cannot unmount the devfs /dev directory since many
-processes use it, I figured the best way to do that would be to
-temporarily mount the original /dev directory in its place and over
-it, and then unmount it.  So I did something like this
+> That may be possible with OpenCM, but it's a bit of a stretch for the 
+> other existing SCMs.  Regardless, if BK can export metadata to an open 
+> format (such as a defined XML spec),
 
-mount /dev/sda2 /mnt/bareroot
-mount --bind /mnt/bareroot/dev /dev
-rpm -U whichever-package-needs-to-access-dev.whatever.rpm
+Like something quite as obscure as unidiff?
 
-This worked fine.  Unfortunately, I then discovered that I couldn't
-unmount the /dev directory!  I get this:
+>                                      then the SCM interchange 
+> possibilities are only limited by a programmer's time and imagination.
 
-vega root ~ # umount /dev
-umount: /dev: device is busy
-umount: /dev: device is busy
-
-Hum, why am I getting the error message twice?  Is it because I have
-two different mounts on the same /dev mountpoint?
-
-Anyway, I would like to trace that "device is busy" error back to its
-causes, that is, determine which processes are preventing me from
-unmounting the topmost /dev mount.  How do I do that?  I tried using
-fuser but it is useless: it does not have an option to distinguish
-open files from the bottommost /dev mount and from the topmost.  So
-how should I distinguish the two?
-
-Actually, all sorts of weird things are happening now.  For example,
-the /dev/pts directory is all empty (that doesn't seem to bother xterm
-overmuch, though, even if I open new xterms).  Well, I guess I'm in
-for an emergency reboot.
-
-But, what would be The Right Way to make the old /dev accessible to a
-program that needs to access it?  I can think of running the program
-chrooted with a specially mounted / but it doesn't seem perfect
-either.  Any other ideas?
-
-Oh, and by the way: is there some documentation to mount --bind
-somewhere?  Like, something which explains the detailed semantics of
-that operation?
-
-Thank you for your help -
-
+Then we are done ;-)
 -- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.eleves.ens.fr:8080/home/madore/ )
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

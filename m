@@ -1,300 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267260AbTCEREI>; Wed, 5 Mar 2003 12:04:08 -0500
+	id <S267241AbTCERDc>; Wed, 5 Mar 2003 12:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267274AbTCEREI>; Wed, 5 Mar 2003 12:04:08 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:59272 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267260AbTCERDz>; Wed, 5 Mar 2003 12:03:55 -0500
-Date: Wed, 05 Mar 2003 09:14:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 1/6 Share common physnode_map code between NUMA-Q and
- Summit
-Message-ID: <154390000.1046884457@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267260AbTCERDc>; Wed, 5 Mar 2003 12:03:32 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:17366 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267241AbTCERD3>; Wed, 5 Mar 2003 12:03:29 -0500
+Date: Wed, 5 Mar 2003 18:14:01 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add checkstack Makefile target
+Message-ID: <20030305171401.GA24165@wohnheim.fh-wedel.de>
+References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il> <20030304072443.GA5503@wohnheim.fh-wedel.de> <20030304102121.GC6583@wohnheim.fh-wedel.de> <20030304105739.GD6583@wohnheim.fh-wedel.de> <20030304190854.GA1917@mars.ravnborg.org> <20030305145149.GA7509@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030305145149.GA7509@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Andy Whitcroft
+Yet another version:
+- Arch dependent code is reduced to one regular expression.
+- Much shorter.
+- A tiny bit faster.
 
-Share a common physnode_map structure between NUMA-Q and Summit.
+Still, Keith' code beats the crap out of mine, speed-wise.
 
-diff -urpN -X /home/fletch/.diff.exclude
-000-virgin/arch/i386/kernel/i386_ksyms.c
-010-common_physmap/arch/i386/kernel/i386_ksyms.c
---- 000-virgin/arch/i386/kernel/i386_ksyms.c	Wed Mar  5 07:36:57 2003
-+++ 010-common_physmap/arch/i386/kernel/i386_ksyms.c	Wed Mar  5 08:44:17
-2003
-@@ -68,6 +68,7 @@ EXPORT_SYMBOL(EISA_bus);
- EXPORT_SYMBOL(MCA_bus);
- #ifdef CONFIG_DISCONTIGMEM
- EXPORT_SYMBOL(node_data);
-+EXPORT_SYMBOL(physnode_map);
- #endif
- #ifdef CONFIG_X86_NUMAQ
- EXPORT_SYMBOL(xquad_portio);
-diff -urpN -X /home/fletch/.diff.exclude
-000-virgin/arch/i386/kernel/numaq.c
-010-common_physmap/arch/i386/kernel/numaq.c
---- 000-virgin/arch/i386/kernel/numaq.c	Wed Mar  5 07:36:57 2003
-+++ 010-common_physmap/arch/i386/kernel/numaq.c	Wed Mar  5 08:44:17 2003
-@@ -31,8 +31,7 @@
- #include <asm/numaq.h>
+Jörn
+
+-- 
+Rules of Optimization:
+Rule 1: Don't do it.
+Rule 2 (for experts only): Don't do it yet.
+-- M.A. Jackson 
+
+diff -Naur linux-2.5.63/arch/i386/Makefile linux-2.5.63-csb1/arch/i386/Makefile
+--- linux-2.5.63/arch/i386/Makefile	Mon Feb 24 20:05:15 2003
++++ linux-2.5.63-csb1/arch/i386/Makefile	Wed Mar  5 14:18:51 2003
+@@ -124,3 +124,6 @@
+   echo  '		   install to $$(INSTALL_PATH) and run lilo'
+ endef
  
- /* These are needed before the pgdat's are created */
--unsigned long node_start_pfn[MAX_NUMNODES];
--unsigned long node_end_pfn[MAX_NUMNODES];
-+extern long node_start_pfn[], node_end_pfn[];
- 
- #define	MB_TO_PAGES(addr) ((addr) << (20 - PAGE_SHIFT))
- 
-@@ -65,25 +64,7 @@ static void __init smp_dump_qct(void)
- 	}
- }
- 
--/*
-- * -----------------------------------------
-- *
-- * functions related to physnode_map
-- *
-- * -----------------------------------------
-- */
--/*
-- * physnode_map keeps track of the physical memory layout of the
-- * numaq nodes on a 256Mb break (each element of the array will
-- * represent 256Mb of memory and will be marked by the node id.  so,
-- * if the first gig is on node 0, and the second gig is on node 1
-- * physnode_map will contain:
-- * physnode_map[0-3] = 0;
-- * physnode_map[4-7] = 1;
-- * physnode_map[8- ] = -1;
-- */
--int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
--EXPORT_SYMBOL(physnode_map);
-+extern int physnode_map[];
- 
- /*
-  * for each node mark the regions
-diff -urpN -X /home/fletch/.diff.exclude 000-virgin/arch/i386/kernel/srat.c
-010-common_physmap/arch/i386/kernel/srat.c
---- 000-virgin/arch/i386/kernel/srat.c	Wed Mar  5 07:36:57 2003
-+++ 010-common_physmap/arch/i386/kernel/srat.c	Wed Mar  5 08:44:17 2003
-@@ -57,8 +57,7 @@ static int num_memory_chunks;		/* total 
- static int zholes_size_init;
- static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
- 
--unsigned long node_start_pfn[MAX_NUMNODES];
--unsigned long node_end_pfn[MAX_NUMNODES];
-+extern unsigned long node_start_pfn[], node_end_pfn[];
- 
- extern void * boot_ioremap(unsigned long, unsigned long);
- 
-@@ -182,30 +181,19 @@ static __init void chunk_to_zones(unsign
- 	}
- }
- 
--/*
-- * physnode_map keeps track of the physical memory layout of the
-- * numaq nodes on a 256Mb break (each element of the array will
-- * represent 256Mb of memory and will be marked by the node id.  so,
-- * if the first gig is on node 0, and the second gig is on node 1
-- * physnode_map will contain:
-- * physnode_map[0-3] = 0;
-- * physnode_map[4-7] = 1;
-- * physnode_map[8- ] = -1;
-- */
--int pfnnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
--EXPORT_SYMBOL(pfnnode_map);
--
--static void __init initialize_pfnnode_map(void)
-+static void __init initialize_physnode_map(void)
- {
--	unsigned long topofchunk, cur = 0;
- 	int i;
--	
--	for (i = 0; i < num_memory_chunks; i++) {
--		cur = node_memory_chunk[i].start_pfn;
--		topofchunk = node_memory_chunk[i].end_pfn;
--		while (cur < topofchunk) {
--			pfnnode_map[PFN_TO_ELEMENT(cur)] = node_memory_chunk[i].nid;
--			cur ++;
-+	unsigned long pfn;
-+	struct node_memory_chunk_s *nmcp;
++checkstack: vmlinux
++	$(OBJDUMP) -d vmlinux | \
++	scripts/checkstack.pl $(ARCH)
+diff -Naur linux-2.5.63/arch/ppc/Makefile linux-2.5.63-csb1/arch/ppc/Makefile
+--- linux-2.5.63/arch/ppc/Makefile	Mon Feb 24 20:05:06 2003
++++ linux-2.5.63-csb1/arch/ppc/Makefile	Wed Mar  5 14:18:38 2003
+@@ -109,3 +109,7 @@
+ CLEAN_FILES +=	include/asm-$(ARCH)/offsets.h.tmp \
+ 		include/asm-$(ARCH)/offsets.h \
+ 		arch/$(ARCH)/kernel/asm-offsets.s
 +
-+	/* Run the list of memory chunks and fill in the phymap. */
-+	nmcp = node_memory_chunk;
-+	for (i = num_memory_chunks; --i >= 0; nmcp++) {
-+		for (pfn = nmcp->start_pfn; pfn <= nmcp->end_pfn;
-+						pfn += PAGES_PER_ELEMENT)
-+		{
-+			physnode_map[pfn / PAGES_PER_ELEMENT] = (int)nmcp->nid;
- 		}
- 	}
- }
-@@ -272,7 +260,7 @@ static int __init acpi20_parse_srat(stru
- 	for (i = 0; i < num_memory_chunks; i++)
- 		node_memory_chunk[i].nid = pxm_to_nid_map[node_memory_chunk[i].pxm];
- 
--	initialize_pfnnode_map();
-+	initialize_physnode_map();
- 	
- 	printk("pxm bitmap: ");
- 	for (i = 0; i < sizeof(pxm_bitmap); i++) {
-diff -urpN -X /home/fletch/.diff.exclude
-000-virgin/arch/i386/mm/discontig.c
-010-common_physmap/arch/i386/mm/discontig.c
---- 000-virgin/arch/i386/mm/discontig.c	Wed Mar  5 07:36:57 2003
-+++ 010-common_physmap/arch/i386/mm/discontig.c	Wed Mar  5 08:44:17 2003
-@@ -36,11 +36,36 @@
- struct pglist_data *node_data[MAX_NUMNODES];
- bootmem_data_t node0_bdata;
- 
-+/*
-+ * numa interface - we expect the numa architecture specfic code to have
-+ *                  populated the following initialisation.
-+ *
-+ * 1) numnodes         - the total number of nodes configured in the system
-+ * 2) physnode_map     - the mapping between a pfn and owning node
-+ * 3) node_start_pfn   - the starting page frame number for a node
-+ * 3) node_end_pfn     - the ending page fram number for a node
-+ */
++checkstack: vmlinux
++	$(OBJDUMP) -d vmlinux | \
++	scripts/checkstack.pl $(ARCH)
+diff -Naur linux-2.5.63/scripts/checkstack.pl linux-2.5.63-csb1/scripts/checkstack.pl
+--- linux-2.5.63/scripts/checkstack.pl	Thu Jan  1 01:00:00 1970
++++ linux-2.5.63-csb1/scripts/checkstack.pl	Wed Mar  5 18:04:19 2003
+@@ -0,0 +1,75 @@
++#!/usr/bin/perl
 +
-+/*
-+ * physnode_map keeps track of the physical memory layout of a generic
-+ * numa node on a 256Mb break (each element of the array will
-+ * represent 256Mb of memory and will be marked by the node id.  so,
-+ * if the first gig is on node 0, and the second gig is on node 1
-+ * physnode_map will contain:
-+ *
-+ *     physnode_map[0-3] = 0;
-+ *     physnode_map[4-7] = 1;
-+ *     physnode_map[8- ] = -1;
-+ */
-+int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
++#	Check the stack usage of functions
++#
++#	Copyright Joern Engel <joern@wh.fh-wedel.de>
++#	Inspired by Linus Torvalds
++#	Original idea maybe from Keith Owens
++#
++#	Usage:
++#	objdump -d vmlinux | \
++#	stackcheck_ppc.pl
++#
++#	TODO :	Port to all architectures (one regex per arch)
++#		Speed this puppy up
 +
-+unsigned long node_start_pfn[MAX_NUMNODES];
-+unsigned long node_end_pfn[MAX_NUMNODES];
-+
- extern unsigned long find_max_low_pfn(void);
- extern void find_max_pfn(void);
- extern void one_highpage_init(struct page *, int, int);
- 
--extern unsigned long node_start_pfn[], node_end_pfn[];
- extern struct e820map e820;
- extern char _end;
- extern unsigned long highend_pfn, highstart_pfn;
-diff -urpN -X /home/fletch/.diff.exclude
-000-virgin/include/asm-i386/mmzone.h
-010-common_physmap/include/asm-i386/mmzone.h
---- 000-virgin/include/asm-i386/mmzone.h	Wed Mar  5 08:23:16 2003
-+++ 010-common_physmap/include/asm-i386/mmzone.h	Wed Mar  5 08:44:27 2003
-@@ -10,14 +10,6 @@
- 
- #ifdef CONFIG_DISCONTIGMEM
- 
--#ifdef CONFIG_X86_NUMAQ
--#include <asm/numaq.h>
--#elif CONFIG_X86_SUMMIT
--#include <asm/srat.h>
--#else
--#define pfn_to_nid(pfn)		(0)
--#endif /* CONFIG_X86_NUMAQ */
--
- extern struct pglist_data *node_data[];
- 
- /*
-@@ -101,5 +93,38 @@ extern struct pglist_data *node_data[];
-  * ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) ) 
-  */ 
- #define pfn_valid(pfn)          ((pfn) < num_physpages)
-+
-+/*
-+ * generic node memory support, the following assumptions apply:
-+ *
-+ * 1) memory comes in 256Mb contigious chunks which are either present or
-not
-+ * 2) we will not have more than 64Gb in total
-+ *
-+ * for now assume that 64Gb is max amount of RAM for whole system
-+ *    64Gb / 4096bytes/page = 16777216 pages
-+ */
-+#define MAX_NR_PAGES 16777216
-+#define MAX_ELEMENTS 256
-+#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
-+
-+extern int physnode_map[];
-+
-+static inline int pfn_to_nid(unsigned long pfn)
++# check for arch
++# 
++# $re is used for three matches:
++# $& (whole re) matches the complete objdump line with the stack growth
++# $1 (first bracket) matches the code that will be displayed in the output
++# $2 (second bracket) matches the size of the stack growth
++#
++# use anything else and feel the pain ;)
 +{
-+	return(physnode_map[(pfn) / PAGES_PER_ELEMENT]);
-+}
-+static inline struct pglist_data *pfn_to_pgdat(unsigned long pfn)
-+{
-+	return(NODE_DATA(pfn_to_nid(pfn)));
++	my $arch = shift;
++	$x = "[0-9a-f]";	# hex character
++	$X = "[0-9a-fA-F]";	# hex character
++	if ($arch =~ /^i386$/) {
++		#c0105234:       81 ec ac 05 00 00       sub    $0x5ac,%esp
++		$re = qr/^$x{8}:\t.. .. .. .. .. ..    \t(sub    \$(0x$x{3,5}),\%esp)$/o;
++	} elsif ($arch =~ /^ppc$/) {
++		#c00029f4:       94 21 ff 30     stwu    r1,-208(r1)
++		$re = qr/.*(stwu.*r1,-($x{3,5})\(r1\))/o;
++	} else {
++		print "wrong or unknown architecture\n";
++		exit
++	}
 +}
 +
-+#ifdef CONFIG_X86_NUMAQ
-+#include <asm/numaq.h>
-+#elif CONFIG_X86_SUMMIT
-+#include <asm/srat.h>
-+#else
-+#define pfn_to_nid(pfn)		(0)
-+#endif /* CONFIG_X86_NUMAQ */
++sub bysize($) {
++	($asize = $a) =~ s/$re/\2/;
++	($bsize = $b) =~ s/$re/\2/;
++	$bsize <=> $asize
++}
 +
- #endif /* CONFIG_DISCONTIGMEM */
- #endif /* _ASM_MMZONE_H_ */
-diff -urpN -X /home/fletch/.diff.exclude
-000-virgin/include/asm-i386/numaq.h
-010-common_physmap/include/asm-i386/numaq.h
---- 000-virgin/include/asm-i386/numaq.h	Wed Mar  5 07:37:06 2003
-+++ 010-common_physmap/include/asm-i386/numaq.h	Wed Mar  5 08:44:17 2003
-@@ -28,18 +28,8 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- 
--/*
-- * for now assume that 64Gb is max amount of RAM for whole system
-- *    64Gb / 4096bytes/page = 16777216 pages
-- */
--#define MAX_NR_PAGES 16777216
--#define MAX_ELEMENTS 256
--#define PAGES_PER_ELEMENT (16777216/256)
--
- extern int physnode_map[];
--#define pfn_to_nid(pfn)	({ physnode_map[(pfn) / PAGES_PER_ELEMENT]; })
--#define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
--#define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
++#
++# main()
++#
++while (defined($line = <STDIN>)) {
++	if ($line =~ m/$re/) {
++		(my $addr = $line) =~ s/^($x{8}).*/0x\1/o;
++		chomp($addr);
 +
- #define MAX_NUMNODES		8
- extern void get_memcfg_numaq(void);
- #define get_memcfg_numa() get_memcfg_numaq()
-diff -urpN -X /home/fletch/.diff.exclude 000-virgin/include/asm-i386/srat.h
-010-common_physmap/include/asm-i386/srat.h
---- 000-virgin/include/asm-i386/srat.h	Wed Mar  5 07:37:06 2003
-+++ 010-common_physmap/include/asm-i386/srat.h	Wed Mar  5 08:44:17 2003
-@@ -27,17 +27,7 @@
- #ifndef _ASM_SRAT_H_
- #define _ASM_SRAT_H_
- 
--/*
-- * each element in pfnnode_map represents 256 MB (2^28) of pages.
-- * so, to represent 64GB we need 256 elements.
-- */
--#define MAX_ELEMENTS 256
--#define PFN_TO_ELEMENT(pfn) ((pfn)>>(28 - PAGE_SHIFT))
--
--extern int pfnnode_map[];
--#define pfn_to_nid(pfn) ({ pfnnode_map[PFN_TO_ELEMENT(pfn)]; })
--#define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
--#define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
-+extern int physnode_map[];
- #define MAX_NUMNODES		8
- extern void get_memcfg_from_srat(void);
- extern unsigned long *get_zholes_size(int);
-
++		my $ksymoops = `ksymoops -v vmlinux -m System.map -K -L -O -A $addr | \
++				tail -2 | head -1`;
++		(my $func = $ksymoops) =~ s/^Adhoc [0-9a-f]{8} (<.*>)/\1/;
++		chomp($func);
++
++		my $intro = "$addr $func:";
++		my $padlen = 56 - length($intro);
++		while ($padlen > 0) {
++			$intro .= '	';
++			$padlen -= 8;
++		}
++		(my $code = $line) =~ s/$re/\1/;
++
++		$stack[@stack] = "$intro $code";
++	}
++}
++
++@sortedstack = sort bysize @stack;
++
++foreach $i (@sortedstack) {
++	print("$i");
++}

@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbTH2RUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 13:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTH2RRt
+	id S261557AbTH2ROR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 13:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbTH2RNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 13:17:49 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:4803 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S261556AbTH2RP3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 13:15:29 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Rahul Karnik <rahul@genebrew.com>
-Subject: Re: Weird problem with nforce2
-Date: Fri, 29 Aug 2003 18:15:31 +0100
-User-Agent: KMail/1.5.9
-References: <3F4F54F2.4080506@ihme.org> <3F4F5B1B.1030909@genebrew.com>
-In-Reply-To: <3F4F5B1B.1030909@genebrew.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 29 Aug 2003 13:13:13 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:3536 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261528AbTH2RK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 13:10:59 -0400
+Date: Fri, 29 Aug 2003 19:10:30 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (6/8): dasd driver.
+Message-ID: <20030829171030.GG1242@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308291815.32082.alistair@devzero.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 August 2003 14:54, Rahul Karnik wrote:
-> Markus Hästbacka wrote:
-> > My chipset is NForce2, and needs NVIDIA NForce/NForce2 so the agp
-> > can work with full power. Thank you.
->
-> This is not true; AGP works perfectly fine with the in-kernel drivers.
-> You can set your video card to use the in-kernel AGP even if it is
-> Nvidia, I think (use the NvAgp option in XF86Config).
->
-> If not, maybe the patch has not been updated for the latest kernels, and
-> you will have to wait for someone to do so. In that case, this list is
-> not the place to ask.
->
+- Remove initialization of device.name.
+- Export some functions.
 
-The patch is fully up to date, I'm running 2.6.0-test4-mm1.
+diffstat:
+ drivers/s390/block/dasd.c       |   13 ++++++++-----
+ drivers/s390/block/dasd_ioctl.c |    3 +--
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-nForce2 AGPGART plus the binary NVIDIA drivers kills my box on startup. I just 
-disabled AGPGART and used NVAGP provided with the drivers and I get working 
-AGP 8x.
-
-Anybody else with this?
-
-Cheers,
-Alistair.
+diff -urN linux-2.6/drivers/s390/block/dasd.c linux-2.6-s390/drivers/s390/block/dasd.c
+--- linux-2.6/drivers/s390/block/dasd.c	Sat Aug 23 01:55:31 2003
++++ linux-2.6-s390/drivers/s390/block/dasd.c	Fri Aug 29 18:55:10 2003
+@@ -7,7 +7,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
+  *
+- * $Revision: 1.101 $
++ * $Revision: 1.107 $
+  */
+ 
+ #include <linux/config.h>
+@@ -411,7 +411,7 @@
+ 		target = DASD_STATE_ACCEPT;
+ 	if (device->target != target) {
+                 if (device->state == target)
+-                        wake_up(&dasd_init_waitq);
++			wake_up(&dasd_init_waitq);
+ 		device->target = target;
+ 	}
+ 	if (device->state != device->target)
+@@ -1752,9 +1752,6 @@
+ 	int devno;
+ 	int ret = 0;
+ 
+-	snprintf(cdev->dev.name, DEVICE_NAME_SIZE,
+-		 "Direct Access Storage Device");
+-
+ 	devno = _ccw_device_get_device_number(cdev);
+ 	if (dasd_autodetect
+ 	    && (ret = dasd_add_range(devno, devno, DASD_FEATURE_DEFAULT))) {
+@@ -2083,6 +2080,12 @@
+ EXPORT_SYMBOL(dasd_start_IO);
+ EXPORT_SYMBOL(dasd_term_IO);
+ 
++EXPORT_SYMBOL_GPL(dasd_generic_probe);
++EXPORT_SYMBOL_GPL(dasd_generic_remove);
++EXPORT_SYMBOL_GPL(dasd_generic_set_online);
++EXPORT_SYMBOL_GPL(dasd_generic_set_offline);
++EXPORT_SYMBOL_GPL(dasd_generic_auto_online);
++
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically
+diff -urN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-s390/drivers/s390/block/dasd_ioctl.c
+--- linux-2.6/drivers/s390/block/dasd_ioctl.c	Sat Aug 23 01:56:59 2003
++++ linux-2.6-s390/drivers/s390/block/dasd_ioctl.c	Fri Aug 29 18:55:10 2003
+@@ -125,8 +125,7 @@
+ 
+ /*
+  * Enable device.
+- * FIXME: how can we get here if the device is not already enabled?
+- * 	-arnd
++ * used by dasdfmt after BIODASDDISABLE to retrigger blocksize detection
+  */
+ static int
+ dasd_ioctl_enable(struct block_device *bdev, int no, long args)

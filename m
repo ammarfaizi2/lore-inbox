@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUIFBh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUIFBjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267382AbUIFBh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUIFBh3
+	id S267383AbUIFBjM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUIFBjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:37:29 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:30876 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S267382AbUIFBhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:37:05 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jens Axboe <axboe@suse.de>
-Date: Mon, 6 Sep 2004 11:36:50 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Sep 2004 21:39:12 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:12808 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267383AbUIFBi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:38:29 -0400
+Message-ID: <9e47339104090518387bdf2d0a@mail.gmail.com>
+Date: Sun, 5 Sep 2004 21:38:28 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: multi-domain PCI and sysfs
+Cc: Matthew Wilcox <willy@debian.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409051706.50455.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16699.48946.29579.495180@cse.unsw.edu.au>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: bug in md write barrier support?
-In-Reply-To: message from Jens Axboe on Saturday September 4
-References: <20040903172414.GA6771@lst.de>
-	<16697.4817.621088.474648@cse.unsw.edu.au>
-	<20040904082121.GB2343@suse.de>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409041603.56324.jbarnes@engr.sgi.com>
+	 <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+	 <200409051706.50455.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday September 4, axboe@suse.de wrote:
-> On Sat, Sep 04 2004, Neil Brown wrote:
-> > On Friday September 3, hch@lst.de wrote:
-> > > md_flush_mddev just passes on the sector relative to the raid device,
-> > > shouldn't it be translated somewhere?
-> > 
-> > Yes.  md_flush_mddev should simply be removed.  
-> > The functionality should be, and largely is, in the individual
-> > personalities. 
+Another way to look at this would be to create one vga device per
+domain. I could then hook the vga=0/1 attribute off from this device
+and avoid the problem of creating domain nodes under /sys/devices
+
+
+On Sun, 5 Sep 2004 17:06:50 -0700, Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> On Sunday, September 5, 2004 4:04 pm, Matthew Wilcox wrote:
+> > On Sat, Sep 04, 2004 at 04:03:56PM -0700, Jesse Barnes wrote:
+> > > On Saturday, September 4, 2004 3:45 pm, Jon Smirl wrote:
+> > > > Is this a multipath configuration where pci0000:01 and pci0000:02 can
+> > > > both get to the same target bus? So both busses are top level busses?
+> > > >
+> > > > I'm trying to figure out where to stick the vga=0/1 attribute for
+> > > > disabling all the VGA devices in a domain. It's starting to look like
+> > > > there isn't a single node in sysfs that corresponds to a domain, in
+> > > > this case there are two for the same domain.
+> > >
+> > > Yes, I think that's the case.  Matthew would probably know for sure
+> > > though.
+> >
+> > Huh, eh, what?  There's no such thing as multipath PCI configurations.
+> > The important concepts in PCI are:
 > 
-> Yes, sorry I was a little lazy there even though I followed the plugging
-> conversion :(
+> Right, but I was answering his question about whether or not there was a place
+> to stick his 'vga' control file on a per-domain basis.  There would be if the
+> layout was something like this:
 > 
-> > Is there documentation somewhere on exactly what an issue_flush_fn
-> > should do (is it  allowed to sleep? what must happen before it is
-> > allowed to return, what is the "error_sector" for,  that sort of thing).
+> /sys/devices/pciDDDD/BB/SS.F/foo
+> rather than the current
+> /sys/devices/pciDDDD:BB/DDDD:BB:SS.F/foo
 > 
-> It is allowed to sleep, you should return when the flush is complete.
-> error_sector is the failed location, which really should be a dev,sector
-> tupple.
+> > I haven't really looked at the VGA attribute.  I think Ivan or Grant
+> > would be better equipped to help you on this front.  I remember them
+> > rehashing it 2-3 years ago.
+> 
+> I'm actually ok with a system wide vga arbitration driver, assuming that we'll
+> never have to worry about the scalability of stuff that wants to do legacy
+> vga I/O.
+> 
+> Thanks,
+> Jesse
+> 
+> 
 
-Could I get a little more information about this function please.
-I've read through the code, and there isn't much in the way of
-examples to follow: only reiserfs uses it, only scsi-disk and ide-disk
-supports it (I think).
 
-It would seem that this is for write requests where b_end_io has already
-been called, indicating that the data is safe, but that maybe the data
-isn't really safe after-all, and blk_issue_flush needs to be called.
 
-I would have thought that after b_end_io is called, that data should
-be safe anyway.  Not so?
-
-How do you tell a device: it is OK to just leave the data is cache,
-I'll call blk_issue_flush when I want it safe.
-Is this related to barriers are all??
-
-NeilBrown
+-- 
+Jon Smirl
+jonsmirl@gmail.com

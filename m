@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267854AbTCFHBu>; Thu, 6 Mar 2003 02:01:50 -0500
+	id <S267857AbTCFHGl>; Thu, 6 Mar 2003 02:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267857AbTCFHBu>; Thu, 6 Mar 2003 02:01:50 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59125 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267854AbTCFHBt>;
-	Thu, 6 Mar 2003 02:01:49 -0500
-Message-ID: <3E66F4BA.3000904@mvista.com>
-Date: Wed, 05 Mar 2003 23:11:54 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Making it easy to add system calls
-References: <3E66A44A.6000808@mvista.com> <3E66BF21.4010608@pobox.com>
-In-Reply-To: <3E66BF21.4010608@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267858AbTCFHGl>; Thu, 6 Mar 2003 02:06:41 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:39126 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S267857AbTCFHGl>;
+	Thu, 6 Mar 2003 02:06:41 -0500
+Date: Thu, 6 Mar 2003 08:17:12 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Andrew Morton <akpm@digeo.com>
+Cc: J Sloan <joe@tmsusa.com>, linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.5.64
+Message-ID: <20030306071712.GA16713@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andrew Morton <akpm@digeo.com>, J Sloan <joe@tmsusa.com>,
+	linux-kernel@vger.kernel.org
+References: <3E66E782.5010502@tmsusa.com> <20030305223638.77c22cb7.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305223638.77c22cb7.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Mar 05, 2003 at 10:36:38PM -0800, Andrew Morton wrote:
+
+> > Mar  5 21:17:44 jyro kernel: EIP is at __constant_c_and_count_memset+0x85/0xa0
 > 
-> Your patch makes it impossible to tell at an easy glance which syscall 
-> is which number.  The current code makes it quite obvious which numbers 
-> are assigned to which syscalls, and which syscall numbers are available 
-> for use.  We lose valuable information with this patch, even if it does 
-> wind up to be functionally equivalent.
+> Eh?  How come the compiler didn't inline __constant_c_and_count_memset?
+> What compiler version are you using?
 
-Of course the numbers as well as comments on the inactive or unused 
-entries could be added, just as they are today.  I had also considered 
-the possiblility of adding the system call proto type as a parameter 
-in the macro.  This could lead to a rather complete one entry 
-description of the call.
+I see __constant_c_and_count_memset in oprofile output here too:
 
-Still, it seems to not be in favor, so I will let it drop.
+c013f8c0 20       0.039801    __constant_c_and_count_memset
+/boot/vmlinux-2.5.64 /boot/vmlinux-2.5.64
+
+Reading specs from
+/opt/gcc-3.2.2/bin/../lib/gcc-lib/i686-pc-linux-gnu/3.2.2/specs
+Configured with: ../configure --prefix=/opt/gcc-3.2.2/ --with-languages=c++
+--enable-__cxa_atexit
+Thread model: posix
+gcc version 3.2.2
+
+
+Regards,
+
+bert
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

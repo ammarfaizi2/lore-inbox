@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279607AbRJ0AN5>; Fri, 26 Oct 2001 20:13:57 -0400
+	id <S279644AbRJ0ArL>; Fri, 26 Oct 2001 20:47:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279632AbRJ0ANs>; Fri, 26 Oct 2001 20:13:48 -0400
-Received: from four.malevolentminds.com ([216.177.76.238]:44303 "EHLO
-	four.malevolentminds.com") by vger.kernel.org with ESMTP
-	id <S279607AbRJ0AN2>; Fri, 26 Oct 2001 20:13:28 -0400
-Date: Sat, 27 Oct 2001 00:14:08 +0000 (GMT)
-From: Khyron <khyron@khyron.com>
-X-X-Sender: <khyron@four.malevolentminds.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.8+6.2.4 unable to mount root fs on 08:05
-Message-ID: <Pine.BSF.4.33.0110270013520.43580-100000@four.malevolentminds.com>
+	id <S279648AbRJ0Aqu>; Fri, 26 Oct 2001 20:46:50 -0400
+Received: from lama.supermedia.pl ([212.75.96.18]:19725 "EHLO
+	lama.supermedia.pl") by vger.kernel.org with ESMTP
+	id <S279644AbRJ0Aqr>; Fri, 26 Oct 2001 20:46:47 -0400
+Date: Sat, 27 Oct 2001 02:47:11 +0200 (CEST)
+From: Wojciech Purczynski <wp@supermedia.pl>
+To: Jan Kara <jack@suse.cz>
+cc: <bugtraq@securityfocus.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Overriding qouta limits in Linux kernel
+In-Reply-To: <20011024173533.C10075@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0110270215590.11649-100000@lama.supermedia.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using an AIC-7896 SCSI card in a VA Linux 2230.
-In a previous post, I had problems with getting the
-6.2.4 driver from Justin Gibbs to work at all. Now
-that I have moved past that one, this one is a little
-more esoteric.
 
-The 2.4.8+6.2.4 kernel is installed and configured
-correctly. The 6.2.4 driver is statically linked into the
-kernel and all SCSI information displays fine at system
-boot. However, I am getting the message:
+> has a CAP_SYS_RESOURCE capability then it can override the limits (that's
+> how I understand this capability). Hence it's got right to exceed user quota.
+> I think this is reasonable behaviour (root can do anything - suid binaries are
+> just making the will of root ;)).
+>   And BTW I know about no way how to know who opened the file...
 
-"Unable to mount root fs on 08:05"
+It is ok if suid binaries do what they are privileged to. But it is not ok
+if unprivileged users do what they want using privileges of those suid
+binaries.
 
-and associated panic at boot.
+Controling qouta is not a user-space task. Kernel should perform some
+additional checks before allowing suid binary to write to file descriptor
+that is inherited from unprivileged user process.
 
-So, since I can see the driver, and the same driver is
-being used for the installation kernel image (same kernel
-release too), I can't come up with an explanation for
-the kernel's failure to find the root fs.
+Good solution is to check CAP_SYS_RESOURCE process's capability when the
+file descriptor is opened (just like CAP_DAC_OVERRIDE and
+others are checked).
 
-What can I do to troubleshoot this? What information would
-be helpful?
+_________________________________________________________________
+ Wojciech Purczyñski | Security Officer | http://cliph.linux.pl/
+-----------------------------------------------------------------
+ Murphy's law says that there is always one more bug...
+          ...but he forgot to mention whether it is exploitable.
 
-Thoughts/comments/suggestions welcome. Thanks in advance!
 
-
-"Everyone's got a story to tell, and everyone's got some pain.
- And so do you. Do you think you are invisble?
- And everyone's got a story to sell, and everyone is strange.
- And so are you. Did you think you were invincible?"
- 	- "Invisible", Majik Alex
 
 

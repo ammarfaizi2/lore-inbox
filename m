@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSHGCiv>; Tue, 6 Aug 2002 22:38:51 -0400
+	id <S316674AbSHGCoA>; Tue, 6 Aug 2002 22:44:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316674AbSHGCiv>; Tue, 6 Aug 2002 22:38:51 -0400
-Received: from mirapoint3.brutele.be ([212.68.203.242]:22893 "EHLO
-	mirapoint3.brutele.be") by vger.kernel.org with ESMTP
-	id <S316623AbSHGCit>; Tue, 6 Aug 2002 22:38:49 -0400
-Date: Wed, 7 Aug 2002 04:42:25 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: compile error : reiserfs - 2.4.19
-Message-Id: <20020807044225.17552f07.stephane.wirtel@belgacom.net>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S316683AbSHGCoA>; Tue, 6 Aug 2002 22:44:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7184 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316674AbSHGCoA>;
+	Tue, 6 Aug 2002 22:44:00 -0400
+Message-ID: <3D508C83.3A78CC58@zip.com.au>
+Date: Tue, 06 Aug 2002 19:57:07 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Blanchard <anton@samba.org>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       riel@surriel.com
+Subject: Re: fix CONFIG_HIGHPTE
+References: <20020806231522.GJ6256@holomorphy.com> <3D506D43.890EA215@zip.com.au> <20020807010752.GC6343@krispykreme>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-my .config
+Anton Blanchard wrote:
+> 
+> 
+> > We're piling more and more crap in there to support these pte_chains.
+> > How much is too much?
+> >
+> > Is it likely that large pages and/or shared pagetables would allow us to
+> > place pagetables and pte_chains in the direct-mapped region, avoid all
+> > this?
+> 
+> On ppc64 shared pagetables will require significant changes to the way
+> we handle the hardware hashtable. So add that to the "more and more crap
+> in there to support these pte_chains"
 
-CONFIG_REISERFS_FS=y
-CONFIG_REISERFS_CHECK=y
-CONFIG_REISERFS_PROC_INFO=y
+Last I heard, pagetable sharing wasn't working out too well
+because they all get unshared.
+ 
+> Will shared pagetables be a requirement or can we turn it on per arch?
 
-my error is as follows :
+It's doubtful if per-arch would be an option.
 
-make -C reiserfs
-make[2]: Entering directory `/root/linux-2.4.19/fs/reiserfs'
-make all_targets
-make[3]: Entering directory `/root/linux-2.4.19/fs/reiserfs'
-gcc -D__KERNEL__ -I/root/linux-2.4.19/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i686-pc-linux-gnu/2.95.3/include -DKBUILD_BASENAME=bitmap  -c -o bitmap.o bitmap.c
-bitmap.c: In function `reiserfs_free_block':
-bitmap.c:132: parse error before `)'
-bitmap.c:133: parse error before `)'
-bitmap.c: In function `reiserfs_free_prealloc_block':
-bitmap.c:142: parse error before `)'
-bitmap.c:143: parse error before `)'
-bitmap.c: In function `do_reiserfs_new_blocknrs':
-bitmap.c:326: parse error before `)'
-bitmap.c:341: parse error before `)'
-bitmap.c:417: parse error before `)'
-make[3]: *** [bitmap.o] Error 1
-make[3]: Leaving directory `/root/linux-2.4.19/fs/reiserfs'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/root/linux-2.4.19/fs/reiserfs'
-make[1]: *** [_subdir_reiserfs] Error 2
-make[1]: Leaving directory `/root/linux-2.4.19/fs'
-make: *** [_dir_fs] Error 2
-bash-2.05a# 
+How about this?
 
-bitmap.c 
-In function `reiserfs_free_block':
-132 :    RFALSE(!s, "vs-4061: trying to free block on nonexistent device");
-133 :    RFALSE(is_reusable (s, block, 1) == 0, "vs-4071: can not free such block");
+- We rely on large pages to solve the Oracle problem
 
-In function `reiserfs_free_prealloc_block':
-142 :    RFALSE(!th->t_super, "vs-4060: trying to free block on nonexistent device");
-143 :    RFALSE(is_reusable (th->t_super, block, 1) == 0, "vs-4070: can not free such block");
+- I'll do pte_chain_highmem and keep that and Bill's patch under test
+  in my tree on a wait-and-see basis.  Could go ahead and submit it
+  but it's all more complexity, and it'd be nice to actually pull
+  something out for a change.
 
-In function `do_reiserfs_new_blocknrs':
-326 :    RFALSE( !s, "vs-4090: trying to get new block from nonexistent device");
-340 :    RFALSE( is_reusable (s, *free_blocknrs, 1) == 0, 
-341 :         "vs-4120: bad blocknr on free_blocknrs list");
-
-
-415 :    RFALSE( buffer_locked (SB_AP_BITMAP (s)[i]) ||
-416 :        is_reusable (s, search_start, 0) == 0,
-417 :        "vs-4140: bitmap block is locked or bad block number found");
-
-
-there are the RFALSE's define :
-
-#if defined( CONFIG_REISERFS_CHECK )
-#define RFALSE( cond, format, args... ) RASSERT( !( cond ), format, ##args )
-#else
-#define RFALSE( cond, format, args... ) do {;} while( 0 )
-#endif
-
-
-now i'm compiling my kernel without CONFIG_REISERFS_CHECK
-
-Stéphane Wirtel
+- We'll continue to suck for the University workload.

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318509AbSGSMgr>; Fri, 19 Jul 2002 08:36:47 -0400
+	id <S318504AbSGSMgI>; Fri, 19 Jul 2002 08:36:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318508AbSGSMgq>; Fri, 19 Jul 2002 08:36:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318505AbSGSMgN>; Fri, 19 Jul 2002 08:36:13 -0400
-Date: Fri, 19 Jul 2002 08:39:07 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: venom@sns.it
-cc: Robert Sinko <RSinko@island.com>,
-       "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
+	id <S318505AbSGSMgI>; Fri, 19 Jul 2002 08:36:08 -0400
+Received: from iris.mc.com ([192.233.16.119]:42912 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S318504AbSGSMgH>;
+	Fri, 19 Jul 2002 08:36:07 -0400
+Message-Id: <200207191239.IAA11936@mc.com>
+Content-Type: text/plain; charset=US-ASCII
+From: mbs <mbs@mc.com>
+To: "Guillaume Boissiere" <boissiere@adiglobal.com>,
        linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-In-Reply-To: <Pine.LNX.4.43.0207191409110.18007-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.3.95.1020719082245.159A-100000@chaos.analogic.com>
+Subject: Re: [2.6] The List, pass #2
+Date: Fri, 19 Jul 2002 08:41:40 -0400
+X-Mailer: KMail [version 1.3.1]
+References: <3D3761A9.23960.8EB1A2@localhost>
+In-Reply-To: <3D3761A9.23960.8EB1A2@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002 venom@sns.it wrote:
+On Friday 19 July 2002 00:47, Guillaume Boissiere wrote:
+>   o High resolution timers
 
-> 
-> yes, as bios option.
-> 
-> On my point of view it would be interesting to verify is hyperthreading is
-> really usefull or not.
-> 
+this has been done for almost a year now, what is holding it up?
 
-It would be interesting to determine if "hyperthreading" in the CPU 
-actually exists. It may just be an artifact of dual instruction units,
-actually a defect (perhaps harmless), that is hyped as a feature.
-
-For instance, it has long been known that if a CPU were to have as
-many instruction units as possible instruction branches, program
-jumps upon logical conditions would not slow the machine down. The
-hardware just continues using the instruction unit that contains the
-correct program-flow while the others are re-loaded.
-
-I guess that this is what is happening. After all, the processor only
-has "so-many" connections to the outside world so it can't actually
-function as two processors but, as Clinton said; "It depends upon what
-is is..."
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+-- 
+/**************************************************
+**   Mark Salisbury       ||      mbs@mc.com     **
+** If you would like to sponsor me for the       **
+** Mass Getaway, a 150 mile bicycle ride to for  **
+** MS, contact me to donate by cash or check or  **
+** click the link below to donate by credit card **
+**************************************************/
+https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736

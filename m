@@ -1,96 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbTH0Ng5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 09:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTH0Ng5
+	id S261353AbTH0N3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 09:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTH0N3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 09:36:57 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:47072 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262976AbTH0Ngz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 09:36:55 -0400
-Subject: [PATCH] memory leak in sysfs
-To: mochel@osdl.org
+	Wed, 27 Aug 2003 09:29:25 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:8338 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261353AbTH0N3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 09:29:24 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: lists@runa.sytes.net
+Subject: Re: Can't get DHCP info on 2.6.0 test4
+Date: Wed, 27 Aug 2003 15:29:02 +0200
+User-Agent: KMail/1.5.9
+References: <56555.127.0.0.1.1061988391.squirrel@webmail.runa.sytes.net>
+In-Reply-To: <56555.127.0.0.1.1061988391.squirrel@webmail.runa.sytes.net>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF846221A1.E004CC84-ONC1256D8F.00491EF9-C1256D8F.004A7867@de.ibm.com>
-From: "Thomas Spatzier" <TSPAT@de.ibm.com>
-Date: Wed, 27 Aug 2003 15:33:24 +0200
-X-MIMETrack: Serialize by Router on D12ML041/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 27/08/2003 15:37:03
 MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=4EBBE71CDFDA98698f9e8a93df938690918c4EBBE71CDFDA9869"
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200308271529.03948.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=4EBBE71CDFDA98698f9e8a93df938690918c4EBBE71CDFDA9869
-Content-type: text/plain; charset=us-ascii
+On Wednesday 27 August 2003 14:46 lists@runa.sytes.net wrote:
+> Dear all:
+> I've just booted test4 and the dhcp client can't get the network info.
+> Also I got some eth timeout messages.
+>
+> I've tried booting with "noacpi" (I had similar problems with 2.4.x which
+> I fixed using 'noacpi') but it didn't worked.
 
-Hello Patrick,
+You could try my noacpi-option-fix from:
+	http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-
+test4/2.6.0-test4-mm2/broken-out/noacpi-option-fix.patch
 
-please verify the following patch. We found a memory leak in sysfs. Entries
-in the dentry_cache allocated for objects in sysfs are not freed when the
-objects in sysfs are deleted. This effect is due to inconsistent reference
-counting in sysfs. Furthermore, when calling sysfs_remove_dir the deleted
-directory was not removed from its parent's list of children. The attached
-patch should fix the problems.
+Alternatively cou could try 2.6.0-test4-mm2 which includes the patch.
 
-(See attached file: linux-2.6.0-test3-sysfs.patch)
-
-Best regards,
-
-Thomas
---0__=4EBBE71CDFDA98698f9e8a93df938690918c4EBBE71CDFDA9869
-Content-type: application/octet-stream; 
-	name="linux-2.6.0-test3-sysfs.patch"
-Content-Disposition: attachment; filename="linux-2.6.0-test3-sysfs.patch"
-Content-transfer-encoding: base64
-
-ZGlmZiAtdXJOIGxpbnV4LTIuNS9mcy9zeXNmcy9iaW4uYyBsaW51eC0yLjUtc3lzZnMtZml4L2Zz
-L3N5c2ZzL2Jpbi5jCi0tLSBsaW51eC0yLjUvZnMvc3lzZnMvYmluLmMJTW9uIEF1ZyAxMSAxODo0
-NjoyMyAyMDAzCisrKyBsaW51eC0yLjUtc3lzZnMtZml4L2ZzL3N5c2ZzL2Jpbi5jCVdlZCBBdWcg
-MjcgMTQ6NTc6NTAgMjAwMwpAQCAtMTY4LDYgKzE2OCw3IEBACiAJCQlkZW50cnktPmRfaW5vZGUt
-Pmlfc2l6ZSA9IGF0dHItPnNpemU7CiAJCQlkZW50cnktPmRfaW5vZGUtPmlfZm9wID0gJmJpbl9m
-b3BzOwogCQl9CisJCWRwdXQoZGVudHJ5KTsKIAl9IGVsc2UKIAkJZXJyb3IgPSBQVFJfRVJSKGRl
-bnRyeSk7CiAJdXAoJnBhcmVudC0+ZF9pbm9kZS0+aV9zZW0pOwpkaWZmIC11ck4gbGludXgtMi41
-L2ZzL3N5c2ZzL2Rpci5jIGxpbnV4LTIuNS1zeXNmcy1maXgvZnMvc3lzZnMvZGlyLmMKLS0tIGxp
-bnV4LTIuNS9mcy9zeXNmcy9kaXIuYwlGcmkgSnVsIDExIDExOjI0OjQxIDIwMDMKKysrIGxpbnV4
-LTIuNS1zeXNmcy1maXgvZnMvc3lzZnMvZGlyLmMJV2VkIEF1ZyAyNyAxNDo1Nzo1MCAyMDAzCkBA
-IC01MSw2ICs1MSw3IEBACiAJCQkJICAgICBpbml0X2Rpcik7CiAJCWlmICghZXJyb3IpCiAJCQlw
-YXJlbnQtPmRfaW5vZGUtPmlfbmxpbmsrKzsKKwkJZHB1dChkZW50cnkpOwogCX0gZWxzZQogCQll
-cnJvciA9IFBUUl9FUlIoZGVudHJ5KTsKIAl1cCgmcGFyZW50LT5kX2lub2RlLT5pX3NlbSk7CkBA
-IC05OCw2ICs5OSw3IEBACiAJCQkgKiBVbmxpbmsgYW5kIHVuaGFzaC4KIAkJCSAqLwogCQkJc3Bp
-bl91bmxvY2soJmRjYWNoZV9sb2NrKTsKKwkJCWRfZGVsZXRlKGQpOwogCQkJc2ltcGxlX3VubGlu
-ayhkZW50cnktPmRfaW5vZGUsZCk7CiAJCQlkcHV0KGQpOwogCQkJc3Bpbl9sb2NrKCZkY2FjaGVf
-bG9jayk7CkBAIC0xMDUsNiArMTA3LDcgQEAKIAkJcHJfZGVidWcoIiBkb25lXG4iKTsKIAkJbm9k
-ZSA9IGRlbnRyeS0+ZF9zdWJkaXJzLm5leHQ7CiAJfQorCWxpc3RfZGVsX2luaXQoJmRlbnRyeS0+
-ZF9jaGlsZCk7CiAJc3Bpbl91bmxvY2soJmRjYWNoZV9sb2NrKTsKIAl1cCgmZGVudHJ5LT5kX2lu
-b2RlLT5pX3NlbSk7CiAJZF9kZWxldGUoZGVudHJ5KTsKZGlmZiAtdXJOIGxpbnV4LTIuNS9mcy9z
-eXNmcy9maWxlLmMgbGludXgtMi41LXN5c2ZzLWZpeC9mcy9zeXNmcy9maWxlLmMKLS0tIGxpbnV4
-LTIuNS9mcy9zeXNmcy9maWxlLmMJRnJpIEp1bCAxMSAxMToyNDo0MSAyMDAzCisrKyBsaW51eC0y
-LjUtc3lzZnMtZml4L2ZzL3N5c2ZzL2ZpbGUuYwlXZWQgQXVnIDI3IDE0OjU3OjUwIDIwMDMKQEAg
-LTM2Niw2ICszNjYsNyBAQAogCWlmICghSVNfRVJSKGRlbnRyeSkpIHsKIAkJZGVudHJ5LT5kX2Zz
-ZGF0YSA9ICh2b2lkICopYXR0cjsKIAkJZXJyb3IgPSBzeXNmc19jcmVhdGUoZGVudHJ5LChhdHRy
-LT5tb2RlICYgU19JQUxMVUdPKSB8IFNfSUZSRUcsaW5pdF9maWxlKTsKKwkJZHB1dChkZW50cnkp
-OwogCX0gZWxzZQogCQllcnJvciA9IFBUUl9FUlIoZGVudHJ5KTsKIAl1cCgmcGFyZW50LT5kX2lu
-b2RlLT5pX3NlbSk7CmRpZmYgLXVyTiBsaW51eC0yLjUvZnMvc3lzZnMvaW5vZGUuYyBsaW51eC0y
-LjUtc3lzZnMtZml4L2ZzL3N5c2ZzL2lub2RlLmMKLS0tIGxpbnV4LTIuNS9mcy9zeXNmcy9pbm9k
-ZS5jCVR1ZSBKdW4gMTcgMTM6Mzc6MTIgMjAwMworKysgbGludXgtMi41LXN5c2ZzLWZpeC9mcy9z
-eXNmcy9pbm9kZS5jCVdlZCBBdWcgMjcgMTQ6NTc6NTEgMjAwMwpAQCAtOTcsOCArOTcsOCBAQAog
-CQkJcHJfZGVidWcoInN5c2ZzOiBSZW1vdmluZyAlcyAoJWQpXG4iLCB2aWN0aW0tPmRfbmFtZS5u
-YW1lLAogCQkJCSBhdG9taWNfcmVhZCgmdmljdGltLT5kX2NvdW50KSk7CiAKLQkJCXNpbXBsZV91
-bmxpbmsoZGlyLT5kX2lub2RlLHZpY3RpbSk7CiAJCQlkX2RlbGV0ZSh2aWN0aW0pOworCQkJc2lt
-cGxlX3VubGluayhkaXItPmRfaW5vZGUsdmljdGltKTsKIAkJfQogCQkvKgogCQkgKiBEcm9wIHJl
-ZmVyZW5jZSBmcm9tIHN5c2ZzX2dldF9kZW50cnkoKSBhYm92ZS4KZGlmZiAtdXJOIGxpbnV4LTIu
-NS9mcy9zeXNmcy9zeW1saW5rLmMgbGludXgtMi41LXN5c2ZzLWZpeC9mcy9zeXNmcy9zeW1saW5r
-LmMKLS0tIGxpbnV4LTIuNS9mcy9zeXNmcy9zeW1saW5rLmMJVGh1IE1hciAgNiAxNjowMTo1OSAy
-MDAzCisrKyBsaW51eC0yLjUtc3lzZnMtZml4L2ZzL3N5c2ZzL3N5bWxpbmsuYwlXZWQgQXVnIDI3
-IDE0OjU3OjUxIDIwMDMKQEAgLTEwMiw2ICsxMDIsNyBAQAogCQllcnJvciA9IHN5c2ZzX3N5bWxp
-bmsoZGVudHJ5LT5kX2lub2RlLGQscGF0aCk7CiAJZWxzZQogCQllcnJvciA9IFBUUl9FUlIoZCk7
-CisJZHB1dChkKTsKIAl1cCgmZGVudHJ5LT5kX2lub2RlLT5pX3NlbSk7CiAJa2ZyZWUocGF0aCk7
-CiAJcmV0dXJuIGVycm9yOwo=
-
---0__=4EBBE71CDFDA98698f9e8a93df938690918c4EBBE71CDFDA9869--
-
+   Thomas

@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbTJIOWp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 10:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTJIOWp
+	id S262223AbTJIOLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJIOLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 10:22:45 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:47291 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262225AbTJIOWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 10:22:43 -0400
-X-Sender-Authentication: net64
-Date: Thu, 9 Oct 2003 16:22:41 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux.nics@intel.com
-Cc: marcelo.tosatti@cyclades.com, jgarzik@pobox.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with e1000 driver from kernel 2.4.23-pre6
-Message-Id: <20031009162241.00e93abb.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 9 Oct 2003 10:11:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:33773 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262223AbTJIOLv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 10:11:51 -0400
+Date: Thu, 9 Oct 2003 16:11:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop mode
+Message-ID: <20031009141143.GF1232@suse.de>
+References: <3F856A7E.2010607@pobox.com> <Pine.LNX.4.44.0310091109010.3040-100000@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310091109010.3040-100000@logos.cnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Oct 09 2003, Marcelo Tosatti wrote:
+> 
+> 
+> On Thu, 9 Oct 2003, Jeff Garzik wrote:
+> 
+> > Linux Kernel Mailing List wrote:
+> > > ChangeSet 1.1150.1.52, 2003/10/08 10:49:45-03:00, axboe@suse.de
+> > > 
+> > > 	[PATCH] laptop mode
+> > > 	
+> > > 	Hi Marcelo,
+> > > 	
+> > > 	Lots of people have been using this patch with great success, and it's
+> > > 	been in the SuSE kernel for some months now too. It is also in the -benh
+> > > 	ppc tree
+> > > 	
+> > > 	Basically, it introduces a write back mode of dirty and journal data
+> > > 	that is more suitable for laptops. At the block layer end, it schedules
+> > > 	write out of dirty data after the disk has been idle for 5 seconds.
+> > > 	
+> > > 	Laptop mode can be switched on and off with /proc/sys/vm/laptop_mode.
+> > > 	There is also a block_dump sysctl, which if enabled will dump who
+> > > 	dirties and writes out data. This is very helpful in pinning down who is
+> > > 	causing unnecessary writes to the disk.
+> > 
+> > Red Hat just dropped this patch since it was suspected of data 
+> > corruption ;-(
+> 
+> Uh, oh... Jens? 
 
-I just found out that the e1000-driver included in the latest kernel
-2.4.23-pre6 has a problem cooperating with keepalived. Keepalived uses netlink
-to find out about interfaces being up or down. This works well with eepro100
-driver from Don Becker (or tulip), but does not work at all with e1000.
-Probably for the same reason mii-tool does not show anything useful either.
-Is this fixable inside the e1000-driver? Should keepalived be fixed in any way?
+See my previous mail. I don't see any problems with it, and I've
+certainly not heard of (or experienced myself) problems with the patch.
+I'm waiting for Jeff to expand on his mail, surely he/RH must know more
+about this issue.
 
-Regards,
-Stephan
+-- 
+Jens Axboe
+

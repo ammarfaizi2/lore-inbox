@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbUEHLsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUEHMI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbUEHLsz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 07:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbUEHLsz
+	id S263806AbUEHMI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 08:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbUEHMI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 07:48:55 -0400
-Received: from smtp07.web.de ([217.72.192.225]:32388 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263578AbUEHLsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 07:48:53 -0400
-Subject: psmouse.c - synaptics touchpad driver sync problem
-From: Thorsten Hirsch <t.hirsch@web.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1084016929.8558.16.camel@minime.hirsch.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 08 May 2004 13:48:49 +0200
+	Sat, 8 May 2004 08:08:56 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:20651 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S263806AbUEHMIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 08:08:54 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.6-rc3-mm2
+Date: Sat, 8 May 2004 14:16:44 +0200
+User-Agent: KMail/1.5
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405081329.43017.rjwysocki@sisk.pl> <20040508044330.31981c06.akpm@osdl.org>
+In-Reply-To: <20040508044330.31981c06.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405081416.44664.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Saturday 08 of May 2004 13:43, Andrew Morton wrote:
+> "R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
+> > Sute, it's like that:
+> >
+> >  kernel /boot/vmlinuz-2.6.6-rc3-mm2 root=/dev/sdb3 vga=792 hdc=ide-scsi
+> >  console=ttyS0,115200 console=tty0
+>
+> hm, according to the logic in there you should have seen the console
+> messages on tty0 because it was the last-specified.  That's what happens
+> here, whether or not Move-saved_command_line-to-init-mainc.patch is
+> applied.
 
-I'm having some sync trouble with kernel 2.6.6-rc3-mm1 (and older 2.6
-kernels) in combination with Peter Osterlund's synaptics driver:
+Well, I've been using this very command line for months, and it worked fine 
+before 2.6.6-rc3-mm1.  Anyway, according to Documentation/serial-console.txt:
 
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
-psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
+"You can specify multiple console= options on the kernel command line.
+_Output_ _will_ _appear_ _on_ _all_ _of_ _them_ [emphasis mine]. The last 
+device will be used when you open /dev/console. So, for example:
 
-...and so on. This is causing my mouse in X11 to hang, especially when
-cpu load is high. The mouse pointer is doing an uncontrollable move and
-some other things are hanging for a short moment, too: xmms for example.
-(I guess the whole system is hanging, but xmms playing some music is
-very easy to monitor)
+        console=ttyS1,9600 console=tty0
 
-I'm using the latest synaptics driver (0.13.0) and I've also tried
-0.12.5. I wrote a mail to Peter, but he said, that I should write to the
-lkml, so here I am. :-)
-X11 version is X.org 6.7.0...but I think, that this doesn't matter. I
-even had the same problem with XFree86 4.3.0.
+defines that opening /dev/console will get you the current foreground
+virtual console, and kernel messages will appear on both the VGA
+console and the 2nd serial port (ttyS1 or COM2) at 9600 baud."
 
-Btw, there's no problem when I use standard ps/2 driver in X, but well,
-I'm really missing the synaptics features then.
-
-Regards,
-Thorsten
-
-P.S.: I'm not subscribed to the lkml, so please CC me in your answer!
+And that's exactly what I need.  So, the syntax etc. might have changed, but 
+shouldn't it be documented accordingly, then?
 

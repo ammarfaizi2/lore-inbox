@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265913AbRFYUia>; Mon, 25 Jun 2001 16:38:30 -0400
+	id <S264612AbRFYUiU>; Mon, 25 Jun 2001 16:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265912AbRFYUiU>; Mon, 25 Jun 2001 16:38:20 -0400
-Received: from anime.net ([63.172.78.150]:1042 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S265913AbRFYUiH>;
-	Mon, 25 Jun 2001 16:38:07 -0400
-Date: Mon, 25 Jun 2001 13:33:53 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <joeja@mindspring.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: AMD thunderbird oops
-In-Reply-To: <E15EQHP-0001ET-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0106251332180.31826-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265914AbRFYUiL>; Mon, 25 Jun 2001 16:38:11 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62656 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264612AbRFYUh6>; Mon, 25 Jun 2001 16:37:58 -0400
+Date: Mon, 25 Jun 2001 19:42:13 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: ext3-users@redhat.com
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>,
+        Florian Lohoff <flo@rfc822.org>
+Subject: Re: Oops in iput
+Message-ID: <20010625194213.J18856@redhat.com>
+In-Reply-To: <20010625201612.A701@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010625201612.A701@paradigm.rfc822.org>; from flo@rfc822.org on Mon, Jun 25, 2001 at 08:16:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, Alan Cox wrote:
-> Random oopses normally indicate faulty board cpu or ram (and the fault may
-> even just be overheating or dimms not in the sockets cleanly). I doubt its
-> the board design or model that is the problem, you probably jut have a faulty
-> component somewhere if its oopsing randomly even during installs and stuff
+Hi,
 
-Ive found a number of problems can be traced to power supply problems, the
-board providing a bit of under voltage. Manually adjusting CPU voltage a
-notch or two up has fixed many a board for me.
+On Mon, Jun 25, 2001 at 08:16:12PM +0200, Florian Lohoff wrote:
+> 
+> oops in iput - Kernel 2.2.19/i386 + ide-udma patches + ext3 patches (0.0.7a)
 
-Also manually adjusting SDRAM drive strength can help, BIOS sometimes gets
-this wrong.
+The ide-udma patches for 2.2 haven't had nearly the testing of the 2.4
+ones, and simply can't be trusted as a baseline for debugging other
+code.  Can you reproduce this problem without them applied?  The oops
+here is a networking oops on the face of it, and I wouldn't expect to
+see that on 2.2 unless something was corrupting memory.
 
--Dan
-
+Cheers,
+ Stephen

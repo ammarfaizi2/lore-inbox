@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263422AbUCZOfU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 09:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbUCZOfU
+	id S263954AbUCZOi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 09:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUCZOi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 09:35:20 -0500
-Received: from gprs214-62.eurotel.cz ([160.218.214.62]:47232 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263422AbUCZOfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 09:35:14 -0500
-Date: Fri, 26 Mar 2004 15:34:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
-Subject: Re: swsusp with highmem, testing wanted
-Message-ID: <20040326143428.GB291@elf.ucw.cz>
-References: <20040324235702.GA497@elf.ucw.cz> <20040325073244.GE3377@suse.de> <20040325115129.GB300@elf.ucw.cz> <20040325121418.GK3377@suse.de> <20040325150129.GI1505@openzaurus.ucw.cz> <20040325152749.GP3377@suse.de> <20040325222205.GC2179@elf.ucw.cz> <20040326140908.GD2929@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040326140908.GD2929@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 26 Mar 2004 09:38:56 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:18088 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263954AbUCZOiv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 09:38:51 -0500
+Message-ID: <40644071.9090900@stesmi.com>
+Date: Fri, 26 Mar 2004 15:38:41 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eduard Bloch <edi@gmx.de>
+CC: David Schwartz <davids@webmaster.com>, debian-devel@lists.debian.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+References: <20040325225423.GT9248@cheney.cx> <MDEHLPKNGKAHNMBLJOLKCEEOLEAA.davids@webmaster.com> <20040326131629.GB26910@zombie.inka.de> <40643BFA.1000302@stesmi.com> <20040326142917.GB30664@zombie.inka.de>
+In-Reply-To: <20040326142917.GB30664@zombie.inka.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> > > > Which operations are allowed to access highmem? Can I rely on
-> > > > block device read/write not accessing highmem?
-> > > 
-> > > You mean modify highmem pages, or?
-> > 
-> > I'd like to know this. Suppose I ask block subsystem to read from disk
-> > into page @1.8GB. All the highmem contains trash. Will block subsystem
-> > be able to work in this situation?
+>>>Yes, the driver authors PREFERS to make the changes on the C source
+>>>code, he never has to modify the firmware. Exactly what the GPL
+>>>requests, where is your problem?
+>>
+>>But the firmware didn't appear out of thin air - someone wrote it
+>>somehow. If that's using a hex editor or inside the C code doesn't
 > 
-> We've never enforced anything like that, so you cannot rely on it. Block
-> layer itself doesn't keep anything in high memory, and I cannot imagine
-> any drivers that do either.
+> The GPL does not talk about the code to create things, but code to
+> _modify_ things. If you never have to modify the firmware file, where is
+> the point?
 
-Well, if it is possible to enforce that it stays that way, it should
-be possible to get something more inteligent for highmem.
+And if I feel like I _want_ to modify it? Then I should be entitled
+to the preferred form to make modifications to it as is my right
+under the GPL, regardless of if I a) want to b) have a need to
+c) give a rat's ass about what the firmware does or does not do.
+A binary blob is extremely seldom the preferred form to make
+modifications to, even though some such cases do or might exist.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> I do not see a big difference between firmware data stored in a flash
+> rom inside of the hardware part and the same data loaded during the
+> driver initialisation. In contrary, it saves money and makes things more
+> flexible. You should thank your hardware manufacturer instead of
+> bitching about bogus things.
+
+You do know that certain TV cards (using the ivtv driver) lack a rom
+and needs a firmware initialized during startup just like this example.
+
+Why am I taking this up ? Well they have specifically stated that the
+firmware _may not be used without the windows driver_ even though
+others have written a fully working driver that _only_ needs the
+firmware from the windows driver to function under linux.
+
+Surprised? If they put the firmware on the card (rom/flash/eeprom)
+this wouldn't have happened but it did.
+How exactly do you believe this makes anything more flexible for me
+as an end user when it is not LEGAL for me to use the card with
+linux due to the firmware issue.
+
+Yes, some claim there IS a loophole in that the end user MAY extract
+the firmware from the windows driver himself and use it together
+with the (open) linux driver but IANAL. Ie use but not redistribute.
+
+Now, just to make it perfectly clear - I am not debating wether
+firmware should be GPL or not - I couldn't care less to be honest.
+I am simply answering some claims that I myself find bogus.
+
+// Stefan

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130577AbRCMQ1x>; Tue, 13 Mar 2001 11:27:53 -0500
+	id <S131133AbRCMQmX>; Tue, 13 Mar 2001 11:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130733AbRCMQ1m>; Tue, 13 Mar 2001 11:27:42 -0500
-Received: from fepout4.telus.net ([199.185.220.239]:62736 "EHLO
-	priv-edtnes12-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S130577AbRCMQ1e>; Tue, 13 Mar 2001 11:27:34 -0500
-From: jens <psh1@telus.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.3-pre3 not recognizing some SCSI CD drives 
-Date: Tue, 13 Mar 2001 08:35:09 -0800
-Message-ID: <e1jsat4itufugqibmjknsrsgqmqp2gp9kl@4ax.com>
-In-Reply-To: <og6ratgov0f0fo4674ieectch0es2ujk8k@4ax.com> <200103131351.f2DDpUs53164@aslan.scsiguy.com>
-In-Reply-To: <200103131351.f2DDpUs53164@aslan.scsiguy.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131151AbRCMQmO>; Tue, 13 Mar 2001 11:42:14 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:21258 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S131133AbRCMQmB>;
+	Tue, 13 Mar 2001 11:42:01 -0500
+Date: Tue, 13 Mar 2001 17:41:26 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux 2.4.2ac20
+To: faceprint@faceprint.com
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3AAE4DB6.8349ACBA@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Mar 2001 06:51:30 -0700, you wrote:
+Nathan Walp (faceprint@faceprint.com) wrote :
 
->>Just installed 2.4.3-pre4 .... same problem :(
->
->It might help to know what controller you are using.
+> Also, sometime between ac7 and ac18 (spring break kept me from testing 
+> stuff inbetween), i assume during the new aic7xxx driver merge, the 
+> order of detection got changed, and now the ide-scsi virtual host is 
+> host0, and my 29160N is host1. Is this on purpose? It messed up a 
+> bunch of my stuff as far as /dev and such are concerned. 
 
-I am using the Adaptec 29160 controller.
+SCSI adapters are enumerated randomly(*) , relying on certain numbering
+will get you into trouble, sooner or later.
+There is no commonly accepted solution, AFAIK.
+The same thing can happent to disk enumeration ( sdb becomes sdc )
+or partition enumeration ( hda6 becomes hda5 ).
 
-Jens
+* - theoreticaly no, but practicaly yes ( most of the time )
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,183 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGCIZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUGCI1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUGCIZu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 04:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUGCIZu
+	id S265054AbUGCI1z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 04:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUGCI04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 04:25:50 -0400
-Received: from ozlabs.org ([203.10.76.45]:62940 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265053AbUGCIZm (ORCPT
+	Sat, 3 Jul 2004 04:26:56 -0400
+Received: from ozlabs.org ([203.10.76.45]:63196 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265054AbUGCIZn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 04:25:42 -0400
+	Sat, 3 Jul 2004 04:25:43 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16614.27917.591277.829508@cargo.ozlabs.ibm.com>
-Date: Sat, 3 Jul 2004 18:23:41 +1000
+Message-ID: <16614.28039.496598.178659@cargo.ozlabs.ibm.com>
+Date: Sat, 3 Jul 2004 18:25:43 +1000
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org
 Cc: linas@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 EEH fixes for POWER5 machines (1/2)
+Subject: [PATCH] PPC64 EEH fixes for POWER5 machines (2/2)
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Linas Vepstas <linas@austin.ibm.com>
 
-This patch allows ppc64 to boot on Power5 machines.  The new Power5
-PCI bridge design requires EEH (enhanced PCI error handling) to be
-enabled for all PCI devices, not just some PCI devices.  In addition,
-this patch moves the check for PCI to ISA bridges out of perf critical
-code, and into initialization code.  This also avoids race conditions
-where the device type might not have been set.  Also, some whitespace
-fixes, and some error-message-printing beautification.
+This patch fixes the usage of the slot-error-detail log buffer for 
+the Power5 architecture.  The size of the error buffer is variable,
+and the correct size to use should have been obtained from
+firmware.  Failure to use the correct buffer sizes will result
+in hard-to-debug system lockups deep in firmware.  This patch 
+is based on an earlier patch from Ben Herrenschmidt, which 
+essentially did the same thing.
+
+This patch also tweaks some of the subroutine documentation.
 
 Signed-off-by: Linas Vepstas <linas@linas.org>
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 
 diff -urN linux-2.6/arch/ppc64/kernel/eeh.c test26/arch/ppc64/kernel/eeh.c
---- linux-2.6/arch/ppc64/kernel/eeh.c	2004-07-03 16:03:13.021923824 +1000
-+++ test26/arch/ppc64/kernel/eeh.c	2004-07-03 16:33:13.000000000 +1000
-@@ -397,12 +397,6 @@
- 		return val;
+--- linux-2.6/arch/ppc64/kernel/eeh.c	2004-07-03 16:38:52.157964952 +1000
++++ test26/arch/ppc64/kernel/eeh.c	2004-07-03 18:05:17.154993616 +1000
+@@ -45,12 +45,18 @@
+ static int ibm_set_eeh_option;
+ static int ibm_set_slot_reset;
+ static int ibm_read_slot_reset_state;
++static int ibm_slot_error_detail;
+ 
+ static int eeh_subsystem_enabled;
+ #define EEH_MAX_OPTS 4096
+ static char *eeh_opts;
+ static int eeh_opts_last;
+ 
++/* Buffer for reporting slot-error-detail rtas calls */
++static unsigned char slot_errbuf[RTAS_ERROR_LOG_MAX];
++static spinlock_t slot_errbuf_lock = SPIN_LOCK_UNLOCKED;
++static int eeh_error_buf_size;
++
+ /* System monitoring statistics */
+ static DEFINE_PER_CPU(unsigned long, total_mmio_ffs);
+ static DEFINE_PER_CPU(unsigned long, false_positives);
+@@ -368,9 +374,6 @@
+ 	struct device_node *dn;
+ 	int ret;
+ 	int rets[2];
+-	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
+-	/* dont want this on the stack */
+-	static unsigned char slot_err_buf[RTAS_ERROR_LOG_MAX];
+ 	unsigned long flags;
+ 
+ 	__get_cpu_var(total_mmio_ffs)++;
+@@ -414,23 +417,24 @@
+ 			BUID_LO(dn->phb->buid));
+ 
+ 	if (ret == 0 && rets[1] == 1 && rets[0] >= 2) {
+-		int slot_err_ret;
++		int log_event;
++
++		spin_lock_irqsave(&slot_errbuf_lock, flags);
++		memset(slot_errbuf, 0, eeh_error_buf_size);
+ 
+-		spin_lock_irqsave(&lock, flags);
+-		memset(slot_err_buf, 0, RTAS_ERROR_LOG_MAX);
+-		slot_err_ret = rtas_call(rtas_token("ibm,slot-error-detail"),
+-					 8, 1, NULL, dn->eeh_config_addr,
+-					 BUID_HI(dn->phb->buid),
+-					 BUID_LO(dn->phb->buid), NULL, 0,
+-					 __pa(slot_err_buf),
+-					 RTAS_ERROR_LOG_MAX,
+-					 2 /* Permanent Error */);
++		log_event = rtas_call(ibm_slot_error_detail,
++		                      8, 1, NULL, dn->eeh_config_addr,
++		                      BUID_HI(dn->phb->buid),
++		                      BUID_LO(dn->phb->buid), NULL, 0,
++		                      virt_to_phys(slot_errbuf),
++		                      eeh_error_buf_size,
++		                      2 /* Permanent Error */);
+ 
+-		if (slot_err_ret == 0)
+-			log_error(slot_err_buf, ERR_TYPE_RTAS_LOG,
++		if (log_event == 0)
++			log_error(slot_errbuf, ERR_TYPE_RTAS_LOG,
+ 				  1 /* Fatal */);
+ 
+-		spin_unlock_irqrestore(&lock, flags);
++		spin_unlock_irqrestore(&slot_errbuf_lock, flags);
+ 
+ 		/*
+ 		 * XXX We should create a separate sysctl for this.
+@@ -517,8 +521,7 @@
  	}
  
--        /* Make sure we aren't ISA */
--        if (!strcmp(dn->type, "isa")) {
--                pci_dev_put(dev);
--                return val;
--        }
--
- 	if (!dn->eeh_config_addr) {
- 		pci_dev_put(dev);
- 		return val;
-@@ -465,6 +459,7 @@
- struct eeh_early_enable_info {
- 	unsigned int buid_hi;
- 	unsigned int buid_lo;
-+	int force_off;
- };
- 
- /* Enable eeh for the given device node. */
-@@ -479,6 +474,8 @@
- 	u32 *regs;
- 	int enable;
- 
-+	dn->eeh_mode = 0;
-+
- 	if (status && strcmp(status, "ok") != 0)
- 		return NULL;	/* ignore devices with bad status */
- 
-@@ -492,6 +489,12 @@
- 	     *device_id == 0x0188 || *device_id == 0x0302))
- 		return NULL;
- 
-+	/* There is nothing to check on PCI to ISA bridges */
-+	if (dn->type && !strcmp(dn->type, "isa")) {
+ 	if (!enable || info->force_off) {
+-		dn->eeh_mode = EEH_MODE_NOCHECK;
+-		return NULL;
 +		dn->eeh_mode |= EEH_MODE_NOCHECK;
-+		return NULL;
-+	}
-+
- 	/*
- 	 * Now decide if we are going to "Disable" EEH checking
- 	 * for this device.  We still run with the EEH hardware active,
-@@ -508,12 +511,12 @@
- 				   enable)) {
- 		if (enable) {
- 			printk(KERN_WARNING "EEH: %s user requested to run "
--			       "without EEH.\n", dn->full_name);
-+			       "without EEH checking.\n", dn->full_name);
- 			enable = 0;
- 		}
  	}
  
--	if (!enable) {
-+	if (!enable || info->force_off) {
- 		dn->eeh_mode = EEH_MODE_NOCHECK;
- 		return NULL;
- 	}
-@@ -543,8 +546,8 @@
- 			       dn->full_name);
- #endif
- 		} else {
--			printk(KERN_WARNING "EEH: %s: could not enable EEH, rtas_call failed.\n",
--			       dn->full_name);
-+			printk(KERN_WARNING "EEH: %s: could not enable EEH, rtas_call failed; rc=%d\n",
-+			       dn->full_name, ret);
- 		}
- 	} else {
- 		printk(KERN_WARNING "EEH: %s: unable to get reg property.\n",
-@@ -570,10 +573,18 @@
+ 	/* This device may already have an EEH parent. */
+@@ -562,14 +565,13 @@
+  * As a side effect we can determine here if eeh is supported at all.
+  * Note that we leave EEH on so failed config cycles won't cause a machine
+  * check.  If a user turns off EEH for a particular adapter they are really
+- * telling Linux to ignore errors.
+- *
+- * We should probably distinguish between "ignore errors" and "turn EEH off"
+- * but for now disabling EEH for adapters is mostly to work around drivers that
+- * directly access mmio space (without using the macros).
+- *
+- * The eeh-force-off option does literally what it says, so if Linux must
+- * avoid enabling EEH this must be done.
++ * telling Linux to ignore errors.  Some hardware (e.g. POWER5) won't
++ * grant access to a slot if EEH isn't enabled, and so we always enable
++ * EEH for all slots/all devices.
++ *
++ * The eeh-force-off option disables EEH checking globally, for all slots.
++ * Even if force-off is set, the EEH hardware is still enabled, so that
++ * newer systems can boot.
   */
  void __init eeh_init(void)
  {
--	struct device_node *phb;
-+	struct device_node *phb, *np;
- 	struct eeh_early_enable_info info;
- 	char *eeh_force_off = strstr(saved_command_line, "eeh-force-off");
- 
-+	init_pci_config_tokens();
-+
-+	np = of_find_node_by_path("/rtas");
-+	if (np == NULL) {
-+		printk(KERN_WARNING "EEH: RTAS not found !\n");
-+		return;
-+	}
-+
+@@ -588,10 +590,21 @@
  	ibm_set_eeh_option = rtas_token("ibm,set-eeh-option");
  	ibm_set_slot_reset = rtas_token("ibm,set-slot-reset");
  	ibm_read_slot_reset_state = rtas_token("ibm,read-slot-reset-state");
-@@ -581,14 +592,14 @@
++	ibm_slot_error_detail = rtas_token("ibm,slot-error-detail");
+ 
  	if (ibm_set_eeh_option == RTAS_UNKNOWN_SERVICE)
  		return;
  
-+	info.force_off = 0;
++	eeh_error_buf_size = rtas_token("rtas-error-log-max");
++	if (eeh_error_buf_size == RTAS_UNKNOWN_SERVICE) {
++		eeh_error_buf_size = 1024;
++	}
++	if (eeh_error_buf_size > RTAS_ERROR_LOG_MAX) {
++		printk(KERN_WARNING "EEH: rtas-error-log-max is bigger than allocated "
++		      "buffer ! (%d vs %d)", eeh_error_buf_size, RTAS_ERROR_LOG_MAX);
++		eeh_error_buf_size = RTAS_ERROR_LOG_MAX;
++	}
++
+ 	info.force_off = 0;
  	if (eeh_force_off) {
  		printk(KERN_WARNING "EEH: WARNING: PCI Enhanced I/O Error "
- 		       "Handling is user disabled\n");
--		return;
-+		info.force_off = 1;
- 	}
- 
- 	/* Enable EEH for all adapters.  Note that eeh requires buid's */
--	init_pci_config_tokens();
- 	for (phb = of_find_node_by_name(NULL, "pci"); phb;
- 	     phb = of_find_node_by_name(phb, "pci")) {
- 		unsigned long buid;
-@@ -602,8 +613,11 @@
- 		traverse_pci_devices(phb, early_enable_eeh, NULL, &info);
- 	}
- 
--	if (eeh_subsystem_enabled)
-+	if (eeh_subsystem_enabled) {
- 		printk(KERN_INFO "EEH: PCI Enhanced I/O Error Handling Enabled\n");
-+	} else {
-+		printk(KERN_WARNING "EEH: disabled PCI Enhanced I/O Error Handling\n");
-+	}
- }
- 
- /**
-@@ -743,10 +757,10 @@
- }
- 
- static struct file_operations proc_eeh_operations = {
--	.open		= proc_eeh_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
-+	.open      = proc_eeh_open,
-+	.read      = seq_read,
-+	.llseek    = seq_lseek,
-+	.release   = single_release,
- };
- 
- static int __init eeh_init_proc(void)
-@@ -759,7 +773,7 @@
- 			e->proc_fops = &proc_eeh_operations;
- 	}
- 
--        return 0;
-+	return 0;
- }
- __initcall(eeh_init_proc);
- 

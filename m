@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbTLXRhk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 12:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTLXRgo
+	id S263771AbTLXRtx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 12:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbTLXRtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 12:36:44 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:21685 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263740AbTLXRe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 12:34:59 -0500
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Typo: 2.6.0 docs about kbuild.
-Date: Wed, 24 Dec 2003 18:33:12 +0100
-User-Agent: KMail/1.5
-Cc: akpm@osdl.org
-MIME-Version: 1.0
-Message-Id: <200312241236.24038.blaisorblade_spam@yahoo.it>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Y3c6/qnHaSkRawE"
+	Wed, 24 Dec 2003 12:49:53 -0500
+Received: from mail.aei.ca ([206.123.6.14]:59112 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S263771AbTLXRtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 12:49:51 -0500
+Subject: Re: 2.6 unknown partition table
+From: Shane Shrybman <shrybman@aei.ca>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072284569.4710.3.camel@leto.cs.pocnet.net>
+References: <1072277542.10203.14.camel@mars.goatskin.org>
+	 <1072284569.4710.3.camel@leto.cs.pocnet.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1072288180.10203.18.camel@mars.goatskin.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 24 Dec 2003 12:49:40 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-12-24 at 11:49, Christophe Saout wrote:
+> Am Mi, den 24.12.2003 schrieb Shane Shrybman um 15:52:
+> 
+> > I noticed this in the logs yesterday on 2.6.0-test11-mm1 and upgraded to
+> > 2.6.0-mm1, but its still there. I use LVM on that disk and it is working
+> > fine, (LV file systems are mountable and useable).
+> >
+> > Advice?
+> > 
+> > # fdisk -l /dev/hdg
+> > [...]
+> > Disk /dev/hdg doesn't contain a valid partition table
+> >
+> > [...]
+> > vgdisplay  PV Name               /dev/hdg     
+> 
+> Everything is fine. You put your physical volume directly on the
+> harddisk, not in a partition, so you don't have a partition table.
+> vgscan recognizes the hard disk itself as LVM physical volume anyway
+> that's why it works.
+> 
 
---Boundary-00=_Y3c6/qnHaSkRawE
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Eeek.. I knew that! ;) Sorry for the stupid question and Happy Holidays!
 
-This fixes a "typo" for Kconfig-language docs. It's against 2.6.0.
-CC me on replies, as I'm not subscribed, please.
-
-Bye
--- 
-Paolo Giarrusso, aka Blaisorblade
-
-
-
-
-
---Boundary-00=_Y3c6/qnHaSkRawE
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="KConfig_help-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="KConfig_help-fix.patch"
-
---- ./Documentation/kbuild/kconfig-language.txt.fix	2003-12-20 20:02:15.000000000 +0100
-+++ ./Documentation/kbuild/kconfig-language.txt	2003-12-22 11:06:35.000000000 +0100
-@@ -141,8 +141,8 @@
-     otherwise 'y'.
- (4) Returns the value of the expression. Used to override precedence.
- (5) Returns the result of (2-/expr/).
--(6) Returns the result of max(/expr/, /expr/).
--(7) Returns the result of min(/expr/, /expr/).
-+(6) Returns the result of min(/expr/, /expr/).
-+(7) Returns the result of max(/expr/, /expr/).
- 
- An expression can have a value of 'n', 'm' or 'y' (or 0, 1, 2
- respectively for calculations). A menu entry becomes visible when it's
-
---Boundary-00=_Y3c6/qnHaSkRawE--
-
+> If you want to get rid of this, the next time you create a PV please
+> create a partition first with fdisk, e.g. /dev/hdg1 with type 8e (LVM)
+> and then pvcreate /dev/hdg1.
+> 
+> --
+> Christophe Saout <christophe@saout.de>
+> Please avoid sending me Word or PowerPoint attachments.
+> See http://www.fsf.org/philosophy/no-word-attachments.html
+> 
 

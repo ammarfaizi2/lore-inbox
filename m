@@ -1,238 +1,311 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265370AbRF0S6Q>; Wed, 27 Jun 2001 14:58:16 -0400
+	id <S265377AbRF0TBQ>; Wed, 27 Jun 2001 15:01:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265372AbRF0S6I>; Wed, 27 Jun 2001 14:58:08 -0400
-Received: from pop.gmx.net ([194.221.183.20]:48303 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265370AbRF0S6C>;
-	Wed, 27 Jun 2001 14:58:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Nicolai 'Prefect' Haehnle" <prefect_@gmx.net>
-To: linux-net@vger.kernel.org
-Subject: 2.4.5 oops in __free_pages from networking soft IRQ / skb_release
-Date: Wed, 27 Jun 2001 20:57:56 +0200
-X-Mailer: KMail [version 1.2]
+	id <S265371AbRF0TBH>; Wed, 27 Jun 2001 15:01:07 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:29707 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S265372AbRF0TA5>; Wed, 27 Jun 2001 15:00:57 -0400
+Message-ID: <3B3A2D9B.919630EC@t-online.de>
+Date: Wed, 27 Jun 2001 21:01:47 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01062720360600.00937@leprechaun>
-Content-Transfer-Encoding: 7BIT
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+CC: dhinds@zen.stanford.edu, andre@aslab.com
+Subject: patch(2.4.5): 2nd ed. Fix PCMCIA ATA/IDE + PCI IRQ sharing 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
+Hi,
+this includes the last fix + now it is willing to share PCI irqs.
+Of course you still need CONFIG_IDEPCI_SHARE_IRQ set.
 
-Oops killing soft interrupt in networking subsystem on plain 2.4.5 kernel.
+Now CF is working very fine, hdparm-4.1 shows 1.27 MB/sec.
+(Only after treaking the source for small (i.e. <64MB) devices).
 
-[2.] Full description of the problem/report:
+Regards, Gunther
 
-I recently updated the system on my router (486 100Mhz, 12MB RAM) to kernel 
-2.4.5. The router has one ethernet interface and an ISDN dialup with dynamic 
-IP address (and thus masquerading). I'm using the new netfilter code for 
-firewall settings, masquerading, etc...
-This is working all fine, but rarely - that is, around every 5 hours with 
-heavy load, but sometimes earlier and sometimes later - the kernel locks up 
-after an oops in an interrupt handler.
 
-[3.] Keywords (i.e., modules, networking, kernel):
 
-networking, netfilter, iptables, masquerading, free_pages
 
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.4.5 (root@zen) (gcc version 2.95.2.1 19991024 (release)) #3 
-Sun Jun 24 17:23:28 CEST 2001
-
-[5.] Output of Oops.. message (if applicable) with symbolic information
-     resolved (see Documentation/oops-tracing.txt)
-
-ksymoops 2.4.1 on i486 2.4.5.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.5/ (default)
-     -m /usr/src/linux/System.map (specified)
-
-Warning (compare_maps): ksyms_base symbol 
-__VERSIONED_SYMBOL(shmem_file_setup) not found in vmlinux.  Ignoring 
-ksyms_base entry
-*pde = 00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c0126ae2>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 702e6e6f ebx: 00000000 ecx: 702e6e6ef edx: 00000000
-esi: c06b1700 edi: c0fdb270 ebp: 000000050 esp: c023dde4
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, stackpage=c023d000)
-Stack: c01a530d fffff400 c06b1700 c01a58f3 c06b1700 c06b1700 c0098a00 c09150b0
-       c0098a00 fffffffa c01a834d c06b1700 00000002 c0045f10 c00b1700 c01ab4f3
-       c06b1700 c06b1700 00000000 00000004 c01b40e0 c01b415d c06b1700 00000001
-Call Trace: [<c01a530d>] [<c01a58f3>] [<c01a834d>] [<c01ab4f3>] [<c01b40e0>] 
-[<c01b415d>] [<c01ac467>]
-            [<c01b17b0>] [<c01b4062>] [<c01b40e0>] [<c01b17fa>] [<c01ac467>] 
-[<c01b05dc>] [<c01b1754>] [<c01b17b0>]
-            [<c01b09e0>] [<c01b0b69>] [<c01b09e0>] [<c01ac467>] [<c01b0826>] 
-[<c01b09e0>] [<c01a88cd>] [<c01141af>]
-            [<c01080b1>] [<c0105140>] [<c0106c60>] [<c0105140>] [<c0105163>] 
-[<c01051c8>] [<c0105000>] [<c0100197>]
-Code: 8b 41 18 85 c0 7c 11 ff 49 14 0f 94 c0 84 c0 74 07 89 c8 e8
-
->>EIP; c0126ae2 <__free_pages+2/20>   <=====
-Trace; c01a530d <skb_release_data+3d/70>
-Trace; c01a58f3 <skb_linearize+d3/140>
-Trace; c01a834d <dev_queue_xmit+6d/1f0>
-Trace; c01ab4f3 <neigh_resolve_output+113/190>
-Trace; c01b40e0 <ip_finish_output2+0/c0>
-Trace; c01b415d <ip_finish_output2+7d/c0>
-Trace; c01ac467 <nf_hook_slow+e7/130>
-Trace; c01b17b0 <ip_forward_finish+0/50>
-Trace; c01b4062 <ip_finish_output+92/f0>
-Trace; c01b40e0 <ip_finish_output2+0/c0>
-Trace; c01b17fa <ip_forward_finish+4a/50>
-Trace; c01ac467 <nf_hook_slow+e7/130>
-Trace; c01b05dc <ip_rcv+ec/370>
-Trace; c01b1754 <ip_forward+1a4/200>
-Trace; c01b17b0 <ip_forward_finish+0/50>
-Trace; c01b09e0 <ip_rcv_finish+0/1c0>
-Trace; c01b0b69 <ip_rcv_finish+189/1c0>
-Trace; c01b09e0 <ip_rcv_finish+0/1c0>
-Trace; c01ac467 <nf_hook_slow+e7/130>
-Trace; c01b0826 <ip_rcv+336/370>
-Trace; c01b09e0 <ip_rcv_finish+0/1c0>
-Trace; c01a88cd <net_rx_action+13d/220>
-Trace; c01141af <do_softirq+3f/70>
-Trace; c01080b1 <do_IRQ+a1/b0>
-Trace; c0105140 <default_idle+0/30>
-Trace; c0106c60 <ret_from_intr+0/20>
-Trace; c0105140 <default_idle+0/30>
-Trace; c0105163 <default_idle+23/30>
-Trace; c01051c8 <cpu_idle+38/50>
-Trace; c0105000 <prepare_namespace+0/10>
-Trace; c0100197 <L6+0/2>
-Code;  c0126ae2 <__free_pages+2/20>
-00000000 <_EIP>:
-Code;  c0126ae2 <__free_pages+2/20>   <=====
-   0:   8b 41 18                  mov    0x18(%ecx),%eax   <=====
-Code;  c0126ae5 <__free_pages+5/20>
-   3:   85 c0                     test   %eax,%eax
-Code;  c0126ae7 <__free_pages+7/20>
-   5:   7c 11                     jl     18 <_EIP+0x18> c0126afa 
-<__free_pages+1a/20>
-Code;  c0126ae9 <__free_pages+9/20>
-   7:   ff 49 14                  decl   0x14(%ecx)
-Code;  c0126aec <__free_pages+c/20>
-   a:   0f 94 c0                  sete   %al
-Code;  c0126aef <__free_pages+f/20>
-   d:   84 c0                     test   %al,%al
-Code;  c0126af1 <__free_pages+11/20>
-   f:   74 07                     je     18 <_EIP+0x18> c0126afa 
-<__free_pages+1a/20>
-Code;  c0126af3 <__free_pages+13/20>
-  11:   89 c8                     mov    %ecx,%eax
-Code;  c0126af5 <__free_pages+15/20>
-  13:   e8 00 00 00 00            call   18 <_EIP+0x18> c0126afa 
-<__free_pages+1a/20>
+--- linux245.orig/drivers/ide/ide-cs.c  Fri Feb  9 20:40:02 2001
++++ linux/drivers/ide/ide-cs.c  Wed Jun 27 20:19:45 2001
+@@ -42,6 +42,7 @@
+ #include <linux/ioport.h>
+ #include <linux/hdreg.h>
+ #include <linux/major.h>
++#include <linux/ide.h>
  
-Kernel panic: Aiee, killing interrupt handler!
+ #include <asm/io.h>
+ #include <asm/system.h>
+@@ -223,6 +224,15 @@
+ #define CFG_CHECK(fn, args...) \
+ if (CardServices(fn, args) != 0) goto next_entry
  
-1 warning issued.  Results may not be reliable.
-
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-
-I couldn't figure out what exactly (malformed packet, ... ?) causes the crash.
-
-[7.] Environment
-[7.1.] Software (add the output of the ver_linux script here)
-
-Linux zen 2.4.5 #3 Sun Jun 24 17:23:28 CEST 2001 i486 unknown
++int idecs_register (int arg1, int arg2, int irq)
++{
++        hw_regs_t hw;
++        ide_init_hwif_ports(&hw, (ide_ioreg_t) arg1, (ide_ioreg_t) arg2, NULL);
++        hw.irq = irq;
++        hw.chipset = ide_pci; // this enables IRQ sharing w/ PCI irqs
++        return ide_register_hw(&hw, NULL);
++}
++
+ void ide_config(dev_link_t *link)
+ {
+     client_handle_t handle = link->handle;
+@@ -324,12 +334,15 @@
+     if (link->io.NumPorts2)
+        release_region(link->io.BasePort2, link->io.NumPorts2);
  
-Gnu C                  2.95.2.1
-Gnu make               3.79.1
-binutils               2.10.1
-util-linux             2.10r
-mount                  2.10r
-modutils               2.4.0
-e2fsprogs              1.19
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.1
-Dynamic linker (ldd)   2.2.1
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.2.3
-Sh-utils               2.0
-Modules Loaded         hisax isdn slhc ne2k-pci 8390
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
-processor       : 0
-vendor_id       : unknown
-cpu family      : 4
-model           : 0
-model name      : 486
-stepping        : unknown
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : no
-cpuid level     : -1
-wp              : yes
-flags           :
-bogomips        : 49.66
-
-[7.3.] Module information (from /proc/modules):
-
-hisax                 134224   3
-isdn                   91568   4 [hisax]
-slhc                    4832   1 [isdn]
-ne2k-pci                4576   1
-8390                    6288   0 [ne2k-pci]
-
-[7.4.] SCSI information (from /proc/scsi/scsi)
-
-no scsi devices
-
-[7.5.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-
-The output from ifconfig:
-eth0      Link encap:Ethernet  HWaddr 00:50:BA:E0:CC:C8
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:1499 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1282 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:10 Base address:0x6000
++    outb(0x02, ctl_base); // Set nIEN = disable device interrupts
++                         // else it hangs on PCI-Cardbus Add-in cards wedging irq
++
+     /* retry registration in case device is still spinning up */
+     for (i = 0; i < 10; i++) {
+-       hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
++       hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ);
+        if (hd >= 0) break;
+        if (link->io.NumPorts1 == 0x20) {
+-           hd = ide_register(io_base+0x10, ctl_base+0x10,
++           hd = idecs_register(io_base+0x10, ctl_base+0x10,
+                              link->irq.AssignedIRQ);
+            if (hd >= 0) {
+                io_base += 0x10; ctl_base += 0x10;
+--- linux245.orig/drivers/ide/ide-probe.c       Sun Mar 18 18:25:02 2001
++++ linux/drivers/ide/ide-probe.c       Wed Jun 27 17:31:45 2001
+@@ -685,6 +685,8 @@
+ #else /* !CONFIG_IDEPCI_SHARE_IRQ */
+                int sa = (hwif->chipset == ide_pci) ? SA_INTERRUPT|SA_SHIRQ : SA_INTERRUPT;
+ #endif /* CONFIG_IDEPCI_SHARE_IRQ */
++
++               outb(0x00, hwif->io_ports[IDE_CONTROL_OFFSET]); // clear nIEN == enable irqs
+                if (ide_request_irq(hwif->irq, &ide_intr, sa, hwif->name, hwgroup)) {
+                        if (!match)
+                                kfree(hwgroup);
+--- linux245.orig/drivers/ide/ide.c     Wed May  2 01:05:00 2001
++++ linux/drivers/ide/ide.c     Wed Jun 27 20:18:23 2001
+@@ -2181,6 +2181,7 @@
+        memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->hw.io_ports));
+        hwif->irq = hw->irq;
+        hwif->noprobe = 0;
++       hwif->chipset = hw->chipset;
  
-ippp0     Link encap:Point-to-Point Protocol
-          inet addr:217.87.184.242  P-t-P:217.5.114.45  Mask:255.255.255.0
-          UP POINTOPOINT RUNNING NOARP  MTU:1500  Metric:1
-          RX packets:1116 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1249 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:30
+        if (!initializing) {
+                ide_probe_module();
+--- linux245.orig/include/linux/ide.h   Sat May 26 03:02:42 2001
++++ linux/include/linux/ide.h   Wed Jun 27 19:01:35 2001
+@@ -226,6 +226,19 @@
+ #endif
  
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
+ /*
++ * hwif_chipset_t is used to keep track of the specific hardware
++ * chipset used by each IDE interface, if known.
++ */
++typedef enum {  ide_unknown,    ide_generic,    ide_pci,
++                ide_cmd640,     ide_dtc2278,    ide_ali14xx,
++                ide_qd6580,     ide_umc8672,    ide_ht6560b,
++                ide_pdc4030,    ide_rz1000,     ide_trm290,
++                ide_cmd646,     ide_cy82c693,   ide_4drives,
++                ide_pmac
++} hwif_chipset_t;
++
++
++/*
+  * Structure to hold all information about the location of this port
+  */
+ typedef struct hw_regs_s {
+@@ -234,6 +247,7 @@
+        int             dma;                    /* our dma entry */
+        ide_ack_intr_t  *ack_intr;              /* acknowledge interrupt */
+        void            *priv;                  /* interface specific data */
++       hwif_chipset_t  chipset;
+ } hw_regs_t;
+ 
+ /*
+@@ -396,17 +410,6 @@
+ typedef void (ide_maskproc_t) (ide_drive_t *, int);
+ typedef void (ide_rw_proc_t) (ide_drive_t *, ide_dma_action_t);
+ 
+-/*
+- * hwif_chipset_t is used to keep track of the specific hardware
+- * chipset used by each IDE interface, if known.
+- */
+-typedef enum { ide_unknown,    ide_generic,    ide_pci,
+-               ide_cmd640,     ide_dtc2278,    ide_ali14xx,
+-               ide_qd6580,     ide_umc8672,    ide_ht6560b,
+-               ide_pdc4030,    ide_rz1000,     ide_trm290,
+-               ide_cmd646,     ide_cy82c693,   ide_4drives,
+-               ide_pmac
+-} hwif_chipset_t;
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+ typedef struct ide_pci_devid_s {
 
-[X.] Other notes, patches, fixes, workarounds:
 
-My iptables configuration:
-NAT table has the postrouting MASQUERADE entry
 
-The filter only filters incoming packets: everything but ESTABLISHED 
-connections and some TCP SYN packets are DROPped after logging them (with a 
-limit of 3 hits per minute).
+P.S.
+====
 
-I hope this will help in squishing out one more nasty bug...
+However, my "lsata"'s heuristics shows this as ATA1
+(i.e. no ATA2 features used):
 
-cu,
-Nicolai Haehnle
+lsata /dev/hde
 
+ihack for pcmcia compact flash
+ATA Level = 1
+ATAPI (Packet Interface): no
+ATA Device Information for Command 0xEC
+
+Conforming to 'AT Attachment for Disk Drives'
+ANSI X3.221-1994
+X3T10 791D Revision 4c Working Draft
+All reserved Bits shall be zero (Chap. 8.8, p.25)
+
+Word 0 General Configuration
+1 Shall be 0. Reserved for non-magnetic drives
+0 Format speed tolerance gap required ? 'no' : 'yes'
+0 Track Offset optin available ? 'no' : 'yes'
+0 Data strobe offset option available ? 'no' : 'yes'
+0 Rotational speed tolerance >0.5 percent ? 'no' : 'yes'
+1 Disk transfer rate  > 10 Mbs ? 'no' : 'yes'
+0 Disk transfer rate > 5Mbs but <= 10Mbs ? 'no' : 'yes'
+0 Disk transfer rate < 5Mbs  ? 'no' : 'yes'
+1 removable cartridge drive ? 'no' : 'yes'
+0 Fixed Drive ? 'no' : 'yes'
+0 Spindle motor control option implemented ? 'no' : 'yes'
+0 Head switch time >15 usec ? 'no' : 'yes'
+1 MFM encoded ? 'yes' : 'no'
+0 Soft sectored ? 'no' : 'yes'
+1 Hard sectored ? 'no' : 'yes'
+0 reserved
+
+Word 1 Number of Cylinders 02e2  0002 00e2 
+738 
+
+Word 2 Reserved
+0000000000000000
+
+Word 3 Number of Heads
+4
+
+Word 4 Number of unformatted bytes per track
+0
+
+Word 5 Number of unformatted bytes per sector
+512
+
+Word 6 Number of sectors per track
+32
+
+Word 7-9 Vendor Unique
+0000000000000001
+0111000100000000
+0000000000000000
+
+Word 10-19 Serial number
+           Right justified padded with Spaces 20h
+2020202020202020202020202020202020202020
+
+                    
+
+Word 20 Buffer Type
+00 ? 'unspecified':'single port':'dual port':'dual port w/ read cache'
+00000000000010 reserved
+
+Word 21 Buffer size in 512 byte increment
+2
+
+Word 22 Number of ECC Bytes available on read/write long commands
+4 often 4
+
+Word 23-26 Firmware revision
+52657620312e3031
+Rev 1.01
+
+Word 27-46 Model Number
+4869746163686920435620372e312e31202020202020202020202020202020202020202020202020
+Hitachi CV 7.1.1                        
+
+Word 47 
+00000000 Vendor unique
+1 Maximum number of sect. transfered per IRQ on R/W Multiple
+
+Word 48 Backward compatible Vendor unique use
+000000000000000 unspecified 0
+0 ? 'cannot':'can' perform doubleword I/O
+
+Word 49 Capabilites
+000000 reserved, Shall be 0
+1 LBA Supported ?'no':'yes'
+0 DMA supported ?'no':'yes'
+00000000 Vendor unique
+
+Word 50 
+0000000000000000 Reserved
+
+Word 51 see figure 6 for Mode 0,1 and 2 (1.5, 2,3 and 3,7 M B/sec)
+1 PIO data transfer cycle timing mode
+00000000 Vendor unique
+
+Word 52 single Word 0,1,2 (1.0, 2.0, 4,0 MB/sec) nmultiword
+multiword only mode ( 5.8 MB/sec?)
+0 DMA data transfer cycle timing mode
+    Shall be ignored, if Words 62 or 63 are supported.
+00000000 Vendor unique
+
+Word 53
+000000000000000 Reserved
+1 Words 54-58 (Current log cyl, head, sect and Capacity) ? 'may be valid' : 'valid'
+
+Word 54 Number of current cylinders
+738
+
+Word 55 Number of current heads
+4
+
+Word 56 Number of current sectors per track
+32
+
+Word 57-58 Current Capacity in sectors
+1895825409
+
+Word 59 
+0000000 Reserved
+1 Multiple Sector setting is ? 'not valid' : 'valid'
+0 Current Setting for number of sectors transf. per IRQ on R/W Multiple
+
+Word 60-61 Total number of user addressable sectors in LBA mode
+1895825409
+
+Word 62 Valid Modes in ATA1:0,1,2
+00000000 Single word DMA transfer active mode (LSB is mode0), One Bit shall be set
+00000000 Single word DMA transfer modes supported (LSB is mode0)
+
+Word 63 Valid Mode in ATA-1: Only 0
+00000000 Multiword DMA transfer active mode (LSB is mode0), One Bit shall be set
+00000000 Mulitword DMA transfer modes supported (LSB is mode0)
+
+Word 64-127 Reserved
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+
+Word 128-159 Vendor unique
+0000484954414348492000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+
+Word 160-255 Reserved
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+
+Total Bits=4096, Bytes =512

@@ -1,84 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267639AbTBLUgw>; Wed, 12 Feb 2003 15:36:52 -0500
+	id <S267637AbTBLUiZ>; Wed, 12 Feb 2003 15:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTBLUgw>; Wed, 12 Feb 2003 15:36:52 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:61825 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267639AbTBLUgt>; Wed, 12 Feb 2003 15:36:49 -0500
-Message-Id: <200302122046.h1CKkXpk009417@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
-To: David Schwartz <davids@webmaster.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms 
-In-Reply-To: Your message of "Wed, 12 Feb 2003 12:18:39 PST."
-             <20030212201840.AAA15967%shell.webmaster.com@whenever> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030212201840.AAA15967%shell.webmaster.com@whenever>
+	id <S267574AbTBLUiX>; Wed, 12 Feb 2003 15:38:23 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:2052 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267640AbTBLUhN>;
+	Wed, 12 Feb 2003 15:37:13 -0500
+Date: Tue, 11 Feb 2003 19:50:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Grover <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Sleep fixes
+Message-ID: <20030211185021.GA25067@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1017021216P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Feb 2003 15:46:33 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1017021216P
-Content-Type: text/plain; charset=us-ascii
+Hi!
 
-On Wed, 12 Feb 2003 12:18:39 PST, David Schwartz said:
+This fixes error conditions in sleep, and makes acpi ask for
+suspend_disable. Please apply,
+								Pavel
 
-> 	The right to distribute derived works is not an *additional* right 
-> to the *original* work. It is subsumed under the rights to create 
-> derived works and the right to distribute the original work. Of 
-> course, you also need the rights to the new content in the derived 
-> work. If anyone can cite a law or case precedent to the contrary, 
-> please do. Otherwise, I maintain that there is no special right to 
-> distribute derived works. This does not exist as a distinct right 
-> under copyright law in any country I know of.
 
-At least in the US:
 
-17 USC 106 says:
-Sec. 106. - Exclusive rights in copyrighted works
-
-Subject to sections 107 through 121, the owner of copyright under this title
-has the exclusive rights to do and to authorize any of the following:
-
-(1) to reproduce the copyrighted work in copies or phonorecords;
-
-(2) to prepare derivative works based upon the copyrighted work;
-
-So you don't even get the right to *CREATE* a derivative work unless it's
-explicitly given to you.  So you're back to the GPL (clause 2) - 
-
-  2. You may modify your copy or copies of the Program or any portion
-of it, thus forming a work based on the Program, and copy and
-distribute such modifications or work under the terms of Section 1
-above, provided that you also meet all of these conditions:
-
-You can slice-and-dice *YOUR* copy to your heart's content, but if you
-distribute it, you have to abide by the conditions.  Note that at least
-in the US, the submission of patches is probably covered by 17 USC 107,
-which is the "fair use" clause - patches are obviously "criticism or comment" ;)
-
+--- clean/arch/i386/kernel/acpi.c	2003-02-11 17:40:33.000000000 +0100
++++ linux/arch/i386/kernel/acpi.c	2003-02-11 17:43:30.000000000 +0100
+@@ -480,6 +480,8 @@
+ 	panic("S3 and PAE do not like each other for now.");
+ 	return 1;
+ #endif
++	if (!acpi_wakeup_address)
++		return 1;
+ 	init_low_mapping(swapper_pg_dir, USER_PTRS_PER_PGD);
+ 	memcpy((void *) acpi_wakeup_address, &wakeup_start, &wakeup_end - &wakeup_start);
+ 	acpi_copy_wakeup_routine(acpi_wakeup_address);
+@@ -507,17 +509,18 @@
+ /**
+  * acpi_reserve_bootmem - do _very_ early ACPI initialisation
+  *
+- * We allocate a page in low memory for the wakeup
++ * We allocate a page from the first 1MB of memory for the wakeup
+  * routine for when we come back from a sleep state. The
+- * runtime allocator allows specification of <16M pages, but not
+- * <1M pages.
++ * runtime allocator allows specification of <16MB pages, but not
++ * <1MB pages.
+  */
+ void __init acpi_reserve_bootmem(void)
+ {
+ 	acpi_wakeup_address = (unsigned long)alloc_bootmem_low(PAGE_SIZE);
++	if (!acpi_wakeup_address)
++		printk(KERN_ERR "ACPI: Cannot allocate lowmem. S3 disabled.\n");
+ 	if ((&wakeup_end - &wakeup_start) > PAGE_SIZE)
+ 		printk(KERN_CRIT "ACPI: Wakeup code way too big, will crash on attempt to suspend\n");
+-	printk(KERN_DEBUG "ACPI: have wakeup address 0x%8.8lx\n", acpi_wakeup_address);
+ }
+ 
+ static int __init acpi_sleep_setup(char *str)
+--- clean/drivers/acpi/sleep.c	2003-01-05 22:58:25.000000000 +0100
++++ linux/drivers/acpi/sleep.c	2003-02-10 18:17:00.000000000 +0100
+@@ -143,6 +143,10 @@
+ 			return error;
+ 		}
+ 
++		error = device_suspend(state, SUSPEND_DISABLE);
++		if (error)
++			panic("Sorry, devices really should know how to disable\n");
++
+ 		/* flush caches */
+ 		ACPI_FLUSH_CPU_CACHE();
+ 
 
 -- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_1017021216P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+SrKocC3lWbTT17ARAnYtAJ4pSeyiACdZlUqP+tFNldH5GjpcqACgor2c
-QpPxVjrIeqakJYR4koUS8Lg=
-=Evvu
------END PGP SIGNATURE-----
-
---==_Exmh_1017021216P--
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135385AbRDMCER>; Thu, 12 Apr 2001 22:04:17 -0400
+	id <S132326AbRDMCRS>; Thu, 12 Apr 2001 22:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135386AbRDMCEH>; Thu, 12 Apr 2001 22:04:07 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21398 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135385AbRDMCEB>;
-	Thu, 12 Apr 2001 22:04:01 -0400
-Date: Thu, 12 Apr 2001 22:03:59 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ed Tomlinson <tomlins@cam.org>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
-In-Reply-To: <01041221342400.27841@oscar>
-Message-ID: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135386AbRDMCRI>; Thu, 12 Apr 2001 22:17:08 -0400
+Received: from cc265407-a.hwrd1.md.home.com ([24.3.45.174]:35205 "EHLO
+	athens.nanticoke.ellicott-city.md.us") by vger.kernel.org with ESMTP
+	id <S132326AbRDMCQz>; Thu, 12 Apr 2001 22:16:55 -0400
+Date: Thu, 12 Apr 2001 22:16:47 -0400
+From: Tim Meushaw <meushaw@pobox.com>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.4.1/2.4.3 and CD-RW ide-scsi drive
+Message-ID: <20010412221647.J9569@pobox.com>
+In-Reply-To: <3AD65738.A0056C99@torque.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ep0oHQY+/Gbo/zt0"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3AD65738.A0056C99@torque.net>; from dougg@torque.net on Thu, Apr 12, 2001 at 09:32:40PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--ep0oHQY+/Gbo/zt0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 12 Apr 2001, Ed Tomlinson wrote:
+On Thu, Apr 12, 2001 at 09:32:40PM -0400, Douglas Gilbert wrote:
+> At the risk of Jens jumping on this post, I think
+> there was some problem mounting cdroms that is
+> fixed in the "ac" series, the latest of which is
+> 2.4.3-ac5 . Perhaps you could try it and report
+> back.
 
-> On Thursday 12 April 2001 11:12, Alexander Viro wrote:
-> What prompted my patch was observing situations where the icache (and dcache 
-> too) got so big that they were applying artifical pressure to the page and 
-> buffer caches. I say artifical since checking the stats these caches showed 
-> over 95% of the entries unused.  At this point there is usually another 10% 
-> or so of objects allocated by the slab caches but not accounted for in the 
-> stats (not a problem they are accounted if the cache starts using them).
+Okay, I'll give that a try, probably testing it on Saturday, and will
+give the results of it.  I'd be also interested to see if it works with
+those fixes or not.
+=20
+> The fact that you can write a cd (which does not=20
+> involve the sr driver) means that the rest of the SCSI=20
+> subsystem and the ide-scsi driver seem to be working=20
+> ok. I doubt that this is a problem with the mount=20
+> command.=20
 
-"Unused" as in "->d_count==0"? That _is_ OK. Basically, you will have
-positive ->d_count only on directories and currently opened files.
-E.g. during compile in /usr/include/* you will have 3-5 file dentries
-with ->d_count > 0 - ones that are opened _now_. It doesn't mean that
-everything else rest is unused in any meaningful sense. Can be freed - yes,
-but that's a different story.
+That's good to hear at least.  :-)  It did seem like ide-scsi was
+working fine, given every other operation I could think of other than
+mount was working perfectly.
 
-If you are talking about "unused" from the slab POV - _ouch_. Looks like
-extremely bad fragmentation ;-/ It's surprising, and if that's thte case
-I'd like to see more details.
-								Al
+Thanks for the reply!  I'll make sure to say if 2.4.3-ac5 affects things
+any.
 
+Tim
+
+--=20
+Timothy A. Meushaw
+meushaw@pobox.com
+http://www.pobox.com/~meushaw/
+
+--ep0oHQY+/Gbo/zt0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE61mGPMVO+gCLjJFkRAhFEAJ9nZ0xq2Lo3vQSWcaxvxHcgxdQ6LQCfVUsw
+JRIXPpchR8CCv6fty3k+siQ=
+=ZQPX
+-----END PGP SIGNATURE-----
+
+--ep0oHQY+/Gbo/zt0--

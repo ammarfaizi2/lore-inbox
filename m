@@ -1,64 +1,120 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313157AbSEML4n>; Mon, 13 May 2002 07:56:43 -0400
+	id <S313122AbSEML6n>; Mon, 13 May 2002 07:58:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313122AbSEML4m>; Mon, 13 May 2002 07:56:42 -0400
-Received: from elixir.e.kth.se ([130.237.48.5]:23820 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S313114AbSEML4l>;
-	Mon, 13 May 2002 07:56:41 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix typos in fs/ufs/super.c
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 13 May 2002 13:56:41 +0200
-Message-ID: <yw1xbsbk1csm.fsf@xq513.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S313114AbSEML6m>; Mon, 13 May 2002 07:58:42 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:58885 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313122AbSEML6k>; Mon, 13 May 2002 07:58:40 -0400
+Date: Mon, 13 May 2002 13:58:01 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020513115800.GC4258@louise.pinerecords.com>
+In-Reply-To: <20020512145802Z313578-22651+30503@vger.kernel.org> <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 16:18)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a few typos in fs/ufs/super.c, unless it's already been done.
+> > I agree. If developers need that changelog style it's fine, but on kernel.org
+> > homepage there should the old changelog format, so everyone can read it.
+> > The best changelog i've ever seen is the one used around ~2.4.9 release
+> >
+> >  - changedescription                         (author)
+> 
+> So, is there anybody willing to put together the scripts to
+> generate this changelog format automatically ?
 
---- /tmp/linux/fs/ufs/super.c	Mon May 13 13:43:11 2002
-+++ super.c	Mon May 13 13:30:17 2002
-@@ -662,13 +662,13 @@
- 			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_bsize < 512) {
--		printk("ufs_read_super: fragment size %u is too small\n"
-+	if (uspi->s_fsize < 512) {
-+		printk("ufs_read_super: fragment size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_bsize > 4096) {
--		printk("ufs_read_super: fragment size %u is too large\n"
-+	if (uspi->s_fsize > 4096) {
-+		printk("ufs_read_super: fragment size %u is too large\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
-@@ -678,12 +678,12 @@
- 		goto failed;
- 	}
- 	if (uspi->s_bsize < 4096) {
--		printk("ufs_read_super: block size %u is too small\n"
--			uspi->s_fsize);
-+		printk("ufs_read_super: block size %u is too small\n",
-+			uspi->s_bsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize / uspi->s_fsize > 8) {
--		printk("ufs_read_super: too many fragments per block (%u)\n"
-+		printk("ufs_read_super: too many fragments per block (%u)\n",
- 			uspi->s_bsize / uspi->s_fsize);
- 		goto failed;
- 	}
+Alright, another one.
+
+$ ./fmtcl2.pl /usr/src/ChangeLog-2.5.14
+
+Summary of changes from v2.5.13 to v2.5.14
+============================================
+
+o  kd.h                                                                             (Andries.Brouwer@cwi.nl)
+o  NTFS: Release 2.0.6 - Major bugfix to make compatible with other kernel changes. (aia21@cantab.net)
+o  mm/memory.c:                                                                     (aia21@cantab.net)
+o  suppress allocation warnings for radix-tree allocations                          (akpm@zip.com.au)
+o  radix-tree locking fix                                                           (akpm@zip.com.au)
+o  Allow truncate to discard unmapped buffers                                       (akpm@zip.com.au)
+o  decouple swapper_space treatment from other address_spaces                       (akpm@zip.com.au)
+o  Allow ext3 pages to be written back by VM pressure                               (akpm@zip.com.au)
+o  Fix SMP race in truncate                                                         (akpm@zip.com.au)
+o  handle concurrent block_write_full_page and set_page_dirty                       (akpm@zip.com.au)
+o  Fix PG_launder                                                                   (akpm@zip.com.au)
+o  Fix concurrent writepage and readpage                                            (akpm@zip.com.au)
+o  Documentation update                                                             (akpm@zip.com.au)
+o  remove PRD_SEGMENTS                                                              (axboe@suse.de)
+o  2.5.13 IDE 50                                                                    (dalecki@evision-ventures.com)
+o  2.5.13 IDE 51                                                                    (dalecki@evision-ventures.com)
+o  2.5.13 IDE 52                                                                    (dalecki@evision-ventures.com)
+o  2.5.13 IDE 53                                                                    (dalecki@evision-ventures.com)
+o  [PATCH 2.5.13 IDE 54                                                             (dalecki@evision-ventures.com)
+o  remove global_bufferlist_lock                                                    (hch@infradead.org)
+o  fix config.in syntax errors.                                                     (hch@infradead.org)
+<snip>
 
 
+#!/usr/bin/perl -w
 
--- 
-Måns Rullgård
-mru@users.sf.net
+use strict;
+
+my %people = ();
+my $addr = "";
+my @cur = ();
+my $len = 60;
+
+sub append_item()
+{
+	if (!$addr) { return; }
+	if (!$people{$addr}) { @{$people{$addr}} = (); }
+	push @{$people{$addr}}, [@cur];
+
+	@cur = ();
+}
+
+sub print_terse_items($)
+{
+	my @items = @{$people{$_[0]}};
+	while ($_ = shift @items) {
+		my $fill = (" " x ($len - length(@$_[0]) + 1));
+		print "@$_$fill($_[0])\n";
+	}
+}
+
+while (<>) {
+	# Match address
+	if (/^\s*<([^>]+)>/) {
+		# Add old item (if any) before beginning new
+		append_item();
+		$addr = $1;
+	} elsif ($addr) {
+		# Add line to patch
+		# strip whitespace at start & end
+		s/^\s*(.*)\s*$/$1/;
+		# kill starting 'PATCH' captions
+		s/\s*\[?PATCH\]?\s*//;
+		# insert a bullet
+		s/^(.*)$/o  $1/;
+		# Only save 1 line
+		if (scalar(@cur) < 1) {
+			push @cur, "$_";
+			# save record line length
+			if ((my $nlen = length($_)) > $len) { $len = $nlen; }
+		}
+	} else {
+		# Header information
+		print;
+	}
+}
+
+append_item();
+foreach $addr (sort keys %people) {
+	print_terse_items($addr);
+}

@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVBQAvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVBQA6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVBQAvv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:51:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVBQAvv
+	id S262001AbVBQA6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVBQA6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:51:51 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:5040 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262175AbVBQAv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:51:27 -0500
-Message-ID: <4213EA7F.4070107@arrakis.dhis.org>
-Date: Thu, 17 Feb 2005 00:51:11 +0000
-From: Pedro Venda <pjvenda@arrakis.dhis.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
+	Wed, 16 Feb 2005 19:58:10 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:65173 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262001AbVBQA6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 19:58:01 -0500
+Date: Wed, 16 Feb 2005 16:57:47 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: page fault scalability patchsets update: prezeroing, prefaulting
+ and atomic operations
+In-Reply-To: <1107304296.5131.13.camel@npiggin-nld.site>
+Message-ID: <Pine.LNX.4.58.0502161646490.11394@schroedinger.engr.sgi.com>
+References: <41E5B7AD.40304@yahoo.com.au>  <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+  <41E5BC60.3090309@yahoo.com.au>  <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+  <20050113031807.GA97340@muc.de>  <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+  <20050113180205.GA17600@muc.de>  <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+  <20050114043944.GB41559@muc.de>  <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+  <20050114170140.GB4634@muc.de>  <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+  <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com> 
+ <41FF00CE.8060904@yahoo.com.au>  <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
+ <1107304296.5131.13.camel@npiggin-nld.site>
 MIME-Version: 1.0
-To: Noel Maddy <noel@zhtwn.com>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: possible leak in kernel 2.6.10-ac12
-References: <4213D70F.20104@arrakis.dhis.org> <200502161835.26047.kernel-stuff@comcast.net> <4213DF19.10209@arrakis.dhis.org> <20050217003846.GA5615@uglybox.localnet>
-In-Reply-To: <20050217003846.GA5615@uglybox.localnet>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I thought I save myself the constant crossposting of large amounts of
+patches. Patches, documentation, test results etc are available at
 
-Noel Maddy wrote:
-| On Thu, Feb 17, 2005 at 12:02:33AM +0000, Pedro Venda wrote:
-|
-|
-|>admin proc # cat slabinfo
-|
-| ...
-|
-|>biovec-1           74224  74354     16  226    1 : tunables  120   60    0 :
-slabdata    329    329      0
-|>bio                74212  74237     64   61    1 : tunables  120   60    0 :
-slabdata   1217   1217      0
-|
-|
-| If you're using md, you need this patch to fix a bio leak:
-|
-| http://linux.bkbits.net:8080/linux-2.6/diffs/drivers/md/md.c@1.234
+http://oss.sgi.com/projects/page_fault_performance/
 
-thanks.
+Changes:
+- Performance tests for all patchsets (i386 single processor,
+  Altix 8 processors and Altix 128 processors)
+- Archives of patches so far
+- Some docs (still needs work)
+- Patches against 2.6.11-rc4-bk4
 
-has this patch been included in the recent rc's?
+Patch specific:
 
-and howcome the other servers work normally [all with md]? at least so far the
-memory usages aren't concerning, although the linear increase is starting to
-show. perhaps the [different] apps running on them don't expose the leak as well
-the one that broke today... is that reasonable?
+atomic operations for page faults (V17)
 
-regards,
+- Avoid incrementing page count for page in do_wp_page (see discussion
+  with Nick Piggin on last patchset)
 
-- --
+prezeroing (V7)
 
-Pedro João Lopes Venda
-email: pjvenda@arrakis.dhis.org
-http://arrakis.dhis.org
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+- set /proc/sys/vm/scrub_load to 1 by default to avoid slight performance
+  loss during kernel compile on i386
+- Scrubd needs to be configured in kernel configuration as an experimental
+  feature.
+- Patch still follows kswapd's method to bind node specific scrubd daemons
+  to each NUMA node. Cannot find any new infrastructure to assign tasks to
+  certain nodes. kthread_bind() binds to single cpu and not to a NUMA
+  node. Guess other API work would have to be first done to realize
+  Andrews proposed approach.
 
-iD8DBQFCE+p/eRy7HWZxjWERArOTAKDmZ0fG1DpfN7pW9UNaVpLWK3LX2gCg0/Kr
-u4kzp1PaId8tmo61oHFISuk=
-=jGB3
------END PGP SIGNATURE-----
+prefaulting (V5)
+
+- Set default for /proc/sys/vm/max_prealloc_order to 1 to avoid
+  overallocating pages which led to a performance loss in some
+  situations.
+
+This is pretty complex thing to manage so please tell me if I missed
+anything ...

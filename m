@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270164AbTGUPLy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270165AbTGUPLy
+	id S269559AbTGUPNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbTGUPNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:11:54 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:47233 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S270164AbTGUPLw (ORCPT
+	Mon, 21 Jul 2003 11:13:38 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:56973 "EHLO server")
+	by vger.kernel.org with ESMTP id S269559AbTGUPNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:11:52 -0400
-Date: Mon, 21 Jul 2003 17:26:46 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: jsimmons@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.org
-Subject: How is info->cmap supposed to work?
-Message-ID: <20030721152646.GA14520@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Jul 2003 11:13:34 -0400
+Message-ID: <01f701c34f9c$bdb87220$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva>
+Subject: Re: 2.4.22-pre5 deadlock
+Date: Mon, 21 Jul 2003 08:28:30 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
-  I have few problems with understanding how
-info->cmap is supposed to work:
+----- Original Message ----- 
+From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+To: "Jim Gifford" <maillist@jg555.com>
+Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Monday, July 21, 2003 5:45 AM
+Subject: Re: 2.4.22-pre5 deadlock
 
-(1) FBIOGETCMAP calls fb_copy_cmap(&info->cmap, &cmap, 0);
-    Should not it use last argument of '2', as &cmap points
-    to the userspace? It looks to me like that anybody can
-    overwrite kernel currently... Only positive side is that
-    there is no way to control info->cmap contents (see (2)),
-    so you can only crash kernel with random code, you cannot 
-    stuff some malicious code there.
 
-(2) FBIOPUTCMAP calls fb_set_cmap, which in turn calls
-    fb_setcolreg. FBIOGETCMAP copies cmap entries from
-    info->cmap (after fixing (1)). Does it mean that
-    fb_setcolreg has to fill info->cmap itself? Is not it
-    a bit ugly? And fb_set_cmap documentation is incorrect:
-    kspc == 0 means copy from userspace, while
-    kspc != 0 means copy "local", inside kernel-space. Documentation
-    says that 0 is local, while 1 is get_user.
+>
+>
+> On Sun, 20 Jul 2003, Jim Gifford wrote:
+>
+> > ----- Original Message -----
+> > From: "Andrea Arcangeli" <andrea@suse.de>
+> > To: "Jim Gifford" <maillist@jg555.com>
+> > Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>; "lkml"
+> > <linux-kernel@vger.kernel.org>
+> > Sent: Saturday, July 19, 2003 10:21 AM
+> > Subject: Re: 2.4.22-pre5 deadlock
+> >
+> >
+> > > On Mon, Jul 14, 2003 at 10:03:03AM -0700, Jim Gifford wrote:
+> > > > As requested.
+> > >
+> > > please try to reproduce w/o devfs and/or w/o a kernel module that is
+> > > loadable called ipt_psd (netfilter stuff likely, but not part of
+> > > mainline pre6/pre7). probably it'll go away either ways and it seems
+> > > triggered by the process called couriertcpd. Not sure exactly what's
+> > > going on though, since looking into devfs/devfsd doesn't sound
+> > > interesting anymore and I don't see the netfilter code out of
+mainline.
+> > >
+> > > (probably this email will get some delay, so apologies if it is
+obsolete
+> > > by the time it reaches the network)
+> > >
+> > > Andrea
+> > >
+> > I have removed all non-standard iptables modules and the dazuko module.
+It
+> > locked up under pre6 without these modules, but pre7 hasn't caused a
+problem
+> > yet, it's at 28 hours so far, the record is three days. I have noticed
+> > increased memory usage, which is the starting sign of problems.
+>
+> Jim,
+>
+> The increased memory usage seems normal. Its the kernel cahcing more and
+> more buffers: they will be freed when the system needs memory.
+>
+> Lets wait and see what happens without the iptables and dazuko modules.
+>
 
-(3) And who is supposed to initialize info->cmap, and to
-    what value? It looks to me like that fbdev driver is
-    supposed to do:
-
-      memset(&info->cmap, 0, sizeof(info->cmap));
-      fb_alloc_cmap(&info->cmap, 256, 1);
-
-    Is it right? What about fb_init_cmap() then? And why
-    fbdev has to play with info->cmap, cannot generic
-    layer take a care of this, if all info->cmap accesses
-    go through generic layer, and fbdev driver itself has
-    no need for this field?
-
-    				Thanks,
-    					Petr Vandrovec
-    					vandrove@vc.cvut.cz
+This could be revelant to my situation
+http://lists.netfilter.org/pipermail/netfilter/2003-July/045504.html
 

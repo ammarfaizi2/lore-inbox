@@ -1,78 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUBQR3v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 12:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUBQR3v
+	id S266301AbUBQR3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 12:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUBQR3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 12:29:51 -0500
-Received: from mail.timesys.com ([65.117.135.102]:3411 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S266292AbUBQR3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 12:29:54 -0500
+Received: from med-gwia-01a.med.umich.edu ([141.214.93.149]:37290 "EHLO
+	med-gwia-01a.med.umich.edu") by vger.kernel.org with ESMTP
+	id S266301AbUBQR3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Feb 2004 12:29:49 -0500
-Message-ID: <40324F78.3000108@timesys.com>
-Date: Tue, 17 Feb 2004 12:29:28 -0500
-From: Pratik Solanki <pratik.solanki@timesys.com>
-Organization: TimeSys Corporation
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040213)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor cross-compile issues
-References: <4027B7D3.2020107@timesys.com> <20040216205800.GC2977@mars.ravnborg.org> <403242DF.7030204@timesys.com> <20040217170042.GC2178@mars.ravnborg.org>
-In-Reply-To: <20040217170042.GC2178@mars.ravnborg.org>
-Content-Type: multipart/mixed;
- boundary="------------090605020507020908040505"
-X-OriginalArrivalTime: 17 Feb 2004 17:22:56.0250 (UTC) FILETIME=[AEB63DA0:01C3F57A]
+Message-Id: <s032093c.098@med-gwia-01a.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Tue, 17 Feb 2004 12:29:30 -0500
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <root@chaos.analogic.com>, "Nicholas Berry" <nikberry@med.umich.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: change kernel name
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090605020507020908040505
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>>> "Richard B. Johnson" <root@chaos.analogic.com> 02/17/04 8:16 AM >>>
+On Thu, 5 Feb 2004, Nicholas Berry wrote:
 
-Andrew,
-
-Based on Sam's suggestion, here's the updated patch.
-
-Pratik.
-
-On 02/17/2004 12:00 PM, Sam Ravnborg wrote:
-
->On Tue, Feb 17, 2004 at 11:35:43AM -0500, Pratik Solanki wrote:
->  
->
->>Thanks Sam. Would you be checking in your proposed change or should I 
->>send a new patch?
->>    
+>> Note the words 'after the compilation'.
 >>
->
->Please send an updated patch to Andrew Morton.
->
->	Sam
->  
->
+>> Nik
 
---------------090605020507020908040505
-Content-Type: text/plain;
- name="asm-boot.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="asm-boot.patch"
+>I read the first nasty-gram weeks ago. The attached >code
+>will allow the kernel name to be changed (and other
+>`uname` stuff) even when the kernel is running.
 
-===== arch/i386/boot/Makefile 1.28 vs edited =====
---- 1.28/arch/i386/boot/Makefile	Thu Sep 11 06:01:23 2003
-+++ edited/arch/i386/boot/Makefile	Tue Feb 17 11:56:45 2004
-@@ -31,6 +31,8 @@
- 
- host-progs	:= tools/build
- 
-+HOSTCFLAGS_build.o := -Iinclude
-+
- # ---------------------------------------------------------------------------
- 
- $(obj)/zImage:  IMAGE_OFFSET := 0x1000
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+>            Note 96.31% of all statistics are fiction.
 
---------------090605020507020908040505--
+Note the words 'On Thu, 5 Feb 2004, Nicholas Berry wrote'
+
+So why are you replying to the same 'nast-gram' weeks later?
+
+Nik
+
+

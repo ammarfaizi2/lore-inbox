@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVCHDIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVCHDIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVCHDIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 22:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVCGU1T
+	id S261198AbVCHDIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 22:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVCGU1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 15:27:19 -0500
-Received: from mailer.campus.mipt.ru ([194.85.82.4]:2737 "EHLO
+	Mon, 7 Mar 2005 15:27:30 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:65200 "EHLO
 	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
-	id S261754AbVCGUM3 convert rfc822-to-8bit (ORCPT
+	id S261765AbVCGUM3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Mar 2005 15:12:29 -0500
 Cc: Fruhwirth Clemens <clemens@endorphin.org>,
        Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
        James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: [??/many] list of files to be sent in a next couple of e-mails with small description
-In-Reply-To: <11102278521318@2ka.mipt.ru>
+Subject: [27/many] arch: h8300 config
+In-Reply-To: <11102278562248@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 7 Mar 2005 23:37:32 +0300
-Message-Id: <11102278521366@2ka.mipt.ru>
+Date: Mon, 7 Mar 2005 23:37:36 +0300
+Message-Id: <11102278562068@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -29,38 +29,13 @@ X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-announce - asynchronous crypto layer announce
-files - file with this cruft
-bench - acrypto benchmark vs cryptoloop vs dm_crypt
-iok.c - userspace application which uses ioctl based acrypto access
-ucon_crypto.c - userspace application which uses direct process' VMA access
-acrypto_Kconfig.patch - acrypto kernel config file
-acrypto_Makefile.patch - acrypto make file
-acrypto_acrypto.h.patch - base definition used in acrypto and it's users
-acrypto_async_provider.c.patch - asynchronous crypto provider [AES CBC mode only] - sync crypto based
-acrypto_crypto_conn.c.patch - kernel connector's backend - allows statistic fetching
-acrypto_crypto_conn.h.patch - definitions for kernel connector's subsystem
-acrypto_crypto_def.h.patch - various acrypto definitions like crypto modes, types of operation and so on...
-acrypto_crypto_dev.c.patch - main crypto device add/remove routings
-acrypto_crypto_lb.c.patch - crypto load balancer's subsystem and main crypto session queues watcher
-acrypto_crypto_lb.h.patch - definitions for crypto load balancer processing
-acrypto_crypto_main.c.patch - main routings - session allocations/deallocations and so on...
-acrypto_crypto_route.h.patch - crypto routing subsystem
-acrypto_crypto_stat.c.patch - acrypto statistic helpers
-acrypto_crypto_stat.h.patch - acrypto statistic helpers declarations
-acrypto_crypto_user.c.patch - base userspace/kernelspace acrypto helpers
-acrypto_crypto_user.h.patch - above declarations
-acrypto_crypto_user_direct.c.patch - direct process' VMA access helpers
-acrypto_crypto_user_direct.h.patch - above declarations
-acrypto_crypto_user_ioctl.c.patch - ioctl based userspace access
-acrypto_crypto_user_ioctl.h.patch - above declarations
-acrypto_simple_lb.c.patch - simple load balancer
-alpha arm arm26 cris frv h8300 i386 ia64 m32r m68k
-m68knommu mips parisc ppc ppc64 s390 sh sh64 sparc
-sparc64 um v850 x86_64 - small patches to enable acrypto config menu
-
-bd.patch - asynchronous block device
-ubd.c - userspace utility to configure asynchronous block device
-bind unbind - simple scripts to show ubd usage
+--- ./arch/h8300/Kconfig~	2005-03-02 10:38:17.000000000 +0300
++++ ./arch/h8300/Kconfig	2005-03-07 21:27:13.000000000 +0300
+@@ -191,4 +191,6 @@
+ 
+ source "crypto/Kconfig"
+ 
++source "acrypto/Kconfig"
++
+ source "lib/Kconfig"
 

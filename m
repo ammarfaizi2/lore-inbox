@@ -1,86 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTE3SlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 14:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263912AbTE3SlW
+	id S263992AbTE3SnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 14:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbTE3SnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 14:41:22 -0400
-Received: from cs.rice.edu ([128.42.1.30]:16535 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id S263902AbTE3SlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 14:41:21 -0400
-To: Timothy Miller <miller@techsource.com>
-Cc: Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-References: <Pine.LNX.4.44.0305300627140.4176-100000@localhost.localdomain>
-	<3ED79FE9.7090405@techsource.com>
-From: Scott A Crosby <scrosby@cs.rice.edu>
-Organization: Rice University
-Date: 30 May 2003 13:53:47 -0500
-In-Reply-To: <3ED79FE9.7090405@techsource.com>
-Message-ID: <oyd1xygb70k.fsf@bert.cs.rice.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-DCC--Metrics: cs.rice.edu 1066; Body=1 Fuz1=1 Fuz2=1
+	Fri, 30 May 2003 14:43:22 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:22202 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263992AbTE3SnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 14:43:20 -0400
+Subject: Hit BUG() in 2.5.70 in mm/slab.c:979
+From: celestar@t-online.de (Frank Victor Fischer)
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054321005.2063.8.camel@darkstar.fischer.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 30 May 2003 20:56:46 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 14:16:09 -0400, Timothy Miller <miller@techsource.com> writes:
+Hey people,
+I hit a BUG() when testing a 2.5.70 kernel in mm/slab.c, line 979. 
+I thought someone might want to know.
 
-> Ingo Molnar wrote:
-> 
-> > i'd suggest to use the jhash for the following additional kernel
-> > entities:  pagecache hash, inode hash, vcache hash.
-> 
-> > the buffer-cache hash and the pidhash should be hard (impossible?) to
-> 
-> > attack locally.
-> >
-> 
-> 
-> 
-> Maybe this is what someone is saying, and I just missed it, but...
-> 
-> Coming late into this discussion (once again), I am making some
-> assumptions here.  A while back, someone came up with a method for
-> breaking encryption (narrowing the brute force computations) by
-> determining how long it took a given host to compute encryption keys
-> or hashes or something.
+System is: 
 
-Yes. Thats also being presented at Usenix Security 2003:
+AMD Thunderbird 1000, 
+VIA KT133 chipset
+512 MB SDR SDRAM
 
-     Remote Timing Attacks Are Practical
-     David Brumley and Dan Boneh, Stanford University 
+Other installed hardware:
+BT848 video capture device
+SB Live! Platinum EMU10k1
+Etherexpress Pro 100
+Promise UDMA 100 IDE controller, 20265 (no devices connected)
+GeForce 2 MX VGA card.
 
-Available at:
-     http://crypto.stanford.edu/~dabo/papers/ssl-timing.pdf
+hda: Maxtor 53073U6
+hdb: IBM-DCAA-33610
+hdc: HL-DT-ST SCE-8480B (CDRW)
+hdd: CREATIVEDVD6630E 
 
-However, that paper was dealing with public key operations, not
-hash-collisions. Thus, the temporal dependence on the key, the 'hidden
-channel' will probably be orders of magnitude smaller. At that, the
-paper only works well on a local network, and the result of the attack
-is far more interesting, the server's private key.
+Used gcc: 2.95.3 
+root file system: ext3
 
+floppy disk :)
 
-In *theory* such an attack is possible and could be used to determine
-the secret key used in the Jenkin's hash in the networking stack,
-dcache, or other places in the kernel. Assuming that collision versus
-non-collision could be uniquely distinguished with $k$ trials, and the
-hash table has $n$ buckets, the attack would require about 5*k*n or so
-queries. The idea is to determine if inputs $i$ and $j$ collide. This
-has a chance of $1/n$ of occuring. If I can uniquely distinguish this,
-which requires $k$ trials. then on average after $k*n$ trials I'll
-have one collision. I repeat this $32/log_2 (n)$, say, 5 times, and I
-have 5 such pairs of known collisions $i,j$. I then enumerate all 2^32
-keys, and see which one of them is consistent with the collision
-evidence observed. This will usually result in only a few possible
-keys.
+I am no member of the list, so for any more information, please contact
+me on celestar@t-online.de thanks
 
-All of this is in theory of course.  In practice, for the bits of the
-kernel we're discussing, this sort of attack is completely irrelevant.
-I also note that universal hashing is also not immune to these
-attacks.  To defend, we'd have to go to cryptographic techniques.
+Victor
 
-Scott

@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUJASrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUJASxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUJASrz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUJASry
+	id S266143AbUJASxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUJASxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:47:54 -0400
-Received: from mgw-x4.nokia.com ([131.228.20.27]:21993 "EHLO mgw-x4.nokia.com")
-	by vger.kernel.org with ESMTP id S266009AbUJASrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:47:53 -0400
-X-Scanned: Fri, 1 Oct 2004 21:47:28 +0300 Nokia Message Protector V1.3.31 2004060815 - RELEASE
-Date: Fri, 1 Oct 2004 21:47:14 +0300
-From: "Teras Timo (EXT-YomiGroup/Helsinki)" <Ext-Timo.Teras@nokia.com>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: kobject events questions
-Message-ID: <20041001184714.GA19587@two.research.nokia.com>
-References: <415ABA96.6010908@nokia.com> <1096486749.4666.31.camel@betsy.boston.ximian.com> <415D28B7.5070306@nokia.com> <20041001164750.GA11646@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 14:53:14 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:63662 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266143AbUJASxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 14:53:09 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Date: Fri, 1 Oct 2004 20:55:29 +0200
+User-Agent: KMail/1.6.2
+Cc: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+References: <415C2633.3050802@0Bits.COM> <20041001102351.GC18786@elf.ucw.cz> <20041001160333.1D229774C3@voldemort.scrye.com>
+In-Reply-To: <20041001160333.1D229774C3@voldemort.scrye.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041001164750.GA11646@kroah.com>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410012055.29406.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 09:47:50AM -0700, ext Greg KH wrote:
-> > I'm just a bit dubious about adding new signals since they are hardcoded 
-> > in the kernel. It's a time consuming process to add new signals (either 
-> > for development build or for official kernels). This is one of the 
-> > reasons I liked more about the original kevent patch. Wouldn't simple 
-> > #defines have been enough for signal names?
+On Friday 01 of October 2004 18:03, Kevin Fenzi wrote:
+> >>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 > 
-> What's the difference between a #define and a enum?  We want these to be
-> well known, and correct.  A enum gives us that.
+> Pavel> Hi!
+> >> Anyone noticed that pmdisk software suspend stopped working in -rc3
+> >> ?  In -rc2 it worked just fine. My script was
+> >>
+> >> chvt 1 echo -n shutdown >/sys/power/disk echo -n disk
+> >> >/sys/power/state chvt 7
+> >>
+> >> In -rc3 it appears to write pages out to disk, but never shuts down
+> >> the machine. Is there something else i need to do or am missing ?
+> 
+> Pavel> You are not missing anything, it is somehow broken. I'll try to
+> Pavel> find out what went wrong and fix it. In the meantime, look at
+> Pavel> -mm series, it works there.  Pavel
+> 
+> I finally had a chance to try 2.6.9-rc3 here last night.
+> 
+> It suspended ok for me, but on resume it would load in the cache and
+> then reboot. :(
 
-I was a bit ambiguous. I meant #defines with string literals. That would
-have assured correct signal names. I guess to have them all well known
-justifies for enums (even though it makes adding new ones a bit more
-difficult).
+Always?  I mean, is it reproducible?  I have a similar problem, but it is not 
+reproducible, apparently.  Sometimes it reboots, sometimes it reports a 
+double fault, but most often it resumes just fine.
 
-Thanks,
-  Timo
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131426AbRC0Qwx>; Tue, 27 Mar 2001 11:52:53 -0500
+	id <S131429AbRC0Q7X>; Tue, 27 Mar 2001 11:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRC0Qwd>; Tue, 27 Mar 2001 11:52:33 -0500
-Received: from dexter.allieddomecq.ro ([212.93.128.30]:34564 "HELO
-	mail.allieddomecq.ro") by vger.kernel.org with SMTP
-	id <S131426AbRC0Qwa>; Tue, 27 Mar 2001 11:52:30 -0500
-Date: Tue, 27 Mar 2001 19:53:18 +0300 (EEST)
-From: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3-pre8: IPX not building
-Message-ID: <Pine.LNX.4.21md.0103271844240.5513-100000@dexter.allieddomecq.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131446AbRC0Q7N>; Tue, 27 Mar 2001 11:59:13 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38154 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131429AbRC0Q7H>; Tue, 27 Mar 2001 11:59:07 -0500
+Date: Mon, 26 Mar 2001 14:34:45 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+Cc: linux-kernel@vger.kernel.org, engler@csl.Stanford.EDU
+Subject: Re: [ANNOUNCE] The Janitor Project
+Message-ID: <20010326143445.A1383@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Werner Almesberger <Werner.Almesberger@epfl.ch>,
+	linux-kernel@vger.kernel.org, engler@csl.Stanford.EDU
+In-Reply-To: <20010322215215.A1052@conectiva.com.br> <20010327104321.B3974@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <20010327104321.B3974@almesberger.net>; from Werner.Almesberger@epfl.ch on Tue, Mar 27, 2001 at 10:43:21AM +0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Tue, Mar 27, 2001 at 10:43:21AM +0200, Werner Almesberger escreveu:
+> Arnaldo Carvalho de Melo wrote:
+> > http://bazar.conectiva.com.br/~acme/TODO
+> 
+> BTW, I don't know if you're already interacting, but it seems to me that
+> there are a lot of things on your list that look as if the MC project at
+> Stanford ("CHECKER") could provide automated tests for them.
 
-Hi,
+Yup, there has been some interaction in the past and I suggest that the
+Stanford CHECKER people be subscribed to the kernel-janitors list or the
+other way around, so that we can work more closely.
 
-Just a build problem report.
+One thing is to find error patterns, and this is being done by the janitor
+team and by any other interested people, other point is to go thru the
+kernel sources and see where the patterns appear, and here the CHECKER is a
+very important player if not the most important, and the other is to fix
+the problems found, where active maintainers should do the work, despite
+the fact that some are supposedly maintained (listed in MAINTAINERS or in
+the kernel sources) some aren't, there are even drivers listed as
+maintained but the maintainers don't even have the hardware anymore, and
+new maintainers should appear or the janitors should do the work.
 
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.3-pre8/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer
--fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=athlon  -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.3-pre8/include/linux/modversions.h   -c -o
-ip6table_mangle.o ip6table_mangle.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.3-pre8/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer
--fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=athlon  -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.3-pre8/include/linux/modversions.h   -c -o
-ip6t_MARK.o ip6t_MARK.c
-make[2]: Leaving directory /usr/src/linux-2.4.3-pre8/net/ipv6/netfilter'
-make -C ipx modules
-make[2]: Entering directory /usr/src/linux-2.4.3-pre8/net/ipx'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.3-pre8/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer
--fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=athlon  -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.3-pre8/include/linux/modversions.h   -DEXPORT_SYMTAB
--c af_ipx.c
-af_ipx.c: In function   pxrtr_route_packet':
-af_ipx.c:1545: warning: passing arg 4 of `sock_alloc_send_skb_R7094cf19'
-makes integer from pointer without a cast
-af_ipx.c:1545: too few arguments to function
-`sock_alloc_send_skb_R7094cf19'
-af_ipx.c: At top level:
-af_ipx.c:2534: unknown field `sendpage' specified in initializer
-af_ipx.c:2534: `sock_no_sendpage' undeclared here (not in a function)
-af_ipx.c:2534: warning: excess elements in struct initializer
-af_ipx.c:2534: warning: (near initialization for        px_dgram_ops')
-make[2]: *** [af_ipx.o] Error 1
-make[2]: Leaving directory /usr/src/linux-2.4.3-pre8/net/ipx'
-make[1]: *** [_modsubdir_ipx] Error 2
-make[1]: Leaving directory /usr/src/linux-2.4.3-pre8/net'
-make: *** [_mod_net] Error 2
-[root@bigfoot linux-2.4.3-pre8]#
-
-
-
-
-Best regards to you kernel-wizzards!
-
-
+- Arnaldo

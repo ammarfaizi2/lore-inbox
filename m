@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270576AbTHORXG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 13:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270082AbTHORWx
+	id S269523AbTHORTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 13:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270640AbTHORSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 13:22:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28606 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270576AbTHORWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 13:22:19 -0400
-Date: Fri, 15 Aug 2003 10:18:56 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Debug: sleeping function called from invalid context
-Message-Id: <20030815101856.3eb1e15a.rddunlap@osdl.org>
-Organization: OSDL
+	Fri, 15 Aug 2003 13:18:36 -0400
+Received: from mail.cybertrails.com ([162.42.150.35]:11269 "EHLO
+	mail3.cybertrails.com") by vger.kernel.org with ESMTP
+	id S270652AbTHORSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 13:18:00 -0400
+Date: Fri, 15 Aug 2003 10:17:53 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: USB:  full-speed hides low-speed devices
+Message-Id: <20030815101753.5a706f73.dickson@permanentmail.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have the USB devices listed below.  The hub is built into the keyboard.
+I have the USB mouse and a storage device both connected into the
+keyboard.
 
-Wrote some files to a Zip ppa device, did sync and umount:
+I can access the hard drive for a few short bursts, like ls, and the mouse
+continues to work.  But when I copy files to/from the device, or do a du
+--total, the mouse no longer works until I unplug and replug in the mouse.
 
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 16 bit
-ppa: Found device at ID 6, Attempting to use SPP
-ppa: Communication established with ID 6 using SPP
-scsi1 : Iomega VPI0 (ppa) interface
-  Vendor: IOMEGA    Model: ZIP 100           Rev: J.03
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
- sda: sda4
-Attached scsi removable disk sda at scsi1, channel 0, id 6, lun 0
-Attached scsi generic sg0 at scsi1, channel 0, id 6, lun 0,  type 0
-Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-Call Trace:
- [<c0120d94>] __might_sleep+0x54/0x5b
- [<c010d001>] save_v86_state+0x71/0x1f0
- [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
- [<c019cab8>] ext3_file_write+0x28/0xc0
- [<c011cd96>] __change_page_attr+0x26/0x220
- [<c010b310>] do_general_protection+0x0/0x90
- [<c010a69d>] error_code+0x2d/0x40
- [<c0109657>] syscall_call+0x7/0xb
+There is no logged activity until I unplug the mouse.
 
---
-~Randy
+So it appears that the low-speed mouse disappears once heavy traffic
+occurs at full-speed.  Is this normal?
+
+This notebook only has one physical USB port to connect everything.  I
+don't currently have 2.6 setup on a computer with two USB ports to test
+with a separate low-speed connection from the mouse to the computer.
+
+This is 2.6.0-test3.
+
+	-Paul
+
+
+[root@violet 08:49:13]# cat /proc/bus/usb/devices
+ 
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=146/900 us (16%), #Int=  3, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.0-test3 uhci-hcd
+S:  Product=UHCI Host Controller
+S:  SerialNumber=0000:00:07.2
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
+ 
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=12  MxCh= 3
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0472 ProdID=0065 Rev= 1.00
+S:  Manufacturer=Chicony
+S:  Product=Generic USB Hub
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 90mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
+ 
+T:  Bus=01 Lev=02 Prnt=03 Port=00 Cnt=01 Dev#=  4 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0472 ProdID=0065 Rev= 1.00
+S:  Manufacturer=Chicony
+S:  Product=PFU-65 USB Keyboard
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=24ms
+ 
+T:  Bus=01 Lev=02 Prnt=03 Port=01 Cnt=02 Dev#= 14 Spd=12  MxCh= 0
+D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=16 #Cfgs=  1
+P:  Vendor=0d7d ProdID=0310 Rev= 1.00
+S:  Manufacturer=
+S:  Product=Usb Card Adapter
+S:  SerialNumber=000140000AA7
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  2mA
+I:  If#= 0 Alt= 0 #EPs= 4 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-storage
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=255ms
+E:  Ad=01(O) Atr=03(Int.) MxPS=  16 Ivl=255ms
+ 
+T:  Bus=01 Lev=02 Prnt=03 Port=02 Cnt=03 Dev#= 12 Spd=1.5 MxCh= 0
+D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=1241 ProdID=1111 Rev= 1.00
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=8ms
+[root@violet 08:50:04]# 

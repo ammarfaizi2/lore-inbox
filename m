@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbTEAVls (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 17:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEAVlp
+	id S262700AbTEAVlN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 17:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbTEAVlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 17:41:45 -0400
-Received: from cambridge1-smrly1.gtei.net ([199.94.215.245]:30447 "HELO
-	cambridge1-smrly1.gtei.net") by vger.kernel.org with SMTP
-	id S262702AbTEAVlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 17:41:42 -0400
-Message-ID: <6AF24836F3EB074BA5C922466F9E92E10791B532@prince.pc.cognex.com>
-From: "Lee, Shuyu" <SLee@cognex.com>
-To: linux-kernel@vger.kernel.org
-Cc: "'root@chaos.analogic.com'" <root@chaos.analogic.com>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: How to notify a user process from within a driver
-Date: Thu, 1 May 2003 17:54:01 -0400 
+	Thu, 1 May 2003 17:41:13 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:49547 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S262700AbTEAVlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 17:41:12 -0400
+Message-ID: <3EB1975D.5060306@blue-labs.org>
+Date: Thu, 01 May 2003 17:53:33 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030429
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OOPS] 2.5.68, unmap_vmas
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard and Alan,
+Unable to handle kernel paging request at virtual address 6b6b6b6f
+ printing eip:
+c0150ada
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0150ada>]    Not tainted
+EFLAGS: 00010202
+EIP is at unmap_vmas+0x10a/0x330
+eax: 40016000   ebx: 00001000   ecx: 00000000   edx: 6b6b6b6b
+esi: 40016000   edi: 40016000   ebp: c367bed8   esp: cb747ec8
+ds: 007b   es: 007b   ss: 0068
+Process bmilter (pid: 12280, threadinfo=cb746000 task=dfc660a0)
+Stack: c0586960 c367bed8 40015000 40016000 cb746000 cb746000 cb746000 
+cb746000
+       40016000 00000001 001f9000 00000000 cb746000 df551b04 40016000 
+c0150e01
+       cb747f24 df551b04 c367bed8 40015000 40016000 cb747f28 df551b38 
+c0586960
+Call Trace:
+ [<c0150e01>] zap_page_range+0x101/0x1b0
+ [<c015440e>] do_mmap_pgoff+0x38e/0x700
+ [<c0110f9a>] sys_mmap2+0x7a/0xb0
+ [<c01098bb>] syscall_call+0x7/0xb
 
-Thank you for the info. Given the prototype for poll() is
-"int poll(struct pollfd *ufds, unsigned int nfds, int timeout);", and pollfd
-is struct pollfd {int fd; short events; short revents};, how do I
-communicate complex info to the driver?
+Code: 39 42 04 72 22 90 85 d2 89 d5 74 0f 8b 52 04 3b 54 24 50 89
+ <6>note: bmilter[12280] exited with preempt_count 1
 
-For example, assuming there are 8 input lines on my hardware, and the user
-wants to be notified in the following three cases:
-1) input on Line 1 only,
-2) input on either Line 2 or Line 3,
-3) input on both Line 4 and Line 5,
-how do I pass that info to the driver? Also, other than POLLERR and POLLHUP,
-can I pass back to the user more descriptive error messages?
+-- 
+Stupid disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.  Don't attach stupid disclaimers to your emails.
 
-Thanks,
-Shuyu
+When it absolutely, positively, has to be destroyed overnight.
+                           AIR FORCE
 
 
- -----Original Message-----
-From: 	Richard B. Johnson [mailto:root@chaos.analogic.com] 
-Sent:	Thursday, May 01, 2003 3:32 PM
-To:	Lee, Shuyu
-Cc:	linux-kernel@vger.kernel.org
-Subject:	Re: How to notify a user process from within a driver
-
-On Thu, 1 May 2003, Lee, Shuyu wrote:
-
-> Hello, All.
->
-> I am working on a device driver. One of the features of the hardware is
-> multi-channel I/O control. In order for a user process to communicate with
-> the hardware, my design is for the user process to call the driver's ioctl
-> to register a semaphore for each I/O channel, then wait on them. When the
-> hardware detects an input, the ISR then BH will wake up the user process.
-> This sounds straightforward in principle. Because there are two types of
-> semaphores in Linux (one for kernel, and one for user), I am not sure how
-> this can be accomplished. Any help would be greatly appreciated.
->
-> My development environment is:
-> 1) OS:  RedHat 7.2 (Linux 2.4.7),
-> 2) gcc: 3.2.1,
-> 3) PC:  one P-III (HP kayak) with 128Mbyte of memory,
-> 4) Bus: PCI.
->
-> Shuyu
->
-
-You normally use poll() or select() for this. It's called poll()
-inside the driver.
-
-The user-mode code sleeps in poll() or select(). When your
-driver ISR wants to wake up the process, it calls
-wake_up_interruptible() from within the ISR.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.

@@ -1,97 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbTH3HdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 03:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbTH3HdE
+	id S261664AbTH3Ho7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 03:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbTH3Ho7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 03:33:04 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:10737
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S262296AbTH3Hc6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 03:32:58 -0400
-Date: Sat, 30 Aug 2003 07:01:11 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Shantanu Goel <sgoel01@yahoo.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Antonio Vargas <wind@cocodriloo.com>,
-       linux-kernel@vger.kernel.org,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: [VM PATCH] Faster reclamation of dirty pages and unused inode/dcache entries in 2.4.22
-Message-ID: <20030830050111.GD640@wind.cocodriloo.com>
-References: <20030829195543.GD24409@dualathlon.random> <20030829202001.38031.qmail@web12807.mail.yahoo.com>
+	Sat, 30 Aug 2003 03:44:59 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:6392 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S261664AbTH3Ho5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 03:44:57 -0400
+Subject: Re: 2.6.0-test4-mm3
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1062168946.19599.114.camel@workshop.saharacpt.lan>
+References: <3F4F22D3.9080104@freemail.hu>
+	 <200308291300.h7TD049n022785@turing-police.cc.vt.edu>
+	 <1062168946.19599.114.camel@workshop.saharacpt.lan>
+Content-Type: text/plain
+Message-Id: <1062228935.30172.17.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030829202001.38031.qmail@web12807.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 30 Aug 2003 09:35:36 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 01:20:01PM -0700, Shantanu Goel wrote:
-> Thanks for the pointer to the benchmarks.
-> 
-> The patch I posted only helps the mmap case so it
-> won't help (or hurt hopefully ;-) any program that
-> primarily does read/write instead of mmap.  The
-> extreme case where I observed this was a perl script
-> that created a gigantic hash and tried to populate it.
-
-I've experienced this workload and it's easily reproducible:
-get the lxr tools and try to build the indexes.
-
->  The perl in question uses mmap for malloc.  The
-> difference in execution time between stock 2.4.22 and
-> one with the patch was insignificant because it is
-> primarily I/O bound, however the other apps I was
-> running, Mozilla and several xterm's, were paged out
-> much less frequently in the latter case.  The machine
-> has 256MB of memory and perl grew to about 1 GB.
-> 
-> I have written another patch that more aggresively
-> tries to free pages with dirty buffers which should
-> help with the buffer I/O case.  It essentially changes
-> try_to_free_buffers() so it immediately starts and
-> waits for I/O to complete if the gfp_mask allows it. 
-> It does not do any clustering so its performance is
-> questionable at the moment.
-> 
-> --- Andrea Arcangeli <andrea@suse.de> wrote:
-> > On Fri, Aug 29, 2003 at 12:46:36PM -0700, Shantanu
-> > Goel wrote:
-> > > Andrea,
+On Fri, 2003-08-29 at 16:55, Martin Schlemmer wrote:
+> On Fri, 2003-08-29 at 15:00, Valdis.Kletnieks@vt.edu wrote:
+> > On Fri, 29 Aug 2003 11:54:27 +0200, Boszormenyi Zoltan <zboszor@freemail.hu>  said:
+> > 
+> > > I tried to "make modules_install" on the compiled tree.
+> > > It says:
 > > > 
-> > > I'll test and submit a patch against -aa.  Also,
-> > is
-> > > there a common benchmark that you use to test for
-> > > regression?
+> > > # make modules_install
+> > > Install a current version of module-init-tools
+> > > See http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> > > make: *** [_modinst_] Error 1
 > > 
-> > bonnie,tiobench,dbench would be a very good start
-> > for the basics (note:
-> > dbench can be misleading, but at the same fariness
-> > levels, it's
-> > interesting too, it's just that dbench doesn't
-> > measure the fariness
-> > level itself [like tiobench started doing relatively
-> > recently]).
+> > Whoops... My fault. ;)
 > > 
-> > (I'm assuming the patch makes difference not only
-> > for mmapped dirty
-> > pages, in such case the above would be non
-> > interesting)
-> > 
-> > thanks,
-> > 
-> > Andrea
+> > It was mostly a proof of concept - if there's a *known*
+> > better test I'm all ears. ;)
 > 
+> Cannot think of one that is known.  An quick solution
+> your (and not RH) side, might be something like below.
+> I am though not 100% sure if this will work (does the RH
+> patches check for modules present before calling bins
+> from module-init-tools, or do they just yield if they
+> detect a newer kernel?), so if somebody on a RH box could
+> test it ...
 > 
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! SiteBuilder - Free, easy-to-use web site design software
-> http://sitebuilder.yahoo.com
+> The basic concept is that modprobe from modutils start
+> an error message with 'modprobe:' and the one from
+> module-init-tools starts with 'FATAL:'.
+> 
+> Another issue you may want to consider, is that modprobe
+> from module-init-tools use the 'create_module' syscall
+> to determine the kernel version, and I think that the RH
+> patches does as well .... what are you going to do if its
+> a 2.4 kernel running, but module-init-tools are installed?
+> In this case even my patch are going to fail.  I guess thus
+> that you will have to try and get Boszormenyi's changes
+> applied RH side ...
+> 
+> ---------------
+> iff -puN Makefile~old-module-tools-warning Makefile
+> --- 25/Makefile~old-module-tools-warning	Thu Aug 28 14:24:35 2003
+> +++ 25-akpm/Makefile	Thu Aug 28 14:24:35 2003
+> @@ -606,6 +606,11 @@ modules_install: _modinst_ _modinst_post
+>  
+>  .PHONY: _modinst_
+>  _modinst_:
+> +	@if [ -z "`modprobe -n foobar 2>&1 | egrep '^FATAL:'`" ]; then \
+> +		echo "Install a current version of module-init-tools"; \
+> +		echo "See http://www.codemonkey.org.uk/post-halloween-2.5.txt";\
+> +		/bin/false; \
+> +	fi
+>  	@rm -rf $(MODLIB)/kernel
+>  	@rm -f $(MODLIB)/build
+>  	@mkdir -p $(MODLIB)/kernel
+> 
+----------------------
+
+Seems like above never made it out.  Anyhow, adding anything
+like this that fails is no good, except maybe if it checks
+current kernel, and if depmod then do not return a version
+consistent with module-init-tools if we are using a 2.5/6 kernel,
+fail.  Reason for this, is that even with the '-V' switch,
+depmod.old will be called and the incorrect version supplied if
+we are currently on a 2.4 kernel ....
+
+
+Regards,
 
 -- 
-winden/network
+Martin Schlemmer
 
-1. Dado un programa, siempre tiene al menos un fallo.
-2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
-3. Por induccion, todos los programas se pueden
-   reducir a una linea que no funciona.
+

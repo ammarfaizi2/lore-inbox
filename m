@@ -1,87 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262608AbTCZXDU>; Wed, 26 Mar 2003 18:03:20 -0500
+	id <S262617AbTCZXEJ>; Wed, 26 Mar 2003 18:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbTCZXDU>; Wed, 26 Mar 2003 18:03:20 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:38031 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262608AbTCZXDT>; Wed, 26 Mar 2003 18:03:19 -0500
-Date: Wed, 26 Mar 2003 18:18:09 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: henrique.gobbi@cyclades.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Interpretation of termios flags on a serial driver
-In-Reply-To: <3E81BE5C.400@cyclades.com>
-Message-ID: <Pine.LNX.4.53.0303261804020.2833@chaos>
-References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
- <20030326092010.3EDA8124023@mx12.arcor-online.net> <3E81BE5C.400@cyclades.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262619AbTCZXEI>; Wed, 26 Mar 2003 18:04:08 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24502 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262617AbTCZXD5>; Wed, 26 Mar 2003 18:03:57 -0500
+Date: Wed, 26 Mar 2003 18:15:09 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: setfs[ug]id syscall return value and include/linux/security.h question
+Message-ID: <20030326181509.Q13397@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003, Henrique Gobbi wrote:
+Hi!
 
-> Hi,
->
-> If this is not the right forum to discuss this matter, excuse me. Please
-> point me to the right place.
->
-> I'm having some problems understanding three flags on the termios
-> struct: PARENB, INPCK, IGNPAR. After reading the termios manual a couple
-> of times I'm still not able to understand the different purposes of
-> these flags.
->
-> What I understood:
->
-> 1 - PARENB: if this flag is set the serial chip must generate parity
-> (odd or even depending on the flag PARODD). If this flag is not set, use
-> parity none.
->
-> 2 - IGNPAR: two cases here:
->     	2.1 - PARENB is set: if IGNPAR is set the driver should ignore 			all
-> parity and framing errors and send the problematic bytes to 		tty flip
-> buffer as normal data. If this flag is not set the 			driver must send the
-> problematic data to the tty as problematic 		data.
->
-> 	2.2 - PARENB is not set: disregard IGNPAR
->
-> What I don't understand:
->
-> 3 - Did I really understand the items 1 and 2 ?
->
-> 4 - INPCK flag: What's the purpose of this flag. What's the diference in
-> relation to IGNPAR;
->
-> 5 - If the TTY knows the data status (PARITY, FRAMING, OVERRUN, NORMAL),
-> why the driver has to deal with the flag IGNPAR. Shouldn't the TTY being
-> doing it ?
->
-> Thanks in advance
-> Henrique
->
+Before include/linux/security.h was added, setfsuid/setfsgid always returned
+old_fsuid, no matter if the fsuid was actually changed or not.
+With the default security ops it seems to do the same, because both
+security_task_setuid and security_task_post_setuid return 0, but these are
+hooks which seem to return 0 on success, -errno on failure, so if some
+non-default security hook is installed and ever returns -errno
+in setfsuid/setfsgid, -errno will be returned from the syscall instead
+of the expected old_fsuid. This makes it hard to distinguish uids
+0xfffff001 .. 0xffffffff from errors of security hooks.
+Shouldn't sys_setfsuid/sys_setfsgid be changed:
 
-Since I've been mucking with serial I/O for many years, I'll
-explain what I've descovered.
+--- linux-2.5.66/kernel/sys.c.jj	Mon Mar 24 23:00:00 2003
++++ linux-2.5.66/kernel/sys.c	Thu Mar 27 00:11:20 2003
+@@ -824,13 +824,11 @@ asmlinkage long sys_getresgid(gid_t *rgi
+ asmlinkage long sys_setfsuid(uid_t uid)
+ {
+ 	int old_fsuid;
+-	int retval;
+-
+-	retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
+-	if (retval)
+-		return retval;
+ 
+ 	old_fsuid = current->fsuid;
++	if (security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS))
++		return old_fsuid;
++
+ 	if (uid == current->uid || uid == current->euid ||
+ 	    uid == current->suid || uid == current->fsuid || 
+ 	    capable(CAP_SETUID))
+@@ -843,9 +841,7 @@ asmlinkage long sys_setfsuid(uid_t uid)
+ 		current->fsuid = uid;
+ 	}
+ 
+-	retval = security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
+-	if (retval)
+-		return retval;
++	security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
+ 
+ 	return old_fsuid;
+ }
+@@ -856,13 +852,11 @@ asmlinkage long sys_setfsuid(uid_t uid)
+ asmlinkage long sys_setfsgid(gid_t gid)
+ {
+ 	int old_fsgid;
+-	int retval;
+-
+-	retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS);
+-	if (retval)
+-		return retval;
+ 
+ 	old_fsgid = current->fsgid;
++	if (security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS))
++		return old_fsgid;
++
+ 	if (gid == current->gid || gid == current->egid ||
+ 	    gid == current->sgid || gid == current->fsgid || 
+ 	    capable(CAP_SETGID))
 
-If PARENB is set you generate parity. It is ODD parity if PARODD
-is set, otherwise it's EVEN. There is no provision to generate
-"stick parity" even though most UARTS will do that. When you
-generate parity, you can also ignore parity on received data if
-you want.  This is the IGNPAR flag.
-
-INPCK used to tell the driver to echo the rubout charcter
-every time you got a parity error. This would cause the
-user to back-space over the rubout character and enter the
-errored character again. I don't know if Linux actually does
-this. This was the "parity-checking" that you are enabling.
-With this enabled, the errored character should go into the
-buffer so the user can back-space over it.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+	Jakub

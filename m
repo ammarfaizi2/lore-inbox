@@ -1,82 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRC2Vwc>; Thu, 29 Mar 2001 16:52:32 -0500
+	id <S129051AbRC2VLc>; Thu, 29 Mar 2001 16:11:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRC2VwW>; Thu, 29 Mar 2001 16:52:22 -0500
-Received: from chromium11.wia.com ([207.66.214.139]:42511 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S129115AbRC2VwR>; Thu, 29 Mar 2001 16:52:17 -0500
-Message-ID: <3AC3AF3E.F083EE36@chromium.com>
-Date: Thu, 29 Mar 2001 13:55:11 -0800
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Lang <dlang@diginsite.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux scheduler limitations?
-In-Reply-To: <Pine.LNX.4.33.0103291326110.26411-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129066AbRC2VLM>; Thu, 29 Mar 2001 16:11:12 -0500
+Received: from [128.121.155.109] ([128.121.155.109]:63250 "HELO
+	fancypants.trellisinc.com") by vger.kernel.org with SMTP
+	id <S129051AbRC2VLF>; Thu, 29 Mar 2001 16:11:05 -0500
+From: dank@trellisinc.com
+To: linux-kernel@vger.kernel.org
+Cc: Eli Carter <eli.carter@inet.com>
+Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
+X-Newsgroups: mlist.linux-kernel
+In-Reply-To: <3ABA15F7.6155F0EE@inet.com>
+User-Agent: tin/1.4.2-20000205 ("Possession") (UNIX) (Linux/2.2.14-6.1.1 (i586))
+Message-Id: <20010329210925.3161C6E099@fancypants.trellisinc.com>
+Date: Thu, 29 Mar 2001 16:09:25 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using 2.4.2-ac26, but I've noticed the same behavior with all the 2.4
-kernels I've seen so far.
+Eli Carter wrote:
+> Hmm... I used __inline__ because the other function in the same
+> headerfile used it...  What is the difference between the two, and is
+> one depricated now?  (And what about in 2.2.x?)
 
-I haven't even tried on 2.2
+the inline keyword was not added into the c language until the ansi/iso
+c99 revision, echoing its use in c++.  prior to that time, gcc supplied
+__inline__ as a vendor extension simulating this behavior which could be
+compiled without violating checks for strict ansi conformance. 
 
- - Fabio
+with the new ansi standard, this use of __inline__ is no longer
+necessary, although for gcc to grok it as legal ansi requires (iirc) the
+macro _ISOC99_SOURCE_ must be defined.
 
-David Lang wrote:
-
-> 2.2 or 2.4 kernel?
->
-> the 2.4 does a MUCH better job of dealing with large numbers of processes.
->
-> David Lang
->
-> On Thu, 29 Mar 2001, Fabio Riccardi wrote:
->
-> > Date: Thu, 29 Mar 2001 13:19:05 -0800
-> > From: Fabio Riccardi <fabio@chromium.com>
-> > To: linux-kernel@vger.kernel.org
-> > Subject: linux scheduler limitations?
-> >
-> > Hello,
-> >
-> > I'm working on an enhanced version of Apache and I'm hitting my head
-> > against something I don't understand.
-> >
-> > I've found a (to me) unexplicable system behaviour when the number of
-> > Apache forked instances goes somewhere beyond 1050, the machine
-> > suddently slows down almost top a halt and becomes totally unresponsive,
-> > until I stop the test (SpecWeb).
-> >
-> > Profiling the kernel shows that the scheduler and the interrupt handler
-> > are taking most of the CPU time.
-> >
-> > I understand that there must be a limit to the number of processes that
-> > the scheduler can efficiently handle, but I would expect some sort of
-> > gradual performance degradation when increasing the number of tasks,
-> > instead I observe that by increasing Apache's MaxClient linit by as
-> > little as 10 can cause a sudden transition between smooth working with
-> > lots (30-40%) of CPU idle to a total lock-up.
-> >
-> > Moreover the max number of processes is not even constant. If I increase
-> > the server load gradually then I manage to have 1500 processes running
-> > with no problem, but if the transition is sharp (the SpecWeb case) than
-> > I end-up having a lock up.
-> >
-> > Anybody seen this before? Any clues?
-> >
-> >  - Fabio
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-
+-- 
+nick black * head developer, trellis network security * www.trellisinc.com
+"the tao gave birth to machine language.  machine language gave birth to the
+ assembler.  the assembler gave rise to the compiler.  now there are ten
+ thousand languages.  each has its place, but avoid cobol if you can." - ttop

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131103AbRAIN5E>; Tue, 9 Jan 2001 08:57:04 -0500
+	id <S129415AbRAIOBo>; Tue, 9 Jan 2001 09:01:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131105AbRAIN4y>; Tue, 9 Jan 2001 08:56:54 -0500
-Received: from smtpgw.bnl.gov ([130.199.3.16]:55813 "EHLO smtpgw.sec.bnl.local")
-	by vger.kernel.org with ESMTP id <S131103AbRAIN4m>;
-	Tue, 9 Jan 2001 08:56:42 -0500
-Date: Tue, 9 Jan 2001 08:55:55 -0500
-From: Tim Sailer <sailer@bnl.gov>
-To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-Cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        jfung@bnl.gov
-Subject: Re: Network Performance?
-Message-ID: <20010109085555.A28548@bnl.gov>
-In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>, <3A56FD6C.93D09ABB@uow.edu.au>; <20010107235123.B6028@bnl.gov> <3A5995CF.7AEFFBBD@uow.edu.au> <20010108090644.A12440@bnl.gov> <20010108190718.Q3472@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010108190718.Q3472@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Mon, Jan 08, 2001 at 07:07:18PM +0100
+	id <S129226AbRAIOBZ>; Tue, 9 Jan 2001 09:01:25 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:46234 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S129741AbRAIOBP>; Tue, 9 Jan 2001 09:01:15 -0500
+Date: Tue, 9 Jan 2001 15:01:11 +0100 (CET)
+From: Nils Philippsen <nils@fht-esslingen.de>
+Reply-To: <nils@fht-esslingen.de>
+To: Felix Maibaum <f.maibaum@tu-bs.de>
+cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 bug in SHM an via-rhine or is it my fault?
+In-Reply-To: <3A5B170E.F48872A@tu-bs.de>
+Message-ID: <Pine.LNX.4.30.0101091457330.8600-100000@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 07:07:18PM +0100, Erik Mouw wrote:
-> I had similar problems two weeks ago. Turned out the connection between
-> two switches: one of them was hard wired to 100Mbit/s full duplex, the
-> other one to 100Mbit/s half duplex. Just to rule out the obvious...
+On Tue, 9 Jan 2001, Felix Maibaum wrote:
 
-We check that as the first thing. Both are set the same. No collisions
-out of the ordinary.
+> My SHM stopped working!
+> everything was fine in test12, and after that all I got was "no space
+> left on device".
+> Has anything changed that one should know about? I mounted shm like it's
+> written in the help, and on a friends celeron SMP machine it works fine,
+> I just don't know what I did wrong.
 
-Tim
+You used a buggy version of powertweak which set kernel.shmall to 0 in
+/etc/sysctl.conf. Remove the offending line in /etc/sysctl.conf and either
+reboot the machine or "echo 2097152 > /proc/sys/kernel/shmall".
 
+Ciao,
+Nils
 -- 
-Tim Sailer <sailer@bnl.gov> Cyber Security Operations
-Brookhaven National Laboratory  (631) 344-3001
+ Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
+   The use of COBOL cripples the mind; its teaching should, therefore, be
+   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

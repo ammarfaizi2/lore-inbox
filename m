@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbUKGV4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUKGVyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbUKGV4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 16:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUKGV4R
+	id S261700AbUKGVyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 16:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbUKGVyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 16:56:17 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:21967 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261696AbUKGVyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 16:54:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 32-bit segfaults on x86_64 in recent mm kernels
-Date: Sun, 7 Nov 2004 22:53:34 +0100
-User-Agent: KMail/1.6.2
-Cc: Andy Lutomirski <luto@myrealbox.com>
-References: <418E8759.9070408@myrealbox.com>
-In-Reply-To: <418E8759.9070408@myrealbox.com>
-MIME-Version: 1.0
+	Sun, 7 Nov 2004 16:54:39 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:35663 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S261700AbUKGVwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 16:52:12 -0500
+Date: Sun, 7 Nov 2004 15:52:04 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Linus Torvalds <torvalds@osdl.org>, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EFI partition code broken..
+Message-ID: <20041107215204.GB3169@lists.us.dell.com>
+References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org> <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411072253.34806.rjw@sisk.pl>
+In-Reply-To: <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 of November 2004 21:36, Andy Lutomirski wrote:
-> I've had segfaults in 32-bit emulation in recent (and not-so-recent) -mm
-> kernels on x86_64.
+On Sun, Nov 07, 2004 at 11:30:18AM -0800, Linus Torvalds wrote:
+> There's a few reports of various USB storage devices locking up. The last 
+> one was an iPod, but there's apparently others too.
 > 
-> 2.6.7-gentoo-r11 and 2.6.10-rc1 both work fine (even wine works for the 
-> most part).
+> The reason? They are unhappy if you access them past the end, and they 
+> seem to have problems reporting their true size.
 > 
-> 2.6.9-rc3-mm3 can't run wine -- it always segfaults.  Other apps seem OK.
-[-- snip --]
+> And the EFI partitioning code will happily just blindly try to access the 
+> last sector, because that's where the EFI partition is. Boom. Immediately 
+> dead iPod/whatever.
 
-This is because of the flex mmap patch for x86-64.  You can try the following 
-workaround from Andi Kleen:
+Another train of thought, and copying gregkh for inspiration.  Is there
+any way to know which devices lie about their size, and fix that with
+quirk code in the device discovery routines?  While I can fix
+fs/partitions/efi.c to not to always do I/O to the end of the
+purported size of the device, userspace and 'dd' can't.  If we could
+quirk down the reported size for devices known to lie, then everything
+which uses that value wouldn't have to have its own rules for such.
 
-diff -u linux-2.6.10rc1-mm3/kernel/sysctl.c-o 
-linux-2.6.10rc1-mm3/kernel/sysctl.c
---- linux-2.6.10rc1-mm3/kernel/sysctl.c-o	2004-11-05 11:42:00.000000000 +0100
-+++ linux-2.6.10rc1-mm3/kernel/sysctl.c	2004-11-06 13:50:22.000000000 +0100
-@@ -147,7 +147,7 @@
- #endif
- 
- #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
--int sysctl_legacy_va_layout;
-+int sysctl_legacy_va_layout = 1;
- #endif
- 
- /* /proc declarations: */
-
-Greets,
-RJW
+Thanks,
+Matt
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

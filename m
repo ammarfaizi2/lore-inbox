@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131127AbQK2Sic>; Wed, 29 Nov 2000 13:38:32 -0500
+        id <S131975AbQK2SnC>; Wed, 29 Nov 2000 13:43:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131685AbQK2SiX>; Wed, 29 Nov 2000 13:38:23 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:20382 "EHLO
-        aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-        id <S131127AbQK2SiP>; Wed, 29 Nov 2000 13:38:15 -0500
-Message-ID: <3A2545F3.C83F5F19@fi.muni.cz>
-Date: Wed, 29 Nov 2000 19:07:47 +0100
-From: Zdenek Kabelac <kabi@informatics.muni.cz>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11-ac4-RTL3.0-pre9 i686)
-X-Accept-Language: Czech, en
-MIME-Version: 1.0
+        id <S131973AbQK2Smm>; Wed, 29 Nov 2000 13:42:42 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:17939 "EHLO virtualhost.dk")
+        by vger.kernel.org with ESMTP id <S131685AbQK2Smc>;
+        Wed, 29 Nov 2000 13:42:32 -0500
+Date: Wed, 29 Nov 2000 19:11:57 +0100
+From: Jens Axboe <axboe@suse.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <Pine.LNX.4.10.10011290940070.11951-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: plug problem in linux-2.4.0-test11
+Message-ID: <20001129191157.A30394@suse.de>
+In-Reply-To: <20001129152308.A28399@suse.de> <Pine.LNX.4.10.10011290949520.11951-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10011290949520.11951-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Nov 29, 2000 at 09:52:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 29 Nov 2000 Andries.Brouwer@cwi.nl wrote:
-> >
-> > > can you give a rough estimate on when you suspect you started seeing it?
-> >
-> > I reported both cases. That is, I started seeing it a few days ago.
+On Wed, Nov 29 2000, Linus Torvalds wrote:
+> I would much rather actually go back to the original setup, which did
+> nothing at all if the queue wasn't plugged in the first place.
+
+But that potentially breaks devices that either don't use plugging
+or alternatively implement their own, because q->plugged will not
+get set and the unplug from __get_request_wait does nothing. It's
+clear that the plug/noplug is too coarse. Anyway, I don't think
+there's currently a problem with the old setup for any in-kernel
+drivers so I'm fine with reverting to that behaviour for now.
+
+> I think that we should strive for a setup that calls "request_fn" only to
+> start new IO, and that expects the low-level driver to be able to do the
+> whole request queue until it is empty. Then we re-start it the next time
+> around.
+
+Yes agreed.
+
+--- drivers/block/ll_rw_blk.c~	Wed Nov 29 15:17:33 2000
++++ drivers/block/ll_rw_blk.c	Wed Nov 29 19:04:50 2000
+@@ -347,9 +347,10 @@
+  */
+ static inline void __generic_unplug_device(request_queue_t *q)
+ {
+-	if (!list_empty(&q->queue_head)) {
++	if (q->plugged) {
+ 		q->plugged = 0;
+-		q->request_fn(q);
++		if (!list_empty(&q->queue_head))
++			q->request_fn(q);
+ 	}
+ }
  
-
-I'm seeing this kind of corruption during the tar zxf.
-$ tar zxf linux-2.4.0-test11.tar.gz 
-
-gzip: stdin: invalid compressed data--format violated
-tar: Unexpected EOF in archive
-tar: Child returned status 1
-tar: Error exit delayed from previous errors
-
-
-
-Currently running kernel is 2.4.0-test11-ac4 and the file is correct.
-After the reboot there is no problem with uncompressing this file.
-It possible that this problem is fixed with test12-pre3, but in
-case its not I'm reporting this now (this already happend to me at least
-three times with this kernel - also there are no messages in the kernel
-log.
-
-
 -- 
-             There are three types of people in the world:
-               those who can count, and those who can't.
-  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

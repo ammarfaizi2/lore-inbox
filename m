@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266063AbTLISuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbTLISuG
+	id S266108AbTLITDV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 14:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbTLITDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:50:06 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:757 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S266063AbTLISuC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:50:02 -0500
-Date: Tue, 9 Dec 2003 19:50:03 +0100
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-       Robert.L.Harris@rdlg.net
-Subject: Re: oom killer in 2.4.23
-Message-Id: <20031209195003.6b85247b.kristian.peters@korseby.net>
-In-Reply-To: <20031209170653.GO12532@dualathlon.random>
-References: <Z6Iv-7O2-29@gated-at.bofh.it>
-	<Z8Ag-3BK-3@gated-at.bofh.it>
-	<Zbyn-23P-29@gated-at.bofh.it>
-	<20031205140520.39289a3a.kristian.peters@korseby.net>
-	<20031205195800.GB2121@dualathlon.random>
-	<20031206103143.027ba4ec.kristian.peters@korseby.net>
-	<20031209142151.GB12532@dualathlon.random>
-	<Pine.LNX.4.53.0312090942470.8772@chaos>
-	<20031209170653.GO12532@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Operating-System: i686 Linux 2.4.23-ck1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Dec 2003 14:03:20 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:54723 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S266108AbTLITDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 14:03:19 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16342.7283.350878.950554@napali.hpl.hp.com>
+Date: Tue, 9 Dec 2003 11:03:15 -0800
+To: Paul Menage <menage@google.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] ACPI global lock macros
+In-Reply-To: <3FD61CA5.6050203@google.com>
+References: <F760B14C9561B941B89469F59BA3A8470255EFB3@orsmsx401.jf.intel.com>
+	<3FD61CA5.6050203@google.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> schrieb:
-> killing getty is a very very lucky scenario indeed. the way I read it
-> was that agetty can hardly be a mem eater, and in turn the same way
-> agetty was killed, it could have been ssh or X to be killed. That's
-> true, but the same issues on the desktop will happen if you have no swap
-> if you enable the old oom killer, the vm will go nuts even if you don't
-> run oom, and there will be all other sort of troubles mentioned a few
-> times already.
+>>>>> On Tue, 09 Dec 2003 11:04:05 -0800, Paul Menage <menage@google.com> said:
 
-I think getty was respawned but the console was screwed somehow. The screen was all black as with broken framebuffer and I couldn't type anything (even not the "blind" way.). Only X was there.
+  Paul> Grover, Andrew wrote:
 
-Thanks for all your answers.
+  >> BTW, i386, x86_64 and ia64 all have this macro, so these all might need
+  >> to be looked at.
 
-*Kristian
+
+  Paul> Yes, it was the differences between the i386 and x86_64
+  Paul> versions that made me notice this problem. The ia64 version is
+  Paul> in C, so looks safer.  Ideally there would be a common C
+  Paul> definition - the only arch-specific part should be the locked
+  Paul> cmpxchg, unless this lock is likely to be taken/released so
+  Paul> often that it's performance critical.
+
+As far as ia64 is concerned, you could replace ia64_cmpxchg4_acq()
+with cmpxchg().  That should just work.  Of course, as you point out,
+that wouldn't work on x86 UP because of the missing "lock" prefix.
+Sounds like you'd need to add something along the lines of
+device_atomic_cmpxchg() or something like that...
+
+	--david

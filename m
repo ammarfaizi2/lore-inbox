@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSFFXp5>; Thu, 6 Jun 2002 19:45:57 -0400
+	id <S313202AbSFFXsX>; Thu, 6 Jun 2002 19:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313125AbSFFXp4>; Thu, 6 Jun 2002 19:45:56 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:34189 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313113AbSFFXp4>;
-	Thu, 6 Jun 2002 19:45:56 -0400
-Date: Thu, 06 Jun 2002 16:45:13 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>,
-        Keith Owens <kaos@ocs.com.au>
-Subject: Re: Panic from 2.4.19-pre9-aa2
-Message-ID: <103110000.1023407113@flay>
-In-Reply-To: <20020606231521.GB1004@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S313537AbSFFXsW>; Thu, 6 Jun 2002 19:48:22 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17172 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313202AbSFFXsV>; Thu, 6 Jun 2002 19:48:21 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200206062347.g56NlwZ17861@devserv.devel.redhat.com>
+Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 6 Jun 2002 19:47:58 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lei_hu@ali.com.tw, alan@redhat.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CFFA55F.8000008@mandrakesoft.com> from "Jeff Garzik" at Jun 06, 2002 02:09:35 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At first glance this seems a miscompilation, a compiler bug, not bug in
-> 2.4.19pre9aa2 (this clearly explains why you're the only one reproducing
-> this weird oops). it even sounds like ksymoops is buggy, ksymoops had to
-> say c0147dad (+7d), not c0147dac and +7c (maybe you compiled ksymoops
-> with the same compiler of the kernel? If not Keith should have a look
-> here).
->
-> What compiler are you using? Maybe 2.96?
+> Why?  Hardware semaphores are notorious for causing hangs.  Nobody is 
+> sharing the hardware under Linux, so I think we should enable access on 
+> init, and not disable access until driver close.  IMO the mixer should 
+> be guarded by a Linux kernel semaphore...  I have a patch from Thomas 
+> Sailer (I think) lying around somewhere that does just that to the via 
+> audio driver.  Maybe we can adapt it.
+> (I cc'd this little detail, in my ali/trident.c patch review, to you)
 
-Errm ....  Redhat 6.2 default ... egcs-2.91.66 .... time to upgrade ?? ;-) ;-)
-Pah ... reinstalling these machines is a pain in the ass .... ;-)
-
-M.
-
+So add a timeout to it ?

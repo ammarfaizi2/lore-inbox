@@ -1,103 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBUQmf>; Wed, 21 Feb 2001 11:42:35 -0500
+	id <S129619AbRBUQpF>; Wed, 21 Feb 2001 11:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129619AbRBUQmZ>; Wed, 21 Feb 2001 11:42:25 -0500
-Received: from ptolemy.arc.nasa.gov ([128.102.112.134]:38785 "EHLO
-	ptolemy.arc.nasa.gov") by vger.kernel.org with ESMTP
-	id <S129051AbRBUQmK>; Wed, 21 Feb 2001 11:42:10 -0500
-Date: Wed, 21 Feb 2001 08:42:12 -0800
-From: Dan Christian <dac@ptolemy.arc.nasa.gov>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hang on mount, 2.4.2-pre4, VIA
-Message-ID: <20010221084211.A18740@ptolemy.arc.nasa.gov>
-In-Reply-To: <20010220101622.A18117@ptolemy.arc.nasa.gov> <20010220192848.B6846@suse.cz>
-Mime-Version: 1.0
+	id <S129688AbRBUQoz>; Wed, 21 Feb 2001 11:44:55 -0500
+Received: from www.pcxperience.com ([199.217.242.242]:59124 "EHLO
+	gannon.zelda.pcxperience.com") by vger.kernel.org with ESMTP
+	id <S129619AbRBUQol>; Wed, 21 Feb 2001 11:44:41 -0500
+Message-ID: <3A93F020.8519513D@pcxperience.com>
+Date: Wed, 21 Feb 2001 10:43:12 -0600
+From: "James A. Pattie" <james@pcxperience.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: klink@clouddancer.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs, 3 Raid1 arrays, 2.4.1 machine locks up
+In-Reply-To: <3A91A6E7.1CB805C1@pcxperience.com> <003701c09b75$59f56ff0$25040a0a@zeusinc.com> <20010220212149.5960E682A@mail.clouddancer.com> <0102210053570Y.00763@dox> <20010221034936.49B42682A@mail.clouddancer.com> <3A93D46E.73CAA2B8@pcxperience.com> <20010221161948.1FFD1682A@mail.clouddancer.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010220192848.B6846@suse.cz>; from vojtech@suse.cz on Tue, Feb 20, 2001 at 07:28:48PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some more info.  I tried disabling the hdparm command, that didn't
-make the 2.4.2-pre4 mount succesfully.
+Colonel wrote:
 
-I tried 2.4.2-pre1 and that booted fine.
+>    Sender: james@pcxperience.com
+>    Date: Wed, 21 Feb 2001 08:45:02 -0600
+>    From: "James A. Pattie" <james@pcxperience.com>
+>
+>    Colonel wrote:
+>
+>    >    >    There seem to be several reports of reiserfs falling over when memory is
+>    >    >    low.  It seems to be undetermined if this problem is actually reiserfs
+>    >    > or MM related, but there are other threads on this list regarding similar
+>    >    > issues. This would explain why the same disk would work on a different
+>    >    > machine with more memory.  Any chance you could add memory to the box
+>    >    > temporarily just to see if it helps, this may help prove if this is the
+>    >    > problem or not.
+>    >    >
+>    >    >
+>
+>    When the machine stopped responding, the first time, I let it go over the weekend
+>    (2 days+) and it still didn't recover.  I never saw a thrashing effect.  The
+>    initial memory values were 2MB free memory, < 1MB cache.  I never really looked at
+>    the cache values as I wasn't sure how they affected the system.  when the system
+>    was untarring my tarball, the memory usage would get down < 500kb and swap would be
+>    around a couple of megs usually.
+>
+> Well, it still looks like you have a good test case to resolve the
+> problem.  Can you add memory per the above request?
+>
+> I should drop out of this, it seems I had a one time event.  Something
+> to keep in mind is /boot should either be ext2 or mounted differently
+> under reiser (check their website for details).  You should probably
+> try the Magic SysREQ stuff to see what's up at the time of freeze.
+> You should probably run memtest86 to head off questions about your
+> memory stability.
 
-I'll try pre2 and pre3 versions when I get a chance (thursday night)
-and see about turning up the log level, too.
+I added memory yesterday and got it to work after having 64MB in the system.  the free
+memory (cache/buffer) was over 30MB.  I didn't have any problems then.
 
-Here is the info on PCI and the drives.  I edited out the sound, scsi,
-usb, etc.
-
--Dan
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
-	Flags: bus master, medium devsel, latency 0
-	Memory at d0000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: [a0] AGP version 2.0
-	Capabilities: [c0] Power Management version 2
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP] (prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	I/O behind bridge: 00009000-00009fff
-	Memory behind bridge: d4000000-d7ffffff
-	Prefetchable memory behind bridge: d8000000-d9ffffff
-	Capabilities: [80] Power Management version 2
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 21)
-	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
-	Flags: bus master, stepping, medium devsel, latency 0
-
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (prog-if 8a [Master SecP PriP])
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at a000 [size=16]
-	Capabilities: [c0] Power Management version 2
-
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-	Flags: medium devsel
-	Capabilities: [68] Power Management version 2
-
-/dev/hda:
-
- Model=Maxtor 51024U2, FwRev=DA620CQ0, SerialNo=K205799C
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=19999728
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
-
-/dev/hdb:
-
- Model=Maxtor 51536U3, FwRev=DA620CQ0, SerialNo=K3H4HFDC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=29888820
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
-
--- 
+After I got everything installed, I bumped the memory back to 48MB and it is running
+fine.  I don't have the 17+MB ramdisk taking up the memory anymore, so the system has >
+15MB of cache/buffer available at all times, even running ssh, sendmail, squid,
+firewalling, etc.
 
 
+>
+>
+> Just to check on the raid setup, the drives are on separate
+> controllers and there is not a slow device on the same bus?  I've been
+> running the "2.4" raid for a couple years and that was the usual
+> problem.  Reiserfs is probably more aggressive working the drive and
+> it may tend to unhide other system problems.
+>
 
-On Tue, Feb 20, 2001 at 07:28:48PM +0100, Vojtech Pavlik wrote:
-> On Tue, Feb 20, 2001 at 10:16:22AM -0800, Dan Christian wrote:
-> 
-> > Hello,
-> >   I just tried upgrading to 2.4.2-pre4 from 2.4.1 and get a hang when
-> > mounting the file systems.  I have the same problem with 2.4.1-ac18.
-> > 
-> > The system is a single processor P3 and uses a VIA chipset (Tyan
-> > something-or-other).  DMA, multi-sector IO, and 32bit sync are enabled
-> > using hdparm (just before the hang).
+They are on seperate controllers.  The second controller has the CD-ROM drive (32x) which
+should be faster than the hard drive (since the drives are older).
 
--- 
-Dan Christian		(650) 604-4507		FAX 604-4036
-NASA Ames Research Center, Mail Stop 269-3, Moffett Field, CA 94035
+>
+> --
+> "... being a Linux user is sort of like living in a house inhabited by
+> a large family of carpenters and architects. Every morning when you
+> wake up, the house is a little different. Maybe there is a new turret,
+> or some walls have moved. Or perhaps someone has temporarily removed
+> the floor under your bed." - Unix for Dummies, 2nd Edition
+
+--
+James A. Pattie
+james@pcxperience.com
+
+Linux  --  SysAdmin / Programmer
+PC & Web Xperience, Inc.
+http://www.pcxperience.com/
+
+
+

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266351AbUGPOOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266423AbUGPO3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266351AbUGPOOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 10:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUGPOOW
+	id S266423AbUGPO3p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 10:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266451AbUGPO3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 10:14:22 -0400
-Received: from zone3.gcu-squad.org ([217.19.50.74]:2316 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S266351AbUGPOOU convert rfc822-to-8bit
+	Fri, 16 Jul 2004 10:29:45 -0400
+Received: from zone3.gcu-squad.org ([217.19.50.74]:50444 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S266423AbUGPO3n convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 10:14:20 -0400
-Date: Fri, 16 Jul 2004 16:11:32 +0200 (CEST)
-To: bri@tull.umassp.edu
-Subject: Re: PATCH: fixup EDID for slightly broken monitors
+	Fri, 16 Jul 2004 10:29:43 -0400
+Date: Fri, 16 Jul 2004 16:27:12 +0200 (CEST)
+To: gene.heskett@verizon.net
+Subject: Re: momentary sensors failure in gkrellm2
 X-IlohaMail-Blah: khali@gcu.info
 X-IlohaMail-Method: mail() [mem]
 X-IlohaMail-Dummy: moo
 X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <UMgqqv3P.1089987092.6514170.khali@gcu.info>
+Message-ID: <RmzLkwpu.1089988031.9917620.khali@gcu.info>
 From: "Jean Delvare" <khali@linux-fr.org>
 Bounce-To: "Jean Delvare" <khali@linux-fr.org>
 CC: linux-kernel@vger.kernel.org
@@ -27,48 +27,44 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Brian,
+Hi Gene,
 
-What about fixing your screen instead of hacking fbcon's code?
+> I noticed tonight, while booted to 2.6.8-rc1, that my gkrellm display 
+> was a little short, all the temps and voltages were on the missing 
+> list.  So, based on the more eyeballs theory, I rebooted a few times 
+> testing recent kernels.
+> 
+> Backing up to 2.6.7-mm6, it all worked, so I grabbed Andrews rc1-mm1 
+> patch and installed that.
+> 
+> I'm happy to note that the sensors stuff is back among the living and 
+> being displayed properly with 2.6.8-rc1-mm1.
+> 
+> I've no idea which of the patches involving the i2c stuff wasn't right 
+> for my chipset (via686 & winbond 697hf IIRC), but something broke it 
+> just for 2.6.8-rc1.
 
-If your EDID is held by an unprotected EEPROM, you should be able to
-write to it using the i2cset tool [1] found in the lm_sensors package
-[2]. Never tried that myself but I would definitely try that before
-attempting to hack every piece of software which tries to read the EDID
-data (framebuffer console, X, lm_sensors etc...).
+That's odd since there isn't much difference, if any, between the i2c
+subsystems of all three kernel versions.
 
-How to proceed:
+You could try 2.6.8-rc1-bk4 (or any later bk) which has had a significant
+i2c subsystem update.
 
-1* Make sure you enabled the I2C option of the radeonfb driver. I assume
-you already did or I guess you wouldn't be able to access the EDID, at
-all.
+If you are able to reproduce the problem (presumably with your 2.6.8-rc1
+kernel), hints about where the problem lies would help. Can you see the
+sysfs files for your monitoring chip under /sys/bus/i2c/devices? Are
+there any relevant error messages in the logs? I cannot help much from
+just "it didn't work", as you must realize.
 
-2* Find out where you EDID is. The radeonfb driver exposes 4 i2c busses,
-out of which you really use only one (unless your screen has 2 inputs,
-like mine has). Tool of choice here is i2cdetect [3]. Run with -l to
-list the busses, then with a bus number to show the chips on that bus.
-EDID will always show at 0x50.
+Both the via686 and the Winbond 697hf are ISA chips, not really I2C
+(although they share the same subsystem) so it is possible that the
+problem was caused by a conflict with, say, ACPI or PNP, which could
+have reserved resources (namely I/O addresses) needed by the hardware
+monitoring chip(s).
 
-3* Dump your EDID using "i2cdump <bus number> 0x50" [4]. I suggest that
-you keep this preciously in case things turn bad.
+As a side note, I'd be quite surprised that you have both chips on the
+same motherboard.
 
-4* Fix the broken bytes using i2cset <bus number> 0x50 <offset> <value>.
-If I read you correctly, you need to do that twice, once with offset=0
-and value=0, and once with offset=1 and value=0xff.
-
-Of course I'm not liable if it breaks anything, never had to do that
-myself, but my knowledge of the topic make me believe that it could work
-(providing the supporting EEPROM is not write-protected, of course).
-
-Shall it work, it looks like a nicer solution than your patch, with all
-due respect.
-
-Good luck.
-
-[1] http://secure.netroedge.com/~lm78/man/i2cset.html
-[2] http://secure.netroedge.com/~lm78/download.html
-[3] http://secure.netroedge.com/~lm78/man/i2cdetect.html
-[4] http://secure.netroedge.com/~lm78/man/i2cdump.html
-
+Hope that helps,
 --
 Jean "Khali" Delvare

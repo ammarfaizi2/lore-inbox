@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSEVSf4>; Wed, 22 May 2002 14:35:56 -0400
+	id <S316677AbSEVSlx>; Wed, 22 May 2002 14:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSEVSfu>; Wed, 22 May 2002 14:35:50 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:41989 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S316668AbSEVSfJ>; Wed, 22 May 2002 14:35:09 -0400
-Message-ID: <3CEBE38A.8020808@rackable.com>
-Date: Wed, 22 May 2002 11:29:30 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S316675AbSEVSls>; Wed, 22 May 2002 14:41:48 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37311 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316674AbSEVSlp>;
+	Wed, 22 May 2002 14:41:45 -0400
+Date: Wed, 22 May 2002 11:38:23 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        William Lee Irwin III <wli@holomorphy.com>
+cc: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de, riel@surriel.com, torvalds@transmeta.com,
+        akpm@zip.com.au
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+Message-ID: <367710000.1022092703@flay>
+In-Reply-To: <E17AaR0-0002QM-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Eric Weigle <ehw@lanl.gov>
-CC: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Subject: Re: Safety of -j N when building kernels?
-In-Reply-To: <20020522165320.GC18059@lanl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   The only major issue I've seen is the build may fail if you run out 
-of file handles, or other resources.  The build will fail with an 
-"unable to fork" error.  When I was at VA Linux I often compiled kernel 
-for use with a make -j 16, or -j 8.  I seem to remember having to play 
-with ulimit, and /proc/?/file-max to get enough file handles.
+> Fixing the application to use clone() not 4000 individual sets of page
+> tables might not be a bad plan either.
 
+Oracle !*#$(*^  #(*%^(#*^6  &@^@*  #^#*^  %#%.
 
-PS- You should also consider logging the output of your compile to a 
-file.  As your other jobs will continue for sometime before the make 
-fails.  Often preventing you from easily finding the actual compile error.
+> Do each of your tasks map the stuff at the same address. If you are 
+> assuming this how do you plan to handle the person who doesn't. You won't
+> be able to share page tables then ?
 
-Eric Weigle wrote:
-> Ok, stupid question of the moment-
-> 
-> I always read about the kernel compilation benchmarks people run on the
-> ultra-snazzy new machines, but do people actually run the kernels thus
-> generated?
-> 
-> I have visions of a process being backgrounded to generate some files, and
-> not completing before the one of the old files gets linked into the kernel
-> (because not all files were listed as dependencies, for example).
-> 
-> So are the kernel's current Makefiles really SMP safe -- can one really
-> run multiple jobs when building Linux kernels? Any horror stories, or am
-> I just paranoid?
-> 
-> 
-> Thanks
-> -Eric
-> 
+I think so. They're also hardlocked in memory which makes life easier.
+ 
+> Can you even make that work -before- the customers have all upgraded
+> anyway ?
 
+Given that we're selling a new line of machines based on this now, I'd guess
+it'll be 5 years before they're all upgraded. On the other hand, I think they'll
+lynch us if Linux doesn't work properly on these type of machines within the
+next year ;-) But, yes, I still think it's worth it. Hammer is a great promise, but
+it's just not here right now, and I don't think we'll have production level 8-way
+and 16-way machines for at least a year ... 
 
+M.

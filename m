@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSLFNK4>; Fri, 6 Dec 2002 08:10:56 -0500
+	id <S262528AbSLFNW7>; Fri, 6 Dec 2002 08:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbSLFNK4>; Fri, 6 Dec 2002 08:10:56 -0500
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:32772 "HELO
-	legolas.dynup.net") by vger.kernel.org with SMTP id <S262506AbSLFNKy>;
-	Fri, 6 Dec 2002 08:10:54 -0500
-Message-Id: <5.2.0.9.0.20021206141312.00a20b70@mail.science.uva.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 06 Dec 2002 14:15:55 +0100
-To: linux-kernel@vger.kernel.org
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Subject: [PATCH] kill warning
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262580AbSLFNW7>; Fri, 6 Dec 2002 08:22:59 -0500
+Received: from mail.bfad.de ([212.62.208.67]:39942 "EHLO
+	mailserver.intern.bfad.de") by vger.kernel.org with ESMTP
+	id <S262528AbSLFNW7>; Fri, 6 Dec 2002 08:22:59 -0500
+Date: Fri, 6 Dec 2002 14:31:10 +0100 (CET)
+From: tomasz motylewski <T.Motylewski@bfad.de>
+To: Hiroshi Miura <miura@da-cha.org>,
+       Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+cc: Zwane Mwaikambo <zwane@commfireservices.com>, linux-kernel@vger.kernel.org
+Subject: [REPORT] Geode crashed 2.4.17, runs under 2.4.19
+Message-ID: <Pine.LNX.4.21.0212061256350.11111-100000@mailserver.intern.bfad.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have bothered you few months ago that the following Geode modules:
 
-Following patch is needed to kill this warning:
-   CC      drivers/char/sysrq.o
-In file included from drivers/char/sysrq.c:30:
-include/linux/suspend.h:76: warning: static declaration for 
-`software_suspend' follows non-static
+Centarus platform, GX1 300 MHz, 5530A REv B1, BIOS: XpressROM V3.0.1 build 03/08/2001 by NatSemi
 
-	Rudmer
+were crashing about once a week running 2.4.17 with low latency, HZ=2000,
+ext3fs.
 
-# diff -u linux-2.5.50-bk5/drivers/char/sysrq.c.orig 
-linux-2.5.50-bk5/drivers/char/sysrq.c
---- linux-2.5.50-bk5/drivers/char/sysrq.c.orig  2002-12-06 
-14:11:50.000000000 +0100
-+++ linux-2.5.50-bk5/drivers/char/sysrq.c       2002-12-06 
-14:09:00.000000000 +0100
-@@ -21,13 +21,13 @@
-  #include <linux/mount.h>
-  #include <linux/kdev_t.h>
-  #include <linux/major.h>
-+#include <linux/suspend.h>
-  #include <linux/reboot.h>
-  #include <linux/sysrq.h>
-  #include <linux/kbd_kern.h>
-  #include <linux/quotaops.h>
-  #include <linux/smp_lock.h>
-  #include <linux/module.h>
--#include <linux/suspend.h>
-  #include <linux/writeback.h>
-  #include <linux/buffer_head.h>         /* for fsync_bdev() */
+Since then I have upgraded to 2.4.19-rc3 with similar configuration and the
+boards are running OK since a few months.
+
+Best regards,
+--
+Tomasz Motylewski
+BFAD GmbH & Co. KG
 

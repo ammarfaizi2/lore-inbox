@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTFCTDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 15:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTFCTDF
+	id S262369AbTFCTCs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 15:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTFCTCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 15:03:05 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:16605 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S262444AbTFCTDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 15:03:03 -0400
-Date: Tue, 3 Jun 2003 20:11:54 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange dependancy generation bug?
-Message-ID: <20030603191154.GA30323@brautaset.org>
-References: <fa.er84418.1ikmjqq@ifi.uio.no> <fa.hfbafvn.n7qkih@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fa.hfbafvn.n7qkih@ifi.uio.no>
-User-Agent: Mutt/1.5.4i
+	Tue, 3 Jun 2003 15:02:47 -0400
+Received: from ip-64-7-1-79.dsl.lax.megapath.net ([64.7.1.79]:47839 "EHLO
+	ip-64-7-1-79.dsl.lax.megapath.net") by vger.kernel.org with ESMTP
+	id S262369AbTFCTCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 15:02:47 -0400
+Date: Tue, 3 Jun 2003 12:15:56 -0700 (PDT)
+From: <lk@trolloc.com>
+X-X-Sender: <bpape@ip-64-7-1-79.dsl.lax.megapath.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc7
+In-Reply-To: <Pine.LNX.4.55L.0306031506500.2105@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0306031214140.22989-100000@ip-64-7-1-79.dsl.lax.megapath.net>
+X-keyboard: Happy Hacking Keyboard Lite
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 03 2003, Sam wrote:
-... 
-> But the real question is why you start seeing the invocation
-> of fixdep. I do not see it on my machine.
-> I asssume that you see fixdep invocation even with "make V=0".
-> This is a bug!
+> > > Now I really hope its the last one, all this rc's are making me mad.
+> >
+> > Are you quite sure you don't want Alan to get you the updates necessary
+> > for IDE to build as modules for .21 final?
 > 
-> Counting this one I have now three independent reports where
-> kbuild displayed the invocation of fixdep.
+> Well, I can for sure release -rc8 with that.
 > 
-> I have tried to narrow down the root cause.
-> Both users were running debian unstable.
-> Different shells.
-> GNU make 3.80
-> 
-> I tried to install GNU make 3.80 - but I still do not see the problem.
-> What happens is that within Makefile.build there is used multi line
-> definition, where each new-line causes make to launch a new sub-shell.
-> The command for the second sub-shell is echoed, even though make is told
-> not to do so. 
+> I just want this possible -rc8 to be released no later than tonight.
 
-I beg to differ. Since make launches a new subshell, the commands in the
-second subshell is _not_ told to shut up, and thus is echoed. No?
+Unfortunately I just committed my test box to production and can't test 
+Alan's SiImage fixes in rc6-ac2, but if they pan out, please try to 
+include them in -rc8 as well.
 
 
-Stig
--- 
-brautaset.org

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUCYW3G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263677AbUCYW3G
+	id S263687AbUCYWce (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbUCYWbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:29:06 -0500
-Received: from gprs214-160.eurotel.cz ([160.218.214.160]:17537 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263679AbUCYW2B (ORCPT
+	Thu, 25 Mar 2004 17:31:48 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:394 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263677AbUCYW32 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:28:01 -0500
-Date: Thu, 25 Mar 2004 23:27:45 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
-Message-ID: <20040325222745.GE2179@elf.ucw.cz>
-References: <20040323233228.GK364@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz> <200403250857.08920.matthias.wieser@hiasl.net> <1080247142.6679.3.camel@calvin.wpcb.org.au>
-Mime-Version: 1.0
+	Thu, 25 Mar 2004 17:29:28 -0500
+Date: Thu, 25 Mar 2004 14:28:48 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andi Kleen <ak@suse.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <23100000.1080253728@flay>
+In-Reply-To: <20040325214815.GA19060@elte.hu>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <10030000.1080242684@flay> <20040325214815.GA19060@elte.hu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1080247142.6679.3.camel@calvin.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>> Exec time balancing is a *lot* more efficient, it just doesn't work
+>> for things that don't exec ... cloned threads would certainly be one
+>> case.
+> 
+> yeah - exec-balancing is a clear thing. fork/clone time balancing is
+> alot less clear.
 
-> By the way, here's an example where having the /proc interface is a good
-> thing: which do you use? zip compression, lzf compression or no
-> compression? Until recently I always used lzf compression. I just
+OK, well it *looks* to me from a quick look at your patch like
+sched_balance_context will rebalance at both fork *and* exec time.
+That seems like a bad plan, but maybe I'm misreading it.
 
-We should select one, and drop the others.
+Can we hold off on changing the fork/exec time balancing until we've
+come to a plan as to what should actually be done with it? Unless we're
+giving it some hint from userspace, it's frigging hard to be sure if
+it's going to exec or not - and the vast majority of things do. 
 
-gzip is useless for almost everyone -> gets little testing -> is
-probably broken.
+There was a really good reason why the code is currently set up that
+way, it's not some random accident ;-)
 
-> upgraded my laptop's hard drive, and found I wasn't getting the
-> performance improvements in suspending I expected. It turns out that the
-> CPU is now the limiting factor. Because I had the /proc interface, I
-> could easily adjust the debug settings to show me throughput and then
-> try a couple of suspend cycles with compression enabled and with it
-> disabled. Without the /proc interface, I would have had to have
-> recompiled the kernel to switch settings. (I didn't try gzip because I
-> knew it wasn't going to be a contender for me).
+Clone is a much more interesting case, though at the time, I consciously
+decided NOT to do that, as we really mostly want threads on the same
+node. The exception is the case where we have one app with lots of threads,
+and nothing much else running on the system ... I tend to think of that
+as an artificial benchmark situation, but maybe that's not fair. We 
+probably need to just do a more conservative version of the cross-node
+rebalance at fork time.
 
-Kernel could automagically select the right one.. But I'd prefer for
-only "non compressed" part to reach mainline for 2.6. Feature freeze
-was few months ago, and "adding possibility to compress swsusp data"
-does not sound like a bugfix to me...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+M.
+

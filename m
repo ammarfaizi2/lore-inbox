@@ -1,70 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSFCP2U>; Mon, 3 Jun 2002 11:28:20 -0400
+	id <S317400AbSFCPaj>; Mon, 3 Jun 2002 11:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317400AbSFCP2T>; Mon, 3 Jun 2002 11:28:19 -0400
-Received: from ipd50a1c87.speed.planet.nl ([213.10.28.135]:60217 "HELO
-	mrson1119.com") by vger.kernel.org with SMTP id <S317399AbSFCP2S> convert rfc822-to-8bit;
-	Mon, 3 Jun 2002 11:28:18 -0400
-From: "JOSEPH  EDWARD." <jos_edw@mail.com>
-Reply-To: jos_edw42@mail.com
-To: linux-kernel@vger.kernel.org
-Date: Mon, 3 Jun 2002 17:26:47 +0200
-Subject: please kindly get back to me
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020603152818Z317399-22651+73303@vger.kernel.org>
+	id <S317401AbSFCPai>; Mon, 3 Jun 2002 11:30:38 -0400
+Received: from 12-252-146-102.client.attbi.com ([12.252.146.102]:50442 "EHLO
+	archimedes") by vger.kernel.org with ESMTP id <S317400AbSFCPah>;
+	Mon, 3 Jun 2002 11:30:37 -0400
+Date: Mon, 3 Jun 2002 09:30:40 -0600
+To: Hanno =?unknown-8bit?Q?B=F6ck?= <hanno@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: radeon framebuffer problem
+Message-ID: <20020603153040.GA31907@galileo>
+Mail-Followup-To: James Mayer <james@cobaltmountain.com>,
+	Hanno =?unknown-8bit?Q?B=F6ck?= <hanno@gmx.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020602211014.3ccbe57e.hanno@gmx.de> <20020602201758.GA19815@galileo> <20020602231858.5982571f.hanno@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: James Mayer <james@cobaltmountain.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATTN:   
-I STUMBLED IN TO YOUR CONTACT BY STROCK OF LUCK AFRTER 
-A LONG SEARCH FOR AN HONEST AND TRUST WORTHY PERSON WHO
-COULD HANDLE ISSUE WITH HIGH CONFIDENTIALITY.
-I WAS SO DELIGHTED WHEN I GOT YOUR CONTACT AND I DECIDED 
-TO CONTACT YOU AND SOLICITE FOR YOUR KIND ASSISTANCE.
-I HOPE YOU WILL LET THIS ISSUE TO REMAIN CONFIDENTIAL EVEN
-IF YOU ARE NOT INTERESTED BECAUSE OF MY STATUS.
-I PRESUME THIS MAIL WILL NOT BE A SURPRISE TO YOU.
-I AM AN ACCOUNTANT WITH THE MINISTRY OF MINERAL
-RESOURCES AND ENERGY IN SOUTH AFRICA AND ALSO A MEMBER
-OF CONTRACTS AWARDING COMMITTEE OF THIS MINISTRY UNDER
-SOUTH AFRICA GOVERNMENT.
+> Any plans when it will be included into the main kernel? (I
+> currently have to apply three patches for a working kernel ;-)
 
-MANY YEARS AGO, SOUTH AFRICA GOVERNMENT ASKED THIS
-COMMITTEE TO AWARDS CONTRACTS TO FOREIGN FIRMS, WHICH
-I AND 2 OF MY PARTNERS ARE THE LEADER OF THIS
-COMMITTEE, WITH OUR GOOD POSITION , THIS CONTRACRS
-WAS OVER INVOICED TO THE TUNE OF US$25,600,000:00 AS A
-
-DEAL TO BE BENEFIT BY THE THREE TOP MEMBER OF THIS
-COMMITTEE.
-NOW THE CONTRACTS VALUE HAS BEEN PAID OFF TO THE
-ACTUAL CONTRACTORS THAT EXECUTED THIS JOBS, ALL WE
-WANT NOW IS A TRUSTED FOREIGN PARTNER LIKE YOU THAT WE
-
-SHALL FRONT WITH HIS BANKING ACCOUNT NUMBER TO CLAIM
-THE OVER INFLATED SUM.
-UPON OUR AGREEMEENT TO CARRY ON THIS TRANSACTION WITH
-YOU, THE SAID FUND WILL BE SHARE AS FOLLOWS.
-75% WILL BE FOR US IN SOUTH AFRICA.
-20% FOR USING YOUR ACCOUNT AND OTHER CONTRIBUTION
-THAT MIGHT REQIURED FROM YOU.
-5% IS SET ASIDE FOR THE UP FRONT EXPENCES THAT
-WILL BE ENCOUNTER BY BOTH PARTY TO GET ALL NECESSARY
-DOCUMENTS AND FORMARLITIES THAT WILL JUSTIFY YOU AS
-THE RIGHTFUL OWNER OF THIS FUND.
-IF YOU ARE INTERESTED IN THIS TRANSACTION, KINDLY
-REPLY THIS MASSEGE WITH ALL YOUR PHONE AND FAX
-NUMBERS, TO ENABLE US FURNISH YOU WITH DETAILS AND
-PROCEDURES OF THIS TRANSACTION.
-GOD BLESS YOU
-YOURS FAITHFULLY.
-
-JOSEPH EDWARD.
-
-
-
-
+I have no idea -- Ani Joshi (the radeonfb maintainer) knows about the
+problem, and probably has a better fix than mine.

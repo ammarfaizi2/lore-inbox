@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUD2Wxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUD2Wyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265025AbUD2Wxn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2Wxm
+	id S265024AbUD2Wyy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2WyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:53:42 -0400
-Received: from gprs214-92.eurotel.cz ([160.218.214.92]:47746 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265025AbUD2Ww4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:52:56 -0400
-Date: Fri, 30 Apr 2004 00:52:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Aviram Jenik <aviram@beyondsecurity.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: i830 success!
-Message-ID: <20040429225247.GB8232@elf.ucw.cz>
-References: <20040428103721.GA1057@elf.ucw.cz> <200404300145.04873.aviram@beyondsecurity.com>
-Mime-Version: 1.0
+	Thu, 29 Apr 2004 18:54:11 -0400
+Received: from CPE-61-9-212-151.qld.bigpond.net.au ([61.9.212.151]:60324 "EHLO
+	youngs.au.com") by vger.kernel.org with ESMTP id S265023AbUD2WwE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:52:04 -0400
+Mail-Copies-To: never
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
+       "David B. Stevens" <dsteven3@maine.rr.com>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+References: <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+	<40916681.1040502@maine.rr.com>
+From: Steve Youngs <steve@youngs.au.com>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Organization: Linux Users - Fanatics Dept.
+X-X-Day: Only 2431486 days till X-Day.  Got Slack?
+X-URL: <http://users.bigpond.net.au/sryoungs/>
+X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Discordian-Date: Setting Orange, the 47th day of Discord, 3170. 
+X-Attribution: SY
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>, Horst von
+ Brand <vonbrand@inf.utfsm.cl>, Nick Piggin <nickpiggin@yahoo.com.au>, Jeff
+ Garzik <jgarzik@pobox.com>,  Andrew Morton <akpm@osdl.org>,
+ brettspamacct@fastclick.com, "David B. Stevens" <dsteven3@maine.rr.com>
+Date: Fri, 30 Apr 2004 08:42:54 +1000
+In-Reply-To: <40916681.1040502@maine.rr.com> (David B. Stevens's message of
+ "Thu, 29 Apr 2004 16:33:05 -0400")
+Message-ID: <microsoft-free.87hdv24d8x.fsf@youngs.au.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404300145.04873.aviram@beyondsecurity.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* David B Stevens <dsteven3@maine.rr.com> writes:
 
-> I'm very-very happy to say the patch below finally solved my swsusp problems 
-> with the 2.6 kernel!
-> 
-> Here's some information about my setup:
-> I'm using a vaio R505DL, which comes with an i830 video card. Swsusp2 worked 
-> for me on the 2.4 kernel series, but I could never get any of the swsusp 
-> implementations to work for me on the 2.5/2.6 series, unless the intel-agp 
-> driver was unloaded (and this prevented X to work in a decent resolution).
-> 
-> Applying this patch to the 2.6.5 kernel enabled me to suspend using Pavel's 
-> implementation (/proc/acpi/sleep).
-> This patch also makes Nigel's swsusp2 code work with 2.6.5 - note that the 
-> newest swsusp2 patches already include the patch below - so just applying 
-> Nigel's 2.6.5 and core patches should get vaio users suspending.
+  > Maybe the kernel should be told by the apps exactly what they
+  > require in the way of memory
 
-> Thank you Pavel for your hard work, and thanks Nigel for making swsusp2 such a 
-> robust suspending mechanism! You guys make Linux what it is.
-
-Well, big thanks go to Herbert Xu who actually diagnosed this problem
-in usefull way.
-								Pavel
+So what happens when Mr BloatyApp says: "Yo, Mr Kernel, gimme all ya
+got baby!"
 
 -- 
-934a471f20d6580d5aad759bf0d97ddc
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|----------------------------------<steve@youngs.au.com>---|

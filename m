@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRKSIcS>; Mon, 19 Nov 2001 03:32:18 -0500
+	id <S274368AbRKSIdS>; Mon, 19 Nov 2001 03:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275012AbRKSIcI>; Mon, 19 Nov 2001 03:32:08 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:26614 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S274368AbRKSIb7>;
-	Mon, 19 Nov 2001 03:31:59 -0500
-Date: Mon, 19 Nov 2001 01:31:52 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: viro@math.psu.edu, lvm-devel@sistina.com
-Subject: [PATCH] undo LVM change from merge
-Message-ID: <20011119013151.Z1308@lynx.no>
-Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, viro@math.psu.edu,
-	lvm-devel@sistina.com
+	id <S274875AbRKSIdJ>; Mon, 19 Nov 2001 03:33:09 -0500
+Received: from alex.intersurf.net ([216.115.129.11]:3601 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S274368AbRKSIc6>; Mon, 19 Nov 2001 03:32:58 -0500
+Date: Mon, 19 Nov 2001 02:32:58 -0600
+From: Mark Orr <markorr@intersurf.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.15pre6] Funny error on "make modules_install" - cosmetic cleanup probably needed
+Message-Id: <20011119023258.4bb705b0.markorr@intersurf.com>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Alan, Al,
-it appears that when merging Alan's updated LVM code into mainline, it
-reverted a change (from Al to avoid race conditions with block device
-modules, I think).  The patch fragment below should be re-applied:
 
-@@ -400,6 +400,7 @@
- /* block device operations structure needed for 2.3.38? and above */
- struct block_device_operations lvm_blk_dops =
- {
-+       owner:          THIS_MODULE,
-        open:           lvm_blk_open,
-        release:        lvm_blk_close,
-        ioctl:          lvm_blk_ioctl,
+I'm running 2.4.15-pre6 here, and for several previous
+versions there's been an unusual (but harmless) error message
+when installing modules via "make modules_install" once the
+kernel build is done.
 
-It isn't in the LVM CVS yet, but if it should be I will put it there so
-we don't lose it again.
+looks like this:
 
-Cheers, Andreas
+make[2]: Entering directory `/usr/src/linux/drivers/cdrom'
+mkdir -p /lib/modules/2.4.15-pre6/kernel/drivers/cdrom/
+cp cdrom.o cdrom.o /lib/modules/2.4.15-pre6/kernel/drivers/cdrom/
+cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/cdrom/cdrom.o' with `cdrom.o'
+make[2]: *** [_modinst__] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/cdrom'
+make[1]: *** [_modinst_cdrom] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_modinst_drivers] Error 2
+
+...As I say, it's harmless.  cdrom.o is getting installed, and
+you can just make -i ... to get past it.
+
+I'm guessing that I'm the only one getting this error (since I
+cant find any other complaints about it)  because i'm using the
+latest fileutils v4.1.1 off alpha.gnu.org, which must have code
+to complain about such things -- but still, that
+
+cp cdrom.o cdrom.o  /big/long/directory
+
+...just looks weird.  Somebody leave something hanging in
+one of the makefiles?
+
 --
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Mark Orr
+markorr@intersurf.com
+
 

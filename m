@@ -1,214 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292599AbSCRLEs>; Mon, 18 Mar 2002 06:04:48 -0500
+	id <S292942AbSCRLQj>; Mon, 18 Mar 2002 06:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292829AbSCRLE3>; Mon, 18 Mar 2002 06:04:29 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:7684 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S292599AbSCRLEX>;
-	Mon, 18 Mar 2002 06:04:23 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S292968AbSCRLQa>; Mon, 18 Mar 2002 06:16:30 -0500
+Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:52563
+	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
+	id <S292942AbSCRLQO>; Mon, 18 Mar 2002 06:16:14 -0500
+Message-ID: <3C95CC7D.8070101@fugmann.dhs.org>
+Date: Mon, 18 Mar 2002 12:16:13 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020315
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Q: 2.4 Scheduler 
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15509.51214.495427.580341@argo.ozlabs.ibm.com>
-Date: Mon, 18 Mar 2002 21:57:18 +1100 (EST)
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: [PATCH] zlib double-free bug
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently CERT published an advisory, warning about a bug in zlib where
-a chunk of memory could get freed twice, depending on the data being
-decompressed, which could potentially give a way to attack a system
-using zlib.  The reference is
+Hi.
 
-	http://www.cert.org/advisories/CA-2002-07.html
+I have some specific questions concering the implementation of the 
+scheduler in 2.4.18, which I hope you would please answer for me.
 
-All 3 of the versions of zlib in the current 2.4 kernel have this bug.
-The version in 2.5 doesn't because it handles memory allocation in a
-different way.
+Question #1:
+Has anyone documented the functionality of the current scheduler? It
+seems that the algorithm used is very sparse explained (although very
+easy to understand by looking at the code), and the comments in the
+code does not always what the purpose of a function is, but rather how
+it works.
 
-The patch below fixes this bug in each of the three copies of zlib.c,
-in the same way that it is fixed in the zlib-1.1.4 release (basically
-by making sure that s->sub.trees.blens is always freed whenever, and
-only when, s->mode is changed from BTREE or DTREE to some other value).
+Question #2:
+In the schedule function, a 'goodness' value is calculated for all
+processes, and the maximum is remembered. If this value is zero, tasks
+gets a new quantum. The question here is which tasks. Take a look at the
+code below. (shed.c, 617)
 
-In the longer term I recommend that the 2.5.x changes to use a single
-copy of zlib in lib/zlib_{deflate,inflate} should be back-ported to
-2.4.  For now, this patch should be applied to 2.4.x since the bug is
-a potential security hole if you are using PPP with Deflate
-compression.
+/* Do we need to re-calculate counters? */
+if (unlikely(!c)) {
+	struct task_struct *p;
 
-The patch also raises the minimum value of `windowBits' for
-compression from 8 to 9, since using windowBits==8 causes memory
-corruption (this was discovered by James Carlson, see
-http://playground.sun.com/~carlsonj/ for details).  Current versions
-of pppd avoid using windowBits==8 for this reason, but it is better to
-have zlib protect itself as well.
+	spin_unlock_irq(&runqueue_lock);
+	read_lock(&tasklist_lock);
+	for_each_task(p)
+		p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
+	read_unlock(&tasklist_lock);
+	spin_lock_irq(&runqueue_lock);
+	goto repeat_schedule;
+}
 
-Paul.
+What I do not understand here is the 'for_all_tasks'. Its defined in
+sched.h, line 870:
 
-diff -urN linux-2.4.19-pre3/arch/ppc/boot/lib/zlib.c pmac/arch/ppc/boot/lib/zlib.c
---- linux-2.4.19-pre3/arch/ppc/boot/lib/zlib.c	Mon Mar 18 13:34:47 2002
-+++ pmac/arch/ppc/boot/lib/zlib.c	Mon Mar 18 21:15:55 2002
-@@ -928,7 +928,10 @@
-       {
-         r = t;
-         if (r == Z_DATA_ERROR)
-+	{
-+          ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-           s->mode = BADB;
-+	}
-         LEAVE
-       }
-       s->sub.trees.index = 0;
-@@ -964,6 +967,7 @@
-           if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) ||
-               (c == 16 && i < 1))
-           {
-+            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-             s->mode = BADB;
-             z->msg = "invalid bit length repeat";
-             r = Z_DATA_ERROR;
-@@ -991,7 +995,10 @@
-         if (t != Z_OK)
-         {
-           if (t == (uInt)Z_DATA_ERROR)
-+	  {
-+            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-             s->mode = BADB;
-+	  }
-           r = t;
-           LEAVE
-         }
-@@ -1003,11 +1010,11 @@
-           r = Z_MEM_ERROR;
-           LEAVE
-         }
--        ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-         s->sub.decode.codes = c;
-         s->sub.decode.tl = tl;
-         s->sub.decode.td = td;
-       }
-+      ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-       s->mode = CODES;
-     case CODES:
-       UPDATE
-diff -urN linux-2.4.19-pre3/drivers/net/zlib.c pmac/drivers/net/zlib.c
---- linux-2.4.19-pre3/drivers/net/zlib.c	Sat Apr 28 23:02:45 2001
-+++ pmac/drivers/net/zlib.c	Mon Mar 18 12:12:17 2002
-@@ -14,7 +14,7 @@
-  */
- 
- /* 
-- *  ==FILEVERSION 971210==
-+ *  ==FILEVERSION 20020318==
-  *
-  * This marker is used by the Linux installation script to determine
-  * whether an up-to-date version of this file is already installed.
-@@ -772,7 +772,7 @@
-         windowBits = -windowBits;
-     }
-     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
--        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
-+        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
- 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
-         return Z_STREAM_ERROR;
-     }
-@@ -3860,10 +3860,12 @@
-                              &s->sub.trees.tb, z);
-       if (t != Z_OK)
-       {
--        ZFREE(z, s->sub.trees.blens);
-         r = t;
-         if (r == Z_DATA_ERROR)
-+	{
-+	  ZFREE(z, s->sub.trees.blens);
-           s->mode = BADB;
-+	}
-         LEAVE
-       }
-       s->sub.trees.index = 0;
-@@ -3928,11 +3930,13 @@
- #endif
-         t = inflate_trees_dynamic(257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f),
-                                   s->sub.trees.blens, &bl, &bd, &tl, &td, z);
--        ZFREE(z, s->sub.trees.blens);
-         if (t != Z_OK)
-         {
-           if (t == (uInt)Z_DATA_ERROR)
-+	  {
-+	    ZFREE(z, s->sub.trees.blens);
-             s->mode = BADB;
-+	  }
-           r = t;
-           LEAVE
-         }
-@@ -3949,6 +3953,7 @@
-         s->sub.decode.tl = tl;
-         s->sub.decode.td = td;
-       }
-+      ZFREE(z, s->sub.trees.blens);
-       s->mode = CODES;
-     case CODES:
-       UPDATE
-diff -urN linux-2.4.19-pre3/fs/jffs2/zlib.c pmac/fs/jffs2/zlib.c
---- linux-2.4.19-pre3/fs/jffs2/zlib.c	Mon Sep 24 09:31:33 2001
-+++ pmac/fs/jffs2/zlib.c	Mon Mar 18 21:16:32 2002
-@@ -14,7 +14,7 @@
-  */
- 
- /* 
-- *  ==FILEVERSION 971210==
-+ *  ==FILEVERSION 20020318==
-  *
-  * This marker is used by the Linux installation script to determine
-  * whether an up-to-date version of this file is already installed.
-@@ -772,7 +772,7 @@
-         windowBits = -windowBits;
-     }
-     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
--        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
-+        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
- 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
-         return Z_STREAM_ERROR;
-     }
-@@ -3860,10 +3860,12 @@
-                              &s->sub.trees.tb, z);
-       if (t != Z_OK)
-       {
--        ZFREE(z, s->sub.trees.blens);
-         r = t;
-         if (r == Z_DATA_ERROR)
-+	{
-+	  ZFREE(z, s->sub.trees.blens);
-           s->mode = BADB;
-+	}
-         LEAVE
-       }
-       s->sub.trees.index = 0;
-@@ -3928,11 +3930,13 @@
- #endif
-         t = inflate_trees_dynamic(257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f),
-                                   s->sub.trees.blens, &bl, &bd, &tl, &td, z);
--        ZFREE(z, s->sub.trees.blens);
-         if (t != Z_OK)
-         {
-           if (t == (uInt)Z_DATA_ERROR)
-+	  {
-+	    ZFREE(z, s->sub.trees.blens);
-             s->mode = BADB;
-+	  }
-           r = t;
-           LEAVE
-         }
-@@ -3949,6 +3953,7 @@
-         s->sub.decode.tl = tl;
-         s->sub.decode.td = td;
-       }
-+      ZFREE(z, s->sub.trees.blens);
-       s->mode = CODES;
-     case CODES:
-       UPDATE
+#define for_each_task(p) \
+	for (p = &init_task ; (p = p->next_task) != &init_task ; )
+
+Would someone please explain the structure of this - Its very hard to
+see what this list consists of. Also if anyone has the time to give some 
+more general information on 'struct task' I would be happy - It's a big 
+structure, and it's hard to track down where the structure is modified, 
+and why.
+
+
+Question #3:
+What is the main purpose of 'reschedule_idle.'? In the UP case, its
+all about removing the current task from the CPU, but a more detailed
+explanation would be nice. Of course I'm interested in the SMP case.
+
+I hope that some of you would be so kind as to spend some time to
+answer these questions.  The reason for me asking is, that I'm trying
+to document the scheduler (from a theoretical point of view). I also
+plan to describe the works of Ingo's O(1) scheduler in 2.5, but I
+haven't started looking at that yet.
+
+Thanks in advance
+Anders Fugmann
+

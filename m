@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262656AbTDAQhx>; Tue, 1 Apr 2003 11:37:53 -0500
+	id <S262673AbTDAQll>; Tue, 1 Apr 2003 11:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbTDAQhx>; Tue, 1 Apr 2003 11:37:53 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:30082 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262656AbTDAQhw>;
-	Tue, 1 Apr 2003 11:37:52 -0500
-Date: Tue, 1 Apr 2003 08:49:18 -0800
-From: Bob Miller <rem@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [Trivial 2.5.66] Remove MOD_*_USE_COUNT from floppy driver.
-Message-ID: <20030401164918.GA11907@doc.pdx.osdl.net>
+	id <S262675AbTDAQlk>; Tue, 1 Apr 2003 11:41:40 -0500
+Received: from B580e.pppool.de ([213.7.88.14]:36251 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S262673AbTDAQlj>; Tue, 1 Apr 2003 11:41:39 -0500
+Subject: Re: flash as hda causes 2.4.18 to hang in
+	grok_partitions()...add_to_page_cache_unique()
+From: Daniel Egger <degger@fhm.edu>
+To: David Wuertele <dave-gnus@bfnet.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3smt3xuo1.fsf@bfnet.com>
+References: <m3smt3xuo1.fsf@bfnet.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ylUQ256XrvQE7G7GmrYN"
+Organization: 
+Message-Id: <1049212755.7628.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 01 Apr 2003 17:59:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By registering with genhd the floppy driver no longer needs
-to manage its own module use count.
 
+--=-ylUQ256XrvQE7G7GmrYN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+Am Mon, 2003-03-31 um 20.22 schrieb David Wuertele:
 
+> I've got a mipsel linux 2.4.18 system that has a compact flash IDE
+> disk as hda.  For some reason, in grok_partitions, the kernel goes
+> bye-bye.  I've traced it as far as read_page_cache().
 
+I'd say this is a platform specific bug as it works for me under 2.4.18
+on ppc and i386.
 
-diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
---- a/drivers/block/floppy.c	Fri Mar 28 10:55:41 2003
-+++ b/drivers/block/floppy.c	Fri Mar 28 10:55:41 2003
-@@ -4396,11 +4396,9 @@
- 		return 0;
- 	}
- 	spin_unlock_irqrestore(&floppy_usage_lock, flags);
--	MOD_INC_USE_COUNT;
- 	if (fd_request_irq()) {
- 		DPRINT("Unable to grab IRQ%d for the floppy driver\n",
- 			FLOPPY_IRQ);
--		MOD_DEC_USE_COUNT;
- 		spin_lock_irqsave(&floppy_usage_lock, flags);
- 		usage_count--;
- 		spin_unlock_irqrestore(&floppy_usage_lock, flags);
-@@ -4410,7 +4408,6 @@
- 		DPRINT("Unable to grab DMA%d for the floppy driver\n",
- 			FLOPPY_DMA);
- 		fd_free_irq();
--		MOD_DEC_USE_COUNT;
- 		spin_lock_irqsave(&floppy_usage_lock, flags);
- 		usage_count--;
- 		spin_unlock_irqrestore(&floppy_usage_lock, flags);
-@@ -4459,7 +4456,6 @@
- 		release_region(FDCS->address + 2, 4);
- 		release_region(FDCS->address + 7, 1);
- 	}
--	MOD_DEC_USE_COUNT;
- 	spin_lock_irqsave(&floppy_usage_lock, flags);
- 	usage_count--;
- 	spin_unlock_irqrestore(&floppy_usage_lock, flags);
-@@ -4527,7 +4523,6 @@
- 			release_region(FDCS->address+7, 1);
- 		}
- 	fdc = old_fdc;
--	MOD_DEC_USE_COUNT;
- }
- 
- 
+--=20
+Servus,
+       Daniel
+
+--=-ylUQ256XrvQE7G7GmrYN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+ibdTchlzsq9KoIYRAhu1AKDbcHRZ4bkomP8waWuTXDnUZ/S42ACfaX4c
+f7ulQQHjiBXsZAGOnsQiliM=
+=eLOj
+-----END PGP SIGNATURE-----
+
+--=-ylUQ256XrvQE7G7GmrYN--
+

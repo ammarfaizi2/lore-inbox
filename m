@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282935AbRLCIvm>; Mon, 3 Dec 2001 03:51:42 -0500
+	id <S282964AbRLCIvm>; Mon, 3 Dec 2001 03:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284401AbRLCIuF>; Mon, 3 Dec 2001 03:50:05 -0500
-Received: from kaboom.dsl.xmission.com ([166.70.87.226]:37772 "EHLO
-	mail.oobleck.net") by vger.kernel.org with ESMTP id <S284342AbRLBWos>;
-	Sun, 2 Dec 2001 17:44:48 -0500
-Date: Sun, 2 Dec 2001 15:44:46 -0700 (MST)
-From: Chris Ricker <kaboom@gatech.edu>
-Reply-To: World Domination Now! <linux-kernel@vger.kernel.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stanislav Meduna <stano@meduna.org>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <E16AZw2-0003s4-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0112021540380.21158-100000@verdande.oobleck.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284407AbRLCIuG>; Mon, 3 Dec 2001 03:50:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:62615 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S284473AbRLCAFr>;
+	Sun, 2 Dec 2001 19:05:47 -0500
+Date: Sun, 02 Dec 2001 16:05:38 -0800 (PST)
+Message-Id: <20011202.160538.27781249.davem@redhat.com>
+To: anton@samba.org
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.5: PCI scatter gather list change
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011202153553.B5130@krispykreme>
+In-Reply-To: <20011202153553.B5130@krispykreme>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001, Alan Cox wrote:
+   From: Anton Blanchard <anton@samba.org>
+   Date: Sun, 2 Dec 2001 15:35:53 +1100
+   
+   I dont care too much either way, but if this change is here to stay I'll
+   let the non intel maintainers know so they can fix up their pci dma
+   code.
 
-> > Is the test suite (or at least part of it) public, or is it
-> > considered to be a trade-secret of Red Hat? I see there
-> > is a "Red Hat Ready Test Suite" - is this a part of it?
-> 
-> The main Red Hat test suite is a version of Cerberus (originally from VA
-> and much extended), its all free software and its available somewhere
-> although I don't have the URL to hand, Arjan ?
+Ummm, platforms need to support this format even in 2.4.x
+If PAGE is not NULL, "address" applies, else the PAGE+OFFSET
+pair applies.  We'll kill "address" very soon in 2.5.x, but it
+has to stay around for compatibility in 2.4.x
 
-I think it's at <http://people.redhat.com/bmatthews/cerberus/>
-
-later,
-chris
-
--- 
-Chris Ricker                                               kaboom@gatech.edu
-
-For if we may compare infinities, it would
-seem to require a greater infinity of power
-to cause the causes of effects, than to
-cause the effects themselves.
-        -- Erasmus Darwin
+Look at sparc64 and x86 in 2.4.x, they expect and handle it
+correctly already.  IA-64 fixed up their stuff recently too.
 

@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUKVTn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbUKVTfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUKVTn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 14:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbUKVTlr
+	id S262536AbUKVTfx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 14:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbUKVTbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:41:47 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:24218 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262364AbUKVTj7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:39:59 -0500
-Date: Mon, 22 Nov 2004 20:40:03 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH][RFC/v1][8/12] Add IPoIB (IP-over-InfiniBand) driver
-Message-ID: <20041122194003.GC8150@mars.ravnborg.org>
-Mail-Followup-To: Roland Dreier <roland@topspin.com>,
-	linux-kernel@vger.kernel.org, openib-general@openib.org,
-	netdev@oss.sgi.com
-References: <20041122713.FnSlYodJYum7s82D@topspin.com> <20041122714.nKCPmH9LMhT0X7WE@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122714.nKCPmH9LMhT0X7WE@topspin.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 22 Nov 2004 14:31:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41939 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262492AbUKVTYP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 14:24:15 -0500
+Date: Mon, 22 Nov 2004 11:23:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: Chris Wright <chrisw@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+In-Reply-To: <1101150469.20006.46.camel@d845pe>
+Message-ID: <Pine.LNX.4.58.0411221116480.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net>  <1100819685.987.120.camel@d845pe>
+ <20041118230948.W2357@build.pdx.osdl.net>  <1100941324.987.238.camel@d845pe>
+  <Pine.LNX.4.58.0411200831560.20993@ppc970.osdl.org> <1101150469.20006.46.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More nitpicking..
 
-	Sam
-	
-> +++ linux-bk/drivers/infiniband/Makefile	2004-11-21 21:25:56.794775182 -0800
-> @@ -1,2 +1,3 @@
->  obj-$(CONFIG_INFINIBAND)		+= core/
-No reason to use $(CONFIG_INFINIBAND) here - it's already done in
-drivers/infiniband/Makefile
 
-> +EXTRA_CFLAGS += -Idrivers/infiniband/include
-This will get killed if you move the include files...
-
- +
-> +obj-$(CONFIG_INFINIBAND_IPOIB)			+= ib_ipoib.o
-> +
-> +ib_ipoib-y					:= ipoib_main.o \
-> +						   ipoib_ib.o \
-> +						   ipoib_multicast.o \
-> +						   ipoib_verbs.o \
-> +						   ipoib_vlan.o
-One or two lines.
-
-> +#include <asm/semaphore.h>
-> +
-> +#include "ipoib_proto.h"
-Shoulb be included as the last file - since it's the most local one.
-> +
-> +#include <ib_verbs.h>
-> +#include <ib_pack.h>
-> +#include <ib_sa.h>
+On Mon, 22 Nov 2004, Len Brown wrote:
 > 
+> I agree that the system should work properly even if the legacy device
+> drivers are broken.  Please understand, however, that the legacy device
+> drivers _are_ broken.  The BIOS via ACPI clearly tells them if the
+> devices are present or not, and Linux isn't yet listening.
+
+I really disagree.
+
+I realize that you like ACPI, or you would have shot yourself long long 
+ago.
+
+But I have a totally different view on things. To me, firmware is not 
+something cool to be used. It's a necessary evil, and it should be avoided 
+and mistrusted as far as humanly possible, because it is always buggy, and 
+we can't fix the bugs in it.
+
+Yes, the current ACPI layer in the kernel is a lot better at working
+around the bugs, and it's getting to the point where I suspect Linux
+vendors actually decide that enabing ACPI by default causes fewer problems 
+than it solves. That clearly didn't use to be true.
+
+> ACPI-compliant systems have three types of interrupts:
+
+Stop right there. 
+
+"ACPI-compliant systems". The fact is, there is no such thing. There are 
+systems that users buy, and they are not "ACPI compliant", they are "one 
+implementation of ACPI that was tested with a single vendor usage test".
+
+Call me cynical, but I believe in standards papers just about as much as I 
+believe in the voices in my attic that tell me to kill the Queen of 
+England. 
+
+Papers is so much dead trees. The only thing that matters is real life.  
+And like it or not, real life does NOT implement standards properly, even
+if the standards are well written and unambiguous (which also doesn't
+actually happen in real life).
+
+> If somebody bolts motherboard hardware on and doesn't tell ACPI about
+> it, then they need to disable ACPI, which _owns_ configuration of
+> motherboard devices when it is enabled.
+
+No. The only thing that owns the motherboard is the user. ACPI shouldn't 
+get uppity.
+
+> The damn good reason is that doing otherwise breaks systems.
+
+And not doing it breaks systems.
+
+See a pattern?
+
+This is why I don't trust firmware. It's always buggy. 
+
+		Linus

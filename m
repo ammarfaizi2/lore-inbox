@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVC3OUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVC3OVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVC3OUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 09:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVC3OUa
+	id S261910AbVC3OVn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 09:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVC3OVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 09:20:30 -0500
-Received: from mail.dif.dk ([193.138.115.101]:27008 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261909AbVC3OUR (ORCPT
+	Wed, 30 Mar 2005 09:21:43 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44428 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261910AbVC3OVj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 09:20:17 -0500
-Date: Wed, 30 Mar 2005 16:20:04 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: P Lavin <lavin.p@redpinesignals.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <424A51F5.1050501@redpinesignals.com>
-Message-ID: <Pine.LNX.4.62.0503301612510.5933@jjulnx.backbone.dif.dk>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-            <1111825958.6293.28.camel@laptopd505.fenrus.org>           
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>           
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>           
- <1111881955.957.11.camel@mindpipe>           
- <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>           
- <20050327065655.6474d5d6.pj@engr.sgi.com>           
- <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>           
- <20050327174026.GA708@redhat.com>            <1112064777.19014.17.camel@mindpipe>
-            <84144f02050328223017b17746@mail.gmail.com>           
- <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>           
- <courier.42490293.000032B0@courier.cs.helsinki.fi>           
- <20050329184411.1faa71eb.pj@engr.sgi.com> <courier.424A43A5.00002305@courier.cs.helsinki.fi>
- <424A51F5.1050501@redpinesignals.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Mar 2005 09:21:39 -0500
+Date: Wed, 30 Mar 2005 16:20:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS client latencies
+Message-ID: <20050330142056.GA3043@elte.hu>
+References: <1112137487.5386.33.camel@mindpipe> <1112138283.11346.2.camel@lade.trondhjem.org> <1112139155.5386.35.camel@mindpipe> <1112139263.11892.0.camel@lade.trondhjem.org> <20050330080224.GB19683@elte.hu> <1112191860.10634.29.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112191860.10634.29.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, P Lavin wrote:
 
-> Date: Wed, 30 Mar 2005 12:45:01 +0530
-> From: P Lavin <lavin.p@redpinesignals.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+* Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+
+> > the comment suggests that this is optimized for append writes (which is 
+> > quite common, but by far not the only write workload) - but the 
+> > worst-case behavior of this code is very bad. How about disabling this 
+> > sorting altogether and benchmarking the result? Maybe it would get 
+> > comparable coalescing (higher levels do coalesce after all), but wastly 
+> > improved CPU utilization on the client side. (Note that the server 
+> > itself will do sorting of any write IO anyway, if this is to hit any 
+> > persistent storage - and if not then sorting so agressively on the 
+> > client side makes little sense.)
 > 
-> Hi,
-> In my wlan driver module, i allocated some memory using kmalloc in interrupt
-> context, this one failed but its not returning NULL , 
+> No. Coalescing on the client makes tons of sense. The overhead of
+> sending 8 RPC requests for 4k writes instead of sending 1 RPC request
+> for a single 32k write is huge: among other things, you end up tying up
+> 8 RPC slots on the client + 8 nfsd threads on the server instead of just
+> one of each.
 
-kmalloc() should always return NULL if the allocation failed.
+yes - coalescing a few pages makes sense, but linearly scanning 
+thousands of entries is entirely pointless.
 
-
->so i was proceeding
-> further everything was going wrong... & finally the kernel crahed. Can any one
-> of you tell me why this is happening ? i cannot use GFP_KERNEL because i'm
-> calling this function from interrupt context & it may block. Any other
-
-If you need to allocate memory from interrupt context you should be using 
-GFP_ATOMIC (or, if possible, do the allocation earlier in a different 
-context).
-
-
-> solution for this ?? I'm concerned abt why kmalloc is not returning null if
-> its not a success ??
-> 
-I have no explanation for that, are you sure that's really what's 
-happening?
-
-
-> Is it not necessary to check for NULL before calling kfree() ??
-
-No, it is not nessesary to check for NULL before calling kfree() since 
-kfree() does    
-
-void kfree (const void *objp)
-{
-	... 
-        if (!objp)
-                return;
-	...
-}
-
-So, if you pass kfree() a NULL pointer it deals with it itself, you don't 
-need to check that explicitly before calling kfree() - that's redundant.
-
-
--- 
-Jesper Juhl
-
-
+	Ingo

@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbULJKya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbULJK4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbULJKya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 05:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbULJKya
+	id S261172AbULJK4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 05:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbULJK4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 05:54:30 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:46470 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261163AbULJKyZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 05:54:25 -0500
-Date: Fri, 10 Dec 2004 11:53:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-Message-ID: <20041210105352.GA4749@elte.hu>
-References: <OF8ABCEBAC.0259E37D-ON86256F65.00727E98@raytheon.com> <20041209225555.GA31588@elte.hu>
+	Fri, 10 Dec 2004 05:56:25 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:3595 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S261174AbULJK4M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 05:56:12 -0500
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement
+From: Ian Campbell <icampbell@arcom.com>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Fri, 10 Dec 2004 10:56:08 +0000
+Message-Id: <1102676169.31305.85.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041209225555.GA31588@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Dec 2004 10:58:23.0203 (UTC) FILETIME=[2ACA6B30:01C4DEA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Hi, 
 
-> this smells too. [...]
+On Thu, 2004-12-09 at 09:25 -0600, Kylene Hall wrote:
+> +	/* Determine chip type */
+> +	if (tpm_nsc_init(chip) == 0) {
+> +		chip->recv = tpm_nsc_recv;
+> +		chip->send = tpm_nsc_send;
+> +		chip->cancel = tpm_nsc_cancel;
+> +		chip->req_complete_mask = NSC_STATUS_OBF;
+> +		chip->req_complete_val = NSC_STATUS_OBF;
+> +	} else if (tpm_atml_init(chip) == 0) {
+> +		chip->recv = tpm_atml_recv;
+> +		chip->send = tpm_atml_send;
+> +		chip->cancel = tpm_atml_cancel;
+> +		chip->req_complete_mask =
+> +		    ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL;
+> +		chip->req_complete_val = ATML_STATUS_DATA_AVAIL;
+> +	} else {
+> +		rc = -ENODEV;
+> +		goto out_release;
+> +	}
 
-found two brown-paperbag bugs that caused bad latencies in the -RT
-kernel: when i added PREEMPT_DIRECT (which first showed up in -32-10) i
-also added a missed-reschedule bug to try_to_wake_up() and to
-mutex/semaphore-unlock (__up()). Oops.
+The atmel part at least also comes as an I2C variant. 
 
-i dont think this bug could explain a msec-range latency because the
-syscall return path should catch the missed reschedule and it would need
-continuous syscall execution in the milliseconds range by a lowprio task
-for a latency to be transported to latencytest, but certainly the bug
-doesnt help latencies. The -32-15 kernel can be downloaded from the
-usual place:
+We could continue to add to the ifelse here but perhaps it might be
+beneficial to split the individual chip specific stuff into separate
+files now and perhaps register them via some sort of
+register_tpm_hardware(struct tpm_chip_ops *) type interface?
 
- http://redhat.com/~mingo/realtime-preempt/
+Ian.
 
-other changes in -32-15: more work on the tracer, cleaner trace output
-and the tracing of syscall entries and returns, with arguments and
-return values displayed as well (i.e. a simple strace variant). Here is
-how a syscall now looks like in /proc/latency_trace:
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
 
- loop-tes-3885  0....  100µs > sys_getppid (002fcffc 00000001 0000007b)
- loop-tes-3885  0....  101µs+: sys_getppid (sysenter_past_esp)
- loop-tes-3885  0d...  103µs < (3868)
-
-'< (return-val)' is the syscall return value, '> sys_name(params)' is
-the syscall itself. (note that the return path is also used by
-interrupts, so it's not purely a syscall-return point) This makes it
-easier to track userspace execution.
-
-	Ingo

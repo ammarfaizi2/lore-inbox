@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbUDOSRd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263951AbUDOSPd
+	id S264378AbUDOSRb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDORmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:15:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10244 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263273AbUDOSGP
+	Thu, 15 Apr 2004 13:42:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32438 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263225AbUDORmW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:06:15 -0400
-Date: Thu, 15 Apr 2004 14:06:31 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Smart, James" <James.Smart@Emulex.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: persistence of kernel object attribute ??
-In-Reply-To: <3356669BBE90C448AD4645C843E2BF2802C0168A@xbl.ma.emulex.com>
-Message-ID: <Pine.LNX.4.53.0404151356290.1515@chaos>
-References: <3356669BBE90C448AD4645C843E2BF2802C0168A@xbl.ma.emulex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Apr 2004 13:42:22 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
+In-Reply-To: <10820509132751@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Thu, 15 Apr 2004 10:41:53 -0700
+Message-Id: <10820509131104@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004, Smart, James wrote:
+ChangeSet 1.1643.36.18, 2004/04/12 16:46:07-07:00, marcel@holtmann.org
 
->
-> I've been looking at everything I can find, asked a few questions, and don't
-> have an answer to the following issue.
->
-> I have a driver that wants to export attributes per instance. I'd like the
-> ability for the user to modify an attribute dynamically (sysfs works well) -
-> but I'd like the new value to be persistent the next time the driver
-> unloads/loads or the system reboots.  I don't want to have to update
-> constants in source and recompile the driver.  I'm looking for something
-> similar (cringe!) to the MS registry.  Is there a facility available to
-> kernel objects to allow for persistent attributes to be set/retrieved? If
-> not, any recommendations on how to implement this ?
->
-> -- james
->
+[PATCH] Fix sysfs class support for CAPI
 
-Make a program that executes upon startup, using the Sys-V startup
-convention. That program interfaces with your driver using a standard
-ioctl() call. It can send or receive anything it wants, which it can
-get or put to any accessible file-system.
+this patch fixes a bug in the CAPI TTY support, because the ->name value
+of the TTY driver shouldn't contain a "/". After changing this there are
+now a "capi20" TTY device and a "capi20" control device and so I renamed
+the control device to "capi". The userspace visible part must be done by
+udev and I added these two rules to restore the old namespace:
 
-FYI this is the standard Unix/Linux way. You'd be surprised the
-large number of users who haven't got a clue about how Unix starts
-up. They vaguely remember something about "init" and that's it.
-To refresh your memory, look in /etc/rc.d and the sub-directories
-for each run-level. Believe me, you don't want or need a "registry".
-Just put a link to your startup-script in there.
+	# CAPI devices
+	KERNEL="capi",          NAME="capi20", SYMLINK="isdn/capi20"
+	KERNEL="capi*",         NAME="capi/%n"
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (5596.77 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
+ drivers/isdn/capi/capi.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/isdn/capi/capi.c b/drivers/isdn/capi/capi.c
+--- a/drivers/isdn/capi/capi.c	Thu Apr 15 10:20:08 2004
++++ b/drivers/isdn/capi/capi.c	Thu Apr 15 10:20:08 2004
+@@ -1312,7 +1312,8 @@
+ 
+ 	drv->owner = THIS_MODULE;
+ 	drv->driver_name = "capi_nc";
+-	drv->name = "capi/";
++	drv->devfs_name = "capi/";
++	drv->name = "capi";
+ 	drv->major = capi_ttymajor;
+ 	drv->minor_start = 0;
+ 	drv->type = TTY_DRIVER_TYPE_SERIAL;
+@@ -1488,7 +1489,7 @@
+ 		return PTR_ERR(capi_class);
+ 	}
+ 
+-	class_simple_device_add(capi_class, MKDEV(capi_major, 0), NULL, "capi20");
++	class_simple_device_add(capi_class, MKDEV(capi_major, 0), NULL, "capi");
+ 	devfs_mk_cdev(MKDEV(capi_major, 0), S_IFCHR | S_IRUSR | S_IWUSR,
+ 			"isdn/capi20");
+ 
 

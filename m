@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
+	id <S262404AbSKDRyO>; Mon, 4 Nov 2002 12:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:30973 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262416AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
-Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF73@orsmsx102.jf.intel.com>
-From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-To: "'Adam J. Richter'" <adam@yggdrasil.com>, greg@kroah.com
+	id <S262408AbSKDRyO>; Mon, 4 Nov 2002 12:54:14 -0500
+Received: from [212.104.37.2] ([212.104.37.2]:54797 "EHLO
+	actnetweb.activenetwork.it") by vger.kernel.org with ESMTP
+	id <S262404AbSKDRyN>; Mon, 4 Nov 2002 12:54:13 -0500
+Date: Mon, 4 Nov 2002 19:00:40 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Patch: 2.5.45 PCI Fixups for PCI HotPlug
-Date: Mon, 4 Nov 2002 10:06:28 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: [2.5.45] CDRW not working
+Message-ID: <20021104180040.GA307@dreamland.darkstar.net>
+Reply-To: kronos@kronoz.cjb.net
+References: <20021102152143.GA515@dreamland.darkstar.net> <20021102152725.GD1922@suse.de> <20021102174727.GA294@dreamland.darkstar.net> <20021102213529.GB3612@suse.de> <20021103145352.GA1083@dreamland.darkstar.net> <20021103150150.GO3612@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103150150.GO3612@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Greg KH wrote:
-> >Hm, in looking at this, I know the majority of people who want
-> >CONFIG_HOTPLUG probably do not run with CONFIG_PCI_HOTPLUG as the
-> >hardware's still quite rare.  To force those people to keep 
-> around all
-> >of the PCI quirks functions and tables after init happens, is a bit
-> >cruel.  I wonder if it's time to start having different subsystems
-> >modify __devinit depending on their config variables.
+Il Sun, Nov 03, 2002 at 04:01:50PM +0100, Jens Axboe ha scritto: 
+> > If I don't use hdparm 2.5.42 works. On 2.5.45 it's random.
 > 
-> 	Are there PCI bridge cards that use all of those?  For
-> example, I thought that Triton was a series of Intel motherboard
-> chipsets for 586 processors.  Perhaps you only need to keep a
-> few of those routines.
-> 
-> 	Jung-Ik: perhaps you could to an lspci and an "lspci -n" on
-> your machine when the bridge card is plugged in, which should provide
-> enough information to determine which routines you really need to
-> keep.
+> 2.5.45 with attached patch, how does that compare?
 
-That sounds a quick fix for now but Greg's __pci_devinit seems to be the
-right solution.
+Ok, I tested you patch. Now I can mount, read, etc. without errors, but
+I can still hang the drive usign hdparm -I.
 
-thanks,
-J.I.
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net

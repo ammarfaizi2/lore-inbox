@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267424AbUIJO2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUIJObT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267424AbUIJO2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 10:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267427AbUIJO2o
+	id S267431AbUIJObT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 10:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267429AbUIJObT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 10:28:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:63717 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267424AbUIJO2n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 10:28:43 -0400
-Message-ID: <4d8e3fd30409100728bd6c9c1@mail.gmail.com>
-Date: Fri, 10 Sep 2004 16:28:37 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, felipe_alfaro@linuxmail.org,
-       mista.tapas@gmx.net, kr@cybsft.com, mark_h_johnson@raytheon.com
-In-Reply-To: <20040910132841.GA8552@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Sep 2004 10:31:19 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:23441 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267427AbUIJObR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 10:31:17 -0400
+Date: Fri, 10 Sep 2004 07:30:52 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjanv@redhat.com
+cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <593560000.1094826651@[10.10.2.4]>
+In-Reply-To: <1094807650.17041.3.camel@localhost.localdomain>
+References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
-	 <20040906110626.GA32320@elte.hu>
-	 <1094626562.1362.99.camel@krustophenia.net>
-	 <20040909192924.GA1672@elte.hu>
-	 <20040909130526.2b015999.akpm@osdl.org>
-	 <20040910132841.GA8552@elte.hu>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004 15:28:41 +0200, Ingo Molnar <mingo@elte.hu> wrote:
+--Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Friday, September 10, 2004 10:14:11 +0100):
+
+> On Gwe, 2004-09-10 at 07:40, Arjan van de Ven wrote:
+>> Well I always assumed the future plan was to remove 8k stacks entirely;
+>> 4k+irqstacks and 8k basically have near comparable stack space, with
+>> this patch you create an option that has more but that is/should be
+>> deprecated. I'm not convinced that's a good idea.
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > diff -puN mm/vmscan.c~swapspace-layout-improvements mm/vmscan.c
-> > --- 25/mm/vmscan.c~swapspace-layout-improvements      2004-06-03 21:32:51.087602712 -0700
-> > +++ 25-akpm/mm/vmscan.c       2004-06-03 21:32:51.102600432 -0700
-> 
-> i've attached a merge against current BK-ish kernels. Lee, would you be
-> interested in testing it? It applies cleanly to an -S0 VP tree. I've
-> tested it only lightly - it compiles and boots and survives some simple
-> swapping but that's all.
+> Its probably appropriate to drop gcc 2.x support at that point too since
+> it's the major cause of remaining problems
 
-Hello kernel folks,
-what's the plan regarding the inclusion of VP in mainstream ?
+What problems does it cause? 2.95.4 still seems to work fine for me.
 
+I agree about killing anything but 4K stacks though - having the single
+page is very compelling - not only can we allocate it easier, but we can
+also use cache-hot pages from the hot list.
 
+M.
 
--- 
-Paolo
-Personal home page: paoloc.doesntexist.org
-Buy cool stuff here: http://www.cafepress.com/paoloc

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288851AbSA3HyD>; Wed, 30 Jan 2002 02:54:03 -0500
+	id <S288974AbSA3IMe>; Wed, 30 Jan 2002 03:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288827AbSA3Hxy>; Wed, 30 Jan 2002 02:53:54 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:19884 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S288811AbSA3Hxp>; Wed, 30 Jan 2002 02:53:45 -0500
-Message-Id: <200201291610.g0TGAvqf001302@tigger.cs.uni-dortmund.de>
-To: mingo@elte.hu
-cc: Martin Josefsson <gandalf@wlug.westbo.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] [sched] yield speedup, 2.5.3-pre5 
-In-Reply-To: Message from Ingo Molnar <mingo@elte.hu> 
-   of "Mon, 28 Jan 2002 20:21:56 +0100." <Pine.LNX.4.33.0201282020440.13846-100000@localhost.localdomain> 
-Date: Tue, 29 Jan 2002 17:10:57 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S288973AbSA3IKr>; Wed, 30 Jan 2002 03:10:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44296 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288969AbSA3IJo>; Wed, 30 Jan 2002 03:09:44 -0500
+Date: Wed, 30 Jan 2002 00:09:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <mingo@elte.hu>,
+        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.GSO.4.21.0201300258230.11157-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0201300002170.1542-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> said:
-> On Mon, 28 Jan 2002, Martin Josefsson wrote:
-> 
-> > > -	spin_unlock_irq(&rq->lock);
-> > > +	spin_unlock(&rq->lock);
-> 
-> > I'm not an spinlock expert but shouldn't you use spin_unlock_irq()
-> > when it was locked with spin_lock_irq() ?
-> 
-> normally yes, but in this case it's an optimization: schedule() will
-> disable interrupts within a few cycles, so there is no point in enabling
-> irqs for a short amount of time.
 
-And a short comment in the code?
--- 
-Horst von Brand			     http://counter.li.org # 22616
+On Wed, 30 Jan 2002, Alexander Viro wrote:
+> On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> > Linus just called you the ext2 maintainer.
+>
+> Message-ID, please?
+
+I called you the VFS maintainer ("whether you like it or not" I think I
+said. Although I can't find the message right now).
+
+Now, that obviously does imply a certain control over low-level
+filesystems, but it really mainly implies a control over the _interfaces_
+used to talk the the filesystem, not the filesystem itself.
+
+I personally really wouldn't mind seeing most filesystem patches coming
+through Al (and, in fact, in the inode trimming patches that is partly
+what as been happening), but I have this nagging suspicion that some
+filesystem maintainers would rather eat barbed wire (*).
+
+		Linus
+
+(*) The discussions between Gooch and Al are always "interesting", to name
+some names.
+

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313817AbSEEXU6>; Sun, 5 May 2002 19:20:58 -0400
+	id <S313818AbSEEX2i>; Sun, 5 May 2002 19:28:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313818AbSEEXU6>; Sun, 5 May 2002 19:20:58 -0400
-Received: from mnh-1-07.mv.com ([207.22.10.39]:63751 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S313817AbSEEXU5>;
-	Sun, 5 May 2002 19:20:57 -0400
-Message-Id: <200205060022.TAA03703@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: hugang <gang_hu@soul.com.cn>
-cc: glonnon@ridgerun.com, Pavel Machek <pavel@suse.cz>, seasons@fornax.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATH] Port software to UML. 
-In-Reply-To: Your message of "Sun, 05 May 2002 21:48:19 +0800."
-             <20020505214819.19cb9a86.gang_hu@soul.com.cn> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 May 2002 19:22:39 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S313819AbSEEX2h>; Sun, 5 May 2002 19:28:37 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:57765 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S313818AbSEEX2g>;
+	Sun, 5 May 2002 19:28:36 -0400
+Date: Mon, 6 May 2002 01:28:36 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200205052328.BAA12076@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.13 floppy driver is broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gang_hu@soul.com.cn said:
-> Ther problem in bread.
+There are at least two major problems with drivers/block/floppy.c
+in 2.5.13:
 
-No, the problem is in not understanding UML.
+1. Writing to /dev/fd0 fails with EROFS from open().
+   The driver's open() method relies on revalidate() having read the
+   first block and sensed whether the floppy is writable or not.
+   But this code was #if:ed out (lines 3883-3903) in 2.5.13, causing
+   open() to think the floppy is write-protected and return -EROFS.
+   Simply removing the #if 0 doesn't work since some of the code
+   in there no longer compiles in 2.5.13.
+   A workaround is to read from /dev/fd0 before writing.
 
-UML's state is somewhat more complicated than the state of a native kernel.
+2. The data written is seriously corrupted. I compared a bzImage
+   written to /dev/fd0 with 2.4.19-pre8 and 2.5.13. The first 9K was Ok,
+   but then 2.5.13 wrote data starting from offset 8K in the input.
+   I checked if the remaining data was simply shifted 1K, but that
+   was not the case: there are other differences (the next one at
+   offset 18K) but I haven't fully analysed the pattern.
+   I suspect there's some kind of block size confusion error.
 
-You also need to recreate 
-	the host processes
-	the ptrace relationships between the tracing thread and the other 
-processes
-	open file descriptors
-	and maybe a few other things that aren't coming to mind
-
-				Jeff
-
+/Mikael

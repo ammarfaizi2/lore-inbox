@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264293AbRFMCdN>; Tue, 12 Jun 2001 22:33:13 -0400
+	id <S264295AbRFMCkq>; Tue, 12 Jun 2001 22:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264295AbRFMCdD>; Tue, 12 Jun 2001 22:33:03 -0400
-Received: from utopia.booyaka.com ([206.156.231.220]:63200 "HELO
-	utopia.booyaka.com") by vger.kernel.org with SMTP
-	id <S264293AbRFMCcu>; Tue, 12 Jun 2001 22:32:50 -0400
-Date: Tue, 12 Jun 2001 21:32:48 -0500 (CDT)
-From: Paul Walmsley <shag-linux-kernel@booyaka.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Hard lockup debugging suggestions?  APIC enabling suggestions?
-In-Reply-To: <E154ssA-000550-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106122128130.30220-100000@utopia.booyaka.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264300AbRFMCkf>; Tue, 12 Jun 2001 22:40:35 -0400
+Received: from firewall.ocs.com.au ([203.34.97.9]:30963 "EHLO ocs4.ocs-net")
+	by vger.kernel.org with ESMTP id <S264295AbRFMCkX>;
+	Tue, 12 Jun 2001 22:40:23 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.6-pre3 
+In-Reply-To: Your message of "Tue, 12 Jun 2001 18:42:45 MST."
+             <Pine.LNX.4.31.0106121836030.1253-100000@penguin.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Jun 2001 12:40:11 +1000
+Message-ID: <26832.992400011@ocs4.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Alan Cox wrote:
+On Tue, 12 Jun 2001 18:42:45 -0700 (PDT), 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>-pre3:
+> - Jeff Garzik: network driver updates
 
-> > hard several times per day under Linux 2.4.4-ac11.  This lockup occurs
-> > during standard use of the system, e.g., web browsing or text editing.
-> > (What's particularly strange about the lockup is that sometimes the system
-> > will turn off the LCD backlight when it freezes -- but not the LCD panel
-> > itself.  Other times, it freezes with the backlight on.)
->
-> First things to try: Can you make it die without X, can you make it die if
-> you compile without APM or ACPI support.
-
-Further exhaustive testing along the lines you describe above has led me
-to believe this is an intermittent hardware problem on the notebook's
-motherboard.  I'm able to trigger the hard lockup both in Linux and in
-Windows 2000.  It appears to be triggered by stress on a certain part of
-the notebook's case.
-
-I'm having the motherboard replaced.  If it turns out not to be the
-problem, I'll follow up here.
-
-Thanks for the help,
-
-
-- Paul
+tulip_core.c:1756: warning: initialization from incompatible pointer type
+tulip_core.c:1757: warning: initialization from incompatible pointer type
 

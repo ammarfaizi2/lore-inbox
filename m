@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289305AbSAVVDR>; Tue, 22 Jan 2002 16:03:17 -0500
+	id <S289307AbSAVVKJ>; Tue, 22 Jan 2002 16:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289306AbSAVVC5>; Tue, 22 Jan 2002 16:02:57 -0500
-Received: from CPE0000d400a7cc.cpe.net.cable.rogers.com ([24.156.80.5]:16894
-	"HELO bits.dyndns.org") by vger.kernel.org with SMTP
-	id <S289305AbSAVVCy> convert rfc822-to-8bit; Tue, 22 Jan 2002 16:02:54 -0500
-Date: 22 Jan 2002 21:02:52 -0000
-Message-ID: <20020122210252.12485.qmail@bits.dyndns.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
+	id <S289316AbSAVVKA>; Tue, 22 Jan 2002 16:10:00 -0500
+Received: from 216-42-72-169.ppp.netsville.net ([216.42.72.169]:47320 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S289307AbSAVVJt>; Tue, 22 Jan 2002 16:09:49 -0500
+Date: Tue, 22 Jan 2002 16:08:28 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Andreas Dilger <adilger@turbolabs.com>, Shawn Starr <spstarr@sh0n.net>,
+        linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
 Subject: Re: Possible Idea with filesystem buffering.
-To: linux-kernel@vger.kernel.org
-From: Rolf Lear <rolf-linux@bits.dyndns.org>
-Cc: Rik van Riel <riel@conectiva.com.br>, reiser@namesys.com
-In-Reply-To: %3C3C4DCC49.1080202%40namesys.com%3E%20from%20Hans%20Reiser%20on%20Tue%2C%0A%20%20%20%2022%20Jan%202002%2023%3A32%3A09%20%2B0300%0A
+Message-ID: <2116720000.1011733708@tiny>
+In-Reply-To: <3C4DCC49.1080202@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201221234470.32617-100000@imladris.surriel.com>
+ <3C4DB36F.4090306@namesys.com> <2080500000.1011727185@tiny>
+ <3C4DCC49.1080202@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excuse me for being a kernel newbie (and a list lurker), and for simplifying what is obviously a complex issue... but ... the underlying issue really is simple. Further, you are both suggesting that a change in design is not out-of-the-question.
 
-The VM is responsible for making sure that Mem is used efficiently. The FS is responsible for making sure that the disks (both space and speed) are used efficiently.
 
-Now, I have followed this thread for days, and I agree with Rik that the VM should be able to tell (command) the FS to free a page. I agree with Hans that "Ideally", the VM should be capable of identifying the best page to free (in terms of cost to the FS). In this ideal world, it is the responsibility of an intelligent FS to inform an intelligent VM what it can do quickly, and what will take time.
+On Tuesday, January 22, 2002 11:32:09 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
-What I propose is either:
-a) An indication on each dirty page the cost required to clean it.
-b) A FS function which can be called which indicates the cost of a clean.
+>> Its not about the cost of a function call, it's what the FS does to make
+>> that call useful.  Pretend for a second the VM tells the FS everything it
+>> needs to know to age a page (whatever scheme the FS wants to use).
+>> 
+>> Then pretend the VM decides there's memory pressure, and tells the FS
+>> subcache to start freeing ram.  So, the FS goes through its list of pages
+>> and finds the most suitable one for flushing, but it has no idea how
+>> suitable that page is in comparison with the pages that don't belong to
+>> that FS (or even other pages from different mount points of the same FS
+>> flavor).
+>> 
+> 
+> Why does it need to know how suitable it is compared to the other
+> subcaches?  It just ages X pages, and depends on the VM to determine how
+> large X is.  The VM pressures subcaches in proportion to their size, it
+> doesn't need to know  how suitable one page is compared to another, it
+> just has a notion of push on everyone in proportion to their size.
 
-This cost should be measured in terms of something relevant like approximate IO time. FS's which do not support this system should have stubs which cost all pages equally.
+If subcache A has 1000 pages that are very very active, and subcache B has
+500 pages that never ever get used, should A get twice as much memory
+pressure?  That's what we want to avoid, and I don't see how subcaches
+allow it.
 
-The system would work as follows:
-VM Needs to free some Mem, and not enough clean pages can be freed.
-VM Identifies those dirty pages which are cheap to flush/clean, and does it. If VM Needs to flush an expensive page, it can still do it, but it knows whe price ahead of time (double bonus).
+-chris
 
-To identify the cheap pages, the VM can ask the FS the price, and as an added bonus, the FS can tell the VM how many other pages will get freed in the process.
 
-In my world of client-server / databases / etc, this just makes sense. 
-
-If this intelligent VM has a basic FS, it looses nothing. If it has an intelligent FS, it has more information to make better decisions.
-
-Rolf

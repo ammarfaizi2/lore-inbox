@@ -1,25 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293609AbSBZWjA>; Tue, 26 Feb 2002 17:39:00 -0500
+	id <S293620AbSBZWoA>; Tue, 26 Feb 2002 17:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293613AbSBZWiw>; Tue, 26 Feb 2002 17:38:52 -0500
-Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:33778 "EHLO
-	zzz.zzz") by vger.kernel.org with ESMTP id <S293609AbSBZWip>;
-	Tue, 26 Feb 2002 17:38:45 -0500
-Date: Wed, 27 Feb 2002 03:36:47 +0500
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+	id <S293619AbSBZWnu>; Tue, 26 Feb 2002 17:43:50 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13062 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293618AbSBZWnp>; Tue, 26 Feb 2002 17:43:45 -0500
+Subject: Re: i810_audio support
+To: fooooobar@hotmail.com (Jason Algol)
+Date: Tue, 26 Feb 2002 22:58:28 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] matroxfb_base.c - a little fix
-Message-ID: <20020227033646.A27903@natasha.zzz.zzz>
-In-Reply-To: <12EE5C947552@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
+In-Reply-To: <F227XhGJPohZC46seCo00014395@hotmail.com> from "Jason Algol" at Feb 26, 2002 09:59:57 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12EE5C947552@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Tue, Feb 26, 2002 at 08:43:45PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fqYG-0002N1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, a little question: you use the (green.length == 5) test to
-distinct bpp15 from bpp16 (matroxfb_base.c:509).  Why?  Is the "real"
-15 not used as the bits_per_pixel's value?  Thanks in advance.
+> I dont know very much about the workings of sound cards, but the problem is 
+> that when playing anything a total crackling in the background that makes 
+> the audio almost unusable...a real pity.
+
+There are plenty of funnies in the i810 audio (actually mostly the driver
+just doesn't seem to want to lie down and behave not such the hardware).
+The crackling audio isn't one of the problems seen anywhere.
+
+What AC97 codec is attached to your card, and also does it help if you
+turn volume levels down a bit and turn all the recording inputs right off ?

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271894AbTGRVu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271900AbTGRVr4
+	id S271820AbTGRVzs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270396AbTGRVy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:47:56 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:50266 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S271894AbTGRVqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:46:51 -0400
-Subject: Re: Bitkeeper
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org>
-	 <20030718204405.GA658@work.bitmover.com>
-	 <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1058565696.2479.40.camel@aurora.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 18 Jul 2003 18:01:37 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 17:54:29 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:9682 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP id S270380AbTGRVyN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 17:54:13 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: Nachman Yaakov Ziskind <awacs@egps.com>, linux-kernel@vger.kernel.org
+Subject: Re: DVD-RAM crashing system
+Date: Sat, 19 Jul 2003 00:08:31 +0200
+User-Agent: KMail/1.5.2
+References: <20030718160643.A21755@egps.egps.com>
+In-Reply-To: <20030718160643.A21755@egps.egps.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200307190008.32137.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-18 at 17:23, Alan Cox wrote:
-> Actually your license is simply irrelevant in most of thre world. You
-> aren't allowed to forbid reverse engineering for interoperability.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Well, here in the US the right to reverse engineer may be gone.  It lost
-out in a recent case.  Hopefully that isn't telling of the future and
-future court cases.
+fredag 18. juli 2003, 22:06, skrev Nachman Yaakov Ziskind:
+> Anyone out there with tips on how to resolve this? Perhaps I can
+> force the kernel to think that DMA has been disabled?
 
-Long live that right everywhere, even if the US sticks its legal head up
-a dark, dark tunnel.
+No tips, I'm afraid, but don't even *think* about doing that.
+As the technician said, the problem is with the chipset not accepting commands 
+properly; fortunately, the kernel appears to catch the situation and avoid 
+(potential) severe damage.
 
-Trever
---
-"Love is friendship set on fire." -- French Proverb
+Forcing the kernel to act as if DMA is fully disabled when in fact it isn't 
+sounds like a very bad idea indeed; the best you could probably hope for is 
+to have the machine crash without losing any data.
+
+
+My suggestion is this: As the hardware is obviously broken, and disabling DMA 
+would cause a horrendous performance drop anyway, you should get a new 
+chipset. Return the one you have as broken.
+
+If that isn't an option, for whatever reason, you might try switching to a 
+lower-speed DMA mode using hdparm. Something like "hdparm -Xudma0 /dev/hdx" 
+might help, if you're lucky.
+
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/GG/f9OlFkai3rMARApCiAKCojeoY+nfskcM6EKFco8xktnSfjQCfTq6u
+rkZjj7+DtP90zv8cHuTorrA=
+=lr9Y
+-----END PGP SIGNATURE-----
 

@@ -1,84 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbUC3NYc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 08:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUC3NYc
+	id S263646AbUC3N3O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 08:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263648AbUC3N3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 08:24:32 -0500
-Received: from vse.vse.cz ([146.102.16.2]:18340 "EHLO vse.vse.cz")
-	by vger.kernel.org with ESMTP id S263645AbUC3NY3 (ORCPT
+	Tue, 30 Mar 2004 08:29:14 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:62632 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263646AbUC3N3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 08:24:29 -0500
-From: Zdenek Tlusty <tlusty@vse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: via 6420 pata/sata controller
-Date: Tue, 30 Mar 2004 15:24:25 +0200
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 08:29:06 -0500
+Date: Tue, 30 Mar 2004 18:58:32 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-ID: <20040330132832.GA5552@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <006701c415a4$01df0770$d100000a@sbs2003.local> <20040329162123.4c57734d.akpm@osdl.org> <20040329162555.4227bc88.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403301524.26360.tlusty@vse.cz>
+In-Reply-To: <20040329162555.4227bc88.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Hello Andrew,
 
-I have problem with via 6420 controller under linux (I have mandrake 9.1 with 
-kernel 2.4.25 with libata patch version 16).
-This controller has two sata and one pata channels. Sata channel works fine 
-with libata. My problem is with pata channel. I have pata hard disk on this 
-controller. Bios of the controller detected this disk but linux did not.
-What is the current status of the driver for this controller?
-Thank you for your time.
+We faced this problem starting 2.6.3 while working on kexec. 
 
-        Zdenek Tlusty
+The problem is because we now initialize cpu_vm_mask for init_mm with 
+CPU_MASK_ALL (from 2.6.3 onwards) which makes all bits in cpumask 1 (on SMP). 
+Hence BUG_ON(!cpus_equal(cpumask,tmp) fails. The change to set
+cpu_vm_mask to CPU_MASK_ALL was done to remove tlb flush optimizations 
+for ppc64. 
 
-cat /proc/ioports:
+I had posted a patch for this in the earlier thread. Reposting the same
+here. This patch removes the assertion and uses "tmp" instead of cpumask. 
+Otherwise, we will end up sending IPIs to offline CPUs as well.
 
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-c800-c8ff : PCI device 1106:3149 (VIA Technologies, Inc.)
-  c800-c8ff : sata_via
-cc00-cc7f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
-  cc00-cc7f : 01:0b.0
-cf60-cf6f : PCI device 1106:3149 (VIA Technologies, Inc.)
-  cf60-cf6f : sata_via
-cf80-cf87 : PCI device 1106:3149 (VIA Technologies, Inc.)
-  cf80-cf87 : sata_via
-cf88-cf8b : PCI device 1106:3149 (VIA Technologies, Inc.)
-  cf88-cf8b : sata_via
-cf8c-cf8f : PCI device 1106:3149 (VIA Technologies, Inc.)
-  cf8c-cf8f : sata_via
-cf90-cf9f : PCI device 1106:4149 (VIA Technologies, Inc.)
-cfa0-cfa7 : PCI device 1106:3149 (VIA Technologies, Inc.)
-  cfa0-cfa7 : sata_via
-cfa8-cfaf : PCI device 1106:4149 (VIA Technologies, Inc.)
-cfe0-cfe3 : PCI device 1106:4149 (VIA Technologies, Inc.)
-cfe4-cfe7 : PCI device 1106:4149 (VIA Technologies, Inc.)
-cff0-cff7 : PCI device 1106:4149 (VIA Technologies, Inc.)
-d000-dfff : PCI Bus #02
-  d800-d8ff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
-ef40-ef5f : Intel Corp. 82801BA/BAM USB (Hub #1)
-  ef40-ef5f : usb-uhci
-ef80-ef9f : Intel Corp. 82801BA/BAM USB (Hub #2)
-  ef80-ef9f : usb-uhci
-efa0-efaf : Intel Corp. 82801BA/BAM SMBus
-ffa0-ffaf : Intel Corp. 82801BA IDE U100
-  ffa0-ffa7 : ide0
-  ffa8-ffaf : ide1
+Comments please.
 
+Regards, Hari
+
+
+diff -Naur linux-2.6.3-before/arch/i386/kernel/smp.c linux-2.6.3/arch/i386/kernel/smp.c
+--- linux-2.6.3-before/arch/i386/kernel/smp.c	2004-02-18 09:27:15.000000000 +0530
++++ linux-2.6.3/arch/i386/kernel/smp.c	2004-03-04 14:16:43.000000000 +0530
+@@ -356,7 +356,8 @@
+ 	BUG_ON(cpus_empty(cpumask));
+ 
+ 	cpus_and(tmp, cpumask, cpu_online_map);
+-	BUG_ON(!cpus_equal(cpumask, tmp));
++	if(cpus_empty(tmp))
++		return;
+ 	BUG_ON(cpu_isset(smp_processor_id(), cpumask));
+ 	BUG_ON(!mm);
+ 
+@@ -371,12 +372,12 @@
+ 	flush_mm = mm;
+ 	flush_va = va;
+ #if NR_CPUS <= BITS_PER_LONG
+-	atomic_set_mask(cpumask, &flush_cpumask);
++	atomic_set_mask(tmp, &flush_cpumask);
+ #else
+ 	{
+ 		int k;
+ 		unsigned long *flush_mask = (unsigned long *)&flush_cpumask;
+-		unsigned long *cpu_mask = (unsigned long *)&cpumask;
++		unsigned long *cpu_mask = (unsigned long *)&tmp;
+ 		for (k = 0; k < BITS_TO_LONGS(NR_CPUS); ++k)
+ 			atomic_set_mask(cpu_mask[k], &flush_mask[k]);
+ 	}
+@@ -385,7 +386,7 @@
+ 	 * We have to send the IPI only to
+ 	 * CPUs affected.
+ 	 */
+-	send_IPI_mask(cpumask, INVALIDATE_TLB_VECTOR);
++	send_IPI_mask(tmp, INVALIDATE_TLB_VECTOR);
+ 
+ 	while (!cpus_empty(flush_cpumask))
+ 		/* nothing. lockup detection does not belong here */
+
+On Mon, Mar 29, 2004 at 04:25:55PM -0800, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> > >
+> > > The bug is on "BUG_ON(!cpus_equal(cpumask, tmp));" in flush_tlb_others
+> > > This was from 2.6.1-rc1-mjb1, and seems to be a race on shutdown
+> > > (prints after "Power Down"), but I've no reason to believe it's specific
+> > > to the patchset I have - it's not an area I'm touching, I think.
+> > > 
+> > > I presume we've got a race between taking CPUs offline and the 
+> > > tlbflush code ... tlb_flush_mm reads the value from mm->cpu_vm_mask,
+> > > and then presumably some other cpu changes cpu_online_map before it
+> > > gets to calling flush_tlb_others ... does that sound about right?
+> > 
+> > Looks like it, yes.  I don't think there's a sane way of fixing that - we'd
+> > need the flush_tlb_others() caller to hold some lock which keeps the cpu
+> > add/remove code away.
+> > 
+> > I'd propose removing the assertion?
+> 
+> If the going-away CPU can still take IPIs we're OK, I think.  If it cannot,
+> we have a problem.  Can you do a s/BUG_ON/WARN_ON/ and run with that for a
+> while?  Check that the warnings come out and the machine doesn't go crump?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+-- 
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

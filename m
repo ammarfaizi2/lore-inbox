@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268147AbUIKNjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUIKNnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268147AbUIKNjh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 09:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUIKNjg
+	id S268153AbUIKNnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 09:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIKNnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 09:39:36 -0400
-Received: from ozlabs.org ([203.10.76.45]:12011 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268147AbUIKNjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 09:39:36 -0400
-Date: Sat, 11 Sep 2004 23:38:12 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Major XFS problems...
-Message-ID: <20040911133812.GC32755@krispykreme>
-References: <20040908123524.GZ390@unthought.net> <4142E3EB.3080308@pointblue.com.pl>
+	Sat, 11 Sep 2004 09:43:17 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:3507 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268153AbUIKNnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 09:43:16 -0400
+Subject: Re: CPU Context corruption
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nigel Kukard <nkukard@lbsd.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4142DF44.7010900@lbsd.net>
+References: <4142DF44.7010900@lbsd.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094906455.21088.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4142E3EB.3080308@pointblue.com.pl>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 11 Sep 2004 13:40:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sad, 2004-09-11 at 12:19, Nigel Kukard wrote:
+> What does this error mean?
+> 
+> 
+> CPU 0: Machine Check Exception: 0000000000000004
+> Bank 0: 820000001040080F
+> 
+> 
+> I have a Matsonic 9097c motherboard, 2.4Ghz prescott celeron cpu. This 
+> error seems to be random. We have replaced the motherboard & cpu to no 
+> avail.
 
-> In my expierence XFS, was right after JFS the worst and the slowest 
-> filesystem ever made.
+It normally indicates a hardware problem. The precise meaning of all the
+bits is in the Intel chip docs (volume 3). If you've swapped the
+mainboard/cpu it might just be bad RAM.
 
-On our NFS benchmarks JFS is _significantly_ faster than ext3 and
-reiserfs. It depends on your workload but calling JFS the worst and
-slowest filesystem ever made is unfair.
-
-Anton

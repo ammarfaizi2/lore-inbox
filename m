@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270073AbRIMMUs>; Thu, 13 Sep 2001 08:20:48 -0400
+	id <S270134AbRIMMUs>; Thu, 13 Sep 2001 08:20:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270229AbRIMMU3>; Thu, 13 Sep 2001 08:20:29 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:24448 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S270174AbRIMMUO> convert rfc822-to-8bit; Thu, 13 Sep 2001 08:20:14 -0400
-Date: Thu, 13 Sep 2001 08:20:34 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: csaradap <csaradap@mihy.mot.com>
-cc: "linux-india-help@lists.sourceforge.net" 
-	<linux-india-help@lists.sourceforge.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: junk values at ppplogin
-In-Reply-To: <3BA0A0D0.19E0E76F@mihy.mot.com>
-Message-ID: <Pine.LNX.3.95.1010913081828.3271A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S270174AbRIMMU3>; Thu, 13 Sep 2001 08:20:29 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:36626 "EHLO
+	anduin.hitnet.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id <S270134AbRIMMUM>; Thu, 13 Sep 2001 08:20:12 -0400
+Date: Thu, 13 Sep 2001 14:19:38 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Stomping on Athlon bug
+Message-ID: <20010913141937.A1873@gondor.com>
+In-Reply-To: <17613305632.20010913121304@port.imtp.ilyichevsk.odessa.ua> <3BA087CA.3BD1D557@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BA087CA.3BD1D557@redhat.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Sep 2001, csaradap wrote:
+On Thu, Sep 13, 2001 at 11:17:46AM +0100, Arjan van de Ven wrote:
+> Interesting; This is exactly the bit that the athlon cool thingy that
+> popped up
+> here a while ago changed; everybody agreed that it was WAAAAY too
+> dangerous
+> back then, because PSU's and voltage regulators wouldn't be able to
+> cope......
 
-> I am configuring a ppp link over null modem. When I am trying to login I
-> get junk values like
-> 
-> ~ÿ}#À!}!}!} }4}"}&} } } } }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } }
-> }%}&*}]ÝH}'}"}(}"ÉÂ~~ÿ}#À!}!}!} }4}"}&} } } } }%}&*}]ÝH}'}"}(}"ÉÂ~
-> 
-> Can any body tell me what is the problem???
-> 
-> thanx
+But, as far as I understand, STPGNT will not be enabled unless ACPI
+power saving is in use, so setting the disconnect on STPGNT bit should
+not matter.
 
-Well, yes.  You have ppp running!  Your script must log-in FIRST,
-then it must start ppp, first on the server you logged in on, then
-next on your machine.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Jan
 

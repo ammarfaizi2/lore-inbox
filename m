@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318220AbSHIKGb>; Fri, 9 Aug 2002 06:06:31 -0400
+	id <S318222AbSHIKK5>; Fri, 9 Aug 2002 06:10:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318222AbSHIKGb>; Fri, 9 Aug 2002 06:06:31 -0400
-Received: from smtp-in.sc5.paypal.com ([216.136.155.8]:20453 "EHLO
-	smtp-in.sc5.paypal.com") by vger.kernel.org with ESMTP
-	id <S318220AbSHIKGa>; Fri, 9 Aug 2002 06:06:30 -0400
-Date: Fri, 9 Aug 2002 03:10:04 -0700
-From: Brad Heilbrun <bheilbrun@paypal.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
+	id <S318223AbSHIKK5>; Fri, 9 Aug 2002 06:10:57 -0400
+Received: from ns.suse.de ([213.95.15.193]:41221 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318222AbSHIKK4>;
+	Fri, 9 Aug 2002 06:10:56 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpumask_t
-Message-ID: <20020809101004.GA10135@paypal.com>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <20020808.073630.37512884.davem@redhat.com> <20020809080517.E4BE5443C@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020809080517.E4BE5443C@lists.samba.org>
-User-Agent: Mutt/1.3.27i
+Subject: Re: klibc development release
+References: <aivdi8$r2i$1@cesium.transmeta.com>
+X-Yow: It's hard being an ARTIST!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Fri, 09 Aug 2002 12:14:38 +0200
+In-Reply-To: <aivdi8$r2i$1@cesium.transmeta.com> ("H. Peter Anvin"'s message
+ of "8 Aug 2002 20:39:52 -0700")
+Message-ID: <jek7n049v5.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 04:04:12PM +1000, Rusty Russell wrote:
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .28255-2.5.30-cpumask.pre/fs/partitions/check.c .28255-2.5.30-cpumask/fs/partitions/check.c
-> --- .28255-2.5.30-cpumask.pre/fs/partitions/check.c	2002-08-02 11:15:09.000000000 +1000
-> +++ .28255-2.5.30-cpumask/fs/partitions/check.c	2002-08-09 15:54:25.000000000 +1000
-> @@ -467,7 +467,7 @@ void devfs_register_partitions (struct g
->  	for (part = 1; part < max_p; part++) {
->  		if ( unregister || (p[part].nr_sects < 1) ) {
->  			devfs_unregister(p[part].de);
-> -			dev->part[p].de = NULL;
-> +			dev->part[part].de = NULL;
->  			continue;
->  		}
->  		devfs_register_partition (dev, minor, part);
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
+|> I would particularly appreciate portability comments, since I'm flying
+|> blind on non-i386 machines (anyone want to send me hardware?),
 
-The above seems unrelated to cpumask_t. Also the current BK tree
-lists the fix as:
+You don't need hardware, just use a cross-compiler.
 
---- a/fs/partitions/check.c	Thu Aug  1 13:38:40 2002
-+++ b/fs/partitions/check.c	Sat Aug  3 10:11:58 2002
-@@ -467,7 +467,7 @@
- 	for (part = 1; part < max_p; part++) {
- 		if ( unregister || (p[part].nr_sects < 1) ) {
- 			devfs_unregister(p[part].de);
--			dev->part[p].de = NULL;
-+			p[part].de = NULL;
- 			continue;
- 		}
- 		devfs_register_partition (dev, minor, part);
-
+Andreas.
 
 -- 
-Brad Heilbrun
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

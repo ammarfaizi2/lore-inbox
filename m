@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266350AbUA2Tz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266354AbUA2Tzz
+	id S266337AbUA2Tzi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbUA2Tzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:55:55 -0500
-Received: from gprs103-63.eurotel.cz ([160.218.103.63]:42370 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266350AbUA2Tzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:55:48 -0500
-Date: Thu, 29 Jan 2004 20:55:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Michael Schierl <schierlm@gmx.de>
-Cc: Stephen Rothwell <fr@canb.auug.org.au>, linux-laptop@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: [PATCH] [APM] Is this the correct way to fix suspend bug introduced in 2.6.0-test4?
-Message-ID: <20040129195534.GH480@elf.ucw.cz>
-References: <13zy7qdcyz1q7$.50e5l3rpbsyx$.dlg@40tude.net> <20040128174655.GE1200@elf.ucw.cz> <40195A95.C675952C@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40195A95.C675952C@gmx.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 29 Jan 2004 14:55:38 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:38746 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266337AbUA2Tzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 14:55:36 -0500
+Date: Thu, 29 Jan 2004 19:55:41 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: SysV shm device number
+In-Reply-To: <1075388721.15653.124.camel@cube>
+Message-ID: <Pine.LNX.4.44.0401291931100.9070-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > if you think that's okay like that, please submit that to the guy who is
-> > > responsible for 2.6 (is it Linus or Andrew? did not follow lkml
-> > > recently).
-> > 
-> > Andrew.
+On 29 Jan 2004, Albert Cahalan wrote:
+> I'd like to reliably identify SysV shared memory
+> in the /proc/*/maps files. On one system, the entries
+> look like this:
 > 
-> Thanks. BTW: I did not get any response from Stephen Rothwell (the guy
-> who is listed as maintainer for APM in the MAINTAINERS file). How long
-> should I wait for a response? Or should I simply submit the patch to
-> Andrew?
+> 40014000-40015000 r--s 00000000 00:04 0          /SYSV00000000 (deleted)
+> 40015000-40016000 rw-s 00000000 00:04 32769      /SYSV000000ff (deleted)
+> 
+> On my system, they look like this:
+> 
+> 30016000-30017000 r--s 00000000 00:06 870318096  /SYSV00000000\040(deleted)
+> 30017000-30018000 rw-s 00000000 00:06 870350865  /SYSV000000ff\040(deleted)
+> 
+> So the key number is in the name, and the shmid
+> number is the inode number. The device major number
+> is 0, and the device minor number is 4 or 6.
 
-I'd submit patch to andrew, Cc: stephen. -mm series should get enough
-testing, and this is not to big patch.
+I'm sure you don't mean to rely on it being 4 or 6: it just depends
+on where in the init sequence init_tmpfs gets called, who else has
+already allocated anon supers before it.
 
-[The patch looks good to me, btw.]
-									Pavel
+> Other than by creating my own SysV shared memory,
+> is there a way to tell what the minor number should be?
 
+I can't think of a better way.  I presume you're focussing on that
+minor number because you don't want to be fooled by an mmap of a
+regular file at root named /SYSVnnnnnnnn.  Beware that a shared
+writable mmap of /dev/zero (or MAP_ANONYMOUS) also appears on
+that major:minor, but named /dev/zero (deleted).
 
-> Michael
-> --- linux-2.6.2-rc2-mm1/arch/i386/kernel/apm.c.old	Thu Jan 29 16:22:03 2004
-> +++ linux-2.6.2-rc2-mm1/arch/i386/kernel/apm.c	Thu Jan 29 16:22:07 2004
-> @@ -1201,6 +1201,7 @@ static int suspend(int vetoable)
->  	}
->  
->  	device_suspend(3);
-> +	device_power_down(3);
->  
->  	/* serialize with the timer interrupt */
->  	write_seqlock_irq(&xtime_lock);
-> @@ -1234,6 +1235,7 @@ static int suspend(int vetoable)
->  	if (err != APM_SUCCESS)
->  		apm_error("suspend", err);
->  	err = (err == APM_SUCCESS) ? 0 : -EIO;
-> +	device_power_up();
->  	device_resume();
->  	pm_send_all(PM_RESUME, (void *)0);
->  	queue_event(APM_NORMAL_RESUME, NULL);
-> @@ -1252,6 +1254,7 @@ static void standby(void)
->  {
->  	int	err;
->  
-> +	device_power_down(3);
->  	/* serialize with the timer interrupt */
->  	write_seqlock_irq(&xtime_lock);
->  	/* If needed, notify drivers here */
-> @@ -1261,6 +1264,7 @@ static void standby(void)
->  	err = set_system_power_state(APM_STATE_STANDBY);
->  	if ((err != APM_SUCCESS) && (err != APM_NO_ERROR))
->  		apm_error("standby", err);
-> +	device_power_up();
->  }
->  
->  static apm_event_t get_event(void)
+You might prefer to identify the minor number that way, via an
+mmap(0, 1, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0),
+I can't see any reason for their minors to diverge (so long as
+minors make any sense at all here).
 
+Hugh
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131512AbRABUlT>; Tue, 2 Jan 2001 15:41:19 -0500
+	id <S131468AbRABUlk>; Tue, 2 Jan 2001 15:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131468AbRABUlK>; Tue, 2 Jan 2001 15:41:10 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:13578 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131717AbRABUk3>; Tue, 2 Jan 2001 15:40:29 -0500
-Date: Tue, 2 Jan 2001 21:09:49 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-Message-ID: <20010102210949.C7563@athlon.random>
-In-Reply-To: <Pine.Linu.4.10.10101021542460.648-100000@mikeg.weiden.de> <Pine.LNX.4.10.10101021057040.25012-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101021057040.25012-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 02, 2001 at 11:02:41AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131720AbRABUlb>; Tue, 2 Jan 2001 15:41:31 -0500
+Received: from fe5.southeast.rr.com ([24.93.67.52]:51721 "EHLO
+	mail5.triad.rr.com") by vger.kernel.org with ESMTP
+	id <S131468AbRABUlW>; Tue, 2 Jan 2001 15:41:22 -0500
+Message-ID: <3A523635.8080003@triad.rr.com>
+Date: Tue, 02 Jan 2001 15:12:37 -0500
+From: Ghadi Shayban <ghad@triad.rr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-prerelease i686; en-US; m18) Gecko/20001231
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Error compiling 2.4 with CVS gcc on Athlon
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 11:02:41AM -0800, Linus Torvalds wrote:
-> What does the system feel like if you just change the "sleep for bdflush"
-> logic in wakeup_bdflush() to something like
-> 
-> 	wake_up_process(bdflush_tsk);
-> 	__set_current_state(TASK_RUNNING);
-> 	current->policy |= SCHED_YIELD;
-> 	schedule();
-> 
-> instead of trying to wait for bdflush to wake us up?
+I have no idea, but I'm guessing this isn't a gcc bug.  Here's where my 
+build fails:
 
-My bet is a `VM: killing' message.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -fno-strict-aliasing -pipe 
+-mpreferred-stack-boundary=2 -march=athlon     -c -o mmx.o mmx.c
+{standard input}: Assembler messages:
+{standard input}:139: Error: bad register name `%%mm0'
+make[2]: *** [mmx.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/arch/i386/lib'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+make: *** [_dir_arch/i386/lib] Error 2
 
-Waiting bdflush back-wakeup is mandatory to do write throttling correctly.  The
-above will break write throttling at least unless something foundamental is
-changed recently and that doesn't seem the case.
 
-What I like to do there is to just make bdflush the same thing that kswapd
-_should_ (I said "should" because it seems it's not the case anymore in 2.4.x
-from some email I read recently, I didn't checked that myself yet) be for
-memory pressure (I implemented that at some point in my private local tree). I
-mean: bdflush only does the async writeouts and the task context calls
-something like flush_dirty_buffers itself. The main reason I was doing that is
-to fix the case of >bdf_prm.ndirty tasks all waiting on bdflush at the same
-time (that will break write throttling even now in 2.2.x and in current 2.4.x).
-That's an unlukcy condition very similar to the one in GFP that is fixed
-correctly in 2.2.19pre2 putting pages in a per-process freelist during memory
-balancing.
+I thought maybe "mmx" is now named something else in the new gcc, but 
+compiling it with -march=i686 doesn't change anything.
 
-Andrea
+Ghadi Shayban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

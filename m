@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135214AbRA2QfW>; Mon, 29 Jan 2001 11:35:22 -0500
+	id <S135561AbRA2QjZ>; Mon, 29 Jan 2001 11:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135286AbRA2QfO>; Mon, 29 Jan 2001 11:35:14 -0500
-Received: from cache.sh.cvut.cz ([147.32.127.204]:13324 "EHLO cache.sh.cvut.cz")
-	by vger.kernel.org with ESMTP id <S135214AbRA2Qe5>;
-	Mon, 29 Jan 2001 11:34:57 -0500
-Date: Mon, 29 Jan 2001 17:34:37 +0100 (CET)
-From: Antonin Kral <A.Kral@sh.cvut.cz>
-To: Jonathan Earle <jearle@nortelnetworks.com>
-cc: "'jamal'" <hadi@cyberus.ca>, Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: RE: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCE5@zcard00g.ca.nortel.com>
-Message-ID: <Pine.LNX.4.21.0101291732160.14875-100000@nightmare.sh.cvut.cz>
-MIME-Version: 1.0
+	id <S135286AbRA2QjQ>; Mon, 29 Jan 2001 11:39:16 -0500
+Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:12561 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S135671AbRA2QjH>; Mon, 29 Jan 2001 11:39:07 -0500
+Date: Mon, 29 Jan 2001 17:39:03 +0100 (MEZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: Nathan Black <NBlack@md.aacisd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bolck Device problem or Compaq Smart array 2 problem? kernel -2.4 .0+
+In-Reply-To: <8FED3D71D1D2D411992A009027711D671859@md>
+Message-Id: <Pine.A32.3.95.1010129172907.41886A-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Jan 2001, Nathan Black wrote:
 
-> > Throughput: 100Mbps is really nothing. Linux never had a problem with
-> > 4-500Mbps file serving. So throughput is an important number. so is
-> > end to end latency, but in file serving case, latency might 
-> > not be a big deal so ignore it.
 > 
-> If I try to route more than 40mbps (40% line utilization) through a 100mbps
-> port (tulip) on a 2.4.0-test kernel running on a pIII 500 (or higher)
-> system, not only does the performance drop to nearly 0, the system gets all
-> sluggish and unusable.  This is with or without Jamal's FF patches.
+> Here is my scenario. I have a smart array controller 2. I have 6 logical
+> drives( one on it's own physical drive). I am using the one drive for data
+> aquisition from an atm board. To locate my problem, I removed all of the atm
+> stuff. and I am trying just a read/write. Both show the same symptoms. I
+> have tried many different kernels.
 > 
-> How are you managing to get such high throughput?
+> Here are my results.
 > 
+> 2.2.18- works fine. 24 MBytes/sec at 100+ gigabytes (16GB looped many times
+> ( lseek64(FD,SEEK_SET,0) )).
+> 
+> 2.4.0 release SMP and Uniprocessor with NMI on-	Kernel oops. I can reproduce
+> if necessary( oops at about 700 MB)  sometimes more, sometime less. (In
+> BDFLUSH if I recall)
+> 
+> 2.4.0 release UniProcessor NMI off- Works like the 2.2.18
 
-I have used 2.2.13 to 2.2.18 and 2.4.0, for first approach, with no
-patches and with no probles I managed bandwidth about 200 and 300 Mbps
+Esp. for SMP problems (that is running on an SMP machine). Proper setup of
+the board, the APIC and what else is mandatory.
 
-Antonin
+For the Proliant, you should check the operating system setting with the
+compaq setup tool/diagnosis. Definitely first upgrade all firmware to the
+latest release... The new releases usually already support the setting:
+linux. However, private experience:
 
+   DOS/other       -- works, but UP only,
+   linux           -- only on new machines, one case known where it
+                      doesn't work.
+   Windows NT      -- known not to work on old machines, but works in
+                      above case where linux doesn't.
+   Unixware (v7?)  -- some SMP unix, works on old machines, again doesn't
+                      work on some new hardware.
+
+So, you might have to try several settings. Even if 2.2.18 works, 2.4's 
+setup might need other, better hardware initialisation.
+
+If this doesn't help (or you knew about it and just didn't mention it).
+I'd more think about hardware/CPU (esp. SMP setup)/memory problems.
+I don't see the raid adapter affected here.
+
+If all this doesn't help, you might want to contact Compaq, they are
+recently very helpful to resolve such issues. 
+
+How do lesser CPU's work?
+
+--
+
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

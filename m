@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264942AbUBOPGS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUBOPGS
+	id S264971AbUBOPWY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUBOPWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:06:18 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:42925 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264942AbUBOPGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:06:13 -0500
-Date: Sun, 15 Feb 2004 09:06:11 -0600 (CST)
-From: Ryan Reich <ryanr@uchicago.edu>
-Reply-To: Ryan Reich <ryanr@uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Speaker static, vanishes with APIC
-Message-ID: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Feb 2004 10:22:23 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43743 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264971AbUBOPWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:22:21 -0500
+Date: Fri, 13 Feb 2004 20:02:23 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Gidon <gidon@warpcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel GPL Violations and How to Research
+Message-ID: <20040213190222.GG6804@openzaurus.ucw.cz>
+References: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is really trivial and I solved it anyway, but in all incarnations of 2.6 I
-have had static coming from my speakers shortly after boot.  It only lasts a few
-seconds and sounds as though someone were jiggling the plug in the sound card's
-socket.  It only happens right after boot.  Since I enabled Local APIC and
-IO-APIC it hasn't happened.
+Hi!
 
-Sound card module is snd-intel8x0, and my card is built into my Shuttle AN35N
-motherboard.
+> So what I am writing to ask, is what is the best way to ascertain
+> whether or not a binary (in this case a "kernel image" of this project)
+> contains GPL'd code or functions. So far I have found nearly a hundred
+> identical (down to formatting specifiers, punctuation, etc.) or nearly
+> identical error messages that consistently match areas of Linux i386
+> arch specific kernel code or drivers as well as matching function names,
+> using the "strings" program on their Kernel image.
 
+At this point you can be pretty sure they are violating GPL. Archive binary
+they provide, and ask them for the sources.
+
+(Drivers may come from BSD, but arch-i386 is probably not.)
 -- 
-Ryan Reich
-ryanr@uchicago.edu
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

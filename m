@@ -1,103 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274278AbRIYAZp>; Mon, 24 Sep 2001 20:25:45 -0400
+	id <S274279AbRIYAZy>; Mon, 24 Sep 2001 20:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274277AbRIYAZY>; Mon, 24 Sep 2001 20:25:24 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:2781 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S274272AbRIYAZW>;
-	Mon, 24 Sep 2001 20:25:22 -0400
-From: "John L. Males" <jlmales@softhome.net>
-Organization: Toronto, Ontario, Canada
-To: Tim Moore <timothymoore@bigfoot.com>
-Date: Mon, 24 Sep 2001 20:25:42 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re[06]: Linux Kernel 2.2.20-pre10 Initial Impressions
-Reply-to: jlmales@softhome.net
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3BAF96C6.14500.316861@localhost>
-In-Reply-To: <3BAF9F68.4EFBC73B@bigfoot.com>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S274277AbRIYAZp>; Mon, 24 Sep 2001 20:25:45 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:28688 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S274272AbRIYAZc>; Mon, 24 Sep 2001 20:25:32 -0400
+Date: Mon, 24 Sep 2001 18:29:39 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        jmerkey@utah-nac.org
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
+Message-ID: <20010924182939.A15611@vger.timpanogas.org>
+In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com> <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Sep 24, 2001 at 08:37:11PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Sep 24, 2001 at 08:37:11PM -0300, Rik van Riel wrote:
 
-Hi Tim,
+When people are crashing planes into buildings and killing people
+by the thousands, hacking laws should be tough.  The US has shut off
+internet access from Cyprus and several other places, and I've 
+noticed a fall-off of hacking on my servers -- GOOD!.  
 
-Thank you so much for your offer.
+Maureen O'Gara at Client Server News is based in NY, and from what she 
+describes, the entire city is in a terrible state.  Let anyone in New 
+York know who is our friend on this list that the Utah Native American 
+Church has sent James Mooney to New York City to conduct ceremonies for 
+the victims and their families.   The mayor's office has given us 
+permission to conduct our ceremonies there for these people without 
+fear of police harassment.
 
-If you get a chance please refer to my posting yesterday where I
-actually detailed the results of my testing and the steps I used.  If
-you need further details feel free to ask.
+I am sending him enough peyote to trip out half the city.  Anyone in NY 
+who needs to find healing who is a member of our linux "Family" is 
+welcome at these ceremonies.  These people involved in this terrifying 
+ordeal need to sit in a tepee and go somewhere else for a couple of days
+with the sacred medicine.  
 
-My results seem to suggest one interesting behaviour.  At this point
-I am not sure if it is part kernel, part Netscape or all Netscape.  I
-would lean towards it not being all Kernel, but I could be really
-wrong given my very limited knowledge of the kernel.  Just my
-professional QA/Testing opinion with varied my technical background.
+New York folks who wish to be involved in these ceremonies can call 
+212-755-0968 or 212-929-9396 to find out where and when.  We have so far
+hosted thousands of the victims in these ceremonies.  All are welcome and 
+their families.  The laws in New York allow non-Indians to use peyote 
+for religious purposes of any race, unlike Utah.  Tell our brothers we 
+open our doors to those in need of spiritual and emotional healing for 
+the people of New York.
+
+These ceremonies are **FREE**.  The Utah NAC is picking up the tab.
+
+Do-na-da Go-hv-e
+
+Wa-do
+
+Jeff
 
 
-Regards,
-
-John L. Males
-Willowdale, Ontario
-Canada
-24 September 2001 20:25
-mailto:jlmales@softhome.net
-
-
-Date sent:      	Mon, 24 Sep 2001 14:02:32 -0700
-From:           	Tim Moore <timothymoore@bigfoot.com>
-Organization:   	Yoyodyne Propulsion Systems, Inc.
-To:             	jlmales@softhome.net
-Copies to:      	linux-kernel@vger.kernel.org
-Subject:        	Re: Linux Kernel 2.2.20-pre10 Initial Impressions
-
-> "John L. Males" wrote:
-> > ...
-> > Ok, I finially had a chance to compile the 2.2.20-pre10 Kernel
-> > and run it though some basic paces.  I need to do more specific A
-> > vs b (against the 2.2.19 Kernel), but it seems there are some
-> > performance issues.  It is seems especially obvious with Netscape
-> > 4.78.  I also had a odd Xfree error, that may have had some
-> > relationship to the performance issue. ...
+> On Mon, 24 Sep 2001, Paul G. Allen wrote:
 > 
-> FWIW, I've been using ns 4.78 since August 20 on the listed kernels
-> with no noticable change.  All kernels have Andre's IDE patch.
+> > If this passes, everyone working in computer security can be
+> > arrested and thrown in prison for life. In addition, people such
+> > as Kevin Mitnick can be thrown back in prison even though they
+> > have already paid for their crime (double jeopardy?).
+> >
+> > http://www.securityfocus.com/news/257
 > 
-> If you have a specific test script I can give it a run.
+> So, would anybody have a nice piece of real estate in the
+> free world where silicon valley could be evacuated to ?
 > 
-> 2.2.19pre17, 2.2.20pre{6,9,10}
-> XFree86-3.3.6-29 (SVGA driver)
-> ide.2.2.19.05042001.patch
-> communicator-v478-us.x86-unknown-linux2.2.tgz
+> (time to find volunteers to maintain thefreeworld.net ?)
 > 
-> System is Athlon 850 (CONFIG_M686=y) on an Abit KA7.
+> cheers,
 > 
-> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0391
-> (rev 02) 00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device
-> 8391 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo
-> Super] (rev 22) 00:07.1 IDE interface: VIA Technologies, Inc.
-> VT82C586 IDE [Apollo] (rev 10) 00:07.4 Host bridge: VIA
-> Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-> 
-> rgds,
-> tim.
+> Rik
 > --
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use 
-<http://www.pgp.com>
-
-iQA/AwUBO6/c/uAqzTDdanI2EQJjaACfXE49KYj/PSLGlXh18iYJTytyRmYAoK0C
-hIiTpYo2vu1OHKYb5YPKv8qc
-=Nz85
------END PGP SIGNATURE-----
-
-
-
-"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000
+> IA64: a worthy successor to the i860.
+> 
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

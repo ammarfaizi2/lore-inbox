@@ -1,106 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbVBDUER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264243AbVBDUES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265048AbVBDUER (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbVBDT4G
+	id S264243AbVBDUES (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbVBDUDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 14:56:06 -0500
-Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:37360 "EHLO
-	hathawaymix.org") by vger.kernel.org with ESMTP id S266437AbVBDTy2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:54:28 -0500
-Message-ID: <4203D4C1.1080007@hathawaymix.org>
-Date: Fri, 04 Feb 2005 13:02:09 -0700
-From: Shane Hathaway <shane@hathawaymix.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041228
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Configure MTU via kernel DHCP
-References: <200502022148.00045.shane@hathawaymix.org> <200502041755.41288.hpj@urpla.net>
-In-Reply-To: <200502041755.41288.hpj@urpla.net>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 15:03:33 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:24836 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S266804AbVBDUAj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:00:39 -0500
+Subject: [patch 2/8] uml: kconfig fixes [before 2.6.11]
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 04 Feb 2005 19:35:43 +0100
+Message-Id: <20050204183543.D8A78310B6@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Peter Jansen wrote:
-> On Thursday 03 February 2005 05:47, Shane Hathaway wrote:
-> 
->>The attached patch enhances the kernel's DHCP client support (in
->>net/ipv4/ipconfig.c) to set the interface MTU if provided by the
->>DHCP server. Without this patch, it's difficult to netboot on a
->>network that uses jumbo frames.  The patch is based on 2.6.10, but
->>I'll update it to the latest testing kernel if that would expedite
->>its inclusion in the kernel.
-> 
-> 
-> Well, I've been there before, and asked for exact the same back in 
-> June 2003, but had much less luck, nobody of kernel fame even 
-> responded:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105624464918574&w=4
 
-I wish I had found your patch before I went to the trouble of writing my 
-own!  Yours is just as good as mine.
+Change some config text (hide CONFIG_MODVERSION which is broken on UML and fix
+a dummy prompt).
 
-> For what is worth it, I ported my patch to current 2.6, which raised 
-> some comments compared to yours:
-> 
->  - Is it really necessary to protect the dev_set_mtu call, since it is
->    just setting up the device?
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Without rtnl_shlock(), something complains about RTNL not being locked. 
-I don't know much beyond that.
+ linux-2.6.11-paolo/arch/um/Kconfig |    6 ++----
+ linux-2.6.11-paolo/init/Kconfig    |    2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
->  - I prefer to call dev_set_mtu only, if a change mtu request is
->    sent.. 
-
-Yes, I can see that.  Either way is fine by me.
-
->  - Are you sure, you got the endianess right? 
-
-On the MTU parameter?  Yes, it's network byte order, big-endian.
-
-> Here's the "cost": ipconfig.o without my patch on x86:
-> 
->   3 .init.data    0000005a  00000000  00000000  00000220  2**2
->                   CONTENTS, ALLOC, LOAD, RELOC, DATA
->   4 .rodata.str1.1 000001a2  00000000  00000000  0000027a  2**0
->                   CONTENTS, ALLOC, LOAD, READONLY, DATA
->   5 .rodata.str1.4 000003ad  00000000  00000000  0000041c  2**2
->                   CONTENTS, ALLOC, LOAD, READONLY, DATA
->   6 .init.text    00001a45  00000000  00000000  000007d0  2**4
->                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
-> 
-> With patch:
-> 
->   3 .init.data    0000005e  00000000  00000000  00000220  2**2
->                   CONTENTS, ALLOC, LOAD, RELOC, DATA
->   4 .rodata.str1.1 000001ab  00000000  00000000  0000027e  2**0
->                   CONTENTS, ALLOC, LOAD, READONLY, DATA
->   5 .rodata.str1.4 000003e5  00000000  00000000  0000042c  2**2
->                   CONTENTS, ALLOC, LOAD, READONLY, DATA
->   6 .init.text    00001ab5  00000000  00000000  00000820  2**4
->                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
-> 
-> Difference: 181 Bytes (padding ignored)
-> 
-> The whole module takes about 9K, compared to dhcp in initrd, which 
-> takes a few hundred K! Hmm.
-
-It's probably better to compare your patch with its apparent successor, 
-however.  The tiny DHCP client in the klibc package already supports 
-setting the MTU.
-
-> May the linux gods indulge on this topic one day or remove the 
-> ipconfig module completely.
-
-A friend of mine just had the misfortune of running into the exact same 
-problem, but then he had the fortune of finding your patch.  So at least 
-the curse has a temporary remedy. :-)  The long-term solution is klibc, 
-I hope.  klibc in initramfs could ease a lot of pain.
-
-Shane
+diff -puN init/Kconfig~uml-kconfig-fixes init/Kconfig
+--- linux-2.6.11/init/Kconfig~uml-kconfig-fixes	2005-02-04 03:21:03.000000000 +0100
++++ linux-2.6.11-paolo/init/Kconfig	2005-02-04 03:23:37.000000000 +0100
+@@ -410,7 +410,7 @@ config OBSOLETE_MODPARM
+ 
+ config MODVERSIONS
+ 	bool "Module versioning support (EXPERIMENTAL)"
+-	depends on MODULES && EXPERIMENTAL
++	depends on MODULES && EXPERIMENTAL && !USERMODE
+ 	help
+ 	  Usually, you have to use modules compiled with your kernel.
+ 	  Saying Y here makes it sometimes possible to use modules
+diff -puN arch/um/Kconfig~uml-kconfig-fixes arch/um/Kconfig
+--- linux-2.6.11/arch/um/Kconfig~uml-kconfig-fixes	2005-02-04 03:26:44.762471872 +0100
++++ linux-2.6.11-paolo/arch/um/Kconfig	2005-02-04 03:26:44.764471568 +0100
+@@ -313,11 +313,9 @@ if BROKEN
+ 	source "drivers/mtd/Kconfig"
+ endif
+ 
++#This is just to shut up some Kconfig warnings, so no prompt.
+ config INPUT
+-	bool "Dummy option"
+-	depends BROKEN
++	bool
+ 	default n
+-	help
+-	This is a dummy option to get rid of warnings.
+ 
+ source "arch/um/Kconfig.debug"
+_

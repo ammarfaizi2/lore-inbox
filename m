@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTDGFqq (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTDGFqq (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:46:46 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:28425 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263264AbTDGFqp (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 01:46:45 -0400
-Date: Mon, 7 Apr 2003 06:58:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       paulus@samba.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC
-Message-ID: <20030407065813.A27933@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Fabrice Bellard <fabrice.bellard@free.fr>,
-	linux-kernel@vger.kernel.org, paulus@samba.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20030407024858.C32422C014@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030407024858.C32422C014@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Apr 07, 2003 at 12:40:38PM +1000
+	id S263265AbTDGFtu (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTDGFtu (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:49:50 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:12519 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263265AbTDGFts (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 01:49:48 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-xfs@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: XFS split patches for 2.4.20 - respin 
+Date: Mon, 07 Apr 2003 15:59:57 +1000
+Message-ID: <23428.1049695197@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 12:40:38PM +1000, Rusty Russell wrote:
-> Paul, is this OK?
-> 
-> I'd like it in 2.4.21 if possible.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Please use sys_personality from userland.  And not, I don't think it should
-go into 2.4.21.  Get it into 2.5 first.
+Content-Type: text/plain; charset=us-ascii
+
+Content-Type: text/plain; charset=us-ascii
+
+ftp://oss.sgi.com/projects/xfs/download/patches/2.4.20.  
+
+The xfs patches for 2.4.20 have been respun as of 2003-04-07 05:19 UTC,
+including kdb v4.1.
+
+For some time the XFS group have been producing split patches for XFS,
+separating the core XFS changes from additional patches such as kdb,
+xattr, acl, dmapi.  The split patches are released to the world with
+the hope that developers and distributors will find them useful.
+
+Read the README in each directory very carefully, the split patch
+format has changed over a few kernel releases.  Any questions that are
+covered by the README will be ignored.  There is even a 2.4.21/README
+for the terminally impatient :).
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE+kRPZi4UHNye0ZOoRAh30AKCl2DrfBWITfTfWQBiQ9lS+FfmcVACg1kcB
+Azff7KlP4XNnxChQM71Bm3M=
+=H0Xh
+-----END PGP SIGNATURE-----
 

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311147AbSCaBjj>; Sat, 30 Mar 2002 20:39:39 -0500
+	id <S311203AbSCaBla>; Sat, 30 Mar 2002 20:41:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311193AbSCaBja>; Sat, 30 Mar 2002 20:39:30 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41772 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S311147AbSCaBjW>; Sat, 30 Mar 2002 20:39:22 -0500
-Date: Sat, 30 Mar 2002 18:33:07 -0700
-From: ebiederm@xmission.com
-Message-Id: <200203310133.SAA12760@frodo.biederman.org>
-To: <linux-kernel@vger.kernel.org>
+	id <S311206AbSCaBlV>; Sat, 30 Mar 2002 20:41:21 -0500
+Received: from harddata.com ([216.123.194.198]:51461 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S311203AbSCaBlM>;
+	Sat, 30 Mar 2002 20:41:12 -0500
+Date: Sat, 30 Mar 2002 18:41:01 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre5
+Message-ID: <20020330184101.A16046@mail.harddata.com>
+In-Reply-To: <20020330134017.A14523@mail.harddata.com> <11078.1017531282@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: [CFT][RFC] Linux/i386 boot protocol version 2.04
-In-Reply-To: <m1d6xmuipv.fsf@frodo.biederman.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Mar 2002 18:33:07 -0700
-In-Reply-To: <m1d6xmuipv.fsf@frodo.biederman.org>
-Message-ID: <m14rixv7vw.fsf@frodo.biederman.org>
-Lines: 29
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+On Sun, Mar 31, 2002 at 09:34:42AM +1000, Keith Owens wrote:
+> On Sat, 30 Mar 2002 13:40:17 -0700, 
+> Michal Jaegermann <michal@harddata.com> wrote:
+> >
+> >On Fri, Mar 29, 2002 at 06:47:39PM -0300, Marcelo Tosatti wrote:
+> >> 
+> >> Here goes pre5.
+> >
+> >Tried to recompile that on Alpha and I run into module symbol
+> >troubles of that sort:
+> >
+> >depmod: /lib/modules/2.4.19-pre5/kernel/drivers/sound/trident.o: Bad symbol index: 20414130 >= 000000d6
+> >depmod: /lib/modules/2.4.19-pre5/kernel/drivers/sound/trident.o: Bad symbol index: 74202a2f >= 000000d6
+> >depmod: /lib/modules/2.4.19-pre5/kernel/drivers/sound/trident.o: Bad symbol index: 0a2f2a20 >= 000000d6
+> >depmod: Bad symbol index: 20414130 >= 000000d6
+> >depmod: Bad symbol index: 74202a2f >= 000000d6
+> >depmod: Bad symbol index: 0a2f2a20 >= 000000d6
+> 
+> That is almost always caused by bad output from binutils.
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+Thanks to the helpful comment from Keith the matter is resolved.  The
+box in which this happened still has "issues" and apparently decided
+that it is time for one of its surprises.  That trident.o module
+recreated from scratch looks ok.
 
-> I have been doing some very weird things with booting the Linux kernel
-> for a long time.  
->   - Entering the kernel in 32bit mode to avoid 16bit BIOS calls.  
->   - Converting bzImage into static ELF executables.  
->   - Hard coding a kernel command-line
->   - Going back to 16bit mode to make BIOS calls if necessary.
-> 
-> This version of the boot protocol should be fully backwards compatible
-> but has new capabilities so I can do all of the above cleanly.
-> 
-> The current plan is to send this to Linus in the next couple of days
-> as soon as he gets back.
-> 
-> 
-> The patch series is at:
-> ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/
-> 
-> The overall patch is:
-> ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.7.boot.diff
-> 
-> Anyway please tell me what you think.
-
-For those having trouble getting in an alternative address is:
-http://www.xmission.com/~ebiederm/files/boot/linux-2.5.7.boot.diff
-
-
-Eric
+  Thanks,
+  Michal

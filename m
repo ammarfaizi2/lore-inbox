@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVDCLfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVDCLlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVDCLfg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 07:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVDCLfg
+	id S261683AbVDCLlW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 07:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVDCLlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 07:35:36 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:47589 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261682AbVDCLf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 07:35:26 -0400
-To: Yum Rayan <yum.rayan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, mvw@planets.elm.net
-Subject: Re: [PATCH] Reduce stack usage in acct.c
-References: <df35dfeb05033023394170d6cc@mail.gmail.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sun, 03 Apr 2005 13:35:19 +0200
-In-Reply-To: <df35dfeb05033023394170d6cc@mail.gmail.com> (Yum Rayan's
- message of "Wed, 30 Mar 2005 23:39:40 -0800")
-Message-ID: <877jjkf5zc.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 3 Apr 2005 07:41:22 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:46812 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261683AbVDCLlM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 07:41:12 -0400
+Message-ID: <424FD653.7020204@yandex.ru>
+Date: Sun, 03 Apr 2005 15:41:07 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com, svenning@post5.tele.dk,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru> <20050331095151.GA13992@gondor.apana.org.au>
+In-Reply-To: <20050331095151.GA13992@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yum Rayan <yum.rayan@gmail.com> writes:
+Herbert,
 
-> Attempt to reduce stack usage in acct.c (linux-2.6.12-rc1-mm3). Stack
-> usage was noted using checkstack.pl. Specifically:
->
-> Before patch
-> ------------
-> check_free_space - 128
->
-> After patch
-> -----------
-> check_free_space - 36
->
-> Signed-off-by: Yum Rayan <yum.rayan@gmail.com>
->
-> --- a/kernel/acct.c	2005-03-25 22:11:06.000000000 -0800
-> +++ b/kernel/acct.c	2005-03-30 15:33:05.000000000 -0800
-> @@ -103,30 +103,32 @@
->   */
->  static int check_free_space(struct file *file)
->  {
-> -	struct kstatfs sbuf;
-> -	int res;
-> -	int act;
-> -	sector_t resume;
-> -	sector_t suspend;
-> +	struct kstatfs *sbuf = NULL;
-> +	int res, act;
-> +	sector_t resume, suspend;
+I also wonder, does it at all correct to use negative windowBits in 
+crypto API? I mean, if windowBits is negative, zlib doesn't produce the 
+proper zstream header, which is incorrect according to RFC-1950. It also 
+doesn't calculate adler32.
 
-I can't see how you expect to save 128-36=92 bytes here. You replace
-sizeof(struct kstatfs)=64 with sizeof(struct kstatfs*)=4, which would
-be a saving of 60 bytes. But the call to kmalloc()/kfree() reduces
-your stack saving further, not to mention the runtime penalty,
-introduced by allocating dynamic memory.
+For example, if we work over an IP network (RFC-2384), the receiving 
+side may be confused by such a "stripped" zstream.
 
-Regards, Olaf.
+Isn't it conceptually right to produce *correct* zstream, with the 
+header and the proper adler32 ?
+
+Yes, for JFFS2 we would like to have no adler32, we anyway protect our 
+data by CRC32. But I suppose this should be an additional feature.
+
+Comments?
+
+Herbert Xu wrote:
+>>I made the changes to deflate_decompr() because the old version doesn't
+>>work properly for me. There are 2 changes.
+>>
+>>1. I've added the following code:
+>>
+>>------------------------------------------------------------------------
+>>if (slen > 2 && !(src[1] & PRESET_DICT) /* No preset dictionary */
+>>    && ((src[0] & 0x0f) == Z_DEFLATED)  /* Comp. method byte is OK */
+>>    && !(((src[0] << 8) + src[1]) % 31)) {      /* CMF*256 + FLG */
+>>    stream->next_in += 2;
+>>    stream->avail_in -= 2;
+>>}
+>>------------------------------------------------------------------------
+> 
+> The reason you need to add this is because the window bits that
+> was used to produce the compressed data is positive while the window
+> bits crypto/deflate is using to perform the decompression isn't.
+> 
+> So what we should do here is turn window bits into a configurable
+> parameter.
+> 
+> Once you supply the correct window bits information, the above is
+> then simply an optimisation.
+> 
+> Rather than keeping the above optimisation, JFFS should simply do
+> the compression with a negative window bits value.
+> 
+> Of course to maintain backwards compatibility you'll need to do this
+> as a new compression type.
+>  
+
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264348AbRFMDAs>; Tue, 12 Jun 2001 23:00:48 -0400
+	id <S264505AbRFMDJj>; Tue, 12 Jun 2001 23:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264346AbRFMDAh>; Tue, 12 Jun 2001 23:00:37 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:47004 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264348AbRFMDAY>;
-	Tue, 12 Jun 2001 23:00:24 -0400
-Message-ID: <3B26D739.944618E4@mandrakesoft.com>
-Date: Tue, 12 Jun 2001 23:00:09 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre2 i686)
-X-Accept-Language: en
+	id <S264506AbRFMDJa>; Tue, 12 Jun 2001 23:09:30 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31973 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264505AbRFMDJZ>;
+	Tue, 12 Jun 2001 23:09:25 -0400
+Date: Tue, 12 Jun 2001 23:09:23 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: John Covici <covici@ccs.covici.com>, linux-kernel@vger.kernel.org
+Subject: Re: is there a way to export a fat32 file system using nfs?
+In-Reply-To: <15142.55093.846398.117560@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.GSO.4.21.0106122304190.942-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: New PCI PM
-In-Reply-To: <Pine.LNX.4.10.10106121700580.13607-100000@nobelium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-What is are the guarantees about the order of calls to
-pci_driver::suspend and pci_driver::resume?
 
-Will a driver get calls like
-	suspend(D3)
-	suspend(D2)
-	suspend(D1)
+On Wed, 13 Jun 2001, Neil Brown wrote:
 
-or just one suspend call?
+>    Call fat_iget(i_location).
+>     If this finds something, check i_logstart. 
+>     If it matches, assume SUCCESS.
+> 
+>    Then comes the tricky bit:  read the directory entry
+>     indicated by i_location, check the i_logstart is right,
+>     if it is, try to get it into the inode cache properly.
 
-What effect does the return value have on the rest of the system?  On
-the order of succeeding calls to pci_driver::suspend functions?
+Uh-huh. Suppose that directory had been removed and space had been
+reused by a regular file. Which had been filled with the right
+contents. It's really not hard to do. Now, remove that file and
+you've got a nice data corruption waiting to happen.
 
-And where is that patch to Documentation/pci.txt young man?  :)
-
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbULUTdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbULUTgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbULUTdh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 14:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbULUTdg
+	id S261422AbULUTgg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 14:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULUTgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 14:33:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9880 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261495AbULUTcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 14:32:20 -0500
-Message-ID: <41C87A40.40308@pobox.com>
-Date: Tue, 21 Dec 2004 14:32:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Marek <linux@hazard.jcu.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9: VIA sATA cannot switch to 32bit I/O?
-References: <20041221144119.GA21507@hazard.jcu.cz>
-In-Reply-To: <20041221144119.GA21507@hazard.jcu.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 21 Dec 2004 14:36:36 -0500
+Received: from pat.uio.no ([129.240.130.16]:15836 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261508AbULUTfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 14:35:08 -0500
+Subject: Re: 2.4.29-pre2 Oops at find_inode/reiserfs_find_actor
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Manfred Schwarb <manfred99@gmx.ch>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+In-Reply-To: <20041221164610.GC3596@logos.cnet>
+References: <5960.1103581732@www50.gmx.net>
+	 <20041221164610.GC3596@logos.cnet>
+Content-Type: text/plain
+Date: Tue, 21 Dec 2004 14:34:52 -0500
+Message-Id: <1103657693.10836.15.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Marek wrote:
-> Hallo l-k,
+ty den 21.12.2004 Klokka 14:46 (-0200) skreiv Marcelo Tosatti:
+
+> Trond, the following issue noted by you could not generate such 
+> corruption could it?
 > 
-> I have problem with my Abit AV8 MB (s939 with VIA KT800Pro chipset and
-> VIA sATA controller and 120GB Seagate Barracuda disk): I cannot switch
-> 32bit access to disk to on?! I'm using libata driver...
-> 
-> When I use hdparm -c1 /dev/sda, I've got some error message (sorry, I
-> haven't this message here, it's my home computer). Therefore disk is too
-> slow to putting data for burning CD's and I need 'burnfree' feature...
-> 
-> Please, have anyone advice for me to speedup disk access, or is it
-> possible?
 
-This will not speed up disk access.  libata uses 16-bit I/O 
-unconditionally for PIO data transfers...
+I doubt it. That bug requires the MS_ACTIVE flag to have been cleared.
+IOW, you would have to be in the middle of unmounting the filesystem,
+and that doesn't really square with the fact that it is being exported
+by knfsd.
 
-  ...but you are using DMA for data transfers, which is light years 
-faster than PIO anyway.
+Cheers,
+  Trond
 
-	Jeff
-
-
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263387AbVCJXd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbVCJXbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbVCJXd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 18:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbVCJXb2
+	id S263021AbVCJXbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 18:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbVCJX0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 18:31:28 -0500
-Received: from hell.org.pl ([62.233.239.4]:63502 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S263411AbVCJX2k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 18:28:40 -0500
-Date: Fri, 11 Mar 2005 00:28:41 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: kernel BUG at drivers/serial/8250.c:1256!
-Message-ID: <20050310232841.GB30957@hell.org.pl>
-References: <20050301230946.GA30841@hell.org.pl> <20050301233720.B17470@flint.arm.linux.org.uk> <20050310224342.D1044@flint.arm.linux.org.uk>
+	Thu, 10 Mar 2005 18:26:36 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8359 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262362AbVCJXUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 18:20:34 -0500
+Date: Thu, 10 Mar 2005 23:20:14 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@redhat.com, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [06/11] [TCP]: Put back tcp_timer_bug_msg[] symbol export.
+Message-ID: <20050310232014.GA32228@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, davem@davemloft.net, kuznet@ms2.inr.ac.ru,
+	pekkas@netcore.fi, jmorris@redhat.com, yoshfuji@linux-ipv6.org,
+	kaber@coreworks.de, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org, stable@kernel.org
+References: <20050310230519.GA22112@kroah.com> <20050310230843.GG22112@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050310224342.D1044@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20050310230843.GG22112@kroah.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Russell King:
-> Ok, here's the patch.  Please test and let me know if it resolves your
-> problem.  Thanks.
+> --- a/net/ipv4/tcp_timer.c	2005-03-09 17:20:38 -08:00
+> +++ b/net/ipv4/tcp_timer.c	2005-03-09 17:20:38 -08:00
+> @@ -38,6 +38,7 @@
+>  
+>  #ifdef TCP_DEBUG
+>  const char tcp_timer_bug_msg[] = KERN_DEBUG "tcpbug: unknown timer value\n";
+> +EXPORT_SYMBOL(tcp_timer_bug_msg);
+>  #endif
 
-Oh, I thought I did reply to your previous mail. In case you didn't get it,
-yes, the patch fixes the problem.
-Thanks,
+not complaining about putting this into -stable, but why do people have
+TCP_DEBUG turned on for normal builds?
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl

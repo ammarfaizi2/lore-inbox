@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276843AbRJ3IWS>; Tue, 30 Oct 2001 03:22:18 -0500
+	id <S279089AbRJ3Iaq>; Tue, 30 Oct 2001 03:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277580AbRJ3IWF>; Tue, 30 Oct 2001 03:22:05 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:19744 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S276843AbRJ3IVx>; Tue, 30 Oct 2001 03:21:53 -0500
-Date: Tue, 30 Oct 2001 10:22:16 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Neale Banks <neale@lowendale.com.au>,
+	id <S278949AbRJ3Iaf>; Tue, 30 Oct 2001 03:30:35 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:48114 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S278961AbRJ3IaR>; Tue, 30 Oct 2001 03:30:17 -0500
+Message-ID: <3BDE62C0.C7C5CC70@mvista.com>
+Date: Tue, 30 Oct 2001 00:20:16 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: J Sloan <jjs@lexus.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Nasty suprise with uptime
-Message-ID: <20011030102216.I1598@niksula.cs.hut.fi>
-In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <Pine.LNX.4.05.10110301839250.23080-100000@marina.lowendale.com.au> <20011029234615.A14476@mikef-linux.matchmail.com> <20011030101507.G1598@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011030101507.G1598@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Tue, Oct 30, 2001 at 10:15:08AM +0200
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <3BDDBE89.397E42C0@lexus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:15:08AM +0200, you [Ville Herva] claimed:
+J Sloan wrote:
 > 
-> ¹) it is 497.10 days or 2^32 seconds, not 496 days.
+> Alan Cox wrote:
+> 
+> > > and received a nasty surprise. The uptime, which had been 496+ days
+> > > on Friday, was back down to a few hours. I was ready to lart somebody
+> > > with great vigor when I realized the uptime counter had simply wrapped
+> > > around.
+> > >
+> > > So, I thought to myself, at least the 2.4 kernels on our new boxes won't
+> >
+> > It wraps at 496 days. The drivers are aware of it and dont crash the box
+> 
+> Yes, and these boxes are still running fine - other
+> than showing some processes that were started
+> in the year 2003... but DAMN, what an eyesore -
+> uptime ruined as far as anybody can tell, times
+> and dates no longer making any sense.
+> 
+> So, is there an implicit Linux policy to upgrade
+> the distro, or at least the kernel, every 496 days
+> whether it needs it or not?
 
-Sorry, 2^32 / 100 seconds.
+Time for a plug for the High-res-timers project.  We have expanded
+jiffies to 64 bits.  It can be read as the CLOCK_MONOTONIC via the new
+POSIX timers interface (part of high-res-timers).  Haven't fixed uptime
+yet, but hay, I got 496 days to do it :)
 
+Find our latest patch here:
+https://sourceforge.net/projects/high-res-timers/
 
--- v --
-
-v@iki.fi
+George

@@ -1,69 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUCAJYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUCAJYz
+	id S261188AbUCAJ1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUCAJ1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:24:55 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:43983 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261194AbUCAJYx
+	Mon, 1 Mar 2004 04:27:43 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:36563 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261188AbUCAJ1i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:24:53 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
-Date: Mon, 1 Mar 2004 14:54:35 +0530
-User-Agent: KMail/1.5
-Cc: Tom Rini <trini@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227235059.GG425@elf.ucw.cz> <403FEA02.6040506@mvista.com>
-In-Reply-To: <403FEA02.6040506@mvista.com>
+	Mon, 1 Mar 2004 04:27:38 -0500
+Message-ID: <40430204.6040901@cyberone.com.au>
+Date: Mon, 01 Mar 2004 20:27:32 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MM VM patches was: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org> <4042F38B.8020307@matchmail.com> <4042F7E6.1050904@cyberone.com.au> <4042FCBC.7000809@matchmail.com>
+In-Reply-To: <4042FCBC.7000809@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403011454.35346.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 Feb 2004 6:38 am, George Anzinger wrote:
-> Pavel Machek wrote:
-> > Hi!
-> >
-> >>>+config KGDB_THREAD
-> >>>+	bool "KGDB: Thread analysis"
-> >>>+	depends on KGDB
-> >>>+	help
-> >>>+	  With thread analysis enabled, gdb can talk to kgdb stub to list
-> >>>+	  threads and to get stack trace for a thread. This option also
-> >>>enables
-> >>>+	  some code which helps gdb get exact status of thread. Thread
-> >>>analysis
-> >>>+	  adds some overhead to schedule and down functions. You can disable
-> >>>+	  this option if you do not want to compromise on speed.
-> >>
-> >>Lets remove the overhead and eliminate the need for this option in favor
-> >> of always having threads.  Works in the mm kgdb...
-> >
-> > No. Thread analysis is unsuitable for the mainline (manipulates
-> > sched.c in ugly way). It may be okay for -mm, but in such case it
-> > should better be separated.
+
+
+Mike Fedyk wrote:
+
+> Nick Piggin wrote:
 >
-> Not in the -mm version.  I agree that sched.c should NEVER be treated this
-> way and it is not in the -mm version.  I also think that, most of the time,
-> it is useful to have the thread stuff, but that may be just my usage...
+>>
+>>
+>> There are a few things backed out now in 2.6.4-rc1-mm1, and quite a
+>> few other changes. I hope we can trouble you to test 2.6.4-rc1-mm1?
+>
+>
+> Yes, I saw that, but since I wasn't using the new code, I chose to 
+> keep it in the "-mm4" thread. :-D
+>
+> I'll backport it to 2.6.3 if it doesn't patch with "-F3"...
+>
 
-If threads stuff didn't introduce any unclean code changes, I too would prefer 
-to have it on all the time. As things stands, threads stuff is rather 
-intrusive.
+Actually, see my other post. It is possible you'll have the same
+problem.
 
--Amit
+>> Tell me, do you have highmem enabled on this system? If so, swapping
+>
+>
+> Yes, to get that extra 128MB ram. :)
+>
+
+
+Yeah thats fine. I think this would be the right thing to do,
+especially for a file server. It is something that should work.
+
+
+>> might be explained by the batching patch. With it, a small highmem
+>> zone could possibly place quite a lot more pressure on a large
+>> ZONE_NORMAL.
+>>
+>> 2.6.4-rc1-mm1 sould do much better here.
+>
+>
+> OK, I'll give that one a shot Monday or Tuesday night.
+>
+> So, I'll merge up 2.6.3 + "vm of rc1-mm1" and tell you guys what I see.
+>
+
+I'm not so hopeful for you anymore :P
+
+> Are the graphs helpful at all?
+>
+
+
+My eyes! The goggles, they do nothing!
+
+They have a lot of good info but I'm a bit hard pressed working
+out what kernel is running where, and it's a bit hard working out
+all the shades of blue on my crappy little monitor.
+
+But if they were easier to read I reckon they'd be useful ;)
 

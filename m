@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTDOWyS (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTDOWyS 
+	id S264150AbTDOXFj (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 19:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTDOXFj 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 18:54:18 -0400
-Received: from crack.them.org ([65.125.64.184]:51115 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S264144AbTDOWyQ 
+	Tue, 15 Apr 2003 19:05:39 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:20559 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S264150AbTDOXFi convert rfc822-to-8bit 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 18:54:16 -0400
-Date: Tue, 15 Apr 2003 19:06:04 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Eli Carter <eli.carter@inet.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: .section ... "ax" vs  #alloc, #execinstr
-Message-ID: <20030415230604.GA22231@nevyn.them.org>
-Mail-Followup-To: Eli Carter <eli.carter@inet.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <3E9C664A.503@inet.com>
+	Tue, 15 Apr 2003 19:05:38 -0400
+Date: Wed, 16 Apr 2003 01:17:28 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.5.67-mm3: Bad: scheduling while atomic with IEEE1394 then
+ hard freeze ( lockup on CPU0)
+Message-Id: <20030416011728.196d66ca.philippe.gramoulle@mmania.com>
+In-Reply-To: <20030415160530.2520c61c.akpm@digeo.com>
+References: <20030416000501.342c216f.philippe.gramoulle@mmania.com>
+	<20030415160530.2520c61c.akpm@digeo.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws87 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E9C664A.503@inet.com>
-User-Agent: Mutt/1.5.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 03:06:34PM -0500, Eli Carter wrote:
-> Some of the assembly files use
-> .section        ".start", "ax"
-> and others use
-> .section ".start", #alloc, #execinstr
-> (and not just for .start, try
-> find -name \*.S | xargs grep -e '\.section'
-> )
-> 
-> These appear to be equivelent, if not somebody clue me in please. :) 
+Hello,
 
-They're equivalent.
+On Tue, 15 Apr 2003 16:05:30 -0700
+Andrew Morton <akpm@digeo.com> wrote:
 
-> Which is the prefered form?  The latter seems to provide a bit more for 
-> the human, so I'd vote that direction... ;)
+  | Philippe Gramoullé  <philippe.gramoulle@mmania.com> wrote:
+  | >
+  | > 
+  | > http://www.philou.org/2.5.67-mm3/2.5.67-mm3.log
+  | 
+  | This is a great bug report.  Thanks.
 
-Well, GCC prefers the former.  Binutils will accept either; they have
-historically different origins.
+Well, i finally managed to get some output when i learned about the
+nmi_watchdog boot option ( reading another thread about debugging hard hangs)
+so i'm pleased if this report helped :)
+  | 
+  | The 1394 warnings are known about and I think Ben is working on it.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Ok, great. I think this is one of the latest thing that prevents me to
+use 2.5.x almost full time.
+
+  | 
+  | The NMI watchdog hit is nasty:
+  | 
+[snip]
+  | 
+  | What has happened here is that you were in the middle of a kobject_get(),
+  | holding spin_lock(&kobj_lock) when an interrupt came in.  The USB interrupt
+  | handler comes in and ends up calling kobject_get() again.  This CPU already
+  | holds the lock and blamyouredead.
+  | 
+  | Turning kobj_lock into an IRQ-safe lock would appear to be a sufficient fix.
+
+I'll wait for the fix and will happily try it once it's available.
+
+Thanks,
+
+Philippe

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269084AbRG3XeU>; Mon, 30 Jul 2001 19:34:20 -0400
+	id <S269083AbRG3Xdk>; Mon, 30 Jul 2001 19:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269085AbRG3XeB>; Mon, 30 Jul 2001 19:34:01 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:10741 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S269084AbRG3Xdm>; Mon, 30 Jul 2001 19:33:42 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107302332.f6UNWbxg001791@webber.adilger.int>
-Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <3B65E711.A3828E15@fc.hp.com> "from Khalid Aziz at Jul 30, 2001
- 05:00:33 pm"
-To: Khalid Aziz <khalid@fc.hp.com>
-Date: Mon, 30 Jul 2001 17:32:37 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S269084AbRG3Xda>; Mon, 30 Jul 2001 19:33:30 -0400
+Received: from ns1.austin.rr.com ([24.93.35.62]:24581 "EHLO ns1.austin.rr.com")
+	by vger.kernel.org with ESMTP id <S269083AbRG3XdR>;
+	Mon, 30 Jul 2001 19:33:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+Reply-To: mjustice@austin.rr.com
+To: linux-kernel@vger.kernel.org
+Subject: Serverworks LE, 4GB RAM, and MTRR
+Date: Mon, 30 Jul 2001 18:37:02 -0500
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
+Message-Id: <01073018370207.04012@bozo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Khalid Aziz writes:
-> Andreas Dilger wrote:
-> > What bothers me is that new systems don't have a serial port, and no ISA
-> > slots, so there is no hope of getting a "serial console" support without
-> > ACPI (which is rather heavyweight AFAIK).  USB is far too complex to use
-> > for early-boot debugging, so what else is left?
-> 
-> I am puzzled. How would you get "serial console" support even with ACPI
-> unless there IS a serial port on the system????? All ACPI can do is tell
-> you where the serial port is.
+Slow performance on Serverworks LE boards with 4GB of RAM seem to be related 
+to mtrr misconfiguration. Here is the /proc/mtrr for a Tyan 2510 ( 2.4.7-ac2):
 
-OK, maybe I'm misunderstanding here, but even if I put in a PCI serial
-card in such a machine, can I get serial console support without ACPI?
-Not that it matters in my case, because there are no PCI slots on the
-motherboard either.
+reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
+reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
+reg05: base=0xf8000000 (3968MB), size=  64MB: write-back, count=1
+reg06: base=0xfc000000 (4032MB), size=  64MB: uncachable, count=1
 
-> > There was some talk about using a low level IP console over ethernet,
-> > but I would imagine this is more complex than the same thing on a
-> > parallel-port.  I could be wrong.  Of course, an IP console has the
-> > advantage of being useful over a longer distance than a parallel cable,
-> > but may have the disadvantage of poor security.
-> 
-> IP console qould require a significant amount of network protocol stack
-> to be up and running. That would make console available pretty late in
-> bootup sequence.
+Also, the framebuffer is 4MB starting at 0xfd000000 (4048MB) on this system.
+The last entry seems to be the culprit. Why should there be 64MB uncachable
+starting at 4032?
 
-Yes, this is another good reason why an IP console is less desirable.
-AFAIK, some systems have such IP console support in BIOS (it may not
-even be "IP" but raw ethernet).
+Back in April there was a thread concering the mtrr setup for the LE chipset.
+A patch for mtrr.c was submitted (but never accepted, apparently) that allows 
+write-combining (which is currently disabled for all Serverworks LE) for 
+revisions >5.  If I modify mtrr.c to allow write-combining the system works 
+normally with 4G. /proc/mtrr is unchanged but the following line shows up in 
+the syslog when the X-server is started:
 
-> Even if console were to be used to print just errors and information
-> messages, it should still be pretty simple to ensure those messages
-> do get printed out. A serial port meets those requirements.
+mtrr: type mismatch for fd000000,400000 old: uncachable new: write-combining
 
-And I think "legacy" parallel ports also meet this simplicity requirement
-as well, except for the fact that until now it was much more common to
-also have a serial port, so nobody has done the work to have bidirectional
-parallel port support.  Sadly, I have _no_ idea even where to begin on it,
-nor the time.  I was hoping someone would chime in and say "I did that
-already".
+The slowness of the system without write-combining is independent of whether 
+X is started.
 
-I guess the other need would be to allow programs like minicom, kgdb,
-etc to open /dev/lp0 like a serial port on the client side, so we don't
-need to re-write all of the user-space tools as well.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Marvin Justice

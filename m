@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVAWKXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVAWKW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVAWKXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVAWKXL
+	id S261271AbVAWKW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVAWKUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:23:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:520 "HELO
+	Sun, 23 Jan 2005 05:20:39 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53767 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261290AbVAWKRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:17:50 -0500
-Date: Sun, 23 Jan 2005 11:17:43 +0100
+	id S261271AbVAWKQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:16:17 -0500
+Date: Sun, 23 Jan 2005 11:16:16 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/moxa.c: #if 0 an unused function
-Message-ID: <20050123101743.GM3212@stusta.de>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Antonino Daplas <adaplas@pol.net>,
+       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: [2.6 patch] matroxfb_base.c: make some code static
+Message-ID: <20050123101616.GD3212@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,33 +23,47 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch #if 0's an unused global function.
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
+ drivers/video/matrox/matroxfb_base.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
 This patch was already sent on:
-- 6 Dec 2004
+- 21 Nov 2004
 
---- linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c.old	2004-12-06 01:30:18.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c	2004-12-06 01:30:39.000000000 +0100
-@@ -3090,6 +3090,7 @@
- 	return (0);
+--- linux-2.6.10-rc2-mm2-full/drivers/video/matrox/matroxfb_base.c.old	2004-11-21 14:40:28.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/matrox/matroxfb_base.c	2004-11-21 14:41:35.000000000 +0100
+@@ -1908,8 +1908,8 @@
+ 	return err;
  }
  
-+#if 0
- long MoxaPortGetCurBaud(int port)
- {
+-LIST_HEAD(matroxfb_list);
+-LIST_HEAD(matroxfb_driver_list);
++static LIST_HEAD(matroxfb_list);
++static LIST_HEAD(matroxfb_driver_list);
  
-@@ -3097,6 +3098,7 @@
- 		return (0);
- 	return (moxaCurBaud[port]);
- }
-+#endif  /*  0  */
+ #define matroxfb_l(x) list_entry(x, struct matrox_fb_info, next_fb)
+ #define matroxfb_driver_l(x) list_entry(x, struct matroxfb_driver, node)
+@@ -2287,7 +2287,7 @@
  
- static void MoxaSetFifo(int port, int enable)
+ /* ************************* init in-kernel code ************************** */
+ 
+-int __init matroxfb_setup(char *options) {
++static int __init matroxfb_setup(char *options) {
+ 	char *this_opt;
+ 
+ 	DBG(__FUNCTION__)
+@@ -2428,7 +2428,7 @@
+ 
+ static int __initdata initialized = 0;
+ 
+-int __init matroxfb_init(void)
++static int __init matroxfb_init(void)
  {
-
-
+ 	char *option = NULL;
+ 
 

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288477AbSA3EgX>; Tue, 29 Jan 2002 23:36:23 -0500
+	id <S288460AbSA3Eed>; Tue, 29 Jan 2002 23:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288484AbSA3EgO>; Tue, 29 Jan 2002 23:36:14 -0500
-Received: from msp-26-179-145.mn.rr.com ([24.26.179.145]:42638 "HELO
-	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
-	id <S288477AbSA3EgJ>; Tue, 29 Jan 2002 23:36:09 -0500
-Date: Tue, 29 Jan 2002 22:36:07 -0600
-From: Shawn <core@enodev.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Landley <landley@trommello.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130043607.GB28479@local.enodev.com>
-In-Reply-To: <200201292332.g0TNWwU21215@snark.thyrsus.com> <E16ViIG-0005bo-00@the-village.bc.nu>
+	id <S288473AbSA3EeY>; Tue, 29 Jan 2002 23:34:24 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:20748 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S288460AbSA3EeQ>; Tue, 29 Jan 2002 23:34:16 -0500
+Date: Wed, 30 Jan 2002 04:34:03 +0000
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
+Cc: jpaana@s2.org
+Subject: Re: How to avoid zombie kernel threads?
+Message-ID: <20020130043403.GA97130@compsoc.man.ac.uk>
+In-Reply-To: <m3hep4qy79.fsf@kalahari.s2.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16ViIG-0005bo-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.26i
+In-Reply-To: <m3hep4qy79.fsf@kalahari.s2.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
+X-Scanner: exiscan *16VmRl-000Dgm-00*MLxOdunZiV6* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/29, Alan Cox said something like:
-> > > Viro, David Miller, Greg KH, Andrew Morton etc. They've shown what I call
-> > > "good taste" for a long time. But it's not always a long process - some
-> > > of you may remember Bill Hawes, for example, who came out of nowhere
-> > > rather quickly.
-> > 
-> > So listed "maintainers" may need to forward patches to these people, and get 
-> > them to sign off on them, in order to get their patches at least reviewed for 
-> > inclusion into your tree?
-> 
-> Count me out of that job. If you want something in 2.5 don't bug me. I
-> simply don't care
+On Wed, Jan 30, 2002 at 06:06:50AM +0200, Jarno Paananen wrote:
 
-Now this scares the piss out of me...
+> http://hardsid.sourceforge.net/ is someone is actually interested)
+> that uses a kernel thread to do the actual work asynchronously from
+> rest of the world. The thread is created when opening a character
+> device and exits when the device is closed.
 
---
-Shawn Leas
-core@enodev.com
+read frey's guide and look at some real code to see how to do this.
 
-I bought a self learning record to learn spanish, I turned it on and
-went to sleep, the record got stuck, the next day I could only stutter in
-spanish.
-						-- Stephen Wright
+Think you are missing a reparent_to_init(). I don't know if bleeding
+2.5 includes this in daemonize() yet.
+
+You should really have asked this on kernelnewbies mailing list btw
+
+http://www.kernelnewbies.org/
+
+regards
+john
+
+-- 
+"In no sense is [in]stability a reason to move to a new version. It's never a
+reason."
+	- Bill Gates

@@ -1,131 +1,259 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312584AbSDJLVg>; Wed, 10 Apr 2002 07:21:36 -0400
+	id <S312586AbSDJL2B>; Wed, 10 Apr 2002 07:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312585AbSDJLVf>; Wed, 10 Apr 2002 07:21:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58119 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312584AbSDJLVe>;
-	Wed, 10 Apr 2002 07:21:34 -0400
-Message-ID: <3CB4203D.C3BE7298@zip.com.au>
-Date: Wed, 10 Apr 2002 04:21:33 -0700
+	id <S312590AbSDJL2A>; Wed, 10 Apr 2002 07:28:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60935 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312586AbSDJL17>;
+	Wed, 10 Apr 2002 07:27:59 -0400
+Message-ID: <3CB421BD.2FF47C46@zip.com.au>
+Date: Wed, 10 Apr 2002 04:27:57 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [prepatch] address_space-based writeback
+To: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
+Subject: Re: [patch] ext2 directory handling
+In-Reply-To: <3CB419BB.D7649D52@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That was an old version.  This is it:
 
-This is a largish patch which makes some fairly deep changes.  It's
-currently at the "wow, it worked" stage.  Most of it is fairly
-mature code, but some conceptual changes were recently made.
-Hopefully it'll be in respectable state in a few days, but I'd
-like people to take a look.
-
-The idea is: all writeback is against address_spaces.  All dirty data
-has the dirty bit set against its page.  So all dirty data is
-accessible by
-
-	superblock list
-		-> superblock dirty inode list
-			-> inode mapping's dirty page list.
-				-> page_buffers(page) (maybe)
-
-pdflush threads are used to implement periodic writeback (kupdate) by
-descending the data structures decribed above.  address_spaces now
-carry a timestamp (when it was first dirtied) to permit the traditional
-"write back stuff which is older than thirty second" behaviour.
-
-pflush threads are used for global writeback (bdflush analogue).
-
-New address_space operations are introduced for whole-file writeback
-and for VM writeback.  The VM writeback function is designed so that
-large chunks of data (I grabbed 4 megs out of the air) will be sent
-down to the I/O layers in a single operation.
-
-Aside: Remember, although there's a lot of cleanup and uniformity being
-introduced here, one goal is to get rid of the whole practice of
-chunking data up into tiny pieces, passing them to the request layer,
-adding tiny BIOs to them, sorting them, stringing them onto requests,
-then feeding them to the device driver to puzzle over.  A key objective
-is to deal with maximal-sized chunks of data in an efficient manner. 
-Assemble large scatter/gather arrays directly against pagecache at the
-filemap level.  No single-buffer I/O.  No single page I/O.
-
-
-New rules are introduced for the relationship between buffers and their
-page:
-
-- If a page has one or more dirty buffers, the page is marked dirty.
-
-- If a page is marked dirty, it *may* have dirty buffers.
-
-- If a page is marked dirty but has no buffers, it is entirely dirty.
-   So if buffers are later attached to that page, they are all set
-  dirty.
-
-So block_write_full_page will now only write the dirty buffers.
-
-All this is desiged to support file metadata.  Metadata is written back
-via its blockdevice's address_space.  So mark_buffer_dirty sets the
-buffer dirty, sets the page dirty, attaches the page to the blockdev's
-address_space's dirty_pages, attaches the blockdev's inode to its dummy
-superblock's dirty inodes list and there we are.  The blockdev mapping
-is treated in an identical manner to other address_spaces.
-
-A consequence of this is that if someone cleans a page by directly
-writing back its buffers with ll_rw_block or submit_bh, the page will
-still be marked dirty, but its buffers will be clean.  That's fine -
-block_write_full_page will perform no I/O.  PG_dirty is advisory if
-the page has buffers.
-
-We need to be careful to not free buffers against a dirty page. 
-Because when they are reattached, *all* the buffers will be marked
-dirty.  Which, in the case of the blockdev mapping will corrupt file
-data.
-
-Numerous changes in fs/inode.c make it the means by which we perform
-most sorts of writeback.  I'll be splitting a new file out from
-fs/inode.c for this.
-
-
-As a consequence of all the above, some adjustments were possible at
-the buffer layer.
-
-The patch deletes the buffer LRUs, lru_list_lock, write_locked_buffers,
-write_some_buffers, wait_for_buffers, sync_buffers, etc.  The bdflush
-tunables have been removed.  All the sync functions operate at the
-address_space level only.  The kupdate and bdflush functions have been
-removed.
-
-The buffer hash has been removed - hash_table_lock, etc.  Buffercache
-lookups use the page hash and then a walk across the page's buffer list.
-
-Per-inode locking for i_dirty_buffers and i_dirty_data_buffers has been
-introduced.  That same lock is held across try_to_free_buffers so that
-spinlocking may be used to get exclusion against try_to_free_buffers. 
-This enabled the new __get_hash_table() to be non-blocking, which is what
-some filesystems appear to expect.
-
-sync_page_buffers() has been removed.  This is because all VM writeback
-occurs at the address_space level, and all pages which contain dirty
-data are marked dirty.  VM throttling occurs purely at the page level -
-wait_on_page().
-
-buffer_head.b_inode, unused_list and address_space.i_dirty_data_buffers
-have not been removed yet.
-
-The diff (along with another eight patches) is at
-
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8-pre3/dallocbase-70-writeback.patch
-
-As I say, it's still a few days away from being presentable.  I
-definitely need to test a lot of other filesystems because it
-did find a few warts in ext2.
-
+--- 2.5.8-pre3/fs/ext2/dir.c~dallocbase-55-ext2_dir	Wed Apr 10 00:42:47 2002
++++ 2.5.8-pre3-akpm/fs/ext2/dir.c	Wed Apr 10 03:11:50 2002
+@@ -46,6 +46,21 @@ static inline unsigned long dir_pages(st
+ 	return (inode->i_size+PAGE_CACHE_SIZE-1)>>PAGE_CACHE_SHIFT;
+ }
+ 
++/*
++ * Return the offset into page `page_nr' of the last valid
++ * byte in that page, plus one.
++ */
++static unsigned
++ext2_last_byte(struct inode *inode, unsigned long page_nr)
++{
++	unsigned last_byte = inode->i_size;
++
++	last_byte -= page_nr << PAGE_CACHE_SHIFT;
++	if (last_byte > PAGE_CACHE_SIZE)
++		last_byte = PAGE_CACHE_SIZE;
++	return last_byte;
++}
++
+ static int ext2_commit_chunk(struct page *page, unsigned from, unsigned to)
+ {
+ 	struct inode *dir = page->mapping->host;
+@@ -78,10 +93,6 @@ static void ext2_check_page(struct page 
+ 		limit = dir->i_size & ~PAGE_CACHE_MASK;
+ 		if (limit & (chunk_size - 1))
+ 			goto Ebadsize;
+-		for (offs = limit; offs<PAGE_CACHE_SIZE; offs += chunk_size) {
+-			ext2_dirent *p = (ext2_dirent*)(kaddr + offs);
+-			p->rec_len = cpu_to_le16(chunk_size);
+-		}
+ 		if (!limit)
+ 			goto out;
+ 	}
+@@ -197,8 +208,11 @@ ext2_validate_entry(char *base, unsigned
+ {
+ 	ext2_dirent *de = (ext2_dirent*)(base + offset);
+ 	ext2_dirent *p = (ext2_dirent*)(base + (offset&mask));
+-	while ((char*)p < (char*)de)
++	while ((char*)p < (char*)de) {
++		if (p->rec_len == 0)
++			break;
+ 		p = ext2_next_entry(p);
++	}
+ 	return (char *)p - base;
+ }
+ 
+@@ -245,6 +259,7 @@ ext2_readdir (struct file * filp, void *
+ 	unsigned chunk_mask = ~(ext2_chunk_size(inode)-1);
+ 	unsigned char *types = NULL;
+ 	int need_revalidate = (filp->f_version != inode->i_version);
++	int ret = 0;
+ 
+ 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
+ 		goto done;
+@@ -265,8 +280,15 @@ ext2_readdir (struct file * filp, void *
+ 			need_revalidate = 0;
+ 		}
+ 		de = (ext2_dirent *)(kaddr+offset);
+-		limit = kaddr + PAGE_CACHE_SIZE - EXT2_DIR_REC_LEN(1);
+-		for ( ;(char*)de <= limit; de = ext2_next_entry(de))
++		limit = kaddr + ext2_last_byte(inode, n) - EXT2_DIR_REC_LEN(1);
++		for ( ;(char*)de <= limit; de = ext2_next_entry(de)) {
++			if (de->rec_len == 0) {
++				ext2_error(sb, __FUNCTION__,
++					"zero-length directory entry");
++				ret = -EIO;
++				ext2_put_page(page);
++				goto done;
++			}
+ 			if (de->inode) {
+ 				int over;
+ 				unsigned char d_type = DT_UNKNOWN;
+@@ -283,6 +305,7 @@ ext2_readdir (struct file * filp, void *
+ 					goto done;
+ 				}
+ 			}
++		}
+ 		ext2_put_page(page);
+ 	}
+ 
+@@ -326,8 +349,14 @@ struct ext2_dir_entry_2 * ext2_find_entr
+ 		if (!IS_ERR(page)) {
+ 			kaddr = page_address(page);
+ 			de = (ext2_dirent *) kaddr;
+-			kaddr += PAGE_CACHE_SIZE - reclen;
++			kaddr += ext2_last_byte(dir, n) - reclen;
+ 			while ((char *) de <= kaddr) {
++				if (de->rec_len == 0) {
++					ext2_error(dir->i_sb, __FUNCTION__,
++						"zero-length directory entry");
++					ext2_put_page(page);
++					goto out;
++				}
+ 				if (ext2_match (namelen, name, de))
+ 					goto found;
+ 				de = ext2_next_entry(de);
+@@ -337,6 +366,7 @@ struct ext2_dir_entry_2 * ext2_find_entr
+ 		if (++n >= npages)
+ 			n = 0;
+ 	} while (n != start);
++out:
+ 	return NULL;
+ 
+ found:
+@@ -401,6 +431,7 @@ int ext2_add_link (struct dentry *dentry
+ 	struct inode *dir = dentry->d_parent->d_inode;
+ 	const char *name = dentry->d_name.name;
+ 	int namelen = dentry->d_name.len;
++	unsigned chunk_size = ext2_chunk_size(dir);
+ 	unsigned reclen = EXT2_DIR_REC_LEN(namelen);
+ 	unsigned short rec_len, name_len;
+ 	struct page *page = NULL;
+@@ -411,19 +442,41 @@ int ext2_add_link (struct dentry *dentry
+ 	unsigned from, to;
+ 	int err;
+ 
+-	/* We take care of directory expansion in the same loop */
++	/*
++	 * We take care of directory expansion in the same loop.
++	 * This code plays outside i_size, so it locks the page
++	 * to protect that region.
++	 */
+ 	for (n = 0; n <= npages; n++) {
++		char *dir_end;
++
+ 		page = ext2_get_page(dir, n);
+ 		err = PTR_ERR(page);
+ 		if (IS_ERR(page))
+ 			goto out;
++		lock_page(page);
+ 		kaddr = page_address(page);
++		dir_end = kaddr + ext2_last_byte(dir, n);
+ 		de = (ext2_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - reclen;
+ 		while ((char *)de <= kaddr) {
+ 			err = -EEXIST;
+ 			if (ext2_match (namelen, name, de))
+-				goto out_page;
++				goto out_unlock;
++			if ((char *)de == dir_end) {
++				/* We hit i_size */
++				name_len = 0;
++				rec_len = chunk_size;
++				de->rec_len = cpu_to_le16(chunk_size);
++				de->inode = 0;
++				goto got_it;
++			}
++			if (de->rec_len == 0) {
++				ext2_error(dir->i_sb, __FUNCTION__,
++					"zero-length directory entry");
++				err = -EIO;
++				goto out_unlock;
++			}
+ 			name_len = EXT2_DIR_REC_LEN(de->name_len);
+ 			rec_len = le16_to_cpu(de->rec_len);
+ 			if (!de->inode && rec_len >= reclen)
+@@ -432,6 +485,7 @@ int ext2_add_link (struct dentry *dentry
+ 				goto got_it;
+ 			de = (ext2_dirent *) ((char *) de + rec_len);
+ 		}
++		unlock_page(page);
+ 		ext2_put_page(page);
+ 	}
+ 	BUG();
+@@ -440,7 +494,6 @@ int ext2_add_link (struct dentry *dentry
+ got_it:
+ 	from = (char*)de - (char*)page_address(page);
+ 	to = from + rec_len;
+-	lock_page(page);
+ 	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err)
+ 		goto out_unlock;
+@@ -460,7 +513,6 @@ got_it:
+ 	/* OFFSET_CACHE */
+ out_unlock:
+ 	UnlockPage(page);
+-out_page:
+ 	ext2_put_page(page);
+ out:
+ 	return err;
+@@ -482,6 +534,12 @@ int ext2_delete_entry (struct ext2_dir_e
+ 	int err;
+ 
+ 	while ((char*)de < (char*)dir) {
++		if (de->rec_len == 0) {
++			ext2_error(inode->i_sb, __FUNCTION__,
++				"zero-length directory entry");
++			err = -EIO;
++			goto out;
++		}
+ 		pde = de;
+ 		de = ext2_next_entry(de);
+ 	}
+@@ -496,9 +554,10 @@ int ext2_delete_entry (struct ext2_dir_e
+ 	dir->inode = 0;
+ 	err = ext2_commit_chunk(page, from, to);
+ 	UnlockPage(page);
+-	ext2_put_page(page);
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	mark_inode_dirty(inode);
++out:
++	ext2_put_page(page);
+ 	return err;
+ }
+ 
+@@ -550,7 +609,7 @@ int ext2_empty_dir (struct inode * inode
+ {
+ 	struct page *page = NULL;
+ 	unsigned long i, npages = dir_pages(inode);
+-	
++
+ 	for (i = 0; i < npages; i++) {
+ 		char *kaddr;
+ 		ext2_dirent * de;
+@@ -561,9 +620,15 @@ int ext2_empty_dir (struct inode * inode
+ 
+ 		kaddr = page_address(page);
+ 		de = (ext2_dirent *)kaddr;
+-		kaddr += PAGE_CACHE_SIZE-EXT2_DIR_REC_LEN(1);
++		kaddr += ext2_last_byte(inode, i) - EXT2_DIR_REC_LEN(1);
+ 
+ 		while ((char *)de <= kaddr) {
++			if (de->rec_len == 0) {
++				ext2_error(inode->i_sb, __FUNCTION__,
++					"zero-length directory entry");
++				printk("kaddr=%p, de=%p\n", kaddr, de);
++				goto not_empty;
++			}
+ 			if (de->inode != 0) {
+ 				/* check for . and .. */
+ 				if (de->name[0] != '.')
 
 -

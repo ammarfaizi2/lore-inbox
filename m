@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288768AbSADVDP>; Fri, 4 Jan 2002 16:03:15 -0500
+	id <S288771AbSADVFE>; Fri, 4 Jan 2002 16:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288766AbSADVCz>; Fri, 4 Jan 2002 16:02:55 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:54538 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288762AbSADVCp>;
-	Fri, 4 Jan 2002 16:02:45 -0500
-Date: Fri, 4 Jan 2002 22:02:40 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Phil Oester" <kernel@theoesters.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
-Message-Id: <20020104220240.233ae66a.skraw@ithnet.com>
-In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp>
-In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S288763AbSADVEs>; Fri, 4 Jan 2002 16:04:48 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:1032 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S288762AbSADVEc>; Fri, 4 Jan 2002 16:04:32 -0500
+Date: Fri, 4 Jan 2002 15:04:13 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lionel Bouton <Lionel.Bouton@free.fr>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020104150413.A2744@twoflower.internal.do>
+In-Reply-To: <Pine.GSO.3.96.1020104211143.829K-100000@delta.ds2.pg.gda.pl> <Pine.LNX.4.33.0201042128360.20620-100000@Appserv.suse.de> <20020104153305.C20097@thyrsus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020104153305.C20097@thyrsus.com>; from esr@thyrsus.com on Fri, Jan 04, 2002 at 03:33:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002 12:32:27 -0800
-"Phil Oester" <kernel@theoesters.com> wrote:
-
-> On 2.4.17, I can't make -j bzImage without OOM kicking in.  Relatively
-> light .config here - bzImage compiles to less than 1mb.
+Eric S. Raymond <esr@thyrsus.com> wrote:
+> Dave Jones <davej@suse.de>:
+> > Indeed. Something I'm trying to convey to Eric, but I don't think
+> > he realises just how many pooched BIOSen there are out there.
+> > His conservative estimate of '150 entries in the blacklist'
+> > is possibly off by an order of 10 times or more.
 > 
-> Seems with 1 gb of RAM and swap, the box should be able to handle this
-> (box is dual P3 600 btw).  
-> 
-> Is this unreasonable?  How much RAM should it take to accomplish this???
+> Are there even 1500 distinct PC motherboard designs in *existence*? :-)
 
-You should give a bit more info on that, especially vmstat and the like.
-I cannot reproduce this. Neither on 1GB/256MB nor on 2GB/256MB RAM/SWAP.
-(P3-1GHz, dual SMP, 2.4.17)
+There are tens of thousands of distinct PC motherboard designs in existence.
+I've personally worked on more than a thousand of them over the years.  The
+big issue is that even with a single distinct design (say a reference design
+used by multiple manufacturers), there will be multiple differently-buggy
+BIOSen for that board before you even consider the different versions a single
+manufacturer will crank out over time.
 
-Regards,
-Stephan
+The motherboard market is a lot less diverse today than it was at its peak --
+say late-486 through mid-Pentium (94-97 perhaps).  At one point, there were a
+dozen major brands of core logic, and hundreds of motherboard manufacturers.
 
+Of course, DMI doesn't come into much of the older ones.
+
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

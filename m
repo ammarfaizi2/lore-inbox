@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262105AbSJJAFd>; Wed, 9 Oct 2002 20:05:33 -0400
+	id <S262312AbSJJALj>; Wed, 9 Oct 2002 20:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262312AbSJJAFd>; Wed, 9 Oct 2002 20:05:33 -0400
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:11914 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S262105AbSJJAFc>; Wed, 9 Oct 2002 20:05:32 -0400
-Date: Thu, 10 Oct 2002 01:10:48 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-Message-ID: <20021010011048.D8102@edi-view1.cisco.com>
-References: <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com> <ur8ez9n8d.wl@sfc.wide.ad.jp>
+	id <S262382AbSJJALi>; Wed, 9 Oct 2002 20:11:38 -0400
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:3970 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262312AbSJJALi>;
+	Wed, 9 Oct 2002 20:11:38 -0400
+Date: Thu, 10 Oct 2002 01:16:41 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Robert Love <rml@tech9.net>,
+       Marco Colombo <marco@esi.it>, linux-kernel@vger.kernel.org,
+       akpm@digeo.com
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Message-ID: <20021010001641.GE2654@bjl1.asuk.net>
+References: <20021009152731.GY3045@clusterfs.com> <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <ur8ez9n8d.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 09:00:34AM +0900
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 09:00:34AM +0900, Yuji Sekiya wrote:
+Rik van Riel wrote:
+> > I would say - if you are picking a new flag that doesn't need to have
+> > compatibility with any platform-specific existing flag, simply set them
+> > all high enough so that they are the same on all platforms.
 > 
-> I have cisco box which installed IPv6 IOS.
-
-Did I mention any specific names :-)
-
-> But it defines no prefix length at an interface,
-
-Not really suprising,  it's meaningless.
-
-> FastEthernet4/1 is up, line protocol is up
->   IPv6 is enabled, link-local address is FE80::201:64FF:FEA3:ED55
+> Doesn't really matter, you can't run x86 binaries on MIPS so
+> you need to recompile anyway.
 > 
-> and outgoing interface of routing table is NULL ? :-)
-> 
-> L   FE80::/10 [0/0]
->      via ::, Null0, 7w0d
+> Source level compatibility is enough for flags like this.
 
-Well,  that prefix is on all ipv6 enabled interfaces.  so again a bit
-meaningless.  Anyway,  that's showing a Local entry not a connected entry.
+Using the _same_ flag on different architectures can simplify the
+kernel source, though.  Just imagine, a set of O_* definitions in
+<linux/fcntl.h> instead of them being duplicated, with different
+definitions, throughout <asm-*/fcntl.h>.
 
-DF
+-- Jamie

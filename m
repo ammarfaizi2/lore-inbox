@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267002AbRGIKOc>; Mon, 9 Jul 2001 06:14:32 -0400
+	id <S266894AbRGIKcp>; Mon, 9 Jul 2001 06:32:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267004AbRGIKOW>; Mon, 9 Jul 2001 06:14:22 -0400
-Received: from mail.teraport.de ([195.143.8.72]:17024 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S267002AbRGIKOM>;
-	Mon, 9 Jul 2001 06:14:12 -0400
-Message-ID: <3B4983EF.81C3D8E5@TeraPort.de>
-Date: Mon, 09 Jul 2001 12:14:07 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i686)
-X-Accept-Language: en, de
+	id <S267003AbRGIKcY>; Mon, 9 Jul 2001 06:32:24 -0400
+Received: from [151.99.250.40] ([151.99.250.40]:5607 "EHLO
+	mail2.cs.interbusiness.it") by vger.kernel.org with ESMTP
+	id <S266894AbRGIKcS>; Mon, 9 Jul 2001 06:32:18 -0400
+Date: Mon, 9 Jul 2001 12:23:52 +0200 (CEST)
+From: Giuseppe Guerrini <guerrini@cnisrl.it>
+To: linux-kernel@vger.kernel.org
+cc: giusguerrini@racine.ra.it
+Subject: Low latency patch for IDE (kernel 2.2.14)
+Message-ID: <Pine.LNX.4.21.0107091115280.14334-100000@trantor>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.4.6.-ac2: Problems with eepro100
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 07/09/2001 12:13:57 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 07/09/2001 12:14:04 PM,
-	Serialize complete at 07/09/2001 12:14:04 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
- after going from 2.4.6-ac1 to 2.4.6-ac2 the eepro100 adapter in my IBM
-Thinkpad-570 has stopped working. While "ifconfig" shows the expected
-info, nothing network related (ping, yp, bind, amd, ...) is working. In
-my config, the eepro driver is built directly into the kernel.
+ Hi all,
 
- If I look at the interface lights, it seems that the link goes down
-early in the boot sequence. The whole thing is reproducible. When
-booting -ac1 again, everything is OK.
+ I'm using (ok, still...) a RH 6.2 system with kernel 2.2.14, with RAID1
+enabled. Under heavy disk load, the systen has a latency of up to 700
+milliseconds. This harms my "almost-real-time" applications.
+ After I unsuccessfully tried all usual system tunings (hdparm...), and
+some low-latency patches kernel too, I decided to modify the IDE
+driver. The problem was due to an "interrupt burst" that keeps the CPU
+busy for a while. My patch defers the IDE interrupt handling by activating
+a kernel thread that actually does the job. It works...
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+ You can find the patch (for kernel 2.2.14) here:
+
+	http://www.geocities.com/giusguerrini/linux/llide-patch.txt
+
+ Note that the kernel thread has a "SCHED_FIFO" scheduling policy, and a
+real-time priority of 10. So, only processes of "real-time" class and
+priority greater than 10 take advantage of it. Anyway, you can simply
+change the policy to "SCHED_OTHER" in function "ide_thread".
+ Note also that this is a quite drastic solution, that makes the disk
+slower, and the CPU load greater (slightly).
+
+ Comments are appreciated.
+
+	Regards,
+
+	Giuseppe Guerrini
+
+		giusguerrini@racine.ra.it (HOME)
+		guerrini@cnisrl.it (WORK)
+
+
+ P.S. Please CC to "giusguerrini@racine.ra.it", because I'm not subscribed
+to the list. Thank you.
+
+
+

@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbRGIOuH>; Mon, 9 Jul 2001 10:50:07 -0400
+	id <S261561AbRGIPKb>; Mon, 9 Jul 2001 11:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265472AbRGIOt6>; Mon, 9 Jul 2001 10:49:58 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:12045 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S264954AbRGIOtr>; Mon, 9 Jul 2001 10:49:47 -0400
-Message-ID: <3B49C487.455681FC@netpathway.com>
-Date: Mon, 09 Jul 2001 09:49:44 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VMWare crashes
+	id <S261289AbRGIPKV>; Mon, 9 Jul 2001 11:10:21 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:45848 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261561AbRGIPKK>; Mon, 9 Jul 2001 11:10:10 -0400
+Date: Mon, 9 Jul 2001 17:08:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Abraham vd Merwe <abraham@2d3d.co.za>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: msync() bug
+Message-ID: <20010709170835.J1594@athlon.random>
+In-Reply-To: <20010709105044.A29658@crystal.2d3d.co.za> <3B49A44B.F5E3C6A7@uow.edu.au>, <3B49A44B.F5E3C6A7@uow.edu.au>; <20010709162131.F1594@athlon.random> <3B49C300.185DFCA4@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Content-Disposition: inline
+In-Reply-To: <3B49C300.185DFCA4@uow.edu.au>; from andrewm@uow.edu.au on Tue, Jul 10, 2001 at 12:43:12AM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I realize this may be a VMWare problem, but I just waited to
-bring this to the attention of the developers in case it was related
-to the kernel and to also see if anyone else is having the same
-problem. VMWare dies under load with all kernel versions up to and
-including ac versions after 2.4.6. Kernel version up to and including
-2.4.5-ac15 I know all run fine. Somewhere between 2.4.5-ac15 and 2.4.6
-is where the problem started. I have backed up to 2.4.5 now and VMWare
-is rock solid.
+On Tue, Jul 10, 2001 at 12:43:12AM +1000, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > Wrong fix, `page' is just garbage if some non memory was mapped in
+> > userspace (like framebuffers or similar mmio regions were mapped etc..).
+> 
+> Now we're getting somewhere.  Thanks.  Tell me if this is right:
+>  
+> 
+> > if (VALID_PAGE(page)
+> 
+> If the physical address of the page is somewhere inside our
+> working RAM.
 
-Running VMWare Version 2.0.4 Build-1142
-Asus K7V KT133 Chipset
-Athlon 1000Mhz w/512MB Memory
+correct.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000070
- printing eip:
-e1af85e1
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<e1af85e1>]
-EFLAGS: 00013282
-eax: 00000000   ebx: 00000000   ecx: c243e000   edx: 00000000
-esi: d6b2f480   edi: dfe24df4   ebp: dfe24dc0   esp: c243feb0
-ds: 0018   es: 0018   ss: 0018
-Process vmware (pid: 487, stackpage=c243f000)
-Stack: de7aac04 00000000 de7aac00 d6b2fd80 de7aac3c 00000001 dfe212c0 dfe4d400
-       dfe212c0 dfe212c0 d6b2fd80 e1af6f9e dfe24e14 c76f1e00 00003202 de7aac04
-       00000000 de7aac00 d6b2fd80 e1af74e6 de7aac04 c76f1e00 c76f1e00 c0203fe4
-Call Trace: [<c0203fe4>] [<c0203fe4>] [<c011722f>] [<c012eb26>] [<c0106dc3>]
+> 
+> > !PageReserved(page)
+> 
+> And it's not a reserved page (discontigmem?)
 
-Code: 8b 42 70 83 f8 01 74 0a ff 4a 70 0f 94 c0 84 c0 74 0c 83 c4
+yes, but it's not discontigmem issue, it is the other way around (page
+structure is valid but it maps to non ram, like the 640k-1M region that
+we have the page structure for, we don't use discontigmem for it because
+the hole is too smalle, but it is non ram, or also normal ram mapped by
+some device as dma region).
+
+> > ptep_test_and_clear_dirty(ptep))
+> 
+> And if it was modified via this mapping
+
+yes.
+
+> 
+> > +                       flush_tlb_page(vma, address);
+> > +                       set_page_dirty(page);
+> 
+> Question:  What happens if a program mmap's a part of /dev/mem
+> which passes all of these tests?   Couldn't it then pick some
+
+that cannot happen, remap_pte_range only maps invalid pages or reserved
+pages.
+
+> arbitrary member of mem_map[] which may or may not have
+> a non-zero ->mapping?
 
 
-
-
-
-
-
-
-
--- 
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
-
+Andrea

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbTGHGvB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 02:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266877AbTGHGvB
+	id S264039AbTGHHKS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 03:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTGHHKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 02:51:01 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:46228 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S266892AbTGHGu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 02:50:59 -0400
-Subject: Re: JFFS2: many compile warnings with gcc 2.95 + kernel 2.5
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bunk@fs.tum.de, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030707234910.3d9a9c60.akpm@osdl.org>
-References: <20030708001937.GA6848@fs.tum.de>
-	 <20030707180023.0877085e.akpm@osdl.org>
-	 <1057646526.28965.4.camel@imladris.demon.co.uk>
-	 <20030707234910.3d9a9c60.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1057647927.28965.7.camel@imladris.demon.co.uk>
+	Tue, 8 Jul 2003 03:10:18 -0400
+Received: from holomorphy.com ([66.224.33.161]:56480 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264039AbTGHHKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 03:10:16 -0400
+Date: Tue, 8 Jul 2003 00:26:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>, smiler@lanil.mine.nu,
+       KML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm2 + nvidia (and others)
+Message-ID: <20030708072604.GF15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Martin Schlemmer <azarah@gentoo.org>, Andrew Morton <akpm@osdl.org>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>, smiler@lanil.mine.nu,
+	KML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+References: <1057590519.12447.6.camel@sm-wks1.lan.irkk.nu> <200307071734.01575.schlicht@uni-mannheim.de> <20030707123012.47238055.akpm@osdl.org> <1057647818.5489.385.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Tue, 08 Jul 2003 08:05:27 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: akpm@osdl.org, bunk@fs.tum.de, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057647818.5489.385.camel@workshop.saharacpt.lan>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-08 at 07:49, Andrew Morton wrote:
-> We work around gcc problems all the time.  It is called "being practical".
+On Tue, Jul 08, 2003 at 09:03:39AM +0200, Martin Schlemmer wrote:
+> Bit too specific to -mm2, what about the the attached?
 
-It's purely cosmetic and ignoring the warnings is a perfectly sufficient
-workaround. As is removing the attribute from the declaration. Please
-don't change the code.
+Well, it'd also help to check whether this is a userspace address or
+a kernelspace address. Kernelspace access would only require
+pmd_offset_kernel().
 
--- 
-dwmw2
+Where are these nvidia and vmware patches, anyway? I can maintain
+fixups for highpmd for the things and it would at least help me a
+bit to see what's going on around the specific areas.
 
 
+-- wli

@@ -1,93 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261563AbSI0LVt>; Fri, 27 Sep 2002 07:21:49 -0400
+	id <S261544AbSI0LqO>; Fri, 27 Sep 2002 07:46:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbSI0LVt>; Fri, 27 Sep 2002 07:21:49 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:17138
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261563AbSI0LVs>; Fri, 27 Sep 2002 07:21:48 -0400
-Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI
-	RAIDdevice  driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry Kessler <kessler@us.ibm.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-In-Reply-To: <3D939075.897C9021@us.ibm.com>
-References: <3D8FC5BC.51A8FCCF@us.ibm.com>  <3D8FCC53.3070809@pobox.com>
-	<1033055520.11848.49.camel@irongate.swansea.linux.org.uk> 
-	<3D939075.897C9021@us.ibm.com>
+	id <S261557AbSI0LqO>; Fri, 27 Sep 2002 07:46:14 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:61452 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S261544AbSI0LqN>;
+	Fri, 27 Sep 2002 07:46:13 -0400
+Subject: Re: Mouse/Keyboard problems with 2.5.38
+From: Stian Jordet <liste@jordet.nu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020927091040.B1715@ucw.cz>
+References: <1032996672.11642.6.camel@chevrolet>
+	<20020926105853.A168142@ucw.cz> <1033039991.708.6.camel@chevrolet>
+	<20020926133725.A8851@ucw.cz> <1033054211.587.6.camel@chevrolet>
+	<20020926185717.B27676@ucw.cz> <1033080648.593.12.camel@chevrolet> 
+	<20020927091040.B1715@ucw.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Sep 2002 12:32:08 +0100
-Message-Id: <1033126328.15269.14.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 27 Sep 2002 13:51:43 +0200
+Message-Id: <1033127503.589.6.camel@chevrolet>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-26 at 23:55, Larry Kessler wrote:
-> At the risk of reading more into your suggestion than you intended...
-> Are you supportive of adding infrastructure into the kernel that 
-> provides, conceptually at least, the sort of things that Rusty and
-> I (and others) are after ?
+fre, 2002-09-27 kl. 09:10 skrev Vojtech Pavlik:
+> Unfortunately the little bit of information I needed scrolled away
+> already. Can you try with the other shift (right?)? That won't
+> probably crash your machine, but will most likely generate an "Unknown
+> scancode" message. Again, send me the log lines. This time they should
+> make it in the syslog well.
+Ok, the combination which freezes the computer is right SHIFT, and
+pageup/down, etc. Left SHIFT works just like expected. This time I first
+wrote 'cp /var/log/syslog /tmp/syslog', then 'echo cut-here >
+/var/log/syslog' Left-SHIFT+PAGEUP, arrow up two times, to get the cp..,
+enter. Then I edited /tmp/syslog and copied only what was after
+"cut-here". So the keystrokes included here should be Left-SHIFT+PAGEUP,
+ARROW-UP, ARROW-UP, ENTER. If this works like I think it should. As you
+can see, it did not generate an "Unknown scancode"...
 
-Sort of. We have a problem about consistently reporting which device. So
-dev_printk(dev, ...) is printk that formats up the device info for you.
-Its also easy to use and happens to pass a device pointer into the
-places you want it for more detailed logging
+Sep 27 13:37:37 chevrolet kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [317387]
+Sep 27 13:37:37 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:37 chevrolet kernel: atkbd.c: Received 5a flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: 2a <- i8042 (interrupt, kbd, 1) [319722]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received 12 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [319872]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: aa <- i8042 (interrupt, kbd, 1) [319879]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received 12 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [319882]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: 49 <- i8042 (interrupt, kbd, 1) [319885]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received 7d flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [319948]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: c9 <- i8042 (interrupt, kbd, 1) [319955]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received 7d flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [319958]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:39 chevrolet kernel: i8042.c: 2a <- i8042 (interrupt, kbd, 1) [319961]
+Sep 27 13:37:39 chevrolet kernel: atkbd.c: Received 12 flags 00
+Sep 27 13:37:40 chevrolet kernel: i8042.c: aa <- i8042 (interrupt, kbd, 1) [320061]
+Sep 27 13:37:40 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:40 chevrolet kernel: atkbd.c: Received 12 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [322157]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: 48 <- i8042 (interrupt, kbd, 1) [322160]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received 75 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [322274]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: c8 <- i8042 (interrupt, kbd, 1) [322280]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received 75 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [322649]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: 48 <- i8042 (interrupt, kbd, 1) [322653]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received 75 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [322756]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received e0 flags 00
+Sep 27 13:37:42 chevrolet kernel: i8042.c: c8 <- i8042 (interrupt, kbd, 1) [322762]
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received f0 flags 00
+Sep 27 13:37:42 chevrolet kernel: atkbd.c: Received 75 flags 00
+Sep 27 13:37:45 chevrolet kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [325706]
+Sep 27 13:37:45 chevrolet kernel: atkbd.c: Received 5a flags 00
 
-> Provide a reasonable and printk-like interface (like you've
-> shown above), that writes to printk if advanced logging is not 
-> configured; but, if advanced logging is configured... 
+Hope this helps, even though I doubt. It's only the right-SHIFT causing troubles.
 
-I'm trying to make sure the right data is available. I don't *care* what
-you do with it after it gets thrown at you. If I have to care what you
-are doing with the data the interface is wrong.
+Thanks.
 
-
-> 1) It will take time for device drivers to migrate to a new interface
-
-Who cares. Migrate the devices you care about one at a time, test them
-and worry about just those. Do you need 120 highly available network
-card drivers. Do you need telco grade soundblaster 16 ?
-
-> 3) we should avoid modifying current printk behavior 
-
-We don't. We add an extra helper that builds on it in a totally logical
-fashion. The existing one doesnt break, its merely something to be
-polished when needed by the folks who care
-
-> 4) advanced logging must be an optional feature to avoid the overhead
->    where its not wanted or needed 
-
-And dev_printk is going to be under 1K. What you do with the data isnt
-my problem.
-
-
-> 5) User-space utilities already exist (evlog.sourceforge.net)
-
-Again, this is about what you do with the data for your cases.
-dev_printk is about making the info available cleanly
-
-> and of course, mindful that the 2.5 window is closing in 1 month.
-
-For core code changes for 2.6 base Linus tree. So you end up with a set
-of patches you add over time. I would note however that the default
-dev_printk() routine that just reformats up as
-
-<level>%s: message
-
-is not exactly taxing to get into 2.5 before October 31st, being about
-10 lines long. That gives you the infrastructure to know what is going
-on. Similarly I don't think its infeasible to get the state interface
-into the base kernel just flipping flags in the device structure.
-
-That makes it easy to add the needed pieces to base kernel code during
-the driver work after Oct 31st, but without having to import all the
-event logging stuff which wants hammering out over a longer period of
-time
+Best regards,
+Stian Jordet
 

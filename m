@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbSLGAlZ>; Fri, 6 Dec 2002 19:41:25 -0500
+	id <S267685AbSLGAoG>; Fri, 6 Dec 2002 19:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbSLGAlZ>; Fri, 6 Dec 2002 19:41:25 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:19212 "EHLO
+	id <S267686AbSLGAoG>; Fri, 6 Dec 2002 19:44:06 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:21516 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267687AbSLGAlZ>; Fri, 6 Dec 2002 19:41:25 -0500
-Date: Sat, 7 Dec 2002 00:49:00 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Tobias Rittweiler <inkognito.anonym@uni.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [STATUS] fbdev api.
-In-Reply-To: <1039218931.989.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0212070048400.10225-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267685AbSLGAoF>; Fri, 6 Dec 2002 19:44:05 -0500
+Date: Sat, 7 Dec 2002 00:51:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: acpi-devel@sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Proposed ACPI Licensing change
+Message-ID: <20021207005138.A22295@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	acpi-devel@sourceforge.net, linux-kernel@vger.kernel.org
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>; from andrew.grover@intel.com on Fri, Dec 06, 2002 at 04:10:00PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 06, 2002 at 04:10:00PM -0800, Grover, Andrew wrote:
+> In order to solve this, we are considering releasing the Linux version of
+> the interpreter under a dual license. This would allow direct incorporation
+> of changes. Any patches submitted against the ACPI core code would
+> implicitly be allowed to be used by us in a non-GPL context. This is already
+> done elsewhere in the Linux kernel source by the PCMCIA code, for example.
+> 
+> Comments?
 
-> diff -Naur linux-2.5.50-js/drivers/video/console/fbcon.c linux/drivers/video/console/fbcon.c
-> --- linux-2.5.50-js/drivers/video/console/fbcon.c	2002-12-06 23:33:56.000000000 +0000
-> +++ linux/drivers/video/console/fbcon.c	2002-12-06 23:33:18.000000000 +0000
-> @@ -1986,6 +1986,8 @@
->  						 vc->vc_cols);
->  			vc->vc_video_erase_char = oldc;
->  		}
-> +		else
-> +			update_screen(vc->vc_num);
->  		return 0;
->  	} else {
->  		/* Tell console.c that it has to restore the screen itself */
-
-Applied :-)
-
-
+I think that's fine.  Please use a known license for the second option,
+i.e. MPL.
 

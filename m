@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTHTLWw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 07:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbTHTLWw
+	id S261896AbTHTLeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 07:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTHTLeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 07:22:52 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:26374 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261893AbTHTLWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 07:22:51 -0400
-Subject: [OT] Connection tracking for IPSec
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
+	Wed, 20 Aug 2003 07:34:11 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:37852 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261896AbTHTLeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 07:34:08 -0400
+Date: Wed, 20 Aug 2003 13:34:06 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [2.4.2X] "Undeletable" ARP entries?
+Message-ID: <20030820113406.GA12023@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org
+References: <20030820113208.GA11163@merlin.emma.line.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 20 Aug 2003 13:22:49 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030820113208.GA11163@merlin.emma.line.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+>    SuSE 2.4.20 kernel for 8.2 (k_athlon-2.4.20-96)
+> or 2.4.22-rc2-ac1
 
-I'm starting with IPSec right now. To make it work, I must open up
-protocols 50 and 51 to pass across my Linux firewalls, but I want to use
-connection tracking much like I do when not using IPSec.
+...
 
-For example,
+> WORKAROUND:
 
-iptables -A INPUT -m state --state RELATED,ESTABLISHED
+This workaround will only work on 2.4.22-rc2-ac1, but not on SuSE's
+2.4.20 kernel. -ac bug?
 
-When using IPSec, if I open up protocols 50 and 51, all IPSec-protected
-traffic passes through the firewall, but it's not checked against the
-connection tracking module. How can I configure iptables so an
-IPSec-protected packet, after being classified as IP protocol 50 or 51,
-loop back one more time to pass through the connection tracking module?
-
-I don't want to set up IPSec to get addititional protection by using AH
-and ESP and then let any machine talking IPSec pass entirely through my
-firewall ignoring the rest of rules.
-
-Thanks!
-
+> $ ip addr add 192.168.4.4 dev eth1
+> $ ip addr del 192.168.4.4 dev eth1
+> 
+> Now the arp entry is gone, probably as a side effect of taking down
+> resources related to 192.168.4.4.
+> HOWEVER: the ARP entry was supposed to be permanent, so it may be
+> another bug that the entry is gone after removing an IP alias.
+> 
+> Anyone got ideas or patches to try?
+> 

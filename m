@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270077AbTGNLYr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 07:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270096AbTGNLYr
+	id S270313AbTGNL0r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270279AbTGNL0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 07:24:47 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:7646 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270077AbTGNLYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:24:46 -0400
-Date: Mon, 14 Jul 2003 12:39:21 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030714113921.GA5187@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Maneesh Soni <maneesh@in.ibm.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de> <20030714065116.GB1214@in.ibm.com>
+	Mon, 14 Jul 2003 07:26:47 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:11525 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id S267325AbTGNL01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:26:27 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: root@chaos.analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modutils-2.3.15 'insmod' 
+In-reply-to: Your message of "Wed, 09 Jul 2003 11:25:11 -0400."
+             <Pine.LNX.4.53.0307091119450.470@chaos> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030714065116.GB1214@in.ibm.com>
-User-Agent: Mutt/1.5.4i
+Date: Mon, 14 Jul 2003 21:41:01 +1000
+Message-ID: <20991.1058182861@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 12:21:16PM +0530, Maneesh Soni wrote:
- > Can you add the following two points appended to the Generic VFS changes list?
- > 
- > Thanks
- > Maneesh
+On Wed, 9 Jul 2003 11:25:11 -0400 (EDT), 
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>modutils-2.3.15, and probably later, has a bug that can prevent
+>modules from being loaded from initrd, this results in not
+>being able to mount a root file-system. The bug assumes that
+>malloc() will return a valid pointer when given an allocation
+>size of zero.
 
-I had considered putting such things in there a while ago, but wanted
-the doc to just let _users_ know what changes they should be aware of.
-This sort of thing really belongs in a 2.5-api-changes.txt or the likes.
-(Which I did ponder doing at one point, but time got the better of me).
+Sigh :(  Fixed over two years ago.
 
-		Dave
+modutils Changelog.  2001-05-06 modutils 2.4.6
 
+	* Do not assume that malloc(0) returns a pointer.  Bug report by
+	  Kiichiro Naka, different fix by Keith Owens.
 
- > On Fri, Jul 11, 2003 at 02:04:59PM +0000, Dave Jones wrote:
- > [...]
- > > 
- > > Generic VFS changes.
- > > ~~~~~~~~~~~~~~~~~~~~
- > > - Since Linux 2.5.1 it is possible to atomically move a subtree to
- > >   another place. The call is...
- > >    mount --move olddir newdir
- > > - Since 2.5.43, dmask=value sets the umask applied to directories only.
- > >   The default is the umask of the current process.
- > >   The fmask=value sets the umask applied to regular files only.
- > >   Again, the default is the umask of the current process.
- >   - Since 2.5.62, dcache lookup is dcache_lock free. This does not affect
- >     normal filesystems as long as they follow proper dcache interfaces. Care
- >     should be taken (like holding per dentry lock) if one is racing with 
- >     d_lookup bringing a new dentry in dcache.
- >   - Since 2.5.75-bk1 onwards separate lock is used for vfsmounts instead of
- >     dcache_lock.
- >  
- > 
- > -- 
- > Maneesh Soni
- > IBM Linux Technology Center, 
- > IBM India Software Lab, Bangalore.
- > Phone: +91-80-5044999 email: maneesh@in.ibm.com
- > http://lse.sourceforge.net/
----end quoted text---
+void *
+xmalloc(size_t size)
+{
+  void *ptr = malloc(size ? size : 1);
+  if (!ptr)
+    {
+      error("Out of memory");
+      exit(1);
+    }
+  return ptr;
+}
+

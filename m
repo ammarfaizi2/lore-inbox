@@ -1,105 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUIQB0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUIQB0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268465AbUIQB0X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 21:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUIQB0X
+	id S268260AbUIQB0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 21:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUIQB0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 21:26:23 -0400
-Received: from ozlabs.org ([203.10.76.45]:23964 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268465AbUIQBZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 21:25:56 -0400
-Date: Fri, 17 Sep 2004 11:13:20 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PPC64] Remove LARGE_PAGE_SHIFT constant
-Message-ID: <20040917011320.GA6523@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040818i
+	Thu, 16 Sep 2004 21:26:16 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.105]:24071 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S268260AbUIQBZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 21:25:50 -0400
+Message-ID: <414A3F37.9080804@hp.com>
+Date: Thu, 16 Sep 2004 21:34:47 -0400
+From: Robert Picco <Robert.Picco@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       Jesse Barnes <jbarnes@engr.sgi.com>, venkatesh.pallipadi@intel.com
+Subject: Re: device driver for the SGI system clock, mmtimer
+References: <200409161003.39258.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0409160930300.6765@schroedinger.engr.sgi.com> <200409161054.51467.bjorn.helgaas@hp.com> <4149D655.5070904@hp.com> <Pine.LNX.4.58.0409161259030.7834@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0409161259030.7834@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+Christoph Lameter wrote:
 
-For historical reasons, ppc64 has ended up with two #defines for the
-size of a large (16M) page: LARGE_PAGE_SHIFT and HPAGE_SHIFT.  This
-patch removes LARGE_PAGE_SHIFT in favour of the more widely used
-HPAGE_SHIFT.
+>On Thu, 16 Sep 2004, Robert Picco wrote:
+>
+>  
+>
+>>>Is there something specific that drivers/char/hpet.c expects that
+>>>your hardware doesn't implement?
+>>>      
+>>>
+>>Look at HPET revision history.  Specifically 0.98 01/20/2002
+>>    * Product name changed: from Multimedia Timer to HPET (High
+>>Precision Event Timer)
+>>    
+>>
+>
+>The HPET timer has a specific memory layout of registers that is mappable
+>to user space. The mmtimer driver only allows the mapping of a single 64
+>bit counter to use space. We have lots of applications at SGI
+>that rely on mmtimer since mmtimer provides a locally accessible
+>clock in an NUMA environment with hundreds of CPU. A hpet device would
+>have to show up in the global address space and require cross node
+>accesses in our NUMA environment that would make access to the timer
+>slow. All CPU would content for access to a certain global memory address.
+>
+>The HPET hardware and the sgi mmtimer are totally different architectures
+>that are not easily reconcilable.
+>
+>The software API to handle both is similar and we would like it to be as
+>compatible as possible.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Ah.  Well this might be possible.  The HP HPET hardware is on each NUMA 
+node. So cross node issues could be addressed. The bit counter isn't an 
+open point for the HPET driver.  Only the HPET timers which march 
+against the bit counter can be opened.  The current open logic in the 
+driver hunts to find an available timer.  To coexist with mmtimer and 
+just enabling the mmaping of the bit counter would require changing the 
+driver API.  The other API issues are resolvable with little effort.  I 
+think ;-)
 
-Signed-off-by: David Gibson <dwg@au1.ibm.com>
-
-Index: working-2.6/arch/ppc64/kernel/pSeries_htab.c
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/pSeries_htab.c	2004-08-09 09:51:38.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/pSeries_htab.c	2004-09-16 17:04:56.034685808 +1000
-@@ -325,7 +325,7 @@
- 		va = (vsid << 28) | (batch->addr[i] & 0x0fffffff);
- 		batch->vaddr[j] = va;
- 		if (large)
--			vpn = va >> LARGE_PAGE_SHIFT;
-+			vpn = va >> HPAGE_SHIFT;
- 		else
- 			vpn = va >> PAGE_SHIFT;
- 		hash = hpt_hash(vpn, large);
-Index: working-2.6/include/asm-ppc64/mmu.h
-===================================================================
---- working-2.6.orig/include/asm-ppc64/mmu.h	2004-09-16 16:58:48.170699448 +1000
-+++ working-2.6/include/asm-ppc64/mmu.h	2004-09-16 17:04:44.306603944 +1000
-@@ -119,8 +119,6 @@
- #define PT_SHIFT (12)			/* Page Table */
- #define PT_MASK  0x02FF
- 
--#define LARGE_PAGE_SHIFT 24
--
- static inline unsigned long hpt_hash(unsigned long vpn, int large)
- {
- 	unsigned long vsid;
-Index: working-2.6/arch/ppc64/mm/hash_utils.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hash_utils.c	2004-09-15 10:53:53.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hash_utils.c	2004-09-16 17:04:20.121686024 +1000
-@@ -100,7 +100,7 @@
- 		int ret;
- 
- 		if (large)
--			vpn = va >> LARGE_PAGE_SHIFT;
-+			vpn = va >> HPAGE_SHIFT;
- 		else
- 			vpn = va >> PAGE_SHIFT;
- 
-@@ -332,7 +332,7 @@
- 
- 	va = (vsid << 28) | (ea & 0x0fffffff);
- 	if (large)
--		vpn = va >> LARGE_PAGE_SHIFT;
-+		vpn = va >> HPAGE_SHIFT;
- 	else
- 		vpn = va >> PAGE_SHIFT;
- 	hash = hpt_hash(vpn, large);
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-09-07 10:38:00.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-09-16 17:03:34.673672800 +1000
-@@ -853,7 +853,7 @@
- 	vsid = get_vsid(context.id, ea);
- 
- 	va = (vsid << 28) | (ea & 0x0fffffff);
--	vpn = va >> LARGE_PAGE_SHIFT;
-+	vpn = va >> HPAGE_SHIFT;
- 	hash = hpt_hash(vpn, 1);
- 	if (hugepte_val(pte) & _HUGEPAGE_SECONDARY)
- 		hash = ~hash;
-
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+Bob

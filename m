@@ -1,103 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbVCERz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVCER7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbVCERz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 12:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbVCERzz
+	id S262787AbVCER7D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 12:59:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVCER4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 12:55:55 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:37346 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261688AbVCERt5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 12:49:57 -0500
-Message-ID: <02c101c521ab$bd4e0ba0$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Jan Dittmer" <jdittmer@ppp0.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "David Greaves" <david@dgreaves.com>
-References: <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <01ef01c520b7$94bebf80$0f01a8c0@max> <20050304132535.A9133@flint.arm.linux.org.uk> <039001c520e0$4ea3fbe0$0f01a8c0@max> <20050304181110.A16178@flint.arm.linux.org.uk>
-Subject: Re: RFD: Kernel release numbering
-Date: Sat, 5 Mar 2005 17:49:44 -0000
+	Sat, 5 Mar 2005 12:56:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31456 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261694AbVCERuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 12:50:21 -0500
+Message-ID: <4229F14A.8030109@pobox.com>
+Date: Sat, 05 Mar 2005 12:50:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       chrisw@osdl.org
+Subject: Re: Linux 2.6.11.1
+References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org> <20050304205842.GA32232@kroah.com> <20050304131537.7039ca10.akpm@osdl.org> <Pine.LNX.4.58.0503041353050.11349@ppc970.osdl.org> <20050304135933.3a325efc.akpm@osdl.org> <20050304220518.GC1201@kroah.com> <20050305095139.A26541@flint.arm.linux.org.uk> <4229EA0A.8010608@pobox.com> <Pine.LNX.4.58.0503050930430.2304@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503050930430.2304@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King:
-> Two things - are you sure that openembedded contains the patches to
-> fix the two biggest binutils issues we have, as documented on
-> http://www.arm.linux.org.uk/developer/toolchain/ ?
+Linus Torvalds wrote:
+> 
+> On Sat, 5 Mar 2005, Jeff Garzik wrote:
+> 
+>>Yup, BK could definitely handle that...
+> 
+> 
+> However, it's also true that the thing BK is _worst_ at is cherry-picking 
+> things, and having a collection of stuff where somebody may end up vetoing 
+> one patch and saying "remove that one".
 
-I've checked and it contains the tc-arm.c.patch but does not have the ARM
-mapping symbols fix. As recent kernels have fixes for that, its not so much
-of a problem as it was however it should be staightforward to add into oe
-and I will aim to do that.
+In general, I agree.  Andrew and I mentioned this to BitMover recently 
+[though its certainly not a new comment], when they asked us why I had 
+to occasionally blow away the netdev-2.6 tree, and reconstitute it from 
+scratch.
 
-> Secondly, are you seriously suggesting people like Jan Dittmer, who
-> provide a cross-architecture service should jump through some loops
-> just to get a working toolchain for the ARM architecture?
 
-You said nobody was willing/interested in maintaining a toolchain. I'm
-saying that a toolchain is maintained within openembedded and that pointing
-people at that is better than nothing. Maintaining a set of patches to
-ensure bugs in binutils etc are fixed is easy within oe's framework. (To add
-the above patch, in theory I just need to add a line to a file).
+> I love BK, but what BK does well is merging and maintaining trees full of 
+> good stuff. What BK sucks at is experimental stuff where you don't know 
+> whether something should be eventually used or not.
 
-Jan Dittmer:
-> As long it is documented and it _works_ that's no problem. But it was
-> quite a hassle to get working cross-compilers for all 23 archs
-> to build, because for some there is no real documentation which
-> target is the correct one and upstream gcc and/or binutils sometimes
-> don't compile.
+I use BitKeeper to maintain such a tree, "libata-dev".  Most stuff in 
+there will go upstream.  Some stuff may never go upstream.  Some stuff 
+needs to simmer for a while before going upstream.  So "change streams" 
+get divided up locally:
 
-This is why openembedded exists - it tracks known working build
-configurations of every bit of software needed to make complete linux
-distributions.
+[jgarzik@pretzel libata-dev]$ ls -FC
+adma/          atapi-enable/        janitor/            remove-one-fix/
+adma-mwi/      bridge-detect/       passthru/           sata-sil-irq/
+ahci-msi/      chs-support/         pdc2027x/           tf-cleanup/
+ahci-tf-read/  ioctl-get-identity/  pdc20619/           via-6421/
+iomap/         promise-sata-pata/
 
-> How much work is it to set-up an openembedded environment anyways?
+and then I cherrypick from that.
 
-I've written a quick and dirty set of instructions on setting up
-openembedded below. Please note that oe is used for building complete linux
-distributions so there is a lot of functionality being unused here (as you
-can imagine from my statement above). bitbake is a known memory hog (it can
-use up to 1GB of ram) - we all know this is appalling and a rewrite to
-address this is in progress.
+netdev-2.6 queue is maintained the same way.  It's simply a merge tree 
+composed of 40+ individual trees, all merged together.
 
-cd /work/
-svn co svn://svn.berlios.de/bitbake/trunk/bitbake
-export PATH=/work/bitbake/bin:$PATH
+	Jeff
 
-bk clone bk://openembedded.bkbits.net/openembeded
-export BBPATH=/work/build:/work/openembedded
-
-mkdir build
-mkdir build/conf/
-cp openembedded/conf/local.conf.sample build/conf/local.conf
-
-Edit local.conf as appropriate. local.conf.sample has details about what
-the variables do. My local.conf to generate the arm toolchain has:
-
-DL_DIR="/work/sources"
-BBFILES="/work/openembedded/packages/*/*.bb"
-TARGET_ARCH="arm"
-TARGET_OS="linux"
-INHERIT="package_tar"
-
-(everything else is left unchanged)
-
-cd build
-bitbake binutils-cross-sdk
-bitbake gcc-cross-sdk
-
-Output ends up in /work/build/tmp/deploy
-
-Richard
 

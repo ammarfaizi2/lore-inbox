@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263379AbTDCNZ7>; Thu, 3 Apr 2003 08:25:59 -0500
+	id <S263390AbTDCN1i>; Thu, 3 Apr 2003 08:27:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263382AbTDCNZ7>; Thu, 3 Apr 2003 08:25:59 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:12696 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263379AbTDCNZ6>; Thu, 3 Apr 2003 08:25:58 -0500
-Date: Thu, 3 Apr 2003 14:37:18 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.66-bk vm oops.
-Message-ID: <20030403133712.GA19693@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	id <S263389AbTDCN1h>; Thu, 3 Apr 2003 08:27:37 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:50156 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S263390AbTDCN1f>;
+	Thu, 3 Apr 2003 08:27:35 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Sven Luther <luther@dpt-info.u-strasbg.fr>
+Date: Thu, 3 Apr 2003 15:38:43 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <4E134F4AFE@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with BK from ~24hrs ago,..
+On  3 Apr 03 at 15:11, Sven Luther wrote:
+> On Thu, Apr 03, 2003 at 03:05:54PM +0100, Petr Vandrovec wrote:
+> > On  3 Apr 03 at 14:38, Sven Luther wrote:
+> > > On Thu, Apr 03, 2003 at 12:05:13PM +0100, Petr Vandrovec wrote:
+> > > > No. With matroxfb, you have two framebuffer devices, /dev/fb0 &
+> > > > /dev/fb1, which can be connected to any of three outputs: analog
+> > > > primary, analog secondary and DVI. Analog primary & DVI share same
+> > > > pair of DDC cables, and analog secondary has its own... And user can
+> > > > interconnect fb* with outputs in almost any way he wants, as long as
+> > > > hardware supports it.
+> > > 
+> > > Mmm, i have not been into fbdev much lately, but for my X devel work, i
+> > > believe thta it is a good thing to separate the framebuffer issues from
+> > > the output issues, and thus, for the card i have at least, have one
+> > > function where the per chip things are done (memory detection, bypass
+> > > unit handling, framebuffer and memory management) and another set of
+> > > functions which would be head, that is output, specific. This way, you
+> > > would configure the /dev/fbx and when the user which to use this or that
+> > > output, the DDC will be connected to the output, not the framebuffer.
+> > > This seems a reasonable way of doing this and should solve your problem,
+> > > no ?
+> > 
+> > Of course. But because of James decided that fbdev layer will
+> > automatically choose appropriate resolution only from xres/yres, I need to
+> > have monitor capabilities at the time upper layer asks to set videomode on
+> > /dev/fbx... And it just sets it on /dev/fbx, leaving out both VTs (so I
+> > cannot remember what mode was probed on each VT anymore) and outputs.
+> 
+> Mmm, and at what time is the fbdev->output mapping done ?
 
-kernel BUG at mm/slab.c:1582!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c014ebab>]    Not tainted
-EFLAGS: 00010016
-EIP is at kmem_cache_free+0x24b/0x2c0
-eax: 011999cc   ebx: 00010c00   ecx: 0000003c   edx: c7dedc74
-esi: 81dfc120   edi: c3dfcd14   ebp: c198fd30   esp: c198fd08
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 6, threadinfo=c198e000 task=c198d980)
-Stack: c7dedc74 c49138a0 00000000 c3dfc000 c0171d5c c19a3704 00000292 c198e000 
-       c10df6d8 00000001 c198fd44 c0171d5c c7dedc74 c3dfcd18 c3dfcd18 c198fd78 
-       c0171b1b c3dfcd18 c198fd68 c1ac14c8 c1066670 c198fe68 c198fd78 00000000 
-Call Trace:
- [<c0171d5c>] free_buffer_head+0x2c/0x70
- [<c0171d5c>] free_buffer_head+0x2c/0x70
- [<c0171b1b>] try_to_free_buffers+0x13b/0x210
- [<c0152224>] shrink_list+0x4e4/0x5f0
- [<c010d425>] do_IRQ+0x235/0x350
- [<c0152529>] shrink_cache+0x1f9/0x600
- [<c015348b>] shrink_zone+0x9b/0xa0
- [<c0121590>] autoremove_wake_function+0x0/0x50
- [<c0153746>] balance_pgdat+0x116/0x180
- [<c015389d>] kswapd+0xed/0xf0
- [<c0121590>] autoremove_wake_function+0x0/0x50
- [<c010a306>] ret_from_fork+0x6/0x20
- [<c0121590>] autoremove_wake_function+0x0/0x50
- [<c01537b0>] kswapd+0x0/0xf0
- [<c01075fd>] kernel_thread_helper+0x5/0x18
+At random time, when user asks to change fbdev->output mapping... And it 
+still means that I have to create new EDID based on all EDIDs I read from 
+each output - this is biggest problem, and that currently used videomode
+can become invalid - and this is even worse problem.
 
-Code: 0f 0b 2e 06 e3 53 53 c0 e9 d7 fe ff ff 8b 55 08 8b 5a 34 e9
-
-		Dave
+In the past life was sweet, user apps showed windows that currently used
+setting is unavailable, and offered some changes. Now when we are moving
+more and more policy to the kernel...
+                                                    Petr Vandrovec
+                                                    
 

@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268653AbRG3WQ1>; Mon, 30 Jul 2001 18:16:27 -0400
+	id <S268641AbRG3WQ1>; Mon, 30 Jul 2001 18:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268642AbRG3WQR>; Mon, 30 Jul 2001 18:16:17 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:7094 "EHLO suntan.tandem.com")
-	by vger.kernel.org with ESMTP id <S267023AbRG3WQM>;
-	Mon, 30 Jul 2001 18:16:12 -0400
-Message-ID: <3B65DA0E.9736346D@compaq.com>
-Date: Mon, 30 Jul 2001 15:05:02 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
-        Andi Kleen <ak@suse.de>, Bill Pringlemeir <bpringle@sympatico.ca>
-Subject: Re: [PATCH 2.4.7] generic hash table implementation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267023AbRG3WQS>; Mon, 30 Jul 2001 18:16:18 -0400
+Received: from TK212017114173.teleweb.at ([212.17.114.173]:56326 "HELO
+	tk212017114173.teleweb.at") by vger.kernel.org with SMTP
+	id <S268641AbRG3WQJ>; Mon, 30 Jul 2001 18:16:09 -0400
+Date: Tue, 31 Jul 2001 00:19:07 +0200
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: tulip driver still broken
+Message-ID: <20010731001907.A21982@hostmaster.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Thanks to everyone who participated in the 'Common hash table implementation'
-> thread. With your comments in mind, I molded Richard's code into something
-> that might work for the kernel community (and Linus).
-> 
-> Included in the following patch are the generic hash implementation,
-> documentation, and some test code. The test code will be stripped out when
-> it's time to submit the patch for inclusion. To turn on the test code, set
-> HASH_TEST to 1.
-> 
-> Before submitting, we probably want to port one or more kernel hash tables
-> onto the generic implementation. I was thinking about porting the dcache
-> sometime next week if I have time, then running it on my laptop to see if
-> there's any problems.
-> 
-> Let me know what you think.
-> 
 
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry. My last message had a bogus reply address (bwatson@sandbass.cpqcorp.net). I'm used to using Netscape mail, but since Netscape has no good
-way to send inline patches unscathed, I used the mail command. I forgot that mail wouldn't know to use my correct reply address, and instead
-would use the account name on my laptop.
+My genuine digital network interface card ceased to work with the tulip
+driver contained in kernel revisions >=3D 2.4.4 and the development driver =
+from
+sourceforge.net.
 
-To make a long story short, my correct reply address is Brian.J.Watson@compaq.com. Please copy me if you have comments about my adaptation of
-Richard's generic hash implementation.
+It seems that the driver incorrectly configures the card for full duplex mo=
+de
+and I could not figure out how to override this with the new MODULE_PARM
+macro.
 
--- 
-Brian Watson                | "The common people of England... so 
-Linux Kernel Developer      |  jealous of their liberty, but like the 
-Open SSI Clustering Project |  common people of most other countries 
-Compaq Computer Corp        |  never rightly considering wherein it 
-Los Angeles, CA             |  consists..."
-                            |     -Adam Smith, Wealth of Nations, 1776
+I am now using the stable driver 0.9.14 from sourceforge.net which works fi=
+ne.
 
-mailto:Brian.J.Watson@compaq.com
-http://opensource.compaq.com/
+Further information available by request!
+
+Tom
+
+Quantum Mechanics is God's version of "Trust me."
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+       mail pgp-key-request@hostmaster.org
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+
+iQEVAgUBO2XdWmD1OYqW/8uJAQHgQwgAiT2K8QMxr0tNdzRzvcItDwZ+DyL1RTxu
+q+eHBBSp7v6lFfB2uMJfhAMmSRK6CWUppv4BM3xbIIyf9jrBXHPVzv/CNXuHAeiD
+hHRAUK/P4miKSjOTrWqgzr1qdcWVhj2i5BWXPFNIqCznvGGnCfwk10R4MAW2wUwi
+H2IXzBioWCpQ2KV3LprDARoEfu3YcCO+8heiOS+9q8CgGdrygkcyuHQMzUz9//0Q
+1xtTojxaoES5xu2jTEkrZhkfkndhGVFGPdsQSu1e8XRDBmTEPPPpzNsCyGp9oQU5
+hnM7tzUpP02bQyNzFqdqE0+qoB5YRQ3/IrnBaVkCKLlVPHh528pE5A==
+=GNQV
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--

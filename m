@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVAGPtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVAGPvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVAGPtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 10:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVAGPtx
+	id S261470AbVAGPvI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 10:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVAGPvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 10:49:53 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:1202 "EHLO
-	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S261472AbVAGPtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:49:39 -0500
-Message-ID: <41DEAF8F.3030107@bio.ifi.lmu.de>
-Date: Fri, 07 Jan 2005 16:49:35 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+	Fri, 7 Jan 2005 10:51:07 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:34775 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261470AbVAGPvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 10:51:02 -0500
+Message-ID: <41DEAFE2.1030001@nortelnetworks.com>
+Date: Fri, 07 Jan 2005 09:50:58 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Fix for new elf_loader bug?
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: where to put kernel code to run on exec?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-is there already a patch for the new problem with the elf loader, maybe
-in the bitkeeper tree?
+I've added a field to the task struct to keep track of whether or not 
+the process wants to be notified of various events.  On exec() I'd like 
+to clear this field.
 
-http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+I'm having problems finding a nice clean place to put the code to clear 
+it.  The obvious choice would be in the last bit of the success path in 
+do_execve(), but there's nothing similar there already, so I'm probably 
+missing something.
 
-Thanks!
-cu,
-Frank
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+Is there some standard place to put code to run on a successful call to 
+exec()?
+
+Chris
+
+Chris

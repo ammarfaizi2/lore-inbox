@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbTKUOsG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 09:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTKUOsG
+	id S264351AbTKUPcK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 10:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUPcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 09:48:06 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:17339 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262761AbTKUOsE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 09:48:04 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: O_DIRECT leaks memory on linux-2.6.0-test9
-Date: Fri, 21 Nov 2003 09:48:01 -0500
-User-Agent: KMail/1.5.1
-Cc: iwamoto@valinux.co.jp, linux-kernel@vger.kernel.org
-References: <20031121061806.6A65F7007C@sv1.valinux.co.jp> <200311210902.50445.gene.heskett@verizon.net> <200311210925.45366.gene.heskett@verizon.net>
-In-Reply-To: <200311210925.45366.gene.heskett@verizon.net>
+	Fri, 21 Nov 2003 10:32:10 -0500
+Received: from mail.g-housing.de ([62.75.136.201]:48802 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264351AbTKUPcH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 10:32:07 -0500
+Message-ID: <3FBE2FF4.5010904@g-house.de>
+Date: Fri, 21 Nov 2003 16:32:04 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: russell@coker.com.au
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: de2104x tulip driver bug in 2.6.0-test9
+References: <200311212051.32352.russell@coker.com.au>
+In-Reply-To: <200311212051.32352.russell@coker.com.au>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311210948.01512.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.54.127] at Fri, 21 Nov 2003 08:48:02 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 November 2003 09:25, Gene Heskett wrote:
->On Friday 21 November 2003 09:02, Gene Heskett wrote:
->[...]
->
->>>I had a patch for that.  Maybe it got merged.  You should hunt
->>> down the upstream source and try it out.
->>
->>The srcs for xosview?  I did a freshmeat search, and what I found
->>hadn't been touched in over a year.  I didn't bother grabbing it as
->>it was the same version number as the copy I have.
->
->I must have followed the wrong link, 1.8.1 is building now.
+Russell Coker wrote:
+> 00:14.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
+> [Tulip Pass 3] (rev 11)
+> 
+> Above is the lspci output for my PCI Ethernet card.  Below is what happens 
+> when I try to boot 2.6.0-test9.  2.4.x kernels have been working well on the 
+> same card for a long time, so the hardware seems basically OK.
+> 
+> Configuring network interfaces... eth0: set link BNC
+>  eth0:    mode 0x7ffc0040, sia 0x10c4,0xffffef09,0xfffff7fd,0xffff0006
+>  eth0:    set mode 0x7ffc0000, set sia 0xef09,0xf7fd,0x6
+>  eth0: timeout expired stopping DMA
 
-But it won't build the memsat.o module when enabled.  Many pages of 
-parse errors if I softlink the newest version number of it to 
-memstat.c. Otherwise it cannot find it at all. Not much meat in the 
-README's either.  That isn't the one with the newest date however, 
-wth?
+could this be anyhow related to this:
 
-I'll try without it.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106766135110165&w=2
 
-And that, when built, then './xosview' to run it insitu, never shows 
-its window, and never shows up in the process table.  A ctrl-c 
-returns the prompt instantly.  So I'm not going to install that 
-one...
+there is a thread on linuxppc-dev too, as this is ppc specific:
 
+http://lists.linuxppc.org/linuxppc-dev/200311/msg00001.html
+
+it looks similar, but here on ppc32 i got no oops :-(
+
+Christian.
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+BOFH excuse #27:
+
+radiosity depletion
 

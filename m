@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265950AbUAUFaN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 00:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUAUFaN
+	id S261885AbUAUFiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 00:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUAUFiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 00:30:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28879 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265950AbUAUFaK (ORCPT
+	Wed, 21 Jan 2004 00:38:05 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:2782 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S261885AbUAUFiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 00:30:10 -0500
-Date: Tue, 20 Jan 2004 21:30:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: More cleanups for swsusp
-Message-Id: <20040120213037.66c9d5a0.akpm@osdl.org>
-In-Reply-To: <20040121051855.B0C282C0A7@lists.samba.org>
-References: <20040120225219.GA19190@elf.ucw.cz>
-	<20040121051855.B0C282C0A7@lists.samba.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 21 Jan 2004 00:38:02 -0500
+Date: Wed, 21 Jan 2004 16:35:03 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.2-rc1
+Message-Id: <20040121163503.3df86bee.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+References: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__21_Jan_2004_16_35_03_+1100_+8IQgXvjrFxp7=dH"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+--Signature=_Wed__21_Jan_2004_16_35_03_+1100_+8IQgXvjrFxp7=dH
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+On Tue, 20 Jan 2004 20:43:53 -0800 (PST) Linus Torvalds <torvalds@osdl.org> wrote:
 >
-> In message <20040120225219.GA19190@elf.ucw.cz> you write:
->  > -	if (fill_suspend_header(&cur->sh))
->  > -		panic("\nOut of memory while writing header");
->  > +	BUG_ON (fill_suspend_header(&cur->sh));
-> 
-> ...
->  3) BUG_ON(complex condition expression) is much less clear than:
-> 
->  	if (complex condition expression)
->  		BUG();
+>   o ppc64: iSeries fixups, from Stephen Rothwel
+                                                ^
+Rusty says I have to shut this down fast! :-)
 
-Worse.  If some smarty goes and makes BUG_ON a no-op (for space reasons),
-it will break software suspend.  We should ensure that the expression which
-is supplied to BUG_ON() never has side-effects for this reason.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-I'll drop that chunk.
+--Signature=_Wed__21_Jan_2004_16_35_03_+1100_+8IQgXvjrFxp7=dH
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFADg+HFG47PeJeR58RAsu1AKDdTyaV5TR1VEEjS5orKgdJr0IEUQCg4EZp
+xTBG5BTSE68vpTiAmn+BJUA=
+=d9/c
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__21_Jan_2004_16_35_03_+1100_+8IQgXvjrFxp7=dH--

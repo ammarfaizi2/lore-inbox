@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUASLe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbUASLeR
+	id S264568AbUASLcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbUASLbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:34:17 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:33959 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S264594AbUASLcl (ORCPT
+	Mon, 19 Jan 2004 06:31:50 -0500
+Received: from dp.samba.org ([66.70.73.150]:36826 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264566AbUASLbj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:32:41 -0500
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: TG3: very high CPU usage
-Date: Mon, 19 Jan 2004 12:32:24 +0100
-Organization: privat
-Message-ID: <bugf88$932$1@A8bba.a.pppool.de>
-References: <fa.eu7l1gd.ekqe1j@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.eu7l1gd.ekqe1j@ifi.uio.no>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+	Mon, 19 Jan 2004 06:31:39 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>
+Cc: tmolina@cablespeed.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm4 
+In-reply-to: Your message of "Sat, 17 Jan 2004 10:52:39 -0800."
+             <20040117105239.0b94f2b3.akpm@osdl.org> 
+Date: Mon, 19 Jan 2004 18:16:50 +1100
+Message-Id: <20040119113132.D25A52C2AA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Williams (MWP) wrote:
-[...]
-> However, when using Apache or any FTP client/daemon, the TG3 driver appears to be VERY slow maxing out CPU usage at 100% while only transfering at around 12MB/sec.
-> This applies for both incoming or outgoing data.
+In message <20040117105239.0b94f2b3.akpm@osdl.org> you write:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> >  I was getting something like that on reboot a few days ago, I think it
+> >  was with 2.6.1-mm2.  I had to move on before debugging it fully, but
+> >  the impression I got (maybe vile calumny, sue me Rusty) was that the
+> >  new kthread_create for 2.6.1-mm's ksoftirqd was leaving it vulnerable
+> >  to shutdown kill, whereas other things (RCU in my traces) still needed
+> >  it around and assumed its task address still valid.
+> 
+> Yes.  ksoftirqd and the migration threads can now be killed off
+> with `kill -9'.
 
-[...]
+"That shouldn't happen".
 
-> Ive tried other NICs, etc and confirmed that it is a problem with the TG3 driver.
+We block and flush all signals in workqueue.c.  How is that kill -9
+getting through?
 
-I saw the same problem with the bcm-driver (Kernel 2.4.x) shipped with
-SuSE 9 / SLES 8. Testcase was the initial mirror of a 10 GB partition on a
-raid5 serveraid / XSeries 235 (2 way) to the same hardware on the remote
-machine using both times the onboard NIC (Broadcom GBit Ethernet) via drbd:
-100% CPU usage, 12 MB/s, machine is nearly death.
+It also implies that previously ksoftirqd and migration threads would
+tight spin after kill -9, since they slept with TASK_INTERRUPTIBLE.
 
-
-Regards,
-Andreas Hartmann
+Will dig...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

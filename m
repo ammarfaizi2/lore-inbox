@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261535AbREOVV2>; Tue, 15 May 2001 17:21:28 -0400
+	id <S261560AbREOVWi>; Tue, 15 May 2001 17:22:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbREOVVJ>; Tue, 15 May 2001 17:21:09 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:53756
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S261535AbREOVU6>; Tue, 15 May 2001 17:20:58 -0400
-Date: Tue, 15 May 2001 17:20:31 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261559AbREOVW3>; Tue, 15 May 2001 17:22:29 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:44516 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S261558AbREOVWU>; Tue, 15 May 2001 17:22:20 -0400
+Date: Tue, 15 May 2001 17:22:19 -0400
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.10.10105151326010.22038-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010515172219.A5508@cs.cmu.edu>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10105151028380.22038-100000@www.transvirtual.com> <Pine.LNX.4.21.0105151043360.2112-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.21.0105151043360.2112-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, May 15, 2001 at 11:04:27AM -0700
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 15, 2001 at 11:04:27AM -0700, Linus Torvalds wrote:
+> And using ASCII names ("eject") instead of numbers (see the "FDEJECT" and
+> "CDROMEJECT" etc #defines) sure as hell makes for easier maintenance and
+> avoids the whole issue of maintaining static numbers (all the same things
+> that make me hate device number maintenance makes me also hate the fact
+> that we need to maintain this list of ioctl numbers etc). By using
+> descriptive names, the "maintenance" simple does not exist.
 
+If people couldn't even agree on using the same ioctl number, why
+would they agree on using the same ASCII name? In other words, there
+will still be maintenance, it just moves the problem into a different
+(and hopefully more maintainable) 'namespace'.
 
-On Tue, 15 May 2001, James Simmons wrote:
-
->
-> > I actually suggested something like this a while ago, mainly w.r.t. how
-> > to deal with serial ports (e.g. /dev/ttyS0/callout instead of /dev/cua0).
->
-> Very brillant. I like to see this as well, plus include the other serial
-> devices.
-
-Personally, I'd really like to see /dev/ttyS0 be the first detected serial
-port on a system, /dev/ttyS1 the second, etc.  Currently there are plenty of
-different serial hardware with all their own drivers and /dev entries.  For
-embedded systems with serial consoles, and also across architectures, this
-is a pain since the filesystem and namely /dev/inittab has to be adjusted
-for all different types of UARTs.  This is not the case for every different
-type of NICs and that's a good thing.
-
-
-Nicolas
+Jan
 

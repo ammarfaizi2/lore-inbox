@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311834AbSDSIJT>; Fri, 19 Apr 2002 04:09:19 -0400
+	id <S311829AbSDSIII>; Fri, 19 Apr 2002 04:08:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311839AbSDSIJS>; Fri, 19 Apr 2002 04:09:18 -0400
-Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:14087 "EHLO
-	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S311834AbSDSIJR>; Fri, 19 Apr 2002 04:09:17 -0400
-Date: Fri, 19 Apr 2002 09:08:14 +0100
-To: Stephen Lord <lord@sgi.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mark Peloquin <peloquin@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bio pool & scsi scatter gather pool usage
-Message-ID: <20020419080814.GA1181@fib011235813.fsnet.co.uk>
-In-Reply-To: <OFCF00F1A4.2665039D-ON85256B9F.006B755C@pok.ibm.com> <E16yLS4-0005vN-00@the-village.bc.nu> <3CBF5B67.E488A8E5@zip.com.au> <3CBFC755.50106@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S311834AbSDSIIH>; Fri, 19 Apr 2002 04:08:07 -0400
+Received: from smtp-sec1.zid.nextra.de ([212.255.127.204]:53767 "EHLO
+	smtp-sec1.zid.nextra.de") by vger.kernel.org with ESMTP
+	id <S311829AbSDSIIH>; Fri, 19 Apr 2002 04:08:07 -0400
+Date: Fri, 19 Apr 2002 10:08:02 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: private fops plug-in point
+Message-ID: <Pine.LNX.4.33.0204190952180.15512-100000@pcgl.dsa-ac.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 02:29:25AM -0500, Stephen Lord wrote:
-> But this gets you lowest common denominator sizes for the whole
-> volume, which is basically the buffer head approach, chop all I/O up
-> into a chunk size we know will always work. Any sort of nasty  boundary
-> condition at one spot in a volume means the whole thing is crippled
-> down to that level. It then becomes a black magic art to configure a
-> volume which is not restricted to a small request size.
+[kernel-bloat_argument_awareness_on]
 
-This is exactly the problem; I don't think it's going to be unusual to
-see volumes that have a variety of mappings.  For example the
-'journal' area of the lv with a single fast pv, 'small file' area with
-a linear mapping across normal pv's, and finally a 'large file' area
-that has a few slower disks striped together.
+Hello
 
-The last thing I want in this situation is to split up all the io into
-the lowest common chunk size, in this case the striped area which will
-typically be  < 64k.
+An idea: I presume, I am not the first and not the only one, who wants to
+add some arch / implementation features to some driver, being absolutely
+sure, even a possibility of such a extension would never make it into the
+kernel and rightly so - there's no need for it there. So, I believe, most
+of people in this situation just create (and maintain) a local
+kernel-patch. That's fine, but somewhat ugly. So, the idea is - wouldn't
+it be useful to have some private fops plug-in points in "all"
+(shields_maximum_power) device drivers. E.g., a driver open function would
+check if the device' private_fops.open pointer is not NULL and then run
+that function. A good point, perhaps, would be after all normal actions
+are done. But, I am sure, some users would want to do some stuff BEFORE
+standard actions... Asking for 2 plug-in points would be FAR TOO impudent
+of me:-) Then it would just suffice to load a module to add some specific
+actions to a specific driver / function... Maybe a
+CONFIG_EXTENDIBLE_KERNEL option could be used to switch these plug-in
+points on / off... That would avoid any overhead at all. Ok, some
+performance-critical drivers / functions may chose not to include these
+plug-in points at all. Just a raw idea. Any improvements most welcome.
 
-LVM and EVMS need to do the splitting and resubmitting of bios
-themselves.
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 
-- Joe

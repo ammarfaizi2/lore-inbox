@@ -1,138 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUJNPmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUJNPtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUJNPmR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 11:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUJNPmR
+	id S266333AbUJNPtR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 11:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUJNPtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 11:42:17 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266291AbUJNPmL
+	Thu, 14 Oct 2004 11:49:17 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3712 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266333AbUJNPtO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 11:42:11 -0400
-Date: Thu, 14 Oct 2004 11:40:54 -0400 (EDT)
+	Thu, 14 Oct 2004 11:49:14 -0400
+Date: Thu, 14 Oct 2004 11:49:05 -0400 (EDT)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 Reply-To: root@chaos.analogic.com
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: David Howells <dhowells@redhat.com>, Roman Zippel <zippel@linux-m68k.org>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules? 
-In-Reply-To: <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410141357380.877@scrub.home> 
- <Pine.LNX.4.61.0410132346080.7182@scrub.home>
- <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
- <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
- <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
- <30797.1092308768@redhat.com> <20040812111853.GB25950@devserv.devel.redhat.com>
- <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
- <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
- <10345.1097507482@redhat.com> <1097507755.318.332.camel@hades.cambridge.redhat.com>
- <1097534090.16153.7.camel@localhost.localdomain>
- <1097570159.5788.1089.camel@baythorne.infradead.org> <27277.1097702318@redhat.com>
- <16349.1097752! 349@redhat.com>  <17271.1097756056@redhat.com>
- <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com>
- <Pine.GSO.4.61.0410141617100.21062@waterleaf.sonytel.be>
- <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com>
+To: Davide Rossetti <davide.rossetti@roma1.infn.it>
+cc: Martijn Sipkema <martijn@entmoot.nl>, linux-kernel@vger.kernel.org
+Subject: Re: waiting on a condition
+In-Reply-To: <416E9D1E.8090203@roma1.infn.it>
+Message-ID: <Pine.LNX.4.53.0410141143100.7357@chaos.analogic.com>
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>  <416D49FF.10003@radiantdata.com>
+ <1097701123.4648.13.camel@localhost.localdomain> <416E9D1E.8090203@roma1.infn.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004, Richard B. Johnson wrote:
+On Thu, 14 Oct 2004, Davide Rossetti wrote:
 
-> On Thu, 14 Oct 2004, Geert Uytterhoeven wrote:
+> Martijn Sipkema wrote:
 >
-> > On Thu, 14 Oct 2004, Richard B. Johnson wrote:
-> > > The new kernel build environment is also corrupt. On
-> > > this system, it takes 45 seconds to perform:
-> > >
-> > > make clean
-> > > make bzImage
+> >On Wed, 2004-10-13 at 17:30, Peter W. Morreale wrote:
 > >
-> > And how long does `make oldconfig' take?
 > >
->
-> Don't know.
->
-> > > With the new build system, same disk, same kernel
-> > > configuration, it takes 14 minutes. And, you can't
+> >>Have you looked at the wait_event() family yet?       Adapting that
+> >>methodolgy might
+> >>suit your needs.
+> >>
+> >>
 > >
-> > BTW, how do you choose the old/new build system with the same kernel?
+> >wait_event() seems to be what I was looking for; I don't really like the
+> >condition being an argument.
 > >
->
-> You can't. I needed to do a `make oldconfig` as a seperate
-> operation which wasn't timed. The configuration uses only
-> 12 modules (SCSI disk stuff plus ethernet).
->
-> > > even see what the compiler doesn't like.
 > >
-> > make V=1?
->
->
-> Try it while making modules!
->
 > >
-> > Gr{oetje,eeting}s,
-> >
-> > 						Geert
->
+> you may have a look at http://lwn.net/Articles/22913/
+> it's interesting :)
+> regards
 
-Here is the tail end of a kernel build of 2.4.26 while
-running the 2.4.26 kernel.
 
-==> BUILD-2.4.26 <==
-gcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.4.26/include -traditional -c head.S
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.26/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe  -march=i686 -DKBUILD_BASENAME=misc -c misc.c
-ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o piggy.o
-make[2]: Leaving directory `/usr/src/linux-2.4.26/arch/i386/boot/compressed'
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build tools/build.c -I/usr/src/linux-2.4.26/include
-objcopy -O binary -R .note -R .comment -S compressed/bvmlinux compressed/bvmlinux.out
-tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
-Root device is (8, 17)
-Boot sector 512 bytes.
-Setup is 4653 bytes.
-System is 801 kB
-make[1]: Leaving directory `/usr/src/linux-2.4.26/arch/i386/boot'
-49.72user 6.45system 54.67elapsed 92%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+0minor)pagefaults 0swaps
-# uname -r
-2.4.26
-# pwd
-/usr/src/linux-2.4.26
-# exit
-Script done on Thu Oct 14 11:25:54 2004
+You could always do:
 
-The elapsed time was 54.67 seconds.
+	while(whatever)
+        {
+             set_current_state(TASK_INTERRUPTIBLE);
+             schedule_timeout(0);
+             if(signal_pending(current))
+                 break;        // Or do something else
+        }
+        set_current_state(TASK_RUNNING); // Probably redundant
 
-Here is the same configuration, built on the linux-2.6.8 machine.
+You could also set a specific HZ for the timeout, and count
+them for a "never happened" timeout.
 
-==> BUILD-2.6.8 <==
-  OBJCOPY arch/i386/boot/vmlinux.bin
-  HOSTCC  arch/i386/boot/tools/build
-  BUILD   arch/i386/boot/bzImage
-Root device is (3, 1)
-Boot sector 512 bytes.
-Setup is 4847 bytes.
-System is 1401 kB
-Kernel: arch/i386/boot/bzImage is ready
 
-real	16m58.119s
-user	10m59.700s
-sys	4m33.340s
-You have new mail in /var/spool/mail/root
-# uname -a
-Linux chaos.analogic.com 2.6.8 #1 SMP Wed Oct 13 19:03:35 EDT 2004 i686 i686 i386 GNU/Linux
-# pwd
-/usr/src/linux-2.6.8
-# exit
-
-Script done on Thu 14 Oct 2004 11:18:10 AM EDT
-
-It took 16:58 to build the kernel (no modules, they take the
-better part of an hour).
 
 
 Cheers,

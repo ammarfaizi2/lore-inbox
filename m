@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132822AbRDDQxT>; Wed, 4 Apr 2001 12:53:19 -0400
+	id <S132817AbRDDQwA>; Wed, 4 Apr 2001 12:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132833AbRDDQxJ>; Wed, 4 Apr 2001 12:53:09 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:2515 "HELO
-	smtp2.pandora.be") by vger.kernel.org with SMTP id <S132822AbRDDQw4>;
-	Wed, 4 Apr 2001 12:52:56 -0400
-Message-ID: <000701c0bd17$1232f200$04a8a8c0@vortex.prv>
-From: "Vik Heyndrickx" <vik.heyndrickx@pandora.be>
-To: <rhw@memalpha.cx>, <linux-kernel@vger.kernel.org>
-Cc: <rgooch@atnf.csiro.au>
-Subject: 2.4 kernel hangs on 486 machine at boot
-Date: Wed, 4 Apr 2001 16:53:54 +0200
+	id <S132822AbRDDQvt>; Wed, 4 Apr 2001 12:51:49 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:12144 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S132817AbRDDQvm>; Wed, 4 Apr 2001 12:51:42 -0400
+From: Kanoj Sarcar <kanoj@google.engr.sgi.com>
+Message-Id: <200104041650.JAA95432@google.engr.sgi.com>
+Subject: Re: [Lse-tech] Re: a quest for a better scheduler
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Wed, 4 Apr 2001 09:50:58 -0700 (PDT)
+Cc: mingo@elte.hu (Ingo Molnar), frankeh@us.ibm.com (Hubertus Franke),
+        mkravetz@sequent.com (Mike Kravetz),
+        fabio@chromium.com (Fabio Riccardi),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <20010404170846.V20911@athlon.random> from "Andrea Arcangeli" at Apr 04, 2001 05:08:47 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> 
+> I didn't seen anything from Kanoj but I did something myself for the wildfire:
+> 
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/10_numa-sched-1
+> 
+> this is mostly an userspace issue, not really intended as a kernel optimization
+> (however it's also partly a kernel optimization). Basically it splits the load
+> of the numa machine into per-node load, there can be unbalanced load across the
+> nodes but fairness is guaranteed inside each node. It's not extremely well
+> tested but benchmarks were ok and it is at least certainly stable.
+>
 
-Problem: Linux kernel 2.4 consistently hangs at boot on 486 machine
+Just a quick comment. Andrea, unless your machine has some hardware
+that imply pernode runqueues will help (nodelevel caches etc), I fail 
+to understand how this is helping you ... here's a simple theory though. 
+If your system is lightly loaded, your pernode queues are actually 
+implementing some sort of affinity, making sure processes stick to 
+cpus on nodes where they have allocated most of their memory on. I am 
+not sure what the situation will be under huge loads though.
 
-Shortly after lilo starts the kernel it hangs at the following message:
-Checking if this processor honours the WP bit even in supervisor mode...
-<blinking cursor>
+As I have mentioned to some people before, percpu/pernode/percpuset/global
+runqueues probably all have their advantages and disadvantages, and their
+own sweet spots. Wouldn't it be really neat if a system administrator
+or performance expert could pick and choose what scheduler behavior he
+wants, based on how the system is going to be used?
 
-I experience this problem on a VLB AMD 486 DX/2-66 system. This machine ran
-all kernels up to 2.2.18 without any problem (it still does).
-
-This 2.4 kernel runs fine on a Pentium, Pentium II and even on a _386DX_
-(!!!), but not on my 486 machine (which I am using as a router, and I
-thought: let's try the netfilter/iptables feature :) on it).
-
-I tried both the precompiled 2.4 kernels from the Redhat linux releases and
-betas, and a couple of self-compiled stock kernels (2.4.0 and 2.4.2) from
-ftp://ftp.kernel.org/
-
-Anyway I find it obvious that the kernel hangs only on 486's (and probably
-not all of them), so it must be a bug (can I call this an oops? ;-))
-I'm not familiar enough with the kernel and protected mode x86 asm to
-correct this problem myself, but if anyone would know what may be causing
-this (probably in arch/i386/mm/init.c) I can rebuild, install and test any
-supplied patches (don't send entire precompiled kernels to me, please).
-
-BTW Keep in mind that I'm not on any kernel related mailing list, but I like
-to be informed.
-
-Thanks & kind regards,
-
---
-Vik
-
-
+Kanoj

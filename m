@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289352AbSBEHvl>; Tue, 5 Feb 2002 02:51:41 -0500
+	id <S289348AbSBEIJg>; Tue, 5 Feb 2002 03:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289348AbSBEHvb>; Tue, 5 Feb 2002 02:51:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23306 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289347AbSBEHvW>;
-	Tue, 5 Feb 2002 02:51:22 -0500
-Message-ID: <3C5F8EF7.7CEB475E@mandrakesoft.com>
-Date: Tue, 05 Feb 2002 02:51:19 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+	id <S289353AbSBEIJ1>; Tue, 5 Feb 2002 03:09:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2316 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289348AbSBEIJZ>;
+	Tue, 5 Feb 2002 03:09:25 -0500
+Message-ID: <3C5F9312.DB8766B9@zip.com.au>
+Date: Tue, 05 Feb 2002 00:08:50 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+To: spider@darkmere.wanfear.com
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-In-Reply-To: <200202041324.g14DOcv7001338@tigger.cs.uni-dortmund.de>
+Subject: Re: [BUG] Oops booting linux-2.4.18-pre7-ac3
+In-Reply-To: <20020205021933.34aff42f.spider@darkmere.wanfear.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+Spider wrote:
 > 
-> Jeff Garzik <garzik@havoc.gtf.org> said:
-> > On Fri, Feb 01, 2002 at 03:03:13PM +0000, Alan Cox wrote:
-> > > > If you have a dependency concern, you put yourself in the
-> > > > right initcall group.  You don't depend ever on the order within the
-> > > > group, thats the whole idea.  You can't depend on that, so you must
-> > > > group things correctly.
+> This is pretty much the same as "oops booting 2.4.18-pre7-ac3" by "Todd M. Roy" <troy@holstein.com> but I post it as well.
 > 
-> > > This was proposed right back at the start. Linus point blank vetoed it.
+> I'm not subscribed, so if you wish more information (.config, other info on hardware/software installed) please cc' me.
 > 
-> > My ideal would be to express dependencies in driver.conf (when that is
-> > implemented), and that will in turn affect the link order by
-> > autogenerating part of vmlinux.lds.  Until then, initcall groups are
-> > fine with me...
+> //Spider
 > 
-> Not _one_ central file telling everything, please! Let each driver declare
-> what it needs and provides, and sort it out from there.
+> PCI: PCI BIOS revision 2.10 entry at 0xf1150, last bus=1
+> PCI: Using configuration type 1
+> PCI: Probing PCI hardware
+> PCI: Using IRQ router VIA [1106/0686] at 00:04.0
+> PCI: Disabling Via external APIC routing
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00fc2b0.
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xc2e0, dseg 0xf0000.
+> PnPBIOS: 12 nodes reported by PnP BIOS; 12 recorded by driver.
+> PnPBIOS: PNP0c02: ioport range 0xe400-0xe47f has been reserved.
+> PnPBIOS: PNP0c02: ioport range 0xe800-0xe83f could not be reserved.
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society NET3.039
+> Initializing RT netlink socket
+> Unable to handle kernel NULL pointer dereference at virtual address 0000002c
 
-"driver.conf" is a reference is a metadata file per driver or
-per-subdirectory, not one big file.
+Yes, sorry - I didn't test against Alan's pnpbios driver.
 
-Linus suggested this back in December.  See the links I posted.
+The problem is this, in init/main.c:
+
+#ifdef CONFIG_PNPBIOS
+    pnpbios_init();
+#endif
+    ....
+    start_context_thread();
+    do_initcalls();
+
+pnpbios_init() launches a kernel thread which calls the kernel/user.c
+code before the user.c's initcall has had a chance to initialise things.
+
+I've asked Alan to back out the rather unimportant set_user-in-reparent_to_init
+fix while we contemplate this.
+
+I suggest you disable the pnpbios driver in kernel config in -ac3.
 
 
-> Why do I have this uneasy feeling it would somehow overlap with CML2's job?
-
-It could either (a) generate CML2 or (b) make CML2 irrelevant, depending
-on the implementation.
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+-

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282801AbRK0ElH>; Mon, 26 Nov 2001 23:41:07 -0500
+	id <S282799AbRK0Eqr>; Mon, 26 Nov 2001 23:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282796AbRK0Ekv>; Mon, 26 Nov 2001 23:40:51 -0500
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:29195 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S282801AbRK0Ekl>; Mon, 26 Nov 2001 23:40:41 -0500
-Message-Id: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 26 Nov 2001 23:41:58 -0500
-To: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>
-From: Linux maillist account <l-k@mindspring.com>
-Subject: a nohup-like interface to cpu affinity
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1006832357.1385.3.camel@icbm>
-In-Reply-To: <E16744i-0004zQ-00@localhost>
- <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
- <1006472754.1336.0.camel@icbm>
- <E16744i-0004zQ-00@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282796AbRK0Eqh>; Mon, 26 Nov 2001 23:46:37 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:18189 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282798AbRK0EqY>; Mon, 26 Nov 2001 23:46:24 -0500
+Message-ID: <3C031A60.10527E6A@zip.com.au>
+Date: Mon, 26 Nov 2001 20:45:20 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Nathan G. Grennan" <ngrennan@okcforum.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <E168U3m-00077F-00@the-village.bc.nu> <Pine.LNX.4.33L.0111262156140.4079-100000@imladris.surriel.com> <3C02E009.7C1F17C6@zip.com.au>,
+		<3C02E009.7C1F17C6@zip.com.au> <20011126203856.D26219@mikef-linux.matchmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert and Ingo,
-A nohup-like interface to the cpu affinity service would be useful.  It 
-could work like the
-following example:
+Mike Fedyk wrote:
+> 
+> On Mon, Nov 26, 2001 at 04:36:25PM -0800, Andrew Morton wrote:
+> > The patch I sent puts read requests near the head of the request
+> > queue, and to hell with aggregate throughput.  It's tunable with
+> > `elvtune -b'.  And it fixes it.
+> 
+> for i in `seq 9`; do elvtune -b $i /dev/hda; done
+> 
+> -b doesn't seem to change the "max_bomb_segments".  Does your patch fix this?
+> 
 
-    $ cpuselect -c 1,3-5 gcc -c module.c
+Yes, it does.
 
-which would restrict this instantiation of gcc and all of its children to 
-cpus 1,3,4, and 5.  This
-tool can be implemented in a few lines of C, with either /proc or syscall 
-as the underlying
-implementation.
+Presumably, once upon a time, max_bomb_segments actually did
+something.  But it's a complete no-op at present, so I co-opted it.
 
-On another subject -- capabilities -- any process should be able to reduce 
-the number of
-cpus in its own cpu affinity mask without any special permission.  To add 
-cpus to a
-reduced mask, or to change the cpu affinity mask of other processes, should 
-require
-the appropriate capability, be it CAP_SYS_NICE, CAP_SYS_ADMIN, or whatever
-is decided.
+Nice name, but I'd prefer max_cluster_bombs.
 
-Joe 
-
+-

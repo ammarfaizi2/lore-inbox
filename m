@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbRDCLeF>; Tue, 3 Apr 2001 07:34:05 -0400
+	id <S131564AbRDCMHU>; Tue, 3 Apr 2001 08:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131564AbRDCLdz>; Tue, 3 Apr 2001 07:33:55 -0400
-Received: from quechua.inka.de ([212.227.14.2]:21050 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S131638AbRDCLdx>;
-	Tue, 3 Apr 2001 07:33:53 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-In-Reply-To: <3AC91E05.F11BFF43@mandrakesoft.com> <Pine.LNX.4.33.0104021951450.30568-100000@dlang.diginsite.com>
-Organization: private Linux site, southern Germany
-Date: Tue, 03 Apr 2001 13:18:29 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14kOpX-00044o-00@g212.hadiko.de>
+	id <S131629AbRDCMHL>; Tue, 3 Apr 2001 08:07:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5381 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131606AbRDCMHE>; Tue, 3 Apr 2001 08:07:04 -0400
+Subject: Re: Larger dev_t
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Tue, 3 Apr 2001 13:06:33 +0100 (BST)
+Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        hpa@transmeta.com, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+In-Reply-To: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Apr 03, 2001 12:09:11 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kPZz-0007tk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a module for 2.4.3 will work for any 2.4.3 kernel that supports modules
-> at all (except for the SMP vs UP issue) so it's not the same thing as
+> Device numbers have to be uniqe only during one power on -> run ->
+> power off cycle. For the rest applications should store device
+> names instead anyway. The applications, that don't are buggy by
+> defintion.
 
-No, no, no. This is absolutely and dangerously wrong.
+Device numbers/names have to be constant in order to detect disk layout changes
+across boots.
 
-A module depends on the kernel configuration, because it may access
-internal data structures of the kernel which change with
-configuration. It also depends on the compiler version and exact
-options used, because certain structures in the kernel are compiler
-dependent. Loading a module which doesn't fit the running kernel
-_exactly_ is the easiest way to get a hard kernel crash.
+Alan
 
-SMP is only a special case of this general problem. CONFIG_MODVERSIONS
-is designed to take care of this dependency, and it really ought to be
-non-optional.
-
-Olaf

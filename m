@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261334AbREVLPP>; Tue, 22 May 2001 07:15:15 -0400
+	id <S261321AbREVLPf>; Tue, 22 May 2001 07:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbREVLPG>; Tue, 22 May 2001 07:15:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:60033 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261317AbREVLO4>;
-	Tue, 22 May 2001 07:14:56 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S261347AbREVLPZ>; Tue, 22 May 2001 07:15:25 -0400
+Received: from ns.suse.de ([213.95.15.193]:61705 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S261325AbREVLPQ>;
+	Tue, 22 May 2001 07:15:16 -0400
+Date: Tue, 22 May 2001 13:15:15 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: David Weinehall <tao@acc.umu.se>
+Cc: Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <20010522064430.D4934@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.30.0105221313150.19399-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15114.18990.597124.656559@pizda.ninka.net>
-Date: Tue, 22 May 2001 04:14:54 -0700 (PDT)
-To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-ppp@vger.kernel.org
-Subject: Re: ECN is on!
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 May 2001, David Weinehall wrote:
 
-Matti Aarnio writes:
- > I am contemplating to periodically turn off the ECN bit to
- > let email out, but DaveM has veto there.
+> > > Wouldn't that be the same reason we have /anything/ in cpuinfo?
+> > When /proc/cpuinfo was added, we didn't have /dev/cpu/*/cpuid
+> > Now that we do, we're stuck with keeping /proc/cpuinfo for
+> > compatability reasons.
+>
+> AFAIK, not all processors support cpuid.
 
-I veto, the whole point of moving to ECN was to make a statement and
-get people to fix their kit.
+Fair point, but as there was limited information available
+from the CPU, the likelyhood of /proc/cpuinfo getting
+extended further is somewhat unlikely.
+Moreso if the feature can be accomplished equally as well
+in userspace (Like the original post in this thread).
 
-We will remove these people, that's all.
 
-Later,
-David S. Miller
-davem@redhat.com
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

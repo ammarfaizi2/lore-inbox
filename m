@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288759AbSAYXIO>; Fri, 25 Jan 2002 18:08:14 -0500
+	id <S290828AbSAYXJg>; Fri, 25 Jan 2002 18:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288742AbSAYXIA>; Fri, 25 Jan 2002 18:08:00 -0500
-Received: from vsdc01.corp.publichost.com ([64.7.196.123]:2574 "EHLO
-	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
-	id <S288759AbSAYXHn>; Fri, 25 Jan 2002 18:07:43 -0500
-Message-ID: <3C51E539.1030304@vitalstream.com>
-Date: Fri, 25 Jan 2002 15:07:37 -0800
-From: Rick Stevens <rstevens@vitalstream.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: booleans and the kernel
-In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org> <200201242228.g0OMSlL06826@home.ashavan.org.> <1011911932.810.23.camel@phantasy> <200201242243.g0OMhAL06878@home.ashavan.org.> <20020125045206.A2313@ragnar-hojland.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S290756AbSAYXJZ>; Fri, 25 Jan 2002 18:09:25 -0500
+Received: from zero.tech9.net ([209.61.188.187]:12299 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288781AbSAYXJG>;
+	Fri, 25 Jan 2002 18:09:06 -0500
+Subject: [PATCH] add BUG_ON to 2.4 #1
+From: Robert Love <rml@tech9.net>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 18:14:05 -0500
+Message-Id: <1012000446.3799.77.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ragnar Hojland Espinosa wrote:
+The following patch adds the BUG_ON (as seen on TV and 2.5) define to
+the 2.4 kernel.  This will help in portability and back-porting from 2.5
+to 2.4, plus BUG_ON is a nice optimization and aids readability.
 
-> On Fri, Jan 25, 2002 at 04:44:38PM -0600, Timothy Covell wrote:
-> 
->>On Thursday 24 January 2002 16:38, Robert Love wrote:
->>
->>>On Fri, 2002-01-25 at 17:30, Timothy Covell wrote:
->>>
->>>>On Thursday 24 January 2002 16:19, Robert Love wrote:
->>>>
->>>>>how is "if (x)" any less legit if x is an integer ?
->>>>>
->>>>What about
->>>>
->>>>{
->>>>    char x;
->>>>
->>>>    if ( x )
->>>>    {
->>>>        printf ("\n We got here\n");
->>>>    }
->>>>    else
->>>>    {
->>>>        // We never get here
->>>>        printf ("\n We never got here\n");
->>>>    }
->>>>}
->>>>
->>>>
->>>>That's not what I want.   It just seems too open to bugs
->>>>and messy IHMO.
->>>>
->>>When would you ever use the above code?  Your reasoning is "you may
->>>accidentally check a char for a boolean value."  In other words, not
->>>realize it was a char.  What is to say its a boolean?  Or not?  This
->>>isn't an argument.  How does having a boolean type solve this?  Just use
->>>an int.
->>>
->>>	Robert Love
->>>
->>It would fix this because then the compiler would refuse to compile
->>"if (x)"  when x is not a bool.    That's what I would call type safety.
->>But I guess that you all are arguing that C wasn't built that way and
->>that you don't want it.    
->>
-> 
-> It would actually break this.  if is supposed (and expected) to evaluate
-> an expression, whatever it will be.  Maybe a gentle warning could be in
-> place, but refusing to compile is a plain broken C compiler.
+For the unaware, BUG_ON(condition) calls bug on !condition, which is
+marked unlikely().
 
+This is the generalized arch-independent BUG_ON as in later 2.5 kernels.
 
-Granted.  "if (x)" is true if "x" is non-zero, regardless of type and
-shoudn't even generate a warning if "x" is scalar.
+Marcelo, please apply.
 
-Either printf() will occur depending on whether automatics are
-initialized to zero or not.  The first one will most likely print
-since there's 255 to 1 odds that "x" will be non-zero if not
-initialized and I don't think gcc initializes automatics.
-----------------------------------------------------------------------
-- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
-- 949-743-2010 (Voice)                    http://www.vitalstream.com -
--                                                                    -
--  The problem with being poor is that it takes up all of your time  -
-----------------------------------------------------------------------
+	Robert Love
+
+--- linux-2.4.18-pre7/include/linux/kernel.h	Thu Jan 24 13:48:18 2002
++++ linux/include/linux/kernel.h	Fri Jan 25 17:53:54 2002
+@@ -11,6 +11,7 @@
+ #include <linux/linkage.h>
+ #include <linux/stddef.h>
+ #include <linux/types.h>
++#include <linux/compiler.h>
+ 
+ /* Optimization barrier */
+ /* The "volatile" is due to gcc bugs */
+@@ -181,4 +182,5 @@
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
+ 
++#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
+ #endif
 

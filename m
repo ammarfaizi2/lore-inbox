@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136054AbRAWDbQ>; Mon, 22 Jan 2001 22:31:16 -0500
+	id <S136055AbRAWDbQ>; Mon, 22 Jan 2001 22:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136055AbRAWDa4>; Mon, 22 Jan 2001 22:30:56 -0500
+	id <S136056AbRAWDa4>; Mon, 22 Jan 2001 22:30:56 -0500
 Received: from sgigate.SGI.COM ([204.94.209.1]:25335 "EHLO
 	gate-sgigate.sgi.com") by vger.kernel.org with ESMTP
-	id <S136054AbRAWDaw>; Mon, 22 Jan 2001 22:30:52 -0500
-Date: Mon, 22 Jan 2001 06:24:42 -0200
+	id <S136055AbRAWDaw>; Mon, 22 Jan 2001 22:30:52 -0500
+Date: Mon, 22 Jan 2001 06:31:10 -0200
 From: Ralf Baechle <ralf@uni-koblenz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Coding Style
-Message-ID: <20010122062442.B1052@bacchus.dhis.org>
-In-Reply-To: <3A68809B.E12EF3D9@purplecoder.com> <20010121030005.B4626@emma1.emma.line.org>
+To: mkloppstech@freenet.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops,  signal 11
+Message-ID: <20010122063110.C1052@bacchus.dhis.org>
+In-Reply-To: <200101201246.NAA15788@john.epistle>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010121030005.B4626@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Sun, Jan 21, 2001 at 03:00:05AM +0100
+In-Reply-To: <200101201246.NAA15788@john.epistle>; from mkloppstech@freenet.de on Sat, Jan 20, 2001 at 01:46:50PM +0100
 X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21, 2001 at 03:00:05AM +0100, Matthias Andree wrote:
+On Sat, Jan 20, 2001 at 01:46:50PM +0100, mkloppstech@freenet.de wrote:
 
-> >   int function(int x)   
-> >   {
-> >     body of function    // correctly braced and commented :)
-> >   }
-> 
-> So you claim // is a correct C comment? Poor guy :)
+> I know that signal 11 with gcc is a sign of bad hardware; however  it
+> strikes me that I don't get random oopses - a whole bunch of them is appended.
 
-Current drafts of C9X implement // comments; virtually every halfway
-current C compiler I've used during the last years implements it.
+The compiler tends to hammer harder on the memory than the kernel; this
+is a sign of the great effort which was taken to optimize the kernel's
+cache usage.
 
   Ralf
 -

@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRHaQSA>; Fri, 31 Aug 2001 12:18:00 -0400
+	id <S267997AbRHaQ2A>; Fri, 31 Aug 2001 12:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267997AbRHaQRk>; Fri, 31 Aug 2001 12:17:40 -0400
-Received: from haneman.dialup.fu-berlin.de ([160.45.224.9]:19585 "EHLO
-	haneman.dialup.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S265249AbRHaQRh>; Fri, 31 Aug 2001 12:17:37 -0400
-Date: Fri, 31 Aug 2001 18:17:41 +0200 (CEST)
-From: Enver Haase <ehaase@inf.fu-berlin.de>
-To: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-Subject: Re: How do I start ?
-Message-ID: <Pine.LNX.4.10.10108311813220.9664-100000@haneman.hacenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268071AbRHaQ1u>; Fri, 31 Aug 2001 12:27:50 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:41724 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S267997AbRHaQ1f>; Fri, 31 Aug 2001 12:27:35 -0400
+Date: Fri, 31 Aug 2001 17:27:54 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Message-ID: <20010831172754.A25490@thefinal.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0108300902570.7973-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108301217280.9230-100000@age.cs.columbia.edu> <20010831135034.B25128@thefinal.cern.ch> <3B8F9507.859D584F@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B8F9507.859D584F@linux-m68k.org>; from zippel@linux-m68k.org on Fri, Aug 31, 2001 at 03:45:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+> >    3. Warning added to GCC for signed vs. unsigned comparisons
+> >       _regardless_ of type size.  This would also catch erroneous
+> >       unsigned char vs. EOF checks in misuses of stdio.
+> 
+> Do you know of such bug in the context of min()?
 
-The Epson LX 300 runs the ESC/P protocol: Therefore I'd install
-"ghostscript" (and maybe "magicfilter" or "apsfilter") and use the 
-"epson" device ghostscript offers.
+I don't know of an actual example.  This one is made up:
 
-Seems you don't have to write a driver.
+       min (int, len, big_size)
 
-Greetings,
-Enver
+Now if big_size has unsigned type, and does not fit in the range of int,
+this expression will return the value of big_size cast to int, i.e. a
+negative value.  The suggested warning would catch this potential bug.
 
+I don't know if it would warn for too many other things.  Certainly, a
+sizeof() exception (don't warn about signed comparison with sizeof()
+result) is essential; perhaps too many other exceptions are required
+too.
+
+-- Jamie

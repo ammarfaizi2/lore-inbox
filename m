@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265382AbSJRWbK>; Fri, 18 Oct 2002 18:31:10 -0400
+	id <S265373AbSJRWba>; Fri, 18 Oct 2002 18:31:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265379AbSJRWbK>; Fri, 18 Oct 2002 18:31:10 -0400
-Received: from packet.digeo.com ([12.110.80.53]:16853 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265382AbSJRWbJ>;
-	Fri, 18 Oct 2002 18:31:09 -0400
-Message-ID: <3DB08D0F.331E5FDB@digeo.com>
-Date: Fri, 18 Oct 2002 15:37:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S265376AbSJRWba>; Fri, 18 Oct 2002 18:31:30 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:3724 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265373AbSJRWb3>; Fri, 18 Oct 2002 18:31:29 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 18 Oct 2002 15:45:51 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Hanna Linder <hannal@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: [PATCH] sys_epoll system call interface to /dev/epoll
+In-Reply-To: <Pine.LNX.4.44.0210181504470.11349-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210181538100.1537-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Andi Kleen <ak@muc.de>, Samium Gromoff <_deepfire@mail.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5 and lowmemory boxens
-References: <E182V29-000Pfa-00@f15.mail.ru> <m37kggyo7r.fsf@averell.firstfloor.org> <3DB03BC9.F2986C53@digeo.com> <E182ex9-0004yc-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Oct 2002 22:37:04.0034 (UTC) FILETIME=[E1B19820:01C276F6]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Friday 18 October 2002 18:50, Andrew Morton wrote:
-> > > "Samium Gromoff" <_deepfire@mail.ru> writes:
-> > > >    first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
+On Fri, 18 Oct 2002, Linus Torvalds wrote:
+
+>
+> On Fri, 18 Oct 2002, Hanna Linder wrote:
 > >
-> > ...
-> >
-> > timer.c and sched.c have significant NR_CPUS bloat problems on SMP.
-> > Working on that.
-> 
-> Oooh, yes!  So 2.6 will be just fine for my smp dsl router...
-> 
+> > 	You said earlier that you didn't like epoll being
+> > in /dev. How about a system call interface instead? this
+> > patch provides the skeleton for that system call. We
+> > can have Davide's patch ported into it ASAP if you include
+> > this by the freeze.
+>
+> I like it noticeably better as a system call, so it's maybe worth
+> discussing. It's not going to happen before I leave (very early tomorrow
+> morning), but if people involved agree on this and clean patches to
+> actiually add the code (not just system call stubs) can be made..
 
-Reducing NR_CPUS from 32 to 2 shrinks the ia32 kernel by 380 kilobytes.
+Linus, yesterday I was sugesting Hanna to use most of the existing code
+and to make :
 
-Figure half a meg or more on 64-bit machines.
+int sys_epoll_create(int maxfds);
 
-Not a huge amount.  But not zero either.
+to actually return an fd. Basically during this function call the code
+allocates a file*, initialize it, allocates a free fd, maps the file* to
+the fd, creates the vma* for the shared events area between the kernel and
+user space, maps allocated kernel pages to the vma*, install the vma* and
+returns the fd. In this way we can avoid the sys_epoll_close() and close()
+can be used. Also the task cleanup comes for free being linked to a file*.
+In this way also users that are using /dev/epoll in the old way can
+continue to use it, being the skeleton code the same.
+Do I have to guess that you do not like this idea ?
+
+
+
+- Davide
+
+

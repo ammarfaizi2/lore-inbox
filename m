@@ -1,59 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTE0Mw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 08:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTE0Mw3
+	id S263535AbTE0Mxp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 08:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTE0Mxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 08:52:29 -0400
-Received: from iucha.net ([209.98.146.184]:31810 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S263578AbTE0Mw0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 08:52:26 -0400
-Date: Tue, 27 May 2003 08:05:39 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA problems: sound lockup, modules, 2.5.70
-Message-ID: <20030527130539.GG3359@iucha.net>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-References: <200305270311.10530.ivg2@cornell.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w/VI3ydZO+RcZ3Ux"
-Content-Disposition: inline
-In-Reply-To: <200305270311.10530.ivg2@cornell.edu>
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.4i
-From: florin@iucha.net (Florin Iucha)
+	Tue, 27 May 2003 08:53:45 -0400
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:31168 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263579AbTE0Mwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 08:52:46 -0400
+Date: Tue, 27 May 2003 09:04:34 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.5.70, numerous ISDN build errors
+Message-ID: <Pine.LNX.4.44.0305270902360.7293-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---w/VI3ydZO+RcZ3Ux
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  again, some amalgamated output from "make allyesconfig".  after these
+errors, i just deselected ISDN in its entirety.
 
-Alsa worked fine for me in 2.5.68-bk18. It started hanging on halt
-in -bk19 and .70. I haven't played anything to see if it hangs on
-access.
 
-florin
 
---=20
 
-"NT is to UNIX what a doughnut is to a particle accelerator."
+  CC      drivers/isdn/hisax/diva.o
+drivers/isdn/hisax/diva.c: In function `setup_diva':
+drivers/isdn/hisax/diva.c:754: `cs' undeclared (first use in this function)
+drivers/isdn/hisax/diva.c:754: (Each undeclared identifier is reported only once
+drivers/isdn/hisax/diva.c:754: for each function it appears in.)
+drivers/isdn/hisax/diva.c:761: parse error before "else"
+drivers/isdn/hisax/diva.c: At top level:
+drivers/isdn/hisax/diva.c:776: parse error before "if"
+drivers/isdn/hisax/diva.c:795: parse error before string constant
+drivers/isdn/hisax/diva.c:795: warning: type defaults to `int' in declaration of `printk'
+drivers/isdn/hisax/diva.c:795: warning: function declaration isn't a prototype
+drivers/isdn/hisax/diva.c:795: warning: data definition has no type or storage class
+drivers/isdn/hisax/diva.c:602: warning: `diva_pci_probe' defined but not used
+drivers/isdn/hisax/diva.c:629: warning: `diva_ipac_pci_probe' defined but not used
+drivers/isdn/hisax/diva.c:656: warning: `diva_ipacx_pci_probe' defined but not used
+drivers/isdn/hisax/diva.c:677: warning: `dev_diva' defined but not used
+drivers/isdn/hisax/diva.c:678: warning: `dev_diva_u' defined but not used
+drivers/isdn/hisax/diva.c:679: warning: `dev_diva201' defined but not used
+make[3]: *** [drivers/isdn/hisax/diva.o] Error 1
+make[2]: *** [drivers/isdn/hisax] Error 2
+make[1]: *** [drivers/isdn] Error 2
+make: *** [drivers] Error 2
+  
 
---w/VI3ydZO+RcZ3Ux
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+02KjNLPgdTuQ3+QRAjdcAJ98EXsjOQmeTTeA+ZAizALWkl6IGQCeOlef
-EaRBA4i5eX37ZmBMjHJcWKQ=
-=5G1X
------END PGP SIGNATURE-----
+  CC      drivers/isdn/hisax/sedlbauer.o
+drivers/isdn/hisax/sedlbauer.c: In function `setup_sedlbauer':
+drivers/isdn/hisax/sedlbauer.c:763: label `err' used but not defined
+make[3]: *** [drivers/isdn/hisax/sedlbauer.o] Error 1
+make[2]: *** [drivers/isdn/hisax] Error 2
+make[1]: *** [drivers/isdn] Error 2
+make: *** [drivers] Error 2
+  
 
---w/VI3ydZO+RcZ3Ux--
+
+
+  CC      drivers/isdn/hisax/isurf.o
+drivers/isdn/hisax/isurf.c: In function `setup_isurf':
+drivers/isdn/hisax/isurf.c:240: `cs' undeclared (first use in this function)
+drivers/isdn/hisax/isurf.c:240: (Each undeclared identifier is reported only once
+drivers/isdn/hisax/isurf.c:240: for each function it appears in.)
+make[3]: *** [drivers/isdn/hisax/isurf.o] Error 1
+make[2]: *** [drivers/isdn/hisax] Error 2
+make[1]: *** [drivers/isdn] Error 2
+make: *** [drivers] Error 2
+
+
+
+  CC      drivers/isdn/i4l/isdn_common.o
+drivers/isdn/i4l/isdn_common.c: In function `drv_stat_stavail':
+drivers/isdn/i4l/isdn_common.c:650: warning: control reaches end of non-void function
+drivers/isdn/i4l/isdn_common.c: In function `map_drvname':
+drivers/isdn/i4l/isdn_common.c:1981: structure has no member named `drvid'
+drivers/isdn/i4l/isdn_common.c: In function `map_namedrv':
+drivers/isdn/i4l/isdn_common.c:1988: structure has no member named `drvid'
+drivers/isdn/i4l/isdn_common.c: In function `isdn_register_divert':
+drivers/isdn/i4l/isdn_common.c:2010: `isdn_command' undeclared (first use in this function)
+drivers/isdn/i4l/isdn_common.c:2010: (Each undeclared identifier is reported only once
+drivers/isdn/i4l/isdn_common.c:2010: for each function it appears in.)
+make[3]: *** [drivers/isdn/i4l/isdn_common.o] Error 1
+make[2]: *** [drivers/isdn/i4l] Error 2
+make[1]: *** [drivers/isdn] Error 2
+make: *** [drivers] Error 2
+
+
+
+
+rday
+--
+
+Robert P. J. Day
+Eno River Technologies
+Unix, Linux and Open Source training
+Waterloo, Ontario
+
+www.enoriver.com
+

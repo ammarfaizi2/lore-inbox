@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbVBFG7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbVBFG7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267333AbVBFG7e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 01:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbVBFG7d
+	id S267518AbVBFG7M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 01:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbVBFG7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 01:59:33 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:22291 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S267333AbVBFGyD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 01:54:03 -0500
-Date: Sun, 6 Feb 2005 17:53:40 +1100
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: davem@davemloft.net, mirko.parthey@informatik.tu-chemnitz.de,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org
-Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
-Message-ID: <20050206065340.GE16057@gondor.apana.org.au>
-References: <20050205201044.1b95f4e8.davem@davemloft.net> <20050206.133723.124822665.yoshfuji@linux-ipv6.org> <20050205210411.7e18b8e6.davem@davemloft.net> <20050206.143107.39728239.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
+	Sun, 6 Feb 2005 01:59:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7608 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S267518AbVBFGzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 01:55:38 -0500
+Message-ID: <4205BF5B.7050006@pobox.com>
+Date: Sun, 06 Feb 2005 01:55:23 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peer.Chen@uli.com.tw
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       andrebalsa@mailingaddress.org, Clear.Zhang@uli.com.tw,
+       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
+Subject: Re: [patch] scsi/ahci: Add support for ULi M5287
+References: <OF3919B280.9034BA70-ON48256FA0.002238C1@uli.com.tw>
+In-Reply-To: <OF3919B280.9034BA70-ON48256FA0.002238C1@uli.com.tw>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206.143107.39728239.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 02:31:07PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> 
-> Here, lo is going down.
-> rt->rt6i_dev = lo and rt->rt6i_idev = ethX.
-> I think we already see dst->dev == dev (==lo)  now.
-> So, I doubt that fix the problem.
-> 
-> The source of problem is entry (*) which still on routing entry,
-> not on gc list. And, the owner of entry is not routing table but
-> unicast/anycast address structure(s).
-> We need to "kill" active address on the other interfaces.
-> 
-> *: rt->rt6i_dev = lo and rt->rt6i_idev = ethX
+Peer.Chen@uli.com.tw wrote:
+> Hi,Jeff:
+> I think you are not necessary add the m5287 support to ahci.c now, the code
+> I add is to
+> correct the two bugs of our controller, now we have designed a new AHCI
+> controller name M5288(device id is 0x5288),
+> it work perfectly with the linux ahci driver only add the PCI ID to ahci.c.
 
-Sorry I don't think this is right.  Although lo going down is
-required to cause those symptoms, it is not the trigger.
+Thanks, I will add this PCI ID to ahci.c.
 
-The problem only occurs when eth0 itself is unregistered.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+> Another question,if the SATA SCSI driver and AHCI driver both support the
+> same controller, which driver
+> has the priority in linux.
+
+Two answers:
+
+a) For the upstream kernel -- when the drivers are built into the kernel
+-- the order in which the drivers are listed in drivers/scsi/Makefile
+affects the probe order (priority).  When the drivers are built as
+kernel modules, the contents of /etc/modprobe.conf (or /etc/modules.conf
+for kernel 2.4.x) determines which driver to load.
+
+b) For distributors (Red Hat, SuSE, Mandrake, etc.), the installer
+engineers at each company choose which driver to load.
+
+To simplify matters, it is recommended to avoid situations where
+multiple drivers have the same PCI ID listed.  The "more advanced"
+driver (AHCI) is preferred of course ;-)
+
+Regards,
+
+	Jeff
+
+

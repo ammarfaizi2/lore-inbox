@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273996AbRI0WdV>; Thu, 27 Sep 2001 18:33:21 -0400
+	id <S274012AbRI0Whl>; Thu, 27 Sep 2001 18:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273999AbRI0WdM>; Thu, 27 Sep 2001 18:33:12 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:25096 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S273996AbRI0Wcy>; Thu, 27 Sep 2001 18:32:54 -0400
-Date: Thu, 27 Sep 2001 19:27:45 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Reg modutils-2.4
-Message-ID: <Pine.LNX.4.10.10109271920060.28586-100000@blrmail>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274002AbRI0Whb>; Thu, 27 Sep 2001 18:37:31 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:34043 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274001AbRI0WhZ>;
+	Thu, 27 Sep 2001 18:37:25 -0400
+Date: Fri, 28 Sep 2001 00:37:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert_Macaulay@Dell.com
+Cc: riel@conectiva.com.br, ckulesa@as.arizona.edu,
+        linux-kernel@vger.kernel.org, bmatthews@redhat.com,
+        marcelo@conectiva.com.br, torvalds@transmeta.com
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9 -ac14/15(+stuff)]
+Message-ID: <20010928003746.Q14277@athlon.random>
+In-Reply-To: <8F120FA493CAD743B30EEB8F356985B501A7819D@AUSXMBT102VS1.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8F120FA493CAD743B30EEB8F356985B501A7819D@AUSXMBT102VS1.amer.dell.com>; from Robert_Macaulay@Dell.com on Thu, Sep 27, 2001 at 05:34:17PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have to have two kernel images 2.2.14 and 2.4.9 to boot from. I
-applied the kdb patch for 2.4.9 kernel but could find that make
-bzImage failed because the modutils I have is 2.3.10. I thought of
-upgrading my modutils and downloaded modutils-2.4.9-1.i386.rpm. It failed
-saying   
+On Thu, Sep 27, 2001 at 05:34:17PM -0500, Robert_Macaulay@Dell.com wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Andrea Arcangeli [mailto:andrea@suse.de]
+> > Sent: Thursday, September 27, 2001 5:13 PM
+> > To: Macaulay, Robert
+> > Cc: Rik van Riel; Craig Kulesa; linux-kernel@vger.kernel.org; Bob
+> > Matthews; Marcelo Tosatti; Linus Torvalds
+> > Subject: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs.
+> > 2.4.9-ac14/15(+stuff)]
+> > 
+> > @@ -2519,7 +2521,9 @@
+> >  	int tryagain = 1;
+> >  
+> >  	do {
+> > -		if (buffer_dirty(p) || buffer_locked(p)) {
+> > +		if (unlikely(buffer_pending_IO(p)))
+> > +			tryagain = 0;
+> > +		else if (buffer_dirty(p) || buffer_locked(p)) {
+> >  			if (test_and_set_bit(BH_Wait_IO, &p->b_state)) {
+> >  				if (buffer_dirty(p)) {
+> >  					ll_rw_block(WRITE, 1, &p);
+> > 
+> 
+> Im getting an undefined reference to the unlikely function in this patch.
 
-  only packages with major numbers <= 3 are supported by this version of
-RPM
-error: modutils-2.4.9-1.i386.rpm cannot be installed
-  
-Then I tried with modutils-2.4.0-1.i386.rpm which failed giving so many
-messages like the following:
+ok, try adding #include <linux/compiler.h> to include/linux/kernel.h, I
+prefer to have likely/unlikely always available.
 
-
-
-file /sbin/depmod from install of modutils-2.4.0-1 conflicts with file
-from package modutils-2.3.9-6
-file /sbin/genksyms from install of modutils-2.4.0-1 conflicts with file
-from package modutils-2.3.9-6
-file /sbin/insmod from install of modutils-2.4.0-1 conflicts with file
-from package modutils-2.3.9-6
-file /sbin/insmod.static from install of modutils-2.4.0-1 conflicts with
-file from package modutils-2.3.9-6
-file /sbin/modinfo from install of modutils-2.4.0-1 conflicts with file
-from package modutils-2.3.9-6
-.
-.
-.
-
-Please help me arriving at a solution.
-
-Thanks in advance,
-Warm regards,
-sathish.j
-
-
+Andrea

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281690AbRKZNzX>; Mon, 26 Nov 2001 08:55:23 -0500
+	id <S281694AbRKZOEe>; Mon, 26 Nov 2001 09:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281692AbRKZNzO>; Mon, 26 Nov 2001 08:55:14 -0500
-Received: from pat.uio.no ([129.240.130.16]:61332 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S281690AbRKZNzG>;
-	Mon, 26 Nov 2001 08:55:06 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15362.18626.303009.379772@charged.uio.no>
-Date: Mon, 26 Nov 2001 14:50:58 +0100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: NFS maillist <nfs@lists.sourceforge.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Fix knfsd readahead cache in 2.4.15
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S281703AbRKZOEY>; Mon, 26 Nov 2001 09:04:24 -0500
+Received: from ns.caldera.de ([212.34.180.1]:60092 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S281701AbRKZOEP>;
+	Mon, 26 Nov 2001 09:04:15 -0500
+Date: Mon, 26 Nov 2001 15:00:48 +0100
+Message-Id: <200111261400.fAQE0mF22150@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: abraham@2d3d.co.za (Abraham vd Merwe)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16-pre1 file system bug
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011126155633.A370@crystal.2d3d.co.za>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
+In article <20011126155633.A370@crystal.2d3d.co.za> you wrote:
+> Hi!
 
-  The following patch fixes a bug in the knfsd readahead code. The
-memset() that is referenced in the patch below is clobbering the
-pointer to the next list element (ra->p_next), thus reducing the inode
-readahead cache to 1 entry upon the very first call to
-nfsd_get_raparms().
+> I mounted 2 vxfs (Veritas / SCO UnixWare) partitions and typed ls in the
+> mounted directories. This is the result:
 
-  BTW: looking at the choice of cache size. Why is this set to number
-of threads * 2? Isn't it better to have a minimum cache size? After
-all, the fact that I have 8 threads running does not at all reflect
-the number of inodes that I might have open on my various clients...
+Please add the line
 
-Cheers,
-   Trond
+EXTRA_CFLAGS := -DDIAGNOSTIC
 
---- linux-2.4.16-pre1/fs/nfsd/vfs.c.orig	Fri Oct  5 21:23:53 2001
-+++ linux-2.4.16-pre1/fs/nfsd/vfs.c	Mon Nov 26 14:32:09 2001
-@@ -560,9 +560,13 @@
- 		return NULL;
- 	rap = frap;
- 	ra = *frap;
--	memset(ra, 0, sizeof(*ra));
- 	ra->p_dev = dev;
- 	ra->p_ino = ino;
-+	ra->p_reada = 0;
-+	ra->p_ramax = 0;
-+	ra->p_raend = 0;
-+	ra->p_ralen = 0;
-+	ra->p_rawin = 0;
- found:
- 	if (rap != &raparm_cache) {
- 		*rap = ra->p_next;
+to fs/freevxfs/Makefile and send me the dmesg output of the
+recompiled kernel.
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

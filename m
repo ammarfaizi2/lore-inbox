@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293243AbSCADJy>; Thu, 28 Feb 2002 22:09:54 -0500
+	id <S310132AbSCACta>; Thu, 28 Feb 2002 21:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310238AbSCADGA>; Thu, 28 Feb 2002 22:06:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2579 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310334AbSCADEH>; Thu, 28 Feb 2002 22:04:07 -0500
-Date: Thu, 28 Feb 2002 22:02:27 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the tree
-In-Reply-To: <Pine.LNX.4.33L.0202282002260.2801-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.96.1020228215025.3310A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293094AbSCACrf>; Thu, 28 Feb 2002 21:47:35 -0500
+Received: from chinook.Stanford.EDU ([171.64.93.186]:59582 "EHLO
+	chinook.stanford.edu") by vger.kernel.org with ESMTP
+	id <S293366AbSCACpZ>; Thu, 28 Feb 2002 21:45:25 -0500
+Date: Thu, 28 Feb 2002 18:45:24 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling 2.5.6-pre2 w/ OSS support
+Message-ID: <20020301024524.GA24167@chinook.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Mailer: Mutt http://www.mutt.org/
+From: Max Kamenetsky <maxk@chinook.stanford.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Feb 2002, Rik van Riel wrote:
+Hi!
 
-> On Thu, 28 Feb 2002, Bill Davidsen wrote:
-> > On Tue, 26 Feb 2002, Christoph Hellwig wrote:
-> >
-> > > They shouldn't,  But many old drivers do (and _had to_):
-> > >
-> > > 	current->policy = SCHED_YIELD;
-> > > 	schedule();
-> > >
-> > > which isn't possible with the new scheduler.
-> >
-> > Let's see, the choices are to (a) keep the old scheduler which has many
-> > performance issues, or (b) put in the new scheduler and let people who
-> > need the old drivers either fix them or stop upgrading.
-> 
-> or (c) have proponents of the inclusion of the O(1) scheduler
-> fix all drivers before having the O(1) scheduler considered
-> for inclusion.
-> 
-> Adding a yield() function to 2.4's scheduler and fixing all
-> the drivers to use it isn't that hard. Now all that's needed
-> are some O(1) fans willing to do the grunt work.
+I'm having a problem complining 2.5.6-pre2 with OSS support.  If it
+matters, I'm compiling support for a Turtle Beach Fiji card as a
+module.  The compilation bombs out during "make bzImage" at this point:
 
-That sounds very nice, but in practice it means it would never happen, and
-you know it. First you have to patch the existing scheduler. Aside from
-the work on something which we are about to discard, the patch would have
-to go through the maintainer, and the the submitter, and the pope, and
-god, and finally Linus, and then (only then) could the patch go in the old
-scheduler. Then you start the process with each of the drivers. They are
-old grotty drivers, I would bet that no one "maintains" some of them (I'll
-actually count when I login to a better machine). 
 
-This process could take six months to a year, after which we can start the
-process with the scheduler. Alternatively we can put in the new scheduler,
-let the drivers have compile errors, and let them be fixed when (if) they
-are still in use.
+ld -m elf_i386 -T /usr/src/linux-2.5.6-pre2/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+        /usr/src/linux-2.5.6-pre2/arch/i386/lib/lib.a /usr/src/linux-2.5.6-pre2/lib/lib.a /usr/src/linux-2.5.6-pre2/arch/i386/lib/lib.a \
+         drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o sound/sound.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/serio/seriodrv.o \
+        net/network.o \
+        --end-group \
+        -o vmlinux
+sound/sound.o: In function `sound_alloc_dmap':
+sound/sound.o(.text+0x36d9): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+make: *** [vmlinux] Error 1
 
-If we could get a dispensation from Linus to submit one patch combining
-the scheduler and all the drivers, it could be done (almost mechanically).
-But with the maintainers, submitters, etc, process for each bit, it could
-take a year. And dammit the patch is so night and day better that it
-shouldn't take a year.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The same problem was exhibited by 2.5.5.  I have been unable to figure
+out why this is happening, so any help would be greatly appreciated.
 
+Thanks,
+    Max

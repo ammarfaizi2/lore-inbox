@@ -1,60 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262594AbSJGRWu>; Mon, 7 Oct 2002 13:22:50 -0400
+	id <S261317AbSJGRkX>; Mon, 7 Oct 2002 13:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262584AbSJGRWq>; Mon, 7 Oct 2002 13:22:46 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:40412 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S262577AbSJGRWc>; Mon, 7 Oct 2002 13:22:32 -0400
-Date: Mon, 7 Oct 2002 10:19:03 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Craig Dickson <crdic@pacbell.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021007171812.GB13653@linux700.localnet>
-Message-ID: <Pine.LNX.4.44.0210071016300.2155-100000@dlang.diginsite.com>
+	id <S261440AbSJGRkX>; Mon, 7 Oct 2002 13:40:23 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:56195
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S261317AbSJGRkV>; Mon, 7 Oct 2002 13:40:21 -0400
+Date: Mon, 7 Oct 2002 13:45:35 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: "David S. Miller" <davem@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
+       <simon@baydel.com>, <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <20021007165345.GA3068@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if this happens then you just check the code out of the kernel as of the
-last version prior to the one that makes this change.
+On Mon, 7 Oct 2002, Mark Mielke wrote:
 
-if this happens then we are worse off then we are now, but not worse off
-then we were before useing BK (diff+patch still work remember)
+> On Mon, Oct 07, 2002 at 09:02:33AM -0700, David S. Miller wrote:
+> >    From: Nicolas Pitre <nico@cam.org>
+> >    Date: Mon, 7 Oct 2002 12:05:16 -0400 (EDT)
+> >    2) Not inlining inb() and friend reduce the bloat but then you further 
+> >       impact performances on CPUs which are generally many order of
+> >       magnitude slower than current desktop machines.
+> > I don't buy this one.  You are saying that the overhead of a procedure
+> > call is larger than the overhead of going out over the I/O bus to
+> > touch a device?
+> 
+> I think the key phrase is 'further impact'.
+> 
+> If anything, the procedure call increases latency.
+> 
+> Although... I don't see why CONFIG_TINY wouldn't be able to decide whether
+> inb() should be inlined or not...
 
-David Lang
+Please don't mix up the issues.
 
-On Mon, 7 Oct 2002, Craig Dickson wrote:
+The problems with inb() and friends as it stands in the embedded world right
+now as to do with code cleanness not kernel image bloat.  Nothing to be 
+solved with CONFIG_TINY.  Please let's keep those issues separate.
 
-> Date: Mon, 7 Oct 2002 10:18:12 -0700
-> From: Craig Dickson <crdic@pacbell.net>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: New BK License Problem?
->
-> Larry McVoy wrote:
->
-> > It always was and always will be a feature that it is easy to get in
-> > and get *out* of BK. We may be pains in the butt on the license front
-> > but once you are using BK, if you have to get the data out, BK makes
-> > that as pleasant as can possibly be made.
->
-> This is all very well, but is this not something that might change if
-> someone else were to come into control of the company? It isn't hard to
-> imagine some future BitMover CEO with a more Microsoft-like mentality
-> looking at the product and thinking, "This 'ease of getting data out'
-> has to go -- we need to make it less convenient for our customers to
-> defect."
->
-> It is a general problem with power that you have to worry not just about
-> whether those who currently wield it will abuse it, but also their
-> successors.
->
-> Craig
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Here's the IO macro issue:  On some embedded platforms the IO bus is only 8
+bit wide or only 16 bit wide, or address lines are shifted so registers
+offsets are not the same, etc.  All this because embedded platforms are
+often using standard ISA peripheral chipsets since they can be easily glued
+to any kind of bare buses or static memory banks.
+
+The nice thing here is the fact that only by modifying inb() and friends you
+can reuse most current kernel drivers without further modifications.  
+However the modifs to inb() are often different whether the peripheral in
+question is wired to a static memory bank, to the PCMCIA space or onto some
+expansion board via a CPLD or other weirdness some hardware designers are
+pleased to come with.  Hence no global inb() and friend tweaking is possible
+without some performance hit by using a runtime fixup based on the address
+passed to them.
+
+We therefore end up with something that looks like this in each drivers for 
+which a fixup is needed:
+
+#ifdef CONFIG_ASSABET_NEPONSET
+
+/*
+ * These functions allow us to handle IO addressing as we wish - this
+ * ethernet controller can be connected to a variety of busses.  Some
+ * busses do not support 16 bit or 32 bit transfers.  --rmk
+ */
+static inline u8 smc_inb(u_int base, u_int reg)
+{
+        u_int port = base + reg * 4;
+
+        return readb(port);
+}
+
+static inline u16 smc_inw(u_int base, u_int reg)
+{
+        u_int port = base + reg * 4;
+
+        return readb(port) | readb(port + 4) << 8;
+}
+
+static inline void smc_outb(u8 val, u_int base, u_int reg)
+{
+        u_int port = base + reg * 4;
+
+        writeb(val, port);
+}
+
+static inline void smc_outw(u16 val, u_int base, u_int reg)
+{
+        u_int port = base + reg * 4;
+
+        writeb(val, port);
+        writeb(val >> 8, port + 4);
+}
+
+#endif
+
+As you can see such code duplicated multiple times for all bus arrangements
+in existence out there is just not pretty and was refused by Alan.  We lack
+a global lightweight IO abstraction to nicely override the default IO macros
+for individual drivers at compile time to fix that problem optimally and
+keep the driver proper clean.
+
+
+Nicolas
+

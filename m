@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293738AbSCFSQm>; Wed, 6 Mar 2002 13:16:42 -0500
+	id <S293743AbSCFSWO>; Wed, 6 Mar 2002 13:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293743AbSCFSQc>; Wed, 6 Mar 2002 13:16:32 -0500
-Received: from mtao2.east.cox.net ([68.1.17.243]:38133 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S293738AbSCFSQT>; Wed, 6 Mar 2002 13:16:19 -0500
-Message-ID: <3C865CED.F16FAA0F@randomlogic.com>
-Date: Wed, 06 Mar 2002 10:16:13 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Random Logic
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S293747AbSCFSWC>; Wed, 6 Mar 2002 13:22:02 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47112 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293743AbSCFSVz>;
+	Wed, 6 Mar 2002 13:21:55 -0500
+Date: Wed, 6 Mar 2002 15:09:29 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Bulent Abali <abali@us.ibm.com>
+Cc: Andrew Morton <akpm@zip.com.au>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] struct page shrinkage
+In-Reply-To: <OF8A6868F1.312B7C40-ON85256B74.005CB22E@pok.ibm.com>
+Message-ID: <Pine.LNX.4.44L.0203061508080.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-CC: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <Pine.LNX.4.44L.0203061325360.2181-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On 5 Mar 2002, Trever L. Adams wrote:
-> > On Tue, 2002-03-05 at 23:26, Petro wrote:
-> > >     Do what they tell you, or go to jail. (Well, there is a third
-> > >     choice, but it would best not be discussed here).
+On Wed, 6 Mar 2002, Bulent Abali wrote:
+> >Rik van Riel wrote:
+> >>
+> >> +               clear_bit(PG_locked, &p->flags);
 > >
-> > And for the safety of those in the USA and around the world,
-> > particularly on this list... it is best not to even think about it...
-> 
-> Wasn't the second amendment created for this purpose ?
-> 
+> >Please don't do this.  Please use the macros.  If they're not
+> >there, please create them.
+> >
+> >Bypassing the abstractions in this manner confounds people
+> >who are implementing global locked-page accounting.
+>
+> I have an application which needs to know the total number of locked and
+> dirtied pages at any given time.  In which application locked-page
+> accounting is done?   I don't see it in base 2.5.5.   Are there any patches
+> or such that you can give pointers to?
 
-Exactly. Last I checked, I can still say and think what I want, but in
-some cases it's the way you say it that matters. Your actions also have
-bearing on your speach - just saying you're going to revolt is different
-than saying it and then actually trying it.
+You could modify lock_page to do statistics. This is
+made easier if you are sure that every driver uses
+lock_page / LockPage and UnlockPage
 
-I DO NOT have to do what they tell me, as the Constitution specifically
-limits what they can tell me to do. Sure, they can try, they can even
-break the law (as the SSSCA and DMCA do) and tell me to do it anyway,
-and throw me in jail for not doing it.
+I'm happy Andrew made me clean up the drivers instead
+of just fixing them ;)
 
-The problem - and here I am repeating myself again - is that too many
-people _allow_ themselves to be told what to do when what they are being
-told is blatantly against the law. It comes down to the Fear Factor once
-again, and THAT, I think,  is the major driving force behind government
-(or other) control.
+regards,
 
-The first reason the SSSCA will pass (if it does), and the reason the
-DMCA did pass, is due to the fact that most people outside of the
-technical "geek" community not only didn't (or don't) understand it, but
-that they have never even heard of it. The second reason is because
-those who do know and understand, kept (or keep) their mouths shut and
-don't inform those who don't.
-
-The third, at least in this country, is the piss poor voter
-participation. Yesterday within 5 min. - the time it took me to go to
-the polls, vote, and come home - I met no less than 5 people who freely
-admitted to not voting and appearing to be proud of it. But that's
-another issue altogether, and borders on OT.
-
-PGA
+Rik
 -- 
-Paul G. Allen
-Owner, Sr. Engineer, Security Specialist
-Random Logic/Dream Park
-www.randomlogic.com
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

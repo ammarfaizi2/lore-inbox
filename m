@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbTDWUUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 16:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTDWUUS
+	id S263506AbTDWUSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 16:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTDWUSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 16:20:18 -0400
-Received: from bloodbath.burble.org ([198.144.201.93]:52493 "EHLO
-	bloodbath.burble.org") by vger.kernel.org with ESMTP
-	id S263529AbTDWUUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 16:20:16 -0400
-From: pixi@burble.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Stephane Ouellette <ouellettes@videotron.ca>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH]  Undefined symbol sync_dquots_dev() in quota.c
-References: <3EA6B13A.4000408@videotron.ca> <20030423153341.GA5561@gtf.org>
-	<3EA6B854.5010604@videotron.ca> <20030423160244.GB5561@gtf.org>
-Date: 23 Apr 2003 13:32:06 -0700
-In-Reply-To: <20030423160244.GB5561@gtf.org>
-Message-ID: <m21xzt7y61.fsf@bloodbath.burble.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 23 Apr 2003 16:18:21 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43185 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263506AbTDWUSU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 16:18:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
+Date: Wed, 23 Apr 2003 15:14:44 -0500
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.44.0304231816210.10779-100000@localhost.localdomain> <200304231253.09520.habanero@us.ibm.com> <1538380000.1051123399@flay>
+In-Reply-To: <1538380000.1051123399@flay>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304231514.44451.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Wednesday 23 April 2003 13:43, Martin J. Bligh wrote:
+> >> >  - turn off the more agressive idle-steal variant. This could fix the
+> >> >    low-load regression reported by Martin J. Bligh.
+> >>
+> >> Yup, that fixed it (I tested just your first version with just that
+> >> bit altered).
+> >
+> > Can we make this an arch specific option?  I have a feeling the HT
+> > performance on low loads will actually drop with this disabled.
+>
+> Is it really an arch thing? Or is it a load level thing? I get the feeling
+> it might be switchable dynamically, dependant on load ...
 
+Well on high load, you shouldn't have an idle cpu anyway, so you would never 
+pass the requirements for the agressive -idle- steal even if it was turned 
+on.   On low loads on HT, without this agressive balance on cpu bound tasks, 
+you will always load up one core before using any of the others.  When you 
+fork/exec, the child will start on the same runqueue as the parent, the idle 
+sibling will start running it, and it will never get a chance to balance 
+properly while it's in a run state.  This is the same behavior I saw with the 
+NUMA-HT solution, because I didn't have this agressive balance (although it 
+could be added I suppose), and as a result it consistently performed less 
+than Ingo's solution (but still better than no patch at all).
 
-Jeff Garzik <jgarzik@pobox.com> writes:
-
-: On Wed, Apr 23, 2003 at 11:59:16AM -0400, Stephane Ouellette wrote:
-
-: >   the file fs/dquot.c is compiled only if CONFIG_QUOTA is set.  That 
-: > would imply modifying the Makefile and #ifdeffing most of the code 
-: > inside dquot.c.
-: 
-: So?  ;-)
-: 
-: Your patch modified fs/quota.c, which is compiled when CONFIG_QUOTACTL is
-: set, which in turn is set for CONFIG_QUOTA || CONFIG_XFS_QUOTA.
-: 
-: If you are adding CONFIG_QUOTA ifdefs to fs/quota.c, it is clear a
-: non-ifdef solution can be achieved.
-
-yep.  attached is the patch i made when i compiled the kernel, but
-forgot to send on:
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=quotaops.h.diff
-
---- include/linux/quotaops.h.orig	2003-04-15 20:31:50.000000000 -0700
-+++ include/linux/quotaops.h	2003-04-15 20:31:59.000000000 -0700
-@@ -185,6 +185,7 @@
-  */
- #define sb_dquot_ops				(NULL)
- #define sb_quotactl_ops				(NULL)
-+#define sync_dquots_dev(dev,type)		(NULL)
- #define DQUOT_INIT(inode)			do { } while(0)
- #define DQUOT_DROP(inode)			do { } while(0)
- #define DQUOT_ALLOC_INODE(inode)		(0)
-
---=-=-=--
+-Andrew Theurer

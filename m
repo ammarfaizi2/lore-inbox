@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbREEJWZ>; Sat, 5 May 2001 05:22:25 -0400
+	id <S131460AbREEJWe>; Sat, 5 May 2001 05:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131588AbREEJWQ>; Sat, 5 May 2001 05:22:16 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:64518 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S131246AbREEJWK>;
-	Sat, 5 May 2001 05:22:10 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105050922.f459M7E252665@saturn.cs.uml.edu>
-Subject: Re: Possible README patch
-To: duncan@gauldd.freeserve.co.uk (Duncan Gauld)
-Date: Sat, 5 May 2001 05:22:07 -0400 (EDT)
+	id <S131588AbREEJWZ>; Sat, 5 May 2001 05:22:25 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:29700 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S131460AbREEJWQ>;
+	Sat, 5 May 2001 05:22:16 -0400
+Date: Sat, 5 May 2001 10:21:33 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Duncan Gauld <duncan@gauldd.freeserve.co.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01050510040100.05769@pc-62-31-91-153-dn> from "Duncan Gauld" at May 05, 2001 10:04:01 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: Re: Possible README patch
+Message-ID: <20010505102133.A16788@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	Duncan Gauld <duncan@gauldd.freeserve.co.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <01050510040100.05769@pc-62-31-91-153-dn>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01050510040100.05769@pc-62-31-91-153-dn>; from duncan@gauldd.freeserve.co.uk on Sat, May 05, 2001 at 10:04:01AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Gauld writes:
-
+On Sat, May 05, 2001 at 10:04:01AM -0400, Duncan Gauld wrote:
 > Information in the README file says that when patching, the -p0 option is 
-> used with patch (eg tar xvzf <patch>.tar.gz | patch -p0). However I have 
-> never got this to work as I always get something like "can't find file to 
-> patch at line 5". However, replacing -p0 with -p1 seems to work perfectly.
-> Maybe the penguin doesn't like me, but still, whenever I've downloaded 
-> patches I had to say -p1, not -p0...
-...
-> -- README	Sat May  5 09:51:36 2001
-> +++ README	Sat May  5 09:52:24 2001
-> @@ -66,10 +66,10 @@
->     install by patching, get all the newer patch files, enter the
->     directory in which you unpacked the kernel source and execute:
+> used with patch (eg tar xvzf <patch>.tar.gz | patch -p0).
 
-This is ambiguous:
-"the directory in which you unpacked the kernel source"
+You probably have done:
 
-If I do "cd /usr/src" then "tar Ixf linux-2.4.4.tar.bz2",
-then where did I unpack the kernel source? I think you could
-argue for /usr/src or /usr/src/linux equally well.
+gzip -dc linux-2.4.XX.tar.gz | tar zvf -
+cd linux
+gzip -dc patchXX.gz | patch -p0
+
+which will fail since the patch file specifies all files with a path
+starting with 'linux/'.  However, the instructions in the README are
+for the following situation:
+
+gzip -dc linux-2.4.XX.tar.gz | tar zvf -
+gzip -dc patchXX.gz | patch -p0
+
+which may work, but note that patch can be a little tempremental about
+the filenames it chooses from the patch file.  The absolute safest way
+to apply a patch is:
+
+gzip -dc linux-2.4.XX.tar.gz | tar zvf -
+cd linux
+gzip -dc patchXX.gz | patch -p1
+
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

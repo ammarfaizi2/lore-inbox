@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUJATCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUJATDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUJATCP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJATCP
+	id S266181AbUJATDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUJATDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:02:15 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:45752 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266137AbUJATCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:02:13 -0400
-Message-Id: <200410011902.i91J27qO028646@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: cranium2003 <cranium2003@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.linux.org
-Subject: Re: Plzzz help me 
-In-Reply-To: Your message of "Thu, 30 Sep 2004 19:41:36 PDT."
-             <20041001024136.96889.qmail@web41402.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20041001024136.96889.qmail@web41402.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2044784972P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 1 Oct 2004 15:03:33 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:42130 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266163AbUJATDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 15:03:19 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC (xSeries Solutions
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525 - change TARGET_CPUS on x86_64
+Date: Fri, 1 Oct 2004 12:02:40 -0700
+User-Agent: KMail/1.5.4
+Cc: Suresh Siddha <suresh.b.siddha@intel.com>, linux-kernel@vger.kernel.org,
+       tom.l.nguyen@intel.com
+References: <2HSdY-7dr-3@gated-at.bofh.it> <20040930230133.0d4bcc0d.akpm@osdl.org> <20041001071922.GA32950@muc.de>
+In-Reply-To: <20041001071922.GA32950@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 01 Oct 2004 15:02:07 -0400
+Content-Disposition: inline
+Message-Id: <200410011202.41048.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2044784972P
-Content-Type: text/plain; charset=us-ascii
+On Friday 01 October 2004 12:19 am, Andi Kleen wrote:
+> On Thu, Sep 30, 2004 at 11:01:33PM -0700, Andrew Morton wrote:
+> > Suresh Siddha <suresh.b.siddha@intel.com> wrote:
+> > > Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code
+> > > inline with x86 mach-default. Fix MSI_TARGET_CPU code which will
+> > > break with this target_cpus change.
+> >
+> > This gets rejects all over the place against the x86_64 clustered
+> > APIC mode patch.
+> >
+> > Which has priority here?
+>
+> Definitely the MSI_TARGET_CPUS thingy.
+>
+> The Clustered APIC patch is far off pie in the sky for some future
+> unreleased hardware. MSI workaround fixes basic compilation
+> and the original patch from Suresh fixes shipping Intel chipsets.
+>
+> -Andi
 
-On Thu, 30 Sep 2004 19:41:36 PDT, cranium2003 said:
-> Hello,
->  I want to know is there any way in linux kernel by
-> which i can come to know that the outgoing packet is
-> having destination address is of host not of router?
-> I want to send different data to host/router depending
-> on dest. address. 
+Excuse me, but since when is February "far off pie in the sky for some 
+future unreleased hardware"?
 
-What if the router is a host as well? This is quite possible
-if the router is a unix/linux box with more than one network
-interface.
+Zeus boxes are going out the door 1Q2005.  The question is, will v2.6 
+work on them or not?
 
-What problem are you trying to solve by sending different data?
+-- 
+James Cleverdon
+IBM LTC (xSeries Linux Solutions)
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
 
---==_Exmh_2044784972P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBXamucC3lWbTT17ARAldLAJ4nHC00WiiJ2IZ0GwqCmSBr/GOuywCcDYj9
-SXHoxDleHpbdjqHTwmbt7Tc=
-=Gruy
------END PGP SIGNATURE-----
-
---==_Exmh_2044784972P--

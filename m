@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbSL1TsY>; Sat, 28 Dec 2002 14:48:24 -0500
+	id <S265469AbSL1T5Y>; Sat, 28 Dec 2002 14:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSL1TsY>; Sat, 28 Dec 2002 14:48:24 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:44555 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265409AbSL1TsX>;
-	Sat, 28 Dec 2002 14:48:23 -0500
-Date: Sat, 28 Dec 2002 20:56:37 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jochen Hein <jochen@jochen.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.53, KBUILD] missing dependencies for yenta_socket.ko?
-Message-ID: <20021228195637.GA14787@mars.ravnborg.org>
-Mail-Followup-To: Jochen Hein <jochen@jochen.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <87wulucxhw.fsf@gswi1164.jochen.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87wulucxhw.fsf@gswi1164.jochen.org>
-User-Agent: Mutt/1.4i
+	id <S265470AbSL1T5X>; Sat, 28 Dec 2002 14:57:23 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:31144 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265469AbSL1T5X>;
+	Sat, 28 Dec 2002 14:57:23 -0500
+Message-ID: <3E0E0412.20303@colorfullife.com>
+Date: Sat, 28 Dec 2002 21:05:38 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+References: <200212281840.gBSIeBB02996@localhost.localdomain>
+In-Reply-To: <200212281840.gBSIeBB02996@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 28, 2002 at 10:18:35AM +0100, Jochen Hein wrote:
-> 
-> I changed yenta.c and tried to recompile yenta_socket.ko, the
-> resulting kernel module.  I get:
-> 
-> root@gswi1164:/usr/src/linux-2.5.53# LANG=C make drivers/pcmcia/yenta_socket.ko
-> make: Nothing to be done for `drivers/pcmcia/yenta_socket.ko'.
+James Bottomley wrote:
 
-Above trick does not work for composite objects.
-The best approach is to use the following trick:
+>manfred@colorfullife.com said:
+>  
+>
+>>If multiple kmalloc buffers fit into one cacheline, then it can happen
+>> all the time. But the smallest kmalloc buffer is 64 bytes [assuming
+>>page  size > 4096].
+>>    
+>>
+>
+>Actually, I did forget to mention that on parisc non-coherent, the minimum 
+>kmalloc allocation is the cache line width, so that problem cannot occur.
+>
+>Hmm, perhaps that is an easier (and faster) approach to fixing the problems on 
+>non-coherent platforms?
+>  
+>
+How do you want to fix sendfile()?
+Note that I'm thinking along the same line as reading an unaligned 
+integer: the arch must provide a trap handler that emulates misaligned 
+reads, but it should never happen, except if someone manually creates an 
+IP packet with odd options to perform an DoS attack. Restricting kmalloc 
+is obviously faster, but I'm not convinced that this really catches all 
+corner cases.
 
-make SUBDIRS=drivers/pcmcia
+A memcpy() based dma_map implementation would have another advantage: 
+enable it on i386, and you'll catch everyone that violates the dma spec 
+immediately.
 
-That will build all files - as required - starting with drivers/pcmcia.
-The rest of the build process then proceeds as opposed to the normal
-single targets.
+The only problem is that the API is bad - networking buffers are usually 
+2 kB allocations, 2 kB aligned.
+The actual data area that is passed to pci_map_single starts at offset 2 
+and has an odd length. It's not possible to pass the information to 
+dma_map_single() that the rest of the cacheline is unused and that 
+double buffering is not required, despite the misaligned case.
+Except for sendfile(), then double buffering is necessary.
 
-The top-level Makefile needs an entry to let the above work with single
-target .ko files, patch attached (on top of my earlier kbuild changes).
+--
+    Manfred
 
-	Sam
-
-===== Makefile 1.349 vs edited =====
---- 1.349/Makefile	Fri Dec 27 21:15:43 2002
-+++ edited/Makefile	Sat Dec 28 13:13:55 2002
-@@ -419,6 +419,8 @@
- 	$(Q)$(MAKE) $(build)=$(@D) $@
- %.o: %.c scripts FORCE
- 	$(Q)$(MAKE) $(build)=$(@D) $@
-+%.ko: %.c scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(@D) KBUILD_BUILTIN=1 KBUILD_MODULES=1 $@
- %.lst: %.c scripts FORCE
- 	$(Q)$(MAKE) $(build)=$(@D) $@
- %.s: %.S scripts FORCE

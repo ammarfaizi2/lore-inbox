@@ -1,81 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261910AbSJQHki>; Thu, 17 Oct 2002 03:40:38 -0400
+	id <S261848AbSJQHen>; Thu, 17 Oct 2002 03:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261911AbSJQHki>; Thu, 17 Oct 2002 03:40:38 -0400
-Received: from node181b.a2000.nl ([62.108.24.27]:30891 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S261910AbSJQHkf>;
-	Thu, 17 Oct 2002 03:40:35 -0400
-Date: Thu, 17 Oct 2002 09:46:42 +0200 (CEST)
-From: raid@ddx.a2000.nu
-To: linux-raid@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: raidsetfaulty (on raid5) gives kernel oops
-Message-ID: <Pine.LNX.4.44.0210170937290.17673-100000@ddx.a2000.nu>
+	id <S261849AbSJQHen>; Thu, 17 Oct 2002 03:34:43 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:64743 "EHLO
+	kolivas.net") by vger.kernel.org with ESMTP id <S261848AbSJQHem>;
+	Thu, 17 Oct 2002 03:34:42 -0400
+Message-ID: <1034840438.3dae6976a93fb@kolivas.net>
+Date: Thu, 17 Oct 2002 17:40:38 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+Subject: [BENCHMARK] 2.5.43-mm2 with contest
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Here are the updated benchmarks with contest v0.51 (http://contest.kolivas.net)
+showing the change from -mm1 to -mm2. Other results removed for clarity.
 
-tried to fail a disk on my raid5 array
-so i did : 'raidsetfaulty  /dev/md0  /dev/sdf1'
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              71.8    93      0       0       1.01
+2.5.43 [2]              74.6    92      0       0       1.04
+2.5.43-mm1 [4]          74.9    93      0       0       1.05
+2.5.43-mm2 [2]          73.4    93      0       0       1.03
 
-and then i have this in my kernel log :
+Interesting. This was significant. The slow start that occurs with noload after
+a memory flush seems to have been tamed somewhat.
 
---
-raid5: Disk failure on sdf1, disabling device. Operation continuing on 4
-devices
-md: updating md0 RAID superblock on device
-md: sdf1 [events: 00000002]<6>(write) sdf1's sb offset: 117218176
-md: recovery thread got woken up ...
-md0: no spare disk to reconstruct array! -- continuing in degraded mode
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-c025a526
-*pde = 00000000
-md: recovery thread finished ...
-Oops: 0000
-CPU:    3
-EIP:    0010:[<c025a526>]    Not tainted
-EFLAGS: 00010206
-eax: 00000000   ebx: 00000000   ecx: 00000400   edx: de718000
-esi: 00000000   edi: de718000   ebp: 00001000   esp: de6e1f34
-ds: 0018   es: 0018   ss: 0018
-Process raid5d (pid: 575, stackpage=de6e1000)
-Stack: dfb05780 dfb05780 de719000 c02557e2 de718000 00000000 00001000
-0000005d
-       00000851 ce919200 dfb05780 df748500 dea14c94 dea14c80 c0255b57
-dfb05780
-       00000002 c166b72c 00000064 00000000 de6e0000 c166b400 dfb05700
-dfb05708
-Call Trace:    [<c02557e2>] [<c0255b57>] [<c0250816>] [<c0258e3f>]
-[<c01058ce>]
-  [<c0258d00>]
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [2]              99.7    71      44      31      1.40
+2.5.43-mm1 [5]          100.4   73      37      28      1.41
+2.5.43-mm2 [2]          105.8   71      44      31      1.48
 
-Code: f3 a5 e9 53 ff ff ff 8d 76 00 c1 e9 02 89 d7 f3 a5 a4 e9 43
---
+One pathological run removed from -mm1 and 3 removed from -mm2. Don't know why
+it's getting stuck doing process_load now and the other 2.5 kernels only do it
+at bigger data sizes for process_load. 2.4 doesnt seem to exhibit this at all.
 
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [1]              97.6    79      1       7       1.37
+2.5.43-mm1 [3]          94.6    81      1       6       1.32
+2.5.43-mm2 [1]          92.3    82      1       5       1.29
 
-i can still access my raid5 device (so i don't know if this is just
-something i can ignore ?)
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [1]              114.9   67      1       7       1.61
+2.5.43-mm1 [3]          221.2   46      3       7       3.10
+2.5.43-mm2 [2]          171.0   45      2       8       2.39
 
-/proc/mdstat gives me :
+Improvement
 
---
-Personalities : [raid0] [raid5]
-read_ahead 1024 sectors
-md0 : active raid5 sdf1[4](F) sde1[3] sdd1[2] sdc1[1] sdb1[0]
-      468872704 blocks level 5, 64k chunk, algorithm 0 [5/4] [UUUU_]
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [1]              578.9   13      45      12      8.11
+2.5.43-mm1 [3]          383.0   21      27      11      5.36
+2.5.43-mm2 [2]          301.1   26      21      11      4.22
 
-unused devices: <none>
---
+Improvement
 
-System is an Intel Dual Xeon 2 Ghz (with htt enabled)
-512mb memory
-3ware 7850 with 6*120gb 7200 2mb wdc ide
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [3]              117.3   64      6       3       1.64
+2.5.43-mm1 [3]          104.4   74      7       4       1.46
+2.5.43-mm2 [1]          105.7   73      6       4       1.48
 
-kernel 2.4.20-pre10
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [2]              93.0    76      1       18      1.30
+2.5.43-mm1 [3]          97.3    73      0       19      1.36
+2.5.43-mm2 [1]          98.9    72      1       23      1.39
 
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.43 [1]              102.0   75      28      2       1.43
+2.5.43-mm1 [3]          104.4   71      27      2       1.46
+2.5.43-mm2 [2]          106.5   69      27      2       1.49
+
+Removal of per-cpu pages patch does not seem to have been detrimental to contest
+benchmarks at least - perhaps this is responsible for the noload being better now?
+
+Con

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263013AbUJ1XMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263175AbUJ2Cnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbUJ1XMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUJ1XID
+	id S263175AbUJ2Cnb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 22:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbUJ1XNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:08:03 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:61070 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S262868AbUJ1XFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:05:22 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Thu, 28 Oct 2004 19:05:20 -0400
-User-Agent: KMail/1.7
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Nigel Kukard <nkukard@lbsd.net>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <41809921.10200@lbsd.net> <200410281432.01013.gene.heskett@verizon.net> <87zn261v1b.fsf@devron.myhome.or.jp>
-In-Reply-To: <87zn261v1b.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 19:13:16 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6930 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262890AbUJ1XIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:08:54 -0400
+Date: Fri, 29 Oct 2004 01:08:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/wan/n2.c: remove an unused function
+Message-ID: <20041028230822.GZ3207@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
-Message-Id: <200410281905.20547.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 18:05:21 -0500
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 15:50, OGAWA Hirofumi wrote:
->Gene Heskett <gene.heskett@verizon.net> writes:
->> Now, how about its going read-only on me if I move (and delete)
->> say 33 pix at the head of the its directory listing?  Is this an
->> M$ related fs bug in the camera?
->>
->> Thats required some contortions like camera battery removal,
->> reboot this machine, etc to alleviate and restore normal
->> operations in the past.
->
->Umm... When filesystem became to read-only, is there the messages
-> from kernel (output of dmesg)?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Not at the time, which is why I came to the conclusion it may be a bug 
-in the camera software.  It checks in as version 1.0, and we all know 
-no one trusts anything at version 1.0. :-)
+The patch below removes an unused function from drivers/net/wan/n2.c
 
-I know now how to keep it from happening, so its not a showstopper for 
-me.
 
-Thanks OGAWA.
+diffstat output:
+ drivers/net/wan/n2.c |    5 -----
+ 1 files changed, 5 deletions(-)
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+- --- linux-2.6.10-rc1-mm1-full/drivers/net/wan/n2.c.old	2004-10-28 23:20:08.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/net/wan/n2.c	2004-10-28 23:20:30.000000000 +0200
+@@ -159,11 +159,6 @@
+ }
+ 
+ 
+- -static __inline__ void close_windows(card_t *card)
+- -{
+- -	outb(inb(card->io + N2_PCR) & ~PCR_ENWIN, card->io + N2_PCR);
+- -}
+- -
+ 
+ #include "hd6457x.c"
+ 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD4DBQFBgXvmmfzqmE8StAARAsS9AJdRPRqqWJy4EK11Q64LECq6wCFxAJ48ir7L
+Z19hK1ZCVfdLPDo4FAWqsA==
+=/cPs
+-----END PGP SIGNATURE-----

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbTFZSZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 14:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFZSZ6
+	id S262273AbTFZS3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 14:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTFZS3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 14:25:58 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:8712 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262267AbTFZSZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 14:25:57 -0400
-Date: Thu, 26 Jun 2003 20:40:05 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Matthew Wilcox <willy@debian.org>
-cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BINFMT_ZFLAT can't be a module
-In-Reply-To: <20030626180909.GP451@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0306262036030.11817-100000@serv>
-References: <20030626180909.GP451@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Jun 2003 14:29:50 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:11147 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262273AbTFZS3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 14:29:49 -0400
+Date: Thu, 26 Jun 2003 11:40:33 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
+       Scott Robert Ladd <coyote@coyotegulch.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030626184033.GA14299@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Scott Robert Ladd <coyote@coyotegulch.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+	lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
+References: <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com> <20030623150616.GA20103@work.bitmover.com> <1056382357.29264.281.camel@passion.cambridge.redhat.com> <20030623153952.GB20103@work.bitmover.com> <20030626174520.GA3710@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030626174520.GA3710@fs.tum.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 26 Jun 2003, Matthew Wilcox wrote:
-
-> BINFMT_ZFLAT is an attribute of BINFMT_FLAT not a distinct option in
-> its own right.  So the test in lib/Kconfig has to be changed to something
-> like this:
+On Thu, Jun 26, 2003 at 07:45:21PM +0200, Adrian Bunk wrote:
+> > That's probably a good enough test case.  Explain to me how your support
+> > contracts are ever going to provide enough money to redo GCC or build
+> > something equally substantial.
 > 
-> Index: lib/Kconfig
-> ===================================================================
-> RCS file: /var/cvs/linux-2.5/lib/Kconfig,v
-> retrieving revision 1.4
-> diff -u -p -r1.4 Kconfig
-> --- lib/Kconfig	8 Apr 2003 15:20:57 -0000	1.4
-> +++ lib/Kconfig	26 Jun 2003 18:07:41 -0000
-> @@ -17,8 +17,8 @@ config CRC32
->  #
->  config ZLIB_INFLATE
->  	tristate
-> -	default y if CRAMFS=y || PPP_DEFLATE=y || JFFS2_FS=y || ZISOFS_FS=y || BINFMT_ZFLAT=y || CRYPTO_DEFLATE=y
-> -	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || BINFMT_ZFLAT=m || CRYPTO_DEFLATE=m
-> +	default y if CRAMFS=y || PPP_DEFLATE=y || JFFS2_FS=y || ZISOFS_FS=y || CRYPTO_DEFLATE=y || (BINFMT_FLAT=y && BINFMT_ZFLAT=y)
-> +	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || CRYPTO_DEFLATE=m || (BINFMT_FLAT=m && BINFMT_ZFLAT=y)
+> [incremental changes given as example]
 
-This can be simplified now to:
-
-config ZLIB_INFLATE
-	def_tristate CRAMFS || PPP_DEFLATE || JFFS2_FS || \
-		     ZISOFS_FS || CRYPTO_DEFLATE || \
-		     (BINFMT_FLAT && BINFMT_ZFLAT)
-
-bye, Roman
-
+Incremental changes != redo.  Redo is a ~$10M project.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262080AbTCLWvw>; Wed, 12 Mar 2003 17:51:52 -0500
+	id <S262107AbTCLWxu>; Wed, 12 Mar 2003 17:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbTCLWvv>; Wed, 12 Mar 2003 17:51:51 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12292 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262080AbTCLWuw>;
-	Wed, 12 Mar 2003 17:50:52 -0500
-Date: Thu, 13 Mar 2003 00:38:09 +0100
+	id <S262085AbTCLWw2>; Wed, 12 Mar 2003 17:52:28 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:19972 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262094AbTCLWvU>;
+	Wed, 12 Mar 2003 17:51:20 -0500
+Date: Thu, 13 Mar 2003 01:41:45 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Zack Brown <zbrown@tumblerings.org>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+To: Larry McVoy <lm@work.bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030312233809.GD5958@zaurus.ucw.cz>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org> <20030307190848.GB21023@atrey.karlin.mff.cuni.cz> <b4b98v_14m_1@penguin.transmeta.com> <20030308225252.GA23972@renegade> <20030309000514.GB1807@work.bitmover.com> <20030309024522.GA25121@renegade>
+Message-ID: <20030313004145.GG5958@zaurus.ucw.cz>
+References: <8200000.1047228943@[10.10.2.4]> <Pine.LNX.4.44.0303090928570.11894-100000@home.transmeta.com> <20030309182009.GA7435@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030309024522.GA25121@renegade>
+In-Reply-To: <20030309182009.GA7435@work.bitmover.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > [Long rant, summary: it's harder than you think, read on for the details]
-> [skipping long description]
-> 
-> OK, so here is my distillation of Larry's post.
-> 
->   Basic summary: a distributed, replicated, version controlled user level file
->   system with no limits on any of the file system events which may happened
->   in parallel. All changes must be put correctly back together, no matter how
->   much parallelism there has been.
-> 
->   * Merging.
-> 
->   * The graph structure.
-> 
->   * Distributed rename handling. Centralized systems like Subversion don't
->   have as many problems with this because you can only create one file in
->   one directory entry because there is only one directory entry available.
->   In distributed rename handling, there can be an infinite number of different
->   files which all want to be src/foo.c. There are also many rename corner-cases.
-> 
->   * Symbolic tags. This is adding a symbolic label on a revision. A distributed
->   system must handle the fact that the same symbol can be put on multiple
->   revisions. This is a variation of file renaming. One important thing to
->   consider is that time can go forward or backward.
-> 
->   * Security semantics. Where should they go? How can they be integrated
->   into the system? How are hostile users handled when there is no central
->   server to lock down?
-> 
->   * Time semantics. A distributed system cannot depend on reported time
->   being correct. It can go forward or backward at any rate.
-> 
-> I'd be willing to maintain this as the beginning of a feature list and
-> post it regularly to lkml if enough people feel it would be useful and not
-> annoying. The goal would be to identify the features/problems that would
+> Going back to the engineering problems, those problems are not going to
+> get fixed by people working on them in their spare time, that's for sure,
+> it's just not fun enough nor are they important enough.  Who wants to
+> spend a year working on a problem which only 10 people see in the world
+> each year?  And commercial 
+Well, if it happens only to 10 people per
+year, it is a non-problem.
 
-Actually, check it in bitbucket's repository
-on sf.net; it should not be annoying
-there.
-(He he "send it to the bitbucket" :-)
+> I'm starting to think that the best thing I could do is encourage Pavel &
+> Co to work as hard as they can to solve these problems.  Telling them that
+> it is too hard is just not believable, they are convinced I'm trying to
+> make them go away.  The fastest way to make them go away is to get them
+> to start solving the problems.  Let's see how well Pavel likes it when
+> people bitch at him that BitBucket doesn't handle problem XYZ and he
+
+If it only happens so rarely, people
+are unlikely to complain too loudly.
+
+Take a look at e2fsck. That's similar to
+bk -- awfull lot of corner cases. And
+guess what, if you mess up your disk
+badly enough, it will just tell you to
+fix it by hand (deallocate block free bitmap
+in full group). And its okay.
+(Plus I believe chkdsk has *way* bigger
+problems than that.)
+I'm sure you are not going to throw away
+ext2 just because it has 1-person-per-3-years
+problem. 99% solution is going to be
+good enough for me, Andrea and
+Martin. Linus can keep using bk.
 				Pavel
 -- 
 				Pavel

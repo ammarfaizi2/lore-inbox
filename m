@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbUKBP5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUKBQDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbUKBP5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 10:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbUKBP43
+	id S261425AbUKBQDC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 11:03:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUKBP5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:56:29 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:54725 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261456AbUKBPtY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:49:24 -0500
-Date: Tue, 02 Nov 2004 07:46:59 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-cc: hugh@veritas.com, ak@suse.de
-Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
-Message-ID: <14340000.1099410418@[10.10.2.4]>
-In-Reply-To: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 2 Nov 2004 10:57:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56793 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261425AbUKBP5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 10:57:15 -0500
+Date: Tue, 2 Nov 2004 10:56:35 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Len Brown <len.brown@intel.com>
+cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, linux-acpi <linux-acpi@intel.com>
+Subject: Re: Fw: Re: 2.6.10-rc1-mm1
+In-Reply-To: <1099381097.13834.239.camel@d845pe>
+Message-ID: <Xine.LNX.4.44.0411021056120.9060-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch causes memory allocation for tmpfs files to be distributed
-> evenly across NUMA machines.  In most circumstances today, tmpfs files
-> will be allocated on the same node as the task writing to the file.
-> In many cases, particularly when large files are created, or a large
-> number of files are created by a single task, this leads to a severe
-> imbalance in free memory amongst nodes.  This patch corrects that
-> situation.
+On 2 Nov 2004, Len Brown wrote:
 
-Yeah, but it also ruins your locality of reference (in a NUMA sense). 
-Not convinced that's a good idea. You're guaranteeing universally consistent
-worse-case performance for everyone. And you're only looking at a situation
-where there's one allocator on the system, and that's imbalanced.
+> James,
+> I had a similar problem, until I cleaned the tree and re-built from
+> scratch.  I'm wondering if you do the same if the tree w/o any patches
+> works for you.
 
-You WANT your data to be local. That's the whole idea.
+Nope, still seeing it in rc1-mm1
 
-M.
+
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

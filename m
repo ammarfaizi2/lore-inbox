@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264401AbTCXTCd>; Mon, 24 Mar 2003 14:02:33 -0500
+	id <S264318AbTCXS4A>; Mon, 24 Mar 2003 13:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264402AbTCXTCd>; Mon, 24 Mar 2003 14:02:33 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:47748 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264401AbTCXTCc>; Mon, 24 Mar 2003 14:02:32 -0500
-Date: Mon, 24 Mar 2003 19:13:29 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Henrique Gobbi <henrique.gobbi@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cyclades region handling updates from 2.4
-Message-ID: <20030324191329.GE8300@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Henrique Gobbi <henrique.gobbi@cyclades.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200303241641.h2OGft35008188@deviant.impure.org.uk> <3E7ED5F6.9090301@cyclades.com> <20030324180211.GA8300@suse.de> <3E7ED9DF.5020909@cyclades.com> <20030324182802.GC8300@suse.de> <1048531778.1220.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048531778.1220.34.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+	id <S264319AbTCXS4A>; Mon, 24 Mar 2003 13:56:00 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:57233 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264318AbTCXSz7>;
+	Mon, 24 Mar 2003 13:55:59 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 24 Mar 2003 20:07:05 +0100 (MET)
+Message-Id: <UTC200303241907.h2OJ75619479.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, hch@infradead.org
+Subject: Re: [PATCH 1/3] revert register_chrdev_region change
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 10:49:37AM -0800, Henrique Gobbi wrote:
+> If you look at Roman's patches they don't hinder your dev_t enlargement
 
- > > This patch _already_ went into 2.4
- > So what 2.4 kernel version has this patch ?
+Not very much. A little.
+And in some ways they are a step back.
 
-According to bitkeeper, patch was merged on 20th November 2002,
-so 2.4.20 (28th Nov), and all subsequent .21pre's.
+> I'm personally not yet completly happy with his interface either
+> because he still uses the major/minor split
 
-		Dave
+Yes, it is more elegant to register one or more ranges.
+(But ranges of what? Ranges in dev_t space? Or in kdev_t space?
+Here you see one reason to wait a little until dev_t/kdev_t
+stuff has settled.)
+Also, you'll notice that the current simple hash scheme is insufficient
+if we want to have subranges that override larger ranges.
+But life is easier if we postpone that discussion a bit.
 
+# It would help a lot if you would explain what the next stages are.
+
+- Polish the kernel until a change of the size of dev_t is possible.
+- Agree on a new size for dev_t, major, minor.  Make the change.
+- Ask Ulrich to update glibc.
+
+On the last part: Ulrich already said that the changes are trivial
+and that he is waiting for kernel people to make up their minds on
+what dev_t and major and minor are supposed to be.
+
+On the first part: Earlier today I sent a patch on stat.h for a
+number of architectures. There are a few more such steps.
+
+Andries

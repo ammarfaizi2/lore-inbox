@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132301AbRDPVpB>; Mon, 16 Apr 2001 17:45:01 -0400
+	id <S132281AbRDPVlb>; Mon, 16 Apr 2001 17:41:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132316AbRDPVov>; Mon, 16 Apr 2001 17:44:51 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:10075 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S132301AbRDPVof>; Mon, 16 Apr 2001 17:44:35 -0400
-Date: Mon, 16 Apr 2001 23:44:20 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Pavel Machek <pavel@suse.cz>
-cc: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <20010416232748.A385@bug.ucw.cz>
-Message-Id: <Pine.LNX.4.31.0104162336450.27343-100000@phobos.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132301AbRDPVlV>; Mon, 16 Apr 2001 17:41:21 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:42509 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132281AbRDPVlJ>;
+	Mon, 16 Apr 2001 17:41:09 -0400
+Date: Mon, 16 Apr 2001 17:42:23 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.1.3 is available
+Message-ID: <20010416174223.A21689@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Apr 2001, Pavel Machek wrote:
+				CML2 NEWS
 
-> > Because we'd be running out of signals soon, when all the other ACPI
-> > events get available.
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-> There are 32 signals, and signals can carry more information, if
-> required. I really think doing it way UPS-es are done is right
-> approach.
+Release 1.1.3: 
+	* Freeze color changed from cyan to blue.
+	* Tom Rini's network-configuration patches.
+	* Better detection of set variables to be colored green.
+	* Minor resize and scrolling fixes in menuconfig.
+	* Fixed a rather nasty bug involving side-effect computation 
+	  that showed up if you set, unset, and reset a symbol in a
+	  choices menu.
+	* In non-choice menus, select bar is now advanced after [ymn].
 
-Okay, but at least take a better signal than SIGINT, probably one that the
-init maintainers like so it gets adopted faster (or extend SIGPWR).
-
-   Simon
-
+Point release -- bug fixes and UI cleanups.
 -- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+The only purpose for which power can be rightfully exercised over any
+member of a civilized community, against his will, is to prevent harm
+to others. His own good, either physical or moral, is not a sufficient
+warrant
+	-- John Stuart Mill, "On Liberty", 1859

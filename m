@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVA3LIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVA3LKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVA3LIY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 06:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVA3LIY
+	id S261676AbVA3LKs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 06:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVA3LKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 06:08:24 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:13586 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261673AbVA3LHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 06:07:53 -0500
-Date: Sun, 30 Jan 2005 12:16:34 +0100
-To: airlied@gmail.com
-Cc: Andreas Hartmann <andihartmann@01019freenet.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search result
-Message-ID: <20050130111634.GA9269@hh.idb.hist.no>
-References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no> <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de> <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no>
-Mime-Version: 1.0
+	Sun, 30 Jan 2005 06:10:47 -0500
+Received: from av7-2-sn4.m-sp.skanova.net ([81.228.10.109]:15023 "EHLO
+	av7-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261676AbVA3LKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 06:10:36 -0500
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Touchpad problems with 2.6.11-rc2
+References: <20050123190109.3d082021@localhost.localdomain>
+From: Peter Osterlund <petero2@telia.com>
+Date: 30 Jan 2005 12:10:34 +0100
+In-Reply-To: <20050123190109.3d082021@localhost.localdomain>
+Message-ID: <m3acqr895h.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F76B4D.8090905@hist.no>
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pete Zaitcev <zaitcev@redhat.com> writes:
 
->> What is the most useful to do now?
->> Binary searching for the crash between bk15 and rc2?   Or:]
->
-> I'd keep looking for the crash... the out of memory will probably
-> disappear with a later snapshot..
+> Since the 2.6.11-rc2, I encounter problems with touchpad and keyboard 
+> on my laptop, Dell Lattitude D600. The following patch appears to be
+> the culprit:
 
+[alps touchpad detection fix patch]
 
-After sorting out a stupid build problem, here is the result for
-the binary search for the crash.
-2.6.9         crash
-2.6.9-rc2     pci-oom
-2.6.9-rc3     crash
-2.6.9-rc2-bk7 crash
-2.6.9-rc2-bk4 crash
-2.6.9-rc2-bk2 pci-oom
-2.6.9-rc2-bk3 krash in ifconfig  
+> Without the patch, touchpad is not detected as such. Instead, dmesg shows:
+> 
+> input: PS/2 Generic Mouse on isa0060/serio1
+> 
+> With this patch, I see this:
+> 
+> ALPS Touchpad (Dualpoint) detected
+>   Disabling hardware tapping
+> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+> 
+> Looks like detection is correct, however either ALPS specific code doesn't work
+> right, or it sets wrong parameters, I cannot tell. Here's the list of problems,
+> from worst to least annoying:
 
-Up to 2.6.9-rc2-bk2 we don't get a crash, instead the X log shows this:
+I have posted 4 patches to LKML earlier today. Some of them might fix
+some of your problems.
 
-(EE) RADEON(0): [pci] Out of memory (-1007)
+> - Very often, keyboard stops working after a click. Typing anything has no effect.
+>   However, any smallest pointer movement will restore keyboard, and then an
+>   application receives all buffered characters. This is very bad.
 
-and gives up on drm in an orderly fashion.  
-2.6.9-rc2-bk4 crashes though.  As usual, the X log ends with:
-(II) LoadModule: "int10"
-(II) Reloading /usr/X11R6/lib/modules/linux/libint10.a
-(II) RADEON(0): initializing int10
-(**) RADEON(0): Option "InitPrimary" "on"
-(II) Truncating PCI BIOS Length to 53248
+It would be interesting to know at which level the problem appears.
+Can you reproduce the problem using "xev"? If xev works as expected,
+the problem is possibly that the left mouse button gets stuck and
+stops your application from accepting keyboard input. This patch fixes
+the button stuck problem:
 
+        [PATCH 1/4] Make mousedev.c report all events to user space immediately
 
-2.6.9-rc2-bk3 wasn't tested further, because the kernel dies upon
-running "ifconfig" which must be some other temporary bug.
-X will probably be difficult without IPv4 anyway.
+If the keyboard gets stuck also using "xev", the problem is at a lower
+level. Enable i8042_debug in drivers/input/serio/i8042.c to see if the
+keyboards produces any data in the stuck state.
 
-Helge Hafting 
+> - Double-click sometimes fails to work. I have to wait a second and retry it.
+>   Retrying right away is likely not to work again.
 
+Probably fixed by this patch:
+
+        [PATCH 2/4] Enable hardware tapping for ALPS touchpads
+
+> - Slow motion of finger produces no motion, then a jump. So, it's very hard to
+>   target smaller UI elements and some web links.
+
+I see this too when I don't use the X touchpad driver. With the X
+driver there is no problem. I think the problem is that mousedev.c in
+the kernel has to use integer arithmetic, so probably small movements
+are rounded off to 0. I'll try to come up with a fix for this.
+
+> P.S. I hate the tap, so keep it disabled by default, please :-)
+
+You can disable tapping by setting the tap_time parameter for
+mousedev.c to 0. The default value is 200ms.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

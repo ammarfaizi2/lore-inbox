@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRLULCb>; Fri, 21 Dec 2001 06:02:31 -0500
+	id <S279277AbRLUL2C>; Fri, 21 Dec 2001 06:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277294AbRLULCV>; Fri, 21 Dec 2001 06:02:21 -0500
-Received: from euston.inpharmatica.co.uk ([195.102.24.12]:33957 "EHLO
-	sunsvr03.inpharmatica.co.uk") by vger.kernel.org with ESMTP
-	id <S276424AbRLULCR>; Fri, 21 Dec 2001 06:02:17 -0500
-Message-ID: <3C2315D6.40105@purplet.demon.co.uk>
-Date: Fri, 21 Dec 2001 10:58:30 +0000
-From: Mike Jagdis <jaggy@purplet.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en, fr, de
+	id <S279307AbRLUL1x>; Fri, 21 Dec 2001 06:27:53 -0500
+Received: from finch-post-11.mail.demon.net ([194.217.242.39]:25363 "EHLO
+	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S279277AbRLUL1j>; Fri, 21 Dec 2001 06:27:39 -0500
+From: "" <simon@baydel.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Date: Fri, 21 Dec 2001 07:26:42 -0000
 MIME-Version: 1.0
-To: Mike Eldridge <diz@cafes.net>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: raw devices
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <20011220203223.GO7414@vega.digitel2002.hu> <Pine.LNX.3.95.1011220155155.8609A-100000@chaos.analogic.com> <20011220211422.GS7414@vega.digitel2002.hu> <20011220164948.M23621@mail.cafes.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <3C22E432.18861.639267@localhost>
+In-Reply-To: <20011220180547.C1395@athlon.random>
+In-Reply-To: <3C21D809.6787.13E19F@localhost>; from simon@baydel.com on Thu, Dec 20, 2001 at 12:22:33PM -0000
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Eldridge wrote:
+Andrea,
 
-> i have seen kB instead of KB in many places.  and the only place i've
-> ever seen kilo abbreviated as K has been with respect to binary.
+This clears this up, thanks very much. I have tried using the 
+O_DIRECT and it is almost as fast as the mounted raw devices.
+It sounds like 2.5 is set to improve on this. Do you know if there 
+have been any suggestions regarding using mounting options on a 
+filesystem so that none of the files on that filesystem are cached ?
+
+Thanks again 
+
+Simon. 
+
+
+On 20 Dec 2001, at 18:05, Andrea Arcangeli wrote:
+
+> On Thu, Dec 20, 2001 at 12:22:33PM -0000, simon@baydel.com wrote:
+> > I have been performing some tests on raw devices, the results of 
+> > which I do not understand. I have 4 FC busses, each with one  
+> > SCSI disk, connect to a Linux system running 2.4.16. I use the raw 
+> > command to bind /dev/raw1 - /dev/raw4 to each of the devices. 
+> > With one process per raw device, running large sequential reads, I 
+> > got a total throughput  of 340 Megabytes per second. I also 
+> > observed 85% CPU idle. Following this I performed some more 
+> > tests and then returned to this one. This time the total had gone 
+> > down to 180 and there was no free CPU. I realized that the first 
+> > time I ran the tests, each of the disks that the raw devices were 
+> > mapped to were mounted. I then verified that this data was being 
+> > transferred along the FC bus using an analyzer while the devices 
+> > were mounted. Can anyone explain this to me ? I find it hard to 
+> > believe that the disk should be permitted to be mounted when 
+> > using raw device mappings. If the disks should not be mounted 
+> > why is there such a great performance difference ?
 > 
->>[however I've never seen 'Kg' instead of 'kg', but 'mB' or 'mb' are ugly
->>when compared with 'Mb' and 'MB', not counting that 'b' is bit and 'B' is
->>byte ... well ... it's confusing sometimes ...]
->>
+> because when mounted rawio uses a blocksize larger than the
+> softblocksize (for no good reason, but that's another issue).
 > 
-> i was going to comment about simply using lowercase equivalents, but
-> then milli already has 'm', although the concept of a millibyte (or even
-> millibit) is absurd.
+> in short when the disk is mouned a single bh was doing I/O on a page (I
+> guess you were using 4k blocksize in the fs), while when it was
+> unmounted it was doing I/O on only 512bytes, so you needed 8 times more
+> bh and CPU to do the same I/O. 
+> 
+> there are many ways to fix this, I guess it would be nice to get the bio
+> stuff optimized in 2.5 first (bio will be even faster than your rawio
+> with the fs mounted, because a single metadata entity will be able to do
+> I/O on more than one page, that's the whole point of the bio design
+> changes). Then in 2.5 rawio can also be obsoleted and modularized.
+> O_DIRECT will have to relax its granularity requirements for both fs and
+> blkdev and so then it will overlap enterely the rawio chardevice
+> functionality.
+> 
+> btw, if you try to use O_DIRECT on the fs with your current kernel, you
+> should be just able to read at 340mbyte/sec with most of the CPU idle.
+> 
+> Andrea
 
-Why? For instance a millibyte/s might be a hearbeat across a LAN every
-hour or so or it might be a control traffic requirement for a deep space
-probe. You might not have an immediate use for the term but it has a
-specific meaning - and certainly isn't "absurd" (see definition on
-http://www.dict.org).
 
-Engineers not (yet) being familiar with the relatively new SI (and IEEE)
-binary prefixes is just about acceptable. "Engineers" that misuse k/K
-and (worse!) m/M should be in a different field entirely. The SI system
-is generally taught as basic science to pre-teenagers. There is no
-excuse!
+__________________________
 
-				Mike
-
-P.S. Merry Christmas / Mid winter festival / whatever you choose
-to celebrate :-)
-
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

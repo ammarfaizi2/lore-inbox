@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbUE1WX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUE1Waa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbUE1WX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbUE1WUo
+	id S264098AbUE1Waa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 18:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUE1WHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:20:44 -0400
-Received: from hera.kernel.org ([63.209.29.2]:33434 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S264176AbUE1WQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 18:16:55 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: ftp.kernel.org
-Date: Fri, 28 May 2004 22:16:10 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c98dna$p8d$1@terminus.zytor.com>
-References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <200405280941.38784.m.watts@eris.qinetiq.com> <20040528085523.GP1912@lug-owl.de> <200405281210.32382.m.watts@eris.qinetiq.com>
+	Fri, 28 May 2004 18:07:32 -0400
+Received: from mail.kroah.org ([65.200.24.183]:37310 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264119AbUE1WBb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 18:01:31 -0400
+Subject: Re: [PATCH] I2C update for 2.6.7-rc1
+In-Reply-To: <10857816431154@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 28 May 2004 15:00:43 -0700
+Message-Id: <10857816431296@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1085782570 25870 127.0.0.1 (28 May 2004 22:16:10 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 28 May 2004 22:16:10 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200405281210.32382.m.watts@eris.qinetiq.com>
-By author:    Mark Watts <m.watts@eris.qinetiq.com>
-In newsgroup: linux.dev.kernel
-> >
-> > If you see aborts, properly set the timeout parameter...
-> 
-> Not aborts, more like this every so often:
-> 
-> rsync: connection unexpectedly closed (598189175 bytes read so far)
-> rsync error: error in rsync protocol data stream (code 12) at io.c(189)
-> rsync: writefd_unbuffered failed to write 4092 bytes: phase "unknown": Broken
-> pipe
-> rsync error: error in rsync protocol data stream (code 12) at io.c(666)
-> 
+ChangeSet 1.1717.6.28, 2004/05/19 00:26:34-07:00, ebs@ebshome.net
 
-That is how rsync reacts to having its connection broken.
+[PATCH] I2C PPC4xx IIC driver: 0-length transaction temporary fix
 
-	-hpa
+this patch adds temporary fix for 0-length requests (e.g. SMBUS_QUICK) to PPC4xx
+IIC driver. This i2c controller doesn't support such transactions and this patch
+just restores previous driver version behavior making SMBUS_QUICK-based bus scan
+at least partially usable. This is temporary kludge until correct bit-banging
+emulation is implemented.
+
+
+ drivers/i2c/busses/i2c-ibm_iic.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
+
+
+diff -Nru a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+--- a/drivers/i2c/busses/i2c-ibm_iic.c	Fri May 28 14:52:12 2004
++++ b/drivers/i2c/busses/i2c-ibm_iic.c	Fri May 28 14:52:12 2004
+@@ -455,6 +455,16 @@
+ 	}		
+ 	for (i = 0; i < num; ++i){
+ 		if (unlikely(msgs[i].len <= 0)){
++			if (num == 1 && !msgs[0].len){
++				/* Special case for I2C_SMBUS_QUICK emulation.
++				 * Although this logic is FAR FROM PERFECT, this 
++				 * is what previous driver version did.
++				 * IBM IIC doesn't support 0-length transactions
++				 * (except bit-banging through IICx_DIRECTCNTL).
++				 */
++				DBG("%d: zero-length msg kludge\n", dev->idx); 
++				return 0;
++			}
+ 			DBG("%d: invalid len %d in msg[%d]\n", dev->idx, 
+ 				msgs[i].len, i);
+ 			return -EINVAL;
+

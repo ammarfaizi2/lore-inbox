@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTLPXkc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 18:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTLPXkb
+	id S264379AbTLPXlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 18:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbTLPXlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 18:40:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2748 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264375AbTLPXka
+	Tue, 16 Dec 2003 18:41:08 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:32916 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP id S264379AbTLPXlE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 18:40:30 -0500
-Date: Tue, 16 Dec 2003 23:40:24 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Cc: Bryan Whitehead <driver@jpl.nasa.gov>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-Message-ID: <20031216234024.GP4176@parcelfarce.linux.theplanet.co.uk>
-References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov> <3FDF95EB.2080903@labs.fujitsu.com>
+	Tue, 16 Dec 2003 18:41:04 -0500
+Subject: Re: essid any -> orinoco_lock() called with hw_unavailable -test11
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1071617600.734.44.camel@gaston>
+References: <1071571879.2498.65.camel@localhost>
+	 <1071617600.734.44.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1071618039.2844.19.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDF95EB.2080903@labs.fujitsu.com>
-User-Agent: Mutt/1.4.1i
+Date: Wed, 17 Dec 2003 00:40:40 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 17, 2003 at 08:31:55AM +0900, Tsuchiya Yoshihiro wrote:
-> Hi,
+On Wed, 2003-12-17 at 00:33, Benjamin Herrenschmidt wrote:
+> On Tue, 2003-12-16 at 21:51, Soeren Sonnenburg wrote:
+> > Hi.
+> > 
+> > I get quiete many error messages in when I do
+> > 
+> > ifconfig eth1 192.168.0.1 up
+> > iwconfig eth1 mode ad-hoc
+> > iwconfig eth1 nick bla
+> > iwconfig eth1 key off
+> > iwconfig eth1 essid "any"
+> > ifconfig eth1 down
+> > 
+> > and no wireless network is available. The device is no longer accessible
+> > afterwards. Reloading kernel modules helps, however if I go to sleep
+> > mode on this 1GHz 15" G4 Powerbook the machine hangs on resume, see
+> > 
+> > http://www.nn7.de/kernel/essid_any.jpg
+> > 
+> > for the messages and xmon trace (please use a webbrowser to view it, it
+> > is a redirect)
 > 
-> Stephen, I don't have anything helpful for debuging at this point. We 
-> noticed the problem
-> by debuging our SCSI driver. Then we found that the same thing happens 
-> on generic
-> SCSI disk and IDE also.  The problem we observed in our driver was that 
-> while it is
-> processing a buffer, which should be locked by BH_LOCK,  the contents of 
-> the buffer were
-> overwritten. The amount of overwrite is a few byte to 1KB out of 4KB, 
-> which cannot be done
-> in our driver. Then, we tried a generic SCSI and I reproduced the problem.
-> I think it is not because of a broken pointer because overwrites only 
-> happen in data buffers
-> and other parts of memory seem ok.
- 
-Umm...  You do realize that if you have a shared writable mapping, the
-buffer contents _can_ change during the IO?  Legitimately.  When dirty
-page is being written to disk, it remains mapped.  So process can change
-its contents just fine.
+> Which test11 ? Did you try my tree ?
+> 
+> (ppc.bkbits.net/linuxppc-2.5-benh via bitkeeper, rsync mirror on
+> source.mvista.com)
 
-BH_LOCK does not prevent that and it was never supposed to...
+Sorry yes, your tree. rsynced yesterday from source.mvista.com.
+
+Soeren.
+

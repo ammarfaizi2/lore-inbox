@@ -1,80 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUHZJSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUHZJSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUHZJSz (ORCPT <rfc822;willy@w.ods.org>);
+	id S264085AbUHZJSz (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 26 Aug 2004 05:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUHZJSL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267879AbUHZJS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:18:11 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:4768 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268074AbUHZJDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 05:03:18 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Spam <spam@tnonline.net>, Linus Torvalds <torvalds@osdl.org>,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com
-In-Reply-To: <20040825163225.4441cfdd.akpm@osdl.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825152805.45a1ce64.akpm@osdl.org>
-	 <112698263.20040826005146@tnonline.net>
-	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-	 <1453698131.20040826011935@tnonline.net>
-	 <20040825163225.4441cfdd.akpm@osdl.org>
+	Thu, 26 Aug 2004 05:18:26 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:16100 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S268050AbUHZJIV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:08:21 -0400
+Subject: Re: [PATCH] Oops when loading a stripped module
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200408191750.51863.blaisorblade_spam@yahoo.it>
+References: <200408191750.51863.blaisorblade_spam@yahoo.it>
 Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1093510983.23289.6.camel@imp.csi.cam.ac.uk>
+Message-Id: <1093511075.29319.2524.camel@bach>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 26 Aug 2004 10:03:04 +0100
+Date: Thu, 26 Aug 2004 19:04:35 +1000
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 00:32, Andrew Morton wrote:
-> Spam <spam@tnonline.net> wrote:
-> >
-> > > In other words, if reiserfs does something special, we should make 
-> > > standard interfaces for doing that special thing, so that everybody can
-> > > do it without stepping on other peoples toes.
-> > 
-> >   Agreed  that would be the best. But how much time and effort will it
-> >   be
-> 
-> Zero.
-> 
-> We can add these new features tomorrow, as reiser4-only features, with a
-> plan in hand to generalise them later.
-> 
-> -->>__if__<<-- we think these are features which Linux should offer.
+On Fri, 2004-08-20 at 01:52, BlaisorBlade wrote:
+> I've stripped a module and tried to load it (I know it's meaningless, but it 
+> was for testing; I wanted to strip debug symbols). And to my surprise, the 
 
-Please don't forget that if the reiser4 features are merged as they are
-now, then we will likely be stuck with the API reiser4 chooses.  There
-will be tools that will rely on it springing up no doubt.
+Thanks.
 
-Moving the reiser4 features to VFS later is fine and good, but what if
-the VFS doesn't want the same API for those features?  Either we would
-have to allow reiser4 to continue providing the old API even though the
-VFS now provides a new, shiny API or we would have to break all existing
-API users on reiser4.  Things like "I rebooted into the latest kernel
-and my computer failed to boot because essential app FOO failed to
-access the reiser4 API - Help!" spring to mind.
+Name: Don't OOPS on stripped modules
+Status: Tested on 2.6.9-rc1-bk1
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (modified)
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 
-Yes, I know I am painting a rather black picture here and I know you
-might well say "screw apps", its been done plenty of times in Linux
-kernel development before...
+Paulo:
+> I've stripped a module and tried to load it (I know it's meaningless, but it 
+> was for testing; I wanted to strip debug symbols). And to my surprise, the 
+> kernel Oopsed.
 
-Best regards,
+Don't want to go overboard with the checks, but this is simple and
+reasonable.
 
-	Anton
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9728-linux-2.6.9-rc1-bk1/kernel/module.c .9728-linux-2.6.9-rc1-bk1.updated/kernel/module.c
+--- .9728-linux-2.6.9-rc1-bk1/kernel/module.c	2004-08-25 09:54:16.000000000 +1000
++++ .9728-linux-2.6.9-rc1-bk1.updated/kernel/module.c	2004-08-26 18:16:46.000000000 +1000
+@@ -1538,9 +1538,6 @@ static struct module *load_module(void _
+ 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+ 	sechdrs[0].sh_addr = 0;
+ 
+-	/* And these should exist, but gcc whinges if we don't init them */
+-	symindex = strindex = 0;
+-
+ 	for (i = 1; i < hdr->e_shnum; i++) {
+ 		if (sechdrs[i].sh_type != SHT_NOBITS
+ 		    && len < sechdrs[i].sh_offset + sechdrs[i].sh_size)
+@@ -1572,6 +1569,13 @@ static struct module *load_module(void _
+ 	}
+ 	mod = (void *)sechdrs[modindex].sh_addr;
+ 
++	if (symindex == 0) {
++		printk(KERN_WARNING "%s: module has no symbols (stripped?)\n",
++		       mod->name);
++		err = -ENOEXEC;
++		goto free_hdr;
++	}
++
+ 	/* Optional sections */
+ 	exportindex = find_sec(hdr, sechdrs, secstrings, "__ksymtab");
+ 	gplindex = find_sec(hdr, sechdrs, secstrings, "__ksymtab_gpl");
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

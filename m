@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318224AbSHIKkD>; Fri, 9 Aug 2002 06:40:03 -0400
+	id <S318240AbSHILKq>; Fri, 9 Aug 2002 07:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318234AbSHIKkD>; Fri, 9 Aug 2002 06:40:03 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19448 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318224AbSHIKkC>; Fri, 9 Aug 2002 06:40:02 -0400
-Date: Fri, 9 Aug 2002 12:43:41 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: bege <bege@inf.elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bug-report
-In-Reply-To: <Pine.A41.4.31.0207301658480.48216-100000@pandora.inf.elte.hu>
-Message-ID: <Pine.NEB.4.44.0208091239250.26570-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318241AbSHILKq>; Fri, 9 Aug 2002 07:10:46 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:59266 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S318240AbSHILKq>;
+	Fri, 9 Aug 2002 07:10:46 -0400
+Date: Fri, 9 Aug 2002 13:14:26 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: no DMA on 2.4.20-pre1 on ICH4 (2.4.19-rc*-ac* did)
+Message-ID: <20020809111426.GI23783@ulima.unil.ch>
+References: <20020809090523.GB23783@ulima.unil.ch> <1028889530.30103.192.camel@irongate.swansea.linux.org.uk> <20020809093947.GD23783@ulima.unil.ch> <20020809094302.GB14061@louise.pinerecords.com> <20020809095102.GF23783@ulima.unil.ch> <20020809095229.GC14061@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020809095229.GC14061@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jul 2002, bege wrote:
+On Fri, Aug 09, 2002 at 11:52:29AM +0200, Tomas Szepe wrote:
+> > > > (2.4.20-pre1-ac1 didn't compil,
+> > > What's the error you're getting?
+> > As far as I remember (home computer...) it was apm.c which don't compil
+> > on UP (I got a P4). I can do it again tonight ;-)
+> 
+> Right. That one has been reported before.
+> Find the fix in the lkml archives.
 
->...
-> 2.
-> --
-> I got an OOPS kernel message (described below) while i was compiling
-> XFree86 with gcc-3.0 and g++-2.95
+Argh, I am really sory, I found it!!!
 
-Is this more or less reproducible or did it happen exactly once?
+Thank you very much ;-)
 
-> 3.
-> --
-> I used the -mcpu=athlon -march=athlon parameters in the makefile although
-> g++-2.95 doesn't support this. But i think it may be cause compile errors
-> not kernel crash.
-
-Yes, this is right, it mustn't result in a kernel crash.
-
-> 4.
-> --
->
-> Linux version 2.4.18 (root@void) (gcc version 3.0.4) #11 Tue Jul 30 13:33:15 CEST 2002
->...
-
-Could you try 2.4.19?
-
-gcc-3.0.4 is not a supported compiler. Please try to reproduce the problem
-with a kernel compiled using gcc 2.95.3 or a RedHat gcc-2.96-74 or later.
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,77 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263508AbVBEBAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263613AbVBEBGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263508AbVBEBAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 20:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbVBEBAX
+	id S263613AbVBEBGR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 20:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbVBEBGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 20:00:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:52961 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263508AbVBEAzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:55:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=LKrE0wT2sNKOu4+PVEeDSPNhD+H37P4Q9FqxnZvgp9o1phEX3GtxjOKL7LZMkxjtR1btCXIMuSmn3W9aj/ehrTXBBRWxp7WV/SDyAB1l/LpOgwjZwEOhuJGHPqJrhmSoM+w6cEDfmiXUsBvU+FOR2D8mGfNimAgqJHR89ETU9Rk=
-Message-ID: <58cb370e05020416546e0d6b0e@mail.gmail.com>
-Date: Sat, 5 Feb 2005 01:54:56 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.11-rc3-mm1
-Cc: Sean Neakums <sneakums@zork.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1107562609.2363.134.camel@gaston>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_212_3577328.1107564896831"
-References: <20050204103350.241a907a.akpm@osdl.org>
-	 <6ud5vgezqx.fsf@zork.zork.net> <1107561472.2363.125.camel@gaston>
-	 <6u7jlng9b0.fsf@zork.zork.net> <1107562609.2363.134.camel@gaston>
+	Fri, 4 Feb 2005 20:06:16 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:61202 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S266468AbVBDWEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:04:24 -0500
+Message-ID: <4203F22D.5070200@gentoo.org>
+Date: Fri, 04 Feb 2005 22:07:41 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: [-mm PATCH] driver model: PM type conversions in drivers/macintosh
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020000020903040405070106"
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBYs-000Ksu-92*6k56ICxM3xc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_212_3577328.1107564896831
-Content-Type: text/plain; charset=US-ASCII
+This is a multi-part message in MIME format.
+--------------020000020903040405070106
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Sat, 05 Feb 2005 11:16:49 +1100, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> 
-> > I tried it two or three times, same result each time.  I'll give it a
-> > lash with USB disabled.
-> 
-> Also, can you try editing arch/ppc/syslib/open_pic.c, in function
-> openpic_resume(), comment out the call to openpic_reset() and let me
-> know if that helps...
+This fixes PM driver model type checking for drivers/macintosh.
+Acked by Pavel Machek.
 
-Well, maybe I'm to blame this time...
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
-I've introduced bug in ATAPI Power Management handling,
-idedisk_pm_idle shouldn't be done for ATAPI devices.
+--------------020000020903040405070106
+Content-Type: text/x-patch;
+ name="macintosh-pm-type-safety.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="macintosh-pm-type-safety.patch"
 
-Sorry for that, fix attached.
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/macintosh/macio_asic.c linux-dsd/drivers/macintosh/macio_asic.c
+--- linux-2.6.11-rc2-mm2/drivers/macintosh/macio_asic.c	2004-12-24 21:34:31.000000000 +0000
++++ linux-dsd/drivers/macintosh/macio_asic.c	2005-02-02 21:30:44.000000000 +0000
+@@ -106,7 +106,7 @@ static void macio_device_shutdown(struct
+ 		drv->shutdown(macio_dev);
+ }
+ 
+-static int macio_device_suspend(struct device *dev, u32 state)
++static int macio_device_suspend(struct device *dev, pm_message_t state)
+ {
+ 	struct macio_dev * macio_dev = to_macio_device(dev);
+ 	struct macio_driver * drv = to_macio_driver(dev->driver);
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/macintosh/mediabay.c linux-dsd/drivers/macintosh/mediabay.c
+--- linux-2.6.11-rc2-mm2/drivers/macintosh/mediabay.c	2004-12-24 21:34:26.000000000 +0000
++++ linux-dsd/drivers/macintosh/mediabay.c	2005-02-02 21:56:29.000000000 +0000
+@@ -710,7 +710,7 @@ static int __devinit media_bay_attach(st
+ 
+ }
+ 
+-static int __pmac media_bay_suspend(struct macio_dev *mdev, u32 state)
++static int __pmac media_bay_suspend(struct macio_dev *mdev, pm_message_t state)
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+@@ -729,8 +729,8 @@ static int __pmac media_bay_resume(struc
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+-	if (mdev->ofdev.dev.power.power_state != 0) {
+-		mdev->ofdev.dev.power.power_state = 0;
++	if (mdev->ofdev.dev.power.power_state != PMSG_ON) {
++		mdev->ofdev.dev.power.power_state = PMSG_ON;
+ 
+ 	       	/* We re-enable the bay using it's previous content
+ 	       	   only if it did not change. Note those bozo timings,
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/include/asm-ppc/macio.h linux-dsd/include/asm-ppc/macio.h
+--- linux-2.6.11-rc2-mm2/include/asm-ppc/macio.h	2004-12-24 21:34:01.000000000 +0000
++++ linux-dsd/include/asm-ppc/macio.h	2005-02-02 21:34:30.000000000 +0000
+@@ -126,7 +126,7 @@ struct macio_driver
+ 	int	(*probe)(struct macio_dev* dev, const struct of_match *match);
+ 	int	(*remove)(struct macio_dev* dev);
+ 
+-	int	(*suspend)(struct macio_dev* dev, u32 state);
++	int	(*suspend)(struct macio_dev* dev, pm_message_t state);
+ 	int	(*resume)(struct macio_dev* dev);
+ 	int	(*shutdown)(struct macio_dev* dev);
+ 
 
-------=_Part_212_3577328.1107564896831
-Content-Type: text/x-patch; name="ide-io.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="ide-io.diff"
-
---- a/drivers/ide/ide-io.c=092005-02-04 03:27:35.000000000 +0100
-+++ b/drivers/ide/ide-io.c=092005-02-05 01:44:33.000000000 +0100
-@@ -230,6 +230,12 @@
-=20
- =09memset(args, 0, sizeof(*args));
-=20
-+=09if (drive->media !=3D ide_disk) {
-+=09=09/* skip idedisk_pm_idle for ATAPI devices */
-+=09=09if (rq->pm->pm_step =3D=3D idedisk_pm_idle)
-+=09=09=09rq->pm->pm_step =3D ide_pm_restore_dma;
-+=09}
-+
- =09switch (rq->pm->pm_step) {
- =09case ide_pm_flush_cache:=09/* Suspend step 1 (flush cache) */
- =09=09if (drive->media !=3D ide_disk)
-
-------=_Part_212_3577328.1107564896831--
+--------------020000020903040405070106--

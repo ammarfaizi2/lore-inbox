@@ -1,53 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTEVPFw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTEVPFw
+	id S261956AbTEVPQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTEVPQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:05:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59066 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261919AbTEVPFv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:05:51 -0400
-Date: Thu, 22 May 2003 17:18:56 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mathew Spencer <Matthew.Spencer@eu.sony.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: blk_congestion_wait() with linux-2.5.68]
-Message-ID: <20030522151856.GJ812@suse.de>
-References: <1053617008.8679.280.camel@jeckle>
+	Thu, 22 May 2003 11:16:29 -0400
+Received: from pfepc.post.tele.dk ([193.162.153.4]:45955 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261956AbTEVPQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:16:26 -0400
+Subject: Re: Error during compile of 2.5.69-mm8
+From: Mads Christensen <mfc@krycek.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1053611668.4649.1.camel@krycek>
+References: <1053611668.4649.1.camel@krycek>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hIXeTs+BywFibHcMcjUn"
+Organization: krycek.org
+Message-Id: <1053617369.1402.0.camel@krycek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053617008.8679.280.camel@jeckle>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 22 May 2003 17:29:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22 2003, Mathew Spencer wrote:
-> I have been using 2.4.19 successfully for a while now with an PCI IDE
-> disk drive with no problems whatsoever.  I recently upgraded to 2.5.68
-> (so that I could use the most recent ieee1394 drivers) and also to start
-> experimenting with the new version of the kernel and since then I am
-> having problems formatting the hard disk.
-> 
-> When I run mke2fs, it manages to write out the first 12 or 13 blocks
-> successfully, but then the code gets stuck continually calling
-> blk_congestion_wait() from balance_dirty_pages().
-> 
-> This is the only time that I see this problem.  If the disk is already
-> formatted, then mounting/reading/writing to the disk happens without any
-> problems at all.
-> 
-> Is anyone out there aware of this problem?
 
-Any messages in dmesg? It sounds like io to the drive stops completely,
-and that is why you see mke2fs being stuck in blk_congestion_wait
-(mke2fs eats most of the requests, the queue gets marked congested). If
-io isn't progressing, then the queue won't have the congestion flag
-cleared again.
+--=-hIXeTs+BywFibHcMcjUn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You need to give a lot more hardware details, see REPORTING-BUGS
+Hey!
 
--- 
-Jens Axboe
+Well you can fix it by either compiling apm as a module or not compiling
+apm at all =3D)
+
+Best Regards
+Mads Christensen
+
+On tor, 2003-05-22 at 15:54, Mads Christensen wrote:
+> Hello
+>=20
+> Got this while i tried to compile the fucker!=20
+>=20
+>   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=3D2 -march=3Dathlon
+> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+> -iwithprefix include    -DKBUILD_BASENAME=3Dversion
+> -DKBUILD_MODNAME=3Dversion -c -o init/.tmp_version.o init/version.c
+> scripts/fixdep init/.version.o.d init/version.o 'gcc
+> -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=3D2 -march=3Dathlon
+> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+> -iwithprefix include    -DKBUILD_BASENAME=3Dversion
+> -DKBUILD_MODNAME=3Dversion -c -o init/.tmp_version.o init/version.c' >
+> init/.version.o.tmp; rm -f init/.version.o.d; mv -f init/.version.o.tmp
+> init/.version.o.cmd
+>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+> init/mounts.o init/initramfs.o
+>         ld -m elf_i386  -T arch/i386/vmlinux.lds.s
+> arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+> --start-group  usr/built-in.o  arch/i386/kernel/built-in.o=20
+> arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o=20
+> kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o=20
+> security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a=20
+> drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o=20
+> net/built-in.o --end-group  -o vmlinux
+> arch/i386/kernel/built-in.o(.init.text+0x5521): In function `apm_init':
+> : undefined reference to `SET_MODULE_OWNER'
+> make[1]: *** [vmlinux] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.4.69-mm8'
+> make: *** [stamp-build] Error 2
+>=20
+>=20
+> Thanks in advance!
+--=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+| Mads F. Christensen     ||                      |
+| Email:                  || mfc@krycek.org       |
+| Webdesign Development   || www.krycek.org       |
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+
+
+--=-hIXeTs+BywFibHcMcjUn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+zOzZ44SvOSUXdFgRApBdAJ9GyPY8DdcafQ8XWAhkt9P8Mni47QCgjWp/
+0WtuhIUZaOai1WLXVMq0JSc=
+=aGFb
+-----END PGP SIGNATURE-----
+
+--=-hIXeTs+BywFibHcMcjUn--
 

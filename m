@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbTAECu2>; Sat, 4 Jan 2003 21:50:28 -0500
+	id <S262449AbTAEDNP>; Sat, 4 Jan 2003 22:13:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbTAECu2>; Sat, 4 Jan 2003 21:50:28 -0500
-Received: from users.ccur.com ([208.248.32.211]:55025 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S262415AbTAECu1>;
-	Sat, 4 Jan 2003 21:50:27 -0500
-From: jak@rudolph.ccur.com (Joe Korty)
-Message-Id: <200301050258.CAA01487@rudolph.ccur.com>
-Subject: Re: 2.4.21-pre2 stalls out when running unixbench
-To: akpm@digeo.com (Andrew Morton)
-Date: Sat, 4 Jan 2003 21:58:33 -0500 (EST)
-Cc: joe.korty@ccur.com (Joe Korty), sct@redhat.com, adilger@clusterfs.com,
-       rusty@rustcorp.com.au, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, hch@sgi.com
-Reply-To: joe.korty@ccur.com (Joe Korty)
-In-Reply-To: <3E16C171.BFEA45AE@digeo.com> from "Andrew Morton" at Jan 04, 2003 03:11:45 AM
-X-Mailer: ELM [version 2.5 PL0b1]
+	id <S262580AbTAEDNP>; Sat, 4 Jan 2003 22:13:15 -0500
+Received: from hibernia.jakma.org ([212.17.32.129]:47515 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S262449AbTAEDNO>; Sat, 4 Jan 2003 22:13:14 -0500
+Date: Sun, 5 Jan 2003 03:21:22 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org, <andre@linux-ide.org>
+Subject: Re: Honest does not pay here ...
+In-Reply-To: <200301050025.QAA07630@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0301050314470.16362-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With respect to the lockup problem: it is due to a non-atomic __set_bit()
-> in the new buffer_attached() implementation.
-> 
-> Sure, we don't need atomic semantics for the BH_Attached bit because
-> it is always read and modified under a global spinlock.  But *other*
-> users of buffer_head.b_state do not run under that lock so the nonatomic
-> RMW will stomp on their changes.   2.4.20 does not have this bug.
-> 
-> Here is a patch:
+On Sat, 4 Jan 2003, Adam J. Richter wrote:
 
+> 	Andre has informed me of a posting made by Linus to the
+> gnu.misc.discuss newsgroup (Message-ID
+> "4b0rbb$5iu@klaava.helsinki.fi") on December 17, 1995 where he
+> basically gave his permission for the EXPORT_SYMBOL
+> vs. EXPORT_SYMBOL_GPL system hereby proprietary modules that call only
+> EXPORT_SYMBOL symbols are allowed:
+> 
+> http://groups.google.com/groups?as_umsgid=4b0rbb%245iu%40klaava.helsinki.fi
 
-Hi Andrew,
-The patch works (been running the unixbench subset for an hour now).
-Your time and effort and very clear explanations are much appreciated.
-Thanks,
-Joe
+Why not formalise this in the Linux COPYING file?
+
+It would make things clear, would help people like Andre and
+corporations like NVidia to continue to bring drivers to linux. Not a
+single person who matters (ie actual kernel contributors) has so far
+expressed any opinion (eg in the rash of GPL threads currently
+ongoing) that would indicate they are not happy with the current
+status quo as detailed in the above post by Linus.
+
+If EXPORT_SYMBOL kernel functions are LGPL (bar the 
+EXPORT_SYMBOL_GPL) formalise it in .../COPYING. (and peace can reign 
+on l-k once again :) ).
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Census Taker to Housewife:
+Did you ever have the measles, and, if so, how many?
+

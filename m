@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbUJ0QeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbUJ0Qdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbUJ0QeR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUJ0QeL
+	id S262519AbUJ0Qdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:34:11 -0400
-Received: from mail4.speakeasy.net ([216.254.0.204]:51434 "EHLO
-	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S262512AbUJ0Qbz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:31:55 -0400
-Message-ID: <417FCD78.6020807@speakeasy.net>
-Date: Wed, 27 Oct 2004 12:31:52 -0400
-From: Andrew <cmkrnl@speakeasy.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
-References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com>
-In-Reply-To: <20041027152134.GA13991@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 27 Oct 2004 12:30:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:44334 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262497AbUJ0Q3m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:29:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=rfkfw2F96ZLfyvf7YO0nL7KNk+lhjD8VFpReJW/q2tGEvpCCT7q5EpHC8XGJn7zoJmb85k0ujyFgZgQIG1WU/G2BkVF0wMVEoOjSZZ+p8cQ8q6iCTjrY/YpqnpEf5FZGKb1anOr6gtwWh1bnE69XONfxrjTJ3bvUoO9zUAXMQLs=
+Message-ID: <58cb370e041027092943037ab4@mail.gmail.com>
+Date: Wed, 27 Oct 2004 18:29:38 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [BK PATCHES] ide-2.6 update
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+In-Reply-To: <200410271213_MC3-1-8D44-F2D8@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200410271213_MC3-1-8D44-F2D8@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Greg KH wrote:
+On Wed, 27 Oct 2004 12:10:50 -0400, Chuck Ebbert
+<76306.1226@compuserve.com> wrote:
+> On Wed, 27 Oct 2004 at 15:07:14 +0200 Bartlomiej Zolnierkiewicz wrote:
+> 
+> >@@ -585,7 +564,8 @@
+> >       struct pci_dev *dev = hwif->pci_dev;
+> >
+> >       /* PDC20265 has problems with large LBA48 requests */
+> >-      if (dev->device == PCI_DEVICE_ID_PROMISE_20265)
+> >+      if ((dev->device == PCI_DEVICE_ID_PROMISE_20267) ||
+> >+          (dev->device == PCI_DEVICE_ID_PROMISE_20265))
+> >               hwif->rqsize = 256;
+> >
+> >       hwif->autodma = 0;
 > 
 > 
-> Why not just use the same buffer?  We should be able to do that.
+>    You forgot to update the comment...
+
+ah, care to send a patch?
+
+>    I added this and the smart_thresholds() fix to my 2.6.9-base patches.
 > 
+>    Now I have these ide fixes:
 > 
-> I'd prefer we use the same buffer.  Care to respin your patch?
+>         - smart_thresholds() fix
+>         - pdc202xx_old LBA48 fix
+>         - accept bad Maxtor drive serial number
+>         - allow drive that reports no geometry
 > 
+>    Should anything more really be in there?
 
-Sure, I can only see two ways of achieving that however.
-1) Change the API of kset_hotplug_ops.hotplug() to return the amount
-    of consumed buffer (and possibly an updated value for i (num_envp)
-    and then changing every real function that implements that interface
-    or
-2) Spin through the envp[] starting at i to NUM_ENVP looking for a NULL
-    pointer dropping back 1 (last_used) then do a
-    scratch += strlen(envp[last_used]) + 1
-
-I don't know if you would rather keep the kset_hotplug_ops.hotplug() API
-unchanged and have a "find the NULL" or vice-versa? -- or are both
-too ugly? Ultimately the first option would generate the "cleanest"
-solution, but I would be wary to change an API (especially one I didn't
-create myself)
-
-I can also see variation of 2), where buffer is prefilled with something
-like '0xff' then the find the null would run in reverse from
-buffer+BUFFER_SIZE-1.  Either way with 2), the reservation in envp[] for
-the seq_num would have to stay, but its locaton in buffer would be at the
-end.  As a bonus of course then the call to send_uevent could see the
-entire buffer.
-
-I'm looking now for how many changes would be required to do option 1.
-
-Andrew
-
-
-
-> thanks,
-> 
-> greg k-h
-> 
-> 
+Nope, looks like you've all critical stuff.

@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVAKBbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVAKBcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbVAKBbM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVAKBbI
+	id S262508AbVAKBcb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVAKB1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:31:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14512 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262684AbVAKBad (ORCPT
+	Mon, 10 Jan 2005 20:27:43 -0500
+Received: from mail.gmx.net ([213.165.64.20]:11904 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262568AbVAKB1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 20:30:33 -0500
-Date: Mon, 10 Jan 2005 17:30:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org,
-       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
-       drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-In-Reply-To: <41E31D95.50205@osdl.org>
-Message-ID: <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
-References: <8746466a050110153479954fd2@mail.gmail.com>
- <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org>
+	Mon, 10 Jan 2005 20:27:06 -0500
+X-Authenticated: #24390674
+From: Hans-Frieder Vogt <hfvogt@gmx.net>
+Reply-To: hfvogt@gmx.net
+To: andrewm@uow.edu.au, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.10-mm2] reenable cpufreq for PowerNow-K8 using BIOS tables
+Date: Tue, 11 Jan 2005 02:26:49 +0100
+User-Agent: KMail/1.7.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501110226.49542.hfvogt@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With 2.6.10-mm2 (or even with -mm1) some structures in struct psb_s have been 
+renamed in powernow-k8.h, but the renaming has not been done properly for all 
+occurences in powernow-k8.c.
+This prevents cpufreq from accepting the BIOS PST-tables.
 
+The following patch corrects this by renaming the incorrectly named variable 
+in powernow-k8.c, following the definition in the powernow-k8.h header file.
 
-On Mon, 10 Jan 2005, Randy.Dunlap wrote:
-> 
-> Speaking of fall-out, or more like trickle-down,
-> I'm almost done with a patch to make PCMCIA resources use
-> unsigned long instead of u_int or u_short for IO address:
+Andrew, please include it in your next -mm patch.
 
-Ahh, yes. That's required on pretty much all platforms except x86 and
-x86-64.
+Signed-off-by: Hans-Frieder Vogt <hfvogt@arcor.de>
 
-Of course, since ARM and MIPS already do the "u_int" thing, and not a 
-whole lot of other architectures do PCMCIA, I guess it doesn't matter 
-_that_ much. Cardbus stuff should get it right regardless.
+--- linux-2.6.10-mm2/arch/i386/kernel/cpu/cpufreq/powernow-k8.c 2005-01-05 
+23:23:07.697728328 -0800
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c 2005-01-11 01:40:59.633643410 
++0100
+@@ -637,8 +637,8 @@ static int find_psb_table(struct powerno
+   dprintk("isochronous relief time: %d\n", data->irt);
+   dprintk("maximum voltage step: %d - 0x%x\n", mvs, data->vidmvs);
+ 
+-  dprintk("numpst: 0x%x\n", psb->numps);
+-  cpst = psb->numps;
++  dprintk("numpst: 0x%x\n", psb->num_tables);
++  cpst = psb->num_tables;
+   if ((psb->cpuid == 0x00000fc0) || (psb->cpuid == 0x00000fe0) ){
+    thiscpuid = cpuid_eax(CPUID_PROCESSOR_SIGNATURE);
+    if ((thiscpuid == 0x00000fc0) || (thiscpuid == 0x00000fe0) ) {
 
-> typedef unsigned long	ioaddr_t;
-> 
-> and then include/pcmcia/cs.c needs some changes in use of
-> ioaddr_t, along with drivers (printk formats).
-> 
-> Does that sound OK?
-> I guess that it would become unsigned long long (or u64)
-> with this proposal?
-
-I don't think ioaddr_t needs to match resources. None of the IO accessor
-functions take "u64"s anyway - and aren't likely to do so in the future
-either - so "unsigned long" should be good enough.
-
-Having u64 for resource handling is mainly an issue for RAM and
-memory-mapped IO (right now the 32-bit limit means that we throw away
-information about stuff above the 4GB mark from the e820 interfaces on
-x86, for example - that _happens_ to work because we never see anything 
-but RAM there anyway, but it means that /proc/iomem doesn't show all of 
-the system RAM, and it does mean that our resource management doesn't 
-actually handle 64-bit addresses correctly. 
-
-See drivers/pci/probe.c for the result:
-
-	"PCI: Unable to handle 64-bit address for device xxxx"
-
-(and I do not actually think this has _ever_ happened in real life, which 
-makes me suspect that Windows doesn't handle them either - but it 
-inevitably will happen some day).
-
-		Linus
+-- 
+--
+Hans-Frieder Vogt              e-mail: hfvogt <at> arcor .dot. de
+                                          hfvogt <at> gmx .dot. net

@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129110AbRBORND>; Thu, 15 Feb 2001 12:13:03 -0500
+	id <S129294AbRBORYr>; Thu, 15 Feb 2001 12:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRBORMx>; Thu, 15 Feb 2001 12:12:53 -0500
-Received: from web2301.mail.yahoo.com ([128.11.68.52]:19205 "HELO
-	web2301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129110AbRBORMr>; Thu, 15 Feb 2001 12:12:47 -0500
-Message-ID: <20010215171245.21445.qmail@web2301.mail.yahoo.com>
-Date: Thu, 15 Feb 2001 09:12:45 -0800 (PST)
-From: Yuri Niyazov <yuricake@yahoo.com>
-Subject: What does the linux kernel need?
+	id <S129066AbRBORYh>; Thu, 15 Feb 2001 12:24:37 -0500
+Received: from md.aacisd.com ([64.23.207.34]:50703 "HELO md.aacisd.com")
+	by vger.kernel.org with SMTP id <S129242AbRBORY1>;
+	Thu, 15 Feb 2001 12:24:27 -0500
+Message-ID: <8FED3D71D1D2D411992A009027711D671897@md>
+From: Nathan Black <NBlack@md.aacisd.com>
 To: linux-kernel@vger.kernel.org
+Subject: RE: aic7xxx (and sym53c8xx) plans
+Date: Thu, 15 Feb 2001 12:19:47 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, respected Linux kernel developers,
-    I am currently a university student taking a "Advanced design of 
-Operating Systems" class at
-New York University. We are reviewing some basic and studying a few 
-advanced issues with regards
-to kernel design, mostly multithreading, scalability, performance 
-improvement - its webpage is http://www.scs.cs.nyu.edu/G22.3033-010/
-take a look if you please. The requirement of the class is a final 
-project proposal and
-implementation of a student's own choosing - I would really like to do 
-something useful for the
-linux kernel, but I do not know what kinds of issues are most imminent 
-at the linux kernel and
-have to be worked on. I would greatly appreciate it if people would 
-send me ideas of what is
-needed and what I can work on - it can be pretty much anything, any 
-topic or project, but it must
-relate to kernel development, thus I am asking it here. 
-I am not subscribed to the list yet, please CC to me your reply.
-Thank you very much,
-Yuri Niyazov
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+I must say, after I saw this post, I tried out the latest driver for my own
+purposes. 
+
+This really improved the performance of my dual PIII-866 w/512MB Ram and
+AIC7899 scsi.
+I have a couple of cheetah drives that I am writing data that I get off of
+an ATM card.(about 12-14 MB/sec rate).
+
+This has significantly lowered the number of dropped packets on the ATM
+read. 
+
+I would suggest, if at all possible, putting this in the 2.4.2 kernel.
+
+Nathan
+
+-----Original Message-----
+From: Chip Salzenberg [mailto:chip@valinux.com]
+Sent: Wednesday, February 14, 2001 9:20 PM
+To: Matthew Jacob
+Cc: Wakko Warner; Alan Cox; J . A . Magallon; linux-kernel
+Subject: Re: aic7xxx (and sym53c8xx) plans
+
+
+According to Matthew Jacob:
+> See http://www.freebsd.org/~gibbs/linux.
+
+Here at VA we're already using Jason's driver -- it works on the Intel
+STL2 motherboard, while Doug's driver doesn't (or didn't, a month ago).
+
+While we're discussing SCSI drivers, I'd also like to put in a good
+word for the Sym-2 Symbios/NCR drivers from Gerard Roudier:
+
+    ftp://ftp.tux.org/roudier/drivers/portable/sym-2.1.x/
+
+Joe-Bob says: "Check it out."
+-- 
+Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
+   "Give me immortality, or give me death!"  // Firesign Theatre
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVAXRnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVAXRqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVAXRnh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:43:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVAXRnh
+	id S261538AbVAXRqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVAXRqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:43:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2196 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261534AbVAXRn3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:43:29 -0500
-Subject: Re: [Ext2-devel] [PATCH] JBD: fix against journal overflow
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: Stephen Tweedie <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <m3r7khv3id.fsf@bzzz.home.net>
-References: <m3r7khv3id.fsf@bzzz.home.net>
-Content-Type: text/plain
-Message-Id: <1106588589.2103.116.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 24 Jan 2005 12:46:18 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63494 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261538AbVAXRqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 12:46:02 -0500
+Date: Mon, 24 Jan 2005 18:45:59 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: v4l-saa7134-module compile error
+Message-ID: <20050124174559.GJ3515@stusta.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124111713.GF3515@stusta.de> <20050124135716.GA23702@bytesex>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 24 Jan 2005 17:43:09 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124135716.GA23702@bytesex>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 2005-01-19 at 15:32, Alex Tomas wrote:
-
-> under some quite high load, jbd can hit J_ASSERT(journal->j_free > 1)
-> in journal_next_log_block(). The cause is the following:
+On Mon, Jan 24, 2005 at 02:57:17PM +0100, Gerd Knorr wrote:
+> On Mon, Jan 24, 2005 at 12:17:13PM +0100, Adrian Bunk wrote:
+> > On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
+> > >...
+> > > +v4l-saa7134-module.patch
+> > 
+> > This patch broke compilation with CONFIG_MODULES=n:
+> > 
+> > drivers/media/video/saa7134/saa7134-core.c: In function `pending_call':
+> > drivers/media/video/saa7134/saa7134-core.c:234: error: `MODULE_STATE_LIVE' undeclared (first use in this function)
 > 
-> journal_commit_transaction()
-> {
->         struct buffer_head *wbuf[64];
->                 /* If there's no more to do, or if the descriptor is full,
->                    let the IO rip! */
->                 if (bufs == ARRAY_SIZE(wbuf) ||
->                     commit_transaction->t_buffers == NULL ||
->                     space_left < sizeof(journal_block_tag_t) + 16) {
-> 
-> so, the real limit isn't size of journal descriptor, but wbuf.
+> The patch below should fix this.
 
-I don't see how that "limit" is relevant here.  wbuf is nothing but the
-size of the IO batches we pass to ll_rw_block() during that commit
-phase.  j_free affects the total size of space the *entire* commit has
-to run into, and (as akpm has commented with a big marker beside it)
-start_this_handle() reserves a *lot* of headroom for the extra space
-that may be needed for transaction metadata.
+Not completely:
 
-(The comment there about journal_extend() needing to match it looks
-correct, though --- that will need fixing.)
+<--  snip  -->
 
-The only case I've ever seen the j_free > 1 assert fail on was the xattr
-test that tridge was triggering with AG's first-generation xattr sharing
-fix last December, and that was a journal_release_buffer() credits
-accounting problem.
+...
+  CC      drivers/media/video/saa7134/saa7134-core.o
+drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_initdev':
+drivers/media/video/saa7134/saa7134-core.c:997: error: `need_empress' undeclared (first use in this function)
+drivers/media/video/saa7134/saa7134-core.c:997: error: (Each undeclared identifier is reported only once
+drivers/media/video/saa7134/saa7134-core.c:997: error: for each function it appears in.)
+drivers/media/video/saa7134/saa7134-core.c:1000: error: `need_dvb' undeclared (first use in this function)
+make[4]: *** [drivers/media/video/saa7134/saa7134-core.o] Error 1
 
-So NAK --- the wbuf batch size just doesn't seem to be relevant to the
-problem being claimed.
+<--  snip  -->
 
-Have you really seen this patch make a difference in testing?
+>   Gerd
+>...
 
-Cheers,
- Stephen
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

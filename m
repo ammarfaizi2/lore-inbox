@@ -1,99 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269010AbTGOP2s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbTGOP12
+	id S269016AbTGOPac (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 11:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbTGOP24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:27:28 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:24265 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268932AbTGOP0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:26:11 -0400
-Date: Tue, 15 Jul 2003 17:40:47 +0200
-From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH][2.6.0-test] fix emu10k1 module oops when being removed
-Message-ID: <20030715174046.A18899@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 15 Jul 2003 11:28:56 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:18352 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S268932AbTGOP1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 11:27:36 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: <root@chaos.analogic.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Interrupt doesn't make it to the 8259 on a ASUS P4PE mobo
+Date: Tue, 15 Jul 2003 11:52:54 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGAELACCAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.53.0307141833190.4354@chaos>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi.
+>There is a possibility that you are trying to use a shared interrupt,
+>but the IRQ is set up for edge. You can only share level interrupts.
 
-The emu10k1 module in 2.6.0-test1 and any recent 2.5.X oopses when being
-removed because some of the cleanup functions that get called from
-emu10k1_remove() are incorrectly marked as __devinit.
+I checked it out.  The Edge/Level Triggered Register (ELCR) of Intel's 82801
+ICH4 PIC register shows that our IRQ is setup for edge.
 
-This trivial patch solves the problem.
+>Also, in the keyboard ISR, there is code that will spin <forever>
+>if the bit that was supposed to be true when the interrupt occurred,
+>remains false. This means that, if the timing was screwed up on some
+>feature-board bus interface state-machine, it could corrupt what
+>other devices see on the bus. The result could be a "hang forever"
+>condition.
 
-Linus, please apply.
+Hmmm, this is good information.  Exactly what bit are you referring too?  Is
+this in /drivers/char/keyboard.c?  I took a quick look through, but didn't
+see anything.  With the symptoms I am experiencing, I thought it might be
+due to a piece of software spinning in a loop after it issued a cli.
+However, I should at least see any pending interrupts in the IRR of the
+8259!  The cli would just prevent the CPU from being notified of the pending
+interrupt.
 
-Bye for now.
+>The 8259 is such an old device that all its bugs are known and
+>work-arounds have been in-place for ages. It is unlikely that your
+>problem has anything to do with either in 8259 or existing kernel
+>code. My bet's on with a level/edge problem or bus corruption due
+>to bus-contention (timing issues).
 
-Rudo.
+I tend to agree with you - the 8259 has been around forever.  The snooping
+I've done with my debug indicates that that the IRQ never gets through from
+the hardware.  The CPU is still running software and apparantly other things
+are getting scheduled.  But no other IRQs are getting through!  Something is
+corrupted on the bus.  This posting was a final sanity check to insure I
+wasn't totally out in left field with respect to the driver software.  I
+know there are issues of race conditions when using the sleep_on/wake_up
+mechanisms.  However, from what I've read, wait_event_interruptible() method
+will avoid this . . .  Any thoughts on that?
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="emu10k1-removing-oops.patch"
+Thanks for your input!
 
-diff -u linux-2.6.0-test1-vanilla-emu10k1-not-fixed/sound/oss/emu10k1/main.c linux-2.6.0-test1-vanilla/sound/oss/emu10k1/main.c
---- linux-2.6.0-test1-vanilla-emu10k1-not-fixed/sound/oss/emu10k1/main.c	2003-07-14 05:38:46.000000000 +0200
-+++ linux-2.6.0-test1-vanilla/sound/oss/emu10k1/main.c	2003-07-15 02:51:13.000000000 +0200
-@@ -213,7 +213,7 @@
- 	return -ENODEV;
- }
- 
--static void __devinit emu10k1_audio_cleanup(struct emu10k1_card *card)
-+static void emu10k1_audio_cleanup(struct emu10k1_card *card)
- {
- 	unregister_sound_dsp(card->audio_dev1);
- 	unregister_sound_dsp(card->audio_dev);
-@@ -298,7 +298,7 @@
- 	return -EIO;
- }
- 
--static void __devinit emu10k1_mixer_cleanup(struct emu10k1_card *card)
-+static void emu10k1_mixer_cleanup(struct emu10k1_card *card)
- {
- 	char s[32];
- 
-@@ -402,7 +402,7 @@
- 	return ret;
- }
- 
--static void __devinit emu10k1_midi_cleanup(struct emu10k1_card *card)
-+static void emu10k1_midi_cleanup(struct emu10k1_card *card)
- {
- 	tasklet_kill(&card->mpuout->tasklet);
- 	kfree(card->mpuout);
-@@ -450,7 +450,7 @@
- 	card->emupagetable[1] = MAXPAGES - 1;
- }
- 
--static void __devinit fx_cleanup(struct patch_manager *mgr)
-+static void fx_cleanup(struct patch_manager *mgr)
- {
- 	int i;
- 	for(i = 0; i < mgr->current_pages; i++)
-@@ -967,7 +967,7 @@
- 	return 0;
- }
- 
--static void __devinit emu10k1_cleanup(struct emu10k1_card *card)
-+static void emu10k1_cleanup(struct emu10k1_card *card)
- {
- 	int ch;
- 
+Kathy
 
---zhXaljGHf11kAtnf--

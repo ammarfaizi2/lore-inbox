@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265165AbTFUMLp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 08:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265166AbTFUMLp
+	id S265166AbTFUMPF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 08:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTFUMPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 08:11:45 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16327
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265165AbTFUMLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 08:11:44 -0400
-Subject: Re: [patch] SiS IRQ router 96x detection (2.5.69) ...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EF248F9.7040402@winischhofer.net>
-References: <Pine.LNX.4.55.0306022338530.3631@bigblue.dev.mcafeelabs.com>
-	 <3EF248F9.7040402@winischhofer.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056198220.25975.23.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 21 Jun 2003 08:15:05 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:49935 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S265166AbTFUMPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 08:15:02 -0400
+Date: Sat, 21 Jun 2003 14:28:40 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: lm@work.bitmover.com, lm@bitmover.com, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-Id: <20030621142840.449cce96.skraw@ithnet.com>
+In-Reply-To: <20030620121834.A1418@almesberger.net>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
+	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
+	<03061908145500.25179@tabby>
+	<20030619141443.GR29247@fs.tum.de>
+	<bcsolt$37m$2@news.cistron.nl>
+	<20030619165916.GA14404@work.bitmover.com>
+	<20030620121834.A1418@almesberger.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Jun 2003 13:23:41 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-20 at 00:36, Thomas Winischhofer wrote:
-> Since the attached patch does not show up in any of the main line 
-> kernels yet, may I assume it has been overlooked?
+On Fri, 20 Jun 2003 12:18:34 -0300
+Werner Almesberger <wa@almesberger.net> wrote:
 
-I saw it yes, and decided it was too ugly for words
+> Larry McVoy wrote:
+> >     The reason I take this point of view, unpopular though it may be,
+> >     is that I see open source as basically parasitic.
+> 
+> Think of it as a child that's growing up. For quite a while, it
+> will just draw resources from the parents, add little work or
+> innovations, and will have considerably less economical power
+> than the parents.
+> 
+> You choose to view Open Source as a historical accident that
+> needs to be integrated into the traditional framework. I'd say
+> it is more like an evolution into an age where most of the
+> physical limitations of the sharing of information have
+> disappeared.
 
+Werner, this is by far the most thoughtful and best-phrased statement I read in
+this thread. You express exactly my feelings towards the issue.
+
+Regards,
+Stephan

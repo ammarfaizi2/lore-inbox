@@ -1,101 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVCPRsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVCPRu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVCPRsA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 12:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVCPRsA
+	id S262710AbVCPRu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVCPRu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 12:48:00 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54995 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262709AbVCPRrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 12:47:55 -0500
-Date: Wed, 16 Mar 2005 12:47:48 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-In-Reply-To: <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
- <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu>
- <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu>
- <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu>
- <20050316011510.2a3bdfdb.akpm@osdl.org> <20050316095155.GA15080@elte.hu>
- <20050316020408.434cc620.akpm@osdl.org> <20050316101906.GA17328@elte.hu>
- <20050316024022.6d5c4706.akpm@osdl.org> <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
- <20050316031909.08e6cab7.akpm@osdl.org> <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
- <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
+	Wed, 16 Mar 2005 12:50:56 -0500
+Received: from smtp819.mail.sc5.yahoo.com ([66.163.170.5]:7597 "HELO
+	smtp819.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262710AbVCPRuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:50:50 -0500
+Message-ID: <423871EE.5060206@sbcglobal.net>
+Date: Wed, 16 Mar 2005 12:50:38 -0500
+From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 USB broken on VIA computer (not just ACPI)
+References: <4237A5C1.5030709@sbcglobal.net> <20050315203914.223771b2.akpm@osdl.org> <4237C40C.6090903@sbcglobal.net> <20050315213110.75ad9fd5.akpm@osdl.org> <4237C61A.6040501@sbcglobal.net> <20050315215447.7975a0ff.akpm@osdl.org> <4237D92A.3040109@sbcglobal.net> <20050316171943.GC8602@kroah.com>
+In-Reply-To: <20050316171943.GC8602@kroah.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Wed, Mar 16, 2005 at 01:58:50AM -0500, Robert W. Fuller wrote:
+>>>Are you running the latest BIOS?
+>>The manufacturer, Tyan, didn't produce more than a handful of BIOS'es 
+>>within a matter of months after they started producing the board.  They 
+>>haven't released an update since 2000.
+> I used to have this motherboard, and Randy Dunlap and I spent a lot of
+> time to try to get this to work properly.  Just give up and go by a
+> motherboard that actually has a sane bios, or, buy a USB pci card (less
+> than $20).
 
+Tempting, but how do I know the new board will work?  Shoot, it took me 
+about a year to get everything in this system to work excepting the USB. 
+  Do you have any recommendations for a good Linux SMP motherboard, 
+preferably for AMD processors?
 
-On Wed, 16 Mar 2005, Steven Rostedt wrote:
+> Sorry,
 
->
-> Hi Ingo,
->
-> I just ran this with PREEMPT_RT and it works fine.
+Thanks for the insight.  Now I won't waste too much more time on this.
 
-Not quite, and I will assume that some of the other patches I sent have
-this same problem.  The jbd_trylock_bh_state really scares me. It seems
-that in fs/jbd/commit.c in journal_commit_transaction we have the
-following code:
+Regards,
 
-
-write_out_data:
-	cond_resched();
-	spin_lock(&journal->j_list_lock);
-
-	while (commit_transaction->t_sync_datalist) {
-		struct buffer_head *bh;
-
-		jh = commit_transaction->t_sync_datalist;
-		commit_transaction->t_sync_datalist = jh->b_tnext;
-		bh = jh2bh(jh);
-		if (buffer_locked(bh)) {
-			BUFFER_TRACE(bh, "locked");
-			if (!inverted_lock(journal, bh))
-				goto write_out_data;
-
-
-where invert_data simply is:
-
-
-/*
- * Try to acquire jbd_lock_bh_state() against the buffer, when j_list_lock
-is
- * held.  For ranking reasons we must trylock.  If we lose, schedule away
-and
- * return 0.  j_list_lock is dropped in this case.
- */
-static int inverted_lock(journal_t *journal, struct buffer_head *bh)
-{
-	if (!jbd_trylock_bh_state(bh)) {
-		spin_unlock(&journal->j_list_lock);
-		schedule();
-		return 0;
-	}
-	return 1;
-}
-
-
-So, with kjournal running as a FIFO, it may hit this (as it did with my
-last test) and not get the lock. All it does is release another lock
-(ranking reasons) and calls schedule and tries again.  With kjournal the
-highest running process on the system (UP) it deadlocks since whoever has
-the lock will never get a chance to run.  There's a couple of places that
-jbd_trylock_bh_state is used in checkpoint.c, but this is the one place
-that it definitely deadlocks the system.  I believe that the
-code in checkpoint.c also has this problem.
-
-I guess one way to solve this is to add a wait queue here (before
-schedule()), and have the one holding the lock to wake up all on the
-waitqueue when they release it.
-
--- Steve
-
+Rob

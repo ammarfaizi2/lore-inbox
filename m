@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbTBJGNn>; Mon, 10 Feb 2003 01:13:43 -0500
+	id <S263256AbTBJGVz>; Mon, 10 Feb 2003 01:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTBJGNn>; Mon, 10 Feb 2003 01:13:43 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:786 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S263215AbTBJGNm>; Mon, 10 Feb 2003 01:13:42 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Date: 10 Feb 2003 05:59:19 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <b27f3n$bbj$1@abraham.cs.berkeley.edu>
-References: <20030206151820.A11019@infradead.org> <Pine.LNX.3.96.1030207205056.31221A-100000@dixie> <20030209200626.A7704@infradead.org>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1044856759 11635 128.32.153.211 (10 Feb 2003 05:59:19 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 10 Feb 2003 05:59:19 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S263276AbTBJGVz>; Mon, 10 Feb 2003 01:21:55 -0500
+Received: from unthought.net ([212.97.129.24]:59016 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S263256AbTBJGVy>;
+	Mon, 10 Feb 2003 01:21:54 -0500
+Date: Mon, 10 Feb 2003 07:31:38 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210063138.GG1109@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com> <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com> <20030209203343.06608eb3.akpm@digeo.com> <20030210045107.GD1109@unthought.net> <3E473172.3060407@cyberone.com.au> <20030210051007.GE1109@unthought.net> <200302100606.h1A66SOf023514@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200302100606.h1A66SOf023514@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig  wrote:
->[...] given that selinux is the only module actually using it [...]
+On Mon, Feb 10, 2003 at 01:06:27AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 10 Feb 2003 06:10:08 +0100, Jakob Oestergaard said:
+> 
+> > In stock 2.4.20 the interaction is horrible - whatever was done there is
+> > not optimal.    A 'tar xf' on the client will neither load the network
+> > nor the server - it seems to be network latency bound (readahead not
+> > doing it's job - changing min-readahead and max-readahead on the client
+> > doesn't seem to make a difference). However, my desktop (running on the
+> 
+> This sounds like the traditional NFS suckage that has been there for decades.
+> The problem is that 'tar xf' ends up doing a *LOT* of NFS calls - a huge
+> stream of stat()/open()/chmod()/utime() calls.  On a local disk, most of
+> this gets accelerated by the in-core inode cache, but on an NFS mount, you're
+> looking at lots and lots of synchronous calls.
+> 
+> In 'man 5 exports':
+> 
+>        async  This option allows the NFS server to violate  the  NFS  protocol
+>               and  reply  to  requests before any changes made by that request
+>               have been committed to stable storage (e.g. disc drive).
+> 
+>               Using this option usually improves performance, but at the  cost
+>               that  an unclean server restart (i.e. a crash) can cause data to
+>               be lost or corrupted.
+> 
+>               In releases of nfs-utils upto and including 1.0.0,  this  option
+>               was  the  default.   In  this  and  future releases, sync is the
+>               default, and async must be explicit  requested  if  needed.   To
+>               help  make system adminstrators aware of this change, 'exportfs'
+>               will issue a warning if neither sync nor async is specified.
+> 
+> Does this address your NFS issue?
 
-No, it's not.  I keep you telling you LSM is not just about SELinux,
-but I'm happy to say it again, if necessary.
+No.  Tried it in the past, just tried it again to make sure.
 
->you don't get tru security by adding hooks.
+The caching should be done client-side, I guess, to be effective. Even
+if the server acknowledges operations before they hit the disks, the
+client is still bound by the RPC call latency.
 
-Of course not.  Noone is saying that the LSM hooks alone give security;
-rather, they enable you to install a module that gives security.
+I'm sure there are problems preventing such caching...  Hmm... Seems
+like the only way out is a multi-threaded tar   ;)   Or tar using AIO.
 
->security needs a careful design
+Btw. nocto on the client doesn't really seem to help matters much
+either.
 
-You keep saying this.  People keep telling you that LSM does have a
-careful design.  I suspect you mean that you don't like the design we
-chose, for whatever reason -- but that's a different sort of beast,
-isn't it?
+Thanks for the suggestion,
 
-If you have constructive suggestions, I'm listening.
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282473AbRKZUVb>; Mon, 26 Nov 2001 15:21:31 -0500
+	id <S282467AbRKZUWm>; Mon, 26 Nov 2001 15:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282472AbRKZUVX>; Mon, 26 Nov 2001 15:21:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3846 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282479AbRKZUUy>; Mon, 26 Nov 2001 15:20:54 -0500
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-To: vda@port.imtp.ilyichevsk.odessa.ua (vda)
-Date: Mon, 26 Nov 2001 20:28:03 +0000 (GMT)
-Cc: mathijs@knoware.nl (Mathijs Mohlmann), bulb@ucw.cz (Jan Hudec),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <01112117122701.02798@nemo> from "vda" at Nov 21, 2001 05:12:27 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282481AbRKZUWc>; Mon, 26 Nov 2001 15:22:32 -0500
+Received: from schwerin.p4.net ([195.98.200.5]:38170 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S282467AbRKZUWX>;
+	Mon, 26 Nov 2001 15:22:23 -0500
+Message-ID: <3C02A4D8.5010405@p4all.de>
+Date: Mon, 26 Nov 2001 21:23:52 +0100
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Elgar, Jeremy" <JElgar@ndsuk.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Mixing Patches: pre-emptive + xfs
+In-Reply-To: <F128989C2E99D4119C110002A507409801C53035@topper.hrow.ndsuk.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E168SMG-0006k2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > MODINC(x,y) (x = (x % y) + 1)
-> 
-> drivers/message/i2o/i2o_config.c:#define MODINC(x,y) (x = x++ % y)
-> 
-> Alan, can you clarify what this macro is doing?
-> What about making it less confusing?
+Elgar, Jeremy wrote:
 
-Nothing to do with me 8). I didnt write that bit of the i2o code. I agree
-its both confusing and buggy. Send a fix ?
+> Hello
+> Just wondering if anyone has try using these two patches together (or is
+> this a really bad idea)
+> 
+> I'm thinking of adding the pre-emptive patch to my laptop and desk top.
+> 
+> Cheers
+> 
+> Jeremy
+> 
+> (BTW both are 2.4.14)
+
+
+Well - it works.
+
+I have both patches runnig here (installed the xfs-patches and after 
+that the preempt-2.4.14-2 - only 2 or 3 minor offsets while patching).
+System "feels" fluid now - but my UT crashes hard while using that 
+kernel :( Seems it doesn't like it. But while normal work no problems 
+detected until now...
+
+ciao
+
+Michael
+
+
+
+
+

@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264545AbTDPTOd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 15:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbTDPTOd
+	id S264546AbTDPTSP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 15:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbTDPTSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 15:14:33 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:38017 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264545AbTDPTOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 15:14:32 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304161928.h3GJSopS001481@81-2-122-30.bradfords.org.uk>
-Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
-To: admin@brien.com (Brien)
-Date: Wed, 16 Apr 2003 20:28:50 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford), linux-kernel@vger.kernel.org
-In-Reply-To: <001d01c30444$2fbd05b0$6901a8c0@athialsinp4oc1> from "Brien" at Apr 16, 2003 02:15:38 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Apr 2003 15:18:15 -0400
+Received: from AMarseille-201-1-5-18.abo.wanadoo.fr ([217.128.250.18]:13095
+	"EHLO debian") by vger.kernel.org with ESMTP id S264546AbTDPTSO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 15:18:14 -0400
+Subject: Re: Subtle semantic issue with sleep callbacks in drivers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304161124400.912-100000@cherise>
+References: <Pine.LNX.4.44.0304161124400.912-100000@cherise>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050521391.644.5.camel@debian>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Apr 2003 21:29:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've now tried running the following configurations
+On Wed, 2003-04-16 at 20:31, Patrick Mochel wrote:
 
-[snip]
+> This is not necessarily a slot-by-slot question, but whether the entire 
+> PCI/AGP buses will lose power during the sleep state, right? 
 
-> and all of them have the same problem: black screen after kernel loads
-> they all do seem to test with errors when ran with another module, but they
-> also DO NOT test as errors when they're alone
+This is really per-slot. Especially on embedded or laptops, you really
+don't know how each slot is wired regarding the power planes.
 
-OK...  Do you get the same locations failing with one pair of DIMMs as
-with another identical pair of DIMMs, or is it just randomly flakey?
+> There are a couple of things to note. 
+> 
+> This is only an issue when doing suspend-to-RAM. Suspend-to-disk, and
+> power-on suspend will definitely lose power and definitely not lose any
+> power, respectively. So, you need a mechanism to determine what state the 
+> system is entering. 
 
-> I'm starting to think it's a problem with my motherboard rather than with
-> the RAM, because I've tried so many different ways and with different RAM
-> modules.. but I don't know for sure..
+Yes.
 
-Are you sure it's not the power supply?  If the voltages are only just
-within spec, you could concievably get the behavior you describe.
+> Next, once you determine that we're entering suspend-to-RAM, you need to
+> know if the buses will lose power. In order to have a generic suspend
+> sequence, there must be a set of platform-specific methods to do all the
+> fun platform things that must be done. In that object, we can easily add a
+> flag that specifies whether or not the platform will lose power. This flag
+> can be initialized based on platform knowledge on startup.
 
-> basically every time I try to run any linux distribution, even if I
-> type (mem=XXXM), it just doesn't work...
+It's individual to each device though. And we must also have a flag the
+platform can use to indicate it can/will re-POST the card (by re-running
+the BIOS or whatever firmware)... 
 
-I wouldn't even bothing trying to run anything on a machine until it
-runs Memtest86 for a couple of hours successfully.
+> In short, there should be no problems. Hopefully, I should have something 
+> within the week to review/test. (Yeah yeah, talk is cheap, but I'm getting 
+> there).
 
-John.
+Good :) I'm getting there too for the pmac implementation finally...
+
+Ben.
+

@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131733AbRCXRoK>; Sat, 24 Mar 2001 12:44:10 -0500
+	id <S131740AbRCXSKC>; Sat, 24 Mar 2001 13:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131732AbRCXRoB>; Sat, 24 Mar 2001 12:44:01 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:55216 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131729AbRCXRnv>;
-	Sat, 24 Mar 2001 12:43:51 -0500
-Date: Sat, 24 Mar 2001 12:43:06 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jorgen Cederlof <jorgen.cederlof@cendio.se>
-cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bug in do_mount()
-In-Reply-To: <20010324182853.A4090@ondska>
-Message-ID: <Pine.GSO.4.21.0103241230110.11914-100000@weyl.math.psu.edu>
+	id <S131741AbRCXSJx>; Sat, 24 Mar 2001 13:09:53 -0500
+Received: from front6.grolier.fr ([194.158.96.56]:45973 "EHLO
+	front6.grolier.fr") by vger.kernel.org with ESMTP
+	id <S131740AbRCXSJj> convert rfc822-to-8bit; Sat, 24 Mar 2001 13:09:39 -0500
+Date: Sat, 24 Mar 2001 16:58:14 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NCR53c8xx driver and multiple controllers...(not new prob)
+In-Reply-To: <3ABCD0B2.21465AC1@sgi.com>
+Message-ID: <Pine.LNX.4.10.10103241647530.601-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 24 Mar 2001, Jorgen Cederlof wrote:
+On Sat, 24 Mar 2001, LA Walsh wrote:
 
-> > kill_super() releases the reference stored in ->s_type (created
-> > by get_sb_...()). If superblock stays alive you should not release it.
+> I have a machine with 3 of these controllers (a 4 CPU server).  The
+> 3 controllers are:
+> ncr53c810a-0: rev=0x23, base=0xfa101000, io_port=0x2000, irq=58
+> ncr53c810a-0: ID 7, Fast-10, Parity Checking
+> ncr53c896-1: rev=0x01, base=0xfe004000, io_port=0x3000, irq=57
+> ncr53c896-1: ID 7, Fast-40, Parity Checking
+> ncr53c896-2: rev=0x01, base=0xfe004400, io_port=0x3400, irq=56
+> ncr53c896-2: ID 7, Fast-40, Parity Checking
+> ncr53c896-2: on-chip RAM at 0xfe002000
 > 
-> get_sb_...() will do get_filesystem() even if superblock stays alive.
+> I'd like to be able to make a kernel with the driver compiled in and
+> no loadable module support.  It don't see how to do this from the
+> documentation -- it seems to require a separate module loaded for
+> each controller.  When I compile it in, it only see the 1st controller
+> and the boot partition I think is on the 3rd.  Any ideas?
 
-Sigh... I see what happens, and yes, it's a bug, but fix is wrong.
-The real problem is with get_sb_single(), not with do_mount().
-get_sb_bdev() and get_sb_nodev() are actually fine and your fix will
-break them.
+The driver tries to detect all controllers it supports. Since the
+ncr53c8xx supports both the 810a and the 896, all your controllers should
+have been detected. When loaded as a module, the driver must be loaded
+once (btw, a seconf load should fail).
 
-The problem is in the way we keep count for FS_SINGLE - in my current
-tree I switched to cleaner variant, but doing the same in 2.4 may be tricky.
+> This problem is present in the 2.2.x series as well as 2.4.x (x up to 2).
 
-_Probably_ the right way to deal with that (for the time being) is add
-	if (fstype->fs_flags & FS_SINGLE)
-		put_filesystem(fstype);
-before the if (list_empty(...))
+What hardware are you using (CPU, Core Logic and tutti quanti) ?
+Is the 896 on PCI BUS #0 or on some sort of secondary PCI BUS ?
+Does the sym53c8xx driver show same behaviour ?
 
-IOW, 
---- fs/super.c.old Sat Mar 24 12:39:23 2001
-+++ fs/super.c     Sat Mar 24 12:39:56 2001
-@@ -1412,6 +1412,8 @@
-        return retval;
- 
- fail:
-+       if (fstype->fs_flags & FS_SINGLE)
-+               put_filesystem(fstype);
-        if (list_empty(&sb->s_mounts))
-                kill_super(sb, 0);
-        goto unlock_out;
-
-should be OK for now. Once we get clean refcounting for struct super_block
-we will be able to get rid of the kludges in that area completely.
-								Al
+  Gérard.
 

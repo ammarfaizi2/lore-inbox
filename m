@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbUAATwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 14:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAATwQ
+	id S264591AbUAAUFM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbUAAUFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 14:52:16 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:40069 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S264553AbUAATwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 14:52:15 -0500
-Message-ID: <3FF47AAA.7090903@myrealbox.com>
-Date: Thu, 01 Jan 2004 11:53:14 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040101
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-References: <fa.flhsork.uka2hg@ifi.uio.no> <fa.hv9hpq7.1l1q9p3@ifi.uio.no>
-In-Reply-To: <fa.hv9hpq7.1l1q9p3@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 1 Jan 2004 15:05:05 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:11327 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264594AbUAAUB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:01:57 -0500
+Date: Thu, 1 Jan 2004 21:01:55 +0100
+Message-Id: <200401012001.i01K1s11031757@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 352] MVME16x RTC C99
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schlemmer wrote:
-> On Thu, 2004-01-01 at 00:17, walt wrote:
+MVME16x RTC: Use C99 struct initializers
 
->> ...I have  not been able to get udev working yet...
+--- linux-2.6.0/arch/m68k/mvme16x/rtc.c	Thu Jan  2 12:53:57 2003
++++ linux-m68k-2.6.0/arch/m68k/mvme16x/rtc.c	Sun Oct  5 12:34:00 2003
+@@ -155,9 +155,9 @@
+ 
+ static struct miscdevice rtc_dev=
+ {
+-	RTC_MINOR,
+-	"rtc",
+-	&rtc_fops
++	.minor =	RTC_MINOR,
++	.name =		"rtc",
++	.fops =		&rtc_fops
+ };
+ 
+ int __init rtc_MK48T08_init(void)
 
-> Hmm, It works fine here?  I was under the impression that
- > it should _just_work_ if you have latest everything unstable...
+Gr{oetje,eeting}s,
 
-Yes!  I want to confirm that it DOES 'just work' with this one
-little thingy I missed:
+						Geert
 
-I needed to add TWO boot flags because of the way I have my
-kernel configured:  'nodevfs' AND 'devfs=nomount'.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Without the 'devfs=nomount' flag the kernel was starting devfsd
-anyway, which keeps udev from working, apparently.
-
-So, Greg, please be nice to Martin, who is working hard to
-get gentoo people out of your mailbox.
-
-Thanks to both of you, and Happy New Year!
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

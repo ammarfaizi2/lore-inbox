@@ -1,36 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265280AbRFUWuu>; Thu, 21 Jun 2001 18:50:50 -0400
+	id <S265036AbRFUWwu>; Thu, 21 Jun 2001 18:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265279AbRFUWuk>; Thu, 21 Jun 2001 18:50:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60678 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265278AbRFUWub>; Thu, 21 Jun 2001 18:50:31 -0400
-Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
-To: mbac@nyct.net (Michael Bacarella)
-Date: Thu, 21 Jun 2001 23:49:53 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010621183737.A12304@sync.nyct.net> from "Michael Bacarella" at Jun 21, 2001 06:37:37 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264628AbRFUWwk>; Thu, 21 Jun 2001 18:52:40 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:49841 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S262596AbRFUWw0>; Thu, 21 Jun 2001 18:52:26 -0400
+Message-ID: <3B327B03.8C12741C@idcomm.com>
+Date: Thu, 21 Jun 2001 16:53:55 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 
+ - 2.4.5
+In-Reply-To: <3B3274F2.56FAB826@telerobotics.jpl.nasa.gov>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15DDGr-0002Oo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Apple's doing it right now.
+Chris Leger wrote:
+> 
+> Hi,
+> 
+> I have the same problem, only mine occurs early in the boot process
+> (right after a message saying something like "trying to mount old
+> root..."; or maybe s/mount/unmount)so I don't have a log.  I have a
+> similar system: dual PIIIs w/ Adaptec AIC-7xxx controller, an HP Kayak.
+> I saw some earlier messages about AIC-7xxx problems w/ 2.4.5, so I tried
+> using aic7xxx_old and also tried a patch someone mentioned.  I have yet
+> to be able to bring up my machine with 2.4.5 under any combination of
+> aic7xxx drivers, so maybe it's not the driver after all.
+> 
+> Any ideas?  I built the kernel w/ gcc 2.91.66 (kgcc).
 
-Hardly..
+I have no problems running RH 7.l with the 2.4.5 ac series, provided I
+have the patch to fs/block_dev.c (which apparently is in at around ac3;
+also in 2.4.6-pre2 I think). When using an XFS filesystem patch, I also
+have to use their "rebuild firmware" option, which I don't think is part
+of ac or regular kernels. I use kgcc to compile all, and am running dual
+pIII (I run without APIC because of the defective i840 chipset). All of
+this is using the stock aic7xxx module or compiled in directly.
 
-> Except that Apple keeps the old code open. Probably because
-> they'll gain nothing from it, and at best, they can appeal to
-> the techies.
+D. Stimits, stimits@idcomm.com
 
-A company that seems to write 'you shall not work on open source projects
-in your spare time' into its employment contracts is not what I would call
-friendly or want to work for. Im sure its only a small step to 'employees
-shall not snowboard' 'employees shall not go skiing' - all of course argued
-for the same reason as being essential to the company interest
-
+> 
+> Thanks,
+> 
+> Chris Leger
+> 
+> Rafael Martinez writes:
+> > Hello
+> >
+> >     I have got a error in my syslog about a Null pointer in the kernel:
+> >
+> >     Kernel 2.4.5
+> >     glibc 2.2.12
+> >     gcc version 2.96 20000731 (Red Hat Linux 7.0)
+> >
+> >     Modell: ISP2150
+> >     Motherboard: L440GX+ DP
+> >     CPU: 2 x Intel Pentium III (Coppermine) 850 MHz L2 cache: 256K / Bus: 100 MHz
+> >     RAM: 256 MB
+> >     SCSI controller: Adaptec AIC-7896/7 Ultra2
+> >
+> >Unable to handle kernel NULL pointer dereference at virtual address
+> >     00000015
+> >      printing eip:
+> >     c014db72
+> >     *pde = 00000000
+> >     Oops: 0002
+> >     CPU:    1
+> >     EIP:    0010:[<c014db72>]
+> >     EFLAGS: 000
+> 
+> --
+> [ Chris Leger  ::  cleger@robotics.jpl.nasa.gov   (818)393-4462 ]
+> 
+> You can come up with a hundred reasons why a thing can't be done,
+> and you have to eat them all when someone else does it.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,85 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289685AbSAOOIU>; Tue, 15 Jan 2002 09:08:20 -0500
+	id <S289585AbSAOOOy>; Tue, 15 Jan 2002 09:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289606AbSAOOIB>; Tue, 15 Jan 2002 09:08:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53157 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289585AbSAOOHw>;
-	Tue, 15 Jan 2002 09:07:52 -0500
-Date: Tue, 15 Jan 2002 17:04:29 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, Davide Libenzi <davidel@xmailserver.org>
-Subject: [patch] O(1) scheduler, -I0
-Message-ID: <Pine.LNX.4.33.0201151532290.9349-100000@localhost.localdomain>
+	id <S289642AbSAOOOk>; Tue, 15 Jan 2002 09:14:40 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:36881 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP
+	id <S289585AbSAOOO0>; Tue, 15 Jan 2002 09:14:26 -0500
+Message-ID: <3C443940.8070000@xmission.com>
+Date: Tue, 15 Jan 2002 07:14:24 -0700
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011225
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: emu10k1_audio_open?? 2.5.2 problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.2/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -DMODULE -DMODVERSIONS -include 
+/usr/src/linux-2.5.2/include/linux/modversions.h   -c -o audio.o audio.c
+audio.c: In function `emu10k1_audio_open':
+audio.c:1101: invalid operands to binary &
+make[3]: *** [audio.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.2/drivers/sound/emu10k1'
+make[2]: *** [_modsubdir_emu10k1] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.2/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.2/drivers'
+make: *** [_mod_drivers] Error 2
 
-the -I0 patch is available at:
+What to do?
 
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-final-I0.patch
+Thanks,
 
-stock 2.5.2 includes a 'interactivity estimator' method that includes most
-of the things i think to be important for good interactivity:
-
- - sleep time based priority boost/penalty.
-
- - constant frequency runqueue sampling instead of recalculation/switch
-   based runqueue sampling.
-
- - interactivity based runqueue insertion on timeslice expire.
-
-I'm very happy about the 2.5.2 solution, it's simpler than the one i used
-in -H7 - good work Davide!
-
-There are a number of problems in 2.5.2 that need fixing though:
-
- - renicing is broken - it does not work at all, neither up nor down, for
-   CPU-bound tasks. Renicing fell victim to the attempt to penalize CPU
-   hogs as much as possible: every CPU-bound task reaches the lowest
-   priority level and stays there. This also makes kernel compile times
-   suffer.
-
- - RT scheduling is broken.
-
- - the sleep average is hidden in p->prio, which makes it harder to
-   recover and use the true interactiveness of the task.
-
- - the runqueue is sampled at a frequency of 20 HZ, which can misdetect
-   periodic user tasks that somehow correlate with 20 HZ.
-
-I've fixed these problems/bugs by taking some of the -H7 solutions:
-
- - introducing p->sleep_avg, which is updated in a lightweight way. No
-   more 'history slots'. A single counter, updated in a very simple way.
-
- - limiting the bonus/penalty range according to nice levels - a task can
-   at most get a 5 priority levels penalty over the default level, in
-   stock 2.5.2 it can get to the nice +19 level after a few seconds
-   runtime. Nice levels work again.
-
- - introducing HZ frequency runqueue sampling. Also the MAX_SLEEP_AVG
-   constant tells us how long into the past we are looking. This is 2
-   seconds right now.
-
- - separating the RT timeslice code in scheduler_tick(), we used to break
-   the RT case way too often, now we can hack the SCHED_OTHER code without
-   having to touch the RT part.
-
- - plus the patch also includes all the fixes and improvements from the
-   -H7 patch.
-
-i've also cleaned up and commented the priority management code and have
-introduced the prio_effective(p) inline function.
-
-i've tested the patch on UP and SMP boxes. I've measured high-load
-interactivity to be on equivalent levels with that of stock 2.5.2.
-
-Bug reports, comments, suggestions welcome.
-
-	Ingo
+Frank
 

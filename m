@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUIXPQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268760AbUIXPWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268832AbUIXPQv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 11:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUIXPNy
+	id S268760AbUIXPWi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 11:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268834AbUIXPUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 11:13:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54913 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268851AbUIXPH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 11:07:27 -0400
-Date: Fri, 24 Sep 2004 07:55:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org,
-       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: Is there a user space pci rescan method?
-Message-ID: <20040924145542.GA17147@kroah.com>
-References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241412.45204@bilbo.math.uni-mannheim.de> <41541009.9080206@ppp0.net> <200409241432.06748@bilbo.math.uni-mannheim.de>
+	Fri, 24 Sep 2004 11:20:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15759 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268836AbUIXPS3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 11:18:29 -0400
+Date: Fri, 24 Sep 2004 16:18:28 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: David Wysochanski <davidw@netapp.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs and SCSI oops seen in 2.6.9-rc2 with local SCSI disk IO
+Message-ID: <20040924151828.GC16153@parcelfarce.linux.theplanet.co.uk>
+References: <4154372C.7070506@netapp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409241432.06748@bilbo.math.uni-mannheim.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4154372C.7070506@netapp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 02:32:06PM +0200, Rolf Eike Beer wrote:
-> Am Freitag, 24. September 2004 14:16 schrieben Sie:
-> > Rolf Eike Beer wrote:
-> > > Normally you will just remove and bring back one or two cards in the
-> > > system (e.g. your NIC or sound card, depending on xmms or irc being on
-> > > top of your priority list *g*). So from my point of view it's a good idea
-> > > to keep the slot dirs on remove so you can just go back in your command
-> > > history and replace 0 with 1 to get the device back. I don't see why bus
-> > > structure or whatever may ever change so rescanning the whole bus is IMHO
-> > > a bit overkill.
-> >
-> > My point was, I load dummyphp with showunused=0 and only get dirs for the
-> > slots with devices in them. Now I decide to put a network card (or whatever
-> > I have to spare) in an empty slot, hope that the system doesn't reboot
-> > immediately, and voila I don't have any /sys/bus/pci/slots dir to enable
-> > the slot and have to reboot nevertheless. Or does the pci system a rescan
-> > if I reinsert the module?
+On Fri, Sep 24, 2004 at 11:03:08AM -0400, David Wysochanski wrote:
+> I can reproduce this pretty easily with local disk.
 > 
-> In this case you have to "rmmod dummyphp; modprobe dummyphp showunused=1" to 
-> get all slots and try to enable the device. We have tested it once with a 
-> special PCI debugging board where we can electrically disable the PCI bus so 
-> we don't kill our hardware. The problem was that on reenabling a interrupt 
-> storm killed the machine, I don't remember the exact problem. IIRC it looked 
-> like the kernel found the device but the PCI bridge got confused by the new 
-> device (or something like this). I don't know if there is a way to survive 
-> this situation as the bridges in "normal" hardware are not hotplug aware. 
-> Greg?
+> Here's some details about my setup (attached is the
+> full kernel config):
+> - dell 2650 (dual xeon, hyperthreading disabled)
+> - 1 local SCSI disk (root volume)
+> - 2 local SCSI disks (data), each with 10 partitions
+> of 100MB each, 6 of them reiserfs filesystems, 3 of them
+> ext3, and 3 of them ext2 (total of 20 unique filesystems)
+> - one instance of test program running on each of the
+> 20 filesystems
 
-Hm, don't know, but that's the whole reason people want this, so it
-should work :)
+I don't think this is a SCSI problem.  Your backtrace doesn't include
+anything in the SCSI subsystem (this doesn't _prove_ anything, but does
+suggest you should look elsewhere first).  You also didn't mention what
+SCSI controller you were using.  If you can reproduce the oops without
+using reiserfs at all, that would suggest the problem doesn't lie in
+reiserfs, but that's where I'd blame first ;-)
 
-The main reason I don't like showing _all_ possible pci devices like
-dummyphp does is that it doesn't handle adding a new device (like you
-just said), and the fact that you forgot to handle pci domains.  If you
-add support for PCI domains, then the list of files in that directory
-will pretty much be unusable.
-
-Please just add the "rescan" support to fakephp, and everyone will be
-happy...
-
-thanks,
-
-greg k-h
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

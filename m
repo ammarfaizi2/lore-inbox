@@ -1,152 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264557AbTLVWgm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 17:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbTLVWgm
+	id S264538AbTLVWwr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 17:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTLVWwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 17:36:42 -0500
-Received: from users.ccur.com ([208.248.32.211]:44761 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S264557AbTLVWgi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 17:36:38 -0500
-Date: Mon, 22 Dec 2003 17:35:48 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Rob Love <rml@ximian.com>
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       albert@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: atomic copy_from_user?
-Message-ID: <20031222223547.GA3737@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <1072054100.1742.156.camel@cube> <20031222150026.GD27687@holomorphy.com> <20031222182637.GA2659@rudolph.ccur.com> <1072126506.3318.31.camel@fur> <20031222141431.111e7611.akpm@osdl.org> <1072131587.3318.54.camel@fur>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Dec 2003 17:52:47 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:63958 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S264538AbTLVWwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 17:52:05 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Ville Herva <vherva@niksula.hut.fi>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: lot of VM problem with 2.4.23
+Date: Mon, 22 Dec 2003 17:52:01 -0500
+User-Agent: KMail/1.5.1
+References: <20031221150312.GJ25043@ovh.net> <20031222183554.GN6438@matchmail.com> <20031222211247.GL1455@niksula.cs.hut.fi>
+In-Reply-To: <20031222211247.GL1455@niksula.cs.hut.fi>
+Organization: Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1072131587.3318.54.camel@fur>
-User-Agent: Mutt/1.4i
+Message-Id: <200312221752.01730.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.60.44] at Mon, 22 Dec 2003 16:52:04 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 05:19:48PM -0500, Rob Love wrote:
-> On Mon, 2003-12-22 at 17:14, Andrew Morton wrote:
-> 
-> > But preempt_enable_no_resched() calls dec_preempt_count().
-> 
-> Yah, Joe just pointed that out.
-> 
-> I do not really want to change the base interfaces, anyway ;)
-> 
-> I do think we should add an explicit preempt_check_resched() after calls
-> to dec_preempt_count() where we might be delaying a reschedule, though.
+On Monday 22 December 2003 16:12, Ville Herva wrote:
+>On Mon, Dec 22, 2003 at 10:35:54AM -0800, you [Mike Fedyk] wrote:
+>> > I don't know if there is a kernel memory leak, since all user
+>> > level processes should be killed at that point, right?
+>> > Unfortunately I didn't have time to dig deeper, as the box is in
+>> > (sort of) production.
+>>
+>> Maybe, it depends on your init scripts.  Does your distribution do
+>> a kill -9 of all processes before turning off swap?
+>
+>(It's a 7.0 Red Hat).
+>
+>It does
+>   runcmd "Sending all processes the KILL signal..."  /sbin/killall5
+> -9 before
+>   [ -n "$SWAPS" ] && runcmd "Turning off swap: " swapoff $SWAPS
+>in /etc/rc6.d/S01reboot and I've seen the "Sending all processes the
+> KILL signal..." message appear before the memory freeing loop
+> starts rolling.
 
-Thanks, Robert and Andrew, for you explanations.  This patch should
-do the trick.
+If its a pristine rh7.0 install, that version of bind has a notorious 
+rootkit hole.  So I wonder if the machine has been kitted by some 
+script kiddie whose good at covering his tracks but not the rest of 
+the housekeeping.  Do a google search for "chkrootkit", and install 
+it to get a better view of that possibility.
 
-Joe
+An OS upgrade does seem to be in order, lots has happened since 7.0.  
+7.3 with an updated kernel is my firewall, uptime is about 95 days 
+now.  It was shut down while I was out of state for a couple of 
+months last fall.  RH8.0 on this machine, with the real KDE-3.1.1a, 
+but since RH is gonna force a switch, debian may be the next thing 
+installed here.  Or maybe Mepis since he's only 50 miles up the 
+interstate from me. :)
 
 
-diff -ura base/arch/i386/mm/highmem.c new/arch/i386/mm/highmem.c
---- base/arch/i386/mm/highmem.c	2003-12-17 21:58:56.000000000 -0500
-+++ new/arch/i386/mm/highmem.c	2003-12-22 17:32:46.000000000 -0500
-@@ -30,6 +30,7 @@
- 	enum fixed_addresses idx;
- 	unsigned long vaddr;
- 
-+	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
- 	inc_preempt_count();
- 	if (page < highmem_start_page)
- 		return page_address(page);
-@@ -54,6 +55,7 @@
- 
- 	if (vaddr < FIXADDR_START) { // FIXME
- 		dec_preempt_count();
-+		preempt_check_resched();
- 		return;
- 	}
- 
-@@ -69,6 +71,7 @@
- #endif
- 
- 	dec_preempt_count();
-+	preempt_check_resched();
- }
- 
- struct page *kmap_atomic_to_page(void *ptr)
-diff -ura base/arch/mips/mm/highmem.c new/arch/mips/mm/highmem.c
---- base/arch/mips/mm/highmem.c	2003-12-17 21:58:28.000000000 -0500
-+++ new/arch/mips/mm/highmem.c	2003-12-22 17:32:59.000000000 -0500
-@@ -40,6 +40,7 @@
- 	enum fixed_addresses idx;
- 	unsigned long vaddr;
- 
-+	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
- 	inc_preempt_count();
- 	if (page < highmem_start_page)
- 		return page_address(page);
-@@ -64,6 +65,7 @@
- 
- 	if (vaddr < FIXADDR_START) { // FIXME
- 		dec_preempt_count();
-+		preempt_check_resched();
- 		return;
- 	}
- 
-@@ -79,6 +81,7 @@
- #endif
- 
- 	dec_preempt_count();
-+	preempt_check_resched();
- }
- 
- struct page *kmap_atomic_to_page(void *ptr)
-diff -ura base/arch/sparc/mm/highmem.c new/arch/sparc/mm/highmem.c
---- base/arch/sparc/mm/highmem.c	2003-12-17 21:58:28.000000000 -0500
-+++ new/arch/sparc/mm/highmem.c	2003-12-22 17:33:05.000000000 -0500
-@@ -33,6 +33,7 @@
- 	unsigned long idx;
- 	unsigned long vaddr;
- 
-+	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
- 	inc_preempt_count();
- 	if (page < highmem_start_page)
- 		return page_address(page);
-@@ -69,6 +70,7 @@
- 
- 	if (vaddr < fix_kmap_begin) { // FIXME
- 		dec_preempt_count();
-+		preempt_check_resched();
- 		return;
- 	}
- 
-@@ -96,4 +98,5 @@
- #endif
- #endif
- 	dec_preempt_count();
-+	preempt_check_resched();
- }
-diff -ura base/include/asm-ppc/highmem.h new/include/asm-ppc/highmem.h
---- base/include/asm-ppc/highmem.h	2003-12-17 21:59:45.000000000 -0500
-+++ new/include/asm-ppc/highmem.h	2003-12-22 17:33:13.000000000 -0500
-@@ -81,6 +81,7 @@
- 	unsigned int idx;
- 	unsigned long vaddr;
- 
-+	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
- 	inc_preempt_count();
- 	if (page < highmem_start_page)
- 		return page_address(page);
-@@ -105,6 +106,7 @@
- 
- 	if (vaddr < KMAP_FIX_BEGIN) { // FIXME
- 		dec_preempt_count();
-+		preempt_check_resched();
- 		return;
- 	}
- 
-@@ -119,6 +121,7 @@
- 	flush_tlb_page(0, vaddr);
- #endif
- 	dec_preempt_count();
-+	preempt_check_resched();
- }
- 
- static inline struct page *kmap_atomic_to_page(void *ptr)
+>-- v --
+>
+>v@iki.fi
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

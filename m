@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTDMORN (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDMORN (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:17:13 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:6152
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263521AbTDMORM 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 10:17:12 -0400
-Subject: Re: Re: Processor sets (pset) for linux kernel 2.5/2.6?
-From: Robert Love <rml@tech9.net>
-To: "Shaheed R. Haque" <srhaque@iee.org>
+	id S263523AbTDMOai (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTDMOai (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 10:30:38 -0400
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:6356 "EHLO
+	renegade") by vger.kernel.org with ESMTP id S263523AbTDMOag (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 10:30:36 -0400
+Date: Sun, 13 Apr 2003 07:42:18 -0700
+From: Zack Brown <zbrown@tumblerings.org>
+To: Matthias Andree <matthias.andree@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1050222609.3e992011e4f54@netmail.pipex.net>
-References: <1050146434.3e97f68300fff@netmail.pipex.net>
-	 <1050177383.3e986f67b7f68@netmail.pipex.net>
-	 <1050177751.2291.468.camel@localhost>
-	 <1050222609.3e992011e4f54@netmail.pipex.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050244136.733.3.camel@localhost>
+Subject: Re: lk-changelog.pl 0.96
+Message-ID: <20030413144218.GB21855@renegade>
+References: <20030413104943.433A37EBE4@merlin.emma.line.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 13 Apr 2003 10:28:57 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030413104943.433A37EBE4@merlin.emma.line.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-13 at 04:30, Shaheed R. Haque wrote:
+On Sun, Apr 13, 2003 at 12:49:43PM +0200, Matthias Andree wrote:
+> This is a semi-automatic announcement.
+> 
+> lk-changelog.pl aka. shortlog version 0.96 has been released.
 
-> Interesting idea. AFAICS, this involves either changing the code of /sbin/init 
-> to set its affinity to a default cpu mask (provided by a kernel boot flag, I 
-> presume), or using taskset-like functionality and then hoping that all current 
-> shells etc. die before the programs I care about start.
+I think these emails from Alan and Linus actually appear in changelogs.
 
-Well, you can get away with it easier by having a program (like taskset
-in schedutils) run in rc.sysinit.  Have it bind init to the appropriate
-processor.
+Be well,
+Zack
 
-> Would it not be better to simply have the kernel use the boot flag directly as 
-> the default CPU mask setting?
+--- lk-changelog-0.96.pl	2003-04-13 07:24:56.000000000 -0700
++++ lk-changelog-0.96.pl.zb	2003-04-13 07:33:58.000000000 -0700
+@@ -128,6 +128,8 @@
+ 'akpm:reardensteel.com' => 'Andrew Morton',
+ 'akpm:zip.com.au' => 'Andrew Morton',
+ 'akropel1:rochester.rr.com' => 'Adam Kropelin', # lbdb
++'alan:hraefn.swansea.linux.org.uk' => 'Alan Cox',
++'alan:irongate.swansea.linux.org.uk' => 'Alan Cox',
+ 'alan:lxorguk.ukuu.org.uk' => 'Alan Cox',
+ 'alan:redhat.com' => 'Alan Cox',
+ 'alex:ssi.bg' => 'Alexander Atanasov',
+@@ -352,8 +354,8 @@
+ 'erik:aarg.net' => 'Erik Arneson',
+ 'erik_habbinga:hp.com' => 'Erik Habbinga',
+ 'eyal:eyal.emu.id.au' => 'Eyal Lebedinsky', # lbdb
+-'falk.hueffner:student.uni-tuebingen.de' => 'Falk Hüffner',
+ 'faikuygur:ttnet.net.tr' => 'Faik Uygur',
++'falk.hueffner:student.uni-tuebingen.de' => 'Falk Hüffner',
+ 'fbl:conectiva.com.br' => 'Flávio Bruno Leitner', # google
+ 'fdavis:si.rr.com' => 'Frank Davis',
+ 'felipewd:terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
+@@ -946,7 +948,13 @@
+ 'tomlins:cam.org' => 'Ed Tomlinson',
+ 'tony.luck:intel.com' => 'Tony Luck',
+ 'tony:cantech.net.au' => 'Anthony J. Breeds-Taurima',
++'torvalds:athlon.transmeta.com' => 'Linus Torvalds',
++'torvalds:home.transmeta.com' => 'Linus Torvalds',
++'torvalds:kiwi.transmeta.com' => 'Linus Torvalds',
+ 'torvalds:linux.local' => 'Linus Torvalds',
++'torvalds:penguin.transmeta.com' => 'Linus Torvalds',
++'torvalds:tove.transmeta.com' => 'Linus Torvalds',
++'torvalds:transmeta.com' => 'Linus Torvalds',
+ 'trevor.pering:intel.com' => 'Trevor Pering',
+ 'trini:bill-the-cat.bloom.county' => 'Tom Rini',
+ 'trini:kernel.crashing.org' => 'Tom Rini',
 
-This is not a bad idea either, as it involves minimal code.
-
-	Robert Love
-
+-- 
+Zack Brown

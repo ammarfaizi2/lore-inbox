@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130299AbRAaSwS>; Wed, 31 Jan 2001 13:52:18 -0500
+	id <S130458AbRAaSx6>; Wed, 31 Jan 2001 13:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130521AbRAaSwI>; Wed, 31 Jan 2001 13:52:08 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:10991 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S130299AbRAaSv5>;
-	Wed, 31 Jan 2001 13:51:57 -0500
-Date: Wed, 31 Jan 2001 10:54:18 -0800
-From: Greg KH <greg@wirex.com>
-To: Lukasz Gogolewski <lucas@supremedesigns.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with compiling kernel 2.4.1 on top of 2.2.14
-Message-ID: <20010131105418.A20191@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Lukasz Gogolewski <lucas@supremedesigns.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3A7840C8.17841498@supremedesigns.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A7840C8.17841498@supremedesigns.com>; from lucas@supremedesigns.com on Wed, Jan 31, 2001 at 11:43:52AM -0500
-X-Operating-System: Linux 2.2.18-immunix (i686)
+	id <S131099AbRAaSxi>; Wed, 31 Jan 2001 13:53:38 -0500
+Received: from www.topmail.de ([212.255.16.226]:55976 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S130972AbRAaSxc> convert rfc822-to-8bit;
+	Wed, 31 Jan 2001 13:53:32 -0500
+Message-ID: <021501c08bb7$1a786df0$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1010130164236.3322A-100000@chaos.analogic.com>
+Subject: Re: Version 2.4.1 cannot be built. 
+Date: Wed, 31 Jan 2001 18:37:27 -0000
+Organization: eccesys.net Linux Distribution Development
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 11:43:52AM -0500, Lukasz Gogolewski wrote:
-> 
-> Someone please help. I need my USB and Sound Card to work.
+Did you a make clean/mrproper before?
+I usually do, and the kernel runs fine.
 
-USB support is pretty good in 2.2.18 :)
+-mirabilos
 
-greg k-h
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
+GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
+N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
+b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
+------END GEEK CODE BLOCK------
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

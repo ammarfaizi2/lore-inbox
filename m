@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286925AbSBCMBu>; Sun, 3 Feb 2002 07:01:50 -0500
+	id <S286904AbSBCL7A>; Sun, 3 Feb 2002 06:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286934AbSBCMBk>; Sun, 3 Feb 2002 07:01:40 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:65262 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S286925AbSBCMBW>; Sun, 3 Feb 2002 07:01:22 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1012705104.774.4.camel@thanatos> 
-In-Reply-To: <1012705104.774.4.camel@thanatos> 
-To: Thomas Hood <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: apm.c and multiple battery slots 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Feb 2002 12:01:19 +0000
-Message-ID: <12638.1012737679@redhat.com>
+	id <S286925AbSBCL6u>; Sun, 3 Feb 2002 06:58:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20153 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286904AbSBCL6f>;
+	Sun, 3 Feb 2002 06:58:35 -0500
+Date: Sun, 3 Feb 2002 14:56:13 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: O(1) scheduler observations
+In-Reply-To: <Pine.GSO.4.33.0202010940320.12546-100000@gurney>
+Message-ID: <Pine.LNX.4.33.0202031453460.10158-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-jdthood@mail.com said:
-> > Then we could add one line for each battery slot,
-> > indicating <battery status> <battery flag> <battery left % >
-> > <remaining time in seconds>
+On Fri, 1 Feb 2002, Alastair Stevens wrote:
 
-> How about putting each of these lines in a separate proc file?  This
-> would avoid changing the format of /proc/apm, which would break
-> things.
+> Just a brief observation on the O(1) scheduler. I'm using 2.4.18-pre7
+> + J7 scheduler patch (haven't had a chance to try J9 yet), on a
+> bog-standard Celeron 500MHz / 384Mb / IDE desktop machine under Red
+> Hat 7.2.
+>
+> I'm blasting along in Tuxracer (discovery of the week!) and then
+> "updatedb" kicks in. Tuxracer crawls and jerks for about 15 seconds,
+> and then turns wonderfully smooth again, whilst the drive continues to
+> thrash a while longer.
 
-Please don't add an APM-specific interface for batteries. Look at the other
-code which talks to batteries - the ACPI code, SMBus and numerous other
-drivers for embedded systems - and design an interface to userspace which
-can be used by all of them.
+well, CPU hogs such as Tuxracer are not as highprio as they used to be.
+updatedb has a mixed CPU-intensive and IO-intensive scheduling pattern,
+which gives it priority over that of Tuxracer.
 
-Preferably not in /proc.
+One solution would be to start Tuxracer at nice -10, or to renice updatedb
+to nice +19.
 
---
-dwmw2
-
+	Ingo
 

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267086AbSKWXBH>; Sat, 23 Nov 2002 18:01:07 -0500
+	id <S265828AbSKWXMD>; Sat, 23 Nov 2002 18:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267094AbSKWXBH>; Sat, 23 Nov 2002 18:01:07 -0500
-Received: from mnh-1-18.mv.com ([207.22.10.50]:18181 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S267086AbSKWXBH>;
-	Sat, 23 Nov 2002 18:01:07 -0500
-Message-Id: <200211232312.SAA02257@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@sourceforge.net
-Subject: [uml-devel] uml-patch-2.5.48-1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 23 Nov 2002 18:12:14 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S267096AbSKWXMD>; Sat, 23 Nov 2002 18:12:03 -0500
+Received: from mailc.telia.com ([194.22.190.4]:35799 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S265828AbSKWXMC>;
+	Sat, 23 Nov 2002 18:12:02 -0500
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Message-ID: <003201c29346$c80d3de0$0200a8c0@telia.com>
+From: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
+To: "Brian Murphy" <brian@murphy.dk>, <linux-kernel@vger.kernel.org>
+References: <IGEFJKJNHJDCBKALBJLLEEEEFIAA.joakim.tjernlund@lumentis.se> <3DDFC044.30701@murphy.dk>
+Subject: Re: [PATCH 2.5] crc32 static initialization
+Date: Sun, 24 Nov 2002 00:19:33 +0100
+Organization: Lumentis AB
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch merges the network changes from my 2.4 pool.
-        the network drivers react better to errors
-        there is now a slirp backend
-        the code that's common to the slip and slirp backends is shared
-        cleaned up device initialization
-        applied a bunch of slip cleanups and fixes
+> Can you send me a patch? I just used the original patch you sent me 
+> which uses
+> crc32table_le in crc32_be.
 
-I also merged the network-specific help into the config.
+Oops, my mistake. I see that you have fixed this already. 
+I am testing you new path as a write this looks good so far.
 
-The patch is available at
-        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.48-1.bz2
- 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
- 
-                                Jeff
+       Jocke
 

@@ -1,78 +1,47 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160277AbQHAVbW>; Tue, 1 Aug 2000 17:31:22 -0400
-Received: by vger.rutgers.edu id <S160269AbQHAVaf>; Tue, 1 Aug 2000 17:30:35 -0400
-Received: from enterprise.cistron.net ([195.64.68.33]:1973 "EHLO enterprise.cistron.net") by vger.rutgers.edu with ESMTP id <S160312AbQHAVaC>; Tue, 1 Aug 2000 17:30:02 -0400
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: RLIM_INFINITY inconsistency between archs
-Date: 1 Aug 2000 21:50:47 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8m7gnn$c8k$1@enterprise.cistron.net>
-References: <7iw6kYsXw-B@khms.westfalen.de> <8m54u3$dh0$1@cesium.transmeta.com> <8m65np$mm3$1@enterprise.cistron.net> <8m6vsk$er6$1@cesium.transmeta.com>
-X-Trace: enterprise.cistron.net 965166647 12564 195.64.65.200 (1 Aug 2000 21:50:47 GMT)
-X-Complaints-To: abuse@cistron.nl
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160370AbQHAXhA>; Tue, 1 Aug 2000 19:37:00 -0400
+Received: by vger.rutgers.edu id <S160389AbQHAXgT>; Tue, 1 Aug 2000 19:36:19 -0400
+Received: from smtp.networkusa.net ([216.15.144.12]:31640 "EHLO smtp.networkusa.net") by vger.rutgers.edu with ESMTP id <S157605AbQHAXe7>; Tue, 1 Aug 2000 19:34:59 -0400
+Date: Tue, 1 Aug 2000 18:55:31 -0500
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: linux-kernel@vger.rutgers.edu
+Subject: Re: RLIM_INFINITY inconsistency between archs
+Message-ID: <20000801185531.B2091@thune.mrc-home.org>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.rutgers.edu
+References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com> <8m4q9v$871$1@enterprise.cistron.net> <8m4tn3$cri$1@cesium.transmeta.com> <20000731211810.B28169@thune.mrc-home.org> <20000801023027.23228.qmail@t1.ctrl-c.liu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <20000801023027.23228.qmail@t1.ctrl-c.liu.se>; from wingel@t1.ctrl-c.liu.se on Tue, Aug 01, 2000 at 02:30:27AM -0000
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article >8m6vsk$er6$1@cesium.transmeta.com>,
-H. Peter Anvin <hpa@zytor.com> wrote:
->Followup to:  <8m65np$mm3$1@enterprise.cistron.net>
->By author:    miquels@cistron.nl (Miquel van Smoorenburg)
->In newsgroup: linux.dev.kernel
->> 
->> Why? As I said you can use a glue layer. Note that you still
->> cannot mix /usr/include/net and /usr/src/linux/include/net anyway,
->> so clashes will always exist with the current system.
->> I agree it should probably be fixed.
->
->A GLUE LAYER IS FREQUENTLY NOT AN OPTION,
+On Tue, Aug 01, 2000 at 02:30:27AM -0000, wingel@t1.ctrl-c.liu.se wrote:
+> In article <20000731211810.B28169@thune.mrc-home.org> dalgoda@ix.netcom.com wrote:
+> >On Mon, Jul 31, 2000 at 03:13:55PM -0700, H. Peter Anvin wrote:
 
-No need to shout, I did say I agreed with you ;)
+[hpa talks about apps, like automount, needing kernel headers for versions 
+being ran and version glibc was built againt]
 
->because you have no data
->types to carry around the semantic contents in.  You really *DO* need
->to mix both types.
+[I ask about kernel specific versions of binaries]
 
-Yes. So it should be fixed, right? Perhaps in 2.5 then we should
-look into:
+> It only means that the application will be built agains the kernel 
+> _interface_ that was present in that version of the kernel.  And 
+> syscall/ioctl interfaces should never change, they can be added to,
+> and relly old depreciated interfaces can be removed, but they should
+> be stable for at least a few major kernel releases.
 
-- moving kernel headers around: linux/include now contains
+If they are so stable, then why does it matter which version of the kernel
+glibc was built against and why aren't those kernel headers good enough to
+accomplish what automounter needs?
 
-  o linux
-  o asm
-  o net
-  o scsi
-  o video
-
-  To make sure we _can_ use libc headers and kernel headers we must
-  eliminate clashes. linux/include/net isn't the same as /usr/include/net,
-  same goes for /usr/include/scsi etc. So it's probably best to move
-  everything one level to:
-
-  o linux/kernel/*.h (this was most of linux/*.h)
-  o linux/public/*.h (contains public interfaces to the kernel)
-  o linux/asm/*.h
-  o linux/net/*.h
-  o linux/scsi/*.h
-  o linux/video/*.h
-
-  Hmm, perhaps that is not nessecary. If we're going to have a
-  linux/public hierarchy, you wouldn't need the rest of the
-  headers anyway, so they don't need to be moved. Cool ;)
-
-- We need a script in /lib/modules/version/kernel-config that prints
-  the CFLAGS used to compile that kernel on stdout to compile modules.
-
-Now, I think that all of this has been mentioned before on this
-list, those are not completely my ideas. Somebody mentioned marking
-structures/defines/etc that need to be exported with a special
-comment so that a script could generate a set of headers with the
-public interfaces. That is about the same as the public/ idea,
-and perhaps a bit easier, since it wouldn't annoy the hell out
-of all those device driver writers that see the interface change again..
-
-Mike.
+mrc
 -- 
-Cistron Certified Internetwork Expert #1. Think free speech; drink free beer.
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266492AbUA2XC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 18:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUA2XC6
+	id S266520AbUA2Xby (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 18:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUA2Xbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 18:02:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:35491 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266492AbUA2XCv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 18:02:51 -0500
-Date: Thu, 29 Jan 2004 15:02:50 -0800
-From: Greg KH <greg@kroah.com>
-To: Jonas Diemer <diemer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which interface: sysfs, proc, devfs?
-Message-ID: <20040129230250.GA9988@kroah.com>
-References: <20040129222813.3b22b2c8.diemer@gmx.de>
+	Thu, 29 Jan 2004 18:31:53 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:11412 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266520AbUA2Xbu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 18:31:50 -0500
+Subject: Re: 2.6.2-rc2-bk1 oopses on boot (ACPI patch)
+From: Len Brown <len.brown@intel.com>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi <linux-acpi@intel.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0020AE8AD@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0020AE8AD@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075419074.2497.203.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040129222813.3b22b2c8.diemer@gmx.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 29 Jan 2004 18:31:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 10:28:13PM +0100, Jonas Diemer wrote:
-> Hi!
-> 
-> I am writing a driver for an usb microcontroller (ezusb), which will be
-> used for measuring and controlling. I am confused on which interface to
-> use though. The driver is for kernel 2.6.x. 
-> I want to send small (human readable) commends as well as data (e.g.
-> firmware) to the device. Which filesystem is appropriate?
+Alessandro,
+Looks like you've identifed a regression, probably in ACPI.
 
-What about not writing a kernel driver at all and just using
-libusb/usbfs?  Any reason you have to have a kernel driver for your
-device?
+Please test the 1st patch attached to this bug report
+http://bugzilla.kernel.org/show_bug.cgi?id=1766
+
+If it doesn't address the problem, please file an additional bug report
+per below.
 
 thanks,
+-Len
 
-greg k-h
+ps.
+The divide-by zero symptom should be addressed by Dominik's update, now
+in the ACPI tree and thus the next -mm patch.
+
+pps.
+How to file a bug against ACPI:
+
+http://bugzilla.kernel.org/ Category: Power Management, Component: ACPI
+
+Please attach dmesg -s40000 output (or serial console log if dmesg
+unavailable)
+
+Please attach the output from acpidmp, available in /usr/sbin/, or in
+pmtools:
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+
+On Wed, 2004-01-28 at 17:32, Alessandro Suardi wrote:
+> Matt Domsch wrote:
+> > On Tue, Jan 27, 2004 at 11:37:55PM -0500, Dmitry Torokhov wrote:
+> >
+> >>>Divide by zero.  Looks like ACPI is now passing bad values into the
+> >>>frequency change notifier.
+...
+> , I'd like to remind that this works
+>   perfectly prior to the 20031203 ACPI patch. Indeed, this is what
+>   2.6.1 vanilla says in that area:
+> 
+> cpufreq: CPU0 - ACPI performance management activated.
+> cpufreq: *P0: 1800 MHz, 0 mW, 250 uS
+> cpufreq:  P1: 1200 MHz, 0 mW, 250 uS
+> 
+> Attaching the gzipped dmesg for my 2.6.1 boot - let me know if
+>   you want anyway dmidecode output and DSDT; for this latter I'll
+>   have to ask for instructions (or is the output of a simple
+>   'cat /proc/acpi/dsdt' enough ?).
+> 
+> --alessandro
+> 
+>   "Two rivers run too deep
+>    The seasons change and so do I"
+>        (U2, "Indian Summer Sky")
+> 
+> 
+

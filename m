@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262373AbSLFLaG>; Fri, 6 Dec 2002 06:30:06 -0500
+	id <S262289AbSLFLbx>; Fri, 6 Dec 2002 06:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262387AbSLFLaG>; Fri, 6 Dec 2002 06:30:06 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:20232 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262373AbSLFLaE>; Fri, 6 Dec 2002 06:30:04 -0500
-Date: Fri, 6 Dec 2002 11:37:31 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	id <S262296AbSLFLbx>; Fri, 6 Dec 2002 06:31:53 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:12673 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S262289AbSLFLbw> convert rfc822-to-8bit; Fri, 6 Dec 2002 06:31:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
 To: Andrew Morton <akpm@digeo.com>
-Cc: GrandMasterLee <masterlee@digitalroadkill.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-Message-ID: <20021206113731.A31122@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@digeo.com>,
-	GrandMasterLee <masterlee@digitalroadkill.net>,
-	Andrea Arcangeli <andrea@suse.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Norman Gaywood <norm@turing.une.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <3DF050EB.108DCF8@digeo.com> <1039160042.16565.15.camel@localhost> <3DF056EE.EA9ADE01@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DF056EE.EA9ADE01@digeo.com>; from akpm@digeo.com on Thu, Dec 05, 2002 at 11:51:10PM -0800
+Subject: Re: [PATCH 2.4.20-aa1] Readlatency-2
+Date: Fri, 6 Dec 2002 22:41:46 +1100
+User-Agent: KMail/1.4.3
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>
+References: <200212061038.27387.m.c.p@wolk-project.de> <200212062045.25377.conman@kolivas.net> <3DF08BC7.62436532@digeo.com>
+In-Reply-To: <3DF08BC7.62436532@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212062241.55875.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 11:51:10PM -0800, Andrew Morton wrote:
-> So at a guess, I'd say you're being hit by excessive stack use in
-> the XFS filesystem.  I think the XFS team have done some work on that
-> recently so an upgrade may help.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes, XFS 1.1 used a lot of stack.  XFS 1.2pre (and the stuff in 2.5)
-uses much less.  He's also using the qla2xxx drivers that aren't exactly
-stack-friendly either.
 
+>Con Kolivas wrote:
+>> io_load:
+>> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+>> 2.4.20 [5]              203.4   33      40      15      3.07
+>> 2.4.20aa1 [3]           238.3   27      46      15      3.60
+>> 2.4.20aa1rl2 [3]        302.5   22      63      16      4.57
+>
+>Something must have gone wrong here.  rl2 cannot be worse than
+>2.4.20 in this test.
+>
+>Umm, quick sanity check:
+>
+>2.4.20-rl2      321.44  147%    96      24%
+>2.4.20          361.70  130%    108     24%
+>
+>So only a 10% speedup, but certainly not a 50% slowdown.  (That is
+>on scsi).
+>
+>Maybe a patch preparation problem?
+
+Dunno. This was just the patch mcp submitted which applies to aa1. Check the 
+top message in this thread. No doubt rl2 makes serious improvements to 
+vanilla 2.4.20 as a previous thread showed. 
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE98Iz6F6dfvkL3i1gRAgZ9AJ4zRB7dLsatDgsbTxg2SQfBnuNr/wCfV+xb
+NdY2pNvyHPbFUTI5urAaTj8=
+=vWBZ
+-----END PGP SIGNATURE-----

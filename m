@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285462AbRLGLha>; Fri, 7 Dec 2001 06:37:30 -0500
+	id <S285466AbRLGLlF>; Fri, 7 Dec 2001 06:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285465AbRLGLhV>; Fri, 7 Dec 2001 06:37:21 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:64224 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S285462AbRLGLhK>; Fri, 7 Dec 2001 06:37:10 -0500
-Date: Fri, 7 Dec 2001 17:09:36 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Niels Christiansen <nchr@us.ibm.com>, arjanv@redhat.com
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-Message-ID: <20011207170936.I20583@in.ibm.com>
-In-Reply-To: <OF5920A1C3.B32C93AF-ON85256B1A.005706AC@raleigh.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF5920A1C3.B32C93AF-ON85256B1A.005706AC@raleigh.ibm.com>; from nchr@us.ibm.com on Thu, Dec 06, 2001 at 10:10:47AM -0600
+	id <S285467AbRLGLkw>; Fri, 7 Dec 2001 06:40:52 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:36804 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S285466AbRLGLkm>; Fri, 7 Dec 2001 06:40:42 -0500
+Date: Fri, 7 Dec 2001 12:40:37 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Falk Stern <f.stern@mobile.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre6 compilation errors
+In-Reply-To: <1007722632.1870.0.camel@station45>
+Message-ID: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Niels, Arjan
+On 7 Dec 2001, Falk Stern wrote:
 
-On Thu, Dec 06, 2001 at 10:10:47AM -0600, Niels Christiansen wrote:
-> 
-> > Well, I wrote a simple kernel module which just increments a shared
-> global
-> > counter a million times per processor in parallel, and compared it with
-> > the statctr which would be incremented a million times per processor in
-> > parallel..
-> 
-> I suspected that.  Would it be possible to do the test on the real
-> counters?
+> Hi.
 
-Yep, I am gonna run a benchmark after changing some stat counters in the
-Kernel.  That should let us know if there are performance gains or otherwise..
+Hi Falk,
 
-Kiran
+> Just tried to compile a vanilla 2.5.1-pre6 and got following errors:
+> (while doing "make dep clean bzImage modules modules_install" )
+>...
+> drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
+> in discarded section .text.exit'
+> drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
+> discarded section .text.exit'
+> make: *** [vmlinux] Error 1
+>...
+> # ld -V
+> GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
+>...
+
+this is a known bug in the kernel that shows up with the latest binutils
+packages in Debian unstable. As a workaround you can downgrade your
+binutils to the 2.11.92.0.10-4 package in Debian testing (you can
+download it from [1] if don't have it any more).
+
+cu
+Adrian
+
+[1] ftp://ftp.de.debian.org/debian/pool/main/b/binutils/
+
 -- 
-Ravikiran G Thirumalai <kiran@in.ibm.com>
-Linux Technology Center, IBM Software Labs,
-Bangalore.
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+

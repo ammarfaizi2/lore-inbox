@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265252AbUAJQZX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 11:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUAJQZW
+	id S265253AbUAJQZw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 11:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUAJQZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 11:25:22 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:61376 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S265252AbUAJQZO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 11:25:14 -0500
-Date: Sat, 10 Jan 2004 17:25:12 +0100 (CET)
-From: Milan Jurik <M.Jurik@sh.cvut.cz>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm2: compilation error
-In-Reply-To: <1073751266.1146.41.camel@nidelv.trondhjem.org>
-Message-ID: <Pine.LNX.4.58.0401101719120.1196@bobek.sh.cvut.cz>
-References: <Pine.LNX.4.58.0401101644010.1196@bobek.sh.cvut.cz>
- <1073751266.1146.41.camel@nidelv.trondhjem.org>
+	Sat, 10 Jan 2004 11:25:52 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:39830 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S265253AbUAJQZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 11:25:49 -0500
+Message-ID: <40002758.7020705@BitWagon.com>
+Date: Sat, 10 Jan 2004 08:24:56 -0800
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2. ELF loader mystery
+References: <20040110145329.36ecaa38@argon.inf.tu-dresden.de>	<4000135C.4060008@BitWagon.com> <20040110161936.57954de8@argon.inf.tu-dresden.de>
+In-Reply-To: <20040110161936.57954de8@argon.inf.tu-dresden.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+JR> Yes, there was an interpretation of ELF that p_filesz < p_memsz implied .bss
+JR> only for the last PT_LOAD in the array of Elf32_Phdr.  Later this was changed
+JR> so that .bss applied only on the PT_LOAD with the highest p_vaddr, regardless
+JR> of position in Elf32_Phdr. ...
 
-On Sat, 10 Jan 2004, Trond Myklebust wrote:
+Udo> Where did this interpretation come from? The ELF standard (1.2) I'm looking at
+Udo> from: http://x86.ddj.com/ftp/manuals/tools/elf.pdf says ...
 
-> P? lau , 10/01/2004 klokka 10:46, skreiv Milan Jurik:
-> > Hi,
-> >
-> >     CC      fs/nfs/nfs4proc.o
-> > fs/nfs/nfs4proc.c: In function `nfs4_lck_type':
-> > fs/nfs/nfs4proc.c:2042: warning: control reaches end of non-void function
-> > fs/nfs/nfs4proc.c: In function `nfs4_proc_setlk':
-> > fs/nfs/nfs4proc.c:2189: unknown field `clientid' specified in initializer
-> > fs/nfs/nfs4proc.c:2189: warning: missing braces around initializer
-> > fs/nfs/nfs4proc.c:2189: warning: (near initialization for
-> > `otl.lock_owner')
-> > make[3]: *** [fs/nfs/nfs4proc.o] Error 1
-> > make[2]: *** [fs/nfs] Error 2
-> > make[1]: *** [fs] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.6.1'
-> > make: *** [stamp-build] Error 2
->
-> No need. I'm surprised I don't see that first warning in my own
-> compiles.
->
-> The second one, however appears to be a compiler bug: AFAICS
-> concatenating C99 designated intializers in that manner is supported by
-> the spec (and indeed my version of gcc is quite happy with it). No
-> matter, though, as we can work around it.
->
-> Does the following patch work for you?
->
+Diffusion can be a slow and erratic process, resulting in "bugs."  "The ELF
+standard" (there have been different versions) was not widely available,
+and/or not widely consulted, for some parts of its lifetime.
+Also, the standard contains some generalizations that were not common usage;
+common usage was [is] .text < .data < .bss, with single pieces of each.
 
-Yes, thanks.
-Btw. gcc version 2.95.4 from Debian/Linux/Woody/i386
+-- 
 
-> Cheers,
->   Trond
->
->
-
-Best regards,
-
-         Milan Jurik

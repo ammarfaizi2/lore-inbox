@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbUKTOiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUKTOps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbUKTOiF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 09:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUKTOiF
+	id S262963AbUKTOps (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 09:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUKTOps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 09:38:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53512 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262941AbUKTOh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 09:37:59 -0500
-Date: Sat, 20 Nov 2004 14:37:55 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: sparse segfaults
-Message-ID: <20041120143755.E13550@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Sat, 20 Nov 2004 09:45:48 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:21633 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S262963AbUKTOpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 09:45:40 -0500
+Date: Sat, 20 Nov 2004 15:46:17 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: ITE8212 - iteraid inclusion | general ide raid question
+Message-ID: <20041120144617.GB2286@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.9-cLinux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Sparse appears to segfault when trying to check kernel/timer.c:
+--eJnRUKwClWJh1Khz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  CC      kernel/ptrace.o
-  CHECK   /home/rmk/bk/linux-2.6-rmk/kernel/timer.c
-make[2]: *** [kernel/timer.o] Error 139
-make[1]: *** [kernel] Error 2
-make: *** [_all] Error 2
+Hello!
 
-It doesn't seem to matter which ARM machine I have my kernel configured
-for, the result is always the same.
+I am wondering, whether support for the ide atapi (raid/normal)
+controllers will be merged into 2.6?
 
-#0  0x08059222 in expand_conditional (expr=0xf6a88c4c) at expand.c:478
-478                     *expr = *true;
-(gdb) where
-#0  0x08059222 in expand_conditional (expr=0xf6a88c4c) at expand.c:478
-#1  0x08059956 in expand_expression (expr=0xf6a88c4c) at expand.c:859
-#2  0x08059a32 in expand_symbol (sym=0x5) at expand.c:917
-#3  0x08048cc0 in clean_up_symbols (list=0x9464fb0) at check.c:100
-#4  0x08048eb5 in main (argc=40, argv=0xfef19dc4) at check.c:192
-(gdb) print expr
-$1 = (struct expression *) 0xf6a88c4c
-(gdb) print true
-$2 = (struct expression *) 0x0
-(gdb) print *expr
-$3 = {type = EXPR_CONDITIONAL, op = 63, pos = {type = 6, stream = 1,
-    newline = 0, whitespace = 1, pos = 22, line = 566, noexpand = 0},
-  ctype = 0x80764a0, {value = 4138241036, fvalue = <invalid float value>,
-    string = 0xf6a88c0c, unop = 0xf6a88c0c, statement = 0xf6a88c0c,
-    expr_list = 0xf6a88c0c}}
+ITE offers GPLed source code from their website, so their should be no
+problem imho.
 
-Unfortunately, gdb won't show me the contents of expr->cond_true nor
-expr->cond_false without the following:
+Another question: Why are the IDE Raids listed below
+SCSI support in menuconfig? Doesn't it make sense to
+open a new point 'IDE Raid Controller' or add them to
+the general ide section?
 
-(gdb) print *(&expr->string)
-$4 = (struct string *) 0xf6a88c0c
-(gdb) print *(&expr->string+1)
-$5 = (struct string *) 0x0
-(gdb) print *(&expr->string+2)
-$6 = (struct string *) 0xf6a88c6c
+And why are ide raid controllers using scsi namespace /dev/sd*?
 
-Looks like expr->cond_true is NULL.  Line 566 of kernel/timer.c is:
+I am a bit confused about that.
 
-int tickadj = 500/HZ ? : 1;             /* microsecs */
+Thanks for any information,
 
-which makes it look like sparse doesn't understand such constructions.
+Nico
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+--eJnRUKwClWJh1Khz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQIVAwUBQZ9YtrOTBMvCUbrlAQKL3g//ckNH/FWh4T7vuREmwBuIF3yS88M3SSM7
+dk7hd/gXueSBUY/uW3gxsH6M3exgaadpJWVSfYNq+cgiAGL5goOCbUv/b6INQL9N
+KtMP8t5c8TWaUTsxhbSu7XijjEQjyxpxxQBbku6i7pAbKzozaK7nh+GeaY35aE+h
+sRvxRQugntTxcTF6ucVAyW0tPNaGRLSaUfn7MWh6eZOGO8AYTy3mCRuFslUIfPPq
+vb5YA1hfoXt6vqBmuZTXNfO7nfw+k3BsTijw6S5b8x+OwbyaL638HqkZzGY+csD5
+k3ZUf6DN2iOFuqT4291EHM8zf9Y65MDA52fMFKi2iSbAXcJPwW7TS7dYEbL4d2is
+AWlr9vMBDzyCVyMyv9wX9BHVbMpRMy/xD+zXMDwxl/DB10CoCdHj5hZpSz9ZAgsL
+WlV6wABarA1CidxCPV+79ae94+OrFQZQg2MvqhKfd4XnoKZx52SH/n1dpAMztB5Z
+HvWRIhOLVZnR9I/vkwUtKs4BE8nu3yswzVYemXOARxJRMJfIT1U0ZN1TNY5PeqTc
+RuxWKrHgzfCXDlhJQLy0sxCEodQCuZDyApfhxdmmcMIjzvsw75rKkJeVrBcQdHah
+mdyvitW3x3zysbfZ4ZwdcIMoRDEMU56MYYcYDwdzlpo1rf6MXaxsfB/HAFV1dulf
+7o3zB3k+a64=
+=x+WY
+-----END PGP SIGNATURE-----
+
+--eJnRUKwClWJh1Khz--

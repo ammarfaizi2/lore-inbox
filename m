@@ -1,43 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUFFM5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263585AbUFFNDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUFFM5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 08:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUFFM5y
+	id S263585AbUFFNDF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 09:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUFFNDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 08:57:54 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:19344 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263565AbUFFM5u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 08:57:50 -0400
-Message-ID: <40C314C4.4080006@dlfp.org>
-Date: Sun, 06 Jun 2004 14:57:40 +0200
-From: Benoit Dejean <TazForEver@dlfp.org>
-Reply-To: TazForEver@free.fr
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
-X-Accept-Language: fr, en
+	Sun, 6 Jun 2004 09:03:05 -0400
+Received: from [139.30.44.16] ([139.30.44.16]:39296 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S263585AbUFFNDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 09:03:04 -0400
+Date: Sun, 6 Jun 2004 15:03:02 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.7-rc2-mm[12] big-endian BSD accounting file wanted
+Message-ID: <Pine.LNX.4.53.0406061500030.31540@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: cyplp@free.fr
-Subject: [2.6.6 panic] via-rhine and acpi sleep 3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello, i'm getting troubles with my epia boxes : epia via motherboard + 
-C3 processor.
+Can someone with a big-endian system running 2.6.7-rc2-mm1 or 
+2.6.7-rc2-mm2 please mail me a short BSD accounting file
+(usually /var/account/pacct) for testing purposes?
 
-the acpi STR sleep works fine (the CPU fan goes down) and wake up is ok. 
-But, i'm experiencing bugs with the builtin via-rhine network card. on 
-wake up, the network card seems to have been not correctly suspended : 
-it doesn't work anymore. i tried to find a way with acpi so that the 
-network interface is downed before sleep, the module unloaded and vice 
-versa on wake up. but that doesn't work.
-
-on wake up, trying to re-activate my netcard, i often get some message 
-obout ill-formed ethernet frames. i also often get kernel panic but i've 
-not been able to save the kernel panic trace. i don't know how, so if 
-somebody could tell me how to save it ...
-
-regards,
-Benoit
+TIA,
+Tim

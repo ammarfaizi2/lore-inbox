@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbUJXTro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUJXTtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUJXTro (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 15:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUJXTro
+	id S261186AbUJXTtU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 15:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJXTtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 15:47:44 -0400
-Received: from gprs214-148.eurotel.cz ([160.218.214.148]:38785 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261168AbUJXTrn (ORCPT
+	Sun, 24 Oct 2004 15:49:20 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:18442 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261186AbUJXTtL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 15:47:43 -0400
-Date: Sun, 24 Oct 2004 21:47:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jon Valvatne <jon@valvatne.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-ID: <20041024194727.GA30645@elf.ucw.cz>
-References: <4176E08B.2050706@techsource.com> <7f800d9f04102015174e7356a@mail.gmail.com> <loom.20041021T032833-3@post.gmane.org>
-Mime-Version: 1.0
+	Sun, 24 Oct 2004 15:49:11 -0400
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] ide-2.6 update
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <58cb370e04102405081d62bf40@mail.gmail.com> (Bartlomiej
+ Zolnierkiewicz's message of "Sun, 24 Oct 2004 14:08:15 +0200")
+References: <58cb370e04102405081d62bf40@mail.gmail.com>
+X-Hashcash: 0:041024:bzolnier@gmail.com:d40f67b840e9f8c5
+X-Hashcash: 0:041024:linux-ide@vger.kernel.org:f9b34b9460aa9ec9
+X-Hashcash: 0:041024:linux-kernel@vger.kernel.org:153b6e5dd3d450d1
+Date: Sun, 24 Oct 2004 12:48:58 -0700
+Message-ID: <m3zn2boq1h.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <loom.20041021T032833-3@post.gmane.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Are all of the data displayed in /proc/ide/piix et al now available
+in sysfs?  If so, 'twould've been useful for a small utility -- a
+la lsscsi(8) -- that can format that data like the /proc/ide files
+to have been released before dropping the /proc files....
 
-> > However, if you're only going to focus on 2D, I don't see the
-> > excitement. 2D works pretty much for everyone, no?
-> > 
-> 
-> Except for those of us who want to suspend to RAM and have the
-> video card wake up when we resume...
+It is a regression to loose convenient access to the controllers'
+current configs....
 
-...hmm, but you probably want to run it on your notebook, right?
-
-Otherwise toshiba 4030cdt, toshiba sattelite p10-554 are "known
-working" systems.
-							Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-JimC

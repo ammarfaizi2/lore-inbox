@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280975AbSAMDeX>; Sat, 12 Jan 2002 22:34:23 -0500
+	id <S285829AbSAMDmD>; Sat, 12 Jan 2002 22:42:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285829AbSAMDeN>; Sat, 12 Jan 2002 22:34:13 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:33030 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S280975AbSAMDd7>; Sat, 12 Jan 2002 22:33:59 -0500
-Message-ID: <3C410018.5438AB89@linux-m68k.org>
-Date: Sun, 13 Jan 2002 04:33:44 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+	id <S286615AbSAMDlx>; Sat, 12 Jan 2002 22:41:53 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:15122 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285829AbSAMDlo>; Sat, 12 Jan 2002 22:41:44 -0500
+Message-ID: <3C4100A4.2EDA7410@zip.com.au>
+Date: Sat, 12 Jan 2002 19:36:04 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rob Landley <landley@trommello.org>,
-        Robert Love <rml@tech9.net>, nigel@nrg.org,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PTB7-0002rC-00@the-village.bc.nu> <3C409FB2.8D93354F@linux-m68k.org> <20020112151347.A6981@hq.fsmlabs.com>
+To: "Michael C. Toren" <mct@toren.net>
+CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: acquire_console_sem exported, but not release_console_sem?
+In-Reply-To: <20020112215402.A3254@quint.netisland.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Michael C. Toren" wrote:
+> 
+> Hi,
+> 
+> In kernel/printk.c, it looks like acquire_console_sem() is exported, but
+> not release_console_sem()?  Is this intentional, or just an oversight?
 
-yodaiken@fsmlabs.com wrote:
+Oversight.  It's possible that some modular video drivers will need
+to acquire this lock, so it should be exported.  At this time, it's
+only fbcon.c and that code doesn't support modular linkage, so
+nobody has noticed.
 
-> Well, how about a third possibility - that I see a problem you have not
-> seen and that you should try to argue on technical terms
-
-I just don't see any problem that is really new. Alan's example is one
-of more extreme ones, but the only effect is that an operation can be
-delayed far more than usual, but not indefinitely.
-If you think preemption can cause a deadlock, maybe you could give me a
-hint, which of the conditions for a deadlock is changed by preemption?
-
-> instead of psychoanlyzing
-> me or looking for financial motives?
-
-If I had known, how easily people are offended by implying they could
-act out of financial interest, I hadn't made that comment. Sorry, but
-I'm just annoyed, how you attack any attempt to add realtime
-capabilities to the kernel, mostly with the argument that it sucks under
-IRIX. I people want to try it, let them. I prefer to see patches and if
-they should really suck, I would be first one to say so.
-
-bye, Roman
+--- linux-2.4.18-pre3/kernel/printk.c	Thu Jan 10 13:39:50 2002
++++ linux-akpm/kernel/printk.c	Sat Jan 12 19:32:50 2002
+@@ -529,6 +529,7 @@ void release_console_sem(void)
+ 	if (must_wake_klogd && !oops_in_progress)
+ 		wake_up_interruptible(&log_wait);
+ }
++EXPORT_SYMBOL(release_console_sem);
+ 
+ /** console_conditional_schedule - yield the CPU if required
+  *

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264202AbTE0Vxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264204AbTE0Vxg
+	id S264218AbTE0V4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTE0V4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:53:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25239 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264202AbTE0Vxe (ORCPT
+	Tue, 27 May 2003 17:56:35 -0400
+Received: from pop.gmx.de ([213.165.64.20]:30260 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264218AbTE0V4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:53:34 -0400
-Date: Tue, 27 May 2003 15:04:49 -0700 (PDT)
-Message-Id: <20030527.150449.08322270.davem@redhat.com>
-To: andrea@suse.de
-Cc: akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030527115314.GU3767@dualathlon.random>
-References: <20030527012617.GH3767@dualathlon.random>
-	<20030526.231120.26504389.davem@redhat.com>
-	<20030527115314.GU3767@dualathlon.random>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 27 May 2003 17:56:33 -0400
+Message-ID: <3ED3E224.1000402@gmx.net>
+Date: Wed, 28 May 2003 00:09:40 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Carl Spalletta <cspalletta@yahoo.com>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Dan Carpenter <d_carpenter@sbcglobal.net>
+Subject: Re: inventing the wheel?
+References: <20030527180546.15656.qmail@web41501.mail.yahoo.com>
+In-Reply-To: <20030527180546.15656.qmail@web41501.mail.yahoo.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Tue, 27 May 2003 13:53:14 +0200
+Carl Spalletta wrote:
+> I was interested in finding a tool that would tell me all the paths
+> through the kernel leading to some particular function, for example in
+> the case of do_mmap_pgoff:
+> 
+> do_mmap_pgoff do_mmap2 old_mmap old_mmap_i386
+> do_mmap_pgoff do_mmap2 sys_mmap2
+> do_mmap_pgoff do_mmap aio_setup_ring ioctx_alloc sys_io_setup
+> do_mmap_pgoff do_mmap elf_map load_elf_binary
+> ...
+> 
+> I submitted a tool ('fscope') to do this but no one has picked up
+> on the discussion. So I am wondering if there isn't already some
+> existing and better way to accomplish the same thing.
+> 
+> Could somebody tell me please, what is that way?
+> 
+> I know you can do a backtrace w/ gdb but that begs the question
+> how are you going to sure you have found every path?
 
-   in case it wasn't obvious (that is the whole point of ksoftirqd) what
-   accomplishes in a single word is "fairness" and "not starving userspace
-   during networking".
+It seems everybody is busy trying Linus' sparse, so maybe it was
+overlooked. Right now, it seems we have a few new tools to play with,
+which were not available at the time of 2.4-test.
 
-The problem is that is gives up and goes to ksoftirqd far too easily.
+(Alphabetic order)
+-Checker (Stanford people)
+-Fscope (Carl Spalletta)
+-Smatch (Dan Carpenter)
+-Sparse (Linus Torvalds)
 
-Also, if a softirq is triggered between when we wake up ksoftirqd and
-ksoftirqd actually runs, we just run the loop again in do_softirq().
+Now we only need one additional tool to *prove* correctness of the
+kernel ;-)
 
-This situation is even more likely if we are being "softirq bombed".
-In fact in such a situation it is almost a certainty that do_softirq()
-will execute multiple times before we schedule to any task.
+-an automatic race finder
 
-In fact, and here is the important part, we probably won't run very
-much userspace at all if we are being "softirq bombed".  Every trap,
-softirq causing or not, is going to cause us to drop into do_softirq()
-again and again and again.
+Liberal use of these tools should result in the most stable kernel ever.
 
-Perhaps even, we will drain the pending softirqs before ksoftirqd even
-gets to execute.  In this case the ksoftirqd wakeup and context switch
-is a total waste of cpu cycles.
 
-You are trying to apply flow control in an odd way to softirqs.
-But the problem with such schemes is that they absolutely do not
-make the problem go away.  You are merely moving the work from one
-place to another, and in many cases added more useless work.  The one
-thing you don't do when you are resource limited is take more of those
-resources away and that is exactly what the ksoftirqd scheme does.
+Regards,
+Carl-Daniel
+

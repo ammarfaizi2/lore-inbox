@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264392AbRFGKpm>; Thu, 7 Jun 2001 06:45:42 -0400
+	id <S264391AbRFGKnm>; Thu, 7 Jun 2001 06:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264394AbRFGKpc>; Thu, 7 Jun 2001 06:45:32 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:19722 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S264392AbRFGKpY>;
-	Thu, 7 Jun 2001 06:45:24 -0400
-Date: Thu, 7 Jun 2001 13:45:12 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: ADMIN: The plague of ill-defined content filters...
-Message-ID: <20010607134512.X5947@mea-ext.zmailer.org>
-Reply-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Mime-Version: 1.0
+	id <S264390AbRFGKnd>; Thu, 7 Jun 2001 06:43:33 -0400
+Received: from innominate.intercity.it ([151.39.132.18]:30964 "HELO ashland")
+	by vger.kernel.org with SMTP id <S264392AbRFGKnR>;
+	Thu, 7 Jun 2001 06:43:17 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: gurre@start.no (Harald Arnesen), jamagallon@able.es (J . A . Magallon),
+        linux-kernel@vger.kernel.org
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <E157kUn-0000Rd-00@the-village.bc.nu>
+From: davidw@apache.org (David N. Welton)
+Date: 07 Jun 2001 12:43:12 +0200
+Message-ID: <874rtsmuyn.fsf@apache.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ If you want to comment about this topic, respect the Reply-To ! ]
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
+> > Absolutely. We chide Microsoft for not following standards, so we
+> > should definitely follow the SI standards, which are much firmer
+> > than any internet standards.
 
-The last week or so has seen a profileration of email bounces during
-the mail delivery, or "DATA" phase.
+> /dev/temperature is in farenheit. It was specified by someone in the
+> UK several years ago and we are stuck with it that way really.
 
-I can somewhat sympathise the goals of the filters, but some are quite
-unfathomable of how they decide what exact content is undesirable, and
-what isn't...
+So it is not possible to have an 'opt-in' kernel config (or sysctl, I
+suppose) option (default is off) that allows you to say "ok, on this
+box, everything is going to be in Fahrenheit/Celsius/Kelvin"?  It
+would be something that the admin decides to turn on, hopefully
+conscious of the fact that this may entail other changes.
+ 
+> Newer API's should probably use celcius/kelvin
 
-The most common ill-defined filters seem to essentially grep for a sequence
-of characters anywhere in the message body without paying attention to such
-small details as if that character sequence forms a word, or is part of some
-other word.
+My thought was that it would be nice to be able to configure this, so
+that one could work with the units one is most comfortable with.  104
+Fahrenheit tells *me* a lot more than 313 Kelvin.  Maybe Elbonians are
+more comfortable working with Kelvin.
 
-Example (obfuscated against stupid grep):
+Well, anyway, it was just an idea that popped into my head when
+looking around, I'll step aside and let you guys figure out what is
+best:-) (Please do keep me CC'ed though).
 
-      the   l i n k   to ...
-
-It was matched against:
-
-              i n k
-
-Right, definitely the same thing, isn't it ?
-
-Better filters look for longer character sequences, possibly even detecting
-word separators.
-
-At the end of the page:
-    http://vger.kernel.org/majordomo-info.html
-you can see how VGER filters through-going traffic -- "Taboo things"...
-That thing works so well, that rarely anything truly spammish goes thru.
-Senders of such messages don't get any notification at all.
-(In case the message is e.g. too large, they get a word that it has been
- diverted to Approval.)
-
-
-Best filters give parametrizable amounts of points to found matches, some
-may be harmless enough to exist elsewere, while others are dead give-aways
-of spam.   When the message accumulates high enough treshold value of such
-points, it can fairly certainly be classified as spam.
-
-Best sites let at least system postmaster receive anything without it
-being filtered -- I have seen cases where big corporate input filter says
-in its reject message that "do contact  'filtops@...' if you   t h i n k
-something is wrong...", and when I send the exact message there, it bounces...
-
-
-So,  if you all the sudden loose your subscription, it could be just
-because your ISP decided that a 3 character sequence anywhere in the
-message body is a sign of spam.
-
-
-
-/Matti Aarnio   co-postmaster of vger.kernel.org
+Thankyou for your time,
+-- 
+David N. Welton
+Free Software: http://people.debian.org/~davidw/
+   Apache Tcl: http://tcl.apache.org/
+     Personal: http://www.efn.org/~davidw/
+         Work: http://www.innominate.com/

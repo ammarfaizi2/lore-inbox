@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263675AbREYKAW>; Fri, 25 May 2001 06:00:22 -0400
+	id <S261213AbREYRLp>; Fri, 25 May 2001 13:11:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263674AbREYKAM>; Fri, 25 May 2001 06:00:12 -0400
-Received: from pc7.prs.nunet.net ([199.249.167.77]:62734 "HELO
-	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S263673AbREYJ7x>;
-	Fri, 25 May 2001 05:59:53 -0400
-Message-ID: <20010525095952.15078.qmail@pc7.prs.nunet.net>
-From: "Rico Tudor" <rico-linux-kernel@patrec.com>
-Subject: Re: Big-ish SCSI disks
-To: gjohnson@research.canon.com.au (Greg Johnson)
-Date: Fri, 25 May 101 04:59:52 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010525062236.8CC1837530@zapff.research.canon.com.au> from "Greg Johnson" at May 25, 1 04:22:36 pm
-X-Mailer: ELM [version 2.4 PL25]
+	id <S262615AbREVQZ0>; Tue, 22 May 2001 12:25:26 -0400
+Received: from [192.48.153.1] ([192.48.153.1]:6920 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S262606AbREVQZU>;
+	Tue, 22 May 2001 12:25:20 -0400
+Message-ID: <3B0A9387.A1096DE5@sgi.com>
+Date: Tue, 22 May 2001 11:27:51 -0500
+From: Steve Modica <modica@sgi.com>
+Reply-To: modica@sgi.com
+Organization: sgi
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19-4.1mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
+        linux-ppp@vger.kernel.org
+Subject: Re: ECN is on!
+In-Reply-To: <200105221612.SAA26062@cave.bitwizard.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running stock 2.4.4 on five PCs with these features: ServerWorks
-III HE, 2x 933MHz, 4GB RAM, dual-channel sym53c896 (FAST-40 WIDE) SCSI
-controller.  One PC has the new 181GB Seagate SCSI drive; another uses a
-3ware RAID controller with 4x 40GB IDE (looks like a 160GB SCSI drive).
-All is fine with slackware-current.
+Rogier Wolff wrote:
+> The "we'll turn it on in February" warning is worth NOTHING in this
+> situation: February comes and goes. March comes and goes. Everybody
+> who read the warning will think: Ok, so I must be fine.
+> 
+> A warning of the form: "ECN will go on as soon as this message clears
+> the queues" would've been useful, as thousands (hundreds?) suddenly get
+> nothing anymore.
+> 
 
-You might play with "nosmp" and "noapic" kernel params.  When building a
-kernel, disable everything including SCSI: work your way up from IDE or
-floppy root.  SMP failed on our systems until I dumped the slocket-based
-CPUs for Slot 1.  (Still a mystery, that.)
+I agree with this line of thinking.  The various academics studying
+geology have been warning California about "The Big One" for years now,
+and no one seems to care anymore.  
+
+I don't think anyone's being lazy and I certainly don't have the
+information to comment on the size of their butts.  So I'd rather just
+assume they were working very hard on other things (like getting TPC-H
+benchmarks to run!)
+
+Steve
+
+-- 
+Steve Modica
+Manager - Networking Drivers Group
+"Give a man a fish, and he will eat for a day, hit him with a fish and
+he leaves you alone" - me

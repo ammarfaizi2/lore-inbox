@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263060AbRFJWlX>; Sun, 10 Jun 2001 18:41:23 -0400
+	id <S263170AbRFJXVH>; Sun, 10 Jun 2001 19:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263086AbRFJWlN>; Sun, 10 Jun 2001 18:41:13 -0400
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:2089 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263060AbRFJWlI>; Sun, 10 Jun 2001 18:41:08 -0400
-Date: Sun, 10 Jun 2001 22:40:46 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: process table fills with DN state when nfs connection is lost
-Message-ID: <20010610224046.B27096@grobbebol.xs4all.nl>
-In-Reply-To: <20010610223428.A27096@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010610223428.A27096@grobbebol.xs4all.nl>; from roel@grobbebol.xs4all.nl on Sun, Jun 10, 2001 at 10:34:28PM +0000
-X-OS: Linux grobbebol 2.4.5 
+	id <S263172AbRFJXU4>; Sun, 10 Jun 2001 19:20:56 -0400
+Received: from HSE-Toronto-ppp91066.sympatico.ca ([216.209.41.31]:18560 "EHLO
+	dmz.remoteserver.org") by vger.kernel.org with ESMTP
+	id <S263170AbRFJXUj>; Sun, 10 Jun 2001 19:20:39 -0400
+Date: Sun, 10 Jun 2001 19:19:57 -0400 (EDT)
+From: Daniel Rose <joe@datalinesolutions.com>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pppd in 2.4 series
+In-Reply-To: <Pine.LNX.4.10.10106102240590.23532-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.21.0106101919070.29055-100000@dmz.remoteserver.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 10, 2001 at 10:34:28PM +0000, Roeland Th. Jansen wrote:
-> I have a network with a different linux system hat exports a few dirs to
-> this system.
+On Sun, 10 Jun 2001, Mark Hahn wrote:
 
-oops, this is 2.4.5. but happened before as well.
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+> > Everything compiles fine, and boots fine, but try and run pppd, and "This
+> > kernel as no support of PPP.."
+> 
+> normally a sign that user-space and kernel versions have diverged.
+> 
+It was indeed a conflict w/ the ppp version i had installed. Upgraded to
+2.4.1 and all is well.
+

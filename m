@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTLWSoM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTLWSoM
+	id S262280AbTLWSsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTLWSsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:44:12 -0500
-Received: from imo-d01.mx.aol.com ([205.188.157.33]:4859 "EHLO
-	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S262161AbTLWSoK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:44:10 -0500
-Message-ID: <3FE88CE8.1020109@netscape.net>
-Date: Tue, 23 Dec 2003 14:43:52 -0400
-From: John Gluck <jgluckca@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 23 Dec 2003 13:48:21 -0500
+Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:10491 "EHLO
+	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262280AbTLWSsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:48:08 -0500
+From: "J.C. Wren" <jcwren@jcwren.com>
+Reply-To: jcwren@jcwren.com
 To: linux-kernel@vger.kernel.org
-Subject: question about setup.c 
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Prevailence of PS/2 Active Muxed devices?
+Date: Tue, 23 Dec 2003 13:47:33 -0500
+User-Agent: KMail/1.5.4
+References: <20031223180429.GA11198@dreamland.darkstar.lan> <200312231325.39712.jcwren@jcwren.com>
+In-Reply-To: <200312231325.39712.jcwren@jcwren.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AOL-IP: 67.60.153.181
-X-Mailer: Unknown (No Version)
+Content-Disposition: inline
+Message-Id: <200312231347.33818.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+	Naturally, after spending 45 minutes looking through mouse and keyboard 
+sources in 2.4.21 on the laptop, I find it in i8042.c in the 2.6 tree.
 
-I've been poking around the kernel startup code to try and understand 
-the sequence of events. I came across something I don't understand and 
-which might be redundant.
+	Now to see if something can actually be done with it...
 
-This is from the 2.6.0 kernel:
+	--jc
 
-In arch/i386/kernel/setup.c the parse_cmdline_early() function, the 
-argument "mem=XXX[kKmM]" is parsed.
-
-In arch/sh/kernel/setup.c the parse_cmdline() function also parses 
-"mem=XXX[kKmM]"
-
-Could someone please explain this.
-
-I am not subscribed to this list so a reply directly to me would be 
-appreciated.
-
-Thanks and a Merry Christmas to everyone
-
-John
+On Tuesday 23 December 2003 13:25 pm, J.C. Wren wrote:
+> 	I have an application where I'd like to specifically control which PS/2
+> aux device data is sent/received from/to.  Particularly, on a laptop that
+> has an integrated touch pad, I'd like to select the external mouse port.
+>
+> 	This document http://www.synaptics-uk.com/decaf/utilities/ps2-mux.PDF
+> describes what appears to be a rather well thought method for multiple aux
+> devices on a single KBC.
+>
+> 	Looking through the kernel sources, I see no handling for this.  From a
+> big picture perspective, how does Linux handle a system with an integrated
+> mouse pad, and an external PS/2 mouse port?  Is this whole Synaptics idea
+> dead, or is support for this planned, or even considered?  Does any one
+> have any knowledge the number of KBCs with this muxing?
+>
+> 	Seeing some of the parties that partcipated in the standards, it would be
+> a touch surprising if it just completely died.
+>
+> 	--jc
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

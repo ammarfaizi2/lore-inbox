@@ -1,184 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVCQXTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCQXZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVCQXTW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 18:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVCQXTW
+	id S261360AbVCQXZR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 18:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVCQXZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 18:19:22 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:44419 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261358AbVCQXSt (ORCPT
+	Thu, 17 Mar 2005 18:25:17 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61320 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261360AbVCQXZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 18:18:49 -0500
-Date: Fri, 18 Mar 2005 00:18:48 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, akpm@osdl.org
-Subject: [PATCH 2/2] PCI-PCI transparent bridge handling improvements (yenta_socket)
-Message-ID: <20050317231848.GB24645@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	benh@kernel.crashing.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 17 Mar 2005 18:25:07 -0500
+Date: Thu, 17 Mar 2005 15:24:56 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prezeroing V8
+In-Reply-To: <20050317151151.47fd6e5f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503171518030.10205@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
+ <20050317140831.414b73bb.akpm@osdl.org> <Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
+ <20050317151151.47fd6e5f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a follow-up, we can make yenta_socket try harder to limit itself to the
-parent bridge windows. This is done by lowering the
-PCIBIOS_MIN_CARDBUS_IO and by updating yenta_allocate_res(). It now tries at
-first to get resources within the bridge windows, and if they are large
-enough (>=BRIDGE_{IO,MEM}_ACC), these are used. If no or only too small
-resources were found, it falls back to the resources behind the parent PCI
-bridge if this is "transparent". Using this patch may result in such "funny"
-/proc/ioports as:
+On Thu, 17 Mar 2005, Andrew Morton wrote:
 
-2800-28ff : PCI CardBus #07
-3000-3fff : PCI Bus #02
-  3000-303f : 0000:02:08.0
-    3000-303f : e100
-  3400-34ff : PCI CardBus #03
-  3800-38ff : PCI CardBus #03
-  3c00-3cff : PCI CardBus #07
+> OK, so we're splitting each zone's buddy structure into two: one for zeroed
+> pages and one for not-zeroed pages, yes?
 
-There weren't enough properly aligned ports available inside PCI Bus #02 to
-stuff all four (2x2) IO windows into it, so one was taken outside the
-transparent PCI bridge ioport window.
+Right.
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> It's not obvious what the page->private of freed pages are being used for.
+> Please comment that.
 
-Index: 2.6.11++/drivers/pcmcia/yenta_socket.c
+Ok.
+
+> What's all this (zero << 10) stuff?
+>
+> +	page->private = order + (zero << 10);
+> +           (page_zorder(page) == order + (zero << 10)) &&
+>
+> Doesn't this explode if we already have order-1024 pages in there?  I guess
+> that's a reasonable restriction, but where did the "10" come from?
+> Non-obvious, needs commenting.
+
+Yes it will fail if we have pages of the size of 2^1036.
+
+> And given that we have separate buddy structures for zeroed and not-zeroed
+> pages, why is this tagging needed at all?
+
+Because the buddy pointers may point to a page of the different kind. Then
+a merge is not possible.
+
+> These are all design decisions which have been made, but they're not
+> communicated either in the patch description or in code comments.  It's to
+> everyone's advantage to fix that, no?
+
+Of course. Try to do this ASAP. Testing a patch that defines the
+following:
+
+Index: linux-2.6.11/include/linux/gfp.h
 ===================================================================
---- 2.6.11++.orig/drivers/pcmcia/yenta_socket.c	2005-03-17 23:13:58.000000000 +0100
-+++ 2.6.11++/drivers/pcmcia/yenta_socket.c	2005-03-17 23:40:38.000000000 +0100
-@@ -518,19 +518,23 @@
-  * Use an adaptive allocation for the memory resource,
-  * sometimes the memory behind pci bridges is limited:
-  * 1/8 of the size of the io window of the parent.
-- * max 4 MB, min 16 kB.
-+ * max 4 MB, min 16 kB. We try very hard to not get
-+ * below the "ACC" values, though.
-  */
- #define BRIDGE_MEM_MAX 4*1024*1024
-+#define BRIDGE_MEM_ACC 128*1024
- #define BRIDGE_MEM_MIN 16*1024
- 
- #define BRIDGE_IO_MAX 256
-+#define BRIDGE_IO_ACC 256
- #define BRIDGE_IO_MIN 32
- 
- #ifndef PCIBIOS_MIN_CARDBUS_IO
- #define PCIBIOS_MIN_CARDBUS_IO PCIBIOS_MIN_IO
- #endif
- 
--static void yenta_allocate_res(struct yenta_socket *socket, int nr, unsigned type)
-+static int yenta_try_allocate_res(struct yenta_socket *socket, int nr,
-+				  unsigned int type, unsigned int run)
- {
- 	struct pci_bus *bus;
- 	struct resource *root, *res;
-@@ -550,11 +554,11 @@
- 	res->name = bus->name;
- 	res->flags = type;
- 	res->start = 0;
--	res->end = 0;
-+	res->end = run;
- 	root = pci_find_parent_resource(socket->dev, res);
- 
- 	if (!root)
--		return;
-+		return -ENODEV;
- 
- 	start = config_readl(socket, offset) & mask;
- 	end = config_readl(socket, offset+4) | ~mask;
-@@ -562,7 +566,8 @@
- 		res->start = start;
- 		res->end = end;
- 		if (request_resource(root, res) == 0)
--			return;
-+			return 0;
-+
- 		printk(KERN_INFO "yenta %s: Preassigned resource %d busy, reconfiguring...\n",
- 				pci_name(socket->dev), nr);
- 		res->start = res->end = 0;
-@@ -571,12 +576,12 @@
- 	if (type & IORESOURCE_IO) {
- 		align = 1024;
- 		size = BRIDGE_IO_MAX;
--		min = BRIDGE_IO_MIN;
-+		min = run ? BRIDGE_IO_ACC : BRIDGE_IO_MIN;
- 		start = PCIBIOS_MIN_CARDBUS_IO;
- 		end = ~0U;
- 	} else {
- 		unsigned long avail = root->end - root->start;
--		int i;
-+		u32 i;
- 		size = BRIDGE_MEM_MAX;
- 		if (size > avail/8) {
- 			size=(avail+1)/8;
-@@ -586,26 +591,36 @@
- 				i++;
- 			size = 1 << i;
- 		}
--		if (size < BRIDGE_MEM_MIN)
--			size = BRIDGE_MEM_MIN;
-+		i = run ? BRIDGE_MEM_ACC : BRIDGE_MEM_MIN;
-+		if (size < i)
-+			size = i;
- 		min = BRIDGE_MEM_MIN;
- 		align = size;
- 		start = PCIBIOS_MIN_MEM;
- 		end = ~0U;
- 	}
--	
-+
- 	do {
- 		if (allocate_resource(root, res, size, start, end, align, NULL, NULL)==0) {
- 			config_writel(socket, offset, res->start);
- 			config_writel(socket, offset+4, res->end);
--			return;
-+			return 0;
- 		}
- 		size = size/2;
- 		align = size;
- 	} while (size >= min);
-+
-+	return -ENODEV;
-+}
-+
-+static void yenta_allocate_res(struct yenta_socket *socket, int nr, unsigned type)
-+{
-+	if (!(yenta_try_allocate_res(socket, nr, type, 1)) ||
-+	    !(yenta_try_allocate_res(socket, nr, type, 0)))
-+		return;
-+
- 	printk(KERN_INFO "yenta %s: no resource of type %x available, trying to continue...\n",
- 			pci_name(socket->dev), type);
--	res->start = res->end = 0;
- }
- 
- /*
-@@ -616,7 +631,7 @@
- 	yenta_allocate_res(socket, 0, IORESOURCE_MEM|IORESOURCE_PREFETCH);
- 	yenta_allocate_res(socket, 1, IORESOURCE_MEM);
- 	yenta_allocate_res(socket, 2, IORESOURCE_IO);
--	yenta_allocate_res(socket, 3, IORESOURCE_IO);	/* PCI isn't clever enough to use this one yet */
-+	yenta_allocate_res(socket, 3, IORESOURCE_IO);
- }
- 
- 
-Index: 2.6.11++/include/asm-i386/pci.h
-===================================================================
---- 2.6.11++.orig/include/asm-i386/pci.h	2005-03-17 23:13:58.000000000 +0100
-+++ 2.6.11++/include/asm-i386/pci.h	2005-03-17 23:31:08.000000000 +0100
-@@ -21,7 +21,7 @@
- #define PCIBIOS_MIN_IO		0x1000
- #define PCIBIOS_MIN_MEM		(pci_mem_start)
- 
--#define PCIBIOS_MIN_CARDBUS_IO	0x4000
-+#define PCIBIOS_MIN_CARDBUS_IO	0x2000
- 
- void pcibios_config_init(void);
- struct pci_bus * pcibios_scan_root(int bus);
+--- linux-2.6.11.orig/include/linux/gfp.h       2005-03-01
+23:37:50.000000000 -0800
++++ linux-2.6.11/include/linux/gfp.h    2005-03-17 14:59:06.000000000
+-0800
+@@ -125,6 +125,8 @@ extern void FASTCALL(__free_pages(struct
+ extern void FASTCALL(free_pages(unsigned long addr, unsigned int order));
+ extern void FASTCALL(free_hot_page(struct page *page));
+ extern void FASTCALL(free_cold_page(struct page *page));
++extern void FASTCALL(free_hot_zeroed_page(struct page *page));
++extern void FASTCALL(free_cold_zeroed_page(struct page *page));
+
+ #define __free_page(page) __free_pages((page), 0)
+ #define free_page(addr) free_pages((addr),0)
+
+This is what you want right?
+

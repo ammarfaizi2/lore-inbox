@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUDAIYa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 03:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUDAIY3
+	id S262068AbUDAI0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 03:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUDAI0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 03:24:29 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:45423 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262085AbUDAIY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 03:24:27 -0500
-Message-ID: <406BD1B6.4090901@yahoo.com.au>
-Date: Thu, 01 Apr 2004 18:24:22 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Cory Tusar <ctusar@adelphia.net>
-CC: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 1 Apr 2004 03:26:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:954 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262068AbUDAIZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 03:25:56 -0500
+Date: Thu, 1 Apr 2004 00:25:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] multiple namespaces
-References: <1080800087.1490.14.camel@cube> <406BC690.2080803@adelphia.net>
-In-Reply-To: <406BC690.2080803@adelphia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20040401002549.4e124592.akpm@osdl.org>
+In-Reply-To: <1080800087.1490.14.camel@cube>
+References: <1080800087.1490.14.camel@cube>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cory Tusar wrote:
-> Albert Cahalan wrote:
-> 
->> +/* drive letter support */
->> +#define PR_GET_DRIVE 42     /* get the current drive */
->> +#define PR_SET_DRIVE 69     /* set the current drive */
->> +#define PR_SUBST_CREATE 666   /* associate a drive letter with 
->> something */
->> +#define PR_SUBST_DESTROY 20040401   /* kill a drive letter */
-> 
-> 
-> My bogometer just twitched...
-> 
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+>  This patch lets a task have access to multiple namespaces.
+>  You can create extra namespaces with the included SUBST command.
+>  Then, from the bash prompt, you can switch from one namespace
+>  to another by typing commands like "C" or "D". The default
+>  namespace is "C" for compatibility reasons.
 
-Your april-foolometer, perhaps? :)
+Applied, thanks.   But you missed this bit:
+
+
+ 25-akpm/kernel/printk.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletion(-)
+
+diff -puN kernel/printk.c~a kernel/printk.c
+--- 25/kernel/printk.c~a	2004-04-01 00:24:07.036691080 -0800
++++ 25-akpm/kernel/printk.c	2004-04-01 00:24:41.266487360 -0800
+@@ -459,7 +459,7 @@ static void call_console_drivers(unsigne
+ 	_call_console_drivers(start_print, end, msg_level);
+ }
+ 
+-static void emit_log_char(char c)
++static void __emit_log_char(char c)
+ {
+ 	LOG_BUF(log_end) = c;
+ 	log_end++;
+@@ -471,6 +471,13 @@ static void emit_log_char(char c)
+ 		logged_chars++;
+ }
+ 
++static void emit_log_char(char c)
++{
++	if (c == '\n')
++		__emit_log_char('\r');
++	__emit_log_char(c);
++}
++
+ /*
+  * This is printk.  It can be called from any context.  We want it to work.
+  * 
+
+_
+

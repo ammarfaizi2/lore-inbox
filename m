@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135788AbREFRmc>; Sun, 6 May 2001 13:42:32 -0400
+	id <S135801AbREFSKT>; Sun, 6 May 2001 14:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135792AbREFRmW>; Sun, 6 May 2001 13:42:22 -0400
-Received: from fe8.southeast.rr.com ([24.93.67.55]:55047 "EHLO
-	mail8.carolina.rr.com") by vger.kernel.org with ESMTP
-	id <S135788AbREFRmN>; Sun, 6 May 2001 13:42:13 -0400
-From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Date: Sun, 6 May 2001 13:41:40 -0400
-To: Jussi Laako <jlaako@pp.htv.fi>
-Cc: Seth Goldberg <bergsoft@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: Athlon possible fixes
-Message-ID: <20010506134140.A905@clt88-175-140.carolina.rr.com>
-In-Reply-To: <200105051626.SAA16651@cave.bitwizard.nl> <3AF4824F.8964E53B@home.com> <3AF57F63.9900089E@pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AF57F63.9900089E@pp.htv.fi>; from jlaako@pp.htv.fi on Sun, May 06, 2001 at 07:44:19PM +0300
+	id <S135802AbREFSKK>; Sun, 6 May 2001 14:10:10 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:65104 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S135801AbREFSKH>; Sun, 6 May 2001 14:10:07 -0400
+Message-ID: <3AF584A2.4050208@kalifornia.com>
+Date: Sun, 06 May 2001 10:06:42 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9+) Gecko/20010503
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
+CC: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+In-Reply-To: <20010505063726.A32232@va.samba.org> <20010506011553.A11297@zed.dlitz.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 07:44:19PM +0300, Jussi Laako wrote:
-> Seth Goldberg wrote:
-> > 
-> > and rebooted, the system stayed up a lot longer, but it still crashed (I
-> > was in Xwindows and the crash was partially written to the log file)
-> > after around 3 minutes of work in X.
-> 
-> Hmm, I'm wondering if this could be same bug that I'm seeing with ASUS
-> A7V133 & Duron/800 when using IDE autotuning (PDC20265).
-> 
-> Still haven't got any replies suggesting any reason for lockups I'm seeing
-> (no oopses). Or is the Promise driver just buggy, because system is solid
-> with noautotune. RAID5 (md) on that server is just little bit sluggish with
-> ~1.7 MB/s transfer rate... I should have stayed with SCSI disks...
+Dwayne C. Litzenberger wrote:
 
-http://www.viahardware.com/
+>Hey, this is cool.
+>
+>How far away is the capability to "teleport" processes from one machine to
+>another over the network?  Think of the uptime!
+>
 
-there you should find (if I'm right) somewhere mentioned that you likely
-to trash your hard drives or experience random lock ups with KT133a chipset
-especially if you use off-board ide controller ... As to why it happens is
-beyond me to explain ...
+It is here.  Look at Mosix.
 
-(maybe even this doesn't apply for case).
 -- 
-Zilvinas Valinskas
+I'd rather listen to Newton than to Mundie [MS flunkie who made a speech on
+the evil-ness of open source]. He may have been dead for almost three
+hundred years, but despite that he stinks up the room less.
+
+Linus
+
+
+

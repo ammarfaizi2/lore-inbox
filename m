@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVBVPOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVBVPVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVBVPOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 10:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVBVPOb
+	id S262327AbVBVPVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 10:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVBVPVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 10:14:31 -0500
-Received: from mail.65535.com ([194.193.169.194]:60117 "EHLO bigcake.65535.com")
-	by vger.kernel.org with ESMTP id S262325AbVBVPO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 10:14:27 -0500
-Message-ID: <421B4CE7.7010505@65535.com>
-Date: Tue, 22 Feb 2005 15:16:55 +0000
-From: "j@65535.com" <j@65535.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041210)
-X-Accept-Language: en-us, en
+	Tue, 22 Feb 2005 10:21:35 -0500
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:12678 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S262327AbVBVPV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 10:21:29 -0500
+Message-ID: <313680C9A886D511A06000204840E1CF0A647667@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: PPC32 8xx MPC880  Linux 2.6 Interrupt storm 
+Date: Tue, 22 Feb 2005 10:21:27 -0500
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: APM Suspend with savagefb
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have MPC880 based board with 24C02 I2C serial EEPROM
+ and I try to run Linux 2.6 on this board.
 
-If i compile my IBM Thinkpad T23 to use APM and the savagefb driver for 
-a framebuffer console, it will hang when resuming from a suspend or 
-hibernate. The system is unresponsive, the screen is totally blank and 
-no input makes any difference, it is necessary to hard reset the system..
-This behavior can be reproduced on 2.6.10-ac10, 2.6.10, and 2.6.11-rc2
-When compiling any of these versions without framebuffer support, 
-suspend and hibernate work perfectly. It is also not possible for me to 
-use ACPI currently as (aside from this problem) the 
-suspend/resume/hibernate code is nowhere near as stable.
-The videocard is identified as:
-   Bus  1, device   0, function  0:
-     VGA compatible controller: S3 Inc. SuperSavage IX/C SDR (rev 5).
-       IRQ 11.
-       Master Capable.  Latency=64.  Min Gnt=4.Max Lat=255.
-       Non-prefetchable 32 bit memory at 0xc0100000 [0xc017ffff].
-       Prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
-       Prefetchable 32 bit memory at 0xe4000000 [0xe7ffffff].
-       Prefetchable 32 bit memory at 0xe0000000 [0xe1ffffff].
+Originally I had problem:
 
-I'm using kernel commandline "video=savagefb:1024x768@70" to enable the 
-savage framebuffer device..
+<3>request_irq() returned -22 for CPM vector 32.
 
-Any ideas on this? Perhaps the savagefb device doesn't correctly 
-reinitialize the display on resume? I seem to remember VesaFB worked 
-fine with suspend/resume, tho i haven't tested that on the T23 and it 
-would definately be preferable to have the actual savage driver.
+I traced the problem to the following line,
+shown below as commented out (by me)
+in cpm_iic_init() (drivers/i2c/algos/i2c-algo-8xx.c)
 
-Regards,
-	Bert
+/* (*cpm_adap->setisr)(CPM_IRQ_OFFSET + CPMVEC_I2C, cpm_iic_interrupt,
+cpm_int_name[CPMVEC_I2C], (void *)i2c); */
+                               ^                             ^
+                               |                             |
+                               16                           16
+
+It makes the first argument to be 32 (16 + 16) and that was originally
+causing error.
+
+This error gets generated actually in request_irq() in kernel/irq/manage.c.
+
+Specifically (I tracked it down with debug print there ) it comes from
+
+if (irq >= NR_IRQS)
+
+return -EINVAL;
+
+Note that NR_IRQS is set to 32 and irq was also 32 as described above
+(before my "fix" - see below) .
+
+I have made the "fix" (it's just a kludge, I am not sure where the correct
+fix should be
+and what is the actual origin of this problem):
+
+
+(*cpm_adap->setisr)(CPM_IRQ_OFFSET + CPMVEC_I2C - CPM_IRQ_OFFSET,
+cpm_iic_interrupt, cpm_int_name[CPMVEC_I2C], (void *)i2c);
+
+                                                  ^^^^^^^^^^^^^^^
+
+I am leaving above line "as is" just for demonstrational purpose: to show
+that in the first argument the 
+CPM_IRQ_OFFSET is originally added and I am subtracting it back.
+
+This gives:
+
+cpm_iic_init[134] Install ISR for IRQ 16 CPM_IRQ_OFFSET 16
+
+rpx_install_isr: irq: 0x10 <<<=============    This is correct IRQ for I2C
+on 8xx
+
+However after this "fix" I see continuos flood of interrupts for IRQ 0x10
+(dedicated to I2C on 8xx) in response to polling of 0x50 I2C address 
+- should be just one interrupt ...
+but actually, the ISR function gets triggered in continuous non-stop flood -
+I could see it with the print statement (of course I disabled this print for
+the next build ...) so it chokes the processor completely.
+
+Thanks,
+Best Regards,
+Alex
+

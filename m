@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274842AbRJAKEa>; Mon, 1 Oct 2001 06:04:30 -0400
+	id <S274846AbRJAKHA>; Mon, 1 Oct 2001 06:07:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274834AbRJAKEV>; Mon, 1 Oct 2001 06:04:21 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:48396 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S274835AbRJAKEF>;
-	Mon, 1 Oct 2001 06:04:05 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11-pre1 -- Building aedsp16.o -- No rule to make target `/etc/sound/dsp001.ld', needed by `pss_boot.h' 
-In-Reply-To: Your message of "01 Oct 2001 02:34:23 MST."
-             <1001928866.1246.95.camel@stomata.megapathdsl.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 Oct 2001 20:04:06 +1000
-Message-ID: <635.1001930646@ocs3.intra.ocs.com.au>
+	id <S274845AbRJAKGu>; Mon, 1 Oct 2001 06:06:50 -0400
+Received: from mail.siemens.pl ([217.153.88.106]:50702 "EHLO mail.siemens.pl")
+	by vger.kernel.org with ESMTP id <S274838AbRJAKGk>;
+	Mon, 1 Oct 2001 06:06:40 -0400
+Message-ID: <F954B4B85128D4119FC000104BB868D502627C5A@wawzz11e.siemens.pl>
+From: Piotr.Wadas@siemens.pl
+To: linux-kernel@vger.kernel.org
+Subject: UDMA question
+Date: Mon, 1 Oct 2001 12:07:18 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Oct 2001 02:34:23 -0700, 
-Miles Lane <miles@megapathdsl.net> wrote:
->gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o aedsp16.o aedsp16.c
->make[2]: *** No rule to make target `/etc/sound/dsp001.ld', needed by `pss_boot.h'.  Stop.
+hello
+kernel version: 2.4.9 / 2.4.10 and older versions too
+I have ALI15x mainboard and when I enable in kernel configuration
+an option for this chipset related to UDMA, it cannot properly detect
+hard disks (it tries three times and then disables feature).
+As long ALI15x chipset are known to be supported, it doesn't work for me :(
 
->gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o cpqfcTSinit.o cpqfcTSinit.c
->cpqfcTSinit.c: In function `cpqfcTS_ioctl':
->cpqfcTSinit.c:662: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in this function)
+The disks are IDE, two 3GB WDC as /dev/hdb /dev/hdc and Quantum 10GB as hda
+(I didn't turn on special no-crc access for WDB, although it's available in
+kernel
+with "Dangerous" mark)
+Things gets messed when it starts "partition check" on hda, no matters if I
+use
+devfs or not.
+does this feature work? maybe should I set some parameter like pio=xx or
+sth?
+I've done some research in this theme, but I didn't find anything like this.
+Is there a possibility to enable/disable this chipset support from kernel
+boot
+commandline? some kind of udma=disable? maybe should I set PIO in BIOS?
+do You guys know any quick solution for such problem?
+best regards ;)
+Piotrek (Piotr.Wadas@siemens.pl)
+'an extreme linux fascinate'
 
-You really need to search the archives better.  Both have already been
-covered.
+
 

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbTLXDSt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 22:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTLXDSt
+	id S263137AbTLXDlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 22:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTLXDlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 22:18:49 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:22236 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263082AbTLXDSr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 22:18:47 -0500
-Date: Tue, 23 Dec 2003 19:18:35 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ioe-lkml@rameria.de,
-       shemminger@osdl.org, sylvain.jeaugey@bull.net, raybry@sgi.com,
-       hch@infradead.org, Simon.Derr@bull.net, wli@holomorphy.com
-Subject: Re: [PATCH] another minor bit of cpumask cleanup
-Message-Id: <20031223191835.26c974f2.pj@sgi.com>
-In-Reply-To: <20031224023632.5D5462C260@lists.samba.org>
-References: <20031223021039.5b99a04b.pj@sgi.com>
-	<20031224023632.5D5462C260@lists.samba.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 23 Dec 2003 22:41:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58785 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263137AbTLXDlX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 22:41:23 -0500
+Date: Wed, 24 Dec 2003 03:41:21 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ian Kent <raven@themaw.net>, greg@kroah.com, ULMO@Q.NET,
+       linux-kernel@vger.kernel.org
+Subject: Re: DevFS vs. udev
+Message-ID: <20031224034121.GH4176@parcelfarce.linux.theplanet.co.uk>
+References: <20031223215910.GA15946@kroah.com> <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au> <20031223183820.5b297c50.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223183820.5b297c50.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> thanks for reviewing!
+On Tue, Dec 23, 2003 at 06:38:20PM -0800, Andrew Morton wrote:
+ 
+> And yes, there are architectural/cleanliness issues with devfs.  In 2.5
+> Adam Richter totally reinventing devfs's internals, basing it around the
+> ramfs infrastructure.  If we elect to retain devfs in 2.8 then that effort
+> should be resurrected.
 
-My pleasure.
-
-> Maybe Dave will be convinced: he's dogmatic, but rarely unreasonable.
-
-On the third hand, it would be unreasonable of me to expect Dave to
-agree to shoot his products performance in the foot for the sake of my
-"more refined" coding style sensibilities.
-
-> I think we'll only be able to tell with the patch in front of us.
-
-I could publish an early version of it now, but I am supposed to be
-on vacation now with my family, so should avoid starting a discussion
-that I shouldn't participate in.
-
-> Someday someone will enable VOYAGER_DEBUG and they'll fix it.
-
-yup
-
-> In 2.7, my aim is to switch the rest of them, move more things to
-> per-cpu rather than [NR_CPUS] arrays, add the more efficient dynamic
-> per-cpu allocation, and spread the per-cpu religion by fire and the
-> sword.
-
-For folks doing really large cpu counts, like my employer, this might
-become of interest sooner.  On the other hand, we do really large memory
-as well, so this might not be especially critical to us.
-
-If NR_CPUS arrays start to annoy us sooner, I'll know where to consult.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Switching internals to ramfs won't be enough, though.  There are problems
+with devfs API that can't be solved by work on internals - lifetime rules
+for devfs nodes make no sense.  Take a look at the insertion/removal
+primitives and think of the lifetime rules they create for directories and
+user-created nodes.  _That_ is independent from the way you implement
+the internals (and sanitized version of the interface won't fit into
+use of ramfs, BTW).

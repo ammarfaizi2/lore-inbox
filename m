@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318237AbSG3L5x>; Tue, 30 Jul 2002 07:57:53 -0400
+	id <S318238AbSG3MCW>; Tue, 30 Jul 2002 08:02:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318238AbSG3L5x>; Tue, 30 Jul 2002 07:57:53 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:9486 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318237AbSG3L5x>;
-	Tue, 30 Jul 2002 07:57:53 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200207301201.g6UC18n10068@oboe.it.uc3m.es>
-Subject: [PATCH] another fix for vsprintf.c in 2.4.18
-To: linux kernel <linux-kernel@vger.kernel.org>
-Date: Tue, 30 Jul 2002 14:01:08 +0200 (MET DST)
-Cc: marcelo@conectiva.com.br
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S318240AbSG3MCW>; Tue, 30 Jul 2002 08:02:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54144 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318238AbSG3MCV>; Tue, 30 Jul 2002 08:02:21 -0400
+Date: Tue, 30 Jul 2002 08:07:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Axel Siebenwirth <axel@hh59.org>
+cc: JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Testing of filesystems
+In-Reply-To: <20020730094902.GA257@prester.freenet.de>
+Message-ID: <Pine.LNX.3.95.1020730080434.5365A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh - there's yet another bug in the lib/vsprintf.c implementation
-of scanf. This time it's in the handling of %x. The symptom is
-that "9bc" will be recongnized as hex OK, but "abc" won't be.
+On Tue, 30 Jul 2002, Axel Siebenwirth wrote:
 
-The problem is that the vscanf routine attemps to gobble space before
-beginning to parse the number and stops at a digit.  But it should, in
-the case that base=16, stop at a hexadecimal digit, not only at a
-decimal digit.
+> Hi,
+> 
+> I wonder what a good way is to stress test my JFS filesystem. Is there a tool
+> that does something like that maybe? Dont't want performance testing, just
+> all kinds of stress testing to see how the filesystem "is" and to check
+> integrity and functionality.
+> What are you filesystem developers use to do something like that?
+> 
+> Thanks,
+> Axel
 
+Compile the kernel in a directory tree on the file-system you
+want to test......
 
---- vsprintf.c.orig	Tue Jul 30 09:45:29 2002
-+++ vsprintf.c	Tue Jul 30 13:34:04 2002
-@@ -640,7 +645,7 @@
- 		while (isspace(*str))
- 			str++;
- 
--		if (!*str || !isdigit(*str))
-+		if (!*str || !((base==16)?isxdigit(*str):isdigit(*str)))
- 			break;
- 
- 		switch(qualifier) {
+while true ; do make clean ; make -j 16 bzImage ; make modules ; done
 
 
-The case when base=8 (%o) and base=0 (%i) are OK, as in the former the
-number will begin with a 0, and the latter means that we expect a
-leading 0x or 0 if it's a funny number, or else it's decimal (%d).
-Either way, searching for a decimal digit was always OK there.  It's
-only the base=16 (%x) case for which the code was broken, for the
-cases when the number starts with [a-f].
+Let this run for a day or so...
 
-Peter
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

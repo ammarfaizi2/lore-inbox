@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbTJPK1L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 06:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbTJPK1K
+	id S262792AbTJPKTK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 06:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTJPKTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 06:27:10 -0400
-Received: from genesis.westend.com ([212.117.67.2]:4504 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP id S262799AbTJPK1I convert rfc822-to-8bit
+	Thu, 16 Oct 2003 06:19:10 -0400
+Received: from a205017.upc-a.chello.nl ([62.163.205.17]:4992 "EHLO
+	mail.fluido.as") by vger.kernel.org with ESMTP id S262792AbTJPKTF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 06:27:08 -0400
-Subject: Getting Fasttrak TX2 Raid Controler to work.
-From: Kai Militzer <km@westend.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 16 Oct 2003 12:31:08 +0200
-Message-Id: <1066300268.1252.21.camel@bart>
+	Thu, 16 Oct 2003 06:19:05 -0400
+Date: Thu, 16 Oct 2003 12:19:05 +0200
+From: "Carlo E. Prelz" <fluido@fluido.as>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+Message-ID: <20031016101905.GA7454@casa.fluido.as>
+References: <20031015162056.018737f1.akpm@osdl.org> <Pine.LNX.4.44.0310160022210.13660-100000@phoenix.infradead.org> <20031016091918.GA1002@casa.fluido.as> <1066298431.1407.119.camel@gaston>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1066298431.1407.119.camel@gaston>
+X-operating-system: Linux casa 2.6.0-test7
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone!
+	Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+	Date: gio, ott 16, 2003 at 12:00:32 +0200
 
-I tried to get a 2.4.22 kernel to work with support for the Promise
-Fasttrak TX2 controller.
+Quoting Benjamin Herrenschmidt (benh@kernel.crashing.org):
 
-lspci says the following about the controller:
-00:0a.0 RAID bus controller: Promise Technology, Inc.:Unknown device
-6268 (rev 02)
+> My new driver (bk://ppc.bkbits.net/linuxppc-2.5-benh) now uses a copy
+> of XFree PCI IDs list, making it much easier to keep in sync. It should
+> also support the 9200.
 
-I included
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_BLK_PDC202XX_FORCE=y
-CONFIG_BLK_DEV_ATARAID=y
-CONFIG_BLK_DEV_ATARAID_PDC=y
+The latest (*NON*bk) patch distributed by James appears to include your
+new driver. The header from radeon_base.c  reads:
 
-in the .config-file
+--8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<--
 
-When booting the kernel I compiled this way, it detects the Fasttrak,
-but won't load the RAID, also it is directly compiled into the kernel
-and not as a module, and can't mount the VFS on /dev/ataraid/d0p*
+/*
+ *      drivers/video/radeonfb.c
+ *      framebuffer driver for ATI Radeon chipset video boards
+ *
+ *      Copyright 2003  Ben. Herrenschmidt <benh@kernel.crashing.org>
+ *      Copyright 2000  Ani Joshi <ajoshi@kernel.crashing.org>
+ *
+ *      i2c bits from Luca Tettamanti <kronos@kronoz.cjb.net>
+ *
+ *      Special thanks to ATI DevRel team for their hardware donations.
+ *
+ *      ...Insert GPL boilerplate here...
+ *
+ *      TODO: - Bring a couple of cleanups from 2.4 to the mode setting code,
+ *            - Split CRT vs. FP register calc/setting
+ *            - Add CRTC2 support for mirror at least, dual head then
+ *            - Add back some accel
+ *
+ */
 
-This is no hardware problem or else, because with a debian 2.4.18-bf24
-kernel the systems boots without a problem and I can use all devices
-under /dev/ataraid/d0p*
 
-Does anyone have an idea how I can get this to work? Thank you in
-advance.
+#define RADEON_VERSION  "0.2.0"
 
-Best Regards,
+--8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<--
 
-Kai
+
+Thus the rest of my previous message should be referred to
+your new driver.
+
+Carlo
+
+PS I am BK-handicapped. I had downloaded the program, and tried your
+instruction as per an old message of yours, and no download would take
+place. Since, if I recall correctly, bk cannot be used for free on
+closed-source projects, I cannot switch to it (nor lose too much time
+on it): I work on projects of both types, and changing every time
+between RCS/CVS and bk would be very umcomfortable.
 
 -- 
-Kai Militzer                 WESTEND GmbH  |  Internet-Business-Provider
-Technik                      CISCO Systems Partner - Authorized Reseller
-                             Lütticher Straße 10      Tel 0241/701333-11
-km@westend.com               D-52064 Aachen              Fax 0241/911879
-
-
+  *         Se la Strada e la sua Virtu' non fossero state messe da parte,
+* K * Carlo E. Prelz - fluido@fluido.as             che bisogno ci sarebbe
+  *               di parlare tanto di amore e di rettitudine? (Chuang-Tzu)

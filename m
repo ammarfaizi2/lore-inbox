@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318289AbSGXXQF>; Wed, 24 Jul 2002 19:16:05 -0400
+	id <S318293AbSGXXSQ>; Wed, 24 Jul 2002 19:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318290AbSGXXQF>; Wed, 24 Jul 2002 19:16:05 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55303 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318289AbSGXXQE>; Wed, 24 Jul 2002 19:16:04 -0400
-Date: Wed, 24 Jul 2002 16:19:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Jones <davej@suse.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.28
-In-Reply-To: <20020725011517.P16446@suse.de>
-Message-ID: <Pine.LNX.4.33.0207241618480.1779-100000@penguin.transmeta.com>
+	id <S318294AbSGXXSQ>; Wed, 24 Jul 2002 19:18:16 -0400
+Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.146]:19699 "EHLO
+	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
+	id <S318293AbSGXXSP>; Wed, 24 Jul 2002 19:18:15 -0400
+X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
+Date: Wed, 24 Jul 2002 16:22:23 -0700
+From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
+To: gibbs@scsiguy.com
+Subject: Re: [PATCH] aic7xxx driver doesn't release region
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Message-Id: <20020724161518.280B.T-KOUCHI@mvf.biglobe.ne.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jul 2002, Dave Jones wrote:
 
-> On Wed, Jul 24, 2002 at 02:13:49PM -0700, Linus Torvalds wrote:
->  
->  > ... Serial lawyer all shook up (the irq lock kind of forced that one,
->               ^^^^^^^
->  > but it's certainly been  pending long enough..)
+On Wed, 24 Jul 2002 16:28:48 -0600
+"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
+
+> >Hi,
+> >
+> >This is a patch to fix releasing memory and io regions for the
+> >aic7xxx driver.  This applies both 2.4- and 2.5-series.
 > 
-> Shake `em harder, lets see what falls out. 8-)
+> I don't recall when exactly this was fixed in the aic7xxx driver,
+> but probably 6.2.5 or so.  The 2.5.X kernel must not be using
+> a recent version of the driver.  Marcelo's tree has 6.2.8
+> which definitely does not require this patch (won't even apply).
 
-Yeah yeah, rub it in.
+Oops, I should have to check the latest 2.4.19-rc series first.
+I assumed that 2.5.x contains the latest.
+Sorry for bothering you and thanks.
 
-		Linus "dyslexic" Torvalds
+Thanks,
+-- 
+KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
 

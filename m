@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280582AbRKBHCD>; Fri, 2 Nov 2001 02:02:03 -0500
+	id <S280581AbRKBHDd>; Fri, 2 Nov 2001 02:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280581AbRKBHBx>; Fri, 2 Nov 2001 02:01:53 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:40079 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S280583AbRKBHBn>;
-	Fri, 2 Nov 2001 02:01:43 -0500
-Message-ID: <3BE2B5F2.1040009@xteamlinux.com.cn>
-Date: Fri, 02 Nov 2001 15:04:18 +0000
-From: zmwillow <zmwillow@xteamlinux.com.cn>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:0.9.4) Gecko/20010917
-X-Accept-Language: zh, zh-tw, en-us
+	id <S280584AbRKBHDO>; Fri, 2 Nov 2001 02:03:14 -0500
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:4039 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S280583AbRKBHCx>; Fri, 2 Nov 2001 02:02:53 -0500
+Message-ID: <3BE242D4.AC94A544@rcn.com.hk>
+Date: Fri, 02 Nov 2001 14:53:08 +0800
+From: David Chow <davidchow@rcn.com.hk>
+Organization: Resources Computer Network Ltd.
+X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: zh_TW, en
 MIME-Version: 1.0
-To: linux-kernel-mail-list <linux-kernel@vger.kernel.org>
-CC: hans reiser <reiser@namesys.com>
-Subject: where the filesystem size limitation coms from?
-Content-Type: text/plain; charset=gb2312
+To: linux-kernel@vger.kernel.org
+Subject: vm documentation
+Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
-That is say: in 2.4.x, the max filesystem size of ext2 is 32T, and i
-want know
-what is the reiserfs(and others) max size ? and where the limitation
-comes from(VFS layer)?
-Maybe you can give some clue .
-And the max file size now biger than 2G(is 16T), how reiserfs implement it?
-Thanx a lot!
-zmwillow
+Dear all,
 
-Best regard
+Is there any documentation of the recent changes of the vm in the linux
+kernel? Also, is there any source of documentation to get start with the
+linux kernel hacking? It is hard for people to getting start to
+contribute since is is obviously lack of documentation of the kernel
+sources... Any help will be appreciated. Thanks.
 
+regards,
+
+DC

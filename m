@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbUDEXKT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUDEXKT
+	id S263338AbUDEXMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUDEXMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:10:19 -0400
-Received: from gizmo09bw.bigpond.com ([144.140.70.19]:22247 "HELO
-	gizmo09bw.bigpond.com") by vger.kernel.org with SMTP
-	id S263529AbUDEXKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:10:07 -0400
-Mail-Copies-To: never
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Michael Buesch <mbuesch@freenet.de>
-Subject: Re: APIC error on CPU0
-Keywords: kernel
-References: <200404052336.23585.mbuesch@freenet.de>
-From: Steve Youngs <sryoungs@bigpond.net.au>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Organization: Linux Users - Fanatics Dept.
-X-URL: <http://users.bigpond.net.au/sryoungs/>
-X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Attribution: SY
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>, Michael
- Buesch <mbuesch@freenet.de>
-Date: Tue, 06 Apr 2004 09:03:58 +1000
-In-Reply-To: <200404052336.23585.mbuesch@freenet.de> (Michael Buesch's
- message of "Mon, 05 Apr 2004 23:35:59 +0200")
-Message-ID: <microsoft-free.8765ceyqld.fsf@eicq.dnsalias.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 5 Apr 2004 19:12:51 -0400
+Received: from [202.65.75.150] ([202.65.75.150]:41633 "EHLO
+	pythia.bakeyournoodle.com") by vger.kernel.org with ESMTP
+	id S263475AbUDEXME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:12:04 -0400
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Tue, 6 Apr 2004 07:03:51 +0800
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Stupid question re: register_cdrom()
+Message-ID: <20040405230351.GR3445@bakeyournoodle.com>
+Mail-Followup-To: "Calin A. Culianu" <calin@ajvar.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33L2.0404051649510.16268-100000@rtlab.med.cornell.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0404051649510.16268-100000@rtlab.med.cornell.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, Apr 05, 2004 at 04:53:16PM -0400, Calin A. Culianu wrote:
+> 
+> Let's say I was coding a cdrom emulator in software for kernel 2.4.  I
+> am unclear about register_cdrom().  Does register_cdrom() in
+> cdrom.c take care of telling the kernel that my kdev_t major/minor
+> combination in fact leads to a real driver?  Or do I need to take care of
+> that outside of regsiter_cdrom()?
+> 
+> If not.. how do I tell the kernel data structures that my driver's major
+> number does in fact point to a cdrom driver.  Basically, I want my
+> driver's major number to show up in /proc/devices..
+> 
+> This might be a stupid question, but I am not a linux kernel expert...
 
-* Michael Buesch <mbuesch@freenet.de> writes:
+Neither am I, therefore I hope you get a reply from someone else
+refuting or acknowledging my claims.
 
-  > What does this kernel message mean?
 
-  > Apr  5 23:16:20 lfs kernel: APIC error on CPU0: 60(60)
-  > Apr  5 23:16:31 lfs kernel: APIC error on CPU0: 60(60)
+I looks to me that the code that does the actual registration of the
+driver is in drivers/ide/ide-cd.c NOT cdrom.c.  Specifically
+ide_cdrom_attach().  Said function eventually calls the register_cdrom()
+you ask about.
 
-My logs are filling up with these as well, although I'm getting
-40(40), and the very occasional 00(40).
+For writing a cdrom emulator  You may want to look more closely at the
+non-IDE/SCSI devices as they seem to register their driver data
+themselves  I had a quick read of aztcd.c, I think between cdrom.c and
+aztcd.c you should be able to piece together what you want.
 
-I'm wondering what it means as well.
+Also Try reading http://www.xml.com/ldd/chapter/book/ for details on 2.4
+drivers
 
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|------------------------------<sryoungs@bigpond.net.au>---|
+Yours Tony
 
---=-=-=
-Content-Type: application/pgp-signature
+        linux.conf.au       http://lca2005.linux.org.au/
+	Apr 18-23 2005      The Australian Linux Technical Conference!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
-
-iEYEABECAAYFAkBx5d8ACgkQHSfbS6lLMAMITACbBUlCcBc9Zrs11r9CDiVkzsQx
-7GMAn3Nz4G0/I8/zOjtTEKQYP0kJwJtV
-=w7qZ
------END PGP SIGNATURE-----
---=-=-=--

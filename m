@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132689AbRC2IR3>; Thu, 29 Mar 2001 03:17:29 -0500
+	id <S132691AbRC2ISu>; Thu, 29 Mar 2001 03:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132690AbRC2IRT>; Thu, 29 Mar 2001 03:17:19 -0500
-Received: from malcolm.ailis.de ([62.159.58.30]:20746 "HELO malcolm.ailis.de")
-	by vger.kernel.org with SMTP id <S132689AbRC2IRN>;
-	Thu, 29 Mar 2001 03:17:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Klaus Reimer <k@ailis.de>
-Organization: Ailis
-To: linux-kernel@vger.kernel.org
-Subject: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
-Date: Thu, 29 Mar 2001 10:12:40 +0200
-X-Mailer: KMail [version 1.2]
+	id <S132690AbRC2ISd>; Thu, 29 Mar 2001 03:18:33 -0500
+Received: from colorfullife.com ([216.156.138.34]:36624 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132691AbRC2ISU>;
+	Thu, 29 Mar 2001 03:18:20 -0500
+Message-ID: <000401c0b828$bbdf7380$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: <geirt@powertech.no>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)>
+Subject: Re: Serial port latency
+Date: Thu, 29 Mar 2001 09:58:31 +0200
 MIME-Version: 1.0
-Message-Id: <01032910124007.00454@neo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: "Pavel Machek" <pavel@suse.cz>
+> > Is the computer otherwise idle?
+> > I've seen one unexplainable report with atm problems that
+disappeared
+> > (!) if a kernel compile was running.
+>
+> I've seen similar bugs. If you hook something on schedule_tq and
+forget
+> to set current->need_resched, this is exactly what you get.
+>
+I'm running with a patch that printk's if cpu_idle() is called while a
+softirq is pending.
+If I access the floppy on my K6/200 every track triggers the check, and
+sometimes the console blanking code triggers it.
 
-I have switched from 2.2.17 to 2.4.2 and now the sound is no longer working 
-on my Toshiba Tecra 8000 Notebook. In 2.2.17 I used the following modules:
+What about creating a special cpu_is_idle() function that the idle
+functions must call before sleeping?
 
-mpu401
-ad1848
-opl3sa2 io=0x538 mss_io=0x530 mpu_io=0x330 irq=5 dma=1 dma2=0
-opl3 io=0x388
+--
+    Manfred
 
-This was working perfectly. I was able to control all mixer settings, the 
-microphone was working and xmms was able to play nice sounds.
-
-Then I have switched to kernel 2.4.2 and now the kernel says:
-
-2001-03-29 10:02:50.054774500 {kern|info} kernel: ad1848/cs4248 codec driver 
-Copyright (C) by Hannu Savolainen 1993-1996
-2001-03-29 10:02:50.070692500 {kern|notice} kernel: opl3sa2: No cards found
-2001-03-29 10:02:50.070703500 {kern|notice} kernel: opl3sa2: 0 PnP card(s) 
-found.
-
-I have nothing changed in the BIOS of the Notebook. I have set up a dual boot 
-so I can switch back to kernel 2.2.17 and the sound is still working there.
-
-I was able to enable the 8 Bit Soundblaster emulation of the Tecra with these 
-modules:
-
-uart401
-sb io=0x220 irq=5 dma=0 mpu_io=0x330
-opl3 io=0x388
-
-But this is very ugly. I can't control all mixer settings, the microphone is 
-not working and xmms is playing scratching noise (mpg123 is working)
-
-What happened to the kernel? How can I use the opl3sa2 driver in kernel 2.4?
-
--- 
-Bye, K
-[a735 47ec d87b 1f15 c1e9 53d3 aa03 6173 a723 e391]
-(Finger k@ailis.de to get public key)

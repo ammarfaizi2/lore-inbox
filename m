@@ -1,91 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261513AbRETKJg>; Sun, 20 May 2001 06:09:36 -0400
+	id <S261519AbRETKYt>; Sun, 20 May 2001 06:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbRETKJ1>; Sun, 20 May 2001 06:09:27 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41198 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261513AbRETKJG>;
-	Sun, 20 May 2001 06:09:06 -0400
-Date: Sun, 20 May 2001 06:09:04 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@suse.cz>,
-        James Simmons <jsimmons@transvirtual.com>,
+	id <S261518AbRETKYi>; Sun, 20 May 2001 06:24:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7438 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261515AbRETKY3>;
+	Sun, 20 May 2001 06:24:29 -0400
+Date: Sun, 20 May 2001 11:23:51 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Matthew Wilcox <matthew@wil.cx>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending 
- DeviceNumberRegistrants]
-In-Reply-To: <3B0780B8.36FDA681@alsa-project.org>
-Message-ID: <Pine.GSO.4.21.0105200545170.7162-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+Message-ID: <20010520112351.A32544@flint.arm.linux.org.uk>
+In-Reply-To: <200105200248.f4K2mws02918@mobilix.ras.ucalgary.ca> <Pine.LNX.4.21.0105192017480.28666-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105192017480.28666-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 19, 2001 at 08:26:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 19, 2001 at 08:26:20PM -0700, Linus Torvalds wrote:
+> You're missing the point.
 
+I don't think Richard is actually.  I think Richard has hit a nail
+dead on its head.
 
-On Sun, 20 May 2001, Abramo Bagnara wrote:
+> It's ok to do "read()/write()" on structures.
 
-> Suppose now to have a convention that control stream are in the form:
-> "ACTION ARGUMENTS"
-> 
-> Then we have
-> echo "speed 19200" > /proc/self/fd/0/ioctl
-> instead of
-> stty 19200
-> 
-> It seems to me something different from a pile of shit ;-)
+Ok, we can read()/write() structures.  So someone invents the following
+structure:
 
-But it isn't.
+	struct foo {
+		int cmd;
+		void *data;
+	} foo;
 
-	a) You are still trying to think of it as an OOB data associated with
-normal channel. That is _wrong_. There is no 1-to-1 relation between these
-OOB channels and normal ones. Wrong model. Commands are not associated with
-data streams. Sometimes you can tie them together, but in many cases you just
-can't. Building the infrastructure on that is a Bad Thing(tm).
+Now they use write(fd, &foo, sizeof(foo)); Haven't they just swapped
+the ioctl() interface for write() instead?
 
-	b) Way too many ioctls do not have that form. So aside of converting
-code to handling the form above you will need to change the bleedin' APIs.
-Sorry. No way around that.
+Ok, lets hope that humanity isn't that stupid, so lets take another
+example:
 
-	c) Aside of implementing something dumb a-la XDR and putting encoding
-part into libc and decoding one into the procfs (which doesn't fix any of
-the problems and only adds to ugliness) any method means that you will need
-to go through drivers one-by-one. There is no magic way to deal with that
-mess at once - the whole problem is that this pile of dung was festering
-for too long and became a complete mess. The fact that anyone who felt an
-urge to toss into it did so without a second thought also doesn't help.
+	struct bar {
+		int in_size;
+		void *in_data;
+		int out_size;
+		void *out_data;
+	};
 
-	I went through that crap about a week ago when I was doing audit of
-copy_from_user() callers. And I ask everyone who seriously wants to discuss
-the situation: go and read through that code. Write the APIs down. Stare at
-them. When you will get the feeling of the things out there (_not_ a vague
-"well, they are for passing some commands; how bad can it be?") join the
-show.
+	struct foo {
+		int cmd;
+		struct bar1;
+	} foo;
 
-> > So there is no easy way to solve that stuff - we'll need to rethink tons
-> > of badly designed interfaces.
-> 
-> This is orthogonal wrt ioctl problems pointed by Linus.
+Same write call, but ok, we have a structure of known size.  Its still
+the same problem.
 
-No, it isn't. That's the same problem. We have tons of garbage that will have
-to be converted to sane form _before_ we can do anything with it. Result of
-the braindead attitude of those who were dumping into that pile.
+What I'm trying to say is that I think that read+write is open to more
+or the same abuse that ioctl has been, not less.
 
-It should be fixed, but it won't be easy and it won't be fast. If you want
-to help - wonderful. But keep in mind that it will take months of wading
-through the ugliest code we have in the tree. If you've got a weak stomach -
-stay out. I've been there and it's not a nice place.
+However, it does have one good thing going for it - you can support
+poll on blocking "ioctls" like TIOCMIWAIT.
 
-Getting a list of all ioctls in the tree, along with types of their arguments
-would be a great start. Anyone willing to help with that?
- 
-> I've simply proposed an *infrastructure* for better interfaces.
+> None of which are "network-nice". Basically, ioctl() is historically used
+> as a "pass any crap into driver xxxx, and the driver - and ONLY the driver
+> - will know what to do with it".
 
-	We already have that infrastructure. It's called ramfs. Building
-infrastructure on the model that doesn't fit the problem domain is a Bad
-Thing(tm). We already have enough ESRitis around.
+I still see read()/write() being a "pass any crap" interface.  The
+implementer of the target for read()/write() will probably still be
+a driver which will need to decode what its given, whether its in
+ASCII or binary.
 
+And driver writers are already used to writing ioctl-like interfaces.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

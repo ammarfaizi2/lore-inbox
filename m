@@ -1,146 +1,292 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbTATKM7>; Mon, 20 Jan 2003 05:12:59 -0500
+	id <S265276AbTATKTW>; Mon, 20 Jan 2003 05:19:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265276AbTATKM7>; Mon, 20 Jan 2003 05:12:59 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:9709 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S261527AbTATKM4>; Mon, 20 Jan 2003 05:12:56 -0500
-From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] unixbench result for kernel 2.5.59
-Date: Mon, 20 Jan 2003 15:51:46 +0530
-Message-ID: <003b01c2c06d$bc9ab920$6009720a@wipro.com>
+	id <S265457AbTATKTW>; Mon, 20 Jan 2003 05:19:22 -0500
+Received: from kiwi.iasi.rdsnet.ro ([213.157.176.3]:26324 "EHLO
+	mail.iasi.rdsnet.ro") by vger.kernel.org with ESMTP
+	id <S265276AbTATKTS>; Mon, 20 Jan 2003 05:19:18 -0500
+Date: Mon, 20 Jan 2003 12:28:21 +0200 (EET)
+From: Octavian Chiorcea <cage@iasi.rdsnet.ro>
+To: linux-kernel@vger.kernel.org
+Subject: AMI MegaRaid and SYM53C8XX
+Message-ID: <Pine.LNX.4.44.0301201221490.8874-200000@kiwi.iasi.rdsnet.ro>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Importance: Normal
-X-OriginalArrivalTime: 20 Jan 2003 10:21:46.0829 (UTC) FILETIME=[BC9ED7D0:01C2C06D]
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1646984272-169465266-1043058501=:8874"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Here are the unixbench result for kernel 2.5.59. Kernel 2.5.59 when
-compared with kernel 2.5.58 showed difference of performance in
-following tests:- 
-========================================================================
-Execl Throughput[2.5.59]                          952.5lps   
-Execl Throughput[2.5.58]                          866.4lps  
-  
-File Copy 1024 bufsize 2000 maxblocks[2.5.59]     71112.0KBps 
-File Copy 1024 bufsize 2000 maxblocks[2.5.58]     69405.0KBps      
-
-File Copy 256 bufsize 500 maxblocks[2.5.59]       36978.0KBps     
-File Copy 256 bufsize 500 maxblocks[2.5.58]       34824.0KBps 
-========================================================================
-====
-*There is no much difference in other test result.
-
-------------------------------------------------------------------------
-----
-					kernel-2.5.59
-------------------------------------------------------------------------
-----
-BYTE UNIX Benchmarks (Version 4.1.0)
-System -- Linux access1 2.5.59 #14 Mon Jan 20 12:12:35 IST 2003 i686
-unknown
-Start Benchmark Run: Mon Jan 20 13:57:54 IST 2003
-1 interactive users.
-1:57pm  up 9 min,  1 user,  load average: 0.01, 0.02, 0.00
-lrwxrwxrwx    1 root     root            4 Oct 22 00:35 /bin/sh -> bash
-/bin/sh: symbolic link to bash
-/dev/hda2              8262068   3315448   4526924  43% /data
-
-Dhrystone 2 using register variables    1804740.6 lps (10.0
-secs,10samples)
-Double-Precision Whetstone              477.1 MWIPS   (10.0
-secs,10samples)
-System Call Overhead                    460969.1lps   (10.0
-secs,10samples)
-Pipe Throughput                         451357.3 lps  (10.0
-secs,10samples)
-Pipe-based Context Switching            205677.1 lps  (10.0
-secs,10samples)
-Process Creation                        4502.7 lps    (30.0 secs,
-3samples)
-Execl Throughput                        952.5 lps     (29.7 secs,
-3samples)
-File Read 1024 bufsize 2000 maxblocks   243601.0KBps  (30.0 secs,
-3samples)
-File Write 1024 bufsize 2000 maxblocks  104533.0KBps  (30.0 secs,
-3samples)
-File Copy 1024 bufsize 2000 maxblocks   71112.0 KBps  (30.0 secs,
-3samples)
-File Read 256 bufsize 500 maxblocks     113743.0KBps  (30.0 secs,
-3samples)
-File Write 256 bufsize 500 maxblocks    61466.0 KBps  (30.0 secs,
-3samples)
-File Copy 256 bufsize 500 maxblocks     36978.0 KBps  (30.0 secs,
-3samples)
-File Read 4096 bufsize 8000 maxblocks   335488.0KBps  (30.0 secs,
-3samples)
-File Write 4096 bufsize 8000 maxblocks  127733.0KBps  (30.0 secs,
-3samples)
-File Copy 4096 bufsize 8000 maxblocks   89889.0 KBps  (30.0 secs,
-3samples)
-Shell Scripts (1 concurrent)            889.8 lpm     (60.0 secs,
-3samples)
-Shell Scripts (8 concurrent)            115.0 lpm     (60.0 secs,
-3samples)
-Shell Scripts (16 concurrent)           58.0 lpm      (60.0 secs,
-3samples)
-Arithmetic Test (type = short)          208210.2 lps  (10.0 secs,
-3samples)
-Arithmetic Test (type = int)            225125.9 lps  (10.0 secs,
-3samples)
-Arithmetic Test (type = long)           225088.4 lps  (10.0 secs,
-3samples)
-Arithmetic Test (type = float)          227555.3 lps  (10.0 secs,
-3samples)
-Arithmetic Test (type = double)         227558.8 lps  (10.0 secs,
-3samples)
-Arithoh                                 3998978.2 lps (10.0 secs,
-3samples)
-C Compiler Throughput                   410.0 lpm     (60.0 secs,
-3samples)
-Dc: sqrt(2) to 99 decimal places        34186.5 lpm   (30.0 secs,
-3samples)
-Recursion Test--Tower of Hanoi          28899.1 lps   (20.0 secs,
-3samples)
+---1646984272-169465266-1043058501=:8874
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-                     INDEX VALUES            
-TEST                                      BASELINE     RESULT    INDEX
 
-Dhrystone 2 using register variables      116700.0  1804740.6    154.6
-Double-Precision Whetstone                55.0      477.1        86.7
-Execl Throughput                          43.0      952.5        221.5
-File Copy 1024 bufsize 2000 maxblocks     3960.0    71112.0      179.6
-File Copy 256 bufsize 500 maxblocks       1655.0    36978.0      223.4
-File Copy 4096 bufsize 8000 maxblocks     5800.0    89889.0      155.0
-Pipe Throughput                           12440.0   451357.3     362.8
-Process Creation                          126.0     4502.7       357.4
-Shell Scripts (8 concurrent)              6.0       115.0        191.7
-System Call Overhead                      15000.0   460969.1     307.3
- 
-=========
-     FINAL SCORE                                                 206.5
-------------------------------------------------------------------------
-----
-Regards
- 
-Sowmya Adiga
-Project Engineer
-Wipro Technologies
-53/1,Hosur Road,Madivala
-Bangalore-560 068,INDIA
-Tel: +91-80-5502001 Extn.5086
-sowmya.adiga@wipro.com
- 
+Hello. 
+I have a machine with a MegaRaid and SYM53C8XX 
+(01:07.0 SCSI storage  controller: LSI Logic / Symbios Logic 53c895 (rev 
+01))
+I have very big problems installing this system, because the raid5 I've 
+made (6 disks, 1 spare) it is very slow:
 
+[root@radius cage]# hdparm -tT /dev/sda
+
+/dev/sda:
+ Timing buffer-cache reads:   128 MB in  1.01 seconds =126.73 MB/sec
+ Timing buffered disk reads:  64 MB in  6.42 seconds =  9.97 MB/sec
+[root@radius cage]#
+
+Do you know this problem ? am I the only one I'm reporting this?
+I've tryed kernels : 2.4.18-14, 2.4.19, 2.4.20 (last release)
+
+But the results are the same. Some friends told me that on older kernels 
+it works fine, and now I'm trying a 2.4.16 kernel.
+
+Please notify me if u know something about this problem.
+
+Have a nice day.
+
+PS: I've attached the dmesg output, maybe this will help.
+-- 
+Chiorcea Octavian Leonardo
+Network and System Engineer
+RDS Iasi - Network Operations Center
+Tel: +40-232-218385; Fax: +40-232-260099
+
+---1646984272-169465266-1043058501=:8874
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301201228210.8874@kiwi.iasi.rdsnet.ro>
+Content-Description: 
+Content-Disposition: attachment; filename=dmesg
+
+TGludXggdmVyc2lvbiAyLjQuMTktQkJQMTAgKHJvb3RAcmFkaXVzLnJpdmVy
+am9yZGFuLmNvbSkgKGdjYyB2ZXJzaW9uIDMuMiAyMDAyMDkwMyAoUmVkIEhh
+dCBMaW51eCA4LjAgMy4yLTcpKSAjMiBNb24gSmFuIDIwIDA4OjAzOjIzIENT
+VCAyMDAzDQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6DQogQklP
+Uy1lODIwOiAwMDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDA5ZjgwMCAo
+dXNhYmxlKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAwMDA5ZjgwMCAtIDAwMDAw
+MDAwMDAwYTAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAw
+MDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQ0KIEJJT1Mt
+ZTgyMDogMDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAwMTAwMDAwMDAgKHVz
+YWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVjMDAwMDAgLSAwMDAwMDAw
+MGZlYzEwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVl
+MDAwMDAgLSAwMDAwMDAwMGZlZTAxMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4
+MjA6IDAwMDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChyZXNl
+cnZlZCkNCjI1Nk1CIExPV01FTSBhdmFpbGFibGUuDQpmb3VuZCBTTVAgTVAt
+dGFibGUgYXQgMDAwZjY5YjANCmhtLCBwYWdlIDAwMGY2MDAwIHJlc2VydmVk
+IHR3aWNlLg0KaG0sIHBhZ2UgMDAwZjcwMDAgcmVzZXJ2ZWQgdHdpY2UuDQpo
+bSwgcGFnZSAwMDA5ZjAwMCByZXNlcnZlZCB0d2ljZS4NCmhtLCBwYWdlIDAw
+MGEwMDAwIHJlc2VydmVkIHR3aWNlLg0KT24gbm9kZSAwIHRvdGFscGFnZXM6
+IDY1NTM2DQp6b25lKDApOiA0MDk2IHBhZ2VzLg0Kem9uZSgxKTogNjE0NDAg
+cGFnZXMuDQp6b25lKDIpOiAwIHBhZ2VzLg0KSW50ZWwgTXVsdGlQcm9jZXNz
+b3IgU3BlY2lmaWNhdGlvbiB2MS40DQogICAgVmlydHVhbCBXaXJlIGNvbXBh
+dGliaWxpdHkgbW9kZS4NCk9FTSBJRDogSFAgICAgICAgUHJvZHVjdCBJRDog
+TEggMyAgICAgICAgIEFQSUMgYXQ6IDB4RkVFMDAwMDANClByb2Nlc3NvciAj
+MCBQZW50aXVtKHRtKSBQcm8gQVBJQyB2ZXJzaW9uIDE3DQpJL08gQVBJQyAj
+MSBWZXJzaW9uIDE3IGF0IDB4RkVDMDAwMDAuDQpQcm9jZXNzb3JzOiAxDQpL
+ZXJuZWwgY29tbWFuZCBsaW5lOiBhdXRvIEJPT1RfSU1BR0U9QkJQMTAgcm8g
+cm9vdD04MDIgQk9PVF9GSUxFPS9ib290L2J6SW1hZ2UtQkJQMTANCkluaXRp
+YWxpemluZyBDUFUjMA0KRGV0ZWN0ZWQgNDk5LjE1OSBNSHogcHJvY2Vzc29y
+Lg0KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUNCkNhbGlicmF0aW5nIGRl
+bGF5IGxvb3AuLi4gOTk2LjE0IEJvZ29NSVBTDQpNZW1vcnk6IDI1Njg1Nmsv
+MjYyMTQ0ayBhdmFpbGFibGUgKDEyNzFrIGtlcm5lbCBjb2RlLCA0OTAwayBy
+ZXNlcnZlZCwgMzA5ayBkYXRhLCAyNDhrIGluaXQsIDBrIGhpZ2htZW0pDQpE
+ZW50cnkgY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6
+IDYsIDI2MjE0NCBieXRlcykNCklub2RlIGNhY2hlIGhhc2ggdGFibGUgZW50
+cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpDQpNb3VudC1j
+YWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDQwOTYgKG9yZGVyOiAzLCAzMjc2
+OCBieXRlcykNCkJ1ZmZlci1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2
+Mzg0IChvcmRlcjogNCwgNjU1MzYgYnl0ZXMpDQpQYWdlLWNhY2hlIGhhc2gg
+dGFibGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMp
+DQpDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2FwczogMDM4M2ZiZmYgMDAw
+MDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDANCkNQVTogTDEgSSBjYWNoZTog
+MTZLLCBMMSBEIGNhY2hlOiAxNksNCkNQVTogTDIgY2FjaGU6IDUxMksNCkNQ
+VTogQWZ0ZXIgdmVuZG9yIGluaXQsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAw
+IDAwMDAwMDAwIDAwMDAwMDAwDQpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hp
+dGVjdHVyZSBzdXBwb3J0ZWQuDQpJbnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9y
+dGluZyBlbmFibGVkIG9uIENQVSMwLg0KQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJp
+YywgY2FwczogMDM4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAN
+CkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAzODNmYmZmIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAwDQpDUFU6IEludGVsIFBlbnRpdW0gSUlJ
+IChLYXRtYWkpIHN0ZXBwaW5nIDAzDQpFbmFibGluZyBmYXN0IEZQVSBzYXZl
+IGFuZCByZXN0b3JlLi4uIGRvbmUuDQpFbmFibGluZyB1bm1hc2tlZCBTSU1E
+IEZQVSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLg0KQ2hlY2tpbmcgJ2hs
+dCcgaW5zdHJ1Y3Rpb24uLi4gT0suDQpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0
+aW5nIGJ5IFVOSUZJWA0KZW5hYmxlZCBFeHRJTlQgb24gQ1BVIzANCkVTUiB2
+YWx1ZSBiZWZvcmUgZW5hYmxpbmcgdmVjdG9yOiAwMDAwMDAwMA0KRVNSIHZh
+bHVlIGFmdGVyIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDANCkVOQUJMSU5H
+IElPLUFQSUMgSVJRcw0KU2V0dGluZyAxIGluIHRoZSBwaHlzX2lkX3ByZXNl
+bnRfbWFwDQouLi5jaGFuZ2luZyBJTy1BUElDIHBoeXNpY2FsIEFQSUMgSUQg
+dG8gMSAuLi4gb2suDQppbml0IElPX0FQSUMgSVJRcw0KIElPLUFQSUMgKGFw
+aWNpZC1waW4pIDEtMCwgMS0xNiwgMS0xNywgMS0xOCwgMS0xOSwgMS0yMCwg
+MS0yMSwgMS0yMiwgMS0yMyBub3QgY29ubmVjdGVkLg0KLi5USU1FUjogdmVj
+dG9yPTB4MzEgcGluMT0yIHBpbjI9MA0KLi5NUC1CSU9TIGJ1ZzogODI1NCB0
+aW1lciBub3QgY29ubmVjdGVkIHRvIElPLUFQSUMNCi4uLnRyeWluZyB0byBz
+ZXQgdXAgdGltZXIgKElSUTApIHRocm91Z2ggdGhlIDgyNTlBIC4uLiANCi4u
+Li4uIChmb3VuZCBwaW4gMCkgLi4ud29ya3MuDQpudW1iZXIgb2YgTVAgSVJR
+IHNvdXJjZXM6IDE5Lg0KbnVtYmVyIG9mIElPLUFQSUMgIzEgcmVnaXN0ZXJz
+OiAyNC4NCnRlc3RpbmcgdGhlIElPIEFQSUMuLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLg0KDQpJTyBBUElDICMxLi4uLi4uDQouLi4uIHJlZ2lzdGVyICMwMDog
+MDEwMDAwMDANCi4uLi4uLi4gICAgOiBwaHlzaWNhbCBBUElDIGlkOiAwMQ0K
+Li4uLiByZWdpc3RlciAjMDE6IDAwMTcwMDExDQouLi4uLi4uICAgICA6IG1h
+eCByZWRpcmVjdGlvbiBlbnRyaWVzOiAwMDE3DQouLi4uLi4uICAgICA6IFBS
+USBpbXBsZW1lbnRlZDogMA0KLi4uLi4uLiAgICAgOiBJTyBBUElDIHZlcnNp
+b246IDAwMTENCi4uLi4gcmVnaXN0ZXIgIzAyOiAwMDAwMDAwMA0KLi4uLi4u
+LiAgICAgOiBhcmJpdHJhdGlvbjogMDANCi4uLi4gSVJRIHJlZGlyZWN0aW9u
+IHRhYmxlOg0KIE5SIExvZyBQaHkgTWFzayBUcmlnIElSUiBQb2wgU3RhdCBE
+ZXN0IERlbGkgVmVjdDogICANCiAwMCAwMDEgMDEgIDAgICAgMCAgICAwICAg
+MCAgIDAgICAgMSAgICAxICAgIDMxDQogMDEgMDAxIDAxICAwICAgIDAgICAg
+MCAgIDAgICAwICAgIDEgICAgMSAgICAzOQ0KIDAyIDAwMCAwMCAgMSAgICAw
+ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwMyAwMDEgMDEgIDAg
+ICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDQxDQogMDQgMDAxIDAx
+ICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA0OQ0KIDA1IDAw
+MSAwMSAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgNTENCiAw
+NiAwMDEgMDEgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDU5
+DQogMDcgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAg
+ICA2MQ0KIDA4IDAwMSAwMSAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAg
+IDEgICAgNjkNCiAwOSAwMDEgMDEgIDEgICAgMSAgICAwICAgMCAgIDAgICAg
+MSAgICAxICAgIDcxDQogMGEgMDAxIDAxICAxICAgIDEgICAgMCAgIDAgICAw
+ICAgIDEgICAgMSAgICA3OQ0KIDBiIDAwMSAwMSAgMSAgICAxICAgIDAgICAw
+ICAgMCAgICAxICAgIDEgICAgODENCiAwYyAwMDEgMDEgIDAgICAgMCAgICAw
+ICAgMCAgIDAgICAgMSAgICAxICAgIDg5DQogMGQgMDAxIDAxICAwICAgIDAg
+ICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA5MQ0KIDBlIDAwMSAwMSAgMCAg
+ICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgOTkNCiAwZiAwMDEgMDEg
+IDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIEExDQogMTAgMDAw
+IDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEx
+IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDAN
+CiAxMiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAg
+IDAwDQogMTMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
+MCAgICAwMA0KIDE0IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAxNSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAg
+ICAgMCAgICAwICAgIDAwDQogMTYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDE3IDAwMCAwMCAgMSAgICAwICAgIDAg
+ICAwICAgMCAgICAwICAgIDAgICAgMDANCklSUSB0byBwaW4gbWFwcGluZ3M6
+DQpJUlEwIC0+IDA6MA0KSVJRMSAtPiAwOjENCklSUTMgLT4gMDozDQpJUlE0
+IC0+IDA6NA0KSVJRNSAtPiAwOjUNCklSUTYgLT4gMDo2DQpJUlE3IC0+IDA6
+Nw0KSVJROCAtPiAwOjgNCklSUTkgLT4gMDo5DQpJUlExMCAtPiAwOjEwDQpJ
+UlExMSAtPiAwOjExDQpJUlExMiAtPiAwOjEyDQpJUlExMyAtPiAwOjEzDQpJ
+UlExNCAtPiAwOjE0DQpJUlExNSAtPiAwOjE1DQouLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uLi4uLi4gZG9uZS4NClVzaW5nIGxvY2FsIEFQSUMg
+dGltZXIgaW50ZXJydXB0cy4NCmNhbGlicmF0aW5nIEFQSUMgdGltZXIgLi4u
+DQouLi4uLiBDUFUgY2xvY2sgc3BlZWQgaXMgNDk5LjEzNzUgTUh6Lg0KLi4u
+Li4gaG9zdCBidXMgY2xvY2sgc3BlZWQgaXMgOTkuODI3MyBNSHouDQpjcHU6
+IDAsIGNsb2NrczogOTk4MjczLCBzbGljZTogNDk5MTM2DQpDUFUwPFQwOjk5
+ODI3MixUMTo0OTkxMzYsRDowLFM6NDk5MTM2LEM6OTk4MjczPg0KbXRycjog
+djEuNDAgKDIwMDEwMzI3KSBSaWNoYXJkIEdvb2NoIChyZ29vY2hAYXRuZi5j
+c2lyby5hdSkNCm10cnI6IGRldGVjdGVkIG10cnIgdHlwZTogSW50ZWwNClBD
+STogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZkYWE3LCBs
+YXN0IGJ1cz0yDQpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxDQpQ
+Q0k6IFByb2JpbmcgUENJIGhhcmR3YXJlDQpVbmtub3duIGJyaWRnZSByZXNv
+dXJjZSAyOiBhc3N1bWluZyB0cmFuc3BhcmVudA0KUENJOiBVc2luZyBJUlEg
+cm91dGVyIFBJSVggWzgwODYvNzExMF0gYXQgMDA6MDQuMA0KUENJLT5BUElD
+IElSUSB0cmFuc2Zvcm06IChCMCxJNyxQMCkgLT4gOQ0KUENJLT5BUElDIElS
+USB0cmFuc2Zvcm06IChCMSxJNyxQMCkgLT4gMTANClBDSS0+QVBJQyBJUlEg
+dHJhbnNmb3JtOiAoQjIsSTIsUDApIC0+IDExDQpMaW1pdGluZyBkaXJlY3Qg
+UENJL1BDSSB0cmFuc2ZlcnMuDQppc2FwbnA6IFNjYW5uaW5nIGZvciBQblAg
+Y2FyZHMuLi4NCmlzYXBucDogTm8gUGx1ZyAmIFBsYXkgZGV2aWNlIGZvdW5k
+DQpMaW51eCBORVQ0LjAgZm9yIExpbnV4IDIuNA0KQmFzZWQgdXBvbiBTd2Fu
+c2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KSW5p
+dGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0DQphcG06IEJJT1Mgbm90IGZv
+dW5kLg0KU3RhcnRpbmcga3N3YXBkDQpWRlM6IERpc2txdW90YXMgdmVyc2lv
+biBkcXVvdF82LjQuMCBpbml0aWFsaXplZA0KSm91cm5hbGxlZCBCbG9jayBE
+ZXZpY2UgZHJpdmVyIGxvYWRlZA0KcHR5OiAyNTYgVW5peDk4IHB0eXMgY29u
+ZmlndXJlZA0KU2VyaWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVjICgyMDAxLTA3
+LTA4KSB3aXRoIE1BTllfUE9SVFMgU0hBUkVfSVJRIFNFUklBTF9QQ0kgSVNB
+UE5QIGVuYWJsZWQNCnR0eVMwMCBhdCAweDAzZjggKGlycSA9IDQpIGlzIGEg
+MTY1NTBBDQp0dHlTMDMgYXQgMHgwMmU4IChpcnEgPSAzKSBpcyBhIDE2NTUw
+QQ0KVW5pZm9ybSBNdWx0aS1QbGF0Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNp
+b246IDYuMzENCmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVl
+ZCBmb3IgUElPIG1vZGVzOyBvdmVycmlkZSB3aXRoIGlkZWJ1cz14eA0KUElJ
+WDQ6IElERSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2IDIxDQpQSUlY
+NDogY2hpcHNldCByZXZpc2lvbiAxDQpQSUlYNDogbm90IDEwMCUgbmF0aXZl
+IG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRlcg0KICAgIGlkZTA6IEJNLURN
+QSBhdCAweGZjZDAtMHhmY2Q3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1BLCBo
+ZGI6cGlvDQpoZGE6IENELTUzMkUtQiwgQVRBUEkgQ0QvRFZELVJPTSBkcml2
+ZQ0KaWRlMCBhdCAweDFmMC0weDFmNywweDNmNiBvbiBpcnEgMTQNCkZsb3Bw
+eSBkcml2ZShzKTogZmQwIGlzIDEuNDRNDQpGREMgMCBpcyBhIE5hdGlvbmFs
+IFNlbWljb25kdWN0b3IgUEM4NzMwNg0KU0NTSSBzdWJzeXN0ZW0gZHJpdmVy
+IFJldmlzaW9uOiAxLjAwDQpzeW0wOiA8ODk1PiByZXYgMHgxIG9uIHBjaSBi
+dXMgMSBkZXZpY2UgNyBmdW5jdGlvbiAwIGlycSAxMA0Kc3ltMDogU3ltYmlv
+cyBOVlJBTSwgSUQgNywgRmFzdC00MCwgTFZELCBwYXJpdHkgY2hlY2tpbmcN
+CnN5bTA6IG9wZW4gZHJhaW4gSVJRIGxpbmUgZHJpdmVyLCB1c2luZyBvbi1j
+aGlwIFNSQU0NCnN5bTA6IHVzaW5nIExPQUQvU1RPUkUtYmFzZWQgZmlybXdh
+cmUuDQpzeW0wOiBTQ1NJIEJVUyBoYXMgYmVlbiByZXNldC4NCnNjc2kwIDog
+c3ltLTIuMS4xN2ENCm1lZ2FyYWlkOiB2MS4xOCAoUmVsZWFzZSBEYXRlOiBU
+aHUgT2N0IDExIDE1OjAyOjUzIEVEVCAyMDAxKQ0KbWVnYXJhaWQ6IGZvdW5k
+IDB4ODA4NjoweDE5NjA6aWR4IDA6YnVzIDA6c2xvdCA3OmZ1bmMgMQ0Kc2Nz
+aTEgOiBGb3VuZCBhIE1lZ2FSQUlEIGNvbnRyb2xsZXIgYXQgMHhkMDgwNDAw
+MCwgSVJROiA5DQptZWdhcmFpZDogWwIDRCA6AQJCIF0gZGV0ZWN0ZWQgMSBs
+b2dpY2FsIGRyaXZlcw0KbWVnYXJhaWQ6IGNoYW5uZWxbMV0gaXMgcmFpZC4N
+CnNjc2kxIDogTFNJIExvZ2ljIE1lZ2FSQUlEIAIDRCAgMjU0IGNvbW1hbmRz
+IDE2IHRhcmdzIDQgY2hhbnMgNyBsdW5zDQpzY3NpMTogc2Nhbm5pbmcgY2hh
+bm5lbCAwIGZvciBkZXZpY2VzLg0Kc2NzaTE6IHNjYW5uaW5nIHZpcnR1YWwg
+Y2hhbm5lbCAxIGZvciBsb2dpY2FsIGRyaXZlcy4NCiAgVmVuZG9yOiBNZWdh
+UkFJRCAgTW9kZWw6IExEMCBSQUlENSAzNDcwOFIgIFJldjogICBEIA0KICBU
+eXBlOiAgIERpcmVjdC1BY2Nlc3MgICAgICAgICAgICAgICAgICAgICAgQU5T
+SSBTQ1NJIHJldmlzaW9uOiAwMg0Kc2NzaTE6IHNjYW5uaW5nIHZpcnR1YWwg
+Y2hhbm5lbCAyIGZvciBsb2dpY2FsIGRyaXZlcy4NCnNjc2kxOiBzY2Fubmlu
+ZyB2aXJ0dWFsIGNoYW5uZWwgMyBmb3IgbG9naWNhbCBkcml2ZXMuDQpzY3Np
+MTogc2Nhbm5pbmcgdmlydHVhbCBjaGFubmVsIDQgZm9yIGxvZ2ljYWwgZHJp
+dmVzLg0KQXR0YWNoZWQgc2NzaSBkaXNrIHNkYSBhdCBzY3NpMSwgY2hhbm5l
+bCAxLCBpZCAwLCBsdW4gMA0KU0NTSSBkZXZpY2Ugc2RhOiA3MTA4MTk4NCA1
+MTItYnl0ZSBoZHdyIHNlY3RvcnMgKDM2Mzk0IE1CKQ0KUGFydGl0aW9uIGNo
+ZWNrOg0KIHNkYTogc2RhMSBzZGEyIHNkYTMgc2RhNCA8IHNkYTUgc2RhNiBz
+ZGE3ID4NCm1kOiByYWlkMCBwZXJzb25hbGl0eSByZWdpc3RlcmVkIGFzIG5y
+IDINCm1kOiByYWlkMSBwZXJzb25hbGl0eSByZWdpc3RlcmVkIGFzIG5yIDMN
+Cm1kOiByYWlkNSBwZXJzb25hbGl0eSByZWdpc3RlcmVkIGFzIG5yIDQNCnJh
+aWQ1OiBtZWFzdXJpbmcgY2hlY2tzdW1taW5nIHNwZWVkDQogICA4cmVncyAg
+ICAgOiAgIDkyMS4yMDAgTUIvc2VjDQogICAzMnJlZ3MgICAgOiAgIDQ2OC40
+MDAgTUIvc2VjDQogICBwSUlJX3NzZSAgOiAgIDk5Ny4yMDAgTUIvc2VjDQog
+ICBwSUlfbW14ICAgOiAgMTEwNS4yMDAgTUIvc2VjDQogICBwNV9tbXggICAg
+OiAgMTE1NC40MDAgTUIvc2VjDQpyYWlkNTogdXNpbmcgZnVuY3Rpb246IHBJ
+SUlfc3NlICg5OTcuMjAwIE1CL3NlYykNCm1kOiBtdWx0aXBhdGggcGVyc29u
+YWxpdHkgcmVnaXN0ZXJlZCBhcyBuciA3DQptZDogbWQgZHJpdmVyIDAuOTAu
+MCBNQVhfTURfREVWUz0yNTYsIE1EX1NCX0RJU0tTPTI3DQptZDogQXV0b2Rl
+dGVjdGluZyBSQUlEIGFycmF5cy4NCm1kOiBhdXRvcnVuIC4uLg0KbWQ6IC4u
+LiBhdXRvcnVuIERPTkUuDQpORVQ0OiBMaW51eCBUQ1AvSVAgMS4wIGZvciBO
+RVQ0LjANCklQIFByb3RvY29sczogSUNNUCwgVURQLCBUQ1ANCklQOiByb3V0
+aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgMjA0OCBidWNrZXRzLCAxNktieXRl
+cw0KVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCAx
+NjM4NCBiaW5kIDMyNzY4KQ0KTkVUNDogVW5peCBkb21haW4gc29ja2V0cyAx
+LjAvU01QIGZvciBMaW51eCBORVQ0LjAuDQpram91cm5hbGQgc3RhcnRpbmcu
+ICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzDQpFWFQzLWZzOiBtb3VudGVk
+IGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRhdGEgbW9kZS4NClZGUzogTW91
+bnRlZCByb290IChleHQzIGZpbGVzeXN0ZW0pIHJlYWRvbmx5Lg0KRnJlZWlu
+ZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjQ4ayBmcmVlZA0KRVhUMyBGUyAy
+LjQtMC45LjE3LCAxMCBKYW4gMjAwMiBvbiBzZCg4LDIpLCBpbnRlcm5hbCBq
+b3VybmFsDQpBZGRpbmcgU3dhcDogODExMjQwayBzd2FwLXNwYWNlIChwcmlv
+cml0eSAtMSkNCmtqb3VybmFsZCBzdGFydGluZy4gIENvbW1pdCBpbnRlcnZh
+bCA1IHNlY29uZHMNCkVYVDMgRlMgMi40LTAuOS4xNywgMTAgSmFuIDIwMDIg
+b24gc2QoOCw3KSwgaW50ZXJuYWwgam91cm5hbA0KRVhUMy1mczogbW91bnRl
+ZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUuDQpram91cm5h
+bGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzDQpFWFQz
+IEZTIDIuNC0wLjkuMTcsIDEwIEphbiAyMDAyIG9uIHNkKDgsNSksIGludGVy
+bmFsIGpvdXJuYWwNCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRo
+IG9yZGVyZWQgZGF0YSBtb2RlLg0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29t
+bWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyAyLjQtMC45LjE3LCAx
+MCBKYW4gMjAwMiBvbiBzZCg4LDYpLCBpbnRlcm5hbCBqb3VybmFsDQpFWFQz
+LWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRhdGEgbW9k
+ZS4NCmtqb3VybmFsZCBzdGFydGluZy4gIENvbW1pdCBpbnRlcnZhbCA1IHNl
+Y29uZHMNCkVYVDMgRlMgMi40LTAuOS4xNywgMTAgSmFuIDIwMDIgb24gc2Qo
+OCwzKSwgaW50ZXJuYWwgam91cm5hbA0KRVhUMy1mczogbW91bnRlZCBmaWxl
+c3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUuDQppcF90YWJsZXM6IChD
+KSAyMDAwLTIwMDIgTmV0ZmlsdGVyIGNvcmUgdGVhbQ0KZWVwcm8xMDAuYzp2
+MS4wOWotdCA5LzI5Lzk5IERvbmFsZCBCZWNrZXIgaHR0cDovL3d3dy5zY3ls
+ZC5jb20vbmV0d29yay9lZXBybzEwMC5odG1sDQplZXBybzEwMC5jOiAkUmV2
+aXNpb246IDEuMzYgJCAyMDAwLzExLzE3IE1vZGlmaWVkIGJ5IEFuZHJleSBW
+LiBTYXZvY2hraW4gPHNhd0BzYXcuc3cuY29tLnNnPiBhbmQgb3RoZXJzDQpl
+dGgwOiBPRU0gaTgyNTU3L2k4MjU1OCAxMC8xMDAgRXRoZXJuZXQsIDAwOjkw
+OjI3OkU1OkQ1OkZBLCBJUlEgMTEuDQogIFJlY2VpdmVyIGxvY2stdXAgYnVn
+IGV4aXN0cyAtLSBlbmFibGluZyB3b3JrLWFyb3VuZC4NCiAgQm9hcmQgYXNz
+ZW1ibHkgNzAxNjM3LTAwMSwgUGh5c2ljYWwgY29ubmVjdG9ycyBwcmVzZW50
+OiBSSjQ1DQogIFByaW1hcnkgaW50ZXJmYWNlIGNoaXAgaTgyNTU1IFBIWSAj
+MS4NCiAgR2VuZXJhbCBzZWxmLXRlc3Q6IHBhc3NlZC4NCiAgU2VyaWFsIHN1
+Yi1zeXN0ZW0gc2VsZi10ZXN0OiBwYXNzZWQuDQogIEludGVybmFsIHJlZ2lz
+dGVycyBzZWxmLXRlc3Q6IHBhc3NlZC4NCiAgUk9NIGNoZWNrc3VtIHNlbGYt
+dGVzdDogcGFzc2VkICgweDI0YzlmMDQzKS4NCiAgUmVjZWl2ZXIgbG9jay11
+cCB3b3JrYXJvdW5kIGFjdGl2YXRlZC4NCg==
+---1646984272-169465266-1043058501=:8874--

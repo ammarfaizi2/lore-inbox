@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUA0Syu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 13:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbUA0Syu
+	id S264598AbUA0Swj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 13:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUA0Swi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 13:54:50 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:55438 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265149AbUA0Sys (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 13:54:48 -0500
-Message-ID: <4016B3F0.1060804@samwel.tk>
-Date: Tue, 27 Jan 2004 19:54:40 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Tue, 27 Jan 2004 13:52:38 -0500
+Received: from ssa8.serverconfig.com ([209.51.129.179]:18145 "EHLO
+	ssa8.serverconfig.com") by vger.kernel.org with ESMTP
+	id S264598AbUA0Swe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 13:52:34 -0500
+From: "Joseph D. Wagner" <theman@josephdwagner.info>
+To: Andi Kleen <ak@suse.de>, Rui Saraiva <rmps@joel.ist.utl.pt>
+Subject: Re: RFC: Trailing blanks in source files
+Date: Tue, 27 Jan 2004 12:51:34 -0600
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt.suse.lists.linux.kernel> <p73bropfdgl.fsf@nielsen.suse.de>
+In-Reply-To: <p73bropfdgl.fsf@nielsen.suse.de>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org, lkv@isg.de
-Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle
- disks? (to allow spin-downs)
-References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Disposition: inline
+Message-Id: <200401271251.34926.theman@josephdwagner.info>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ssa8.serverconfig.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - josephdwagner.info
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Well, it's the o.p. system, not mine, but I don't see how noatime will
-> help him, the atime shouldn't change unless he's doing disk access, and
-> if he's doing disk access the disk will spin up anyway.
+> It seems that many files [1] in the Linux source have lines with
+> trailing blank (space and tab) characters and some even have formfeed
+> characters. Obviously these blank characters aren't necessary.
 
-> The place noatime helps is when actually doing reads to open files, and
-> getting an inode update free with every read. His problem is that
-> something really is accessing the drive, and he won't get the desired
-> spindown until that's addressed.
+Actually, they are necessary.
 
-If something really is accessing the drive, noatime might still help as 
-long as the accesses are from the cache. BTW, it wasn't clear to me from 
-his posts that he knows that something is _really_ accessing the drive, 
-I thought he only had kjournald activity -- and that might be explained 
-by atime updates. But I might have missed something of course!
+http://www.gnu.org/prep/standards_23.html
+http://www.gnu.org/prep/standards_24.html
 
-> I hope the original poster is following this ;-)
-
-I added him to the CC list again. That should fix it. :)
-
--- Bart

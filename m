@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUBSRER (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 12:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUBSREQ
+	id S267392AbUBSRMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 12:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUBSRMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 12:04:16 -0500
-Received: from smtp01.web.de ([217.72.192.180]:39203 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S267388AbUBSRDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 12:03:49 -0500
-Date: Thu, 19 Feb 2004 18:04:40 +0100
-From: Arne Ahrend <aahrend@web.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: No hot_UN_plugging of PCMCIA network cards
-Message-Id: <20040219180440.1a3c655d.aahrend@web.de>
-In-Reply-To: <4034016C.5070307@pobox.com>
-References: <20040122210501.40800ea7.aahrend@web.de>
-	<20040122213757.H23535@flint.arm.linux.org.uk>
-	<20040123232025.4a128ead.aahrend@web.de>
-	<20040124004530.B25466@flint.arm.linux.org.uk>
-	<4034016C.5070307@pobox.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 12:12:12 -0500
+Received: from smtp.expedia.com ([216.251.115.249]:25615 "EHLO
+	smtp.expedia.com") by vger.kernel.org with ESMTP id S267422AbUBSRMD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 12:12:03 -0500
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_24DCD2E8W7K9RXQGSPT1"
+Date: Thu, 19 Feb 2004 09:12:02 -0800 (Pacific Standard Time)
+Message-Id: <4034EE62.003786.02044@DNWBACRM07.expeso.com>
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+From: Expedia <auto-response@customercare.expedia.com>
+Subject: Re: warning
+ConversationID: 29UU1FQDLDFBR16ZH
+X-OriginalArrivalTime: 19 Feb 2004 17:12:02.0937 (UTC) FILETIME=[7E221690:01C3F70B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004 19:21:00 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> Russell King wrote:
-> > On Fri, Jan 23, 2004 at 11:20:25PM +0100, Arne Ahrend wrote:
-> > 
-> >>>It works for me - with pcnet_cs.  Do you have ipv6 configured into the
-> >>>kernel?
-> >>
-> >>No.
-> > 
-> > 
-> > Argh, it seems that several patches which were in the netdrv experimental
-> > tree never got merged.
-> > 
-> > Jeff - what's the situation with the net driver experimental tree?
-> > Could the DEV_STALE_CONFIG patches from around December time be
-> > merged please?
-> 
-> 
-> All my netdev patches are in upstream now, FWIW.
-> 
-> 	Jeff
-> 
-> 
-I have just upgraded from 2.6.3-rc2 (which was the first post 2.4 kernel to
-fix the problem I had) to 2.6.3. Everything is working perfectly.
-Many thanks!
+--------------Boundary-00=_24DCD2E8W7K9RXQGSPT1
+Content-Type: Text/Plain;
+  charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-	Arne
+Dear Expedia customer, 
+
+Thank you for contacting us. We can't reply directly to 
+messages sent to this address, but we've provided links 
+below to help you get the assistance you need.
+
+
+CONTACT US
+Use our Feedback Form to get in touch with us: 
+- US: 
+https://www.expedia.com/pub/agent.dll?qscr=fbak&rfrr=-16019 
+
+- Canada: 
+https://www.expedia.ca/pub/agent.dll?qscr=fbak&rfrr=-16020 
+
+
+============================================================
+ONLINE HELP
+Visit the Expedia Customer Support Center for answers to 
+frequently asked questions and more helpful information: 
+- US: 
+http://www.expedia.com/daily/service/default.asp?rfrr=-16019 
+
+- Canada: 
+http://www.expedia.ca/daily/service/default.asp?rfrr=-16020 
+
+
+============================================================
+UNSUBSCRIBE OR MANAGE SUBSCRIPTIONS
+Manage (subscribe or unsubscribe) your e-mail subscriptions 
+(you may be asked to sign in): 
+- US: 
+https://www.expedia.com/pub/agent.dll?qscr=info&rfrr=-16019 
+
+- Canada: 
+https://www.expedia.ca/pub/agent.dll?qscr=info&rfrr=-16020 
+
+
+Thanks again, 
+Expedia Customer Support
+
+-----Original Message-----
+From: 
+Sent: 2/19/2004 9:12:02 AM
+To: travel@customercare.expedia.com
+Subject: warning
+
+read it immediately!
+
+
+--------------Boundary-00=_24DCD2E8W7K9RXQGSPT1--

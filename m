@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTLSIJr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 03:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLSIJq
+	id S261953AbTLSIaU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 03:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLSIaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 03:09:46 -0500
-Received: from holomorphy.com ([199.26.172.102]:12694 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262041AbTLSIJq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 03:09:46 -0500
-Date: Fri, 19 Dec 2003 00:09:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Yun Zhou <sraphim@mofd.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HD access sluggish in 2.6.0
-Message-ID: <20031219080940.GG31393@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Yun Zhou <sraphim@mofd.net>, linux-kernel@vger.kernel.org
-References: <200312181957.05917.sraphim@mofd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312181957.05917.sraphim@mofd.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 19 Dec 2003 03:30:20 -0500
+Received: from mail.dietlibc.org ([212.84.236.4]:26540 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261953AbTLSIaS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 03:30:18 -0500
+Message-ID: <3FE2B717.7020502@convergence.de>
+Date: Fri, 19 Dec 2003 09:30:15 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steffen Schwientek <schwientek@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test11 framebuffer Matrox
+References: <200312190314.13138.schwientek@web.de>
+In-Reply-To: <200312190314.13138.schwientek@web.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 07:57:05PM -0600, Yun Zhou wrote:
-> I'm using a system with 1HD (DC WD600BB-00CAA1 60 GB) using kernel 2.6.0. 
-> Whenever the system uses the disk extensively (copying a file, untarring, 
-> etc.), it grinds to a near halt, with the CPU usage at about 100%, even for a 
-> simple copying operation.
-> This problem is not present when using 2.4.22, nor any of the 2.4 series 
-> kernels that I've tried. Does anyone know what is causing this?
-> Thanks in advance!
+Hello Steffen,
 
-This is typical of IDE disks where the driver is pessimistically using
-PIO. A dmesg and .config would help, plus maybe readprofile(1) results
-(you'll have to boot with profile=1 on the kernel command-line.) just
-in case it's actually something else.
+> My Matrox-framebuffer is not working properly. Build direct into the
+> kernel, the monitor will be black with some stripes at startup, just the
+> reset button works.
+> Build as a modules, the same happens if I load the module.
 
+All I can say is "me, too". 8-(
 
--- wli
+> Steffen
+
+Can somebody definately say if "matroxfb" is working for 2.6? I haven't 
+tested it for a while, but I was surprised to find it non-working in 2.6...
+
+CU
+Michael.

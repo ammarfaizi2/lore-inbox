@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280320AbRKSRYP>; Mon, 19 Nov 2001 12:24:15 -0500
+	id <S280307AbRKSRYE>; Mon, 19 Nov 2001 12:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280328AbRKSRXz>; Mon, 19 Nov 2001 12:23:55 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:63501 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S280307AbRKSRXj>; Mon, 19 Nov 2001 12:23:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: x bit for dirs: misfeature?
-Date: Mon, 19 Nov 2001 19:21:57 +0000
-X-Mailer: KMail [version 1.2]
-Cc: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl>
-In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl>
-MIME-Version: 1.0
-Message-Id: <01111919215701.07749@nemo>
-Content-Transfer-Encoding: 7BIT
+	id <S280320AbRKSRXz>; Mon, 19 Nov 2001 12:23:55 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:52997 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S280328AbRKSRXj>; Mon, 19 Nov 2001 12:23:39 -0500
+Date: Mon, 19 Nov 2001 17:23:00 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: John Clemens <john@deater.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_write_config_byte question..
+Message-ID: <20011119172300.B16263@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0111191243570.237-100000@pianoman.cluster.toy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111191243570.237-100000@pianoman.cluster.toy>; from john@deater.net on Mon, Nov 19, 2001 at 12:48:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 November 2001 16:44, Horst von Brand wrote:
-> > > Anyway, as Al Viro has pointed out, R!=X. It's been like that for a
-> > > very long time, it's deliberate, not a misfeature, and it's staying
-> > > like that for the foreseeable future.
-> >
-> > Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
-> > to chmod and friends:
-> >
-> > chmod -R a+R dir  - sets r for files and rx for dirs
->
-> X sets x for dirs, leaves files alone.
+On Mon, Nov 19, 2001 at 12:48:24PM -0500, John Clemens wrote:
+> I've been hacking some PCI code to get USB working on my laptop.  I need
+> to change PCI config space to use IRQ 11 for the device instead of IRQ 9.
 
-Hmm... yes this is one of such workarounds already implemented.
-But it is not very good for my example:
-X sets x for dirs *and* for files with x set for any of u,g,o.
+Changing interrupts is non-trivial, especially on x86.
 
-# chmod -R a+rX dir
+> So i call pci_write_config_byte(...), but that only appears to change the
+> "system" view of PCI space.. if you boot the kernel and do an lspci, it
+> shows up as IRQ11, but if you do a lspci -b (for "Bus" view), it still
+> shows up as IRQ 9.
 
-will make any executables (even root only) world-executable.
+The kernel caches a copy of the IRQ number register.  The IRQ number
+register (PCI_INTERRUPT_LINE) is just like RAM - you can read it, you
+can write it.  However, it has no hardware side effects however. It's
+sole purpose in life is to communicate the IRQ number from the POST
+(which knows how the interrupts are arranged) to the driver.
 
-That's why I'd like to add new flag to chmod: R.
 --
-vda
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

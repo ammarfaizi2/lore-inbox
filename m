@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUBTAlo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUBTAlo
+	id S267607AbUBTAlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUBTAlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:41:44 -0500
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.74]:50544 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S267667AbUBTAaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:30:06 -0500
-Date: Thu, 19 Feb 2004 19:29:45 -0500
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: sysconf - exposing constants to userspace
-In-reply-to: <20040220002034.GC5590@mail.shareable.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: thockin@sun.com, Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Message-id: <200402191929.54604.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.4
-References: <20040219204820.GC9155@sun.com>
- <200402191630.47047.jeffpc@optonline.net>
- <20040220002034.GC5590@mail.shareable.org>
+	Thu, 19 Feb 2004 19:41:46 -0500
+Received: from citi-181.Connectathon.ORG ([130.128.53.181]:25348 "EHLO
+	nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S267703AbUBTAam convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:30:42 -0500
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402191621250.2244@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+	 <20040219163838.GC2308@mail.shareable.org>
+	 <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+	 <20040219182948.GA3414@mail.shareable.org>
+	 <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+	 <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org>
+	 <20040219204853.GA4619@mail.shareable.org>
+	 <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org>
+	 <20040220000054.GA5590@mail.shareable.org>
+	 <Pine.LNX.4.58.0402191607490.2244@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0402191621250.2244@ppc970.osdl.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1077237038.3915.31.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 19 Feb 2004 16:30:39 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+På to , 19/02/2004 klokka 16:24, skreiv Linus Torvalds:
+> That said, who actually _uses_ dnotify? The only time dnotify seems to 
+> come up in discussions is when people complain how badly designed it is, 
+> and I don't think I've ever heard anybody say that they use it and 
+> that they liked it ;)
 
-On Thursday 19 February 2004 19:20, Jamie Lokier wrote:
-> Jeff Sipek wrote:
-> > I think that making something in /sys would make the most sense,
-> > with one constant per file. We could dump the consts files to for
-> > example /sys/consts, or make a logical directory structure to make
-> > navigation easier.
->
-> Isn't that very similar to the /proc/sys/kernel we have now?
+We use it in the idmapper and RPCSEC_GSS userland daemons in order to
+track which NFS clients are up and running (by peeking inside the
+rpc_pipefs). Works fine there...
 
-If I understand the original post correctly, the numbers that we don't make 
-available to userspace are compile time constants. For example, since I can't 
-think of anything better, NR_CPUS. It is set during the config process, but 
-one cannot read the number from userspace while running that kernel. I know 
-that there are better examples, but I just can't think of any at the moment.
-
-If I missed the point of the original post, please ignore me.
-
-Jeff.
-
-- -- 
-Trust me, you don't want me doing _anything_ first thing in the morning.
-		- Linus Torvalds
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFANVUBwFP0+seVj/4RArdbAJ4tsq5cyDJ+058h1D6JDli1nsmP9ACeJnoN
-pxE9BuRBNND271SGp81SMHM=
-=rmLE
------END PGP SIGNATURE-----
-
+Cheers,
+  Trond

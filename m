@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267429AbTBDTSP>; Tue, 4 Feb 2003 14:18:15 -0500
+	id <S267433AbTBDTT5>; Tue, 4 Feb 2003 14:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTBDTSP>; Tue, 4 Feb 2003 14:18:15 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:39108 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267429AbTBDTSO>; Tue, 4 Feb 2003 14:18:14 -0500
-Date: Tue, 4 Feb 2003 20:16:40 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH 2.5.59] cpufreq: support for "target frequency governors"
-Message-ID: <20030204191640.GA20126@brodo.de>
-References: <20030203221443.GA1420@brodo.de> <20030204131348.C16744@suse.de>
+	id <S267436AbTBDTT5>; Tue, 4 Feb 2003 14:19:57 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267433AbTBDTT4>;
+	Tue, 4 Feb 2003 14:19:56 -0500
+Date: Tue, 4 Feb 2003 20:28:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Compactflash cards dying?
+Message-ID: <20030204192853.GA614@elf.ucw.cz>
+References: <20030202223009.GA344@elf.ucw.cz> <20030203073028.B4C2920BD9@dungeon.inka.de> <20030203125449.GB480@elf.ucw.cz> <1044313953.28406.44.camel@imladris.demon.co.uk> <20030204112406.GB737@atrey.karlin.mff.cuni.cz> <1044358231.3291.10.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030204131348.C16744@suse.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1044358231.3291.10.camel@passion.cambridge.redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 01:13:48PM +0100, Dave Jones wrote:
-> On Mon, Feb 03, 2003 at 11:14:43PM +0100, Dominik Brodowski wrote:
->  > This patch adds support for "cpufreq governors". 
->  > <snip excellent description of governors>
+Hi!
+
+> > Well, if their translation layer at least *worked*, I'd be happy with
+> > it.
 > 
-> Could you add your descriptions to Documentation/cpufreq/ too?
-> The cpufreq interface has come quite a way since the original version
-> and is getting quite complex. Keeping documentation around for it
-> can only be a good thing, and as you've already written it.. 8-)
+> Would you? You fill up your FAT or EXT2 file system, then delete all
+> your files. There are lots and lots of sectors with now-unused data.
+> 
+> Then start filling it up again. 
+> 
+> To accommodate your writes, the underlying translation layer is busily
+> garbage-collecting all those blocks which are _unused_, copying them
+> from one part of the flash to another to collect 'fresh' copies of data
+> together while reclaiming space from 'obsoleted' copies of changed
+> sectors.
+> 
+> Or you manage to find a vendor who sells reliable cards, hence decide
+> it's actually usable for real medium-term storage and start using
+> EXT3
 
-A very large documentation-update patch (37K) is in my queue, but as 
-long as the corresponding code isn't in the kernel completely, it makes 
-no sense in update the documentation :)
+Well, I've got old 20-mb PCMCIA, and that worked for me for >2
+years. Now I've apacer 256MB CF, and it died within a *month*. I
+returned it and the "new" one died within *week*. Ouch.
 
-	Dominik
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272247AbRHWMrs>; Thu, 23 Aug 2001 08:47:48 -0400
+	id <S272249AbRHWMt2>; Thu, 23 Aug 2001 08:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272250AbRHWMri>; Thu, 23 Aug 2001 08:47:38 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35078 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272247AbRHWMr1>; Thu, 23 Aug 2001 08:47:27 -0400
-Subject: Re: [PATCH] this patch add a possibility to add a random offset to the stack on exec.
-To: johnpol@2ka.mipt.ru
-Date: Thu, 23 Aug 2001 13:47:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <200108230130.f7N1Uol14698@www.2ka.mipt.ru> from "Evgeny Polyakov" at Aug 23, 2001 05:32:10 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272250AbRHWMtS>; Thu, 23 Aug 2001 08:49:18 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:32664 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S272249AbRHWMtH>; Thu, 23 Aug 2001 08:49:07 -0400
+Date: Thu, 23 Aug 2001 09:04:09 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@zip.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops after mounting ext3 on 2.4.8-ac9
+In-Reply-To: <E15ZfMa-0002Il-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31.0108230857480.4431-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZttT-0003kI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Add a possibility to add a random offset to the stack on exec. This makes
-> it slightly harder to write generic buffer overflows. This doesn't really
-> give any real security, but it raises the bar for script-kiddies and it's
-> really cheap."
+On Wed, 22 Aug 2001, Alan Cox wrote:
 
-Its so slight its useless, and the randomness makes it hard to verify you
-fixed a problem. Remember once an exploit appears a box will get scanned
-hundreds of times - someone will get the right offset 8)
+> ac8 has further superblock updates, I wonder if those are what ticklets it.
+>
+> Can you try 2.4.8ac7 with the 2.4.8ac8 drivers/usb and include/linux/usb*
+> changes ?
 
-There is another good reason for offseting stacks within the page -
-especially the kernel stacks which is to avoid things like each apache
-task sleeping with wait queues on the same cache colour
+Okay I trimmed intermediate patch patch-2.4.8-ac7-ac8 down to just this:
+
+patching file drivers/usb/CDCEther.c
+patching file drivers/usb/Config.in
+patching file drivers/usb/Makefile
+patching file drivers/usb/catc.c
+patching file drivers/usb/hp5300.c
+patching file drivers/usb/hp5300.h
+patching file drivers/usb/hpusbscsi.c
+patching file drivers/usb/hpusbscsi.h
+patching file drivers/usb/kaweth.c
+patching file drivers/usb/pegasus.c
+patching file drivers/usb/usb.c
+patching file include/linux/usb.h
+
+> If Im right it wont oops
+
+Nope, it did oops.  Looks pretty much same too.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

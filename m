@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266546AbUGKVqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUGKVwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266546AbUGKVqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 17:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGKVqL
+	id S266590AbUGKVwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 17:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGKVwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 17:46:11 -0400
-Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:37000 "EHLO
-	jg555.com") by vger.kernel.org with ESMTP id S266546AbUGKVqJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 17:46:09 -0400
-Message-ID: <008101c46790$6e41bcd0$d100a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Kernel" <linux-kernel@vger.kernel.org>
-References: <20040711203659.GE2899@charite.de>
-Subject: Another FB Problem (trindentfb)
-Date: Sun, 11 Jul 2004 14:45:48 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Sun, 11 Jul 2004 17:52:04 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:53774 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S266590AbUGKVwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 17:52:01 -0400
+Date: Sun, 11 Jul 2004 23:54:46 +0200
+To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040711215446.GA21443@hh.idb.hist.no>
+References: <20040710184357.GA5014@taniwha.stupidest.org> <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net>
+User-Agent: Mutt/1.5.6+20040523i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a simliar issue with the trindentfb, Is anyone maintaining the
-trindentfb, so I can work them to resolve this issue???
+On Sat, Jul 10, 2004 at 11:24:53PM +0200, Bernd Eckenfels wrote:
+> In article <20040710184357.GA5014@taniwha.stupidest.org> you wrote:
+> > No, that's not the case.  Normally when files are written the data
+> > isn't not flushed immediately, it sits in memory (the page-cache) for
+> > some (usually) small amount of time.
+> 
+> Does that mean, that closing a tempfile and then renaming  the file is not 
+> a reliable way to tell, that the data  is persited? I usually use a atomic
+> rename to have a point from which on I can tell if the data is complete
+> and persisted.
+> 
+> I thought close() has  fsync() semantics?
+> 
+No, it doesn't.
 
-The trindentfb does respond to the setting of the refresh rate properly. I
-have an omnibook XE2, with the cyberblade i/7 video. I need to setup the
-trindentfb to 800x600 with a Horizonatal sync of 35.15 and a fresh rate
-between 55-65.
+close() will flush the C library buffer.  That means the data
+moves from theose buffers to the pagacache. The program crashing
+after that will have no effect on the file.  It can still
+be lost if the _kernel_ crashes though.
+If you want the pagecache flushed to disk, use fsync (or sync)
 
-These are the settings required for X trident driver also.
-
-Problem has been in all 2.6.x kernels, Just seeing Ralf's message remindend
-me. vesafb works.
-
-
+Helge Hafting

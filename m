@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131510AbQKNWty>; Tue, 14 Nov 2000 17:49:54 -0500
+	id <S131383AbQKNXOO>; Tue, 14 Nov 2000 18:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131546AbQKNWto>; Tue, 14 Nov 2000 17:49:44 -0500
-Received: from et-gw.etinc.com ([207.252.1.2]:30212 "EHLO etinc.com")
-	by vger.kernel.org with ESMTP id <S131510AbQKNWtg>;
-	Tue, 14 Nov 2000 17:49:36 -0500
-Message-Id: <5.0.0.25.0.20001114171416.01f7b8f0@mail.etinc.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Tue, 14 Nov 2000 17:18:25 -0500
-To: <michael@pmcl.ph.utexas.edu>, "Allen, David B" <David.B.Allen@chase.com>
-From: Dennis <dennis@etinc.com>
-Subject: RE: intel etherpro100 on 2.2.18p21 vs 2.2.18p17
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011111111390.18876-100000@pmcl.ph.utexas.e
- du>
-In-Reply-To: <93BA6BFC5E48D4118A8200508B6BBC4924AB7A@sf1-mail01.hamquist.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131430AbQKNXOE>; Tue, 14 Nov 2000 18:14:04 -0500
+Received: from Host4.modempool1.milfordcable.net ([206.72.42.4]:5636 "HELO
+	windeath.2y.net") by vger.kernel.org with SMTP id <S131383AbQKNXN7>;
+	Tue, 14 Nov 2000 18:13:59 -0500
+Message-ID: <3A11C123.84DE0A95@windeath.2y.net>
+Date: Tue, 14 Nov 2000 16:48:03 -0600
+From: James M <dart@windeath.2y.net>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, twaugh@redhat.com, wollny@cns.mpg.de
+Subject: Parport/IMM/Zip Oops Revisited -- Filesys problem? Viro please look
+In-Reply-To: <3A088352.BCAD0B7A@windeath.2y.net> <3A106A88.571AFF9E@windeath.2y.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:15 PM 11/11/2000, michael@pmcl.ph.utexas.edu wrote:
->We have the SUPER 370DL3 SuperMicro boards w/ the integrated Intel NIC,
->unfortunately a warm boot does not help.  The problem also seems to happen
->when I turn on the alias ip feature in the kernel under network options.
->
->
->On Fri, 10 Nov 2000, Allen, David B wrote:
->
-> > FWIW, I have a dual-proc SuperMicro motherboard P3DM3 with integrated
-> > Adaptec SCSI and Intel 8255x built-in NIC.
-> >
-> > Sometimes on a cold boot I get the "kernel: eth0: card reports no RX
-> > buffers" that repeats, but if I follow it with a warm boot the message
-> > doesn't appear (even on subsequent warm boots).  So this is definitely
-> > reproducible, but it doesn't happen every time.
-> >
-> > I can't offer much more than that, but at least you know you're not the 
-> only
-> > one experiencing this.
-> >
+James M wrote:
 
-There is a flaw in the eepro100 driver that apparently doesnt initialise 
-something properly. The problem is exasperated by the fact that the 
-eepro100 driver doesn handle the buffer problem properly. We've corrected 
-it by (effectively) resetting the card (by calling close and then open) 
-when the first out of resources event occurs. Its not elegant, but it seems 
-to work.
+   Was just trying to find out why I can mount in 11pre1 and 11pre2 when
+Gert can't mount at all, so I removed my VFAT factory formatted zipdisk
+and put in an Ext2 formatted one.....**BOOM**
 
-We have identical hardware with dual boot disks (linux and freebsd) and the 
-problem only occurs with linux, and it only seems to occur with  linux. Of 
-course on the DLE supermicro boards FreeBSD complains about an unsupport 
-PHY, so there is no joy in mudville no matter what you do :-)
+Al, my original oops report is here:
 
-Dennis
+http://boudicca.tux.org/hypermail/linux-kernel/2000week42/1240.html
 
+Summary: Test10 is broken for both filesystems (sick of fsck'n-not
+confirmed)
+	 11pre1-pre2 work for VFAT broken for EXT2
+	 11pre3 is broken for both filesystems
+
+   Anything you want me to try just let me know, I've already been
+through about 100 fscks, a few more won't hurt.
+   BTW I have a list of 23 common non-obvious files that changed in
+test10/11pre1 and 11pre2/pre3, say the word and I'll mail the list.
+
+James M.
+
+--30 Gig of fsck sucks--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

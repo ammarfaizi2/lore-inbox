@@ -1,135 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUHTUB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUHTUC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268057AbUHTUB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268692AbUHTUB7
+	id S268703AbUHTUC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268692AbUHTUC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:01:59 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:12706 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268057AbUHTUBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:01:48 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: gene.heskett@verizon.net
-Subject: Re: Possible dcache BUG
-Date: Fri, 20 Aug 2004 22:11:46 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408201843.23222.v13@priest.com> <200408201329.05176.gene.heskett@verizon.net>
-In-Reply-To: <200408201329.05176.gene.heskett@verizon.net>
+	Fri, 20 Aug 2004 16:02:58 -0400
+Received: from pop.gmx.de ([213.165.64.20]:28382 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268696AbUHTUCl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 16:02:41 -0400
+X-Authenticated: #14776911
+From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
+Reply-To: stefandoesinger@gmx.at
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+Date: Fri, 20 Aug 2004 22:01:54 +0200
+User-Agent: KMail/1.6.2
+References: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com> <41265443.9050800@optonline.net>
+In-Reply-To: <41265443.9050800@optonline.net>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "Li, Shaohua" <shaohua.li@intel.com>,
+       Nathan Bryant <nbryant@optonline.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200408202211.46854.rjwysocki@sisk.pl>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408202201.54083.stefandoesinger@gmx.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 of August 2004 19:29, Gene Heskett wrote:
-> On Friday 20 August 2004 11:43, V13 wrote:
-> >On Friday 20 August 2004 18:06, Gene Heskett wrote:
-> >> On Friday 20 August 2004 03:33, Marcelo Tosatti wrote:
-> >> [...]
-> >>
-> >> >> >I can't see how that could be caused by flaky hardware.
-> >> >>
-> >> >> There is still that possibility Marcelo.  Someone recommended I
-> >> >> get cpuburn and memburn, and before fixing the scanf statement
-> >> >> (it was broken) in memburn, I had compiled it for a 512 meg
-> >> >> test the first time, and a 768 meg test the next couple of
-> >> >> runs.
-> >> >>
-> >> >> All exited with errors like this:
-> >> >> Passed round 133, elapsed 4827.19.
-> >> >> FAILED at round 134/14208927: got ff00, expected 0!!!
-> >> >>
-> >> >> REREAD: ff00, ff00, ff00!!!
-> >> >>
-> >> >> [root@coyote memburn]# vim memburn.c
-> >> >> [root@coyote memburn]# gcc -o memburn memburn.c
-> >> >> [root@coyote memburn]# ./memburn
-> >> >> Starting test with size 768 megs..
-> >> >>
-> >> >> Passed round 0, elapsed 44.36.
-> >> >> Passed round 1, elapsed 74.13.
-> >> >> Passed round 2, elapsed 105.12.
-> >> >> FAILED at round 3/25777183: got 2b00, expected 0!!!
-> >> >>
-> >> >> REREAD: 2b00, 2b00, 2b00!!!
-> >>
-> >> The latest output of memburn after a bit of format hacking:
-> >>
-> >> FAILED at round 78/165714207: got 0000ff00, expected 00000000!!!
-> >> REREAD: 0000ff00, 0000ff00, 0000ff00!!!
-> >>
-> >> and
-> >>
-> >> FAILED at round 160/200780831: got 02025302, expected 02020202!!!
-> >> REREAD: 02025302, 02025302, 02025302!!!
-> >>
-> >> So it appears that its the third byte of 4 each time thats
-> >> fubar'd. I'l run it a few more times to confirm.  Is memory byte
-> >> wide per chip on these things today?
-> >
-> >I had a simillar problem some years ago. I had core dumps and gcc
-> > errors all the time but memtest could not find a thing. 99% it was
-> > a CPU problem and not a memory problem. It seemed that there were
-> > errors at random times even when there was no cpu load.
-> >
-> >I believe it was a cache problem. I made a simple prog (like
-> > memburn) that allocated memory blocks and then did some read/write
-> > on them (alloc+write 5 blocks, check 1, free 1, alloc+write 6,
-> > check 2, free 2 alloc+write 7....). After that whenever the program
-> > encountered an error it looped on this block forever.
-> >
-> >The errors occured after a random period of time (from 1 block
-> > allocation to more than an hour) and were never reproduced after a
-> > stop/start. When this test program was running and looping on the
-> > bad block, gcc never displayed errors. The problem was fixed when I
-> > replaced the CPU and I'm still using the same DIMMs without
-> > problems. I also did a lot of checks before replacing the CPU, like
-> > changing the position of the DIMMs, removing one of them, change
-> > their timing, and much more without success. Even removed all the
-> > PCI cards.
-> >
-> >Disabling the CPU cache or replacing it can be a good test.
-> >
-> ><<V13>>
->
-> I tried disabling it in the bios and the machine became unusable for
-> all practical purposes.  But it did run about half a day that way.
-> I'd estimate its speed was similar to a 33 mhz 386sx with only 8 megs
-> of ram though.  I could type a full sentence ahead of the screen
-> display in kmail for instance.  Had it been usable, I might have been
-> tempted to let it run a couple of days just for grins.  On the next
-> reboot, I'm going to switch the stick around, and see if the errors
-> move to an even address.  If they do, then I'd be convinced its
-> memory and not cache.  The question then becomes which stick in a
-> dual channel setup is even addresses, and which is odd addresses.
->
-> Probably best to just go buy another half gigger and swap it in for
-> one of these one at a time.  And hope its better!
->
-> Yup, memburn stopped again, at an odd address, showing the same
-> failure pattern in byte 3 of 4.
->
-> FAILED at round 63/20669951: got 0000ff00, expected 00000000!!!
-> REREAD: 0000ff00, 0000ff00, 0000ff00!!!
->
-> I guess i'm going to town.
 
-There's a simple test you can do unless your DIMMs must go in pairs (I don't 
-remember if it's required by nforce2): remove one of them and see what 
-happens.  If you can reproduce the same symptoms on each of them separately, 
-I'd bet on a cache problem.
+> Something else to watch out for on ICH2 and similar chipsets is that, as
+> long as the IRQ router is steering a PCI link onto a certain IRQ, LPC
+> ISA device are blocked from triggering that IRQ via the SERIRQ protocol.
+> But if we move the all the PCI links elsewhere, the SERIRQ is no longer
+> blocked, and if some ISA LPC device is holding a high level, which
+> normally wouldn't trigger IRQ's under ISA, then the IRQ line will get
+> disabled because the PIC is probably set to level-trigger because it was
+> PCI at one point. I've seen this happen with IRQ 12 when the BIOS
+> decided there was no PS/2 mouse present so it could re-use the IRQ. The
+> real cause is that the i850 has  a register that allows IRQ1 and IRQ12
+> to be disabled on the LPC bus, and this register isn't restored on
+> resume. This probably doesn't apply to IRQ11 on Stefan's system, though...
+If I re-programm the IRQ to something else than IRQ10, the device doesn't 
+resume too. So it's not only a problem of IRQ 11.
 
-Greetings,
+> Maybe it's time to look at the suspend/resume callbacks on the ipw2100
+> driver, anyway.
+The ipw2100 driver calls pci_disable_device in it's suspend handler. But I 
+think the ipw2100 maintainers need help with suspend/resume because James 
+Ketrenos can't test it on his own system.
 
--- 
-Rafael J. Wysocki
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+I'll change another devices IRQ line to test if it's only an ipw2100 issue.
+
+Stefan

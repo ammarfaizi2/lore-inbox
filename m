@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262833AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
+	id <S262834AbTCQIMZ>; Mon, 17 Mar 2003 03:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262834AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:48680
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262833AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
-Date: Mon, 17 Mar 2003 03:15:48 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
-Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16
- IOAPICs, 223 IRQs
-In-Reply-To: <20030317074149.GO5891@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0303170311130.2229-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com>
- <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
- <20030317062838.GN5891@holomorphy.com> <Pine.LNX.4.50.0303170226180.2229-100000@montezuma.mastecende.com>
- <20030317074149.GO5891@holomorphy.com>
+	id <S262837AbTCQIMZ>; Mon, 17 Mar 2003 03:12:25 -0500
+Received: from imo-r01.mx.aol.com ([152.163.225.97]:42211 "EHLO
+	imo-r01.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S262834AbTCQIMY>; Mon, 17 Mar 2003 03:12:24 -0500
+Message-ID: <3E758570.5090003@netscape.net>
+Date: Mon, 17 Mar 2003 00:21:04 -0800
+From: Sheng Long Gradilla <skamoelf@netscape.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Toplica Tanaskovic <toptan@EUnet.yu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AGP 3.0 for 2.4.21-pre5
+References: <200303151816.39915.toptan@EUnet.yu> <3E74AC3B.6070404@netscape.net> <200303170008.41525.toptan@EUnet.yu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Mar 2003, William Lee Irwin III wrote:
+I did. If I patch the kernel, my compiling procedure is always as follows:
 
-> On Mon, Mar 17, 2003 at 02:28:26AM -0500, Zwane Mwaikambo wrote:
-> > I'd have to rob a couple more poor souls to get 16 quads ;)
-> 
-> Getting them together in one place involves extreme pain/hassles.
+==================
+make clean
+make mrproper
+make menuconfig
+make dep
+make modules
+make bzlilo
+make modules_install
+shutdown -r now
+==================
 
-I managed to get some ethernet cards going note eth3/irq211 and 
-eth2/irq163 these are on nodes 4 and 3 respectively.
+The module loads fine. In /var/log/messages there are reports of
+detecting AGP 3.5 compatible hardware, but as I said, X just won't start
+properly and will report AGP 4X mode.
 
-http://www.osdl.org/projects/numaqhwspprt/results/interrupts
+I checked /proc/driver/nvidia, and it reports AGP 8X hardware and
+everything.
 
-requesting vector for node4/irq211
-returning new allocation node4/irq211 -> vector0xc1
-irq_setup: node4/bus9/ioapic8/vector0xc1 - irq211 c010b6bc
-09:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+I was thinking, I have not tested the nvidia kernel module with the 2.5
+kernel. There is an unofficial patch for getting it to compile. I might
+give it a try to see if it works, but that won't happen soon.
 
-requesting vector for node3/irq163
-returning new allocation node3/irq163 -> vector0xc1
-irq_setup: node3/bus7/ioapic6/vector0xc1 - irq163 c010b588
-07:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+If anyone wants to give it a try, visit:
+
+http://www.minion.de/nvidia.html
 
 
--- 
-function.linuxpower.ca
+
+
+
+Toplica Tanaskovic wrote:
+ > Dana nedelja 16. mart 2003. 17:54 napisali ste:
+ >
+ >>I tested it with my NVidia GeForce 4 Ti4200 with AGP8X. No luck for me
+ >>yet. X is still reporting AGP 4X in the log, I get garbage on the screen
+ >>and my PC locks up.
+ >>
+ >>I am not sure if this has something to do with the NVidia driver for X,
+ >>or just a bug in your module/backport.
+ >>
+ >
+ >     You have to run make clean first, or faster way go to 
+drivers/char/agp/ and
+ > delete any .o files, and then do make modules...
+ >
+ >     I'll have to figure out way to force compilation of agpgart if 
+only agp 3.0
+ > menu item was changed.
+
+
+

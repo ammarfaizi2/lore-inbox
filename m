@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVBQOtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVBQOv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVBQOtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 09:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVBQOtV
+	id S262138AbVBQOv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 09:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVBQOvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 09:49:21 -0500
-Received: from fsmlabs.com ([168.103.115.128]:24505 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262138AbVBQOrv (ORCPT
+	Thu, 17 Feb 2005 09:51:17 -0500
+Received: from duempel.org ([81.209.165.42]:23424 "HELO swift.roonstrasse.net")
+	by vger.kernel.org with SMTP id S262182AbVBQOs6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 09:47:51 -0500
-Date: Thu, 17 Feb 2005 07:48:47 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Davide Rossetti <davide.rossetti@roma1.infn.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rmmod while module is in use
-In-Reply-To: <Pine.LNX.4.61.0502170739530.26742@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.61.0502170748170.26742@montezuma.fsmlabs.com>
-References: <4214926B.3030707@roma1.infn.it> <Pine.LNX.4.61.0502170739530.26742@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Feb 2005 09:48:58 -0500
+Date: Thu, 17 Feb 2005 15:48:53 +0100
+From: Max Kellermann <max@duempel.org>
+To: "Fao, Sean" <sean.fao@capitalgenomix.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Netfilter: TARPIT Target
+Message-ID: <20050217144853.GA1468@roonstrasse.net>
+Mail-Followup-To: "Fao, Sean" <sean.fao@capitalgenomix.com>,
+	linux-kernel@vger.kernel.org
+References: <4214AD2B.7020607@capitalgenomix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4214AD2B.7020607@capitalgenomix.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005, Zwane Mwaikambo wrote:
+On 2005/02/17 15:41, "Fao, Sean" <sean.fao@capitalgenomix.com> wrote:
+> I wanted to use the TARPIT target provided by Netfilter, but I am unable 
+> to find the module in the kernel.  Has it been removed or am I looking 
+> in the wrong place?
 
-> On Thu, 17 Feb 2005, Davide Rossetti wrote:
-> 
-> > maybe RTFM...
-> > a module:
-> > - char device driver for..
-> > - a PCI device
-> > 
-> > any clue as to how to protect from module unloading while there is still some
-> > process opening it??? have I to sleep in the remove_one() pci driver function
-> > till last process closes its file descriptor???
-> > 
-> > static void __devexit apedev_remove_one(struct pci_dev *pdev)
-> > {
-> >    ApeDev* apedev = pci_get_drvdata(pdev);
-> > 
-> >    if(test_bit(APEDEV_FLAG_OPEN, &apedev->flags)) {
-> >        PERROR("still open flag on!!! (flags=0x%08x)\n", apedev->flags);
-> > 
-> >        // sleep here till it gets closed...
-> > 
-> >    }
-> >    ...
-> > }
-> > 
-> > static struct pci_driver apedev_driver = {
-> >    .name     =  DEVNAME,
-> >    .id_table =  apedev_pci_tbl,
-> >    .probe    =  apedev_init_one,
-> >    .remove   =  __devexit_p(apedev_remove_one),
-> > };
-> 
-> Add .module = THIS_MODULE to your file_operations.
-      ^^^^^^^
+It is not in the mainstream kernel yet. You can find it in
+netfilter patch-o-matic:
 
-That should be .owner
+ http://ftp.netfilter.org/pub/patch-o-matic-ng/snapshot/
+
+Max
 

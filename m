@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310430AbSCSH6q>; Tue, 19 Mar 2002 02:58:46 -0500
+	id <S310438AbSCSIAq>; Tue, 19 Mar 2002 03:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310438AbSCSH60>; Tue, 19 Mar 2002 02:58:26 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:62471 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S310430AbSCSH6Y>; Tue, 19 Mar 2002 02:58:24 -0500
-Message-ID: <3C96EF17.32C9B8A0@zip.com.au>
-Date: Mon, 18 Mar 2002 23:56:07 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+	id <S310439AbSCSIAg>; Tue, 19 Mar 2002 03:00:36 -0500
+Received: from daimi.au.dk ([130.225.16.1]:58380 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S310438AbSCSIA0>;
+	Tue, 19 Mar 2002 03:00:26 -0500
+Message-ID: <3C96F015.24BDC9FF@daimi.au.dk>
+Date: Tue, 19 Mar 2002 09:00:21 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-12smp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: Russ Weight <rweight@us.ibm.com>, mingo@elte.hu,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Scalable CPU bitmasks
-In-Reply-To: <20020318140700.A4635@us.ibm.com> <200203190728.g2J7Srq31344@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
+In-Reply-To: <sc91c4ce.020@mail-01.med.umich.edu> <20020315150241.H24984@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+Russell King wrote:
 > 
-> On 18 March 2002 20:07, Russ Weight wrote:
-> >           While systems with more than 32 processors are still
-> >   out in the future, these interfaces provide a path for gradual
-> >   code migration. One of the primary goals is to provide current
-> >   functionality without affecting performance.
+> With all recent kernels, init exiting causes the last of these to trigger:
 > 
-> Not so far in the future. "7.52 second kernel compile" thread is about
-> timing kernel compile on the 32 CPU SMP box.
+> NORET_TYPE void do_exit(long code)
+> {
+>         struct task_struct *tsk = current;
+> 
+>         if (in_interrupt())
+>                 panic("Aiee, killing interrupt handler!");
+>         if (!tsk->pid)
+>                 panic("Attempted to kill the idle task!");
+>         if (tsk->pid == 1)
+>                 panic("Attempted to kill init!");
 
-The x86 spinlock implementation underflows at 128 CPUs [1].
- 
-> I don't know whether BUG() in inlines makes them too big,
+Why actually panic because of an attempt to kill init?
 
-It does, on all but very recent gcc's.  Strings in inlines
-generally cause vast kernel bloatage.
+Of course a message should be printed, but after that
+couldn't do_exit enter a loop where it just handles
+signals and zombies?
 
-> but _for() _loops_ in inline functions definitely do that.
-> Here's one of the overgrown inlines:
-
-Sigh.  There is far too much inlining in Linux.
-
-[1] Untested.
-
--
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

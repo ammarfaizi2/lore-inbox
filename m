@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135590AbRALXep>; Fri, 12 Jan 2001 18:34:45 -0500
+	id <S135571AbRALXfZ>; Fri, 12 Jan 2001 18:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135571AbRALXe0>; Fri, 12 Jan 2001 18:34:26 -0500
-Received: from sc-66-27-47-84.socal.rr.com ([66.27.47.84]:12807 "EHLO
-	falcon.bellfamily.org") by vger.kernel.org with ESMTP
-	id <S135619AbRALXeS>; Fri, 12 Jan 2001 18:34:18 -0500
-Message-ID: <3A5F9491.20109@bellfamily.org>
-Date: Fri, 12 Jan 2001 15:34:41 -0800
-From: "Robert J. Bell" <rob@bellfamily.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S135757AbRALXfQ>; Fri, 12 Jan 2001 18:35:16 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42757 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135571AbRALXfH>; Fri, 12 Jan 2001 18:35:07 -0500
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Fri, 12 Jan 2001 23:35:45 +0000 (GMT)
+Cc: frank@unternet.org (Frank de Lange), dwmw2@infradead.org,
+        linux-kernel@vger.kernel.org, mingo@elte.hu,
+        alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com
+In-Reply-To: <3A5F5BFB.69134DB9@colorfullife.com> from "Manfred Spraul" at Jan 12, 2001 08:33:15 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mass Storage in 2.4.0
-In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net> <3A5F9108.4030706@bellfamily.org> <20010112152415.B5798@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14HDjY-0005Ei-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately I lost everything on my system (the one that worked) and I 
-don't believe I ever looked in /proc/scsi/scsi because It was working 
-and I didn't feel the need to go poking around.  I had this problem 
-initially the first time I compiled 2.4.0 but I went back and added SCSI 
-Generic "on" and that seemed to fix it.  I am just confused why it 
-thinks this is a scanner. IS there any way to force it to detect it as a 
-scsi disk?
+> Could you disable both bandaids? I disabled them, no problems so far.
+> Now back to the disable_irq_nosync().
 
-I must have recompiled this kernel 50 times trying to recreate the the 
-scenario where this worked. I can send you my .config if you think that 
-will help.
+Ok so it looks like the disable_irq code is buggy. Unfortunately its not
+just used for these drivers they are just the heaviest users.
 
-Robert
-
-
-
-
-
-Matthew Dharm wrote:
-
-> Hrm... from these logs, everything looks okay, except for the fact that the
-> device refuses to return any INQUIRY data.
-> 
-> Can you reproduce the conditions under which it was working and send logs
-> from that?  Or at least remember what the /proc/scsi/scsi info looked like?
-> 
-> Matt
-> 
-> On Fri, Jan 12, 2001 at 03:19:36PM -0800, Robert J. Bell wrote:
-> 
->> Matthew here is the info you requested, thanks for your help.
->> 
->> 
+Given that we can see the IRQ is still set on the APIC can we fake an IRQ in
+that condition ?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

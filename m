@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUKWOmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbUKWOox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbUKWOmv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 09:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUKWOke
+	id S261287AbUKWOox (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUKWOow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 09:40:34 -0500
-Received: from pop.gmx.de ([213.165.64.20]:49123 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261261AbUKWOkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 09:40:00 -0500
-X-Authenticated: #4399952
-Date: Tue, 23 Nov 2004 15:41:03 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Paul Davis <paul@linuxaudiosystems.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123154103.56c25300@mango.fruits.de>
-In-Reply-To: <20041123152126.GB22714@elte.hu>
-References: <20041122020741.5d69f8bf@mango.fruits.de>
-	<20041122094602.GA6817@elte.hu>
-	<56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
-	<20041122132459.GB19577@elte.hu>
-	<20041122142744.0a29aceb@mango.fruits.de>
-	<65529.195.245.190.94.1101133129.squirrel@195.245.190.94>
-	<20041122154516.GC2036@elte.hu>
-	<9182.195.245.190.93.1101142412.squirrel@195.245.190.93>
-	<20041123144622.GA20085@elte.hu>
-	<20041123145718.250a7649@mango.fruits.de>
-	<20041123152126.GB22714@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 09:44:52 -0500
+Received: from smtp.cs.aau.dk ([130.225.194.6]:15753 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S261269AbUKWOoN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 09:44:13 -0500
+From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
+Organization: Aalborg University
+To: umbrella-announce@lists.sourceforge.net
+Subject: Umbrella-0.5.1 stable released
+Date: Tue, 23 Nov 2004 15:44:09 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200411231544.09701.ks@cs.aau.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Nov 2004 16:21:26 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+Hi all!
 
-> 
-> * Florian Schmidt <mista.tapas@gmx.net> wrote:
-> 
-> > ~$ ps -C jack_test -cmL
-> >   PID   LWP CLS PRI TTY          TIME CMD
-> >   988     - -     - pts/1    00:00:00 jack_test
-> >     -   988 TS   20 -        00:00:00 -
-> >     -   989 FF   99 -        00:00:00 -
-> > 
-> > So when you ctrl-z out of jack_test you cause its process() thread to
-> > be suspended, too, thus jackd cannot finish processing its graph.
-> 
-> so in theory any scheduling delay of PID 988 in the above setup (the
-> SCHED_OTHER task) should not be able to negatively influence jackd,
-> correct? 
+We are pleased to inform you that Umbrella 0.5.1 is now released. This is a 
+very stable release, which has been tested on our workstations for 6+ days 
+continously.
 
-correct
+Get the release here: 
+http://prdownloads.sourceforge.net/umbrella/umbrella-0.5.1.tar.bz2?download
 
-> In fact, does in this particular jack_test case PID 988 do
-> anything substantial?
+The strategy of the further development of Umbrella is to have
+* STABLE and well tested Umbrella as patches 
+* UNSTABLE bleeding edge technology in the CVS module umbrella-devel
 
-Well, it registers the client with jackd, sets up the ports, registers
-the process() callback and then simply goes to sleep() for the desired
-runtime of the program. All these are non RT ops and should never be
-able to cause any xruns.
 
-All the work is done by the process() callback which is called by
-libjack in a SCHED_FIFO thread. The process() callback is called once
-for each buffer that jackd processes.
+We have lots of new stuff and optimizations in the CVS, which slowley will be 
+applied and tested before getting realeased as patches. Currently we have 
+these in the CVS:
+* New, small and efficient bit vector
+* New datastructure for storing restrictions
+   See this thread for details: 
+   http://sourceforge.net/mailarchive/forum.php?thread_id=5886152&forum_id=42079
+* Restrictions on process signaling
+* Authentication of binaries (still under development for the 0.6 release)
 
-I cannot explain the detailed mechanism of how jackd wakes its clients
-and communicates with them myself too well, so i'll leave this to Paul
-Davis (CC'ed). Care to elaborate, Paul?
 
-flo
+Best regards,
+Kristian Sørensen.
+
+
+-- 
+Kristian Sørensen
+- The Umbrella Project  --  Security for Consumer Electronics
+    http://umbrella.sourceforge.net
+
+E-mail: ipqw@users.sf.net, Phone: +45 29723816

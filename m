@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbRE2IuU>; Tue, 29 May 2001 04:50:20 -0400
+	id <S261410AbRE2Iqa>; Tue, 29 May 2001 04:46:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbRE2IuK>; Tue, 29 May 2001 04:50:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:773 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261425AbRE2It5> convert rfc822-to-8bit; Tue, 29 May 2001 04:49:57 -0400
-Date: Tue, 29 May 2001 04:13:25 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-Cc: "G. Hugh Song" <ghsong@kjist.ac.kr>, linux-kernel@vger.kernel.org
-Subject: Re: Plain 2.4.5 VM...
-In-Reply-To: <20010529061039.D29962@unthought.net>
-Message-ID: <Pine.LNX.4.21.0105290407350.1660-100000@freak.distro.conectiva>
+	id <S261425AbRE2IqT>; Tue, 29 May 2001 04:46:19 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:39390 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261410AbRE2IqE>;
+	Tue, 29 May 2001 04:46:04 -0400
+Date: Tue, 29 May 2001 10:40:59 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: <werner@titro.de>, <isdn4linux@listserv.isdn4linux.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make kmalloc error return unconditional in hysdn_net.c
+ (245ac1)
+In-Reply-To: <20010528225305.M846@jaquet.dk>
+Message-ID: <Pine.LNX.4.33.0105291037290.31783-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 May 2001, Rasmus Andersen wrote:
 
+> The patch below fixes what I believe is a bug in hysdn_net.c.
+> I cannot see how we can proceed under _any_ circumstances
+> after the kmalloc fails. Applies against 245ac1.
 
-On Tue, 29 May 2001, Jakob Østergaard wrote:
+Yep, you're obviously right. Thanks, I'll check in your patch into our
+CVS, and push it to Alan. Actually, maybe it makes sense to use
+alloc_netdev here, I'll have a look.
 
-> 
-> It's not a bug.  It's a feature.  It only breaks systems that are run with "too
-> little" swap, and the only difference from 2.2 till now is, that the definition
-> of "too little" changed.
-
-Its just a balancing change, actually. You can tune the code to reap cache
-aggressively.
-
-"just put more swap and you're OK" is not the answer, IMO. 
+Thanks a lot,
+--Kai
 

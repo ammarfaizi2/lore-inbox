@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130127AbQLHKFN>; Fri, 8 Dec 2000 05:05:13 -0500
+	id <S130642AbQLHKRR>; Fri, 8 Dec 2000 05:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131501AbQLHKFD>; Fri, 8 Dec 2000 05:05:03 -0500
-Received: from mx1.eskimo.com ([204.122.16.48]:57095 "EHLO mx1.eskimo.com")
-	by vger.kernel.org with ESMTP id <S130127AbQLHKE4>;
-	Fri, 8 Dec 2000 05:04:56 -0500
-Date: Fri, 8 Dec 2000 01:34:28 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
-To: linux-kernel@vger.kernel.org
-Subject: question about tulip patch to set CSR0 for pci 2.0 bus
-Message-ID: <Pine.SUN.3.96.1001208011441.4248A-100000@eskimo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131283AbQLHKQ5>; Fri, 8 Dec 2000 05:16:57 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:4602 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S130642AbQLHKQs>;
+	Fri, 8 Dec 2000 05:16:48 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20001208022044.A6417@gruyere.muc.suse.de> 
+In-Reply-To: <20001208022044.A6417@gruyere.muc.suse.de>  <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> 
+To: Andi Kleen <ak@suse.de>
+Cc: Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org,
+        Mark Vojkovich <mvojkovich@valinux.com>
+Subject: Re: Signal 11 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+Date: Fri, 08 Dec 2000 09:46:07 +0000
+Message-ID: <25692.976268767@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shouldn't the setting of the CSR0 value for x86 switch between normal
-(0x01A08000) and cautious (0x01A04800) based on some notion of
-what generation of pci bus is installed rather than what cpu the kernel
-is compiled for?
 
-That's one thing that bothered me about the method that the .90 driver
-used. It worked for me, of course, cool, but when I thought about putting
-a real general purpose patch into later versions of tulip.c to solve the
-same problem, it bothered me that the old method assumes an association
-between pci bus and cpu that may not be valid. I don't know that
-there are any 386/486/5x86 systems that can use the 0x01A08000 setting
-(that apparently works on most x86 pci 2.1 busses), but then again I don't
-know that there aren't, either.
+ak@suse.de said:
+>  Sounds like a X Server bug. You should probably contact XFree86, not
+> linux-kernel
 
-If the pci bus level is 2.0, it makes sense to use the cautious CSR0
-setting, for the same reasons that the .90 tulip.c in 2.0.38 does, and if
-the pci level is 2.1, you aren't taking any chances with 0x01A08000 that
-the driver doesn't take now. The pci driver, initialized before any
-pci devices, appears to know whether you have a pci 2.0 or pci 2.1 bus, so
-why not use that information instead of cpu generation?
+I quote from the X devel list, which perhaps I shouldn't do but this is hardly 
+NDA'd stuff:
 
-(Merely a suggestion)
+On Mon 20 Nov 2000, mvojkovich@valinux.com said:
+>   I have seen random crashes on dual P3 BX boards (Tyan) and dual Xeon
+> GX boards (Intel).  XFree86 core dumps indicate that it happens in
+> random places, in old as dirt software rendering code that has nothing
+> wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
+> would say that this is definitely a kernel problem. 
 
-Regards,
+XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
+kernels - even on my BP6¹. The random crashes started to happen when I
+upgraded my distribution² - and are only seen by people using 2.4. So I
+suspect that it's the combination of glibc and kernel which is triggering
+it.
 
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
+--
+dwmw2
 
-""
-
-
+¹ And the BP6 still falls over less frequently than the dual P3 I use at 
+work.
+² RH7. Don't start.
 
 
 -

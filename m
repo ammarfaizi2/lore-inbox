@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUJGRWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUJGRXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267653AbUJGRWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUJGRTf
+	id S267411AbUJGRXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUJGRW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:19:35 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:34954 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S266175AbUJGRSZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 13:18:25 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [2.4] 0-order allocation failed
-Date: Thu, 7 Oct 2004 19:17:30 +0200
-User-Agent: KMail/1.7
-References: <200410071318.21091.mbuesch@freenet.de> <20041007151518.GA14614@logos.cnet>
-In-Reply-To: <20041007151518.GA14614@logos.cnet>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 7 Oct 2004 13:22:59 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53482 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267681AbUJGRWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 13:22:38 -0400
+Message-ID: <41657A61.6030601@nortelnetworks.com>
+Date: Thu, 07 Oct 2004 11:18:25 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart11084998.4l8cs4aE8I";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: Martijn Sipkema <martijn@entmoot.nl>, Adam Heath <doogie@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com> <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156929.31753.47.camel@localhost.localdomain> <Pine.LNX.4.58.0410071017300.1194@gradall.private.brainfood.com> <004901c4ac8c$2a14ed70$161b14ac@boromir> <20041007160914.GB26784@mark.mielke.cc>
+In-Reply-To: <20041007160914.GB26784@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410071917.40896.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart11084998.4l8cs4aE8I
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Mark Mielke wrote:
 
-Quoting Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
-> On Thu, Oct 07, 2004 at 01:18:13PM +0200, Michael Buesch wrote:
-> > Hi all,
-> >=20
-> > I'm running 2.4.28 bk snapshot of 2004.09.03
-> > The machine has an uptime of 7 days, 23:46 now.
-> >=20
-> > I was running several bittorrent clients inside of
-> > a screen session. Suddenly they all died (including the
-> > screen session).
-> > dmesg sayed this:
-> >=20
-> > __alloc_pages: 0-order allocation failed (gfp=3D0x1f0/0)
-> > __alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-> > VM: killing process python
-> > __alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-> > __alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-> > VM: killing process screen
-> >=20
-> > I already got this with kernel 2.4.27 vanilla after a
-> > higher amount of uptime (I think it was over 10 days).
-> > This was exactly the reason I updated to bk snapshot.
-> >=20
-> > What can be the reason for this? Is it OOM? (I can't
-> > really believe it is).
->=20
-> Can you check how much swap space is there available when
-> the OOM killer trigger? I bet this is the case.
+> Isn't it more expensive to allow the
+> application to be woken up, and poll using read(), than to just do a
+> quick check in the kernel and not tell the application there is data,
+> when there really isn't?
 
-The machine doesn't have swap.
+The issue is caching.
 
-> If its not, we have a problem.
->=20
-> > Is it a kernel memory leak?
-> >=20
-> > With 2.4.26 I never got these errors. And I ran uptimes
-> > up to 50 days.
->=20
->=20
+We have to do a pass over the data to copy it to userspace.  If we do the 
+checksum verification then, it's basically free since its already in the cache.
 
-=2D-=20
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+If we do it at select() time, we end up having to do two passes over every 
+packet, one to verify the checksum, and one to pass it to userspace.
 
+I agree with you though, it'd be nice to have select() change behaviour based on 
+whether the socket is blocking or not.
 
---nextPart11084998.4l8cs4aE8I
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBZXo0FGK1OIvVOP4RAnv+AJ40+YfqBpQcWazO9fwk6KxluFHCgQCeP5iB
-x/iGQcIs4L3AfMsC9RbIIOU=
-=5QLg
------END PGP SIGNATURE-----
-
---nextPart11084998.4l8cs4aE8I--
+Chris

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSKCRub>; Sun, 3 Nov 2002 12:50:31 -0500
+	id <S262296AbSKCRzd>; Sun, 3 Nov 2002 12:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262276AbSKCRub>; Sun, 3 Nov 2002 12:50:31 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:28170 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262266AbSKCRub>; Sun, 3 Nov 2002 12:50:31 -0500
-Date: Sun, 3 Nov 2002 18:56:53 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Petr Baudis <pasky@ucw.cz>
-cc: linux-kernel@vger.kernel.org, <mec@shout.net>
-Subject: Re: [kconfig] Survival of scripts/Menuconfig?
-In-Reply-To: <20021103111333.GA2516@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.44.0211031803380.6949-100000@serv>
-References: <20021103111333.GA2516@pasky.ji.cz>
+	id <S262298AbSKCRzd>; Sun, 3 Nov 2002 12:55:33 -0500
+Received: from pcp470010pcs.westk01.tn.comcast.net ([68.47.207.140]:7845 "EHLO
+	shed.7house.org") by vger.kernel.org with ESMTP id <S262296AbSKCRzc>;
+	Sun, 3 Nov 2002 12:55:32 -0500
+Message-ID: <3DC5648D.4E73400A@y12.doe.gov>
+Date: Sun, 03 Nov 2002 13:01:49 -0500
+From: David Dillow <dillowd@y12.doe.gov>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Morris <jmorris@intercode.com.au>
+CC: Niels Provos <provos@citi.umich.edu>, linux-kernel@vger.kernel.org
+Subject: Re: cryptographic acceleration [Re: What's left over.]
+References: <Mutt.LNX.4.44.0211021857590.31595-100000@blackbird.intercode.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Morris wrote:
+> 
+> On Sat, 2 Nov 2002, Niels Provos wrote:
+> 
+> > On the other hand, there are some Ethernet cards that support inline
+> > encryption so that not additional bus bandwidth is required to do both
+> > public and symmetric key cryptography.
+> 
+> And this is precisely the case for which we have no detailed documentation
+> at this stage.  Hardware which does this includes the Intel PRO/100S and
+> 3Com 3CR990.
 
-On Sun, 3 Nov 2002, Petr Baudis wrote:
+Have this for 3cr990, driver coming soon. I have docs under NDA for the crypto
+as well, hope to be more active getting that going as soon as I get some more
+free time.
 
->   I'd like to ask if there's still a reason to keep scripts/Menuconfig in the
-> tree; AFAIK it's not used at all anymore, can we thus remove it? (Possibly we
-> could mention its existence and basic credits at the top of
-> scripts/kconfig/mconf.c, which is at least partially based on it?) If the
-> answer is yes, I'm willing to do the patch etc.
-
-There is more to be removed, which I plan to do with the next update.
-
->   I'm asking because I want to move the relevant lxdialog functionality to
-> scripts/kconfig/mconf.c (I think it makes no sense to call lxdialog externally
-> from mconf.c) and get rid of the separate lxdialog tree. And scripts/Menuconfig
-> is the only other user of lxdialog.
-
-What do you plan to do with it exactly?
-In any case could you start with a copy of mconf.c? We are past feature 
-freeze now, so it makes little sense to remove lxdialog, but it could be 
-distributed separately together with the qt/gtk version.
-
-bye, Roman
-
+D

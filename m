@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264927AbTFQUd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbTFQUd3
+	id S264946AbTFQUgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbTFQUfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:33:29 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:35327 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264927AbTFQUdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:33:08 -0400
-Subject: Re: [PATCH] O_DIRECT for ext3 (2.4.21)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: roy@karlsbakk.net, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20030617131927.2ac04150.akpm@digeo.com>
-References: <20030615110106.GA8404@karlsbakk.net>
-	 <1055861357.4240.11.camel@sisko.scot.redhat.com>
-	 <20030617130142.50775749.akpm@digeo.com>
-	 <20030617131927.2ac04150.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055882819.16608.4.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Jun 2003 21:46:59 +0100
+	Tue, 17 Jun 2003 16:35:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:33997 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S264943AbTFQUfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:35:36 -0400
+Date: Tue, 17 Jun 2003 17:47:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: John Stoffel <stoffel@lucent.com>, gibbs@scsiguy.com,
+       linux-kernel@vger.kernel.org, willy@w.ods.org, green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030613114531.2b7235e7.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0306171744280.10802@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+ <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
+ <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com>
+ <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 2003-06-17 at 21:19, Andrew Morton wrote:
 
-> It works out OK in 2.5, and we should do it this way in 2.4 too:
-> 
-> - dentry_open() checks for inode->i_mapping->a_ops->direct_IO
-> 
-> - setfl() checks for inode->i_mapping->a_ops->direct_IO
-> 
-> - the a_ops for data-journalled inodes have a null ->direct_IO.
+On Fri, 13 Jun 2003, Stephan von Krawczynski wrote:
 
-That's what the -aa patches do, and I've got those queued in my local
-O_DIRECT stuff already.  ext3 will just expose a different a_ops for
-data-journaled files.
+> Hello all,
+>
+> this is the second day of stress-testing pure rc8 in SMP, apic mode. Today
+> everything is fine, no freeze, no data corruption.
+>
+> current standings:
+>
+> 2 days continuous test, one file data corruption on day 1
 
-Cheers,
- Stephen
+
+What kind of data corruption and what tests are you doing ? (sorry if you
+already mentionad that on the list)
+
 

@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311670AbSCNQvh>; Thu, 14 Mar 2002 11:51:37 -0500
+	id <S311668AbSCNQy1>; Thu, 14 Mar 2002 11:54:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311668AbSCNQu3>; Thu, 14 Mar 2002 11:50:29 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:33153
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S311669AbSCNQuL>; Thu, 14 Mar 2002 11:50:11 -0500
-Date: Thu, 14 Mar 2002 09:50:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Martin Dalecki <martin@dalecki.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Actually hide x86 IDE chipsets on !CONFIG_X86
-Message-ID: <20020314165018.GE706@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S311671AbSCNQyL>; Thu, 14 Mar 2002 11:54:11 -0500
+Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:6820 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S311668AbSCNQxK>;
+	Thu, 14 Mar 2002 11:53:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem   (one li\ne)>
+Date: Thu, 14 Mar 2002 17:47:45 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Dan Kegel <dkegel@ixiacom.com>, Ulrich Drepper <drepper@redhat.com>,
+        darkeye@tyrell.hu, libc-gnats@gnu.org, gnats-admin@cygnus.com,
+        sam@zoy.org, Xavier Leroy <Xavier.Leroy@inria.fr>,
+        linux-kernel@vger.kernel.org, babt@us.ibm.com
+In-Reply-To: <1016062486.16743.1091.camel@myware.mynet> <E16lXkz-0000S3-00@starship> <200203141625.g2EGPNh31311@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200203141625.g2EGPNh31311@vindaloo.ras.ucalgary.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16lYOH-0000SG-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  The following actually hides x86-specific drivers on
-!CONFIG_X86.  The problem is that dep_bool '...' CONFIG_FOO $CONFIG_BAR
-doesn't have the desired effect if CONFIG_BAR isn't set.
+On March 14, 2002 05:25 pm, Richard Gooch wrote:
+> Daniel Phillips writes:
+> > On March 14, 2002 01:19 am, Dan Kegel wrote:
+> > > Ulrich Drepper wrote:
+> > > > On Wed, 2002-03-13 at 15:17, Dan Kegel wrote:
+> > > > 
+> > > > > So let's break the logjam and fix glibc's linuxthreads'
+> > > > > pthread_create to [support profiling multithreaded programs]
+> > > > 
+> > > > I will add nothing like this.  The implementation is broken enough and
+> > > > any addition just makes it worse.  If you patch your own code you'll 
+> > > > get what you want at your own risk.
+> > > 
+> > > OK.  What's the right way to fix this, then?
+> > 
+> > I see, he said to patch your own code and probably feels the issue
+> > is done with.  Color me less than impressed.
+> 
+> Ulrich tends to take a hardline, "must be 100% correct" approach to
+> things. He doesn't seem to like 99% solutions that will work most of
+> the time but not always. This does cause some friction with people who
+> want something that works "most of the time" (aka "good enough"). But
+> before we cast stones, let's not forget that in kernel-land we see
+> similar attitudes. How many patches has Linus rejected because it's
+> "not the right way", even if many users really want it?
+
+Oh, I have no trouble with the 'must be 100%' rule, but the failing to define 
+what '100%' actually means is... um... not the way Linus would handle it.
+
+Failing to engage in discourse is just not the 'open' way.
+
+> I guess there's always a difference between coding up and submitting
+> an "unclean" workaround/fixup for someone else's code, or having it
+> applied to your own :-)
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
-===== drivers/ide/Config.in 1.11 vs edited =====
---- 1.11/drivers/ide/Config.in	Wed Mar 13 06:36:45 2002
-+++ edited/drivers/ide/Config.in	Thu Mar 14 09:47:19 2002
-@@ -9,7 +9,9 @@
- dep_tristate 'Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support' CONFIG_BLK_DEV_IDE $CONFIG_IDE
- comment 'Please see Documentation/ide.txt for help/info on IDE drives'
- if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
--   dep_bool '  Use old disk-only driver on primary interface' CONFIG_BLK_DEV_HD_IDE $CONFIG_X86
-+   if [ "$CONFIG_X86" = "y" ]; then
-+      bool '  Use old disk-only driver on primary interface' CONFIG_BLK_DEV_HD_IDE
-+   fi
-    define_bool CONFIG_BLK_DEV_HD $CONFIG_BLK_DEV_HD_IDE
- 
-    dep_tristate '  Include IDE/ATA-2 DISK support' CONFIG_BLK_DEV_IDEDISK $CONFIG_BLK_DEV_IDE
-@@ -34,11 +36,15 @@
-    dep_tristate '  SCSI emulation support' CONFIG_BLK_DEV_IDESCSI $CONFIG_BLK_DEV_IDE $CONFIG_SCSI
- 
-    comment 'IDE chipset support'
--   dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
--   dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-+   if [ "$CONFIG_X86" = "y" ]; then
-+      bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640
-+      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-+   fi
-    dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
-    if [ "$CONFIG_PCI" = "y" ]; then
--      dep_bool '  RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000 $CONFIG_X86
-+      if [ "$CONFIG_X86" = "y" ]; then
-+	 bool '  RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000
-+      fi
-       bool '  Generic PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
-       if [ "$CONFIG_BLK_DEV_IDEPCI" = "y" ]; then
- 	 bool '    Boot off-board chipsets first support' CONFIG_BLK_DEV_OFFBOARD
-@@ -75,9 +81,11 @@
- 	 dep_bool '    PROMISE PDC202{46|62|65|67|68|69|70} support' CONFIG_BLK_DEV_PDC202XX $CONFIG_BLK_DEV_IDEDMA_PCI
- 	 dep_bool '      Special UDMA Feature' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX
- 	 dep_bool '      Special FastTrak Feature' CONFIG_PDC202XX_FORCE $CONFIG_BLK_DEV_PDC202XX
--	 dep_bool '    ServerWorks OSB4/CSB5 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
--	 dep_bool '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
--	 dep_bool '    SLC90E66 chipset support' CONFIG_BLK_DEV_SLC90E66 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
-+	 if [ "$CONFIG_X86" = "y" ]; then
-+	    dep_bool '    ServerWorks OSB4/CSB5 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDEDMA_PCI
-+	    dep_bool '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDEDMA_PCI
-+	    dep_bool '    SLC90E66 chipset support' CONFIG_BLK_DEV_SLC90E66 $CONFIG_BLK_DEV_IDEDMA_PCI
-+	 fi
- 	 dep_bool '    Tekram TRM290 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDEDMA_PCI
- 	 dep_bool '    VIA82CXXX chipset support' CONFIG_BLK_DEV_VIA82CXXX $CONFIG_BLK_DEV_IDEDMA_PCI
-       fi
+Daniel

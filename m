@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271256AbUJVMUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271262AbUJVMTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271256AbUJVMUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271251AbUJVMUA
+	id S271262AbUJVMTz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271256AbUJVMTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:20:00 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:54924 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S271261AbUJVMTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:19:11 -0400
-Message-ID: <4178FAB4.9070208@kolivas.org>
-Date: Fri, 22 Oct 2004 22:19:00 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Markus Trippelsdorf <markus@trippelsdorf.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BT848 video support dropped in 2.6.9?
-References: <1098447230.12289.12.camel@localhost>
-In-Reply-To: <1098447230.12289.12.camel@localhost>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5C013DB54122AD56BFA332E3"
+	Fri, 22 Oct 2004 08:19:03 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:48574 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S271251AbUJVMS5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 08:18:57 -0400
+Date: Fri, 22 Oct 2004 14:18:56 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
+Subject: Re: Kernel 2.6.x: nfs warning: mount version older than kernel
+Message-ID: <20041022141856.50d2b1a6@phoebee>
+In-Reply-To: <Pine.LNX.4.61.0410220727120.514@p500>
+References: <Pine.LNX.4.61.0410220727120.514@p500>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5C013DB54122AD56BFA332E3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 
-Markus Trippelsdorf wrote:
-> The "BT848 video for linux" item does not show up
-> with menuconfig in the "Video for linux" category.
-> It was there in all previous kernels that I've used.
-> Am I missing something obvious?
+On Fri, 22 Oct 2004 07:29:46 -0400 (EDT)
+Justin Piszcz <jpiszcz@lucidpixels.com> bubbled:
 
-config VIDEO_BT848
-	depends on VIDEO_DEV && PCI && I2C && FW_LOADER
+> # mount -a
+> # dmesg | tail -n 5
+> nfs warning: mount version older than kernel
+> nfs warning: mount version older than kernel
+> nfs warning: mount version older than kernel
+> nfs warning: mount version older than kernel
+> nfs warning: mount version older than kernel
+> # mount --version
+> mount: mount-2.12h
+> #
+> 
+> I am using the latest util-linux from the developers site, so I am 
+> curious, why do I get this warning in dmesg/ring-buffer?
+> 
+> # ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Therefore you need those options or else you wont even be allowed to try 
-to turn the option on.
+I think it's about the nfs server/client versions, not the version
+of mount.
 
-Cheers,
-Con
+-- 
+MyExcuse:
+We only support a 28000 bps connection.
 
---------------enig5C013DB54122AD56BFA332E3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBePq0ZUg7+tp6mRURAlaFAJ9ciIi13Q3dvmV0MxcQANMsTBs1DACeNAjM
-mwHeFlCYo7lbuF9AwSfHSyI=
-=Te88
+iD8DBQFBePqwmjLYGS7fcG0RAub3AJ4l/YljL25U5blhEs8Gy9DFFF2dhgCdEtgH
+B6Vy0NjDtWTqUKOllDFgEUE=
+=Rsbx
 -----END PGP SIGNATURE-----
 
---------------enig5C013DB54122AD56BFA332E3--
+--Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw--

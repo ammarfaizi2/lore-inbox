@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269958AbTHOWGK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 18:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269144AbTHOWGJ
+	id S272011AbTHOWLr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 18:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272052AbTHOWLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 18:06:09 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:58241 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271025AbTHOWFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 18:05:22 -0400
-Date: Fri, 15 Aug 2003 23:05:02 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Matt Mackall <mpm@selenic.com>, Val Henson <val@nmt.edu>,
-       David Wagner <daw@mozart.cs.berkeley.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030815220502.GB19707@mail.jlokier.co.uk>
-References: <20030809173329.GU31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14> <bhgoj9$9ab$1@abraham.cs.berkeley.edu> <20030815001713.GD5333@speare5-1-14> <20030815093003.A2784@pclin040.win.tue.nl> <20030815150324.GX325@waste.org> <20030815190408.A3071@pclin040.win.tue.nl>
+	Fri, 15 Aug 2003 18:11:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63240 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S272011AbTHOWLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 18:11:45 -0400
+Date: Fri, 15 Aug 2003 23:11:41 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ed L Cashin <ecashin@uga.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] do_wp_page: BUG on invalid pfn
+Message-ID: <20030815231141.F21529@flint.arm.linux.org.uk>
+Mail-Followup-To: Ed L Cashin <ecashin@uga.edu>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+References: <20030815184720.A4D482CE79@lists.samba.org> <877k5e8vwe.fsf@uga.edu> <20030815223912.E21529@flint.arm.linux.org.uk> <87smo27fqq.fsf@uga.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815190408.A3071@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87smo27fqq.fsf@uga.edu>; from ecashin@uga.edu on Fri, Aug 15, 2003 at 05:50:05PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> Then the statement has nothing to do with the xor and is just
->  entropy(x) >= entropy(a)
-> assuming that x has maximal possible entropy.
+On Fri, Aug 15, 2003 at 05:50:05PM -0400, Ed L Cashin wrote:
+> On i386 WARN_ON calls dump_stack, but BUG just prints some minimal
+> helpful info on the console, like this:
 > 
-> Well, yes, indeed.
+> ------------[ cut here ]------------
+> kernel BUG at kernel/any.c:36!
+> invalid operand: 0000 [#1]
 
-I think you just said what I said in a long, complicated message a few
-minutes ago, but much more succinctly.
+BUG causes an exception, which calls die(), which in turn calls
+handle_BUG(), and this indeed does print the first two lines of the
+above.  die() goes on to print the 3rd line, but it also goes on
+to call show_registers() which should print the registers and
+calltrace as well.
 
-:)
--- Jamie
+Maybe you've found a bug in show_registers() ?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSGAQW3>; Mon, 1 Jul 2002 12:22:29 -0400
+	id <S315746AbSGAQ2G>; Mon, 1 Jul 2002 12:28:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSGAQW2>; Mon, 1 Jul 2002 12:22:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:53764 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315758AbSGAQW1>;
-	Mon, 1 Jul 2002 12:22:27 -0400
-Date: Mon, 1 Jul 2002 18:24:55 +0200
-From: Hubert Mantel <mantel@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
-Message-ID: <20020701162452.GL18550@suse.de>
-References: <mailman.1025521441.28343.linux-kernel2news@redhat.com> <200207011516.g61FGnP20648@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207011516.g61FGnP20648@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-Organization: SuSE Linux AG, Nuernberg, Germany
-X-Operating-System: SuSE Linux - Kernel 2.4.18-4GB
-X-GPG-Key: 1024D/B0DFF780
+	id <S315785AbSGAQ2F>; Mon, 1 Jul 2002 12:28:05 -0400
+Received: from realimage.realnet.co.sz ([196.28.7.3]:34984 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315746AbSGAQ2E>; Mon, 1 Jul 2002 12:28:04 -0400
+Date: Mon, 1 Jul 2002 17:59:27 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lilo/raid?
+In-Reply-To: <200207011815.36602.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
 
-On Mon, Jul 01, Pete Zaitcev wrote:
+> LABEL=/                 /                       ext3    defaults        1 1
+> /dev/md2                /tmp                    ext3    defaults        1 2
+> /dev/md3                /var                    jfs     defaults        1 2
+> /dev/md4                /data                   jfs     defaults        1 2
+> /dev/md1                swap                    swap    defaults        0 0
 
-> At the very minimum I would like to see all distros, and
-> especially SuSE (because of Vojtech) to stop shipping usbkbd.o.
+One small thing, you do know that you can interleave swap?
 
-Mandelbrot:~ # zgrep CONFIG_USB_KBD /proc/config.gz 
-# CONFIG_USB_KBD is not set
+Regards,
+	Zwane
 
-> -- Pete
-                                                                  -o)
-    Hubert Mantel              Goodbye, dots...                   /\\
-                                                                 _\_v
+-- 
+http://function.linuxpower.ca
+		
 

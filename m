@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLOD72>; Thu, 14 Dec 2000 22:59:28 -0500
+	id <S129257AbQLOEfA>; Thu, 14 Dec 2000 23:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbQLOD7T>; Thu, 14 Dec 2000 22:59:19 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39439 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129257AbQLOD7A>; Thu, 14 Dec 2000 22:59:00 -0500
-Date: Thu, 14 Dec 2000 19:28:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <3A398D58.92BBC9A4@thebarn.com>
-Message-ID: <Pine.LNX.4.10.10012141925080.1123-100000@penguin.transmeta.com>
+	id <S129267AbQLOEeu>; Thu, 14 Dec 2000 23:34:50 -0500
+Received: from web9407.mail.yahoo.com ([216.136.129.23]:22536 "HELO
+	web9407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129257AbQLOEee>; Thu, 14 Dec 2000 23:34:34 -0500
+Message-ID: <20001215040404.89406.qmail@web9407.mail.yahoo.com>
+Date: Thu, 14 Dec 2000 20:04:04 -0800 (PST)
+From: Lee Reynolds <kelticman1972@yahoo.com>
+Subject: Question about RTC interrupts on i386
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm reading the book Linux Internals by Moshe Bar. 
+Early on he describes the use of the real time clock
+to generate an interrupt 100 times a second.  He
+explains that this value was chosen early in the
+development cycle of the linux kernel and is therefore
+relatively low compared to what current hardware can
+make good use of.  He mentions that the alpha port of
+linux uses a 1024Hz interrupt rate and that patches
+have been made for the Intel kernel to give it the
+same rate while maintaining the interrupt rate that
+appears to userland  programs such as top at 100Hz.
 
+I'm just wondering what the benefits of increasing
+this value are and whether these patches are going to
+be included in 2.4?
 
-On Thu, 14 Dec 2000, Russell Cattelan wrote:
-> 
-> So one more observation in
-> filemap_sync_pte
-> 
->  lock_page(page);
->  error = filemap_write_page(page, 1);
-> ->  UnlockPage(page);
-> This unlock page was removed? is that correct?
+Thanks,
+Lee Reynolds
 
-Yes. The "writepage" thing changed: "struct file" disappeared (as I'm sure
-you also noticed), and the page writer is supposed to unlock the page
-itself. Which it may do at any time, of course.
-
-There are some reasons to do it only after the IO has actually completed:
-this way the VM layer won't try to write it out _again_ before the first
-IO hasn't even finished yet, and the writing logic can possibly be
-simplified if you know that nobody else will be touching that page.
-
-But that is up to you: you can do the UnlockPage before even returning
-from your "->writepage()" function, if you choose to do so.
-
-		Linus
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

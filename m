@@ -1,114 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbRBNKvF>; Wed, 14 Feb 2001 05:51:05 -0500
+	id <S129197AbRBNLAq>; Wed, 14 Feb 2001 06:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129687AbRBNKuz>; Wed, 14 Feb 2001 05:50:55 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:53516 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129057AbRBNKul>;
-	Wed, 14 Feb 2001 05:50:41 -0500
-Date: Wed, 14 Feb 2001 12:50:27 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-kernel traffic statistics
-Message-ID: <20010214125027.X15688@mea-ext.zmailer.org>
-In-Reply-To: <20010214113107.W15688@mea-ext.zmailer.org> <200102140950.KAA10814@cave.bitwizard.nl>
+	id <S130067AbRBNLAh>; Wed, 14 Feb 2001 06:00:37 -0500
+Received: from f133.law9.hotmail.com ([64.4.9.133]:39436 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129197AbRBNLAX>;
+	Wed, 14 Feb 2001 06:00:23 -0500
+X-Originating-IP: [212.58.173.129]
+From: "Jonathan Brugge" <jonathan_brugge@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem: NIC doesn't work anymore, SIOCIFADDR-errors
+Date: Wed, 14 Feb 2001 12:00:16 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200102140950.KAA10814@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Wed, Feb 14, 2001 at 10:50:11AM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <F1331qdiixjnzi95Hfq000043f7@hotmail.com>
+X-OriginalArrivalTime: 14 Feb 2001 11:00:16.0863 (UTC) FILETIME=[50484EF0:01C09675]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 10:50:11AM +0100, Rogier Wolff wrote:
-> Matti Aarnio wrote:
-> > 	That  X-Mailing-List:  is actually a LOOP detection measure.
-> > 	http://vger.kernel.org/lkml/#s3-9
-> 
-> Hi Matti,
-> 
-> May I ask you some statistics?
-> How many people are on lkml? 
+I've got a problem with my network. I can't get the card running, though it 
+worked perfectly before. Below what happens and the errors I get:
+-----------------------------------
+odysseus:/# ifconfig
 
-	3027 subscribers
+// No active devices found.
 
-	2481 separate domains.
+odysseus:/# ifconfig -a
+eth0      Link encap:Ethernet  HWaddr 00:20:18:80:B0:95
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:9 Base address:0xde00
+lo        Link encap:Local Loopback
+          LOOPBACK  MTU:16192  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
 
-> How many mails does vger send out every day on average? (I know it
-> gets help from exploaders around the globe, so it probably doesn't add
-> up to nmessages*nsubscribers).
+// It finds eth0 and the loopback, they aren't active.
 
-	It used to get help from fanout servers, none are in use anymore.
-	Vger's load-average is around 0.0 - 0.1, nevertheless ;)
+odysseus:/# ifdown eth0
+ifdown: interface eth0 not configured
 
-	Picking one address only present at linux-kernel, and counting
-	some days backwards with logs (these include also retries,
-	which often to the choses sample destination are 0):
+// Just what should happen...
 
-/var/log/maillog.1
-    232
-/var/log/maillog.2
-    259
-/var/log/maillog.3
-    139
-/var/log/maillog.4
-    102
-/var/log/maillog.5
-    148
-/var/log/maillog.6
-    216
-/var/log/maillog.7
-    240
+odysseus:/# ifup eth0
+SIOCSIFADDR: Bad file descriptor
+eth0: unknown interface: Bad file descriptor
+SIOCSIFNETMASK: Bad file descriptor
+eth0: unknown interface: Bad file descriptor
+odysseus:/# ifup lo
+SIOCSIFADDR: Bad file descriptor
+lo: unknown interface: Bad file descriptor
+lo: unknown interface: Bad file descriptor
+odysseus:/#
 
-	So, 100 to 260 messages per day during the past week of rotated
-	logs.
+// This is where I loose the track. These seem to be kernel-messages, but I 
+can't find them in the kernel-source (looked in the kernel-subdirectory and 
+the net-subdirectory).
+There are some other SIOC*-texts, but no SIOCSIFADDR or SIOCIFNETMASK in 
+those dirs.
+The problem appeared after booting, everything worked perfect before.
+Nothing has changed that could affect network or ethernet-card, afaik.
+It's not hardware-related: the card still works in Win98SE and after placing 
+another card (same type), the problem still persists.
+I did a kernel-recompile, but that hasn't solved it. Still the same error.
+I'm running 2.4.0-prerelease.
+The card is a PCI-card. It has a Winbond W89C940F-chip on it and the kernel 
+uses NE2k-drivers, I think.
+I did a fsck on my HD, which didn't solve it either.
+The light on the card blinks all the time, like there's something wrong. I 
+haven't looked whether it does so in Windows too.
+Ifup / Ifdown version: 0.6.4-3
+No messages in /var/log[syslog|messages|kern.log|ksymoops/*] about this.
 
-	Total daily traffic counts of successfull sends are:
-	(Each recipient address, not only domain, gets its own syslog line)
+Anyone who can tell me what's going on here?
 
-/var/log/maillog.1
- 719616
-/var/log/maillog.2
- 812118
-/var/log/maillog.3
- 429046
-/var/log/maillog.4
- 316667
-/var/log/maillog.5
- 460353
-/var/log/maillog.6
- 669020
-/var/log/maillog.7
- 752678
+Jonathan Brugge
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 
-	And the grand-totals of SMTP delivery attempts:
-
-/var/log/maillog.1
- 725514
-/var/log/maillog.2
- 821661
-/var/log/maillog.3
- 438685
-/var/log/maillog.4
- 322529
-/var/log/maillog.5
- 466632
-/var/log/maillog.6
- 676869
-/var/log/maillog.7
- 757461
-
-
-	So, yesterday  linux-kernel traffic represented 97.6% of all
-	traffic at VGER.  On day number 4 - also 97.5% ...
-
-	The share of failed delivery attempts (retries, etc) hovers
-	around 1-2 percent of all.
-	(I did spot calculations, others may want to do some
-	 spread-sheeting.)
-
-> 			Roger. 
-> -- 
-> ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-
-/Matti Aarnio

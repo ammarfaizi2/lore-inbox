@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbTFGHHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 03:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTFGHHQ
+	id S262610AbTFGHL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 03:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFGHL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 03:07:16 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:64226 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262645AbTFGHHN (ORCPT
+	Sat, 7 Jun 2003 03:11:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:36995 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262610AbTFGHL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 03:07:13 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16097.37454.827982.278024@napali.hpl.hp.com>
-Date: Sat, 7 Jun 2003 00:20:46 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, manfred@colorfullife.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
+	Sat, 7 Jun 2003 03:11:56 -0400
+Date: Sat, 07 Jun 2003 00:19:48 -0700 (PDT)
+Message-Id: <20030607.001948.38705799.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
 Subject: Re: problem with blk_queue_bounce_limit()
-In-Reply-To: <20030606.234401.104035537.davem@redhat.com>
-References: <16096.16492.286361.509747@napali.hpl.hp.com>
-	<20030606.003230.15263591.davem@redhat.com>
-	<200306062013.h56KDcLe026713@napali.hpl.hp.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16097.37454.827982.278024@napali.hpl.hp.com>
+References: <200306062013.h56KDcLe026713@napali.hpl.hp.com>
 	<20030606.234401.104035537.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	<16097.37454.827982.278024@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 06 Jun 2003 23:44:01 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Sat, 7 Jun 2003 00:20:46 -0700
 
-  DaveM>    This sounds all very dramatic, but try as I might, all I
-  DaveM> find is three places where PCI_DMA_BUS_IS_PHYS is used:
-
-  DaveM> Fix your grep,
-
-What am I missing?
-
-	--david
-
-$ find . -type f | xargs fgrep PCI_DMA_BUS_IS_PHYS | fgrep -v /SCCS/
-./drivers/ide/ide-lib.c:                if (!PCI_DMA_BUS_IS_PHYS)
-./drivers/net/tg3.c:#ifndef PCI_DMA_BUS_IS_PHYS
-./drivers/net/tg3.c:#define PCI_DMA_BUS_IS_PHYS 1
-./drivers/net/tg3.c:#if !PCI_DMA_BUS_IS_PHYS
-./drivers/net/tg3.c:#if !PCI_DMA_BUS_IS_PHYS
-./drivers/scsi/scsi_lib.c:              if (PCI_DMA_BUS_IS_PHYS && host_dev && host_dev->dma_mask)
-./include/asm-alpha/pci.h:#define PCI_DMA_BUS_IS_PHYS  0
-./include/asm-arm/pci.h:#define PCI_DMA_BUS_IS_PHYS     (0)
-./include/asm-i386/pci.h:#define PCI_DMA_BUS_IS_PHYS    (1)
-./include/asm-ia64/pci.h: * PCI_DMA_BUS_IS_PHYS should be set to 1 if there is necessarily a direct corespondence
-./include/asm-ia64/pci.h:#define PCI_DMA_BUS_IS_PHYS    pci_dma_bus_is_phys
-./include/asm-m68k/pci.h:#define PCI_DMA_BUS_IS_PHYS    (1)
-./include/asm-parisc/pci.h:#define PCI_DMA_BUS_IS_PHYS     (1)
-./include/asm-ppc/pci.h:#define PCI_DMA_BUS_IS_PHYS     (1)
-./include/asm-ppc64/pci.h:#define PCI_DMA_BUS_IS_PHYS   (0)
-./include/asm-s390/pci.h:#define PCI_DMA_BUS_IS_PHYS (1)
-./include/asm-sparc/pci.h:#define PCI_DMA_BUS_IS_PHYS   (0)
-./include/asm-sparc64/pci.h:#define PCI_DMA_BUS_IS_PHYS (0)
-./include/asm-um/pci.h:#define PCI_DMA_BUS_IS_PHYS     (1)
-./include/asm-x86_64/pci.h:#define PCI_DMA_BUS_IS_PHYS  (0)
-./include/asm-x86_64/pci.h:#define PCI_DMA_BUS_IS_PHYS  1
+   >>>>> On Fri, 06 Jun 2003 23:44:01 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+   
+     DaveM>    This sounds all very dramatic, but try as I might, all I
+     DaveM> find is three places where PCI_DMA_BUS_IS_PHYS is used:
+   
+     DaveM> Fix your grep,
+   
+   What am I missing?
+   
+Sorry, I was meaning to mention BIO_VMERGE_BOUNDARY which works in
+concert with PCI_DMA_BUS_IS_PHYS.  You really have to set it
+accurately to get the most out of the block layer's ability to
+take advantage of IOMMUs.

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277618AbRJLLXU>; Fri, 12 Oct 2001 07:23:20 -0400
+	id <S277633AbRJLLgV>; Fri, 12 Oct 2001 07:36:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277616AbRJLLXI>; Fri, 12 Oct 2001 07:23:08 -0400
-Received: from CPE-61-9-149-34.vic.bigpond.net.au ([61.9.149.34]:32247 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S277622AbRJLLWz>; Fri, 12 Oct 2001 07:22:55 -0400
-Message-ID: <3BC6CF3D.8450C591@eyal.emu.id.au>
-Date: Fri, 12 Oct 2001 21:08:45 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13-pre1: sonypi.c compile error
-In-Reply-To: <3BC62542.CDEAAE@eyal.emu.id.au> <20011012103433.A2137@come.alcove-fr>
+	id <S277630AbRJLLgL>; Fri, 12 Oct 2001 07:36:11 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:32592 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277629AbRJLLf6>; Fri, 12 Oct 2001 07:35:58 -0400
+Date: Fri, 12 Oct 2001 13:35:51 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Cc: "T. A." <tkhoadfdsaf@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Which kernel (Linus or ac)?
+Message-ID: <20011012133551.H714@athlon.random>
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <OE22ITtCsuSYkbAY0Jp0000df3f@hotmail.com> <20011012095618.R22640@niksula.cs.hut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011012095618.R22640@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Fri, Oct 12, 2001 at 09:56:19AM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
+On Fri, Oct 12, 2001 at 09:56:19AM +0300, Ville Herva wrote:
+> On Fri, Oct 12, 2001 at 12:37:01AM -0400, you [T. A.] claimed:
+> > Well I'd have to agree that for stability I'd also go for 2.2.x.  2.4.x
+> > isn't bad but 2.2.x is just rock stable right now.  Furthermore its been
+> > hard to gain confidence in 2.4.x with all the bugs that have yet to be
+> > worked out.  I'd use 2.2.x almost exclusively if it would just gain support
+> > for the latest EIDE chipsets, a journaling filesystem, and the latest SMP
+> > boards.  iptables and large file support would also be great.
 > 
-> On Fri, Oct 12, 2001 at 09:03:30AM +1000, Eyal Lebedinsky wrote:
-> 
-> > gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> > -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> > -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-> > /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h
-> > -DEXPORT_SYMTAB -c sonypi.c
-> > sonypi.c: In function `sonypi_init_module':
-> > sonypi.c:702: `is_sony_vaio_laptop_R7462d5e4' undeclared (first use in
-> > this function)
-> 
-> Just add a
->         extern int is_sony_vaio_laptop; /* set in DMI table parse routines */
-> line somewhere at the beginning of the file drivers/char/sonypi.c
+> Of course, you can get most of the IDE chipset support, fs support (reiserfs
+> 3.5, ext3) and LFS support as patches for 2.2:
 
-Good. I am now up to here, which I guess is very possitive relative to
-the
-recent 2.4 releases :-)
+btw, just a reminder, 2.2.20pre10aa1 has full lfs support too
+(everything, including getdents64, nfv3, lockd all 64bit).
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h  
--DEXPORT_SYMTAB -c i2o_pci.c
-i2o_pci.c: In function `i2o_pci_install':
-i2o_pci.c:165: structure has no member named `pdev'
-make[2]: *** [i2o_pci.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/i2o'
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre10aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre10aa1/40_lfs-2.2.20pre10aa1-28.bz2
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+Andrea

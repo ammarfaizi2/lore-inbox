@@ -1,33 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbUDTM4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262920AbUDTNAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbUDTM4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 08:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUDTM4w
+	id S262920AbUDTNAU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 09:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbUDTNAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 08:56:52 -0400
-Received: from nameshome.com ([63.223.66.124]:57360 "EHLO guidearab.com")
-	by vger.kernel.org with ESMTP id S262930AbUDTM4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 08:56:48 -0400
-Date: Tue, 20 Apr 2004 15:01:39 
-Message-Id: <10404201501.AA82843214@guidearab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: "guidearab" <guidearab@guidearab.com>
-Reply-To: <guidearab@guidearab.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Thanks for mail us , we will reply as soon as we can
-X-Mailer: <SMTP32 v8.05>
+	Tue, 20 Apr 2004 09:00:20 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:42608 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262920AbUDTM7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 08:59:13 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] psmouse fixes for 2.6.5
+Date: Tue, 20 Apr 2004 07:59:11 -0500
+User-Agent: KMail/1.6.1
+Cc: Kim Holviala <kim@holviala.com>, vojtech@suse.cz
+References: <200404201038.46644.kim@holviala.com>
+In-Reply-To: <200404201038.46644.kim@holviala.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404200759.11446.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for mail us , we will reply as soon as we can
-IT Dep . 
-Arab commercial Directory 
-http://www.guidearab.com 
-El-Iman for Advertising & Promotion 
-12 El Teban Street From Mohamed Faried - Abbdien 
-cairo -Egypt 
-Tel:(202)39325858 - (202) 3918179 
-Fax:(202) 3932585 
-email: info@guidearab.com
+On Tuesday 20 April 2004 02:38 am, Kim Holviala wrote:
+> Some fixes for PS/2 mice:
+> 
+> - fixed hotplugging (real reset of device instead of softreset)
+> - support for Targus Scroller mice (from my last weeks patch)
+> - extended protocol probing fixed
+ 
+Why do you have Tragus as a config option - just set the protocol mask
+correctly by default...
+
+-- 
+Dmitry

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281794AbRK0W2v>; Tue, 27 Nov 2001 17:28:51 -0500
+	id <S282980AbRK0W3l>; Tue, 27 Nov 2001 17:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281783AbRK0W2m>; Tue, 27 Nov 2001 17:28:42 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:20486 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S281794AbRK0W2i>; Tue, 27 Nov 2001 17:28:38 -0500
-To: "Neulinger, Nathan" <nneul@umr.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux@3ware.com'" <linux@3ware.com>
-Subject: Re: Problems with 3ware 3dm and 2.4.16...
-In-Reply-To: <E8139C9A62384F49A7EBF9CCCD2243C101B88A@umr-mail2.umr.edu>
-From: Doug McNaught <doug@wireboard.com>
-Date: 27 Nov 2001 17:28:22 -0500
-In-Reply-To: "Neulinger, Nathan"'s message of "Tue, 27 Nov 2001 15:57:03 -0600"
-Message-ID: <m3n117rgqh.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S282989AbRK0W3c>; Tue, 27 Nov 2001 17:29:32 -0500
+Received: from zero.tech9.net ([209.61.188.187]:11018 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282983AbRK0W3T>;
+	Tue, 27 Nov 2001 17:29:19 -0500
+Subject: Re: 2.5.1-pre2 does not compile
+From: Robert Love <rml@tech9.net>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200111272209.fARM9tk18991@ns.caldera.de>
+In-Reply-To: <200111272209.fARM9tk18991@ns.caldera.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 27 Nov 2001 17:29:45 -0500
+Message-Id: <1006900187.1874.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Neulinger, Nathan" <nneul@umr.edu> writes:
+On Tue, 2001-11-27 at 17:09, Christoph Hellwig wrote:
 
-> I did try backing the 3w-xxxx.[ch] off to the version in 2.4.10, which
-> didn't help. This problem occurs when built with gcc302 or rh71's kgcc (egcs
-> 1.1.2).
+> While we are at breaking scsi, would you take a patch to remove the
+> old-style (2.0) scsi error handling completly, forcing drivers still
+> using it to be fixed?  Early 2.5 looks like a good time for that to me..
 
-Not that this is necessarily the problem, but neither of those
-compilers is recommended for compiling 2.4.X--you should be using
-2.95.3+ or Red Hat's 2.96 (with errata fixes). 
+Linus, please consider this at some early point.  There isn't too much
+using the scsi_obsolete gunk anyhow, but let's clean it up.  Good idea.
 
-See Documentation/Changes in the kernel source tree.
+	Robert Love
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863

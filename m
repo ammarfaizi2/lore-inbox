@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262116AbRFDW2v>; Mon, 4 Jun 2001 18:28:51 -0400
+	id <S262042AbRFDWbb>; Mon, 4 Jun 2001 18:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262164AbRFDW2m>; Mon, 4 Jun 2001 18:28:42 -0400
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:3735 "EHLO
-	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S262116AbRFDW2g>; Mon, 4 Jun 2001 18:28:36 -0400
-Date: Mon, 4 Jun 2001 18:28:34 -0400
-From: Tom Vier <tmv5@home.com>
+	id <S262164AbRFDWbV>; Mon, 4 Jun 2001 18:31:21 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:7835 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S262042AbRFDWbL>; Mon, 4 Jun 2001 18:31:11 -0400
+Message-ID: <3B1C0EAD.B0C83157@oracle.com>
+Date: Mon, 04 Jun 2001 15:41:49 -0700
+From: Radhakrishnan Manga <Radhakrishnan.Manga@oracle.com>
+Reply-To: Radhakrishnan.Manga@oracle.com
+X-Mailer: Mozilla 4.72 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.2 <-> 2.4.5-ac5 tcp too slow
-Message-ID: <20010604182834.A2486@zero>
-Mime-Version: 1.0
+Subject: vmstat help
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i seem to remember this being mentioned before, but couldn't find any
-reference in the list archives. i have an x86 laptop running 2.2.17 (2.2.19
-has the same effect) and an alpha pws 500 running 2.4.5-ac5. tcp starts slow
-and get slower. it's not a 10/100 or duplex issue. icmp goes at full speed.
-it doesn't matter which side starts the connection. has anyone else
-experienced this? any suggestions?
+Hi,
+  I am using the vmstat that came along with the SuSE 7.0 distribution.
+I have problem interpretting the data reported by vmstat. The vmstat
+document reads that the block information reported is always in terms of
+1K blocks. Just to findout the validity of  the data reported by vmstat,
+I carried out the a small copy test.  Here is the configuration I have
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+1) I have two file systems which are created with 4096 block size
+2) These two file systems are on two different disks. (but both are
+sitting on same scsi controller)
+3) I am trying to copy a 4GB file from one disk to another using the
+simple "cp" command.
+4) I am capturing vmstat with 30 sec interval. I stop the vmstat after
+cp is done
+5) The copy takes anywhere between 7 to 10 minutes.
+
+On vmstat report has bi and bo's ranging form 700 to 4000.
+
+Just to get the total blocks read, I multiple the value reported in bi
+column with 30 (as 30 sec was my sampling interval) and sum them all. To
+my surprise, they add up only to around (1 GB).
+
+  What is wrong here, the documentation or my intepretation of vmstat
+output.
+
+
+

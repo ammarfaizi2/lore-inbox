@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265987AbUA1PFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUA1PFd
+	id S265694AbUA1PX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265989AbUA1PX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:05:33 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:54665 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265984AbUA1PE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:04:58 -0500
-Subject: Re: Linux 2.4.25-pre6
-From: David Woodhouse <dwmw2@infradead.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Lukasz Trabinski <lukasz@trabinski.net>, linux-kernel@vger.kernel.org,
-       riel@redhat.com
-In-Reply-To: <Pine.LNX.4.58L.0401211809220.5874@logos.cnet>
-References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl>
-	 <Pine.LNX.4.58L.0401201940470.29729@logos.cnet>
-	 <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl>
-	 <Pine.LNX.4.58L.0401210852490.5072@logos.cnet>
-	 <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl>
-	 <1074686081.16045.141.camel@imladris.demon.co.uk>
-	 <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl>
-	 <Pine.LNX.4.58L.0401211809220.5874@logos.cnet>
-Content-Type: text/plain
-Message-Id: <1075302289.1633.158.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Wed, 28 Jan 2004 15:04:49 +0000
+	Wed, 28 Jan 2004 10:23:56 -0500
+Received: from hydrogen.customer.frii.com ([216.17.138.219]:55492 "EHLO
+	hydrogen.imeme.net") by vger.kernel.org with ESMTP id S265694AbUA1PXz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 10:23:55 -0500
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Reply-To: gj@pointblue.com.pl
+To: linux-kernel@vger.kernel.org
+Subject: Re: mb800 WatchDog driver
+Date: Wed, 28 Jan 2004 15:23:48 +0000
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Organization: K4 labs
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Message-Id: <200401281523.49619.gj@pointblue.com.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-21 at 18:12 -0200, Marcelo Tosatti wrote:
-> Lets try the clueless approach and remove the inode reclaim highmem fixes
-> from Rik.
-> 
-> Please revert the attached patch (againts -pre6).
+Hi folks
 
-Did this make a difference?
+Here is a little update to what I posted over one year ago. Some ppl are still 
+asking me about this driver. It's now avaliable from:
+http://gj.pointblue.com.pl/projects/mb800_watchdog.tar.bz2
 
+I had no chance to rewrite it properly, sorry. If someone wants me to, I will 
+need this motherboard. If someone else want's to make it properly, using 
+watchdog api, and has this bord with him - it will be nice. 
+
+Thanks.
 -- 
-dwmw2
-
+Grzegorz Jaskiewicz
+K4 labs

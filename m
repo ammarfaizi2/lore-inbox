@@ -1,211 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264799AbTE1Qsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 12:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbTE1Qsv
+	id S264800AbTE1Qud (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264802AbTE1Qud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 12:48:51 -0400
-Received: from smtp.ualg.pt ([193.136.224.8]:1190 "EHLO smtp.ualg.pt")
-	by vger.kernel.org with ESMTP id S264799AbTE1Qsq (ORCPT
+	Wed, 28 May 2003 12:50:33 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59017 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264800AbTE1Qu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 12:48:46 -0400
-From: "Joao Rochate" <jrochate@ualg.pt>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with 2.4.20 + TI1410 PCI-PCMCIA card + Dual XEON HT PCI-X
-Date: Wed, 28 May 2003 18:01:57 +0100
-Message-ID: <MGEFKIPHLPENLJDKJLDEAENPECAA.jrochate@ualg.pt>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	Wed, 28 May 2003 12:50:28 -0400
+Date: Wed, 28 May 2003 19:03:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andy Polyakov <appro@fy.chalmers.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-70 ide-cd to guarantee fault-free CD/DVD burning experience?
+Message-ID: <20030528170347.GC845@suse.de>
+References: <3ED4681A.738DA3C6@fy.chalmers.se> <20030528074839.GU845@suse.de> <3ED4E70D.1E62D435@fy.chalmers.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ED4E70D.1E62D435@fy.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+On Wed, May 28 2003, Andy Polyakov wrote:
+> > > As for scsi_ioctl.c in more general sense. It apparently doesn't comply
+> > > with SG HOWTO, in particular it mis-interprets time-out values.
+> > > Background information and patch is available at
+> > > http://fy.chalmers.se/~appro/linux/DVD+RW/scsi_ioctl-2.5.69.patch.
+> > > There're couple of other issues, usage of 'bytes' variable in access_ok
+> 
+> 	bytes = (hdr.dxfer_len + 511) & ~511;
+> 	... access_ok(VERIFY_READ, uaddr, bytes)...
+>                                           ^^^^^ Shouldn't this be
+> hdr.dxfer_len? At least that's what memcpy-ed to kalloc-ated buffer.
 
-Scenario:
-- Proliant 380G3: Dual XEON HT with 2 HotPlug PCI-X 100Mhz and 1 PCI-X
-133Mhz
-- Card: Avaya ORiNOCO PCI Adaptor to enable PCMCIA cards on a PCI Slot
-- OS: RedHat 9 with 2.4.20-8smp + kernel-pcmcia-cs-3.1.31-13
-- Config: Full Table APIC and PCI adapter fitted on PCI-X 133 (non-hotplug)
+Yes!
 
-Problem:
-- The OS boots, the PCI card gets detected, driver is yenta_socket and all
-modules load fine.
-- The problem is that any card PCMCIA or CF+adapter that I connect, doesn't
-get recognized by the OS, booting it with card inserted or not.
+> > > and DMA being off when bio_map_user fails,
+> 
+> While tracing problems down I've commented out call to bio_map_user. But
+> of course it could have failed for more legitimate reasons, couldn't it?
+> Reasons such as user buffer residing in non DMA-capable region(?) or
+> being misaligned. But in either case I noticed that DMA is never engaged
 
-Tests I've made:
-- Standard PC intel P-III 1Ghz non-smp, standard PCI, runing RedHat 8 stock
-works fine with the same PCI-PCMCIA card adapter! Every card gets loaded
-fine.
-- I've tried 5V cards and 3.3V cards. I'm sure because I've inserted them on
-the P-III and after a 'cardctl status' I can read 3.3 Vcc.
-- Tried inserting card on HotPlug slots, but machine wouldn't boot
-- cardmgr is runing, and cardctl always sais 'no card'.
+Correct.
 
-Assumptions:
-- I think if there were any problem with the Server, then I could not get
-the modules loaded, or the card wouldn't be recognized by the kernel.
-- Maybe it's a problem with IRQ's, since I can't get an IRQ when the APIC
-mode is not full table
-- I haven't tried to boot the Server with non-smp kernel
-- Ahhhh: I have already sent an email to pcmcia-cs developers who advised me
-to contact linux-kernel people :)
-- Strange the Socket Status on dmesg: Socket status: ffffffff
+> on that buffer allocated with kmalloc. The question is if it's
+> intentional? If answer is yes, then the case is dismissed. If not, then
+> it should be looked into. Now I don't know if it's apporpriate to
 
+Depends on the lower level driver, for ide-cd yes kmalloc'ed data will
+not be dma'ed to. We require a valid bio setup for that, usually the bio
+mapping will fail exactly because the length/alignment isn't correct for
+ide-cd.
 
-Here is some logs. Sorry to everyone about the garbish, if this is not the
-right place to put this kind or problems.
+sr will dma to the kmalloced buffer just fine.
 
-Any help will be greatly appreciate. :)
+> complement GPF_USER with GFP_DMA, but it might be appropriate to retry
+> bio_map_user on buffer. I'm actually stepping out of my competence
+> domains here...
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+It's usually not worth it. If the buffer is < 4 bytes, we don't dma. Big
+deal. It's the programs responsibility to make sure that data + length
+is appropriately aligned for dma operations akin to O_DIRECT for
+instance. And they already do that, so...
 
-/sbin/probe:
-PCI bridge probe: TI 1410 found, 2 sockets.
+> > > @@ -1471,8 +1472,13 @@
+> > >               /* Keep count of how much data we've moved. */
+> > >               rq->data += thislen;
+> > >               rq->data_len -= thislen;
+> > > +#if 0
+> > >               if (rq->cmd[0] == GPCMD_REQUEST_SENSE)
+> > >                       rq->sense_len++;
+> > > +#else
+> > > +             if (rq->flags & REQ_SENSE)
+> > > +                     rq->sense_len+=thislen;
+> > > +#endif
+> > >       } else {
+> > >  confused:
+> > >               printk ("%s: cdrom_pc_intr: The drive "
+> > 
+> > Hmm confused, care to expand?
+> 
+> rq->sense_len++ is obviously bogus as user-land will only get the first
+> byte of the sense data [so that you can tell apart deferred and
+> immediate errors, but you can't tell what was actually wrong]. As for
+> "if (rq->cmd[0] == GPCMD_REQUEST_SENSE)" vs. "if (rq->flags &
+> REQ_SENSE)." User-land is permitted to issue REQUEST SENSE on it's own
+> behalf, isn't it? With "rq->cmd[0] == GPCMD_REQUEST_SENSE" kernel will
+> provide user-land with sense buffer with bogus data (even if it's
+> zeros:-). "rq->flags & REQ_SENSE" implies "rq->cmd[0] ==
+> GPCMD_REQUEST_SENSE" as it happens only when kernel itself pulls the
+> sense data on behalf of failed command and that's exactly what should be
+> returned to user. Or is it #if 0/#else/#endif which is confusing? Well,
+> we don't have to keep that, it's just left-overs from my working copy...
 
-dmesg:
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Enabling device 03:01.0 (0000 -> 0002)
-Yenta IRQ list 0000, PCI irq20
-Socket status: ffffffff
-cs: IO port probe 0x0c00-0x0cff: excluding 0xc00-0xc07 0xc10-0xc17
-0xc48-0xc4f 0xc68-0xc6f 0xc80-0xc87 0xcd0-0xcd7
-cs: IO port probe 0x0100-0x04ff: excluding 0x220-0x227 0x230-0x237
-0x240-0x267 0x408-0x40f 0x4d0-0x4d7
-cs: IO port probe 0x0a00-0x0aff: clean.
+Ah good point on the REQ_SENSE bit, completely agree. The if 0 thing
+cannot go in obviously, I'll kill that along the way.
 
-lspci -vvv:
-03:01.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller
-(rev 01)
-        Subsystem: SCM Microsystems: Unknown device 3000
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168, cache line size 20
-        Interrupt: pin A routed to IRQ 20
-        Region 0: Memory at 20000000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=03, secondary=04, subordinate=07, sec-latency=176
-        Memory window 0: 20400000-207ff000 (prefetchable)
-        Memory window 1: 20800000-20bff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt-
-PostWrite+
-        16-bit legacy interface ports at 0001
+> > Sorry I misread that, ->data is the one we want. I'm wondering how this
+> > got mixed up... So to clarify:
+> > 
+> >         char *ibuf = req->data;
+> > 
+> >         if (!blk_pc_request(req))
+> >                 return;
+> >         if (!ibuf)
+> >                 return;
+> 
+> But req->data is assigned NULL every time bio_map_user succeeds! Just
+> follow it in sg_io():
+> 
+> 	buffer=NULL; ...
+> 	bio=bio_map_user(...);
+> 	if (!bio) buffer=kmalloc(...);
+> 	rq->data=buffer;
 
-/proc/ioports:
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0cf8-0cff : PCI conf1
-1800-18ff : PCI device 0e11:b203 (Compaq Computer Corporation)
-2000-200f : ServerWorks CSB5 IDE Controller
-  2000-2007 : ide0
-  2008-200f : ide1
-2400-24ff : ATI Technologies Inc Rage XL
-2800-28ff : PCI device 0e11:b204 (Compaq Computer Corporation)
-3000-30ff : Compaq Computer Corporation Smart Array 5i/532
-  3000-30ff : cciss
-4000-40ff : PCI CardBus #04
-4400-44ff : PCI CardBus #04
+Hmm it looks pretty bogus actually, in most cases we have already
+removed ->bio at this point.
 
-/proc/iomem:
-00000000-0009f3ff : System RAM
-0009f400-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000c8000-000cbfff : Extension ROM
-000cc000-000cd7ff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1fff9fff : System RAM
-  00100000-002720eb : Kernel code
-  002720ec-00383ba3 : Kernel data
-1fffa000-1fffffff : ACPI Tables
-20000000-20000fff : Texas Instruments PCI1410 PC card Cardbus Controller
-20400000-207fffff : PCI CardBus #04
-20800000-20bfffff : PCI CardBus #04
-f5ef0000-f5ef0fff : ServerWorks OSB4/CSB5 OHCI USB Controller
-  f5ef0000-f5ef0fff : usb-ohci
-f5f00000-f5f7ffff : PCI device 0e11:b204 (Compaq Computer Corporation)
-f5fc0000-f5fc1fff : PCI device 0e11:b204 (Compaq Computer Corporation)
-f5fd0000-f5fd07ff : PCI device 0e11:b204 (Compaq Computer Corporation)
-f5fe0000-f5fe01ff : PCI device 0e11:b203 (Compaq Computer Corporation)
-f5ff0000-f5ff0fff : ATI Technologies Inc Rage XL
-f6000000-f6ffffff : ATI Technologies Inc Rage XL
-f7cf0000-f7cf3fff : Compaq Computer Corporation Smart Array 5i/532
-f7dc0000-f7dfffff : Compaq Computer Corporation Smart Array 5i/532
-f7ee0000-f7eeffff : Broadcom Corporation NetXtreme BCM5703X Gigabit Ethernet
-(#2)
-  f7ee0000-f7eeffff : tg3
-f7ef0000-f7efffff : Broadcom Corporation NetXtreme BCM5703X Gigabit Ethernet
-  f7ef0000-f7efffff : tg3
-f7ff0000-f7ff0fff : Compaq Computer Corporation PCI Hotplug Controller
-fec00000-fec0ffff : reserved
-fee00000-fee0ffff : reserved
-ffc00000-ffffffff : reserved
+> So that if(!req->data) is true most of the time [as bio_map_user
+> succeeds most of the time]... As for req->buffer. Given that only first
+> 4 bytes/32 bits are manipulated it's actually safe to dereference it
+> directly, isn't it? A.
 
-lsmod:
-Module                  Size  Used by    Not tainted
-ide-cd                 35772   0  (autoclean)
-cdrom                  34176   0  (autoclean) [ide-cd]
-lp                      9188   0  (autoclean)
-parport                39072   0  (autoclean) [lp]
-autofs                 13684   0  (autoclean) (unused)
-ds                      8840   1
-yenta_socket           13568   1
-pcmcia_core            62304   0  [ds yenta_socket]
-iptable_filter          2412   0  (autoclean) (unused)
-ip_tables              15864   1  [iptable_filter]
-tg3                    52904   1
-keybdev                 2976   0  (unused)
-mousedev                5656   0  (unused)
-hid                    22308   0  (unused)
-input                   6208   0  [keybdev mousedev hid]
-usb-ohci               22216   0  (unused)
-usbcore                82592   1  [hid usb-ohci]
-ext3                   73376   4
-jbd                    56336   4  [ext3]
-cciss                  44420   5
-sd_mod                 13452   0  (unused)
-scsi_mod              110488   1  [cciss sd_mod]
+->buffer is not to be used in this context, so forget that. It's a relic
+from when the pre-transform allocated extra data and we copied back and
+freed in post-transform. That was killed, and I'm really wondering
+whether we shouldn't just kill the post-transform completely too. For
+reference, this is what is should look like...
 
-/proc/interrupts:
-           CPU0       CPU1       CPU2       CPU3
-  0:   19460047          0          0          0    IO-APIC-edge  timer
-  1:          4          0          0          0    IO-APIC-edge  keyboard
-  2:          0          0          0          0          XT-PIC  cascade
-  7:          0          0          0          0   IO-APIC-level  usb-ohci
-  8:          2          0          0          0    IO-APIC-edge  rtc
- 12:         23          0          0          0    IO-APIC-edge  PS/2 Mouse
- 14:         61          1          0          0    IO-APIC-edge  ide0
- 20:          0          0          0          0   IO-APIC-level  Texas
-Instruments PCI141
-0 PC card Cardbus Controller
- 29:   11405579          0          0          0   IO-APIC-level  eth0
- 30:    1208979          0          0          0   IO-APIC-level  cciss0
-NMI:          0          0          0          0
-LOC:   19459243   19459249   19459249   19459248
-ERR:          0
-MIS:          0
+===== drivers/ide/ide-cd.c 1.46 vs edited =====
+--- 1.46/drivers/ide/ide-cd.c	Thu May  8 10:39:34 2003
++++ edited/drivers/ide/ide-cd.c	Wed May 28 19:02:10 2003
+@@ -1609,12 +1609,19 @@
+ 
+ static void post_transform_command(struct request *req)
+ {
+-	char *ibuf = req->buffer;
+ 	u8 *c = req->cmd;
++	char *ibuf;
+ 
+ 	if (!blk_pc_request(req))
+ 		return;
+ 
++	if (rq->data)
++		ibuf = rq->data;
++	else if (rq->bio)
++		ibuf = bio_data(rq->bio);
++	else
++		return;
++
+ 	/*
+ 	 * set ansi-revision and response data as atapi
+ 	 */
+@@ -1664,8 +1671,8 @@
+ 		if (dma_error)
+ 			return DRIVER(drive)->error(drive, "dma error", stat);
+ 
++		post_transform_command(rq);
+ 		end_that_request_chunk(rq, 1, rq->data_len);
+-		rq->data_len = 0;
+ 		goto end_request;
+ 	}
+ 
+@@ -1687,6 +1694,7 @@
+ 	if ((stat & DRQ_STAT) == 0) {
+ 		if (rq->data_len)
+ 			printk("%s: %u residual after xfer\n", __FUNCTION__, rq->data_len);
++		post_transform_command(rq);
+ 		goto end_request;
+ 	}
+ 
+@@ -1765,9 +1773,6 @@
+ 	return ide_started;
+ 
+ end_request:
+-	if (!rq->data_len)
+-		post_transform_command(rq);
+-
+ 	spin_lock_irqsave(&ide_lock, flags);
+ 	blkdev_dequeue_request(rq);
+ 	end_that_request_last(rq);
 
+-- 
+Jens Axboe
 

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTL2CF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 21:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTL2CFn
+	id S262427AbTL2CJv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 21:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTL2CJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 21:05:43 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:20211 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262344AbTL2CFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 21:05:21 -0500
-Message-ID: <18d001c3cdb0$2c083760$43ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: <linux-kernel@vger.kernel.org>
-References: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60> <20031228144707.GA1489@elf.ucw.cz>
-Subject: Re: 2.6.0 swsusp
-Date: Mon, 29 Dec 2003 11:04:47 +0900
+	Sun, 28 Dec 2003 21:09:51 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:39400 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S262427AbTL2CJr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 21:09:47 -0500
+Message-ID: <3FEF8CFD.7060502@rackable.com>
+Date: Sun, 28 Dec 2003 18:10:05 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+References: <20031228180424.GA16622@mail-infomine.ucr.edu>
+In-Reply-To: <20031228180424.GA16622@mail-infomine.ucr.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-OriginalArrivalTime: 29 Dec 2003 02:09:46.0104 (UTC) FILETIME=[D495EF80:01C3CDB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek replied to me:
+Johannes Ruscheinski wrote:
 
-> > 2.  When I forgot to say either "resume" or "noresume", the kernel detected
-> > that it could not use the swap partition, but it did not offer the
-> > possibility to resume.  Surely it could detect early enough that the swap
-> > partition is not usable for swap but is usable for resume, and could ask the
-> > user whether to do a "resume" or "noresume".
->
-> At *that* point, it is no longer possible to resume safely.
+> Hi,
+> 
+> We're looking for a low-cost high-reliability IDE RAID solution that works well
+> with the 2.6.x series of kernels.  We have about 1 TB (8 disks) that we'd
+> like to access in a non-redundant raid mode.  Yes, I know, that lack of
+> redundancy and high reliability are contradictory.  Let's just say that
+> currently we lack the funding to do anything else but we may be able to obtain
+> more funding for our disk storage needs in the near future.
 
-Yes and no.  Junio C. Hamano explained the same thing to me, but he ALSO
-explained a trick that he uses.  He ALWAYS tells the kernel to do a resume.
-Then the kernel detects sufficiently early if a resume is really possible or
-not.
 
-Hmm, I guess I still see that if we wait for the kernel to mount / and read
-/etc/fstab to find where the swap partition is then it will already be too
-late to try resuming from the image in the swap partition.  But
-theoretically it must be possible, because a certain famous monopoly
-software maker can resume from an image stored in a FILE after starting its
-boot sequence.
+   It really depends on what you mean by low cost?  The ony ide raid 
+controller that does 8 PATA drives well under linux is the 3ware 
+controller.  For SATA drives you have the 3ware, and adaptec controller. 
+    In theroy the highpoint 8 port sata card would be a good canidate 
+for software raid, but highpoint has yet to cough up an open source 
+drive yet.
 
-> > 3.  When swsusp completed its writing, it decided that my ACPI BIOS could
-> > not power off automatically.  I wonder why.  No other OS has trouble
-> > powering off this machine.  Also on machines with older APM BIOSes, no OS
-> > had trouble powering off the machines, not even Linux with APM drivers.  So
-> > I could hold the power switch for 4 seconds and the BIOS beeped a warning
-> > before powering off, but I wonder why it was necessary.
->
-> If regular halt is also unable to power off machine, fill the bug in
-> ACPI bugzilla.
+   It you want to go the software raid route and have 2 spare pci solts. 
+  You can go with either the high point rocket raid 454 (PATA), or the 
+promise SATA150 TX4.
 
-Exactly the opposite.  Regular halt works.  For some reason I hadn't tested
-regular halt under Linux on this particular machine before first writing the
-above (many reboots and suspends but not plain shutdowns).  But I tested a
-regular halt later and it powered down automatically.  Only swsusp refuses
-to power it down.
+   I really don't recommend any of promise's cards that use use the i2o 
+driver, or any sort of binary only driver.
 
+PS- Why not at least run software raid 5?  It takes far less cpu than 
+you'd think, and can save your ass.

@@ -1,316 +1,261 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbSJJFiS>; Thu, 10 Oct 2002 01:38:18 -0400
+	id <S262046AbSJJFey>; Thu, 10 Oct 2002 01:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262049AbSJJFiS>; Thu, 10 Oct 2002 01:38:18 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:31677 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262045AbSJJFiN>;
-	Thu, 10 Oct 2002 01:38:13 -0400
-Date: Thu, 10 Oct 2002 15:43:32 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: davem@redhat.com
-Cc: LKML <linux-kernel@vger.kernel.org>, anton@samba.org
-Subject: [PATCH] bring sparc{64} into the generic siginfo fold
-Message-Id: <20021010154332.578e1ead.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262045AbSJJFey>; Thu, 10 Oct 2002 01:34:54 -0400
+Received: from packet.digeo.com ([12.110.80.53]:60577 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262046AbSJJFeY>;
+	Thu, 10 Oct 2002 01:34:24 -0400
+Message-ID: <3DA512B1.63287C02@digeo.com>
+Date: Wed, 09 Oct 2002 22:40:01 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.41 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.41-mm2
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Oct 2002 05:40:01.0855 (UTC) FILETIME=[7A5604F0:01C2701F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
 
-This patch (uncompiled, untested) enables sparc and sparc64 to use
-the gerneic siginfo structure.  Hope you like it :-)
+url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.41/2.5.41-mm2/
 
-diffstat:
- asm-generic/siginfo.h |   28 +++++++++++++++----
- asm-sparc/siginfo.h   |   71 +------------------------------------------------
- asm-sparc64/siginfo.h |   72 +-------------------------------------------------
-3 files changed, 27 insertions(+), 144 deletions(-)
+. The per-cpu pages patches continue to disgrace themselves.  Improvements
+  in some microbenchmarks range from moderate (2%) to stunning (60%) but
+  we're seeing a consistent few-percent regression in tests which perform
+  networking to localhost.  Heads continue to be scratched.  This is
+  irritating because that code is supposed to be the foundation for a page
+  reservation API which fixes the radix-tree and pte_chain allocation failure
+  problems.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+  Ingo's original per-cpu-pages patch was said to be mainly beneficial for
+  web-serving type things, but no specweb testing has been possible for a
+  week or two due to oopses in the timer code.
 
-diff -ruN 2.5.41-1.747/include/asm-generic/siginfo.h 2.5.41-1.747-si.1/include/asm-generic/siginfo.h
---- 2.5.41-1.747/include/asm-generic/siginfo.h	2002-10-10 14:31:49.000000000 +1000
-+++ 2.5.41-1.747-si.1/include/asm-generic/siginfo.h	2002-10-10 15:27:26.000000000 +1000
-@@ -8,9 +8,21 @@
- 	void *sival_ptr;
- } sigval_t;
- 
-+/*
-+ * This is the size (including padding) of the part of the
-+ * struct siginfo that is before the union.
-+ */
-+#ifndef __ARCH_SI_PREAMBLE_SIZE
-+#define __ARCH_SI_PREAMBLE_SIZE	(3 * sizeof(int))
-+#endif
-+
- #define SI_MAX_SIZE	128
- #ifndef SI_PAD_SIZE
--#define SI_PAD_SIZE	((SI_MAX_SIZE/sizeof(int)) - 3)
-+#define SI_PAD_SIZE	((SI_MAX_SIZE - __ARCH_SI_PREAMBLE_SIZE) / sizeof(int))
-+#endif
-+
-+#ifndef __ARCH_SI_UID_T
-+#define __ARCH_SI_UID_T	uid_t
- #endif
- 
- #ifndef HAVE_ARCH_SIGINFO_T
-@@ -26,7 +38,7 @@
- 		/* kill() */
- 		struct {
- 			pid_t _pid;		/* sender's pid */
--			uid_t _uid;		/* sender's uid */
-+			__ARCH_SI_UID_T _uid;	/* sender's uid */
- 		} _kill;
- 
- 		/* POSIX.1b timers */
-@@ -38,14 +50,14 @@
- 		/* POSIX.1b signals */
- 		struct {
- 			pid_t _pid;		/* sender's pid */
--			uid_t _uid;		/* sender's uid */
-+			__ARCH_SI_UID_T _uid;	/* sender's uid */
- 			sigval_t _sigval;
- 		} _rt;
- 
- 		/* SIGCHLD */
- 		struct {
- 			pid_t _pid;		/* which child */
--			uid_t _uid;		/* sender's uid */
-+			__ARCH_SI_UID_T _uid;	/* sender's uid */
- 			int _status;		/* exit code */
- 			clock_t _utime;
- 			clock_t _stime;
-@@ -54,6 +66,9 @@
- 		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS */
- 		struct {
- 			void *_addr; /* faulting insn/memory ref. */
-+#ifdef __ARCH_SI_TRAPNO
-+			int _trapno;	/* TRAP # which caused the signal */
-+#endif
- 		} _sigfault;
- 
- 		/* SIGPOLL */
-@@ -80,6 +95,9 @@
- #define si_int		_sifields._rt._sigval.sival_int
- #define si_ptr		_sifields._rt._sigval.sival_ptr
- #define si_addr		_sifields._sigfault._addr
-+#ifdef __ARCH_SI_TRAPNO
-+#define si_trapno	_sifields._sigfault._trapno
-+#endif
- #define si_band		_sifields._sigpoll._band
- #define si_fd		_sifields._sigpoll._fd
- 
-@@ -244,7 +262,7 @@
- 		memcpy(to, from, sizeof(*to));
- 	else
- 		/* _sigchld is currently the largest know union member */
--		memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
-+		memcpy(to, from, __ARCH_SI_PREAMBLE_SIZE + sizeof(from->_sifields._sigchld));
- }
- 
- #endif
-diff -ruN 2.5.41-1.747/include/asm-sparc/siginfo.h 2.5.41-1.747-si.1/include/asm-sparc/siginfo.h
---- 2.5.41-1.747/include/asm-sparc/siginfo.h	2002-06-03 12:13:01.000000000 +1000
-+++ 2.5.41-1.747-si.1/include/asm-sparc/siginfo.h	2002-10-10 15:17:50.000000000 +1000
-@@ -5,64 +5,12 @@
- #ifndef _SPARC_SIGINFO_H
- #define _SPARC_SIGINFO_H
- 
--#define HAVE_ARCH_SIGINFO_T
--#define HAVE_ARCH_COPY_SIGINFO
-+#define __ARCH_SI_UID_T		unsigned int
-+#define __ARCH_SI_TRAPNO
- #define HAVE_ARCH_COPY_SIGINFO_TO_USER
- 
- #include <asm-generic/siginfo.h>
- 
--typedef struct siginfo {
--	int si_signo;
--	int si_errno;
--	int si_code;
--
--	union {
--		int _pad[SI_PAD_SIZE];
--
--		/* kill() */
--		struct {
--			pid_t _pid;		/* sender's pid */
--			unsigned int _uid;	/* sender's uid */
--		} _kill;
--
--		/* POSIX.1b timers */
--		struct {
--			unsigned int _timer1;
--			unsigned int _timer2;
--		} _timer;
--
--		/* POSIX.1b signals */
--		struct {
--			pid_t _pid;		/* sender's pid */
--			unsigned int _uid;	/* sender's uid */
--			sigval_t _sigval;
--		} _rt;
--
--		/* SIGCHLD */
--		struct {
--			pid_t _pid;		/* which child */
--			unsigned int _uid;	/* sender's uid */
--			int _status;		/* exit code */
--			clock_t _utime;
--			clock_t _stime;
--		} _sigchld;
--
--		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGEMT */
--		struct {
--			void *_addr;	/* faulting insn/memory ref. */
--			int  _trapno;	/* TRAP # which caused the signal */
--		} _sigfault;
--
--		/* SIGPOLL */
--		struct {
--			int _band;	/* POLL_IN, POLL_OUT, POLL_MSG */
--			int _fd;
--		} _sigpoll;
--	} _sifields;
--} siginfo_t;
--
--#define si_trapno	_sifields._sigfault._trapno
--
- #define SI_NOINFO	32767		/* no information in siginfo_t */
- 
- /*
-@@ -71,19 +19,4 @@
- #define EMT_TAGOVF	(__SI_FAULT|1)	/* tag overflow */
- #define NSIGEMT		1
- 
--#ifdef __KERNEL__
--
--#include <linux/string.h>
--
--extern inline void copy_siginfo(siginfo_t *to, siginfo_t *from)
--{
--	if (from->si_code < 0)
--		*to = *from;
--	else
--		/* _sigchld is currently the largest know union member */
--		memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
--}
--
--#endif /* __KERNEL__ */
--
- #endif /* !(_SPARC_SIGINFO_H) */
-diff -ruN 2.5.41-1.747/include/asm-sparc64/siginfo.h 2.5.41-1.747-si.1/include/asm-sparc64/siginfo.h
---- 2.5.41-1.747/include/asm-sparc64/siginfo.h	2002-10-08 12:02:59.000000000 +1000
-+++ 2.5.41-1.747-si.1/include/asm-sparc64/siginfo.h	2002-10-10 15:29:34.000000000 +1000
-@@ -1,14 +1,13 @@
- #ifndef _SPARC64_SIGINFO_H
- #define _SPARC64_SIGINFO_H
- 
--#define SI_PAD_SIZE	((SI_MAX_SIZE/sizeof(int)) - 4)
- #define SI_PAD_SIZE32	((SI_MAX_SIZE/sizeof(int)) - 3)
- 
- #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
- #define SIGEV_PAD_SIZE32 ((SIGEV_MAX_SIZE/sizeof(int)) - 3)
- 
--#define HAVE_ARCH_SIGINFO_T
--#define HAVE_ARCH_COPY_SIGINFO
-+#define __ARCH_SI_PREAMBLE_SIZE	(4 * sizeof(int))
-+#define __ARCH_SI_TRAPNO
- #define HAVE_ARCH_COPY_SIGINFO_TO_USER
- 
- #include <asm-generic/siginfo.h>
-@@ -20,60 +19,6 @@
- 	u32 sival_ptr;
- } sigval_t32;
- 
--#endif /* __KERNEL__ */
--
--typedef struct siginfo {
--	int si_signo;
--	int si_errno;
--	int si_code;
--
--	union {
--		int _pad[SI_PAD_SIZE];
--
--		/* kill() */
--		struct {
--			pid_t _pid;		/* sender's pid */
--			uid_t _uid;		/* sender's uid */
--		} _kill;
--
--		/* POSIX.1b timers */
--		struct {
--			unsigned int _timer1;
--			unsigned int _timer2;
--		} _timer;
--
--		/* POSIX.1b signals */
--		struct {
--			pid_t _pid;		/* sender's pid */
--			uid_t _uid;		/* sender's uid */
--			sigval_t _sigval;
--		} _rt;
--
--		/* SIGCHLD */
--		struct {
--			pid_t _pid;		/* which child */
--			uid_t _uid;		/* sender's uid */
--			int _status;		/* exit code */
--			clock_t _utime;
--			clock_t _stime;
--		} _sigchld;
--
--		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGEMT */
--		struct {
--			void *_addr; /* faulting insn/memory ref. */
--			int  _trapno; /* TRAP # which caused the signal */
--		} _sigfault;
--
--		/* SIGPOLL */
--		struct {
--			long _band;	/* POLL_IN, POLL_OUT, POLL_MSG */
--			int _fd;
--		} _sigpoll;
--	} _sifields;
--} siginfo_t;
--
--#ifdef __KERNEL__
--
- typedef struct siginfo32 {
- 	int si_signo;
- 	int si_errno;
-@@ -126,8 +71,6 @@
- 
- #endif /* __KERNEL__ */
- 
--#define si_trapno	_sifields._sigfault._trapno
--
- #define SI_NOINFO	32767		/* no information in siginfo_t */
- 
- /*
-@@ -152,17 +95,6 @@
- 	} _sigev_un;
- } sigevent_t32;
- 
--#include <linux/string.h>
--
--static inline void copy_siginfo(siginfo_t *to, siginfo_t *from)
--{
--	if (from->si_code < 0)
--		*to = *from;
--	else
--		/* _sigchld is currently the largest know union member */
--		memcpy(to, from, 4*sizeof(int) + sizeof(from->_sifields._sigchld));
--}
--
- extern int copy_siginfo_to_user32(siginfo_t32 *to, siginfo_t *from);
- 
- #endif /* __KERNEL__ */
+. David McCracken's shared pagetable implementation is included - it is
+  configurable on or off under the "Processor type and features" menu.
+
+. The swappiness control code seems to be working well.
+
+
+
+-lbd1.patch
+-lbd2.patch
+-lbd3.patch
+-lbd4.patch
+-lbd5.patch
+-lbd6.patch
+-get_bios_geometry.patch
+-64-bit-sector_t.patch
+-alloc_pages_node-cleanup.patch
+-discontig-no-contig_page_data.patch
+-discontig-setup-fix.patch
+-remove-get_free_page.patch
+-ext3-dxdir.patch
+-free_area_init-cleanup.patch
+-per-node-mem_map.patch
+-wli-libfs.patch
+
+ Merged
+
++ext3-yield.patch
+
+ Remove a sched_yield() from ext3 which causes fsync() to enormously
+ suck when the machine is under CPU load.
+
++guruhugh.patch
+
+ Fix a use-after-free bug in the mremap code.
+
++pte-highmem-warning.patch
+
+ Fix an "illegal sleep" warning in the mremap code
+
++raid0-fix.patch
+
+ Peter Chubb's "make raid0 work again" patch.
+
++ramfs-prepare-write-speedup.patch
+
+ Some fiddling with the fs/libfs address_space ops implementation.
+
++readv-writev-check-fix.patch
+
+ Make readv/writev return zero for zero segments
+
++shpte.patch
+
+ Shared pagetables for ia32
+
++slab-split-10-list_for_each_fix.patch
+
+ Fix a slab bug
+
++timer-tricks.patch
+
+ Tries to fix the timer problems, but doesn't.
+
+
+
+
+
+
+
+
+
+linus.patch
+  cset-1.573.96.12-to-1.746.txt.gz
+
+timer-tricks.patch
+
+guruhugh.patch
+  Fix use-after-free bug in move_page_tables
+
+pte-highmem-warning.patch
+  Fix an atomicity warning with pte-highmem
+
+raw-use-o_direct.patch
+  Fix the raw driver
+
+remove-radix_tree_reserve.patch
+  remove radix_tree_reserve()
+
+ext3-yield.patch
+  Speed up ext3 fsyncs
+
+readv-writev-check-fix.patch
+  readv/writev: return zero for zero segments
+
+misc.patch
+  misc
+
+swsusp-feature.patch
+  add shrink_all_memory() for swsusp
+
+large-queue-throttle.patch
+  Improve writer throttling for small machines
+
+exit-page-referenced.patch
+  Propagate pte referenced bit into pagecache during unmap
+
+swappiness.patch
+  swappiness control
+
+mapped-start-active.patch
+  start anonymous pages on the active list
+
+rename-dirty_async_ratio.patch
+  rename dirty_async_ratio to dirty_ratio
+
+auto-dirty-memory.patch
+  adaptive dirty-memory thresholding
+
+batched-slab-asap.patch
+  batched slab shrinking and shrinker callback API
+
+dio-fine-alignment.patch
+  Allow O_DIRECT to use 512-byte alignment
+
+orlov-allocator.patch
+
+lseek-ext2_readdir.patch
+  remove lock_kernel() from ext2_readdir()
+
+write-deadlock.patch
+  Fix the generic_file_write-from-same-mmapped-page deadlock
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+hugetlb-prefault.patch
+  hugetlbpages: factor out some code for hugetlbfs
+
+ramfs-aops.patch
+  Move ramfs address_space ops into libfs
+
+hugetlb-header-split.patch
+  Move hugetlb declarations into their own header
+
+hugetlbfs.patch
+  hugetlbfs file system
+
+hugetlb-shm.patch
+  hugetlbfs backing for SYSV shared memory
+
+ramfs-prepare-write-speedup.patch
+  correctness fixes in libfs address_space ops
+
+akpm-deadline.patch
+  deadline scheduler tweaks
+
+intel-user-copy.patch
+  Faster copt_*_user for Intel ia32 CPUs
+
+raid0-fix.patch
+  RAID0 fix
+
+rmqueue_bulk.patch
+  bulk page allocator
+
+free_pages_bulk.patch
+  Bulk page freeing function
+
+hot_cold_pages.patch
+  Hot/Cold pages and zone->lock amortisation
+
+readahead-cold-pages.patch
+  Use cache-cold pages for pagecache reads.
+
+pagevec-hot-cold-hint.patch
+  hot/cold hints for truncate and page reclaim
+
+page-reservation.patch
+  Page reservation API
+
+slab-split-01-rename.patch
+  slab cleanup: rename static functions
+
+slab-split-02-SMP.patch
+  slab: enable the cpu arrays on uniprocessor
+
+slab-split-03-tail.patch
+  slab: reduced internal fragmentation
+
+slab-split-04-drain.patch
+  slab: take the spinlock in the drain function.
+
+slab-split-05-name.patch
+  slab: remove spaces from /proc identifiers
+
+slab-split-06-mand-cpuarray.patch
+  slab: cleanups and speedups
+
+slab-split-07-inline.patch
+  slab: uninline poisoning checks
+
+slab-split-08-reap.patch
+  slab: reap timers
+
+cpucache_init-fix.patch
+  cpucache_init fix
+
+slab-split-10-list_for_each_fix.patch
+  slab: for a list walking bug
+
+shpte.patch
+
+read_barrier_depends.patch
+  extended barrier primitives
+
+rcu_ltimer.patch
+  RCU core
+
+dcache_rcu.patch
+  Use RCU for dcache

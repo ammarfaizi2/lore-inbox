@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVCVHog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVCVHqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVCVHog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVCVHog
+	id S262326AbVCVHqW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVCVHqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:44:36 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:29106 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262274AbVCVHnt (ORCPT
+	Tue, 22 Mar 2005 02:46:22 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:58784 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262326AbVCVHqO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:43:49 -0500
-Date: Tue, 22 Mar 2005 08:44:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mjt@tls.msk.ru, linux-kernel@vger.kernel.org
-Subject: Re: mouse&keyboard with 2.6.10+
-Message-ID: <20050322074435.GC3360@ucw.cz>
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru> <20050314162537.GA2716@ucw.cz> <4235BDFD.1070505@tls.msk.ru> <20050314164342.GA1735@ucw.cz> <20050321172411.247e32b6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321172411.247e32b6.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 22 Mar 2005 02:46:14 -0500
+Date: Tue, 22 Mar 2005 08:46:12 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Short sleep precision
+In-Reply-To: <423EF7B5.2030507@nortel.com>
+Message-ID: <Pine.LNX.4.61.0503220845150.2969@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0503201335420.2501@dragon.hyggekrogen.localhost>
+ <Pine.LNX.4.61.0503201427010.31416@yvahk01.tjqt.qr> <423EF7B5.2030507@nortel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 05:24:11PM -0800, Andrew Morton wrote:
+Hello,
 
-> > Any chance the order of module loading changed between the two versions?
-> > I see you have 'psmouse' as a module. If i8042 (and psmouse) are loaded
-> > after uhci-hcd (or ohci-hcd), the problem will disappear, too.
-> > 
-> > > So is this a bios/mobo problem,
-> > 
-> > Yes.
-> > 
-> > > or can it be solved in kernel somehow?
-> > 
-> > We could have usb-handoff by default.
-> 
-> Did we decide to do that?  If so, will it be in 2.6.12?
+>> > You can spin on the gettimeofday() result in userspace.
+>> How can I use it?
+> Something like:
+>
+> gettimeofday(&curtime,0);
+> add_usecs(&curtime,  time_to_sleep);
+> do {
+> 	gettimeofday(&curtime,0);
+> } while (time_before(&curtime, &expiry);
 
-Not yet. There was opposition from Alan Cox, who said that it crashes
-some machines hard. On the other hand, that is a BIOS interaction bug
-that most likely can be fixed and is very rare. I'd prefer a
-'usb-no-handoff' switch for these machines.
+That's looks like a lot of CPU consumption, which I would like to avoid 
+because time_to_sleep is nondeterministic in my case.
 
+
+Jan Engelhardt
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

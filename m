@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270524AbTHLORm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270642AbTHLORm
+	id S270359AbTHLO2i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTHLO2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:17:42 -0400
-Received: from smtp.bhfc.net ([209.159.192.11]:63361 "EHLO smtp.bhfc.net")
-	by vger.kernel.org with ESMTP id S270524AbTHLORk (ORCPT
+	Tue, 12 Aug 2003 10:28:38 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:32720
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S270359AbTHLO2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:17:40 -0400
-From: Tim Lee <tlee5794@rushmore.com>
-Reply-To: tlee5794@rushmore.com
-To: linux-kernel@vger.kernel.org
-Subject: SiS 648/963 agpgart and ATI Radeon 9500 Pro
-Date: Tue, 12 Aug 2003 08:18:18 -0600
-User-Agent: KMail/1.5.2
+	Tue, 12 Aug 2003 10:28:38 -0400
+Message-ID: <3F38FCBA.1000008@rogers.com>
+Date: Tue, 12 Aug 2003 10:42:02 -0400
+From: gaxt <gaxt@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
+References: <3F22F75D.8090607@rogers.com> <200307291325.09096.kernel@kolivas.org> <3F266D33.4040106@rogers.com> <200307292246.36808.kernel@kolivas.org>
+In-Reply-To: <200307292246.36808.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308120818.18796.tlee5794@rushmore.com>
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.102.238.105] using ID <dw2price@rogers.com> at Tue, 12 Aug 2003 10:28:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Photoshop 6 (yes, legal owned version) in wine is flawless (as it was 
+with 2.6.0-test3)
 
-I've been trying to get the above combination to work
-for ~6 months now with no luck.  I probably need to give
-up and buy a new motherboard or get rid of the ATI 
-card but I'm not sure which is the real problem at this 
-point.
-
-I'm currently using the 2.4.22-rc2-ac1 kernel with SiS
-648 support and latest 3.02.00 ATI drivers from ATI.  The
-drivers and kernel work fine as long as I don't use DRI.
-As soon as I turn on DRI the system locks up when starting
-the XServer.  This has happend since the first kernel I
-tried it with (2.4.19) something until the most recent.
-I can find no clue in any log as to what has gone wrong.
-In the past I was using the try_unsupported option for
-agpgart.
-
-Is there any way to debug this or anything someone can
-recomend to determine which is the culprit.  I have used
-the ATI card and the linux drivers on an older motherboard
-with AGP 4x Support and all worked besides the usual ATI
-driver glitches.  I would certainly be willing to help
-whoever wrote the SiS 648 support try to find out the 
-problem if it is with the 648 agp support.
-
-Thanks,
--- 
-Tim Lee      
-Phone: 605-722-3848
-Fluke Networks
-6805 Corporate Dr., Suite 100
-Colorado Springs, CO 80919
+Galciv plays videos quite smoothly but as soon as I run it it will 
+freeze the cursor for 12-15 seconds every half-minute or so even within 
+the game itself which is turn-based strategy without a lot of whizbang 
+stuff. In the past, the videos would stutter but the game would not 
+suffer from more than short pauses now and then.
 

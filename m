@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263844AbTEFO00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 10:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbTEFO00
+	id S263823AbTEFOWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTEFOWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 10:26:26 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:31957 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263844AbTEFO0W
+	Tue, 6 May 2003 10:22:39 -0400
+Received: from us02smtp1.synopsys.com ([198.182.60.75]:47269 "HELO
+	vaxjo.synopsys.com") by vger.kernel.org with SMTP id S263823AbTEFOWh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 10:26:22 -0400
-Date: Tue, 06 May 2003 07:38:09 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>
-cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <6940000.1052231887@[10.10.2.4]>
-In-Reply-To: <20030506003412.45e0949b.akpm@digeo.com>
-References: <20030505235549.5df75866.akpm@digeo.com><20030505.225748.35026531.davem@redhat.com><20030506002229.631a642a.akpm@digeo.com><20030505.231553.68055974.davem@redhat.com> <20030506003412.45e0949b.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 6 May 2003 10:22:37 -0400
+Date: Tue, 6 May 2003 16:34:59 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: allow rename to "--bind"-mounted filesystem
+Message-ID: <20030506143459.GA25606@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <20030506100435.GH890@riesen-pc.gr05.synopsys.com> <20030506143026.GL10374@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030506143026.GL10374@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> As just pointed out by dipankar the only issue is NUMA...
->> so it has to be something more sophisticated than simply
->> kmalloc()[smp_processor_id];
+viro@parcelfarce.linux.theplanet.co.uk, Tue, May 06, 2003 16:30:26 +0200:
+> On Tue, May 06, 2003 at 12:04:35PM +0200, Alex Riesen wrote:
+> > Hi,
+> > i just came over this patch, and wondered why is it missing
+> > in both 2.4 and 2.5 (the code in do_rename is identical in both
+> > kernels).
+> > 
+> > Are such renames really not allowed, or was it just fixed differently?
 > 
-> The proposed patch doesn't do anything about that either.
+> Such remames are _deliberately_ not allowed.
 > 
-> +	ptr = alloc_bootmem(PERCPU_POOL_SIZE * NR_CPUS);
-> 
-> So yes, we need an api which could be extended to use node-affine memory at
-> some time in the future.  I think we have that.
 
-You can just call alloc_bootmem_node for each CPU instead. It doesn't 
-work on i386 at the moment (well, it'll work but come out of node 0), 
-but it probably ought to.
+because that would be against semantics of a mounted filesystem?
+(which, in turn, would break something)
 
-M.
 

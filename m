@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288800AbSBVAUU>; Thu, 21 Feb 2002 19:20:20 -0500
+	id <S288830AbSBVAVB>; Thu, 21 Feb 2002 19:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288845AbSBVAUK>; Thu, 21 Feb 2002 19:20:10 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:39435 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288800AbSBVAUF>;
-	Thu, 21 Feb 2002 19:20:05 -0500
-Date: Thu, 21 Feb 2002 21:19:47 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Antoni Bella <bella5@teleline.es>
-Cc: <linux-kernel@vger.kernel.org>, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: diff =?iso-8859-15?q?=BF=3F=20=5B=20linux-2=2E4=2E18-rc3?= ]
-In-Reply-To: <20020221233320Z287874-889+4827@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33L.0202212118560.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288834AbSBVAUl>; Thu, 21 Feb 2002 19:20:41 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:21253 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S288830AbSBVAUh>; Thu, 21 Feb 2002 19:20:37 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 21 Feb 2002 16:22:48 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] /dev/epoll for 2.4.17 && 2.5.5 ...
+Message-ID: <Pine.LNX.4.44.0202211616230.938-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002, Antoni Bella wrote:
 
->   Error in diff generated
+Changes :
 
-It would help if you told us what you think is wrong with
-the diff.
+*) ported to 2.4.17 && 2.5.5
 
-It works fine for me, I have absolutely no idea what could
-be going wrong for you...
+*) timeout in ms ( thx to Per Bergqvist )
 
-> ## Automatically generated incremental diff
-> ## From:   linux-2.4.18-rc2
-> ## To:     linux-2.4.18-rc3
-> ## Robot:  $Id: make-incremental-diff,v 1.11 2002/02/20 02:59:33 hpa Exp $
+*) implemeted poll() on /dev/epoll fd ( thx to Per Bergqvist )
+
+*) EP_ISPOLLED now like DP_ISPOLLED
+
+*) used wait_queue_active() instead of ->sleepers ( thx to Niel Lehman )
 
 
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Files :
 
-http://www.surriel.com/		http://distro.conectiva.com/
+http://www.xmailserver.org/linux-patches/nio-improve.html
+http://www.xmailserver.org/linux-patches/ep_patch-2.4.17-0.28.diff
+http://www.xmailserver.org/linux-patches/ep_patch-2.5.5-0.28.diff
+
+
+
+
+- Davide
+
 

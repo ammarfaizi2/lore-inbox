@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267144AbTBLNfP>; Wed, 12 Feb 2003 08:35:15 -0500
+	id <S267208AbTBLNoq>; Wed, 12 Feb 2003 08:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267145AbTBLNfP>; Wed, 12 Feb 2003 08:35:15 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51857 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267144AbTBLNfN>;
-	Wed, 12 Feb 2003 08:35:13 -0500
-Message-ID: <3E4A4FD8.6070203@magnaspeed.net>
-Date: Wed, 12 Feb 2003 07:44:56 -0600
-From: Todd Inglett <tinglett@magnaspeed.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sched_init prematurely enables interrupts
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267209AbTBLNoq>; Wed, 12 Feb 2003 08:44:46 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:35200 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S267208AbTBLNoo>; Wed, 12 Feb 2003 08:44:44 -0500
+Date: Wed, 12 Feb 2003 22:53:26 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCHSET] PC-9800 subarch. support for 2.5.60 (17/34) i8259-update
+Message-ID: <20030212135326.GR1551@yuzuki.cinet.co.jp>
+References: <20030212131737.GA1551@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030212131737.GA1551@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this bit is prematurely enabling interrupts in sched_init:
+This is patchset to support NEC PC-9800 subarchitecture
+against 2.5.60 (17/34).
 
-======== kernel/sched.c 1.1..1.156 ========
-D 1.156 03/02/09 21:32:34-08:00 torvalds@home.transmeta.com 179 178 
-32/24/2466
-P kernel/sched.c
-C Make "try_to_wake_up()" care about the state of the process woken up.
-C
-C This simplifies "default_wake_function()", and makes it possible for
-C signal handling to wake up only stopped tasks without races.
-C
-C It also makes it impossible to wake up already running processes, which
-C means that the early boot sequence has to use the (much more correct)
-C "wake_up_forked_process()" to put the initial task on the runqueues.
+Updates arch/i386/kernel/i8259.c in 2.5.50-ac1.
 
-The problem is that wake_up_forked_process() does an rq_unlock(rq) which 
-is a spin_unlock_irq.
+- Osamu Tomita
 
--todd
-
+diff -Nru linux-2.5.50-ac1/arch/i386/kernel/i8259.c linux98-2.5.54/arch/i386/kernel/i8259.c
+--- linux-2.5.50-ac1/arch/i386/kernel/i8259.c	2003-01-04 10:47:57.000000000 +0900
++++ linux98-2.5.54/arch/i386/kernel/i8259.c	2003-01-04 13:23:33.000000000 +0900
+@@ -331,7 +331,7 @@
+ static void math_error_irq(int cpl, void *dev_id, struct pt_regs *regs)
+ {
+ 	extern void math_error(void *);
+-#ifndef CONFIG_PC9800
++#ifndef CONFIG_X86_PC9800
+ 	outb(0,0xF0);
+ #endif
+ 	if (ignore_fpu_irq || !boot_cpu_data.hard_math)

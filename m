@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUIQLmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUIQLo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268703AbUIQLmU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 07:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUIQLmU
+	id S268706AbUIQLo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 07:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268709AbUIQLo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 07:42:20 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50090 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268703AbUIQLlK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 07:41:10 -0400
-Subject: Re: [PATCH] pmac: don't add =?ISO-8859-1?Q?=22=B0C=22?= suffix in
-	sys for adt746x driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Colin Leroy <colin@colino.net>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be>
-References: <1095401127.5105.73.camel@gaston>
-	 <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1095421135.5107.79.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 17 Sep 2004 21:38:57 +1000
-Content-Transfer-Encoding: 8bit
+	Fri, 17 Sep 2004 07:44:56 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:3720 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S268706AbUIQLot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 07:44:49 -0400
+Date: Fri, 17 Sep 2004 12:44:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Stelian Pop <stelian@popies.net>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+In-Reply-To: <20040917102413.GA3089@crusoe.alcove-fr>
+Message-ID: <Pine.LNX.4.44.0409171228240.4678-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-17 at 20:50, Geert Uytterhoeven wrote:
-> On Fri, 17 Sep 2004, Benjamin Herrenschmidt wrote:
-> > The adt746x driver currently adds a "°C" suffix to temperatures exposed
-> > via sysfs, and I don't like that. First, we all agree that any other unit
-> > here makes no sense (do we ? do we ? yes of course :) and I don't like
-> 
-> Universal temperature, in K? And you'll never ever see negative numbers ;-)
+On Fri, 17 Sep 2004, Stelian Pop wrote:
+> 	- if the fifo becomes empty after a get() sets in = out = 0
+> 	  so only a memcpy() will be needed not two in the next put/get.
 
-I was waiting for this one :)
+Within the lockless __kfifo_get?  Doesn't that violate an essential
+property of such a circular buffer, that the producer manipulates
+only the "in" index and the consumer only the "out" index?
+Within the locking version's kfifo_get wrapper, perhaps.
 
-Ben.
-
+Hugh
 

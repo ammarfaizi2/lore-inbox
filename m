@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271223AbRHOPVf>; Wed, 15 Aug 2001 11:21:35 -0400
+	id <S271230AbRHOP2P>; Wed, 15 Aug 2001 11:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271230AbRHOPVZ>; Wed, 15 Aug 2001 11:21:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:45955 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271223AbRHOPVJ>; Wed, 15 Aug 2001 11:21:09 -0400
-Date: Wed, 15 Aug 2001 11:21:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Steve Hill <steve@navaho.co.uk>
+	id <S271228AbRHOP2F>; Wed, 15 Aug 2001 11:28:05 -0400
+Received: from finch-post-10.mail.demon.net ([194.217.242.38]:33552 "EHLO
+	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S271227AbRHOP2A>; Wed, 15 Aug 2001 11:28:00 -0400
+Date: Wed, 15 Aug 2001 16:27:04 +0100 (BST)
+From: Steve Hill <steve@navaho.co.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <Pine.LNX.4.21.0108151605180.2107-100000@sorbus.navaho>
-Message-ID: <Pine.LNX.3.95.1010815111856.28263A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1010815111856.28263A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.21.0108151622570.2107-100000@sorbus.navaho>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Aug 2001, Steve Hill wrote:
+On Wed, 15 Aug 2001, Richard B. Johnson wrote:
 
-> 
-> Until recently I've been using the 2.2.16 kernel on Cobalt Qube 3's, but
-> I've just upgraded to 2.4.6.  Since there's no mouse, keyboard, etc, there
-> isn't much entropy data.  I had no problem getting plenty of data from
-> /dev/random under 2.2, but under 2.4.6 there seems to be a distinct lack
-> of data - it takes absolutely ages to extract about 256 bytes from it
-> (whereas under 2.2 it was relatively quick).  Has there been a major
-> change in the way the random number generator works under 2.4?
-> 
-> -- 
-> 
+> Same problem on 2.4.1. The first 512 bytes comes right away if
+> /dev/random hasn't been accessed since boot, then the rest trickles
+> a few words per second.
 
-Same problem on 2.4.1. The first 512 bytes comes right away if
-/dev/random hasn't been accessed since boot, then the rest trickles
-a few words per second.
+Hmm...  Well, ATM I've kludged a fix by using /dev/urandom instead, but
+it's not ideal because it's being used to generate cryptographic keys, and
+urandom isn't cryptographically secure.
 
-Cheers,
-Dick Johnson
+Are you seeing the problem on a normal machine? (I assumed I was seeing it
+because I'm using Cobalt hardware that's not going to get much entropy
+data due to the lack of keyboard, etc)...  although when I'm generating
+this data I'm using a root NFS filesystem, so there should be plenty of
+network interrupts happening,which should generate some entropy...
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+I might have a look into increasing the size of the entropy pool so
+there's more data to access at once...
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+-- 
+
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
+
+        ... Alcohol and calculus don't mix - Don't drink and derive! ...
 
 

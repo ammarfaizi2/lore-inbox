@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318097AbSG2Usc>; Mon, 29 Jul 2002 16:48:32 -0400
+	id <S318088AbSG2Urn>; Mon, 29 Jul 2002 16:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318098AbSG2Usc>; Mon, 29 Jul 2002 16:48:32 -0400
-Received: from grendel.firewall.com ([66.28.56.41]:9157 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id <S318097AbSG2Us1>; Mon, 29 Jul 2002 16:48:27 -0400
-Date: Mon, 29 Jul 2002 22:51:47 +0200
-To: Erik Andersen <andersen@codepoet.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc3-ac4
-Message-ID: <20020729205147.GB1722@thanes.org>
-References: <200207291740.g6THewQ19578@devserv.devel.redhat.com> <20020729204424.GA4449@codepoet.org>
+	id <S318092AbSG2Urn>; Mon, 29 Jul 2002 16:47:43 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:59516 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318088AbSG2Urm>; Mon, 29 Jul 2002 16:47:42 -0400
+Date: Mon, 29 Jul 2002 22:52:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
+Message-ID: <20020729205211.GB1201@dualathlon.random>
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au> <20020729004942.GL1201@dualathlon.random> <3D44A2DF.F751B564@zip.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020729204424.GA4449@codepoet.org>
-User-Agent: Mutt/1.4i
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-From: grendel@thanes.org (Grendel)
+In-Reply-To: <3D44A2DF.F751B564@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 28, 2002 at 07:05:19PM -0700, Andrew Morton wrote:
+> But yes, all of this is a straight speed/space tradeoff.  Probably
+> some of it should be ifdeffed.
 
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I would say so. recalculating page_address in cpu core with no cacheline
+access is one thing, deriving the index is a different thing.
 
-On Mon, Jul 29, 2002 at 02:44:25PM -0600, Erik Andersen scribbled:
-[snip]
-> drm_stub.h:125: parse error before `)'
-> drm_stub.h:133: parse error before `)'
-> drm_stub.h:137: parse error before `)'
-> make[3]: *** [radeon_drv.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux/drivers/char/drm'
-> make[2]: *** [_modsubdir_drm] Error 2
-> make[2]: Leaving directory `/usr/src/linux/drivers/char'
-> make[1]: *** [_modsubdir_char] Error 2
-> make[1]: Leaving directory `/usr/src/linux/drivers'
-> make: *** [_mod_drivers] Error 2
->=20
-> The problem seems to be that=20
->     DRM_ERROR( "no scatter/gather memory!\n" );
->=20
-> expands into
->     printk("<3>"  "[" "drm"  ":%s] *ERROR* "   "cannot allocate PCI GART =
-page!\n"   ,  ) ;
->=20
-> I think the __FUNCTION__ changes to DRM_ERROR and friends in drmP.h=20
-> look awfully bogus.
-Nope, it's a cpp (3.0+ is fine) error - the ##args is not generated correct=
-ly when
-'args...' in DRM_ERROR is empty.
+> The cost of the tree walk doesn't worry me much - generally we
+> walk the tree with good locality of reference, so most everything is
+> in cache anyway.
 
-marek
+well, the rbtree showedup heavily when it started growing more than a
+few steps, it has less locality of reference though.
 
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>    Good luck setting up a testcase which does this ;)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+a gigabit will trigger it in a millisecond. of course nobody tested it
+either I guess (I guess not many people tested the 800Gbyte offset
+either in the first place).
 
-iD8DBQE9Rariq3909GIf5uoRAiSLAJ4tm5SCOfARTuiC5yNj+AZnt2swugCeJC8x
-13UAeN/Kqtm+/Hkb7gzuPDY=
-=ZJb9
------END PGP SIGNATURE-----
+> Then again, Andi says that sizeof(struct page) is a problem for
+> x86-64.
 
---oLBj+sq0vYjzfsbl--
+not true.
+
+> No recursion needed, no allocations needed.
+
+the 28 bytes if they're on the stack they're like recursion, just using
+an interactive algorithm.
+
+you're done with 28 bytes with a max 7/8 level tree, so 7*4 = 28 (4 size
+of pointer/long). On a 32bit arch the max index supported is
+2^32, on a 64bit arch the max index supported is
+2^(64-PAGE_CACHE_SHFIT), plus each pointer is 8 bytes. You may want to
+do the math to verify if you've enough stack to walk the tree in order,
+it's not obvious.
+
+> But I don't see any showstoppers here.
+
+on a 32bit arch with 32bit index it seems ok to me too, on 64bit
+somebody has to do the math and it's not really obvious to me that's
+feasible.
+
+Andrea

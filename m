@@ -1,101 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268077AbRHAUT1>; Wed, 1 Aug 2001 16:19:27 -0400
+	id <S268100AbRHAUVr>; Wed, 1 Aug 2001 16:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268078AbRHAUTS>; Wed, 1 Aug 2001 16:19:18 -0400
-Received: from iris.mc.com ([192.233.16.119]:65270 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S268077AbRHAUTF>;
-	Wed, 1 Aug 2001 16:19:05 -0400
-From: Mark Salisbury <mbs@mc.com>
-To: root@chaos.analogic.com, "Richard B. Johnson" <root@chaos.analogic.com>,
-        Chris Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: No 100 HZ timer !
-Date: Wed, 1 Aug 2001 16:08:09 -0400
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-Cc: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010801154207.1042A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010801154207.1042A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Message-Id: <01080116163003.12001@pc-eng24.mc.com>
-Content-Transfer-Encoding: 7BIT
+	id <S268078AbRHAUVh>; Wed, 1 Aug 2001 16:21:37 -0400
+Received: from [194.77.109.75] ([194.77.109.75]:43537 "EHLO warp.zuto.de")
+	by vger.kernel.org with ESMTP id <S268093AbRHAUV1>;
+	Wed, 1 Aug 2001 16:21:27 -0400
+From: Rainer Clasen <bj@zuto.de>
+Date: Wed, 1 Aug 2001 22:21:34 +0200
+To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+        linux-net@vger.kernel.org
+Subject: Re: [OOPS] network related crash with Linux 2.4
+Message-ID: <20010801222134.H13386@zuto.de>
+Reply-To: bj@zuto.de
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	"David S. Miller" <davem@redhat.com>, linux-net@vger.kernel.org
+In-Reply-To: <005f01c10e69$28273e60$0200a8c0@loki> <15189.2408.59953.395204@pizda.ninka.net> <20010720091329.B16207@zuto.de> <15191.56739.635100.533146@pizda.ninka.net> <20010720173655.F23559@zuto.de> <87d77ae2x6.fsf@gryffindor.sc> <20010710071924.E15071@zuto.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010710071924.E15071@zuto.de>; from bj@zuto.de on Tue, Jul 10, 2001 at 07:19:24AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you are misunderstanding what is meant by tickless.
+On Tue, Jul 10, 2001 at 07:19:24AM +0200, Rainer Clasen wrote:
+> Am Mon, Jul 09, 2001 at 01:51:17PM +0200 schrieb Moritz Schulte:
+> > I often see my Gateway (Cx486DX4 CPU, 14364K RAM, 124956K Swap)
+> > running Linux 2.4.[56] crashing (should I test previous
+> > versions?). These crashes seem related to networking, because they
+> > happen when trying to access some hosts. Now, the system crashes
+> 
+> this seems to be similar to my oopsen - 
 
-tickless means that instead of having a clock interruptevery 10 ms whether
-there are any timed events pending or not, a tickeless system only generates an
-interrupt when there is a pending timed event.
-
-timed events are such things as:
-
-	process quanta expiration, 
-	POSIX timers
-	alarm()
-etc.
-
-jiffies, as such, don't need to be updated as a tickless system relies on a
-decrementer and a (usually 64-bit) wall clock. a jiffie then is just the
-wallclock count. (or more likely, wall clock >> a few bits)
-
-the tickless system is intended to take advantage of some of the more modern
-features of newer CPU's (such as useful counters and decrementers)
-
-the fixed interval, ticked system is a reasonable lowest common denominator
-solution.  but when hardware is capable of supporting a more flexible, modern
-system, it should be an available option.
-
-
-
-On Wed, 01 Aug 2001, Richard B. Johnson wrote:
-> > george anzinger wrote:
+On Fri, Jul 20, 2001 at 05:36:55PM +0200, Rainer Clasen wrote:
+> On Fri, Jul 20, 2001 at 12:28:35AM -0700, David S. Miller wrote:
+> > Rainer Clasen writes:
+> >  > I am using tulip, dummy, Ben Grear's dot1q VLAN devices and some ISDN
+> >  > syncppp and ISDN rawip devices are configured (but not actively used),
+> >  > too.
 > > 
-> > > The testing I have done seems to indicate a lower overhead on a lightly
-> > > loaded system, about the same overhead with some load, and much more
-> > > overhead with a heavy load.  To me this seems like the wrong thing to
-> > 
+> > Can you test without dummy and VLAN?  Man, I now have to audit that
+> > friggin' code too :-(
 > 
-> Doesn't the "tick-less" system presume that somebody, somewhere, will
-> be sleeping sometime during the 1/HZ interval so that the scheduler
-> gets control?
-> 
-> If everybody's doing:
-> 
-> 	for(;;)
->           number_crunch();
-> 
-> And no I/O is pending, how does the jiffy count get bumped?
-> 
-> I think the "tick-less" system relies upon a side-effect of
-> interactive use that can't be relied upon for design criteria.
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-> 
->     I was going to compile a list of innovations that could be
->     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
->     was handled in the BIOS, I found that there aren't any.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> As first step I've removed dummy. Eliminating Vlan is difficult and will take
+> me some more time. 
+
+Marc Boucher posted a patch on the netfilter list, that solved my
+problems.
+
+
+Rainer
+
 -- 
-/*------------------------------------------------**
-**   Mark Salisbury | Mercury Computer Systems    **
-**   mbs@mc.com     | System OS - Kernel Team     **
-**------------------------------------------------**
-**  Thanks to all who sponsored me for the        **
-**  Multiple Sclerosis Great Mass Getaway!!       **
-**  Robert, Michele and I raised $10,000 and the  **
-**  raised over $1,000,000 ride as a whole.  The  **
-**  ride was great, and we didn't get rained on!  **
-**  Thanks again to all of you who made this      **
-**  possible!!                                    **
-**------------------------------------------------*/
-
+KeyID=759975BD fingerprint=887A 4BE3 6AB7 EE3C 4AE0  B0E1 0556 E25A 7599 75BD

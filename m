@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129856AbRB0WlX>; Tue, 27 Feb 2001 17:41:23 -0500
+	id <S129861AbRB0WsN>; Tue, 27 Feb 2001 17:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRB0WlE>; Tue, 27 Feb 2001 17:41:04 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:6379 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129856AbRB0Wk4>; Tue, 27 Feb 2001 17:40:56 -0500
-Message-ID: <3A9C2CE3.ABA1A6A6@uow.edu.au>
-Date: Tue, 27 Feb 2001 22:40:35 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S129865AbRB0WsE>; Tue, 27 Feb 2001 17:48:04 -0500
+Received: from june.Broomfield1.Level3.net ([209.245.18.7]:35826 "EHLO
+	june.Broomfield1.level3.net") by vger.kernel.org with ESMTP
+	id <S129861AbRB0Wru>; Tue, 27 Feb 2001 17:47:50 -0500
+From: Peter.Havens@Level3.com
+Message-ID: <7599F001C7F8D4118AAD0008C791997403E947@N0239IDC1.oss.level3.com>
+To: linux-kernel@vger.kernel.org
+Subject: Promise Ultra100 IDE PDC20265 chip problem
+Date: Tue, 27 Feb 2001 15:50:07 -0700
 MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: timing out on a semaphore
-In-Reply-To: <20010225224039.W13721@redhat.com> <3A9990EF.8D4ECF49@uow.edu.au> <20010227143942.C13721@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-> 
-> On Sun, Feb 25, 2001 at 11:10:39PM +0000, Andrew Morton wrote:
-> 
-> > I think there might be a bogon in __down_interruptible's
-> > handling of the semaphore state in this case.  I remember
-> > spotting something a few months back but I can't immediately
-> > remember what it was :(
-> >
-> > I'd suggest you slot a
-> >
-> >       sema_init(&port->physport->ieee1284.irq, 1);
-> >
-> > into parport_wait_event() prior to adding the timer.  If that
-> > fixes it I'll go back through my patchpile, see if I can
-> > resurrect that grey cell.
-> 
-> I haven't been able to confirm that it works around it (can't repeat
-> the problem here), but what would you say if I said it did? ;-)
 
-One of two things:
+(I am not subscribed to this list, if it is in fact a list. Please CC any
+replies to me directly - Thanks)
 
-1: Your code is leaving the semaphore in a down'ed state
-   somehow.
+I am attempting to install the new beta release of Red Hat (fisher) on my
+home computer. It has an Asus A7V motherboard and a Promise Ultra100 IDE
+controller (PDC20265 chip), with two partitions. Windows ME is installed in
+the first partition. The second one is where I'm attempting to install Red
+Hat.
 
-2: The semaphore code is leaving the semaphore in a funny
-   state.
+In previous releases of the Linux kernel, my hard drive was not seen at all.
+I could go all the way up to the point in the Red Hat installation where it
+wanted to do disk geometry, and then said that I didn't have any mass media
+device. Searching through various mail archives lead me to believe the
+culprit was the PDC20265 controller chip and the fact that it was too new to
+be recognized.
 
-hmm.  I see from your other email that the sema_init() has 
-made the problem go away.  Could you please review the code,
-see if there's an imbalance somewhere?
+In the new kernel 2.4.0 (and thereby the fisher release of Red Hat), I now
+see the error below printed out to the console when booting from the Red Hat
+installation floppy. After the error is printed out, my computer hangs. I
+apologize in advance if this is not a Linux kernel issue, and appreciate any
+help that can be provided.
 
-What is parport_ieee1284_write_compat() trying to do with
-the semaphore?  It will leave the semaphore in a downed
-state.  Intentional?  Is this code actually being used
-by the person who is having the problem?  Could this
-loop be replaced by a simple sema_init()?
+--Pete
 
-(As you can tell, I'm desparately avoiding having
-to understand the semaphore code again :))
+[snip]
 
--
+PDC 20265: chipset revision 2
+PDC 20265: not 100% native mode: will probe irqs later
+
+[snip]
+
+Partition Check:
+hde: [PTBL] [1826/255/63] hde1 hde2 < hde5hde: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=32885055, sector=0
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+
+[last repeats 3-4 times]
+
+hde: DMA disabled
+
+[hang]

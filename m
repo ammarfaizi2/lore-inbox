@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262230AbSJQVuJ>; Thu, 17 Oct 2002 17:50:09 -0400
+	id <S262235AbSJQVvB>; Thu, 17 Oct 2002 17:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262227AbSJQVuJ>; Thu, 17 Oct 2002 17:50:09 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:9880 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S262230AbSJQVuI>;
-	Thu, 17 Oct 2002 17:50:08 -0400
-Date: Fri, 18 Oct 2002 07:55:55 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Christoph Hellwig <hch@infradead.org>,
-       torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Add POSIX Access Control Lists to ext2/3
-Message-ID: <20021018075555.B307856@wobbly.melbourne.sgi.com>
-References: <E181a3b-0006Nu-00@snap.thunk.org> <20021016155012.GA8210@think.thunk.org> <20021017084836.B302869@wobbly.melbourne.sgi.com> <200210171204.08922.agruen@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210171204.08922.agruen@suse.de>; from agruen@suse.de on Thu, Oct 17, 2002 at 12:04:08PM +0200
+	id <S262237AbSJQVvB>; Thu, 17 Oct 2002 17:51:01 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18379 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262235AbSJQVu7>;
+	Thu, 17 Oct 2002 17:50:59 -0400
+Date: Thu, 17 Oct 2002 14:54:54 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: george anzinger <george@mvista.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+In-Reply-To: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33L2.0210171453050.2499-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 12:04:08PM +0200, Andreas Gruenbacher wrote:
-> Hello Nathan,
+On Wed, 9 Oct 2002, Linus Torvalds wrote:
 
-hi there,
+| On Wed, 9 Oct 2002, george anzinger wrote:
+| >
+| > This patch, in conjunction with the "core" high-res-timers
+| > patch implements high resolution timers on the i386
+| > platforms.
+|
+| I really don't get the notion of partial ticks, and quite frankly, this
+| isn't going into my tree until some major distribution kicks me in the
+| head and explains to me why the hell we have partial ticks instead of just
+| making the ticks shorter.
+| -
 
-> On Thursday 17 October 2002 00:48, Nathan Scott wrote:
-> > They are an optimisization for the one special case (posix acls),
-> > and manage to pollute the VFS for that one special case ...
-> ...
-> As soon as any filesystem independent part of the kernel needs an interface 
-> more efficient that pass-by-value we will again have exactly the same 
-> problem.
+Carrier Grade Linux is not a distro, but we do integrate these
+patches into the CGL patches and will continue to use it.
 
-My point is simply that a proposal to extend the VFS in this way needs
-to be accompanied by a compelling argument showing the performance bump
-that its providing.
+Please consider adding it to 2.5.
 
-> Going to disk and fetching EAs only causes disk accesses once; afterwards the 
-> block is cached.
-
-Good - this is true for both XFS and ext2/3 then.  So, we are talking about
-using ref counting vs. copying for any in-kernel users of attrs, and you're
-saying there is some significant overheads with copying and I'm saying show
-me what kind of overheads we're talking about, please.
-
-cheers.
-
+Thanks,
 -- 
-Nathan
+~Randy
+

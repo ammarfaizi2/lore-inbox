@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbRFNNf0>; Thu, 14 Jun 2001 09:35:26 -0400
+	id <S262609AbRFNNah>; Thu, 14 Jun 2001 09:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262618AbRFNNfQ>; Thu, 14 Jun 2001 09:35:16 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:14087 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S262611AbRFNNfL>;
-	Thu, 14 Jun 2001 09:35:11 -0400
-Date: Thu, 14 Jun 2001 14:34:29 +0100 (IST)
-From: Stephen Shirley <diamond@skynet.ie>
-X-X-Sender: <diamond@skynet>
-To: <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Some error checking on kmalloc()'s in ide-probe.c
-Message-ID: <Pine.LNX.4.32.0106141428530.3530-100000@skynet>
+	id <S262618AbRFNNa1>; Thu, 14 Jun 2001 09:30:27 -0400
+Received: from beta.dmz-eu.st.com ([164.129.1.35]:5779 "HELO
+	beta.dmz-eu.st.com") by vger.kernel.org with SMTP
+	id <S262609AbRFNNaQ>; Thu, 14 Jun 2001 09:30:16 -0400
+From: Philippe.LAFFONT@st.com
+X-OpenMail-Hops: 2
+Date: Thu, 14 Jun 2001 15:19:17 +0200
+Message-Id: <H00006240b52eb6d@MHS>
+Subject: Strange behaviour of the Round Robin policy
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII; name="cc:Mail"
+Content-Disposition: inline; filename="cc:Mail"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mornin,
-	This patch adds error checking to the return value of kmalloc() in
-2 places in ide-probe.c. It's against 2.4.5.y
-
-Steve
-
---- ide-probe.c.orig    Thu Jun 14 14:05:31 2001
-+++ ide-probe.c Thu Jun 14 14:15:12 2001
-@@ -58,6 +58,11 @@
-        struct hd_driveid *id;
-
-        id = drive->id = kmalloc (SECTOR_WORDS*4, GFP_ATOMIC);  /* called with interrupts disabled! */
-+       if(id == NULL)
-+       {
-+               printk(KERN_ERR "ide-probe: Failed to allocate memory for hd_driveid struct, aborting\n");
-+               return;
-+       }
-        ide_input_data(drive, id, SECTOR_WORDS);                /* read 512 bytes of id info */
-        ide__sti();     /* local CPU only */
-        ide_fix_driveid(id);
-@@ -623,6 +628,11 @@
-        /* Allocate the buffer and potentially sleep first */
-
-        new_hwgroup = kmalloc(sizeof(ide_hwgroup_t),GFP_KERNEL);
-+       if(new_hwgroup == NULL)
-+       {
-+               printk(KERN_ERR "ide-probe: Failed to allocate memory for hwgroup, aborting\n");
-+               return 1;
-+       }
-
-        save_flags(flags);      /* all CPUs */
-        cli();                  /* all CPUs */
-
-
--- 
-"My mom had Windows at work and it hurt her eyes real bad"
+     I'm using RedHat Linux V2.2.13 and I made the following test:
+     
+     I launched 10 times the same program with priority 10 of Round Robin 
+     policy (from a shell having priority 20 of FIFO policy). Each program 
+     does an infinite busy loop (while (1)).
+     One minute later, I launched the "ps" command and I was expected that 
+     the TIME values of all these processes are in an interval which is T 
+     large, where T is given by sched_rr_get_interval() i.e. T=150ms in 
+     this release.
+     
+     But the ps result was:
+     PID TTY          TIME CMD
+     652 tty1     00:00:00 login
+     1549 tty1     00:00:00 bash
+     1566 tty1     00:00:00 bash
+     1596 tty1     00:01:12 my_program
+     1597 tty1     00:00:02 my_program
+     1598 tty1     00:00:01 my_program
+     1599 tty1     00:00:01 my_program
+     1600 tty1     00:00:05 my_program
+     1601 tty1     00:00:01 my_program
+     1602 tty1     00:00:00 my_program
+     1603 tty1     00:00:16 my_program
+     1604 tty1     00:00:01 my_program
+     1605 tty1     00:00:00 my_program
+     1610 tty1     00:00:00 ps
+     
+     Does someone have any explanation of this behavior? Thanks in advance.
+     
+     
+     
 

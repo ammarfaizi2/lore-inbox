@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262835AbTCNJz2>; Fri, 14 Mar 2003 04:55:28 -0500
+	id <S261718AbTCNKFQ>; Fri, 14 Mar 2003 05:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262934AbTCNJz2>; Fri, 14 Mar 2003 04:55:28 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:60682
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S262835AbTCNJzZ>; Fri, 14 Mar 2003 04:55:25 -0500
-Subject: Re: 2.5.64-mm6: oops in elv_remove_request
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <20030314104219.GA791@suse.de>
-References: <1047576167.1318.4.camel@ixodes.goop.org>
-	 <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org>
-	 <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org>
-	 <20030314104219.GA791@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047636371.1147.8.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 14 Mar 2003 02:06:11 -0800
-Content-Transfer-Encoding: 7bit
+	id <S261715AbTCNKFQ>; Fri, 14 Mar 2003 05:05:16 -0500
+Received: from [80.190.48.67] ([80.190.48.67]:53766 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id <S261718AbTCNKFO> convert rfc822-to-8bit; Fri, 14 Mar 2003 05:05:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21pre5aa1
+Date: Fri, 14 Mar 2003 11:15:55 +0100
+User-Agent: KMail/1.4.3
+References: <20030314090825.GB1375@dualathlon.random>
+In-Reply-To: <20030314090825.GB1375@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303141115.42063.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-14 at 02:42, Jens Axboe wrote:
-> Looks much better. Somehow the 'random' rpm you had didn't do SG_IO,
-> odd.
+On Friday 14 March 2003 10:08, Andrea Arcangeli wrote:
 
-It was the PLD cdrtools-2.01a05-1.i386.rpm; it is the same source I
-built from, though it was looking in /usr/include/linux for headers, and
-I changed my build to go to /lib/modules/`uname -r`/build/include.
+Hi Andrea,
 
-> > though I don't seem to be able to set up a default device in
-> > /etc/cdrecord.conf.
-> 
-> I have no idea how that works. What do you typicall do?
+> Only in 2.4.21pre4aa3: 60_tux-timer_t-1
+> Only in 2.4.21pre5aa1: 60_tux-timer_t-2.gz
+^^ hmm, this file is empty?
 
-I worked it out.  The source out of the box looks in
-/etc/default/cdrecord; most distros change that to /etc/cdrecord.conf.
+> 	Part of it obsoleted by smptimers.
 
-	J
 
+ciao, Marc

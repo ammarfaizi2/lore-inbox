@@ -1,149 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbSLZPTh>; Thu, 26 Dec 2002 10:19:37 -0500
+	id <S261644AbSLZQal>; Thu, 26 Dec 2002 11:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSLZPTh>; Thu, 26 Dec 2002 10:19:37 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:32721 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262324AbSLZPTf>; Thu, 26 Dec 2002 10:19:35 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre2aa1
-Date: Thu, 26 Dec 2002 16:26:41 +0100
-User-Agent: KMail/1.4.3
-Cc: "J.A. =?iso-8859-1?q?Magall=F3n?=" <jamagallon@able.es>
-References: <20021226010605.GA4223@dualathlon.random> <20021226151358.GA1607@werewolf.able.es>
-In-Reply-To: <20021226151358.GA1607@werewolf.able.es>
-Organization: WOLK - Working Overloaded Linux Kernel
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_H8GQ4THXIFZYC5VGP3XA"
-Message-Id: <200212261626.41204.m.c.p@wolk-project.de>
+	id <S262877AbSLZQal>; Thu, 26 Dec 2002 11:30:41 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:8966 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S261644AbSLZQaj>; Thu, 26 Dec 2002 11:30:39 -0500
+Subject: 2.4.18 boot error
+From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-GHhcpqUGx+flqjn56OK3"
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 26 Dec 2002 11:38:54 -0500
+Message-Id: <1040920734.1683.13.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_H8GQ4THXIFZYC5VGP3XA
-Content-Type: text/plain;
-  charset="iso-8859-1"
+--=-GHhcpqUGx+flqjn56OK3
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Thursday 26 December 2002 16:13, J.A. Magall=F3n wrote:
+I think this error has something to do with the atapi Iomega 100MB zip
+drive, but I'm not sure. The kernel is 2.4.18 vanilla on an Intel P3.
+Here's a snip from the logs:
 
-Hi J.A.
+Dec 26 11:13:37 free4 kernel: LVM version 1.0.1-rc4(ish)(03/10/2001)
+module loaded
+Dec 26 11:13:37 free4 kernel: hdc: ATAPI 48X CD-ROM drive, 120kB Cache
+Dec 26 11:13:37 free4 kernel: Uniform CD-ROM driver Revision: 3.12
+Dec 26 11:13:37 free4 kernel: cdrom: open failed.
+Dec 26 11:13:37 free4 kernel: ide-floppy driver 0.97.sv
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512
+sector size, 2941 rpm
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
+=3D  2, asc =3D 3a, ascq =3D  0
+Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
+Dec 26 11:13:37 free4 kernel: loop: loaded (max 8 devices)
+Dec 26 11:13:37 free4 kernel:  [events: 00000036]
+Dec 26 11:13:37 free4 kernel: md: autorun ...
+Dec 26 11:13:37 free4 kernel: md: considering
+ide/host0/bus0/target1/lun0/part2 ...
+Dec 26 11:13:37 free4 kernel: md:  adding
+ide/host0/bus0/target1/lun0/part2 ...
+Dec 26 11:13:37 free4 kernel: md:  adding
+ide/host0/bus0/target0/lun0/part2 ...
+Dec 26 11:13:37 free4 kernel: md: created md0
+Dec 26 11:13:37 free4 kernel: md:
+bind<ide/host0/bus0/target0/lun0/part2,1>
+Dec 26 11:13:37 free4 kernel: md:
+bind<ide/host0/bus0/target1/lun0/part2,2>
+Dec 26 11:13:37 free4 kernel: md: running:
+<ide/host0/bus0/target1/lun0/part2><ide/host0/bus0/target0/lun0/part2>
+Dec 26 11:13:37 free4 kernel: md: updating md0 RAID superblock on device
+Dec 26 11:13:37 free4 kernel: md: ... autorun DONE.
 
-> > =09I never noticed this problem before because I rarely use 3d (and u=
-sually
-> > =09I had mesasoft setup anyways). It's not specific to a certain grap=
-hics
-> > card, so it looks more like an agp generic problem or something, I ca=
-n
-> > reproduce myself on my laptop i830 graphics card and i830 agp, on my
-> > desktop g450 with amd agp, and on my test box on a ati radeon 7500 an=
-d
-> > intel agp, so it doesn't look like a lowlevel driver problem, and it =
-only
-> > hurts while using the agp and/or drm somehow. Many thanks to Srihari
-> > Vijayaraghavan who found the offending patch in the whole kit origina=
-lly
-> > some time ago.
-> I saw it also using nVidia drivers, that do not touch drm. So I would v=
-ote
-> for agpgart.
-try this please.
+This is a log server that we use for remote sysloging. It uses linear
+software raid to join a few disks together to make one big virtual unit
+for the logs. Other than this task, it does nothing else and appears to
+work just fine.=20
 
-ciao, Marc
---------------Boundary-00=_H8GQ4THXIFZYC5VGP3XA
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="281_use-after-free-mremap-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="281_use-after-free-mremap-fix.patch"
+The error hdd error message started today when we upgraded to the 2.4.18
+kernel. Is this something that we should be concerned about? Please cc
+me with any replies as I'm not on the kernel list.
 
- mm/mremap.c |   31 +++++++++++++++++++++++--------
- 1 files changed, 23 insertions(+), 8 deletions(-)
+Thanks,
 
---- 24/mm/mremap.c~move_vma-use-after-free	Thu Dec 19 01:29:52 2002
-+++ 24-akpm/mm/mremap.c	Thu Dec 19 01:31:43 2002
-@@ -134,14 +134,16 @@ static inline unsigned long move_vma(str
- 	next = find_vma_prev(mm, new_addr, &prev);
- 	if (next) {
- 		if (prev && prev->vm_end == new_addr &&
--		    can_vma_merge(prev, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-+				can_vma_merge(prev, vma->vm_flags) &&
-+				!(vma->vm_flags & VM_SHARED)) {
- 			spin_lock(&mm->page_table_lock);
- 			prev->vm_end = new_addr + new_len;
- 			spin_unlock(&mm->page_table_lock);
- 			new_vma = prev;
- 			if (next != prev->vm_next)
- 				BUG();
--			if (prev->vm_end == next->vm_start && can_vma_merge(next, prev->vm_flags)) {
-+			if (prev->vm_end == next->vm_start &&
-+					can_vma_merge(next, prev->vm_flags)) {
- 				spin_lock(&mm->page_table_lock);
- 				prev->vm_end = next->vm_end;
- 				__vma_unlink(mm, next, prev);
-@@ -151,7 +153,8 @@ static inline unsigned long move_vma(str
- 				kmem_cache_free(vm_area_cachep, next);
- 			}
- 		} else if (next->vm_start == new_addr + new_len &&
--			   can_vma_merge(next, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-+					can_vma_merge(next, vma->vm_flags) &&
-+					!(vma->vm_flags & VM_SHARED)) {
- 			spin_lock(&mm->page_table_lock);
- 			next->vm_start = new_addr;
- 			spin_unlock(&mm->page_table_lock);
-@@ -160,7 +163,8 @@ static inline unsigned long move_vma(str
- 	} else {
- 		prev = find_vma(mm, new_addr-1);
- 		if (prev && prev->vm_end == new_addr &&
--		    can_vma_merge(prev, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-+				can_vma_merge(prev, vma->vm_flags) &&
-+				!(vma->vm_flags & VM_SHARED)) {
- 			spin_lock(&mm->page_table_lock);
- 			prev->vm_end = new_addr + new_len;
- 			spin_unlock(&mm->page_table_lock);
-@@ -177,11 +181,15 @@ static inline unsigned long move_vma(str
- 	}
- 
- 	if (!move_page_tables(vma, new_addr, addr, old_len)) {
-+		unsigned long must_fault_in;
-+		unsigned long fault_in_start;
-+		unsigned long fault_in_end;
-+
- 		if (allocated_vma) {
- 			*new_vma = *vma;
- 			new_vma->vm_start = new_addr;
- 			new_vma->vm_end = new_addr+new_len;
--			new_vma->vm_pgoff += (addr - vma->vm_start) >> PAGE_SHIFT;
-+			new_vma->vm_pgoff += (addr-vma->vm_start) >> PAGE_SHIFT;
- 			new_vma->vm_raend = 0;
- 			if (new_vma->vm_file)
- 				get_file(new_vma->vm_file);
-@@ -189,12 +197,19 @@ static inline unsigned long move_vma(str
- 				new_vma->vm_ops->open(new_vma);
- 			insert_vm_struct(current->mm, new_vma);
- 		}
-+
-+		must_fault_in = new_vma->vm_flags & VM_LOCKED;
-+		fault_in_start = new_vma->vm_start;
-+		fault_in_end = new_vma->vm_end;
-+
- 		do_munmap(current->mm, addr, old_len);
-+
-+		/* new_vma could have been invalidated by do_munmap */
-+
- 		current->mm->total_vm += new_len >> PAGE_SHIFT;
--		if (new_vma->vm_flags & VM_LOCKED) {
-+		if (must_fault_in) {
- 			current->mm->locked_vm += new_len >> PAGE_SHIFT;
--			make_pages_present(new_vma->vm_start,
--					   new_vma->vm_end);
-+			make_pages_present(fault_in_start, fault_in_end);
- 		}
- 		return new_addr;
- 	}
 
---------------Boundary-00=_H8GQ4THXIFZYC5VGP3XA--
+--=-GHhcpqUGx+flqjn56OK3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA+CzCdPJE6j+LlAWERAq/kAJ95XUhVIYyVp8Afc7yAFfv5C0EGXgCbBd5K
+F5qiO6xfTSO/AKUR0HdC0W8=
+=nGzz
+-----END PGP SIGNATURE-----
+
+--=-GHhcpqUGx+flqjn56OK3--
 

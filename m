@@ -1,101 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTEAVF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 17:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTEAVF2
+	id S262569AbTEAVEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 17:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTEAVEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 17:05:28 -0400
-Received: from pat.uio.no ([129.240.130.16]:35261 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262584AbTEAVFZ convert rfc822-to-8bit
+	Thu, 1 May 2003 17:04:22 -0400
+Received: from cpt-dial-196-30-180-5.mweb.co.za ([196.30.180.5]:50817 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S262569AbTEAVES
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 17:05:25 -0400
-Date: Thu, 1 May 2003 23:17:47 +0200 (MEST)
-From: =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@ifi.uio.no>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@ifi.uio.no>
-Subject: Re: sendfile
-In-Reply-To: <20030501042831.GA26735@mark.mielke.cc>
-Message-ID: <Pine.SOL.4.51.0305012303540.17001@fjorir.ifi.uio.no>
-References: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no>
- <20030430165103.GA3060@outpost.ds9a.nl> <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
- <20030430192809.GA8961@outpost.ds9a.nl> <Pine.SOL.4.51.0304302317590.13406@thrir.ifi.uio.no>
- <20030430221834.GA23109@mark.mielke.cc> <Pine.SOL.4.51.0305010024180.334@niu.ifi.uio.no>
- <20030501042831.GA26735@mark.mielke.cc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 1 May 2003 17:04:18 -0400
+Subject: OSS support for ICH5 sound
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: KML <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oJE1ZAx1BZG0GEZ4KUJ7"
+Organization: 
+Message-Id: <1051823687.11068.11.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 01 May 2003 23:14:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 May 2003, Mark Mielke wrote:
 
-> On Thu, May 01, 2003 at 12:34:32AM +0200, Pål Halvorsen wrote:
-> > On Wed, 30 Apr 2003, Mark Mielke wrote:
-> > > To some degree, couldn't sendto() fit this description? (Assuming the
-> > > kernel implemented 'zero-copy' on sendto()) The benefit of sendfile()
-> > > is that data isn't coming from a memory location. It is coming from disk,
-> > > meaning that your process doesn't have to become active in order for work
-> > > to be done. In the case of UDP packets, you almost always want a layer on
-> > > top that either times the UDP packet output, or sends output in response
-> > > to input, mostly defeating the purpose of sendfile()...
-> > Maybe, but then I'll have two system calls...
->
-> As I mentioned before, the real benefit to sendfile(), as I understand it, is
-> that sendfile() makes it unnecessary for the OS to fully activate the calling
-> process in order to do work for the calling process. Unless you can point out
-> some other benefit provided by sendfile(), I fail to see how you will do:
->
->     while (1) {
->         send_frame_over_udp();
->         sleep();
->     }
->
-> Without two system calls. Whether send_frame_over_udp() uses sendfile() as
-> you seem to want it to, or whether it just calls sendto(), doesn't make a
-> difference. Because one of your requirements is that you need to provide a
-> smooth feed, the primary benefit of sendfile(), that of not having to activate
-> your process, becomes invalid.
->
-> I haven't done timings, or looked deeply at this part of linux-2.5.x,
-> however, I fail to see why the following code should not meet your
-> requirements:
->
->     void *p = mmap(0, length_of_file, PROT_READ, MAP_SHARED, fd, 0);
->     off_t offset = 0;
->
->     while (offset < length_of_file)
->       {
->         int packet_size = max(512, length_of_file - offset);
->         send(socket, &p[offset], packet_size, 0);
->         offset += packet_size;
->         usleep(packets_size * 1000000 / packets_per_second);
->       }
->
-> In theory, send() should be able to provide the zero copy benefits you
-> are requesting. In practice, it might be a little harder, but in this
-> case, from my perspective, send() and sendfile() should both provide
-> equivalent performance. Why would sendfile() perform better than send()?
+--=-oJE1ZAx1BZG0GEZ4KUJ7
+Content-Type: multipart/mixed; boundary="=-CMCiExbdRP8MLZjZU1ln"
 
-As far as i understand mmap/send, you'll have a copy operation in the
-kernel here. mmap shares the kernel and user buffer, but when sending the
-packet data is copied to the socket buffer!!??
 
-OK, but I understand that my streaming scenario is not the target
-application for sendfile.
+--=-CMCiExbdRP8MLZjZU1ln
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Then, I have another question - so that I maybe can implement this myself.
-Can the network interface support gather operations - ie. collecting data
-several places for a packet ("DMA gather copy" from memory to NIC)?
+Hi
 
-(Like described in
-http://delivery.acm.org/10.1145/610000/603774/6345.html?key1=603774&key2=4582281501&coll=portal&dl=ACM&CFID=10149715&CFTOKEN=89922395
-- Linux Journal Volume 2003 ,  Issue 105  (January 2003) )
+I basically just added the ID's for the ICH5 sound, and it seems
+to be working fine here.  This is against bk7, I haven't had time
+to verify with bk11 yet, sorry.
 
-If so, does the sk_buff use the struct skb_shared_info to point to the
-different memory regions, or ...?
 
--ph
+Regards,
 
-> mark
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-CMCiExbdRP8MLZjZU1ln
+Content-Disposition: attachment; filename=ICH5_audio.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=ICH5_audio.patch; charset=ISO-8859-1
+
+--- linux/sound/oss/i810_audio.c.orig	2003-05-01 23:03:02.000000000 +0200
++++ linux/sound/oss/i810_audio.c	2003-05-01 23:03:53.000000000 +0200
+@@ -115,6 +114,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ICH4
+ #define PCI_DEVICE_ID_INTEL_ICH4	0x24c5
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_ICH5
++#define PCI_DEVICE_ID_INTEL_ICH5	0x24d5
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_440MX
+ #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+ #endif
+@@ -270,6 +272,7 @@
+ 	INTELICH2,
+ 	INTELICH3,
+ 	INTELICH4,
++	INTELICH5,
+ 	SI7012,
+ 	NVIDIA_NFORCE,
+ 	AMD768,
+@@ -283,6 +286,7 @@
+ 	"Intel ICH2",
+ 	"Intel ICH3",
+ 	"Intel ICH4",
++	"Intel ICH5",
+ 	"SiS 7012",
+ 	"NVIDIA nForce Audio",
+ 	"AMD 768",
+@@ -301,7 +306,8 @@
+ 	{  1, 0x0000 }, /* INTEL440MX */
+ 	{  1, 0x0000 }, /* INTELICH2 */
+ 	{  2, 0x0000 }, /* INTELICH3 */
+-        {  3, 0x0003 }, /* INTELICH4 */
++ 	{  3, 0x0003 }, /* INTELICH4 */
++	{  3, 0x0003 }, /* INTELICH5 */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* SI7012 */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* NVIDIA_NFORCE */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* AMD768 */
+@@ -321,6 +326,8 @@
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH3},
+ 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH4,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH5,
++	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH5},
+ 	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7012,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SI7012},
+ 	{PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_MCP1_AUDIO,
+@@ -2791,7 +2799,7 @@
+ 	 */=09
+ 	/* see i810_ac97_init for the next 7 lines (jsaw) */
+ 	inw(card->ac97base);
+-	if ((card->pci_id =3D=3D PCI_DEVICE_ID_INTEL_ICH4)
++	if ((card->pci_id =3D=3D PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id =3D=3D =
+PCI_DEVICE_ID_INTEL_ICH5)
+ 	    && (card->use_mmio)) {
+ 		primary_codec_id =3D (int) readl(card->iobase_mmio + SDM) & 0x3;
+ 		printk(KERN_INFO "i810_audio: Primary codec has ID %d\n",
+@@ -2861,7 +2869,7 @@
+ 		   possible IO channels. Bit 0:1 of SDM then holds the=20
+ 		   last codec ID spoken to.=20
+ 		*/
+-		if ((card->pci_id =3D=3D PCI_DEVICE_ID_INTEL_ICH4)
++		if ((card->pci_id =3D=3D PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id =3D=3D=
+ PCI_DEVICE_ID_INTEL_ICH5)
+ 		    && (card->use_mmio)) {
+ 			ac97_id =3D (int) readl(card->iobase_mmio + SDM) & 0x3;
+ 			printk(KERN_INFO "i810_audio: Connection %d with codec id %d\n",
+
+--=-CMCiExbdRP8MLZjZU1ln--
+
+--=-oJE1ZAx1BZG0GEZ4KUJ7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+sY5HqburzKaJYLYRAjGiAJ4lZT1VP3A0k9Rut6kgXfJL13pKgwCfV4Hu
+uj6+vYN2XR2ufVmN6u0Hhsc=
+=yseS
+-----END PGP SIGNATURE-----
+
+--=-oJE1ZAx1BZG0GEZ4KUJ7--
 

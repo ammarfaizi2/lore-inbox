@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUI2RFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUI2RKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268667AbUI2RFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 13:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUI2RFQ
+	id S268690AbUI2RKS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUI2RKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 13:05:16 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33233 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268667AbUI2RFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 13:05:01 -0400
-Subject: Re: 2.6.9-rc2-mm4 and nvidia 1.0-6111
-From: Lee Revell <rlrevell@joe-job.com>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, sboyce@blueyonder.co.uk
-In-Reply-To: <200409291355.20281.norberto+linux-kernel@bensa.ath.cx>
-References: <415A6EE6.1090404@blueyonder.co.uk>
-	 <200409291355.20281.norberto+linux-kernel@bensa.ath.cx>
-Content-Type: text/plain
-Message-Id: <1096477498.1400.17.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 13:04:58 -0400
+	Wed, 29 Sep 2004 13:10:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42897 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268690AbUI2RHs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 13:07:48 -0400
+Message-ID: <415AEBCE.9070507@pobox.com>
+Date: Wed, 29 Sep 2004 13:07:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: PATCH: 3c59x 00:00:00:00:00:00 MAC failure
+References: <20040929163023.GA17899@devserv.devel.redhat.com>	 <20040929174530.D16537@flint.arm.linux.org.uk> <415AE866.7090007@pobox.com> <1096473535.15905.54.camel@localhost.localdomain>
+In-Reply-To: <1096473535.15905.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-29 at 12:55, Norberto Bensa wrote:
-> Sid Boyce wrote:
-> > Any help appreciated, also posted to nvidia forum.
+Alan Cox wrote:
+> On Mer, 2004-09-29 at 17:52, Jeff Garzik wrote:
 > 
-> I did revert these patches:
+>>>Shouldn't this be using is_valid_ether_addr() ?
+>>
+>>Yes.
 > 
-> convert-references-to-remap_page_range-under-arch-and-documentation-to-remap_pfn_range.patch
-> convert-users-of-remap_page_range-under-drivers-and-net-to-use-remap_pfn_range.patch
-> convert-users-of-remap_page_range-under-include-asm--to-use-remap_pfn_range.patch
-> convert-users-of-remap_page_range-under-sound-to-use-remap_pfn_range.patch
-> for-mm-only-remove-remap_page_range-completely.patch
-> introduce-remap_pfn_range-to-replace-remap_page_range.patch
+> 
+> Fixed in my tree - want another diff ?
 
-Isn't there an nvidia-linux mailing list?  This is really OT for LKML.
+pretty please :)
 
-Lee
+	Jeff
+
+
 

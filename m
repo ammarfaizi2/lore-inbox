@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265252AbUBAKYd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 05:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUBAKYd
+	id S265255AbUBAKUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 05:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUBAKUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 05:24:33 -0500
-Received: from news.cistron.nl ([62.216.30.38]:39060 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S265252AbUBAKYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 05:24:32 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: no console with current (bk) kernel
-Date: Sun, 1 Feb 2004 10:24:31 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bvik4v$kf9$1@news.cistron.nl>
-References: <m3fzdvy0te.fsf@lugabout.jhcloos.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1075631071 20969 62.216.29.200 (1 Feb 2004 10:24:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Sun, 1 Feb 2004 05:20:14 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:14500 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265255AbUBAKUK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 05:20:10 -0500
+Message-ID: <401CD2B6.3040803@cyberone.com.au>
+Date: Sun, 01 Feb 2004 21:19:34 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, vatsa@in.ibm.com, mingo@redhat.com
+Subject: Re: [PATCH 3/4] 2.6.2-rc2-mm2 CPU Hotplug: The Core
+References: <20040131141937.E58852C082@lists.samba.org> <20040201000314.233e05a7.akpm@osdl.org>
+In-Reply-To: <20040201000314.233e05a7.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m3fzdvy0te.fsf@lugabout.jhcloos.org>,
-James H. Cloos Jr. <cloos@jhcloos.com> wrote:
->From my .config:
->
-># CONFIG_FB is not set
->CONFIG_VT=y
->CONFIG_VT_CONSOLE=y
->CONFIG_HW_CONSOLE=y
->CONFIG_VGA_CONSOLE=y
->CONFIG_VIDEO_SELECT=y
->
->and yet the boot fails with a complaint that it cannot open a
->console, followed by a reboot.  (Too fast to copy anything down.)
->
->Box is p3 notebook, gcc is 3.3.2 (gentoo -r5).
->
->What am I missing?
 
-A root filesystem ;)
 
-Looks like the kernel cannot open /dev/console. That means it
-got deleted, or you're using the wrong filesystem as root,
-or the kernel doesn't include the driver for your fs.
+Andrew Morton wrote:
 
-Mike.
+>Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+>> The actual CPU patch.  It's big, but almost all under
+>> CONFIG_HOTPLUG_CPU, or macros which have same effect.
+>>
+>
+>Needs a fixup.
+>
+>
+>
+>CPU_MASK_ALL and CPU_MASK_NONE may only be used for initialisers.  It
+>doesn't compile if NR_CPUS>4*BITS_PER_LONG.  Fixes to the cpumask
+>infrastructure for this remain welcome.
+>
+>
+
+The kernel/sched.c stuff otherwise looks pretty straightforward
+at a quick glance. I can't see any fundamental problem with it.
 

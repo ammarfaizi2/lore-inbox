@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270632AbTHEUIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 16:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270625AbTHEUIv
+	id S270625AbTHEUTg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270647AbTHEUTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 16:08:51 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:511 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S270632AbTHEUIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 16:08:37 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 5 Aug 2003 22:08:36 +0200 (MEST)
-Message-Id: <UTC200308052008.h75K8aD22137.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] fix error return get/set_native_max functions
+	Tue, 5 Aug 2003 16:19:36 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:24580 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S270625AbTHEUTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 16:19:35 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] 2.4.22-pre10: fix circular dependency
+Date: Tue, 5 Aug 2003 22:19:04 +0200
+User-Agent: KMail/1.5.3
 Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet> <20030803131630.GW16426@fs.tum.de>
+In-Reply-To: <20030803131630.GW16426@fs.tum.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308052218.41588.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This change is okay, thanks.
-> However changing coding style is not...
+On Sunday 03 August 2003 15:16, Adrian Bunk wrote:
 
-An interesting remark.
+Hi Adrian,
 
-I belong to the people who look at kernel source on a screen
-with 80 columns. Code that is wider and wraps is unreadable.
+> >   o Fix irq handling of IO-APIC edge IRQs on UP
+> This patch adds for no good reason two #include's to
+> include/asm-i386/hw_irq.h resulting in a circular dependency between
+> headers.
+grmpf, yeah. right. Sorry :(
 
-Now of course you might react "buy a better monitor", but in fact
-this restriction leads to cleaner code. There is something wrong
-when code is indented too deeply, and almost always a cleanup is
-possible that splits some inner stuff out as a separate function.
+ciao, Marc
 
-As a side effect of that you'll see in patches from me changes
-that bring the code within the 80-column limit.
-
-> -static unsigned long idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
-> +static unsigned long
-> +idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
-
-It is a matter of taste precisely which transformation is best
-in order to bring the source within the 80-column limit,
-but having the type on the preceding line is very common
-in the kernel source (and elsewhere), so among the possible
-ways of splitting this line this is a very natural one.
-
-I am not interested in a discussion about style, but will defend
-the 80-column limit.
-
-Andries
-
-
----
-Functions should be short and sweet, and do just one thing.  They should
-fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
-as we all know), and do one thing and do that well.

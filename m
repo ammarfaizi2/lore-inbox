@@ -1,162 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268494AbTBWP2n>; Sun, 23 Feb 2003 10:28:43 -0500
+	id <S268492AbTBWPqu>; Sun, 23 Feb 2003 10:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268505AbTBWP1K>; Sun, 23 Feb 2003 10:27:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:31967 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268502AbTBWP0y>; Sun, 23 Feb 2003 10:26:54 -0500
-Date: Sun, 23 Feb 2003 07:36:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 393] New: IDE-SCSI : bad: scheduling while atomic
-Message-ID: <6860000.1046014615@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268502AbTBWPqu>; Sun, 23 Feb 2003 10:46:50 -0500
+Received: from ip213-185-36-189.laajakaista.mtv3.fi ([213.185.36.189]:52222
+	"EHLO oma.irssi.org") by vger.kernel.org with ESMTP
+	id <S268492AbTBWPqs>; Sun, 23 Feb 2003 10:46:48 -0500
+Subject: 2.4.19 + XFS 1.2pre3 swap file oops
+From: Timo Sirainen <tss@iki.fi>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1046015817.890.59.camel@hurina>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 23 Feb 2003 17:56:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After about three weeks of use I got an oops while moving a 480MB file.
+There was no disk errors in log. Moving was from hda -> hdd, both are
+XFS filesystems, swap is on hda.
 
-http://bugme.osdl.org/show_bug.cgi?id=393
+About 30MB of the 1GB swap was in use. All processes using the swap got
+stuck after the oops, but shutdown seemed to go fine.
 
-           Summary: IDE-SCSI : bad: scheduling while atomic
-    Kernel Version: 2.5.62
-            Status: NEW
-          Severity: normal
-             Owner: alan@lxorguk.ukuu.org.uk
-         Submitter: rol@as2917.net
-                CC: rol@as2917.net
+I'll upgrade to 2.4.20 + XFS 1.2 now, but I didn't see anything swap
+related in their changelogs.
 
-
-Distribution: 
-  RedHat 8.0
-
-Hardware Environment:
-  P4S8X MB
-  P-IV 
-  2 IDE HD
-  1 IDE CD-ROM
-  1 IDE DVD
-  1 SCSI HD
-
-Software Environment:
-  Kernel 2.5.62
-  Lilo contains :
-image=/boot/vmlinuz-2.5.62-smp-acpi
-        label=test
-        append="panic=30 hdd=ide-scsi console=ttyS0 console=tty1"
-        read-only
-
-Problem Description:
-While booting :
-...
-SIS5513: IDE controller at PCI slot 00:02.5
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SiS648    ATA 133 controller
-    ide0: BM-DMA at 0xa400-0xa407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xa408-0xa40f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC WD800BB-00CAA1, ATA DISK drive
-hdb: IC35L040AVER07-0, ATA DISK drive
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:pio, hdd:DMA
+hda: IBM-DTLA-305040, ATA DISK drive
+hdb: TOSHIBA DVD-ROM SD-M1212, ATAPI CD/DVD-ROM drive
+hdd: ST3120023A, ATA DISK drive
 ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: MATSHITADVD-ROM SR-8584A, ATAPI CD/DVD-ROM drive
-hdd: TDK CDRW4800B, ATAPI CD/DVD-ROM drive
 ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(100)
- hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 > hda4
-hdb: host protected area => 1
-hdb: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(100)
- hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 >
-hdc: ATAPI 32X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-end_request: I/O error, dev hdc, sector 0
-ide-floppy driver 0.99.newide
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.28
-        <Adaptec 2940 Ultra2 SCSI adapter>
-        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+hda: 80418240 sectors (41174 MB) w/380KiB Cache, CHS=5005/255/63, UDMA(100)
+hdd: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
+Partition check:
+ hda: hda1
+ hdd: hdd1
 
-(scsi0:A:0): 40.000MB/s transfers (20.000MHz, offset 127, 16bit)
-  Vendor: FUJITSU   Model: MAN3367MP         Rev: 5507
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 64
-scsi1 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: TDK       Model: CDRW4800B         Rev: S7S3
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-ide-scsi: abort called for 21
-bad: scheduling while atomic!
-Call Trace:
- [<c011e242>] schedule+0x34e/0x354
- [<c02bf623>] poke_blanked_console+0x53/0x6e
- [<c0109c2e>] __down+0xa4/0x11a
- [<c011e298>] default_wake_function+0x0/0x12
- [<c0123010>] __call_console_drivers+0x58/0x5a
- [<c0109e80>] __down_failed+0x8/0xc
- [<c031ddbd>] .text.lock.scsi_error+0x8e/0xa9
- [<c031d46e>] scsi_sleep_done+0x0/0x12
- [<c034a7c2>] idescsi_abort+0x116/0x120
- [<c034a6ac>] idescsi_abort+0x0/0x120
- [<c031ce89>] scsi_try_to_abort_cmd+0x83/0xaa
- [<c031cfb5>] scsi_eh_abort_cmd+0x33/0x64
- [<c031cf82>] scsi_eh_abort_cmd+0x0/0x64
- [<c031d897>] scsi_unjam_host+0xa1/0xea
- [<c0109e8b>] __down_failed_interruptible+0x7/0xc
- [<c031d9bb>] scsi_error_handler+0xdb/0x11c
- [<c031d8e0>] scsi_error_handler+0x0/0x11c
- [<c0108c65>] kernel_thread_helper+0x5/0xc
+ksymoops 2.4.8 on i686 2.4.19-xfs.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-xfs/ (default)
+     -M (specified)
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011e242>] schedule+0x34e/0x354
- [<c0109c2e>] __down+0xa4/0x11a
- [<c011e298>] default_wake_function+0x0/0x12
- [<c012a51a>] add_timer+0x7a/0xb8
- [<c0109e80>] __down_failed+0x8/0xc
- [<c031ddbd>] .text.lock.scsi_error+0x8e/0xa9
- [<c031d46e>] scsi_sleep_done+0x0/0x12
- [<c034a7c2>] idescsi_abort+0x116/0x120
- [<c034a6ac>] idescsi_abort+0x0/0x120
- [<c031ce89>] scsi_try_to_abort_cmd+0x83/0xaa
- [<c031cfb5>] scsi_eh_abort_cmd+0x33/0x64
- [<c031cf82>] scsi_eh_abort_cmd+0x0/0x64
- [<c031d897>] scsi_unjam_host+0xa1/0xea
- [<c0109e8b>] __down_failed_interruptible+0x7/0xc
- [<c031d9bb>] scsi_error_handler+0xdb/0x11c
- [<c031d8e0>] scsi_error_handler+0x0/0x11c
- [<c0108c65>] kernel_thread_helper+0x5/0xc
+Feb 23 15:57:51 hurina kernel: c012d810
+Feb 23 15:57:51 hurina kernel: Oops: 0002
+Feb 23 15:57:51 hurina kernel: CPU:    0
+Feb 23 15:57:51 hurina kernel: EIP:    0010:[<c012d810>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Feb 23 15:57:51 hurina kernel: EFLAGS: 00210046
+Feb 23 15:57:51 hurina kernel: eax: c7514000   ebx: 00000010   ecx: ddba4000   edx: ffffffff
+Feb 23 15:57:51 hurina kernel: esi: c158fe50   edi: 00200202   ebp: 000001d0   esp: c15bbf00
+Feb 23 15:57:51 hurina kernel: ds: 0018   es: 0018   ss: 0018
+Feb 23 15:57:51 hurina kernel: Process kswapd (pid: 4, stackpage=c15bb000)
+Feb 23 15:57:51 hurina kernel: Stack: ddba48c0 ddba48c0 ddba48c0 000001d0 c0137ce8 c158fe50 ddba48c0 c0139bcf 
+Feb 23 15:57:51 hurina kernel:        ddba48c0 ddba48c0 c1489a54 000001d0 c15ba000 c1489a54 c1489a54 c0138039 
+Feb 23 15:57:51 hurina kernel:        c15ba000 c1489a70 c012e774 c1489a54 000001d0 00000020 000001d0 00000020 
+Feb 23 15:57:51 hurina kernel: Call Trace:    [<c0137ce8>] [<c0139bcf>] [<c0138039>] [<c012e774>] [<c012ea76>]
+Feb 23 15:57:51 hurina kernel:   [<c012eadc>] [<c012eb73>] [<c012ebd6>] [<c012eced>] [<c0107038>]
+Feb 23 15:57:51 hurina kernel: Code: 89 42 04 89 10 8b 46 08 89 48 04 89 01 8d 56 08 89 51 04 89 
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011e242>] schedule+0x34e/0x354
- [<c0109c2e>] __down+0xa4/0x11a
- [<c011e298>] default_wake_function+0x0/0x12
- [<c012a51a>] add_timer+0x7a/0xb8
- [<c0109e80>] __down_failed+0x8/0xc
- [<c031ddbd>] .text.lock.scsi_error+0x8e/0xa9
- [<c031d46e>] scsi_sleep_done+0x0/0x12
- [<c034a7c2>] idescsi_abort+0x116/0x120
- [<c034a6ac>] idescsi_abort+0x0/0x120
- [<c031ce89>] scsi_try_to_abort_cmd+0x83/0xaa
- [<c031cfb5>] scsi_eh_abort_cmd+0x33/0x64
- [<c031cf82>] scsi_eh_abort_cmd+0x0/0x64
- [<c031d897>] scsi_unjam_host+0xa1/0xea
- [<c0109e8b>] __down_failed_interruptible+0x7/0xc
- [<c031d9bb>] scsi_error_handler+0xdb/0x11c
- [<c031d8e0>] scsi_error_handler+0x0/0x11c
- [<c0108c65>] kernel_thread_helper+0x5/0xc
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011e242>] schedule+0x34e/0x354
- [<c0109c2e>] __down+0xa4/0x11a
- [<c011e298>] default_wake_function+0x0/0x12
- [<c012a51a>] add_timer+0x7a/0xb8
- [<c0109e80>] __down_failed+0x8/0xc
- [<c031ddbd>] .text.lock.scsi_error+0x8e/0xa9
- [<c031d46e>] scsi_sleep_done+0x
-Steps to reproduce:
+>>EIP; c012d810 <kmem_cache_free+70/90>   <=====
 
+>>eax; c7514000 <___strtok+720372c/2059e78c>
+>>ecx; ddba4000 <___strtok+1d89372c/2059e78c>
+>>esi; c158fe50 <___strtok+127f57c/2059e78c>
+>>esp; c15bbf00 <___strtok+12ab62c/2059e78c>
+
+Trace; c0137ce8 <bread+98/d0>
+Trace; c0139bcf <try_to_free_buffers+7f/270>
+Trace; c0138039 <set_bh_page+229/230>
+Trace; c012e774 <kmem_find_general_cachep+e94/1b40>
+Trace; c012ea76 <kmem_find_general_cachep+1196/1b40>
+Trace; c012eadc <kmem_find_general_cachep+11fc/1b40>
+Trace; c012eb73 <kmem_find_general_cachep+1293/1b40>
+Trace; c012ebd6 <kmem_find_general_cachep+12f6/1b40>
+Trace; c012eced <kmem_find_general_cachep+140d/1b40>
+Trace; c0107038 <kernel_thread+28/1f0>
+
+Code;  c012d810 <kmem_cache_free+70/90>
+00000000 <_EIP>:
+Code;  c012d810 <kmem_cache_free+70/90>   <=====
+   0:   89 42 04                  mov    %eax,0x4(%edx)   <=====
+Code;  c012d813 <kmem_cache_free+73/90>
+   3:   89 10                     mov    %edx,(%eax)
+Code;  c012d815 <kmem_cache_free+75/90>
+   5:   8b 46 08                  mov    0x8(%esi),%eax
+Code;  c012d818 <kmem_cache_free+78/90>
+   8:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012d81b <kmem_cache_free+7b/90>
+   b:   89 01                     mov    %eax,(%ecx)
+Code;  c012d81d <kmem_cache_free+7d/90>
+   d:   8d 56 08                  lea    0x8(%esi),%edx
+Code;  c012d820 <kmem_cache_free+80/90>
+  10:   89 51 04                  mov    %edx,0x4(%ecx)
+Code;  c012d823 <kmem_cache_free+83/90>
+  13:   89 00                     mov    %eax,(%eax)
 

@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbUDPWWY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPWTs
+	id S263901AbUDPWTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbUDPWTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:19:48 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:16905 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263920AbUDPWRD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:17:03 -0400
-Date: Sat, 17 Apr 2004 08:16:34 +1000
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CPQPHP] Fix build without hotplug
-Message-ID: <20040416221634.GA15721@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 16 Apr 2004 18:19:19 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:24536
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263901AbUDPWR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 18:17:58 -0400
+Message-ID: <40805B80.30105@redhat.com>
+Date: Fri, 16 Apr 2004 15:17:36 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040411
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alex Riesen <fork0@users.sourceforge.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+References: <20040416213851.GA1784@steel.home>
+In-Reply-To: <20040416213851.GA1784@steel.home>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Riesen wrote:
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> And if the kernel code does check the incoming arguments correctly,
+> what is the point to check them again? Just to make the point, that
+> passing in not an absolute path is not portable?
 
-Hi:
+Forget what the kernel does.  This is enforcement of the API the runtime
+provides.  If must be stable regardless of what the kernel does.
+Including kernel changes which allow special names which do funky,
+non-standard things.
 
-This patch makes cpqphp build without procfs.
-
-Cheers,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: drivers/hotplug/Makefile
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/hotplug/Makefile,v
-retrieving revision 1.1.1.5
-diff -u -r1.1.1.5 Makefile
---- a/drivers/hotplug/Makefile	30 Aug 2003 06:01:37 -0000	1.1.1.5
-+++ b/drivers/hotplug/Makefile	16 Apr 2004 22:16:13 -0000
-@@ -18,7 +18,6 @@
- 
- cpqphp-objs		:=	cpqphp_core.o	\
- 				cpqphp_ctrl.o	\
--				cpqphp_proc.o	\
- 				cpqphp_pci.o
- 
- ibmphp-objs		:=	ibmphp_core.o	\
-@@ -36,6 +35,10 @@
- 	cpqphp-objs += cpqphp_nvram.o
- endif
- 
-+ifeq ($(CONFIG_PROC_FS),y)
-+	cpqphp-objs += cpqphp_proc.o
-+endif
-+
- 
- include $(TOPDIR)/Rules.make
- 
-
---qDbXVdCdHGoSgWSk--
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

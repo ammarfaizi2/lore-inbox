@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLEQeT>; Tue, 5 Dec 2000 11:34:19 -0500
+	id <S129725AbQLEQft>; Tue, 5 Dec 2000 11:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQLEQeK>; Tue, 5 Dec 2000 11:34:10 -0500
-Received: from main.cornernet.com ([209.98.65.1]:42255 "EHLO
-	main.cornernet.com") by vger.kernel.org with ESMTP
-	id <S129210AbQLEQd7>; Tue, 5 Dec 2000 11:33:59 -0500
-Date: Tue, 5 Dec 2000 10:03:59 -0600 (CST)
-From: Chad Schwartz <cwslist@main.cornernet.com>
-To: Jon Burgess <Jon_Burgess@eur.3com.com>
-cc: Steve Hill <steve@navaho.co.uk>, PaulJakma <paulj@itg.ie>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Serial Console
-In-Reply-To: <802569AC.0054D7AC.00@notesmta.eur.3com.com>
-Message-ID: <Pine.LNX.4.30.0012050951290.11399-100000@main.cornernet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129716AbQLEQf3>; Tue, 5 Dec 2000 11:35:29 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:9220 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129183AbQLEQfZ>; Tue, 5 Dec 2000 11:35:25 -0500
+Date: Tue, 5 Dec 2000 18:49:08 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Matt_Domsch@Dell.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci_read_bases trivial fixup
+Message-ID: <20001205184908.A22920@jurassic.park.msu.ru>
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9A32@ausxmrr501.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9A32@ausxmrr501.us.dell.com>; from Matt_Domsch@Dell.com on Tue, Dec 05, 2000 at 07:55:58AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See, in an ideal world, that shouldn't be the case, at all.
+On Tue, Dec 05, 2000 at 07:55:58AM -0600, Matt_Domsch@Dell.com wrote:
+> In -test11, tmp was declared.  Somehow by 12-pre4, it got lost.  This puts
+> it back.  It's needed in the BITS_PER_LONG == 64 case.
 
-Since we're NOT operating under the assumption that the serial console is
-a modem, we should be - instead - operating under the assumption
-that it is a 3-wire NULL connection. (thus, making NO assumptions about
-the user's hardware..)
+BITS_PER_LONG == 64 case is broken anyway.
+Better fix would be
 
-If the user wants to ADD RTS/CTS flow control or DCD based state checking
-as an OPTION, well, hey.  whatever. Pick your poison.  But i sure as hell
-wouldn't do it that way.
+--- linux/drivers/pci/pci.c.orig	Mon Dec  4 12:49:28 2000
++++ linux/drivers/pci/pci.c	Tue Dec  5 18:30:45 2000
+@@ -573,10 +573,10 @@ static void pci_read_bases(struct pci_de
+ 			res->start |= ((unsigned long) l) << 32;
+ 			res->end = res->start + sz;
+ 			pci_write_config_dword(dev, reg+4, ~0);
+-			pci_read_config_dword(dev, reg+4, &tmp);
++			pci_read_config_dword(dev, reg+4, &sz);
+ 			pci_write_config_dword(dev, reg+4, l);
+-			if (l)
+-				res->end = res->start + (((unsigned long) ~l) << 32);
++			if (sz)
++				res->end = res->start + (((unsigned long) ~sz) << 32);
+ #else
+ 			if (l) {
+ 				printk(KERN_ERR "PCI: Unable to handle 64-bit address for device %s\n", dev->slot_name);
 
-Chad
 
-> Lilo 'append="console=ttyS0"' and it boots fine without a connection to the
-> serial port without having to do any specific manipulation of the flow control.
-> I think that all serial output is dumped to /dev/null if DCD is not asserted no
-> matter what the flow control says. Perhaps there are some hardware differences
-> in the configuration of the control signal pull-up/downs.
->
->      Jon Burgess
->
->
->
->
-> PLANET PROJECT will connect millions of people worldwide through the combined
-> technology of 3Com and the Internet. Find out more and register now at
-> http://www.planetproject.com
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268748AbTBZNny>; Wed, 26 Feb 2003 08:43:54 -0500
+	id <S268751AbTBZNoe>; Wed, 26 Feb 2003 08:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268749AbTBZNny>; Wed, 26 Feb 2003 08:43:54 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:50262 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S268748AbTBZNnw>; Wed, 26 Feb 2003 08:43:52 -0500
-Date: Wed, 26 Feb 2003 13:55:53 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: Jari Ruusu <jari.ruusu@pp.inet.fi>, "Adam J. Richter" <adam@yggdrasil.com>,
-       Jonah Sherman <jsherman@stuy.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
-In-Reply-To: <20030226025216.114d4f2c.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0302261332550.1614-100000@localhost.localdomain>
+	id <S268750AbTBZNob>; Wed, 26 Feb 2003 08:44:31 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:46859 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S268749AbTBZNo3>;
+	Wed, 26 Feb 2003 08:44:29 -0500
+To: Olaf Dietsche <olaf.dietsche@t-online.de>
+Cc: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=),
+       miquels@cistron-office.nl (Miquel van Smoorenburg),
+       linux-kernel@vger.kernel.org
+Subject: Re: About /etc/mtab and /proc/mounts
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
+	<b3i4nv$sud$1@news.cistron.nl> <87u1er71d0.fsf@goat.bogus.local>
+	<yw1xwujn2t0v.fsf@manganonaujakasit.e.kth.se>
+	<87el5v6xvj.fsf@goat.bogus.local>
+	<yw1xn0kjdxv4.fsf@manganonaujakasit.e.kth.se>
+	<8765r76u0c.fsf@goat.bogus.local>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 26 Feb 2003 14:54:23 +0100
+In-Reply-To: Olaf Dietsche's message of "Wed, 26 Feb 2003 14:39:31 +0100"
+Message-ID: <yw1xlm03uoz4.fsf@manganonaujakasit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> > On Mon, 24 Feb 2003, Jonah Sherman wrote:
-> > 
-> > > I have come across a bug in the loop driver.  To reproduce this bug,
-> > > simply do:
-> > ...
-> > I can't reproduce this, and I don't understand it: please help me!
+Olaf Dietsche <olaf.dietsche@t-online.de> writes:
+
+> >> The 'user' option is in /etc/fstab, so this is not a problem. I can
+> >> mount _and_ umount /cdrom as a simple user.
+> >
+> > It's strange if you can.  My mount (fairly recent) looks in fstab to
+> > determine whether a user should be allowed to mount a device.
+> > However, when unmounting it checks /etc/mtab to make sure it was you
+> > who mounted it in the first place, making it impossible to unmount
+> > someone else's cdrom.  If you use the 'users' (note the 's') option
+> > instead any user can mount or unmount the device at any time, mtab
+> > being ignored.
 > 
-> Well I can't make it happen either now.  It went pop first time I tried it
-> yesterday.
-
-Thanks for trying again.  Strange.
-
-> That being said, I can still trigger it by mmapping /dev/loop0 MAP_SHARED and
-> dirtying it all.  That triggers the problematic PF_MEMALLOC path much more easily.
+> I just verified it. I and anybody else can mount and umount /cdrom. If
+> I mounted /cdrom, someone else can umount it.
 > 
-> 	mem=256M
-> 	losetup /dev/loop0 /dev/hda5
-> 	usemem  -m 300 -f /dev/loop0
-> 	<oops>
-
-Yes, that's better, I can easily reproduce and understand that one, thanks.
-
-> (gdb) p/x lo->lo_flags
-> $3 = 0x0
+> $ mount -V
+> mount: mount-2.11n
 > 
-> Userspace is passing in lo_encrypt_type == 0, so loop_init_xfer() never calls the transfer
-> init function.
+> $ grep user /etc/fstab
+> /dev/hdb/0 /cdrom iso9660 defaults,ro,unhide,user,noauto,noexec,nosuid 0 2
+> 
+> $ ls -l /etc/mtab 
+> lrwxrwxrwx    1 root     root           12 2002-09-22 02:58 /etc/mtab -> /proc/mounts
+> 
+> When /etc/mtab is a regular file, it works as you described.
 
-Yes, Jonah enlightened me on that little detail.
+What does your /proc/mounts look like when the cdrom is mounted?  Are
+you using a standard mount, or something hacked up by RH or others?
 
-I notice that Jari's loop.c, incorporating some or all of Adam's mods,
-http://loop-aes.sourceforge.net/updates/2003-02-19/loop-AES/loop.c-2.5.patched.bz2
-suffers from neither of these problems: it preallocates, and survives
-the usemem; and has no LO_FLAGS_BH_REMAP to deceive me.
-
-Should we reconsider switching to that version of loop.c?  You backed
-it (or a relative) out of -mm a couple of months back, but given the
-changes currently going on, an updated loop.c doesn't seem so wild.
-
-I'd still expect (perhaps unjustly, testing hasn't got that far) it
-to suffer from some "cp /dev/zero" problems, but no more than the
-present one, since clearly Jari/Adam have given some thought there.
-
-It does look like it's the _maintained_ version of loop.c, so a bit
-disheartening to be fixing up problems on the version in the main tree.
-(It would also make the recent NFS change for loop unnecessary?)
-
-Hugh
-
+-- 
+Måns Rullgård
+mru@users.sf.net

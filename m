@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318809AbSHLUM7>; Mon, 12 Aug 2002 16:12:59 -0400
+	id <S310190AbSHLUVE>; Mon, 12 Aug 2002 16:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318810AbSHLUM7>; Mon, 12 Aug 2002 16:12:59 -0400
-Received: from WARSL402PIP5.highway.telekom.at ([195.3.96.79]:51284 "HELO
-	email04.aon.at") by vger.kernel.org with SMTP id <S318809AbSHLUM6>;
-	Mon, 12 Aug 2002 16:12:58 -0400
-Message-ID: <000701c2423d$82a847e0$8c00000a@sledgehammer>
-From: "Peter Klotz" <peter.klotz@aon.at>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <000501c24230$8a29bdd0$8c00000a@sledgehammer> <1029178514.16424.205.camel@irongate.swansea.linux.org.uk>
-Subject: Re: 2.4.19 and 2.4.20-pre1 don't boot
-Date: Mon, 12 Aug 2002 22:18:56 +0200
+	id <S311025AbSHLUVE>; Mon, 12 Aug 2002 16:21:04 -0400
+Received: from pD952ADBE.dip.t-dialin.net ([217.82.173.190]:7085 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S310190AbSHLUVE>; Mon, 12 Aug 2002 16:21:04 -0400
+Date: Mon, 12 Aug 2002 14:24:27 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "David S. Miller" <davem@redhat.com>
+cc: davids@webmaster.com, <jroland@roland.net>, <Hell.Surfers@cwctv.net>,
+       <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: The spam problem.
+In-Reply-To: <20020812.005022.69048367.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0208121415450.4518-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Up to 2.4.19-rc1 my system worked fine but 2.4.19 and 2.4.20-pre1
-produce
-> > the following message at startup:
-> >
-> > Mounting root filesystem
-> > ide-floppy driver 0.99.newide
-> > kmod: failed to exec /sbin/modprobe -s -k ide-cd, errno = 2
-> > hda: driver not present
->
-> Compile in hard disk support
->
+Hi,
 
-Both options below are set to "yes" in the kernel configuration:
-   Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
-   Include IDE/ATA-2 DISK support
+On Mon, 12 Aug 2002, David S. Miller wrote:
+> If you enforce that the first sender at the Received: headers
+> have to match the From: or some rule like that, then I could
+> not post to these lists for example.
 
+This is quite a bad idea.
 
+If we go after the hostname, things like Puretec or our Hawkeye will be 
+shot. Imagine the domain ngforever.de. It's hosted on kundenserver.de, and 
+the smtp host is smtp.kundenserver.de. How can we guess?!
 
+If we go after MX entries, most people will be shot. T-Online, Yahoo, 
+Netscape... all have different smarthosts for users and incoming mail. 
+T-Online, for example, has mailin00 through mailin07.sul.t-online.de for 
+the incoming messages, while users use fwd00 through 
+fwd07.sul.t-online.com in order to send mail.
+
+We'll break things either way. I send mail via hawkeye.lightweight.adm 
+(not an internet address, but the realname, and yes, it's a large 
+network.) for the domain lightweight.ods.org, where's the connection? In 
+order to find out that hawkeye.lightweight.adm is the mail host of 
+lightweight.ods.org you'll have to ask a domain server on our side. 
+However, Hawkeye signs things with his realname.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129789AbRAONlk>; Mon, 15 Jan 2001 08:41:40 -0500
+	id <S130219AbRAONqA>; Mon, 15 Jan 2001 08:46:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRAONla>; Mon, 15 Jan 2001 08:41:30 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:57093 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S129867AbRAONlK>; Mon, 15 Jan 2001 08:41:10 -0500
-Date: Mon, 15 Jan 2001 15:40:53 +0200 (EET)
-From: Heikki Lindholm <holindho@mail.niksula.cs.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Total loss with 2.4.0 (release)
-Message-ID: <Pine.GSO.4.20.0101151517590.26077-100000@famine.cs.hut.fi>
+	id <S130374AbRAONpu>; Mon, 15 Jan 2001 08:45:50 -0500
+Received: from tweedledum.navaho.net ([213.161.67.199]:3332 "EHLO
+	mx.education.navaho.net") by vger.kernel.org with ESMTP
+	id <S130219AbRAONph>; Mon, 15 Jan 2001 08:45:37 -0500
+From: "Tristan Greaves" <tgreaves@argogroup.com>
+To: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Is sendfile all that sexy?
+Date: Mon, 15 Jan 2001 13:45:40 -0000
+Message-ID: <005901c07ef9$73d80fb0$b601010a@DCTF000J>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <tgitnhx929.fsf@mercury.rus.uni-stuttgart.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Florian Weimer
+> Sent: 15 January 2001 13:02
+> To: Gerhard Mack
+> Cc: Linux Kernel List
+> Subject: Re: Is sendfile all that sexy?
+> 
+> The security record of Proftpd is not horrid, but embarrassing.  They
+> once claimed to have fixed vulnerability, but in fact introduced
+> another one...
 
-I managed to kill my dear files and if anyone can help I'd be very
-thankful. The events leading to this were something like:
-Happy system with 2.4.0-test9 -> update to 2.4.0 (release) -> works
-nicely; no complaints of any kind (no crc errors or dma-disabling) ->
-reboot -> play Diablo II for some time (win98) -> restart linux ->
-VFS: cannot mount root. 
-I have two ext2 partitions plus root and one of them is on another disk
-(same ide lead, however) and it survived with no errors.
+Oh, come on, this is a classic event in bug fixing.  All Software Has
+Bugs [TM].  Nothing Is Completely Secure [TM].
 
-When I ran e2fsck (1.18) on root partition, in addition to having to
-run it many times before succeeding (segfaulted sometimes), nothing was
-left in the partition except lost+found with lots of
-files. Valid superblock wasn't found at 0, but at 8193.
+As long as the vulnerabilities are fixed as they happen (where possible),
+we should be happy.
 
-I really don't get what would have caused this or how to cure it. I still
-have my /home in need of repairing, but I won't be running fsck on it with
-this good expectancy-of-recovery (I actually tried once with a backup on
-another disk and it resulted two VERY old directoried, everything else was
-lost...and found(?)).
-
-I also updated my machine from VIA MVP3 based K6II to VIA KT133 (with 868B
-southbridge - ATA100, that is) based Duron, but linux (2.4.0-test9) worked
-fine with both configurations. I think this might be some sort of DMA
-problem.  
-
-I read from kernel notes that ac1 fixes root umount handling. Might that
-be connected with the symptoms I had? If anyone has any suggestions,
-please post them. I would, at least, like to know how could I verify if
-the filesystem is really messed (for example, overwritten with something
-at the bus at the time) or if it's just some minor issue that confuses
-fsck totally.
-
--- Heikki Lindholm
-
+Tris.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

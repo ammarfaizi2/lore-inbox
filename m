@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289091AbSBDRVC>; Mon, 4 Feb 2002 12:21:02 -0500
+	id <S289120AbSBDRaC>; Mon, 4 Feb 2002 12:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289124AbSBDRUx>; Mon, 4 Feb 2002 12:20:53 -0500
-Received: from fw.aub.dk ([195.24.1.194]:53121 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S289091AbSBDRUg>;
-	Mon, 4 Feb 2002 12:20:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-Date: Mon, 4 Feb 2002 18:16:52 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16XmqC-0007lb-00@the-village.bc.nu> <3C5EC104.A3412D56@uni-mb.si>
-In-Reply-To: <3C5EC104.A3412D56@uni-mb.si>
-X-BeenThere: crackmonkey@crackmonkey.org
-X-Fnord: +++ath
-X-Message-Flag: Message text blocked
+	id <S289124AbSBDR3w>; Mon, 4 Feb 2002 12:29:52 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:47305 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S289120AbSBDR3g>;
+	Mon, 4 Feb 2002 12:29:36 -0500
+Message-ID: <3C5EC4E4.B5A6E84F@gmx.net>
+Date: Mon, 04 Feb 2002 18:29:08 +0100
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Xmjc-0001uS-00@Princess>
+CC: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        linux-kernel@vger.kernel.org, jdthood@yahoo.co.uk
+Subject: Re: modular floppy broken in 2.5.3
+In-Reply-To: <E16XU69-0005MJ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 February 2002 18:12, David Balazic wrote:
-> Alan Cox wrote:
-> > > > > How can I figure out in 5 minutes, without a kernel hacker, if
-> > > > > my linux system has the correct settings ?
-> > > >
-> > > > Use the vendor supplied kernels ?
-> > >
-> > > Yes, I am using them.
-> > > Now back to my question, how do I found out if option X is set or not ?
+Alan Cox wrote:
+
+> > It turns out this is due to the new PnPBIOS kernel config option:
 > >
-> > Check the vendor supplied source package ?
+> > [asuardi@dolphin asuardi]$ grep PnPBIOS /proc/ioports
+> > 03f0-03f1 : PnPBIOS PNP0c01
+> > 0600-067f : PnPBIOS PNP0c01
+> > 0680-06ff : PnPBIOS PNP0c01
+> >   0800-083f : PnPBIOS PNP0c01
+> >   0840-084f : PnPBIOS PNP0c01
+> > 0880-088f : PnPBIOS PNP0c01
+> > f400-f4fe : PnPBIOS PNP0c01
+> >
+> > But since modular floppy was working before without setting any
+> >  ioport parameter I'm not entirely sure this is a "feature".
 >
-> Part of the question was "in 5 minutes". Finding the install CD,
-> installing the source package, "checking" it... are more than 5 minutes.
-> Compared to checking out the kernel parameters on HP-UX, for example.
+> Its a mix of fp and pnpbios things that need untangling. PnPBIOS should
+> register the resource as not in use, floppy should allocate the right
 
-What he is saying is that you can't do that, generically. Some options are 
-available at runtime through /proc, but most are not. You need to check what 
-happend back at compile time.
+PNPNIOS is right to reserve PNP0C01 as "used". Else there will be hangs
+when drivers poke in io space (e.g. laptops tend to have special
+hardware which doesn't like to be touched).
 
--Allan
+PNPBIOS should not reserve 3f0/3f1 as a _workaround_ for this BIOS bug.
+
+The BIOS probably wants to tell you there is a superio chip at 0x3f0
+(try http://home.t-online.de/home/gunther.mayer/lssuperio-0.63.tar.gz).
+
+
+

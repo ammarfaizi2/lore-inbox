@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266256AbSL1SLG>; Sat, 28 Dec 2002 13:11:06 -0500
+	id <S266257AbSL1SL1>; Sat, 28 Dec 2002 13:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266257AbSL1SLG>; Sat, 28 Dec 2002 13:11:06 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:51984 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S266256AbSL1SLG>; Sat, 28 Dec 2002 13:11:06 -0500
-Message-Id: <200212281819.gBSIJJ202919@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] generic device DMA implementation 
-In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
-   of "Sat, 28 Dec 2002 18:14:38 GMT." <20021228181438.B5217@flint.arm.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Dec 2002 12:19:19 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S266259AbSL1SL1>; Sat, 28 Dec 2002 13:11:27 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:63237 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266257AbSL1SL0>; Sat, 28 Dec 2002 13:11:26 -0500
+Date: Sat, 28 Dec 2002 18:19:39 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Richard Henderson <rth@twiddle.net>
+cc: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Linux-fbdev-devel] [FB PATCH]
+In-Reply-To: <20021227155451.A3942@twiddle.net>
+Message-ID: <Pine.LNX.4.44.0212281819070.5974-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmk@arm.linux.org.uk said:
-> What happens to &hwdev->dev when you do as detailed there and pass
-> NULL into these "compatibility" functions?  Probably an oops. 
 
-Yes.  Already found by Udo Steinberg and fixed in bk latest...
+> > Strange, it's defined in drivers/video/fbmem.c in my copy of 2.5.53.
+> 
+> Ah.  It's not exported, so fbcon as a module fails.
+> Not sure how I missed it with a grep...
 
-James
-
+That problem is fixed already in the latest BK tree. I will push today the 
+most recent fixes.
 

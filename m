@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266028AbUF3Hzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUF3IEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266028AbUF3Hzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 03:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUF3Hzd
+	id S266582AbUF3IEr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 04:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266583AbUF3IEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 03:55:33 -0400
-Received: from vsat-148-63-57-162.c001.g4.mrt.starband.net ([148.63.57.162]:60127
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S266028AbUF3HyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 03:54:24 -0400
-Message-ID: <40E27103.8040304@redhat.com>
-Date: Wed, 30 Jun 2004 00:51:31 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040627
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
-References: <40E0EAC1.50101@redhat.com>	<20040629012604.20c3ad8b.davem@redhat.com>	<40E1BE7D.7070806@redhat.com>	<20040629141915.0268b741.davem@redhat.com>	<40E24573.5030403@redhat.com> <20040629221341.52824096.davem@redhat.com>
-In-Reply-To: <20040629221341.52824096.davem@redhat.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 30 Jun 2004 04:04:46 -0400
+Received: from mail.szintezis.hu ([195.56.253.241]:61230 "HELO
+	hold.szintezis.hu") by vger.kernel.org with SMTP id S266582AbUF3IEo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 04:04:44 -0400
+Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
+From: Debi Janos <debi.janos@freemail.hu>
+To: John Heffner <jheffner@psc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.33.0406291729500.11034-100000@dexter.psc.edu>
+References: <Pine.NEB.4.33.0406291729500.11034-100000@dexter.psc.edu>
+Content-Type: text/plain; charset=ISO-8859-2
+Message-Id: <1088582317.911.5.camel@alderaan.trey.hu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 30 Jun 2004 10:04:43 +0200
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 30 Jun 2004 08:04:43.0466 (UTC) FILETIME=[E6CF7AA0:01C45E78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+2004-06-29, k keltez�ssel 23:36-kor John Heffner ezt �rta:
 
-> This is especially unnecessary since rtnetlink does exactly what you
-> want already, so we don't need to add a new interface nor change the
-> semantics of an old one.
+> Sigh.  I ran in to this problem a year or so ago and it was a broken
+> firewall that was mangling the TCP window scale option.  I think the
+> firewall was an OpenBSD machine, and I was told the problem went away with
+> an upgrade.  I'm curious what they're running here.
+> 
+> The boundary 3 is special because it causes SWS avoidance to break.
+> 
+>   -John
 
-I do have code using netlink in cvs now.  We'll see whether people complain.
+hmm. interesting. my server sits behind an openbsd packet filter... , but the gentoo's machines uses iptables firewall...
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUHSGQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUHSGhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUHSGQn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUHSGQn
+	id S265973AbUHSGhV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 02:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUHSGhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:16:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10720 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265996AbUHSGQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:16:39 -0400
-Date: Wed, 18 Aug 2004 23:16:24 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
-       <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][linux-usb-devel] Early USB handoff
-Message-Id: <20040818231624.414673c3@lembas.zaitcev.lan>
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3015B698A@scl-exch2k.phoenix.com>
-References: <5F106036E3D97448B673ED7AA8B2B6B3015B698A@scl-exch2k.phoenix.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Aug 2004 02:37:21 -0400
+Received: from [69.196.211.153] ([69.196.211.153]:62942 "EHLO
+	mail.janderson.ca") by vger.kernel.org with ESMTP id S265973AbUHSGhS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 02:37:18 -0400
+Message-ID: <41244A9F.70109@rogers.com>
+Date: Thu, 19 Aug 2004 02:37:19 -0400
+From: Jon Anderson <jon-anderson@rogers.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: vmlinuz no symtab? while cross compiling...
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 19:09:53 -0700
-"Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com> wrote:
+I'm attempting to cross compile linux-2.6.8.1, along with a few external 
+modules (madwifi, hostap-driver, aodv-uu). The kernel and (built-in) 
+modules compile fine, but compiling every one of those external modules 
+fails around MODPOST. For example, aodv-uu:
 
-> Attached is a patch for 2.6.8.1
+<snip userspace stuff>
+make -C /home/janderson/var/autobuild/i386/root/usr/src/linux 
+SUBDIRS=/home/janderson/var/tmp/autobuild/aodv-uu-0.8.1 modules
+i486-linux-uclibc-gcc -Wall -O2 -DCONFIG_GATEWAY  -o aodvd main.o list.o 
+debug.o timer_queue.o aodv_socket.o aodv_hello.o aodv_neighbor.o 
+aodv_timeout.o routing_table.o seek_list.o k_route.o aodv_rreq.o 
+aodv_rrep.o aodv_rerr.o packet_input.o packet_queue.o libipq.o icmp.o 
+min_ipenc.o locality.o
+make[1]: Entering directory 
+`/home/janderson/var/autobuild/i386/root/usr/src/linux-2.6.8.1'
+  CC [M]  /home/janderson/var/tmp/autobuild/aodv-uu-0.8.1/kaodv.o
+  Building modules, stage 2.
+  MODPOST
+modpost: vmlinux no symtab?
+/bin/sh: line 1:   798 Aborted                 scripts/mod/modpost -i 
+/home/janderson/var/autobuild/i386/root/usr/src/linux-2.6.8.1/Module.symvers 
+vmlinux /home/janderson/var/tmp/autobuild/aodv-uu-0.8.1/kaodv.o
+make[2]: *** [__modpost] Error 134
 
-This looks good, however I'd like you to make spacing more kernel-like,
-for example here:
+madwifi and hostap-driver do the same thing: "vmlinux no symtab?".
 
-> +			writel( 0x3f, op_reg_base + EHCI_USBSTS);
-> +			udelay( delta);
+I've messed around with cleaning out the scripts/mod directory, then 
+running a make prepare (which seems to rebuild modpost), but that makes 
+no difference.
 
-Also, the double star has to go:
+For the moment, I can work around this (because I'm "cross compiling" 
+for i486 on an i686 system) by just running make again in the kernel 
+directory, but I would assume that wouldn't work when I have to do it 
+for ppc. :-)
 
- /**
-  * foo
-  */
+I guess I'm just looking for any information that might help me get rid 
+of this error. Any pointers would be most welcome.
 
-It might confuse scripts which generate Docbook manuals.
+(Hopefully this is the right place to be posting such questions - if 
+it's not, then I appologize.)
 
-Once you're done, we only have to wait for Greg to get back from
-vacation, pipe through him into -mm and have someone actually
-testing it on the IBM's Itanium NUMA for confirmation that it
-actually worked. Only then Linus will take it, and I'll take it
-for Marcelo. Kind of long way, but there you have it...
-I'll feed it to Dell people too, I know they suffered from it.
+Cheers,
 
-BTW, why is that you awarded EHCI its own function, but not UHCI or OHCI?
+jon
 
--- Pete

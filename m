@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318779AbSHLRx2>; Mon, 12 Aug 2002 13:53:28 -0400
+	id <S318775AbSHLRtF>; Mon, 12 Aug 2002 13:49:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318780AbSHLRx2>; Mon, 12 Aug 2002 13:53:28 -0400
-Received: from hercules.egenera.com ([208.254.46.135]:37134 "HELO
-	coyote.egenera.com") by vger.kernel.org with SMTP
-	id <S318779AbSHLRx1>; Mon, 12 Aug 2002 13:53:27 -0400
-Date: Mon, 12 Aug 2002 13:57:01 -0400
-From: Phil Auld <pauld@egenera.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19 revert block_llseek behavior to standard
-Message-ID: <20020812135701.G27650@vienna.EGENERA.COM>
-References: <20020812120659.B27650@vienna.EGENERA.COM> <1029169257.16424.176.camel@irongate.swansea.linux.org.uk> <20020812123632.E27650@vienna.EGENERA.COM> <1029172448.16424.178.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1029172448.16424.178.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 12, 2002 at 06:14:08PM +0100
+	id <S318776AbSHLRtF>; Mon, 12 Aug 2002 13:49:05 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:58025 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S318775AbSHLRtD>; Mon, 12 Aug 2002 13:49:03 -0400
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0BFB80E7@orsmsx108.jf.intel.com>
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: "'daniel sheltraw'" <l5gibson@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: RE: kernel to user-space communication
+Date: Mon, 12 Aug 2002 10:52:45 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rumor has it that on Mon, Aug 12, 2002 at 06:14:08PM +0100 Alan Cox said:
-> On Mon, 2002-08-12 at 17:36, Phil Auld wrote:
-> > > Political I don't see any. Technical - have you verified each of our
-> > > block drivers behaves correctly when given an offset over its side, and
-> > > that it correctly fails on a 32bit block wrap.
-> > > 
-> > 
-> > No, but how did it work prior to 2.4.11?
-> 
-> Did it work correctly - the answer I believe is - no it didnt.
-> 
+There are a couple of techniques one can use.
+First, you can set up a piece of memory that is shared
+between the kernel and the user process and when the 
+interrupt occurs, set a flag in memory. The user process
+can poll the memory to see if an interrupt happened.
 
-Fair enough. The higher level fix is a band-aid over bugs in some of 
-the lower level drivers. 
+Coarse, you might not want to waist CPU polling all day,
+so you could use signals (like SIGUSR1) to block, and have the 
+kernel send the signal when the interrupt occurs. Only problem
+with signals is that they are not stackable.
 
-Thanks for the info. I didn't think that patch would go anywhere,
-but it did help explain why the change. 
+Another technique is to implement the concept of a wait object,
+you write a simple driver that manages these. The user process
+does an ioctl to the wait object driver when it wants to wait for 
+an interrupt. The ioctl sleeps if the interrupt has not occurred.
+The kernel then calls wakeup when the interrupt 
+happens and the ioctl completes. 
+We implemented a mechanism like this for InfiniBand,
+which allows user level I/O to the hardware and we needed a way to
+signal I/O completions (interrupts) to the user process. 
+If you are interested
+in an example, take a look at the early reference InfiniBand code
+at http://sourceforge.net/projects/infiniband.
 
-Phil
+-----Original Message-----
+From: daniel sheltraw [mailto:l5gibson@hotmail.com]
+Sent: Monday, August 12, 2002 8:40 AM
+To: linux-kernel@vger.kernel.org
+Subject: kernel to user-space communication
 
-> 
-> Alan
 
--- 
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St., Marlboro, MA 01752       (508)858-2600
+Hello Kernel
+
+Is there a way to comminicate to a user-space program that an
+interrupt has occurred in a kernel module?
+
+Thanks,
+Daniel Sheltraw
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264511AbTLLI7d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 03:59:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTLLI7d
+	id S264513AbTLLJIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 04:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTLLJIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 03:59:33 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:18100 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264511AbTLLI7c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 03:59:32 -0500
-Message-ID: <3FD9836F.2050003@cyberone.com.au>
-Date: Fri, 12 Dec 2003 19:59:27 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 12 Dec 2003 04:08:41 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:15119 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S264513AbTLLJIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 04:08:40 -0500
+Message-ID: <3FD98A1F.901@nishanet.com>
+Date: Fri, 12 Dec 2003 04:27:59 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [CFT][RFC] HT scheduler
-References: <20031212052812.E016B2C072@lists.samba.org> <3FD9679A.1020404@cyberone.com.au>
-In-Reply-To: <3FD9679A.1020404@cyberone.com.au>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com> <20031211182108.GA353@tesore.local>
+In-Reply-To: <20031211182108.GA353@tesore.local>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesse Allen wrote:
 
-
-Nick Piggin wrote:
-
+>On Thu, Dec 11, 2003 at 06:52:41PM +0100, Ian Kumlien wrote:
+>  
 >
-> w26 does ALL this, while sched.o is 3K smaller than Ingo's shared 
-> runqueue
-> patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
-> longer). kernbench system time is down nearly 10% on the NUMAQ, so it 
-> isn't
-> hurting performance either.
+>>Heh, yeah, the need for disconnect is somewhat dodgy, i haven't read up
+>>on th rest.
+>>
+>Hmm, weird.  I went to go look at the Shuttle motherboard maker's site - maybe so that I can bug them for a bios disconnect option - but I checked for a bios update first.  And sure enough like they read my mind, just posted online today, an update.  Here are the details of fixes:
+>
+>" Checksum:   8B00H                         Date Code: 12/05/03
+>1.Support 0.18 micron AMD Duron (Palomino) CPU.
+>2.Add C1 disconnect item."
+>
+>It's almost as they're reading this list.  This disconnect problem was discovered on the 5th (well the 5th in my timezone).  Perhaps they're aware of this issue...  I'm gonna talk to them.
+>
+>Jesse
+>
+A bios update for MSI K7N2 MCP2-T nforce2 board
+fixed the crashing BEFORE these patches were developed,
+but there was no documentation that would relate or explain.
 
+http://www.msi.com.tw/program/support/bios/bos/spt_bos_detail.php?UID=436&kind=1
+http://download.msi.com.tw/support/bos_exe/6570v76.exe
 
-Hackbench performance on the NUMAQ is improved by nearly 50% at large
-numbers of tasks due to a better scaling factor (which I think is slightly
-"more" linear too). It is also improved by nearly 25% (4.08 vs 3.15) on
-OSDLs 8 ways at small number of tasks, due to a better constant factor.
+Award 7.6 at the top of the list. Maybe somebody can figure
+out what they're doing.
 
-http://www.kerneltrap.org/~npiggin/w26/hbench.png
+Nvidia X driver for ti4200 agp8 still locks up linux though,
+but X nv works fine. agp8 3d may expose the timer issue.
 
-And yeah hackbench kills the NUMAQ after about 350 rooms. This is due to
-memory shortages. All the processes are getting stuck in shrink_caches,
-get_free_pages, etc.
-
-
+-Bob

@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbTA0Xww>; Mon, 27 Jan 2003 18:52:52 -0500
+	id <S264646AbTA0Xvd>; Mon, 27 Jan 2003 18:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbTA0Xww>; Mon, 27 Jan 2003 18:52:52 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:44684 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S264688AbTA0Xwv>;
-	Mon, 27 Jan 2003 18:52:51 -0500
-Date: Tue, 28 Jan 2003 01:02:08 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre3 kernel crash
-Message-ID: <20030128000208.GA1456@werewolf.able.es>
-References: <Pine.OSF.4.51.0301271632230.49659@tao.natur.cuni.cz> <3E356403.9010805@google.com> <Pine.OSF.4.51.0301271813230.57372@tao.natur.cuni.cz> <20030127192327.GD889@suse.de> <20030127231819.GA1651@werewolf.able.es> <20030127232412.GF17791@suse.de>
+	id <S264688AbTA0Xvd>; Mon, 27 Jan 2003 18:51:33 -0500
+Received: from holomorphy.com ([66.224.33.161]:24487 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264646AbTA0Xvc>;
+	Mon, 27 Jan 2003 18:51:32 -0500
+Date: Mon, 27 Jan 2003 15:59:39 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@digeo.com>, green@namesys.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
+       jack@suse.cz, mason@suse.com
+Subject: Re: ext2 FS corruption with 2.5.59.
+Message-ID: <20030127235939.GC780@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	Andrew Morton <akpm@digeo.com>, green@namesys.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	hch@lst.de, jack@suse.cz, mason@suse.com
+References: <20030124023213.63d93156.akpm@digeo.com> <20030124153929.A894@namesys.com> <20030124225320.5d387993.akpm@digeo.com> <20030125153607.A10590@namesys.com> <20030125190410.7c91e640.akpm@digeo.com> <20030126032815.GA780@holomorphy.com> <20030125194648.6c417699.akpm@digeo.com> <20030126041426.GB780@holomorphy.com> <20030125211003.082cb92c.akpm@digeo.com> <1043708361.10153.151.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030127232412.GF17791@suse.de>; from axboe@suse.de on Tue, Jan 28, 2003 at 00:24:12 +0100
-X-Mailer: Balsa 2.0.5
+In-Reply-To: <1043708361.10153.151.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>>>> Ticket locks need atomic fetch and increment. These don't look right.
 
-On 2003.01.28 Jens Axboe wrote:
-> On Tue, Jan 28 2003, J.A. Magallon wrote:
-[...]
-> > Applied on top of 2.4.21-pre3-aa (no highmem), it makes my box hang on drive
-> > detection:
-> > 
-> > PIIX4: IDE controller at PCI slot 00:07.1
-> > PIIX4: chipset revision 1
-> > PIIX4: not 100% native mode: will probe irqs later
-> >     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-> >     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> > hda: 
-> > 
-[...]
-> 
-> Reviewing the patch, it did have a nasty bug, didn't iterate
-> buffer_heads at all so a clustered request will fail. Attached version
-> should work.
-> 
+On Mon, Jan 27, 2003 at 02:59:21PM -0800, Stephen Hemminger wrote:
+> Atomic fetch/increment is not necessary since it is assumed that
+> only a single writer is doing the increment at a time, either with a
+> lock or a semaphore.  The fr_write_lock primitive incorporates the
+> spinlock and the sequence number. 
 
-Thanks, it works both on a box without himem and on one with 1Gb.
+Ticket locks still need atomic fetch and increment. You don't because
+not only are you not implementing a ticket lock, you've got an outright
+spinlock around the fetch and increment.
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre3-jam4 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-4mdk))
+
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>> 	(1) increment ->pre_sequence
+>>> 	(2) wmb()
+>>> 	(3) get inode->i_size
+>>> 	(4) wmb() 
+>>> 	(5) increment ->post_sequence
+>>> 	(6) wmb()
+>>> Supposing the overall scheme is sound, one of the wmb()'s is unnecessary;
+
+On Mon, Jan 27, 2003 at 02:59:21PM -0800, Stephen Hemminger wrote:
+> Each wmb() has a purpose. (2) is to make sure the first increment
+> happens before the update. (4) makes sure the update happens before the
+> second increment.  
+> The last wmb is unnecessary. Also on many architectures, the wmb()
+> disappears since writes are never reordered.
+
+This is apparently based on some misunderstanding wrt. thinking the
+sequence of events above described a read. Obviously converting (3)
+to "modify inode->i_size" makes the (4) wmb() necessary.
+
+
+-- wli

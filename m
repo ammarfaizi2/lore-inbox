@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSF0D7D>; Wed, 26 Jun 2002 23:59:03 -0400
+	id <S316577AbSF0GFp>; Thu, 27 Jun 2002 02:05:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315690AbSF0D7C>; Wed, 26 Jun 2002 23:59:02 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:51447 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313190AbSF0D7C>;
-	Wed, 26 Jun 2002 23:59:02 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316587AbSF0GFo>; Thu, 27 Jun 2002 02:05:44 -0400
+Received: from w007.z208177141.sjc-ca.dsl.cnc.net ([208.177.141.7]:11395 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S316577AbSF0GFo>;
+	Thu, 27 Jun 2002 02:05:44 -0400
+Subject: Re: Status of capabilities?
+From: Dax Kelson <dax@gurulabs.com>
+To: Michael Kerrisk <m.kerrisk@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000101c21d12$b643aae0$0200a8c0@MichaelKerrisk>
+References: <000101c21d12$b643aae0$0200a8c0@MichaelKerrisk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15642.36216.782111.506354@napali.hpl.hp.com>
-Date: Wed, 26 Jun 2002 20:58:48 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24: auto_fs.h typo.
-In-Reply-To: <3D19CE5E.1090704@zytor.com>
-References: <200206251759.34690.schwidefsky@de.ibm.com>
-	<afb4im$6nl$1@cesium.transmeta.com>
-	<je7kkm8bma.fsf@sykes.suse.de>
-	<3D19CE5E.1090704@zytor.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 Jun 2002 00:05:25 -0600
+Message-Id: <1025157926.1652.35.camel@mentor>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 26 Jun 2002 10:23:26 -0400, "H. Peter Anvin" <hpa@zytor.com> said:
+On Wed, 2002-06-26 at 06:40, Michael Kerrisk wrote:
 
-  hpa> Andreas Schwab wrote:
-  >> |> |> Please change this to:
-  >> |> 
-  >> |> #ifndef __alpha__
-  >> 
-  >> What about __ia64__?
+> What's still missing in 2.4, as far as I can see after reading the sources,
+> is the ability to set capabilities on executable files so that a process
+> gains those privileges when executing the file.  I recall seeing some
+> information somewhere saying this wasn't possible / wasn't going to happen
+> for ext2.  Is it on the drawing board for any file system?
 
-  hpa> Oh right, that one too...
+The 2.5 VFS supports Extended Attributes (since 2.5.3). I think the plan
+was use EAs to store capabilities. So I believe that the infrastructure
+is in place, someone with the proper skills just needs to:
 
-Isn't this the one which we agreed not to change because it would break
-existing ia64 automount binaries and because we do not expect x86 automount
-to run on ia64 machines?
+1. Define how capabilities will be stored as a EA
+2. Teach fs/exec.c to use the capabilities stored with the file
+3. Write lscap(1)
+4. Write chcap(1)
+5. Audit/fix all SUID root binaries to use capabilities
+6. Set appropriate capabilities with for each with chcap(1) and then:
+   # find / -type f -perm -4000 -user root -exec chmod u-s {} \;
+7. Party and snicker in the general direction of that OS with the slogan
+"One remote hole in the default install, in nearly 6 years!"
 
-	--david
+Dax Kelson
+Guru Labs
+
+Disclaimer: I could be completely wrong on any or all of the above
+

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264771AbSLBEEV>; Sun, 1 Dec 2002 23:04:21 -0500
+	id <S264785AbSLBEQr>; Sun, 1 Dec 2002 23:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264785AbSLBEEV>; Sun, 1 Dec 2002 23:04:21 -0500
-Received: from are.twiddle.net ([64.81.246.98]:2452 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S264771AbSLBEEU>;
-	Sun, 1 Dec 2002 23:04:20 -0500
-Date: Sun, 1 Dec 2002 20:11:22 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Bjoern Brauel <bjb@gentoo.org>
-Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel build of 2.5.50 fails on Alpha
-Message-ID: <20021201201122.A31609@twiddle.net>
-Mail-Followup-To: Bjoern Brauel <bjb@gentoo.org>,
-	Folkert van Heusden <folkert@vanheusden.com>,
-	linux-kernel@vger.kernel.org
-References: <000701c2994d$5ccee670$3640a8c0@boemboem> <3DEA3D39.7050806@gentoo.org>
+	id <S264786AbSLBEQr>; Sun, 1 Dec 2002 23:16:47 -0500
+Received: from rth.ninka.net ([216.101.162.244]:50104 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264785AbSLBEQq>;
+	Sun, 1 Dec 2002 23:16:46 -0500
+Subject: Re: [PATCH] Start of compat32.h (again)
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, anton@samba.org,
+       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+In-Reply-To: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Dec 2002 20:46:40 -0800
+Message-Id: <1038804400.4411.4.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DEA3D39.7050806@gentoo.org>; from bjb@gentoo.org on Sun, Dec 01, 2002 at 05:47:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 01, 2002 at 05:47:53PM +0100, Bjoern Brauel wrote:
-> Ive been working on implementing some missing bits but what Id like to 
-> know is who is "officially" doing development for alpha on 2.5.
+On Sun, 2002-12-01 at 10:54, Linus Torvalds wrote:
+> But if the file is in kernel/xxxx, it 
+> will be noticed - at least as well as it would be if it was uglifying 
+> regular files with #ifdef's.
 
-See 
+Ok, this I accept.
 
-http://ftp.kernel.org/pub/linux/kernel/people/rusty/patches/Module/rth-shared-modules.patch.gz
+> Face it, the "compat" stuff is _secondary_. If it breaks, it breaks.
 
-which I hope will make it into the kernel relatively soon.
+Secondary for x86, sure.
 
+But for Sparc64 and PPC64, the 32-bit userland is currently still
+the primary one, so when compat32 breaks the whole system hits the
+toilet.
 
-r~
+That isn't going to change.  The 32-bit apps are a) smaller and b)
+run much faster.  So for simple things like the basic userland apps
+like 'ls', the shell, etc. it simply makes no sense to compile them
+64-bit.  It just results in big huge 64-bit binaries when 32-bit
+ones would suffice just fine.
+
+Sparc64 and PPC64 are different from ia64 in that the apps truly
+run on the processor at full speed, no in some compat logic soldered
+onto the cpu like the ia64 x86 support seems to be :-)
+
+X86_64 on the other hand seems to run x86 binaries in a similar
+fashion.  I don't know how people currently doing this port intend
+to do the useland, but I bet it would benefit from a mostly 32-bit
+userland just like sparc64/ppc64 does, both in space and performance.
+

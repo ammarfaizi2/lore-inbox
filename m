@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318143AbSHDKVI>; Sun, 4 Aug 2002 06:21:08 -0400
+	id <S317742AbSHDK1H>; Sun, 4 Aug 2002 06:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318144AbSHDKVI>; Sun, 4 Aug 2002 06:21:08 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:3292 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318143AbSHDKVH>; Sun, 4 Aug 2002 06:21:07 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Felix Seeger <felix.seeger@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19, usb mouse is gone
-Date: Sun, 4 Aug 2002 20:19:47 +1000
-User-Agent: KMail/1.4.5
-References: <200208041217.51250.felix.seeger@gmx.de>
-In-Reply-To: <200208041217.51250.felix.seeger@gmx.de>
+	id <S318144AbSHDK1H>; Sun, 4 Aug 2002 06:27:07 -0400
+Received: from [129.187.202.12] ([129.187.202.12]:29683 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317742AbSHDK1H>; Sun, 4 Aug 2002 06:27:07 -0400
+Date: Sun, 4 Aug 2002 12:30:36 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.30-dj1 (sort of)
+In-Reply-To: <20020802171252.M25761@suse.de>
+Message-ID: <Pine.NEB.4.44.0208041228060.1422-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200208042019.47553.bhards@bigpond.net.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Aug 2002 20:17, Felix Seeger wrote:
-> Hi
->
-> What happens to the usb mouse in 2.4.19 ?
-You copied .config from the previous version, and didn't check
-if anything had changed.
+Hi Dave,
 
-> After my update I had to switch to ps/2 because it doesn't work.
-Of course it doesn't work. You (by inaction) turned it off.
+the part of -dj1 below is obviously wrong (and it causes a compile error).
+After removing it the file compiles.
 
-Try turning on CONFIG_USB_HIDINPUT.
+--- linux-2.5.30/fs/jffs2/dir.c	2002-08-01 22:16:15.000000000 +0100
++++ linux-2.5/fs/jffs2/dir.c	2002-08-02 15:50:33.000000000 +0100
+@@ -718,6 +718,7 @@ static int jffs2_rename (struct inode *o
+ 	struct jffs2_sb_info *c = JFFS2_SB_INFO(old_dir_i->i_sb);
+ 	struct jffs2_inode_info *victim_f = NULL;
+ 	uint8_t type;
++	struct jffs2_inode_info *victim_f = NULL;
 
-Checking the mailing list archives would have been productive too.
+ 	/* The VFS will check for us and prevent trying to rename a
+ 	 * file over a directory and vice versa, but if it's a directory,
 
-Brad
+cu
+Adrian
+
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

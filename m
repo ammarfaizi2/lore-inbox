@@ -1,134 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318743AbSG0MYn>; Sat, 27 Jul 2002 08:24:43 -0400
+	id <S318746AbSG0Myf>; Sat, 27 Jul 2002 08:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318744AbSG0MYn>; Sat, 27 Jul 2002 08:24:43 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:252 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318743AbSG0MYm>; Sat, 27 Jul 2002 08:24:42 -0400
-Date: Sat, 27 Jul 2002 14:27:55 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] make de2104x hotplugable
-Message-ID: <Pine.NEB.4.44.0207271412150.9592-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318747AbSG0Myf>; Sat, 27 Jul 2002 08:54:35 -0400
+Received: from oak.sktc.net ([208.46.69.4]:39949 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S318746AbSG0Mye>;
+	Sat, 27 Jul 2002 08:54:34 -0400
+Message-ID: <3D4298C6.9080103@sktc.net>
+Date: Sat, 27 Jul 2002 07:57:42 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020714
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Rodland <arodland@noln.com>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
+References: <20020727000005.54da5431.arodland@noln.com>	<200207270526.g6R5Qw942780@saturn.cs.uml.edu> <20020727015703.21f47a37.arodland@noln.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+I don't understand the direction this discussion is taking.
 
-since drivers/net/tulip/de2104x.c does currently not compile in 2.5.29 due
-to a .text.exit error when the driver is compiled into a kernel without
-hotplug support I'm wondering whether the patch below would be correct to
-make this PCI driver hotpluggable. Is my approach to change __init to
-__devinit and __exit to __devexit correct or is there something I've
-overseen?
+Either you are trying to output the panic information with minimal 
+hardware, and in a form a human might be able to decode, in which case 
+the Morse option seems to me to be the best, or you are trying to panic 
+in a machine readable format - in which case just dump the data out 
+/dev/ttyS0 and be done with it!
 
-cu
-Adrian
+To my way of thinking, the idea of the Morse option is that if an oops 
+happens when you are not expecting it, and you haven't set up any 
+equipment to help you, you still have a shot at getting the data.
 
---- drivers/net/tulip/de2104x.c.old	Sat Jul 27 11:43:47 2002
-+++ drivers/net/tulip/de2104x.c	Sat Jul 27 11:46:00 2002
-@@ -50,7 +50,7 @@
- #include <asm/unaligned.h>
-
- /* These identify the driver base version and may not be removed. */
--static char version[] __initdata =
-+static char version[] __devinitdata =
- KERN_INFO DRV_NAME " PCI Ethernet driver v" DRV_VERSION " (" DRV_RELDATE ")\n";
-
- MODULE_AUTHOR("Jeff Garzik <jgarzik@mandrakesoft.com>");
-@@ -330,7 +330,7 @@
- static unsigned int de_ok_to_advertise (struct de_private *de, u32 new_media);
-
-
--static struct pci_device_id de_pci_tbl[] __initdata = {
-+static struct pci_device_id de_pci_tbl[] __devinitdata = {
- 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP,
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_PLUS,
-@@ -1746,7 +1746,7 @@
- 	return rc;
- }
-
--static void __init de21040_get_mac_address (struct de_private *de)
-+static void __devinit de21040_get_mac_address (struct de_private *de)
- {
- 	unsigned i;
-
-@@ -1763,7 +1763,7 @@
- 	}
- }
-
--static void __init de21040_get_media_info(struct de_private *de)
-+static void __devinit de21040_get_media_info(struct de_private *de)
- {
- 	unsigned int i;
-
-@@ -1790,7 +1790,7 @@
- }
-
- /* Note: this routine returns extra data bits for size detection. */
--static unsigned __init tulip_read_eeprom(void *regs, int location, int addr_len)
-+static unsigned __devinit tulip_read_eeprom(void *regs, int location, int addr_len)
- {
- 	int i;
- 	unsigned retval = 0;
-@@ -1825,7 +1825,7 @@
- 	return retval;
- }
-
--static void __init de21041_get_srom_info (struct de_private *de)
-+static void __devinit de21041_get_srom_info (struct de_private *de)
- {
- 	unsigned i, sa_offset = 0, ofs;
- 	u8 ee_data[DE_EEPROM_SIZE + 6] = {};
-@@ -1981,7 +1981,7 @@
- 	goto fill_defaults;
- }
-
--static int __init de_init_one (struct pci_dev *pdev,
-+static int __devinit de_init_one (struct pci_dev *pdev,
- 				  const struct pci_device_id *ent)
- {
- 	struct net_device *dev;
-@@ -2136,7 +2136,7 @@
- 	return rc;
- }
-
--static void __exit de_remove_one (struct pci_dev *pdev)
-+static void __devexit de_remove_one (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct de_private *de = dev->priv;
-@@ -2216,14 +2216,14 @@
- 	name:		DRV_NAME,
- 	id_table:	de_pci_tbl,
- 	probe:		de_init_one,
--	remove:		de_remove_one,
-+	remove:		__devexit_p(de_remove_one),
- #ifdef CONFIG_PM
- 	suspend:	de_suspend,
- 	resume:		de_resume,
- #endif
- };
-
--static int __init de_init (void)
-+static int __devinit de_init (void)
- {
- #ifdef MODULE
- 	printk("%s", version);
-@@ -2231,7 +2231,7 @@
- 	return pci_module_init (&de_driver);
- }
-
--static void __exit de_exit (void)
-+static void __devexit de_exit (void)
- {
- 	pci_unregister_driver (&de_driver);
- }
-
+Trying to dump the oops data out by some form of FSK in most cases seems 
+silly - if you have taken the time to set up a microphone and decoder, 
+why not just set up a serial terminal?
 

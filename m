@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288667AbSBDHH3>; Mon, 4 Feb 2002 02:07:29 -0500
+	id <S288639AbSBDHHt>; Mon, 4 Feb 2002 02:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288662AbSBDHHQ>; Mon, 4 Feb 2002 02:07:16 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:22656 "HELO
+	id <S288668AbSBDHHk>; Mon, 4 Feb 2002 02:07:40 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:22400 "HELO
 	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S288660AbSBDHGe>; Mon, 4 Feb 2002 02:06:34 -0500
+	id <S288639AbSBDHGi>; Mon, 4 Feb 2002 02:06:38 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.3-dj1] Radix tree page cache
+Subject: [PATCH 2.4.18-pre7] Radix tree page cache
 X-No-CC: Post to lists, not to me.
 From: Momchil Velikov <velco@fadata.bg>
-Date: 04 Feb 2002 08:55:47 +0200
-Message-ID: <87zo2pybv0.fsf@fadata.bg>
+Date: 04 Feb 2002 08:59:50 +0200
+Message-ID: <87wuxtybo9.fsf@fadata.bg>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,35 +20,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi there,
 
-This is the radix tree page cache patch against 2.5.3-dj1. Changes
-from the previous release - couple of bug fixes.
+This is the radix tree page cache patch against 2.4.18-pre7.
+Changes from the previous release:
+  - backported 2.5.x changes by Christoph Hellwig
+  - couple of bug fixes
 
-Note that currently radix tree page cache oopes on plain 2.5.3. Under
-investigation.
-
-I've observed intermitent deadlocks/livelocks when running dbench 40
-and a shmfs mounted like this - mount -t shm shm /shm -osize=1G.
+I've observed deadlocks/livelocks when running dbench on a shmfs.
+Unlike the 2.5, these all seem like pure OOM ones.
 
 Otherwise, the patch feels solid on disk filesystems. I use dbench 40
 as a stress test.
 
 Regards,
--velco
+velco
 
 diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Mon Feb  4 08:55:13 2002
-+++ b/fs/inode.c	Mon Feb  4 08:55:13 2002
+--- a/fs/inode.c	Mon Feb  4 08:53:15 2002
++++ b/fs/inode.c	Mon Feb  4 08:53:15 2002
 @@ -109,6 +109,7 @@
- 		inode->i_data.a_ops = &empty_aops;
- 		inode->i_data.host = inode;
- 		inode->i_data.gfp_mask = GFP_HIGHUSER;
+ 		INIT_LIST_HEAD(&inode->i_devices);
+ 		sema_init(&inode->i_sem, 1);
+ 		sema_init(&inode->i_zombie, 1);
 +		inode->i_data.page_tree = RADIX_TREE_ROOT_INITIALIZER;
- 		inode->i_mapping = &inode->i_data;
- 		memset(&inode->u, 0, sizeof(inode->u));
+ 		spin_lock_init(&inode->i_data.i_shared_lock);
  	}
+ }
 diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Mon Feb  4 08:55:13 2002
-+++ b/include/linux/fs.h	Mon Feb  4 08:55:13 2002
+--- a/include/linux/fs.h	Mon Feb  4 08:53:15 2002
++++ b/include/linux/fs.h	Mon Feb  4 08:53:15 2002
 @@ -21,6 +21,7 @@
  #include <linux/cache.h>
  #include <linux/stddef.h>
@@ -57,7 +56,7 @@ diff -Nru a/include/linux/fs.h b/include/linux/fs.h
  
  #include <asm/atomic.h>
  #include <asm/bitops.h>
-@@ -370,6 +371,7 @@
+@@ -395,6 +396,7 @@
  };
  
  struct address_space {
@@ -66,9 +65,9 @@ diff -Nru a/include/linux/fs.h b/include/linux/fs.h
  	struct list_head	dirty_pages;	/* list of dirty pages */
  	struct list_head	locked_pages;	/* list of locked pages */
 diff -Nru a/include/linux/mm.h b/include/linux/mm.h
---- a/include/linux/mm.h	Mon Feb  4 08:55:13 2002
-+++ b/include/linux/mm.h	Mon Feb  4 08:55:13 2002
-@@ -149,15 +149,12 @@
+--- a/include/linux/mm.h	Mon Feb  4 08:53:15 2002
++++ b/include/linux/mm.h	Mon Feb  4 08:53:15 2002
+@@ -152,15 +152,12 @@
  	struct list_head list;		/* ->mapping has some page lists. */
  	struct address_space *mapping;	/* The inode (or ...) we belong to. */
  	unsigned long index;		/* Our offset within mapping. */
@@ -84,7 +83,7 @@ diff -Nru a/include/linux/mm.h b/include/linux/mm.h
  	struct buffer_head * buffers;	/* Buffer maps us to a disk block. */
  	void *virtual;			/* Kernel virtual address (NULL if
  					   not kmapped, ie. highmem) */
-@@ -225,9 +222,8 @@
+@@ -228,9 +225,8 @@
   * using the page->list list_head. These fields are also used for
   * freelist managemet (when page->count==0).
   *
@@ -96,7 +95,7 @@ diff -Nru a/include/linux/mm.h b/include/linux/mm.h
   *
   * All process pages can do I/O:
   * - inode pages may need to be read from disk,
-@@ -462,6 +458,24 @@
+@@ -507,6 +503,24 @@
  		return 1;
  	else
  		return 0;
@@ -122,8 +121,8 @@ diff -Nru a/include/linux/mm.h b/include/linux/mm.h
  
  struct zone_t;
 diff -Nru a/include/linux/pagemap.h b/include/linux/pagemap.h
---- a/include/linux/pagemap.h	Mon Feb  4 08:55:13 2002
-+++ b/include/linux/pagemap.h	Mon Feb  4 08:55:13 2002
+--- a/include/linux/pagemap.h	Mon Feb  4 08:53:15 2002
++++ b/include/linux/pagemap.h	Mon Feb  4 08:53:15 2002
 @@ -41,53 +41,20 @@
   */
  #define page_cache_entry(x)	virt_to_page(x)
@@ -186,7 +185,7 @@ diff -Nru a/include/linux/pagemap.h b/include/linux/pagemap.h
  
 diff -Nru a/include/linux/radix-tree.h b/include/linux/radix-tree.h
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/radix-tree.h	Mon Feb  4 08:55:13 2002
++++ b/include/linux/radix-tree.h	Mon Feb  4 08:53:15 2002
 @@ -0,0 +1,39 @@
 +/*
 + * Copyright (C) 2001 Momchil Velikov
@@ -228,9 +227,9 @@ diff -Nru a/include/linux/radix-tree.h b/include/linux/radix-tree.h
 +
 +#endif /* _LINUX_RADIX_TREE_H */
 diff -Nru a/include/linux/swap.h b/include/linux/swap.h
---- a/include/linux/swap.h	Mon Feb  4 08:55:13 2002
-+++ b/include/linux/swap.h	Mon Feb  4 08:55:13 2002
-@@ -96,7 +96,7 @@
+--- a/include/linux/swap.h	Mon Feb  4 08:53:15 2002
++++ b/include/linux/swap.h	Mon Feb  4 08:53:15 2002
+@@ -97,7 +97,7 @@
  struct task_struct;
  struct vm_area_struct;
  struct sysinfo;
@@ -239,7 +238,7 @@ diff -Nru a/include/linux/swap.h b/include/linux/swap.h
  struct zone_t;
  
  /* linux/mm/swap.c */
-@@ -126,6 +126,9 @@
+@@ -127,6 +127,9 @@
  extern int add_to_swap_cache(struct page *, swp_entry_t);
  extern void __delete_from_swap_cache(struct page *page);
  extern void delete_from_swap_cache(struct page *page);
@@ -250,17 +249,17 @@ diff -Nru a/include/linux/swap.h b/include/linux/swap.h
  extern struct page * lookup_swap_cache(swp_entry_t);
  extern struct page * read_swap_cache_async(swp_entry_t);
 diff -Nru a/init/main.c b/init/main.c
---- a/init/main.c	Mon Feb  4 08:55:13 2002
-+++ b/init/main.c	Mon Feb  4 08:55:13 2002
-@@ -69,6 +69,7 @@
- extern void sbus_init(void);
+--- a/init/main.c	Mon Feb  4 08:53:15 2002
++++ b/init/main.c	Mon Feb  4 08:53:15 2002
+@@ -94,6 +94,7 @@
  extern void sysctl_init(void);
  extern void signals_init(void);
+ extern int init_pcmcia_ds(void);
 +extern void radix_tree_init(void) __init;
  
  extern void free_initmem(void);
  
-@@ -364,7 +365,7 @@
+@@ -605,7 +606,7 @@
  	proc_caches_init();
  	vfs_caches_init(mempages);
  	buffer_init(mempages);
@@ -269,20 +268,10 @@ diff -Nru a/init/main.c b/init/main.c
  #if defined(CONFIG_ARCH_S390)
  	ccwcache_init();
  #endif
-@@ -474,7 +475,8 @@
- 	free_initmem();
- 	unlock_kernel();
- 
--	if (open("/dev/console", O_RDWR, 0) < 0)
-+	if (open("/dev/console", O_RDWR, 0) < 0
-+	    && open("/dv/console", O_RDWR, 0) < 0)
- 		printk("Warning: unable to open an initial console.\n");
- 
- 	(void) dup(0);
 diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Mon Feb  4 08:55:13 2002
-+++ b/kernel/ksyms.c	Mon Feb  4 08:55:13 2002
-@@ -217,8 +217,6 @@
+--- a/kernel/ksyms.c	Mon Feb  4 08:53:15 2002
++++ b/kernel/ksyms.c	Mon Feb  4 08:53:15 2002
+@@ -215,8 +215,6 @@
  EXPORT_SYMBOL(generic_file_mmap);
  EXPORT_SYMBOL(generic_ro_fops);
  EXPORT_SYMBOL(generic_buffer_fdatasync);
@@ -291,7 +280,7 @@ diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
  EXPORT_SYMBOL(file_lock_list);
  EXPORT_SYMBOL(locks_init_lock);
  EXPORT_SYMBOL(locks_copy_lock);
-@@ -253,8 +251,8 @@
+@@ -251,8 +249,8 @@
  EXPORT_SYMBOL(__pollwait);
  EXPORT_SYMBOL(poll_freewait);
  EXPORT_SYMBOL(ROOT_DEV);
@@ -303,26 +292,25 @@ diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
  EXPORT_SYMBOL(grab_cache_page_nowait);
  EXPORT_SYMBOL(read_cache_page);
 diff -Nru a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile	Mon Feb  4 08:55:13 2002
-+++ b/lib/Makefile	Mon Feb  4 08:55:13 2002
-@@ -8,9 +8,11 @@
+--- a/lib/Makefile	Mon Feb  4 08:53:15 2002
++++ b/lib/Makefile	Mon Feb  4 08:53:15 2002
+@@ -8,9 +8,10 @@
  
  L_TARGET := lib.a
  
--export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o crc32.o
-+export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o	\
-+               crc32.o radix-tree.o
+-export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o
++export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o radix-tree.o
  
 -obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o
-+obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o	\
-+         bust_spinlocks.o rbtree.o radix-tree.o
++obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
++	 bust_spinlocks.o rbtree.o radix-tree.o
  
  obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
  obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
 diff -Nru a/lib/radix-tree.c b/lib/radix-tree.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/lib/radix-tree.c	Mon Feb  4 08:55:13 2002
-@@ -0,0 +1,305 @@
++++ b/lib/radix-tree.c	Mon Feb  4 08:53:15 2002
+@@ -0,0 +1,279 @@
 +/*
 + * Copyright (C) 2001 Momchil Velikov
 + * Portions Copyright (C) 2001 Christoph Hellwig
@@ -344,7 +332,6 @@ diff -Nru a/lib/radix-tree.c b/lib/radix-tree.c
 +#include <linux/errno.h>
 +#include <linux/init.h>
 +#include <linux/kernel.h>
-+#include <linux/mempool.h>
 +#include <linux/module.h>
 +#include <linux/radix-tree.h>
 +#include <linux/slab.h>
@@ -370,16 +357,7 @@ diff -Nru a/lib/radix-tree.c b/lib/radix-tree.c
 +/*
 + * Radix tree node cache.
 + */
-+
-+#define RADIX_TREE_POOL_SIZE 32
-+
 +static kmem_cache_t *radix_tree_node_cachep;
-+static mempool_t *radix_tree_node_pool;
-+
-+#define radix_tree_node_alloc(root) \
-+	mempool_alloc(radix_tree_node_pool, (root)->gfp_mask)
-+#define radix_tree_node_free(node) \
-+	mempool_free((node), radix_tree_node_pool);
 +
 +#define radix_tree_node_alloc(root) \
 +	kmem_cache_alloc(radix_tree_node_cachep, (root)->gfp_mask)
@@ -599,38 +577,22 @@ diff -Nru a/lib/radix-tree.c b/lib/radix-tree.c
 +
 +EXPORT_SYMBOL(radix_tree_delete);
 +
++
 +static void radix_tree_node_ctor(void *node, kmem_cache_t *cachep, unsigned long flags)
 +{
 +	memset(node, 0, sizeof(struct radix_tree_node));
 +}
 +
-+static void *radix_tree_node_pool_alloc(int gfp_mask, void *data)
-+{
-+	return kmem_cache_alloc(radix_tree_node_cachep, gfp_mask);
-+}
-+
-+static void radix_tree_node_pool_free(void *node, void *data)
-+{
-+	kmem_cache_free(radix_tree_node_cachep, node);
-+}
-+
 +void __init radix_tree_init(void)
 +{
-+	radix_tree_node_cachep =
-+		kmem_cache_create("radix_cache", sizeof(struct radix_tree_node),
-+				  0, SLAB_HWCACHE_ALIGN, radix_tree_node_ctor, NULL);
++	radix_tree_node_cachep = kmem_cache_create("radix_cache", sizeof(struct radix_tree_node),
++						   0, SLAB_HWCACHE_ALIGN, radix_tree_node_ctor, NULL);
 +	if (!radix_tree_node_cachep)
 +		panic ("Failed to create radix tree node cache\n");
-+
-+	radix_tree_node_pool = mempool_create(RADIX_TREE_POOL_SIZE, radix_tree_node_pool_alloc,
-+					      radix_tree_node_pool_free, NULL);
-+	if (!radix_tree_node_pool)
-+		panic ("Failed to create radix tree node pool\n");
 +}
-+
 diff -Nru a/mm/filemap.c b/mm/filemap.c
---- a/mm/filemap.c	Mon Feb  4 08:55:13 2002
-+++ b/mm/filemap.c	Mon Feb  4 08:55:13 2002
+--- a/mm/filemap.c	Mon Feb  4 08:53:15 2002
++++ b/mm/filemap.c	Mon Feb  4 08:53:15 2002
 @@ -24,6 +24,7 @@
  #include <linux/mm.h>
  #include <linux/iobuf.h>
@@ -639,18 +601,24 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  #include <asm/pgalloc.h>
  #include <asm/uaccess.h>
-@@ -44,69 +45,21 @@
+@@ -44,75 +45,26 @@
   */
  
  atomic_t page_cache_size = ATOMIC_INIT(0);
 -unsigned int page_hash_bits;
 -struct page **page_hash_table;
  
+ int vm_max_readahead = 31;
+ int vm_min_readahead = 3;
+ EXPORT_SYMBOL(vm_max_readahead);
+ EXPORT_SYMBOL(vm_min_readahead);
+ 
+-
 -spinlock_t pagecache_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
  /*
   * NOTE: to avoid deadlocking you must never acquire the pagemap_lru_lock 
 - *	with the pagecache_lock held.
-+ *	with the mapping_lock held.
++ *	with the mapping lock held.
   *
   * Ordering:
   *	swap_lock ->
@@ -711,7 +679,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  /*
   * Remove a page from the page cache and free it. Caller has to make
   * sure the page is locked and that nobody else uses it - or that usage
-@@ -115,18 +68,20 @@
+@@ -121,18 +73,20 @@
  void __remove_inode_page(struct page *page)
  {
  	if (PageDirty(page)) BUG();
@@ -735,7 +703,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  }
  
  static inline int sync_page(struct page *page)
-@@ -147,10 +102,10 @@
+@@ -153,10 +107,10 @@
  		struct address_space *mapping = page->mapping;
  
  		if (mapping) {
@@ -748,7 +716,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  			if (mapping->host)
  				mark_inode_dirty_pages(mapping->host);
-@@ -170,11 +125,12 @@
+@@ -176,11 +130,12 @@
  {
  	struct list_head *head, *curr;
  	struct page * page;
@@ -763,7 +731,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	curr = head->next;
  
  	while (curr != head) {
-@@ -205,7 +161,7 @@
+@@ -211,7 +166,7 @@
  		continue;
  	}
  
@@ -772,7 +740,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	spin_unlock(&pagemap_lru_lock);
  }
  
-@@ -244,8 +200,9 @@
+@@ -250,8 +205,9 @@
  	page_cache_release(page);
  }
  
@@ -784,7 +752,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  {
  	struct list_head *curr;
  	struct page * page;
-@@ -274,7 +231,7 @@
+@@ -280,7 +236,7 @@
  				/* Restart on this page */
  				list_add(head, curr);
  
@@ -793,7 +761,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			unlocked = 1;
  
   			if (!failed) {
-@@ -295,7 +252,7 @@
+@@ -301,7 +257,7 @@
  				schedule();
  			}
  
@@ -802,7 +770,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			goto restart;
  		}
  		curr = curr->prev;
-@@ -319,24 +276,25 @@
+@@ -325,24 +281,25 @@
  	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
  	int unlocked;
  
@@ -835,7 +803,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	 * so both page_count(page) and page->buffers stays constant here.
  	 */
  	if (page_count(page) == 1 + !!page->buffers) {
-@@ -345,7 +303,7 @@
+@@ -351,7 +308,7 @@
  		list_add_tail(head, curr);
  
  		page_cache_get(page);
@@ -844,7 +812,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		truncate_complete_page(page);
  	} else {
  		if (page->buffers) {
-@@ -354,7 +312,7 @@
+@@ -360,7 +317,7 @@
  			list_add_tail(head, curr);
  
  			page_cache_get(page);
@@ -853,7 +821,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			block_invalidate_page(page);
  		} else
  			unlocked = 0;
-@@ -366,8 +324,8 @@
+@@ -372,8 +329,8 @@
  	return unlocked;
  }
  
@@ -864,7 +832,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  {
  	struct list_head *curr;
  	struct page * page;
-@@ -381,7 +339,7 @@
+@@ -387,7 +344,7 @@
  		if (!TryLockPage(page)) {
  			int __unlocked;
  
@@ -873,7 +841,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			UnlockPage(page);
  			unlocked |= __unlocked;
  			if (!__unlocked) {
-@@ -394,7 +352,7 @@
+@@ -400,7 +357,7 @@
  			list_add(head, curr);
  
  			page_cache_get(page);
@@ -882,7 +850,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			unlocked = 1;
  			wait_on_page(page);
  		}
-@@ -405,7 +363,7 @@
+@@ -411,7 +368,7 @@
  			schedule();
  		}
  
@@ -891,7 +859,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		goto restart;
  	}
  	return unlocked;
-@@ -420,41 +378,24 @@
+@@ -426,41 +383,23 @@
  {
  	int unlocked;
  
@@ -930,8 +898,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
 -
 -static int do_buffer_fdatasync(struct list_head *head, unsigned long start, unsigned long end, int (*fn)(struct page *))
 +static int do_buffer_fdatasync(struct address_space *mapping,
-+			       struct list_head *head, unsigned long start,
-+			       unsigned long end, int (*fn)(struct page *))
++	struct list_head *head, unsigned long start, unsigned long end, int (*fn)(struct page *))
  {
  	struct list_head *curr;
  	struct page *page;
@@ -942,7 +909,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	curr = head->next;
  	while (curr != head) {
  		page = list_entry(curr, struct page, list);
-@@ -467,7 +408,7 @@
+@@ -473,7 +412,7 @@
  			continue;
  
  		page_cache_get(page);
@@ -951,7 +918,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		lock_page(page);
  
  		/* The buffers could have been free'd while we waited for the page lock */
-@@ -475,11 +416,11 @@
+@@ -481,11 +420,11 @@
  			retval |= fn(page);
  
  		UnlockPage(page);
@@ -965,7 +932,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  	return retval;
  }
-@@ -490,17 +431,18 @@
+@@ -496,17 +435,18 @@
   */
  int generic_buffer_fdatasync(struct inode *inode, unsigned long start_idx, unsigned long end_idx)
  {
@@ -990,7 +957,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  	return retval;
  }
-@@ -546,7 +488,7 @@
+@@ -552,7 +492,7 @@
  	int ret = 0;
  	int (*writepage)(struct page *) = mapping->a_ops->writepage;
  
@@ -999,7 +966,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
          while (!list_empty(&mapping->dirty_pages)) {
  		struct page *page = list_entry(mapping->dirty_pages.next, struct page, list);
-@@ -558,7 +500,7 @@
+@@ -564,7 +504,7 @@
  			continue;
  
  		page_cache_get(page);
@@ -1008,7 +975,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  		lock_page(page);
  
-@@ -572,9 +514,9 @@
+@@ -578,9 +518,9 @@
  			UnlockPage(page);
  
  		page_cache_release(page);
@@ -1020,7 +987,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	return ret;
  }
  
-@@ -589,7 +531,7 @@
+@@ -595,7 +535,7 @@
  {
  	int ret = 0;
  
@@ -1029,7 +996,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
          while (!list_empty(&mapping->locked_pages)) {
  		struct page *page = list_entry(mapping->locked_pages.next, struct page, list);
-@@ -601,86 +543,60 @@
+@@ -607,86 +547,60 @@
  			continue;
  
  		page_cache_get(page);
@@ -1145,7 +1112,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  }
  
  /*
-@@ -691,12 +607,12 @@
+@@ -697,12 +611,12 @@
  static int page_cache_read(struct file * file, unsigned long offset)
  {
  	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
@@ -1162,7 +1129,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	if (page)
  		return 0;
  
-@@ -704,17 +620,26 @@
+@@ -710,17 +624,27 @@
  	if (!page)
  		return -ENOMEM;
  
@@ -1171,8 +1138,9 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
 +	error = add_to_page_cache(page, mapping, offset);
 +	while (error == -ENOMEM) {  
 +		/* Yield for kswapd, and try again */
++		current->policy |= SCHED_YIELD;
 +		__set_current_state(TASK_RUNNING);
-+		yield();
++		schedule();
 +		error = add_to_page_cache(page, mapping, offset);
 +	}
 +
@@ -1193,7 +1161,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  }
  
  /*
-@@ -812,8 +737,7 @@
+@@ -818,8 +742,7 @@
   * a rather lightweight function, finding and getting a reference to a
   * hashed page atomically.
   */
@@ -1203,7 +1171,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  {
  	struct page *page;
  
-@@ -821,11 +745,11 @@
+@@ -827,11 +750,11 @@
  	 * We scan the hash list read-only. Addition to and removal from
  	 * the hash-list needs a held write-lock.
  	 */
@@ -1218,7 +1186,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	return page;
  }
  
-@@ -835,26 +759,25 @@
+@@ -841,15 +764,14 @@
  struct page *find_trylock_page(struct address_space *mapping, unsigned long offset)
  {
  	struct page *page;
@@ -1237,9 +1205,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	return page;
  }
  
- /*
-- * Must be called with the pagecache lock held,
-+ * Must be called with the mapping lock held,
+@@ -858,9 +780,9 @@
   * will return with it held (but it may be dropped
   * during blocking operations..
   */
@@ -1252,7 +1218,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  {
  	struct page *page;
  
-@@ -863,13 +786,13 @@
+@@ -869,13 +791,13 @@
  	 * the hash-list needs a held write-lock.
  	 */
  repeat:
@@ -1269,7 +1235,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  			/* Has the page been re-allocated while we slept? */
  			if (page->mapping != mapping || page->index != offset) {
-@@ -886,14 +809,14 @@
+@@ -892,14 +814,14 @@
   * Same as the above, but lock the page too, verifying that
   * it's still valid once we own it.
   */
@@ -1289,7 +1255,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	return page;
  }
  
-@@ -903,22 +826,22 @@
+@@ -909,22 +831,22 @@
  struct page * find_or_create_page(struct address_space *mapping, unsigned long index, unsigned int gfp_mask)
  {
  	struct page *page;
@@ -1322,7 +1288,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			if (newpage == NULL)
  				lru_cache_add(page);
  			else 
-@@ -945,10 +868,9 @@
+@@ -951,10 +873,9 @@
   */
  struct page *grab_cache_page_nowait(struct address_space *mapping, unsigned long index)
  {
@@ -1335,7 +1301,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  	if ( page ) {
  		if ( !TryLockPage(page) ) {
-@@ -973,7 +895,7 @@
+@@ -979,7 +900,7 @@
  	if ( unlikely(!page) )
  		return NULL;	/* Failed to allocate a page */
  
@@ -1344,7 +1310,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		/* Someone else grabbed the page already. */
  		page_cache_release(page);
  		return NULL;
-@@ -1298,7 +1220,7 @@
+@@ -1304,7 +1225,7 @@
  	}
  
  	for (;;) {
@@ -1353,7 +1319,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		unsigned long end_index, nr, ret;
  
  		end_index = inode->i_size >> PAGE_CACHE_SHIFT;
-@@ -1317,15 +1239,14 @@
+@@ -1323,15 +1244,14 @@
  		/*
  		 * Try to find the data in the page cache..
  		 */
@@ -1372,7 +1338,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  		if (!Page_Uptodate(page))
  			goto page_not_up_to_date;
-@@ -1419,7 +1340,7 @@
+@@ -1425,7 +1345,7 @@
  		 * We get here with the page cache lock held.
  		 */
  		if (!cached_page) {
@@ -1381,7 +1347,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			cached_page = page_cache_alloc(mapping);
  			if (!cached_page) {
  				desc->error = -ENOMEM;
-@@ -1430,8 +1351,8 @@
+@@ -1436,8 +1356,8 @@
  			 * Somebody may have added the page while we
  			 * dropped the page cache lock. Check for that.
  			 */
@@ -1392,7 +1358,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  			if (page)
  				goto found_page;
  		}
-@@ -1439,9 +1360,13 @@
+@@ -1445,9 +1365,13 @@
  		/*
  		 * Ok, add the new page to the hash-queues...
  		 */
@@ -1408,7 +1374,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		lru_cache_add(page);		
  		cached_page = NULL;
  
-@@ -1848,7 +1773,7 @@
+@@ -1849,7 +1773,7 @@
  	struct file *file = area->vm_file;
  	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
  	struct inode *inode = mapping->host;
@@ -1417,7 +1383,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	unsigned long size, pgoff, endoff;
  
  	pgoff = ((address - area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
-@@ -1870,9 +1795,8 @@
+@@ -1871,9 +1795,8 @@
  	/*
  	 * Do we have something in the page cache already?
  	 */
@@ -1428,7 +1394,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	if (!page)
  		goto no_cached_page;
  
-@@ -2576,13 +2500,13 @@
+@@ -2577,13 +2500,13 @@
  {
  	unsigned char present = 0;
  	struct address_space * as = vma->vm_file->f_dentry->d_inode->i_mapping;
@@ -1446,7 +1412,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  
  	return present;
  }
-@@ -2725,20 +2649,24 @@
+@@ -2726,20 +2649,24 @@
  				int (*filler)(void *,struct page*),
  				void *data)
  {
@@ -1475,7 +1441,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  		cached_page = NULL;
  		err = filler(data, page);
  		if (err < 0) {
-@@ -2793,19 +2721,23 @@
+@@ -2794,19 +2721,23 @@
  static inline struct page * __grab_cache_page(struct address_space *mapping,
  				unsigned long index, struct page **cached_page)
  {
@@ -1504,7 +1470,7 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
  	}
  	return page;
  }
-@@ -3077,31 +3009,4 @@
+@@ -3078,31 +3009,4 @@
  	if (written >= 0 && file->f_flags & O_SYNC)
  		status = generic_osync_inode(inode, OSYNC_METADATA);
  	goto out_status;
@@ -1537,9 +1503,9 @@ diff -Nru a/mm/filemap.c b/mm/filemap.c
 -	memset((void *)page_hash_table, 0, PAGE_HASH_SIZE * sizeof(struct page *));
  }
 diff -Nru a/mm/shmem.c b/mm/shmem.c
---- a/mm/shmem.c	Mon Feb  4 08:55:13 2002
-+++ b/mm/shmem.c	Mon Feb  4 08:55:13 2002
-@@ -366,7 +366,7 @@
+--- a/mm/shmem.c	Mon Feb  4 08:53:15 2002
++++ b/mm/shmem.c	Mon Feb  4 08:53:15 2002
+@@ -365,7 +365,7 @@
  	swp_entry_t *ptr;
  	unsigned long idx;
  	int offset;
@@ -1548,21 +1514,21 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  	idx = 0;
  	spin_lock (&info->lock);
  	offset = shmem_clear_swp (entry, info->i_direct, SHMEM_NR_DIRECT);
-@@ -385,11 +385,8 @@
+@@ -384,11 +384,8 @@
  	spin_unlock (&info->lock);
  	return 0;
  found:
 -	delete_from_swap_cache(page);
--	add_to_page_cache(page, info->vfs_inode.i_mapping, offset + idx);
+-	add_to_page_cache(page, info->inode->i_mapping, offset + idx);
 -	SetPageDirty(page);
 -	SetPageUptodate(page);
 -	info->swapped--;
-+	if (!move_from_swap_cache (page, offset + idx, info->vfs_inode.i_mapping))
++	if (!move_from_swap_cache (page, offset + idx, info->inode->i_mapping))
 +		info->swapped--;
  	spin_unlock(&info->lock);
  	return 1;
  }
-@@ -421,6 +418,7 @@
+@@ -420,6 +417,7 @@
   */
  static int shmem_writepage(struct page * page)
  {
@@ -1570,7 +1536,7 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  	struct shmem_inode_info *info;
  	swp_entry_t *entry, swap;
  	struct address_space *mapping;
-@@ -438,7 +436,6 @@
+@@ -437,7 +435,6 @@
  	info = SHMEM_I(inode);
  	if (info->locked)
  		return fail_writepage(page);
@@ -1578,7 +1544,7 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  	swap = get_swap_page();
  	if (!swap.val)
  		return fail_writepage(page);
-@@ -451,29 +448,20 @@
+@@ -450,29 +447,20 @@
  	if (entry->val)
  		BUG();
  
@@ -1618,7 +1584,7 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  }
  
  /*
-@@ -520,8 +508,6 @@
+@@ -519,8 +507,6 @@
  	
  	shmem_recalc_inode(inode);
  	if (entry->val) {
@@ -1627,7 +1593,7 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  		/* Look it up and read it in.. */
  		page = find_get_page(&swapper_space, entry->val);
  		if (!page) {
-@@ -546,16 +532,15 @@
+@@ -545,16 +531,15 @@
  			goto repeat;
  		}
  
@@ -1648,14 +1614,15 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  		info->swapped--;
  		spin_unlock (&info->lock);
  	} else {
-@@ -577,9 +562,13 @@
+@@ -576,9 +561,14 @@
  		page = page_cache_alloc(mapping);
  		if (!page)
  			return ERR_PTR(-ENOMEM);
 +		while (add_to_page_cache (page, mapping, idx) < 0) {
 +			/* Yield for kswapd, and try again */
++			current->policy |= SCHED_YIELD;
 +			__set_current_state(TASK_RUNNING);
-+			yield();
++			schedule();
 +		}
  		clear_highpage(page);
  		inode->i_blocks += BLOCKS_PER_PAGE;
@@ -1663,7 +1630,7 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
  	}
  
  	/* We have the page */
-@@ -593,6 +582,16 @@
+@@ -592,6 +582,17 @@
  	spin_unlock (&info->lock);
  	wait_on_page(page);
  	page_cache_release(page);
@@ -1675,14 +1642,15 @@ diff -Nru a/mm/shmem.c b/mm/shmem.c
 +	page_cache_release (page);
 +
 +	/* Yield for kswapd, and try again */
++	current->policy |= SCHED_YIELD;
 +	__set_current_state(TASK_RUNNING);
-+	yield();
++	schedule();
  	goto repeat;
  }
  
 diff -Nru a/mm/swap_state.c b/mm/swap_state.c
---- a/mm/swap_state.c	Mon Feb  4 08:55:13 2002
-+++ b/mm/swap_state.c	Mon Feb  4 08:55:13 2002
+--- a/mm/swap_state.c	Mon Feb  4 08:53:15 2002
++++ b/mm/swap_state.c	Mon Feb  4 08:53:15 2002
 @@ -14,6 +14,7 @@
  #include <linux/init.h>
  #include <linux/pagemap.h>
@@ -1835,8 +1803,8 @@ diff -Nru a/mm/swap_state.c b/mm/swap_state.c
  
  /* 
 diff -Nru a/mm/swapfile.c b/mm/swapfile.c
---- a/mm/swapfile.c	Mon Feb  4 08:55:13 2002
-+++ b/mm/swapfile.c	Mon Feb  4 08:55:13 2002
+--- a/mm/swapfile.c	Mon Feb  4 08:53:15 2002
++++ b/mm/swapfile.c	Mon Feb  4 08:53:15 2002
 @@ -239,10 +239,10 @@
  		/* Is the only swap cache user the cache itself? */
  		if (p->swap_map[SWP_OFFSET(entry)] == 1) {
@@ -1867,9 +1835,9 @@ diff -Nru a/mm/swapfile.c b/mm/swapfile.c
  	swap_info_put(p);
  
 diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Mon Feb  4 08:55:13 2002
-+++ b/mm/vmscan.c	Mon Feb  4 08:55:13 2002
-@@ -137,10 +137,16 @@
+--- a/mm/vmscan.c	Mon Feb  4 08:53:15 2002
++++ b/mm/vmscan.c	Mon Feb  4 08:53:15 2002
+@@ -136,10 +136,16 @@
  		 * (adding to the page cache will clear the dirty
  		 * and uptodate bits, so we need to do it again)
  		 */
@@ -1887,7 +1855,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  		}
  		/* Raced with "speculative" read_swap_cache_async */
  		swap_free(entry);
-@@ -338,6 +344,7 @@
+@@ -337,6 +343,7 @@
  static int shrink_cache(int nr_pages, zone_t * classzone, unsigned int gfp_mask, int priority)
  {
  	struct list_head * entry;
@@ -1895,7 +1863,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  	int max_scan = nr_inactive_pages / priority;
  	int max_mapped = min((nr_pages << (10 - priority)), max_scan / 10);
  
-@@ -392,7 +399,9 @@
+@@ -391,7 +398,9 @@
  			continue;
  		}
  
@@ -1906,7 +1874,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  			/*
  			 * It is not critical here to write it only if
  			 * the page is unmapped beause any direct writer
-@@ -403,7 +412,7 @@
+@@ -402,7 +411,7 @@
  			 */
  			int (*writepage)(struct page *);
  
@@ -1915,7 +1883,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  			if ((gfp_mask & __GFP_FS) && writepage) {
  				ClearPageDirty(page);
  				SetPageLaunder(page);
-@@ -430,7 +439,7 @@
+@@ -429,7 +438,7 @@
  			page_cache_get(page);
  
  			if (try_to_release_page(page, gfp_mask)) {
@@ -1924,7 +1892,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  					/*
  					 * We must not allow an anon page
  					 * with no buffers to be visible on
-@@ -467,13 +476,22 @@
+@@ -466,13 +475,22 @@
  			}
  		}
  
@@ -1950,7 +1918,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  			UnlockPage(page);
  page_mapped:
  			if (--max_mapped >= 0)
-@@ -493,7 +511,7 @@
+@@ -492,7 +510,7 @@
  		 * the page is freeable* so not in use by anybody.
  		 */
  		if (PageDirty(page)) {
@@ -1959,7 +1927,7 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  			UnlockPage(page);
  			continue;
  		}
-@@ -501,12 +519,12 @@
+@@ -500,12 +518,12 @@
  		/* point of no return */
  		if (likely(!PageSwapCache(page))) {
  			__remove_inode_page(page);
@@ -1974,4 +1942,3 @@ diff -Nru a/mm/vmscan.c b/mm/vmscan.c
  			swap_free(swap);
  		}
  
-

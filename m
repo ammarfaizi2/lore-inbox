@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbTFXUFF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 16:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbTFXUFF
+	id S262267AbTFXUBC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 16:01:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFXUBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 16:05:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33184 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262318AbTFXUFC (ORCPT
+	Tue, 24 Jun 2003 16:01:02 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:2551 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262267AbTFXUBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 16:05:02 -0400
-Date: Tue, 24 Jun 2003 13:12:28 -0700 (PDT)
-Message-Id: <20030624.131228.78737223.davem@redhat.com>
-To: bunk@fs.tum.de
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: [2.5 patch] ULL postfixes for tg3.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030624174811.GW3710@fs.tum.de>
-References: <20030624174811.GW3710@fs.tum.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 24 Jun 2003 16:01:01 -0400
+Subject: Re: Large backwards time steps panic 2.5.73
+From: john stultz <johnstul@us.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <1056485244.1825.173.camel@mulgrave>
+References: <1056472020.2085.81.camel@mulgrave>
+	 <1056484203.1033.192.camel@w-jstultz2.beaverton.ibm.com>
+	 <1056485244.1825.173.camel@mulgrave>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056485215.1032.197.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 24 Jun 2003 13:06:56 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-06-24 at 13:07, James Bottomley wrote:
+> On Tue, 2003-06-24 at 14:50, john stultz wrote:
+> > On Tue, 2003-06-24 at 09:26, James Bottomley wrote:
+> > > The above trace is from a HP PA-RISC machine running 2.5.73-pa1.
+> > 
+> > Hmm. Odd. What is the HZ frequency on this machine? 
+> 
+> On the kernel with the panic, 100.  If I build a 64 bit kernel (which I
+> haven't done for .73 yet) I'll get 1000
 
-I'll apply this, the INT64_MAX or whatever ideas are just
-stupid.  We're saying what "bits" the device supports when
-it does DMA, so we should pass in a "bit" mask.
+Ok I'd be curious if it occurs there as well
+
+The only bits the patch should touch are used in adjtimex, and adjtimex
+is very limited on how much it can adjust time. If you're a year off or
+whatever, its more likely ntpdate is calling stime/settimeofday. 
+
+Could you boot w/o ntp starting up, then manually run  "ntpdate -b
+<server>" to see if that causes it as well? 
+
+thanks
+-john
+
+

@@ -1,87 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTEIAdN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 20:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTEIAdN
+	id S262257AbTEIAju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 20:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTEIAju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 20:33:13 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:45064 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S262254AbTEIAdL
+	Thu, 8 May 2003 20:39:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:42884 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262257AbTEIAjt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 20:33:11 -0400
-Date: Thu, 08 May 2003 18:45:42 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Undo aic7xxx changes 
-Message-ID: <2804790000.1052441142@aslan.scsiguy.com>
-In-Reply-To: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	Thu, 8 May 2003 20:39:49 -0400
+Date: Thu, 8 May 2003 20:56:29 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't
+ work due to /dev/rtc issues
+In-Reply-To: <20030509003825.GR8978@holomorphy.com>
+Message-ID: <Pine.LNX.4.53.0305082052160.21290@chaos>
+References: <3EBAD63C.4070808@nortelnetworks.com> <20030509001339.GQ8978@holomorphy.com>
+ <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com>
+ <20030509003825.GR8978@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> I've undone aic7xxx changes which were locking up some machines on
-> initialization.
+On Thu, 8 May 2003, William Lee Irwin III wrote:
 
-Hmm.  It would have been nice to have the oportunity to fix this correctly.
-As it stands now, I have really no idea what people were testing or not
-since by taking Alan's patch you have lost the complete change history
-and the ability to step people through the changes.  I have preserved
-this history in the bk send output that is available on my site if at
-some point that is useful to you.
+> On Thu, May 08, 2003 at 06:12:12PM -0400, Chris Friesen wrote:
+> >>> I'm trying to test the scheduler latency on a powerpc platform.  It appears
+> >>> that a realfeel type of program won't work since you can't program /dev/rtc
+> >>> to generated interrupts on powerpc.  Is there anything similar which could
+> >>> be done?
+>
+> On Thu, 8 May 2003, William Lee Irwin III wrote:
+> > > Why would you want to use an interrupt? Just count jiffies in sched.c
+>
+> On Thu, May 08, 2003 at 05:38:23PM -0700, Davide Libenzi wrote:
+> > I don't know what he does mean for scheduler latency, but if it is the ctx
+> > switch one something like get_cycles() will be better instead of jiffies.
+>
+> True, if you're looking for performance tweaks and not pathologies (which
+> I was) you'll need something that accurate.
+>
+>
+> -- wli
+Does it have a printer port like the Intel machines?
+If so, set it up to generate interrupts on the 'event' pin
+(paper-out, etc.) and have the ISR parrot the status bits
+out the printer-port bits.
 
-> The new driver is now named drivers/scsi/aic79xx and is under
-> CONFIG_AIC79XX.
+Start it  up and put function generator on the event bit.
+measure the delay beteen that bin and the data data bit(s)
+with a 'scope. This tells you the whole story, the total
+time necessary for an ISR to actually do something.
 
-So we now have an extra copy of the assembler, the Config files, and
-the aiclib files.  This is not a solution.  If you wanted to selectively
-update the aic79xx driver, all you had to do was ask me for the requisite
-change sets.  This is what a mainatiner is for.
 
-> Justin, unfortunately I can't even THINK about updating aic7xxx to your
-> new driver at the current release stage. I will do so in the 2.4.22.
 
-Does this mean that you will actually take BK changes form me instead of
-from just about anyone else that sends you aic7xxx driver updates?  I had
-pretty much given up on this.
-
-> The update also contains a PCI posting flush fix from Arjan.
-
-Which is completely unnecessary and in fact will cause hangs and crashes
-on many Dell servers.  The "fix" for the VIA systems that violate the
-PCI spec is to either:
-
-1) Update the driver correctly so that it's detection logic will
-   automatically disable memory mapped I/O for these broken systems.
-
-or 
-
-2) Just disable the BIOS options that configure the system to violate
-   the PCI prefetching rules.
-
-Slowing down all systems, even the ones that are *not broken* by doing
-extra, random, PCI read cycles is not a fix.
-
-If you want some verification of the Dell issue (which I'm sure will
-cause problems on other "fast" systems too), just ask Matt Domsh.
-
-Again, if you have concerns about the aic7xxx or aic79xx drivers, my
-mail box is always open.  Waiting to contact me until the last minute
-where I can only sit on the sidelines and watch another train wreck is
-not the best way to ensure that the drivers function correctly in 2.4.X.
-
-What this basically boils down to is trust.  If you don't trust me,
-tell me how I can build that trust.  Without it, I can only continue
-to tell most people that contact me with bug reports, "It's already
-fixed in the official driver.  You can pull the latest from ..."
-
---
-Justin
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265874AbUAFXhX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAFXhX
+	id S266098AbUAFXl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 18:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbUAFXl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:37:23 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:6324 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S265874AbUAFXhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:37:21 -0500
-Message-ID: <3FFB46B0.9060101@namesys.com>
-Date: Wed, 07 Jan 2004 02:37:20 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Tue, 6 Jan 2004 18:41:56 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:37641 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S266098AbUAFXly convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 18:41:54 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel buildsystem broken on RO medium
+Date: Wed, 7 Jan 2004 00:41:41 +0100
+User-Agent: KMail/1.5.94
 MIME-Version: 1.0
-To: Oleg Drokin <green@linuxhacker.ru>
-CC: linux-kernel@vger.kernel.org, mfedyk@matchmail.com,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related
- to sector_t being unsigned, advice requested
-References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com> <200401062135.i06LZAOY005429@car.linuxhacker.ru>
-In-Reply-To: <200401062135.i06LZAOY005429@car.linuxhacker.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401070041.41598.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+How to build external kernel modules using kernel buildsystem from RO medium?
 
->
->
->This code was never executing anyway.
->
->  
->
-Oleg, I thought you ran a script for finding dead code last fall or 
-summer?  Any idea why it didn't find this and gcc did?  Or did you only 
-run it on reiser4?
+
+make[1]: Entering directory `/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd'
+
+    Calling toplevel makefile of kernel source tree, which I believe is in
+    KDIR=/lib/modules/2.6.1/build
+    NOTE: please ignore warnings regarding overriding of SUBDIRS
+
+/usr/bin/make -C /lib/modules/2.6.1/build 
+SUBDIRS=/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd  modules
+make[2]: Entering directory `/usr/src/linux-2.6.1'
+  HOSTCC  scripts/modpost.o
+cc1: Permission denied: opening dependency file scripts/.modpost.o.d
+make[3]: *** [scripts/modpost.o] Error 1
+make[2]: *** [scripts] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.6.1'
+make[1]: *** [kbuild] Error 2
+make[1]: Leaving directory `/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd'
+
+
+Are there any patches that fix this part of build system (if I remember 
+correctly someone created such patch but I didn't find it)?
 
 -- 
-Hans
-
-
+Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux

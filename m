@@ -1,199 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUCaEXR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 23:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCaEXR
+	id S261725AbUCaEnk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 23:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUCaEnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 23:23:17 -0500
-Received: from ozlabs.org ([203.10.76.45]:18411 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261724AbUCaEXL (ORCPT
+	Tue, 30 Mar 2004 23:43:40 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:8423 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261725AbUCaEng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 23:23:11 -0500
-Subject: Re: [patch 1/22] Add __early_param for all arches
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: trini@kernel.crashing.org
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain>
-References: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1080706985.29195.12.camel@bach>
+	Tue, 30 Mar 2004 23:43:36 -0500
+Date: Wed, 31 Mar 2004 10:13:04 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, rddunlap@osdl.org,
+       linux-kernel@vger.kernel.org, apw@shadowen.org, jamesclv@us.ibm.com
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-ID: <20040331044304.GA5167@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <20040330173620.6fa69482.akpm@osdl.org> <276260000.1080697873@flay>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 31 Mar 2004 14:23:05 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <276260000.1080697873@flay>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-25 at 10:57, trini@kernel.crashing.org wrote: 
-> +void __init parse_early_options(char **cmdline_p)
+There are actually two different problems here, and the BUG_ON is
+hit in both cases.
 
-Please, don't do it this way.
+1) In INIT_MM(), we now do this
 
-__setup() has icky semantics which are only used in three places (ide,
-ppc64's eeh, and um's eth).  The string is a prefix and the rest of the
-parameter is handed to the fn as an arg.  Meaning misspellings aren't
-usually caught, and accidental name reuse is hard to catch.
+        .cpu_vm_mask    = CPU_MASK_ALL,
 
-Secondly, we already have a parser in the kernel.
+With this, if we enter flush_tlb_others with init_mm, all bits except the one
+corresponding to the current cpu are set. For example, on my UNI machine
+running an SMP kernel with NR_CPUS=8, cpumask is 0xfe. The BUG_ON is hit 
+even if we are doing nothing related to shutdown or cpu-offlining (like
+when we are just loading a new kernel into memory using kexec).
 
-I like the idea of cleaning up saved_command_line crap: ideally
-the archs would just assign to a global "command_line" var, and
-anyone wanting to write to it would make their own copies.
+2) The issue of a race between taking CPUs offline and the tlbflush code. The
+discussions have been centered around this issue.
 
-How's this version, instead?  If you agree, I'll produce a merged
-version.
+The patch I sent across, though, is completely targetted towards issue 1.
 
-Thanks!
-Rusty.
+Regards, Hari
 
-Name: Merge __early_param() with __setup code
-Author: Rusty Russell
-Status: Tested on 2.6.5-rc3
-
-The __early_param implementation added yet another commandline parser
-to the kernel.  Try just overloading the __setup() code insteadm and
-fix up the semantics (require exact match, hand args in two pieces, fn
-returns void).
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc3/arch/i386/kernel/head.S working-2.6.5-rc3-early_param-with-setup/arch/i386/kernel/head.S
---- linux-2.6.5-rc3/arch/i386/kernel/head.S	2004-03-30 16:14:04.000000000 +1000
-+++ working-2.6.5-rc3-early_param-with-setup/arch/i386/kernel/head.S	2004-03-31 13:38:31.000000000 +1000
-@@ -19,6 +19,7 @@
- #include <asm/thread_info.h>
- #include <asm/asm_offsets.h>
- #include <asm/setup.h>
-+#include <asm/param.h>
- 
- /*
-  * References to members of the new_cpu_data structure.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc3/include/asm-i386/param.h working-2.6.5-rc3-early_param-with-setup/include/asm-i386/param.h
---- linux-2.6.5-rc3/include/asm-i386/param.h	2004-03-12 07:57:19.000000000 +1100
-+++ working-2.6.5-rc3-early_param-with-setup/include/asm-i386/param.h	2004-03-31 13:38:31.000000000 +1000
-@@ -18,5 +23,6 @@
- #endif
- 
- #define MAXHOSTNAMELEN	64	/* max length of hostname */
-+#define COMMAND_LINE_SIZE 256
- 
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc3/include/asm-i386/setup.h working-2.6.5-rc3-early_param-with-setup/include/asm-i386/setup.h
---- linux-2.6.5-rc3/include/asm-i386/setup.h	2004-03-30 16:14:30.000000000 +1000
-+++ working-2.6.5-rc3-early_param-with-setup/include/asm-i386/setup.h	2004-03-31 13:38:31.000000000 +1000
-@@ -17,7 +17,6 @@
- #define MAX_NONPAE_PFN	(1 << 20)
- 
- #define PARAM_SIZE 2048
--#define COMMAND_LINE_SIZE 256
- 
- #define OLD_CL_MAGIC_ADDR	0x90020
- #define OLD_CL_MAGIC		0xA33F
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc3/include/linux/init.h working-2.6.5-rc3-early_param-with-setup/include/linux/init.h
---- linux-2.6.5-rc3/include/linux/init.h	2004-03-30 16:14:35.000000000 +1000
-+++ working-2.6.5-rc3-early_param-with-setup/include/linux/init.h	2004-03-31 14:14:21.000000000 +1000
-@@ -106,26 +106,38 @@ extern initcall_t __security_initcall_st
- 
- struct obs_kernel_param {
- 	const char *str;
--	int (*setup_func)(char *);
-+	union {
-+		int (*setup_func)(char *);
-+		void (*param_func)(char *);
-+	} u;
-+	int early;
- };
- 
--/* OBSOLETE: see moduleparam.h for the right way. */
--#define __setup_param(str, unique_id, fn)			\
-+/* These only when builtin: see moduleparam.h for the normal way. */
-+/* Called if str matches prefix: fn returns 1 if we're the right one. */
-+#define __setup(prefix, fn)					\
-+	__setup_param(prefix, fn, {.setup_func = fn}, 0)
-+
-+/* Called v. early on when option matches str: fn gets string after =,
-+ * or NULL. */
-+#define __early_param(str, fn)					\
-+	__setup_param(str, fn, {.param_func = fn}, 1)
-+
-+#define __setup_param(str, unique_id, fn_init, early)		\
- 	static char __setup_str_##unique_id[] __initdata = str;	\
- 	static struct obs_kernel_param __setup_##unique_id	\
- 		 __attribute_used__				\
- 		 __attribute__((__section__(".init.setup")))	\
--		= { __setup_str_##unique_id, fn }
--
--#define __setup_null_param(str, unique_id)			\
--	__setup_param(str, unique_id, NULL)
-+		= { __setup_str_##unique_id, fn_init, early }
- 
--#define __setup(str, fn)					\
--	__setup_param(str, fn, fn)
-+#define __obsolete_setup2(str, unique_id)			\
-+	__setup_param(str, unique_id, {.setup_func = NULL}, 0)
- 
-+/* Does nothing, but will warn user if it's used. */
- #define __obsolete_setup(str)					\
--	__setup_null_param(str, __LINE__)
-+	__obsolete_setup2(str, __LINE__)
- 
-+void __init parse_early_options(const char *saved_command_line);
- #endif /* __ASSEMBLY__ */
- 
- /**
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc3/init/main.c working-2.6.5-rc3-early_param-with-setup/init/main.c
---- linux-2.6.5-rc3/init/main.c	2004-03-30 16:14:35.000000000 +1000
-+++ working-2.6.5-rc3-early_param-with-setup/init/main.c	2004-03-31 14:14:26.000000000 +1000
-@@ -157,10 +157,13 @@ static int __init obsolete_checksetup(ch
- 	do {
- 		int n = strlen(p->str);
- 		if (!strncmp(line, p->str, n)) {
--			if (!p->setup_func) {
-+			/* Already done in handle_early_option? */
-+			if (p->early)
-+				return 1;
-+			if (!p->u.setup_func) {
- 				printk(KERN_WARNING "Parameter %s is obsolete, ignored\n", p->str);
- 				return 1;
--			} else if (p->setup_func(line + n))
-+			} else if (p->u.setup_func(line + n))
- 				return 1;
- 		}
- 		p++;
-@@ -393,7 +397,31 @@ static void noinline rest_init(void)
- 	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
- 	unlock_kernel();
-  	cpu_idle();
--} 
-+}
-+
-+/* Check for early options. */
-+static int __init early_option(char *param, char *val)
-+{
-+	struct obs_kernel_param *p;
-+	extern struct obs_kernel_param __setup_start, __setup_end;
-+
-+	for (p = &__setup_start; p < &__setup_end; p++)
-+		if (p->early && strcmp(param, p->str) == 0)
-+			p->u.param_func(val);
-+
-+	/* We accept everything at this stage. */
-+	return 0;
-+}
-+
-+/* Arch code calls this early on. */
-+void __init parse_early_options(const char *saved_command_line)
-+{
-+	static char __initdata command_line[COMMAND_LINE_SIZE];
-+	strcpy(command_line, saved_command_line);
-+
-+	/* All fall through to handle_early_option. */
-+	parse_args("early options", command_line, NULL, 0, early_option);
-+}
- 
- /*
-  *	Activate the first processor.
-
+On Tue, Mar 30, 2004 at 05:51:13PM -0800, Martin J. Bligh wrote:
+> >> I think we're assuming that we don't have to because the problem is fixed 
+> >> by the "cpus_and(tmp, cpumask, cpu_online_map)" in flush_tlb_others so we 
+> >> don't have to. Except it's racy, and doesn't work.
+> > 
+> > And it's a kludge, to work around dangling references to a CPU which has
+> > gone away.
+> 
+> Yes ;-)
+>  
+> >> It would seem to me that your suggestion would fix it. But isn't locking
+> >> cpu_online_map both simpler and (most importantly) more generic? I can't 
+> >> imagine that we don't use this elsewhere ... suppose for instance we took 
+> >> a timer interrupt, causing a scheduler rebalance, and moved a process to 
+> >> an offline CPU at that point? Isn't any user of smp_call_function also racy?
+> > 
+> > If we have to add any fastpath locking to cope with CPU removal or reboot
+> > then it's time to make CONFIG_HOTPLUG_CPU dependent upon CONFIG_BROKEN.
+> 
+> Yeah, but as we've proved, it's not just hotplug, it's shutdown. And I don't
+> think we can make that depend on CONFIG_BROKEN ;-) I don't see a *read*
+> side RCU lock as an impostion on the fastpath (for reading cpu_online_map),
+> and I don't care if writing to cpu_online_map is slower. A spinlock would
+> be crappy, yes ...
+> 
+> > yes, cpu_online_map should be viewed as a reference to the going-away CPU
+> > for smp_call_function purposes.  However the CPU takedown code appears to
+> > do the right thing: it removes the cpu from cpu_online_map first, then does
+> > the stop_machine() thing which should ensure that all other CPUs have
+> > completed any cross-CPU call which they were doing, yes?
+> 
+> Andy almost managed to convince me that the smp_call_function stuff is safe,
+> based on call_lock exclusion. Except that we count that cpu stuff outside
+> it ... but that's trivial to fix, we just move it inside the lock (patch
+> below - untested, but trivial).
+> 
+> He also pointed out that we could fairly easily fix the tlb stuff by 
+> taking the tlb lock before taking a cpu offline. Which still doesn't
+> make me desperately comfortable ... but then he's smarter than me ;-)
+> To me it comes down to ... do we want to lock the damned thing, or fix
+> all the callers to be really, really careful? 
+> 
+> diff -purN -X /home/mbligh/.diff.exclude virgin/arch/i386/kernel/smp.c smp_call_function/arch/i386/kernel/smp.c
+> --- virgin/arch/i386/kernel/smp.c	2004-03-11 14:33:36.000000000 -0800
+> +++ smp_call_function/arch/i386/kernel/smp.c	2004-03-30 17:43:34.000000000 -0800
+> @@ -514,10 +514,7 @@ int smp_call_function (void (*func) (voi
+>   */
+>  {
+>  	struct call_data_struct data;
+> -	int cpus = num_online_cpus()-1;
+> -
+> -	if (!cpus)
+> -		return 0;
+> +	int cpus;
+>  
+>  	data.func = func;
+>  	data.info = info;
+> @@ -527,6 +524,10 @@ int smp_call_function (void (*func) (voi
+>  		atomic_set(&data.finished, 0);
+>  
+>  	spin_lock(&call_lock);
+> +	cpus = num_online_cpus()-1;
+> +	if (!cpus)
+> +		return 0;
+> +
+>  	call_data = &data;
+>  	mb();
+>  	
+> 
 
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

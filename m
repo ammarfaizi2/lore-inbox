@@ -1,58 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbTBJWLu>; Mon, 10 Feb 2003 17:11:50 -0500
+	id <S265369AbTBJWQt>; Mon, 10 Feb 2003 17:16:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbTBJWLu>; Mon, 10 Feb 2003 17:11:50 -0500
-Received: from dsl-213-023-060-099.arcor-ip.net ([213.23.60.99]:45739 "EHLO
-	spot.lan") by vger.kernel.org with ESMTP id <S265373AbTBJWLs> convert rfc822-to-8bit;
-	Mon, 10 Feb 2003 17:11:48 -0500
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Athlon adv speculative caching fix removed from 2.4.20?
-Date: Mon, 10 Feb 2003 23:21:24 +0100
-User-Agent: KMail/1.5
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	id <S265382AbTBJWQt>; Mon, 10 Feb 2003 17:16:49 -0500
+Received: from cda1.e-mind.com ([195.223.140.107]:59010 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S265369AbTBJWQr>;
+	Mon, 10 Feb 2003 17:16:47 -0500
+Date: Mon, 10 Feb 2003 23:26:32 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance
+Message-ID: <20030210222632.GD22275@dualathlon.random>
+References: <1044385759.1861.46.camel@localhost.localdomain> <200302041935.h14JZ69G002675@darkstar.example.net> <b1pbt8$2ll$1@penguin.transmeta.com> <20030204232101.GA9034@work.bitmover.com> <20030204235112.GB17244@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302102321.30549.kiza@gmx.net>
+In-Reply-To: <20030204235112.GB17244@unthought.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Feb 05, 2003 at 12:51:12AM +0100, Jakob Oestergaard wrote:
+> On Tue, Feb 04, 2003 at 03:21:01PM -0800, Larry McVoy wrote:
+> > > I'd love to see a small - and fast - C compiler, and I'd be willing to
+> > > make kernel changes to make it work with it.  
+> > 
+> > I can't offer any immediate help with this but I want the same thing.  At
+> > some point, we're planning on funding some extensions into GCC or whatever
+> > reasonable C compiler is around:
+> 
+> [snipping Linus from To:]
+> 
+> Cool.
+> 
+> > 
+> >     - associative arrays as a builtin type
+> > 
+> >       {
+> >       	  assoc	bar = {};	// anonymous, no file backing
+> > 
+> > 	  bar{"some key"} = "some value";
+> > 	  if (defined(bar{"some other value"})) ...
+> >       }
+> 
+> Allow me:
+> 
+> {
+>  std::map<std::string,std::string> bar;
+> 
+>  bar["some key"] = "some value";
+>  if (bar.find("some other value") != bar.end()) ...
+> }
 
-Hi,
+Indeed. Hardcoding map and multimap templates with string,string
+parameter in the language sounds like a very worthless effort. If he
+wants an high level syntax on top of the abstractions he should use a
+more high level language. C can do everything but it's going to be a
+sintax like what we do in the kernel, with lists, rbtrees, structures of
+pointer to functions etc..
 
-in patch-2.4.20 'static void amd_adv_spec_cache_disable(void)' was removed 
-from arch/i386/kernel/setup.c.
+> Works beautifully, all you need is to pick the existing language which
+> allows for the existing standard library which already provide that
+> functionality.
+> 
+> I doubt there's much need for a C+ or C 2+/3 langauage variant  ;)
+> 
+> > 
+> >     - regular expressions
+> > 
+> >       {
+> >       	  char	*foo = "blech";
+> > 
+> > 	  if (foo =~ /regex are nice/) {
+> > 	  	printf("Well isn't that special?\n");
+> > 	  }
+> >       }
+> 
+> Ok, I can't help you with that.
+> 
+> You have probably seen a Perl program before... Now imagine a two
+> million line Perl program... That is why the above is not a good idea ;)
 
-I haven't found any patch on lkml posted that did this and it wasn't mentioned 
-in 2.4.20's changelog.
+actually the python syntax for re is quite nice, and would be pretty
+compatible with C, no magic perl =~ operator etc.. again a library like
+STL in an highlevel language would do the trick just fine.
 
-Can someone point to a why this was removed, maybe a different fix since the 
-one mentioned says "Short-term fix" or is it not needed anymore for some 
-reason?
+> 
+> It's still your right to want it of course...
+> 
+> > 
+> >     - tk bindings built in
+> 
+> Built into the language (not a library)?
 
-Bye,
-Oliver
+Oh my.
 
-- -- 
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx(pro).net)>
-http://kiza.kcore.de/    <--    homepage
-PGP-key      -->    /pgpkey.shtml
-http://kiza.kcore.de/journal/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> 
+> <sarcasm>
+> Then I'd want the compiler in a kernel module  ;)
+> </>
 
-iD8DBQE+SCXqOpifZVYdT9IRAlpTAKDRjsbgPJDj6MhjnrjuCnXzKaoODACg4f8/
-w8NSN6QG9K+ULPaB9/AVRDU=
-=xj4v
------END PGP SIGNATURE-----
+then I want insmod kde.o too ;)
 
+Andrea

@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbTENJ4X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 05:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTENJ4W
+	id S261805AbTENKOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 06:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTENKOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 05:56:22 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:11195 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S261789AbTENJ4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 05:56:21 -0400
-Date: Wed, 14 May 2003 06:06:56 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-In-Reply-To: <Pine.LNX.4.44.0305140234110.32259-100000@marcellos.corky.net>
-Message-ID: <Pine.LNX.4.33.0305140513460.10480-100000@marauder.googgun.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 06:14:25 -0400
+Received: from netline-be1.netline.ch ([195.141.226.32]:23560 "EHLO
+	netline-be1.netline.ch") by vger.kernel.org with ESMTP
+	id S261805AbTENKOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 06:14:22 -0400
+Subject: Re: Improved DRM support for cant_use_aperture platforms
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: davidm@hpl.hp.com, "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+In-Reply-To: <20030514134141.A5170@jurassic.park.msu.ru>
+References: <1052690133.10752.176.camel@thor>
+	 <16063.60859.712283.537570@napali.hpl.hp.com>
+	 <1052768911.10752.268.camel@thor>
+	 <16064.453.497373.127754@napali.hpl.hp.com>
+	 <1052774487.10750.294.camel@thor>
+	 <16064.5964.342357.501507@napali.hpl.hp.com>
+	 <1052786080.10763.310.camel@thor>
+	 <16064.17852.647605.663544@napali.hpl.hp.com>
+	 <20030513173347.A25865@jurassic.park.msu.ru>
+	 <16065.6969.137647.391163@napali.hpl.hp.com>
+	 <20030514134141.A5170@jurassic.park.msu.ru>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Debian, XFree86
+Message-Id: <1052908024.18105.135.camel@thor>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
+Date: 14 May 2003 12:27:05 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mit, 2003-05-14 at 11:41, Ivan Kokshaysky wrote:
+> On Tue, May 13, 2003 at 09:20:09AM -0700, David Mosberger wrote:
+> 
+> > What's the nature of those "ugly and fragile" hacks?  Are you saying
+> > that CPU accesses to AGP space aren't remapped in the "normal" (PC)
+> > way?  Or is it something entirely different?
+> 
+> Ok, you asked for it... :-)
+> As you know, Alpha architecture is entirely cache coherent
+> by design, i.e. there are no such things as non-cacheable mappings
+> or cache flushing in hardware. Native Alpha Titan/Marvel AGP controllers
+> are also cache coherent (kind of AGP extension of traditional
+> Alpha PCI IOMMU).
+> However, the "normal" PC AGP implementation isn't - this applies
+> to AMD-751/761 AGP controllers on Nautilus as well.
+> The AGP window on these chipsets is accessible by CPU *only* in the
+> system memory address space, i.e. it's always cacheable and thus
+> totally useless on Alpha.
 
-On Wed, 14 May 2003, Yoav Weiss wrote:
+Set cant_use_aperture and use David's patch then? :)
 
-> On Tue, 13 May 2003, Ahmed Masud wrote:
->
-> Yes, it sounds like an interesting project.  Check out openbsd's paper
-> about this: http://www.openbsd.org/papers/swapencrypt.ps
 
-Thank you for this paper, it is a fun read. I do think however that a
-few implementation differences should take place:
-
-1. We should not enforce Rijndael as the only choice.
-
-2. Every page should be encrypted iff it marked with some flag. This gives
-a generic enough hook to create a swap_encrypt_policy type function to
-determine whether it is desirable to encrypt a particular page or not.
-
-2a. The above flag may also be set or cleared by the page-owner process on
-a page-to-page basis (something a-kin to mlock()).
-
-3. A slightly more sophisticated timeout framework should be created with
-the ability to enforce expiry or request expiry extensions (upto some type
-of a system hard limit?) on a per page.
-
-Please comment.
-
-This is an aside: should do we do anything about core dumps?
-
-> Let me know when you get it rolling.  I'll try to help where I can.
-> I just hope it has a chance to be included.
-
-I will start looking at it seriously within next couple of days actually.
-I looked at the swap stuff in mm code yesterday for the first time and it
-seems (eeriely)  straightforward, and i know i am going to run into an
-unseen brick wall :-).
-
-I would suspect that somewhere between the io requst generated by
-swap_readpage and swap_writepage cypto can be hooked in...  haven't yet
-determined where/when the key generations should take place.
-
-Cheers,
-
-Ahmed Masud.
-
+-- 
+Earthling Michel Dänzer   \  Debian (powerpc), XFree86 and DRI developer
+Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
 

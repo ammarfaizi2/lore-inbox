@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130307AbQLKUqy>; Mon, 11 Dec 2000 15:46:54 -0500
+	id <S129716AbQLKUve>; Mon, 11 Dec 2000 15:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbQLKUqs>; Mon, 11 Dec 2000 15:46:48 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:51079 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S130307AbQLKUqX>;
-	Mon, 11 Dec 2000 15:46:23 -0500
-Message-Id: <m145ZMP-000OWyC@amadeus.home.nl>
-Date: Mon, 11 Dec 2000 21:15:45 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva> <E145Xy6-0008HA-00@the-village.bc.nu>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S130454AbQLKUvY>; Mon, 11 Dec 2000 15:51:24 -0500
+Received: from front3m.grolier.fr ([195.36.216.53]:33269 "EHLO
+	front3m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129716AbQLKUvK> convert rfc822-to-8bit; Mon, 11 Dec 2000 15:51:10 -0500
+Date: Mon, 11 Dec 2000 20:20:20 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: davej@suse.de, Martin Mares <mj@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <20001211002850.A14393@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.10.10012111956510.1805-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E145Xy6-0008HA-00@the-village.bc.nu> you wrote:
->> Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
->> for the VM doesn't make any sense since it doesn't really excercise
->> the VM in any way...
 
-> Its an interesting demo that 2.4 has some performance problems since 2.2
-> is slower than 2.0 although nowdays not much.
 
-Seems to depend on the hardware used. On my test box, 2.4 is faster by
-0.3s....
+On Mon, 11 Dec 2000, Jamie Lokier wrote:
 
-Greetings,
-    Arjan van de Ven
+> Here are a few more:
+> 
+>  net/acenic.c: pci_write_config_byte(ap->pdev, PCI_CACHE_LINE_SIZE,
+>  net/gmac.c: PCI_CACHE_LINE_SIZE, 8);
 
-Machine:
-AMD Duron 700Mhz with 128Mb of 133Mhz Ram
-2 IBM 15Gb ATA100 disks in RAID0 raid
+>  scsi/sym53c8xx.c: printk(NAME53C8XX ": PCI_CACHE_LINE_SIZE set to %d (fix-up).\n",
 
-tested kernels:
-2.2.18 + raid patch + latest IDE patch
-2.4.0-test12pre7
+For this one, this happens on Intel:
 
-compiling 2.2.18 with gcc 2.95.2
+- ONLY if PCI cache line size was configured to ZERO (i.e. not
+  configured).
 
-				1st run		2nd		3rd
-kernel 2.2.18/raid/ide		3:28.909	3:28.819	3:28.840
-kernel 2.4.0test12pre7		3:28:520	3:28.534	3:28.546
+     AND
+
+- ONLY if user asked for this through the boot command line.
+
+Anyway, the driver WARNs user about if it shoe-horns some value as you can
+see above.
+
+Btw, there is a single case where using MWI is a workaround.
+
+Given that all known systems have a known PCI CACHE LINE SIZE for L2/L3,
+if POST software + O/S PCI driver are loose enough not to provide the
+RIGHT value of the PCI CACHE LINE LINE for devices that support it, what
+software drivers can do ?
+
+May-be, they should just refuse to attach the device, at least when this
+information _must_ be known in order to work-around a device problem. This
+will remove some ugly code for non-Intel plat-forms from the sym53c8xx
+source, by the way.
+
+Having to call some pdev_enable_device() to have the cache line size
+configured looks like shit to me. After all, the BARs, INT, LATENCY TIMER,
+etc.. are configured prior to entering driver probe. Why should the cache
+line size be deferred to some call to some obscure mismaned thing ?
+
+[...]
+
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318857AbSICRYo>; Tue, 3 Sep 2002 13:24:44 -0400
+	id <S318858AbSICRZy>; Tue, 3 Sep 2002 13:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318858AbSICRYn>; Tue, 3 Sep 2002 13:24:43 -0400
-Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:53396 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318856AbSICRYn>;
-	Tue, 3 Sep 2002 13:24:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
-Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
-Date: Tue, 3 Sep 2002 19:31:52 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <OF3A6E6F2C.2609CEE7-ONC1256C29.005E7DDC@de.ibm.com>
-In-Reply-To: <OF3A6E6F2C.2609CEE7-ONC1256C29.005E7DDC@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mHWq-0005i3-00@starship>
+	id <S318860AbSICRZy>; Tue, 3 Sep 2002 13:25:54 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:49170 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S318858AbSICRZv>;
+	Tue, 3 Sep 2002 13:25:51 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209031730.g83HUIb15556@oboe.it.uc3m.es>
+Subject: Re: [RFC] mount flag "direct"
+In-Reply-To: <Pine.LNX.4.44.0209031003370.1889-100000@dlang.diginsite.com> from
+ David Lang at "Sep 3, 2002 10:07:48 am"
+To: David Lang <david.lang@digitalinsight.com>
+Date: Tue, 3 Sep 2002 19:30:18 +0200 (MET DST)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 19:16, Heiko Carstens wrote:
-> Hi,
-> 
-> >> Thanks for the patch but unfortunately it doesn't change the behaviour 
-> at
-> >> all. This BUG is still 100% reproducible by just having 1 process which
-> >> allocates memory chunks of 256KB and after each allocation writes to 
-> each
-> >> of the pages in order to make them dirty.
-> >Um, no smp --> no free race anyway.  But try the following instead, to
-> >start narrowing down the possibilities:
-> 
-> Still the same BUG in __free_pages_ok happens, or in other words both of 
-> your
-> checks didn't catch the error...
+"A month of sundays ago David Lang wrote:"
+> Peter, the thing that you seem to be missing is that direct mode only
+> works for writes, it doesn't force a filesystem to go to the hardware for
+> reads.
 
-My intention was to verify which one of the two possible execution paths
-was taken, and also to verify that swap_duplicate doesn't see any problem
-(there's a missing error check here).  Note that we also definitively
-eliminated your original theory since we didn't arrive at the
-page_cache_release via the if (page->mapping) path.
+Yes it does. I've checked! Well, at least I've checked that writing
+then reading causes the reads to get to the device driver. I haven't
+checked what reading twice does.
 
-> Any other ideas?
+If it doesn't cause the data to be read twice, then it ought to, and
+I'll fix it (given half a clue as extra pay ..:-)
 
-Have you trimmed your config down to the absolute minimum?
+> for many filesystems you cannot turn off their internal caching of data
+> (metadata for some, all data for others)
 
-Is there any such thing as kdb for S390?
+Well, let's take things one at a time. Put in a VFS mechanism and then
+convert some FSs to use it.
 
--- 
-Daniel
+> so to implement what you are after you will have to modify the filesystem
+> to not cache anything, since you aren't going to do this for every
+
+Yes.
+
+> filesystem you end up only haivng this option on the one(s) that you
+> modify.
+
+I intend to make the generic mechanism attractive.
+
+> if you have a single (or even just a few) filesystems that have this
+> option you may as well include the locking/syncing software in them rather
+> then modifying the VFS layer.
+
+Why? Are you advocating a particular approach? Yes, I agree that that
+is a possible way to go - but I will want the extra VFS ops anyway, 
+and will want to modify the particular fs to use them, no?
+
+Peter

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285365AbRLSQSB>; Wed, 19 Dec 2001 11:18:01 -0500
+	id <S285367AbRLSQSL>; Wed, 19 Dec 2001 11:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285363AbRLSQRw>; Wed, 19 Dec 2001 11:17:52 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17740 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S285362AbRLSQRg>; Wed, 19 Dec 2001 11:17:36 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Christian Koenig <ChristianK.@t-online.de>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        Otto Wyss <otto.wyss@bluewin.ch>, Alexander Viro <viro@math.psu.edu>,
-        antirez <antirez@invece.org>, Andreas Dilger <adilger@turbolabs.com>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        Craig Christophel <merlin@transgeek.com>
-Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
-In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>
-	<m1r8prwuv7.fsf@frodo.biederman.org> <3C204282.3000504@zytor.com>
-	<m1itb3wsld.fsf@frodo.biederman.org> <3C2052C0.2010700@zytor.com>
-	<m18zbzwp34.fsf@frodo.biederman.org> <3C205FBC.60307@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Dec 2001 08:57:02 -0700
-In-Reply-To: <3C205FBC.60307@zytor.com>
-Message-ID: <m1zo4fursh.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285366AbRLSQSB>; Wed, 19 Dec 2001 11:18:01 -0500
+Received: from pat.uio.no ([129.240.130.16]:49576 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S285364AbRLSQRw>;
+	Wed, 19 Dec 2001 11:17:52 -0500
+Date: Wed, 19 Dec 2001 17:16:50 +0100 (MET)
+From: wikne@lynx.uio.no (Jon Wikne)
+Message-Id: <200112191616.RAA07423@lynx.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16 rivafb memory recognition problem
+Cc: ajoshi@shell.unixbox.com
+X-Sun-Charset: US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Hi,
 
-> Eric W. Biederman wrote:
-> >
-> >>From the 10,000 foot level it looks like I am pretty safe already
-> > except for those BIOS functions that drive the hardware.  For those I
-> > need to setup the legacy PIC back to it's default setting, and
-> > possibly a few other hardware things.   I wonder just how sensitive
-> > the an x86 BIOS really is to changing those things...
-> >
-> 
-> You never know, especially since part of the BIOS might be an external SCSI or
-> network card BIOS...
+I discovered a strange behaviour related to kernel memory recognition
+when using the rivafb frame buffer option compiled into kernel 2.4.16.
+The system in question has a Asus AGP7700 nVidia GeForce 2 GTS (32MB)
+video card. It is a dual PIII SMP system, if that might matter.
 
-Which just goes to show what a fragile firmware design it is, to have
-firmware callbacks doing device I/O.  I think the whole approach of
-having firmware callbacks is fundamentally flawed but I'll do my best
-to keep it working, for those things that care.  If it works over 50%
-of the time I'm happy...
+When I select nVidia Riva support, at first it seemed to work perfectly.
+But then I discovered that the kernel only recognizes 32MB of total
+memory during boot! Excessive swapping is the result.
 
-The much more interesting challenge is to get the linux kernel drivers
-to shutdown their hardware well enough that they can still drive the
-hardware when linux restarts.  And if the hardware can't do that it is
-buggy...
+When instead I compile the kernel with VESA frame buffer support,
+all other kernel config parameters the same, the resulting kernel
+recognizes all of the 1GB physical memory actually installed in
+this box.
+
+Any ideas?
 
 
-Eric
+Cheers,
+-- Jon Wikne

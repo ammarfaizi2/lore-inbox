@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273751AbRIQX2g>; Mon, 17 Sep 2001 19:28:36 -0400
+	id <S273754AbRIQX2Q>; Mon, 17 Sep 2001 19:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273753AbRIQX2Q>; Mon, 17 Sep 2001 19:28:16 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:4615 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S273751AbRIQX2L>;
-	Mon, 17 Sep 2001 19:28:11 -0400
-Date: Mon, 17 Sep 2001 16:25:38 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug PCI driver for 2.4.10-pre10
-Message-ID: <20010917162538.A1090@kroah.com>
+	id <S273753AbRIQX2G>; Mon, 17 Sep 2001 19:28:06 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:65036
+	"EHLO awak") by vger.kernel.org with ESMTP id <S273751AbRIQX2B> convert rfc822-to-8bit;
+	Mon, 17 Sep 2001 19:28:01 -0400
+Subject: Re: Forced umount (was lazy umount)
+From: Xavier Bestel <xbestel@aplio.fr>
+To: Alex Stewart <alex@foogod.com>
+Cc: Tigran Aivazian <tigran@veritas.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BA68562.6030806@foogod.com>
+In-Reply-To: <Pine.LNX.4.21.0109171144210.1357-100000@penguin.homenet> 
+	<3BA68562.6030806@foogod.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.13.99+cvs.2001.09.17.19.25 (Preview Release)
+Date: 18 Sep 2001 01:23:12 +0200
+Message-Id: <1000768993.20059.5.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+le mar 18-09-2001 at 01:21 Alex Stewart a écrit :
+[...]
+> I see no reason why a properly functioning system should ever need to 
+> truly force a umount.  Under normal conditions, if one really needs to 
+> do an emergency umount, it should be possible to use fuser/kill/etc to 
+> clean up any processes using the filesystem from userland and then 
+> perform a normal umount to cleanly unmount the filesystem in question 
+> (or, with lazy umount, this could conceivably even be done in the 
+> reverse order).  The only reason for really-I-mean-it-forcing a umount 
+> is if there is some problem which has caused one or more processes to 
+> get permanently stuck in a state where they can't be killed (i.e. D 
+> state), and thus can't release their hold on the filesystem.
 
-Another release of the Compaq Hotplug PCI driver is available against
-2.4.10-pre10 is at:
-	http://www.kroah.com/linux/hotplug/pci-hotplug-2001_09_17-2.4.10-pre10.patch.gz
-With a full changelog at:
-	http://www.kroah.com/linux/hotplug/pci-hotplug-Changelog
+Imagine you have a cdrom mounted with process reading it. You may want
+to eject this cdrom without killing all processes, but just make them
+know that there's an error somewhere, go read something else.
+So it won't kill your shells, Nautilus/Konqueror, etc.
 
-Changes since the last release:
- 	- forward ported to 2.4.10-pre10
-	- removed lots of dead code in the Compaq driver that was not
-	  being used.
-	- created pci_read_config_*_nodev and pci_write_config_*_nodev
-	  that corresponds with the pci_read_config_* and
-	  pci_write_config_* functions.  These functions can be used
-	  when there is not a valid struct pci_dev available for the
-	  device.  The functions will fallback to using the
-	  pci_write_config_* and pci_read_config_* functions if a struct
-	  pci_dev is found for the specified device.
-	- enabled the hotplug_pci core to be compiled into the kernel.
-	- added documentation to the hotplug_pci interface.
+         Xav
 
-Again, the old Compaq tool will not work with this version of the
-driver.  An updated version must be downloaded from the cvs tree at
-sf.net at:
-	http://sourceforge.net/cvs/?group_id=32538
 
-I'm awaiting some comments from some people at IBM for what pieces of
-the resource management code would be useful to have split out from the
-Compaq driver.  Any comments from other groups who are working on
-hotplug pci drivers is very welcome.
 
-Next up is removing the horrid /proc interface the driver uses :)
-
-thanks,
-
-greg k-h

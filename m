@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUJWKUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUJWKWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUJWKUO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 06:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJWKUO
+	id S266835AbUJWKWK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 06:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUJWKWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:20:14 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:13248 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266463AbUJWKUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:20:09 -0400
-Date: Sat, 23 Oct 2004 12:20:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Matt Dobson <colpatch@us.ibm.com>,
-       Martin J Bligh <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [patch] scheduler: active_load_balance fixes
-Message-ID: <20041023102054.GC30270@elte.hu>
-References: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+	Sat, 23 Oct 2004 06:22:09 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:36875 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266505AbUJWKVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:21:39 -0400
+Date: Sat, 23 Oct 2004 11:21:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits - "@" question
+Message-ID: <20041023102131.GA30449@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jean Delvare <khali@linux-fr.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <2SmNe-6MO-1@gated-at.bofh.it> <2SqR0-10Q-9@gated-at.bofh.it> <20041023121452.1e82a758.khali@linux-fr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+In-Reply-To: <20041023121452.1e82a758.khali@linux-fr.org>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 23, 2004 at 12:14:52PM +0200, Jean Delvare wrote:
+> > * Larry McVoy asked:
+> > The web pages on bkbits.net contain email addresses.  This is
+> > probably about a 4 year too late question but would it help reduce
+> > spam if we did something like  s/@/ (at) / for all those addresses?
+> >
+> > * Christoph Hellwig answered:
+> > No.
+> 
+> Why not, please?
 
-* Darren Hart <dvhltc@us.ibm.com> wrote:
+Because spambots parse all this replacements anyway, and it makes cut & pasting
+mail addresses if you want to reply to a change much easier.
 
-> The following patch against the latest mm fixes several problems with
-> active_load_balance().
+p.s. please reply to me if you reply to my mails, thanks
 
-i definitely like this patch, i'd vote to give it a test-drive in -mm.
-
-	Ingo

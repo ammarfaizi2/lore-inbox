@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269798AbUH0A2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269700AbUH0AD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269798AbUH0A2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269850AbUH0AXx
+	id S269700AbUH0AD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269819AbUH0ABA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:23:53 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:26807 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269797AbUH0AWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:22:48 -0400
-Date: Fri, 27 Aug 2004 09:27:53 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [Lhms-devel] [RFC] buddy allocator without bitmap  [2/4]
-In-reply-to: <20040826171840.4a61e80d.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lhms-devel@lists.sourceforge.net, wli@holomorphy.com
-Message-id: <412E8009.3080508@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
+	Thu, 26 Aug 2004 20:01:00 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:38818 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269699AbUHZXy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:54:27 -0400
+Message-ID: <412E782F.2030704@namesys.com>
+Date: Thu, 26 Aug 2004 16:54:23 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <412DD1AA.8080408@jp.fujitsu.com>
- <1093535402.2984.11.camel@nighthawk> <412E6CC3.8060908@jp.fujitsu.com>
- <20040826171840.4a61e80d.akpm@osdl.org>
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@lst.de>
+CC: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040826134034.GA1470@lst.de>
+In-Reply-To: <20040826134034.GA1470@lst.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
 
+>
+>  The problem is not that it
+>doesn't work but that it's really hard to maintain.  
+>
+You really like to talk about what you know nothing of, yes?
 
-Okay, I'll do more test and if I find atomic ops are slow,
-I'll add __XXXPagePrivate() macros.
-
-ps. I usually test codes on Xeon 1.8G x 2 server.
-
--- Kame
-
-Andrew Morton wrote:
-> Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> 
->>In the previous version, I used SetPagePrivate()/ClearPagePrivate()/PagePrivate().
->>But these are "atomic" operation and looks very slow.
->>This is why I doesn't used these macros in this version.
->>
->>My previous version, which used set_bit/test_bit/clear_bit, shows very bad performance
->>on my test, and I replaced it.
-> 
-> 
-> That's surprising.  But if you do intend to use non-atomic bitops then
-> please add __SetPagePrivate() and __ClearPagePrivate()
-
--- 
---the clue is these footmarks leading to the door.--
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
+Reiser4 is FAR easier to maintain than V3.  Ask anyone on reiserfs-dev.  
+It was designed to reduce our software maintenance costs. 

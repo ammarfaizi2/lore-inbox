@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUEVNJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUEVNaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUEVNJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 09:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUEVNJ6
+	id S261206AbUEVNaG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 09:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUEVNaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 09:09:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20697 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261236AbUEVNJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 09:09:58 -0400
-Date: Sat, 22 May 2004 15:09:50 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
+	Sat, 22 May 2004 09:30:06 -0400
+Received: from pa103.nowa-wies.sdi.tpnet.pl ([213.77.149.103]:531 "EHLO
+	pa103.nowa-wies.sdi.tpnet.pl") by vger.kernel.org with ESMTP
+	id S261206AbUEVNaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 09:30:02 -0400
+Date: Sat, 22 May 2004 15:29:38 +0200 (CEST)
+From: Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>
+To: system <system@eluminoustechnologies.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm4
-Message-ID: <20040522130950.GN18564@fs.tum.de>
-References: <fa.lqrqfab.1imhp7@ifi.uio.no> <fa.eegjbm3.l4sub7@ifi.uio.no> <c8mjr4$2fn$1@p3EE062AA.dip0.t-ipconnect.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c8mjr4$2fn$1@p3EE062AA.dip0.t-ipconnect.de>
-User-Agent: Mutt/1.5.6i
+Subject: Re: hda Kernel error!!!
+In-Reply-To: <200405221257.28570.system@eluminoustechnologies.com>
+Message-ID: <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
+References: <200405221257.28570.system@eluminoustechnologies.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for sending your .config.
 
-This bug is already fixed in -mm5.
 
-cu
-Adrian
+On Sat, 22 May 2004, system wrote:
 
--- 
+> Hello All,
+>  In that I found warning about kernel error!!
+> 
+> WARNING:  Kernel Errors Present
+>    hda: drive_cmd: error=0x04 { DriveStat...:  1Time(s)
+>    hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }...:  1Time(s)
+> 
+> What is this error?
+> Dose this indicate error on hda?
+> Should I replace hda?OR it's different from all these?
+> Please help thank you...
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Mayby I'm not kernel expert yet, but IMVHO it looks like hardware (hard 
+drive) problem. 
+You could do some tests on this drive using programs like badblocks or 
+similar. I have problem like that and in this case it was hardware 
+problem (drive had guarantee, and manufactor replaced it, so it had to be broken).
+So AFAIK this type of error indicates serious problem with hardware, 
+unfortunately.
+Is there in logs any other similar messages in the neighbourhood of these, 
+you write here?
+
+Best Regards,
+Jan Meizner
+jm@jm.one.pl
+
 

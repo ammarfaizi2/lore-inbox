@@ -1,121 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317896AbSGKUgx>; Thu, 11 Jul 2002 16:36:53 -0400
+	id <S315856AbSGKUf7>; Thu, 11 Jul 2002 16:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317902AbSGKUgw>; Thu, 11 Jul 2002 16:36:52 -0400
-Received: from mm02snlnto.sandia.gov ([132.175.109.21]:8723 "HELO
-	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
-	id <S317896AbSGKUgr>; Thu, 11 Jul 2002 16:36:47 -0400
-X-Server-Uuid: 95b8ca9b-fe4b-44f7-8977-a6cb2d3025ff
-Message-ID: <03781128C7B74B4DBC27C55859C9D73809840659@es06snlnt>
-From: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: ioctl between user/kernel space
-Date: Thu, 11 Jul 2002 14:39:31 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-Filter-Version: 1.8 (sass2426)
-X-WSS-ID: 113333EB3611437-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S317896AbSGKUf6>; Thu, 11 Jul 2002 16:35:58 -0400
+Received: from ua150d35hel.dial.kolumbus.fi ([62.248.233.150]:47794 "EHLO
+	uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S315856AbSGKUf5>; Thu, 11 Jul 2002 16:35:57 -0400
+Subject: Re: [CRASH] in tulip driver?
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <3D2CFCE0.3452F960@zip.com.au>
+References: <3D2C92C0.658B954@kolumbus.fi> from "Jussi Laako" at Jul 11, 2
+	00:15:01 am <200207110259.GAA27698@sex.inr.ac.ru> 
+	<3D2CFCE0.3452F960@zip.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-EI0Z++fLqaK3Yv51XLqC"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Jul 2002 23:38:39 +0300
+Message-Id: <1026419920.1859.7.camel@vaarlahti.uworld>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your answers. I do have a couple more questions,
-however:
 
-1) I'm not dealing with any hardware. Is it still ok to
-call some sort of register_xxxdev() function? If so, where can
-I find the definitions of these register functions and which
-one would you think be appropriate for a module which simply
-does packet manipulation via Netfilter?
+--=-EI0Z++fLqaK3Yv51XLqC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2) What if my module is not in the kernel? Does ioctl()
-just return an error code?
+On Thu, 2002-07-11 at 06:34, Andrew Morton wrote:
+>
+> whoops.  I think the "-ll" means low-latency.  But the only
+> finger I have in that pie is:
+>=20
+> --- 2.4.19-pre6/drivers/char/random.c~low-latency       Fri Apr  5 12:11:=
+17 2002
+> +++ 2.4.19-pre6-akpm/drivers/char/random.c      Fri Apr  5 12:11:17 2002
+> @@ -1369,6 +1369,11 @@ static ssize_t extract_entropy(struct en
+>                 buf +=3D i;
+>                 ret +=3D i;
+>                 add_timer_randomness(&extract_timer_state, nbytes);
+> +#if LOWLATENCY_NEEDED
+> +               /* This can happen in softirq's, but that's what we want =
+*/
+> +               if (conditional_schedule_needed())
+> +                       break;
+> +#endif
+>         }
+> =20
+>         /* Wipe data just returned from memory */
+>=20
+> So it's a bit of a mystery.  It seems to think that it has
+> EXTRACT_ENTROPY_USER.
 
-Thanks again.
+Whoops, thanks, I found the bug. My fault...
 
-Jeff Shipman - CCD
-Sandia National Laboratories
-(505) 844-1158 / MS-1372
-
-
------Original Message-----
-From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-Sent: Thursday, July 11, 2002 2:14 PM
-To: Shipman, Jeffrey E
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: ioctl between user/kernel space
+That "break;" breaks some (apparently broken) programs that don't expect
+read of /dev/urandom to return early. For security resons (to get
+identical behaviour compared to the original kernel) I made a fix that
+someone proposed. That fix is apparently broken on some rare situations
+which seem to be difficult to trigger (requires high overall irq rates
+with network load). Now I'm going to remove that part completely and see
+what happens next...
 
 
-On Thu, 11 Jul 2002, Shipman, Jeffrey E wrote:
+	- Jussi Laako
 
-> I'm not sure if this is the right place to ask this, but
-> I have a question about ioctl(). I have a situation where
-> I need to parse a file and build a hash table out of the
-> information in user space. Then, I must pass that hash
-> table into my module that's in kernel space. My question 
-> is: is ioctl() the way to go about this? I really don't
-> know much about the function, but some people have mentioned
-> it to me as the way to pass information between user and
-> kernel space.
-> 
-> If anyone has advice on if this is the way to go about it
-> or how we could go about doing this would be greatly
-> appreciated. Also, if anyone knows of any websites which
-> may be helpful in this area, we'd appreciate that as
-> well.
-> 
-> Thanks.
-> 
-> Jeff Shipman - CCD
-> Sandia National Laboratories
-> (505) 844-1158 / MS-1372
 
-That's what ioctl() is/was designed for. In user-space, you have
+--=-EI0Z++fLqaK3Yv51XLqC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-            int ioctl(fd, FUNCTION_NR, parameter);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-... where fd is your open file-handle, FUNCTION_NR is whatever you want
-to define a specific control for your device, and parameter is usually
-a pointer to some parameters (like a buffer).
+iD8DBQA9LezPS3txJU4L5RQRAm6+AKDLY9H3SlWu0XEipaiV1zO+9eElUACgkdK3
+fLckCdFYM7qMBSOiBjNU6to=
+=v/sf
+-----END PGP SIGNATURE-----
 
-In the module, you have.
-  
- int any_name(struct inode *ip, struct file *fp, unsigned int command,
-unsigned long arg);
-
-    'ip' and 'fp' will probably be ignored in your module.
-    'command' is your FUNCTION_NR, and 'arg' is your parameter.
-    You cast 'arg' to a pointer of your choice if the user-mode
-    code supplies a pointer.
-
-    The address (pointer) of your function goes into the
-   'struct file_operations' (7th member) that you pass a pointer
-   to when you initialize your device (register_xxxdev()).
-
-   The normal return code is 0. You return a -ERRNO if any errors
-   are encountered in your function.
-
-   Typically, you do:
-
-   switch(command)
-   {
-   case FIRST_FUNCTION:
-   ....
-   break;
-   default:
-       return -ESPIPE; // Invalid stuff, lets you still test with
-                       // standard text tools (od, hexdump, etc).
-   }
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+--=-EI0Z++fLqaK3Yv51XLqC--
 

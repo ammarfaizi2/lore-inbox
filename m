@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVBXMgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVBXMiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbVBXMgs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVBXMgs
+	id S262312AbVBXMiw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVBXMiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:36:48 -0500
-Received: from smtp.gentoo.org ([156.56.111.197]:21443 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S262311AbVBXMgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:36:46 -0500
-Subject: Re: [PATCH] Determine SCx200 CB address at run-time
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1109163214.12284.2.camel@sponge.fungus>
-References: <1109163214.12284.2.camel@sponge.fungus>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IuBp/n/s5pOk0p5cOwyU"
-Organization: Gentoo Linux
-Date: Thu, 24 Feb 2005 13:36:43 +0100
-Message-Id: <1109248603.12001.7.camel@sponge.fungus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Thu, 24 Feb 2005 07:38:52 -0500
+Received: from alog0252.analogic.com ([208.224.222.28]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262312AbVBXMiC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:38:02 -0500
+Date: Thu, 24 Feb 2005 07:37:03 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Alan Kilian <kilian@bobodyne.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
+In-Reply-To: <1109197066.9116.319.camel@desk>
+Message-ID: <Pine.LNX.4.61.0502240733080.12742@chaos.analogic.com>
+References: <1109190273.9116.307.camel@desk>  <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
+ <1109197066.9116.319.camel@desk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-IuBp/n/s5pOk0p5cOwyU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Where are you getting IRQ5 from? You can't "hard-code" interrupts on
+PCI.
 
-On Wed, 2005-02-23 at 13:53 +0100, Henrik Brix Andersen wrote:
-> The current SCx200 drivers use a fixed base address of 0x9000 for the
-> Configuration Block, but some systems (at least the Soekris net4801)
-> uses a base address of 0x6000. This patch first tries the fixed address
-> then - if no configuration block could be found - tries the address
-> written to the Configuration Block Address Scratchpad register by the
-> BIOS.
->=20
-> Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
+> 	kernel: ACPI: PCI interrupt 0000:13:03.0[A] -> GSI 36 (level, low) ->
+> IRQ 217
+^^^^^^^^^___________ This is your IRQ
 
-I see that this didn't make it into linux-2.6.11-rc5. Please re-consider
-for -rc6 as the SCx200 drivers are useless on Soekris Engineering
-hardware without this patch.
+It should be in dev->irq AFTER it's enabled.
+[SNIPPED...]
 
-Sincerely,
-Brix
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Linux
 
---=-IuBp/n/s5pOk0p5cOwyU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCHcpbv+Q4flTiePgRAmIIAJ97sEYyptLXaGO8od1mnCCtiPe90gCeI2gW
-pZwVgN1bMqb8fZ5LIT1SC2s=
-=wRVL
------END PGP SIGNATURE-----
-
---=-IuBp/n/s5pOk0p5cOwyU--
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269338AbTCDOwJ>; Tue, 4 Mar 2003 09:52:09 -0500
+	id <S268576AbTCDPTg>; Tue, 4 Mar 2003 10:19:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269339AbTCDOwJ>; Tue, 4 Mar 2003 09:52:09 -0500
-Received: from smtp-4.hut.fi ([130.233.228.94]:1681 "EHLO smtp-4.hut.fi")
-	by vger.kernel.org with ESMTP id <S269338AbTCDOwH>;
-	Tue, 4 Mar 2003 09:52:07 -0500
-Date: Tue, 4 Mar 2003 17:02:35 +0200 (EET)
-From: Dmitrii Tisnek <dima@cc.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: n_r3964 -- ad hoc async io vs. multithreading
-Message-ID: <Pine.OSF.4.50.0303041409260.29616-100000@kosh.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.4.2(snapshot 20021217) (smtp-4.hut.fi)
+	id <S268635AbTCDPTf>; Tue, 4 Mar 2003 10:19:35 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:32774 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S268576AbTCDPTe>; Tue, 4 Mar 2003 10:19:34 -0500
+Date: Tue, 4 Mar 2003 18:28:15 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: jamal <hadi@cyberus.ca>
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@pobox.com>, kuznet@ms2.inr.ac.ru,
+       david.knierim@tekelec.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       Donald Becker <becker@scyld.com>, linux-kernel@vger.kernel.org,
+       alexander@netintact.se, raarts@office.netland.nl
+Subject: Re: PCI init issues
+Message-ID: <20030304182815.A3829@jurassic.park.msu.ru>
+References: <20030302121050.F61365@shell.cyberus.ca> <20030303151412.A15195@jurassic.park.msu.ru> <20030303203540.F67734@shell.cyberus.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030303203540.F67734@shell.cyberus.ca>; from hadi@cyberus.ca on Mon, Mar 03, 2003 at 08:48:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 03, 2003 at 08:48:16PM -0500, jamal wrote:
+> Mar  3 18:01:39 localhost kernel: PCI->APIC IRQ transform: (B6,I4,P0) ->
+> 96
+> Mar  3 18:01:39 localhost kernel: PCI->APIC IRQ transform: (B6,I5,P1) ->
+> 96
+> Mar  3 18:01:39 localhost kernel: PCI->APIC IRQ transform: (B6,I6,P2) ->
+> 96
+> Mar  3 18:01:39 localhost kernel: PCI->APIC IRQ transform: (B6,I7,P3) ->
+> 96
+...
+> BIOS irq assignments i suppose are validated.
 
-I'm using 3964(r) line discipline in one of the projects and I discovered
-that it is not well suited for multithreaded programs, basically because:
+No, this means that mp tables are broken in a way I didn't expect...
+Also, it's unclear whether or not the IOxAPIC routing is broken as well.
+Probably full dmesg output (especially things related to IO_APICs setup
+and irq<->pin mapping) could shed some light on this.
 
-n_r3964 relies on the pid of the process that initialised the line
-discipline on the tty in question.
+> I have a feeling the reason it works in windows is because of a
+> functional ACPI.
 
-as a consequence of this, it is not possible to init this ldisc in one
-thread and then read/write/etc in the other - fork() never gets to the
-line discipline so it cannot know the child pid, and it happily denies
-all access by any pid other than it knows (through open).
+Perhaps.
 
-I'm still looking in the code and I must admit I don't have full
-understanding of the reasons behind using the pid. So far I figured out
-that this line discipline offers such an api to the programmer that
-several processes could open the same tty (say serial port) initialise
-3964(r) line discipline thereon and register different callbacks.
-Thus one process would be a "writer" and another a "reader".
-The callbacks available are transmission completed (whether successfully
-or not) and frame received (allowing to read the content). The code can
-also send a signal to the process(es) with these notifications.
-
-Personally I'd much rather prefer an api that allows use by multithreaded
-programs and a driver that doesn't know any pid's for any reason.
-
-I'm sure I can hack it up in such a way that I can use it, no problem
-here. Should I, on the other hand, be willing to make it "right", I would
-like to know:
-
-1. is there anyone who really know why n_r3964 is coded this way and how
-   it handles timeouts?
-2. is there a realistic way of providing the current api through something
-   like FIOASYNC or some such?
-3. is there someone out there but me who should be doing this?
-
-Thanx,
-dima
+Ivan.

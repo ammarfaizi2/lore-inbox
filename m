@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270204AbRHMOBT>; Mon, 13 Aug 2001 10:01:19 -0400
+	id <S270207AbRHMOHa>; Mon, 13 Aug 2001 10:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270207AbRHMOBJ>; Mon, 13 Aug 2001 10:01:09 -0400
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:24501 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S270204AbRHMOA4>; Mon, 13 Aug 2001 10:00:56 -0400
-From: Manfred Bartz <mbartz@optushome.com.au>
-Message-ID: <20010813140049.28744.qmail@optushome.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: connect() does not return ETIMEDOUT
-Organization: yes
-Date: 14 Aug 2001 00:00:49 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S270211AbRHMOHT>; Mon, 13 Aug 2001 10:07:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12293 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270207AbRHMOHI>; Mon, 13 Aug 2001 10:07:08 -0400
+Subject: Re: struct page to 36 (or 64) bit bus address?
+To: davem@redhat.com (David S. Miller)
+Date: Mon, 13 Aug 2001 15:09:31 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, sandy@storm.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "David S. Miller" at Aug 13, 2001 06:51:04 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15WIPL-0007UX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a TCP client opens multiple connections beyond the server's
-backlog capacity, the call to connect() returns a value of zero 
-(success) after 9 seconds. Toggling SYN-cookies makes no difference.
+>    Actually its pretty trivial to resolve that I think. We already follow
+>    precisely the right procedure for some other scsi events. So 
+>    
+>    	scsi_retry_command(SCpnt);
+>    
+>    would map to setting the error and returning.
+> 
+> To make sure we're on the same wave length, are you suggesting
+> this is the kind of thing we'd call in a callback from the PCI
+> DMA support layer?
 
-Is this intended behaviour?
+Well that would be an ugly layer violation, but how about
 
-Under Solaris I get ETIMEDOUT (Connection timed out) after a little 
-less than 4 minutes.
+	scsi_retry_command_waitq(SCpnt, &dma_waitq)
 
-Presumably I could set the socket to non-blocking and select() for
-writability...  (I have not tested that yet.)
-
-But if I want to keep it simple, what is the recommended solution?
-
--- 
-Manfred Bartz
-
+?

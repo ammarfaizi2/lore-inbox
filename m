@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286871AbSAXKZk>; Thu, 24 Jan 2002 05:25:40 -0500
+	id <S286904AbSAXK1u>; Thu, 24 Jan 2002 05:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286904AbSAXKZb>; Thu, 24 Jan 2002 05:25:31 -0500
-Received: from [202.87.41.13] ([202.87.41.13]:20710 "HELO postfix.baazee.com")
-	by vger.kernel.org with SMTP id <S286871AbSAXKZ2>;
-	Thu, 24 Jan 2002 05:25:28 -0500
-Message-ID: <008301c1a4c1$a79f8fa0$3c00a8c0@baazee.com>
-Reply-To: "Anish Srivastava" <anishs@vsnl.com>
-From: "Anish Srivastava" <anishs@vsnl.com>
-To: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Cc: "Andrea Arcangeli" <andrea@suse.de>,
-        "Rik van Riel" <riel@conectiva.com.br>, <alan@lxorguk.ukuu.org.uk>
-Subject: kernel 2.4.17 with -rmap VM patch ROCKS!!!
-Date: Thu, 24 Jan 2002 15:56:54 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S286934AbSAXK1k>; Thu, 24 Jan 2002 05:27:40 -0500
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:6417 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S286904AbSAXK1V>; Thu, 24 Jan 2002 05:27:21 -0500
+Subject: 2.5.3pre4 compile error - DAC960.c
+From: "Martin A. Brooks" <martin@jtrix.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-IdU1ALnVZkf3mqx37t4l"
+X-Mailer: Evolution/1.0.1 
+Date: 24 Jan 2002 10:33:19 +0000
+Message-Id: <1011868400.1236.1304.camel@unhygienix>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I installed kernel 2.4.17 on my SMP server with 8CPU's and 8GB RAM 
-and lets just say that whenever the entire physical memory was utilised
-the box would topple over...with kswapd running a havoc on CPU utilization
-So to avoid losing control I had to reboot every 8 hours.
+--=-IdU1ALnVZkf3mqx37t4l
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-But, it all changed after I applied Rik van Riels 2.4.17-rmap-11c patch
-Now, the box is happily running for the past 3 days under heavy load 
-without any problems. The RAM utilization is always at about 95% +
-but the system doesnt swap at all.....kswapd is running all the time and 
-freeing up main memory for other processes. I am quite happy with the
-performance of the box........and highly recommend Rik's patches
-for anyone else facing similar problems
+gcc -D__KERNEL__ -I/home/martin/kernel-a-day-club/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2
+-march=3Di686    -DEXPORT_SYMTAB -c DAC960.c
+In file included from DAC960.c:49:
+DAC960.h: In function `DAC960_AcquireControllerLock':
+DAC960.h:2511: warning: passing arg 1 of `spin_lock' from incompatible
+pointer type
+DAC960.h: In function `DAC960_ReleaseControllerLock':
+DAC960.h:2523: warning: passing arg 1 of `spin_unlock' from incompatible
+pointer type
+DAC960.h: In function `DAC960_AcquireControllerLockIH':
+DAC960.h:2560: warning: passing arg 1 of `spin_lock' from incompatible
+pointer type
+DAC960.h: In function `DAC960_ReleaseControllerLockIH':
+DAC960.h:2573: warning: passing arg 1 of `spin_unlock' from incompatible
+pointer type
+DAC960.c: In function `DAC960_WaitForCommand':
+DAC960.c:309: warning: passing arg 1 of `spin_unlock' from incompatible
+pointer type
+DAC960.c:311: warning: passing arg 1 of `spin_lock' from incompatible
+pointer type
+DAC960.c: In function `DAC960_RegisterBlockDevice':
+DAC960.c:1948: too few arguments to function `blk_init_queue'
+DAC960.c:1961: structure has no member named `MaxSectorsPerRequest'
+DAC960.c: In function `DAC960_RegisterDisk':
+DAC960.c:2076: incompatible type for argument 2 of `register_disk'
+DAC960.c:2088: incompatible type for argument 2 of `register_disk'
+DAC960.c: In function `DAC960_V1_QueueReadWriteCommand':
+DAC960.c:2745: warning: implicit declaration of function `bio_size'
+DAC960.c: In function `DAC960_ProcessCompletedBuffer':
+DAC960.c:2948: too few arguments to function
+DAC960.c: In function `DAC960_Open':
+DAC960.c:5302: invalid operands to binary &
+DAC960.c: In function `DAC960_UserIOCTL':
+DAC960.c:5539: warning: passing arg 1 of `spin_unlock' from incompatible
+pointer type
+DAC960.c:5543: warning: passing arg 1 of `spin_lock' from incompatible
+pointer type
+make[3]: *** [DAC960.o] Error 1
 
-Thanks to all you guys for helping me out....
+--=20
+Martin A. Brooks   Systems Administrator
+Jtrix Ltd          t: +44 7395 4990
+57-59 Neal Street  f: +44 7395 4991
+London, WC2H 9PP   e: martin@jtrix.com
 
-Best regards,
+--=-IdU1ALnVZkf3mqx37t4l
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Anish Srivastava
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Linux Rulez!!!
+iEYEABECAAYFAjxP4u8ACgkQwgE0gTKdDobsEQCfcHQYnqIkrQaVpHWazj8MkvoV
+f10AniRgfMBohp0p+7v7vNP6Oio2SsmN
+=EQHx
+-----END PGP SIGNATURE-----
 
-
+--=-IdU1ALnVZkf3mqx37t4l--
 

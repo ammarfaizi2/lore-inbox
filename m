@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULAASX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbULABiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbULAASX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbULAARU
+	id S261157AbULABiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbULABfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:17:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41700 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261228AbULAAOU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:14:20 -0500
-Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
-In-Reply-To: <11018600183171@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Nov 2004 16:13:39 -0800
-Message-Id: <11018600193699@kroah.com>
+	Tue, 30 Nov 2004 20:35:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59566 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261157AbULABec (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 20:34:32 -0500
+Date: Tue, 30 Nov 2004 17:23:54 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: gregkh <greg@kroah.com>, ak@suse.de
+Subject: [PATCH] PCI/x86-64: build with PCI=n
+Message-Id: <20041130172354.2bd60e89.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2223.2.3, 2004/11/24 14:24:57-08:00, johnpol@2ka.mipt.ru
 
-[PATCH] w1: make W1_DS9490_BRIDGE available
+Fix (most of) x64-64 kernel build for CONFIG_PCI=n.  Fixes these 2 errors:
 
-W1_DS9490R_BRIDGE kconfig typo.
+1. arch/x86_64/kernel/built-in.o(.text+0x8186): In function `quirk_intel_irqbalance':
+: undefined reference to `raw_pci_ops'
+
+Kconfig change:
+2. arch/x86_64/kernel/pci-gart.c:194: error: `pci_bus_type' undeclared (first use in this function)
+
+Still does not fix this one:
+drivers/built-in.o(.text+0x3dcd8): In function `pnpacpi_allocated_resource':
+: undefined reference to `pcibios_penalize_isa_irq'
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+diffstat:=
+ arch/i386/kernel/quirks.c |    3 ++-
+ arch/x86_64/Kconfig       |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-
- drivers/w1/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/w1/Kconfig b/drivers/w1/Kconfig
---- a/drivers/w1/Kconfig	2004-11-30 16:01:16 -08:00
-+++ b/drivers/w1/Kconfig	2004-11-30 16:01:16 -08:00
-@@ -30,7 +30,7 @@
- 	  This support is also available as a module.  If so, the module 
- 	  will be called ds9490r.ko.
+diff -Naurp ./arch/i386/kernel/quirks.c~config_pci ./arch/i386/kernel/quirks.c
+--- ./arch/i386/kernel/quirks.c~config_pci	2004-11-15 10:01:58.430206024 -0800
++++ ./arch/i386/kernel/quirks.c	2004-11-16 11:24:25.204385552 -0800
+@@ -1,10 +1,11 @@
+ /*
+  * This file contains work-arounds for x86 and x86_64 platform bugs.
+  */
++#include <linux/config.h>
+ #include <linux/pci.h>
+ #include <linux/irq.h>
  
--config W1_DS9490R_BRIDGE
-+config W1_DS9490_BRIDGE
- 	tristate "DS9490R USB <-> W1 transport layer for 1-wire"
- 	depends on W1_DS9490
+-#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP)
++#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP) && defined(CONFIG_PCI)
+ 
+ void __devinit quirk_intel_irqbalance(struct pci_dev *dev)
+ {
+diff -Naurp ./arch/x86_64/Kconfig~config_pci ./arch/x86_64/Kconfig
+--- ./arch/x86_64/Kconfig~config_pci	2004-11-15 10:01:58.985121664 -0800
++++ ./arch/x86_64/Kconfig	2004-11-16 10:50:00.987194264 -0800
+@@ -306,6 +306,7 @@ config NR_CPUS
+ 
+ config GART_IOMMU
+ 	bool "IOMMU support"
++	depends on PCI
  	help
+ 	  Support the K8 IOMMU. Needed to run systems with more than 4GB of memory
+ 	  properly with 32-bit PCI devices that do not support DAC (Double Address
 
+
+---

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288805AbSAENCA>; Sat, 5 Jan 2002 08:02:00 -0500
+	id <S288807AbSAENEa>; Sat, 5 Jan 2002 08:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288807AbSAENBu>; Sat, 5 Jan 2002 08:01:50 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:27113 "EHLO
+	id <S288809AbSAENEU>; Sat, 5 Jan 2002 08:04:20 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:29929 "EHLO
 	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S288805AbSAENBk>; Sat, 5 Jan 2002 08:01:40 -0500
-Date: Sat, 5 Jan 2002 05:01:39 -0800
+	id <S288807AbSAENEQ>; Sat, 5 Jan 2002 08:04:16 -0500
+Date: Sat, 5 Jan 2002 05:04:12 -0800
 From: "Adam J. Richter" <adam@yggdrasil.com>
-To: jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.2-pre8/fs/jffs kdev_t compilation fixes
-Message-ID: <20020105050139.A25057@baldur.yggdrasil.com>
+To: dwmw2@infradead.org, linux-kernel@vger.kernel.org
+Cc: jffs-dev@axis.com
+Subject: Patch: linux-2.5.2-pre8/fs/jffs2 compilation fixes
+Message-ID: <20020105050412.A25073@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
+Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vtzGhvizbBRQ85DL
+--EVF5PPMfhYS0aIcm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-	Here is a patch for a couple of kdev-related fixes needed
-to make linux-2.5.2-pre8/fs/jffs compile.
+	linux-2.5.2-pre8/fs/jffs2 required a few minor
+changes to make it compile.  dir.c needed to include <linux/sched.h>
+for CURRENT_TIME, and there were a couple of kdev-related changes.
+Here is the patch.
 
-	I know it compiles.  I have not otherwise tested it.
+	It compiles.  I have not otherwise tested it.
 
 -- 
 Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
@@ -34,34 +37,45 @@ adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
 +1 408 261-6630         | g g d r a s i l   United States of America
 fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
---vtzGhvizbBRQ85DL
+--EVF5PPMfhYS0aIcm
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="jffs.diffs"
+Content-Disposition: attachment; filename="jffs2.diffs"
 
-Only in linux/fs/jffs: CVS
-diff -u -r linux-2.5.2-pre8/fs/jffs/inode-v23.c linux/fs/jffs/inode-v23.c
---- linux-2.5.2-pre8/fs/jffs/inode-v23.c	Fri Jan  4 19:40:37 2002
-+++ linux/fs/jffs/inode-v23.c	Sat Jan  5 04:55:37 2002
-@@ -357,7 +357,7 @@
- 	inode->i_nlink = raw_inode->nlink;
- 	inode->i_uid = raw_inode->uid;
- 	inode->i_gid = raw_inode->gid;
--	inode->i_rdev = 0;
-+	inode->i_rdev = NODEV;
- 	inode->i_size = raw_inode->dsize;
- 	inode->i_atime = raw_inode->atime;
- 	inode->i_mtime = raw_inode->mtime;
-diff -u -r linux-2.5.2-pre8/fs/jffs/jffs_fm.c linux/fs/jffs/jffs_fm.c
---- linux-2.5.2-pre8/fs/jffs/jffs_fm.c	Thu Oct  4 15:13:18 2001
-+++ linux/fs/jffs/jffs_fm.c	Sat Jan  5 04:55:37 2002
-@@ -46,7 +46,7 @@
- 	}
- 	DJM(no_jffs_fmcontrol++);
+Only in linux/fs/jffs2: CVS
+diff -u -r linux-2.5.2-pre8/fs/jffs2/dir.c linux/fs/jffs2/dir.c
+--- linux-2.5.2-pre8/fs/jffs2/dir.c	Fri Jan  4 19:40:37 2002
++++ linux/fs/jffs2/dir.c	Sat Jan  5 04:59:07 2002
+@@ -37,6 +37,7 @@
  
--	mtd = get_mtd_device(NULL, MINOR(dev));
-+	mtd = get_mtd_device(NULL, minor(dev));
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
++#include <linux/sched.h>	/* for CURRENT_TIME */
+ #include <linux/fs.h>
+ #include <linux/jffs2.h>
+ #include <linux/jffs2_fs_i.h>
+diff -u -r linux-2.5.2-pre8/fs/jffs2/readinode.c linux/fs/jffs2/readinode.c
+--- linux-2.5.2-pre8/fs/jffs2/readinode.c	Fri Sep 14 14:04:07 2001
++++ linux/fs/jffs2/readinode.c	Sat Jan  5 04:59:07 2002
+@@ -437,7 +437,7 @@
+ 	case S_IFSOCK:
+ 	case S_IFIFO:
+ 		inode->i_op = &jffs2_file_inode_operations;
+-		init_special_inode(inode, inode->i_mode, kdev_t_to_nr(MKDEV(rdev>>8, rdev&0xff)));
++		init_special_inode(inode, inode->i_mode, MKDEV(rdev>>8, rdev&0xff));
+ 		break;
  
- 	if (!mtd) {
- 		kfree(fmc);
+ 	default:
+diff -u -r linux-2.5.2-pre8/fs/jffs2/super.c linux/fs/jffs2/super.c
+--- linux-2.5.2-pre8/fs/jffs2/super.c	Fri Jan  4 19:40:37 2002
++++ linux/fs/jffs2/super.c	Sat Jan  5 04:59:07 2002
+@@ -208,7 +208,7 @@
+ 	c = JFFS2_SB_INFO(sb);
+ 	memset(c, 0, sizeof(*c));
+ 	
+-	c->mtd = get_mtd_device(NULL, MINOR(sb->s_dev));
++	c->mtd = get_mtd_device(NULL, minor(sb->s_dev));
+ 	if (!c->mtd) {
+ 		D1(printk(KERN_DEBUG "jffs2: MTD device #%u doesn't appear to exist\n", MINOR(sb->s_dev)));
+ 		return NULL;
 
---vtzGhvizbBRQ85DL--
+--EVF5PPMfhYS0aIcm--

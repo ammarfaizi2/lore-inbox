@@ -1,57 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270788AbTG0Nsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 09:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270798AbTG0Nsk
+	id S270798AbTG0OAa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 10:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270799AbTG0OAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 09:48:40 -0400
-Received: from nic.bme.hu ([152.66.115.1]:16598 "EHLO nic.bme.hu")
-	by vger.kernel.org with ESMTP id S270788AbTG0Nsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 09:48:30 -0400
-Message-ID: <3F23DB4A.7060801@namesys.com>
-Date: Sun, 27 Jul 2003 18:01:46 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Nikita Danilov <Nikita@namesys.com>, Shawn <core@enodev.com>,
-       Tupshin Harper <tupshin@tupshin.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
+	Sun, 27 Jul 2003 10:00:30 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:38859 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S270798AbTG0OAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 10:00:19 -0400
 Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-References: <3F1EF7DB.2010805@namesys.com> <3F1F6005.4060307@tupshin.com> <1059021113.7911.13.camel@localhost> <3F1F66F0.1050406@tupshin.com> <1059024090.9728.22.camel@localhost> <16159.48809.812634.455756@laputa.namesys.com> <3F23C588.10700@namesys.com> <20030727124547.GD24002@louise.pinerecords.com>
-In-Reply-To: <20030727124547.GD24002@louise.pinerecords.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Yury Umanets <umka@namesys.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Daniel Egger <degger@fhm.edu>, Nikita Danilov <Nikita@Namesys.COM>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@namesys.com>
+In-Reply-To: <3F23D43C.9080607@namesys.com>
+References: <3F1EF7DB.2010805@namesys.com>
+	 <1059062380.29238.260.camel@sonja>
+	 <16160.4704.102110.352311@laputa.namesys.com>
+	 <1059093594.29239.314.camel@sonja>
+	 <16161.10863.793737.229170@laputa.namesys.com>
+	 <1059142851.6962.18.camel@sonja>
+	 <1059143985.19594.3.camel@haron.namesys.com>
+	 <1059181687.10059.5.camel@sonja>
+	 <1059203990.21910.13.camel@haron.namesys.com>
+	 <1059228808.10692.7.camel@sonja>
+	 <1059231274.28094.40.camel@haron.namesys.com>
+	 <3F23D43C.9080607@namesys.com>
+Content-Type: text/plain
+Organization: NAMESYS
+Message-Id: <1059315214.25363.6.camel@haron.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Sun, 27 Jul 2003 18:13:34 +0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+On Sun, 2003-07-27 at 17:31, Hans Reiser wrote:
+> Yury Umanets wrote:
+> 
+> >On Sat, 2003-07-26 at 18:13, Daniel Egger wrote:
+> >  
+> >
+> >>Am Sam, 2003-07-26 um 09.19 schrieb Yury Umanets:
+> >>
+> >>    
+> >>
+> >>>I think this is more then enough for running reiser4. Reiser4 is a linux
+> >>>filesystem first of all, and linux is able to be ran on even worse
+> >>>hardware then you have.
+> >>>      
+> >>>
+> >
+> >  
+> >
+> >>Linux is running just fine one the system, thanks. My question is
+> >>whether reiserfs is suitable for flash devices. The chances to get some
+> >>usable answers seem to be incredible low though...
+> >>    
+> >>
+> >
+> >Reiserfs cannot be used efficiently with flash, as it uses block size 4K
+> >(by default) and usual flash block size is in range 64K - 256K.
+> >
 
->>[reiser@namesys.com]
->>
->>Nikita, how about phrasing this as:
->>
->>   `Dear and esteemed potential Reiser4 user, I apologize that we put a 
->>tarball on our website and let it get so obsolete, thereby wasting your 
->>time.  I am deleting it now, and will soon put a new one up.  In the 
->>meantime, can you use bitkeeper if that is convenient for you?  Here is 
->>the URL with the instructions for doing that.....'
->>
->>It is the usual American business english used in such cases.;-)
->>    
->>
->
->Standard American puke inducing pretentious florid business
->language if you want to be completely accurate.  8)
->
->  
->
-Yeah, but Nikita really could have been more helpful....
+> This answer is incorrect.  The device driver will hide this from us, 
+> slum squeezing will tend to write in large batches, and things will 
+> probably work.  However, you should try it and see rather than theorize.
 
+See my explanation in last emails. Also I have not just theorized. I
+have been developing block device driver for MPIO players (Smart Card
+based one). And reiserfs does not use squeezing on flush (and I've
+spoken about reiserfs here).
+
+> 
+> >
+> >Also reiserfs does not use compression, that would be very nice of it
+> >:), because flash has limited number of erase cycles per block (in range
+> >100.000) and it is about three times as expensive as SDRAM.
+> >
+
+> We have compression plugins that will be ready soon.  Go ask Edward in 
+> the chair behind you what he does for a living.;-)
+
+Yes, we have compression plugins in reiser4, but we have spoken about
+reiserfs.
+
+> 
+> >
+> >So, it is better to use something more convenient. For instance jffs2.
+> >
+> >But, if you are still want to use reiserfs for flash device, you should
+> >do at least the following: 
+> >
+> >(1) Make the journal substantial smaller of size.
+> >(2) Don't turn tails off. This is useful to prolong flash live.
+> >
+> >
+> >Regards.
+> >
+> >  
+> >
+> He is asking about reiser4, not reiserfs V3.
 -- 
-Hans
-
+We're flying high, we're watching the world passes by...
 

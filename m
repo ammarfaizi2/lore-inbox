@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVCDQ4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVCDRAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbVCDQ4R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 11:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbVCDQ4Q
+	id S262889AbVCDRAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVCDQ5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 11:56:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:4550 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262918AbVCDQqd (ORCPT
+	Fri, 4 Mar 2005 11:57:46 -0500
+Received: from ozlabs.org ([203.10.76.45]:7562 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262959AbVCDQy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 11:46:33 -0500
-Date: Fri, 4 Mar 2005 10:46:25 -0600
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-Message-ID: <20050304164625.GU1220@austin.ibm.com>
-References: <422428EC.3090905@jp.fujitsu.com> <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk> <20050301192711.GE1220@austin.ibm.com> <42255971.4070608@jp.fujitsu.com> <20050302192043.GJ1220@austin.ibm.com> <4227C1F1.6040508@jp.fujitsu.com>
+	Fri, 4 Mar 2005 11:54:58 -0500
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       kai@germaschewski.name, Sam Ravnborg <sam@ravnborg.org>,
+       vincent.vanackere@gmail.com, keenanpepper@gmail.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503021723.j22HNMEQ019547@turing-police.cc.vt.edu>
+References: <422550FC.9090906@gmail.com>
+	 <20050302012331.746bf9cb.akpm@osdl.org>
+	 <65258a58050302014546011988@mail.gmail.com>
+	 <20050302032414.13604e41.akpm@osdl.org> <20050302140019.GC4608@stusta.de>
+	 <20050302082846.1b355fa4.akpm@osdl.org>
+	 <200503021723.j22HNMEQ019547@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Fri, 04 Mar 2005 21:26:37 +1100
+Message-Id: <1109931997.28203.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4227C1F1.6040508@jp.fujitsu.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 11:03:29AM +0900, Hidetoshi Seto was heard to remark:
-> >p.s. I would like to have iochk_read() take struct pci_dev * as an
-> >argument.  (I could store a pointer to pci_dev in the "cookie" but
-> >that seems odd).
+On Wed, 2005-03-02 at 12:23 -0500, Valdis.Kletnieks@vt.edu wrote:
+> static int __init init_hermes(void)
+> {
+>         return 0;
+> }
 > 
-> I'd like to store the pointer and handle all only with the cookie...
+> static void __exit exit_hermes(void)
+> {
+> }
+> 
+> module_init(init_hermes);
+> module_exit(exit_hermes);
+> 
+> That's it.  As far as I can tell, gcc 4.0 semi-correctly determined they were both
+> static functions with no side effect, threw them away, and then the module_init
+> and module_exit threw undefined symbols for them.
 
-OK then.
+As a module, we create a non-static alias for "init_hermes", called
+"init_module", effectively making it non-static.  GCC should not
+eliminate it in this case.  Similar with module_exit().
 
-> Or is it needed to pass different device to iochk_clear() and iochk_read()?
+For non-modules, we have __attribute_used__.
 
-No.
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
---linas

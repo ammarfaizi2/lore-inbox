@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267124AbTAURUk>; Tue, 21 Jan 2003 12:20:40 -0500
+	id <S267135AbTAURXE>; Tue, 21 Jan 2003 12:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267125AbTAURUk>; Tue, 21 Jan 2003 12:20:40 -0500
-Received: from rth.ninka.net ([216.101.162.244]:52637 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S267124AbTAURUj>;
-	Tue, 21 Jan 2003 12:20:39 -0500
-Subject: Re: SIOCGSTAMP does not work ?
-From: "David S. Miller" <davem@redhat.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.51.0301211636500.3454@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0301211636500.3454@dns.toxicfilms.tv>
-Content-Type: text/plain
+	id <S267137AbTAURXE>; Tue, 21 Jan 2003 12:23:04 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:16070 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267135AbTAURXD>; Tue, 21 Jan 2003 12:23:03 -0500
+Message-ID: <3E2D83D8.5070108@us.ibm.com>
+Date: Tue, 21 Jan 2003 09:31:04 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anyone have a 16-bit x86 early_printk?
+References: <20030114113036.GG940@holomorphy.com> <1043116327.13142.11.camel@dhcp22.swansea.linux.org.uk> <20030121061055.GN780@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Jan 2003 10:07:35 -0800
-Message-Id: <1043172455.16483.3.camel@rth.ninka.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-21 at 07:44, Maciej Soltysiak wrote:
-> 1. Is this all really related?
+William Lee Irwin III wrote:
+> It actually turned out to be a bug in the early_printk I was using that
+> killed it on the first call to it, but the availability of this will
+> certainly broaden the scope of what I can feasibly debug.
 
-No.
+Are you using the one that calls console_setup(), then initializes the
+serial driver directly?  I was seeing some strange behavior with that
+yesterday, but I assumed that it was my patch crashing in early boot.
+What was the bug?
 
-> 2. Why is TCP_CHECK_TIMER not coded ?
-
-It is a debugging check, it has nothing to do with SIOCGSTAMP.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,33 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUHXTuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUHXTvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUHXTuA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 15:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbUHXTt7
+	id S268232AbUHXTvv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 15:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHXTvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 15:49:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30373 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268248AbUHXTtr
+	Tue, 24 Aug 2004 15:51:50 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:14788 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S268232AbUHXTv0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 15:49:47 -0400
-Message-ID: <412B9BCC.3080507@pobox.com>
-Date: Tue, 24 Aug 2004 15:49:32 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Serial ATA (SATA) for Linux status report
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Aug 2004 15:51:26 -0400
+Date: Tue, 24 Aug 2004 15:51:22 -0400
+To: mingo@elte.hu
+Cc: manas.saksena@timesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
+Message-ID: <20040824195122.GA9949@yoda.timesys>
+References: <20040823221816.GA31671@yoda.timesys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040823221816.GA31671@yoda.timesys>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 23, 2004 at 06:18:16PM -0400, Scott Wood wrote:
+> I have attached a port of the voluntary preempt patch to PPC and
+> PPC64.  The patch is against P7, but it applies against P8 as well.
+> 
+> I've tested it on a dual G5 Mac, both in uniprocessor and SMP.
+> 
+> Some notes on changes to the generic part of the patch/existing
+> generic code:
 
-A new SATA status report is available.
+Another thing that I forgot to mention is that I have some doubts as
+to the current generic_synchronize_irq() implementation.  Given that
+IRQs are now preemptible, a higher priority RT thread calling
+synchronize_irq can't just spin waiting for the IRQ to complete, as
+it never will (and it wouldn't be a great idea for non-RT tasks
+either).  I see that a do_hardirq() call was added, presumably to
+hurry completion of the interrupt, but is that really safe?  It looks
+like that could end up re-entering handlers, and you'd still have a
+partially executed handler after synchronize_irq() finishes (causing
+not only an extra end() call, but possibly code being executed after
+it's been unloaded, and other synchronization violations).
 
-Updated today, newly converted to HTML, and permanently archived at
+If I'm missing something, please let me know, but I don't see a good
+way to implement it without blocking for the IRQ thread's completion
+(such as with the per-IRQ waitqueues in M5).
 
-	http://linux.yyz.us/sata/sata-status.html
-
-
+-Scott

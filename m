@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289741AbSA2QZs>; Tue, 29 Jan 2002 11:25:48 -0500
+	id <S289752AbSA2Q1s>; Tue, 29 Jan 2002 11:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289749AbSA2QZj>; Tue, 29 Jan 2002 11:25:39 -0500
-Received: from mx04.nexgo.de ([151.189.8.80]:11023 "EHLO mx04.nexgo.de")
-	by vger.kernel.org with ESMTP id <S289741AbSA2QZ0>;
-	Tue, 29 Jan 2002 11:25:26 -0500
-Message-ID: <3C56CCED.6040801@arcor.de>
-Date: Tue, 29 Jan 2002 17:25:17 +0100
-From: Hartmut Holz <hartmut.holz@arcor.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
-X-Accept-Language: en-us
+	id <S289749AbSA2Q1i>; Tue, 29 Jan 2002 11:27:38 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:490 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S289759AbSA2Q10>;
+	Tue, 29 Jan 2002 11:27:26 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2B14@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: A modest proposal -- We need a patch penguin
+Date: Tue, 29 Jan 2002 08:27:26 -0800
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: rmap12a slower than rmap11c (mpeg/VCD)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> A correct patch for this one giving a new maintainer was 
+> posted to Linux
+> kernel already
 
-if I play mpeg/VCD with rmap12a, I recognize that rmap12a is slower than rmap11c.
-(PII 450 MHz - SMP, Matrox G450 - PCI). I think  there's nothing to measure.
-GTV shows with both patches about 25 fps. But what I see on the screen is different
+And here it is again, just in case you missed it :
 
-Regards
-
-Hartmut
-
-
+ARPD SUPPORT
+P:	Jonathan Layes
+-M:	layes@loran.com
++M:	dlacoste@loran.com
+L:	linux-net@vger.kernel.org
+S:	Maintained
++W:	http://home.loran.com/~dlacoste/

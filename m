@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313276AbSC1Wwd>; Thu, 28 Mar 2002 17:52:33 -0500
+	id <S313280AbSC1WzW>; Thu, 28 Mar 2002 17:55:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313277AbSC1WwX>; Thu, 28 Mar 2002 17:52:23 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:41468 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313276AbSC1WwE>; Thu, 28 Mar 2002 17:52:04 -0500
-Date: Thu, 28 Mar 2002 22:52:03 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Christian Schoenebeck <christian.schoenebeck@epost.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: power off
-In-Reply-To: <20020328214032.4F55147B1@debian.heim.lan>
-Message-ID: <Pine.SOL.3.96.1020328224816.4244A-100000@draco.cus.cam.ac.uk>
+	id <S313278AbSC1WzM>; Thu, 28 Mar 2002 17:55:12 -0500
+Received: from gear.torque.net ([204.138.244.1]:50697 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S313277AbSC1WzF>;
+	Thu, 28 Mar 2002 17:55:05 -0500
+Message-ID: <3CA39FAB.C1D2034D@torque.net>
+Date: Thu, 28 Mar 2002 17:56:43 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.7-dj2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Dave Jones <davej@suse.de>
+Subject: Re: Linux 2.5.7-dj2
+Content-Type: multipart/mixed;
+ boundary="------------F8F9DAE8D8A7A23F0287236C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------F8F9DAE8D8A7A23F0287236C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-You mell well find that you just need to upgrade your userspace utilities
-to make it work. For me, using the exact same kernel!!! but a different
-distro makes the difference between the computer just sitting there when I
-shutdown -h now or actually powering off...
+For anyone having compile problems with kernel/acct.c
+then the attachment fixed it for me (at least I running
+2.5.7-dj2 now).
 
-In this particular case I just moved from SuSE 7.2 to Mandrake 8.1 and
-suddenly poweroff worked. (Note I used my custom kernel in both cases
-which I just copied from the old install onto the new one.)
+This system is Athlon based with a dc-390u3w and an
+advansys scsi controller. "dj1" has been quite stable
+for the last week and "dj2" is looking ok so far.
+My IntelliMouse (PS/2) wheel still scrolls backwards.
 
-Having said all that some versions of 2.4 kernels have broken shutdown so
-it would help if you said which kernel version you are using...
+Doug Gilbert
+--------------F8F9DAE8D8A7A23F0287236C
+Content-Type: text/plain; charset=us-ascii;
+ name="acct257dj2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="acct257dj2.diff"
 
-Cheers,
+--- linux/kernel/acct.c257dj2	Wed Mar 27 23:52:37 2002
++++ linux/kernel/acct.c	Thu Mar 28 17:04:49 2002
+@@ -232,6 +232,7 @@
+  * If the accouting is turned on for a file in the filesystem pointed
+  * to by sb, turn accouting off.
+  */
++#ifdef CONFIG_BSD_PROCESS_ACCT
+ void acct_auto_close(struct super_block *sb)
+ {
+ 	spin_lock(&acct_globals.lock);
+@@ -241,6 +242,7 @@
+ 	}
+ 	spin_unlock(&acct_globals.lock);
+ }
++#endif
+ 
+ /*
+  *  encode an unsigned long into a comp_t
+@@ -375,6 +377,7 @@
+ /*
+  * acct_process - now just a wrapper around do_acct_process
+  */
++#ifdef CONFIG_BSD_PROCESS_ACCT
+ int acct_process(long exitcode)
+ {
+ 	struct file *file = NULL;
+@@ -389,3 +392,4 @@
+ 		spin_unlock(&acct_globals.lock);
+ 	return 0;
+ }
++#endif
 
-Anton
-
-
-On Thu, 28 Mar 2002, Christian Schoenebeck wrote:
-
-> (please cc me)
-> 
-> Hi everybody!
-> 
-> I've got a problem with a machine (using an Asus SP98AGP-X mainboard) that 
-> doesn't want to power off since moving from 2.2.x to 2.4.x kernel. As I 
-> haven't found any other solution, can I simply replace the new apm.c by the 
-> old one from 2.2.x or just a part of the unit or would that be fatal?
-> 
-> PLEASE HELP ME WITH THIS!
-> 
-> Thanks in advance,
-> 
-> Christian Schoenebeck
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+--------------F8F9DAE8D8A7A23F0287236C--
 

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUEVQRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUEVQvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUEVQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 12:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEVQRD
+	id S261582AbUEVQvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 12:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUEVQvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 12:17:03 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2176 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261610AbUEVQRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 12:17:00 -0400
-Date: Sat, 22 May 2004 17:22:56 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405221622.i4MGMuhD000211@81-2-122-30.bradfords.org.uk>
-To: Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>,
-       system <system@eluminoustechnologies.com>
+	Sat, 22 May 2004 12:51:48 -0400
+Received: from mail7.atl.registeredsite.com ([64.224.219.81]:40914 "EHLO
+	mail7.atl.registeredsite.com") by vger.kernel.org with ESMTP
+	id S261582AbUEVQvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 12:51:47 -0400
+To: root@chaos.analogic.com
+Subject: Re: protecting source code in 2.6
+Newsgroups: linux.kernel
+In-Reply-To: <1YsIy-15G-15@gated-at.bofh.it>
+References: <1XVMB-8tQ-3@gated-at.bofh.it>
+Organization: 
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
-References: <200405221257.28570.system@eluminoustechnologies.com>
- <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
-Subject: Re: hda Kernel error!!!
+Message-Id: <20040522145421.1585F16679@x23.networkingunlimited.com>
+Date: Sat, 22 May 2004 10:54:21 -0400 (EDT)
+From: vcjones@NetworkingUnlimited.com (Vincent C Jones)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>:
-> 
-> 
-> On Sat, 22 May 2004, system wrote:
-> 
-> > Hello All,
-> >  In that I found warning about kernel error!!
-> > 
-> > WARNING:  Kernel Errors Present
-> >    hda: drive_cmd: error=0x04 { DriveStat...:  1Time(s)
-> >    hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }...:  1Time(s)
-> > 
-> > What is this error?
-> > Dose this indicate error on hda?
-> > Should I replace hda?OR it's different from all these?
-> > Please help thank you...
-> 
-> Mayby I'm not kernel expert yet, but IMVHO it looks like hardware (hard 
-> drive) problem. 
+In article <1YsIy-15G-15@gated-at.bofh.it> Richard B. Johnson wrote:
+>
+   [ rant on proprietary kernel software removed ]
+>
+>There are very few persons who will allow you to insert secret
+>code into their kernels where it could destroy everything of
+>value to them.
 
-It means the disk received a command it didn't support.  It's easy to
-trigger by disabling S.M.A.R.T. and then requesting S.M.A.R.T. data, for
-example.
+If only this were true... but there are how many million Windows users?
 
-> You could do some tests on this drive using programs like badblocks or 
-> similar. I have problem like that and in this case it was hardware 
-> problem (drive had guarantee, and manufactor replaced it, so it had to be broken).
-> So AFAIK this type of error indicates serious problem with hardware, 
-> unfortunately.
+Oh, and if they're too stupid to count, there are also large numbers of
+HP-UX, AIX, Solaris and other proprietary UNIX variants out there, not
+to mention IBM mainframe and AS/400 shops...
 
-It does not necessarily indicate a serious problem.  Are you sure your
-error messages were exactly the same?
+Oh, and if you only mean Linux users, we'll ignore all the ATI Radeon
+and Nvidea sufferers, and vmware users, and winmodem users, and every
+driver for a device which loads firmware, and every PC which does not
+release source code for the BIOS, and . . .
 
-John.
+Arguments tend to loose a lot of their impact when based on religion
+rather than realism.
+-- 
+Dr. Vincent C. Jones, PE              Expert advice and a helping hand
+Computer Network Consultant           for those who want to manage and
+Networking Unlimited, Inc.            control their networking destiny
+14 Dogwood Lane, Tenafly, NJ 07670
+http://www.networkingunlimited.com
+VCJones@NetworkingUnlimited.com  +1 201 568-7810  Fax: +1 201 568-7269 

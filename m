@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUHCVds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266881AbUHCViD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266871AbUHCVds (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266883AbUHCVdA
+	id S266881AbUHCViD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUHCViD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:33:00 -0400
-Received: from email-out1.iomega.com ([147.178.1.82]:24794 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S266882AbUHCVcD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:32:03 -0400
-Subject: Re: 2.4.27rc2, DVD-RW support broke DVD-RAM writes
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
-References: <40926261-E3D3-11D8-B01E-00039398BB5E@ieee.org><1091397374.6458 
-	.9.camel@patibmrh9> <20040802121712.GD15884@logos.cnet><06F0F452-E491-11D8-
-	94F5-00039398BB5E@ieee.org><BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1091568689.3644.34.camel@patibmrh9>
+	Tue, 3 Aug 2004 17:38:03 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:44779 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S266891AbUHCVhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 17:37:12 -0400
+Date: Tue, 3 Aug 2004 23:36:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040803213634.GK2241@dualathlon.random>
+References: <20040729185215.Q1973@build.pdx.osdl.net> <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com> <20040803210737.GI2241@dualathlon.random> <20040803211339.GB26620@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Aug 2004 15:31:29 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Aug 2004 21:32:02.0452 (UTC) FILETIME=[50BDAD40:01
-	C479A1]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:12.33344 C:20 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040803211339.GB26620@devserv.devel.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > let Pat fix it. Pat?
-> ...
-> must have an asymmetry in 2.4 drivers/ide/ide-cd.c vs. 
-> drivers/scsi/sr.c.
+On Tue, Aug 03, 2004 at 11:13:39PM +0200, Arjan van de Ven wrote:
+> The user that mlock'd gets to pay for it, and gets his credits back at
+> munlock. Chown doesn't really matter in that regard..... The thing that does
 
-A two-line workaround is the patch of my post:
+what? he cannot get credits when it munlock if this is hugetlbfs. If it
+does you're again into the insecure DoS scenario.
 
-Subject: [PATCH] DVD-RAM rewritable again
-http://marc.theaimsgroup.com/?l=linux-scsi&m=109156820507518
+btw, I don't see where you call user_subtract_mlock when the file is
+truncated.
 
-That takes our 2.4 closer back to the bogus status quo ante for
-CDROM_CAN(CDC_DVD_RAM) drives i.e. pass writes thru to all discs
-inserted into such drives.
+what exactly are you trying to do in that patch? I thought you were
+binding the storage to a certain user structure _persistently_. Which
+breaks badly with chown since if the admin chown the file to root.root
+then you cannot truncate it anymore but you're locked up completely and
+you cannot use mlock anymore and you've to send email to the admin
+asking to reassing the file to you so that you can truncate it.
 
-Pat LaVarre
-http://linux-pel.blog-city.com/read/754579.htm
-
-
+If you're calling user_subtract_mlock at unlock time (not at truncate
+time) then it has the same issues that the patch I've rejected some
+months ago when I wrote the disable_cap_mlock.

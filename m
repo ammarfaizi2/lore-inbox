@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270025AbUIDBKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269985AbUIDBUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270025AbUIDBKi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270024AbUIDBKi
+	id S269985AbUIDBUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270005AbUIDBUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:10:38 -0400
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:30470
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S270008AbUIDBKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 21:10:22 -0400
-Date: Fri, 3 Sep 2004 18:10:13 -0700
-From: Brad Boyer <flar@allandria.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeremy Allison <jra@samba.org>, Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040904011012.GA27405@pants.nu>
-References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com> <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <1093789802.27932.41.camel@localhost.localdomain> <1093804864.8723.15.camel@lade.trondhjem.org> <20040829193851.GB21873@jeremy1> <20040901201945.GE31934@mail.shareable.org> <20040901202641.GJ4455@legion.cup.hp.com> <1094118524.4842.27.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 3 Sep 2004 21:20:15 -0400
+Received: from web14927.mail.yahoo.com ([216.136.225.85]:13906 "HELO
+	web14927.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269985AbUIDBUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 21:20:08 -0400
+Message-ID: <20040904012008.81382.qmail@web14927.mail.yahoo.com>
+Date: Fri, 3 Sep 2004 18:20:08 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: New proposed DRM interface design
+To: Dave Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0409040145240.25475@skynet>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094118524.4842.27.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 10:48:46AM +0100, Alan Cox wrote:
-> What I don't understand is the tie between Linux having such streams and
-> Windows doing it for Samba to work. Netatalk has always handle this for
-> Macintosh and portably. Presumably any Samba support would need to
-> handle OS's without wacky files for portability too ?
+--- Dave Airlie <airlied@linux.ie> wrote:
+> Yes we only have one binary interface, between the core and module,
+> this interface is minimal, so AGP won't go in it... *ALL* the core
+> does is deal with the addition/removal of modules, the idea being 
+> that the interface is very minor and new features won't change it...
 
-I'm not 100% sure on the samba side, but I think there is a pretty
-significant difference. On the Mac, the problem of copying forks and
-metadata onto non-Mac systems was recognized early on. There are several
-standard formats for serialized versions of this data. If you take the
-files that netatalk writes and copy them directly to a Mac separately,
-there are tools that can convert them back to the original format with
-all the data intact. I've never seen such a thing for NTFS named streams.
+If you're Nvidia you ship the library source (since it is GPL) and a
+binary driver. You compile the library on your kernel so that kernel
+API IFDEF's get executed and then link to the binary driver. This model
+won't work with IFDEF'd inline functions that are used in a binary
+driver. They will have to be real functions in the library.
 
-	Brad Boyer
-	flar@allandria.com
+Things like this from the i830 driver will need to be library functions
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,2)
+#define down_write down
+#define up_write up
+#endif
 
+With the right set of library functions it should be possible to write
+a video driver that is OS independent.
+
+How big is the library that is going to get duplicated? Note that it
+only gets duplicated for different cards not multiple instances of the
+same card family. 
+
+Are you going to hide the exported symbols so that we don't need the
+DRM() macros?
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269964AbTGVV3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 17:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270079AbTGVV3v
+	id S270874AbTGVVnp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 17:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270884AbTGVVnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 17:29:51 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:1920 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S269964AbTGVV3t
+	Tue, 22 Jul 2003 17:43:45 -0400
+Received: from gw.uk.sistina.com ([62.172.100.98]:42509 "EHLO
+	gw.uk.sistina.com") by vger.kernel.org with ESMTP id S270874AbTGVVno
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 17:29:49 -0400
-Date: Tue, 22 Jul 2003 15:46:31 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 gets corrupted data when loading init
-Message-ID: <640742704.1058910391@aslan.btc.adaptec.com>
-In-Reply-To: <20030718113950.GF5964@h55p111.delphi.afb.lu.se>
-References: <20030718083458.GC5964@h55p111.delphi.afb.lu.se> <20030718095108.GE5964@h55p111.delphi.afb.lu.se> <20030718113950.GF5964@h55p111.delphi.afb.lu.se>
-X-Mailer: Mulberry/3.1.0b3 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 22 Jul 2003 17:43:44 -0400
+Date: Tue, 22 Jul 2003 22:58:44 +0100
+From: Alasdair G Kergon <agk@uk.sistina.com>
+To: dm-devel@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [dm-devel] [RFC] File backed target for device-mapper
+Message-ID: <20030722225844.T31325@uk.sistina.com>
+Mail-Followup-To: dm-devel@sistina.com, linux-kernel@vger.kernel.org
+References: <1058908659.17049.9.camel@chtephan.cs.pocnet.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1058908659.17049.9.camel@chtephan.cs.pocnet.net>; from christophe@saout.de on Tue, Jul 22, 2003 at 11:17:39PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jul 18, 2003 at 11:51:08AM +0200, Anders Gustafsson wrote:
->> On Fri, Jul 18, 2003 at 10:34:58AM +0200, Anders Gustafsson wrote:
->> > It breaks between 2.5.70 and 2.5.70-bk1, which contains a update in the
->> > aic79xx-drivers, so my guess is related to that.
->> 
->> http://linux.bkbits.net:8080/linux-2.5/cset@1.1127.6.4 is the changeset that
->> makes it stop working.
-> 
-> Yeah, and reversing that on 2.6.0-test+bk with the attached patch makes it
-> work on 2.6.0-test1.
+On Tue, Jul 22, 2003 at 11:17:39PM +0200, Christophe Saout wrote:
+> I just wrote a dm target uses a file as backend instead of another block
+> device.
 
-There are a whole slew of later changesets that haven't made it in yet.
-The root cause of your particular problem is not the lun copy optimization,
-but a problem with the layout of a data structure that is dma'ed to the
-controller and a controller errata.  The fix for this is available in 
-the 20030603 bksend file at my site:
+Another suggestion:
 
-http://people.FreeBSD.org/~gibbs/linux/SRC/
+  A target that always returns a block of zeros [or more generally,
+  some other repeating pattern e.g. if the read goes beyond the end
+  of your file - required to be multiple of sector size - it loops 
+  round to the beginning; writes get dropped]
 
-I will try to find some time later this week to review the code that
-is now in 2.6 and generate updated changesets for that branch.
+So you can easily create, for example a /dev/zero-like block device of
+arbitrary size, which might be useful for replacing a lost disk that
+contained a stripe if you want to read off the data from the other
+stripes at correct offsets.
 
---
-Justin
-
+Alasdair
+-- 
+agk@uk.sistina.com

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130807AbQKQMju>; Fri, 17 Nov 2000 07:39:50 -0500
+	id <S129189AbQKQMpA>; Fri, 17 Nov 2000 07:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131659AbQKQMjk>; Fri, 17 Nov 2000 07:39:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7264 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130807AbQKQMjg>; Fri, 17 Nov 2000 07:39:36 -0500
+	id <S129720AbQKQMou>; Fri, 17 Nov 2000 07:44:50 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:7177 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S129189AbQKQMok>; Fri, 17 Nov 2000 07:44:40 -0500
+Date: Fri, 17 Nov 2000 13:14:30 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Error in x86 CPU capabilities starting with test5/6
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Fri, 17 Nov 2000 12:10:07 +0000 (GMT)
-Cc: mikpe@csd.uu.se (Mikael Pettersson), ledzep37@home.com (Jordan),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.21.0011171154250.8176-100000@saturn.homenet> from "Tigran Aivazian" at Nov 17, 2000 11:58:27 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Message-ID: <20001117131430.B29836@gondor.com>
+In-Reply-To: <3A14FF48.E554BE1B@home.com> <14869.6415.500026.432150@harpo.it.uu.se> <20001117130418.B3572@gruyere.muc.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wkLK-0000bP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001117130418.B3572@gruyere.muc.suse.de>; from ak@suse.de on Fri, Nov 17, 2000 at 01:04:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You have a user-space program which parses /proc/cpuinfo instead of
-> > executing CPUID itself, so it breaks.
-> 
-> Arguably, it is always better to parse /proc/cpuinfo instead of executing
+On Fri, Nov 17, 2000 at 01:04:18PM +0100, Andi Kleen wrote:
+> The program would be broken if it executed CPUID itself, because it has no way to guarantee
+> that the CPUID is executed on all CPUs the scheduler may later move the task too.
 
-Actually this is definitively the case. 
+I wonder what's the right way for an app to ask the kernel if, for example,
+tsc is available. As you stated above, executing CPUID is probably wrong.
+But if the process parses /proc/cpuinfo, it has to make sure tsc is available
+on all cpus it may run on, doesn't it? 
 
-It is not safe to use cpuid to check the availability of RDTSC in Linux because
-the CPU itself does not know if the TSC is buggy (Some MediaGX, some WinChip,..)
-or if the TSC on an SMP box is constant across all processors.
+What about some system call stating 'I want to use feature XYZ'. If all CPUs
+implement XYZ, the system call simply returns some ACK, and NACK if no CPU 
+implements it (and no emulation is available). 
 
-Even checking the cpuinfo for the TSC should be done with care, and its far
-far better to use gettimeofday unless doing very tiny timings (eg for 
-optimising code paths)
+If only some CPUs implement the feature, the kernel may return NACK,
+or it may make sure the process will only run on CPUs implementing the
+feature and return ACK. Is this usefull? It's just an idea ;-) I wonder
+if there are many features that may be available only on some CPUs in an
+'SMP' system.
 
-Alan
+Jan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

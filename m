@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTI3POf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTI3POf
+	id S261555AbTI3PQe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTI3PQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:14:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52134 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261598AbTI3PO1 (ORCPT
+	Tue, 30 Sep 2003 11:16:33 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:23310 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261555AbTI3PQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:14:27 -0400
-Date: Tue, 30 Sep 2003 16:57:23 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Boszormenyi Zoltan <zboszor@externet.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] exec-shield-2.6.0-test6-G3
-In-Reply-To: <3F77F752.7020404@externet.hu>
-Message-ID: <Pine.LNX.4.56.0309301655330.9692@localhost.localdomain>
-References: <3F77F752.7020404@externet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Sep 2003 11:16:25 -0400
+Date: Tue, 30 Sep 2003 17:07:49 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Ivo van Doorn" <ivd@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] setkeycodes with 2.6.0-test5 / -test6
+Message-ID: <20030930150749.GB1297@win.tue.nl>
+References: <20030930095308.19043.qmail@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930095308.19043.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 30, 2003 at 10:53:08AM +0100, Ivo van Doorn wrote:
 
-On Mon, 29 Sep 2003, Boszormenyi Zoltan wrote:
+> I've been working on a kernelpatch for the 2.6 test kernel named the Funkey patch.
+...
+> setkeycodes e05b 89
+> did not help. keycode for this key remained 125.
 
-> this is a version against -test6-mm1.
-> Three differences from -test6-G3:
-> - Makefile EXTRAVERSION
-> - include/asm-i386/mmu.h trivial reject fix
-> - fs/proc/array.c, {task|current}->[e]uid replaced
->    with tsk_[e]uid({task|current}) to compile.
+Yes, the KDSETKEYCODE ioctl is broken today.
+See some other letter that I wrote a few minutes ago.
 
-thanks, looks good. I've uploaded it to:
+Will be fixed.
 
-	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test6-mm1-G3
-
-    Ingo

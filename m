@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUHaTRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269026AbUHaTVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268838AbUHaTRt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268970AbUHaTRJ
+	id S269026AbUHaTVB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUHaTQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:17:09 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51700 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268838AbUHaTOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:14:08 -0400
-Date: Tue, 31 Aug 2004 12:13:54 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: CONFIG_ACPI totally broken (2.6.9-rc1-mm2)
-Message-ID: <233310000.1093979634@flay>
-In-Reply-To: <231570000.1093979338@flay>
-References: <231570000.1093979338@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 31 Aug 2004 15:16:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38820 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268906AbUHaTMZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:12:25 -0400
+Message-ID: <4134CD8B.4060409@pobox.com>
+Date: Tue, 31 Aug 2004 15:12:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ryan Breen <ryan.breen@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+References: <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <d9195cb5040831120178f8b07b@mail.gmail.com>
+In-Reply-To: <d9195cb5040831120178f8b07b@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, not only does it not compile in -mm2, you also can't disable it.
-
-The exact same config file works fine in -mm1 ... it's just the -mm2
-one that's broken.
- 
-> Moreover, if you try you get this:
+Ryan Breen wrote:
+> On Tue, 31 Aug 2004 00:38:14 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> scripts/kconfig/mconf arch/i386/Kconfig
-> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_AC
-> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K7_ACPI
-> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K8_ACPI
-> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_EC
-> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_SPEEDSTEP_CENTRINO_ACPI
-> Warning! Found recursive dependency: DRM_I830 DRM_I915 DRM_I830
+>>Man, this thread came a long way.
+>>
 > 
-> larry:~/linux/2.6.9-rc1-mm2# egrep '(HT|MMCONFIG|HPET)' .config
-># CONFIG_HPET_TIMER is not set
-># CONFIG_X86_HT is not set
-># CONFIG_PCI_GOMMCONFIG is not set
-># CONFIG_HPET is not set
 > 
-> larry:~/linux/2.6.9-rc1-mm2# grep ACPI .config
-># Power management options (ACPI, APM)
-># ACPI (Advanced Configuration and Power Interface) Support
-> CONFIG_ACPI=y
-># CONFIG_ACPI_AC is not set
-># CONFIG_ACPI_BATTERY is not set
-># CONFIG_ACPI_BUTTON is not set
-># CONFIG_ACPI_FAN is not set
-># CONFIG_ACPI_PROCESSOR is not set
-># CONFIG_ACPI_ASUS is not set
-># CONFIG_ACPI_TOSHIBA is not set
-># CONFIG_ACPI_DEBUG is not set
-> CONFIG_ACPI_EC=y
-> CONFIG_ACPI_PCI=y
-> 
-> How the hell do you turn this stuff off?
-> 
-> M.
+> You said it -- from Reiser to microkernel.  If we can only figure out
+> a way to get a BitKeeper discussion going, we'll have the Grand
+> Unified Flamewar.
 
 
+If you can find a link between the reiserfs thread and the webcam driver 
+thread, you've gone all the way from filesystems to Nazis, thus invoking 
+Godwin's Law ;-)
+
+	Jeff
+
+
+[1] http://en.wikipedia.org/wiki/Godwin's_law

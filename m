@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291066AbSBGCB1>; Wed, 6 Feb 2002 21:01:27 -0500
+	id <S291069AbSBGCJu>; Wed, 6 Feb 2002 21:09:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291074AbSBGCBR>; Wed, 6 Feb 2002 21:01:17 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27149 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S291066AbSBGCBK>; Wed, 6 Feb 2002 21:01:10 -0500
-Date: Thu, 7 Feb 2002 00:01:05 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: lwn@lwn.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Kernel Janitor Project 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-        kernelnewbies@nl.linux.org
-Subject: ANNOUNCE: Janitor weekend!
-Message-ID: <20020207020105.GP8973@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	lwn@lwn.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Kernel Janitor Project <kernel-janitor-discuss@lists.sourceforge.net>,
-	kernelnewbies@nl.linux.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+	id <S291072AbSBGCJj>; Wed, 6 Feb 2002 21:09:39 -0500
+Received: from age.cs.columbia.edu ([128.59.22.100]:21259 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S291069AbSBGCJe>; Wed, 6 Feb 2002 21:09:34 -0500
+Date: Wed, 6 Feb 2002 21:09:25 -0500 (EST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <E16Ydys-0007D6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202062101390.4832-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something that has been proposed for many moons, but something
-we never got around to doing was an IRC janitor weekend.
-Rather than further procrastinate, it's going to happen this
-weekend, as of the Friday evening on irc.openprojects.net,
-#kerneljanitor
+On Thu, 7 Feb 2002, Alan Cox wrote:
 
-For those that are not aware the kernel janitor project
-(http://www.kerneljanitors.org) maintains a TODO list of
-various parts of the kernel in need of some cleaning up.
-The mailing list is working out quite well, but a lot of
-subscribers are of the "I want to help, but need a push"
-state. For this reason, a bunch of us will be around at
-various times to answer questions, look through any 
-cleanup patches in progress..
+> > there is no way to "lose" that data before it hits the wire, unless of
+> > course the network driver is broken and doesn't plug the upper layers when
+> > its TX queue is full.
+> 
+> UDP is not flow controlled.
 
-So, grab a broom, and start cleaning 8-)
+No, of course not, but this has *nothing* to do with UDP. The IP socket 
+itself is flow controlled, and so is the TX queue of the network driver.
 
-The Kernel Janitor Team.
+Let me give you another example: ping -f. If what you said were true, ping -f 
+would send packets as fast as the CPU can generate into the black hole 
+called an IP raw socket, right? Well, that just doesn't happen, because 
+sendto/sendmsg will block until there is enough space in the TX queue of 
+the raw socket.
+
+I'll state again: if data (UDP or otherwise) is lost after sendto() 
+returns success but before it hits the wire, something is BROKEN in that 
+IP stack.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

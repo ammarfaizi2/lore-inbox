@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVAIMSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVAIMZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVAIMSd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 07:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVAIMSd
+	id S261290AbVAIMZc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 07:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVAIMZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 07:18:33 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:43739 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261282AbVAIMSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 07:18:31 -0500
-Date: Sun, 9 Jan 2005 12:18:30 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, davej@redhat.com
-Subject: Re: 2.6.x features log
-Message-ID: <20050109121830.GA25170@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, davej@redhat.com
-References: <41DEC82C.4040502@osdl.org>
+	Sun, 9 Jan 2005 07:25:32 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:62872 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261290AbVAIMZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 07:25:27 -0500
+Date: Sun, 9 Jan 2005 13:25:57 +0100
+From: DervishD <lkml@dervishd.net>
+To: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Conflicts in kernel 2.6 headers and {glibc,Xorg}
+Message-ID: <20050109122557.GA221@DervishD>
+Mail-Followup-To: Michal Feix <michal@feix.cz>,
+	linux-kernel@vger.kernel.org
+References: <41E0F76D.7080805@feix.cz> <20050109110805.GA8688@irc.pl> <41E1170D.6090405@feix.cz> <20050109115554.GA9183@irc.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <41DEC82C.4040502@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050109115554.GA9183@irc.pl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 09:34:36AM -0800, Randy.Dunlap wrote:
-> 
-> I think that people really like the Dave Jones
-> 2.5/2.6 halloween information/update.  It contained a lot
-> of useful info in one place, with pointers to more details.
-> 
-> What I'm seeing (and getting a little concerned about,
-> although I dislike PR with a passion) is that the 2.6.x
-> continuous development cycle will cause us (the Linux
-> community) to miss logging some of these important new
-> features (outside of bk).  Has anyone kept a track of new
-> features that are being added in 2.6?
-> 
-> I'll keep a list (or someone else can -- DaveJ ?) if anyone
-> is interested in feeding items into it.  Or do distros
-> already keep such a running list of new features?
+    Hi All :)
 
-Debian actually patches Dave's post_halloween document into
-Documentation.  Maybe we should put it there for mainline
-aswell and make sure to update it when doing major changes?
+ * Tomasz Torcz <zdzichu@irc.pl> dixit:
+>  Mainstream distributions use ,,sanitized'' version o kernel
+> headers - Fedora has own set, Debian has another, LFS too. For rest
+> and for us, casual users, there are headers made as byproduct of
+> PLD Linux, which are used since december 2003 (before kernel 2.6
+> was even released).
 
+    But the set of sanitized kernel headers, if you build your own
+software and you're not using a distro, is only available for 2.6.x
+kernels, not for 2.4.x kernels. What should be done for 2.4 kernels?
+I currently use a set of headers from the 2.4 kernel I used to build
+my libc, not the headers from the current kernel I'm running, but I
+would like to know anyway.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

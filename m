@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129153AbQJ3GUc>; Mon, 30 Oct 2000 01:20:32 -0500
+	id <S129189AbQJ3GYW>; Mon, 30 Oct 2000 01:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129189AbQJ3GUV>; Mon, 30 Oct 2000 01:20:21 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:57126 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S129153AbQJ3GUJ>; Mon, 30 Oct 2000 01:20:09 -0500
-Message-ID: <39FCDB16.B0955558@mindspring.com>
-Date: Sun, 29 Oct 2000 21:21:11 -0500
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /proc & xml data
+	id <S129546AbQJ3GYM>; Mon, 30 Oct 2000 01:24:12 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:46487 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S129189AbQJ3GYD>;
+	Mon, 30 Oct 2000 01:24:03 -0500
+Message-ID: <20001030142356.A3800@saw.sw.com.sg>
+Date: Mon, 30 Oct 2000 14:23:56 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100: card reports no resources [was VM-global...]
+In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi>; from "Ville Herva" on Thu, Oct 26, 2000 at 07:35:08PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I remember hearing about various debates about the /proc structure.  I
-was wondering if anyone had ever considered storing some of the data in
-xml format rather than its current format?  Things like /proc/meminfo
-and cpuinfo may work good in this format as then it would be easy to
-write a generic xml parser that could then be used to parse any of the
-data. "MemTotal:  %8lu kB\n"
+Hello,
 
-In the case of the meminfo it would be a matter of changing the lines in
-fs/proc/array.c  function get_meminfo(char * buffer) from
+On Thu, Oct 26, 2000 at 07:35:08PM +0300, Ville Herva wrote:
+> Markus Pfeiffer <profmakx@profmakx.de> wrote:
+> > 
+> > > Oct 26 11:24:13 ns29 kernel: eth0: card reports no resources.
+> > > Oct 26 11:24:15 ns29 kernel: eth0: card reports no resources.
+> > > Oct 26 12:22:21 ns29 kernel: eth0: card reports no resources.
+> > > Oct 26 16:16:59 ns29 kernel: eth0: card reports no resources.
+> > > Oct 26 16:28:37 ns29 kernel: eth0: card reports no resources.
+> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > > 
+> > let me guess: intel eepro100 or similar??
+> > Well known problem with that one. dont know if its fully fixed ... With
+> 
+> Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
+> The network stalls for several minutes when it happens.
+> 
+> > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+> 
+> What about a fix for a 2.2.x...?
 
-"MemTotal:  %8lu kB\n"
+The exact reason for this problem is still unknown.
 
-to something like
-
-"<memtotal>%8lu kB</memtotal>\n"
-
-
-
-Joe
-
+Best regards
+					Andrey V.
+					Savochkin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUBDLd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 06:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUBDLd1
+	id S262050AbUBDL0L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 06:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUBDL0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 06:33:27 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:749 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266322AbUBDLdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 06:33:24 -0500
-Date: Wed, 4 Feb 2004 17:07:58 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>
-Subject: [RFC/T 0/6] sysfs backing store (with symlink)
-Message-ID: <20040204113758.GA4234@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	Wed, 4 Feb 2004 06:26:11 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:61139 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262050AbUBDL0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 06:26:07 -0500
+Date: Wed, 04 Feb 2004 20:26:02 +0900 (JST)
+Message-Id: <20040204.202602.70222883.marc@labs.fujitsu.com>
+To: woody@jf.intel.com, sean.hefty@intel.com, hozer@hozed.org,
+       infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the
+ linux kernel
+From: Masanori ITOH <marc@labs.fujitsu.com>
+In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
+References: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi Robert, Sean,
 
-Please find following patches for sysfs-backing store. This version has
-support for putting symlinks also on backing store. Earlier it has support
-for text/binary attribute files. 
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
+> Hi Masonori, 
+> 
+> I think that Sean has already pushed the code changes for 2.6 for 
+> complib, IBAL, and SDP.  As I stated before, we have yet to test it on
+> 2.6,
+> but it should now compile. Let us know if you have any issues.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107269078726254&w=2
+Currently, it doesn't seem to be available for 'bk pull', but
+I will check it out as soon as it becomes public.
 
-Apart from a few bug fixes, the main change in this version is for symlinks. 
-sysfs_create_link() now does not create dentry/inode for the link, but 
-allocates a sysfs_dirent and adds it the parent sysfs_dirent's s_children 
-list. dentry/inode for the link is created when the symlink is first looked up. 
+http://infiniband.bkbits.net:8080/iba/ChangeSet@-7d?nav=index.html
+----
+|Linux InfiniBand(tm) Project 
+|-----------------------------------------------------------------------------
+|ChangeSet Summaries 
+|Age      Author   Rev   Comments 
+|35 hours ardavis  1.221 878599 SDP fix for faster rejected connect requests.  
+|6 days   jlcoffma 1.220 Fix for SourceForge bug number 880274 for build on the Linux 2.6kernel base. 
 
-I request Martin and Mackall to _replace_ the old patch set with the 
-new one in their trees.
+Thanks and stay tuned, :)
+Masanori
 
-With this we save approx 75-80% of lowmem requirements of sysfs. Symlinks 
-support is needed for S390 linux people as they create lots of symlinks. I 
-have some numbers collected on S390 machine after creating 4096 ctc devices.
-This created around 62433 sysfs entries. Backing store saves around 145 MB
-of Lowmem when sysfs files are not in use.
+---
+Masanori ITOH  Grid Computing & Bioinformatics Lab., Fujitsu Labs. LTD.
+               e-mail: marc@labs.fujitsu.com
+               phone: +81-44-754-2628 (extension: 7112-6227)
+               FingerPrint: 55AF C562 E415 FB1A 8A3A  35D1 AB40 8A9D B8B1 99F8
 
----------------------------------------------------------------------------
-Without sysfs backing store 
-# cat /proc/sys/fs/dentry-state
-66733   4100    45      0       0       0
-
-# grep LowFree /proc/meminfo
-LowFree:         20984 kB
-
-# grep dentry /proc/slabinfo; grep -w inode_cache /proc/slabinfo
-dentry_cache       66750  66750    256   15    1 : tunables  120   60    8 : slabdata   4450   4450      0
-inode_cache        62480  62480    768    5    1 : tunables   54   27    8 : slabdata  12496  12496      0
-
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-With sysfs backing store 
-# cat /proc/sys/fs/dentry-state 
-8783    155     45      0       0       0
-
-# grep LowFree /proc/meminfo
-LowFree:        166416 kB
-
-# grep dentry /proc/slabinfo; grep -w inode_cache /proc/slabinfo
-dentry_cache        8795   8880    256   15    1 : tunables  120   60    8 : slabdata    592    592      0
-inode_cache         8495   8495    768    5    1 : tunables   54   27    8 : slabdata   1699   1699      0
-
-**** Savings of around 145 MB of Lowmem *****
----------------------------------------------------------------------------
-
-Thanks
-Maneesh
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696

@@ -1,72 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRBVPVU>; Thu, 22 Feb 2001 10:21:20 -0500
+	id <S129976AbRBVP1b>; Thu, 22 Feb 2001 10:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129300AbRBVPVK>; Thu, 22 Feb 2001 10:21:10 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:6660 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129156AbRBVPU7>;
-	Thu, 22 Feb 2001 10:20:59 -0500
-Date: Thu, 22 Feb 2001 12:20:55 -0300
-From: Rogerio Brito <rbrito@iname.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels (fwd)
-Message-ID: <20010222122055.A1278@iname.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S129620AbRBVP1V>; Thu, 22 Feb 2001 10:27:21 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:8954 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S129300AbRBVP1C>; Thu, 22 Feb 2001 10:27:02 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F0EEE@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: random PID generation
+Date: Thu, 22 Feb 2001 16:35:35 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This message was apparently intended to be sent to the list.
+Hi,
+
+I wrote a patch against 2.2.18 and 2.4.1 to have the kernel generate random
+PIDs.
+You can find it at http://vanheusden.com/Linux/security.php3 (amongst other
+patches).
+Beware: pretty much experimental and likely to make your linux-pc perform
+like a
+win95 platform.
 
 
-	[]s, Roger...
+Greetings,
 
------ Forwarded message from Pozsar Balazs <pozsy@sch.bme.hu> -----
-
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Rogerio Brito <rbrito@iname.com>
-Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels
-Date: Thu, 22 Feb 2001 01:04:27 +0100 (MET)
-Message-ID: <Pine.GSO.4.30.0102220103290.8797-100000@balu>
-
-
-The kernel doesn't seem to set 32bit io transfers by default. Is it
-dangerous or unrecommended to set it with hdparm?
-
-
-On Wed, 21 Feb 2001, Rogerio Brito wrote:
-
-> On Feb 21 2001, Vojtech Pavlik wrote:
-> > On Tue, Feb 20, 2001 at 11:15:02PM -0800, Shane Wegner wrote:
-> > > Ok, can I still use -u1 -k1 -c1 on the drives or is it even
-> > > necessary anymore.
-> >
-> > If you enable automatic DMA in the kernel config, it isn't necessary
-> > at all. The VIA driver sets up everything.
->
-> 	Ok. Please disregard my last message (this one contains
-> 	exactly what I was looking for).
->
-> > 4) But VIA is still set to PIO mode
->
-> 	Why does this happen?
->
-> 	And what about the other options to hdparm (-u1 -k1 -c1)? Are
-> 	they potentially dangerous also?
->
->
-> 	[]s, Roger...
->
->
-
-
-
------ End forwarded message -----
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Folkert van Heusden

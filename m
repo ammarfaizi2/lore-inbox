@@ -1,82 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVAEUgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVAEUmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVAEUgI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAEUgH
+	id S262574AbVAEUmA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVAEUl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:36:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:990 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262652AbVAEUcx (ORCPT
+	Wed, 5 Jan 2005 15:41:59 -0500
+Received: from holomorphy.com ([207.189.100.168]:45721 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262653AbVAEUhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:32:53 -0500
-Date: Wed, 5 Jan 2005 12:32:07 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       Eirik Thorsnes <eithor@ii.uib.no>, smfrench@austin.rr.com,
-       trond.myklebust@fys.uio.no, matthew@wil.cx
-Subject: Re: panic - Attempting to free lock with active block list
-Message-ID: <20050105123207.J469@build.pdx.osdl.net>
-References: <20050105195736.GA26989@ii.uib.no>
+	Wed, 5 Jan 2005 15:37:47 -0500
+Date: Wed, 5 Jan 2005 12:37:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: pmeda@akamai.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch  /proc] Speedup /proc/pid/maps
+Message-ID: <20050105203740.GF7961@holomorphy.com>
+References: <200501052055.MAA10940@allur.sanmateo.akamai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050105195736.GA26989@ii.uib.no>; from Jan-Frode.Myklebust@bccs.uib.no on Wed, Jan 05, 2005 at 08:57:36PM +0100
+In-Reply-To: <200501052055.MAA10940@allur.sanmateo.akamai.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan-Frode Myklebust (Jan-Frode.Myklebust@bccs.uib.no) wrote:
-> We have a couple of mail-servers running first 2.6.9-1.681_FC3smp
-> and was later upgraded to the Fedora test kernel 2.6.10-1.727_FC3smp
-> which I think is pretty plain 2.6.10 + ac2. But they both keep
-> crashing with the message:
-> 
->        Kernel panic - not syncing: Attempting to free lock with active block list
-> 
-> Any ideas how to attack this?
-> 
-> We're running Centos 3.3, ext3 for root-disks, ext2 on /boot,
-> XFS for mail-spools, lots of nfs-mounted directories..
+On Wed, Jan 05, 2005 at 12:55:37PM -0800, pmeda@akamai.com wrote:
+> This patch uses find_vma() to improve the read response of /proc/pid/maps.
+> It attempts to make the liner scan instead of quadratic walk and utilise
+> rb tree.  Reading the file was doing sequential scan from the begining to
+> file position all the time, and taking a quite long time.
+> The improvements came from f_version/m_version and resulting in
+> mmap_cache match. Even if mmap_cache does not match, rb tree walk
+> should be faster than sequential walk. First attempt was to put the
+> state across read system calls into private data. Later got
+> inspiration from wli's pid patch using f_version in readdir of /proc.
+> Other advantage is, f_version will be cleared automatically by lseek.
+> The test program creates 32K maps and splits them into two(limited by
+> max_map_count sysctl) using mprotect(0). After the patch, the read
+> time improves from many seconds to milliseconds, and does not grow
+> superlinearly with number of read calls.
+> Help taken from Peter Swain in idea and testing.
 
-It seems likely it's nfs related in this case since it stresses the
-fs/locks code differently than local filesystems.  I recall Steve French
-reporting similar issue with cifs last month.
+This is an excellent improvement which makes kernel instrumentation
+interfere less with the instrumented workload. I wholly endorse it.
 
-Message-Id: <1102097193.3540.4.camel@smfhome1.smfdom>
 
-Are those three cases really panic-worthy?  Could we change to BUG_ON()
-and try and get some useful debugging?  Trond, Willy, any ideas?
-
-thanks,
--chris
-
-===== fs/locks.c 1.76 vs edited =====
---- 1.76/fs/locks.c	2005-01-04 18:48:28 -08:00
-+++ edited/fs/locks.c	2005-01-05 12:31:34 -08:00
-@@ -159,14 +159,20 @@ static inline void locks_free_lock(struc
- 		BUG();
- 		return;
- 	}
--	if (waitqueue_active(&fl->fl_wait))
--		panic("Attempting to free lock with active wait queue");
-+	if (waitqueue_active(&fl->fl_wait)) {
-+		printk("Attempting to free lock with active wait queue");
-+		BUG();
-+	}
- 
--	if (!list_empty(&fl->fl_block))
--		panic("Attempting to free lock with active block list");
-+	if (!list_empty(&fl->fl_block)) {
-+		printk("Attempting to free lock with active block list");
-+		BUG();
-+	}
- 
--	if (!list_empty(&fl->fl_link))
--		panic("Attempting to free lock on active lock list");
-+	if (!list_empty(&fl->fl_link)) {
-+		printk("Attempting to free lock on active lock list");
-+		BUG();
-+	}
- 
- 	if (fl->fl_ops) {
- 		if (fl->fl_ops->fl_release_private)
+-- wli

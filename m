@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130098AbQK0BNo>; Sun, 26 Nov 2000 20:13:44 -0500
+        id <S130772AbQK0BQE>; Sun, 26 Nov 2000 20:16:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130772AbQK0BNZ>; Sun, 26 Nov 2000 20:13:25 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:22181 "EHLO iq.rulez.org")
-        by vger.kernel.org with ESMTP id <S130098AbQK0BNW>;
-        Sun, 26 Nov 2000 20:13:22 -0500
-Date: Mon, 27 Nov 2000 01:45:20 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@linux-ide.org>
-Subject: Re: ATA-4, ATA-5 TCQ status
-In-Reply-To: <20001127012812.A31641@suse.de>
-Message-ID: <Pine.LNX.4.30.0011270143050.21801-100000@iq.rulez.org>
+        id <S132295AbQK0BPy>; Sun, 26 Nov 2000 20:15:54 -0500
+Received: from 13dyn186.delft.casema.net ([212.64.76.186]:45063 "EHLO
+        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+        id <S130772AbQK0BPi>; Sun, 26 Nov 2000 20:15:38 -0500
+Message-Id: <200011270045.BAA13121@cave.bitwizard.nl>
+Subject: Re: Universal debug macros.
+In-Reply-To: <Pine.LNX.4.10.10011270109020.11180-100000@yle-server.ylenurme.sise>
+ from Elmer Joandi at "Nov 27, 2000 01:30:06 am"
+To: Elmer Joandi <elmer@ylenurme.ee>
+Date: Mon, 27 Nov 2000 01:45:33 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Jens Axboe wrote:
+Elmer Joandi wrote:
+> 
+> 
+> On Sun, 26 Nov 2000, Rogier Wolff wrote:
+> > Sure it will slow the driver down a bit, because of all those bit-test
+> > instructions in the driver. If it bothers you, you get to turn it
+> > off. If you are capable of that, you are also capable enough to turn
+> > it back on when neccesary.
+> 
+> Now if there would be simple _unified_ system for switching debug code
+> on/off, it would be a real win. That  recompilation-capable enduser would
+> not need much knowledge to go "General Setup" or newly created
+> "Optimization" section and switch debugging off/on for _all_ network
+> drivers or ide drivers for example.
 
-> > I would like to ask if the tagged command queueing capability in the
-> > decent ATA standards is utilized in the linux IDE driver (2.2 2.2ide
->   ^^^^^^
-> > patches, or 2.4 maybe...)?
-> I hope that is supposed to be 'recent', because with the current TCQ
+Now, how is say "Red Hat" (*) going to ship kernels? Of course they are
+going to turn off debugging. Then I'll be stuck with a non-recompiling
+user-in-trouble with a non-debugging-enabled kernel. 
 
-If you think I should have...
+Clients whom I have to tell "please read the kernel-howto" and
+recompile your kernel. It's not that hard will not feel "good" about
+this. It may seem easy to you, but from some people it is not.
 
-> implementation listed in the specs Linux might as well not support it :)
-> It's simply not worth it.
 
-But seriously, how come?
+				Roger.
 
-I thought they just somewhat like copied the SCSI implementation...
-
-PS: Anybody knowing about a multi (>2) channel UATA host adapter?
+(*) Even if I manage to convince Red Hat not to do this, some
+distribution is going to claim that they distribute the "performance"
+kernel, and disable debugging in the field. 
 
 -- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
-
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

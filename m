@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289057AbSA0XSf>; Sun, 27 Jan 2002 18:18:35 -0500
+	id <S289058AbSA0XiW>; Sun, 27 Jan 2002 18:38:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289058AbSA0XSY>; Sun, 27 Jan 2002 18:18:24 -0500
-Received: from smtp.cogeco.net ([216.221.81.25]:55244 "EHLO fep2.cogeco.net")
-	by vger.kernel.org with ESMTP id <S289057AbSA0XSU> convert rfc822-to-8bit;
-	Sun, 27 Jan 2002 18:18:20 -0500
-Subject: Re: VIA KT266 and SBLive! (emu10k1)
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: Martin =?iso-8859-2?Q?Ma=E8ok?= <martin.macok@underground.cz>
+	id <S289061AbSA0XiD>; Sun, 27 Jan 2002 18:38:03 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:26386 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289058AbSA0Xh7>;
+	Sun, 27 Jan 2002 18:37:59 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "kumar M" <kumarm4@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020127010324.K1409@sarah.kolej.mff.cuni.cz>
-In-Reply-To: <1012086718.11336.91.camel@tux> 
-	<20020127010324.K1409@sarah.kolej.mff.cuni.cz>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.1.99+cvs.2002.01.14.17.03 (Preview Release)
-Date: 27 Jan 2002 18:18:09 -0500
-Message-Id: <1012173498.5048.5.camel@tux>
+Subject: Re: exporting kernel symbols 
+In-Reply-To: Your message of "Sun, 27 Jan 2002 15:16:10 -0000."
+             <F206dZTLOAnjLGXYB1J00005490@hotmail.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 28 Jan 2002 10:37:44 +1100
+Message-ID: <27549.1012174664@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-01-26 at 19:03, Martin Maèok wrote:
-> On Sat, Jan 26, 2002 at 06:11:53PM -0500, Nix N. Nix wrote:
-> > I understand (not well enough, perhaps) that there are some known
-> > problems with a combination of Via chipset and SBLive!.  Indeed, I have
-> > experienced these myself, in that sometimes, when a sound is about to
-> > play (as when I roll up my GNOME panel), the speakers first emit a burst
-> > of noise (sounds like a can of pop opening) before playing the sound.
-> 
-> > problem somewhat by following someone's (from Via Arena) recommendation,
-> > namely to move the DBLive! card to PCI slot 3.  The reason behind the
-> > move, accordig to the group is to obtain a unique IRQ for the card. 
-> 
-> > Unfortunately, the problem still surfaces occasionally.  Can you please
-> > advise me on what I can do to (hopefully) eliminate this problem ?
-> 
-> Wonder if this is related:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=53803
-> 
-> Try changing theese values
-> -CONFIG_HIGHMEM4G=y
-> +CONFIG_NOHIGHMEM=y
-> 
-> -CONFIG_SOUND_DMAP=y
-> +# CONFIG_SOUND_DMAP is not set
+On Sun, 27 Jan 2002 15:16:10 +0000, 
+"kumar M" <kumarm4@hotmail.com> wrote:
+>I am interested in knowing how mangling the name of symbols
+>exported by the kernel to include the checksum of the information related to 
+>that symbol is done, whenever MOD VERSIONS
+>is used for building a module. Is there any documentation on the
+>process of the checksum computation, and which portion of the linux
+>sources I need to go through to understand this ?
 
-I couldn't find the CONFIG_SOUND_DMAP setting in .config anywhere, so
-the only changes I made were to comment out CONFIG_HIMEM and
-CONFIG_HIMEM4G, and set CONFIG_NOHIMEM=y
+genksyms.c in the modutils source package[1].  The make dep process
+pre-processes the C sources from each directory feeding the cpp output
+into genksyms.  genksyms calculates a hash for each exported symbol
+based on its type, return values, parameters etc., recursively
+descending parameter types as required.
 
-This is vanilla 2.4.17 .
+The resulting hashes are written out as #defines to change foo to
+foo_Rxxxxxxxx.  The defines are read back in when the real compile is
+done, change references to foo into foo_Rxxxxxxxx.  In the kernel the
+original symbols are used but the export list includes the suffix.  In
+modules, external references include the suffix.
 
+In theory if a module refers to a symbol and the hashes for that symbol
+match then the symbol has not changed its ABI and it is safe to load
+the module, even if the kernel and module are from different versions.
+In practice, modversions relies far too much on human processes and is
+prone to false positives.  The hashes can match when the ABI is
+different because of human error[2], especially when people compile
+drivers outside the kernel tree.  Kernel and modutils 2.5 will have a
+completely different method for checking ABI compatibility, if kbuild
+2.5 ever gets in.
 
-
-Is that enough ?  Is that what you meant (I'm not as fluent in diff as I
-should be) ?
-
-Thanks for the help.
-
-> 
-> I don't know why ... but it just helped me.
-> 
-> (and I think that some have also succeded with i686 kernel instead of
-> athlon kernel)
-> 
-> -- 
->          Martin Maèok                 http://underground.cz/
->    martin.macok@underground.cz        http://Xtrmntr.org/ORBman/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+[1] http://kernel.org/pub/linux/utils/kernel/modutils/v2.4
+[2] http://prdownloads.sourceforge.net/kbuild/kbuild-2.5-history.tar.bz2
 

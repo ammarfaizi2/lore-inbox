@@ -1,46 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbUCBUIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 15:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbUCBUIL
+	id S261756AbUCBUHG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 15:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCBUHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 15:08:11 -0500
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:5259 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S261758AbUCBUIE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 15:08:04 -0500
-Date: Tue, 2 Mar 2004 14:07:55 -0600 (CST)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: harddisk or kernel problem?
-In-Reply-To: <20040219080115.GD25184@schottelius.org>
-Message-ID: <Pine.GSO.4.21.0403021405220.21720-100000@dirac.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Mar 2004 15:07:06 -0500
+Received: from mail.kroah.org ([65.200.24.183]:13453 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261756AbUCBUGt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 15:06:49 -0500
+Date: Tue, 2 Mar 2004 12:06:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Jamey Hicks <jamey.hicks@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: add class_device_find
+Message-ID: <20040302200634.GA2986@kroah.com>
+References: <4044ACF0.1030909@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4044ACF0.1030909@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico,
-
-> > [...] 
-> > FWIW, after reading this thread, I've slightly modified smartmontools so
-> > that when smartctl prints the error log (-l error) it ALSO prints the LBA
-> > at which a READ or WRITE command failed.
+On Tue, Mar 02, 2004 at 10:49:04AM -0500, Jamey Hicks wrote:
 > 
-> Thank you very much for patching smartctl and explaining howto calulate
-> the LBA from those values.
+> This patch adds:
+> 
+> struct class_device * class_device_find(struct class *class, const char 
+> *class_id)
+> 
+> to find a class device by name so that drivers that match up class 
+> devices by ID do not need to reach into the internals of class 
+> implementation.  RMK recommended that I take this approach, and it seems 
+> reasonable to me.  Please let me know what you think.
 
-FWIW, I've just posted a short howto explaining how to identify the file
-stored at the bad sector, and how to force sector reallocation at the bad
-LBA.  This will effectively 'repair' the disk though you will lose the
-data in that disk block.  Please see:
+Hm, well your patch was line-wrapped, the code was not race-safe, you
+didn't protect the class_device that you returned, you used
+list_for_each instead of list_for_each_entry, you made a check that can
+never fail, and you forgot to modify device.h.
 
-http://smartmontools.sourceforge.net/BadBlockHowTo.txt
+But other than that it was fine :)
 
-Comments gratefully incorporated.
+How about this version instead?
 
-Cheers,
-	Bruce
+Might I ask about which part of the kernel you are going to want to use
+this call in?
 
+thanks,
+
+greg k-h
+
+
+# Driver core: add class_device_find function
+# 
+# based on an idea from Jamey Hicks <jamey.hicks@hp.com>
+
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Tue Mar  2 12:02:30 2004
++++ b/drivers/base/class.c	Tue Mar  2 12:02:30 2004
+@@ -375,6 +375,33 @@
+ 	return 0;
+ }
+ 
++/**
++ * class_device_find - find a struct class_device in a specific class
++ * @class: the class to search
++ * @class_id: the class_id to search for
++ *
++ * Iterates through the list of all class devices registered to a class.  If
++ * the class_id is found, its reference count is incremented and returned to
++ * the caller.  If the class_id does not match any existing struct class_device
++ * registered to this struct class, then NULL is returned.
++ */
++struct class_device * class_device_find(struct class *class, const char *class_id)
++{
++	struct class_device *class_dev;
++	struct class_device *found = NULL;
++
++	down_read(&class->subsys.rwsem);
++	list_for_each_entry(class_dev, &class->children, node) {
++		if (strcmp(class_dev->class_id, class_id) == 0) {
++			found = class_device_get(class_dev);
++			break;
++		}
++	}
++	up_read(&class->subsys.rwsem);
++
++	return found;
++}
++
+ struct class_device * class_device_get(struct class_device *class_dev)
+ {
+ 	if (class_dev)
+@@ -466,6 +493,7 @@
+ EXPORT_SYMBOL(class_device_put);
+ EXPORT_SYMBOL(class_device_create_file);
+ EXPORT_SYMBOL(class_device_remove_file);
++EXPORT_SYMBOL(class_device_find);
+ 
+ EXPORT_SYMBOL(class_interface_register);
+ EXPORT_SYMBOL(class_interface_unregister);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	Tue Mar  2 12:02:30 2004
++++ b/include/linux/device.h	Tue Mar  2 12:02:30 2004
+@@ -214,6 +214,7 @@
+ extern void class_device_del(struct class_device *);
+ 
+ extern int class_device_rename(struct class_device *, char *);
++extern struct class_device * class_device_find(struct class *class, const char *class_id);
+ 
+ extern struct class_device * class_device_get(struct class_device *);
+ extern void class_device_put(struct class_device *);

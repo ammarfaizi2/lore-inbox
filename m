@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313750AbSDPQGa>; Tue, 16 Apr 2002 12:06:30 -0400
+	id <S313744AbSDPQLt>; Tue, 16 Apr 2002 12:11:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313746AbSDPQFj>; Tue, 16 Apr 2002 12:05:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49680 "EHLO
+	id <S313754AbSDPQLG>; Tue, 16 Apr 2002 12:11:06 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62992 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313738AbSDPQEl>; Tue, 16 Apr 2002 12:04:41 -0400
-Date: Tue, 16 Apr 2002 09:01:57 -0700 (PDT)
+	id <S313744AbSDPQJT>; Tue, 16 Apr 2002 12:09:19 -0400
+Date: Tue, 16 Apr 2002 09:06:29 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
         David Lang <david.lang@digitalinsight.com>,
+        Vojtech Pavlik <vojtech@suse.cz>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <E16xVcT-0000H9-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0204160857470.1244-100000@home.transmeta.com>
+In-Reply-To: <200204161558.g3GFwMH10945@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0204160902570.1319-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,26 +23,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 16 Apr 2002, Alan Cox wrote:
-> > Please use a the network block device, and teach the ndb deamon to just
-> > byteswap each word.
+On Tue, 16 Apr 2002, Richard Gooch wrote:
 >
-> You need to use loop not nbd - loopback nbd can deadlock. Byteswap as a
-> new revolutionary crypto system for the loopback driver isnt hard
+> What I object to is the removal of a feature that people depend on,
+> *without a replacement being made available prior to removal*. If you
+> want to remove a feature, build the replacement *first*. Don't remove
+> the feature and say "the rest of you can pick up the pieces".
 
-Even better - I did indeed miss the "security" aspect of the byteswapping
-;)
+Hey, that happens all the time - look how many times VFS changes have made
+various filesystems unusable (including yours ;)
 
-And I know from personal experience that allowing partitioning of a
-loopback thing would certainly have made some things a _lot_ easier (ie
-not having to figure out the damn offsets in order to mount a filesystem
-on a loopback volume), so having support for partitioning would be good.
+The fact is, many things are easier to fix afterwards. Particularly
+because that's the only time you'll find people motivated enough to bother
+about it. If you were to need to fix everything before-the-fact, nothing
+fundamental would ever get fixed, simply because the people who can fix
+one thing are not usually the same people who can fix another.
 
-Although I do have this suspicion that that partitioning support should be
-in user space (along with all the rest of the partitioning support, but
-that's another matter and has some rather more serious backwards
-compatibility issues, of course. Is anybody still working on the new early
-initrd?).
+(Just to take an example that _isn't_ the IDE driver, this is exactly what
+the more generic bio changes have been an example of - it's just
+inconceivable to fix every use of the old request interface, so somebody
+has to take the first step and taker the heat about it. Otherwise it never
+gets anywhere)
 
 		Linus
 

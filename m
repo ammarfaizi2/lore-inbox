@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263082AbVBDK7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVBDLHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbVBDK7r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 05:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbVBDK7r
+	id S262452AbVBDLHD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 06:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbVBDLHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 05:59:47 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:15506 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262359AbVBDK7n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 05:59:43 -0500
-Date: Fri, 4 Feb 2005 11:59:42 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 4 Feb 2005 06:07:02 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:10682 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261724AbVBDLGx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 06:06:53 -0500
+Date: Fri, 4 Feb 2005 13:08:35 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050204105942.GC29712@sd291.sivit.org>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>,
-	linux-kernel@vger.kernel.org
-References: <20050202155403.GE3117@crusoe.alcove-fr> <20050204101827.GA13455@mellanox.co.il>
+Message-ID: <20050204110835.GA13474@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050202155403.GE3117@crusoe.alcove-fr> <20050204101827.GA13455@mellanox.co.il> <20050204105942.GC29712@sd291.sivit.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204101827.GA13455@mellanox.co.il>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20050204105942.GC29712@sd291.sivit.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 12:18:27PM +0200, Michael S. Tsirkin wrote:
-
+Quoting r. Stelian Pop <stelian@popies.net>:
+> Subject: Re: [RFC] Linux Kernel Subversion Howto
 > 
-> Hi, Stelian!
-> One thing everyone creating kernel patches with subversion
-> must be aware of, is the fact that the subversion built-in diff command does
-> not understand the gnu diff -p flag (or indeed, any gnu diff flags at all,
-> with the exception of -u, which is the default anyway).
+> On Fri, Feb 04, 2005 at 12:18:27PM +0200, Michael S. Tsirkin wrote:
+> 
+> > 
+> > Hi, Stelian!
+> > One thing everyone creating kernel patches with subversion
+> > must be aware of, is the fact that the subversion built-in diff command does
+> > not understand the gnu diff -p flag (or indeed, any gnu diff flags at all,
+> > with the exception of -u, which is the default anyway).
+> 
+> There is a section called "How do I generate 'proper' diffs ?" dealing
+> with this.
+> 
+> Stelian.
+> -- 
+> Stelian Pop <stelian@popies.net>    
+> 
 
-There is a section called "How do I generate 'proper' diffs ?" dealing
-with this.
+Yep but the trick with --diff-cmd has the advantage of not changing the
+default diff for the current user.
 
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>    
+MST - Michael S. Tsirkin

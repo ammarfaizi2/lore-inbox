@@ -1,354 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263494AbTCNU3F>; Fri, 14 Mar 2003 15:29:05 -0500
+	id <S263484AbTCNU1k>; Fri, 14 Mar 2003 15:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263497AbTCNU3F>; Fri, 14 Mar 2003 15:29:05 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:33435 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263494AbTCNU2l>;
-	Fri, 14 Mar 2003 15:28:41 -0500
-Message-ID: <3E723BFD.9080708@us.ibm.com>
-Date: Fri, 14 Mar 2003 12:30:53 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
+	id <S263488AbTCNU1k>; Fri, 14 Mar 2003 15:27:40 -0500
+Received: from zeke.inet.com ([199.171.211.198]:35216 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S263484AbTCNU1i>;
+	Fri, 14 Mar 2003 15:27:38 -0500
+Message-ID: <3E723DBF.6040304@inet.com>
+Date: Fri, 14 Mar 2003 14:38:23 -0600
+From: Eli Carter <eli.carter@inet.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] Summit support for pcibus <-> cpumask topology
-Content-Type: multipart/mixed;
- boundary="------------060804090209070003070502"
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.64-mm6
+References: <20030313032615.7ca491d6.akpm@digeo.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060804090209070003070502
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm6/
+[snip]
+> kgdb.patch
 
-Here's a patch to dig the PCI bus to node mapping information out of the 
-deep, dank recesses of the EBDA tables for the Summit machines.  This 
-info is then used for the pcibus_to_cpumask() topology function.
+I'm interested in this patch in your tree.  (Just to warn you of my 
+biases, I'm currently working with the XScale/ARM arch.)  I've noticed 
+some things about it in an initial look, namely:
 
-brief summary:
-This patch adds a new file, arch/i386/kernel/summit.c, for 
-summit-specific code.  Adds some structures to mach_mpparse.h.  Also 
-adds a hook in setup_arch() to dig out the PCI info, and stores it in 
-the mp_bus_id_to_node[] array, where it can be read by the topology 
-functions.
+There appears to be some code duplication between hex() and stubhex() in 
+arch/i386/kernel/gdbstub.c.
 
-As always, questions, comments, or praise (yeah, right) welcome!
+Also, the bulk of gdbstub.c appears to be generic code.  There are a 
+number of functions that have x86 asm in them, but it looks to me on 
+initial viewing, that most of the logic is applicable to other arches. 
+Am I understanding that correctly?
+Right now it looks like an arch would need to provide a way to:
+- reboot the processor
+- implement 'continue at address' and 'step one instruction from address'
+- handle_exeption()
+- printexception()
+- correct_hw_break()
+- regs_to_gdb_regs() and gdb_regs_to_regs()
+     Hmm, there's probably some more to that part...
+The above is just for the gdbstub.c.  I'm still reading the patch. :)
 
-  arch/i386/kernel/Makefile                   |    1
-  arch/i386/kernel/setup.c                    |    3
-  arch/i386/kernel/summit.c                   |  162 
-++++++++++++++++++++++++++++
-  include/asm-i386/mach-summit/mach_mpparse.h |   69 +++++++++++
-  include/asm-i386/mpspec.h                   |    4
-  5 files changed, 239 insertions(+)
+Would breaking the arch-independent parts out to linux/kernel/gdbstub.c 
+be a reasonable change or is that a dumb question? ;)
 
-Cheers!
+Thanks,
 
--Matt
-
---------------060804090209070003070502
-Content-Type: text/plain;
- name="summit_pcimap-2.5.64-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="summit_pcimap-2.5.64-patch"
-
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/arch/i386/kernel/Makefile linux-2.5.64-summit_pcimap/arch/i386/kernel/Makefile
---- linux-2.5.64-vanilla/arch/i386/kernel/Makefile	Tue Mar  4 19:29:01 2003
-+++ linux-2.5.64-summit_pcimap/arch/i386/kernel/Makefile	Fri Mar 14 09:54:18 2003
-@@ -25,6 +25,7 @@
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
-+obj-$(CONFIG_X86_SUMMIT)	+= summit.o
- obj-$(CONFIG_EDD)             	+= edd.o
- obj-$(CONFIG_MODULES)		+= module.o
- obj-y				+= sysenter.o
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/arch/i386/kernel/setup.c linux-2.5.64-summit_pcimap/arch/i386/kernel/setup.c
---- linux-2.5.64-vanilla/arch/i386/kernel/setup.c	Tue Mar  4 19:29:18 2003
-+++ linux-2.5.64-summit_pcimap/arch/i386/kernel/setup.c	Fri Mar 14 09:56:21 2003
-@@ -918,6 +918,9 @@
- 	if (smp_found_config)
- 		get_smp_config();
- #endif
-+#ifdef CONFIG_X86_SUMMIT
-+	setup_summit();
-+#endif
- 
- 	register_memory(max_low_pfn);
- 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/arch/i386/kernel/summit.c linux-2.5.64-summit_pcimap/arch/i386/kernel/summit.c
---- linux-2.5.64-vanilla/arch/i386/kernel/summit.c	Wed Dec 31 16:00:00 1969
-+++ linux-2.5.64-summit_pcimap/arch/i386/kernel/summit.c	Fri Mar 14 11:03:15 2003
-@@ -0,0 +1,162 @@
-+/*
-+ * arch/i386/kernel/summit.c - IBM Summit-Specific Code
-+ *
-+ * Written By: Matthew Dobson, IBM Corporation
-+ *
-+ * Copyright (c) 2003 IBM Corp.
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <colpatch@us.ibm.com>
-+ *
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/init.h>
-+#include <asm/io.h>
-+#include <mach_mpparse.h>
-+
-+static void __init setup_pci_node_map_for_wpeg(int wpeg_num, struct rio_table_hdr *rth, 
-+		struct scal_detail **scal_nodes, struct rio_detail **rio_nodes){
-+	int twst_num = 0, node = 0, first_bus = 0;
-+	int i, bus, num_busses;
-+
-+	for(i = 0; i < rth->num_rio_dev; i++){
-+		if (rio_nodes[i]->node_id == rio_nodes[wpeg_num]->owner_id){
-+			twst_num = rio_nodes[i]->owner_id;
-+			break;
-+		}
-+	}
-+	if (i == rth->num_rio_dev){
-+		printk("%s: Couldn't find owner Cyclone for Winnipeg!\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	for(i = 0; i < rth->num_scal_dev; i++){
-+		if (scal_nodes[i]->node_id == twst_num){
-+			node = scal_nodes[i]->node_id;
-+			break;
-+		}
-+	}
-+	if (i == rth->num_scal_dev){
-+		printk("%s: Couldn't find owner Twister for Cyclone!\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	switch (rio_nodes[wpeg_num]->type){
-+	case CompatWPEG:
-+		/* The Compatability Winnipeg controls the legacy busses
-+		   (busses 0 & 1), the 66MHz PCI bus [2 slots] (bus 2), 
-+		   and the "extra" busses in case a PCI-PCI bridge card is 
-+		   used in either slot (busses 3 & 4): total 5 busses. */
-+		num_busses = 5;
-+		/* The BIOS numbers the busses starting at 1, and in a 
-+		   slightly wierd manner.  You'll have to trust that 
-+		   the math used below to determine the number of the 
-+		   first bus works. */
-+		first_bus = (rio_nodes[wpeg_num]->first_slot - 1) * 2;
-+		break;
-+	case AltWPEG:
-+		/* The Alternate/Secondary Winnipeg controls the 1st 133MHz 
-+		   bus [1 slot] & its "extra" bus (busses 0 & 1), the 2nd 
-+		   133MHz bus [1 slot] & its "extra" bus (busses 2 & 3), the 
-+		   100MHz bus [2 slots] (bus 4), and the "extra" busses for 
-+		   the 2 100MHz slots (busses 5 & 6): total 7 busses. */
-+		num_busses = 7;
-+		first_bus = (rio_nodes[wpeg_num]->first_slot * 2) - 1;
-+		break;
-+	case LookOutAWPEG:
-+	case LookOutBWPEG:
-+		printk("%s: LookOut Winnipegs not supported yet!\n", __FUNCTION__);
-+		return;
-+	default:
-+		printk("%s: Unsupported Winnipeg type!\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	for(bus = first_bus; bus < first_bus + num_busses; bus++)
-+		mp_bus_id_to_node[bus] = node;
-+}
-+
-+static void __init build_detail_arrays(struct rio_table_hdr *rth,
-+		struct scal_detail **sd, struct rio_detail **rd){
-+	unsigned long ptr;
-+	int i, scal_detail_size, rio_detail_size;
-+
-+	switch (rth->version){
-+	default:
-+		printk("%s: Bad Rio Grande Table Version: %d\n", __FUNCTION__, rth->version);
-+		/* Fall through to default to version 2 spec */
-+	case 2:
-+		scal_detail_size = 11;
-+		rio_detail_size = 13;
-+		break;
-+	case 3:
-+		scal_detail_size = 12;
-+		rio_detail_size = 15;
-+		break;
-+	}
-+
-+	ptr = (unsigned long)rth + 3;
-+	for(i = 0; i < rth->num_scal_dev; i++)
-+		sd[i] = (struct scal_detail *)(ptr + (scal_detail_size * i));
-+
-+	ptr += scal_detail_size * rth->num_scal_dev;
-+	for(i = 0; i < rth->num_rio_dev; i++)
-+		rd[i] = (struct rio_detail *)(ptr + (rio_detail_size * i));
-+}
-+
-+void __init setup_summit(void)
-+{
-+	struct rio_table_hdr	*rio_table_hdr = NULL;
-+	struct scal_detail	*scal_devs[MAX_NUMNODES];
-+	struct rio_detail	*rio_devs[MAX_NUMNODES*2];
-+	unsigned long		ptr;
-+	unsigned short		offset;
-+	int			i;
-+
-+	memset(mp_bus_id_to_node, -1, sizeof(mp_bus_id_to_node));
-+
-+	/* The pointer to the EBDA is stored in the word @ phys 0x40E(40:0E) */
-+	ptr = *(unsigned short *)phys_to_virt(0x40Eul);
-+	ptr = (unsigned long)phys_to_virt(ptr << 4);
-+
-+	offset = 0x180;
-+	while (offset){
-+		/* The block id is stored in the 2nd word */
-+		if (*((unsigned short *)(ptr + offset + 2)) == 0x4752){
-+			/* set the pointer past the offset & block id */
-+			rio_table_hdr = (struct rio_table_hdr *)(ptr + offset + 4);
-+			break;
-+		}
-+		/* The next offset is stored in the 1st word.  0 means no more */
-+		offset = *((unsigned short *)(ptr + offset));
-+	}
-+	if (!rio_table_hdr){
-+		printk("%s: Unable to locate Rio Grande Table in EBDA - bailing!\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	/* Deal with the ugly version 2/3 pointer arithmetic */
-+	build_detail_arrays(rio_table_hdr, scal_devs, rio_devs);
-+
-+	for(i = 0; i < rio_table_hdr->num_rio_dev; i++)
-+		if (is_WPEG(rio_devs[i]->type))
-+			/* It's a Winnipeg, it's got PCI Busses */
-+			setup_pci_node_map_for_wpeg(i, rio_table_hdr, scal_devs, rio_devs);
-+}
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/include/asm-i386/mach-summit/mach_mpparse.h linux-2.5.64-summit_pcimap/include/asm-i386/mach-summit/mach_mpparse.h
---- linux-2.5.64-vanilla/include/asm-i386/mach-summit/mach_mpparse.h	Tue Mar  4 19:29:17 2003
-+++ linux-2.5.64-summit_pcimap/include/asm-i386/mach-summit/mach_mpparse.h	Fri Mar 14 12:20:38 2003
-@@ -1,6 +1,8 @@
- #ifndef __ASM_MACH_MPPARSE_H
- #define __ASM_MACH_MPPARSE_H
- 
-+#include <mach_apic.h>
-+
- extern int use_cyclone;
- 
- static inline void mpc_oem_bus_info(struct mpc_config_bus *m, char *name, 
-@@ -33,4 +35,71 @@
- 		use_cyclone = 1; /*enable cyclone-timer*/
- 	}
- }
-+
-+struct rio_table_hdr {
-+	unsigned char version;      /* Version number of this data structure           */
-+	                            /* Version 3 adds chassis_num & WP_index           */
-+	unsigned char num_scal_dev; /* # of Scalability devices (Twisters for Vigil)   */
-+	unsigned char num_rio_dev;  /* # of RIO I/O devices (Cyclones and Winnipegs)   */
-+} __attribute__((packed));
-+
-+struct scal_detail {
-+	unsigned char node_id;      /* Scalability Node ID                             */
-+	unsigned long CBAR;         /* Address of 1MB register space                   */
-+	unsigned char port0node;    /* Node ID port connected to: 0xFF=None            */
-+	unsigned char port0port;    /* Port num port connected to: 0,1,2, or 0xFF=None */
-+	unsigned char port1node;    /* Node ID port connected to: 0xFF = None          */
-+	unsigned char port1port;    /* Port num port connected to: 0,1,2, or 0xFF=None */
-+	unsigned char port2node;    /* Node ID port connected to: 0xFF = None          */
-+	unsigned char port2port;    /* Port num port connected to: 0,1,2, or 0xFF=None */
-+	unsigned char chassis_num;  /* 1 based Chassis number (1 = boot node)          */
-+} __attribute__((packed));
-+
-+struct rio_detail {
-+	unsigned char node_id;      /* RIO Node ID                                     */
-+	unsigned long BBAR;         /* Address of 1MB register space                   */
-+	unsigned char type;         /* Type of device                                  */
-+	unsigned char owner_id;     /* For WPEG: Node ID of Cyclone that owns this WPEG*/
-+	                            /* For CYC:  Node ID of Twister that owns this CYC */
-+	unsigned char port0node;    /* Node ID port connected to: 0xFF=None            */
-+	unsigned char port0port;    /* Port num port connected to: 0,1,2, or 0xFF=None */
-+	unsigned char port1node;    /* Node ID port connected to: 0xFF=None            */
-+	unsigned char port1port;    /* Port num port connected to: 0,1,2, or 0xFF=None */
-+	unsigned char first_slot;   /* For WPEG: Lowest slot number below this WPEG    */
-+	                            /* For CYC:  0                                     */
-+	unsigned char status;       /* For WPEG: Bit 0 = 1 : the XAPIC is used         */
-+	                            /*                 = 0 : the XAPIC is not used, ie:*/
-+	                            /*                     ints fwded to another XAPIC */
-+	                            /*           Bits1:7 Reserved                      */
-+	                            /* For CYC:  Bits0:7 Reserved                      */
-+	unsigned char WP_index;     /* For WPEG: WPEG instance index - lower ones have */
-+	                            /*           lower slot numbers/PCI bus numbers    */
-+	                            /* For CYC:  No meaning                            */
-+	unsigned char chassis_num;  /* 1 based Chassis number                          */
-+	                            /* For LookOut WPEGs this field indicates the      */
-+	                            /* Expansion Chassis #, enumerated from Boot       */
-+	                            /* Node WPEG external port, then Boot Node CYC     */
-+	                            /* external port, then Next Vigil chassis WPEG     */
-+	                            /* external port, etc.                             */
-+	                            /* Shared Lookouts have only 1 chassis number (the */
-+	                            /* first one assigned)                             */
-+} __attribute__((packed));
-+
-+
-+typedef enum {
-+	CompatTwister = 0,  /* Compatibility Twister               */
-+	AltTwister    = 1,  /* Alternate Twister of internal 8-way */
-+	CompatCyclone = 2,  /* Compatibility Cyclone               */
-+	AltCyclone    = 3,  /* Alternate Cyclone of internal 8-way */
-+	CompatWPEG    = 4,  /* Compatibility WPEG                  */
-+	AltWPEG       = 5,  /* Second Planar WPEG                  */
-+	LookOutAWPEG  = 6,  /* LookOut WPEG                        */
-+	LookOutBWPEG  = 7,  /* LookOut WPEG                        */
-+} node_type;
-+
-+static inline int is_WPEG(node_type type){
-+	return (type == CompatWPEG || type == AltWPEG ||
-+		type == LookOutAWPEG || type == LookOutBWPEG);
-+}
-+
- #endif /* __ASM_MACH_MPPARSE_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/include/asm-i386/mpspec.h linux-2.5.64-summit_pcimap/include/asm-i386/mpspec.h
---- linux-2.5.64-vanilla/include/asm-i386/mpspec.h	Tue Mar  4 19:28:53 2003
-+++ linux-2.5.64-summit_pcimap/include/asm-i386/mpspec.h	Fri Mar 14 09:58:46 2003
-@@ -222,6 +222,10 @@
- extern int pic_mode;
- extern int using_apic_timer;
- 
-+#ifdef CONFIG_X86_SUMMIT
-+extern void setup_summit (void);
-+#endif
-+
- #ifdef CONFIG_ACPI_BOOT
- extern void mp_register_lapic (u8 id, u8 enabled);
- extern void mp_register_lapic_address (u64 address);
-
---------------060804090209070003070502--
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

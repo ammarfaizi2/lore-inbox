@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275559AbTHNWAH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 18:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275576AbTHNWAH
+	id S271235AbTHNWR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 18:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271276AbTHNWR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 18:00:07 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:5249 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S275559AbTHNWAE (ORCPT
+	Thu, 14 Aug 2003 18:17:29 -0400
+Received: from ol.freeshell.org ([192.94.73.20]:52962 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S271235AbTHNWR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 18:00:04 -0400
-Date: Thu, 14 Aug 2003 22:58:28 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: timothy parkinson <t@timothyparkinson.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3 "loosing ticks"
-Message-ID: <20030814215828.GA12650@mail.jlokier.co.uk>
-References: <20030813014735.GA225@timothyparkinson.com> <1060793667.10731.1437.camel@cog.beaverton.ibm.com> <20030814171703.GA10889@mail.jlokier.co.uk> <1060882084.10732.1588.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060882084.10732.1588.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Aug 2003 18:17:27 -0400
+Date: Thu, 14 Aug 2003 22:17:25 +0000 (UTC)
+From: Ognen Duzlevski <maketo@sdf.lonestar.org>
+To: linux-kernel@vger.kernel.org
+Subject: thinkpad / d-link 690TXD pcmcia problem
+Message-ID: <Pine.NEB.4.33.0308142215400.22210-100000@sdf.lonestar.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> > I am seeing something similar on my dual Athlon MP 1800 box.
-> > 
-> > It is running NTP to synchronise with another machine over the LAN,
-> > but ntpdc reports that it develops a larger and larger offset relative
-> > to the server - ntpd clearly is not managing to regulate the clock.
-> 
-> Approximately at what rate does it skew? Does ntpdate -b <server> set it
-> properly?
+Hi all,
 
-I'll keep a note.  It's not very fast, but enough to reach several
-tens of seconds after a day's work - enough to break Make over NFS,
-that's why I noticed.
+I don't know if this is the right place to ask this question but I tried
+Google and irc and couldn't ind an answer. I have an old Thinkpad 760EL
+and a 8139 based d-link 690txd ethernet card which just wont work properly
+under 2.4.18.
 
-It might stop showing up now, as I am now running 2.5.75 on the server too :)
+The card gets recognized, however in the process the following is printed
+out:
 
-> Are you also seeing the "Loosing too many ticks!" message?
+PCI: No IRQ known for interrupt pin A of device 00:02.0
+PCI: No IRQ known for interrupt pin B of device 00:02.1
+Yenta IRQ list 06b8, PCI irq0
+Socket status: 30000020
+Yenta IRQ list 06b8, PCI irq0
+Socket status: 30000006
+cs: cb_alloc(bus 1): vendor 0x1186, device 0x1340
+PCI: Enabling device 01:00.0 (0000 -> 0003)
+PCI: No IRQ known for interrupt pin A of device 01:00.0
+cs: IO port probe 0x0c00-0x0cff: clean
+cs: IO port probe 0x0100-0x04ff: excluding 0x220-0x22f 0x268-0x26f
+0x330-0x337 0x388-0x38f 0x3b8-0x3df 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: excluding 0xa68-0xa6f
+8139too Fast Ethernet driver 0.9.25
+PCI: No IRQ known for interrupt pin A device 01:00.0
+PCI: Setting latency timer of device 01:00.0 to 64
+divert: allocating divert_blk for eth0
+eth0: D-Link DFE-690TXD (RealTek RTL8139) at 0xc5073000,
+00:40:05:0b:8a:66, IRQ 0
+eth0: Identified 8139 chip type 'RTL-8139C'
 
-No.
+All looks more or less fine and dandy, however there is no network
+connectivity. If I do ifdown eth0 and then ifup eth0, I get:
 
--- Jamie
+SIOCSIFFLAGS: Device of resource busy
+
+After a slight wait, ifup returns with the message "failed" (I am using
+dhcp).
+
+Any ideas?
+
+Thanks (and please don't kill me for posting to this mailing list, I know
+it is for discussion of kernel development issues).
+
+Ognen
+
+

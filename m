@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268657AbRGZTor>; Thu, 26 Jul 2001 15:44:47 -0400
+	id <S268659AbRGZTjR>; Thu, 26 Jul 2001 15:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268660AbRGZToi>; Thu, 26 Jul 2001 15:44:38 -0400
-Received: from mail-out.chello.nl ([213.46.240.7]:56916 "EHLO
-	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S268657AbRGZToV>; Thu, 26 Jul 2001 15:44:21 -0400
-Message-ID: <3B6071F8.5090104@chello.nl>
-Date: Thu, 26 Jul 2001 21:39:36 +0200
-From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/MSI mobo combo broken?
-In-Reply-To: <20010723180201.A10557@convergence.de> <20010723183204.B27310@lightning.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268657AbRGZTjI>; Thu, 26 Jul 2001 15:39:08 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:34709 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268658AbRGZTi6>;
+	Thu, 26 Jul 2001 15:38:58 -0400
+Date: Thu, 26 Jul 2001 19:37:41 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: nfs weirdness
+Message-ID: <20010726193741.J19492@grobbebol.xs4all.nl>
+In-Reply-To: <20010723154217.F19492@grobbebol.xs4all.nl> <15197.21462.625678.700365@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <15197.21462.625678.700365@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Jul 24, 2001 at 08:54:14PM +1000
+X-OS: Linux grobbebol 2.4.6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+On Tue, Jul 24, 2001 at 08:54:14PM +1000, Neil Brown wrote:
+> If you ask to export "/windows" and nothing is mounted on "/windows",
+> then you are asking to export part of the root filesystem starting at
+> "/windows".  If you subsequently mount something on /windows, then you
+> haven't asked for that to be exported so it won't be, and mountd will
+> get confused.
+> You should always mount filesystems before trying to export them.
 
-Alan Cox wrote:
 
-> I'd be interested to know if 2.4.6-ac5 Athlon optimised works on your board.
-> The reason for this is that it contains the official VIA fixes for their IDE
-> corruption problem rather than our own.
+well, I tested it for trouble shooting. if I mount the /windows vfat and
+export with knfsd it fails. if I do not moiut the vfat, it does. ergo,
+the config files are okay, knfsd refuses. 
 
-I have a MSI K7T Turbo (MS-6330) mobo (VIA-KT133A chipset) and had a go 
-with the 2.4.6-ac5 kernel with Athlon optimisations on. The overall 
-impression is that the combination is slightly more stable than kernels 
-without the Southbridge fix. I.e. I now manage to boot in single user 
-mode, however running anything as advanced as gcc is out of the 
-question: oopses all over the place and also some complaints from the 
-VM-system.
 
-I am in no way qualified enough to go hacking around in the kernel 
-myself, but am quite willing to test any patches that might help towards 
-solving the problem.
+somebody else pointed out in private mail that knfsd isn't supposed to
+be able to export vfat filesystems and unfsd could. if he is correct, I
+will have to onstall the other utils again and install unfsd instead.
 
-Cheers,
-
-Gerbrand van der Zouw
-
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

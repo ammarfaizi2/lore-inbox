@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275188AbRIZOC3>; Wed, 26 Sep 2001 10:02:29 -0400
+	id <S275183AbRIZOBt>; Wed, 26 Sep 2001 10:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275203AbRIZOCU>; Wed, 26 Sep 2001 10:02:20 -0400
-Received: from jalon.able.es ([212.97.163.2]:42439 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S275188AbRIZOCE>;
-	Wed, 26 Sep 2001 10:02:04 -0400
-Date: Wed, 26 Sep 2001 16:02:23 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scripts/kernel-doc: support for structs, unions, enum, typedef and other stuff
-Message-ID: <20010926160223.A2738@werewolf.able.es>
-In-Reply-To: <15m3N5-223p5sC@fmrl01.sul.t-online.com>
+	id <S275203AbRIZOBk>; Wed, 26 Sep 2001 10:01:40 -0400
+Received: from curlew.cs.man.ac.uk ([130.88.13.7]:54286 "EHLO
+	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP
+	id <S275183AbRIZOB0>; Wed, 26 Sep 2001 10:01:26 -0400
+Date: Wed, 26 Sep 2001 15:01:50 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: EXPORT_SYMBOL(local_apic_enabled);
+Message-ID: <20010926150150.B4276@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <15m3N5-223p5sC@fmrl01.sul.t-online.com>; from tim@tjansen.de on Wed, Sep 26, 2001 at 03:22:04 +0200
-X-Mailer: Balsa 1.2.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20010926 Tim Jansen wrote:
->Hi...
->
->The attached patch for scripts/kernel-doc adds the following features:
->
->1. You can document structs, unions, enums and typedef like this:
->/**
-> * enum driver_type - Describes the type of a driver
-> * @DRIVER_TYPE_DEVICE: driver controls a device (like fd.o)
-> * @DRIVER_TYPE_BUS: driver manages a bus (like usbcore.o)
-> * 
-> * Some description.
-> */
->enum driver_type {
->	DRIVER_TYPE_DEVICE     = 0,
->	DRIVER_TYPE_BUS        = 1,
->};
->
+My module needs use of the local APIC for performance counter setup.
 
-I suppose it is too late, but can be an idea for 2.5.
+Currently I am detecting the various ways it can be enabled/disabled as follows :
 
-Why do not use doxygen, instead of rewriting it ?
+static int __init apic_needs_setup(void)
+{
+        return
+/* if enabled, the kernel has already set it up */
+#ifdef CONFIG_X86_UP_APIC
+        0 &&
+#else
+/* 2.4.10 and above do the necessary setup */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,9)
+        0 &&
+#else
+/* otherwise, we detect SMP hardware via the MP table */
+        !smp_hardware &&
+#endif /* 2.4.10 */
+#endif /* CONFIG_X86_UP_APIC */
+        smp_num_cpus == 1;
+}
 
-Yes, it adds another package dependency for kernel sources, but only for
-people that wants to rebuild docs instead of using shipped ones.
+this is obviously ugly, and more importantly fails when passing noapic,nosmp etc.
+as boot options.
+
+How would people feel about exporting a flag for local APIC setup that modules can look at ?
+If it's OK I'll send a patch.
+
+My module is not the only one that needs this (e.g. the APIC timers module)
+
+regards
+john
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.1 (Cooker) for i586
-Linux werewolf 2.4.10-beo #1 SMP Tue Sep 25 23:38:05 CEST 2001 i686
+"Khendon's Law: If the same point is made twice by the same person,
+ the thread is over."

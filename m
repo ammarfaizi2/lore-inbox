@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTJZQty (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 11:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTJZQty
+	id S263310AbTJZQxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 11:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTJZQxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 11:49:54 -0500
-Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:19881 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263299AbTJZQtw
+	Sun, 26 Oct 2003 11:53:36 -0500
+Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:24745 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263310AbTJZQx1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 11:49:52 -0500
-Date: Sun, 26 Oct 2003 17:49:16 +0100
+	Sun, 26 Oct 2003 11:53:27 -0500
+Date: Sun, 26 Oct 2003 17:52:49 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: marcelo.tosatti@cyclades.com
-Subject: [PATCH 2.4.23-pre8] ieee1394 nodemgr deadlock
-Message-ID: <20031026164916.GS4013@deep-space-9.dsnet>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 2.6.0-test9] meye driver update
+Message-ID: <20031026165249.GV4013@deep-space-9.dsnet>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	marcelo.tosatti@cyclades.com
+	Linus Torvalds <torvalds@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,30 +28,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch was submitted here a while ago, has been ack'ed by 
-Ben Collins but it still hasn't made it into the 2.4 tree.
+This small patch documents the existence of a forth 'motioneye'
+camera plugged into the USB bus, of course unsupported by the
+meye driver.
 
-Marcelo, please apply it, without this patch kudzu deadlocks
-on every boot on my RedHat laptop.
+Linus, please apply.
 
 Thanks,
 
 Stelian.
 
-===== drivers/ieee1394/nodemgr.c 1.23 vs edited =====
---- 1.23/drivers/ieee1394/nodemgr.c	Sat Jul 19 18:11:56 2003
-+++ edited/drivers/ieee1394/nodemgr.c	Mon Sep 29 10:31:17 2003
-@@ -1317,8 +1317,10 @@
- 		 * to make sure things settle down. */
- 		for (i = 0; i < 4 ; i++) {
- 			set_current_state(TASK_INTERRUPTIBLE);
--			if (schedule_timeout(HZ/16))
-+			if (schedule_timeout(HZ/16)) {
-+				up(&nodemgr_serialize);
- 				goto caught_signal;
-+			}
+===== Documentation/video4linux/meye.txt 1.7 vs edited =====
+--- 1.7/Documentation/video4linux/meye.txt	Fri Aug  1 14:47:51 2003
++++ edited/Documentation/video4linux/meye.txt	Sun Oct 26 15:00:36 2003
+@@ -33,6 +33,11 @@
+ driver however), but things are not moving very fast (see
+ http://r-engine.sourceforge.net/) (PCI vendor/device is 0x10cf/0x2011).
  
- 			/* Now get the generation in which the node ID's we collect
- 			 * are valid.  During the bus scan we will use this generation
++There is a forth model connected on the USB bus in TR1* Vaio laptops.
++This camera is not supported at all by the current driver, in fact
++little information if any is available for this camera
++(USB vendor/device is 0x054c/0x0107).
++
+ Driver options:
+ ---------------
+ 
+===== drivers/media/video/meye.h 1.10 vs edited =====
+--- 1.10/drivers/media/video/meye.h	Tue Sep 30 02:23:29 2003
++++ edited/drivers/media/video/meye.h	Fri Oct 24 21:14:38 2003
+@@ -31,7 +31,7 @@
+ #define _MEYE_PRIV_H_
+ 
+ #define MEYE_DRIVER_MAJORVERSION	1
+-#define MEYE_DRIVER_MINORVERSION	7
++#define MEYE_DRIVER_MINORVERSION	8
+ 
+ #include <linux/config.h>
+ #include <linux/types.h>
 -- 
 Stelian Pop <stelian@popies.net>

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130513AbRBKAAx>; Sat, 10 Feb 2001 19:00:53 -0500
+	id <S129068AbRBKAXM>; Sat, 10 Feb 2001 19:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131022AbRBKAAd>; Sat, 10 Feb 2001 19:00:33 -0500
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:27009 "EHLO
-	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S130513AbRBKAA1>; Sat, 10 Feb 2001 19:00:27 -0500
-Message-ID: <3A85D79C.3DE3A527@didntduck.org>
-Date: Sat, 10 Feb 2001 19:06:52 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
+	id <S130513AbRBKAXC>; Sat, 10 Feb 2001 19:23:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:15603 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129068AbRBKAWx>; Sat, 10 Feb 2001 19:22:53 -0500
+Date: Sat, 10 Feb 2001 22:22:25 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+In-Reply-To: <200102102351.f1ANpTw457945@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.21.0102102221470.2378-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IRQ conflicts
-In-Reply-To: <E14RfhV-0002A1-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > <SoundBlaster EMU8000 (RAM2048k)>
-> > ACPI: Core Subsystem version [20010208]
-> > ACPI: SCI (IRQ9) allocation failed
-> > ACPI: Subsystem enable failed
-> > Trying to free free IRQ9
-> 
-> That seems to indicate acpi is freeing a free irq. Turn ACPI off. Its a
-> good bet it will fix any random irq/driver problem right now
+On Sat, 10 Feb 2001, Albert D. Cahalan wrote:
 
-Looking at this a bit further, I realised that when the sound driver was
-compiled in the kernel, it is initialised before ACPI.  The BIOS has
-assigned IRQ9 to ACPI, but the PCI code does not know this because of:
+> Using "disc" just sucks. I think the devfs author likes to
+> make the rest of the world suffer for some nationalistic
+> revenge. I and many others will forever curse the damn thing.
 
-PCI: 00:07.3: class 604 doesn't match header type 00. Ignoring class. 
+I and many others will never use the thing.
 
-The ISAPnP code then assigns IRQ9 to the sound card, causing the ACPI
-code to fail to allocate it.  If I compile sound as a module then the
-ACPI driver grabs IRQ9 and the sound get IRQ7.
+I know I'll NEVER get used to a /dev/disc and I don't have
+any use for devfs, so why should I even bother ?
 
+regards,
+
+Rik
 --
-					Brian Gerst
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

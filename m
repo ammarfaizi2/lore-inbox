@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316663AbSFFBmj>; Wed, 5 Jun 2002 21:42:39 -0400
+	id <S316654AbSFFBoL>; Wed, 5 Jun 2002 21:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316666AbSFFBmi>; Wed, 5 Jun 2002 21:42:38 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:49137 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316663AbSFFBmh>; Wed, 5 Jun 2002 21:42:37 -0400
-Date: Wed, 5 Jun 2002 21:42:38 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "David S. Miller" <davem@redhat.com>, lord@sgi.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-Message-ID: <20020605214238.K4697@redhat.com>
-In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com> <20020605183152.H4697@redhat.com> <20020605.161342.71552259.davem@redhat.com> <m3d6v5mcm2.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
+	id <S316667AbSFFBoK>; Wed, 5 Jun 2002 21:44:10 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:24325 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S316654AbSFFBoI>; Wed, 5 Jun 2002 21:44:08 -0400
+Message-ID: <3CFEBF5D.9E415F75@zip.com.au>
+Date: Wed, 05 Jun 2002 18:48:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: colpatch@us.ibm.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Patch??: linux-2.5.20/fs/bio.c - ll_rw_kio could generate bio's 
+ bigger than queue could handle
+In-Reply-To: <200206060122.SAA00693@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 03:15:17AM +0200, Andi Kleen wrote:
-> The scenario Steve outlined was rather optimistic - more pessimistic
-> case would be e.g:
-> you run NBD which calls the network stack with an complex file system on top
-> of it called by something else complex that does a GFP_KERNEL alloc and VM 
-> wants to flush a page via the NBD file system - I don't see how you'll ever 
-> manage to fit that into 4K.
+"Adam J. Richter" wrote:
+> 
+> ...
+> >***generic_make_request: bio_sectors(bio) = 8, q->max_sectors = 64
+> >***generic_make_request: bio_sectors(bio) = 96, q->max_sectors = 64
+> >kernel BUG at ll_rw_blk.c:1602!
+> [...]
+> >>>EIP; c01bb604 <generic_make_request+d4/130>   <=====
+> >Trace; c01bb6dc <submit_bio+5c/70>
+> >Trace; c0152aa1 <mpage_bio_submit+31/40>
+> >Trace; c0152dee <do_mpage_readpage+2ee/340>
+> >Trace; c019ae75 <radix_tree_insert+15/30>
+> >Trace; c012809e <__add_to_page_cache+1e/a0>
+> >Trace; c01281bd <add_to_page_cache_unique+3d/60>
+> >Trace; c0152eaa <mpage_readpages+6a/b0>
+> >Trace; c01620a0 <ext2_get_block+0/400>
+> [...]
+> 
+>         I think your kernel panic is proably related to the
+> same problem that I addressed in ll_rw_kio, but, in fs/mpage.c
+> as Andrew Moreton suggested:
 
-Which is, honestly, a bug.  The IO subsystem should not be capable of 
-engaging in such deep recursion.  ext2/ext3 barely allocate anything 
-on the stack (0x90 bytes at most in only a couple of calls), the vm 
-is in a similar state, and even the network stack's largest allocations 
-are in syscalls and timer code.  Face it, the majority of code that is 
-or could cause problems are things that probably need fixing anyways.
+Yes, same thing.
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+It looks like BIO_MAX_FOO needs to become an API function.
+Question is: what should it return? Number of sectors, number
+of bytes or number of pages?
+
+For my purposes, I'd prefer number of pages.  ie: the vector
+count which gets passed into bio_alloc:
+
+	unsigned bio_max_iovecs(struct block_device *bdev);
+
+	nr_iovecs = bio_max_iovecs(bdev);
+	bio = bio_alloc(GFP_KERNEL, nr_iovecs);
+
+would suit.
+
+And if, via this, we can submit BIOs which are larger than 64k
+for the common "it's just a disk" case then that is icing.
+
+-

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282194AbRK1Xwo>; Wed, 28 Nov 2001 18:52:44 -0500
+	id <S282192AbRK1XzZ>; Wed, 28 Nov 2001 18:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282211AbRK1XwH>; Wed, 28 Nov 2001 18:52:07 -0500
-Received: from mailf.telia.com ([194.22.194.25]:18159 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S282192AbRK1Xvy>;
-	Wed, 28 Nov 2001 18:51:54 -0500
-To: Ron Lawrence <rlawrence@netraverse.com>
-Cc: <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: CDROM ioctl bug (fwd)
-In-Reply-To: <Pine.LNX.4.33.0111281009140.1724-100000@monster.jayfay.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 29 Nov 2001 00:51:46 +0100
-In-Reply-To: <Pine.LNX.4.33.0111281009140.1724-100000@monster.jayfay.com>
-Message-ID: <m2elmi1mjx.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S282196AbRK1XzO>; Wed, 28 Nov 2001 18:55:14 -0500
+Received: from walden.phpwebhosting.com ([64.65.61.214]:19475 "HELO
+	walden.phpwebhosting.com") by vger.kernel.org with SMTP
+	id <S282192AbRK1Xy5>; Wed, 28 Nov 2001 18:54:57 -0500
+Message-Id: <5.1.0.14.0.20011128173852.00a28440@sunset.olemiss.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 28 Nov 2001 17:55:11 -0600
+To: linux-kernel@vger.kernel.org
+From: Ben Pharr - Lists <ben-lists@benpharr.com>
+Subject: IDE SeekComplete Error
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ron Lawrence <rlawrence@netraverse.com> writes:
+I have been getting a DriveReady SeekComplete Error at bootup from my CD 
+burner. Below are the excerpts from dmesg. I have a script that turns off 
+DMA on the writer, but it hasn't been reached yet when this error occurs. 
+This occurred on my first boot of 2.4.17-pre1, but I'm not positive it 
+hasn't been happening with earlier kernels. I doesn't seem to be causing 
+any problems.
 
-> busy. Here are the symptoms of my problem : doing reads from a CDROM
-> device intermingled with CDROM_MEDIA_CHANGED ioctls causes long pauses
-> during the ioctl. This behavior started in 2.4.10. The ioctl can take a
-> very long time to return, especially if reading large chunks.
+Ben Pharr
 
-This patch fixes the problem for my USB CDROM device. Maybe a similar
-patch is needed for the IDE case, I haven't looked yet.
 
-In general, who is responsible for unplugging the request queue after
-queuing an ioctl command?
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev f9
+PIIX4: chipset revision 2
+PIIX4: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0x1800-0x1807, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0x1808-0x180f, BIOS settings: hdc:DMA, hdd:pio
+hda: QUANTUM FIREBALLlct15 20, ATA DISK drive
+hdc: SAMSUNG DVD-ROM SD-612, ATAPI CD/DVD-ROM drive
+hdd: SAMSUNG CD-R/RW SW-408B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 39876480 sectors (20417 MB) w/418KiB Cache, CHS=2482/255/63, UDMA(33)
+hdc: ATAPI 32X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+  hda: hda1 hda2 hda4
 
---- linux/drivers/scsi/scsi.c.old	Thu Nov 29 00:42:16 2001
-+++ linux/drivers/scsi/scsi.c	Thu Nov 29 00:32:28 2001
-@@ -767,14 +767,17 @@
- void scsi_wait_req (Scsi_Request * SRpnt, const void *cmnd ,
-  		  void *buffer, unsigned bufflen, 
-  		  int timeout, int retries)
- {
-+	request_queue_t *q;
- 	DECLARE_COMPLETION(wait);
- 	
- 	SRpnt->sr_request.waiting = &wait;
- 	SRpnt->sr_request.rq_status = RQ_SCSI_BUSY;
- 	scsi_do_req (SRpnt, (void *) cmnd,
- 		buffer, bufflen, scsi_wait_done, timeout, retries);
-+	q = &SRpnt->sr_device->request_queue;
-+	generic_unplug_device(q);
- 	wait_for_completion(&wait);
- 	SRpnt->sr_request.waiting = NULL;
- 	if( SRpnt->sr_command != NULL )
- 	{
+SCSI subsystem driver Revision: 1.00
+hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: set_drive_speed_status: error=0x04
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+   Vendor: SAMSUNG   Model: CD-R/RW SW-408B   Rev: BS02
+   Type:   CD-ROM                             ANSI SCSI revision: 02
 
--- 
-Peter Österlund             petero2@telia.com
-Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
-S-128 66 Sköndal            +46 8 942647
-Sweden

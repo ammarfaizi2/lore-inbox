@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVAKMNC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVAKMX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVAKMNC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 07:13:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVAKMNC
+	id S262742AbVAKMX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 07:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVAKMX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 07:13:02 -0500
-Received: from web53306.mail.yahoo.com ([206.190.39.235]:17325 "HELO
-	web53306.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262737AbVAKMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 07:12:48 -0500
-Message-ID: <20050111121248.67799.qmail@web53306.mail.yahoo.com>
-Date: Tue, 11 Jan 2005 12:12:48 +0000 (GMT)
-From: sounak chakraborty <sounakrin@yahoo.co.in>
-Subject: syslog with syscall3
-To: linux-kernel@vger.kernel.org
+	Tue, 11 Jan 2005 07:23:27 -0500
+Received: from host234-143.pool8250.interbusiness.it ([82.50.143.234]:35713
+	"EHLO zeus.abinetworks.biz") by vger.kernel.org with ESMTP
+	id S262742AbVAKMXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 07:23:22 -0500
+Message-ID: <41E3C40D.50200@abinetworks.biz>
+Date: Tue, 11 Jan 2005 13:18:21 +0100
+From: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Bad disks or bug ?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dear sir,
-i am facing some problem when i want to retrieve the
-lines of 
+Hello,
 
-information from the log file i.e from
-/var/log/messages
-i am using syslog function with syscall3 macro.it is
-showing the output 
+i have a little doubt on the following....
 
-correctly but whenever i am declaring the structures
-of sockets it is 
+/> Sep 10 12:50:30 abivrs0 kernel: hdb: dma_intr: status=0x51 { DriveReady /
+/> SeekComplete Error } /
+/> Sep 10 12:50:30 abivrs0 kernel: hdb: dma_intr: error=0x40 /
+////
 
-showing segmentation fault 
-how to correctt it 
-is it so that my syscall 3 macro changing the program
-to kernel mode 
+...Of course the explanation of such an error is that drive has bad
+sectors and i'd better change it BUT:
 
-and all the socket functions are not in or different
-in kernel mode ?
-then what will be the possible solution if i want t
-retrieve the 
+I have many production servers running 2.4.27, everything seems OK while
+they're new.
+After about an year of production many of them (5 of them at present)
+begin to show the problem BUT:
 
-information from logfile and send it to a file.
-thanks in advance 
-sounak
+1) All of them show the problem on hdb (ALL OF THEM)
+2) Never had problems on hda on ANY server, disks are the same, same
+size, same partitioning
+3) Typically hdb is used as a disk mirror
+4) Many times a mkfs.ext3 -c -c solves the problem bringing bad sectors
+to a new life !
 
-________________________________________________________________________
-Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/
+How do you explain that ? Overload on hdb due to mirroring and surface
+degradation ?
+OR a kind of vodoo on my hdbs ?
+
+NOTE: Over the internet, when i searched for such errors on disks (not
+ramdisks or loop devs) i ALWAYS found problems on hdb !!!
+
+Could it be depending on master-slave configuration ? Kernel bug ? Other ?
+
+What do you say ?
+
+thanks for your time,
+
+Gianluca Alberici
+

@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263535AbSJGXeX>; Mon, 7 Oct 2002 19:34:23 -0400
+	id <S262757AbSJGXyf>; Mon, 7 Oct 2002 19:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263537AbSJGXeX>; Mon, 7 Oct 2002 19:34:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49583 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263535AbSJGXeM>;
-	Mon, 7 Oct 2002 19:34:12 -0400
-Date: Mon, 7 Oct 2002 19:39:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.41: cpqarray compile fixes
-In-Reply-To: <20021007233627.GB24284@www.kroptech.com>
-Message-ID: <Pine.GSO.4.21.0210071936540.29030-100000@weyl.math.psu.edu>
+	id <S262761AbSJGXyf>; Mon, 7 Oct 2002 19:54:35 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:41366 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262757AbSJGXye>;
+	Mon, 7 Oct 2002 19:54:34 -0400
+Subject: Re: kernelNFS(lockd) problem and patch suggestion
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFF11B71B0.8C62C31E-ON87256C4B.0083C390@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Mon, 7 Oct 2002 17:00:06 -0700
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
+ 10/07/2002 18:00:06
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+                                                                                                               
+                                                                                                               
+                                                                                                               
 
 
-On Mon, 7 Oct 2002, Adam Kropelin wrote:
+OK I will do so...hopefully "Marcelo" is reading these postings as I do not
+have his direct email.
 
-> cpqarray in 2.5.41 needs the patch below to compile. 
+Regards, Juan
 
-Yeah, and more than that.  Same typo is in cciss, rd.c sets ->first_minor to
-0 for all units and HD_IRQ definition is needed if CONFIG_BLK_DEV_HD is
-defined.
 
-diff -urN C41-rd/drivers/block/cciss.c C41-disk_add/drivers/block/cciss.c
---- C41-rd/drivers/block/cciss.c	Mon Oct  7 15:55:57 2002
-+++ C41-disk_add/drivers/block/cciss.c	Mon Oct  7 16:45:41 2002
-@@ -2274,7 +2274,7 @@
- 	struct gendisk *disk[NWD];
- 	int i, n;
- 	for (n = 0; n < NWD; n++) {
--		disk[n] = disk_alloc();
-+		disk[n] = alloc_disk();
- 		if (!disk[n])
- 			goto out;
- 	}
-diff -urN C41-rd/drivers/block/cpqarray.c C41-disk_add/drivers/block/cpqarray.c
---- C41-rd/drivers/block/cpqarray.c	Mon Oct  7 15:55:57 2002
-+++ C41-disk_add/drivers/block/cpqarray.c	Mon Oct  7 16:45:29 2002
-@@ -355,7 +355,7 @@
- 		}
- 		num_cntlrs_reg++;
- 		for (j=0; j<NWD; j++) {
--			ida_gendisk[i][j] = disk_alloc();
-+			ida_gendisk[i][j] = alloc_disk();
- 			if (!ida_gendisk[i][j])
- 				goto Enomem2;
- 		}
-diff -urN C41-HD_IRQ/drivers/block/rd.c C41-rd/drivers/block/rd.c
---- C41-HD_IRQ/drivers/block/rd.c	Mon Oct  7 15:55:57 2002
-+++ C41-rd/drivers/block/rd.c	Mon Oct  7 16:40:43 2002
-@@ -459,7 +459,7 @@
- 		/* rd_size is given in kB */
- 		rd_length[i] = rd_size << 10;
- 		disk->major = MAJOR_NR;
--		disk->first_minor = 0;
-+		disk->first_minor = i;
- 		disk->minor_shift = 0;
- 		disk->fops = &rd_bd_op;
- 		sprintf(disk->disk_name, "rd%d", i);
-diff -urN C41-0/drivers/ide/legacy/hd.c C41-HD_IRQ/drivers/ide/legacy/hd.c
---- C41-0/drivers/ide/legacy/hd.c	Mon Oct  7 15:55:58 2002
-+++ C41-HD_IRQ/drivers/ide/legacy/hd.c	Mon Oct  7 16:35:19 2002
-@@ -50,8 +50,6 @@
- #define DEVICE_NR(device) (minor(device)>>6)
- #include <linux/blk.h>
- 
--#define HD_IRQ 14	/* the standard disk interrupt */
--
- #ifdef __arm__
- #undef  HD_IRQ
- #endif
-diff -urN C41-0/include/linux/hdreg.h C41-HD_IRQ/include/linux/hdreg.h
---- C41-0/include/linux/hdreg.h	Wed Sep 18 00:52:23 2002
-+++ C41-HD_IRQ/include/linux/hdreg.h	Mon Oct  7 16:35:19 2002
-@@ -8,6 +8,8 @@
- 
- /* ide.c has its own port definitions in "ide.h" */
- 
-+#define HD_IRQ		14
-+
- /* Hd controller regs. Ref: IBM AT Bios-listing */
- #define HD_DATA		0x1f0		/* _CTL when writing */
- #define HD_ERROR	0x1f1		/* see err-bits */
+
+|---------+---------------------------->
+|         |           Trond Myklebust  |
+|         |           <trond.myklebust@|
+|         |           fys.uio.no>      |
+|         |                            |
+|         |           10/07/02 04:51 PM|
+|         |                            |
+|---------+---------------------------->
+  >------------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                              |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                                 |
+  |       cc:       linux-kernel@vger.kernel.org                                                                                 |
+  |       Subject:  Re: kernelNFS(lockd) problem and patch suggestion                                                            |
+  |                                                                                                                              |
+  |                                                                                                                              |
+  >------------------------------------------------------------------------------------------------------------------------------|
+
+
+
+>>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
+
+     > After taking a look at the code I realized that the lockd
+     > thread sets grace period and then goes to sleep for a long time
+     > waiting for messages and the first message always gets
+     > processed before checking if the grace period has completed
+
+Please could you rediff using the '-u' option and drop the MIME
+attachment thingy (See Documentation/SubmittingPatches).
+
+Patch otherwise looks quite correct, so once the patch format is OK
+then, by all means send it off to Marcelo and (if you could bang up
+the same patch for 2.5.x) to Linus too.
+
+Cheers,
+  Trond
+
+
 

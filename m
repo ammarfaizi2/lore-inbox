@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266376AbTGEPsx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 11:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbTGEPsx
+	id S266375AbTGEPrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 11:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266377AbTGEPrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 11:48:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24254 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266376AbTGEPsr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 11:48:47 -0400
-Message-ID: <3F06F6BA.6060200@pobox.com>
-Date: Sat, 05 Jul 2003 12:03:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sat, 5 Jul 2003 11:47:19 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48587 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S266375AbTGEPrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 11:47:12 -0400
+Date: Sat, 5 Jul 2003 12:59:19 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Status of the IO scheduler fixes for 2.4
+In-Reply-To: <20030705000016.GB23578@dualathlon.random>
+Message-ID: <Pine.LNX.4.55L.0307051257420.13074@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva>
+ <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva>
+ <1057197726.20903.1011.camel@tiny.suse.com> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
+ <20030705000016.GB23578@dualathlon.random>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANN] 2.4.x snapshots started
-References: <3F06D2ED.8080904@pobox.com> <20030705154032.GA9428@alpha.home.local>
-In-Reply-To: <20030705154032.GA9428@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Sat, Jul 05, 2003 at 09:30:21AM -0400, Jeff Garzik wrote:
-> 
->>Just like 2.5.x, nightly snapshots of Marcelo's latest 2.4.x BK 
->>repository are being posted on kernel.org:
->>
->>ftp://ftp.??.kernel.org/pub/linux/kernel/v2.4/snapshots/
->>
->>I created the first snapshot midday as a test, and the standard cron job 
->>created a second one, so the current release is 2.4.21-bk2.
-> 
-> 
-> Jeff, in -bk2, only EXTRAVERSION got changed in Makefile, so the complete
-> name is now 2.4.22-bk2. This is because the base kernel was 2.4.22-pre2.
 
-hrm, good point.  Fixing...
+On Sat, 5 Jul 2003, Andrea Arcangeli wrote:
 
-	Jeff
+> On Fri, Jul 04, 2003 at 05:01:54PM -0300, Marcelo Tosatti wrote:
+> > release today), then fix pausing in -pre4. If the IO fairness still doesnt
+>
+> fix pausing is a showstopper bugfix, the box will hang for days without
+> it.
+>
+> lowlatency elevator is for the desktop complains we get about
+> interactivity compared to 2.5, so it's much lower prio than fix pausing.
+> I would never merge fix pausing after lowlatency elevator. But that's
+> just me.
 
+You're right. I'll merge both patches in -pre3.
 
-
+Danke

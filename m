@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270808AbTGVLyG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 07:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTGVLyG
+	id S270803AbTGVMIU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTGVMIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 07:54:06 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:58139 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270800AbTGVLyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 07:54:03 -0400
-Date: Tue, 22 Jul 2003 08:09:05 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Otto Solares <solca@guug.org>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       debian-sparc@lists.debian.org
-Subject: Re: sparc scsi esp depends on pci & hangs on boot
-Message-ID: <20030722080905.A21280@devserv.devel.redhat.com>
-References: <20030722025142.GC25561@guug.org>
+	Tue, 22 Jul 2003 08:08:20 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:14817 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S270803AbTGVMIT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 08:08:19 -0400
+Date: Tue, 22 Jul 2003 14:08:11 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: textshell@neutronstar.dyndns.org
+Cc: linux-kernel@vger.kernel.org, Henrik Persson <nix@syndicalist.net>
+Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
+Message-ID: <20030722120811.GD1160@brodo.de>
+References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030722025142.GC25561@guug.org>; from solca@guug.org on Mon, Jul 21, 2003 at 08:51:42PM -0600
+In-Reply-To: <20030720211246.GK2331@neutronstar.dyndns.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: 	Mon, 21 Jul 2003 20:51:42 -0600
-> From: Otto Solares <solca@guug.org>
-
-> ultra enterprise 1 (sun4u sparc64)
-> sparc station 4    (sun4m sparc32)
+> I tried your config (with just one change, i enabled reiserfs, i use it for my
+> root fs) but It's the same. /sys/devices/system/cpu/cpu0/ is just empty, no
+> change.
 > 
-> on both i need to enable PCI support even
-> when these boxes doesn't have a PCI bus,
+> I tried with gcc 2.95.4 (as shipped with debian testing) and gcc 3.3.1 (same)
+> but neither solved to problem.
+> What else could be the Problem? I assume problems loading modules or such
+> userspace problems can't cause this behaviour?
+> 
+> Any help diagnosing the problem appricatied,
+> 
+> Martin H.
 
-I'll look into sparc32 problems when I get from Canada.
+What's the output [if any] in "dmesg" starting with either "cpufreq" or
+"powernow"?
 
--- Pete
+I guess it's yet another BIOS problem... [as seen quite often wrt AMD
+PowerNow, unfortunately]
+
+	Dominik

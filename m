@@ -1,76 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268348AbUH2WVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268349AbUH2WZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268348AbUH2WVW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 18:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268347AbUH2WVW
+	id S268349AbUH2WZs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 18:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268347AbUH2WZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 18:21:22 -0400
-Received: from mail.appliedminds.com ([65.104.119.58]:4492 "EHLO
-	appliedminds.com") by vger.kernel.org with ESMTP id S268348AbUH2WVJ
+	Sun, 29 Aug 2004 18:25:48 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:36572 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S268349AbUH2WZg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 18:21:09 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-Mime-Version: 1.0
-From: James Lamanna <jamesl@appliedminds.com>
+	Sun, 29 Aug 2004 18:25:36 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: Remove Phidget Blacklist if kernel driver is not selected
-Reply-To: jamesl@appliedminds.com
-X-Mailer: AtMail 4.0
-X-Origin: 10.10.20.43
-X-Uidl: 1093818066324905069
-Date: Sun, 29 Aug 2004 15:21:06 -0700
-Message-ID: <auto-000000530333@appliedminds.com>
+Subject: Re: Possible dcache BUG
+Date: Sun, 29 Aug 2004 18:25:34 -0400
+User-Agent: KMail/1.6.82
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408291721.13192.rjw@sisk.pl> <200408292023.34004.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408292023.34004.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408291825.34612.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.62.54] at Sun, 29 Aug 2004 17:25:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (compile-tested not runtime tested yet)
-is to remove the blacklisting of Phidgets 
-if the PhidgetServo kernel driver is not included
-in the kernel.
-(Right now it gets rid of all Phidget Blacklists, as more
-drivers are added I would expect they would be per-driver
-segmented).
+On Sunday 29 August 2004 13:23, Denis Vlasenko wrote:
+[...]
+>> Not necessarily.  :-)  Some mobos based on the nforce2 chipsets
+>> should be able to clock FSB and memory asynchronously.   The very
+>> fact that you can set the memory clock separately in the BIOS
+>> indicates that your mobo is one of these. So, if it runs well at
+>> synchronous FSB and memory clock rates, but causes problems
+>> otherwise, the northbridge is probably fishy.  Or the memory is
+>> not up to the spec.  Anyway, the symptoms are quite "interesting"
+>> and it's good to know what they are.
 
-It gets quite annoying to have to patch recent kernels 
-everytime to use userspace tools (libhid + libphidgets)
-as opposed to using the kernel driver, which cannot be
-used because of the HID blacklist.
+Take you pick, unless you'd rather use a shovel. :-)
 
-I don't understand why a kernel driver for the
-PhidgetServo was included in the kernel. Wasn't the
-point of the HID layer to be able to present HID devices
-to userspace so that kernel drivers don't have to be 
-written for each and every device?
-It seems to be that the way to control a fairly simple
-device like the PhidgetServo is through userspace and
-the kernel shouldn't be bothered with the device control
-details.
+The bios has provisions but the nforce2 chipset doesn't seem to want 
+to tolerate what must be an occasional timing error on the write 
+phase.  An inadequate amount of buffering available would be my best 
+guess.  I don't believe the reads are defective in this case, just 
+the writes go tits up on a very very narrow case thats only hit maybe 
+once an hour.  Thats damned hard for a logic analyzer to catch.
 
--- James Lamanna
+>The best thing is, we got another RAM test program which seems to be
+> better than memtest86 in some cases!
 
---- linux-2.6.8.1/drivers/usb/input/hid-core.c  2004-08-14 03:55:33.000000000 -0700
-+++ linux-2.6.8.1-phidget/drivers/usb/input/hid-core.c  2004-08-29
-14:53:36.037632992 -0700
-@@ -1493,6 +1493,7 @@
-        { USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_VOLITO, HID_QUIRK_IGNORE },
-        { USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_PTU, HID_QUIRK_IGNORE },
+I've been thinking of that myself, and I've come to the conclusion 
+that because memtest86 probably doesn't know anything about an 
+nforce2 chipset, it says right up front its not using the cache.  And 
+that may well be the key right there.  Turn off the cache and theres 
+no problem.  I tried that here just for grins, but it turned the 
+machine into a very sick dog, going from 8 or 9 seti units a day down 
+to about 1.5, and everything else was swimming in cold molasses.  I 
+could easily type a whole line ahead of kmails display updates and 
+I'm not a touch typist, topping out at maybe 10-15 wpm, not counting 
+the time spent backing up and fixing typu's.  Ancient fingers don't 
+always hit the key cleanly.
 
-+#ifdef CONFIG_USB_PHIDGETSERVO
-        { USB_VENDOR_ID_GLAB, USB_DEVICE_ID_4_PHIDGETSERVO_30, HID_QUIRK_IGNORE },
-        { USB_VENDOR_ID_GLAB, USB_DEVICE_ID_1_PHIDGETSERVO_30, HID_QUIRK_IGNORE },
-        { USB_VENDOR_ID_GLAB, USB_DEVICE_ID_8_8_8_IF_KIT, HID_QUIRK_IGNORE },
-@@ -1501,6 +1502,7 @@
+So you are correct in that memtest86 ground away on this machine for 
+something like 36 hours total run time, and never found an error.  I 
+fired up memburn and had an error within a half hour.  Therefore to 
+me, its proven to be a valuable tool, thank you Ville Herva.
 
-        { USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_4_PHIDGETSERVO_20,
-HID_QUIRK_IGNORE },
-        { USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_1_PHIDGETSERVO_20,
-HID_QUIRK_IGNORE },
-+#endif
+>--
+>vda
 
-        { USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM, HID_QUIRK_NOGET },
-        { USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS124U, HID_QUIRK_NOGET },
-
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

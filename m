@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319473AbSIMBMG>; Thu, 12 Sep 2002 21:12:06 -0400
+	id <S319474AbSIMBQL>; Thu, 12 Sep 2002 21:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319474AbSIMBMG>; Thu, 12 Sep 2002 21:12:06 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:21522 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S319473AbSIMBMF>; Thu, 12 Sep 2002 21:12:05 -0400
-Message-ID: <3D813CFB.7050200@rackable.com>
-Date: Thu, 12 Sep 2002 18:18:51 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Austin Gonyou <austin@coremetrics.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com> <20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> <20020913002316.GG11605@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319475AbSIMBQL>; Thu, 12 Sep 2002 21:16:11 -0400
+Received: from bg77.anu.edu.au ([150.203.223.77]:49106 "EHLO lassus.himi.org")
+	by vger.kernel.org with ESMTP id <S319474AbSIMBQK>;
+	Thu, 12 Sep 2002 21:16:10 -0400
+Date: Fri, 13 Sep 2002 11:20:56 +1000
+From: Simon Fowler <simon@himi.org>
+To: Allan Duncan <allan.d@bigpond.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
+Message-ID: <20020913012056.GA10432@himi.org>
+Mail-Followup-To: Allan Duncan <allan.d@bigpond.com>,
+	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+References: <3D7FF444.87980B8E@bigpond.com.suse.lists.linux.kernel> <p73ptvjpmec.fsf@oldwotan.suse.de> <20020912213201.GA9168@himi.org> <3D811B12.A6615688@bigpond.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Disposition: inline
+In-Reply-To: <3D811B12.A6615688@bigpond.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
 
->On Thu, Sep 12, 2002 at 04:29:31PM -0700, Samuel Flory wrote:
->  
->
->> Your patch seem to solve only some  of the xfs issues for me.  Before 
->>the patch my system hung when booting.  This only occured I  had xfs 
->>compiled into the kernel.   After patching  things seemed fine, but 
->>durning "dbench 32" the system locked.  Upon rebooting and attempting to 
->>mount the filesystem I got this:
->>XFS mounting filesystem md(9,2)
->>Starting XFS recovery on filesystem: md(9,2) (dev: 9/2)
->>kernel BUG at page_buf.c:578!
->><and so on>
->>
->>PS- The results of ksymoops are attached.
->>    
->>
->
->that seems a bug in xfs, it BUG() if vmap fails, it must not BUG(), it
->must return -ENOMEM to userspace instead, or it can try to recollect and
->release some of the other vmalloced entries. Most probably you run into
->an address space shortage, not a real ram shortage, so to workaround it
->you can recompile with CONFIG_2G and it'll probably work, also dropping
->the gap page in vmalloc may help workaround it (there's no config option
->for it though). It could be also a vmap leak, maybe a missing vfree,
->just some idea.
->
->  
->
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-   The system has 4G of ram, and 4G of swap.  So real memory is not an 
-issue.  The system is a intended to be an nfs server.   As a result nfs 
-performance is my only real concern.  I should really use CONFIG_3GB as 
-I'm not doing much in user space other a tftp, and dhcp server.
+On Fri, Sep 13, 2002 at 08:54:10AM +1000, Allan Duncan wrote:
+> Not in my case, at least for 2.4.20-pre4.
+>=20
+2.4.19 works for me with nopentium, 2.4.20-pre5 fails with nopentium
+and works without it - I can't add anything beyond that.
 
-   In any case the system isn't in production so I can leave it as is 
-till monday.
+> At which kernels does the nopentium become obsolete?  Alan Cox mentioned =
+some
+> confusion about this.  Obviously the latest ones, but does this extend as=
+ far
+> back as 2.4.19?
+>=20
+> In order to close in on what changes are triggering this, I found the pat=
+ch for
+> sched.c for -pre3 and ran that, and find that -pre3  is fine with or with=
+out
+> nopentium, so that narrows it to what was altered pre3 to pre4.
+>=20
+> There was nothing obvious in Marcelo's log of changes, so I will trawl th=
+rough
+> the diffs themselves tonight.
+>=20
+> At the same time, I noticed that there seems to a fair bit of touchy
+> behaviour of AGP out there, so maybe what is proving fatal to me is the s=
+ame as
+> the cause of flaky for others.
 
+AGP/DRI has been flaky for me in all sorts of ways, but then I've been
+using the DRI CVS code which does lots of strange things, so I can't
+pin the problems on AGP . . .
+
+Simon
+
+--=20
+PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
+(crappy) Homepage: http://bg77.anu.edu.au
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9gT13QPlfmRRKmRwRAmPNAJ0Y1epu+WByrdQOQMMxC4rZ4trhNQCfTKFu
+y8QFqwYxzD+erTA9G9oTDa0=
+=d27+
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

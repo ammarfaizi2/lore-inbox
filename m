@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263423AbREXIvx>; Thu, 24 May 2001 04:51:53 -0400
+	id <S263429AbREXI6o>; Thu, 24 May 2001 04:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263422AbREXIvn>; Thu, 24 May 2001 04:51:43 -0400
-Received: from odin.unik.no ([193.156.96.7]:39301 "EHLO odin.unik.no")
-	by vger.kernel.org with ESMTP id <S263421AbREXIvh>;
-	Thu, 24 May 2001 04:51:37 -0400
-Date: Thu, 24 May 2001 10:44:30 +0200 (MET DST)
-From: =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@unik.no>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-cc: paalh@unik.no
-Subject: sendfile
-Message-ID: <Pine.GSO.4.10.10105241032120.24324-100000@kaa.unik.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263430AbREXI6e>; Thu, 24 May 2001 04:58:34 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:45209 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263422AbREXI6S>;
+	Thu, 24 May 2001 04:58:18 -0400
+Date: Wed, 23 May 2001 15:26:59 -0700
+From: Prasanna P Subash <psubash@turbolinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Dual Athlon on 2.2.19
+Message-ID: <20010523152659.A3020@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Is there a patch to make 2.2.19 kernel work on a dual athlon ? I tried both
+2.2.20-pre2aa( with k7 smp ) and 2.2.20-pre2 and at boot after it detects the ide devices
+it hangs.
 
-I'm a Norwegian PhD student looking at zero-copy data paths through the OS
-kernel and found sendfile to be interesting. Do this system call remove
-all in-memory copy operations, i.e., sharing data buffers between file
-system and com. system? (i'm sending data from disk to the network)
-
-Is there any documentation about sendfile?
-
-PS! I'm not a member of the mailing list so please cc the answers to my
-mailing address
-
-Thank you in advance,
--ph
----       . o  o   .  o  .  o ..  o ..  o .. o oo . o  . o o o
-         _n_n_n____i_i _++++++_ _______ ________ _+++++++++++_
-      *>(____________I I______I I_____I I______I I___________I
- __^__  /ooOOOO OOOOoo  oo ooo  oo   oo oo    oo ooo       ooo  __^__
-( ___ )--------------------------------------------------------( ___ )
- | / | Paal Halvorsen   UniK - Center for technology at Kjeller | \ |
- | / |                                       University of Oslo | \ |
- | / | Phone: +47 64844731                               PB. 70 | \ |
- | / | Phone: +47 64844700 (switchboard)       N - 2027 KJELLER | \ |
- |_/_| Fax:   +47 63818146                               Norway |__|
-(_____)-- E-mail: paalh@unik.no -- http://www.unik.no/~paalh --(_____)
+I tried compiling in kdb to get a stack trace but the machine went into a hang.
 
 
+-- 
+Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
+------------------------------------------------------------------------
+Linux, the choice          | Stockmayer's Theorem:  If it looks easy,
+of a GNU generation   -o)  | it's tough.  If it looks tough, it's damn
+Kernel 2.4.1          /\\  | well impossible. 
+on a i686            _\\_v | 
+                           | 
+------------------------------------------------------------------------

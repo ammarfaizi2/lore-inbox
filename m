@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266627AbUJFBdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUJFBkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266627AbUJFBdg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 21:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJFBdg
+	id S266663AbUJFBkU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 21:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUJFBkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 21:33:36 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:49586 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266627AbUJFBdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 21:33:35 -0400
-Message-ID: <41634B3B.8050403@yahoo.com.au>
-Date: Wed, 06 Oct 2004 11:32:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 5 Oct 2004 21:40:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53123 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266663AbUJFBkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 21:40:16 -0400
+Message-ID: <41634CF3.5040807@pobox.com>
+Date: Tue, 05 Oct 2004 21:40:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
 CC: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
 Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
  VIA SATA))
@@ -27,12 +27,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Nick Piggin wrote:
-
+> When you say low latency, you mean small lock hold times, *and*
+> cond_rescheds placed everywhere - it is this second requirement
+> that isn't the cleanest way of doign things.
+> 
 > With preempt, sure you still need small lock hold times. No big
 > deal.
 
-*Making* the lock hold times small is a big deal as Ingo will
-attest ;)
+And with preempt you're still hiding stuff that needs fixing.  And when 
+it gets fixed, you don't need preempt.
 
-But I mean "no big deal" as in, it has to be done whether or not
-you have preempt.
+Therefore, preempt is just a hack that hides stuff that wants fixing anyway.
+
+	Jeff
+
+
+

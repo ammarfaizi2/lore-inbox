@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287699AbSBMQ63>; Wed, 13 Feb 2002 11:58:29 -0500
+	id <S287840AbSBMQ7j>; Wed, 13 Feb 2002 11:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287840AbSBMQ6T>; Wed, 13 Feb 2002 11:58:19 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:35680 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S287699AbSBMQ6G>;
-	Wed, 13 Feb 2002 11:58:06 -0500
-Date: Wed, 13 Feb 2002 09:55:02 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020213095502.F25535@lynx.turbolabs.com>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Alexander Viro <viro@math.psu.edu>,
-	Rob Landley <landley@trommello.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020212190834.W9826@lynx.turbolabs.com> <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>
+	id <S287841AbSBMQ7Y>; Wed, 13 Feb 2002 11:59:24 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:18704 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S287840AbSBMQ7P>; Wed, 13 Feb 2002 11:59:15 -0500
+Message-Id: <200202131659.g1DGx7Y02165@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
+Subject: Re:smp_send_reschedule vs. smp_migrate_task
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Feb 13, 2002 at 01:07:11PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Date: Wed, 13 Feb 2002 11:59:07 -0500
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 13, 2002  13:07 +0100, Ingo Molnar wrote:
-> On Tue, 12 Feb 2002, Andreas Dilger wrote:
-> > Is this using "bk clone -l" or just "bk clone"?  I would _imagine_
-> > that since the rmap changes are fairly localized that you would only
-> > get multiple copies of a limited number of files, and it wouldn't
-> > increase the size of each repository very much.
-> 
-> the problem is, i'd like to see all these changes in a single tree, and
-> i'd like to be able to specify whether two changesets have semantic
-> dependencies on each other or not.
+> I am looking at the updates for PPC that are needed because of the
+> changes to the scheduler in 2.5.x.  I need to implement
+> smp_migrate_task(), but I do not have another IPI easily available;
+> the Open PIC interrupt controller used in a lot of SMP PPC machines
+> supports 4 IPIs in hardware and we are already using all of them.
 
-Oh, I agree.  My response was only to Rik's mention that his multiple trees
-take up too much space.  I would personally also want to be able to separate
-independent changes out of my tree rather than having many repositories.
+I have this problem with the older voyager architectures that effectively have 
+only one IPI.  I solved it by using a per-cpu area mailbox for IPIs (to send 
+an IPI, set the bit in the per CPU area for all CPUs you want to send it to 
+and then send of the global IPI.  Each receiving CPU clears the bit in their 
+area before they begin processing the particular IPI).  It's not very 
+efficient through (especially with cache transfers from sender to recipient), 
+so using what you have is probably better.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> Thus I was thinking of using the same IPI for smp_migrate_task and
+> smp_send_reschedule.  The idea is that smp_send_reschedule(cpu) will
+> be effectively smp_migrate_task(cpu, NULL), and the code that receives
+> that IPI will check for the NULL and do set_need_resched() instead of
+> sched_task_migrated().
+
+I wouldn't necessarily do this.  smp_send_reschedule is used a lot by the 
+scheduler and is designed to be fast execution (i.e. you just send out the IPI 
+and continue).  Adding spinlocks to this code will slow it down and add cache 
+thrashing contention.
+
+smp_migrate_task is designed to be fast executing, but it is only used in 
+set_cpus_allowed(), which is rarely called and is not time critical.  Why not 
+use the smp_call_function interface instead?  The semantics aren't entirely 
+the same, but I don't believe the impact to set_cpus_allowed() will be felt at 
+all.
+
+James Bottomley
+
 

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319040AbSIDDo4>; Tue, 3 Sep 2002 23:44:56 -0400
+	id <S319037AbSIDDob>; Tue, 3 Sep 2002 23:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319039AbSIDDo4>; Tue, 3 Sep 2002 23:44:56 -0400
-Received: from holomorphy.com ([66.224.33.161]:2979 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319038AbSIDDoz>;
-	Tue, 3 Sep 2002 23:44:55 -0400
-Date: Tue, 3 Sep 2002 20:42:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       davem@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [PATCH] Important per-cpu fix.
-Message-ID: <20020904034212.GW888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, davem@vger.kernel.org,
-	akpm@zip.com.au
-References: <20020904023535.73D922C12D@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020904023535.73D922C12D@lists.samba.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319038AbSIDDob>; Tue, 3 Sep 2002 23:44:31 -0400
+Received: from dp.samba.org ([66.70.73.150]:58582 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319037AbSIDDoa>;
+	Tue, 3 Sep 2002 23:44:30 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 1/2 daemonize() calls reparent_to_init() cleanup
+Date: Wed, 04 Sep 2002 13:48:42 +1000
+Message-Id: <20020904034904.57D582C057@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 12:35:41PM +1000, Rusty Russell wrote:
-> Frankly, I'm amazed the kernel worked for long without this.
-> Every linker script thinks the section is called .data.percpu.
-> Without this patch, every CPU ends up sharing the same "per-cpu"
-> variable.
-> This might explain the wierd per-cpu problem reports from Andrew and
-> Dave, and also that nagging feeling that I'm an idiot...
+Initialize child_reaper at idle thread entry: eg. ksoftirqd's PPID is
+0, because it calls reparent_to_init() before child_reaper is
+initialized.
 
-Hmm, 2.5.33 is doing some *really* weird crap. OTOH it doesn't appear
-to be tripping the BUG() in softirq.c, and disks seem to be doing okay.
-It survived 4 parallel mkfs's. I'll follow up with some kind of
-bugreport on the PCI and/or starfire.c front in a separate post.
+Name: Early child_reaper initialization
+Author: Rusty Russell
+Status: Trivial
 
+D: This sets child_reaper to the idle thread upon creation, so that
+D: ksoftirqd's reparent_to_init call doesn't get the swapper as parent.
 
-Cheers,
-Bill
+--- working-2.5.33-hotcpu-cpudown-i386/init/main.c.~1~	Tue Sep  3 14:05:43 2002
++++ working-2.5.33-hotcpu-cpudown-i386/init/main.c	Wed Sep  4 13:33:32 2002
+@@ -490,16 +493,6 @@
+  */
+ static void __init do_basic_setup(void)
+ {
+-	/*
+-	 * Tell the world that we're going to be the grim
+-	 * reaper of innocent orphaned children.
+-	 *
+-	 * We don't want people to have to make incorrect
+-	 * assumptions about where in the task array this
+-	 * can be found.
+-	 */
+-	child_reaper = current;
+-
+ #if defined(CONFIG_MTRR)	/* Do this after SMP initialization */
+ /*
+  * We should probably create some architecture-dependent "fixup after
+@@ -545,6 +538,16 @@
+ 	static char * argv_sh[] = { "sh", NULL, };
+ 
+ 	lock_kernel();
++	/*
++	 * Tell the world that we're going to be the grim
++	 * reaper of innocent orphaned children.
++	 *
++	 * We don't want people to have to make incorrect
++	 * assumptions about where in the task array this
++	 * can be found.
++	 */
++	child_reaper = current;
++
+ 	/* Sets up cpus_possible() */
+ 	smp_prepare_cpus(max_cpus);
+ 
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

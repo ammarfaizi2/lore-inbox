@@ -1,28 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263450AbRFFCE4>; Tue, 5 Jun 2001 22:04:56 -0400
+	id <S263456AbRFFCYy>; Tue, 5 Jun 2001 22:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263456AbRFFCEq>; Tue, 5 Jun 2001 22:04:46 -0400
-Received: from [204.94.214.22] ([204.94.214.22]:23 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S263450AbRFFCEa>; Tue, 5 Jun 2001 22:04:30 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Linux 2.4.5-ac9 
-In-Reply-To: Your message of "Tue, 05 Jun 2001 23:49:29 +0100."
-             <20010605234928.A28971@lightning.swansea.linux.org.uk> 
-Mime-Version: 1.0
+	id <S263461AbRFFCYp>; Tue, 5 Jun 2001 22:24:45 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:23001 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S263456AbRFFCY1>; Tue, 5 Jun 2001 22:24:27 -0400
+Message-ID: <3B1D927E.1B2EBE76@uow.edu.au>
+Date: Wed, 06 Jun 2001 12:16:30 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+CC: Derek Glidden <dglidden@illusionary.com>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com> <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Jun 2001 12:03:41 +1000
-Message-ID: <25456.991793021@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jun 2001 23:49:29 +0100, 
-Alan Cox <laughing@shared-source.org> wrote:
->o	Fix gameport link problems			(Vojtech Pavlik)
+"Jeffrey W. Baker" wrote:
+> 
+> Because the 2.4 VM is so broken, and
+> because my machines are frequently deeply swapped,
 
-Adds CONFIG_INPUT_GAMEPORT and CONFIG_INPUT_SERIO with no Configure.help.
+The swapoff algorithms in 2.2 and 2.4 are basically identical.
+The problem *appears* worse in 2.4 because it uses lots
+more swap.
 
+> they can sometimes take over 30 minutes to shutdown.
+
+Yes. The sys_swapoff() system call can take many minutes
+of CPU time.  It basically does:
+
+	for (each page in swap device) {
+		for (each process) {
+			for (each page used by this process)
+				stuff
+
+It's interesting that you've found a case where this
+actually has an operational impact.
+
+Haven't looked at it closely, but I think the algorithm
+could become something like:
+
+	for (each process) {
+		for (each page in this process) {
+			if (page is on target swap device)
+				get_it_off()
+		}
+	}
+
+	for (each page in swap device) {
+		if (it is busy)
+			complain()
+	}
+
+That's 10^4 to 10^6 times faster.
+
+-

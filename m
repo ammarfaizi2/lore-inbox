@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313965AbSDKEWR>; Thu, 11 Apr 2002 00:22:17 -0400
+	id <S313984AbSDKEdJ>; Thu, 11 Apr 2002 00:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313984AbSDKEWR>; Thu, 11 Apr 2002 00:22:17 -0400
-Received: from pD903CA77.dip.t-dialin.net ([217.3.202.119]:42708 "EHLO
-	no-maam.dyndns.org") by vger.kernel.org with ESMTP
-	id <S313965AbSDKEWQ>; Thu, 11 Apr 2002 00:22:16 -0400
-Date: Thu, 11 Apr 2002 06:20:16 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS]  Spring cleanup
-Message-ID: <20020411042016.GA16884@no-maam.dyndns.org>
-In-Reply-To: <3CB48512.17441.E3FE393@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: erik.tews@gmx.net (Erik Tews)
+	id <S313985AbSDKEdI>; Thu, 11 Apr 2002 00:33:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13006 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313984AbSDKEdH>; Thu, 11 Apr 2002 00:33:07 -0400
+From: "Nivedita Singhvi" <nivedita@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: csum_and_copy_from_user, tcp_sendmsg and zero-copy question
+To: melkorainur@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF1387DD95.59CF98AE-ON88256B98.0016B176@boulder.ibm.com>
+Date: Wed, 10 Apr 2002 21:33:28 -0700
+X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 04/10/2002 10:33:06 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 06:31:46PM -0400, Guillaume Boissiere wrote:
-> These four items have been marked as Ready or Pending for a while and yet nothing 
-> has happened for the last 2 months so I'm planning to change their status in the
-> next status update.
-> Comments?  Objections?
-> 
-> o Ready       Add hardware sensors drivers                    (lm_sensors team)
-> --> Mark as Beta?  Reason: not in sync with latest kernel and problems with IBM Thinkpads
 
-Does the lm_sensor-team has some more information about these
-thinkpad-problems? I only know that they are announcing that you should
-not use their software with ibm-thinkpads since more then a year and
-that they will give you some more detailed information soon. The Problem
-is of course that I own such a thinkpad.
+> I think that a subset of zero-copy TCP has been
+> implemented in the linux kernel as of the 2.4.4
+> kernel (David Miller's patch). I say subset because
+> examining the tcp_sendmsg code, I see tcp_copy_to_page
+> which calls csum_and_copy_from_user which does a copy
+> from user. Is my interpretation correct that the
+> tcp_sendmsg codepath does zerocopy (for eth drivers
+> that support the appropriate dev->feature) but does
+> a single copy from user of the data buffer?
+
+Thats correct (if I understand you correctly) - tcp_sendmsg()
+code path does a copy from user to kernel. However, the sendfile()
+code path does a zerocopy data transfer in the manner you are
+thinking of (if I understand you correctly)...
+
+(As of the 2.4.4 kernel).
+
+thanks,
+Nivedita
+
+

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVDFE3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVDFE3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVDFE3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 00:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVDFE3A
+	id S262102AbVDFE3M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 00:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVDFE3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 00:29:00 -0400
-Received: from orb.pobox.com ([207.8.226.5]:55200 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262099AbVDFE26 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 00:28:58 -0400
-Date: Tue, 5 Apr 2005 23:28:50 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [ACPI] Re: [RFC 5/6]clean cpu state after hotremove CPU
-Message-ID: <20050406042850.GE3611@otto>
-References: <1112580367.4194.344.camel@sli10-desk.sh.intel.com> <20050404052844.GB3611@otto> <1112593338.4194.362.camel@sli10-desk.sh.intel.com> <20050404153345.GC3611@otto> <1112666106.17861.62.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112666106.17861.62.camel@sli10-desk.sh.intel.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 6 Apr 2005 00:29:12 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24913 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262102AbVDFE3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 00:29:07 -0400
+Date: Tue, 05 Apr 2005 22:27:51 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Hyperthreading and Kernel 2.4
+In-reply-to: <3PwnE-7fl-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42536547.9040806@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3PwnE-7fl-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 09:55:06AM +0800, Li Shaohua wrote:
+duncan@devilnews.de wrote:
+> Hey,
+> 
+> I apologize in advance if this is not the right place
+> to ask. Feel free to redirect me there :)
+> 
+> I just wanted to know if the 2.4 kernel is aware of
+> hyperthreading the same way the 2.6 kernel ist or if
+> the issues posted earlier
 
-> On Mon, 2005-04-04 at 23:33, Nathan Lynch wrote:
-> > No.  It should make zero difference to the scheduler whether the "play
-> > dead" cpu hotplug or "physical" hotplug is being used.  
-> Keeping some fields like 'cpu_load' are meanless for a hotadded CPU to
-> me. Just ignore them?
+I'm not sure if the stock 2.4 kernels ever had good HT support, but the 
+patched 2.4.20 kernel in Red Hat 9, for example, seems to handle it 
+reasonably well..
 
-Reinitializing such things during the CPU_UP_PREPARE case in
-migration_call should be sufficient, if it's not done already.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-
-Nathan

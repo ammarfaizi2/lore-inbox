@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316544AbSHASlh>; Thu, 1 Aug 2002 14:41:37 -0400
+	id <S316852AbSHASok>; Thu, 1 Aug 2002 14:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSHASlh>; Thu, 1 Aug 2002 14:41:37 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:47780 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S316544AbSHASlg>;
-	Thu, 1 Aug 2002 14:41:36 -0400
-Message-ID: <3D4981AE.4010403@candelatech.com>
-Date: Thu, 01 Aug 2002 11:45:02 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S316853AbSHASoj>; Thu, 1 Aug 2002 14:44:39 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30990 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316852AbSHASoi>; Thu, 1 Aug 2002 14:44:38 -0400
+Date: Thu, 1 Aug 2002 14:41:46 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: David Schwartz <davids@webmaster.com>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <20020801093211.AAA7559@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.3.96.1020801142558.15133C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6] The List, pass #2
-References: <3D3761A9.23960.8EB1A2@localhost> <200208010156.g711uMc340112@saturn.cs.uml.edu> <aiafop$fci$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> In article <200208010156.g711uMc340112@saturn.cs.uml.edu>,
-> Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
-> 
->>Guillaume Boissier writes:
->>
->>
->>>Definitely 2.7:
->>>
->>>o InfiniBand support
->>
->>Why?
-> 
-> 
-> It's big, it's complex, and nobody seems to take it that seriously (the
-> only people who ever asked _me_ about it was Intel, and they seem to
-> have cancelled their own projects). 
-> 
-> If it turns out to be a big hit, it can be backported. But as it looks
-> now, it has very little relevance for any 2.6 freeze schedule.
-
-I read that Microsoft was cancelling support for it as well.
-
-Ben
+On Thu, 1 Aug 2002, David Schwartz wrote:
 
 > 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 > 
+> On Wed, 31 Jul 2002 16:03:59 -0400 (EDT), Bill Davidsen wrote:
+> 
+> >This is totally unrelated to the ecconomic model, we have many proofs that
+> >code quality is unrelated to financial compensation. People write crap
+> >code for both fun and profit. So what you say is totally true, but has
+> >zero to do with why the author wrote the code. You have to QA any code
+> >before using it, why the developer wrote it is irrelevant.
+> 
+> 	No matter how many proofs you have or how good they are, I won't believe it 
+> because this fails the giggle test. Here's a simple counter-proof. I want to 
+> write an SQL server from scratch. I create two teams, one with $50,000 and 
+> one with $5,000,000. You can honestly tell me that it's equally like that 
+> either team will produce a higher quality SQL server?
 
+First, we were talking about written for free vs. written to make money.
+Second, the quality of the output depends on the quality of the process,
+not how much you pay for it. Equally likely isn't what I said, either.
+
+One last time: commercial software is not a guaranty of quality nor is
+being free an indication of being shoddy. Clearly if you underpay people
+for any work you are likely to get poor work, but that doesn't apply to
+someone who is being paid in satisfaction and recognition, and who has a
+real motivation to do it to the best of her/his ability. 
+ 
+> 	This reminds me of the proofs that supposedly showed that locking up 
+> convicted criminals for longer didn't lower the crime rate. Are we honestly 
+> supposed to believe that otherwise honest people commit more crimes to make 
+> up the difference?
+
+Glad it reminds you, I sure as hell don't see the point... and I never saw
+any such thing. Studies show that locking people up longer doesn't make
+*that person* less likely to commit a crime, which is not at all the same
+thing as the crime rate in crimes per unit time by all persons.
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

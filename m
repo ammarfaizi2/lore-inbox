@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265152AbRF0Uuu>; Wed, 27 Jun 2001 16:50:50 -0400
+	id <S262568AbRF0Uh2>; Wed, 27 Jun 2001 16:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbRF0Uuk>; Wed, 27 Jun 2001 16:50:40 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:14856 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S265152AbRF0Uu1>; Wed, 27 Jun 2001 16:50:27 -0400
-Message-ID: <3B3A4748.D7B9168C@t-online.de>
-Date: Wed, 27 Jun 2001 22:51:20 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S265242AbRF0UhS>; Wed, 27 Jun 2001 16:37:18 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:40466 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262568AbRF0UhD>; Wed, 27 Jun 2001 16:37:03 -0400
+Date: Wed, 27 Jun 2001 17:36:45 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Chris Mason <mason@suse.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Xuan Baldauf <xuan--lkml@baldauf.org>, <linux-kernel@vger.kernel.org>,
+        <andrea@suse.de>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+In-Reply-To: <933130000.993673450@tiny>
+Message-ID: <Pine.LNX.4.33L.0106271733280.23373-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Andre Hedrick <andre@aslab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-In-Reply-To: <Pine.LNX.4.04.10106271244130.21460-100000@mail.aslab.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> PARANIOA.
+On Wed, 27 Jun 2001, Chris Mason wrote:
+> On Wednesday, June 27, 2001 04:43:28 PM -0300 Rik van Riel
 
-This is not a valid reason.
-
-This clearly fixes a bug in linux. Note: the irq disable
-is local to ide-cs. Are you paranoid enough to believe
-enabling the irq by writing globally to the control register that
-existed since ATA will have ill effects? 
-
-You claim the relevant PCMCIA ATA behaviour is not ATA(>3?) compliant,
-however you didn`t yet give any facts to support this !
-
-You claim this locks the driver, again no facts.
-
-
-> 
-> Remember that ATAPI is generally screwed beyond reality, so adjusting the
-> probe code in general (global) is a bad thing.
-...
-> On Wed, 27 Jun 2001, Alan Cox wrote:
-> 
-> > > obsoleting ATA-2 did their attention at CFA become alarmed.  I agree that
-> > > there needs to be a fix, but not at the price of locking the rest of the
-> > > driver.  Since we now the identity of the device prior to assigned the
-> > > interrupt we can handle the execption, but you do not go around blanket
-> > > wacking the control register of all devices.
-
-The proposed patch is very simple (as per Linus' liking). When considering to
-install an earlier (and  global) irq handler I believe you can see
-this will impose a much greater risk !
-
+> > If you don't have free memory, you are limited to 2 choices:
 > >
-> > I dont see why it locks up the driver ?
+> > 1) wait on IO
+> > 2) spin endlessly, wasting CPU until the IO is done
+>
+> Ok, I need to describe the problem a little better.  reiserfs
+> inodes need to be logged, which means you have to join/start a
+> transaction in order to write them.
+
+> So, the only time reiserfs_write_inode needs to do something is for fsync
+> and/or O_SYNC writes, and all it needs to do is commit the transaction.
+>
+> Any time kswapd is calling write_inode, it is just trying to
+> free the inode struct, and reiserfs can safely ignore the write
+> request, regardless of if a sync is requested.
+
+OK, sounds sane enough to me ;)
+
+So the fix is just to let reiserfs_write_inode always be
+asynchronous, independent of its arguments, as long as
+we're not in fsync() or O_SYNC.
+
+OTOH, if we are called synchronously, we could also just
+walk down the code path taken when we _are_ called by
+fsync(), right ?
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

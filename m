@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135451AbRA0Ux3>; Sat, 27 Jan 2001 15:53:29 -0500
+	id <S135535AbRA0VBT>; Sat, 27 Jan 2001 16:01:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135476AbRA0UxT>; Sat, 27 Jan 2001 15:53:19 -0500
-Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:26523 "EHLO
-	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S135451AbRA0UxD>; Sat, 27 Jan 2001 15:53:03 -0500
-Message-ID: <3A733529.667E22DB@iupmime.univ-lemans.fr>
-Date: Sat, 27 Jan 2001 21:52:57 +0100
-From: Yann Droneaud <yann.droneaud@iupmime.univ-lemans.fr>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en, fr
+	id <S135476AbRA0VBK>; Sat, 27 Jan 2001 16:01:10 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:23562 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S135457AbRA0VBE>;
+	Sat, 27 Jan 2001 16:01:04 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101272101.f0RL10k371976@saturn.cs.uml.edu>
+Subject: Re: Renaming lost+found
+To: NDias@sunglasshut.com
+Date: Sat, 27 Jan 2001 16:01:00 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF5807957D.5DF6F45B-ON852569E0.00783722@sunglasshut.com> from "NDias@sunglasshut.com" at Jan 26, 2001 05:09:59 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: check_dis(c|k)_change(|d): duplicated code
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+NDias@sunglasshut.com writes:
+> On 01/26/01 01:19 PM James Lewis Nance <jlnance@intrex.net> wrote:
 
-I was looking up linux code to find why /proc/partitions report 'hdc' instead
-of 'ide/host0/bus1/target0/lun0/cd'
+>> FWIW IBM's JFS file system does not have a lost+found directory.  I dont
+>> remember if reiserfs does or not.
+> 
+> Actually it does.
+> 
+> From one of my rs/6000's sitting here, with a pretty much default AIX
 
-example:
---------
-major minor  #blocks  name
+That is a completely different JFS.
 
-   8     0    1048575 scsi/host0/bus0/target6/lun0/disc
-   3     0    3140928 ide/host0/bus0/target0/lun0/disc
-   3     1       4000 ide/host0/bus0/target0/lun0/part1
-   3     2    3132864 ide/host0/bus0/target0/lun0/part2
-   3    64    3167640 ide/host0/bus0/target1/lun0/disc
-   3    65          1 ide/host0/bus0/target1/lun0/part1
-   3    67     899136 ide/host0/bus0/target1/lun0/part3
-   3    68     165312 ide/host0/bus0/target1/lun0/part4
-   3    69    1052289 ide/host0/bus0/target1/lun0/part5
-   3    70     983776 ide/host0/bus0/target1/lun0/part6
-   3    71      64480 ide/host0/bus0/target1/lun0/part7
-  22     0     648180 hdc
+AIX 4 has an encumbered JFS that is tightly integrated into
+the VM system. IBM wrote a new JFS for OS/2 Warp Server.
+The new JFS is being ported to Linux and AIX 5.
 
-
-I found a strange thing 
-     in 'fs/block_dev.c' there's a function  'check_disk_change'
- and in 'fs/devfs/base.c' there's a function 'check_disc_changed'
- They done exactly the same job. I think that one of these must be rewritted to
- call the other and it's not to me to tell you which one :-).
-
---
-Yann Droneaud <yann.droneaud@iupmime.univ-lemans.fr>
+Grrrr.... should have called it jfs2 then.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

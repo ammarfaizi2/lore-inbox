@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277071AbRJDBmg>; Wed, 3 Oct 2001 21:42:36 -0400
+	id <S277072AbRJDBpF>; Wed, 3 Oct 2001 21:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277072AbRJDBmZ>; Wed, 3 Oct 2001 21:42:25 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:1209 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S277071AbRJDBmP>;
-	Wed, 3 Oct 2001 21:42:15 -0400
-Date: Wed, 3 Oct 2001 21:39:50 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: <kuznet@ms2.inr.ac.ru>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-        <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
-        <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <20011003213010.F3780@redhat.com>
-Message-ID: <Pine.GSO.4.30.0110032130370.8016-100000@shell.cyberus.ca>
+	id <S277073AbRJDBoz>; Wed, 3 Oct 2001 21:44:55 -0400
+Received: from embolism.psychosis.com ([216.242.103.100]:30983 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S277072AbRJDBog>; Wed, 3 Oct 2001 21:44:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Wilson Bilkovich <wilson@dot.dreamhost.com>
+Subject: Re: [POT] Linux SAN?
+Date: Wed, 3 Oct 2001 21:46:32 -0400
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.21.0110032019480.12116-100000@dozer.dreamhost.com>
+In-Reply-To: <Pine.LNX.4.21.0110032019480.12116-100000@dozer.dreamhost.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15oxYi-00015G-00@schizo.psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 03 October 2001 16:21, you wrote:
+> This is fairly off-topic, but would you be willing to describe your
+> SAN? I'm getting interested in Linux SAN solutions, and it sounds like
+> you've successfully deployed one. If you don't have time, that's fine.
 
+Not much to describe. It's quite straight forward. 3 servers connected to a 
+fibre channel hub, connected to a JBOD built using my own product:
+	http://www.cinonic.com/
 
-On Wed, 3 Oct 2001, Benjamin LaHaise wrote:
+I'm not sharing file systems between host transparently. To do that requires 
+an FS like GFS (made by the same guys that handle linux LVM)
 
-> On Wed, Oct 03, 2001 at 09:10:10PM -0400, jamal wrote:
-> > > Well, this sounds like a 2.5 patch.  When do we get to merge it?
-> >
-> >
-> > It is backward compatible to 2.4 netif_rx() which means it can go in now.
-> > The problem is netdrivers that want to use the interface have to be
-> > morphed.
->
-> I'm alluding to the fact that we need a place to put in-development patches.
->
+All hosts must mirror a single raidtab file for coherency, and you can't use 
+things like autoraid starting, as hosts will step on  each others toes. (Use 
+md= at cmdline for booting raids) You also want to use devfs in order to keep 
+your sanity and access the many devices by actually bus/lun/id and not an 
+obsure changing letter. 
 
-Sorry ;-> Yes, where is is 2.5 again? ;->
+If you're not familar with Fibre Channel, it's basically serial SCSI with 
+long cable lengths and 126ID's.
 
-> > As a general disclaimer, i really dont mean to put down Ingo's efforts i
-> > just think the irq mitigation idea as is now is wrong for both 2.4 and 2.5
->
-> What is your solution to the problem?  Leaving it up to the driver authors
-> doesn't work as they're not perfect.  Yes, drivers should attempt to do a
-> good job at irq mitigation, but sometimes a safety net is needed.
->
+FC Drives and HBA's are dirt cheap on ebay right now...have fun and buy soem 
+FC2's   : >
 
-To be honest i am getting a little nervous with what i saw in something
-that seems to be a stable kernel. I was nervous  when i saw ksoftirq, but
-its already in there. I think we can use the ksoftirq replacement pending
-testing to show if latency is improved. I have time this weekend, if that
-patch can be isolated it can be tested with NAPI etc.
-As for the irq mitigation, in its current form it is insufficient; but
-would be OK to go into 2.5 with plans to go and implement the isolation
-feature. I would put NAPI into this same category. We can then backport
-both back to 2.4.
-With current 2.4, i say yes, we leave it to the drivers (and infact claim
-we have a sustainable solution if conformed to)
+Dave
 
-cheers,
-jamal
-
+-- 
+The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html

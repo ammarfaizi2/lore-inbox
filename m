@@ -1,46 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265581AbUAJVy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265604AbUAJVy6
+	id S265476AbUAJWDc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUAJWDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:54:58 -0500
-Received: from netline-mail1.netline.ch ([195.141.226.27]:50447 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S265581AbUAJVy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:54:57 -0500
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: dri-devel <dri-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
-	 <1072958618.1603.236.camel@thor.asgaard.local>
-	 <1072959055.5717.1.camel@laptop.fenrus.com>
-	 <1072959820.1600.252.camel@thor.asgaard.local>
-	 <20040101122851.GA13671@devserv.devel.redhat.com>
-	 <1072967278.1603.270.camel@thor.asgaard.local>
-	 <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1073771694.2290.17.camel@thor.asgaard.local>
+	Sat, 10 Jan 2004 17:03:32 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:49361 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S265476AbUAJWD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:03:29 -0500
+Date: Sat, 10 Jan 2004 22:59:54 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Wilmer van der Gaast <lintux@lintux.cx>, linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.4.23 masquerading broken?
+Message-ID: <20040110215954.GC20706@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Patrick McHardy <kaber@trash.net>,
+	Wilmer van der Gaast <lintux@lintux.cx>,
+	linux-kernel@vger.kernel.org,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
+References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 10 Jan 2004 22:54:54 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+Content-Disposition: inline
+In-Reply-To: <3FCCCB02.5070203@trash.net>
+User-Agent: Mutt/1.5.4i
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-First of all, thanks for all the suggestions I've received in this
-thread.
+--QRj9sO5tAVLaXnSD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-New patch up at http://penguinppc.org/~daenzer/DRI/drm-nopage.diff; does
-this look acceptable to those who are going to do merges between the
-trees? :)
+On Tue, Dec 02, 2003 at 06:25:22PM +0100, Patrick McHardy wrote:
+> Wilmer van der Gaast wrote:
+>=20
+> >For security reasons, I upgraded to 2.4.23 last night. Now, suddenly, IP
+> >masquerading seems to be broken. When I use SNAT instead of
+> >masquerading, everything works.
+> >
+> >Unfortunately, I think it's hard to reproduce the problem. Right after
+> >booting .23 for the first time, everything seemed to be okay. The
+> >problems started just an hour ago, after having the server running for
+> >fifteen hours without any problems.
+> >
+> >Unfortunately there's not much more information I can provide. I can
+> >attach my iptables/rule/route file and keep my machine running in case
+> >anyone needs/wants more information. For now I'll just stick with SNAT.
+> >It works good enough for me.
 
+This seems to be the same as=20
+http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0465.html
+and https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=3D144
 
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Software libre enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+I've committed the proposed fix (from #144) into patch-o-matic/pending.
 
+Comments?
+
+> Patrick
+
+Patrick,=20
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--QRj9sO5tAVLaXnSD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAAHXaXaXGVTD0i/8RApnTAJ9BPiyzvYufU5wLgQy4FzBhrZoafgCgsZS9
+3KIOH6AlBZsrCsM/GbQBOHc=
+=JRqR
+-----END PGP SIGNATURE-----
+
+--QRj9sO5tAVLaXnSD--

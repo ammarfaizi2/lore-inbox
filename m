@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbRANHy7>; Sun, 14 Jan 2001 02:54:59 -0500
+	id <S129773AbRANHzt>; Sun, 14 Jan 2001 02:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbRANHyt>; Sun, 14 Jan 2001 02:54:49 -0500
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:12286 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S129765AbRANHyg>; Sun, 14 Jan 2001 02:54:36 -0500
-From: junio@siamese.dhis.twinsun.com
-To: Godfrey Livingstone <godfrey@hattaway-associates.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ingo's RAID patch for 2.2.18 final?
-In-Reply-To: <200101112136.PAA07626@mccoy.penguinpowered.com>
-	<3A61315C.37318059@hattaway-associates.com>
-Date: 13 Jan 2001 23:54:29 -0800
-In-Reply-To: <3A61315C.37318059@hattaway-associates.com>
-Message-ID: <7vk87y36x6.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S130747AbRANHzj>; Sun, 14 Jan 2001 02:55:39 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:530 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129773AbRANHz0>; Sun, 14 Jan 2001 02:55:26 -0500
+Date: Sun, 14 Jan 2001 01:31:03 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: eth1: Transmit timed out, status 0000, PHY status 0000
+Message-ID: <Pine.LNX.4.31.0101130334190.716-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "GL" == Godfrey Livingstone <godfrey@hattaway-associates.com> writes:
+What might be a reason I'm seeing this?
 
-GL> There is as yet no official patch for raid 0.90 for 2.2.18
+Becker's latest via-rhine driver ontop 2.2.18..
 
-GL> This question would be better asked on  linux raid list
-GL> linux-raid@vger.kernel.org.
+...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
+eth1: Transmit timed out, status 0000, PHY status 0000,
+resetting...
 
-What is at <http://www.kernel.org/pub/linux/kernel/people/mingo/>
-look official enough to me...
+Keeps going nonstop until I ifdown eth1.
 
-    raid-2.2.18-B0          12-Jan-2001 10:18   392k
+Card worked fine 2 days ago...
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+
+Windows 95(n) - 32-bit extensions and graphical shell for a 16-bit patch
+to an 8-bit operating system originally coded for a 4-bit microprocessor,
+written by a 2-bit company that can't stand 1 bit of competition. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

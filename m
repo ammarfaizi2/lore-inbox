@@ -1,62 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUJXG5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUJXIVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUJXG5u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 02:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUJXG5u
+	id S261383AbUJXIVX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 04:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbUJXIVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 02:57:50 -0400
-Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:32006 "EHLO
-	www.dewire.com") by vger.kernel.org with ESMTP id S261378AbUJXG5s
+	Sun, 24 Oct 2004 04:21:22 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:14265 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S261383AbUJXIVN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 02:57:48 -0400
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: XFS strangeness, xfs_db out of memory
-Date: Sun, 24 Oct 2004 08:57:26 +0200
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
+	Sun, 24 Oct 2004 04:21:13 -0400
+Date: Sun, 24 Oct 2004 10:18:12 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041024081812.GA11655@thundrix.ch>
+References: <4176E08B.2050706@techsource.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410240857.31893.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <4176E08B.2050706@techsource.com>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I was testing a tiny script on top of xfs_fsr to show fragmentation and the 
-resultss of defragmentation.  As a result of fine tuning the output I ran the 
-script repeatedly and suddenly got error from find (unknown error 999 if my 
-memory serves me. It scrolled off the screen).
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The logs show this.
-Oct 24 08:06:50 xine kernel: hda: dma_timer_expiry: dma status == 0x21
-Oct 24 08:07:00 xine kernel: hda: DMA timeout error
-Oct 24 08:07:00 xine kernel: hda: dma timeout error: status=0xd0 { Busy }
-Oct 24 08:07:00 xine kernel: 
-Oct 24 08:07:00 xine kernel: hda: DMA disabled
-Oct 24 08:07:00 xine kernel: ide0: reset: success
+Salut,
 
-How bad is that for XFS?... The error isn't permanent it seems.
+My CHF 0.05 (we don't have smaller pieces):
 
-After that xfs_db -r /dev-with-home -c "frag -v" gives me an out-of-memory
-error after a while, consistently.
+Open hardware is just as necessary in this world as open software. The
+Freedom CPU people know that, and they're a bunch of people developing
+open hardware, having  no money for the step  of actually producing. I
+agree that their  design is debatable. But the idea  is clear: we need
+open hardware to write truly open software on.
 
-xfs_db: out of memory
+I know several companies who would like to produce open hardware, too,
+but have  the same fears that  your company has. Someone  will have to
+step  up   and  produce  open   hardware,  and  if  someone   does  it
+successfully, I guess a whole  aeroplane of companies is going to take
+off producing open hardware as well.
 
-The script essentially does  this
+The  thing companies  tend  to  disregard is  the  fact that  whenever
+something is open, there will be people developing on it in their free
+time. It's  that with Open Source  software, and it  will certainly be
+the same with open hardware.
 
-xfs_info $dev
-xfs_db -r $dev -c "frag -v"
-find $mountp
-xfs_fsr -v
+For a graphics  card, OpenGL support is almost  vital. This means that
+you'll have to implement it in  order to be successful. Because 90% of
+the  people out  there, if  not more,  are using  their  computers for
+playing games.
 
-Program versions
-kernel is 2.6.8.1-12mdk (Mandrake 10.1 Community edition)
-xfsdump-2.2.21-1mdk
-xfsprogs-2.6.13-1mdk
+That said, I  think there are lots of people  willing to contribute to
+your hardware  design. I'll be  glad to do  that, once I got  the time
+to. The Freedom CPU people might  as well. I guess that people will do
+a lot more than just the firmware for you. I mean, AMD developed their
+Opteron based on suggestions from (open source) developers, people who
+need  to  handle  that  hardware,   and  it  turned  out  to  be  damn
+good. People  should just  listen to those  who got probably  the best
+idea of what hardware should be like: those who code on it.
 
-xfs_repair had lots of comments after this, but went through.
+If you  can show  good 3D performance,  you might  as well get  a good
+chance to get lots of Windows  Quake players to use your hardware. And
+if you were to support  OpenGL 2.0, people will suddenly start kissing
+your feet.
 
--- robin
+Maybe we  can start off an  open hardware development  group with your
+company selling the end products...
+
+On Wed, Oct 20, 2004 at 06:02:51PM -0400, Timothy Miller wrote:
+> - x86 BIOS/OpenBoot/OpenFirmware code under BSD and GPL license
+
+BSD without advertisement clause should be enough, I guess?
+
+> (1) Would  the sales volumes  of this product  be enough to  make it
+> worth producing (ie. profitable)?
+
+This depends on how public the  product gets. Lots of people here will
+be able to help you a lot  with that step. If IBM and/or Intel were to
+say,  "$COMPANY supports  Open Hardware  because it's  good",  I guess
+people will actually start buying open hardware.
+
+> (2) How much would you be willing to pay for it?
+
+People already pay several hundreds of CHF for a graphics card.
+
+> (3) How do you feel about the choice of neglecting 3D performance as
+> a priority?  How  important is 3D performance?  In  what cases is it
+> not?
+
+Since 3D  and software suspend are  about the only problem  we have, I
+guess the card wouldn't have a  chance if it wasn't to have remarkable
+3D performance.
+
+> (5) What's most important to you, performance, price, or stability?
+
+To  us  it's  stability,  however,  to  the rest  of  the  world  it's
+performance. I'm not sure whether geeks are a big enough market.
+
+			    Tonnerre
+
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBe2VD/4bL7ovhw40RAmHOAJ9iVBPK3BpeZucyrdydUXTgl5cRXgCgpk7Y
+4OrvYHV38PPAtVAzRfovChs=
+=55az
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130382AbQLETat>; Tue, 5 Dec 2000 14:30:49 -0500
+	id <S130374AbQLETa7>; Tue, 5 Dec 2000 14:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130379AbQLETaj>; Tue, 5 Dec 2000 14:30:39 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7636 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130371AbQLETaY>;
-	Tue, 5 Dec 2000 14:30:24 -0500
-Date: Tue, 5 Dec 2000 13:59:34 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@redhat.com>, Christoph Rohland <cr@sap.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012051030060.1902-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012051337290.12284-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130379AbQLETau>; Tue, 5 Dec 2000 14:30:50 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1028 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130374AbQLETad>;
+	Tue, 5 Dec 2000 14:30:33 -0500
+Message-ID: <20001205004049.A1316@bug.ucw.cz>
+Date: Tue, 5 Dec 2000 00:40:49 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Kevin Buhr <buhr@stat.wisc.edu>, trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: negative NFS cookies: bad C library or bad kernel?
+In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>; from Kevin Buhr on Sat, Dec 02, 2000 at 10:49:16PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Tue, 5 Dec 2000, Linus Torvalds wrote:
-
-> > So Stephen is right wrt fsync() (it will not get that stuff on disk).
-> > However, it's not a bug - if that crap will not end up on disk we
-> > will only win.
+> Fiddling with the Crytographic File System the other day, I managed to
+> tickle a mysterious bug.  When some directories grew large enough,
+> suddenly a chunk of files would half "disappear".  "find" would list
+> them fine, but "ls" and "echo *" wouldn't.
 > 
-> Stephen is _wrong_ wrt fsync().
-> 
-> Why?
-> 
-> Think about it for a second. How the hell could you even _call_ fsync() on
-> a file that no longer exists, and has no file handles open to it?
-		^^^^^^^^^^^^^^
-clear_inode() <- dispose_list() <- prune_icache().
+> After a bit of troubleshooting, I discovered that the CFS daemon
+> (which presents itself to the system as an NFS daemon) was using
 
-IOW, if file still exists, but is closed by everyone, etc. you _can_
-get clear_inode() on it. <thinks> Ah, I see your point. OK, how about that:
-	* clear_inode() _can_ be called for still-alive objects.
-	* no matter how it is called, we don't give a damn for the stuff
-on the list.
-	* moreover, if it gets called for object that is still alive the
-list is just empty. It doesn't contain anything valuable (as in every
-case) _and_ it doesn't contain random crap.
+Do you run CFS daemon and client on same machine? Where is
+documentation/download of CFS?
 
-If that's what you were talking about - fine with me.
-
+								Pavel 
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

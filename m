@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbUBXKq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 05:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUBXKq6
+	id S262183AbUBXKtB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 05:49:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUBXKtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 05:46:58 -0500
-Received: from [213.78.161.131] ([213.78.161.131]:28544 "HELO stockwith.co.uk")
-	by vger.kernel.org with SMTP id S262220AbUBXKqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 05:46:12 -0500
-From: Chris Lingard <chris@ukpost.com>
-To: MALET JL <malet.jean-luc@laposte.net>
-Subject: Re: [linux 2.6.3] [gcc 3.3.3] compile errors. Now OT
-Date: Tue, 24 Feb 2004 10:46:07 +0000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <403911B3.10601@laposte.net> <200402231658.53516.chris@ukpost.com> <403B0E92.60903@laposte.net>
-In-Reply-To: <403B0E92.60903@laposte.net>
+	Tue, 24 Feb 2004 05:49:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.173]:42715 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262183AbUBXKs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 05:48:58 -0500
+Message-ID: <403B2C18.3070906@helmutauer.de>
+Date: Tue, 24 Feb 2004 11:48:56 +0100
+From: Helmut Auer <vdr@helmutauer.de>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: HELP Re: Keyboard not working under 2.6.2
+References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de> <20040224101154.GD993@cse.unsw.EDU.AU>
+In-Reply-To: <20040224101154.GD993@cse.unsw.EDU.AU>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402241046.07323.chris@ukpost.com>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:dc795559fd1207bef82c0d6ee61125c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 February 2004 8:42 am, MALET JL wrote:
+Hi Darren,
 
-> O_O! question what is the purpose of having two set of headers? do you
-> think this is good work to provide a unsable set of headers with a
-> software? why not include the RedHat's one then......
+>What is the actual keyboard, I am using a logitech cordless USB connected
+>via a PS2 adapter that works OK.
+>
+>  
+>
+Now I can work with an USB keyboard connected to USB or with an "normal" 
+PS/2 keyboard connected to the PS/2 pins via a standard PS/2 Slotblech 
+Adapter.
 
-I think that this is off topic for this list; so I will email you direct, 
-quite soon, with some reasons and links.
+>Is the power supply in the keyboard OK
+>  
+>
+Yes - as I said it works without problems, when I boot the 2.4.18 kernel
 
-Nothing wrong with using RedHat, nice distro; but your question was about
-building with 2.6.x headers.  The functionality of 2.6.x is needed by glibc; 
-but not in user space.  How that is achieved is quite difficult.
+>Is there power at the IR receiver
+>  
+>
+Yes
 
-Chris
+>Is the receiver connected to the PS2 ports.
+>
+>  
+>
+Yes - The receiver is only connecet to the keyboard dataa and keyboard 
+clock pins of the PS/2 connector., but that should be enough :-)
+
+Bye
+Helmut

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277378AbRJENcw>; Fri, 5 Oct 2001 09:32:52 -0400
+	id <S277379AbRJENfc>; Fri, 5 Oct 2001 09:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRJENcn>; Fri, 5 Oct 2001 09:32:43 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:35079 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S277378AbRJENcc>; Fri, 5 Oct 2001 09:32:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [POT] Linux SAN?
-Date: Fri, 5 Oct 2001 09:34:46 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: wilson@dot.dreamhost.com (Wilson Bilkovich), linux-kernel@vger.kernel.org
-In-Reply-To: <E15pFMS-00043j-00@the-village.bc.nu>
-In-Reply-To: <E15pFMS-00043j-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15pV5X-0006wR-00@schizo.psychosis.com>
+	id <S277380AbRJENfW>; Fri, 5 Oct 2001 09:35:22 -0400
+Received: from mnh-1-02.mv.com ([207.22.10.34]:64260 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S277379AbRJENfE>;
+	Fri, 5 Oct 2001 09:35:04 -0400
+Message-Id: <200110051453.JAA01618@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: adam.keys@HOTARD.engr.smu.edu.karaya.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Development Setups 
+In-Reply-To: Your message of "Thu, 04 Oct 2001 23:20:06 EST."
+             <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Oct 2001 09:53:13 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 October 2001 16:44, Alan Cox wrote:
-> > I'm not sharing file systems between host transparently. To do that
-> > requires an FS like GFS (made by the same guys that handle linux LVM)
->
-> Originally made. They took their new version proprietary so the open one is
-> now a community project.
+adam.keys@engr.smu.edu said:
+> Instead of having separate machines,  there is the possibility of
+> using the  Usermode port.  As I understand it this lags behind the -ac
+> and linus kernels  so it would be hard to test things like the new
+> VM's.
 
-I thought that was for GFS only, and they were keeping LVM GPL???
+Not really.  The latest UML is sometimes pretty far ahead of what's in the
+-ac tree, but it usually works fine.  So, if you're interested in the generic
+kernel, and not UML itself, that shouldn't be a problem.  And currently, 
+the -ac tree is pretty close to my CVS.
 
-Dave
+Also, the latest patches usually go pretty cleanly into the -linus pre kernels,
+so getting those running in UML shouldn't be hard.
 
--- 
-The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html
+>   Usermode would not be  suitable for driver development either.
+
+This is just because no one has written the code to do it.  It is perfectly
+possible to do hardware device driver development in UML.  Various USB people
+have started trying to do USB driver development under UML, for example.
+
+				Jeff
+

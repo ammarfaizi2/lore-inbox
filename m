@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbTF1Q7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 12:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbTF1Q7Q
+	id S265293AbTF1RGM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 13:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTF1RGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 12:59:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:60935 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265291AbTF1Q7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 12:59:14 -0400
-Date: Sat, 28 Jun 2003 13:13:16 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Lou Langholtz <ldl@aros.net>
-cc: Paul.Clements@steeleye.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] nbd driver for 2.5+: fix locking issues with ioctl
- UI
-In-Reply-To: <3EFA1F7E.2080602@aros.net>
-Message-ID: <Pine.LNX.4.10.10306261014360.412-100000@clements.sc.steeleye.com>
+	Sat, 28 Jun 2003 13:06:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:16851 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265293AbTF1RGJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 13:06:09 -0400
+Message-ID: <33004.4.4.25.4.1056820826.squirrel@www.osdl.org>
+Date: Sat, 28 Jun 2003 10:20:26 -0700 (PDT)
+Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from nbd_init
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <mflt1@micrologica.com.hk>
+In-Reply-To: <200306281346.53609.mflt1@micrologica.com.hk>
+References: <200306271943.13297.mflt1@micrologica.com.hk>
+        <20030627194154.01a06c5d.akpm@digeo.com>
+        <200306281255.36048.mflt1@micrologica.com.hk>
+        <200306281346.53609.mflt1@micrologica.com.hk>
+X-Priority: 3
+Importance: Normal
+Cc: <akpm@digeo.com>, <ldl@aros.net>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Jun 2003, Lou Langholtz wrote:
+> On Saturday 28 June 2003 12:55, Michael Frank wrote:
+>> On Saturday 28 June 2003 10:41, Andrew Morton wrote:
+>> > Michael Frank <mflt1@micrologica.com.hk> wrote:
+>> > > Changes were recently made to the nbd.c in 2.5.73-mm1
+>> >
+>> > And tons more will be in -mm2, which I shall prepare right now. Please
+>> retest on that and if it still hangs, capture the output from pressing
+>> alt-sysrq-T.
+>>
+>> Legacy free, no serial port.
+>>
+>>
+>>
+>> Sorry, -mm2 hang at booting kernel on 2 machines.
+>>
+>
+> Oh Murphy! Bug: 250K log buffer causes a hang on boot.
+>
+> Sorry for the shock. I configured the log buffer bigger - 250K and it hangs
+> on boot.
+>
+> Default 14K log buffer all OK, the NBD hang is fixed too.
 
-> Reviewing the code some more, I'm not sure why I moved the tx_lock out 
-> from nbd_send_req(). Some possible explanations are:
-> 
->    2. keeps the locking at the same level as the spin_unlock_irq() which
->       makes lock analysis a little easier. it's also a more consistant
->       level to have at for consistantly locking accross all the ioctl
->       handling.
+Default value of 14 is a shift count (2 << 14), which gives a
+16 KB buffer.
+Did you enter '250' for the shift value?
+Yes, that wouldn't boot.
+Maybe consult the help text??
 
-But, unless the locks are overlapping (which they did not used to be) there
-really is nothing to analyze in the first place...it's just obviously
-correct, right?
+> This was my only config change besides that driver which didn't compile ;)
+>
+> I want a bigger log buffer in preparation for testing swsusp on 2.5. On 2.4,
+>  the test io load prevent the big swsusp logs from making it to disk...
 
+Andrew, do you want a min/max limit on the LOG_BUF_SHIFT value,
+now that Roman has added that feature for Kconfig?
 
->    4. in order to have the locking inside nbd_send_req it would seem
->       it'd help to make nbd_send_req return a value that could be checked.
-
-That's not an unreasonable thing to do...it'd be a much more minor change.
-I guess I'm just having a hard time seeing the benefit of rearranging
-all this code. Unless there's some substantial benefit, it seems wiser
-to keep the changes as minimal as possible...after all, the current code
-does work.
+~Randy
 
 
-> week. In the meantime, the nbd-client tool currently can't correctly set 
-> the size of the device and either that needs to be worked around in the 
-> driver (I'd done that in the original jumbo patch), or the nbd-client 
-> tool needs to be updated (the patch I'd mailed out for nbd-client works 
-> around the sizing issue by re-opening the nbd). To be clear, that's not 
-> something any of the changes that have gone in so far broke nor address. 
-
-I'm in favor of doing the minor change in the driver to maintain
-compatibility with existing userland tools. It's a pretty simple fix...
-
-The patch will be coming shortly...
-
---
-Paul
 

@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273590AbRIQMZ4>; Mon, 17 Sep 2001 08:25:56 -0400
+	id <S273593AbRIQM06>; Mon, 17 Sep 2001 08:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273587AbRIQMZq>; Mon, 17 Sep 2001 08:25:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45324 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273588AbRIQMZh>; Mon, 17 Sep 2001 08:25:37 -0400
-Subject: Re: PROBLEM: [1.] X session randomly crashes because of kernel problem.
-To: stephane.brossier@sun.com (Stephane Brossier)
-Date: Mon, 17 Sep 2001 13:30:41 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org,
-        Stephane.Brossier@sun.com (Stephane Brossier)
-In-Reply-To: <3BA56490.FD898C70@sun.com> from "Stephane Brossier" at Sep 16, 2001 07:48:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273588AbRIQM0R>; Mon, 17 Sep 2001 08:26:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:64273 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273587AbRIQM0G>;
+	Mon, 17 Sep 2001 08:26:06 -0400
+Date: Mon, 17 Sep 2001 09:26:13 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <Pine.LNX.4.33.0109161738110.1054-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0109170923190.2990-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ixXt-000738-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [2.] I installed the standart version of Mandrake8.0,
->      and I am working under kde2.1.1 with Xfree86 4.0.3.
-> 
->      Suddenly my X session exits. Looking at the syslog
->      I can see the following log:
+On Sun, 16 Sep 2001, Linus Torvalds wrote:
 
-Can you duplicate the problem with a more recent kernel, and also 
-preferably one without the supermount patch ?
+>  - truly anonymous pages (ie before they've been added to the swap cache)
+>    are not necessarily going to behave as nicely as other pages. They
+>    magically appear after VM scanning as a "1st reference", and I have a
+>    reasonably good argument that says that they'll have been aged up and
+>    down roughly the same number of times, which makes this more-or-less
+>    correct. But it's still a theoretical argument, nothing more.
 
-Also does the machine past memtest86 ?
+This nicely points out the problem with page aging which Linux
+has always had. Pages which are referenced all the time by the
+processes using them STILL get aged down all the time.
+
+I suspect that the biggest impact the reverse mapping patch
+has right now seems to be caused by fixing this behaviour and
+just aging up a page when it is referenced and down when it is
+not.
+
+>  - I don't like the lack of aging in 'reclaim_page()'. It will walk the
+>    whole LRU list if required, which kind of defeats the purpose of having
+>    reference bits and LRU on that list. The code _claims_ that it almost
+>    always succeeds with the first page, but I don't see why it would. I
+>    think that comment assumed that the inactive_clean list cannot have any
+>    referenced pages, but that's never been true.
+
+This depends on whether we do reactivation in __find_page_nolock()
+or if we leave the page alone and wait for kswapd to do that for
+us.
+
+regards,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

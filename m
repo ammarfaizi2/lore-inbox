@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbUKJByt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbUKJB7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbUKJByt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 20:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbUKJByF
+	id S261819AbUKJB7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 20:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbUKJB7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 20:54:05 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:17062 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261830AbUKJBvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 20:51:37 -0500
-Subject: Re: [PATCH/RFC 1/4]device core changes
-From: Li Shaohua <shaohua.li@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20041110012443.GA9496@kroah.com>
-References: <1099887071.1750.243.camel@sli10-desk.sh.intel.com>
-	 <20041108225810.GB16197@kroah.com>
-	 <1099961418.15294.11.camel@sli10-desk.sh.intel.com>
-	 <1099971341.15294.48.camel@sli10-desk.sh.intel.com>
-	 <20041109045843.GA4849@kroah.com>
-	 <1099990981.15294.57.camel@sli10-desk.sh.intel.com>
-	 <20041110012443.GA9496@kroah.com>
-Content-Type: text/plain
-Message-Id: <1100051137.7825.6.camel@sli10-desk.sh.intel.com>
+	Tue, 9 Nov 2004 20:59:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37391 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261819AbUKJB5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 20:57:46 -0500
+Date: Wed, 10 Nov 2004 02:57:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] Use -ffreestanding?
+Message-ID: <20041110015711.GD4089@stusta.de>
+References: <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <20041108175120.GB27525@wotan.suse.de> <20041108183449.GC15077@stusta.de> <20041108190130.GA2564@wotan.suse.de> <20041108233806.GM15077@stusta.de> <20041109050107.GA5328@wotan.suse.de> <20041110014516.GC4089@stusta.de> <Pine.LNX.4.58.0411091750480.2301@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 10 Nov 2004 09:45:37 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411091750480.2301@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 09:24, Greg KH wrote:
-> > > 
-> > > Hm, hopefully Pat will chime in about what would be best for this, as he
-> > > created the platform_notify interface.
-> > Ok, an updated version. Use 'platform_notify', but add a 'type' in 
-> > 'struct bus_type'. Using bus_type->name to identify the bus type is
-> > pretty much ugly and slow. 
+On Tue, Nov 09, 2004 at 05:51:41PM -0800, Linus Torvalds wrote:
 > 
-> No, no "type" for a bus, sorry.
+> On Wed, 10 Nov 2004, Adrian Bunk wrote:
+> > 
+> > I'm open for examples why this actually doesn't work, but after my 
+> > (limited) testin I'd suggest the patch below for inclusion in the next 
+> > -mm.
 > 
-> Maybe your other patches weren't so bad...  If we implement them, can we
-> drop the platform notify stuff?
-Currently only ARM use 'platform_notify', and we can easily convert it
-to use per-bus 'platform_bind'. One concern of per-bus 'platform_bind'
-is we will have many '#ifdef ..' if many platforms implement their
-per-bus 'platform_bind'.
+> When was -ffreestanding introduced? Iow, it might not work with all 
+> compiler versions.. Apart from that, I think it makes sense. 
 
-Thanks,
-Shaohua
+It's supported in gcc 2.95 (which is the oldest compiler supported by 
+kernel 2.6).
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,75 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbTL0L4l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 06:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTL0L4l
+	id S262848AbTL0MWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 07:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTL0MWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 06:56:41 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:34736 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264329AbTL0L4j
+	Sat, 27 Dec 2003 07:22:16 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:24464 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262848AbTL0MWO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 06:56:39 -0500
-Date: Sat, 27 Dec 2003 19:57:03 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Jari Soderholm <Jari.Soderholm@edu.stadia.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DEVFS is very good compared to UDEV
-In-Reply-To: <sfe8cdc2.027@mail2.edu.stadia.fi>
-Message-ID: <Pine.LNX.4.44.0312271933150.3256-100000@raven.themaw.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 27 Dec 2003 07:22:14 -0500
+Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Edward Tandi <ed@efix.biz>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, perex@suse.cz,
+       alsa-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Rob Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       Stan Bubrouski <stan@ccs.neu.edu>
+In-Reply-To: <1072525450.3794.8.camel@wires.home.biz>
+References: <1080000.1072475704@[10.10.2.4]>
+	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>
+	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>
+	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>
+	 <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]>
+	 <1072523478.12308.52.camel@nosferatu.lan>
+	 <1072525450.3794.8.camel@wires.home.biz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5tSXchTVyfHvHhDLchKP"
+Message-Id: <1072527874.12308.100.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Dec 2003 14:24:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003, Jari Soderholm wrote:
 
-> 
-> Booting kernel is faster compared to UDEV.
+--=-5tSXchTVyfHvHhDLchKP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Mmm. Doesn't seem that way to me. What have I missed?
+On Sat, 2003-12-27 at 13:44, Edward Tandi wrote:
+> On Sat, 2003-12-27 at 11:11, Martin Schlemmer wrote:
+> > On Sat, 2003-12-27 at 09:50, Martin J. Bligh wrote:
+> > > Something appears to have broken OSS sound emulation between=20
+> > > test2 and test3. Best I can tell (despite the appearance of the BK lo=
+gs),=20
+> > > that included ALSA updates 0.9.5 and 0.9.6. Hopefully someone who
+> > > understands the sound architecture better than I can fix this?
+> > >=20
+> >=20
+> > I wont say I understand it, but a quick look seems the major change is
+> > the addition of the 'whole-frag' and 'no-silence' opts.  You might try
+> > the following to revert what 'no-silence' change at least does:
+> >=20
+> > --
+> >  # echo 'xmms 0 0 no-silence' > /proc/asound/card0/pcm0p/oss
+> >  # echo 'xmms 0 0 whole-frag' > /proc/asound/card0/pcm0p/oss
+> > --
+>=20
+> Thanks, that fixes it for me. I too have been seeing terrible problems
+> with XMMS since the early 2.6 pre- kernels.
+>=20
+> Because it only happens in XMMS I thought it was one of those
+> application bugs brought out by scheduler changes. I now use Zinf BTW
+> -It's better for large music collections (although not as stable or
+> flash).
+>=20
 
-> 
-> UDEV otherwise is very complex for average user and it
-> is definetly much slower , it has much greater chance
-> for errors because very complicated scrips which seem 
-> to need many different gnu commandline utilities.
+Can you check which one actually fixes it ?
 
-Didn't seem to difficult to me when I checked out both systems this last 
-few days. In fact I like'em both.
 
-> 
-> It is quite funny that when DEVFS creates device files
-> automagically and in the ram-memory, some people want
-> to go backwards, and use shell scripts to 
-> create those files on hard disk, and then it is technically better solution.
+Thanks,
 
-Some how I don't think that's the reason for that statement.
+--=20
+Martin Schlemmer
 
-> 
-> If one you look at the /sysfs-directory there are
-> device filenames, (but not the actual devicefiles), so
-> it does same thing that DEVFS, but actually much worce
-> way, it created devicefilenames in the ram, but
-> one cannot use them, because they are not devicefiles.
+--=-5tSXchTVyfHvHhDLchKP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Looks to me like that was never the aim of sysfs. I haven't checked into 
-sysfs yet but I suspect it is quite different to devfs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> 
-> Why could you develop it so that UDEV could create those
-> actual device files there also, then most linux
-> users would not need those horrible scipts anymore.
-> All that is then needed link from /sysfs to /dev dir.
+iD8DBQA/7XoCqburzKaJYLYRAkxZAJ4oUHaN3YmHbIHC8eegpBAZsgfiowCeLajb
+cs5msk81q2CdNk8s2/gtktQ=
+=zpC5
+-----END PGP SIGNATURE-----
 
-That would take away the ability to have a changeable device naming 
-scheme. One of the main reasons for having dynamic device name mapping 
-system is to map the names from a device detection system to specified 
-(possibly changing) naming scheme.
-
-Please don't get me wrong. I like devfs very much and I see it has come a 
-long way since I last used it, but it needs work just to maintain its 
-current functionality within 2.6.
-
-Ian
-
+--=-5tSXchTVyfHvHhDLchKP--
 

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310517AbSCGUpv>; Thu, 7 Mar 2002 15:45:51 -0500
+	id <S310534AbSCGUvY>; Thu, 7 Mar 2002 15:51:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310519AbSCGUpl>; Thu, 7 Mar 2002 15:45:41 -0500
-Received: from brick.egenera.com ([208.51.147.252]:58911 "EHLO egenera.com")
-	by vger.kernel.org with ESMTP id <S310517AbSCGUpX>;
-	Thu, 7 Mar 2002 15:45:23 -0500
-From: "Patrick O'Rourke" <porourke@egenera.com>
-Message-Id: <200203072045.PAA08386@egenera.com>
-Subject: [PATCH] Prevent max_threads from exceeding PID_MAX
-To: linux-kernel@vger.kernel.org
-Date: Thu, 7 Mar 2002 15:45:17 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S310531AbSCGUvL>; Thu, 7 Mar 2002 15:51:11 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:52753 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310532AbSCGUu6>;
+	Thu, 7 Mar 2002 15:50:58 -0500
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Thu, 7 Mar 2002 13:50:43 -0700
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307135043.K9231@host110.fsmlabs.com>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz>, <20020306221305.GA370@elf.ucw.cz>; <20020307101701.S1682@altus.drgw.net> <3C87C583.C8565E4B@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C87C583.C8565E4B@zip.com.au>; from akpm@zip.com.au on Thu, Mar 07, 2002 at 11:54:43AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is possible on large memory systems that the default process limits
-can exceed PID_MAX.  This will allow a non-root user to consume all pids
-resulting in the kernel to basically hang in get_pid().
+We're here to discuss kernel development, right?  Not debate software
+ideologies.
 
-The following patch to fork_init() will prevent max_threads from exceeding
-PID_MAX.
+I move the PPC tree over to BitKeeper and it was worthwhile.  I made
+rsync updates and plain old 'diff' patches against Linus' tree available
+nightly.  It was easy and very quick to do that, I had it running for
+nearly 2 years very well.  In fact, you can still grab the patches from
+ftp://ftp.kernel.org/pub/linux/kernel/people/cort/.  What is your problem with BK
+apart from the license religion?  Linus has made it clear he'll provide
+patches in the same old style.  I don't see what you think you lose here.
+The gain for people who ship him patches is well worth it.  Before I handed
+the PPC tree over to Paul I would have killed to get Linus to use BK so
+shipping him patches would be easier for everyone involved.  If I were
+still a maintainer my response would be a lot less mild to those people
+that fight against BK on something so intangible as "feelings" about the
+license.  I put in a lot of hours shipping patches that were for nothing,
+BK is helping avoid that for the current crew.
 
-Pat
+Seriously, what is your problem with BK?  What do you feel that you lose?
 
---- linux-2.4.19-pre2-x/kernel/fork.c	Mon Feb 25 14:38:13 2002
-+++ linux-2.4.19-pre2/kernel/fork.c	Wed Mar  6 09:15:17 2002
-@@ -74,6 +74,11 @@
- 	 */
- 	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
- 
-+	/* don't let threads go beyond PID_MAX */
-+	if (max_threads > PID_MAX) {
-+		max_threads = PID_MAX;
-+	}
-+
- 	init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
- 	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
- }
+} Also. The things being discussed here *matter* to some people.  Some
+} of the comments made by Larry, David, Cort, Rik and others have
+} coarsely sought to deligitimise the very reasons why a significant number
+} of kernel contributors and users are here at all.  Those comments
+} are monumentally insulting.
+} 
+} -
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,64 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbUCDD6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 22:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCDD6G
+	id S261442AbUCDEC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 23:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUCDEC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 22:58:06 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:24237 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261330AbUCDD6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 22:58:02 -0500
-Message-ID: <4046A93D.9090305@matchmail.com>
-Date: Wed, 03 Mar 2004 19:57:49 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VM patches in 2.6.4-rc1-mm2
-References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org>
-In-Reply-To: <20040303193025.68a16dc4.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Mar 2004 23:02:58 -0500
+Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:49027 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S261442AbUCDECM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 23:02:12 -0500
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Wed, 3 Mar 2004 23:02:10 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Davi Leal <davi@leals.com>
+Subject: Re: Linux 2.6.2, AMD kernel: MCE: The hardware reports a non fatal, correctable incident
+Message-ID: <20040304040210.GA3823@rivenstone.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Davi Leal <davi@leals.com>
+References: <200403021900.16085.davi@leals.com> <20040302215554.GA29752@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+In-Reply-To: <20040302215554.GA29752@redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> 
->>Andrew Morton wrote:
+
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Mar 02, 2004 at 09:55:54PM +0000, Dave Jones wrote:
+> On Tue, Mar 02, 2004 at 07:00:16PM +0100, Davi Leal wrote:
+>> What about this message?. Note that the system works. I have not had to=
+=20
+>> reboot. What meens the below message?.
 >>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm2/
->>>
->>>- More VM tweaks and tuneups
->>
->>Running 2.6.3-lofft-snsus-264rc1mm2vm (nfsd loff_t, sunrpc locking & -mm 
->>VM patches).  Seems to be working well.
-> 
-> 
-> OK, good.
-> 
-> 
->>Most of the previous 2.6 kernels I was running on these servers would be 
->>lightly hitting swap by now.  This definitely looks better to me.
-> 
-> 
-> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid of stuff,
-> freeing up physical memory.
+>
+> The original plan behind that option was to find hardware faults early,
+> but it seems to trigger a lot of false positives for various reasons.
+> Part of this problem is that MCEs can also be generated on some hardware
+> by doing something silly like reading from a reserved part of your
+> motherboard chipset..
 
-Swapping out is good to me.  It's the swapping in, and out, and in, 
-and... that's bad.
+    The MCE stuff truly did find a hardware fault early for me; my
+Athlon system was MCE'ing and I ignored it, and later I got sig11
+errors and fs corruption, which I finally traced to a failing stick
+of memory.
 
-> 
-> But I do not see a lot of difference here.
+> There are also CPU errata that can cause them to falsely trigger in
+> some unusual cases, but I've not had time to go through the various
+> errata datasheets to blacklist affected CPUs unfortunatly.
+>
+> I'm toying with the idea of marking it CONFIG_BROKEN for 2.6,
+> and fixing it up later.
 
-Let's let it run a few more days to make sure.
+    I wouldn't be so quick to write off MCEs as bugs or errata,
+especially if the exceptions have only just begun showing up.
+Running CPUBurn, memtest86 and the like is still probably a good
+idea, especially if you value the data on your file system.
 
-> The 900MB desktop machine is
-> 300M into swap after 24 hours.  That's usual.
+--
+Joseph Fannin
+jhf@rivenstone.net
 
-Neither of my servers have 900MB ram...
+"Anyone who quotes me in their sig is an idiot." -- Rusty Russell.
 
-Mike
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFARqpBWv4KsgKfSVgRAoa2AJwMNfOmuHkte5MasX/HOKaZY044XwCfXZqK
+mgmYX6IUj4h/0ZMQrfM/ySI=
+=SYDD
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

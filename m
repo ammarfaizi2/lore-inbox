@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287865AbSANSFm>; Mon, 14 Jan 2002 13:05:42 -0500
+	id <S287866AbSANSGw>; Mon, 14 Jan 2002 13:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSANSFc>; Mon, 14 Jan 2002 13:05:32 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:60625 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287865AbSANSFS>; Mon, 14 Jan 2002 13:05:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Momchil Velikov <velco@fadata.bg>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 19:04:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16Q6V6-207eimC@fwd06.sul.t-online.com> <87d70c51wk.fsf@fadata.bg>
-In-Reply-To: <87d70c51wk.fsf@fadata.bg>
+	id <S288246AbSANSGp>; Mon, 14 Jan 2002 13:06:45 -0500
+Received: from jester.ti.com ([192.94.94.1]:39055 "EHLO jester.ti.com")
+	by vger.kernel.org with ESMTP id <S287866AbSANSGk>;
+	Mon, 14 Jan 2002 13:06:40 -0500
+Message-ID: <3C431E21.2060709@ti.com>
+Date: Mon, 14 Jan 2002 19:06:25 +0100
+From: christian e <cej@ti.com>
+Organization: Texas Instruments A/S,Denmark
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16QBTc-1er7D6C@fwd03.sul.t-online.com>
+To: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
+In-Reply-To: <200201061556.g06FuxT09571@ambassador.mathewson.int> <3C387846.8000408@wanadoo.fr> <3C396142.2040100@ti.com> <3C3992FC.3070707@wanadoo.fr> <3C39A198.4000006@ti.com> <3C3CC0D6.2010407@wanadoo.fr>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> How so ? The POSIX specification is not clear enough or it is not to be
-> >> followed ?
->
-> Oliver> You can have an rt task block on a lock held by a normal task that
-> was Oliver> preempted by a rt task of lower priority. The same problem as
-> with the Oliver> sched_idle patches.
->
-> This can happen with a non-preemptible kernel too. And it has nothing to
-> do with scheduling policy.
+François Cami wrote:
 
-It can happen if you sleep with a lock held.
-It can not happen at random points in the code.
-Thus there is a relation to preemption in kernel mode.
 
-To cure that problem tasks holding a lock would have to be given
-the highest priority of all tasks blocking on that lock. The semaphore
-code would get much more complex, even in the succesful code path,
-which would hurt a lot.
+> try 2.4.17 with -aa patch, and then :
+> echo 500 > /proc/sys/vm/vm_mapped_ratio
+> tell me if it solved your problems...
+> 
+> Cheers
+> 
+> François
+> 
 
-If on the other hand sleeping in kernel mode is explicit, you can simply
-give any task being woken up a timeslice and the scheduling requirements
-are met. If that should be a problem.
 
-	Regards
-		Oliver
+I've just downloaded 2.4.18pre2 and the 2.4.18pre2aa2.So far it looks 
+very good.Is not even swapping yet.I'll leave it running until tomorrow 
+and then try and load the box some more.
+
+best regards
+
+Christian
+

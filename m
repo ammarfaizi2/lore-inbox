@@ -1,96 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbVBCCF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVBCCQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbVBCCF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 21:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVBCCF4
+	id S262691AbVBCCQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 21:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVBCCQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 21:05:56 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48604 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262446AbVBCCFM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 21:05:12 -0500
-Subject: i386 HPET code
-From: john stultz <johnstul@us.ibm.com>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       keith maanthey <kmannth@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 18:05:05 -0800
-Message-Id: <1107396306.2040.237.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 21:16:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27010 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262597AbVBCCQa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 21:16:30 -0500
+Message-Id: <200502030219.j132JsTi013377@pasta.boston.redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Ernie Petrides <petrides@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [2.4 patch] fix for memory corruption from /proc/kcore access
+Date: Wed, 02 Feb 2005 21:19:54 -0500
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Venkatesh,
-	I've been looking into a bug where i386 2.6 kernels do not boot on IBM
-e325s if HPET_TIMER is enabled (hpet=disable works around the issue).
-When running x86-64 kernels, the issue isn't seen. It appears that after
-the hpet is enabled, we stop receiving timer ticks. I've not played on
-any other HPET enabled systems, nor have I looked at the HPET spec, so
-I'm not sure if this is a hardware issue or not.
+Hi, Marcelo.  A fairly nasty memory corruption potential exists when
+/proc/kcore is accessed and there are at least 62 vmalloc'd areas.
 
-The following patch, which uses the x86-64 code for
-hpet_timer_stop_set_go() seems to fix the issue.
+The problem is that get_kcore_size() does not properly account for
+the elf_prstatus, elf_prpsinfo, and task_struct structure sizes in
+the fabricated ELF header, and then elf_kcore_store_hdr() and its
+associated calls to storenote() will possibly overrun the "elf_buf"
+buffer allocated by read_kcore().  Because the requested buffer size
+is rounded up to a page multiple, only certain ranges of counts of
+vmalloc'd areas will actually lead to a memory corruption.  When it
+does happen, usually the end of the /proc/kcore reader's task_struct
+ends up being copied into a slab page (or sometimes into a data page)
+causing a kernel crash (or data corruption) at a later point in time.
 
-Your thoughts?
+The 1st hunk of the patch below fixes this problem.  The latter 3
+hunks correct the "p_filesz" value for the note section (which is
+already initialized to 0 on line 232) as stored in the ELF header,
+but these hunks are not necessary to fix the corruption possiblity.
 
-thanks
--john
+The fix is already in 2.6.
+
+Cheers.  -ernie
 
 
-===== arch/i386/kernel/time_hpet.c 1.10 vs edited =====
---- 1.10/arch/i386/kernel/time_hpet.c	2004-11-02 06:40:42 -08:00
-+++ edited/arch/i386/kernel/time_hpet.c	2005-02-02 17:59:27 -08:00
-@@ -64,29 +64,30 @@
- {
- 	unsigned int cfg;
+
+--- linux-2.4.29/fs/proc/kcore.c.orig	2004-08-07 19:26:06.000000000 -0400
++++ linux-2.4.29/fs/proc/kcore.c	2005-02-02 19:52:50.000000000 -0500
+@@ -136,7 +136,10 @@ static unsigned long get_kcore_size(int 
+ 	}
+ 	*elf_buflen =	sizeof(struct elfhdr) + 
+ 			(*num_vma + 2)*sizeof(struct elf_phdr) + 
+-			3 * sizeof(struct memelfnote);
++			3 * (sizeof(struct elf_note) + 4) +
++			sizeof(struct elf_prstatus) +
++			sizeof(struct elf_prpsinfo) +
++			sizeof(struct task_struct);
+ 	*elf_buflen = PAGE_ALIGN(*elf_buflen);
+ 	return (size - PAGE_OFFSET + *elf_buflen);
+ }
+@@ -279,7 +282,7 @@ static void elf_kcore_store_hdr(char *bu
  
--	/*
--	 * Stop the timers and reset the main counter.
--	 */
-+/*
-+ * Stop the timers and reset the main counter.
-+ */
-+
- 	cfg = hpet_readl(HPET_CFG);
--	cfg &= ~HPET_CFG_ENABLE;
-+	cfg &= ~(HPET_CFG_ENABLE | HPET_CFG_LEGACY);
- 	hpet_writel(cfg, HPET_CFG);
- 	hpet_writel(0, HPET_COUNTER);
- 	hpet_writel(0, HPET_COUNTER + 4);
+ 	memset(&prstatus, 0, sizeof(struct elf_prstatus));
  
--	/*
--	 * Set up timer 0, as periodic with first interrupt to happen at
--	 * hpet_tick, and period also hpet_tick.
--	 */
--	cfg = hpet_readl(HPET_T0_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
--	       HPET_TN_SETVAL | HPET_TN_32BIT;
--	hpet_writel(cfg, HPET_T0_CFG);
--	hpet_writel(tick, HPET_T0_CMP);
-+/*
-+ * Set up timer 0, as periodic with first interrupt to happen at hpet_tick,
-+ * and period also hpet_tick.
-+ */
-+
-+	hpet_writel(HPET_TN_ENABLE | HPET_TN_PERIODIC | HPET_TN_SETVAL |
-+		    HPET_TN_32BIT, HPET_T0_CFG);
-+	hpet_writel(hpet_tick, HPET_T0_CMP);
-+	hpet_writel(hpet_tick, HPET_T0_CMP); /* AK: why twice? */
-+
-+/*
-+ * Go!
-+ */
+-	nhdr->p_filesz	= notesize(&notes[0]);
++	nhdr->p_filesz += notesize(&notes[0]);
+ 	bufp = storenote(&notes[0], bufp);
  
--	/*
-- 	 * Go!
-- 	 */
--	cfg = hpet_readl(HPET_CFG);
- 	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
- 	hpet_writel(cfg, HPET_CFG);
+ 	/* set up the process info */
+@@ -296,7 +299,7 @@ static void elf_kcore_store_hdr(char *bu
+ 	strcpy(prpsinfo.pr_fname, "vmlinux");
+ 	strncpy(prpsinfo.pr_psargs, saved_command_line, ELF_PRARGSZ);
  
-
-
+-	nhdr->p_filesz	= notesize(&notes[1]);
++	nhdr->p_filesz += notesize(&notes[1]);
+ 	bufp = storenote(&notes[1], bufp);
+ 
+ 	/* set up the task structure */
+@@ -305,7 +308,7 @@ static void elf_kcore_store_hdr(char *bu
+ 	notes[2].datasz	= sizeof(struct task_struct);
+ 	notes[2].data	= current;
+ 
+-	nhdr->p_filesz	= notesize(&notes[2]);
++	nhdr->p_filesz += notesize(&notes[2]);
+ 	bufp = storenote(&notes[2], bufp);
+ 
+ } /* end elf_kcore_store_hdr() */

@@ -1,88 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268435AbTBYXqZ>; Tue, 25 Feb 2003 18:46:25 -0500
+	id <S268390AbTBZALN>; Tue, 25 Feb 2003 19:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268441AbTBYXqZ>; Tue, 25 Feb 2003 18:46:25 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:39060 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S268435AbTBYXqX>; Tue, 25 Feb 2003 18:46:23 -0500
-Date: Tue, 25 Feb 2003 16:57:55 -0500
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com
-Subject: Re: IO scheduler benchmarking
-Message-ID: <20030225215755.GA2038@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S268421AbTBZALN>; Tue, 25 Feb 2003 19:11:13 -0500
+Received: from ms-smtp-02.tampabay.rr.com ([65.32.1.39]:4545 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S268390AbTBZALM>; Tue, 25 Feb 2003 19:11:12 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Hans Reiser" <reiser@namesys.com>
+Cc: "Steven Cole" <elenstev@mesatop.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "LKML" <linux-kernel@vger.kernel.org>, "Larry McVoy" <lm@bitmover.com>
+Subject: RE: Minutes from Feb 21 LSE Call
+Date: Tue, 25 Feb 2003 19:19:55 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJAEANFAAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3E5BFF10.50105@namesys.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why does 2.5.62-mm2 have higher sequential
-> write latency than 2.5.61-mm1?
+Hans Reiser wrote
+> Now it is games that hardware is too slow for.  After games, maybe AI
+> assistants?....  Will you be saying, "My AI doesn't have enough
+> horsepower to run on, its databases are small and out of date, and it is
+> providing me worse advice than my wealthy friends get, and providing it
+> later."?  How much will you pay for a good AI to advise you?  (I really
+> like my I-Nav GPS adviser in my mini-van.... money well spent....)
 
-Anticipatory scheduler tiobench profile on uniprocessor:
+Really good AI is predicated on the invention of better algorithms. I do a
+bit of work in this area; we're a long way from any useful AI -- unless you
+think Microsoft's "Clippy" qualifies. :)
 
-                              2.5.61-mm1   2.5.62-mm2
-total                           1993387     1933241
-default_idle                    1873179     1826650
-system_call                       49838       43036
-get_offset_tsc                    21905       20883
-do_schedule                       13893       10344
-do_gettimeofday                    8478        6044
-sys_gettimeofday                   8077        5153
-current_kernel_time                4904       12165
-syscall_exit                       4047        1243
-__wake_up                          1274        1000
-io_schedule                        1166        1039
-prepare_to_wait                    1093         792
-schedule_timeout                    612         366
-delay_tsc                           502         443
-get_fpu_cwd                         473         376
-syscall_call                        389         378
-math_state_restore                  354         271
-restore_fpu                         329         287
-del_timer                           325         200
-device_not_available                290         377
-finish_wait                         257         181
-add_timer                           218         137
-io_schedule_timeout                 195          72
-cpu_idle                            193         218
-run_timer_softirq                   137          33
-remove_wait_queue                   121         188
-eligible_child                      106         154
-sys_wait4                           105         162
-work_resched                        104         110
-ret_from_intr                        97          74
-dup_task_struct                      75          48
-add_wait_queue                       67         124
-__cond_resched                       59          69
-do_page_fault                        55           0
-do_softirq                           53          12
-pte_alloc_one                        51          67
-release_task                         44          55
-get_signal_to_deliver                38          43
-get_wchan                            16          10
-mod_timer                            15           0
-old_mmap                             14          19
-prepare_to_wait_exclusive            10          32
-mm_release                            7           0
-release_x86_irqs                      7           8
-sys_getppid                           6           5
-handle_IRQ_event                      4           0
-schedule_tail                         4           0
-kill_proc_info                        3           0
-device_not_available_emulate          2           0
-task_prio                             1           1
-__down                                0          33
-__down_failed_interruptible           0           3
-init_fpu                              0          12
-pgd_ctor                              0           3
-process_timeout                       0           2
-restore_all                           0           2
-sys_exit                              0           2
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+I would love to see "intelligence" in software; IBM's recent "autonomic
+computing" initiative is marketing hype for a good idea. Programs (including
+Linux!) should be self-diagnosing, fault tolerant, and self-correcting.
+We're not there yet on the software side (again).
+
+And "smart AI" may not be something people want. Many people distrust
+machines -- and in gaming, a really good AI simply isn't as important (or
+desirable) as are pretty graphics (handled by a GPU).
+
+> Ok, you win that one.;-)
+
+Yeah! ;)
+
+> It is interesting that games are the only compelling motivation for
+> faster desktop hardware these days.  It may be part of why we are in a
+> tech bust.  When AIs become hardware purchase drivers, there will likely
+> be a boom again.
+
+I've worked with several game companies; AI just isn't a priority. Games
+need to be "good enough" to challenge average gamers; people who want a real
+challenge play online against other humans.
+
+Excellent breast physics (Extreme Beach Volleyball) sells games; a crafty,
+hard-to-defeat AI actually turns off casual players and just isn't "sexy".
+
+And now I think we're getting *WAY* off topic. :)
+
+..Scott
 

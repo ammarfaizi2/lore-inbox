@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262837AbUDGLQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 07:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUDGLQw
+	id S263057AbUDGL3R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 07:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDGL3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 07:16:52 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:2701 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262837AbUDGLQu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 07:16:50 -0400
-Date: Wed, 7 Apr 2004 13:16:48 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: drivers/char/dz.[ch]: reason for keeping?
-In-Reply-To: <20040404120051.GF27362@lug-owl.de>
-Message-ID: <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>
-References: <20040404101241.A10158@flint.arm.linux.org.uk>
- <20040404111712.GE27362@lug-owl.de> <20040404122958.A14991@flint.arm.linux.org.uk>
- <20040404120051.GF27362@lug-owl.de>
-Organization: Technical University of Gdansk
+	Wed, 7 Apr 2004 07:29:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:28170 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263057AbUDGL3Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 07:29:16 -0400
+To: Bryan Koschmann - GKT <gktnews@gktech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: amd64 questions
+References: <1I8up-46J-3@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 07 Apr 2004 13:29:07 +0200
+In-Reply-To: <1I8up-46J-3@gated-at.bofh.it> (Bryan Koschmann's message of
+ "Wed, 07 Apr 2004 01:50:06 +0200")
+Message-ID: <m3zn9o58n0.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Apr 2004, Jan-Benedict Glaw wrote:
+Bryan Koschmann - GKT <gktnews@gktech.net> writes:
 
-> Interrupt setup is a bit tricky on the VAXen. First, they actually have
-> separated RX and TX IRQ and these aren't static. IRQ probing needs to be
-> redone (at least can't be easily copied) since the new dz_init() is
-> basically a complete new rewrite...
+> I've spent the past week trying to find a full answer on amd64 support.
+> Maybe I'm just not understanding it, but all I can find are debian howtos.
 
- I think we need to separate the chipset driver from the 
-implementation-specific details.  There are at least three configurations 
-in existence:
+Debian seems to have some unique problems in the way they handle AMD64
+compared to other distributions. I would not trust what you read
+there, they make it much more complicated than it really is. The right
+forum would have been discuss@x86-64.org
 
-1. DECstation on-board serial ports for the 3100 (2100) and the 5000/200 
-(there are minor differences which can be handled together, I think).
+> I'm running 2.4.25 on slack 9.1. I was assuming I could simply recompile
+> the kernel for the amd64, and then whatever other bits of software I
+> wanted specifically to run at 64bit, but it's not seeming that way.
 
-2. The PMAC-A TURBOchannel board.  This implies up to 24 ports in a single
-system if we ever support the DEC 3000/900 (3000/800) Alpha systems; 16
-ports otherwise. ;-)
+It's that way. You just need a 64bit capable cross compiler to compile
+the kernel, which is not that difficult to build from sources. You can also
+find binaries for that at 
+ftp://ftp.suse.com/pub/suse/x86_64/supplementary/CrossTools/8.1-i386/
+(usable with rpm2cpio on non RPM distributions). Then you can
+cross compile the kernel in the normal way with 
+make ARCH=x86_64 CROSS_COMPILE=x86_64-linux-
 
-3. VAX-based systems -- you know the details better.
+A few programs (namely iptables and ipsec tools) need to be used
+as 64bit programs because the 32bit emulation doesn't work for them.
+ipchains works though.
 
-Note the existence of #2 above implies there may be two different kinds of
-such ports in a single system, be it a DECstation or a VAXstation (the
-4000 series use these ports as well, don't they?).
+> Should 2.4.25 be able to run 64bit, or are is it more of an all or nothing
+> type thing?
 
-> Old ./drivers/char/dz.c + VAX changes + SERIO changes, that is :)  I
-> guess best practice is that VAX people first merge up with MIPS folks,
-> then we snatch the old driver together and have a beer...
+2.4.25 supports 64bit just fine.
 
- It sounds like a plan. :-)
+-Andi
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRA2LYs>; Mon, 29 Jan 2001 06:24:48 -0500
+	id <S129826AbRA2Lbb>; Mon, 29 Jan 2001 06:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbRA2LYj>; Mon, 29 Jan 2001 06:24:39 -0500
-Received: from tepid.osl.fast.no ([213.188.9.130]:42758 "EHLO
-	tepid.osl.fast.no") by vger.kernel.org with ESMTP
-	id <S129764AbRA2LY3>; Mon, 29 Jan 2001 06:24:29 -0500
-Message-ID: <3A7552E7.82E8F35C@fast.no>
-Date: Mon, 29 Jan 2001 12:24:23 +0100
-From: Roy Sigurd Karlsbakk <roy@fast.no>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+	id <S130330AbRA2LbL>; Mon, 29 Jan 2001 06:31:11 -0500
+Received: from mail09.voicenet.com ([207.103.0.35]:1183 "HELO
+	mail09.voicenet.com") by vger.kernel.org with SMTP
+	id <S129826AbRA2LbC>; Mon, 29 Jan 2001 06:31:02 -0500
+Message-ID: <3A75546F.DAC87368@voicenet.com>
+Date: Mon, 29 Jan 2001 06:30:55 -0500
+From: safemode <safemode@voicenet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Dell RAID/aacraid support in 2.4
+To: Adrian Cox <apc@agelectronics.co.uk>
+CC: Dylan Griffiths <Dylan_G@bigfoot.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
+In-Reply-To: <3A75278F.B41B492B@bigfoot.com> <3A75507A.9386AFE2@agelectronics.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Adrian Cox wrote:
 
-I'm in need for aacraid support for the 2.4 kernel. Does anyone know
-when this is supposed to arrive? Are there any patches I can use? etc..
+> Dylan Griffiths wrote:
+> > The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
+> > 2.4.0:
+> > 1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
+> > locks for a bit
+>
+> This happens to me about once a month on a BX chipset PII machine here,
+> and on a KT133 chipset machine I have.  I have to hit ctrl-alt-backspace
+> to regain control of the console. I always assumed it was a bug in X,
+> but it never caused me enough trouble to actually make me pursue it.
+>
+> - Adrian
+>
 
-Please CC: to me, as I'm not on the list
+turn off gpm..   fixes the mouse problem immediately.   as in killall -9 gpm
+before starting X.
 
-Regards
-
-Roy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

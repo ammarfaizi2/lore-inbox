@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135883AbRDYPoX>; Wed, 25 Apr 2001 11:44:23 -0400
+	id <S135891AbRDYQSZ>; Wed, 25 Apr 2001 12:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135886AbRDYPoO>; Wed, 25 Apr 2001 11:44:14 -0400
-Received: from nakyup.mizi.com ([203.239.30.70]:19328 "EHLO nakyup.mizi.com")
-	by vger.kernel.org with ESMTP id <S135883AbRDYPoD>;
-	Wed, 25 Apr 2001 11:44:03 -0400
-Date: Thu, 26 Apr 2001 00:44:00 +0900
-From: "Young-Ho. Cha" <ganadist@nakyup.mizi.com>
-To: linux-kernel@vger.kernel.org
-Subject: SMP and USB keyboard
-Message-ID: <20010426004400.A3008@nakyup.mizi.com>
-Reply-To: ganadist@chollian.net
-Mime-Version: 1.0
+	id <S135895AbRDYQSP>; Wed, 25 Apr 2001 12:18:15 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:50723 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S135892AbRDYQSD>; Wed, 25 Apr 2001 12:18:03 -0400
+Message-ID: <3AE6F884.6D68304D@redhat.com>
+Date: Wed, 25 Apr 2001 12:17:08 -0400
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Biardzki <cbi@cebis.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SCSI-Multipath driver for 2.4?
+In-Reply-To: <Pine.LNX.4.21.0104251311420.25506-100000@ameise.opto.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. kernel hackers.
+Christoph Biardzki wrote:
+> 
+> Hi,
+> 
+> I wondered whether thera are already effrots to por the Multipath-driver
+> for FibreChannel (http://t3.linuxcare.org) to the 2.4 kernel? This patch
+> allows a transparent failover to another path to FC-attached
+> disk in case the primary path fails.
 
-I use kernel 2.4.3-ac4 with smp support                                         
+When we reviewed the code, we didn't like it all that much.  It served it's
+purpose on the t3 stuff from Sun, but it wasn't generic enough to suit our
+tastes.  So, Ingo wrote a multipath RAID extension as part of the MD driver
+and that's in our 7.1 product and will be sent to the mainstream kernel as
+soon as it's gotten enough testing to be deemed finished (for instance, there
+are horribly stupid devices out there that support what is called
+"Active-Passive" multipath, where if you write to the passive path, it makes
+the active path error out, which makes the device 100% useless for
+multi-initiator, shared SCSI/FC environments, and makes the device total junk
+in my opinion, but if we are going to support them in a Multipath setup, then
+the multipath driver has to be modified so it doesn't attempt to touch passive
+paths until the active path has already failed, which it doesn't currently
+attempt to do when writing superblocks or reading partition tables).
 
-and I have found strange problem in using usb keyboard.
+> Is there any documentation about the changes in the SCSI-driver interfaces
+> from 2.2 -> 2.4 (eg. in sd.c) ?
 
-When I pressed CAPS, NUM, SCROLL LOCK key twice (toggle LED light on keyboard), 
 
-Keyboard and console goes hang.
+-- 
 
-but up(uni-processor) kernel has no problem.
-
-I use
-
-gcc 2.95.3
-glibc 2.2.2
-make 3.79.1
-binutils 2.10.1
-util-linux 2.10q
-modutils 2.4.2 
-
-and used usb-uhci and keybdev modules.
-
-anybody have been heard same problems?
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

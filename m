@@ -1,12 +1,12 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263843AbUDTXvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264214AbUDTXvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbUDTXvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264250AbUDTXvh
+	id S264214AbUDTXvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUDTXvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:51:37 -0400
-Received: from bay16-f72.bay16.hotmail.com ([65.54.186.122]:36880 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263843AbUDTXvf
+	Tue, 20 Apr 2004 19:51:41 -0400
+Received: from bay16-f103.bay16.hotmail.com ([65.54.186.153]:57613 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264214AbUDTXvf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Apr 2004 19:51:35 -0400
 X-Originating-IP: [69.40.24.195]
@@ -18,8 +18,8 @@ Subject: How to debug stripped binary or set kernel breakpoint (Was: HELP: Konqu
 Date: Tue, 20 Apr 2004 19:51:34 -0400
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F72biCnwhLqeb0001b3f1@hotmail.com>
-X-OriginalArrivalTime: 20 Apr 2004 23:51:34.0810 (UTC) FILETIME=[69AE5FA0:01C42732]
+Message-ID: <BAY16-F103Pixj6ZTCV00010c12@hotmail.com>
+X-OriginalArrivalTime: 20 Apr 2004 23:51:34.0747 (UTC) FILETIME=[69A4C2B0:01C42732]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

@@ -1,23 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268198AbTALCC4>; Sat, 11 Jan 2003 21:02:56 -0500
+	id <S268201AbTALCAt>; Sat, 11 Jan 2003 21:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268197AbTALCC4>; Sat, 11 Jan 2003 21:02:56 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:53130 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S268200AbTALCCz>;
-	Sat, 11 Jan 2003 21:02:55 -0500
-Date: Sun, 12 Jan 2003 02:11:37 +0000 (GMT)
+	id <S268202AbTALCAs>; Sat, 11 Jan 2003 21:00:48 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:49802 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S268201AbTALCAr>;
+	Sat, 11 Jan 2003 21:00:47 -0500
+Date: Sun, 12 Jan 2003 02:09:28 +0000 (GMT)
 From: Mel Gorman <mel@csn.ul.ie>
 X-X-Sender: mel@skynet
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Linux VM Documentation - Draft 1
-Message-ID: <Pine.LNX.4.44.0301120210580.32623-100000@skynet>
+Message-ID: <Pine.LNX.4.44.0301120147440.32623-100000@skynet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
 
 Well, despite numerous setbacks, disasters and various panic-attacks, I've
 finally got a first draft together for documentation of the Linux VM. This
@@ -73,6 +71,5 @@ Enjoy...
 Mel Gorman
 MSc Student, University of Limerick
 http://www.csn.ul.ie/~mel
-
 
 

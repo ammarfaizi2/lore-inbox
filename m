@@ -1,143 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVCKMo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVCKMtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVCKMo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 07:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVCKMo5
+	id S262727AbVCKMtB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 07:49:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVCKMr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 07:44:57 -0500
-Received: from v-1635.easyco.net ([69.26.169.185]:11780 "EHLO
-	mail.intworks.biz") by vger.kernel.org with ESMTP id S261392AbVCKMov
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 07:44:51 -0500
-Date: Fri, 11 Mar 2005 04:44:30 -0800 (PST)
-From: jayalk@intworks.biz
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
-In-Reply-To: <20050310134219.GE21986@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0503110421050.30843@intworks.biz>
-References: <200503101329.j2ADTZU0030146@intworks.biz>
- <20050310134219.GE21986@parcelfarce.linux.theplanet.co.uk>
+	Fri, 11 Mar 2005 07:47:58 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8686 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262702AbVCKMrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 07:47:04 -0500
+Date: Fri, 11 Mar 2005 04:47:01 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: linux-kernel@vger.kernel.org
+cc: linux-mm@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] Prefaulting 
+Message-ID: <Pine.LNX.4.58.0503110444220.19419@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Thu, 10 Mar 2005, Matthew Wilcox wrote:
->> +extern unsigned int pirq_table_addr;
->
-> Completely nitpicking, but I think this should be an unsigned long rather
-> than an int -- physical addresses are normally expressed in terms of
-> unsigned long.
+This patch allows to aggregate multiple page faults into a single one. It
+does that by detecting that an application generates a sequence of page
+faults.
 
-Yup, good point, I'll fix that.
+If a fault occurred for page x and is then followed by page x+1 then it may
+be reasonable to expect another page fault at x+2 in the future. If page
+table entries for x+1 and x+2 would be prepared in the fault handling for
+page x+1 then the overhead of taking a fault for x+2 is avoided. However
+page x+2 may never be used and thus we may have increased the rss
+of an application unnecessarily and also allocated a page for no use
+at all. At some point the swapper will take care of removing that page
+if memory should get tight.
 
-> Should we fall back to searching if someone's specified an address?  If not,
-> it becomes even simpler:
+The first successful prediction leads to an additional page being allocated.
+The second successful prediction leads to 2 additional pages being allocated.
+Third to 4 pages and so on. In large continous accesses to pages the number of
+page faults is reduced by a factor of 8.
 
-I think it'd be a failsafe in the case where someone mistakenly copied
-an incorrect or mistaken boot loader config. I'll add a warning in that case
-so that the user can see that there's been a problem.
+The default for this patch is to disable this functionality because other
+pages may be uselessly allocated. The maximum order of pages to preallocate
+can be changed by writing a value to /proc/sys/vm/max_preallocate_order
+and should be set to 4 for applications that use large amounts of memory.
 
->>  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
->
-> This loop would become:
->
-> 	for (addr = 0xf0000; addr < 0x100000; addr += 16) {
->
+Results that show the impact of this patch are available at
+http://oss.sgi.com/projects/page_fault_performance/
 
-I prefered the former since the __va conversion only gets done for those
-initial addresses rather than throughout the loop. I think the
-check_routing... should use va addr not phys, for subjective reasons, feels
-cleaner, I guess. I'll deferr to whatever the norm is. Let me know.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Thanks for the feedback.
+Index: linux-2.6.11/include/linux/sched.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/sched.h	2005-03-10 12:39:14.000000000 -0800
++++ linux-2.6.11/include/linux/sched.h	2005-03-10 12:39:39.000000000 -0800
+@@ -571,6 +571,8 @@ struct task_struct {
+ #endif
 
-jayakumar
+ 	struct list_head tasks;
++	unsigned long anon_fault_next_addr;	/* Predicted sequential fault address */
++	int anon_fault_order;			/* Last order of allocation on fault */
+ 	/*
+ 	 * ptrace_list/ptrace_children forms the list of my children
+ 	 * that were stolen by a ptracer.
+Index: linux-2.6.11/mm/memory.c
+===================================================================
+--- linux-2.6.11.orig/mm/memory.c	2005-03-10 12:39:15.000000000 -0800
++++ linux-2.6.11/mm/memory.c	2005-03-10 12:43:49.000000000 -0800
+@@ -57,6 +57,7 @@
 
->
->
-> On Thu, Mar 10, 2005 at 05:29:35AM -0800, jayalk@intworks.biz wrote:
->
-> Nice work, I like it.  You could make it even prettier:
->
->> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
->> --- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
->> +++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-10 20:43:02.479487640 +0800
->> @@ -58,6 +58,35 @@ struct irq_router_handler {
->>  int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
->>
->>  /*
->> + *  Check passed address for the PCI IRQ Routing Table signature
->> + *  and perform checksum verification.
->> + */
->> +
->> +static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
->> +{
->> +	struct irq_routing_table *rt;
->> +	int i;
->> +	u8 sum;
->> +
->> +	rt = (struct irq_routing_table *) addr;
->
-> static inline struct irq_routing_table * __init pirq_check_routing_table(unsigned long phys)
-> {
-> 	struct irq_routing_table *rt = __va(phys);
-> [...]
->
->> @@ -65,21 +94,16 @@ static struct irq_routing_table * __init
->>  {
->>  	u8 *addr;
->
-> 	unsigned long addr;
->
->>  	struct irq_routing_table *rt;
->> -	int i;
->> -	u8 sum;
->>
->> +	if (pirq_table_addr) {
->> +		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
->> +		if (rt) {
->> +			return rt;
->> +		}
->> +	}
->
-> 	if (pirq_table_addr) {
-> 		rt = pirq_check_routing_table(pirq_table_addr);
-> 		if (rt)
-> 			return rt;
-> 	}
->
-> Should we fall back to searching if someone's specified an address?  If not,
-> it becomes even simpler:
->
-> 	if (pirq_table_addr) {
-> 		return pirq_check_routing_table(pirq_table_addr);
-> 	}
->
->>  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
->
-> This loop would become:
->
-> 	for (addr = 0xf0000; addr < 0x100000; addr += 16) {
->
->> @@ -27,6 +27,7 @@
->>  #define PCI_ASSIGN_ALL_BUSSES	0x4000
->>
->>  extern unsigned int pci_probe;
->> +extern unsigned int pirq_table_addr;
->
-> Completely nitpicking, but I think this should be an unsigned long rather
-> than an int -- physical addresses are normally expressed in terms of
-> unsigned long.
->
->> +		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
->> +					of the PIRQ table (normally generated
->> +					by the BIOS) if it is outside the .
->> +					F0000h-100000h range.
->
-> And you even bothered to update the documentation!  This is definitely
-> a cut above most of the patches I review ;-)
->
->
+ #include <linux/swapops.h>
+ #include <linux/elf.h>
++#include <linux/pagevec.h>
+
+ #ifndef CONFIG_DISCONTIGMEM
+ /* use the per-pgdat data instead for discontigmem - mbligh */
+@@ -1786,6 +1787,8 @@ out:
+ 	return ret;
+ }
+
++int sysctl_max_prealloc_order = 1;
++
+ /*
+  * We are called with the MM semaphore and page_table_lock
+  * spinlock held to protect against concurrent faults in
+@@ -1797,51 +1800,104 @@ do_anonymous_page(struct mm_struct *mm,
+ 		unsigned long addr)
+ {
+ 	pte_t entry;
+-	struct page * page = ZERO_PAGE(addr);
++ 	unsigned long end_addr;
++
++	addr &= PAGE_MASK;
+
+-	/* Read-only mapping of ZERO_PAGE. */
+-	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++ 	if (likely((vma->vm_flags & VM_RAND_READ)
++		|| current->anon_fault_next_addr != addr)
++		|| current->anon_fault_order >= sysctl_max_prealloc_order) {
++		/* Single page */
++		current->anon_fault_order = 0;
++		end_addr = addr + PAGE_SIZE;
++	} else {
++		/* Sequence of faults detect. Perform preallocation */
++ 		int order = ++current->anon_fault_order;
++
++		if ((1 << order) < PAGEVEC_SIZE)
++			end_addr = addr + (PAGE_SIZE << order);
++		else {
++			end_addr = addr + PAGEVEC_SIZE * PAGE_SIZE;
++			current->anon_fault_order = 3;
++		}
+
+-	/* ..except if it's a write access */
++		if (end_addr > vma->vm_end)
++			end_addr = vma->vm_end;
++		if ((addr & PMD_MASK) != (end_addr & PMD_MASK))
++			end_addr &= PMD_MASK;
++	}
+ 	if (write_access) {
+-		/* Allocate our own private page. */
++
++		unsigned long a;
++		int i;
++		struct pagevec pv;
++
+ 		pte_unmap(page_table);
+ 		spin_unlock(&mm->page_table_lock);
+
++		pagevec_init(&pv, 0);
++
+ 		if (unlikely(anon_vma_prepare(vma)))
+-			goto no_mem;
+-		page = alloc_zeroed_user_highpage(vma, addr);
+-		if (!page)
+-			goto no_mem;
++			return VM_FAULT_OOM;
++
++		/* Allocate the necessary pages */
++		for(a = addr; a < end_addr ; a += PAGE_SIZE) {
++			struct page *p = alloc_zeroed_user_highpage(vma, a);
++
++			if (likely(p)) {
++				pagevec_add(&pv, p);
++			} else {
++				if (a == addr)
++					return VM_FAULT_OOM;
++				break;
++			}
++		}
+
+ 		spin_lock(&mm->page_table_lock);
+-		page_table = pte_offset_map(pmd, addr);
++		for(i = 0; addr < a; addr += PAGE_SIZE, i++) {
++			struct page *p = pv.pages[i];
+
+-		if (!pte_none(*page_table)) {
++			page_table = pte_offset_map(pmd, addr);
++			if (unlikely(!pte_none(*page_table))) {
++				/* Someone else got there first */
++				pte_unmap(page_table);
++				page_cache_release(p);
++				mm->rss--;
++				continue;
++			}
++
++ 			entry = maybe_mkwrite(pte_mkdirty(mk_pte(p,
++ 						 vma->vm_page_prot)),
++ 					      vma);
++
++		 	lru_cache_add_active(p);
++			SetPageReferenced(p);
++			page_add_anon_rmap(p, vma, addr);
++
++			set_pte_at(mm, addr, page_table, entry);
+ 			pte_unmap(page_table);
+-			page_cache_release(page);
+-			spin_unlock(&mm->page_table_lock);
+-			goto out;
++
++ 			/* No need to invalidate - it was non-present before */
++ 			update_mmu_cache(vma, addr, entry);
++		}
++		mm->rss += pagevec_count(&pv);
++ 	} else {
++ 		/* Read */
++		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++nextread:
++		set_pte_at(mm, addr, page_table, entry);
++		pte_unmap(page_table);
++		update_mmu_cache(vma, addr, entry);
++		addr += PAGE_SIZE;
++		if (unlikely(addr < end_addr)) {
++			page_table = pte_offset_map(pmd, addr);
++			if (likely(pte_none(*page_table)))
++				goto nextread;
+ 		}
+-		mm->rss++;
+-		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+-							 vma->vm_page_prot)),
+-				      vma);
+-		lru_cache_add_active(page);
+-		SetPageReferenced(page);
+-		page_add_anon_rmap(page, vma, addr);
+ 	}
+-
+-	set_pte_at(mm, addr, page_table, entry);
+-	pte_unmap(page_table);
+-
+-	/* No need to invalidate - it was non-present before */
+-	update_mmu_cache(vma, addr, entry);
++	current->anon_fault_next_addr = addr;
+ 	spin_unlock(&mm->page_table_lock);
+-out:
+ 	return VM_FAULT_MINOR;
+-no_mem:
+-	return VM_FAULT_OOM;
+ }
+
+ /*
+Index: linux-2.6.11/kernel/sysctl.c
+===================================================================
+--- linux-2.6.11.orig/kernel/sysctl.c	2005-03-10 12:39:15.000000000 -0800
++++ linux-2.6.11/kernel/sysctl.c	2005-03-10 12:39:39.000000000 -0800
+@@ -55,6 +55,7 @@
+ extern int C_A_D;
+ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
++extern int sysctl_max_prealloc_order;
+ extern int max_threads;
+ extern int sysrq_enabled;
+ extern int core_uses_pid;
+@@ -836,6 +837,16 @@ static ctl_table vm_table[] = {
+ 		.strategy	= &sysctl_jiffies,
+ 	},
+ #endif
++	{
++		.ctl_name	= VM_MAX_PREFAULT_ORDER,
++		.procname	= "max_prealloc_order",
++		.data		= &sysctl_max_prealloc_order,
++		.maxlen		= sizeof(sysctl_max_prealloc_order),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
+ 	{ .ctl_name = 0 }
+ };
+
+Index: linux-2.6.11/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/sysctl.h	2005-03-10 12:39:15.000000000 -0800
++++ linux-2.6.11/include/linux/sysctl.h	2005-03-10 12:39:39.000000000 -0800
+@@ -170,6 +170,7 @@ enum
+ 	VM_VFS_CACHE_PRESSURE=26, /* dcache/icache reclaim pressure */
+ 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
+ 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
++	VM_MAX_PREFAULT_ORDER=29, /* max prefault order during anonymous page faults */
+ };
+
+

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262570AbUCEMWa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUCEMWa
+	id S262569AbUCEMZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUCEMZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:22:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24791 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262570AbUCEMWA (ORCPT
+	Fri, 5 Mar 2004 07:25:51 -0500
+Received: from gruby.cs.net.pl ([62.233.142.99]:59908 "EHLO gruby.cs.net.pl")
+	by vger.kernel.org with ESMTP id S262569AbUCEMZr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:22:00 -0500
-Date: Fri, 5 Mar 2004 13:21:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Colin Leroy <colin@colino.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
-Message-ID: <20040305122151.GL10923@suse.de>
-References: <20040304152840.GL2708@suse.de> <20040305130803.0c01ee83@jack.colino.net>
+	Fri, 5 Mar 2004 07:25:47 -0500
+Date: Fri, 5 Mar 2004 13:25:44 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] missing <linux/mm.h> include in drivers/sbus/char/vfc_dev.c
+Message-ID: <20040305122544.GF29693@gruby.cs.net.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
 Content-Disposition: inline
-In-Reply-To: <20040305130803.0c01ee83@jack.colino.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05 2004, Colin Leroy wrote:
-> Hi,
-> 
-> >I'd appreciate people giving this a test spin. Patch is against
-> >2.6.4-rc1 (well current BK, actually).
-> 
-> Works (on ppc, ibook G4 here). It's indeed faster. But, it breaks direct 
-> output to dsp (as in `cdparanoia 1 /dev/dsp`). 
 
-How do you know it works, then? cdparanoia should receive identical
-data, otherwise it sounds like it doesn't work.
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Dump a track without the patch, repeat with the patch, and compare the
-images.
+drivers/sbus/char/vfc_dev (SUN_VIDEOPIX option) build stopped on:
 
-(BTW, please cc recipients on lkml. At least to me, otherwise I may not
-see your message for days).
+drivers/sbus/char/vfc_dev.c: In function `vfc_mmap':
+drivers/sbus/char/vfc_dev.c:623: error: dereferencing pointer to incomplete type
+drivers/sbus/char/vfc_dev.c:623: error: dereferencing pointer to incomplete type
+drivers/sbus/char/vfc_dev.c:627: error: dereferencing pointer to incomplete type
+drivers/sbus/char/vfc_dev.c:628: error: `VM_SHM' undeclared (first use in this function)
+[...and so on]
+
+Fix attached.
+
 
 -- 
-Jens Axboe
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Team        http://www.pld-linux.org/
 
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-vfc_dev-include.patch"
+
+--- linux-2.6.4-rc2/drivers/sbus/char/vfc_dev.c.orig	2004-03-04 06:16:48.000000000 +0000
++++ linux-2.6.4-rc2/drivers/sbus/char/vfc_dev.c	2004-03-05 12:00:34.000000000 +0000
+@@ -24,6 +24,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/delay.h>
+ #include <linux/spinlock.h>
++#include <linux/mm.h>
+ 
+ #include <asm/openprom.h>
+ #include <asm/oplib.h>
+
+--y0ulUmNC+osPPQO6--

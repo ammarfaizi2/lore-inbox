@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUFOQ0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265758AbUFOQ1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUFOQ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 12:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265756AbUFOQ0O
+	id S265758AbUFOQ1r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbUFOQ1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 12:26:14 -0400
-Received: from ned.cc.purdue.edu ([128.210.189.24]:44417 "EHLO
-	ned.cc.purdue.edu") by vger.kernel.org with ESMTP id S265750AbUFOQ0M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 12:26:12 -0400
-From: Patrick Finnegan <pat@computer-refuge.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compile problems on alpha: 2.6.6, 2.6.7-rc2
-Date: Tue, 15 Jun 2004 11:26:04 -0500
-User-Agent: KMail/1.5.4
-Cc: Russell King <rmk@arm.linux.org.uk>
-References: <200406151100.25284.pat@computer-refuge.org> <20040615160709.GY1444@holomorphy.com> <20040615201648.A28597@jurassic.park.msu.ru>
-In-Reply-To: <20040615201648.A28597@jurassic.park.msu.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jun 2004 12:27:47 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:20671 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265758AbUFOQ1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 12:27:36 -0400
+Date: Tue, 15 Jun 2004 12:05:41 -0400
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ieee1394 still utterly broken in 2.6.7-rc3
+Message-ID: <20040615160541.GB9456@phunnypharm.org>
+References: <20040615155354.GA7988@fefe.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406151126.04228.pat@computer-refuge.org>
+In-Reply-To: <20040615155354.GA7988@fefe.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 June 2004 11:16, Ivan Kokshaysky wrote:
-> On Tue, Jun 15, 2004 at 09:07:09AM -0700, William Lee Irwin III wrote:
-> > Could you try to locate it with scripts/reference_discard.pl, and
-> > if that fail, post your .config (preferably compressed) so I can
-> > try to debug this on my alphas?
->
-> This is known problem - missing __devexit_p() wrapper in serial PnP
-> driver.
->
-> Ivan.
->
-> --- 2.6/drivers/serial/8250_pnp.c	Mon May 10 06:31:59 2004
-> +++ linux/drivers/serial/8250_pnp.c	Mon May 10 22:47:45 2004
-> @@ -437,7 +437,7 @@ static struct pnp_driver serial_pnp_driv
->  	.name		= "serial",
->  	.id_table	= pnp_dev_table,
->  	.probe		= serial_pnp_probe,
-> -	.remove		= serial_pnp_remove,
-> +	.remove		= __devexit_p(serial_pnp_remove),
->  };
->
->  static int __init serial8250_pnp_init(void)
+On Tue, Jun 15, 2004 at 05:53:54PM +0200, Felix von Leitner wrote:
+> Is it too much to ask to at least revert back to the ieee1394 code from
+> 2.6.3 before shipping the final 2.6.7?
+> 
+> Firewire was dysfunctional sind 2.6.3, and still has not been fixed,
+> despite several updates to the code.
+> 
+> Please, 2.6 is supposed to be a stable kernel, for people to use in
+> production environments.
+> 
+> Here's what happens with every kernel since 2.6.4:
+> 
+>   kernel boots
+>   finds firewire hard disk
+>   creates device
+>   boot sequence tries to mount disk
+>   computer hangs
+>   I pull the cable
+>   computer continues booting, just without firewire disk
+> 
+> It's an Athlon mainboard with VIA chipset.
 
-Nifty, that works perfectly.  Thanks.
+Is firewire built-in to the kernel? I haven't seen any of these problems
+_at all_, but I use modules. I have a 250gig firewire disk that is used
+for nightly backups for 5 systems via rsync and ssh, and it never shows
+any problems.
 
-Pat
 -- 
-Purdue University ITAP/RCS        ---  http://www.itap.purdue.edu/rcs/
-The Computer Refuge               ---  http://computer-refuge.org
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

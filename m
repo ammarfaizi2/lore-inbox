@@ -1,94 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267426AbSLLGQg>; Thu, 12 Dec 2002 01:16:36 -0500
+	id <S264859AbSLLGcs>; Thu, 12 Dec 2002 01:32:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267435AbSLLGQg>; Thu, 12 Dec 2002 01:16:36 -0500
-Received: from mx13.sac.fedex.com ([199.81.197.53]:34320 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267434AbSLLGQe>; Thu, 12 Dec 2002 01:16:34 -0500
-Date: Thu, 12 Dec 2002 14:22:02 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51 ide module problem (fwd)
-Message-ID: <Pine.LNX.4.50.0212121419410.15261-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/12/2002
- 02:23:56 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/12/2002
- 02:24:20 PM,
-	Serialize complete at 12/12/2002 02:24:20 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267425AbSLLGcs>; Thu, 12 Dec 2002 01:32:48 -0500
+Received: from mail47-s.fg.online.no ([148.122.161.47]:36770 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP
+	id <S264859AbSLLGcq>; Thu, 12 Dec 2002 01:32:46 -0500
+Date: Thu, 12 Dec 2002 07:40:28 +0100 (MET)
+Message-Id: <200212120640.HAA02320@mail47.fg.online.no>
+From: Michael <soppscum@online.no>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.51 bttv oops.
+Organization: na
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I added the 20_tda9887-2.5.50.diff patch to be able to compile it.
+Then when I boot it tries to modprobe bttv automatically, it zombies, I press alt+sysrq+k and I get the oops.
+For some reason I have no /proc/ksyms in 2.5.51, so I don't know if this is useful at all.
 
-Rusty,
-
-Any chance that module-init-tools-0.9.3 can be modified to stop looping
-when it detected it has repeated scanning the same module again?
-
-I'm still having problem loading ide as a module under 2.5.51
+Thanks.
 
 
+lsmod output :
+bttv                   78516  0
+video_buf              10324  1 bttv [permanent]
+i2c_algo_bit            7462  2 bttv [unsafe]
+i2c_core               15345  2 bttv i2c_algo_bit
+v4l2_common             2656  1 bttv [permanent]
+videodev                3455  1 bttv
+emu10k1                49952  0
+soundcore               3926  2 bttv emu10k1
+ac97_codec              9704  1 emu10k1 [permanent]
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+ksymoops :
+ksymoops 2.4.8 on i586 2.5.51.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.51/ (default)
+     -m /usr/src/linux/System.map (default)
 
----------- Forwarded message ----------
-Date: Wed, 11 Dec 2002 15:07:33 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-To: Adam J. Richter <adam@yggdrasil.com>
-Cc: jchua@fedex.com,  <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51 ide module problem
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-On Tue, 10 Dec 2002, Adam J. Richter wrote:
-
-> >depmod will ecounter "Segmentation fault" if the ide.ko and ide-io.ps
-> >modules are in /lib/modules/2.5.51/kernel
->
-> 	I think the new depmod recurses infinitely when it encounters
-> circular dependencies.  It eventually segfaults and leaves a huge
-> modules.dep file from the infinite loop.  If you look at the final
-> huge line in that file, you can see where the loop occurred.
->
-> 	depmod has no need to do any recursion, since it only needs
-> to determine the immediate dependencies of each module.  However,
-> noticing such loops and printing them out would be a handy feature.
->
-> 	I use IDE as a module, but I had to change the Makefile to
-> build a big ide-mod.o from most of the core objects rather than
-> allowing each one to be its own module.  I believe I posted IDE
-> modularization patches at least once a couple of months ago, but it
-> seems to have fallen between the cracks.  I could repost it if need
-> be
-
-Yes, please, send me your patch. I hope this patch works for
-module-init-tools-0.9.3
-
->, although I have not yet booted 2.5.51.
-
-I had same problem with pre 2.5.51. With 2.5.51, kernel now boot and I'm
-able to get login prompt using ramdisk. Only catch is I've to specify
-root=/dev/ram0 instead of /dev/ram for it to boot.
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c0124709
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c0124709>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: e7ffe800   ebx: e7360000   ecx: 00000000   edx: e77ba080
+esi: 00000000   edi: 00000000   ebp: e7361f80   esp: e7361f74
+ds: 0068   es: 0068   ss: 0068
+Stack: e7360000 e77ba080 00000000 e7361fb0 c0124593 00000000 00000000 00000000 
+       00000000 00000000 00000000 c027b180 e7360000 e77ba080 00000000 e7361fc0 
+       c0124027 c0124160 e8915d9d e7361fec c01241b3 c027f5e0 e7361fd4 c027f6e0 
+Call Trace: [<c0124593>]  [<c0124027>]  [<c0124160>]  [<e8915d9d>]  [<c01241b3>]
+  [<e8915d9d>]  [<c0124160>]  [<c01072d9>]  [<e8915d9d>] 
+Code: ff 4e 00 0f 94 c0 84 c0 75 0d 8d 65 f4 5b 5e 5f c9 c3 90 8d 
 
 
-Thanks,
-Jeff.
+>>EIP; c0124709 <put_namespace+9/71>   <=====
 
->
-> 	Also note that I have not used the in kernel-based module
-> loader recently, as I have been patching my kernels to use the user
-> level module code.  I am planning to try the kernel-base module loader
-> in 2.5.51 once I fix other problems it has finding the root device
-> under devfs.  So, it's remotely possible that you may also see module
-> problems that I've missed.
->
-> Adam J. Richter     __     ______________   575 Oroville Road
-> adam@yggdrasil.com     \ /                  Milpitas, California 95035
-> +1 408 309-6081         | g g d r a s i l   United States of America
->                          "Free Software For The Rest Of Us."
->
+Trace; c0124593 <use_init_fs_context+33/1a0>
+Trace; c0124027 <exec_usermodehelper+27/160>
+Trace; c0124160 <exec_modprobe+0/a0>
+Trace; e8915d9d <END_OF_CODE+2862f969/????>
+Trace; c01241b3 <exec_modprobe+53/a0>
+Trace; e8915d9d <END_OF_CODE+2862f969/????>
+Trace; c0124160 <exec_modprobe+0/a0>
+Trace; c01072d9 <kernel_thread_helper+5/c>
+Trace; e8915d9d <END_OF_CODE+2862f969/????>
+
+Code;  c0124709 <put_namespace+9/71>
+00000000 <_EIP>:
+Code;  c0124709 <put_namespace+9/71>   <=====
+   0:   ff 4e 00                  decl   0x0(%esi)   <=====
+Code;  c012470c <put_namespace+c/71>
+   3:   0f 94 c0                  sete   %al
+Code;  c012470f <put_namespace+f/71>
+   6:   84 c0                     test   %al,%al
+Code;  c0124711 <put_namespace+11/71>
+   8:   75 0d                     jne    17 <_EIP+0x17>
+Code;  c0124713 <put_namespace+13/71>
+   a:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
+Code;  c0124716 <put_namespace+16/71>
+   d:   5b                        pop    %ebx
+Code;  c0124717 <put_namespace+17/71>
+   e:   5e                        pop    %esi
+Code;  c0124718 <put_namespace+18/71>
+   f:   5f                        pop    %edi
+Code;  c0124719 <put_namespace+19/71>
+  10:   c9                        leave  
+Code;  c012471a <put_namespace+1a/71>
+  11:   c3                        ret    
+Code;  c012471b <put_namespace+1b/71>
+  12:   90                        nop    
+Code;  c012471c <put_namespace+1c/71>
+  13:   8d 00                     lea    (%eax),%eax
+
+
+1 warning and 1 error issued.  Results may not be reliable.

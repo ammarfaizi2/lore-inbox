@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130209AbRBZPlv>; Mon, 26 Feb 2001 10:41:51 -0500
+	id <S130243AbRBZPwE>; Mon, 26 Feb 2001 10:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130237AbRBZPll>; Mon, 26 Feb 2001 10:41:41 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:46854 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S130209AbRBZPl0>; Mon, 26 Feb 2001 10:41:26 -0500
-Date: Mon, 26 Feb 2001 16:37:49 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Chris Mason <mason@suse.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Nick Pasich <npasich@crash.cts.com>, reiserfs-list@namesys.com
-Subject: Re: [PATCH] Re: reiserfs: still problems with tail conversion
-Message-ID: <20010226163749.D12809@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010225183201.D866@arthur.ubicom.tudelft.nl> <1136530000.983155244@tiny> <20010226120704.A12809@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
+	id <S130245AbRBZPvz>; Mon, 26 Feb 2001 10:51:55 -0500
+Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:24525 "EHLO
+	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
+	id <S130243AbRBZPvk>; Mon, 26 Feb 2001 10:51:40 -0500
+Message-ID: <3A9A7B89.CA1A7D97@bigfoot.com>
+Date: Mon, 26 Feb 2001 07:51:37 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre8+IDE i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "clock timer configuration lost" error?
+In-Reply-To: <E14XP60-0001KO-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010226120704.A12809@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Mon, Feb 26, 2001 at 12:07:04PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 26, 2001 at 12:07:04PM +0100, Erik Mouw wrote:
-> On Sun, Feb 25, 2001 at 09:40:44PM -0500, Chris Mason wrote:
-> > Any testing on non-production machines would be appreciated,
-> > I'll forward to Linus/Alan once I've gotten more feedback.
+Interesting.  This is a KA7 with all power management turned off in the
+latest Abit BIOS.
+
+> The kernel puts the timer back and life appears happy again
+
+Ahhh.  The kernel *is* god.
+
+
+Alan Cox wrote:
 > 
-> Yes, this did the trick, I can't repeat it anymore after a first run.
-> I'll let my code run for a couple of times to stress the system, but at
-> first glance the bug seems to be fixed.
+> > Feb 26 00:19:52 abit kernel: probable hardware bug: clock timer
+> > configuration lost - probably a VIA686a.
+> > Feb 26 00:19:52 abit kernel: probable hardware bug: restoring chip
+> > configuration.
+> > Feb 26 00:26:53 abit xntpd[886]: synchronized to 132.239.254.5,
+> > stratum=2
+> > ...
+> 
+> Small number of VIA 686 boxes randomly jump from 100Hz back to the DOS 18Hz
+> timeout. We dont know if its hardware or maybe APM bios bugs. The kernel puts
+> the timer back and life appears happy again
 
-It has been running for quite some time in the background, and I can't
-reproduce the bug.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+--

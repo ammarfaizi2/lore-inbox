@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUHOLCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUHOLUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbUHOLCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 07:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUHOLCZ
+	id S266619AbUHOLUl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 07:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUHOLUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 07:02:25 -0400
-Received: from server133-han.de-nserver.de ([81.3.17.173]:47237 "EHLO
-	server133-han.de-nserver.de") by vger.kernel.org with ESMTP
-	id S266585AbUHOLCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 07:02:19 -0400
-Date: Sun, 15 Aug 2004 12:57:07 +0200
-From: markus reichelt <mr@lists.notified.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: usb mouse completely ignored by 2.6.8.1
-Message-ID: <20040815105707.GA2359@lists.notified.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <411E40F2.6000000@yahoo.co.jp> <411E4D15.9080708@yahoo.co.jp> <411E5A88.5040402@yahoo.co.jp>
+	Sun, 15 Aug 2004 07:20:41 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20400 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266595AbUHOLI2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 07:08:28 -0400
+Date: Sun, 15 Aug 2004 13:06:25 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: George Georgalis <george@galis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.6.8.1 EIP is at velocity_netdev_event+0x16/0x50
+Message-ID: <20040815110625.GA2829@electric-eye.fr.zoreil.com>
+References: <20040815095814.GA32195@trot.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <411E5A88.5040402@yahoo.co.jp>
-Organization: still stuck in reorganization mode
-X-Request-PGP: http://lists.notified.de/pubkey.mr.lists.asc
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040815095814.GA32195@trot.local>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+George Georgalis <george@galis.org> :
+[...]
+> Unable to handle kernel NULL pointer dereference at virtual address 000000e4
+>  printing eip:
+> c03034d6
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT 
+> CPU:    0
+> EIP:    0060:[<c03034d6>]    Not tainted
+> EFLAGS: 00010282   (2.6.8.1) 
+> EIP is at velocity_netdev_event+0x16/0x50
+> eax: 00000000   ebx: c060b724   ecx: 00000000   edx: f7d7dd60
+> esi: f6d771e0   edi: 00000001   ebp: 0100007f   esp: f6ccdeb4
+> ds: 007b   es: 007b   ss: 0068
+> Process ifconfig (pid: 328, threadinfo=f6ccc000 task=f6ca80d0)
 
-Tetsuji Rai <badtrans666@yahoo.co.jp> wrote:
-> I solved this problem by myself.   I had been using a USB mouse and a PS/2
-> keyboard.   After I switched my mouse to PS/2 mode and disabled usb mouse
-> support in BIOS, then 2.6.8 accepts my keyboard input.   It's good for me,
-> but it will affect people having only usb keyboards and mice...
+You may apply on top of your 2.6.8.1 kernel:
+http://www.fr.zoreil.com/people/francois/misc/20040815-2.6.8-via-velocity-test.patch
 
-Exactly :(
+It will sync the via-velocity driver with the one in 2.6.8-rc4-mm1.
+It is supposed to fix this issue.
 
-I'm writing this on an asus m2400n and I can't get a plain usb mouse
-to work with 2.6.8.1. That sucks big time! So it's back to 2.6.8-rc3 for me. 
+Once the patch is applied, it will be interesting to know if CONFIG_SUPEND
+makes a difference or not.
 
-A fix to this would be greatly appreciated. And I really hope ppl
-will get it right again with the next stable release!  
+Please add netdev@oss.sgi.com to the Cc:
 
-
-- -- 
-Bastard Administrator in $hell
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBH0GDLMyTO8Kj/uQRAriJAJ93QNp5MR6Mx1KhTslbK56tbHt4BwCfal9W
-UVSUQpApL0JO7tBQInS8G7Q=
-=SMC0
------END PGP SIGNATURE-----
+--
+Ueimor

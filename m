@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271390AbRHTQbY>; Mon, 20 Aug 2001 12:31:24 -0400
+	id <S271332AbRHTQiN>; Mon, 20 Aug 2001 12:38:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271383AbRHTQbD>; Mon, 20 Aug 2001 12:31:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29705 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271376AbRHTQaw>; Mon, 20 Aug 2001 12:30:52 -0400
-Subject: Re: sound crashes in 2.4
-To: chrisp@newmail.net (Chris Pockele)
-Date: Mon, 20 Aug 2001 17:33:48 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Chris Pockele" at Aug 20, 2001 06:17:14 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271376AbRHTQiD>; Mon, 20 Aug 2001 12:38:03 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:55073 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271332AbRHTQht>; Mon, 20 Aug 2001 12:37:49 -0400
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+From: Robert Love <rml@tech9.net>
+To: Johan Adolfsson <johan.adolfsson@axis.com>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br
+In-Reply-To: <21a701c12963$bcb05b60$0a070d0a@axis.se>
+In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org>
+	<998193404.653.12.camel@phantasy> <3B80E01B.2C61FF8@evision-ventures.com> 
+	<21a701c12963$bcb05b60$0a070d0a@axis.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Yrzo-0006LI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.12.99+cvs.2001.08.19.07.08 (Preview Release)
+Date: 20 Aug 2001 12:36:52 -0400
+Message-Id: <998325471.2936.25.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have the same problems with an ALS007 card (in a 486 system).
-> The card is correctly recognized and set up by the PnP drivers.
+On 20 Aug 2001 12:34:48 +0200, Johan Adolfsson wrote:
+> And I think you are wrong, this patch is needed.
+> Keep up the good work Robert!
 
-Humm. 
+I will -- thank you for the words. :)
 
-> The time after which it crashes is variable, sometimes it crashes
-> immediately, sometimes it crashes after 5 minutes.
-> Sometimes, it also stalls a few times before finally crashing.
+> Where would you get the single seed from in an embedded head
+> less system if you don't have a hardware random generator,
+> no disk and don't seed it from the network interrupts?
 
-Ok that actually sounds more like a locking bug.
+exactly.  this thread has gone off on a tangent arguing the very merits
+of /dev/random itself.  obviously if you dislike the kernel's entropy
+gatherer, this patch won't sit well either.
 
-> Both 2.4.8 and 2.4.9 have this problem (these are the ones I tried).
-> Btw on 2.2.x i get DMA (output) timeout errors (and broken sound).
+the proper argument is, assuming that /dev/random is A Good Thing, is
+this patch useful?  since its configurable, its not forcing any policy.
+since it can be argued pretty strongly that more entropy is needed on a
+headless and/or diskless, I think some people need it.  personally, it
+boosts my self-esteem to have another source of entropy (my 3c905).  if
+you are worried of the threats net devices have to your entropy, by all
+means -- dont enable the config setting.
 
-Can you try one other thing.
+> I think the patch makes sense - let people have the config option.
 
-Edit drivers/pci/quirks.c
+hopefully we can get the patch merged, if for nothing else for 2.5.
 
-find 
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-int isa_dma_bridge_buggy;		/* Exported */
-
-and make it read
-
-int isa_dma_bridge_buggy = 1;
-
-recompile reboot and see if it helps

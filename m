@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbUBYB15 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUBYB15
+	id S262360AbUBYB3T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUBYB3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:27:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:10661 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262338AbUBYB1i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:27:38 -0500
-Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1077672147.2857.78.camel@cog.beaverton.ibm.com>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
-	 <20040224170645.392abcff.akpm@osdl.org>
-	 <1077672147.2857.78.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1077672445.2857.80.camel@cog.beaverton.ibm.com>
+	Tue, 24 Feb 2004 20:29:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4003 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262360AbUBYB2s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 20:28:48 -0500
+Date: Tue, 24 Feb 2004 17:28:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Ryan Arnold <rsa@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, boutcher@us.ibm.com,
+       Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: new driver (hvcs) review request and sysfs questions
+Message-ID: <20040225012845.GA3909@kroah.com>
+References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 24 Feb 2004 17:27:26 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-24 at 17:22, john stultz wrote:
-> On Tue, 2004-02-24 at 17:06, Andrew Morton wrote:
-> > john stultz <johnstul@us.ibm.com> wrote:
-> > >
-> > > 	Booting 2.6.3-mm3 on an x440 hangs the box during the SCSI probe after
-> > > the following:
-> > >  
-> > > scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> > >         <Adaptec aic7899 Ultra160 SCSI adapter>                 
-> > >         aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-> > >                                                                 
-> > > 
-> > > I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
-> > > there as well. 
-> > 
-> > Could you try reverting aic7xxx-deadlock-fix.patch?  Also, add
-> > initcall_debug to the boot command just so we know we aren't blaming the
-> > wrong thing.
+On Tue, Feb 24, 2004 at 06:00:26PM -0600, Ryan Arnold wrote:
+> An example of the vio bus's "devices" sysfs directory is shown below.
 > 
-> I was suspecting that patch, unfortunately reverting it doesn't seem to
-> help.
-> 
-> Here's the initcall_debug output:
-> 
-> ide-floppy driver 0.99.newide
-> calling initcall 0xc04d6821  
-> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
->         <Adaptec aic7899 Ultra160 SCSI adapter>                 
->         aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+> Pow5:/sys/bus/vio/devices # ls
+> .               l-lan@3000000c  l-lan@30000010       vty-server@30000004
+> ..              l-lan@3000000d  rtc@4001             vty@30000000
+> IBM,sp@4000     l-lan@3000000e  v-scsi@30000002
+> l-lan@3000000b  l-lan@3000000f  vty-server@30000003
 
-Sorry, sent that too quickly. 
+At first glance, why are you using text strings as part of your bus ids?
+Bus ids must be unique, so it looks like you can do this by just using
+the number after the '@' character, right?
 
-[jstultz@elm3b59 linux-2.6.3]$ grep c04d6821 System.map 
-c04d6821 t ahc_linux_init
+Then, within each device on the bus, you can give it a "name" or "type"
+if you want.  You can put the "l-lan", "rtc", "vty*" stuff there, and
+not encode it in the bus id (which is not where it belongs.)
 
-thanks
--john
+> P.S. who is maintainer of the char device tree?
 
+Do you mean /drivers/char?  Not really anyone directly.  Do you have
+some char drivers that need to get added there?  What type of drivers
+are they?
 
+thanks,
+
+greg k-h

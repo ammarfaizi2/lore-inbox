@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130565AbQLGOhT>; Thu, 7 Dec 2000 09:37:19 -0500
+	id <S130546AbQLGOh3>; Thu, 7 Dec 2000 09:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130549AbQLGOhJ>; Thu, 7 Dec 2000 09:37:09 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:50698 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130546AbQLGOg4>;
-	Thu, 7 Dec 2000 09:36:56 -0500
-Date: Thu, 7 Dec 2000 15:06:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: Daniel Walton <zwwe@opti.cgi.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Out of socket memory? (2.4.0-test11)
-Message-ID: <20001207150618.A25095@gruyere.muc.suse.de>
-In-Reply-To: <5.0.2.1.2.20001206223822.03997008@209.54.94.12>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.0.2.1.2.20001206223822.03997008@209.54.94.12>; from zwwe@opti.cgi.net on Wed, Dec 06, 2000 at 10:56:32PM -0600
+	id <S130634AbQLGOhU>; Thu, 7 Dec 2000 09:37:20 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.22]:31758 "EHLO
+	mailgate.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S130546AbQLGOhO>; Thu, 7 Dec 2000 09:37:14 -0500
+Date: Thu, 07 Dec 2000 07:06:20 -0700 (MST)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: Re: D-LINK DFE-530-TX
+In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.30.0012070705050.13857-100000@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 10:56:32PM -0600, Daniel Walton wrote:
-> 
-> Hello,
-> 
-> I've been having a problem with a high volume Linux web server.  This 
-> particular web server used to be a FreeBSD machine and I've been trying to 
-> successfully make the switch for some time now.  I've been trying the 2.4 
-> development kernels as they come out and I've been tweaking the /proc 
-> filesystem variables but so far nothing seems to have fixed the 
-> problem.  The problem is that I get "Out of socket memory" errors and the 
-> networking locks up.  Sometimes the server will go for weeks without 
+On Wed, 6 Dec 2000, Mike A. Harris wrote:
 
-You should probably first find out what and why is generating these messages.
-It isn't the kernel. When the web server is generating when a send blocks
-then it is badly broken.
+> Which ethernet module works with this card?  2.2.17 kernel
 
+Should be the rtl8139 driver.
 
--Andi
+Regards,
+Jim
+
+> ----------------------------------------------------------------------
+>       Mike A. Harris  -  Linux advocate  -  Open source advocate
+>           This message is copyright 2000, all rights reserved.
+>   Views expressed are my own, not necessarily shared by my employer.
+> ----------------------------------------------------------------------
+
+-- 
+James Bourne, Web Systems Administrator
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
